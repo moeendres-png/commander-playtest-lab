@@ -1462,6 +1462,16 @@ final class XmageNativeStateRestoration {
             }
             sortStrings(graveyard);
             seat.add("graveyard", graveyard);
+            // Each graveyard card's mana value, from the engine's own card
+            // object (a characteristic of the card, CR 202.3). Reported only
+            // when the graveyard is not empty.
+            JsonObject graveyardManaValues = new JsonObject();
+            for (Card card : player.getGraveyard().getCards(game)) {
+                graveyardManaValues.addProperty(card.getName(), card.getManaValue());
+            }
+            if (graveyardManaValues.size() > 0) {
+                seat.add("graveyard_mana_values", graveyardManaValues);
+            }
             JsonArray exile = new JsonArray();
             for (Card card : game.getExile().getCardsOwned(game, player.getId())) {
                 exile.add(card.getName());

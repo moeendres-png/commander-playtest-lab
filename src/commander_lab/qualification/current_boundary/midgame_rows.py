@@ -127,6 +127,21 @@ class TerminalCheck:
                 f"every {self.card_identity} on {self.principal}'s battlefield has an "
                 f"engine {trigger} triggered ability with a {effect}"
             )
+        if self.kind == "graveyard_mana_value":
+            return (
+                f"{self.card_identity} in {self.principal}'s graveyard has mana value {self.value}"
+            )
+        if self.kind == "frame_offers":
+            decision_class, count = self.value
+            return (
+                f"a scripted {decision_class} frame about {self.label!r} offered exactly "
+                f"{count} option(s)"
+            )
+        if self.kind == "selected_sequence":
+            return (
+                f"the scripted {self.value[0]} frames about {self.label!r} selected "
+                f"{list(self.value[1])} in that order"
+            )
         if self.kind == "token_count":
             return f"exactly {self.value} {self.card_identity} tokens are on {self.principal}'s battlefield"
         if self.kind == "life":
@@ -1006,6 +1021,34 @@ def check_terminal(
             and f"spend {str(check.value).lower()} mana" in str(frame.selected_label or "").lower()
             for frame in trace
         )
+    if check.kind == "frame_offers":
+        decision_class, count = check.value
+        return any(
+            frame.decision_class == decision_class
+            and frame.scripted
+            and str(check.label) in frame.prompt
+            and len(frame.offered_labels) == count
+            for frame in trace
+        )
+    if check.kind == "selected_sequence":
+        decision_class, keys = check.value
+        selected = [
+            frame.selected_key
+            for frame in trace
+            if frame.decision_class == decision_class
+            and frame.scripted
+            and str(check.label) in frame.prompt
+        ]
+        return bool(selected) and selected == list(keys)
+    if check.kind == "graveyard_mana_value":
+        values = seat.get("graveyard_mana_values") or {}
+        value = values.get(check.card_identity)
+        return (
+            check.card_identity in (seat.get("graveyard") or ())
+            and isinstance(value, int)
+            and not isinstance(value, bool)
+            and value == check.value
+        )
     if check.kind == "hand_count_min":
         count = seat.get("hand_count")
         return isinstance(count, int) and count >= check.value
@@ -1264,6 +1307,51 @@ def _pending_cost_choices(step: dict[str, Any]) -> list[tuple[str, str]]:
 _COLOR_NAMES = {"W": "white", "U": "blue", "B": "black", "R": "red", "G": "green"}
 
 
+def _pending_delve(step: dict[str, Any], placed: dict[str, str]) -> list[str]:
+    """The native graveyard objects a scripted cast names to delve, in order."""
+    value = (step.get("selection") or {}).get("semantic_value") or {}
+    wanted = [str(item) for item in value.get("delve_objects") or ()]
+    natives = [placed.get(item) for item in wanted]
+    if any(native is None for native in natives):
+        raise ml.MidgameLaneError(f"a delve object of {wanted} was not placed")
+    return [str(native) for native in natives]
+
+
+def _delve_offer(legal: dict[str, Any]) -> dict[str, Any]:
+    """The engine's own delve special action on its payment frame, or fail closed."""
+    matches = [
+        action for action in legal.get("actions") or () if "delve" in _label_of(action).lower()
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(f"delve matched {len(matches)} engine payment offers")
+    offer: dict[str, Any] = matches[0]
+    return offer
+
+
+def _delve_card_answer(legal: dict[str, Any], native: str) -> dict[str, Any]:
+    """The engine's offer of the exact graveyard card the record delves next.
+
+    The card is named by the engine's own object identity; a frame that does
+    not offer it exactly once, or that is not the delve source's own
+    graveyard choice, fails closed.
+    """
+    matches = []
+    for action in legal.get("actions") or ():
+        metadata = action.get("metadata") or {}
+        engine = metadata.get("xmage_option_metadata") or {}
+        source = metadata.get("source_object") or {}
+        if (
+            engine.get("object_id") == native
+            and engine.get("zone") == "graveyard"
+            and source.get("ability_type") == "special_mana_payment"
+        ):
+            matches.append(action)
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(f"the delve card {native} matched {len(matches)} engine offers")
+    card: dict[str, Any] = matches[0]
+    return card
+
+
 def _cost_choice_answer(
     legal: dict[str, Any], kind: str, wanted: str, placed: dict[str, str]
 ) -> dict[str, Any]:
@@ -1344,6 +1432,91 @@ def _single_option_id(action: dict[str, Any]) -> tuple[str, ...]:
     return (option_id,) if option_id else ()
 
 
+LIBRARY_POSITION_PREFIX = "library-position:"
+
+
+def library_positions(record: dict[str, Any], placed: dict[str, str]) -> dict[str, str]:
+    """The record's library objects, keyed for ``_semantic_offers``.
+
+    Each library object the restoration did not report a native id for is
+    named by its checkpoint position and card identity. Valid while the
+    library is unchanged since the checkpoint; a moved card no longer matches
+    its position and identity, and the selection fails closed.
+    """
+    keyed: dict[str, str] = {}
+    for obj in record.get("semantic_objects") or ():
+        semantic = str(obj.get("semantic_id") or "")
+        position = obj.get("zone_position")
+        if (
+            obj.get("zone") != "library"
+            or semantic in placed
+            or not isinstance(position, int)
+            or isinstance(position, bool)
+        ):
+            continue
+        keyed[semantic] = f"{LIBRARY_POSITION_PREFIX}{position}:{obj.get('card_identity')}"
+    return keyed
+
+
+def _library_changed(tape: list[dict[str, Any]]) -> bool:
+    """Whether any library has changed since the checkpoint, per the engine's tape."""
+    return any(
+        event.get("from") == "LIBRARY"
+        or event.get("to") == "LIBRARY"
+        or "SHUFFLE" in str(event.get("type") or "")
+        for event in tape
+    )
+
+
+def _bind_library_objects(
+    legal: dict[str, Any], unresolved: dict[str, str], tape: list[dict[str, Any]]
+) -> dict[str, str]:
+    """Bind library objects to the engine's own object ids at first sight.
+
+    The first frame that offers library cards, while the engine's tape shows
+    no library change since the checkpoint, still shows the checkpoint
+    positions: each requested object offered exactly once at its position with
+    its identity is bound to that offer's engine object id, which then names it
+    for the rest of the row however the library moves. After any library
+    change nothing is bound, and an unbound object's selection fails closed.
+    """
+    offers = [
+        meta
+        for action in legal.get("actions") or ()
+        if (meta := ((action.get("metadata") or {}).get("xmage_option_metadata") or {})).get("zone")
+        == "library"
+    ]
+    if not offers or _library_changed(tape):
+        return {}
+    bound: dict[str, str] = {}
+    for semantic, key in unresolved.items():
+        position, name = _library_position(key)
+        hits = [
+            meta
+            for meta in offers
+            if meta.get("zone_index") == position and meta.get("name") == name
+        ]
+        if len(hits) == 1 and hits[0].get("object_id"):
+            bound[semantic] = str(hits[0]["object_id"])
+    return bound
+
+
+def _next_frame_continues(client: Any, decision_class: str, principal: str | None) -> bool:
+    """Whether the engine's next pending decision is the same class for the same principal."""
+    decision = client.pending_decision(attempts=5)
+    if decision is None:
+        return False
+    if str(decision.get("decision_class")) != decision_class:
+        return False
+    legal = probe_module().legal_actions(client)
+    return bool(probe_module().decision_principal(decision, legal) == principal)
+
+
+def _library_position(key: str) -> tuple[int, str]:
+    position, _, name = key[len(LIBRARY_POSITION_PREFIX) :].partition(":")
+    return int(position), name
+
+
 def _semantic_offers(
     key: str, actions: list[dict[str, Any]], placed: dict[str, str]
 ) -> list[dict[str, Any]]:
@@ -1356,6 +1529,21 @@ def _semantic_offers(
     or ordering: only the engine's offered option metadata is read.
     """
     native = placed.get(key)
+    if native is not None and native.startswith(LIBRARY_POSITION_PREFIX):
+        # A library object: the lane reports no hidden object's native id, so it
+        # is named by the record's checkpoint position and identity, both of
+        # which the engine's own offer to the looking player carries.
+        position, name = _library_position(native)
+        return [
+            action
+            for action in actions
+            if (meta := ((action.get("metadata") or {}).get("xmage_option_metadata") or {})).get(
+                "zone"
+            )
+            == "library"
+            and meta.get("zone_index") == position
+            and meta.get("name") == name
+        ]
     if native is not None:
         return [
             action
@@ -1544,6 +1732,16 @@ def _scripted_answer(
         if not isinstance(value, list) or ordinal >= len(value):
             raise ml.MidgameLaneError(f"order selector has no entry {ordinal} in {value!r}")
         key = str(value[ordinal])
+        if not key.startswith("trigger:"):
+            # An ordered set of objects (cards put on the bottom of a library in
+            # a chosen order): the ordinal-th frame names the ordinal-th object
+            # by its engine identity.
+            matches = _semantic_offers(key, actions, placed)
+            if len(matches) != 1:
+                raise ml.MidgameLaneError(
+                    f"the ordered object {key!r} matched {len(matches)} engine offers"
+                )
+            return ScriptedAnswer(matches[0], key=key)
         # ``trigger:<source>`` names a source's ability; ``trigger:<source>|<text>``
         # also names a fragment of the ability's own rules text, for a source
         # with several triggered abilities.
@@ -1717,6 +1915,7 @@ def execute_row(
             fixture_id, False, None, "the obligation names no required event and no terminal check"
         )
     placed = {str(k): str(v) for k, v in (created.get("placed_objects") or {}).items()}
+    placed.update(library_positions(record, placed))
     commanders = {str(k): str(v) for k, v in (created.get("commander_objects") or {}).items()}
     semantic_commanders = {
         str(o["semantic_id"]) for o in record.get("semantic_objects") or () if o.get("commander_id")
@@ -1759,10 +1958,17 @@ def execute_row(
     ordinal = 0
     declaring = False
     placed_by_native = {native: semantic for semantic, native in placed.items()}
+    unresolved_library = {
+        semantic: native
+        for semantic, native in placed.items()
+        if native.startswith(LIBRARY_POSITION_PREFIX)
+    }
     refusals: list[dict[str, Any]] = []
     bindings = dict(spec.token_bindings)
     pending_alternative: str | None = None
     pending_costs: list[tuple[str, str]] = []
+    pending_delve: list[str] = []
+    delving = False
 
     def token_evidence(
         token: str, tape: list[dict[str, Any]], observation: dict[str, Any] | None
@@ -1831,6 +2037,12 @@ def execute_row(
                 context=dict(decision.get("context") or {}),
             )
             trace.append(frame)
+            if unresolved_library:
+                bound = _bind_library_objects(legal, unresolved_library, tape)
+                for semantic, native in bound.items():
+                    placed[semantic] = native
+                    placed_by_native[native] = semantic
+                    unresolved_library.pop(semantic)
             step = script[position] if position < len(script) else None
             if declaring and decision_class != "declare_attacker":
                 # The attack declarations are complete: the assignment step is done.
@@ -1884,6 +2096,7 @@ def execute_row(
                     probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                     pending_alternative = _pending_alternative_cost(step, action)
                     pending_costs = _pending_cost_choices(step)
+                    pending_delve = _pending_delve(step, placed)
                     position += 1
                     continue
                 passed = probe.option_of_type(decision, "pass_priority")
@@ -1911,6 +2124,40 @@ def execute_row(
                 frame.selected_option_ids = _single_option_id(action)
                 probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                 pending_alternative = None
+                continue
+            if (
+                decision_class == "mana_payment"
+                and pending_delve
+                and not delving
+                and _mana_offer(legal, sources) is None
+            ):
+                # The record's cast names the graveyard cards it delves. XMage
+                # offers delve as its own special action on the payment frame,
+                # then asks for one graveyard card per activation. The declared
+                # mana sources pay first: once delve has been activated, XMage
+                # no longer offers the other mana abilities on that payment.
+                delve_offer = _delve_offer(legal)
+                frame.selected_label, frame.scripted = _label_of(delve_offer), True
+                frame.selected_key = "delve"
+                frame.selected_option_ids = _single_option_id(delve_offer)
+                probe.submit_proposal(
+                    client, legal, delve_offer, f"{fixture_id}-delve-{len(trace)}"
+                )
+                delving = True
+                continue
+            if delving:
+                if decision_class != "choose_object":
+                    raise ml.MidgameLaneError(
+                        f"delve was activated but the engine asked {decision_class}, "
+                        "not the graveyard card"
+                    )
+                action = _delve_card_answer(legal, pending_delve[0])
+                frame.selected_label, frame.scripted = _label_of(action), True
+                frame.selected_key = f"delve:{placed_by_native.get(pending_delve[0])}"
+                frame.selected_option_ids = _single_option_id(action)
+                probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
+                pending_delve = pending_delve[1:]
+                delving = False
                 continue
             if decision_class == "mana_payment":
                 offer = _mana_offer(legal, sources)
@@ -1957,6 +2204,18 @@ def execute_row(
                 ):
                     # More than one ability is still to be ordered: the engine
                     # asks again, and the last one goes on the stack by itself.
+                    ordinal += 1
+                    continue
+                if (
+                    selector_kind == "order"
+                    and isinstance(entries, list)
+                    and ordinal + 1 < len(entries)
+                    and not str(entries[ordinal + 1]).startswith("trigger:")
+                    and _next_frame_continues(client, decision_class, principal)
+                ):
+                    # An ordered object set: the engine asks once per object it
+                    # still needs placed; a last object it places by itself
+                    # ends the step.
                     ordinal += 1
                     continue
                 if selector_kind == "amount_assignment":

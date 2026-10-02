@@ -68,7 +68,7 @@ CARD_SCRIPT_ERRATA_IDS = [
 ]
 # Rows whose 1.0.12 lossless-library overlay travels inside a later
 # decision-script erratum (they keep their place in the patch order).
-CARRIED_LIBRARY_ERRATA_IDS = ["CARD_09", "CARD_15", "CARD_27"]
+CARRIED_LIBRARY_ERRATA_IDS = ["CARD_09", "CARD_15", "CARD_27", "CARD_12"]
 CARD_ERRATA_IDS = [*CARD_LIBRARY_ERRATA_IDS, *CARD_SCRIPT_ERRATA_IDS]
 # The later SLOT-04 event-scenario errata (1.0.15): a scry and a pile split.
 LATE_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_10", "HIDDEN_13"]

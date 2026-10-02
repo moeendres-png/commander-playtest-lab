@@ -863,6 +863,92 @@ PLANS: dict[str, ObligationPlan] = {
             ),
         ),
     ),
+    # Dig Through Time with delve: the six exiles, the two mana spends, the look
+    # at seven, two cards to hand and five to the bottom are engine events and
+    # the engine's own frames; the bottom order is the record's order on the
+    # engine's one-card-per-frame order choice (the last card goes by itself).
+    # The mana value is the engine's own characteristic of the delved card.
+    "CARD_12": ObligationPlan(
+        fixture_id="CARD_12",
+        proofs=(
+            PostconditionProof(
+                "Exactly two looked-at cards are in hand and five are bottomed in chosen order.",
+                terminal_check=_events(
+                    "ZONE_CHANGE",
+                    ("from", "LIBRARY"),
+                    ("to", "HAND"),
+                    ("player_player", "P1"),
+                    count=2,
+                ),
+                also=(
+                    _events(
+                        "ZONE_CHANGE",
+                        ("from", "LIBRARY"),
+                        ("to", "LIBRARY"),
+                        ("player_player", "P1"),
+                        count=5,
+                    ),
+                    midgame_rows_mod.TerminalCheck(
+                        "selected_sequence",
+                        value=(
+                            "choose_object",
+                            (
+                                "obj:card12-lib3",
+                                "obj:card12-lib4",
+                                "obj:card12-lib5",
+                                "obj:card12-lib6",
+                            ),
+                        ),
+                        label="to put on the BOTTOM of your library",
+                    ),
+                ),
+            ),
+            PostconditionProof(
+                "Dig Through Time mana value remains 8.",
+                terminal_check=_permanent("graveyard_mana_value", "P1", "Dig Through Time", 8),
+                also=(_events("SPELL_CAST", ("source_object", "obj:card_12-subject"), count=1),),
+            ),
+        ),
+        token_bindings=(
+            (
+                "delve_exile:6",
+                _events(
+                    "ZONE_CHANGE",
+                    ("from", "GRAVEYARD"),
+                    ("to", "EXILED"),
+                    ("player_player", "P1"),
+                    count=6,
+                ),
+            ),
+            ("mana_paid:UU", midgame_rows_mod.VocabularyToken("mana_paid:2")),
+            (
+                "look_top:7",
+                midgame_rows_mod.TerminalCheck(
+                    "frame_offers", value=("target", 7), label="to put into your hand"
+                ),
+            ),
+            (
+                "put_hand:2",
+                _events(
+                    "ZONE_CHANGE",
+                    ("from", "LIBRARY"),
+                    ("to", "HAND"),
+                    ("player_player", "P1"),
+                    count=2,
+                ),
+            ),
+            (
+                "put_bottom:5",
+                _events(
+                    "ZONE_CHANGE",
+                    ("from", "LIBRARY"),
+                    ("to", "LIBRARY"),
+                    ("player_player", "P1"),
+                    count=5,
+                ),
+            ),
+        ),
+    ),
     # Harmonic Prodigy makes Talrand's cast trigger trigger an additional time:
     # the engine reports exactly two Talrand trigger instances for the one Bolt.
     "CARD_06": ObligationPlan(

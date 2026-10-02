@@ -623,3 +623,131 @@ def test_a_token_count_counts_only_engine_tokens_of_the_identity() -> None:
     card = _p1(_devil(), _devil(), _devil(token=None))
     assert not mr.check_terminal(_state("token_count", "Devil Token", 3), card, [], [])
     assert not mr.check_terminal(_state("token_count", "Devil Token", 0), {"seats": []}, [], [])
+
+
+# --------------------------------------------------------------------------- #
+# Delve, library objects and ordered object sets (CARD_12)
+# --------------------------------------------------------------------------- #
+
+
+def _graveyard_card(native: str, ability_type: str = "special_mana_payment") -> dict[str, Any]:
+    offer = _offer("Mountain", "choice", object_id=native, name="Mountain", zone="graveyard")
+    offer["metadata"]["source_object"] = {"ability_type": ability_type}
+    return offer
+
+
+def test_delve_answers_the_exact_graveyard_card_the_record_names() -> None:
+    legal = {"actions": [_graveyard_card("gy-0"), _graveyard_card("gy-1")]}
+    assert mr._delve_card_answer(legal, "gy-1") is legal["actions"][1]
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._delve_card_answer(legal, "gy-9")
+    # Wrong reason: the same object offered by a frame that is not the delve
+    # source's own payment choice.
+    other = {"actions": [_graveyard_card("gy-1", ability_type="activated")]}
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._delve_card_answer(other, "gy-1")
+    delve = _offer("Dig Through Time — Exile a card from your graveyard: Delve", "special")
+    assert mr._delve_offer({"actions": [_offer("Island — {T}: Add {U}.", "mana"), delve]}) is delve
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._delve_offer({"actions": [_offer("Island — {T}: Add {U}.", "mana")]})
+
+
+def _library_card(native: str, index: int, name: str = "Mountain") -> dict[str, Any]:
+    return _offer(name, "target", object_id=native, name=name, zone="library", zone_index=index)
+
+
+LIBRARY_RECORD = {
+    "semantic_objects": [
+        {
+            "semantic_id": "obj:lib1",
+            "zone": "library",
+            "zone_position": 0,
+            "card_identity": "Mountain",
+        },
+        {
+            "semantic_id": "obj:lib2",
+            "zone": "library",
+            "zone_position": 1,
+            "card_identity": "Mountain",
+        },
+        {"semantic_id": "obj:hand", "zone": "hand", "card_identity": "Island"},
+    ]
+}
+
+
+def test_library_objects_bind_to_engine_ids_at_first_sight_only_while_unchanged() -> None:
+    keyed = mr.library_positions(LIBRARY_RECORD, {})
+    assert set(keyed) == {"obj:lib1", "obj:lib2"}
+    legal = {"actions": [_library_card("n-a", 0), _library_card("n-b", 1)]}
+    assert mr._bind_library_objects(legal, keyed, []) == {"obj:lib1": "n-a", "obj:lib2": "n-b"}
+    # After any library change the positions are no longer checkpoint positions:
+    # nothing binds, and a later selection of the object fails closed.
+    moved = [{"type": "ZONE_CHANGE", "from": "LIBRARY", "to": "HAND"}]
+    assert mr._bind_library_objects(legal, keyed, moved) == {}
+    shuffled = [{"type": "LIBRARY_SHUFFLED"}]
+    assert mr._bind_library_objects(legal, keyed, shuffled) == {}
+    # A different card at the position never binds.
+    wrong = {"actions": [_library_card("n-a", 0, name="Island")]}
+    assert mr._bind_library_objects(wrong, keyed, []) == {}
+    # An object the restoration placed is never re-keyed by position.
+    assert mr.library_positions(LIBRARY_RECORD, {"obj:lib1": "placed"}) == {
+        "obj:lib2": keyed["obj:lib2"]
+    }
+
+
+def test_an_ordered_object_set_names_each_object_by_engine_identity() -> None:
+    step = {
+        "decision_family": "choose_object",
+        "selection": {"selector_kind": "order", "semantic_value": ["obj:a", "obj:b"]},
+    }
+    legal = {"actions": [_library_card("n-b", 0), _library_card("n-a", 1)]}
+    placed = {"obj:a": "n-a", "obj:b": "n-b"}
+    first = mr._scripted_answer(legal, step, placed, mr.RowSpec(), 0)
+    assert first.action is legal["actions"][1] and first.key == "obj:a"
+    second = mr._scripted_answer(legal, step, placed, mr.RowSpec(), 1)
+    assert second.action is legal["actions"][0] and second.key == "obj:b"
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer({"actions": [legal["actions"][0]]}, step, placed, mr.RowSpec(), 0)
+
+
+def _frame(decision_class: str, prompt: str, labels: int, key: str | None = None) -> mr.Frame:
+    return mr.Frame(
+        decision_class, "P1", ["Mountain"] * labels, scripted=True, selected_key=key, prompt=prompt
+    )
+
+
+def test_frame_evidence_checks_read_scripted_engine_frames() -> None:
+    look = mr.TerminalCheck("frame_offers", value=("target", 7), label="into your hand")
+    assert mr.check_terminal(look, {}, [], [_frame("target", "Select (to put into your hand)", 7)])
+    assert not mr.check_terminal(look, {}, [], [_frame("target", "Select (into your hand)", 6)])
+    unscripted = _frame("target", "into your hand", 7)
+    unscripted.scripted = False
+    assert not mr.check_terminal(look, {}, [], [unscripted])
+    order = mr.TerminalCheck(
+        "selected_sequence", value=("choose_object", ("obj:3", "obj:4")), label="BOTTOM"
+    )
+    in_order = [
+        _frame("choose_object", "BOTTOM", 2, "obj:3"),
+        _frame("choose_object", "BOTTOM", 1, "obj:4"),
+    ]
+    assert mr.check_terminal(order, {}, [], in_order)
+    assert not mr.check_terminal(order, {}, [], list(reversed(in_order)))
+    assert not mr.check_terminal(order, {}, [], in_order[:1])
+
+
+def test_a_graveyard_mana_value_is_the_engine_characteristic_of_a_card_present() -> None:
+    check = mr.TerminalCheck(
+        "graveyard_mana_value", principal="P1", card_identity="Dig Through Time", value=8
+    )
+    seat = {
+        "player_id": "P1",
+        "graveyard": ["Dig Through Time"],
+        "graveyard_mana_values": {"Dig Through Time": 8},
+    }
+    assert mr.check_terminal(check, {"seats": [seat]}, [], [])
+    assert not mr.check_terminal(
+        check, {"seats": [{**seat, "graveyard_mana_values": {"Dig Through Time": 2}}]}, [], []
+    )
+    # The value alone, without the card in the graveyard, proves nothing.
+    assert not mr.check_terminal(check, {"seats": [{**seat, "graveyard": []}]}, [], [])
+    assert not mr.check_terminal(check, {"seats": [{**seat, "graveyard_mana_values": {}}]}, [], [])
