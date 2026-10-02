@@ -10709,7 +10709,7 @@
       "checkpoint_hand": {
        "completeness": "COMPLETE",
        "template_card_identity": "Mountain",
-       "template_count": 8
+       "template_count": 7
       },
       "commander_ids": [
        "cmd:P1-A"
@@ -10969,7 +10969,7 @@
      "turn_number": 1
     }
    },
-   "successor_requested_state_digest": "983a9009fa30755912a999eb1a9063b4323c0434464f72af21b1028aa9312300"
+   "successor_requested_state_digest": "24c95853e7ec3e152c64d5d01835b51b90b75097daf4d66bdb2014915aaf17b6"
   }
  ],
  "rules_authority": {
