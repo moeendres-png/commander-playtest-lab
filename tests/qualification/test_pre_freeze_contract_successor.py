@@ -72,8 +72,9 @@ LATE_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_10", "HIDDEN_13"]
 # that outlives its source, and a cloaked permanent's ward as a hidden source
 # and a hidden ability.
 BATCH5_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_05", "HIDDEN_15", "HIDDEN_16"]
-# HIDDEN_11 (1.0.17): real ordered look followed by a native shuffle.
-BATCH6_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_11"]
+# Final XMage AF05 event rows in 1.0.17: shuffle invalidation, face-down
+# exile invalidation, and controlled-player authority.
+BATCH6_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_11", "HIDDEN_06", "HIDDEN_12"]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -1157,6 +1158,94 @@ def test_batch6_hidden11_adds_ordered_look_then_native_shuffle_without_changing_
         "obj:hidden11-lib-1",
         "obj:hidden11-lib-2",
     ]
+
+
+def test_batch6_hidden06_and_hidden12_add_native_invalidation_and_control_routes() -> None:
+    contract = _json(SUCCESSOR_PATH)
+    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    added = contract["record_successors"][len(predecessor["record_successors"]) :]
+    by_id = {patch["fixture_id"]: patch for patch in added}
+    assert list(by_id) == BATCH6_HIDDEN_EVENT_ERRATA_IDS
+
+    expected_digests = {
+        "HIDDEN_06": "6e76fe052384d35fde93725ac46e74b0f999e20d8fdfe5a19732a3d1d5225b00",
+        "HIDDEN_12": "983a9009fa30755912a999eb1a9063b4323c0434464f72af21b1028aa9312300",
+    }
+    expected_steps = {
+        "HIDDEN_06": [
+            "cast-gonti",
+            "gonti-target-opponent",
+            "gonti-exile-face-down",
+            "cast-exiled-card",
+        ],
+        "HIDDEN_12": ["activate-mindslaver", "mindslaver-target-p2"],
+    }
+    for fixture_id in ("HIDDEN_06", "HIDDEN_12"):
+        patch = by_id[fixture_id]
+        record = resolver.effective_record(fixture_id)
+        old = base[fixture_id]
+        assert old["decision_script"] == []
+        assert patch["correction_class"] == "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
+        assert patch["successor_requested_state_digest"] == expected_digests[fixture_id]
+        assert record["requested_state_digest"] == expected_digests[fixture_id]
+        assert record["obligation_digest"] == old["obligation_digest"]
+        assert record["expected_events"] == old["expected_events"]
+        assert record["terminal_postconditions"] == old["terminal_postconditions"]
+        assert record["knowledge_state"]["viewer_states"] == old["knowledge_state"]["viewer_states"]
+        assert record["repair_provenance"]["correction_class"] == (
+            "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
+        )
+        assert [step["causal_step_id"] for step in record["decision_script"]] == (
+            expected_steps[fixture_id]
+        )
+        for step in record["decision_script"]:
+            selection = step["selection"]
+            assert selection["matches_only_provider_offered_legal_options"] is True
+            assert selection["on_zero_match"] == selection["on_multiple_match"] == "FAIL_CLOSED"
+        p2 = next(deck for deck in record["deck_state"] if deck["player_id"] == "P2")
+        assert p2["checkpoint_library"]["completeness"] == "COMPLETE_TOP_TO_BOTTOM"
+
+    h06 = resolver.effective_record("HIDDEN_06")
+    h06_objects = {obj["semantic_id"]: obj for obj in h06["semantic_objects"]}
+    assert h06_objects["obj:hidden-hand"]["card_identity"] == "Memnite"
+    assert h06_objects["obj:hidden-hand"]["zone"] == "library"
+    assert h06_objects["obj:hidden-hand"]["zone_position"] == 0
+    assert h06_objects["obj:hidden06-gonti"]["card_identity"] == "Gonti, Lord of Luxury"
+    assert h06["knowledge_state"]["viewer_states"][0]["invalidation_conditions"] == [
+        "object changes zone or becomes a new object"
+    ]
+
+    h12 = resolver.effective_record("HIDDEN_12")
+    h12_objects = {obj["semantic_id"]: obj for obj in h12["semantic_objects"]}
+    assert h12_objects["obj:hidden12-mindslaver"]["card_identity"] == "Mindslaver"
+    assert h12_objects["obj:hidden12-p3-hand"]["owner"] == "P3"
+    assert h12_objects["obj:hidden12-p3-hand"]["zone"] == "hand"
+    assert h12["temporal_state"] == {
+        "active_player": "P1",
+        "extra_turn_queue": [],
+        "phase": "postcombat_main",
+        "priority_player": "P1",
+        "step": "main",
+        "turn_number": 1,
+    }
+    assert h12["knowledge_state"]["viewer_states"][0]["temporary_permissions"] == [
+        {
+            "controlled_player": "P2",
+            "controller": "P1",
+            "permission": "only information P1 is entitled to while making P2 decisions under rules",
+        }
+    ]
+    details = h12["native_procedure"][-1]["details"]
+    assert details["measurement_progression"] == (
+        "ENGINE_OFFERED_PASS_PRIORITY_ONLY_UNTIL_FIRST_ACTING_FOR_FRAME_THEN_SUBMIT_ITS_EXACT_PASS"
+    )
 
 
 def test_batch5_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -> None:
