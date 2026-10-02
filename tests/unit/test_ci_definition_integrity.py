@@ -4,8 +4,9 @@ import importlib.util
 import json
 import re
 import subprocess
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import pytest
 import yaml
@@ -269,9 +270,7 @@ def test_quality_trivial_success_fails(repository: tuple[Path, str]) -> None:
 
 
 @pytest.mark.parametrize("needle", ["pytest -q", "mypy src/commander_lab"])
-def test_quality_core_command_removed_fails(
-    repository: tuple[Path, str], needle: str
-) -> None:
+def test_quality_core_command_removed_fails(repository: tuple[Path, str], needle: str) -> None:
     repo, base = repository
 
     def edit(document: dict[Any, Any]) -> None:
@@ -471,7 +470,7 @@ def test_shadow_workflow_executes_trusted_base_only() -> None:
     inspect = next(step for step in steps if step.get("id") == "inspect")
     assert inspect["env"]["BASE_SHA"] == "${{ github.event.pull_request.base.sha }}"
     assert inspect["env"]["CANDIDATE_SHA"] == "${{ github.event.pull_request.head.sha }}"
-    assert "git fetch --no-tags --depth=1 origin \"$CANDIDATE_SHA\"" in inspect["run"]
+    assert 'git fetch --no-tags --depth=1 origin "$CANDIDATE_SHA"' in inspect["run"]
     assert "git checkout" not in inspect["run"]
     assert "git switch" not in inspect["run"]
 
@@ -556,3 +555,10 @@ def test_required_mutation_campaign_never_silently_passes(
         "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED",
         "UNKNOWN",
     }
+
+
+def test_chained_required_command_is_recognized_as_command_segment() -> None:
+    run = "mkdir -p artifacts/security && cyclonedx-py environment --output-format JSON"
+    assert guard._matching_command_is_enforcing(
+        run, guard.CATEGORY_PATTERNS["sbom"]
+    )
