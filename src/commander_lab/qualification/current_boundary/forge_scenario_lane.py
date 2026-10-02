@@ -2650,10 +2650,16 @@ def execute_and_persist(
     # other producers' receipts must survive this cleanup.
     for stale in out_dir.glob(f"{FORGE_SCENARIO_RECEIPT_PREFIX}*.json"):
         stale.unlink()
-    proc, runtime_identity = launch_forge_scenario(source)
     evidence: list[RowEvidence] = []
-    try:
-        for fixture_id in fixtures:
+    runtime_identities: dict[str, dict[str, Any]] = {}
+    for fixture_id in fixtures:
+        # Batch qualification is process-isolated: every fixture starts from a
+        # fresh Forge bridge process so mutable engine/session state can never
+        # carry into the next row. Source/build identity stays pinned by
+        # launch_forge_scenario and is persisted per fixture below.
+        proc, runtime_identity = launch_forge_scenario(source)
+        runtime_identities[fixture_id] = runtime_identity
+        try:
             model = model_requested_state(records[fixture_id])
             evidence.append(
                 probe_row(
@@ -2665,8 +2671,8 @@ def execute_and_persist(
                     max_steps=max_steps,
                 )
             )
-    finally:
-        proc.close()
+        finally:
+            proc.close()
     receipts_written: list[str] = []
     rows: list[dict[str, Any]] = []
     for item in evidence:
@@ -2720,7 +2726,8 @@ def execute_and_persist(
         "capability_matrix": matrix,
         "capability_matrix_sha256": receipt_mod.document_digest(matrix),
         "structural_census": structural,
-        "runtime_identity": runtime_identity,
+        "process_isolation": "FRESH_PROCESS_PER_FIXTURE",
+        "runtime_identities": runtime_identities,
         "rows_attempted": len(rows),
         "rows_observed": len(receipts_written),
         "receipts_written": receipts_written,

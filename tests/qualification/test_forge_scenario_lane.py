@@ -1135,13 +1135,23 @@ def test_execute_and_persist_writes_only_observed_receipts(monkeypatch, tmp_path
     monkeypatch.setattr(fsl, "bind_forge_scenario_source", lambda workspace: _source())
     monkeypatch.setattr(fsl, "derive_capability_matrix", lambda source, root: {"ok": True})
 
-    class _Proc:
-        def close(self) -> None:
-            pass
+    launched = []
 
-    monkeypatch.setattr(
-        fsl, "launch_forge_scenario", lambda source: (_Proc(), {"runtime": "synthetic"})
-    )
+    class _Proc:
+        def __init__(self, ordinal: int) -> None:
+            self.ordinal = ordinal
+            self.closed = False
+
+        def close(self) -> None:
+            assert self.closed is False
+            self.closed = True
+
+    def launch(_source):
+        proc = _Proc(len(launched))
+        launched.append(proc)
+        return proc, {"runtime": "synthetic", "process_ordinal": proc.ordinal}
+
+    monkeypatch.setattr(fsl, "launch_forge_scenario", launch)
 
     records = {
         "OBSERVED": {
@@ -1189,6 +1199,11 @@ def test_execute_and_persist_writes_only_observed_receipts(monkeypatch, tmp_path
     )
     assert document["rows_observed"] == 1
     assert document["receipts_written"] == ["OBSERVED"]
+    assert document["process_isolation"] == "FRESH_PROCESS_PER_FIXTURE"
+    assert set(document["runtime_identities"]) == set(records)
+    assert len(launched) == len(records)
+    assert all(proc.closed for proc in launched)
+    assert len({proc.ordinal for proc in launched}) == len(records)
     assert (tmp_path / f"{fsl.FORGE_SCENARIO_RECEIPT_PREFIX}OBSERVED.json").is_file()
     assert not (tmp_path / f"{fsl.FORGE_SCENARIO_RECEIPT_PREFIX}BLOCKED.json").exists()
     assert not stale.exists()
