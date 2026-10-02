@@ -227,8 +227,9 @@ def test_real_repository_current_tree_positive_control() -> None:
     head = git(ROOT, "rev-parse", "HEAD")
     report = guard.inspect_required_check_definitions(ROOT, head, head)
     assert report["overall_classification"] == "PASS", json.dumps(report, indent=2, sort_keys=True)
-    assert report["base"]["tree"] == git(ROOT, "rev-parse", "HEAD^{tree}")
-    assert report["candidate"]["tree"] == report["base"]["tree"]
+    assert report["trusted_validator"]["tree"] == git(ROOT, "rev-parse", "HEAD^{tree}")
+    assert report["comparison_base"]["tree"] == report["trusted_validator"]["tree"]
+    assert report["candidate"]["tree"] == report["trusted_validator"]["tree"]
 
 
 def test_harmless_unprotected_documentation_change_passes(
@@ -439,9 +440,14 @@ def test_source_bound_machine_report(repository: tuple[Path, str], tmp_path: Pat
         == 0
     )
     report = json.loads(output.read_text(encoding="utf-8"))
-    assert report["base"] == {
+    assert report["trusted_validator"] == {
         "sha": base,
         "tree": git(repo, "rev-parse", f"{base}^{{tree}}"),
+    }
+    assert report["comparison_base"] == {
+        "sha": base,
+        "tree": git(repo, "rev-parse", f"{base}^{{tree}}"),
+        "derivation": "explicit_single_base",
     }
     assert report["candidate"] == {
         "sha": head,
@@ -475,13 +481,18 @@ def test_shadow_workflow_executes_trusted_base_only() -> None:
     checkout = checkouts[0]
     assert checkout["with"]["ref"] == "${{ github.sha }}"
     assert checkout["with"]["persist-credentials"] is False
+    # Full history, so the validator can derive the trusted/candidate merge base.
+    assert checkout["with"]["fetch-depth"] == 0
 
     inspect = next(step for step in steps if step.get("id") == "inspect")
-    assert inspect["env"]["BASE_SHA"] == "${{ github.sha }}"
+    assert inspect["env"]["TRUSTED_SHA"] == "${{ github.sha }}"
+    assert "BASE_SHA" not in inspect["env"]
     assert inspect["env"]["BASE_REF"] == "${{ github.event.pull_request.base.ref }}"
     assert inspect["env"]["CANDIDATE_SHA"] == "${{ github.event.pull_request.head.sha }}"
     assert inspect["env"]["PR_NUMBER"] == "${{ github.event.pull_request.number }}"
-    assert 'git fetch --no-tags --depth=1 origin "refs/pull/$PR_NUMBER/head"' in inspect["run"]
+    assert 'git fetch --no-tags origin "refs/pull/$PR_NUMBER/head"' in inspect["run"]
+    assert '--trusted "$TRUSTED_SHA"' in inspect["run"]
+    assert "--base" not in inspect["run"]
     assert 'test "$BASE_REF" = "main"' in inspect["run"]
     assert 'test "$(git rev-parse FETCH_HEAD)" = "$CANDIDATE_SHA"' in inspect["run"]
     assert "github.event.pull_request.base.sha" not in WORKFLOW.read_text(encoding="utf-8")
@@ -666,3 +677,172 @@ def test_quality_control_surface_change_requires_review(
         item["path"] == path and item["impact"] == impact
         for item in report["changed_protected_surfaces"]
     )
+
+
+# --------------------------------------------------------------------------- #
+# Three identities: trusted validator source, comparison base, candidate
+# --------------------------------------------------------------------------- #
+
+
+def _commit(repo: Path, mutate: Callable[[Path], None], message: str) -> str:
+    mutate(repo)
+    git(repo, "add", "-A")
+    git(repo, "commit", "-qm", message)
+    return git(repo, "rev-parse", "HEAD")
+
+
+@pytest.fixture
+def stale_history(repository: tuple[Path, str]) -> dict[str, str]:
+    """A candidate that forked from main before main kept evolving.
+
+    fork -- candidate (docs only)
+       \
+        main1 (main tightens ci.yml) -- main2 (main docs) = trusted
+    """
+    repo, fork = repository
+    git(repo, "checkout", "-q", "-b", "candidate-branch")
+    candidate_sha = _commit(
+        repo, lambda root: write(root, "docs/candidate.md", "candidate\n"), "candidate docs"
+    )
+    git(repo, "checkout", "-q", "-")
+
+    def tighten(document: dict[Any, Any]) -> None:
+        document["jobs"]["quality"]["timeout-minutes"] = 29
+
+    _commit(
+        repo,
+        lambda root: mutate_yaml(root, ".github/workflows/ci.yml", tighten),
+        "main tightens ci",
+    )
+    trusted = _commit(
+        repo, lambda root: write(root, "docs/main-later.md", "main\n"), "main docs later"
+    )
+    return {"fork": fork, "candidate": candidate_sha, "trusted": trusted}
+
+
+def test_stale_candidate_is_measured_from_its_merge_base_not_current_main(
+    repository: tuple[Path, str], stale_history: dict[str, str]
+) -> None:
+    repo, _ = repository
+    report = guard.inspect_candidate(repo, stale_history["trusted"], stale_history["candidate"])
+    assert report["overall_classification"] == "PASS", report["reasons"]
+    assert report["trusted_validator"]["sha"] == stale_history["trusted"]
+    assert report["comparison_base"]["sha"] == stale_history["fork"]
+    assert report["comparison_base"]["derivation"] == "merge_base"
+    assert report["candidate"]["sha"] == stale_history["candidate"]
+    # Only the candidate's own change; main's later ci.yml change is not its.
+    assert report["changed_files"] == ["docs/candidate.md"]
+    assert report["candidate_code_executed"] is False
+
+
+def test_fail_before_current_main_as_comparison_base_misattributes_main_changes(
+    repository: tuple[Path, str], stale_history: dict[str, str]
+) -> None:
+    """The single-base diff against current main charges the candidate with
+    main's own later workflow change: the false positive the merge base removes."""
+    repo, _ = repository
+    report = guard.inspect_required_check_definitions(
+        repo, stale_history["trusted"], stale_history["candidate"]
+    )
+    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+    assert ".github/workflows/ci.yml" in report["changed_files"]
+
+
+def test_stale_candidate_changing_a_required_workflow_is_never_pass(
+    repository: tuple[Path, str], stale_history: dict[str, str]
+) -> None:
+    repo, _ = repository
+    git(repo, "checkout", "-q", stale_history["candidate"])
+
+    def trivialize(document: dict[Any, Any]) -> None:
+        document["jobs"]["quality"]["steps"] = [{"run": "echo PASS"}]
+
+    mutated = _commit(
+        repo,
+        lambda root: mutate_yaml(root, ".github/workflows/ci.yml", trivialize),
+        "trivialize quality",
+    )
+    git(repo, "checkout", "-q", stale_history["trusted"])
+    report = guard.inspect_candidate(repo, stale_history["trusted"], mutated)
+    assert report["overall_classification"] in {"FAIL", "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"}
+    assert report["comparison_base"]["sha"] == stale_history["fork"]
+
+
+def test_stale_candidate_replacing_the_validator_is_never_pass_nor_executed(
+    repository: tuple[Path, str], stale_history: dict[str, str]
+) -> None:
+    repo, _ = repository
+    git(repo, "checkout", "-q", stale_history["candidate"])
+    replaced = _commit(
+        repo,
+        lambda root: write(
+            root,
+            "scripts/verify_required_check_definitions.py",
+            "raise SystemExit('candidate validator executed')\n",
+        ),
+        "replace validator",
+    )
+    git(repo, "checkout", "-q", stale_history["trusted"])
+    before = git(repo, "status", "--porcelain")
+    report = guard.inspect_candidate(repo, stale_history["trusted"], replaced)
+    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+    assert (
+        "trusted_policy_changed:scripts/verify_required_check_definitions.py" in (report["reasons"])
+    )
+    assert report["candidate_code_executed"] is False
+    assert git(repo, "rev-parse", "HEAD") == stale_history["trusted"]
+    assert git(repo, "status", "--porcelain") == before
+
+
+def test_candidate_that_merged_main_is_measured_from_the_merged_main(
+    repository: tuple[Path, str], stale_history: dict[str, str]
+) -> None:
+    repo, _ = repository
+    git(repo, "checkout", "-q", stale_history["candidate"])
+    git(repo, "merge", "-q", "--no-edit", stale_history["trusted"])
+    merged = git(repo, "rev-parse", "HEAD")
+    git(repo, "checkout", "-q", stale_history["trusted"])
+    report = guard.inspect_candidate(repo, stale_history["trusted"], merged)
+    assert report["comparison_base"]["sha"] == stale_history["trusted"]
+    assert report["changed_files"] == ["docs/candidate.md"]
+    assert report["overall_classification"] == "PASS"
+
+
+def test_no_unique_comparison_base_fails_closed(repository: tuple[Path, str]) -> None:
+    repo, base = repository
+    git(repo, "checkout", "-q", "--orphan", "unrelated")
+    git(repo, "rm", "-rqf", ".")
+    unrelated = _commit(repo, lambda root: write(root, "README.md", "x\n"), "unrelated root")
+    git(repo, "checkout", "-q", "-f", base)
+    report = guard.inspect_candidate(repo, base, unrelated)
+    assert report["overall_classification"] == "UNKNOWN"
+    assert report["reasons"][0].startswith("comparison_base_")
+    assert report["candidate_code_executed"] is False
+
+
+def test_cli_three_identity_mode_writes_a_source_bound_report(
+    repository: tuple[Path, str], stale_history: dict[str, str], tmp_path: Path
+) -> None:
+    repo, _ = repository
+    output = tmp_path / "CI_DEFINITION_INTEGRITY.json"
+    code = guard.main(
+        [
+            "--repo",
+            str(repo),
+            "--trusted",
+            stale_history["trusted"],
+            "--head",
+            stale_history["candidate"],
+            "--output",
+            str(output),
+        ]
+    )
+    report = json.loads(output.read_text(encoding="utf-8"))
+    assert code == 0
+    assert report["schema_version"] == 2
+    assert {key: report[key]["sha"] for key in ("trusted_validator", "comparison_base")} == {
+        "trusted_validator": stale_history["trusted"],
+        "comparison_base": stale_history["fork"],
+    }
+    for key in ("trusted_validator", "comparison_base", "candidate"):
+        assert report[key]["tree"] == git(repo, "rev-parse", f"{report[key]['sha']}^{{tree}}")
