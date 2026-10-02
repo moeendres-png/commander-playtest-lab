@@ -165,6 +165,21 @@ def _validate_artifact_provenance(payload, binding):
         return "artifact_hashes_missing:" + ",".join(missing)
     if artifact_hashes["qualification_binding_sha256"] != binding["binding_sha256"]:
         return "artifact_binding_hash_mismatch"
+
+    evidence_fields = [
+        name
+        for name in ("checkpoints", "decision_tape", "events", "rules_rng_tape")
+        if name in payload
+    ]
+    if payload.get("verdict") == "PASS" and not evidence_fields:
+        return "pass_evidence_body_missing"
+    for field in evidence_fields:
+        digest_key = f"{field}_sha256"
+        if digest_key not in artifact_hashes:
+            return f"artifact_hashes_missing:{digest_key}"
+        if artifact_hashes[digest_key] != canonical_sha256(payload[field]):
+            return f"artifact_evidence_hash_mismatch:{field}"
+
     result_payload = {key: value for key, value in payload.items() if key != "artifact_hashes"}
     if artifact_hashes["fixture_result_sha256"] != canonical_sha256(result_payload):
         return "fixture_result_hash_mismatch"
