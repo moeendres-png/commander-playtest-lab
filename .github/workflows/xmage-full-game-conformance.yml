@@ -171,6 +171,7 @@ jobs:
         if: always()
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p artifacts/xmage-full-game
           python - <<'PY'
           import json, os
@@ -194,6 +195,7 @@ jobs:
           python scripts/seal_xmage_full_game_artifacts.py --root artifacts/xmage-full-game
           (
             cd artifacts/xmage-full-game
+            trap 'rm -f SHA256SUMS' ERR
             test -s SHA256SUMS
             sha256sum -c SHA256SUMS
           )
