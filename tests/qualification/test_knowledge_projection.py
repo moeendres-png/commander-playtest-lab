@@ -1163,6 +1163,126 @@ def test_a_card_the_script_casts_is_public_only_after_the_event(
 
 
 # --------------------------------------------------------------------------- #
+# HIDDEN_06 — native zone change invalidates the face-down exile permission
+# --------------------------------------------------------------------------- #
+
+
+def test_exile_permission_invalidation_requires_the_pre_move_permission(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.temporal_snapshots[0]["projections"]["P1"]["view"]["players"][1]["exile"] = []
+
+    verdict = _verdict(records, "HIDDEN_06", mutate)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert "permission_active_before_zone_change" in _failed(verdict)
+
+
+def test_exile_permission_invalidation_rejects_a_pre_move_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.temporal_snapshots[0]["projections"]["P3"]["view"]["players"][1]["exile"] = [
+            {"name": "Memnite", "object_id": "memnite-exiled", "face_down": True}
+        ]
+
+    verdict = _verdict(records, "HIDDEN_06", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "permission_not_shared_before_zone_change:P3" in _failed(verdict)
+
+
+def test_exile_permission_invalidation_requires_a_native_departure_after_snapshot(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.events["events"] = [
+            event
+            for event in capture.events["events"]
+            if not (
+                event.get("type") == "ZONE_CHANGE"
+                and event.get("from") == "EXILED"
+                and event.get("to") == "STACK"
+            )
+        ]
+
+    verdict = _verdict(records, "HIDDEN_06", mutate)
+    assert verdict.classification == kp.UNVERIFIED
+    assert "native_exile_zone_change_observed_after_snapshot" in _failed(verdict)
+
+
+def test_exile_permission_invalidation_rejects_stale_face_down_exile_state(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.projections["P1"]["view"]["players"][1]["exile"].append(
+            {"name": "Memnite", "object_id": "memnite-exiled", "face_down": True}
+        )
+
+    verdict = _verdict(records, "HIDDEN_06", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "no_stale_face_down_exile_permission:P1" in _failed(verdict)
+
+
+# --------------------------------------------------------------------------- #
+# HIDDEN_12 — engine-authored controlled-player authority
+# --------------------------------------------------------------------------- #
+
+
+def test_controlled_player_authority_rejects_wrong_acting_for_seat(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        assert capture.controlled_decision is not None
+        capture.controlled_decision["acting_for_seat"] = 2
+
+    verdict = _verdict(records, "HIDDEN_12", mutate)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert "engine_addresses_controlled_decision_to_controller" in _failed(verdict)
+
+
+def test_controlled_player_authority_requires_controlled_private_hand(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        assert capture.controlled_decision is not None
+        capture.controlled_decision["pilot_state"]["players"][1].pop("hand", None)
+
+    verdict = _verdict(records, "HIDDEN_12", mutate)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert "controller_receives_controlled_players_hand" in _failed(verdict)
+
+
+def test_controlled_player_authority_rejects_library_omniscience(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        assert capture.controlled_decision is not None
+        capture.controlled_decision["context"]["leak"] = "Vampiric Tutor"
+
+    verdict = _verdict(records, "HIDDEN_12", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "controlled_decision_is_not_omniscient" in _failed(verdict)
+
+
+def test_controlled_player_submission_must_bind_engine_decision_and_option(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    for field, value in (
+        ("decision_id", "wrong-decision"),
+        ("actor_id", "wrong-actor"),
+        ("selected_option_id", "not-offered"),
+    ):
+
+        def mutate(capture: kp.Capture, field=field, value=value) -> None:
+            assert capture.controlled_submission is not None
+            capture.controlled_submission[field] = value
+
+        verdict = _verdict(records, "HIDDEN_12", mutate)
+        assert verdict.classification == kp.UNVERIFIED
+        assert "controlled_decision_submission_uses_exact_engine_identity" in _failed(verdict)
+
+
+# --------------------------------------------------------------------------- #
 # HIDDEN_11 — native shuffle invalidates order while retaining identity memory
 # --------------------------------------------------------------------------- #
 
