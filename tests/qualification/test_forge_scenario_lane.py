@@ -8,8 +8,9 @@ These tests pin the lane contract:
   and never converted into a PASS;
 * checkpoint equivalence is field-level, and construction alone earns nothing;
 * the obligation must be observed from engine facts;
-* the *existing* current-boundary path does not consume the scenario seam
-  (fail-before), while this lane does.
+* the scenario seam is producer-only (the generic driver still has no scenario
+  field), and the producer persists canonical R-4 receipts that the shared
+  assembler credits only for the exact effective digests and executing runner.
 """
 
 from __future__ import annotations
@@ -830,15 +831,17 @@ def test_dirty_checkout_is_refused(monkeypatch, tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Fail-before: the existing current-boundary path does not consume the seam
+# Fail-before and producer boundary
 # ---------------------------------------------------------------------------
-def test_fail_before_current_runner_has_no_scenario_seam():
-    runner_source = RUNNER.read_text(encoding="utf-8")
+# Phase 1 proved the generic current-boundary path had no scenario seam at all.
+# Phase 2 integrates the producer into that chain, so the seam is now reached
+# only through the lane's explicit producer call. The generic driver still has
+# no scenario field, and the generic row classifier still blocks the wave
+# before the producer executes (fail-before control below).
+def test_game_driver_has_no_generic_scenario_seam():
     driver_source = (
         REPO / "src" / "commander_lab" / "qualification" / "current_boundary" / "game_driver.py"
     ).read_text(encoding="utf-8")
-    assert "neutral_initial_state" not in runner_source
-    assert "ScenarioBootstrap" not in runner_source
     assert '"scenario"' not in driver_source
     lane_source = (
         REPO
@@ -849,6 +852,28 @@ def test_fail_before_current_runner_has_no_scenario_seam():
         / "forge_scenario_lane.py"
     ).read_text(encoding="utf-8")
     assert "neutral_initial_state" in lane_source
+
+
+def test_shared_runner_and_assembler_integrate_the_producer():
+    runner_source = RUNNER.read_text(encoding="utf-8")
+    assembler_source = (REPO / "scripts" / "assemble_current_boundary_evidence.py").read_text(
+        encoding="utf-8"
+    )
+    # The shared runner is the only caller: it runs the producer after the clean
+    # runner identity is captured and persists its execution document.
+    assert "forge_scenario_lane_mod.execute_and_persist(" in runner_source
+    assert "FORGE_SCENARIO_EXECUTIONS.json" in runner_source
+    assert "FORGE_SCENARIO_TEST_IDENTITY_PREFIX" in assembler_source
+    # No second assembler: the Forge evidence is assembled by the canonical
+    # assembler from the committed receipt contract, not by this lane.
+    assert "def assemble" not in (
+        REPO
+        / "src"
+        / "commander_lab"
+        / "qualification"
+        / "current_boundary"
+        / "forge_scenario_lane.py"
+    ).read_text(encoding="utf-8")
 
 
 def test_fail_before_shared_runner_blocks_the_wave(monkeypatch):
@@ -910,3 +935,264 @@ def test_lane_classifies_the_wave_with_exact_blockers():
         assert model.credit_eligible is False
     copy_model = fsl.model_requested_state(records["MICRO_COPY"])
     assert any(item.dimension == "stack_state" for item in copy_model.hard_unsupported)
+
+
+# ---------------------------------------------------------------------------
+# Canonical R-4 receipts (the only credit route into the shared chain)
+# ---------------------------------------------------------------------------
+def _observed_evidence(monkeypatch) -> tuple[fsl.RowEvidence, dict]:
+    model = _supported_model()
+    model.record["expected_events"]["required_events"] = ["commander_damage_checked_per_commander"]
+    evidence = _run_probe(monkeypatch, model=model, observations=_exact_observations())
+    assert evidence.fields["classification"]["result"] == fsl.RESULT_OBLIGATION_OBSERVED
+    return evidence, model.record
+
+
+def test_positive_receipt_validates_and_credits(monkeypatch, tmp_path):
+    from commander_lab.qualification.current_boundary import receipts as receipt_mod
+
+    evidence, record = _observed_evidence(monkeypatch)
+    receipt = fsl.positive_receipt(
+        evidence, record, candidate_commit="c" * 40, runner_digest="r" * 64
+    )
+    path = tmp_path / f"{fsl.FORGE_SCENARIO_RECEIPT_PREFIX}{record['fixture_id']}.json"
+    receipt_mod.persist(path, receipt)
+    loaded = receipt_mod.load_positive_fixture_receipt(path)
+    assert loaded["candidate"] == "forge"
+    assert loaded["candidate_commit"] == "c" * 40
+    assert (
+        loaded["obligation_exercised"]["requested_state_digest"] == record["requested_state_digest"]
+    )
+    assert loaded["obligation_exercised"]["obligation_digest"] == record["obligation_digest"]
+    assert loaded["observed_assertion"]["checkpoint_verdict"] == fsl.CHECKPOINT_EXACT
+    credited = receipt_mod.positive_fixture_credit(
+        [loaded],
+        candidate="forge",
+        expected_commit="c" * 40,
+        denominator={record["fixture_id"]: record},
+        expected_runner_digest="r" * 64,
+    )
+    assert credited == {record["fixture_id"]: [receipt["test_identity"]]}
+
+
+def test_stale_or_mismatched_receipt_earns_no_credit(monkeypatch, tmp_path):
+    from commander_lab.qualification.current_boundary import receipts as receipt_mod
+
+    evidence, record = _observed_evidence(monkeypatch)
+    receipt = fsl.positive_receipt(
+        evidence, record, candidate_commit="c" * 40, runner_digest="r" * 64
+    )
+    fixture = record["fixture_id"]
+    # Wrong engine candidate, wrong runner, and a changed effective obligation
+    # digest each yield zero credit.
+    assert not receipt_mod.positive_fixture_credit(
+        [receipt],
+        candidate="forge",
+        expected_commit="d" * 40,
+        denominator={fixture: record},
+        expected_runner_digest="r" * 64,
+    )
+    assert not receipt_mod.positive_fixture_credit(
+        [receipt],
+        candidate="forge",
+        expected_commit="c" * 40,
+        denominator={fixture: record},
+        expected_runner_digest="s" * 64,
+    )
+    moved = dict(record)
+    moved["obligation_digest"] = "9" * 64
+    assert not receipt_mod.positive_fixture_credit(
+        [receipt],
+        candidate="forge",
+        expected_commit="c" * 40,
+        denominator={fixture: moved},
+        expected_runner_digest="r" * 64,
+    )
+    # A tampered receipt does not even load.
+    tampered = tmp_path / "tampered.json"
+    document = dict(receipt)
+    document["observed_assertion"] = {"checkpoint_verdict": fsl.CHECKPOINT_MISMATCH}
+    receipt_mod.persist(tampered, document)
+    with pytest.raises(receipt_mod.ReceiptError):
+        receipt_mod.load_positive_fixture_receipt(tampered)
+
+
+def test_positive_receipt_rejects_construction_only(monkeypatch):
+    model = fsl.model_requested_state(_record())
+    evidence = _run_probe(monkeypatch, model=model, observations=_exact_observations())
+    assert evidence.fields["classification"]["result"] != fsl.RESULT_OBLIGATION_OBSERVED
+    with pytest.raises(fsl.ScenarioLaneError):
+        fsl.positive_receipt(
+            evidence, model.record, candidate_commit="c" * 40, runner_digest="r" * 64
+        )
+
+
+def test_variance_receipt_is_labelled_not_exact():
+    evidence = fsl.RowEvidence(fixture_id="VAR_ROW")
+    evidence.set(
+        "classification",
+        {
+            "result": fsl.RESULT_OBLIGATION_OBSERVED,
+            "obligation_kind": "player_leaves_multiplayer_cleanup",
+        },
+    )
+    evidence.set("receipt_eligibility", {"eligible": True, "reason": "ok"})
+    evidence.set(
+        "checkpoint_equivalence",
+        {
+            "verdict": fsl.CHECKPOINT_ALLOWED_VARIANCE,
+            "variance_source": "fixture.native_procedure NATIVE_CAUSE_DECLARED_PLAYER_LOSS",
+        },
+    )
+    evidence.set("external_decision_selection", [{"policy": "pass_when_offered"}])
+    evidence.set("semantic_events", ["player_leaves:p2"])
+    evidence.set("terminal_facts", {"obligation": {"p2.lost": True}})
+    evidence.set("native_bootstrap", {"applied": True})
+    record = {
+        "fixture_id": "VAR_ROW",
+        "requested_state_digest": "a" * 64,
+        "obligation_digest": "b" * 64,
+        "expected_events": {"required_events": ["player_leaves:p2"]},
+        "terminal_postconditions": ["p2 leaves the game"],
+    }
+    receipt = fsl.positive_receipt(
+        evidence, record, candidate_commit="c" * 40, runner_digest="r" * 64
+    )
+    assert receipt["assertion_class"] == "BEHAVIOUR_OBSERVED_FIXTURE_DECLARED_CAUSE_VARIANCE"
+    assert receipt["observed_assertion"]["checkpoint_verdict"] == fsl.CHECKPOINT_ALLOWED_VARIANCE
+    assert "NATIVE_CAUSE_DECLARED_PLAYER_LOSS" in (
+        receipt["observed_assertion"]["checkpoint_variance_source"] or ""
+    )
+
+
+def test_selection_covers_eligible_rows_and_the_declared_wave():
+    from commander_lab.qualification.current_boundary.materialization import (
+        load_effective_materialization,
+    )
+
+    materialization = load_effective_materialization(REPO)
+    records = {record["fixture_id"]: record for record in materialization.denominator_records()}
+    selected = set(fsl.select_execution_fixtures(records))
+    for fixture_id in fsl.FORGE_SCENARIO_BLOCKER_WAVE:
+        assert fixture_id in selected
+    for fixture_id, record in records.items():
+        model = fsl.model_requested_state(record)
+        if model.credit_eligible and fsl.temporal_reachable(model):
+            assert fixture_id in selected
+    # The 9 structurally credit-eligible rows plus the 7 wave rows.
+    assert len(selected) == 16
+
+
+def test_execute_and_persist_requires_bound_identity(tmp_path):
+    with pytest.raises(fsl.ScenarioLaneError):
+        fsl.execute_and_persist(
+            forge_workspace=tmp_path,
+            records={},
+            candidate_commit="",
+            runner_digest="r" * 64,
+            lab_root=REPO,
+            out_dir=tmp_path,
+        )
+
+
+def test_execute_and_persist_rejects_cross_wired_candidate(monkeypatch, tmp_path):
+    monkeypatch.setattr(fsl, "bind_forge_scenario_source", lambda workspace: _source())
+    with pytest.raises(fsl.ScenarioLaneError):
+        fsl.execute_and_persist(
+            forge_workspace=tmp_path,
+            records={},
+            candidate_commit="d" * 40,
+            runner_digest="r" * 64,
+            lab_root=REPO,
+            out_dir=tmp_path,
+        )
+
+
+def _synthetic_observed_evidence(fixture_id: str) -> fsl.RowEvidence:
+    evidence = fsl.RowEvidence(fixture_id=fixture_id)
+    evidence.set(
+        "classification",
+        {
+            "result": fsl.RESULT_OBLIGATION_OBSERVED,
+            "obligation_kind": "commander_damage_checked_per_commander",
+        },
+    )
+    evidence.set("receipt_eligibility", {"eligible": True, "reason": "ok"})
+    evidence.set(
+        "checkpoint_equivalence",
+        {"verdict": fsl.CHECKPOINT_EXACT, "variance_source": None},
+    )
+    evidence.set("external_decision_selection", [{"policy": "pass_when_offered"}])
+    evidence.set("semantic_events", ["commander_damage_per_commander_evaluated:p2"])
+    evidence.set("terminal_facts", {"obligation": {"p2.aggregate_commander_damage": 21}})
+    evidence.set("native_bootstrap", {"applied": True})
+    return evidence
+
+
+def test_execute_and_persist_writes_only_observed_receipts(monkeypatch, tmp_path):
+    from commander_lab.qualification.current_boundary import receipts as receipt_mod
+
+    monkeypatch.setattr(fsl, "bind_forge_scenario_source", lambda workspace: _source())
+    monkeypatch.setattr(fsl, "derive_capability_matrix", lambda source, root: {"ok": True})
+
+    class _Proc:
+        def close(self) -> None:
+            pass
+
+    monkeypatch.setattr(
+        fsl, "launch_forge_scenario", lambda source: (_Proc(), {"runtime": "synthetic"})
+    )
+
+    records = {
+        "OBSERVED": {
+            "fixture_id": "OBSERVED",
+            "requested_state_digest": "1" * 64,
+            "obligation_digest": "2" * 64,
+            "expected_events": {"required_events": ["commander_damage_checked_per_commander"]},
+            "terminal_postconditions": [],
+        },
+        "BLOCKED": {
+            "fixture_id": "BLOCKED",
+            "requested_state_digest": "3" * 64,
+            "obligation_digest": "4" * 64,
+            "expected_events": {"required_events": ["player_leaves:p2"]},
+            "terminal_postconditions": [],
+        },
+    }
+
+    def fake_probe(proc, *, model, source, root, seed, max_steps):
+        if model.fixture_id == "OBSERVED":
+            return _synthetic_observed_evidence(model.fixture_id)
+        evidence = fsl.RowEvidence(fixture_id=model.fixture_id)
+        evidence.set(
+            "classification",
+            {"result": fsl.RESULT_UNSUPPORTED_DIMENSION, "reasons": ["blocked"]},
+        )
+        evidence.set("receipt_eligibility", {"eligible": False, "reason": "blocked"})
+        return evidence
+
+    monkeypatch.setattr(fsl, "probe_row", fake_probe)
+    # A stale own-prefix receipt must be removed; a foreign producer's receipt
+    # must survive.
+    stale = tmp_path / f"{fsl.FORGE_SCENARIO_RECEIPT_PREFIX}STALE.json"
+    stale.write_text("{}\n", encoding="utf-8")
+    foreign = tmp_path / "midgame-row.json"
+    foreign.write_text("{}\n", encoding="utf-8")
+
+    document = fsl.execute_and_persist(
+        forge_workspace=tmp_path,
+        records=records,
+        candidate_commit="c" * 40,
+        runner_digest="r" * 64,
+        lab_root=REPO,
+        out_dir=tmp_path,
+    )
+    assert document["rows_observed"] == 1
+    assert document["receipts_written"] == ["OBSERVED"]
+    assert (tmp_path / f"{fsl.FORGE_SCENARIO_RECEIPT_PREFIX}OBSERVED.json").is_file()
+    assert not (tmp_path / f"{fsl.FORGE_SCENARIO_RECEIPT_PREFIX}BLOCKED.json").exists()
+    assert not stale.exists()
+    assert foreign.is_file()
+    receipt_mod.load_positive_fixture_receipt(
+        tmp_path / f"{fsl.FORGE_SCENARIO_RECEIPT_PREFIX}OBSERVED.json"
+    )

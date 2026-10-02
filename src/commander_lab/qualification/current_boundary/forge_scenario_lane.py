@@ -2462,6 +2462,275 @@ def probe_row(
     return evidence
 
 
+# ---------------------------------------------------------------------------
+# Canonical R-4 positive receipts for the shared current-boundary chain
+# ---------------------------------------------------------------------------
+# This lane is the Forge-candidate producer on the canonical positive-receipt
+# contract. The shared assembler credits a row only from a receipt that binds
+# the fixture, the exact effective requested-state and obligation digests, the
+# admitted Forge Rules-Core commit and the currently executing Lab runner. A
+# receipt exists only for an obligation observed from engine-reported facts:
+# construction alone, a checkpoint mismatch, a transport failure or a named
+# blocker earns nothing.
+FORGE_SCENARIO_EXECUTION_MODE = "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION"
+FORGE_SCENARIO_TEST_IDENTITY_PREFIX = "forge-scenario-lane:"
+FORGE_SCENARIO_RECEIPT_PREFIX = "forge-scenario-lane--"
+
+# The F6/F7 wave whose blockers are re-derived every epoch. These rows are
+# always attempted so the current epoch carries its own blocker evidence
+# instead of inheriting a previous epoch's classification.
+FORGE_SCENARIO_BLOCKER_WAVE: tuple[str, ...] = (
+    "MICRO_COPY",
+    "MICRO_COSTS",
+    "MICRO_MODES",
+    "MICRO_REPLACEMENT",
+    "MICRO_ZONE_CHANGES",
+    "WS05-MP-BLOCK-4",
+    "WS05-MP-COMBAT-4",
+)
+
+
+def select_execution_fixtures(records: dict[str, dict[str, Any]]) -> tuple[str, ...]:
+    """The rows this producer attempts in the canonical evidence run.
+
+    Every structurally credit-eligible row is attempted for a current direct
+    receipt, and the declared blocker wave is always attempted. Nothing else is
+    attempted: a row this lane cannot represent stays a named terminal blocker
+    rather than an inherited count.
+    """
+    selected: list[str] = []
+    for fixture_id, record in records.items():
+        model = model_requested_state(record)
+        if model.credit_eligible and temporal_reachable(model):
+            selected.append(fixture_id)
+    for fixture_id in FORGE_SCENARIO_BLOCKER_WAVE:
+        if fixture_id in records and fixture_id not in selected:
+            selected.append(fixture_id)
+    return tuple(selected)
+
+
+def _receipt_observed_assertion(evidence: RowEvidence) -> dict[str, Any]:
+    """The engine-observed assertion a positive receipt binds.
+
+    It records the checkpoint verdict (including a fixture-declared cause
+    variance, which is never relabelled EXACT), the semantic events, and digests
+    that trace the claim back to the exact persisted row document.
+    """
+    fields = evidence.fields
+    checkpoint = fields.get("checkpoint_equivalence") or {}
+    classification = fields.get("classification") or {}
+    decisions = fields.get("external_decision_selection") or []
+    return {
+        "checkpoint_verdict": checkpoint.get("verdict"),
+        "checkpoint_variance_source": checkpoint.get("variance_source"),
+        "obligation_kind": classification.get("obligation_kind"),
+        "semantic_events": list(fields.get("semantic_events") or []),
+        "row_document_sha256": receipt_mod.document_digest(evidence.to_document()),
+        "terminal_facts_sha256": receipt_mod.document_digest(
+            {"terminal_facts": fields.get("terminal_facts") or {}}
+        ),
+        "external_decision_selection_sha256": receipt_mod.document_digest(
+            {"external_decision_selection": decisions}
+        ),
+        "engine_authored_decision_count": len(decisions),
+        "native_bootstrap_applied": bool((fields.get("native_bootstrap") or {}).get("applied")),
+    }
+
+
+def positive_receipt(
+    evidence: RowEvidence,
+    record: dict[str, Any],
+    *,
+    candidate_commit: str,
+    runner_digest: str,
+) -> dict[str, Any]:
+    """The canonical runner-bound positive receipt for one observed obligation.
+
+    This is the only route by which a scenario-lane execution may earn FULL107
+    credit. It fails closed unless the obligation was observed from engine facts
+    and the checkpoint was credit-eligible; constructed state alone can never be
+    receipted. ``candidate_commit`` is the admitted Forge Rules-Core identity the
+    assembler credits the Forge column against.
+    """
+    classification = evidence.fields.get("classification") or {}
+    if classification.get("result") != RESULT_OBLIGATION_OBSERVED:
+        raise ScenarioLaneError(
+            f"{evidence.fixture_id} is not a directly observed obligation; no positive receipt"
+        )
+    eligibility = evidence.fields.get("receipt_eligibility") or {}
+    if eligibility.get("eligible") is not True:
+        raise ScenarioLaneError(
+            f"{evidence.fixture_id} is not receipt-eligible: {eligibility.get('reason')}"
+        )
+    state_digest = record.get("requested_state_digest")
+    obligation_digest = record.get("obligation_digest")
+    if not state_digest or not obligation_digest:
+        raise ScenarioLaneError(
+            f"{evidence.fixture_id}: the effective record carries no exact "
+            "requested-state/obligation digest"
+        )
+    checkpoint = (evidence.fields.get("checkpoint_equivalence") or {}).get("verdict")
+    assertion = _receipt_observed_assertion(evidence)
+    document: dict[str, Any] = {
+        "schema_version": receipt_mod.POSITIVE_FIXTURE_RECEIPT_SCHEMA,
+        "candidate": "forge",
+        "candidate_commit": candidate_commit,
+        "runner_digest": runner_digest,
+        "fixture_id": evidence.fixture_id,
+        "test_identity": (
+            f"{FORGE_SCENARIO_TEST_IDENTITY_PREFIX}{FORGE_SCENARIO_EXECUTION_MODE}"
+            f"#{evidence.fixture_id}"
+        ),
+        "execution_mode": FORGE_SCENARIO_EXECUTION_MODE,
+        "obligation_exercised": {
+            "requested_state_digest": state_digest,
+            "obligation_digest": obligation_digest,
+            "required_events": list(
+                (record.get("expected_events") or {}).get("required_events") or ()
+            ),
+            "forbidden_events": list(
+                (record.get("expected_events") or {}).get("forbidden_events") or ()
+            ),
+            "terminal_postconditions": list(record.get("terminal_postconditions") or ()),
+        },
+        "observed_assertion": assertion,
+        # A fixture-declared native player-loss cause is recorded as such, never
+        # relabelled EXACT: the checkpoint verdict travels with the receipt.
+        "assertion_class": (
+            "BEHAVIOUR_OBSERVED_FIXTURE_DECLARED_CAUSE_VARIANCE"
+            if checkpoint == CHECKPOINT_ALLOWED_VARIANCE
+            else "BEHAVIOUR_OBSERVED"
+        ),
+        "assertion_kind": "POSITIVE_BEHAVIOUR",
+        "outcome": "PASS",
+        "runtime_receipt_digest": assertion["row_document_sha256"],
+    }
+    document["receipt_digest"] = receipt_mod.document_digest(document)
+    return document
+
+
+def execute_and_persist(
+    *,
+    forge_workspace: Path | str,
+    records: dict[str, dict[str, Any]],
+    candidate_commit: str,
+    runner_digest: str,
+    out_dir: Path,
+    lab_root: Path,
+    seed: int = 424242,
+    max_steps: int = 400,
+) -> dict[str, Any]:
+    """Execute the selected rows on the pinned scenario seam and persist receipts.
+
+    Binds the exact pinned Forge source, derives the capability matrix (source
+    drift fails closed), executes every selected row on one bridge process, and
+    writes a canonical positive receipt for each observed obligation into
+    ``out_dir``. This producer owns only its own prefixed receipt files; the
+    other R-4 producers' receipts are never touched. An engine rejection, a
+    checkpoint mismatch, a missing observation, or an unbound identity yields a
+    row document with no receipt, never a PASS.
+    """
+    if not candidate_commit or not runner_digest:
+        raise ScenarioLaneError(
+            "execute_and_persist requires the exact candidate commit and a measured "
+            "runner digest; an unbound receipt is never written"
+        )
+    source = bind_forge_scenario_source(forge_workspace)
+    if source.rules_core_commit != candidate_commit:
+        raise ScenarioLaneError(
+            f"the bound Forge Rules Core {source.rules_core_commit[:12]} is not the "
+            f"credited candidate {candidate_commit[:12]}"
+        )
+    matrix = derive_capability_matrix(source, Path(source.workspace))
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    fixtures = select_execution_fixtures(records)
+    # This producer owns only its own prefixed receipts: a row that no longer
+    # observes an obligation must not keep credit from an earlier run, and the
+    # other producers' receipts must survive this cleanup.
+    for stale in out_dir.glob(f"{FORGE_SCENARIO_RECEIPT_PREFIX}*.json"):
+        stale.unlink()
+    proc, runtime_identity = launch_forge_scenario(source)
+    evidence: list[RowEvidence] = []
+    try:
+        for fixture_id in fixtures:
+            model = model_requested_state(records[fixture_id])
+            evidence.append(
+                probe_row(
+                    proc,
+                    model=model,
+                    source=source,
+                    root=lab_root,
+                    seed=seed,
+                    max_steps=max_steps,
+                )
+            )
+    finally:
+        proc.close()
+    receipts_written: list[str] = []
+    rows: list[dict[str, Any]] = []
+    for item in evidence:
+        document = item.to_document()
+        classification = item.fields.get("classification") or {}
+        if classification.get("result") == RESULT_OBLIGATION_OBSERVED:
+            receipt = positive_receipt(
+                item,
+                records[item.fixture_id],
+                candidate_commit=candidate_commit,
+                runner_digest=runner_digest,
+            )
+            receipt_path = out_dir / f"{FORGE_SCENARIO_RECEIPT_PREFIX}{item.fixture_id}.json"
+            receipt_mod.persist(receipt_path, receipt)
+            # Read the persisted bytes back under the canonical validator so a
+            # malformed receipt can never be recorded as evidence.
+            receipt_mod.load_positive_fixture_receipt(receipt_path)
+            document["positive_receipt_digest"] = receipt["receipt_digest"]
+            document["positive_receipt_test_identity"] = receipt["test_identity"]
+            receipts_written.append(item.fixture_id)
+        rows.append(document)
+    counts: dict[str, int] = {}
+    for item in evidence:
+        result = str((item.fields.get("classification") or {}).get("result", "UNKNOWN"))
+        counts[result] = counts.get(result, 0) + 1
+    structural: list[dict[str, Any]] = []
+    for fixture_id, record in records.items():
+        model = model_requested_state(record)
+        structural.append(
+            {
+                "fixture_id": fixture_id,
+                "classification": (
+                    "CREDIT_ELIGIBLE"
+                    if model.credit_eligible
+                    else "CONSTRUCTIBLE_NOT_OBSERVABLE"
+                    if model.construction_eligible
+                    else "UNSUPPORTED_DIMENSION"
+                ),
+                "unsupported_dimensions": [
+                    item.dimension for item in model.hard_unsupported
+                ],
+                "unobservable_dimensions": [item.dimension for item in model.unobservable],
+                "temporal_reachable": temporal_reachable(model),
+            }
+        )
+    return {
+        "schema_version": f"{LANE_SCHEMA_VERSION}.forge-scenario-executions",
+        "execution_mode": FORGE_SCENARIO_EXECUTION_MODE,
+        "candidate": "forge",
+        "candidate_commit": candidate_commit,
+        "runner_digest": runner_digest,
+        "source_identity": source.to_document(),
+        "capability_matrix": matrix,
+        "capability_matrix_sha256": receipt_mod.document_digest(matrix),
+        "structural_census": structural,
+        "runtime_identity": runtime_identity,
+        "rows_attempted": len(rows),
+        "rows_observed": len(receipts_written),
+        "receipts_written": receipts_written,
+        "counts": counts,
+        "rows": rows,
+    }
+
+
 def run_silent_ignore_probe(proc: BridgeProcess, *, model: RequestedStateModel) -> dict[str, Any]:
     """Prove the engine ACCEPTS and silently ignores fields it has no contract for.
 

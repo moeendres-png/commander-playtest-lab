@@ -24,6 +24,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from commander_lab.qualification.current_boundary.forge_scenario_lane import (  # noqa: E402
+    FORGE_SCENARIO_BLOCKER_WAVE as WAVE,
+)
+from commander_lab.qualification.current_boundary.forge_scenario_lane import (  # noqa: E402
     LANE_SCHEMA_VERSION,
     RESULT_NOT_ATTEMPTED,
     RowEvidence,
@@ -37,16 +40,6 @@ from commander_lab.qualification.current_boundary.forge_scenario_lane import (  
 )
 from commander_lab.qualification.current_boundary.materialization import (  # noqa: E402
     load_effective_materialization,
-)
-
-WAVE = (
-    "MICRO_COPY",
-    "MICRO_COSTS",
-    "MICRO_MODES",
-    "MICRO_REPLACEMENT",
-    "MICRO_ZONE_CHANGES",
-    "WS05-MP-BLOCK-4",
-    "WS05-MP-COMBAT-4",
 )
 
 
