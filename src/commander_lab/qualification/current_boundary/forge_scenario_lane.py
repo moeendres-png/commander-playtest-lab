@@ -2705,9 +2705,7 @@ def execute_and_persist(
                     if model.construction_eligible
                     else "UNSUPPORTED_DIMENSION"
                 ),
-                "unsupported_dimensions": [
-                    item.dimension for item in model.hard_unsupported
-                ],
+                "unsupported_dimensions": [item.dimension for item in model.hard_unsupported],
                 "unobservable_dimensions": [item.dimension for item in model.unobservable],
                 "temporal_reachable": temporal_reachable(model),
             }
