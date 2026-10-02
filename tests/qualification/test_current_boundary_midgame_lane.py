@@ -843,7 +843,7 @@ class TestTransportDeadlineAndClassification:
             "errors": [
                 {
                     "code": "midgame_arrival_failed",
-                    "message": "RestorationException: FIRST_TURN_PLACEMENT_MISSED: cmd:P1-A",
+                    "message": "RestorationException: FIRST_TURN_PLACEMENT_MISSED: obj:p1-commander",
                 }
             ],
         }

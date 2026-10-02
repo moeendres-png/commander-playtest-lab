@@ -205,10 +205,13 @@ class XmageFirstTurnSetupTest {
         assertEquals(List.of(), verification.mismatches());
     }
 
-    @Test
-    void aDoubleFacedBattlefieldCommanderIsRefusedBeforeGameStart() {
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {
+            "Esika, God of the Tree",   // modal double-faced
+            "Kytheon, Hero of Akros"})  // transforming double-faced
+    void aDoubleFacedBattlefieldCommanderIsRefusedBeforeGameStart(String commander) {
         XmageNativeStateRestoration.Plan plan =
-                commanderPlan("setup-mdfc", "Esika, God of the Tree", "P1", Map.of());
+                commanderPlan("setup-dfc-" + commander.length(), commander, "P1", Map.of());
         XmageDeckImporter importer = new XmageDeckImporter();
         XmageNativeStateRestoration restoration =
                 XmageNativeStateRestorationTest.restorationFor(plan);
