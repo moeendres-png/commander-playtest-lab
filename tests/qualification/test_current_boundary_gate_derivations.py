@@ -445,15 +445,72 @@ def test_af09_every_named_twin_element_is_required(missing: str) -> None:
     assert g.af09_rng_replay("forge", ALL_PASS_ROWS, document)["verdict"] == "UNKNOWN"
 
 
-def test_af09_a_refused_export_never_passes_even_with_all_rows_green() -> None:
-    document = {
-        "rules_rng_binding": {"classification": "UNCONTROLLED_ENGINE_RNG"},
-        "semantic_replay": {"error": [{"code": "unsupported_message"}]},
-        **TWIN,
-    }
-    gate = g.af09_rng_replay("forge", ALL_PASS_ROWS, document)
+REFUSED_EXPORT = {
+    "rules_rng_binding": {"classification": "UNCONTROLLED_ENGINE_RNG"},
+    "semantic_replay": {"error": [{"code": "unsupported_message"}]},
+}
+
+
+def test_af09_a_refused_export_without_a_proven_twin_never_passes() -> None:
+    gate = g.af09_rng_replay("forge", ALL_PASS_ROWS, REFUSED_EXPORT)
     assert gate["verdict"] == "UNKNOWN"
     assert any("absent capability" in item for item in gate["nonblocking_limitations"])
+
+
+def test_af09_a_refused_export_is_recorded_but_does_not_block_a_proven_twin() -> None:
+    """Export refusal ruling: the refusal is an absent capability, never credit.
+
+    With a proven clean-process twin and every replay row PASS, the verdict
+    rests on the twin; the refusal stays in the evidence, worded as a refusal.
+    """
+    gate = g.af09_rng_replay("forge", ALL_PASS_ROWS, {**REFUSED_EXPORT, **TWIN})
+    assert gate["verdict"] == "PASS", gate["nonblocking_limitations"]
+    joined = " ".join(gate["evidence"])
+    assert "refused by the engine (codes: unsupported_message)" in joined
+    assert "absent capability" in joined and "only on the proven clean-process twin" in joined
+
+
+def test_af09_a_refused_export_with_an_incomplete_twin_stays_unknown() -> None:
+    twin = dict(TWIN["clean_process_twin"])
+    twin.pop("rules_rng")
+    gate = g.af09_rng_replay("forge", ALL_PASS_ROWS, {**REFUSED_EXPORT, "clean_process_twin": twin})
+    assert gate["verdict"] == "UNKNOWN"
+    assert any("absent capability" in item for item in gate["nonblocking_limitations"])
+
+
+MIDGAME_TWIN = {
+    "rows_declared": 5,
+    "rows_verified": 5,
+    "clean_process_twin": TWIN["clean_process_twin"],
+}
+
+
+def test_af09_takes_the_bound_midgame_twin_when_the_artifact_has_none() -> None:
+    gate = g.af09_rng_replay("xmage", ALL_PASS_ROWS, REFUSED_EXPORT, midgame_twin=MIDGAME_TWIN)
+    assert gate["verdict"] == "PASS", gate["nonblocking_limitations"]
+    assert any("MIDGAME_REPLAY_TWIN_EXECUTIONS.json: 5/5" in item for item in gate["evidence"])
+
+
+def test_af09_an_unproven_midgame_twin_is_not_twin_evidence() -> None:
+    midgame = {**MIDGAME_TWIN, "clean_process_twin": {"verified": True}}
+    gate = g.af09_rng_replay("xmage", ALL_PASS_ROWS, REFUSED_EXPORT, midgame_twin=midgame)
+    assert gate["verdict"] == "UNKNOWN"
+    assert any(
+        "does not carry the required twin evidence" in item
+        for item in gate["nonblocking_limitations"]
+    )
+
+
+def test_af09_a_proven_midgame_twin_never_masks_a_failed_or_open_replay_row() -> None:
+    failed = {**ALL_PASS_ROWS, "RNG_RULES_TAPE": _row("FAIL")}
+    assert (
+        g.af09_rng_replay("xmage", failed, REFUSED_EXPORT, midgame_twin=MIDGAME_TWIN)["verdict"]
+        == "FAIL"
+    )
+    open_row = {**ALL_PASS_ROWS, "RNG_RULES_TAPE": _row("UNKNOWN")}
+    gate = g.af09_rng_replay("xmage", open_row, REFUSED_EXPORT, midgame_twin=MIDGAME_TWIN)
+    assert gate["verdict"] == "UNKNOWN"
+    assert gate["blocking_rows"] == ["RNG_RULES_TAPE"]
 
 
 def test_af09_a_failed_replay_row_is_fail() -> None:

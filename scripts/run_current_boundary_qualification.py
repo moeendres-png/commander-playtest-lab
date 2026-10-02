@@ -74,6 +74,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     knowledge_projection as knowledge_projection_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
+    midgame_replay_twin as midgame_replay_twin_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
     midgame_rows as midgame_rows_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
@@ -1661,6 +1664,24 @@ def classify_remaining(
                     runtime_identity=identity,
                 )
             )
+        elif fixture_id in REPLAY_ROWS and (
+            candidate == "xmage" and fixture_id in midgame_replay_twin_mod.ROWS
+        ):
+            reason = erratum + (
+                "the effective obligation is a replay/RNG property of a clean-process "
+                "twin; it is executed on the production mid-game lane's replay-twin route "
+                "after the PB-03 runtime ledger (MIDGAME_REPLAY_TWIN_EXECUTIONS.json) and "
+                "earns credit only through that route's runner-bound positive receipt"
+            )
+            rows.append(
+                non_executed_row(
+                    record,
+                    candidate=candidate,
+                    outcome="UNKNOWN",
+                    reason=reason,
+                    runtime_identity=identity,
+                )
+            )
         elif fixture_id in REPLAY_ROWS:
             reason = erratum + (
                 "the effective obligation is an N-scoped replay/RNG fixture requiring a "
@@ -1941,6 +1962,24 @@ def main() -> int:
                 candidate_commit=canonical_xmage_engine_pin(),
                 runner_digest=runner.digest(),
                 out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
+            ),
+        )
+        # AF09: the replay/RNG rows as clean-process twins on the same
+        # production lane. Each row records the scenario in one fresh process
+        # and replays it from the taped external inputs alone in another; only
+        # a verified twin whose row property held earns a runner-bound
+        # positive receipt.
+        write(
+            "MIDGAME_REPLAY_TWIN_EXECUTIONS.json",
+            midgame_replay_twin_mod.execute_and_persist(
+                workspace=REPO_ROOT / "engine-bridge",
+                records={
+                    record["fixture_id"]: record for record in materialization.denominator_records()
+                },
+                candidate_commit=canonical_xmage_engine_pin(),
+                runner_digest=runner.digest(),
+                out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
+                lab_root=REPO_ROOT,
             ),
         )
         # AF07: the frozen 29-card actual-card corpus on the same production

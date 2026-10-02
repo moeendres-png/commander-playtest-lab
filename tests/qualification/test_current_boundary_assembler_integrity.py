@@ -10,6 +10,7 @@ promoting code paths are gone and that the credit functions are receipt-only.
 from __future__ import annotations
 
 import ast
+import json
 from pathlib import Path
 
 import pytest
@@ -410,6 +411,103 @@ def test_af09_limitations_state_the_generic_distinctions() -> None:
     joined = " ".join(described["limitations"])
     assert "never a satisfied obligation and never a replay PASS" in joined
     assert "is not semantic replay proof" in joined
+
+
+def test_af09_a_proven_twin_states_the_distinctions_without_blocking() -> None:
+    asm = _assembler_module()
+    described = asm._describe_replay_evidence(_refusal_document(), "xmage", twin_proven=True)
+    assert described["limitations"] == []
+    joined = " ".join(described["evidence"])
+    assert "attempted in a live game and refused by the engine" in joined
+    assert "never a satisfied obligation and never a replay PASS" in joined
+    assert "is not semantic replay proof" in joined
+
+
+def _bound_twin_document(**overrides: object) -> dict:
+    document = {
+        "execution_mode": "AF09_MIDGAME_CLEAN_PROCESS_REPLAY_TWIN",
+        "candidate": "xmage",
+        "candidate_commit": "c" * 40,
+        "runner_digest": "r" * 64,
+        "rows_declared": 5,
+        "rows_verified": 5,
+        "clean_process_twin": {"candidate_build": {"engine_commit": "c" * 40}},
+    }
+    document.update(overrides)
+    return document
+
+
+def _fresh_column(commit: str = "c" * 40) -> dict:
+    return {
+        "column_provenance": {"class": "FRESH_CURRENT_BOUNDARY_EXECUTION"},
+        "results_runtime_identity": {"engine_candidate_commit": commit},
+    }
+
+
+@pytest.mark.parametrize(
+    ("candidate", "column", "overrides", "bound"),
+    [
+        ("xmage", _fresh_column(), {}, True),
+        ("forge", _fresh_column(), {"candidate": "forge"}, False),
+        (
+            "xmage",
+            {**_fresh_column(), "column_provenance": {"class": "CARRIED_FORWARD"}},
+            {},
+            False,
+        ),
+        ("xmage", _fresh_column(), {"runner_digest": "x" * 64}, False),
+        ("xmage", _fresh_column(), {"candidate_commit": "d" * 40}, False),
+        (
+            "xmage",
+            _fresh_column(),
+            {"clean_process_twin": {"candidate_build": {"engine_commit": "d" * 40}}},
+            False,
+        ),
+        ("xmage", _fresh_column(), {"execution_mode": "OTHER"}, False),
+        ("xmage", _fresh_column(""), {"candidate_commit": ""}, False),
+    ],
+)
+def test_the_midgame_twin_document_is_bound_to_column_and_runner(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    candidate: str,
+    column: dict,
+    overrides: dict,
+    bound: bool,
+) -> None:
+    asm = _assembler_module()
+    monkeypatch.setattr(asm, "OUT", tmp_path)
+    document = _bound_twin_document(**overrides)
+    (tmp_path / "MIDGAME_REPLAY_TWIN_EXECUTIONS.json").write_text(json.dumps(document))
+    result = asm.midgame_replay_twin_document(candidate, column, "r" * 64)
+    assert (result == document) if bound else result is None
+
+
+def test_a_missing_midgame_twin_document_supplies_nothing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    asm = _assembler_module()
+    monkeypatch.setattr(asm, "OUT", tmp_path)
+    assert asm.midgame_replay_twin_document("xmage", _fresh_column(), "r" * 64) is None
+
+
+def test_the_assembler_passes_the_bound_midgame_twin_to_af09() -> None:
+    source = _source(ASSEMBLER)
+    call = source.index("gate_derivations_mod.af09_rng_replay(")
+    assert "midgame_twin=midgame_twin_by_candidate[candidate]" in source[call : call + 400]
+    binding = source.index("midgame_twin_by_candidate = {")
+    assert "assembly_runner_digest" in source[binding : binding + 300]
+
+
+def test_the_runner_persists_replay_twin_receipts_after_the_pb03_ledger() -> None:
+    source = _source(RUNNER)
+    ledger = source.index('write("PB03_RUNTIME_EXECUTION.json", pb03_runtime)')
+    executions = source.index('"MIDGAME_REPLAY_TWIN_EXECUTIONS.json"')
+    assert ledger < executions
+    window = source[executions : executions + 700]
+    assert "runner_digest=runner.digest()" in window
+    assert "candidate_commit=canonical_xmage_engine_pin()" in window
+    assert "RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR" in window
 
 
 def test_af09_never_claims_an_executed_export() -> None:

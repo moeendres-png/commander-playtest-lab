@@ -40,6 +40,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
 )
 from commander_lab.qualification.current_boundary import lifecycle as lifecycle_mod  # noqa: E402
 from commander_lab.qualification.current_boundary import (  # noqa: E402
+    midgame_replay_twin as midgame_replay_twin_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
     midgame_rows as midgame_rows_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
@@ -577,7 +580,9 @@ def _af11_measure(
     return {"verdict": verdict, "evidence": evidence, "limitations": limitations}
 
 
-def _describe_replay_evidence(document: dict[str, Any], candidate: str) -> dict[str, Any]:
+def _describe_replay_evidence(
+    document: dict[str, Any], candidate: str, *, twin_proven: bool = False
+) -> dict[str, Any]:
     """Derive the AF09 replay/RNG evidence lines from the recorded artifact.
 
     Generic semantic distinctions, stated once and enforced here rather than
@@ -589,6 +594,11 @@ def _describe_replay_evidence(document: dict[str, Any], candidate: str) -> dict[
       obligation and never a replay PASS;
     * deterministic setup alone (deck import, game creation, seed echo) is not
       semantic replay proof.
+
+    ``twin_proven`` is true only when a clean-process twin bound to this
+    column carries the replay obligation. The distinctions then still hold and
+    are stated as evidence, but they no longer block: the verdict rests on the
+    twin, never on the refusal, the seed echo or the setup.
     """
     evidence: list[str] = []
     replay = document.get("semantic_replay") or {}
@@ -618,11 +628,16 @@ def _describe_replay_evidence(document: dict[str, Any], candidate: str) -> dict[
         "acknowledgement is a precondition for RNG control, not a demonstrated "
         "Rules RNG tape"
     )
-    limitations = [
+    distinctions = [
         "a fail-closed export refusal is an absent capability, never a satisfied "
         "obligation and never a replay PASS",
         "deterministic setup alone (deck import, game creation, seed acknowledgement) "
         "is not semantic replay proof",
+    ]
+    if twin_proven:
+        return {"evidence": [*evidence, *distinctions], "limitations": []}
+    limitations = [
+        *distinctions,
         "the clean-process twin half of each replay obligation is not proven per fixture",
     ]
     return {"evidence": evidence, "limitations": limitations}
@@ -633,6 +648,40 @@ def _load_replay_document(candidate: str) -> dict[str, Any] | None:
     if not path.is_file():
         return None
     return load(path)
+
+
+def midgame_replay_twin_document(
+    candidate: str, data: dict[str, Any], runner_digest: str
+) -> dict[str, Any] | None:
+    """The production midgame lane's replay-twin document, bound to this column.
+
+    None unless this is the fresh XMage column of this epoch and the runner's
+    document names the column's engine commit and the assembling runner, and
+    its twin names the same engine commit as the build that executed. Row
+    credit never comes from this document: each replay/RNG row is credited
+    only through its own runner-bound positive receipt.
+    """
+    if candidate != "xmage":
+        return None
+    if data["column_provenance"]["class"] != "FRESH_CURRENT_BOUNDARY_EXECUTION":
+        return None
+    path = OUT / "MIDGAME_REPLAY_TWIN_EXECUTIONS.json"
+    if not path.is_file():
+        return None
+    document = load(path)
+    commit = str(data["results_runtime_identity"].get("engine_candidate_commit", ""))
+    twin = document.get("clean_process_twin") or {}
+    if (
+        document.get("execution_mode") != midgame_replay_twin_mod.EXECUTION_MODE
+        or document.get("candidate") != candidate
+        or not commit
+        or document.get("candidate_commit") != commit
+        or document.get("runner_digest") != runner_digest
+        or (twin.get("candidate_build") or {}).get("engine_commit") != commit
+    ):
+        print("midgame replay-twin document rejected: not bound to this column and runner")
+        return None
+    return document
 
 
 def actual_card_campaign_credit(
@@ -795,6 +844,20 @@ def assemble() -> None:
                     "state, the record's viewer obligation held against the values the "
                     "record requests, and no forbidden identity or honey sentinel appeared "
                     "in any channel the viewer receives"
+                )
+            elif all(
+                name.startswith(midgame_replay_twin_mod.TEST_IDENTITY_PREFIX)
+                for name in receipt_ids
+            ):
+                row["execution_mode"] = midgame_replay_twin_mod.EXECUTION_MODE
+                row["reason"] = (
+                    "clean-process replay twin executed on the production midgame lane "
+                    f"({', '.join(receipt_ids)}): the record's scenario ran from its "
+                    "decision script with engine-offered options only, a fresh process "
+                    "replayed it from the taped external inputs alone, and the decision "
+                    "tape, canonical event tape, Rules RNG coordinates, checkpoint digests "
+                    "and terminal facts compared equal with every adversarial control "
+                    "detected; the row's own replay property held on those tapes"
                 )
             elif all(
                 name.startswith(forge_scenario_mod.FORGE_SCENARIO_TEST_IDENTITY_PREFIX)
@@ -988,9 +1051,20 @@ def assemble() -> None:
     # AF09 is derived from the recorded RNG/replay artifact, never asserted:
     # a refusal is recorded as a refusal, and seed acknowledgement is never
     # presented as a Rules RNG tape.
+    midgame_twin_by_candidate = {
+        cand: midgame_replay_twin_document(cand, cdata, assembly_runner_digest)
+        for cand, cdata in per_candidate.items()
+    }
     replay_by_candidate = {
         cand: (
-            _describe_replay_evidence(document, cand)
+            _describe_replay_evidence(
+                document,
+                cand,
+                twin_proven=not gate_derivations_mod.clean_process_twin_missing(
+                    document.get("clean_process_twin")
+                    or (midgame_twin_by_candidate[cand] or {}).get("clean_process_twin")
+                ),
+            )
             if (document := _load_replay_document(cand)) is not None
             else {
                 "evidence": [f"no RNG_REPLAY artifact exists for {cand}"],
@@ -1126,6 +1200,7 @@ def assemble() -> None:
                 data["rows"],
                 _load_replay_document(candidate),
                 described=replay_by_candidate[candidate],
+                midgame_twin=midgame_twin_by_candidate[candidate],
             ),
             {
                 "gate": "AF10",
