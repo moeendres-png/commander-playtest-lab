@@ -444,11 +444,17 @@ class RowExecution:
     # A causal-stack entry's own facts: the engine-cast frames and the engine's
     # checkpoint-equivalence verdict. Absent for a placement row.
     causal_reconstruction: dict[str, Any] | None = None
+    # Every scripted step was answered on an engine frame. Only a row that ran
+    # its whole script can demonstrate that the engine's end state contradicts
+    # the obligation; an unfinished script proves nothing either way.
+    script_consumed: bool | None = None
 
     def document(self) -> dict[str, Any]:
         document = self._base_document()
         if self.causal_reconstruction is not None:
             document["causal_reconstruction"] = self.causal_reconstruction
+        if self.script_consumed is not None:
+            document["script_consumed"] = self.script_consumed
         return document
 
     def _base_document(self) -> dict[str, Any]:
@@ -2510,6 +2516,7 @@ def execute_row(
         tape=tape,
         refusals=refusals,
         causal_reconstruction=reconstruction,
+        script_consumed=position >= len(script),
     )
 
 

@@ -87,11 +87,23 @@ Unchanged by this ruling:
 - **CARD_07 and CARD_16** are re-measured under the new placement. CARD_07 passes
   with its lossless checks run. CARD_16's hand-composition blocker is independent
   of this ruling; it is closed by `CARD16_OBLIGATION_ERRATUM.md`.
-- **F-40 starting life.** A recorded starting life is setup (CR 103.4), so it is
-  now set whenever the player's life is untouched since game start. A current
-  life the arrival caused (a restored Crawler seeing the turn-1 draw) is compared,
-  never set.
+- **F-40 starting life.** A recorded starting life is setup (CR 103.4). It is set at
+  the same first-turn setup point, while the player is still at the table's starting
+  life. A current life the arrival caused (a restored Crawler seeing the turn-1 draw)
+  is compared, never set.
+- **Summoning sickness (CR 302.6).** Restored permanents enter as new objects. The
+  engine's own beginning-of-turn step marks the turn-1 active player's permanents as
+  controlled since the turn began. Every other player's stay summoning sick until that
+  player's turn begins. A record's `controlled_since_turn_began` is verified at the
+  checkpoint and never set.
+- **Public tape.** The setup placement is muted on the public event tape. For example,
+  an entering planeswalker's loyalty counters are setup, as they were when placement
+  preceded the tape.
+- **Bounded residual.** Face-down and multi-part setup placements are still made
+  before game start through the engine's setup primitive, which removes summoning
+  sickness. A record that requests `controlled_since_turn_began` for such an object
+  is verified and fails closed on a mismatch.
 
-Implementation: `engine-bridge/src/main/java/org/commanderlab/xmage/XmageFirstTurnPlacementWatcher.java`
+Implementation: `engine-bridge/src/main/java/org/commanderlab/xmage/XmageFirstTurnSetupWatcher.java`
 and `XmageNativeStateRestoration.applyPreStart`. A deferred permanent still outside
 the game at the checkpoint fails closed with `FIRST_TURN_PLACEMENT_MISSED`.

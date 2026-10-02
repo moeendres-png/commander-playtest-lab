@@ -236,13 +236,28 @@ def actual_card_campaign_states(
     PASS comes only from a positive receipt that the R-4 credit rule accepts:
     this candidate, this candidate commit, this runner digest, the campaign's
     own test identity, and the requested-state and obligation digests of the
-    CURRENT effective record. The campaign document's own outcome labels never
-    promote anything. A FAIL is taken from the document only when the document
+    CURRENT effective record. When the campaign document is given, the receipt
+    must also be the one that document recorded for its row. The campaign
+    document's own outcome labels never promote anything. A FAIL is taken from the document only when the document
     is bound to the same candidate commit and runner digest, because a
     demonstrated violation must never be masked as merely unexecuted. Every
     other fixture is absent from the result, which the gate reads as
     unexecuted.
     """
+    if campaign_document is not None:
+        # A receipt credits only as the receipt this epoch's own campaign run
+        # recorded for that row: one left by another run with the same code
+        # identity (a standalone rerun into the epoch) does not.
+        recorded = {
+            str(entry.get("fixture_id") or ""): entry.get("receipt_digest")
+            for entry in campaign_document.get("rows") or ()
+        }
+        receipts = [
+            receipt
+            for receipt in receipts
+            if recorded.get(str(receipt.get("fixture_id") or "")) is not None
+            and receipt.get("receipt_digest") == recorded[str(receipt.get("fixture_id") or "")]
+        ]
     credited = positive_fixture_credit(
         receipts,
         candidate=candidate,

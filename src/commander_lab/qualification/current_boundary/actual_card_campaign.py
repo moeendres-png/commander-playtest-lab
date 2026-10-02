@@ -2312,6 +2312,30 @@ def engine_named_refusal_dimension(
     return None, None
 
 
+def contradicted_postconditions(row: CardRow, execution: Mapping[str, Any]) -> list[str]:
+    """Postconditions the engine's evaluated end state contradicts.
+
+    A proof counts only when every one of its checks was evaluated (present in
+    the execution's terminal facts) and at least one came out false. A check
+    that was never evaluated, or a proof by an unobserved event token, is an
+    absence of evidence and never a contradiction.
+    """
+    plan = plan_for(row.fixture_id)
+    if plan is None:
+        return []
+    facts = execution.get("terminal_facts") or {}
+    out = []
+    for proof in plan.proofs:
+        if proof.event_token is not None:
+            continue
+        descriptions = [check.describe() for check in proof.checks]
+        if all(isinstance(facts.get(d), bool) for d in descriptions) and not all(
+            facts[d] for d in descriptions
+        ):
+            out.append(proof.postcondition)
+    return out
+
+
 def classify(
     row: CardRow,
     measurement: RowMeasurement,
@@ -2623,6 +2647,35 @@ def evaluate_row(
         and measurement.engine_commit == expected_engine_commit
     )
     document = classification
+    contradicted = contradicted_postconditions(row, execution)
+    demonstrated_fail = bool(
+        not direct_pass
+        and measurement.phase == "EXECUTED"
+        and construction_accepted
+        and plan is not None
+        and not stale
+        and measurement.engine_commit == expected_engine_commit
+        and execution.get("script_consumed") is True
+        and not execution.get("missing_tokens")
+        and not execution.get("refusals")
+        and contradicted
+    )
+    if demonstrated_fail:
+        # The engine accepted the requested state, the whole script was answered
+        # on its own frames and every required event was observed, yet its end
+        # state contradicts the obligation: a demonstrated violation, never an
+        # unexecuted row. Whether the engine or the record is wrong is for
+        # adjudication; the row is never credited and never hidden as UNKNOWN.
+        document = {
+            "outcome": OUTCOME_FAIL,
+            "blocker_class": BLOCKER_ENGINE_DEFECT,
+            "blocker_surface": None,
+            "blocker_owner": None,
+            "blocker_detail": (
+                "the engine's observed end state contradicts the obligation (adjudication "
+                f"required): {contradicted}"
+            ),
+        }
     if direct_pass:
         document = {
             "outcome": OUTCOME_DIRECT_PASS,

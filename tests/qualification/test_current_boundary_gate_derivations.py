@@ -357,6 +357,18 @@ def test_af07_a_bound_campaign_fail_is_fail_and_is_never_masked() -> None:
     assert gate["blocking_rows"] == ["CARD_02"]
 
 
+def test_af07_a_receipt_the_epoch_document_did_not_record_earns_nothing() -> None:
+    records = _card_records()
+    receipt = _campaign_receipt("CARD_05", records, receipt_digest="a" * 64)
+    bound = {"candidate": "xmage", "candidate_commit": _PIN, "runner_digest": _RUNNER}
+    recorded = {"campaign": bound, "rows": [{"fixture_id": "CARD_05", "receipt_digest": "a" * 64}]}
+    assert _campaign_states([receipt], records, campaign_document=recorded) == {"CARD_05": "PASS"}
+    other = {"campaign": bound, "rows": [{"fixture_id": "CARD_05", "receipt_digest": "b" * 64}]}
+    assert _campaign_states([receipt], records, campaign_document=other) == {}
+    blocked = {"campaign": bound, "rows": [{"fixture_id": "CARD_05", "receipt_digest": None}]}
+    assert _campaign_states([receipt], records, campaign_document=blocked) == {}
+
+
 def test_af07_an_unbound_campaign_fail_is_not_evidence() -> None:
     records = _card_records()
     document = {
