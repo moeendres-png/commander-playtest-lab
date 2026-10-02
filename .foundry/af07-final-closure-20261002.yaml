@@ -5,8 +5,8 @@ worktree: commander-playtest-lab (session-local canonical clone; the earlier wt-
 branch: hardening/af07-final-closure-20261002
 audit_base_sha: 38647c1153e01da5837671de53bf3b0e4c2fab0d
 audit_base_tree: beda05179f2b261bf9b7e2954ab630fd312078b6
-state_written_against_head: 94b7213549e2ea5501c851516d19b99197ed2856
-validated_head: 94b7213549e2ea5501c851516d19b99197ed2856
+state_written_against_head: 169c8ffda29edaf17b6101c6f6d5878c006b7ea2
+validated_head: 169c8ffda29edaf17b6101c6f6d5878c006b7ea2
 workstream: AF07-FINAL-ACTUAL-CARD-CLOSURE-20261002
 issue: 453
 parent: 255
@@ -186,7 +186,25 @@ milestones:
       Final local battery on this head: AF07 29/29 DIRECT_PASS, FULL107
       midgame rows 22/22, AF05 knowledge-projection rows 20/20, engine-bridge
       925/925, Python suite 3332 passed / 22 skipped / 0 failed (clean tree).
+  - id: M16
+    rows: [MICRO_COSTS, CARD_03, CARD_04, WS05 battlefield-commander rows]
+    result: requalified locally on 169c8ffd
+    summary: >-
+      Fresh-context review fixes (5aa87d45: first-turn setup watcher with
+      starting life and a muted public tape, demonstrated-FAIL classification,
+      receipt-to-document binding). The new controlled_since_turn_began
+      verification exposed two gaps: battlefield commanders were placed at the
+      checkpoint by the sickness-clearing setup primitive and their request was
+      never verified; MICRO_COSTS requested an unreachable control history on
+      P2's turn 1. Battlefield commanders now leave the command zone at turn
+      1's BEGIN_TURN like every restored permanent and are verified; MICRO_COSTS
+      gets the CR 302.6 erratum in 1.0.18
+      (docs/af07_final_closure_20261002/MICRO_COSTS_CONTROL_HISTORY_ERRATUM.md).
+      Battery on 169c8ffd: engine-bridge 930 run / 0 failed / 1 skipped, AF07
+      29/29 DIRECT_PASS, FULL107 midgame rows 22/22, AF05 knowledge-projection
+      rows 20/20, Python 3339 passed / 22 skipped / 0 failed (clean tree).
 open_items:
+  - MICRO_PREVENTION, MICRO_PRIORITY and MICRO_STACK request an unreachable controlled_since_turn_began (P2's Forest on P1's turn 1); none is credited through a lane yet (the capability probe and two bridge tests drive them through the restoration without the checkpoint verification); recorded for #456.
   - CARD_06/07/16/25 official Oracle and CR text receipts pending (Scryfall, Gatherer and media.wizards.com are denied by this runner's egress policy).
 remaining_scope:
   - Forge decision-execution selector surface (prerequisite for any Forge AF07 credit)

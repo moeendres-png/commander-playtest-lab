@@ -128,6 +128,7 @@ final class XmageFirstTurnSetupWatcher extends Watcher {
                 Card card = game.getCard(commanderIds.get(index));
                 Player owner = game.getPlayer(commanderOwnerIds.get(index));
                 if (card == null || owner == null || game.getState().getZone(card.getId()) != Zone.COMMAND
+                        || !deferrable(game, card)
                         || !card.removeFromZone(game, Zone.COMMAND, source(card, owner))) {
                     // Left for the checkpoint verification, which fails closed.
                     continue;
