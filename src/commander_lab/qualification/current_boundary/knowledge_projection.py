@@ -986,9 +986,7 @@ def run_script(
                         raise ml.MidgameLaneError("the scripted source was not placed")
                     action = _activation_offer(legal, native)
                 else:
-                    action = _face_down_exile_cast_offer(
-                        client, legal, step, record, principal
-                    )
+                    action = _face_down_exile_cast_offer(client, legal, step, record, principal)
                     if action is None:
                         action = midgame_rows_mod._scripted_priority_action(
                             legal, step, placed, commanders
@@ -1964,8 +1962,7 @@ def _shuffle_invalidates_order(
     observations = [
         entry
         for entry in view.get("looked_at") or ()
-        if isinstance(entry, dict)
-        and sorted(_logged_card_names(entry)) == sorted(expected_order)
+        if isinstance(entry, dict) and sorted(_logged_card_names(entry)) == sorted(expected_order)
     ]
     checks.append(
         Check(
