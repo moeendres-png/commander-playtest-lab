@@ -70,6 +70,7 @@ ROWS: dict[str, str] = {
     "HIDDEN_05": "exile_permission_persists",
     "HIDDEN_15": "source_metadata",
     "HIDDEN_16": "ability_metadata",
+    "HIDDEN_11": "shuffle_invalidates_order",
 }
 
 # The record's own obligation sentence for each kind. A record whose viewer
@@ -92,6 +93,7 @@ OBLIGATION_TEXT: dict[str, str] = {
     "exile_permission_persists": "face-down exile actor-specific permission persists",
     "source_metadata": "source metadata does not leak",
     "ability_metadata": "ability metadata does not leak",
+    "shuffle_invalidates_order": "shuffle invalidates order knowledge",
     "honey_sentinel": (
         "unique forbidden sentinels scanned across prompt/context/option IDs/labels/"
         "metadata/source/state/transcript/logs"
@@ -1597,6 +1599,152 @@ def _scry_knowledge(record: dict[str, Any], capture: Capture, viewer: str) -> li
     return checks
 
 
+def _shuffle_invalidates_order(
+    record: dict[str, Any], capture: Capture, viewer: str
+) -> list[Check]:
+    """A native shuffle destroys order knowledge but not legitimate memory.
+
+    The record declares the exact pre-shuffle range the viewer looked at. The
+    engine projection after the scripted native shuffle must still preserve
+    those identities for the entitled viewer, must explicitly mark the order
+    invalidated, and must not serialize the former engine order. Other
+    principals remain unentitled to those library identities.
+    """
+    checks = _event_checks(capture)
+    ranges = [
+        item
+        for item in _viewer_state(record).get("known_library_ranges") or ()
+        if isinstance(item, dict)
+        and item.get("viewer") == viewer
+        and item.get("before_event") == "shuffle"
+        and item.get("ordered") is True
+    ]
+    checks.append(
+        Check(
+            "one_pre_shuffle_known_range_declared",
+            len(ranges) == 1,
+            f"{len(ranges)} ordered pre-shuffle ranges declared for {viewer}",
+        )
+    )
+    if len(ranges) != 1:
+        return checks
+
+    known = ranges[0]
+    owner = str(known.get("player"))
+    start = int(known.get("start", 0))
+    count = int(known.get("count", 0))
+    ordered_objects = sorted(
+        (
+            obj
+            for obj in _objects(record)
+            if obj.get("zone") == "library"
+            and obj.get("owner") == owner
+            and isinstance(obj.get("zone_position"), int)
+            and start <= int(obj["zone_position"]) < start + count
+        ),
+        key=lambda obj: int(obj["zone_position"]),
+    )
+    expected_order = [str(obj["card_identity"]) for obj in ordered_objects]
+    checks.append(
+        Check(
+            "known_range_is_losslessly_materialized",
+            len(expected_order) == count and count > 0,
+            f"{len(expected_order)} requested objects cover declared count {count}",
+        )
+    )
+
+    projection = capture.projections.get(viewer) or {}
+    view = projection.get("view") or {}
+    observations = [
+        entry
+        for entry in view.get("looked_at") or ()
+        if isinstance(entry, dict)
+        and sorted(_logged_card_names(entry)) == sorted(expected_order)
+    ]
+    checks.append(
+        Check(
+            "remembered_identity_set_observed",
+            len(observations) == 1,
+            f"{len(observations)} look observations retain exactly {sorted(expected_order)}",
+            "ENTITLEMENT",
+        )
+    )
+    if len(observations) == 1:
+        observation = observations[0]
+        actual_order = _logged_card_names(observation)
+        checks.extend(
+            [
+                Check(
+                    "shuffle_order_invalidated_explicitly",
+                    observation.get("order_invalidated_by_shuffle") is True,
+                    f"order_invalidated_by_shuffle={observation.get('order_invalidated_by_shuffle')!r}",
+                    "LEAK",
+                ),
+                Check(
+                    "pre_shuffle_order_not_retained",
+                    actual_order != expected_order,
+                    f"before={expected_order}; after={actual_order}",
+                    "LEAK",
+                ),
+                Check(
+                    "invalidated_memory_is_canonical_not_engine_order",
+                    actual_order == sorted(expected_order),
+                    f"after={actual_order}; canonical={sorted(expected_order)}",
+                    "LEAK",
+                ),
+            ]
+        )
+
+    owner_entry = _player_entry(projection, owner) or {}
+    checks.append(
+        Check(
+            "no_active_library_grant_survives_shuffle",
+            not list(owner_entry.get("granted_library") or ()),
+            f"{len(owner_entry.get('granted_library') or ())} active library grants remain",
+            "LEAK",
+        )
+    )
+
+    identities = set(expected_order)
+    for label in _labels(record):
+        if label == viewer:
+            continue
+        other = capture.projections.get(label) or {}
+        leaked = [
+            name
+            for entry in ((other.get("view") or {}).get("looked_at") or ())
+            if isinstance(entry, dict)
+            for name in _logged_card_names(entry)
+            if name in identities
+        ]
+        checks.append(
+            Check(
+                f"remembered_identity_withheld_from:{label}",
+                not leaked,
+                f"{label} received {leaked}",
+                "LEAK",
+            )
+        )
+        hits, _, tokens = _scan_principal(record, capture, label)
+        checks.append(
+            Check(
+                f"no_forbidden_token_in_channels_of:{label}",
+                not hits,
+                f"{len(hits)} occurrences of {sorted(tokens.tokens)}",
+                "LEAK",
+            )
+        )
+    return checks
+
+
+def _logged_card_names(entry: dict[str, Any]) -> list[str]:
+    return [
+        str(card.get("name"))
+        for card in entry.get("cards") or ()
+        if isinstance(card, dict) and card.get("name")
+    ]
+
+
 def _pile_frames(frames: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """The frames that split cards into piles or choose a pile."""
     return [
@@ -2287,6 +2435,8 @@ def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> R
         focus = _scry_knowledge(record, capture, viewer)
     elif kind == "pile_metadata":
         focus = _pile_metadata(record, capture, viewer)
+    elif kind == "shuffle_invalidates_order":
+        focus = _shuffle_invalidates_order(record, capture, viewer)
     elif kind == "target_metadata":
         focus = _target_metadata(record, capture, viewer)
     elif kind == "copy_face_down":
