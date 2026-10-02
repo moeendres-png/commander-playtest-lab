@@ -632,3 +632,29 @@ def test_critical_command_success_masking_is_not_enforcing(run: str) -> None:
     assert not guard._matching_command_is_enforcing(
         run, guard.CATEGORY_PATTERNS["pytest"]
     )
+
+
+@pytest.mark.parametrize(
+    ("path", "impact"),
+    [
+        ("conftest.py", "pytest_control_surface"),
+        ("src/ruff.toml", "quality_tool_configuration"),
+        ("tools/pyproject.toml", "quality_tool_configuration"),
+    ],
+)
+def test_quality_control_surface_change_requires_review(
+    repository: tuple[Path, str], path: str, impact: str
+) -> None:
+    repo, base = repository
+    head = candidate(
+        repo,
+        base,
+        lambda root: write(root, path, "# candidate quality control surface\n"),
+        f"change {path}",
+    )
+    report = guard.inspect_required_check_definitions(repo, base, head)
+    assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
+    assert any(
+        item["path"] == path and item["impact"] == impact
+        for item in report["changed_protected_surfaces"]
+    )
