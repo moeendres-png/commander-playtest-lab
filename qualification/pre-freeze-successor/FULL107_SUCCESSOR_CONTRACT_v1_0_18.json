@@ -1,7 +1,7 @@
 {
  "change_accounting": {
   "change_class": "MIXED_FIXTURE_CONTRACT_ERRATA_AND_RULES_AUTHORITY_CORRECTION",
-  "changed_fixture_count": 48,
+  "changed_fixture_count": 49,
   "changed_fixture_ids": [
    "WS05-CMD-START-2",
    "MICRO_MODES",
@@ -50,7 +50,8 @@
    "CARD_03",
    "CARD_22",
    "CARD_13",
-   "CARD_10"
+   "CARD_10",
+   "CARD_07"
   ],
   "historical_predecessor_preserved": true,
   "per_fixture_correction_class": {
@@ -101,7 +102,8 @@
    "CARD_03": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
    "CARD_22": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
    "CARD_13": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
-   "CARD_10": "ACTUAL_CARD_SCENARIO_ERRATUM"
+   "CARD_10": "ACTUAL_CARD_SCENARIO_ERRATUM",
+   "CARD_07": "ACTUAL_CARD_SCENARIO_ERRATUM"
   },
   "provider_semantics_used_to_define_successor": false,
   "unchanged_provider_denominator_rows": 78
@@ -12495,6 +12497,372 @@
     ]
    },
    "successor_requested_state_digest": "7949fde6bc0c81931d4866787cbe4e39b30eaedf16438789ce65fbb50d873a0b"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255 comment 5925956587 (SLOT-04): lossy or ambiguous fixtures are corrected and versioned rather than weakening execution; a record's decision script answers only the discretionary decisions the Rules Core itself asks, and an unscripted discretionary decision stops the row",
+      "correction": "P2's draw-two on the stack is the instant Quick Study (Oracle: 'Draw two cards.'), cast by P2 during P1's turn, when P2 has not drawn yet; Narset's controller P1 is the active player; the libraries and hands are the SLOT-04 complete checkpoint",
+      "defect": "the record places P2's Divination on the stack during P2's own turn; in a four-player game no player skips the first draw (CR 103.8c), so P2 has already drawn this turn and Narset forbids both of Divination's draws, while the frozen obligation and its events (draw attempt 1 succeeds, draw attempt 2 is disallowed) require P2 not to have drawn yet this turn; a sorcery cannot be cast on another player's turn, and the engine cannot restore a stack object",
+      "erratum_class": "ACTUAL_CARD_SCENARIO_ERRATUM",
+      "obligation_changed": false,
+      "prose_derived_action_injection": false,
+      "provider_semantics_used": false,
+      "rules_basis": "CR 103.8c (no first-turn draw skip in a four-player game); CR 307.1 (a sorcery is cast only in its controller's main phase with an empty stack)",
+      "stack_entry": "causal_stack route of the production probe",
+      "substituted_objects": {
+       "obj:card07-draw": {
+        "from": "Divination",
+        "to": "Quick Study"
+       }
+      },
+      "oracle_basis": {
+       "Divination": {
+        "type_line": "Sorcery",
+        "relevant_text": "Draw two cards."
+       },
+       "Quick Study": {
+        "type_line": "Instant",
+        "relevant_text": "Draw two cards."
+       },
+       "Narset, Parter of Veils": {
+        "type_line": "Legendary Planeswalker — Narset",
+        "relevant_text": "Each opponent can't draw more than one card each turn."
+       }
+      },
+      "oracle_receipt": {
+       "status": "PROVIDER_CROSS_CHECKED_COPY_EXTERNAL_RECEIPT_PENDING",
+       "reason": "the official Oracle source is unreachable from this runner's network policy"
+      },
+      "includes_lossless_library_erratum": true
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-scenario-card_07"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 actual-card decision script",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "ACTUAL_CARD_SCENARIO_ERRATUM",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The decision script (and, where named, the declared payment sources) change, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "CARD_07",
+   "knowledge_state_channel_policy": "RSP actor-aware observation applies to prompts, context, options, source/ability metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "predecessor_values": {
+     "semantic_objects": [
+      {
+       "card_identity": "Rograkh, Son of Rohgahh",
+       "card_lineage_id": "line:obj:P1-commander",
+       "commander_id": "cmd:P1-A",
+       "controller": "P1",
+       "counters": {},
+       "face_down": false,
+       "owner": "P1",
+       "semantic_id": "obj:P1-commander",
+       "tapped": false,
+       "zone": "command"
+      },
+      {
+       "card_identity": "Rograkh, Son of Rohgahh",
+       "card_lineage_id": "line:obj:P2-commander",
+       "commander_id": "cmd:P2-A",
+       "controller": "P2",
+       "counters": {},
+       "face_down": false,
+       "owner": "P2",
+       "semantic_id": "obj:P2-commander",
+       "tapped": false,
+       "zone": "command"
+      },
+      {
+       "card_identity": "Rograkh, Son of Rohgahh",
+       "card_lineage_id": "line:obj:P3-commander",
+       "commander_id": "cmd:P3-A",
+       "controller": "P3",
+       "counters": {},
+       "face_down": false,
+       "owner": "P3",
+       "semantic_id": "obj:P3-commander",
+       "tapped": false,
+       "zone": "command"
+      },
+      {
+       "card_identity": "Rograkh, Son of Rohgahh",
+       "card_lineage_id": "line:obj:P4-commander",
+       "commander_id": "cmd:P4-A",
+       "controller": "P4",
+       "counters": {},
+       "face_down": false,
+       "owner": "P4",
+       "semantic_id": "obj:P4-commander",
+       "tapped": false,
+       "zone": "command"
+      },
+      {
+       "card_identity": "Narset, Parter of Veils",
+       "card_lineage_id": "line:obj:card_07-subject",
+       "controller": "P1",
+       "counters": {},
+       "face_down": false,
+       "owner": "P1",
+       "semantic_id": "obj:card_07-subject",
+       "tapped": false,
+       "zone": "battlefield"
+      },
+      {
+       "card_identity": "Divination",
+       "card_lineage_id": "line:obj:card07-draw",
+       "controller": "P2",
+       "counters": {},
+       "face_down": false,
+       "owner": "P2",
+       "semantic_id": "obj:card07-draw",
+       "tapped": false,
+       "zone": "stack"
+      },
+      {
+       "card_identity": "Mountain",
+       "card_lineage_id": "line:obj:card07-lib-0",
+       "controller": "P2",
+       "counters": {},
+       "face_down": false,
+       "owner": "P2",
+       "semantic_id": "obj:card07-lib-0",
+       "tapped": false,
+       "zone": "library",
+       "zone_position": 0
+      },
+      {
+       "card_identity": "Island",
+       "card_lineage_id": "line:obj:card07-lib-1",
+       "controller": "P2",
+       "counters": {},
+       "face_down": false,
+       "owner": "P2",
+       "semantic_id": "obj:card07-lib-1",
+       "tapped": false,
+       "zone": "library",
+       "zone_position": 1
+      }
+     ],
+     "temporal_state": {
+      "active_player": "P2",
+      "extra_turn_queue": [],
+      "phase": "precombat_main",
+      "priority_player": "P1",
+      "step": "main",
+      "turn_number": 1
+     },
+     "deck_state": null
+    },
+    "reason": "the record places P2's Divination on the stack during P2's own turn; in a four-player game no player skips the first draw (CR 103.8c), so P2 has already drawn this turn and Narset forbids both of Divination's draws, while the frozen obligation and its events (draw attempt 1 succeeds, draw attempt 2 is disallowed) require P2 not to have drawn yet this turn; a sorcery cannot be cast on another player's turn, and the engine cannot restore a stack object"
+   },
+   "predecessor_requested_state_digest": "e366c59df19e891691ec9d9a5da3a9188dd9eb239279ae4bf12e418512f347ef",
+   "replace": {
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Narset, Parter of Veils",
+      "card_lineage_id": "line:obj:card_07-subject",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card_07-subject",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Quick Study",
+      "card_lineage_id": "line:obj:card07-draw",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:card07-draw",
+      "tapped": false,
+      "zone": "stack"
+     },
+     {
+      "card_identity": "Mountain",
+      "card_lineage_id": "line:obj:card07-lib-0",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:card07-lib-0",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 0
+     },
+     {
+      "card_identity": "Island",
+      "card_lineage_id": "line:obj:card07-lib-1",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:card07-lib-1",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 1
+     }
+    ],
+    "temporal_state": {
+     "active_player": "P1",
+     "extra_turn_queue": [],
+     "phase": "precombat_main",
+     "priority_player": "P1",
+     "step": "main",
+     "turn_number": 1
+    },
+    "deck_state": [
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 8
+      },
+      "commander_ids": [
+       "cmd:P1-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P1",
+      "shuffle_channel": "library_shuffle:P1"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P2-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P2",
+      "shuffle_channel": "library_shuffle:P2",
+      "checkpoint_library": {
+       "completeness": "COMPLETE_TOP_TO_BOTTOM",
+       "runs": [
+        {
+         "semantic_id": "obj:card07-lib-0"
+        },
+        {
+         "semantic_id": "obj:card07-lib-1"
+        },
+        {
+         "card_identity": "Mountain",
+         "count": 92
+        }
+       ]
+      }
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P3-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P3",
+      "shuffle_channel": "library_shuffle:P3"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P4-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P4",
+      "shuffle_channel": "library_shuffle:P4"
+     }
+    ]
+   },
+   "successor_requested_state_digest": "3635cf1286d5525f9327b7f1451042df0c5f2c6bb7d6e8298f3a94b0536edcbb"
   }
  ],
  "rules_authority": {

@@ -692,6 +692,24 @@ _NO_MAX_HAND_P1 = (
 )
 
 
+# CARD_07: Quick Study's own draw from P2's library, and its resolution.
+_QUICK_STUDY_DRAW = _events(
+    "ZONE_CHANGE",
+    ("source_object", "obj:card07-draw"),
+    ("player_player", "P2"),
+    ("from", "LIBRARY"),
+    ("to", "HAND"),
+    count=1,
+)
+_QUICK_STUDY_RESOLVED = _events(
+    "ZONE_CHANGE",
+    ("target_object", "obj:card07-draw"),
+    ("from", "STACK"),
+    ("to", "GRAVEYARD"),
+    count=1,
+)
+
+
 # Plans are onboarded fixture by fixture. Each one covers the effective
 # record's own postconditions exactly; ``stale_reasons`` fails the plan closed
 # the moment the record's postconditions or required events change. A row with
@@ -1292,6 +1310,34 @@ PLANS: dict[str, ObligationPlan] = {
                 "spell_countered",
                 _events("COUNTERED", ("source_object", "obj:card_10-subject"), count=1),
             ),
+        ),
+    ),
+    # Narset: the causal-stack entry reconstructs P2's Quick Study on the stack
+    # during P1's turn (P2 has not drawn this turn). The spell resolves fully,
+    # moving from the stack to the graveyard, and the engine moves exactly one
+    # card from P2's library to hand: the first draw happens and the second is
+    # disallowed. The engine publishes no event for a prevented draw, so the
+    # second attempt is evidenced by the complete resolution with one draw.
+    "CARD_07": ObligationPlan(
+        fixture_id="CARD_07",
+        proofs=(
+            PostconditionProof(
+                "P2 draws exactly one card.",
+                terminal_check=_events(
+                    "ZONE_CHANGE",
+                    ("player_player", "P2"),
+                    ("from", "LIBRARY"),
+                    ("to", "HAND"),
+                    count=1,
+                ),
+                also=(_QUICK_STUDY_RESOLVED,),
+            ),
+        ),
+        token_bindings=(
+            ("draw_attempt:1", _QUICK_STUDY_DRAW),
+            ("draw_card", _QUICK_STUDY_DRAW),
+            ("draw_attempt:2", (_QUICK_STUDY_RESOLVED, _QUICK_STUDY_DRAW)),
+            ("draw_disallowed", (_QUICK_STUDY_RESOLVED, _QUICK_STUDY_DRAW)),
         ),
     ),
     # Harmonic Prodigy makes Talrand's cast trigger trigger an additional time:

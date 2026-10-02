@@ -86,7 +86,7 @@ CARD_OBLIGATION_ERRATA_IDS = ["CARD_06"]
 FINAL_CARD_SCRIPT_ERRATA_IDS = ["CARD_03", "CARD_22", "CARD_13"]
 # The AF07 scenario errata (1.0.18): a frozen position the Comprehensive Rules
 # make unreachable as recorded; every obligation key is untouched.
-CARD_SCENARIO_ERRATA_IDS = ["CARD_10"]
+CARD_SCENARIO_ERRATA_IDS = ["CARD_10", "CARD_07"]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -1570,3 +1570,41 @@ def test_card10_scenario_erratum_changes_only_the_active_player_and_the_script()
         "priority",
         "target",
     ]
+
+
+def test_card07_scenario_erratum_substitutes_only_the_draw_spell() -> None:
+    """Narset forbids a second draw each turn. On P2's own turn in a four-player
+    game P2 has already drawn (CR 103.8c), so the frozen draw events are
+    unreachable with a sorcery; the erratum substitutes an instant draw-two cast
+    during P1's turn and keeps the stack frame and every obligation key."""
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    patch = next(p for p in contract["record_successors"] if p["fixture_id"] == "CARD_07")
+    old = base["CARD_07"]
+    assert patch["correction_class"] == "ACTUAL_CARD_SCENARIO_ERRATUM"
+    assert sorted(patch["replace"]) == ["deck_state", "semantic_objects", "temporal_state"]
+    details = patch["append_native_procedure"][0]["details"]
+    assert details["substituted_objects"] == {
+        "obj:card07-draw": {"from": "Divination", "to": "Quick Study"}
+    }
+    assert details["oracle_basis"]["Quick Study"]["type_line"] == "Instant"
+    assert details["oracle_basis"]["Divination"]["type_line"] == "Sorcery"
+    record = resolver.effective_record("CARD_07")
+    assert record["obligation_digest"] == old["obligation_digest"]
+    assert record["stack_state"] == old["stack_state"]
+    # Exactly one object changes, and only its card identity.
+    changed = [
+        (new, before)
+        for new, before in zip(record["semantic_objects"], old["semantic_objects"], strict=True)
+        if new != before
+    ]
+    assert len(changed) == 1
+    new, before = changed[0]
+    assert {**new, "card_identity": before["card_identity"]} == before
+    assert record["temporal_state"]["active_player"] == "P1"
