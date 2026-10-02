@@ -5,8 +5,8 @@ worktree: commander-playtest-lab (session-local canonical clone; the earlier wt-
 branch: hardening/af07-final-closure-20261002
 audit_base_sha: 38647c1153e01da5837671de53bf3b0e4c2fab0d
 audit_base_tree: beda05179f2b261bf9b7e2954ab630fd312078b6
-state_written_against_head: 15a9c4937da2d8bbbe5b24a59e4a92823edf11ad
-validated_head: 15a9c4937da2d8bbbe5b24a59e4a92823edf11ad
+state_written_against_head: 94b7213549e2ea5501c851516d19b99197ed2856
+validated_head: 94b7213549e2ea5501c851516d19b99197ed2856
 workstream: AF07-FINAL-ACTUAL-CARD-CLOSURE-20261002
 issue: 453
 parent: 255
@@ -148,14 +148,49 @@ milestones:
       AF07 from receipts against the current effective record digests;
       denominator rows win for their own fixture (CARD_02). The previous
       container's unpushed credit-route work was lost and rebuilt here.
+  - id: M12
+    rows: [CARD_07, MICRO_CONTINUOUS_EFFECTS vehicle]
+    result: CARD_07 DIRECT_PASS with its lossless checks run (local runner)
+    summary: >-
+      Placement point adjudicated (Option 2, CR 103.6a): restored face-up
+      permanents enter at turn 1's BEGIN_TURN event (XmageFirstTurnPlacementWatcher),
+      so they never observe the opening-hand draws or mulligans. Face-down
+      objects and multi-part battlefield cards stay setup placements; a deferred
+      permanent still outside the game at the checkpoint fails closed. The
+      Crawler vehicle test now expects 39 (turn-1 draw only), not 32.
+      docs/af07_final_closure_20261002/PLACEMENT_POINT_ADJUDICATION.md.
+  - id: M13
+    rows: [CARD_16]
+    result: DIRECT_PASS (local runner)
+    summary: >-
+      ACTUAL_CARD_OBLIGATION_ERRATUM: P1's natural turn-1 hand (template 8 plus
+      three named Mountains) and the opponents' caused life (19) are declared;
+      postconditions restated at that state (hand 13, Crawler 13/13, 17 life).
+      F-40 now sets a recorded starting life whenever life is untouched (setup),
+      never the caused current life. New exact hand_count check.
+      docs/af07_final_closure_20261002/CARD16_OBLIGATION_ERRATUM.md.
+  - id: M14
+    rows: [CARD_25]
+    result: DIRECT_PASS (local runner)
+    summary: >-
+      Scenario erratum (obligation keys untouched): Eager Cadet replaces the
+      unrestorable token, the Collar is equipped through the engine's own
+      Equip activation in P1's precombat main, then the unchanged attack and
+      block. New generic blocker_assignment selector. The restoration now fails
+      closed on attached_to (it was silently ignored).
+      docs/af07_final_closure_20261002/CARD25_SCENARIO_ERRATUM.md.
+  - id: M15
+    rows: [CARD_01..CARD_29 on XMage]
+    result: 29/29 DIRECT_PASS on the final local head
+    summary: >-
+      Final local battery on this head: AF07 29/29 DIRECT_PASS, FULL107
+      midgame rows 22/22, AF05 knowledge-projection rows 20/20, engine-bridge
+      925/925, Python suite 3332 passed / 22 skipped / 0 failed (clean tree).
 open_items:
-  - CARD_06 and CARD_07 official Oracle receipts pending (Scryfall/Gatherer unreachable from this runner).
+  - CARD_06/07/16/25 official Oracle and CR text receipts pending (Scryfall, Gatherer and media.wizards.com are denied by this runner's egress policy).
 remaining_scope:
   - Forge decision-execution selector surface (prerequisite for any Forge AF07 credit)
-  - restoration placement point (pre-start vs after the start-of-game procedure vs checkpoint step): Rules/Coordinator decision; prototype in docs/af07_final_closure_20261002
-  - CARD_16 native hand-composition API (provider change, Coordinator decision)
-  - CARD_25 multi-turn causal setup route
 exact_next_action: >-
-  Drive #484 to an exact-head green PB-03 that credits the 26 corpus
-  identities; then adjudicate the restoration placement point against CR 103
-  (CARD_07, CARD_16) and requalify the affected rows.
+  Drive #484 to an exact-head green PB-03 that credits all 29 XMage corpus
+  identities through the same-epoch receipts, run the fresh-context review,
+  merge, then hand off to AF09 (#454/#461).
