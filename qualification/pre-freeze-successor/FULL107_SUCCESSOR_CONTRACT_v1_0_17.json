@@ -9749,7 +9749,7 @@
    "digest_migration": {
     "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
     "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
-    "reason": "The requested state gains an actual Orcish Spy -> Elixir shuffle route and a three-card known range; the frozen obligation keys remain unchanged.",
+    "reason": "The requested state gains an actual Orcish Spy -> Elixir shuffle route and a three-card known range while preserving the lossless checkpoint hand/library counts; the frozen obligation keys remain unchanged.",
     "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
    },
    "evidence_survival": "REQUALIFICATION_REQUIRED",
@@ -9866,7 +9866,7 @@
       "checkpoint_hand": {
        "completeness": "COMPLETE",
        "template_card_identity": "Mountain",
-       "template_count": 7
+       "template_count": 8
       },
       "commander_ids": [
        "cmd:P1-A"
@@ -9883,7 +9883,7 @@
       "checkpoint_hand": {
        "completeness": "COMPLETE",
        "template_card_identity": "Mountain",
-       "template_count": 6
+       "template_count": 7
       },
       "checkpoint_library": {
        "completeness": "COMPLETE_TOP_TO_BOTTOM",
@@ -10169,7 +10169,7 @@
      }
     ]
    },
-   "successor_requested_state_digest": "55f1fc07881ff20d84eee1da494fdd932009f8b5245d91ddfbcdcdc61ee62aa5"
+   "successor_requested_state_digest": "e9a4b698cb47fe9aa375b72e74d73107a508f5c31bdbe305bfaa89c1a9bf9fe3"
   }
  ],
  "rules_authority": {
