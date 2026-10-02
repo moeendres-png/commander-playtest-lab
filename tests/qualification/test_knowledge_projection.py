@@ -263,6 +263,18 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         projections["P1"]["view"]["looked_at"] = [
             {"title": "Orcish Spy", "cards": [{"name": "Vampiric Tutor"}, {"name": "Mountain"}]}
         ]
+    if kind == "shuffle_invalidates_order":
+        projections["P1"]["view"]["looked_at"] = [
+            {
+                "title": "Orcish Spy",
+                "order_invalidated_by_shuffle": True,
+                "cards": [
+                    {"name": "Enlightened Tutor"},
+                    {"name": "Mystical Tutor"},
+                    {"name": "Vampiric Tutor"},
+                ],
+            }
+        ]
     tape: list[dict[str, Any]] = [
         _entry("get_capabilities", None, _ok(copy.deepcopy(CAPABILITIES))),
         _entry(
@@ -338,6 +350,37 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         {"type": "ZONE_CHANGE", "from": "LIBRARY", "to": "LIBRARY", "player_player": "P1"}
         for _ in range(2 if kind == "scry_knowledge" else 0)
     ]
+    temporal_snapshots: list[dict[str, Any]] = []
+    if kind == "shuffle_invalidates_order":
+        pre_projection = copy.deepcopy(projections["P1"])
+        pre_projection["view"]["looked_at"] = [
+            {
+                "title": "Orcish Spy",
+                "cards": [
+                    {"name": "Vampiric Tutor"},
+                    {"name": "Mystical Tutor"},
+                    {"name": "Enlightened Tutor"},
+                ],
+            }
+        ]
+        temporal_snapshots.append(
+            {
+                "causal_step_id": "elixir-shuffle",
+                "script_position": 2,
+                "tape_index": len(tape),
+                "projection": pre_projection,
+                "events": {"events": []},
+            }
+        )
+        events.append(
+            {
+                "sequence": 10,
+                "type": "LIBRARY_SHUFFLED",
+                "player_player": "P2",
+                "target_player": "P2",
+                "public_identity": True,
+            }
+        )
     if kind == "exile_permission_persists":
         # Gonti exiles P2's library card face down; P1 alone may look at it,
         # and still does after P2's Bolt has destroyed Gonti.
@@ -366,6 +409,99 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
                 "target_name": "Gonti, Lord of Luxury",
             },
         ]
+    controlled_decision: dict[str, Any] | None = None
+    controlled_submission: dict[str, Any] | None = None
+    cast_index: int | None = None
+    if kind == "exile_permission_invalidates":
+        pre_projections = {label: copy.deepcopy(projections[label]) for label in LABELS}
+        pre_projections["P1"]["view"]["players"][1]["exile"].append(
+            {"name": "Memnite", "object_id": "memnite-exiled", "face_down": True}
+        )
+        for label in LABELS:
+            pre_projections[label]["view"]["players"][1]["exile_count"] = 2
+        grant = {
+            "sequence": 3,
+            "type": "ZONE_CHANGE",
+            "from": "LIBRARY",
+            "to": "EXILED",
+            "public_identity": False,
+            "player_player": "P2",
+            "source_object": "obj:hidden06-gonti",
+            "source_name": "Gonti, Lord of Luxury",
+        }
+        departure = {
+            "sequence": 7,
+            "type": "ZONE_CHANGE",
+            "from": "EXILED",
+            "to": "STACK",
+            "public_identity": True,
+            "player_player": "P2",
+            "target_name": "Memnite",
+        }
+        cast_index = len(tape)
+        temporal_snapshots.append(
+            {
+                "causal_step_id": "cast-exiled-card",
+                "script_position": 3,
+                "tape_index": len(tape),
+                "projection": copy.deepcopy(pre_projections["P1"]),
+                "projections": pre_projections,
+                "events": {"events": [grant]},
+            }
+        )
+        events.extend([grant, departure])
+        for label in LABELS:
+            projections[label]["view"]["players"][0]["battlefield"].append(
+                {"name": "Memnite", "object_id": "memnite-new-object", "face_down": False}
+            )
+
+    if kind == "controlled_player_authority":
+        p1_view = copy.deepcopy(projections["P1"]["view"])
+        p2_row = p1_view["players"][1]
+        p2_row["private_state_visible"] = True
+        p2_row["hand"] = [{"name": "Demonic Tutor", "object_id": "dt-controlled"}]
+        controlled_decision = _frame("P1", "controlled-p2")
+        controlled_decision["seat"] = 0
+        controlled_decision["acting_for_seat"] = 1
+        controlled_decision["decision_offset"] = 52
+        controlled_decision["pilot_state"] = p1_view
+        controlled_decision["legal_options"] = [
+            {
+                "option_id": "controlled-pass",
+                "option_type": "pass_priority",
+                "label": "Pass priority",
+                "metadata": {},
+            }
+        ]
+        controlled_submission = {
+            "decision_id": "controlled-p2",
+            "decision_offset": 52,
+            "actor_id": NATIVE["P1"],
+            "selected_option_id": "controlled-pass",
+            "accepted": True,
+            # The live binding probes: the answered id replayed and the next
+            # decision under a foreign actor are both refused, changing nothing.
+            "stale_replay_rejected": "external_pilot_decision_rejected",
+            "foreign_actor_rejected": "external_pilot_decision_rejected",
+            "foreign_actor_attempted": True,
+            "pending_unchanged": True,
+        }
+        tape.append(_entry("get_midgame_decision", None, _ok({"decision": controlled_decision})))
+        tape.append(
+            _entry(
+                "submit_midgame_decision",
+                {
+                    "response": {
+                        "decision_id": "controlled-p2",
+                        "actor_id": NATIVE["P1"],
+                        "selected_option_ids": ["controlled-pass"],
+                    }
+                },
+                _ok({}),
+            )
+        )
+        projections["P1"]["view"] = copy.deepcopy(p1_view)
+
     if kind in ("source_metadata", "ability_metadata"):
         # P2's cloaked permanent (P2 may look at it); P1 targets it and its ward
         # trigger asks P1 to pay {2}.
@@ -424,8 +560,21 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         tape=tape,
         log="log4j:WARN No appenders could be found for logger (mage.util.ClassScanner).\n",
         script_start=script_start,
-        script_trace=[{"decision_class": "priority", "step": 0}] if script_start else [],
+        script_trace=(
+            [{"decision_class": "priority", "step": 0}]
+            # HIDDEN_06's cast of the exiled card enters the tape at the snapshot.
+            + (
+                [{"decision_class": "priority", "step": 3, "tape_index": cast_index}]
+                if cast_index is not None
+                else []
+            )
+            if script_start
+            else []
+        ),
         script_complete=script_start is not None,
+        temporal_snapshots=temporal_snapshots,
+        controlled_decision=controlled_decision,
+        controlled_submission=controlled_submission,
     )
 
 
@@ -651,12 +800,18 @@ def test_a_hidden_public_exile_card_is_a_denied_entitlement(
 # --------------------------------------------------------------------------- #
 
 
+def _remove_one_lossless_check(capture: kp.Capture) -> None:
+    checks = capture.scoped_arrival["lossless_hidden_checks"]
+    assert checks
+    checks.pop(sorted(checks)[0])
+
+
 @pytest.mark.parametrize(
     ("name", "mutate"),
     [
         (
             "a lossless check that never ran",
-            lambda c: c.scoped_arrival["lossless_hidden_checks"].pop("face_down"),
+            _remove_one_lossless_check,
         ),
         ("an inexact construction", lambda c: setattr(c, "arrival_verdict", "MISMATCH")),
         ("a construction mismatch", lambda c: c.scoped_arrival.update(mismatches=["x"])),
@@ -1026,6 +1181,255 @@ def test_a_card_the_script_casts_is_public_only_after_the_event(
 
 
 # --------------------------------------------------------------------------- #
+# HIDDEN_06 — native zone change invalidates the face-down exile permission
+# --------------------------------------------------------------------------- #
+
+
+def test_exile_permission_invalidation_requires_the_pre_move_permission(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.temporal_snapshots[0]["projections"]["P1"]["view"]["players"][1]["exile"] = []
+
+    verdict = _verdict(records, "HIDDEN_06", mutate)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert "permission_active_before_zone_change" in _failed(verdict)
+
+
+def test_exile_permission_invalidation_rejects_a_pre_move_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.temporal_snapshots[0]["projections"]["P3"]["view"]["players"][1]["exile"] = [
+            {"name": "Memnite", "object_id": "memnite-exiled", "face_down": True}
+        ]
+
+    verdict = _verdict(records, "HIDDEN_06", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "permission_not_shared_before_zone_change:P3" in _failed(verdict)
+
+
+def test_exile_permission_invalidation_requires_a_native_departure_after_snapshot(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.events["events"] = [
+            event
+            for event in capture.events["events"]
+            if not (
+                event.get("type") == "ZONE_CHANGE"
+                and event.get("from") == "EXILED"
+                and event.get("to") == "STACK"
+            )
+        ]
+
+    verdict = _verdict(records, "HIDDEN_06", mutate)
+    assert verdict.classification == kp.UNVERIFIED
+    assert "native_exile_zone_change_observed_after_snapshot" in _failed(verdict)
+
+
+def test_exile_permission_invalidation_rejects_stale_face_down_exile_state(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.projections["P1"]["view"]["players"][1]["exile"].append(
+            {"name": "Memnite", "object_id": "memnite-exiled", "face_down": True}
+        )
+
+    verdict = _verdict(records, "HIDDEN_06", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "no_stale_face_down_exile_permission:P1" in _failed(verdict)
+
+
+# --------------------------------------------------------------------------- #
+# HIDDEN_12 — engine-authored controlled-player authority
+# --------------------------------------------------------------------------- #
+
+
+def test_controlled_player_authority_rejects_wrong_acting_for_seat(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        assert capture.controlled_decision is not None
+        capture.controlled_decision["acting_for_seat"] = 2
+
+    verdict = _verdict(records, "HIDDEN_12", mutate)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert "engine_addresses_controlled_decision_to_controller" in _failed(verdict)
+
+
+def test_controlled_player_authority_requires_controlled_private_hand(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        assert capture.controlled_decision is not None
+        capture.controlled_decision["pilot_state"]["players"][1].pop("hand", None)
+
+    verdict = _verdict(records, "HIDDEN_12", mutate)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert "controller_receives_controlled_players_hand" in _failed(verdict)
+
+
+def test_controlled_player_authority_rejects_library_omniscience(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        assert capture.controlled_decision is not None
+        capture.controlled_decision["context"]["leak"] = "Vampiric Tutor"
+
+    verdict = _verdict(records, "HIDDEN_12", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "controlled_decision_is_not_omniscient" in _failed(verdict)
+
+
+def test_controlled_player_submission_must_bind_engine_decision_and_option(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    for field, value in (
+        ("decision_id", "wrong-decision"),
+        ("actor_id", "wrong-actor"),
+        ("selected_option_id", "not-offered"),
+    ):
+
+        def mutate(capture: kp.Capture, field=field, value=value) -> None:
+            assert capture.controlled_submission is not None
+            capture.controlled_submission[field] = value
+
+        verdict = _verdict(records, "HIDDEN_12", mutate)
+        assert verdict.classification == kp.UNVERIFIED
+        assert "controlled_decision_submission_uses_exact_engine_identity" in _failed(verdict)
+
+
+# --------------------------------------------------------------------------- #
+# HIDDEN_11 — native shuffle invalidates order while retaining identity memory
+# --------------------------------------------------------------------------- #
+
+
+def _hidden11_observation(capture: kp.Capture) -> dict[str, Any]:
+    looked = capture.projections["P1"]["view"]["looked_at"]
+    assert len(looked) == 1
+    return looked[0]
+
+
+def test_shuffle_invalidation_keeps_identity_memory_but_not_the_old_order(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    verdict = _verdict(records, "HIDDEN_11")
+    assert verdict.classification == kp.VERIFIED, _failed(verdict)
+    observation = _hidden11_observation(_capture(records["HIDDEN_11"]))
+    assert observation["order_invalidated_by_shuffle"] is True
+    assert [card["name"] for card in observation["cards"]] == [
+        "Enlightened Tutor",
+        "Mystical Tutor",
+        "Vampiric Tutor",
+    ]
+
+
+def test_shuffle_without_pre_shuffle_snapshot_is_unverified(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.temporal_snapshots = []
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.UNVERIFIED
+    assert "pre_shuffle_snapshot_observed" in _failed(verdict)
+
+
+def test_final_state_without_a_new_native_shuffle_event_is_unverified(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.events["events"] = [
+            event for event in capture.events["events"] if event.get("type") != "LIBRARY_SHUFFLED"
+        ]
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.UNVERIFIED
+    assert "native_shuffle_observed_after_ordered_snapshot" in _failed(verdict)
+
+
+def test_shuffle_event_not_ordered_after_the_snapshot_is_unverified(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.temporal_snapshots[0]["events"] = copy.deepcopy(capture.events)
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.UNVERIFIED
+    assert "native_shuffle_observed_after_ordered_snapshot" in _failed(verdict)
+
+
+def test_pre_shuffle_snapshot_must_show_the_order_the_engine_actually_revealed(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        looked = capture.temporal_snapshots[0]["projection"]["view"]["looked_at"][0]
+        looked["cards"] = list(reversed(looked["cards"]))
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert "pre_shuffle_ordered_snapshot_matches_engine_look" in _failed(verdict)
+
+
+def test_shuffle_without_explicit_order_invalidation_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        _hidden11_observation(capture).pop("order_invalidated_by_shuffle")
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "shuffle_order_invalidated_explicitly" in _failed(verdict)
+
+
+def test_shuffle_that_retains_pre_shuffle_order_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        _hidden11_observation(capture)["cards"] = [
+            {"name": "Vampiric Tutor"},
+            {"name": "Mystical Tutor"},
+            {"name": "Enlightened Tutor"},
+        ]
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert {
+        "pre_shuffle_order_not_retained",
+        "invalidated_memory_is_canonical_not_engine_order",
+    } <= set(_failed(verdict))
+
+
+def test_shuffle_that_erases_a_legitimately_seen_identity_is_denied(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        _hidden11_observation(capture)["cards"] = _hidden11_observation(capture)["cards"][:2]
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert "remembered_identity_set_observed" in _failed(verdict)
+
+
+def test_shuffle_memory_leaked_to_another_principal_is_a_demonstrated_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.projections["P3"]["view"]["looked_at"] = [
+            {
+                "title": "Orcish Spy",
+                "order_invalidated_by_shuffle": True,
+                "cards": [{"name": "Vampiric Tutor"}],
+            }
+        ]
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "remembered_identity_withheld_from:P3" in _failed(verdict)
+
+
+# --------------------------------------------------------------------------- #
 # HIDDEN_10 (scry knowledge) and HIDDEN_13 (pile metadata)
 # --------------------------------------------------------------------------- #
 
@@ -1311,3 +1715,184 @@ def test_a_declared_rules_text_fragment_is_forbidden_only_where_the_object_is(
         assert fragment in kp.forbidden_tokens(record, label, after_event=True).tokens
     # A record that declares no fragment forbids none.
     assert kp.ability_text_bindings(records["HIDDEN_15"]) == {}
+
+
+# --------------------------------------------------------------------------- #
+# Whole-surface, temporal privacy for HIDDEN_06 and HIDDEN_12 (#457 gate)
+# --------------------------------------------------------------------------- #
+
+
+def _public_event(capture: kp.Capture, at: int, event: dict[str, Any]) -> None:
+    """A public event tape document inserted at tape index ``at``."""
+    capture.tape.insert(
+        at, _entry("get_midgame_events", {"after_offset": 0}, _ok({"events": [event]}))
+    )
+
+
+def _cast_at(capture: kp.Capture) -> int:
+    return next(
+        int(entry["tape_index"])
+        for entry in capture.script_trace
+        if entry.get("step") == 3 and "tape_index" in entry
+    )
+
+
+def test_hidden06_identity_through_a_public_event_before_the_cast_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def early(capture: kp.Capture) -> None:
+        assert capture.script_start is not None
+        _public_event(
+            capture, capture.script_start, {"type": "ZONE_CHANGE", "target_name": "Memnite"}
+        )
+        for entry in capture.script_trace:
+            if "tape_index" in entry:
+                entry["tape_index"] += 1
+
+    verdict = _verdict(records, "HIDDEN_06", early)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert {
+        "no_forbidden_token_in_channels_of:P2",
+        "no_forbidden_token_in_channels_of:P3",
+        "no_forbidden_token_in_channels_of:P4",
+    } <= set(_failed(verdict))
+
+
+def test_hidden06_identity_public_after_the_cast_is_not_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def late(capture: kp.Capture) -> None:
+        _public_event(
+            capture, _cast_at(capture) + 1, {"type": "ZONE_CHANGE", "target_name": "Memnite"}
+        )
+
+    verdict = _verdict(records, "HIDDEN_06", late)
+    assert verdict.classification == kp.VERIFIED, _failed(verdict)
+
+
+def test_hidden06_exile_handle_reaching_another_principal_before_the_cast_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def handle(capture: kp.Capture) -> None:
+        assert capture.script_start is not None
+        _public_event(
+            capture, capture.script_start, {"type": "ZONE_CHANGE", "target": "memnite-exiled"}
+        )
+        for entry in capture.script_trace:
+            if "tape_index" in entry:
+                entry["tape_index"] += 1
+
+    verdict = _verdict(records, "HIDDEN_06", handle)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert set(_failed(verdict)) == {
+        f"face_down_handle_withheld_before_zone_change:{label}" for label in ("P2", "P3", "P4")
+    }
+
+
+def _control_index(capture: kp.Capture) -> int:
+    return next(
+        index
+        for index, entry in enumerate(capture.tape)
+        if isinstance((entry.get("response") or {}).get("payload"), dict)
+        and isinstance(entry["response"]["payload"].get("decision"), dict)
+        and entry["response"]["payload"]["decision"].get("acting_for_seat") is not None
+    )
+
+
+def test_hidden12_controlled_hand_reaching_an_unrelated_principal_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def other(capture: kp.Capture) -> None:
+        frame = _frame("P3", "p3-frame")
+        frame["context"] = {"note": "Demonic Tutor"}
+        capture.tape.insert(
+            _control_index(capture) + 1,
+            _entry("get_midgame_decision", None, _ok({"decision": frame})),
+        )
+
+    verdict = _verdict(records, "HIDDEN_12", other)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert _failed(verdict) == ["no_forbidden_token_in_channels_of:P3"]
+
+
+def test_hidden12_controlled_hand_before_the_control_begins_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def early(capture: kp.Capture) -> None:
+        frame = _frame("P1", "p1-before-control")
+        frame["context"] = {"note": "Demonic Tutor"}
+        capture.tape.insert(
+            _control_index(capture),
+            _entry("get_midgame_decision", None, _ok({"decision": frame})),
+        )
+
+    verdict = _verdict(records, "HIDDEN_12", early)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert _failed(verdict) == ["no_forbidden_token_in_channels_of:P1"]
+
+
+def test_hidden12_controlled_decision_id_through_another_channel_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def status(capture: kp.Capture) -> None:
+        _public_event(capture, len(capture.tape), {"type": "NOTE", "data": "controlled-p2"})
+
+    verdict = _verdict(records, "HIDDEN_12", status)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert set(_failed(verdict)) == {
+        f"controlled_decision_identity_withheld_from:{label}" for label in ("P2", "P3", "P4")
+    }
+
+
+def test_hidden12_unproven_actor_or_revision_binding_is_unverified(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    for field, value in (
+        ("stale_replay_rejected", None),
+        ("foreign_actor_rejected", None),
+        ("foreign_actor_attempted", False),
+        ("pending_unchanged", False),
+        ("decision_offset", 51),
+    ):
+
+        def mutate(capture: kp.Capture, field: str = field, value: Any = value) -> None:
+            assert capture.controlled_submission is not None
+            capture.controlled_submission[field] = value
+
+        verdict = _verdict(records, "HIDDEN_12", mutate)
+        assert verdict.classification == kp.UNVERIFIED, field
+        assert _failed(verdict) == ["controlled_decision_revision_and_actor_bound"], field
+
+
+def test_a_submission_status_and_next_actions_answer_their_own_principals() -> None:
+    """A submission's status echoes the submitter's answer; its next_actions
+    project the next frame and go with it; a refused submission's request is
+    still its author's, while the refusal itself stays public."""
+    frame = _frame("P2", "next")
+    action = {"action_type": "pass_priority", "metadata": {"decision_id": "next"}}
+    tape = [
+        _entry(
+            "submit_action",
+            {"proposal": {"actor_id": NATIVE["P1"]}},
+            _ok({"decision": frame, "executed_action_id": "p1-card", "next_actions": [action]}),
+        ),
+        _entry(
+            "submit_midgame_decision",
+            {"response": {"actor_id": NATIVE["P1"], "decision_id": "old"}},
+            {"success": False, "errors": [{"code": "rejected", "message": "stale"}]},
+        ),
+    ]
+    documents = kp.addressed_documents(tape, dict(NATIVE))
+    by_channel = {item.channel: item.addressee for item in documents}
+    assert by_channel["tape[0]:submit_action.status"] == "P1"
+    assert by_channel["tape[0]:submit_action.next_actions"] == "P2"
+    assert by_channel["tape[0]:submit_action.frame"] == "P2"
+    assert by_channel["tape[1]:submit_midgame_decision.request"] == "P1"
+    assert by_channel["tape[1]:submit_midgame_decision.response"] is None
+    # next_actions naming another decision stay public (fail closed).
+    stray = copy.deepcopy(tape[:1])
+    stray[0]["response"]["payload"]["next_actions"] = [
+        {"action_type": "pass_priority", "metadata": {"decision_id": "other"}}
+    ]
+    stray_channels = {item.channel for item in kp.addressed_documents(stray, dict(NATIVE))}
+    assert "tape[0]:submit_action.next_actions" not in stray_channels

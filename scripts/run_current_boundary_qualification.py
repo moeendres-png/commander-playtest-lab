@@ -59,10 +59,16 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     validate_principal_scoping,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
+    actual_card_campaign as actual_card_campaign_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
     dimension_admission as pb03_admission_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     evidence_epoch as epoch_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
+    forge_scenario_lane as forge_scenario_lane_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     knowledge_projection as knowledge_projection_mod,
@@ -1852,6 +1858,27 @@ def main() -> int:
         ),
     )
 
+    # The Forge scenario producer: the only route by which the pinned
+    # ScenarioBootstrap seam may earn FULL107 credit for the Forge column. It
+    # binds the admitted Forge Rules-Core identity, executes the structurally
+    # receivable rows plus the declared F6/F7 blocker wave on the exact pinned
+    # bridge, and persists a canonical positive receipt for every obligation
+    # observed from engine-reported facts. Construction alone writes no receipt,
+    # and the wave rows stay fail-closed with this epoch's own blocker evidence.
+    if "forge" in candidates:
+        forge = resolve_forge_workspace()
+        write(
+            "FORGE_SCENARIO_EXECUTIONS.json",
+            forge_scenario_lane_mod.execute_and_persist(
+                forge_workspace=Path(forge["workspace"]),
+                records=denominator_by_id,
+                candidate_commit=canonical_forge_rules_core_pin(),
+                runner_digest=runner.digest(),
+                lab_root=REPO_ROOT,
+                out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
+            ),
+        )
+
     # The PB-03 runtime ledger is derived from the surefire XML of the suites
     # that just ran. Clear the previous reports first so a class that failed to
     # compile or was not executed in this run cannot be credited from a stale
@@ -1914,6 +1941,21 @@ def main() -> int:
                 candidate_commit=canonical_xmage_engine_pin(),
                 runner_digest=runner.digest(),
                 out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
+            ),
+        )
+        # AF07: the frozen 29-card actual-card corpus on the same production
+        # lane and the same runner identity. Each directly proven identity is
+        # persisted as a runner-bound receipt in the campaign's own receipt
+        # subdirectory, which never earns FULL107 credit; the assembler derives
+        # AF07 from those receipts plus CARD_02's own denominator row.
+        write(
+            "ACTUAL_CARD_CAMPAIGN_XMAGE.json",
+            actual_card_campaign_mod.execute_and_persist(
+                workspace=REPO_ROOT / "engine-bridge",
+                candidate_commit=canonical_xmage_engine_pin(),
+                runner_digest=runner.digest(),
+                receipts_dir=RECEIPT_DIR / actual_card_campaign_mod.RECEIPT_SUBDIR,
+                root=REPO_ROOT,
             ),
         )
     write(

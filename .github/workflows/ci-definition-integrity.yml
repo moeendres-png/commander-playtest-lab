@@ -1,0 +1,84 @@
+name: CI Definition Integrity Shadow
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-definition-integrity-shadow-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  ci-definition-integrity-shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Trust boundary: only trusted base-branch code is checked out or executed.
+      # Under pull_request_target, github.sha is the last commit of the PR's
+      # base branch (main), never candidate code; the PR's historical base can
+      # predate this validator, so it is not used as the executing source.
+      # Candidate Git objects are fetched and parsed strictly as untrusted data.
+      # Full history: the comparison base is the trusted/candidate merge base.
+      - name: Checkout trusted validator source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+      - name: Install trusted base parser dependencies
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - name: Inspect candidate required-check definitions as Git objects
+        id: inspect
+        shell: bash
+        env:
+          TRUSTED_SHA: ${{ github.sha }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          [[ "$TRUSTED_SHA" =~ ^[0-9a-f]{40}$ ]] || exit 1
+          [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]] || exit 1
+          [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]] || exit 1
+          test "$BASE_REF" = "main"
+          test "$(git rev-parse HEAD)" = "$TRUSTED_SHA"
+          git fetch --no-tags origin "refs/pull/$PR_NUMBER/head"
+          test "$(git rev-parse FETCH_HEAD)" = "$CANDIDATE_SHA"
+          set +e
+          python scripts/verify_required_check_definitions.py \
+            --trusted "$TRUSTED_SHA" \
+            --head "$CANDIDATE_SHA" \
+            --output artifacts/ci-definition-integrity/CI_DEFINITION_INTEGRITY.json
+          rc=$?
+          set -e
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+      - name: Upload informational shadow report
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: ci-definition-integrity-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+          path: artifacts/ci-definition-integrity/CI_DEFINITION_INTEGRITY.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Surface shadow classification
+        if: always()
+        shell: bash
+        env:
+          EXIT_CODE: ${{ steps.inspect.outputs.exit_code }}
+        run: |
+          set -euo pipefail
+          test -n "$EXIT_CODE"
+          exit "$EXIT_CODE"

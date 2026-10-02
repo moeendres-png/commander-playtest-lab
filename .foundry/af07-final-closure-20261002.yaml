@@ -1,0 +1,196 @@
+# AF07 final actual-card closure: resumable workstream state (#453, parent #255).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: commander-playtest-lab (session-local canonical clone; the earlier wt-af07 container is gone)
+branch: hardening/af07-final-closure-20261002
+audit_base_sha: 38647c1153e01da5837671de53bf3b0e4c2fab0d
+audit_base_tree: beda05179f2b261bf9b7e2954ab630fd312078b6
+state_written_against_head: 94b7213549e2ea5501c851516d19b99197ed2856
+validated_head: 94b7213549e2ea5501c851516d19b99197ed2856
+workstream: AF07-FINAL-ACTUAL-CARD-CLOSURE-20261002
+issue: 453
+parent: 255
+pull_request: 484
+objective: >-
+  Bring AF07 ACTUAL_CARD_BEHAVIOR to a terminal, decision-grade state on the
+  29-card corpus: close or terminally classify every residual XMage identity,
+  then the Forge lane, without changing the 107-row provider denominator.
+candidates:
+  xmage: 37e4df6c914f1e189e24f0ef59fa91734c922436
+  forge_rules_core: bb0a740d2bef725194798383c2452213ecdd0b37
+  forge_bridge: 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c
+contract: commander-lab.full107/1.0.18-successor
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+status: ACTIVE
+ownership: AF07-FINAL-ACTUAL-CARD-CLOSURE-20261002 (Claude lane)
+in_scope:
+  - src/commander_lab/qualification/current_boundary/actual_card_campaign.py
+  - src/commander_lab/qualification/current_boundary/midgame_rows.py
+  - engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java
+  - engine-bridge/src/main/java/org/commanderlab/xmage/XmageCausalStackReconstruction.java
+  - engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameJsonlBridge.java
+  - scripts/run_midgame_capability_probe.py
+  - qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json
+  - qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_18_SUCCESSOR.json
+  - qualification/CURRENT_PRE_FREEZE_CONTRACT.json
+  - qualification/SHA256SUMS
+  - WS17_SHA256SUMS
+out_of_scope:
+  - provider denominator change
+  - provider selection
+  - AF11
+  - Architecture Freeze
+  - historical epoch rewrites
+forbidden_shortcuts:
+  - first/random/default option selection
+  - legality reconstruction or fabricated legal actions
+  - manual outcome or counter injection
+  - card-name hacks in generic selector logic
+  - credit from import, construction or native tests alone
+xmage_residuals_at_start: [CARD_03, CARD_06, CARD_07, CARD_10, CARD_12, CARD_13, CARD_16, CARD_20, CARD_22, CARD_25, CARD_26, CARD_29]
+milestones:
+  - id: M1
+    rows: [CARD_06, CARD_26]
+    result: DIRECT_PASS on the official campaign script (local runner)
+    summary: >-
+      CARD_06 versioned obligation erratum (Oracle conflict: Docent of
+      Perfection is not a Wizard); CARD_26 token triggered-ability readback.
+  - id: M2
+    rows: [CARD_03]
+    result: DIRECT_PASS on the official campaign script (local runner)
+    summary: >-
+      Decision-script erratum (cast, divided damage, tap targets) and the
+      engine-verified cost vocabulary binding (unpaid {9}{U}{R}, 11 charged).
+  - id: M3
+    rows: [CARD_12]
+    result: DIRECT_PASS on the official campaign script (local runner)
+    summary: >-
+      Delve on the engine's own payment frames, library objects bound to
+      engine ids at first sight, ordered object sets.
+  - id: M4
+    rows: [CARD_29]
+    result: DIRECT_PASS (local runner)
+    summary: >-
+      Three-turn Saga progression with one Spellbook per player; the bridge
+      now loads the card repository before resolving a double-faced name
+      (a fresh runtime directory refused it before).
+  - id: M5
+    rows: [CARD_13, CARD_20, CARD_22]
+    result: DIRECT_PASS (local runner, official campaign script)
+    summary: >-
+      Stack rows enter through the production probe's native causal-stack
+      route (spells cast through the engine and verified on the stack);
+      CARD_13 and CARD_22 carry decision-script errata only.
+  - id: M6
+    rows: [CARD_10]
+    result: DIRECT_PASS (local runner)
+    summary: >-
+      Scenario erratum (P2 active, CR 302.1); a commander stack source is
+      prepared in the command zone and cast from there.
+  - id: M7
+    rows: [CARD_07]
+    result: FAIL CLOSED (construction), previous DIRECT_PASS withdrawn
+    summary: >-
+      Scenario erratum (Quick Study for Divination, CR 103.8c/307.1) stays.
+      Found and fixed: the causal-stack route dropped the record's SLOT-04
+      lossless deck_state (neither applied nor verified, yet EXACT), so the
+      earlier CARD_07 pass stood on an unverified construction. With the
+      declarations enforced, Narset placed before game start limits the
+      opponents' opening-hand draws to one card each (no legal game shows a
+      permanent during CR 103), and the requested libraries fail closed
+      (INCOMPLETE_LIBRARY_ORDER). A checkpoint-step placement prototype
+      passes CARD_07 but changes tested vehicle semantics (17 bridge tests,
+      incl. denominator row MICRO_CONTINUOUS_EFFECTS); the placement point is
+      escalated as a Rules/Coordinator decision.
+  - id: M8
+    rows: [CARD_16]
+    result: TERMINAL BLOCKED (provider capability), fails closed
+    summary: >-
+      Scenario erratum declares the complete checkpoint hand (exactly three
+      named cards) and the CR 603.3b trigger order. Two independent blockers:
+      under the current pre-start placement the Crawler triggers on P1's
+      opening draws (the arrival fails closed on trigger_order at turn-1
+      upkeep; see the placement decision request); and a three-card hand in
+      P1's own main phase is below the natural arrival hand (opening seven
+      plus the first draw), with no native hand-composition game-load API
+      (RG-06A restores library order only) and SLOT-04 L7 forbidding a
+      Lab-side hand mutation (with the prototype placement the row fails
+      closed on INCOMPLETE_LIBRARY_ORDER).
+  - id: M10
+    rows: [CARD_01..CARD_29 on Forge]
+    result: 29/29 UNSUPPORTED_DIMENSION (live, local runner); AF07 Forge NOT QUALIFIED
+    summary: >-
+      Forge ScenarioBootstrap lane at bridge 20e3e1f7. 28 rows need scripted
+      decision execution (the shared mid-game selector surface, not buildable
+      in this lane); CARD_07 needs a stack object. Matrix:
+      docs/af07_final_closure_20261002/FORGE_AF07_MATRIX.md.
+  - id: M9
+    rows: [CARD_25]
+    result: TERMINAL BLOCKED (harness capability)
+    summary: >-
+      The attacker is a token controlled since its turn began, equipped with
+      Basilisk Collar. An effect-created token route needs multi-turn causal
+      setup inside the arrival (create the token in an earlier P1 turn through
+      a real effect, equip through a real activation in the checkpoint turn's
+      main phase); the harness has no such route and no fabricated token or
+      attachment state is allowed.
+  - id: M11
+    rows: [CARD_01..CARD_29 on XMage]
+    result: >-
+      Same-epoch PB-03 credit route integrated; local official run on the
+      merged head (main 2027eb5a merged): 26 DIRECT_PASS, CARD_07/16/25 fail
+      closed, identical to M5-M9.
+    summary: >-
+      actual_card_campaign.execute_and_persist runs the corpus inside the
+      PB-03 runner with the bound runner identity and persists receipts in
+      receipts/actual_card (never FULL107 credit). The assembler derives
+      AF07 from receipts against the current effective record digests;
+      denominator rows win for their own fixture (CARD_02). The previous
+      container's unpushed credit-route work was lost and rebuilt here.
+  - id: M12
+    rows: [CARD_07, MICRO_CONTINUOUS_EFFECTS vehicle]
+    result: CARD_07 DIRECT_PASS with its lossless checks run (local runner)
+    summary: >-
+      Placement point adjudicated (Option 2, CR 103.6a): restored face-up
+      permanents enter at turn 1's BEGIN_TURN event (XmageFirstTurnPlacementWatcher),
+      so they never observe the opening-hand draws or mulligans. Face-down
+      objects and multi-part battlefield cards stay setup placements; a deferred
+      permanent still outside the game at the checkpoint fails closed. The
+      Crawler vehicle test now expects 39 (turn-1 draw only), not 32.
+      docs/af07_final_closure_20261002/PLACEMENT_POINT_ADJUDICATION.md.
+  - id: M13
+    rows: [CARD_16]
+    result: DIRECT_PASS (local runner)
+    summary: >-
+      ACTUAL_CARD_OBLIGATION_ERRATUM: P1's natural turn-1 hand (template 8 plus
+      three named Mountains) and the opponents' caused life (19) are declared;
+      postconditions restated at that state (hand 13, Crawler 13/13, 17 life).
+      F-40 now sets a recorded starting life whenever life is untouched (setup),
+      never the caused current life. New exact hand_count check.
+      docs/af07_final_closure_20261002/CARD16_OBLIGATION_ERRATUM.md.
+  - id: M14
+    rows: [CARD_25]
+    result: DIRECT_PASS (local runner)
+    summary: >-
+      Scenario erratum (obligation keys untouched): Eager Cadet replaces the
+      unrestorable token, the Collar is equipped through the engine's own
+      Equip activation in P1's precombat main, then the unchanged attack and
+      block. New generic blocker_assignment selector. The restoration now fails
+      closed on attached_to (it was silently ignored).
+      docs/af07_final_closure_20261002/CARD25_SCENARIO_ERRATUM.md.
+  - id: M15
+    rows: [CARD_01..CARD_29 on XMage]
+    result: 29/29 DIRECT_PASS on the final local head
+    summary: >-
+      Final local battery on this head: AF07 29/29 DIRECT_PASS, FULL107
+      midgame rows 22/22, AF05 knowledge-projection rows 20/20, engine-bridge
+      925/925, Python suite 3332 passed / 22 skipped / 0 failed (clean tree).
+open_items:
+  - CARD_06/07/16/25 official Oracle and CR text receipts pending (Scryfall, Gatherer and media.wizards.com are denied by this runner's egress policy).
+remaining_scope:
+  - Forge decision-execution selector surface (prerequisite for any Forge AF07 credit)
+exact_next_action: >-
+  Drive #484 to an exact-head green PB-03 that credits all 29 XMage corpus
+  identities through the same-epoch receipts, run the fresh-context review,
+  merge, then hand off to AF09 (#454/#461).

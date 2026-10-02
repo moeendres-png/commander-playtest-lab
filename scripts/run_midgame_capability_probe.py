@@ -394,6 +394,50 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
         ],
         "terminal": "scripted_decision_offered",
     },
+    "CARD_07": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": f"obj:fuel-island-p2-{index}",
+                "card_identity": "Island",
+                "owner": "P2",
+                "zone": "battlefield",
+            }
+            for index in range(3)
+        ],
+        "terminal": "scripted_decision_offered",
+    },
+    "CARD_16": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": f"obj:fuel-island-p1-{index}",
+                "card_identity": "Island",
+                "owner": "P1",
+                "zone": "battlefield",
+            }
+            for index in range(3)
+        ],
+        "terminal": "scripted_decision_offered",
+    },
+    "CARD_10": {
+        "entry_mode": "causal_stack",
+        # Rograkh costs {0}: the commander spell needs no fuel.
+        "fuel": [],
+        "terminal": "scripted_decision_offered",
+    },
+    "CARD_22": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-mountain-p2",
+                "card_identity": "Mountain",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+        ],
+        "terminal": "scripted_decision_offered",
+    },
     "CARD_20": {
         "entry_mode": "causal_stack",
         "fuel": [
@@ -522,10 +566,14 @@ def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.Ro
                     client.complete_arrival(),
                     engine_commit=client.engine_commit,
                 )
-            raise ml.MidgameLaneError(
-                f"the engine asked {decision_class} at {probe.get('phase')}/{probe.get('step')}, "
-                f"not at the record's {target_phase}/{target_step} checkpoint"
-            )
+            if str(probe.get("phase")) != "UNINITIALIZED":
+                raise ml.MidgameLaneError(
+                    f"the engine asked {decision_class} at {probe.get('phase')}/"
+                    f"{probe.get('step')}, not at the record's {target_phase}/{target_step} "
+                    "checkpoint"
+                )
+            # Before the game starts the same class is a setup frame (the
+            # starting player), answered below like any other setup frame.
         if decision_class == "mulligan":
             keep = option_of_type(decision, "keep")
             if keep is None:

@@ -12,9 +12,16 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_16.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_17.json"
+)
+V117_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
+V116_CONTRACT_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_16.json"
+)
+V115_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_15.json"
 )
 V106_CONTRACT_PATH = (
@@ -61,7 +68,7 @@ CARD_SCRIPT_ERRATA_IDS = [
 ]
 # Rows whose 1.0.12 lossless-library overlay travels inside a later
 # decision-script erratum (they keep their place in the patch order).
-CARRIED_LIBRARY_ERRATA_IDS = ["CARD_09", "CARD_15", "CARD_27"]
+CARRIED_LIBRARY_ERRATA_IDS = ["CARD_09", "CARD_15", "CARD_27", "CARD_12", "CARD_29"]
 CARD_ERRATA_IDS = [*CARD_LIBRARY_ERRATA_IDS, *CARD_SCRIPT_ERRATA_IDS]
 # The later SLOT-04 event-scenario errata (1.0.15): a scry and a pile split.
 LATE_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_10", "HIDDEN_13"]
@@ -69,6 +76,25 @@ LATE_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_10", "HIDDEN_13"]
 # that outlives its source, and a cloaked permanent's ward as a hidden source
 # and a hidden ability.
 BATCH5_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_05", "HIDDEN_15", "HIDDEN_16"]
+# Final XMage AF05 event rows in 1.0.17: shuffle invalidation, face-down
+# exile invalidation, and controlled-player authority.
+BATCH6_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_11", "HIDDEN_06", "HIDDEN_12"]
+# The AF07 obligation erratum (1.0.18): an obligation that conflicts with the
+# card's Oracle text, versioned with its predecessor obligation preserved.
+CARD_OBLIGATION_ERRATA_IDS = ["CARD_06"]
+# The final AF07 decision-script errata (1.0.18): the obligation is untouched.
+FINAL_CARD_SCRIPT_ERRATA_IDS = ["CARD_03", "CARD_22", "CARD_13"]
+# The AF07 scenario errata (1.0.18): a frozen position the Comprehensive Rules
+# make unreachable as recorded; every obligation key is untouched.
+CARD_SCENARIO_ERRATA_IDS = ["CARD_10", "CARD_07"]
+# The AF07 construction-vehicle obligation erratum (1.0.18): the obligation is
+# restated at the natural turn-1 hand the vehicle reaches; its Rules content and
+# predecessor obligation are preserved.
+CARD_VEHICLE_OBLIGATION_ERRATA_IDS = ["CARD_16"]
+# The AF07 causal-attachment scenario erratum (1.0.18): an attachment and a
+# token the Rules Core must cause are reached through the engine's own equip
+# activation on a card; every obligation key is untouched.
+CARD_CAUSAL_SCENARIO_ERRATA_IDS = ["CARD_25"]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -84,11 +110,27 @@ CHANGED_FIXTURE_IDS = [
     *CARD_ERRATA_IDS,
     *LATE_HIDDEN_EVENT_ERRATA_IDS,
     *BATCH5_HIDDEN_EVENT_ERRATA_IDS,
+    *BATCH6_HIDDEN_EVENT_ERRATA_IDS,
+    *CARD_OBLIGATION_ERRATA_IDS,
+    *FINAL_CARD_SCRIPT_ERRATA_IDS,
+    *CARD_SCENARIO_ERRATA_IDS,
+    *CARD_VEHICLE_OBLIGATION_ERRATA_IDS,
+    *CARD_CAUSAL_SCENARIO_ERRATA_IDS,
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
 DENOMINATOR_CHANGED_FIXTURE_IDS = [
-    fixture for fixture in CHANGED_FIXTURE_IDS if fixture not in CARD_ERRATA_IDS
+    fixture
+    for fixture in CHANGED_FIXTURE_IDS
+    if fixture
+    not in (
+        *CARD_ERRATA_IDS,
+        *CARD_OBLIGATION_ERRATA_IDS,
+        *FINAL_CARD_SCRIPT_ERRATA_IDS,
+        *CARD_SCENARIO_ERRATA_IDS,
+        *CARD_VEHICLE_OBLIGATION_ERRATA_IDS,
+        *CARD_CAUSAL_SCENARIO_ERRATA_IDS,
+    )
 ]
 AF01_PATH = REPO_ROOT / "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json"
 AF_CATALOG_PATH = (
@@ -98,13 +140,46 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_16_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_18_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
 
 def _json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _declared_object_additions(patch: dict) -> list[str]:
+    """The objects an erratum declares it adds to the requested state."""
+    added: list[str] = []
+    for step in patch["append_native_procedure"]:
+        added += list(step["details"].get("includes_requested_state_addition") or ())
+    return added
+
+
+def _declared_causal_casts(patch: dict) -> list[str]:
+    """The stack objects an erratum declares it casts causally from hand instead."""
+    cast: list[str] = []
+    for step in patch["append_native_procedure"]:
+        cast += list(step["details"].get("causal_stack_objects") or ())
+    return cast
+
+
+def _assert_objects_only_gain_declared_additions(
+    record: dict, predecessor: dict, added: list[str], cast: tuple[str, ...] = ()
+) -> None:
+    """Every predecessor object is kept byte for byte; only declared ids are new.
+
+    A declared causal cast is the one exception: that stack object starts in its
+    controller's hand and nothing else about it changes.
+    """
+    objects = record["semantic_objects"]
+    expected = [
+        {**o, "zone": "hand"} if o["semantic_id"] in cast and o["zone"] == "stack" else o
+        for o in predecessor["semantic_objects"]
+    ]
+    assert objects[: len(predecessor["semantic_objects"])] == expected
+    assert [o["semantic_id"] for o in objects[len(predecessor["semantic_objects"]) :]] == added
 
 
 def _resolver():
@@ -133,7 +208,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_16.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -201,7 +276,7 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
 
     contract = _json(SUCCESSOR_PATH)
     predecessor = _json(PREDECESSOR_CONTRACT_PATH)
-    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_15.json")
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_17.json")
     assert (
         contract["predecessor"]["sha256"]
         == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
@@ -375,7 +450,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.16-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.18-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -387,9 +462,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.16-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.18-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.16-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.18-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -774,6 +849,7 @@ def test_the_other_hidden_records_keep_their_predecessor_bytes() -> None:
             *HIDDEN_EVENT_ERRATA_IDS,
             *LATE_HIDDEN_EVENT_ERRATA_IDS,
             *BATCH5_HIDDEN_EVENT_ERRATA_IDS,
+            *BATCH6_HIDDEN_EVENT_ERRATA_IDS,
         ):
             continue
         assert fixture_id not in CHANGED_FIXTURE_IDS
@@ -842,6 +918,7 @@ def test_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -> None:
         if patch.get("correction_class") == "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
         and patch["fixture_id"] not in LATE_HIDDEN_EVENT_ERRATA_IDS
         and patch["fixture_id"] not in BATCH5_HIDDEN_EVENT_ERRATA_IDS
+        and patch["fixture_id"] not in BATCH6_HIDDEN_EVENT_ERRATA_IDS
     }
     assert sorted(errata) == sorted(HIDDEN_EVENT_ERRATA_IDS)
     added = {
@@ -931,13 +1008,16 @@ def test_card_library_errata_complete_the_library_and_keep_the_obligation() -> N
     for fixture_id in CARD_LIBRARY_ERRATA_IDS:
         assert fixture_id not in denominator
         script_erratum = fixture_id in CARRIED_LIBRARY_ERRATA_IDS
+        added = _declared_object_additions(errata[fixture_id])
         assert sorted(errata[fixture_id]["replace"]) == (
-            ["decision_script", "deck_state"] if script_erratum else ["deck_state"]
+            sorted(["decision_script", "deck_state", *(["semantic_objects"] if added else [])])
+            if script_erratum
+            else ["deck_state"]
         )
         record = resolver.effective_record(fixture_id)
         predecessor = base[fixture_id]
         assert record["obligation_digest"] == predecessor["obligation_digest"]
-        assert record["semantic_objects"] == predecessor["semantic_objects"]
+        _assert_objects_only_gain_declared_additions(record, predecessor, added)
         if not script_erratum:
             assert record["decision_script"] == predecessor["decision_script"]
         library_objects = sorted(
@@ -974,25 +1054,37 @@ def test_card_script_errata_answer_the_engine_asked_decisions_and_keep_the_oblig
         for patch in contract["record_successors"]
         if patch.get("correction_class") == "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM"
     }
-    assert sorted(errata) == sorted([*CARRIED_LIBRARY_ERRATA_IDS, *CARD_SCRIPT_ERRATA_IDS])
+    assert sorted(errata) == sorted(
+        [*CARRIED_LIBRARY_ERRATA_IDS, *CARD_SCRIPT_ERRATA_IDS, *FINAL_CARD_SCRIPT_ERRATA_IDS]
+    )
     for fixture_id, patch in errata.items():
         assert fixture_id not in denominator
         record = resolver.effective_record(fixture_id)
         predecessor = base[fixture_id]
         assert record["obligation_digest"] == predecessor["obligation_digest"]
-        assert record["semantic_objects"] == predecessor["semantic_objects"]
+        cast = tuple(_declared_causal_casts(patch))
+        _assert_objects_only_gain_declared_additions(
+            record, predecessor, _declared_object_additions(patch), cast
+        )
+        if cast:
+            # A causal cast replaces the predecessor's stack entries entirely.
+            assert record["stack_state"] == []
+            assert {entry["source_semantic_id"] for entry in predecessor["stack_state"]} == set(
+                cast
+            )
         assert record["expected_events"] == predecessor["expected_events"]
         assert record["terminal_postconditions"] == predecessor["terminal_postconditions"]
         assert (
             patch["predecessor_invalidity"]["predecessor_decision_script"]
             == (predecessor["decision_script"])
         )
-        assert set(patch["replace"]) <= {
-            "decision_script",
-            "action_cost_state",
-            "deck_state",
-            "temporal_state",
-        }
+        allowed = {"decision_script", "action_cost_state", "deck_state", "temporal_state"}
+        if _declared_object_additions(patch):
+            # Only an erratum that declares its added objects may touch them.
+            allowed.add("semantic_objects")
+        if _declared_causal_casts(patch):
+            allowed.add("stack_state")
+        assert set(patch["replace"]) <= allowed
         erratum = record["native_procedure"][-1]["details"]
         assert erratum["erratum_class"] == "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM"
         assert erratum["obligation_changed"] is False
@@ -1081,13 +1173,195 @@ def test_late_hidden_event_errata_add_a_scry_and_a_pile_split() -> None:
     ]
 
 
+def test_batch6_hidden11_adds_ordered_look_then_native_shuffle_without_changing_obligation() -> (
+    None
+):
+    contract = _json(V117_CONTRACT_PATH)
+    predecessor = _json(V116_CONTRACT_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    added = contract["record_successors"][len(predecessor["record_successors"]) :]
+    assert [patch["fixture_id"] for patch in added] == BATCH6_HIDDEN_EVENT_ERRATA_IDS
+
+    patch = added[0]
+    assert patch["fixture_id"] == "HIDDEN_11"
+    assert patch["correction_class"] == "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
+    assert patch["authority_overlay"]["comprehensive_rules_rule"] == "701.24a"
+    assert patch["successor_requested_state_digest"] == (
+        "b326e480861f33a9aabac35a2ce614725fed48bc7ac5e537fe2c19be0b0f2928"
+    )
+
+    record = resolver.effective_record("HIDDEN_11")
+    old = base["HIDDEN_11"]
+    assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
+    assert record["obligation_digest"] == old["obligation_digest"]
+    assert record["expected_events"] == old["expected_events"]
+    assert record["terminal_postconditions"] == old["terminal_postconditions"]
+    assert record["repair_provenance"]["correction_class"] == (
+        "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
+    )
+
+    viewer = record["knowledge_state"]["viewer_states"][0]
+    assert viewer["obligation"] == "shuffle invalidates order knowledge"
+    assert viewer["invalidation_conditions"] == ["P2 library shuffled"]
+    assert viewer["known_library_ranges"] == [
+        {
+            "before_event": "shuffle",
+            "count": 3,
+            "ordered": True,
+            "player": "P2",
+            "start": 0,
+            "viewer": "P1",
+        }
+    ]
+
+    assert [step["causal_step_id"] for step in record["decision_script"]] == [
+        "spy-look",
+        "spy-target-p2",
+        "elixir-shuffle",
+    ]
+    for step in record["decision_script"]:
+        selection = step["selection"]
+        assert selection["matches_only_provider_offered_legal_options"] is True
+        assert selection["on_zero_match"] == selection["on_multiple_match"] == "FAIL_CLOSED"
+
+    objects = {obj["semantic_id"]: obj for obj in record["semantic_objects"]}
+    assert objects["obj:hidden11-spy"]["card_identity"] == "Orcish Spy"
+    assert objects["obj:hidden11-elixir"]["card_identity"] == "Elixir of Immortality"
+    assert [objects[f"obj:hidden11-lib-{i}"]["zone_position"] for i in (1, 2)] == [1, 2]
+
+    p2 = next(deck for deck in record["deck_state"] if deck["player_id"] == "P2")
+    assert p2["checkpoint_library"]["completeness"] == "COMPLETE_TOP_TO_BOTTOM"
+    runs = p2["checkpoint_library"]["runs"]
+    assert [run.get("semantic_id") for run in runs[:3]] == [
+        "obj:hidden-lib-0",
+        "obj:hidden11-lib-1",
+        "obj:hidden11-lib-2",
+    ]
+    # The complete native library: the three requested cards over every template
+    # card outside the hand (battlefield Mountains are requested objects, not
+    # template cards), and the face-down object typed as on every lossless row.
+    assert runs[3:] == [
+        {
+            "card_identity": "Mountain",
+            "count": p2["library_template"]["count"] - p2["checkpoint_hand"]["template_count"],
+        }
+    ]
+    assert objects["obj:facedown"]["face_down_type"] == "MANIFESTED"
+    assert not any(o.get("face_down") and not o.get("face_down_type") for o in objects.values())
+
+
+def test_batch6_hidden06_and_hidden12_add_native_invalidation_and_control_routes() -> None:
+    contract = _json(V117_CONTRACT_PATH)
+    predecessor = _json(V116_CONTRACT_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    added = contract["record_successors"][len(predecessor["record_successors"]) :]
+    by_id = {patch["fixture_id"]: patch for patch in added}
+    assert list(by_id) == BATCH6_HIDDEN_EVENT_ERRATA_IDS
+
+    expected_digests = {
+        "HIDDEN_06": "6e76fe052384d35fde93725ac46e74b0f999e20d8fdfe5a19732a3d1d5225b00",
+        "HIDDEN_12": "f630608c9f3fa6f639c50ca6dafa371cc14a22e1a16125dc15536b1389161b89",
+    }
+    expected_steps = {
+        "HIDDEN_06": [
+            "cast-gonti",
+            "gonti-target-opponent",
+            "gonti-exile-face-down",
+            "cast-exiled-card",
+        ],
+        "HIDDEN_12": ["activate-mindslaver", "mindslaver-target-p2"],
+    }
+    for fixture_id in ("HIDDEN_06", "HIDDEN_12"):
+        patch = by_id[fixture_id]
+        record = resolver.effective_record(fixture_id)
+        old = base[fixture_id]
+        assert old["decision_script"] == []
+        assert patch["correction_class"] == "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
+        assert patch["successor_requested_state_digest"] == expected_digests[fixture_id]
+        assert record["requested_state_digest"] == expected_digests[fixture_id]
+        assert record["obligation_digest"] == old["obligation_digest"]
+        assert record["expected_events"] == old["expected_events"]
+        assert record["terminal_postconditions"] == old["terminal_postconditions"]
+        assert record["knowledge_state"]["viewer_states"] == old["knowledge_state"]["viewer_states"]
+        assert record["repair_provenance"]["correction_class"] == (
+            "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
+        )
+        assert [step["causal_step_id"] for step in record["decision_script"]] == (
+            expected_steps[fixture_id]
+        )
+        for step in record["decision_script"]:
+            selection = step["selection"]
+            assert selection["matches_only_provider_offered_legal_options"] is True
+            assert selection["on_zero_match"] == selection["on_multiple_match"] == "FAIL_CLOSED"
+        p2 = next(deck for deck in record["deck_state"] if deck["player_id"] == "P2")
+        assert p2["checkpoint_library"]["completeness"] == "COMPLETE_TOP_TO_BOTTOM"
+
+    h06 = resolver.effective_record("HIDDEN_06")
+    h06_objects = {obj["semantic_id"]: obj for obj in h06["semantic_objects"]}
+    assert h06_objects["obj:hidden-hand"]["card_identity"] == "Memnite"
+    assert h06_objects["obj:hidden-hand"]["zone"] == "library"
+    assert h06_objects["obj:hidden-hand"]["zone_position"] == 0
+    assert h06_objects["obj:hidden06-gonti"]["card_identity"] == "Gonti, Lord of Luxury"
+    assert h06["knowledge_state"]["viewer_states"][0]["invalidation_conditions"] == [
+        "object changes zone or becomes a new object"
+    ]
+
+    h12 = resolver.effective_record("HIDDEN_12")
+    h12_objects = {obj["semantic_id"]: obj for obj in h12["semantic_objects"]}
+    assert h12_objects["obj:hidden12-mindslaver"]["card_identity"] == "Mindslaver"
+    assert h12_objects["obj:hidden12-p3-hand"]["owner"] == "P3"
+    assert h12_objects["obj:hidden12-p3-hand"]["zone"] == "hand"
+    assert h12["temporal_state"] == {
+        "active_player": "P1",
+        "extra_turn_queue": [],
+        "phase": "precombat_main",
+        "priority_player": "P1",
+        "step": "main",
+        "turn_number": 1,
+    }
+    # The checkpoint state the engine restores at precombat main: P1's
+    # manifested 2/2 tapped (no attack declaration on the way to P2's turn),
+    # P1's eight cards and no maximum hand size (no cleanup discard), P3's
+    # seven-card opening hand plus the requested Mind Stone.
+    assert h12_objects["obj:facedown"]["tapped"] is True
+    assert h12_objects["obj:facedown"]["face_down_type"] == "MANIFESTED"
+    assert h12_objects["obj:hidden12-tower"]["card_identity"] == "Reliquary Tower"
+    h12_hands = {
+        deck["player_id"]: deck["checkpoint_hand"]["template_count"] for deck in h12["deck_state"]
+    }
+    assert (h12_hands["P1"], h12_hands["P3"]) == (8, 7)
+    assert h12["knowledge_state"]["viewer_states"][0]["temporary_permissions"] == [
+        {
+            "controlled_player": "P2",
+            "controller": "P1",
+            "permission": "only information P1 is entitled to while making P2 decisions under rules",
+        }
+    ]
+    details = h12["native_procedure"][-1]["details"]
+    assert details["measurement_progression"] == (
+        "ENGINE_OFFERED_PASS_PRIORITY_ONLY_UNTIL_FIRST_ACTING_FOR_FRAME_THEN_SUBMIT_ITS_EXACT_PASS"
+    )
+
+
 def test_batch5_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -> None:
     """HIDDEN_05 (a persistent look at a face-down exiled card), HIDDEN_15 (source
     metadata) and HIDDEN_16 (ability metadata) name a hidden exile, source or
     ability, but no event ever makes one. The 1.0.16 successor adds the event on
     the lossless base; the obligation and the viewer state are unchanged."""
-    contract = _json(SUCCESSOR_PATH)
-    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    contract = _json(V116_CONTRACT_PATH)
+    predecessor = _json(V115_CONTRACT_PATH)
     resolver = _resolver()
     base = {
         record["fixture_id"]: record
@@ -1174,3 +1448,319 @@ def test_batch5_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -
             if fixture_id == "HIDDEN_16"
             else []
         )
+
+
+def test_card06_obligation_erratum_is_versioned_with_its_predecessor_preserved() -> None:
+    """Harmonic Prodigy doubles only abilities of Shamans and other Wizards; Docent
+    of Perfection is an Insect Horror, so the predecessor obligation is impossible.
+    The 1.0.18 erratum names a Wizard instead, changes the obligation digest
+    explicitly and keeps the predecessor obligation as provenance."""
+    contract = _json(SUCCESSOR_PATH)
+    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    added = contract["record_successors"][len(predecessor["record_successors"]) :]
+    assert [patch["fixture_id"] for patch in added] == [
+        *CARD_OBLIGATION_ERRATA_IDS,
+        *FINAL_CARD_SCRIPT_ERRATA_IDS,
+        *CARD_SCENARIO_ERRATA_IDS,
+        *CARD_VEHICLE_OBLIGATION_ERRATA_IDS,
+        *CARD_CAUSAL_SCENARIO_ERRATA_IDS,
+    ]
+    patch = added[0]
+    old = base["CARD_06"]
+    assert patch["correction_class"] == "ACTUAL_CARD_OBLIGATION_ERRATUM"
+    assert patch["predecessor_requested_state_digest"] == old["requested_state_digest"]
+    assert patch["digest_migration"]["obligation_digest"] == "CHANGED_OBLIGATION_ERRATUM"
+    details = patch["append_native_procedure"][0]["details"]
+    assert details["obligation_changed"] is True
+    assert details["predecessor_terminal_postconditions"] == old["terminal_postconditions"]
+    assert details["predecessor_obligation_digest"] == old["obligation_digest"]
+    # The Oracle basis: the doubler's own condition and both creatures' type lines.
+    oracle = details["oracle_basis"]
+    assert "another Wizard" in oracle["Harmonic Prodigy"]["relevant_text"]
+    assert "Wizard" not in oracle["Docent of Perfection"]["type_line"]
+    assert oracle["Talrand, Sky Summoner"]["type_line"].endswith("Wizard")
+    # An external Oracle receipt is still owed; the erratum says so instead of
+    # presenting provider copies as the official source.
+    assert (
+        details["oracle_receipt"]["status"]
+        == "PROVIDER_CROSS_CHECKED_COPY_EXTERNAL_RECEIPT_PENDING"
+    )
+
+    record = next(
+        r
+        for r in resolver.load_effective_materialization()["records"]
+        if r["fixture_id"] == "CARD_06"
+    )
+    assert record["card_authority_binding"] == old["card_authority_binding"]
+    assert record["expected_events"] == old["expected_events"]
+    assert record["terminal_postconditions"] == [
+        "Exactly two Talrand, Sky Summoner trigger instances are created for the single "
+        "instant cast."
+    ]
+    wizard = [o for o in record["semantic_objects"] if o["semantic_id"] == "obj:card06-wizard"]
+    assert [o["card_identity"] for o in wizard] == ["Talrand, Sky Summoner"]
+    # Every other object is the predecessor's, byte for byte.
+    assert [o for o in record["semantic_objects"] if o["semantic_id"] != "obj:card06-wizard"] == [
+        o for o in old["semantic_objects"] if o["semantic_id"] != "obj:card06-wizard"
+    ]
+    assert record["obligation_digest"] != old["obligation_digest"]
+    assert record["obligation_digest"] == resolver.obligation_digest(record)
+    assert record["historical_digests"]["obligation_digest"] == old["obligation_digest"]
+    assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
+    # The script answers only what the engine asks: the cast, the Bolt's target
+    # and the order of the simultaneous triggers.
+    assert [step["decision_family"] for step in record["decision_script"]] == [
+        "priority",
+        "target",
+        "trigger_order",
+    ]
+
+
+def test_card03_script_erratum_answers_the_engine_decisions_and_keeps_the_obligation() -> None:
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    patch = next(p for p in contract["record_successors"] if p["fixture_id"] == "CARD_03")
+    old = base["CARD_03"]
+    assert patch["correction_class"] == "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM"
+    assert patch["append_native_procedure"][0]["details"]["obligation_changed"] is False
+    assert patch["predecessor_invalidity"]["predecessor_decision_script"] == old["decision_script"]
+    record = next(
+        r
+        for r in resolver.load_effective_materialization()["records"]
+        if r["fixture_id"] == "CARD_03"
+    )
+    # The obligation keys are untouched, so the obligation digest is the predecessor's.
+    assert record["obligation_digest"] == old["obligation_digest"]
+    assert record["terminal_postconditions"] == old["terminal_postconditions"]
+    assert record["semantic_objects"] == old["semantic_objects"]
+    # The predecessor's folded targets become the engine's own decisions, with
+    # the same targets: the divided damage and the two tap targets.
+    folded = old["decision_script"][0]["selection"]["semantic_value"]
+    steps = record["decision_script"]
+    assert [step["decision_family"] for step in steps] == ["priority", "target_amount", "target"]
+    assert steps[0]["selection"]["semantic_value"] == {"action": "cast", "object": folded["object"]}
+    assert sorted(steps[1]["selection"]["semantic_value"]) == sorted(folded["damage_targets"])
+    assert steps[2]["selection"]["semantic_value"] == folded["tap_targets"]
+
+
+def test_card10_scenario_erratum_changes_only_the_active_player_and_the_script() -> None:
+    """P2's commander creature spell cannot be on the stack during P1's turn
+    (CR 302.1, Rograkh has no flash): the erratum makes P2 active and keeps the
+    requested stack, the objects and every obligation key."""
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    patch = next(p for p in contract["record_successors"] if p["fixture_id"] == "CARD_10")
+    old = base["CARD_10"]
+    assert patch["correction_class"] == "ACTUAL_CARD_SCENARIO_ERRATUM"
+    assert sorted(patch["replace"]) == ["decision_script", "temporal_state"]
+    details = patch["append_native_procedure"][0]["details"]
+    assert details["obligation_changed"] is False
+    assert "302.1" in details["rules_basis"]
+    record = resolver.effective_record("CARD_10")
+    assert record["obligation_digest"] == old["obligation_digest"]
+    assert record["stack_state"] == old["stack_state"]
+    assert record["semantic_objects"] == old["semantic_objects"]
+    assert record["temporal_state"] == {**old["temporal_state"], "active_player": "P2"}
+    assert [step["decision_family"] for step in record["decision_script"]] == [
+        "priority",
+        "target",
+    ]
+
+
+def test_card07_scenario_erratum_substitutes_only_the_draw_spell() -> None:
+    """Narset forbids a second draw each turn. On P2's own turn in a four-player
+    game P2 has already drawn (CR 103.8c), so the frozen draw events are
+    unreachable with a sorcery; the erratum substitutes an instant draw-two cast
+    during P1's turn and keeps the stack frame and every obligation key."""
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    patch = next(p for p in contract["record_successors"] if p["fixture_id"] == "CARD_07")
+    old = base["CARD_07"]
+    assert patch["correction_class"] == "ACTUAL_CARD_SCENARIO_ERRATUM"
+    assert sorted(patch["replace"]) == ["deck_state", "semantic_objects", "temporal_state"]
+    details = patch["append_native_procedure"][0]["details"]
+    assert details["substituted_objects"] == {
+        "obj:card07-draw": {"from": "Divination", "to": "Quick Study"}
+    }
+    assert details["oracle_basis"]["Quick Study"]["type_line"] == "Instant"
+    assert details["oracle_basis"]["Divination"]["type_line"] == "Sorcery"
+    record = resolver.effective_record("CARD_07")
+    assert record["obligation_digest"] == old["obligation_digest"]
+    assert record["stack_state"] == old["stack_state"]
+    # Exactly one object changes, and only its card identity.
+    changed = [
+        (new, before)
+        for new, before in zip(record["semantic_objects"], old["semantic_objects"], strict=True)
+        if new != before
+    ]
+    assert len(changed) == 1
+    new, before = changed[0]
+    assert {**new, "card_identity": before["card_identity"]} == before
+    assert record["temporal_state"]["active_player"] == "P1"
+
+
+def test_card16_obligation_erratum_restates_the_hand_size_at_the_natural_hand() -> None:
+    """The predecessor measured the Crawler at a five-card hand, which needs P1's
+    turn-1 hand to be exactly its three named Mountains: the vehicle plays the
+    real start-of-game procedure, so P1 also holds the opening seven and the
+    turn-1 draw, which the Crawler sees, and no Lab-side hand mutation is allowed
+    (SLOT-04 L7). The erratum declares that natural hand, library and life,
+    restates the postconditions at it (13 cards and 17 life after Divination's
+    two draws), keeps the Rules content (P/T equal to the hand size, one life
+    per draw per opponent, the CR 603.3b order) and preserves the predecessor
+    obligation as provenance."""
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    patch = next(p for p in contract["record_successors"] if p["fixture_id"] == "CARD_16")
+    old = base["CARD_16"]
+    assert patch["correction_class"] == "ACTUAL_CARD_OBLIGATION_ERRATUM"
+    assert patch["digest_migration"]["obligation_digest"] == "CHANGED_OBLIGATION_ERRATUM"
+    assert sorted(patch["replace"]) == [
+        "decision_script",
+        "deck_state",
+        "players",
+        "scenario_notes",
+        "terminal_postconditions",
+    ]
+    details = patch["append_native_procedure"][0]["details"]
+    assert details["obligation_changed"] is True
+    assert details["predecessor_obligation_digest"] == old["obligation_digest"]
+    assert details["predecessor_terminal_postconditions"] == old["terminal_postconditions"]
+    assert "603.3b" in details["rules_basis"] and "103.8c" in details["rules_basis"]
+    record = resolver.effective_record("CARD_16")
+    assert record["obligation_digest"] != old["obligation_digest"]
+    assert record["historical_digests"]["obligation_digest"] == old["obligation_digest"]
+    # The obligation is restated at the natural checkpoint: the hand size and the
+    # opponents' life after the two draws; each draw still costs each opponent 1.
+    assert record["terminal_postconditions"] == [
+        "P1 hand size=13 and Crawler is 13/13 absent other modifiers.",
+        "P2/P3/P4 are each at 17 life.",
+    ]
+    # The Crawler saw P1's turn-1 draw: each opponent is at 19 from a starting 20.
+    before = {player["player_id"]: player for player in old["players"]}
+    for player in record["players"]:
+        expected = 19 if player["player_id"] != "P1" else before["P1"]["life"]
+        assert player["life"] == expected
+        assert player["starting_life"] == before[player["player_id"]]["starting_life"]
+    assert all(
+        int(after.split()[-2]) == player["life"] - 2
+        for player in record["players"]
+        if player["player_id"] != "P1"
+        for after in record["terminal_postconditions"][1:]
+    )
+    assert record["expected_events"] == old["expected_events"]
+    assert record["stack_state"] == old["stack_state"]
+    assert record["semantic_objects"] == old["semantic_objects"]
+    assert record["temporal_state"] == old["temporal_state"]
+    (p1,) = [deck for deck in record["deck_state"] if deck["player_id"] == "P1"]
+    # The natural turn-1 hand: the opening seven plus the turn-1 draw (CR 103.8c),
+    # as CARD_07 declares, and the three named Mountains on top of it.
+    assert p1["checkpoint_hand"] == {
+        "completeness": "COMPLETE",
+        "template_card_identity": "Mountain",
+        "template_count": 8,
+    }
+    named_hand = [
+        obj for obj in record["semantic_objects"] if obj["owner"] == "P1" and obj["zone"] == "hand"
+    ]
+    assert len(named_hand) + p1["checkpoint_hand"]["template_count"] + 2 == 13
+    assert p1["checkpoint_library"]["runs"] == [
+        {"semantic_id": "obj:card16-lib-0"},
+        {"semantic_id": "obj:card16-lib-1"},
+        {"card_identity": "Mountain", "count": 99 - 8},
+    ]
+    (order,) = record["decision_script"]
+    assert order["actor"] == "P1" and order["decision_family"] == "trigger_order"
+    assert order["selection"]["semantic_value"] == [
+        "trigger:Psychosis_Crawler",
+        "trigger:Psychosis_Crawler",
+    ]
+
+
+def test_card25_scenario_erratum_causes_the_attachment_through_the_equip_ability() -> None:
+    """The predecessor checkpoint has Basilisk Collar already attached to a 1/1
+    Soldier token: a token is created by an effect and an attachment is history
+    the Rules Core must cause, so neither can be placed. The erratum puts a
+    vanilla 1/1 Human Soldier card in the token's place, starts the Collar
+    unattached with two Plains for Equip {2}, moves the checkpoint to P1's
+    precombat main of the same turn and scripts the equip activation before
+    the unchanged attack and block; every obligation key is untouched."""
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    patch = next(p for p in contract["record_successors"] if p["fixture_id"] == "CARD_25")
+    old = base["CARD_25"]
+    assert patch["correction_class"] == "ACTUAL_CARD_SCENARIO_ERRATUM"
+    assert patch["digest_migration"]["obligation_digest"] == "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED"
+    assert patch["predecessor_requested_state_digest"] == old["requested_state_digest"]
+    details = patch["append_native_procedure"][0]["details"]
+    assert details["obligation_changed"] is False
+    assert "702.6a" in details["rules_basis"] and "111.1" in details["rules_basis"]
+    record = resolver.effective_record("CARD_25")
+    assert record["obligation_digest"] == old["obligation_digest"]
+    assert record["expected_events"] == old["expected_events"]
+    assert record["terminal_postconditions"] == old["terminal_postconditions"]
+    assert record["players"] == old["players"]
+    objects = {obj["semantic_id"]: obj for obj in record["semantic_objects"]}
+    before = {obj["semantic_id"]: obj for obj in old["semantic_objects"]}
+    # Nothing is attached and nothing is a token in the requested state.
+    assert all(not obj.get("attached_to") for obj in record["semantic_objects"])
+    assert all("Token" not in obj["card_identity"] for obj in record["semantic_objects"])
+    assert objects["obj:card25-attacker"]["card_identity"] == "Eager Cadet"
+    assert objects["obj:card25-blocker"] == before["obj:card25-blocker"]
+    added = sorted(set(objects) - set(before))
+    assert added == ["obj:card25-equip-mana-0", "obj:card25-equip-mana-1"]
+    assert {objects[sid]["card_identity"] for sid in added} == {"Plains"}
+    assert record["temporal_state"] == {
+        **old["temporal_state"],
+        "phase": "precombat_main",
+        "step": "main",
+    }
+    families = [step["decision_family"] for step in record["decision_script"]]
+    assert families == ["priority", "target", "declare_attacker", "declare_blocker"]
+    activate, target = record["decision_script"][:2]
+    assert activate["selection"]["semantic_value"] == {
+        "action": "activate",
+        "source": "obj:card_25-subject",
+    }
+    assert target["selection"]["semantic_value"] == "obj:card25-attacker"
+    assert record["decision_script"][2:] == old["decision_script"]
+    (cost,) = record["action_cost_state"]
+    assert cost["decision_index"] == 0 and cost["minimum_mana_or_equivalent"] == 2
+    assert cost["explicit_payment_sources"] == added

@@ -70,6 +70,8 @@ final class XmageMidgameJsonlBridge {
     private String planId;
     private String entryMode = "placement";
     private XmageMidgameCausalBridge.CausalStackPlan causalStackPlan;
+    /** Commander stack sources published with the causal plan, by semantic id. */
+    private Map<String, UUID> causalCommanderSources = Map.of();
     private XmageMidgameCausalBridge.CausalEliminationPlan causalEliminationPlan;
 
     record Result(String json, boolean shutdown) {
@@ -466,7 +468,11 @@ final class XmageMidgameJsonlBridge {
                 XmageMidgameCausalBridge.prepareCausalStack(
                         requestedState, fuel, planTag, seed);
 
-        List<String> handles = importScaffolding(stackPlan.prepared().preStackPlan(), planTag);
+        // A declared lossless deck template must be exactly the scaffolding,
+        // on this entry as on placement.
+        List<String> handles = importScaffolding(
+                stackPlan.prepared().preStackPlan(), planTag,
+                stackPlan.prepared().restoration().losslessHidden());
         this.restoration = stackPlan.prepared().restoration();
         this.planId = planTag;
         this.entryMode = "causal_stack";
@@ -484,9 +490,41 @@ final class XmageMidgameJsonlBridge {
         JsonObject response = createdResponse(
                 gameId, planTag, startingPlayerSeat, startingLife, seed);
         response.addProperty("entry_mode", "causal_stack");
+        this.causalCommanderSources = Map.copyOf(
+                commanderStackSources(requestedState, stackPlan.prepared()));
         response.add("causal_plan", XmageMidgameCausalBridge.causalStackPayload(
-                stackPlan, restoration));
+                stackPlan, restoration, causalCommanderSources));
         return response;
+    }
+
+    /**
+     * The stack sources that are commanders, bound to the game's own commander
+     * card (the one the owner casts from the command zone), by semantic id.
+     */
+    private Map<String, UUID> commanderStackSources(
+            JsonObject requestedState, XmageCausalStackReconstruction.Prepared prepared) {
+        // The prepared frames, not the request: preparation clears the
+        // record's stack once it has turned it into frames.
+        Map<String, UUID> sources = new HashMap<>();
+        Set<String> stackSources = new HashSet<>();
+        for (XmageCausalStackReconstruction.StackFrame frame : prepared.bottomToTop()) {
+            stackSources.add(frame.semanticId());
+        }
+        JsonObject commanderIds = restoration.commanderCardIds(
+                session.restorationGame(), session.restorationSeats());
+        for (JsonElement element : requestedState.getAsJsonArray("semantic_objects")) {
+            JsonObject object = element.getAsJsonObject();
+            String semanticId = object.get("semantic_id").getAsString();
+            if (!stackSources.contains(semanticId) || !object.has("commander_id")
+                    || object.get("commander_id").isJsonNull()) {
+                continue;
+            }
+            String commanderId = object.get("commander_id").getAsString();
+            if (commanderIds.has(commanderId)) {
+                sources.put(semanticId, UUID.fromString(commanderIds.get(commanderId).getAsString()));
+            }
+        }
+        return sources;
     }
 
     /**
@@ -923,7 +961,8 @@ final class XmageMidgameJsonlBridge {
                 verdict = XmageMidgameCausalBridge.verifyCausalStack(
                         requireSession(),
                         requireSession().restorationSeats(),
-                        causalStackPlan.prepared());
+                        causalStackPlan.prepared(),
+                        causalCommanderSources);
             } else {
                 if (!"causal_elimination".equals(entryMode)
                         || causalEliminationPlan == null) {

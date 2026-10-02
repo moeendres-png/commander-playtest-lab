@@ -507,8 +507,8 @@ class XmagePb03Tier1RowsTest {
                 action = XmageNativeStateRestorationTest.singleActionOfType(
                         legal, "pass_priority", null);
             } else if ("trigger_order".equals(decisionClass)) {
-                // The restored Crawler triggers once per card P1 drew at game
-                // start. The engine offers one option per pending instance, and
+                // The restored Crawler triggers for P1's turn-1 draw. The engine
+                // offers one option per pending instance, and
                 // every offered option is byte-identical (same decision_id,
                 // same option_id, same ability): the ordering is vacuous, so
                 // submitting the offered option exercises no discretion.
@@ -534,11 +534,14 @@ class XmagePb03Tier1RowsTest {
                 session.restorationGame(), seats);
         XmageNativeStateRestoration.revalidate(session.restorationGame());
 
-        // The genuine start triggers cost every opponent exactly 8 life
-        // (seven opening draws plus the turn-1 draw).
-        assertEquals(32, seats.get("P2").getLife(), "Crawler start triggers fired");
-        assertEquals(32, seats.get("P3").getLife(), "Crawler start triggers fired");
-        assertEquals(32, seats.get("P4").getLife(), "Crawler start triggers fired");
+        // The restored Crawler enters when the first turn begins (CR 103.6),
+        // so it never sees the seven opening draws; only P1's turn-1 draw
+        // (CR 103.8c: no player skips it in a multiplayer game) triggers it,
+        // costing every opponent exactly 1 life. A pre-start placement made
+        // this 8 (32 life), a history no legal game shows.
+        assertEquals(39, seats.get("P2").getLife(), "only the turn-1 draw triggers the Crawler");
+        assertEquals(39, seats.get("P3").getLife(), "only the turn-1 draw triggers the Crawler");
+        assertEquals(39, seats.get("P4").getLife(), "only the turn-1 draw triggers the Crawler");
         UUID crawlerId = restoration.injectedObjectId("obj:micro-crawler");
         Permanent crawler = session.restorationGame().getPermanent(crawlerId);
         assertNotNull(crawler, "restored Psychosis Crawler must be on the battlefield");

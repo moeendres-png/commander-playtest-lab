@@ -296,11 +296,12 @@ def test_opencode_config_schema_conformance() -> None:
     assert isinstance(config["permission"], dict)
 
 
-def test_inactive_executors_absent_from_canonical_config() -> None:
-    """Muse and GLM must not be whitelisted or configured anywhere in opencode.json."""
-    raw = (REPO_ROOT / "opencode.json").read_text(encoding="utf-8")
-    for retired in ("muse-spark", "muse-free-zen", "glm-5"):
-        assert retired not in raw, retired
+def test_only_authorized_executors_present_in_canonical_config() -> None:
+    """The canonical config exposes exactly the two currently authorized models."""
+    config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
+    provider = config["provider"]["opencode-go"]
+    assert provider["whitelist"] == ["deepseek-v4.1-flash", "space-bunny-free"]
+    assert set(provider["models"]) == {"deepseek-v4.1-flash", "space-bunny-free"}
 
 
 def _agent_frontmatter(name: str) -> dict:
@@ -391,7 +392,7 @@ def test_agents_md_encodes_technical_autonomy() -> None:
     assert "do not stop or ask the coordinator for routine technical decisions" in flat
     assert "deepseek max" in flat
     assert "space bunny max" in flat
-    assert "muse and glm are inactive" in flat
+    assert "no other opencode execution profile is authorized" in flat
     assert "autonomous tool use" in flat
     assert "authority_gate" in flat
 
@@ -975,18 +976,17 @@ def test_skill_library_conformance() -> None:
 
 
 def test_dual_executor_current_authority_is_canonical() -> None:
-    authority = REPO_ROOT / "docs" / "COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md"
+    authority = REPO_ROOT / "docs" / "CURRENT_EXECUTION_AUTHORITY.md"
     assert authority.is_file()
     flat = " ".join(authority.read_text(encoding="utf-8").lower().split())
     for required in (
-        "space bunny free max",
+        "deepseek v4.1 flash max",
+        "opencode-go/deepseek-v4.1-flash",
+        "space bunny max",
         "opencode-go/space-bunny-free",
-        "native variant: `max`",
-        "muse spark 1.3 contributor",
-        "technical_decision_authority = autonomous_within_contract",
-        "tool-use authority",
+        "no other opencode model/profile is currently authorized",
         "no automatic fallback",
-        "production provider selection",
+        "production provider",
         "architecture freeze",
     ):
         assert required.lower() in flat
@@ -997,13 +997,13 @@ def test_cpl_profile_points_to_current_dual_executor_authority() -> None:
     canonical = profile["canonical_files"]
     assert "AGENTS.md" in canonical
     assert "CLAUDE.md" in canonical
-    assert "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md" in canonical
+    assert "docs/CURRENT_EXECUTION_AUTHORITY.md" in canonical
     assert "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md" in canonical
     assert "docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md" not in canonical
     notes = profile["notes"].lower()
-    assert "dual-executor" in notes
+    assert "two-executor" in notes
     assert "space bunny max" in notes
-    assert "muse" in notes
+    assert "historical model references are provenance only" in notes
 
 
 def test_claude_entrypoint_delegates_to_canonical_policy() -> None:
@@ -1023,9 +1023,9 @@ def test_current_routing_is_executor_neutral_and_bunny_preferred() -> None:
     assert "default and preferred executor" in flat
     assert "space-bunny" in flat
     assert "native `max`" in flat
-    assert "muse" in flat
+    assert "no other opencode executor is selectable" in flat
     assert (
         "neither supported opencode foundry executor nor an available authorized claude campaign "
         "can perform it" in flat
     )
-    assert "docs/coordinator_execution_authority_2026-09-27.md" in flat
+    assert "docs/current_execution_authority.md" in flat

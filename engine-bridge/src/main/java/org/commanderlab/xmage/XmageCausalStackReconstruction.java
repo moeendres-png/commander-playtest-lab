@@ -162,8 +162,20 @@ final class XmageCausalStackReconstruction {
             ));
 
             // Pre-causal materialization: the same physical card exists in
-            // hand. The later transition to stack must be a real cast.
-            source.addProperty("zone", "hand");
+            // hand. The later transition to stack must be a real cast. A
+            // commander spell was cast from the command zone (CR 903.8), so
+            // its pre-causal position is the command zone, recorded both on
+            // the object and in the commander state; nothing else changes.
+            if (source.has("commander_id") && !source.get("commander_id").isJsonNull()) {
+                String commanderId = source.get("commander_id").getAsString();
+                if (!moveCommanderToCommandZone(record, commanderId)) {
+                    throw new ReconstructionException(
+                            "UNBOUND_STACK_COMMANDER", semanticId + " " + commanderId);
+                }
+                source.addProperty("zone", "command");
+            } else {
+                source.addProperty("zone", "hand");
+            }
         }
 
         // Validate target referents before any engine mutation. A target may
@@ -205,13 +217,33 @@ final class XmageCausalStackReconstruction {
                     "PRESTACK_RESTORATION_UNSUPPORTED", exc.getMessage());
         }
 
-        List<String> identities = plan.objects().stream()
+        // The record's SLOT-04 lossless declarations (complete checkpoint
+        // libraries and hands, face-down objects) bind the pre-stack state as
+        // they bind a placement: applied and verified engine-direct at the
+        // checkpoint, never dropped. Without them a requested complete library
+        // or hand would be neither constructed nor checked.
+        final XmageLosslessHiddenPlan lossless;
+        try {
+            lossless = XmageLosslessHiddenPlan.fromRecord(record);
+            Set<String> requestedPlayers = new LinkedHashSet<>();
+            for (XmageNativeStateRestoration.RequestedPlayer player : plan.players()) {
+                requestedPlayers.add(player.playerId());
+            }
+            lossless.validatePlayers(requestedPlayers);
+        } catch (XmageNativeStateRestoration.RestorationException exc) {
+            throw new ReconstructionException(
+                    "PRESTACK_RESTORATION_UNSUPPORTED", exc.getMessage());
+        }
+        List<String> identities = new ArrayList<>(plan.objects().stream()
                 .map(XmageNativeStateRestoration.RequestedObject::cardIdentity)
-                .toList();
+                .toList());
+        // SLOT-04 library objects are placed after arrival from the same vehicle.
+        identities.addAll(lossless.vehicleIdentities());
         XmageNativeStateRestoration restoration =
                 new XmageNativeStateRestoration(
                         plan,
-                        XmageNativeStateRestoration.materializeCards(identities));
+                        XmageNativeStateRestoration.materializeCards(identities),
+                        lossless);
 
         List<StackFrame> bottomToTop = new ArrayList<>(topToBottom);
         Collections.reverse(bottomToTop);
@@ -354,6 +386,28 @@ final class XmageCausalStackReconstruction {
                 Map.copyOf(stackIds),
                 decisions,
                 List.copyOf(classes));
+    }
+
+    /** The commander's recorded zone becomes the command zone; false if unbound. */
+    private static boolean moveCommanderToCommandZone(JsonObject record, String commanderId) {
+        if (!record.has("commander_state") || !record.get("commander_state").isJsonObject()) {
+            return false;
+        }
+        JsonObject state = record.getAsJsonObject("commander_state");
+        if (!state.has("commanders") || !state.get("commanders").isJsonArray()) {
+            return false;
+        }
+        for (JsonElement element : state.getAsJsonArray("commanders")) {
+            JsonObject commander = element.getAsJsonObject();
+            if (commander.has("commander_id")
+                    && commanderId.equals(commander.get("commander_id").getAsString())
+                    && commander.has("zone")
+                    && "stack".equals(commander.get("zone").getAsString())) {
+                commander.addProperty("zone", "command");
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void validateFrame(

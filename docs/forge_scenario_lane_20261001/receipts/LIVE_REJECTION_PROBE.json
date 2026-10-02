@@ -1,0 +1,24 @@
+{
+ "rejections": [
+  {
+   "error_codes": [
+    "game_creation_failed"
+   ],
+   "error_messages": [
+    "scenario rejected: scenario must not inject stack"
+   ],
+   "field": "stack",
+   "success": false
+  },
+  {
+   "error_codes": [
+    "game_creation_failed"
+   ],
+   "error_messages": [
+    "scenario rejected: scenario must not inject decisions"
+   ],
+   "field": "decision_script",
+   "success": false
+  }
+ ]
+}

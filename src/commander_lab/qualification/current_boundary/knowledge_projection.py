@@ -28,7 +28,7 @@ measure leaves the row unverified, which earns nothing.
 from __future__ import annotations
 
 import json
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -70,6 +70,9 @@ ROWS: dict[str, str] = {
     "HIDDEN_05": "exile_permission_persists",
     "HIDDEN_15": "source_metadata",
     "HIDDEN_16": "ability_metadata",
+    "HIDDEN_06": "exile_permission_invalidates",
+    "HIDDEN_11": "shuffle_invalidates_order",
+    "HIDDEN_12": "controlled_player_authority",
 }
 
 # The record's own obligation sentence for each kind. A record whose viewer
@@ -92,6 +95,9 @@ OBLIGATION_TEXT: dict[str, str] = {
     "exile_permission_persists": "face-down exile actor-specific permission persists",
     "source_metadata": "source metadata does not leak",
     "ability_metadata": "ability metadata does not leak",
+    "exile_permission_invalidates": "face-down exile knowledge invalidates correctly",
+    "shuffle_invalidates_order": "shuffle invalidates order knowledge",
+    "controlled_player_authority": "controlled-player authority receives legally visible information",
     "honey_sentinel": (
         "unique forbidden sentinels scanned across prompt/context/option IDs/labels/"
         "metadata/source/state/transcript/logs"
@@ -286,7 +292,12 @@ def known_range_objects(record: dict[str, Any]) -> list[tuple[str, dict[str, Any
 
 
 def forbidden_tokens(
-    record: dict[str, Any], viewer: str, *, after_event: bool = False
+    record: dict[str, Any],
+    viewer: str,
+    *,
+    after_event: bool = False,
+    casts: Iterable[str] | None = None,
+    control_active: bool = True,
 ) -> ForbiddenTokens:
     """The identities, semantic ids and sentinels ``viewer`` is not entitled to.
 
@@ -294,6 +305,9 @@ def forbidden_tokens(
     (or through its scaffolding template) cannot decide anything and is set
     aside as ambiguous rather than scanned. ``after_event`` applies the record's
     temporary permissions, which hold only once its scripted event happened.
+    ``casts`` names the scripted casts already made (every scripted cast when
+    None); ``control_active`` says whether a declared control has begun. A
+    scan of a capture binds both to the tape (``_token_segments``).
     """
     state = _viewer_state(record)
     permissions = state.get("face_down_look_permissions") or ()
@@ -307,9 +321,11 @@ def forbidden_tokens(
         ]
         # A card the script itself casts is put onto the stack, a public zone
         # (CR 601.2a): after the event every principal may know it.
+        made = _scripted_casts(record) if casts is None else set(casts)
         temporary += [
             {"object": cast, "permission": "reveal", "viewer": "ALL_PLAYERS"}
             for cast in _scripted_casts(record)
+            if cast in made
         ]
         # A library range the record says a viewer knows (a scry or surveil of
         # the top N) entitles that viewer, and only that viewer, to the range's
@@ -318,6 +334,31 @@ def forbidden_tokens(
             {"object": str(obj["semantic_id"]), "permission": "look", "viewer": viewer_label}
             for viewer_label, obj in known_range_objects(record)
         ]
+        # A controlled-player permission is explicit contract data, not inferred
+        # legality. Once the real Rules-Core effect has happened, the named
+        # controller may receive the controlled player's hand identities. The
+        # permission deliberately grants no library or unrelated-player data.
+        for relation in state.get("temporary_permissions") or ():
+            if not isinstance(relation, dict):
+                continue
+            controlled = relation.get("controlled_player")
+            controller = relation.get("controller")
+            if (
+                control_active
+                and relation.get("permission")
+                == "only information P1 is entitled to while making P2 decisions under rules"
+                and controller == viewer
+                and controlled
+            ):
+                temporary += [
+                    {
+                        "object": str(obj["semantic_id"]),
+                        "permission": "look",
+                        "viewer": viewer,
+                    }
+                    for obj in _objects(record)
+                    if obj.get("zone") == "hand" and obj.get("owner") == controlled
+                ]
     visible: set[str] = set()
     hidden: dict[str, str] = {}
     texts = ability_text_bindings(record)
@@ -398,6 +439,13 @@ def expected_lossless_checks(record: dict[str, Any]) -> dict[str, int]:
     for obj in _objects(record):
         if obj.get("face_down_type"):
             add("face_down")
+        # The engine's checkpoint verification also checks every requested
+        # tapped state and counter set of a permanent.
+        if obj.get("zone") == "battlefield":
+            if obj.get("tapped"):
+                add("tapped")
+            if obj.get("counters"):
+                add("counters")
     return counts
 
 
@@ -428,6 +476,9 @@ class Capture:
     script_start: int | None = None
     script_trace: list[dict[str, Any]] = field(default_factory=list)
     script_complete: bool = False
+    temporal_snapshots: list[dict[str, Any]] = field(default_factory=list)
+    controlled_decision: dict[str, Any] | None = None
+    controlled_submission: dict[str, Any] | None = None
 
 
 def _payload(response: dict[str, Any]) -> dict[str, Any]:
@@ -466,9 +517,48 @@ def capture_row(client: ml.MidgameLaneClient, record: dict[str, Any], *, viewer:
     )
     if record.get("decision_script"):
         capture.script_start = len(client.tape)
+
+        def snapshot_before_action(causal_step_id: str, position: int) -> None:
+            projections: dict[str, dict[str, Any]] = {}
+            for label in _labels(record):
+                response = client.request("get_midgame_projection", {"actor_id": label})
+                if not response.get("success"):
+                    raise ml.MidgameLaneError(
+                        f"temporal snapshot for {label} failed closed: {_error_code(response)}"
+                    )
+                projections[label] = _payload(response)
+            events_response = client.request("get_midgame_events", {"after_offset": 0})
+            if not events_response.get("success"):
+                raise ml.MidgameLaneError(
+                    f"temporal event snapshot failed closed: {_error_code(events_response)}"
+                )
+            capture.temporal_snapshots.append(
+                {
+                    "causal_step_id": causal_step_id,
+                    "script_position": position,
+                    "tape_index": len(client.tape),
+                    # Backward-compatible viewer alias used by HIDDEN_11.
+                    "projection": projections[viewer],
+                    "projections": projections,
+                    "events": _payload(events_response),
+                }
+            )
+
         try:
-            capture.script_trace = run_script(client, record)
+            capture.script_trace = run_script(
+                client,
+                record,
+                snapshot_before_action=(
+                    snapshot_before_action
+                    if record.get("fixture_id") in {"HIDDEN_06", "HIDDEN_11"}
+                    else None
+                ),
+            )
             capture.script_complete = True
+            if record.get("fixture_id") == "HIDDEN_12":
+                capture.controlled_decision, capture.controlled_submission = (
+                    advance_to_controlled_decision(client, record)
+                )
         except ml.MidgameLaneError as exc:
             capture.failure = f"the scripted event failed closed: {exc}"
             return capture
@@ -655,6 +745,72 @@ def _face_down_target_offer(
     return offer
 
 
+def _face_down_exile_cast_offer(
+    client: ml.MidgameLaneClient,
+    legal: dict[str, Any],
+    step: dict[str, Any],
+    record: dict[str, Any],
+    principal: str,
+) -> dict[str, Any] | None:
+    """Match a cast of a currently face-down exiled object from actor-visible state.
+
+    The object started in a hidden library, so no setup/native handle is used.
+    The acting principal's own redacted projection must expose exactly one
+    matching face-down exile object, and exactly one current engine legal action
+    must name that projected handle as its source.
+    """
+    selection = step.get("selection") or {}
+    value = selection.get("semantic_value")
+    if (
+        selection.get("selector_kind") != "semantic_action"
+        or not isinstance(value, dict)
+        or value.get("action") != "cast"
+        or not value.get("object")
+    ):
+        return None
+    object_id = str(value["object"])
+    permission = next(
+        (
+            item
+            for item in _viewer_state(record).get("temporary_permissions") or ()
+            if isinstance(item, dict)
+            and item.get("object") == object_id
+            and item.get("viewer") == principal
+            and item.get("permission") == "look_at_face_down_exile"
+        ),
+        None,
+    )
+    if permission is None:
+        return None
+    obj = next((item for item in _objects(record) if item.get("semantic_id") == object_id), None)
+    if obj is None:
+        raise ml.MidgameLaneError(f"the scripted exile object {object_id} is undeclared")
+    response = client.request("get_midgame_projection", {"actor_id": principal})
+    if not response.get("success"):
+        raise ml.MidgameLaneError("the acting principal's exile projection failed closed")
+    projection = _payload(response)
+    owner = _player_entry(projection, str(obj["owner"])) or {}
+    handles = [
+        str(card.get("object_id"))
+        for card in owner.get("exile") or ()
+        if isinstance(card, dict)
+        and card.get("face_down") is True
+        and card.get("name") == obj.get("card_identity")
+        and card.get("object_id")
+    ]
+    if len(handles) != 1:
+        raise ml.MidgameLaneError(
+            f"the scripted face-down exile cast has {len(handles)} actor-visible handles"
+        )
+    matches = midgame_rows_mod._source_casts(legal, handles[0])
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(
+            f"the face-down exile handle matched {len(matches)} engine legal actions"
+        )
+    offer: dict[str, Any] = matches[0]
+    return offer
+
+
 def _boolean_offer(legal: dict[str, Any], step: dict[str, Any]) -> dict[str, Any] | None:
     """The yes/no offer the step names, or None for any other selector."""
     selection = step.get("selection") or {}
@@ -676,7 +832,192 @@ def _boolean_offer(legal: dict[str, Any], step: dict[str, Any]) -> dict[str, Any
     return offer
 
 
-def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dict[str, Any]]:
+def _controlled_relationship(record: dict[str, Any]) -> tuple[str, str]:
+    """Return (controller, controlled player) from the record's own permission."""
+    relationships = [
+        item
+        for item in _viewer_state(record).get("temporary_permissions") or ()
+        if isinstance(item, dict)
+        and item.get("controller")
+        and item.get("controlled_player")
+        and item.get("permission")
+        == "only information P1 is entitled to while making P2 decisions under rules"
+    ]
+    if len(relationships) != 1:
+        raise ml.MidgameLaneError(
+            f"controlled-player row declares {len(relationships)} control relationships"
+        )
+    relation = relationships[0]
+    return str(relation["controller"]), str(relation["controlled_player"])
+
+
+def _record_seat_index(record: dict[str, Any], label: str) -> int:
+    matches = [
+        int(player["seat"]) - 1
+        for player in record.get("players") or ()
+        if str(player.get("player_id")) == label
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(f"record names {len(matches)} seats for {label}")
+    return matches[0]
+
+
+def _unique_option_of_type(decision: dict[str, Any], option_type: str) -> str:
+    matches = [
+        str(option.get("option_id"))
+        for option in decision.get("legal_options") or ()
+        if isinstance(option, dict)
+        and option.get("option_type") == option_type
+        and option.get("option_id")
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(
+            f"expected exactly one {option_type} option, observed {len(matches)}"
+        )
+    return matches[0]
+
+
+def advance_to_controlled_decision(
+    client: ml.MidgameLaneClient, record: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Advance only by engine-offered priority passes to the controlled turn.
+
+    Mindslaver's effect is already established by the record's explicit script.
+    This observer then accepts no discretionary class except priority. Every
+    transition uses the exact pass option XMage offers. The first frame whose
+    native address says controller acting-for controlled player is itself
+    answered with that frame's exact pass option so actor/decision/option
+    identity is exercised, not merely inspected.
+    """
+    probe = midgame_rows_mod.probe_module()
+    controller, controlled = _controlled_relationship(record)
+    controller_seat = _record_seat_index(record, controller)
+    controlled_seat = _record_seat_index(record, controlled)
+
+    for _ in range(120):
+        decision = client.pending_decision(attempts=5)
+        if decision is None:
+            raise ml.MidgameLaneError("the engine went terminal before the controlled turn")
+        legal = probe.legal_actions(client)
+        principal = probe.decision_principal(decision, legal)
+        acting_for = decision.get("acting_for_seat")
+        if acting_for is not None:
+            if (
+                principal != controller
+                or decision.get("seat") != controller_seat
+                or acting_for != controlled_seat
+            ):
+                raise ml.MidgameLaneError(
+                    "the engine exposed a controlled-player frame for the wrong authority"
+                )
+            passed = probe.option_of_type(decision, "pass_priority")
+            if passed is None:
+                raise ml.MidgameLaneError(
+                    "the controlled-player authority frame offered no pass_priority option"
+                )
+            observed = json.loads(json.dumps(decision))
+            client.submit_options(decision, [passed])
+            return observed, {
+                "decision_id": str(decision.get("decision_id")),
+                "decision_offset": decision.get("decision_offset"),
+                "actor_id": str(decision.get("actor_id")),
+                "selected_option_id": str(passed),
+                "accepted": True,
+                **_binding_controls(client, record, decision, str(passed)),
+            }
+
+        if str(decision.get("decision_class")) != "priority":
+            raise ml.MidgameLaneError(
+                "advancing to the controlled turn encountered unsupported "
+                f"{decision.get('decision_class')}"
+            )
+        passed = _unique_option_of_type(decision, "pass_priority")
+        if not passed:
+            raise ml.MidgameLaneError("the engine offered no pass while advancing turns")
+        client.submit_options(decision, [passed])
+    raise ml.MidgameLaneError("the controlled-player authority frame was not reached")
+
+
+def _rejection(client: ml.MidgameLaneClient, response: dict[str, Any]) -> str | None:
+    """Submit a raw decision response; the engine's error code, or None if it
+    was accepted."""
+    result = client.request("submit_midgame_decision", {"response": response})
+    return None if result.get("success") else str(_error_code(result) or "REJECTED")
+
+
+def _binding_controls(
+    client: ml.MidgameLaneClient,
+    record: dict[str, Any],
+    answered: dict[str, Any],
+    option_id: str,
+) -> dict[str, Any]:
+    """Actor and revision binding of the controlled decision, exercised live.
+
+    The lane's decision id is derived by the engine from the game, the decision
+    offset (its revision), the deciding actor and the decision class, so an id
+    names one revision of one actor's decision. Two submissions the engine must
+    refuse without touching the game prove it: the answered (now stale) id
+    again, and the next pending decision submitted under a foreign actor. The
+    next pending decision must be unchanged afterwards.
+    """
+    _, controlled = _controlled_relationship(record)
+    stale = _rejection(
+        client,
+        {
+            "decision_id": answered["decision_id"],
+            "actor_id": answered["actor_id"],
+            "selected_option_ids": [option_id],
+            "ordering": [],
+        },
+    )
+    pending = client.pending_decision(attempts=5)
+    foreign_native = None
+    labels = [label for label in _labels(record) if label != controlled]
+    for label in labels:
+        response = client.request("get_midgame_projection", {"actor_id": label})
+        actor = ((_payload(response).get("view") or {}).get("actor_id")) if response else None
+        if pending is not None and isinstance(actor, str) and actor != pending.get("actor_id"):
+            foreign_native = actor
+            break
+    # The probe must be refused for its actor; it offers only an engine pass,
+    # so even a wrongly accepted probe could not choose anything substantive.
+    options = [
+        str(option.get("option_id"))
+        for option in (pending or {}).get("legal_options") or ()
+        if isinstance(option, dict)
+        and option.get("option_id")
+        and option.get("option_type") == "pass_priority"
+    ]
+    foreign = (
+        _rejection(
+            client,
+            {
+                "decision_id": pending["decision_id"],
+                "actor_id": foreign_native,
+                "selected_option_ids": options[:1],
+                "ordering": [],
+            },
+        )
+        if pending is not None and foreign_native is not None and options
+        else None
+    )
+    after = client.pending_decision(attempts=5)
+    return {
+        "stale_replay_rejected": stale,
+        "foreign_actor_rejected": foreign,
+        "foreign_actor_attempted": foreign_native is not None and bool(options),
+        "pending_unchanged": pending is not None
+        and after is not None
+        and after.get("decision_id") == pending.get("decision_id"),
+    }
+
+
+def run_script(
+    client: ml.MidgameLaneClient,
+    record: dict[str, Any],
+    *,
+    snapshot_before_action: Callable[[str, int], None] | None = None,
+) -> list[dict[str, Any]]:
     """Answer the record's decision script from the engine's own offers only.
 
     A scripted priority step casts or activates the named object once the
@@ -729,18 +1070,30 @@ def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dic
                 and step.get("decision_family") == "priority"
                 and stack == []
             ):
+                if snapshot_before_action is not None:
+                    snapshot_before_action(str(step.get("causal_step_id") or ""), position)
                 value = (step.get("selection") or {}).get("semantic_value") or {}
+                action: dict[str, Any] | None
                 if value.get("action") == "activate":
                     native = placed.get(str(value.get("object")))
                     if native is None:
                         raise ml.MidgameLaneError("the scripted source was not placed")
                     action = _activation_offer(legal, native)
                 else:
-                    action = midgame_rows_mod._scripted_priority_action(
-                        legal, step, placed, commanders
-                    )
+                    action = _face_down_exile_cast_offer(client, legal, step, record, principal)
+                    if action is None:
+                        action = midgame_rows_mod._scripted_priority_action(
+                            legal, step, placed, commanders
+                        )
+                if action is None:
+                    raise ml.MidgameLaneError("the scripted action matched no engine offer")
+                index = len(client.tape)
                 probe.submit_proposal(client, legal, action, f"knowledge-{len(trace)}")
-                trace.append({"decision_class": decision_class, "step": position})
+                # Where the scripted action entered the tape: a cast is public
+                # from here on, never earlier (_token_segments).
+                trace.append(
+                    {"decision_class": decision_class, "step": position, "tape_index": index}
+                )
                 position += 1
                 continue
             passed = probe.option_of_type(decision, "pass_priority")
@@ -852,12 +1205,22 @@ def addressed_documents(
         response = entry.get("response") or {}
         body = _payload(response)
         if not response.get("success"):
-            out.append(AddressedDocument(None, f"{name}.request", request))
+            # A refused submission's request is still its submitter's own
+            # answer; the engine's refusal stays public, so anything the refusal
+            # carries is scanned for every principal.
+            author: str | None = None
+            if message_type in {"submit_midgame_decision", "submit_action"}:
+                answer = payload.get(
+                    "response" if message_type == "submit_midgame_decision" else "proposal"
+                )
+                author = label_of(answer.get("actor_id")) if isinstance(answer, dict) else None
+            out.append(AddressedDocument(author, f"{name}.request", request))
             out.append(AddressedDocument(None, f"{name}.response", response))
             continue
         if message_type in {"get_midgame_decision", "submit_midgame_decision", "submit_action"}:
             # Both submission messages answer with the next pending frame; the
             # answer itself is the submitter's (an option answer or a proposal).
+            submitter: str | None = None
             if message_type != "get_midgame_decision":
                 answer = payload.get(
                     "response" if message_type == "submit_midgame_decision" else "proposal"
@@ -867,13 +1230,31 @@ def addressed_documents(
             else:
                 out.append(AddressedDocument(None, f"{name}.request", request))
             decision = body.get("decision")
+            private = {"decision"}
             if isinstance(decision, dict) and decision:
-                out.append(
-                    AddressedDocument(label_of(decision.get("actor_id")), f"{name}.frame", decision)
-                )
+                actor = label_of(decision.get("actor_id"))
+                out.append(AddressedDocument(actor, f"{name}.frame", decision))
+                # A submission's next_actions project that same next decision,
+                # so they are routed with its frame. Only when every action names
+                # that frame's decision; otherwise they stay public and are
+                # scanned for every principal (fail closed).
+                if _projects_frame(body.get("next_actions"), decision):
+                    private.add("next_actions")
+                    out.append(
+                        AddressedDocument(actor, f"{name}.next_actions", body["next_actions"])
+                    )
             status = {key: value for key, value in response.items() if key != "payload"}
-            status["payload"] = {key: value for key, value in body.items() if key != "decision"}
-            out.append(AddressedDocument(None, f"{name}.status", status))
+            status["payload"] = {key: value for key, value in body.items() if key not in private}
+            # A submission's status echoes the submitter's own answer (the
+            # executed action and its ids): it answers the submitter. A pure
+            # read of the pending decision has no submitter and stays public.
+            out.append(
+                AddressedDocument(
+                    submitter,
+                    f"{name}.status",
+                    status,
+                )
+            )
             continue
         if message_type == "get_legal_actions":
             out.append(AddressedDocument(None, f"{name}.request", request))
@@ -891,6 +1272,18 @@ def addressed_documents(
         out.append(AddressedDocument(None, f"{name}.request", request))
         out.append(AddressedDocument(None, f"{name}.response", response))
     return out
+
+
+def _projects_frame(actions: Any, decision: dict[str, Any]) -> bool:
+    """Whether a non-empty action list projects exactly this decision frame."""
+    if not isinstance(actions, list) or not actions:
+        return False
+    decision_id = decision.get("decision_id")
+    return bool(decision_id) and all(
+        isinstance(action, dict)
+        and (action.get("metadata") or {}).get("decision_id") == decision_id
+        for action in actions
+    )
 
 
 def principal_documents(
@@ -1597,6 +1990,203 @@ def _scry_knowledge(record: dict[str, Any], capture: Capture, viewer: str) -> li
     return checks
 
 
+def _shuffle_invalidates_order(
+    record: dict[str, Any], capture: Capture, viewer: str
+) -> list[Check]:
+    """A native shuffle destroys order knowledge but not legitimate memory.
+
+    The record declares the exact pre-shuffle range the viewer looked at. The
+    engine projection after the scripted native shuffle must still preserve
+    those identities for the entitled viewer, must explicitly mark the order
+    invalidated, and must not serialize the former engine order. Other
+    principals remain unentitled to those library identities.
+    """
+    checks = _event_checks(capture)
+    ranges = [
+        item
+        for item in _viewer_state(record).get("known_library_ranges") or ()
+        if isinstance(item, dict)
+        and item.get("viewer") == viewer
+        and item.get("before_event") == "shuffle"
+        and item.get("ordered") is True
+    ]
+    checks.append(
+        Check(
+            "one_pre_shuffle_known_range_declared",
+            len(ranges) == 1,
+            f"{len(ranges)} ordered pre-shuffle ranges declared for {viewer}",
+        )
+    )
+    if len(ranges) != 1:
+        return checks
+
+    known = ranges[0]
+    owner = str(known.get("player"))
+    start = int(known.get("start", 0))
+    count = int(known.get("count", 0))
+    ordered_objects = sorted(
+        (
+            obj
+            for obj in _objects(record)
+            if obj.get("zone") == "library"
+            and obj.get("owner") == owner
+            and isinstance(obj.get("zone_position"), int)
+            and start <= int(obj["zone_position"]) < start + count
+        ),
+        key=lambda obj: int(obj["zone_position"]),
+    )
+    expected_order = [str(obj["card_identity"]) for obj in ordered_objects]
+    checks.append(
+        Check(
+            "known_range_is_losslessly_materialized",
+            len(expected_order) == count and count > 0,
+            f"{len(expected_order)} requested objects cover declared count {count}",
+        )
+    )
+
+    pre_shuffle = [
+        snapshot
+        for snapshot in capture.temporal_snapshots
+        if snapshot.get("causal_step_id") == "elixir-shuffle"
+    ]
+    checks.append(
+        Check(
+            "pre_shuffle_snapshot_observed",
+            len(pre_shuffle) == 1,
+            f"{len(pre_shuffle)} snapshots captured immediately before the shuffle action",
+        )
+    )
+    pre_events: list[dict[str, Any]] = []
+    if len(pre_shuffle) == 1:
+        pre_projection = pre_shuffle[0].get("projection") or {}
+        pre_view = pre_projection.get("view") or {}
+        pre_observations = [
+            entry
+            for entry in pre_view.get("looked_at") or ()
+            if isinstance(entry, dict) and _logged_card_names(entry) == expected_order
+        ]
+        checks.append(
+            Check(
+                "pre_shuffle_ordered_snapshot_matches_engine_look",
+                len(pre_observations) == 1
+                and pre_observations[0].get("order_invalidated_by_shuffle") is not True,
+                f"{len(pre_observations)} ordered observations exactly match {expected_order}",
+                "ENTITLEMENT",
+            )
+        )
+        pre_events = list((pre_shuffle[0].get("events") or {}).get("events") or ())
+
+    post_events = list(capture.events.get("events") or ())
+    pre_shuffle_events = [
+        event
+        for event in pre_events
+        if event.get("type") == "LIBRARY_SHUFFLED" and event.get("player_player") == owner
+    ]
+    post_shuffle_events = [
+        event
+        for event in post_events
+        if event.get("type") == "LIBRARY_SHUFFLED" and event.get("player_player") == owner
+    ]
+    checks.append(
+        Check(
+            "native_shuffle_observed_after_ordered_snapshot",
+            len(pre_shuffle) == 1 and len(post_shuffle_events) > len(pre_shuffle_events),
+            f"{len(pre_shuffle_events)} {owner} shuffles before snapshot; "
+            f"{len(post_shuffle_events)} after scripted event",
+        )
+    )
+
+    projection = capture.projections.get(viewer) or {}
+    view = projection.get("view") or {}
+    observations = [
+        entry
+        for entry in view.get("looked_at") or ()
+        if isinstance(entry, dict) and sorted(_logged_card_names(entry)) == sorted(expected_order)
+    ]
+    checks.append(
+        Check(
+            "remembered_identity_set_observed",
+            len(observations) == 1,
+            f"{len(observations)} look observations retain exactly {sorted(expected_order)}",
+            "ENTITLEMENT",
+        )
+    )
+    if len(observations) == 1:
+        observation = observations[0]
+        actual_order = _logged_card_names(observation)
+        checks.extend(
+            [
+                Check(
+                    "shuffle_order_invalidated_explicitly",
+                    observation.get("order_invalidated_by_shuffle") is True,
+                    f"order_invalidated_by_shuffle={observation.get('order_invalidated_by_shuffle')!r}",
+                    "LEAK",
+                ),
+                Check(
+                    "pre_shuffle_order_not_retained",
+                    actual_order != expected_order,
+                    f"before={expected_order}; after={actual_order}",
+                    "LEAK",
+                ),
+                Check(
+                    "invalidated_memory_is_canonical_not_engine_order",
+                    actual_order == sorted(expected_order),
+                    f"after={actual_order}; canonical={sorted(expected_order)}",
+                    "LEAK",
+                ),
+            ]
+        )
+
+    owner_entry = _player_entry(projection, owner) or {}
+    checks.append(
+        Check(
+            "no_active_library_grant_survives_shuffle",
+            not list(owner_entry.get("granted_library") or ()),
+            f"{len(owner_entry.get('granted_library') or ())} active library grants remain",
+            "LEAK",
+        )
+    )
+
+    identities = set(expected_order)
+    for label in _labels(record):
+        if label == viewer:
+            continue
+        other = capture.projections.get(label) or {}
+        leaked = [
+            name
+            for entry in ((other.get("view") or {}).get("looked_at") or ())
+            if isinstance(entry, dict)
+            for name in _logged_card_names(entry)
+            if name in identities
+        ]
+        checks.append(
+            Check(
+                f"remembered_identity_withheld_from:{label}",
+                not leaked,
+                f"{label} received {leaked}",
+                "LEAK",
+            )
+        )
+        hits, _, tokens = _scan_principal(record, capture, label)
+        checks.append(
+            Check(
+                f"no_forbidden_token_in_channels_of:{label}",
+                not hits,
+                f"{len(hits)} occurrences of {sorted(tokens.tokens)}",
+                "LEAK",
+            )
+        )
+    return checks
+
+
+def _logged_card_names(entry: dict[str, Any]) -> list[str]:
+    return [
+        str(card.get("name"))
+        for card in entry.get("cards") or ()
+        if isinstance(card, dict) and card.get("name")
+    ]
+
+
 def _pile_frames(frames: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """The frames that split cards into piles or choose a pile."""
     return [
@@ -1953,6 +2543,366 @@ def _exile_permission_persists(
     return checks
 
 
+def _exile_permission_invalidates(
+    record: dict[str, Any], capture: Capture, viewer: str
+) -> list[Check]:
+    """A face-down exile look ends when the native object leaves exile.
+
+    The pre-cast snapshot must prove that the engine actually established the
+    actor-specific face-down exile view. A later native EXILED -> STACK move of
+    that same card must occur after the snapshot. Final projections may remember
+    a now-public identity through ordinary game history, but no principal may
+    retain the old face-down exile entry or its private exile handle.
+    """
+    checks = _event_checks(capture)
+    permissions = [
+        item
+        for item in _after_event_permissions(record)
+        if isinstance(item, dict)
+        and item.get("permission") == "look_at_face_down_exile"
+        and item.get("viewer") == viewer
+        and item.get("object")
+    ]
+    checks.append(
+        Check(
+            "invalidating_exile_look_declared",
+            len(permissions) == 1
+            and "object changes zone or becomes a new object"
+            in (_viewer_state(record).get("invalidation_conditions") or ()),
+            f"{len(permissions)} look permissions; invalidation="
+            f"{_viewer_state(record).get('invalidation_conditions')}",
+        )
+    )
+    if len(permissions) != 1:
+        return checks
+
+    object_id = str(permissions[0]["object"])
+    obj = next((item for item in _objects(record) if item.get("semantic_id") == object_id), None)
+    checks.append(Check("invalidated_object_declared", obj is not None, object_id))
+    if obj is None:
+        return checks
+    identity = str(obj["card_identity"])
+    owner = str(obj["owner"])
+
+    snapshots = [
+        snapshot
+        for snapshot in capture.temporal_snapshots
+        if snapshot.get("causal_step_id") == "cast-exiled-card"
+    ]
+    checks.append(
+        Check(
+            "pre_zone_change_exile_snapshot_observed",
+            len(snapshots) == 1,
+            f"{len(snapshots)} snapshots immediately before the exile object leaves",
+        )
+    )
+    if len(snapshots) == 1:
+        snapshot = snapshots[0]
+        snapshot_projections = snapshot.get("projections") or {}
+        viewer_projection = snapshot_projections.get(viewer) or snapshot.get("projection") or {}
+        owner_view = _player_entry(viewer_projection, owner) or {}
+        viewer_face_down = [
+            card
+            for card in owner_view.get("exile") or ()
+            if isinstance(card, dict)
+            and card.get("face_down") is True
+            and card.get("name") == identity
+        ]
+        checks.append(
+            Check(
+                "permission_active_before_zone_change",
+                len(viewer_face_down) == 1,
+                f"{len(viewer_face_down)} matching face-down exile entries in {viewer}'s snapshot",
+                "ENTITLEMENT",
+            )
+        )
+        for label in _labels(record):
+            if label == viewer:
+                continue
+            projection = snapshot_projections.get(label) or {}
+            entry = _player_entry(projection, owner) or {}
+            leaked = [
+                card
+                for card in entry.get("exile") or ()
+                if isinstance(card, dict) and card.get("face_down") is True
+            ]
+            checks.append(
+                Check(
+                    f"permission_not_shared_before_zone_change:{label}",
+                    not leaked,
+                    f"{len(leaked)} face-down exile entries shown to {label}",
+                    "LEAK",
+                )
+            )
+
+        pre_events = list((snapshot.get("events") or {}).get("events") or ())
+        grants = [
+            event
+            for event in pre_events
+            if event.get("type") == "ZONE_CHANGE"
+            and event.get("from") in {"LIBRARY", "HAND"}
+            and event.get("to") == "EXILED"
+            and event.get("public_identity") is False
+        ]
+        checks.append(
+            Check(
+                "native_face_down_exile_grant_precedes_snapshot",
+                len(grants) == 1,
+                f"{len(grants)} hidden-zone -> face-down exile moves before snapshot",
+            )
+        )
+        pre_departures = [
+            event
+            for event in pre_events
+            if event.get("type") == "ZONE_CHANGE"
+            and event.get("from") == "EXILED"
+            and event.get("to") == "STACK"
+            and event.get("target_name") == identity
+        ]
+    else:
+        pre_events = []
+        pre_departures = []
+
+    post_events = list(capture.events.get("events") or ())
+    departures = [
+        event
+        for event in post_events
+        if event.get("type") == "ZONE_CHANGE"
+        and event.get("from") == "EXILED"
+        and event.get("to") == "STACK"
+        and event.get("target_name") == identity
+    ]
+    checks.append(
+        Check(
+            "native_exile_zone_change_observed_after_snapshot",
+            len(snapshots) == 1 and len(departures) > len(pre_departures),
+            f"{len(pre_departures)} matching moves before snapshot; "
+            f"{len(departures)} after scripted event",
+        )
+    )
+
+    stale_handles: set[str] = set()
+    if len(snapshots) == 1:
+        pre_projection = (snapshots[0].get("projections") or {}).get(viewer) or {}
+        pre_entry = _player_entry(pre_projection, owner) or {}
+        stale_handles = {
+            str(card.get("object_id"))
+            for card in pre_entry.get("exile") or ()
+            if isinstance(card, dict)
+            and card.get("face_down") is True
+            and card.get("name") == identity
+            and card.get("object_id")
+        }
+
+    for label, projection in capture.projections.items():
+        entry = _player_entry(projection, owner) or {}
+        stale = [
+            card
+            for card in entry.get("exile") or ()
+            if isinstance(card, dict)
+            and (
+                card.get("face_down") is True
+                or card.get("name") == identity
+                or str(card.get("object_id")) in stale_handles
+            )
+        ]
+        checks.append(
+            Check(
+                f"no_stale_face_down_exile_permission:{label}",
+                not stale,
+                f"{len(stale)} stale face-down/private exile entries remain for {label}",
+                "LEAK",
+            )
+        )
+    # Whole surface, in time: until the cast nobody but the viewer may receive
+    # the face-down card's identity, semantic id or exile handle on any channel.
+    # From the cast on the card is a public object; the engine keeps its native
+    # id across zones, so the handle then names a public object.
+    cast_at = _cast_indices(record, capture).get(object_id)
+    boundary = cast_at if cast_at is not None else len(capture.tape)
+    for label in _labels(record):
+        if label == viewer:
+            continue
+        early = principal_documents(capture.tape[:boundary], label, capture.natives)
+        handle_hits = scan([(item.channel, item.document) for item in early], stale_handles)
+        checks.append(
+            Check(
+                f"face_down_handle_withheld_before_zone_change:{label}",
+                bool(stale_handles) and not handle_hits,
+                f"{len(handle_hits)} occurrences of the exile handle before tape {boundary}",
+                "LEAK" if stale_handles else "MEASURED",
+            )
+        )
+    checks.extend(_scan_others(record, capture, skip=(viewer,)))
+    return checks
+
+
+def _controlled_player_authority(
+    record: dict[str, Any], capture: Capture, viewer: str
+) -> list[Check]:
+    """The Rules Core, not the harness, determines who makes a controlled turn decision."""
+    checks = _event_checks(capture)
+    try:
+        controller, controlled = _controlled_relationship(record)
+    except ml.MidgameLaneError as exc:
+        return [*checks, Check("controlled_relationship_declared", False, str(exc))]
+    checks.append(
+        Check(
+            "controlled_relationship_declared",
+            controller == viewer,
+            f"controller={controller}; controlled={controlled}; viewer={viewer}",
+        )
+    )
+    decision = capture.controlled_decision or {}
+    expected_controller_seat = _record_seat_index(record, controller)
+    expected_controlled_seat = _record_seat_index(record, controlled)
+    checks.append(
+        Check(
+            "engine_addresses_controlled_decision_to_controller",
+            bool(decision)
+            and decision.get("actor_id") == capture.natives.get(controller)
+            and decision.get("seat") == expected_controller_seat
+            and decision.get("acting_for_seat") == expected_controlled_seat,
+            f"actor={decision.get('actor_id')}; seat={decision.get('seat')}; "
+            f"acting_for={decision.get('acting_for_seat')}",
+            "ENTITLEMENT",
+        )
+    )
+
+    pilot_state = decision.get("pilot_state") or {}
+    controlled_row = next(
+        (
+            player
+            for player in pilot_state.get("players") or ()
+            if isinstance(player, dict) and player.get("seat") == expected_controlled_seat
+        ),
+        None,
+    )
+    hand_expected = {
+        str(obj["card_identity"])
+        for obj in _objects(record)
+        if obj.get("zone") == "hand" and obj.get("owner") == controlled
+    }
+    hand_seen = {
+        str(card.get("name"))
+        for card in (controlled_row or {}).get("hand") or ()
+        if isinstance(card, dict) and card.get("name")
+    }
+    checks.append(
+        Check(
+            "controller_receives_controlled_players_hand",
+            controlled_row is not None and hand_expected <= hand_seen,
+            f"expected controlled hand identities {sorted(hand_expected)}; saw {sorted(hand_seen)}",
+            "ENTITLEMENT",
+        )
+    )
+
+    forbidden_in_frame: set[str] = set()
+    # Controlling another player grants the information that player could see,
+    # not omniscient access to that player's library or unrelated principals.
+    forbidden_in_frame.update(
+        str(obj["card_identity"])
+        for obj in _objects(record)
+        if obj.get("zone") == "library" and obj.get("owner") == controlled
+    )
+    forbidden_in_frame.update(
+        str(obj["card_identity"])
+        for obj in _objects(record)
+        if obj.get("zone") == "hand" and obj.get("owner") not in {controller, controlled}
+    )
+    hidden_hits = scan([("controlled_decision", decision)], forbidden_in_frame)
+    checks.append(
+        Check(
+            "controlled_decision_is_not_omniscient",
+            not hidden_hits,
+            f"{len(hidden_hits)} forbidden library/unrelated-hand occurrences",
+            "LEAK",
+        )
+    )
+
+    submission = capture.controlled_submission or {}
+    offered = {
+        str(option.get("option_id"))
+        for option in decision.get("legal_options") or ()
+        if isinstance(option, dict) and option.get("option_id")
+    }
+    selected = str(submission.get("selected_option_id") or "")
+    checks.append(
+        Check(
+            "controlled_decision_submission_uses_exact_engine_identity",
+            bool(decision)
+            and submission.get("accepted") is True
+            and submission.get("decision_id") == decision.get("decision_id")
+            and submission.get("actor_id") == decision.get("actor_id")
+            and selected in offered
+            and len(offered) > 0,
+            f"decision={submission.get('decision_id')}; actor={submission.get('actor_id')}; "
+            f"selected={selected}; offered={sorted(offered)}",
+        )
+    )
+
+    # Decision frames are addressed by their actor. P2/P3/P4 must not receive
+    # the controller's acting-for frame through any response envelope.
+    for label in _labels(record):
+        if label == controller:
+            continue
+        received = [
+            frame
+            for frame in frames_of(principal_documents(capture.tape, label, capture.natives))
+            if frame.get("decision_id") == decision.get("decision_id")
+        ]
+        checks.append(
+            Check(
+                f"controlled_frame_withheld_from:{label}",
+                not received,
+                f"{len(received)} copies of the controlled decision reached {label}",
+                "LEAK",
+            )
+        )
+        # The decision's own identity (its revision-unique decision id) reaches
+        # nobody else through any channel either. Option ids are not material:
+        # the engine derives them from the option, so an ordinary pass carries
+        # the same id in every principal's frames.
+        decision_id = str(decision.get("decision_id") or "")
+        material = scan(
+            [
+                (item.channel, item.document)
+                for item in principal_documents(capture.tape, label, capture.natives)
+            ],
+            [decision_id] if decision_id else [],
+        )
+        checks.append(
+            Check(
+                f"controlled_decision_identity_withheld_from:{label}",
+                bool(decision_id) and not material,
+                f"{len(material)} occurrences of the controlled decision id",
+                "LEAK",
+            )
+        )
+    # Actor + revision binding, exercised live: the answered id is refused when
+    # replayed, a foreign actor is refused on the next decision, and neither
+    # probe changes the pending decision.
+    checks.append(
+        Check(
+            "controlled_decision_revision_and_actor_bound",
+            submission.get("decision_offset") == decision.get("decision_offset")
+            and isinstance(decision.get("decision_offset"), int)
+            and submission.get("stale_replay_rejected") is not None
+            and submission.get("foreign_actor_attempted") is True
+            and submission.get("foreign_actor_rejected") is not None
+            and submission.get("pending_unchanged") is True,
+            f"offset={submission.get('decision_offset')}; "
+            f"stale replay -> {submission.get('stale_replay_rejected')}; "
+            f"foreign actor -> {submission.get('foreign_actor_rejected')}; "
+            f"pending unchanged={submission.get('pending_unchanged')}",
+        )
+    )
+    # Every principal other than the controller, on every channel, in time:
+    # the controlled player keeps its own hand; nobody else ever sees it.
+    checks.extend(_scan_others(record, capture, skip=(controller,)))
+    return checks
+
+
 def _source_metadata(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
     """A decision whose source is a hidden permanent names nothing hidden.
 
@@ -2127,26 +3077,110 @@ def _no_omniscient_api(capture: Capture) -> list[Check]:
     return checks
 
 
+def _cast_indices(record: dict[str, Any], capture: Capture) -> dict[str, int | None]:
+    """Scripted cast object -> the tape index of its submission (None when the
+    trace does not record one: the cast then counts from the script's start)."""
+    script = list(record.get("decision_script") or ())
+    at = {
+        int(entry["step"]): entry.get("tape_index")
+        for entry in capture.script_trace
+        if isinstance(entry, dict) and isinstance(entry.get("step"), int)
+    }
+    indices: dict[str, int | None] = {}
+    for position, step in enumerate(script):
+        value = ((step or {}).get("selection") or {}).get("semantic_value")
+        if isinstance(value, dict) and value.get("action") == "cast" and value.get("object"):
+            index = at.get(position)
+            indices[str(value["object"])] = index if isinstance(index, int) else None
+    return indices
+
+
+def _control_start(record: dict[str, Any], capture: Capture) -> int | None:
+    """The tape index of the first frame the engine addresses to a declared
+    controller acting for the controlled player, or None if there is none (or
+    no control is declared)."""
+    if capture.script_start is None:
+        return None
+    try:
+        controller, controlled = _controlled_relationship(record)
+        seat = _record_seat_index(record, controlled)
+    except ml.MidgameLaneError:
+        return None
+    for index in range(capture.script_start, len(capture.tape)):
+        documents = principal_documents(
+            capture.tape[index : index + 1], controller, capture.natives, start=index
+        )
+        for frame in frames_of(item for item in documents if item.addressee == controller):
+            if frame.get("acting_for_seat") == seat:
+                return index
+    return None
+
+
+def _token_segments(
+    record: dict[str, Any], capture: Capture, principal: str
+) -> list[tuple[int, ForbiddenTokens]]:
+    """(first tape index, tokens) for each stretch of the tape over which the
+    principal's entitlement is constant.
+
+    Before the record's scripted event nothing temporary holds. From it on the
+    record's temporary permissions hold, except two whose start the engine
+    itself marks on the tape: a scripted cast makes its card public only from
+    its own submission on (CR 601.2a), and a declared control entitles its
+    controller only from the first frame the engine addresses to it acting for
+    the controlled player. A control no frame shows is unmeasured rather than
+    absent: its window then starts with the event, and the row cannot verify
+    (its controlled-frame checks fail).
+    """
+    segments = [(0, forbidden_tokens(record, principal))]
+    if capture.script_start is None:
+        return segments
+    casts = _cast_indices(record, capture)
+    control = _control_start(record, capture)
+    if control is None:
+        control = capture.script_start
+    points = {capture.script_start}
+    points.update(i for i in casts.values() if i is not None and i > capture.script_start)
+    if control is not None:
+        points.add(control)
+    for point in sorted(points):
+        made = [cast for cast, index in casts.items() if index is None or index <= point]
+        segments.append(
+            (
+                point,
+                forbidden_tokens(
+                    record,
+                    principal,
+                    after_event=True,
+                    casts=made,
+                    control_active=control <= point,
+                ),
+            )
+        )
+    return segments
+
+
 def _scan_principal(
     record: dict[str, Any], capture: Capture, principal: str
 ) -> tuple[list[dict[str, str]], dict[str, int], ForbiddenTokens]:
-    """Scan everything the principal received. Documents before the record's
-    scripted event are held to the entitlement before it; documents after it,
-    and the process log, to the entitlement after it."""
-    before = forbidden_tokens(record, principal)
-    after = forbidden_tokens(record, principal, after_event=capture.script_start is not None)
-    split = len(capture.tape) if capture.script_start is None else capture.script_start
-    early = principal_documents(capture.tape[:split], principal, capture.natives)
-    late = principal_documents(capture.tape[split:], principal, capture.natives, start=split)
-    scanned, coverage = channel_documents(early + late, capture.log)
-    early_names = {item.channel for item in early}
-    hits = scan(
-        [(name, doc) for name, doc in scanned if name in early_names], before.tokens
-    ) + scan([(name, doc) for name, doc in scanned if name not in early_names], after.tokens)
-    merged = ForbiddenTokens(
-        {**before.tokens, **after.tokens}, {**before.ambiguous, **after.ambiguous}
-    )
-    return hits, coverage, merged
+    """Scan everything the principal received, each document against the
+    entitlement of the stretch of the tape it belongs to (``_token_segments``),
+    and the process log against the entitlement at the end."""
+    segments = _token_segments(record, capture, principal)
+    bounds = [start for start, _ in segments[1:]] + [len(capture.tape)]
+    documents: list[AddressedDocument] = []
+    hits: list[dict[str, str]] = []
+    for (start, tokens), end in zip(segments, bounds, strict=True):
+        part = principal_documents(capture.tape[start:end], principal, capture.natives, start=start)
+        documents.extend(part)
+        hits += scan([(item.channel, item.document) for item in part], tokens.tokens)
+    scanned, coverage = channel_documents(documents, capture.log)
+    hits += scan([(name, doc) for name, doc in scanned if name == "log"], segments[-1][1].tokens)
+    merged_tokens: dict[str, str] = {}
+    merged_ambiguous: dict[str, str] = {}
+    for _, tokens in segments:
+        merged_tokens.update(tokens.tokens)
+        merged_ambiguous.update(tokens.ambiguous)
+    return hits, coverage, ForbiddenTokens(merged_tokens, merged_ambiguous)
 
 
 def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> RowVerdict:
@@ -2287,6 +3321,8 @@ def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> R
         focus = _scry_knowledge(record, capture, viewer)
     elif kind == "pile_metadata":
         focus = _pile_metadata(record, capture, viewer)
+    elif kind == "shuffle_invalidates_order":
+        focus = _shuffle_invalidates_order(record, capture, viewer)
     elif kind == "target_metadata":
         focus = _target_metadata(record, capture, viewer)
     elif kind == "copy_face_down":
@@ -2295,6 +3331,10 @@ def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> R
         focus = _transcript_privacy(record, capture, viewer)
     elif kind == "exile_permission_persists":
         focus = _exile_permission_persists(record, capture, viewer)
+    elif kind == "exile_permission_invalidates":
+        focus = _exile_permission_invalidates(record, capture, viewer)
+    elif kind == "controlled_player_authority":
+        focus = _controlled_player_authority(record, capture, viewer)
     elif kind == "source_metadata":
         focus = _source_metadata(record, capture, viewer)
     elif kind == "ability_metadata":

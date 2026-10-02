@@ -26,6 +26,7 @@ from typing import Any
 
 from .full107 import summarize  # noqa: F401  (re-exported for callers/tests)
 from .lifecycle import cardinality_verdict
+from .receipts import positive_fixture_credit
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -220,11 +221,62 @@ def actual_card_corpus(repo_root: Any | None = None) -> tuple[dict[str, str], tu
     return mapping, corpus
 
 
+def actual_card_campaign_states(
+    receipts: list[dict[str, Any]],
+    *,
+    candidate: str,
+    candidate_commit: str,
+    runner_digest: str,
+    records: dict[str, dict[str, Any]],
+    test_identity_prefix: str,
+    campaign_document: dict[str, Any] | None = None,
+) -> dict[str, str]:
+    """CARD fixture -> state from the same-epoch AF07 campaign, receipts first.
+
+    PASS comes only from a positive receipt that the R-4 credit rule accepts:
+    this candidate, this candidate commit, this runner digest, the campaign's
+    own test identity, and the requested-state and obligation digests of the
+    CURRENT effective record. The campaign document's own outcome labels never
+    promote anything. A FAIL is taken from the document only when the document
+    is bound to the same candidate commit and runner digest, because a
+    demonstrated violation must never be masked as merely unexecuted. Every
+    other fixture is absent from the result, which the gate reads as
+    unexecuted.
+    """
+    credited = positive_fixture_credit(
+        receipts,
+        candidate=candidate,
+        expected_commit=candidate_commit,
+        denominator=records,
+        expected_runner_digest=runner_digest,
+    )
+    states = {
+        fixture: "PASS"
+        for fixture, tests in credited.items()
+        if any(test.startswith(test_identity_prefix) for test in tests)
+    }
+    campaign = (campaign_document or {}).get("campaign") or {}
+    bound = (
+        bool(candidate_commit)
+        and bool(runner_digest)
+        and campaign.get("candidate") == candidate
+        and campaign.get("candidate_commit") == candidate_commit
+        and campaign.get("runner_digest") == runner_digest
+    )
+    if bound:
+        for entry in (campaign_document or {}).get("rows") or ():
+            fixture = str(entry.get("fixture_id") or "")
+            if fixture in records and (entry.get("verdict") or {}).get("outcome") == "FAIL":
+                states[fixture] = "FAIL"
+    return dict(sorted(states.items()))
+
+
 def af07_actual_card(
     candidate: str,
     rows: dict[str, dict[str, Any]],
     actual_card_document: dict[str, Any] | None,
     repo_root: Any | None = None,
+    campaign_states: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """AF07 ACTUAL_CARD_BEHAVIOR, derived from the mandatory 29-card corpus.
 
@@ -233,9 +285,26 @@ def af07_actual_card(
     before the mid-game lane executes, so its ``behaviorally_executed_count``
     under-reports; trusting a self-reported flag would be a wrong-reason PASS
     (and, in the other direction, a wrong-reason residual).
+
+    ``campaign_states`` is the same-epoch AF07 campaign credit from
+    :func:`actual_card_campaign_states`. It covers the corpus fixtures the
+    107-row provider denominator excludes. A denominator row always wins for
+    its own fixture (CARD_02 must pass its own denominator row), except that a
+    demonstrated campaign FAIL is never masked by it.
     """
     corpus = (actual_card_document or {}).get("required_29_card_corpus") or {}
     card_states = _states(rows, lambda fixture: fixture.startswith(CARD_PREFIX))
+    denominator_fixtures = set(card_states)
+    campaign_credited: list[str] = []
+    for fixture, state in sorted((campaign_states or {}).items()):
+        if not fixture.startswith(CARD_PREFIX):
+            continue
+        if state == "FAIL":
+            card_states[fixture] = "FAIL"
+        elif fixture not in denominator_fixtures:
+            card_states[fixture] = state
+            if state == "PASS":
+                campaign_credited.append(fixture)
     if not card_states:
         return {
             "gate": "AF07",
@@ -270,6 +339,13 @@ def af07_actual_card(
     evidence = [
         f"{len(covered)} of {len(frozen_corpus)} frozen corpus identities have their own "
         "mandatory CARD_* row PASS in this epoch",
+        (
+            "no same-epoch actual-card campaign credit was supplied"
+            if campaign_states is None
+            else f"{len(campaign_credited)} corpus fixtures outside the provider denominator "
+            "are credited from same-epoch, runner-bound campaign receipts"
+            + (f" ({', '.join(campaign_credited)})" if campaign_credited else "")
+        ),
         (
             "no actual-card artifact exists for this candidate"
             if actual_card_document is None

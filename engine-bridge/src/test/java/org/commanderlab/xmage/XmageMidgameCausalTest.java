@@ -1301,7 +1301,14 @@ class XmageMidgameCausalTest {
         request.addProperty("plan_id", "causal-elim-control");
         request.addProperty("seed", SEED);
         request.addProperty("entry_mode", "causal_elimination");
-        request.add("requested_starting_state", frozenRecord("WS05-MP-ELIM-CONTROL-3"));
+        // The row also attaches Control Magic, which the restoration refuses on
+        // its own (UNSUPPORTED_ATTACHMENTS); without it the divergence is what
+        // remains to reject.
+        JsonObject record = frozenRecord("WS05-MP-ELIM-CONTROL-3").deepCopy();
+        for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
+            element.getAsJsonObject().remove("attached_to");
+        }
+        request.add("requested_starting_state", record);
         JsonObject spec = new JsonObject();
         spec.addProperty("actor", "P1");
         spec.addProperty("victim", "P2");

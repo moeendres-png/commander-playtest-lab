@@ -102,10 +102,8 @@ def test_session_stats_aggregates_a_multi_turn_export(tmp_path: Path) -> None:
 
     Replaces a probe that read ``/tmp/opencode/session-shape.json`` — a path nothing in
     this repository creates, so the test skipped on every CI run and every fresh checkout
-    and had no effective coverage at all. It also asserted
-    ``opencode-go/muse-spark-1.3-contributor`` as the expected session model, which is a
-    retired executor under ``AGENTS.md`` section 7. This version is hermetic, runs
-    everywhere, and uses a currently active executor.
+    and had no effective coverage at all. This version is hermetic, runs everywhere,
+    and uses a currently authorized executor.
     """
     turns = 4
     export = {

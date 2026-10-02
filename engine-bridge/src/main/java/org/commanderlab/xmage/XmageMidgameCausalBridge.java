@@ -138,15 +138,30 @@ final class XmageMidgameCausalBridge {
     static List<FrameBinding> bindFrames(
             XmageCausalStackReconstruction.Prepared prepared,
             XmageNativeStateRestoration restoration) {
+        return bindFrames(prepared, restoration, Map.of());
+    }
+
+    /**
+     * Binds every frame to its source card's native id. A commander frame's
+     * source is the game's own commander card (cast from the command zone),
+     * given in {@code commanderSources} by semantic id; every other source is
+     * a placed object.
+     */
+    static List<FrameBinding> bindFrames(
+            XmageCausalStackReconstruction.Prepared prepared,
+            XmageNativeStateRestoration restoration,
+            Map<String, UUID> commanderSources) {
         List<FrameBinding> bindings = new ArrayList<>();
         for (XmageCausalStackReconstruction.StackFrame frame
                 : prepared.bottomToTop()) {
-            UUID sourceId;
-            try {
-                sourceId = restoration.injectedObjectId(frame.semanticId());
-            } catch (XmageNativeStateRestoration.RestorationException exc) {
-                throw new CausalException(
-                        "CAUSAL_FRAME_UNBOUND", exc.getMessage());
+            UUID sourceId = commanderSources.get(frame.semanticId());
+            if (sourceId == null) {
+                try {
+                    sourceId = restoration.injectedObjectId(frame.semanticId());
+                } catch (XmageNativeStateRestoration.RestorationException exc) {
+                    throw new CausalException(
+                            "CAUSAL_FRAME_UNBOUND", exc.getMessage());
+                }
             }
             bindings.add(new FrameBinding(
                     frame.semanticId(),
@@ -313,17 +328,28 @@ final class XmageMidgameCausalBridge {
             XmageFullGameSession session,
             Map<String, Player> seats,
             XmageCausalStackReconstruction.Prepared prepared) {
+        return verifyCausalStack(session, seats, prepared, Map.of());
+    }
+
+    /** As above; a commander frame's source is the game's own commander card. */
+    static JsonObject verifyCausalStack(
+            XmageFullGameSession session,
+            Map<String, Player> seats,
+            XmageCausalStackReconstruction.Prepared prepared,
+            Map<String, UUID> commanderSources) {
         List<String> failures = new ArrayList<>();
         Map<String, UUID> stackIds = new LinkedHashMap<>();
         Game game = session.restorationGame();
 
         for (XmageCausalStackReconstruction.StackFrame frame : prepared.bottomToTop()) {
-            UUID sourceId;
-            try {
-                sourceId = prepared.restoration().injectedObjectId(frame.semanticId());
-            } catch (XmageNativeStateRestoration.RestorationException exc) {
-                failures.add("STACK_SOURCE_UNBOUND: " + frame.semanticId());
-                continue;
+            UUID sourceId = commanderSources.get(frame.semanticId());
+            if (sourceId == null) {
+                try {
+                    sourceId = prepared.restoration().injectedObjectId(frame.semanticId());
+                } catch (XmageNativeStateRestoration.RestorationException exc) {
+                    failures.add("STACK_SOURCE_UNBOUND: " + frame.semanticId());
+                    continue;
+                }
             }
             StackObject found = null;
             for (StackObject object : game.getStack()) {
@@ -512,13 +538,24 @@ final class XmageMidgameCausalBridge {
     static JsonObject causalStackPayload(
             CausalStackPlan plan,
             XmageNativeStateRestoration restoration) {
+        return causalStackPayload(plan, restoration, Map.of());
+    }
+
+    static JsonObject causalStackPayload(
+            CausalStackPlan plan,
+            XmageNativeStateRestoration restoration,
+            Map<String, UUID> commanderSources) {
         JsonObject payload = new JsonObject();
         payload.addProperty("entry_mode", "causal_stack");
         payload.addProperty("fixture_id", plan.prepared().fixtureId());
-        payload.add("placed_objects", placedObjectsPayload(
-                restoration, plan.prepared().preStackPlan().objects()));
+        JsonObject placed = placedObjectsPayload(
+                restoration, plan.prepared().preStackPlan().objects());
+        // A commander stack source is a public object: its game commander id is
+        // published like any placed object so the record can name the spell.
+        commanderSources.forEach((semanticId, id) -> placed.addProperty(semanticId, id.toString()));
+        payload.add("placed_objects", placed);
         JsonArray frames = new JsonArray();
-        for (FrameBinding binding : bindFrames(plan.prepared(), restoration)) {
+        for (FrameBinding binding : bindFrames(plan.prepared(), restoration, commanderSources)) {
             JsonObject frame = new JsonObject();
             frame.addProperty("semantic_id", binding.semanticId());
             frame.addProperty("card_identity", binding.cardIdentity());

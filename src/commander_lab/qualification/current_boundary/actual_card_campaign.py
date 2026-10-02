@@ -554,6 +554,11 @@ class ObligationPlan:
     # The record's own required-event tokens, each bound to the explicit check
     # that observes it on this engine (see ``RowSpec.token_bindings``).
     token_bindings: tuple[tuple[str, Any], ...] = ()
+    # The engine-authored cost of the scripted cast this row observes: (the
+    # cast's semantic object, the record's base mana, the record's total mana).
+    # Verified only against the engine's own payment frame for that exact cast
+    # (see ``RowSpec.cost_obligation``).
+    cost_obligation: tuple[str, str, str] | None = None
 
     @property
     def terminal_checks(self) -> tuple[Any, ...]:
@@ -604,6 +609,8 @@ class ObligationPlan:
                     "check": (
                         [_check_document(part) for part in check]
                         if isinstance(check, tuple)
+                        else {"vocabulary_token": check.token}
+                        if isinstance(check, midgame_rows_mod.VocabularyToken)
                         else _check_document(check)
                     ),
                 }
@@ -682,6 +689,24 @@ _NO_MAX_HAND_P1 = (
     midgame_rows_mod.TerminalCheck(
         "no_frame", value="choose_object", principal="P1", label="discard"
     ),
+)
+
+
+# CARD_07: Quick Study's own draw from P2's library, and its resolution.
+_QUICK_STUDY_DRAW = _events(
+    "ZONE_CHANGE",
+    ("source_object", "obj:card07-draw"),
+    ("player_player", "P2"),
+    ("from", "LIBRARY"),
+    ("to", "HAND"),
+    count=1,
+)
+_QUICK_STUDY_RESOLVED = _events(
+    "ZONE_CHANGE",
+    ("target_object", "obj:card07-draw"),
+    ("from", "STACK"),
+    ("to", "GRAVEYARD"),
+    count=1,
 )
 
 
@@ -831,6 +856,602 @@ PLANS: dict[str, ObligationPlan] = {
             (
                 "Veyran_additional_trigger",
                 _events("TRIGGERED_ABILITY", ("source_object", "obj:card_05-subject"), count=2),
+            ),
+        ),
+    ),
+    # Esior taxes a spell an opponent casts that targets one or more commanders
+    # P1 controls by exactly {3}, once, however many commanders it targets. The
+    # cost is read from the engine's own payment frame for P2's exact Magma Opus
+    # cast: {6}{U}{R} plus exactly three generic, and exactly that much charged.
+    "CARD_03": ObligationPlan(
+        fixture_id="CARD_03",
+        proofs=(
+            PostconditionProof(
+                "Total cost is pre-Esior total + exactly {3} generic, not +{6}.",
+                event_token="total_cost_determined",
+            ),
+        ),
+        cost_obligation=("obj:card03-spell", "{6}{U}{R}", "{9}{U}{R}"),
+        token_bindings=(
+            ("spell_announced", _events("SPELL_CAST", ("source_object", "obj:card03-spell"))),
+            ("targets_locked", midgame_rows_mod.VocabularyToken("amount_assignment:2+2")),
+            (
+                "total_cost_determined",
+                midgame_rows_mod.VocabularyToken("cost_determined:base_plus_3_generic"),
+            ),
+        ),
+    ),
+    # Dig Through Time with delve: the six exiles, the two mana spends, the look
+    # at seven, two cards to hand and five to the bottom are engine events and
+    # the engine's own frames; the bottom order is the record's order on the
+    # engine's one-card-per-frame order choice (the last card goes by itself).
+    # The mana value is the engine's own characteristic of the delved card.
+    "CARD_12": ObligationPlan(
+        fixture_id="CARD_12",
+        proofs=(
+            PostconditionProof(
+                "Exactly two looked-at cards are in hand and five are bottomed in chosen order.",
+                terminal_check=_events(
+                    "ZONE_CHANGE",
+                    ("from", "LIBRARY"),
+                    ("to", "HAND"),
+                    ("player_player", "P1"),
+                    count=2,
+                ),
+                also=(
+                    _events(
+                        "ZONE_CHANGE",
+                        ("from", "LIBRARY"),
+                        ("to", "LIBRARY"),
+                        ("player_player", "P1"),
+                        count=5,
+                    ),
+                    midgame_rows_mod.TerminalCheck(
+                        "selected_sequence",
+                        value=(
+                            "choose_object",
+                            (
+                                "obj:card12-lib3",
+                                "obj:card12-lib4",
+                                "obj:card12-lib5",
+                                "obj:card12-lib6",
+                            ),
+                        ),
+                        label="to put on the BOTTOM of your library",
+                    ),
+                ),
+            ),
+            PostconditionProof(
+                "Dig Through Time mana value remains 8.",
+                terminal_check=_permanent("graveyard_mana_value", "P1", "Dig Through Time", 8),
+                also=(_events("SPELL_CAST", ("source_object", "obj:card_12-subject"), count=1),),
+            ),
+        ),
+        token_bindings=(
+            (
+                "delve_exile:6",
+                _events(
+                    "ZONE_CHANGE",
+                    ("from", "GRAVEYARD"),
+                    ("to", "EXILED"),
+                    ("player_player", "P1"),
+                    count=6,
+                ),
+            ),
+            ("mana_paid:UU", midgame_rows_mod.VocabularyToken("mana_paid:2")),
+            (
+                "look_top:7",
+                midgame_rows_mod.TerminalCheck(
+                    "frame_offers", value=("target", 7), label="to put into your hand"
+                ),
+            ),
+            (
+                "put_hand:2",
+                _events(
+                    "ZONE_CHANGE",
+                    ("from", "LIBRARY"),
+                    ("to", "HAND"),
+                    ("player_player", "P1"),
+                    count=2,
+                ),
+            ),
+            (
+                "put_bottom:5",
+                _events(
+                    "ZONE_CHANGE",
+                    ("from", "LIBRARY"),
+                    ("to", "LIBRARY"),
+                    ("player_player", "P1"),
+                    count=5,
+                ),
+            ),
+        ),
+    ),
+    # Boseiju Reaches Skyward across three of P1's turns: each chapter is the
+    # Saga's own engine trigger; chapter III exiles the Saga and returns it as
+    # Branch of Boseiju, a reach creature whose P/T the engine reports. P1's
+    # battlefield holds exactly four Forests as lands (Spellbook is an artifact).
+    "CARD_29": ObligationPlan(
+        fixture_id="CARD_29",
+        proofs=(
+            PostconditionProof(
+                "After chapter III Branch of Boseiju is on P1 battlefield transformed with reach "
+                "and P/T equal to P1 current land count.",
+                terminal_check=_on_battlefield("P1", "Branch of Boseiju"),
+                also=(
+                    _permanent("keyword", "P1", "Branch of Boseiju", "reach"),
+                    _permanent("power_toughness", "P1", "Branch of Boseiju", (4, 4)),
+                    midgame_rows_mod.TerminalCheck(
+                        "battlefield_exact",
+                        principal="P1",
+                        value=(
+                            "Branch of Boseiju",
+                            "Forest",
+                            "Forest",
+                            "Forest",
+                            "Forest",
+                            "Spellbook",
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        max_decisions=900,
+        token_bindings=(
+            (
+                "Saga_I",
+                (
+                    _events(
+                        "TRIGGERED_ABILITY",
+                        ("source_name", "Boseiju Reaches Skyward"),
+                        ("target_name~", "stack ability (I - "),
+                        count=1,
+                    ),
+                    _events(
+                        "ZONE_CHANGE",
+                        ("source_name", "Boseiju Reaches Skyward"),
+                        ("from", "LIBRARY"),
+                        ("to", "HAND"),
+                        count=2,
+                    ),
+                ),
+            ),
+            (
+                "Saga_II",
+                (
+                    _events(
+                        "TRIGGERED_ABILITY",
+                        ("source_name", "Boseiju Reaches Skyward"),
+                        ("target_name~", "stack ability (II - "),
+                        count=1,
+                    ),
+                    _events(
+                        "ZONE_CHANGE",
+                        ("target_object", "obj:card29-gy-forest"),
+                        ("from", "GRAVEYARD"),
+                        ("to", "LIBRARY"),
+                        count=1,
+                    ),
+                ),
+            ),
+            (
+                "Saga_III",
+                _events(
+                    "TRIGGERED_ABILITY",
+                    ("source_name", "Boseiju Reaches Skyward"),
+                    ("target_name~", "stack ability (III - "),
+                    count=1,
+                ),
+            ),
+            (
+                "exile_Saga",
+                _events(
+                    "ZONE_CHANGE",
+                    ("target_name", "Boseiju Reaches Skyward"),
+                    ("player_player", "P1"),
+                    ("from", "BATTLEFIELD"),
+                    ("to", "EXILED"),
+                    count=1,
+                ),
+            ),
+            (
+                "return_transformed:Branch_of_Boseiju",
+                _events(
+                    "ZONE_CHANGE",
+                    ("target_name", "Branch of Boseiju"),
+                    ("player_player", "P1"),
+                    ("from", "EXILED"),
+                    ("to", "BATTLEFIELD"),
+                    count=1,
+                ),
+            ),
+        ),
+    ),
+    # Bolt Bend: the causal-stack entry reconstructs P2's Lightning Bolt at P1 on
+    # the stack (the engine casts it and verifies the position); Bolt Bend costs {3}
+    # less with P1's 4-power creature (the engine's own payment frame), targets
+    # that spell and the engine's new-target choice names P3. The Bolt then deals
+    # its 3 damage to P3 and none to P1: same spell, same mode, new target.
+    "CARD_22": ObligationPlan(
+        fixture_id="CARD_22",
+        proofs=(
+            PostconditionProof(
+                "The target spell has P3 as target; mode and other decisions are unchanged.",
+                terminal_check=_events(
+                    "DAMAGED_PLAYER",
+                    ("source_object", "obj:card22-bolt"),
+                    ("target_player", "P3"),
+                    ("amount", 3),
+                    count=1,
+                ),
+                also=(
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_object", "obj:card22-bolt"),
+                        ("target_player", "P1"),
+                        count=0,
+                    ),
+                    _life("P3", 37),
+                    _life("P1", 40),
+                ),
+            ),
+        ),
+        cost_obligation=("obj:card_22-subject", "{3}{R}", "{R}"),
+        token_bindings=(
+            (
+                "cost_reduction:3",
+                midgame_rows_mod.VocabularyToken("cost_determined:base_minus_3_generic"),
+            ),
+            ("Bolt_Bend_cast", _events("SPELL_CAST", ("source_object", "obj:card_22-subject"))),
+            (
+                "change_single_target",
+                (
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_object", "obj:card22-bolt"),
+                        ("target_player", "P3"),
+                        count=1,
+                    ),
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_object", "obj:card22-bolt"),
+                        ("target_player", "P1"),
+                        count=0,
+                    ),
+                ),
+            ),
+        ),
+    ),
+    # Flare of Duplication for its alternative cost, after the causal-stack entry
+    # reconstructed P2's Lightning Bolt on the stack: the engine's own cost offer
+    # and the sacrifice of the red creature; the engine copies the Bolt
+    # (COPIED_STACKOBJECT, never a SPELL_CAST), the copy's target changes to P3
+    # on the engine's own frames, and the copy deals its 3 damage to P3 while the
+    # original Bolt still deals its 3 to P1.
+    "CARD_13": ObligationPlan(
+        fixture_id="CARD_13",
+        proofs=(
+            PostconditionProof(
+                "The copy exists on stack/resolution path with P3 target.",
+                terminal_check=_events(
+                    "COPIED_STACKOBJECT", ("source_name", "Lightning Bolt"), count=1
+                ),
+                also=(
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_name", "Lightning Bolt"),
+                        ("target_player", "P3"),
+                        ("amount", 3),
+                        count=1,
+                    ),
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_object", "obj:card13-bolt"),
+                        ("target_player", "P1"),
+                        count=1,
+                    ),
+                ),
+            ),
+            PostconditionProof(
+                "Creating the copy did not create a cast event.",
+                # From the reconstructed checkpoint on (P2's Bolt already cast
+                # and verified on the stack), the only cast is Flare's own: the
+                # copy reports COPIED_STACKOBJECT and no SPELL_CAST.
+                terminal_check=_events("SPELL_CAST", ("source_name", "Lightning Bolt"), count=0),
+                also=(
+                    _events("SPELL_CAST", ("source_object", "obj:card_13-subject"), count=1),
+                    _events("SPELL_CAST", count=1),
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "alternative_cost_sacrifice",
+                (
+                    _selected("choice", "Cast with alternative cost"),
+                    _events(
+                        "SACRIFICED_PERMANENT",
+                        ("target_object", "obj:card13-red-creature"),
+                        count=1,
+                    ),
+                ),
+            ),
+            (
+                "copy_spell",
+                _events("COPIED_STACKOBJECT", ("source_name", "Lightning Bolt"), count=1),
+            ),
+            (
+                "choose_new_target",
+                (
+                    _selected("choose_use", "Yes"),
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("source_name", "Lightning Bolt"),
+                        ("target_player", "P3"),
+                        count=1,
+                    ),
+                ),
+            ),
+        ),
+    ),
+    # Syphon Mind cast causally by P1: each other player discards the card the
+    # record names on its own engine frame, and P1 draws one card per discard;
+    # every move is attributed to Syphon Mind on the engine's tape.
+    "CARD_20": ObligationPlan(
+        fixture_id="CARD_20",
+        proofs=(
+            PostconditionProof(
+                "Exactly three cards were discarded this way and P1 drew exactly three cards.",
+                terminal_check=_events(
+                    "ZONE_CHANGE",
+                    ("source_object", "obj:card_20-subject"),
+                    ("from", "HAND"),
+                    ("to", "GRAVEYARD"),
+                    count=3,
+                ),
+                also=(
+                    _events(
+                        "ZONE_CHANGE",
+                        ("source_object", "obj:card_20-subject"),
+                        ("player_player", "P1"),
+                        ("from", "LIBRARY"),
+                        ("to", "HAND"),
+                        count=3,
+                    ),
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "discard:P2:1",
+                _events(
+                    "ZONE_CHANGE",
+                    ("source_object", "obj:card_20-subject"),
+                    ("player_player", "P2"),
+                    ("from", "HAND"),
+                    ("to", "GRAVEYARD"),
+                    count=1,
+                ),
+            ),
+            (
+                "discard:P3:1",
+                _events(
+                    "ZONE_CHANGE",
+                    ("source_object", "obj:card_20-subject"),
+                    ("player_player", "P3"),
+                    ("from", "HAND"),
+                    ("to", "GRAVEYARD"),
+                    count=1,
+                ),
+            ),
+            (
+                "discard:P4:1",
+                _events(
+                    "ZONE_CHANGE",
+                    ("source_object", "obj:card_20-subject"),
+                    ("player_player", "P4"),
+                    ("from", "HAND"),
+                    ("to", "GRAVEYARD"),
+                    count=1,
+                ),
+            ),
+            (
+                "draw:P1:3",
+                _events(
+                    "ZONE_CHANGE",
+                    ("source_object", "obj:card_20-subject"),
+                    ("player_player", "P1"),
+                    ("from", "LIBRARY"),
+                    ("to", "HAND"),
+                    count=3,
+                ),
+            ),
+        ),
+    ),
+    # Wash Away after the causal-stack entry reconstructed P2's commander spell
+    # (cast from the command zone through the engine and verified on the
+    # stack): P1's normal cast targets that spell on the engine's own frame and
+    # the engine counters it (COUNTERED); the commander leaves the stack.
+    "CARD_10": ObligationPlan(
+        fixture_id="CARD_10",
+        proofs=(
+            PostconditionProof(
+                "P2 commander spell is countered.",
+                terminal_check=_events(
+                    "COUNTERED",
+                    ("player_player", "P2"),
+                    ("source_object", "obj:card_10-subject"),
+                    count=1,
+                ),
+                also=(
+                    _events(
+                        "ZONE_CHANGE",
+                        ("target_name", "Rograkh, Son of Rohgahh"),
+                        ("player_player", "P2"),
+                        ("from", "STACK"),
+                        count=1,
+                    ),
+                ),
+            ),
+        ),
+        token_bindings=(
+            ("commander_spell_targeted", _selected("target", "Rograkh, Son of Rohgahh")),
+            (
+                "Wash_Away_resolves",
+                _events(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:card_10-subject"),
+                    ("from", "STACK"),
+                    ("to", "GRAVEYARD"),
+                    count=1,
+                ),
+            ),
+            (
+                "spell_countered",
+                _events("COUNTERED", ("source_object", "obj:card_10-subject"), count=1),
+            ),
+        ),
+    ),
+    # Narset: the causal-stack entry reconstructs P2's Quick Study on the stack
+    # during P1's turn (P2 has not drawn this turn). The spell resolves fully,
+    # moving from the stack to the graveyard, and the engine moves exactly one
+    # card from P2's library to hand: the first draw happens and the second is
+    # disallowed. The engine publishes no event for a prevented draw, so the
+    # second attempt is evidenced by the complete resolution with one draw.
+    "CARD_07": ObligationPlan(
+        fixture_id="CARD_07",
+        proofs=(
+            PostconditionProof(
+                "P2 draws exactly one card.",
+                terminal_check=_events(
+                    "ZONE_CHANGE",
+                    ("player_player", "P2"),
+                    ("from", "LIBRARY"),
+                    ("to", "HAND"),
+                    count=1,
+                ),
+                also=(_QUICK_STUDY_RESOLVED,),
+            ),
+        ),
+        token_bindings=(
+            ("draw_attempt:1", _QUICK_STUDY_DRAW),
+            ("draw_card", _QUICK_STUDY_DRAW),
+            ("draw_attempt:2", (_QUICK_STUDY_RESOLVED, _QUICK_STUDY_DRAW)),
+            ("draw_disallowed", (_QUICK_STUDY_RESOLVED, _QUICK_STUDY_DRAW)),
+        ),
+    ),
+    # Psychosis Crawler: the causal-stack entry reconstructs P1's Divination on
+    # the stack with the Crawler on the battlefield. Divination resolves and
+    # P1 draws two cards; each draw triggers the Crawler and each opponent
+    # loses 1 life per trigger. The Crawler's power and toughness are P1's hand
+    # size, so 5/5 is the hand of exactly five cards.
+    "CARD_16": ObligationPlan(
+        fixture_id="CARD_16",
+        proofs=(
+            PostconditionProof(
+                "P1 hand size=13 and Crawler is 13/13 absent other modifiers.",
+                terminal_check=_permanent("power_toughness", "P1", "Psychosis Crawler", (13, 13)),
+                also=(
+                    midgame_rows_mod.TerminalCheck("hand_count", principal="P1", value=13),
+                    midgame_rows_mod.TerminalCheck("draws", principal="P1", value=2),
+                ),
+            ),
+            PostconditionProof(
+                "P2/P3/P4 are each at 17 life.",
+                terminal_check=_life("P2", 17),
+                also=(_life("P3", 17), _life("P4", 17)),
+            ),
+        ),
+        token_bindings=(
+            ("draw_card", midgame_rows_mod.TerminalCheck("draws", principal="P1", value=2)),
+            (
+                "Crawler_trigger",
+                _events("TRIGGERED_ABILITY", ("source_object", "obj:card_16-subject"), count=2),
+            ),
+        ),
+    ),
+    # Basilisk Collar equipped through the engine's own Equip activation: the
+    # vanilla 1/1 Cadet's 1 combat damage destroys the 5/5 blocker only through
+    # deathtouch, and gains P1 exactly 1 life only through lifelink; the blocker's
+    # 5 damage kills the Cadet. Neither keyword exists without the attachment.
+    "CARD_25": ObligationPlan(
+        fixture_id="CARD_25",
+        proofs=(
+            PostconditionProof(
+                "P1 is at 21 life.",
+                terminal_check=_life("P1", 21),
+                also=(_events("GAINED_LIFE", ("player_player", "P1"), ("amount", 1), count=1),),
+            ),
+            PostconditionProof(
+                "P2 5/5 is destroyed by deathtouch SBA; P1 1/1 also dies absent other effects.",
+                terminal_check=_events(
+                    "DESTROYED_PERMANENT", ("target_object", "obj:card25-blocker"), count=1
+                ),
+                also=(
+                    _in_graveyard("P2", "Colossal Dreadmaw"),
+                    _not_on_battlefield("P2", "Colossal Dreadmaw"),
+                    _in_graveyard("P1", "Eager Cadet"),
+                    _not_on_battlefield("P1", "Eager Cadet"),
+                    _on_battlefield("P1", "Basilisk Collar"),
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "combat_damage:1_to_blocker",
+                _events(
+                    "DAMAGED_PERMANENT",
+                    ("target_object", "obj:card25-blocker"),
+                    ("source_object", "obj:card25-attacker"),
+                    ("amount", 1),
+                    count=1,
+                ),
+            ),
+            (
+                "combat_damage:5_to_attacker",
+                _events(
+                    "DAMAGED_PERMANENT",
+                    ("target_object", "obj:card25-attacker"),
+                    ("source_object", "obj:card25-blocker"),
+                    ("amount", 5),
+                    count=1,
+                ),
+            ),
+            (
+                "lifelink_gain:P1:1",
+                _events("GAINED_LIFE", ("player_player", "P1"), ("amount", 1), count=1),
+            ),
+            (
+                "deathtouch_SBA",
+                _precede(
+                    _events("DAMAGED_PERMANENT", ("target_object", "obj:card25-blocker")),
+                    _events("DESTROYED_PERMANENT", ("target_object", "obj:card25-blocker")),
+                ),
+            ),
+        ),
+    ),
+    # Harmonic Prodigy makes Talrand's cast trigger trigger an additional time:
+    # the engine reports exactly two Talrand trigger instances for the one Bolt.
+    "CARD_06": ObligationPlan(
+        fixture_id="CARD_06",
+        proofs=(
+            PostconditionProof(
+                "Exactly two Talrand, Sky Summoner trigger instances are created for the single "
+                "instant cast.",
+                terminal_check=_events(
+                    "TRIGGERED_ABILITY", ("source_object", "obj:card06-wizard"), count=2
+                ),
+                also=(_events("SPELL_CAST", ("source_object", "obj:card06-bolt"), count=1),),
+            ),
+        ),
+        token_bindings=(
+            (
+                "Wizard_trigger_event",
+                _events("TRIGGERED_ABILITY", ("source_object", "obj:card06-wizard")),
+            ),
+            (
+                "additional_trigger",
+                _events("TRIGGERED_ABILITY", ("source_object", "obj:card06-wizard"), count=2),
             ),
         ),
     ),
@@ -1378,6 +1999,44 @@ PLANS: dict[str, ObligationPlan] = {
             ),
         ),
     ),
+    # Burn Down the House, Devil mode: the engine's own mode offer is selected;
+    # the tape reports three Devil tokens created; the engine's readback shows
+    # exactly three Devil tokens on P1's battlefield, each a red 1/1 with haste
+    # and with the engine's dies-trigger dealing damage. The trigger is read as
+    # the engine's ability and effect classes, never from rules text.
+    "CARD_26": ObligationPlan(
+        fixture_id="CARD_26",
+        proofs=(
+            PostconditionProof(
+                "P1 controls exactly three new 1/1 red Devil tokens, each with printed death "
+                "trigger and haste until EOT.",
+                terminal_check=midgame_rows_mod.TerminalCheck(
+                    "tokens_created", card_identity="Devil", value=3
+                ),
+                also=(
+                    _permanent("token_count", "P1", "Devil Token", 3),
+                    _permanent("power_toughness", "P1", "Devil Token", (1, 1)),
+                    _permanent("colors", "P1", "Devil Token", ("red",)),
+                    _permanent("keyword", "P1", "Devil Token", "haste"),
+                    _permanent(
+                        "triggered_ability",
+                        "P1",
+                        "Devil Token",
+                        ("DiesSourceTriggeredAbility", "DamageTargetEffect"),
+                    ),
+                ),
+            ),
+        ),
+        mode_bindings=(("create_devils", "Devil creature tokens"),),
+        token_bindings=(
+            ("modal_choice:devils", _selected("mode", "Devil creature tokens")),
+            (
+                "create_Devil_token:3",
+                midgame_rows_mod.TerminalCheck("tokens_created", card_identity="Devil", value=3),
+            ),
+            ("grant_haste_until_EOT", _permanent("keyword", "P1", "Devil Token", "haste")),
+        ),
+    ),
 }
 
 
@@ -1414,6 +2073,7 @@ def derive_row_spec(record: Mapping[str, Any], plan: ObligationPlan | None) -> A
         ),
         mode_bindings=plan.mode_bindings if plan is not None else (),
         token_bindings=plan.token_bindings if plan is not None else (),
+        cost_obligation=plan.cost_obligation if plan is not None else None,
     )
 
 
@@ -1470,6 +2130,15 @@ class RowMeasurement:
         }
 
 
+def causal_entry(fixture_id: str) -> dict[str, Any] | None:
+    """The production probe's declared causal-stack entry for a row, or None."""
+    rows = getattr(midgame_rows_mod.probe_module(), "CAUSAL_ROWS", {}) or {}
+    entry = rows.get(fixture_id)
+    if not isinstance(entry, dict) or entry.get("entry_mode") != "causal_stack":
+        return None
+    return dict(entry)
+
+
 def measure_row(
     client: ml.MidgameLaneClient,
     row: CardRow,
@@ -1487,12 +2156,19 @@ def measure_row(
     started = time.time()
     record = dict(row.record)
     game_id = f"af07-{row.fixture_id}"
-    request = {
+    request: dict[str, Any] = {
         "game_id": game_id,
         "plan_id": game_id,
         "seed": seed,
         "requested_starting_state": record,
     }
+    # A row whose record places spells on the stack enters through the
+    # production probe's declared causal-stack route (its fuel is declared there
+    # and published); the engine casts the frames and verifies the position.
+    causal = causal_entry(row.fixture_id)
+    if causal is not None:
+        request["entry_mode"] = "causal_stack"
+        request["fuel"] = list(causal.get("fuel") or ())
     dimension_manifest: Mapping[str, Any] | None = None
     try:
         client.request("get_provider_version", None)
@@ -1530,7 +2206,9 @@ def measure_row(
             elapsed_s=round(time.time() - started, 3),
         )
     spec = derive_row_spec(record, plan)
-    execution = midgame_rows_mod.execute_row(client, record, created.get("payload") or {}, spec)
+    execution = midgame_rows_mod.execute_row(
+        client, record, created.get("payload") or {}, spec, causal=causal
+    )
     document = execution.document()
     return RowMeasurement(
         fixture_id=row.fixture_id,
@@ -2184,3 +2862,120 @@ def write_measurement(path: Path, measurement: RowMeasurement) -> Path:
 
 def matrix_digest(matrix: Mapping[str, Any]) -> str:
     return receipt_mod.document_digest(dict(matrix))
+
+
+# --------------------------------------------------------------------------- #
+# Same-epoch producer (PB-03)
+# --------------------------------------------------------------------------- #
+
+#: The campaign's positive receipts live in their own subdirectory of the
+#: receipt directory. The FULL107 assembler credits denominator rows from
+#: ``positive/`` only; keeping the corpus receipts apart means a campaign
+#: receipt can never relabel a FULL107 row, and CARD_02's two producers (the
+#: midgame denominator lane and this campaign) cannot overwrite each other.
+RECEIPT_SUBDIR = "actual_card"
+EXECUTIONS_SCHEMA = "commander-lab.af07-actual-card-campaign-executions/1.0.0"
+
+
+def execute_and_persist(
+    *,
+    workspace: Path,
+    candidate_commit: str,
+    runner_digest: str,
+    receipts_dir: Path,
+    candidate: str = "xmage",
+    fixtures: Collection[str] | None = None,
+    seed: int = SEED,
+    root: Path | None = None,
+    measurements_dir: Path | None = None,
+    campaign_identity: Mapping[str, Any] | None = None,
+    on_row: Any | None = None,
+) -> dict[str, Any]:
+    """Execute the corpus rows, each on a fresh lane process, and persist receipts.
+
+    Every selected row's earlier receipt is removed before anything executes,
+    so a row that no longer verifies cannot keep credit from a previous run.
+    Only a ``DIRECT_PASS`` row gets a receipt. A row whose lane process raises
+    is recorded as ``LANE_FAILED`` with the error and earns nothing; it does
+    not abort the remaining rows. The returned document is the 29-row matrix
+    bound to the candidate commit and runner digest; the assembler credits only
+    the receipts, never the matrix's own outcome labels.
+    """
+    corpus = derive_corpus(root)
+    known = [row.fixture_id for row in corpus.rows]
+    selected = known if fixtures is None else [str(fixture_id) for fixture_id in fixtures]
+    unknown = sorted(set(selected) - set(known))
+    if unknown:
+        raise ActualCardCampaignError(f"unknown AF07 fixture ids: {unknown}")
+
+    probe = midgame_rows_mod.probe_module()
+    # The production probe's own declared causal entries: rows whose position
+    # the lane reaches causally even though the direct native load refuses them.
+    causal_entry_rows = frozenset(getattr(probe, "CAUSAL_ROWS", {}) or {})
+
+    receipts_dir.mkdir(parents=True, exist_ok=True)
+    for fixture_id in selected:
+        (receipts_dir / f"{fixture_id}.json").unlink(missing_ok=True)
+
+    evaluations: dict[str, dict[str, Any]] = {}
+    measurements: dict[str, RowMeasurement] = {}
+    engine_artifact: dict[str, Any] | None = None
+    for fixture_id in selected:
+        row = corpus.row(fixture_id)
+        plan = plan_for(fixture_id)
+        try:
+            with probe.open_client(workspace) as client:
+                measurement = measure_row(client, row, plan, seed=seed)
+                if client.engine_artifact:
+                    engine_artifact = dict(client.engine_artifact)
+        except Exception as exc:  # one row's crash is that row's evidence, not the run's
+            measurement = RowMeasurement(
+                fixture_id=fixture_id,
+                phase="LANE_FAILED",
+                runtime_error=f"{type(exc).__name__}: {exc}",
+                arrival_detail=f"the lane process raised {type(exc).__name__}: {exc}",
+            )
+        measurements[fixture_id] = measurement
+        evaluation = evaluate_row(
+            row,
+            measurement,
+            expected_engine_commit=candidate_commit,
+            foreign_owned_surfaces=DEFAULT_FOREIGN_OWNED_SURFACES,
+            causal_entry_rows=causal_entry_rows,
+        )
+        if evaluation.get("outcome") == OUTCOME_DIRECT_PASS:
+            receipt = positive_receipt(
+                row,
+                evaluation,
+                measurement,
+                candidate=candidate,
+                candidate_commit=candidate_commit,
+                runner_digest=runner_digest,
+            )
+            receipt_mod.persist(receipts_dir / f"{fixture_id}.json", receipt)
+            evaluation["receipt_digest"] = receipt["receipt_digest"]
+        evaluations[fixture_id] = evaluation
+        if measurements_dir is not None:
+            write_measurement(measurements_dir / f"{fixture_id}.json", measurement)
+        if on_row is not None:
+            on_row(row, evaluation)
+
+    identity = {
+        "execution_mode": EXECUTION_MODE,
+        "test_identity_prefix": TEST_IDENTITY_PREFIX,
+        "candidate": candidate,
+        "candidate_commit": candidate_commit,
+        "runner_digest": runner_digest,
+        "selected_rows": list(selected),
+        "causal_entry_rows": sorted(causal_entry_rows),
+        "seed": seed,
+        "receipt_subdir": RECEIPT_SUBDIR,
+        **dict(campaign_identity or {}),
+    }
+    matrix = build_matrix(corpus, evaluations, measurements, campaign_identity=identity)
+    matrix["campaign"]["engine_artifact"] = engine_artifact
+    matrix["campaign"]["matrix_digest"] = matrix_digest(
+        {key: value for key, value in matrix.items() if key != "campaign"}
+    )
+    matrix["executions_schema"] = EXECUTIONS_SCHEMA
+    return matrix

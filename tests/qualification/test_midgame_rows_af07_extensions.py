@@ -18,6 +18,7 @@ from typing import Any
 
 import pytest
 
+from commander_lab.qualification.current_boundary import midgame_lane as ml
 from commander_lab.qualification.current_boundary import midgame_rows as mr
 
 
@@ -537,6 +538,16 @@ def test_ordering_frame_count_pool_and_hand_checks() -> None:
     }
     hand = mr.TerminalCheck("hand_count_min", principal="P1", value=8)
     assert mr.check_terminal(hand, observation, [], [])
+    # The exact count holds only at the exact value; a minimum never stands in for it.
+    assert mr.check_terminal(
+        mr.TerminalCheck("hand_count", principal="P1", value=17), observation, [], []
+    )
+    for wrong in (16, 18):
+        exact = mr.TerminalCheck("hand_count", principal="P1", value=wrong)
+        assert not mr.check_terminal(exact, observation, [], [])
+    assert not mr.check_terminal(
+        mr.TerminalCheck("hand_count", principal="P2", value=17), observation, [], []
+    )
     grave = mr.TerminalCheck("in_graveyard", principal="P1", card_identity="Sol Ring")
     assert mr.check_terminal(grave, observation, [], [])
     untapped = _state("untapped_count", "Island", 1)
@@ -558,3 +569,382 @@ def test_a_token_bound_to_several_checks_needs_every_one() -> None:
     both = mr.bound_token_evidence((cast, cast), {}, TAPE, [])
     assert both is not None and len(both["parts"]) == 2
     assert mr.bound_token_evidence((cast, absent), {}, TAPE, []) is None
+
+
+_DIES = {
+    "trigger": "DiesSourceTriggeredAbility",
+    "effects": ["DamageTargetEffect"],
+    "rule": "When this creature dies, it deals 1 damage to any target.",
+}
+
+
+def _devil(**overrides: Any) -> dict[str, Any]:
+    devil = {
+        "card_identity": "Devil Token",
+        "power": 1,
+        "toughness": 1,
+        "token": True,
+        "keywords": ["haste"],
+        "colors": ["red"],
+        "triggered_abilities": [dict(_DIES)],
+    }
+    devil.update(overrides)
+    return {key: value for key, value in devil.items() if value is not None}
+
+
+def _p1(*battlefield: dict[str, Any]) -> dict[str, Any]:
+    return {"seats": [{"player_id": "P1", "battlefield": list(battlefield)}]}
+
+
+DIES_DAMAGE = ("DiesSourceTriggeredAbility", "DamageTargetEffect")
+
+
+def test_a_triggered_ability_check_reads_the_engine_classes_on_every_permanent() -> None:
+    three = _p1(_devil(), _devil(), _devil())
+    assert mr.check_terminal(_state("triggered_ability", "Devil Token", DIES_DAMAGE), three, [], [])
+    assert mr.check_terminal(_state("token_count", "Devil Token", 3), three, [], [])
+    # Wrong reason: a hasty red 1/1 token without the death trigger.
+    missing = _p1(_devil(), _devil(), _devil(triggered_abilities=None))
+    assert not mr.check_terminal(
+        _state("triggered_ability", "Devil Token", DIES_DAMAGE), missing, [], []
+    )
+    # Wrong reason: the right event with another effect, or the right effect on
+    # another event; the rules text alone never satisfies the check.
+    other_effect = _p1(_devil(triggered_abilities=[dict(_DIES, effects=["GainLifeEffect"])]))
+    other_event = _p1(
+        _devil(triggered_abilities=[dict(_DIES, trigger="EntersBattlefieldTriggeredAbility")])
+    )
+    text_only = _p1(_devil(triggered_abilities=[{"rule": _DIES["rule"]}]))
+    for observation in (other_effect, other_event, text_only):
+        assert not mr.check_terminal(
+            _state("triggered_ability", "Devil Token", DIES_DAMAGE), observation, [], []
+        )
+    assert not mr.check_terminal(
+        _state("triggered_ability", "Grizzly Bears", DIES_DAMAGE), three, [], []
+    )
+
+
+def test_a_token_count_counts_only_engine_tokens_of_the_identity() -> None:
+    assert not mr.check_terminal(
+        _state("token_count", "Devil Token", 3), _p1(_devil(), _devil()), [], []
+    )
+    four = _p1(_devil(), _devil(), _devil(), _devil())
+    assert not mr.check_terminal(_state("token_count", "Devil Token", 3), four, [], [])
+    # A same-named permanent that is not an engine token never stands in for one.
+    card = _p1(_devil(), _devil(), _devil(token=None))
+    assert not mr.check_terminal(_state("token_count", "Devil Token", 3), card, [], [])
+    assert not mr.check_terminal(_state("token_count", "Devil Token", 0), {"seats": []}, [], [])
+
+
+# --------------------------------------------------------------------------- #
+# Delve, library objects and ordered object sets (CARD_12)
+# --------------------------------------------------------------------------- #
+
+
+def _graveyard_card(native: str, ability_type: str = "special_mana_payment") -> dict[str, Any]:
+    offer = _offer("Mountain", "choice", object_id=native, name="Mountain", zone="graveyard")
+    offer["metadata"]["source_object"] = {"ability_type": ability_type}
+    return offer
+
+
+def test_delve_answers_the_exact_graveyard_card_the_record_names() -> None:
+    legal = {"actions": [_graveyard_card("gy-0"), _graveyard_card("gy-1")]}
+    assert mr._delve_card_answer(legal, "gy-1") is legal["actions"][1]
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._delve_card_answer(legal, "gy-9")
+    # Wrong reason: the same object offered by a frame that is not the delve
+    # source's own payment choice.
+    other = {"actions": [_graveyard_card("gy-1", ability_type="activated")]}
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._delve_card_answer(other, "gy-1")
+    delve = _offer("Dig Through Time — Exile a card from your graveyard: Delve", "special")
+    assert mr._delve_offer({"actions": [_offer("Island — {T}: Add {U}.", "mana"), delve]}) is delve
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._delve_offer({"actions": [_offer("Island — {T}: Add {U}.", "mana")]})
+
+
+def _library_card(native: str, index: int, name: str = "Mountain") -> dict[str, Any]:
+    return _offer(name, "target", object_id=native, name=name, zone="library", zone_index=index)
+
+
+LIBRARY_RECORD = {
+    "semantic_objects": [
+        {
+            "semantic_id": "obj:lib1",
+            "zone": "library",
+            "zone_position": 0,
+            "card_identity": "Mountain",
+        },
+        {
+            "semantic_id": "obj:lib2",
+            "zone": "library",
+            "zone_position": 1,
+            "card_identity": "Mountain",
+        },
+        {"semantic_id": "obj:hand", "zone": "hand", "card_identity": "Island"},
+    ]
+}
+
+
+def test_library_objects_bind_to_engine_ids_at_first_sight_only_while_unchanged() -> None:
+    keyed = mr.library_positions(LIBRARY_RECORD, {})
+    assert set(keyed) == {"obj:lib1", "obj:lib2"}
+    legal = {"actions": [_library_card("n-a", 0), _library_card("n-b", 1)]}
+    assert mr._bind_library_objects(legal, keyed, []) == {"obj:lib1": "n-a", "obj:lib2": "n-b"}
+    # After any library change the positions are no longer checkpoint positions:
+    # nothing binds, and a later selection of the object fails closed.
+    moved = [{"type": "ZONE_CHANGE", "from": "LIBRARY", "to": "HAND"}]
+    assert mr._bind_library_objects(legal, keyed, moved) == {}
+    shuffled = [{"type": "LIBRARY_SHUFFLED"}]
+    assert mr._bind_library_objects(legal, keyed, shuffled) == {}
+    # A different card at the position never binds.
+    wrong = {"actions": [_library_card("n-a", 0, name="Island")]}
+    assert mr._bind_library_objects(wrong, keyed, []) == {}
+    # An object the restoration placed is never re-keyed by position.
+    assert mr.library_positions(LIBRARY_RECORD, {"obj:lib1": "placed"}) == {
+        "obj:lib2": keyed["obj:lib2"]
+    }
+
+
+def test_an_ordered_object_set_names_each_object_by_engine_identity() -> None:
+    step = {
+        "decision_family": "choose_object",
+        "selection": {"selector_kind": "order", "semantic_value": ["obj:a", "obj:b"]},
+    }
+    legal = {"actions": [_library_card("n-b", 0), _library_card("n-a", 1)]}
+    placed = {"obj:a": "n-a", "obj:b": "n-b"}
+    first = mr._scripted_answer(legal, step, placed, mr.RowSpec(), 0)
+    assert first.action is legal["actions"][1] and first.key == "obj:a"
+    second = mr._scripted_answer(legal, step, placed, mr.RowSpec(), 1)
+    assert second.action is legal["actions"][0] and second.key == "obj:b"
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer({"actions": [legal["actions"][0]]}, step, placed, mr.RowSpec(), 0)
+
+
+def _frame(decision_class: str, prompt: str, labels: int, key: str | None = None) -> mr.Frame:
+    return mr.Frame(
+        decision_class, "P1", ["Mountain"] * labels, scripted=True, selected_key=key, prompt=prompt
+    )
+
+
+def test_frame_evidence_checks_read_scripted_engine_frames() -> None:
+    look = mr.TerminalCheck("frame_offers", value=("target", 7), label="into your hand")
+    assert mr.check_terminal(look, {}, [], [_frame("target", "Select (to put into your hand)", 7)])
+    assert not mr.check_terminal(look, {}, [], [_frame("target", "Select (into your hand)", 6)])
+    unscripted = _frame("target", "into your hand", 7)
+    unscripted.scripted = False
+    assert not mr.check_terminal(look, {}, [], [unscripted])
+    order = mr.TerminalCheck(
+        "selected_sequence", value=("choose_object", ("obj:3", "obj:4")), label="BOTTOM"
+    )
+    in_order = [
+        _frame("choose_object", "BOTTOM", 2, "obj:3"),
+        _frame("choose_object", "BOTTOM", 1, "obj:4"),
+    ]
+    assert mr.check_terminal(order, {}, [], in_order)
+    assert not mr.check_terminal(order, {}, [], list(reversed(in_order)))
+    assert not mr.check_terminal(order, {}, [], in_order[:1])
+
+
+def test_a_graveyard_mana_value_is_the_engine_characteristic_of_a_card_present() -> None:
+    check = mr.TerminalCheck(
+        "graveyard_mana_value", principal="P1", card_identity="Dig Through Time", value=8
+    )
+    seat = {
+        "player_id": "P1",
+        "graveyard": ["Dig Through Time"],
+        "graveyard_mana_values": {"Dig Through Time": 8},
+    }
+    assert mr.check_terminal(check, {"seats": [seat]}, [], [])
+    assert not mr.check_terminal(
+        check, {"seats": [{**seat, "graveyard_mana_values": {"Dig Through Time": 2}}]}, [], []
+    )
+    # The value alone, without the card in the graveyard, proves nothing.
+    assert not mr.check_terminal(check, {"seats": [{**seat, "graveyard": []}]}, [], [])
+    assert not mr.check_terminal(check, {"seats": [{**seat, "graveyard_mana_values": {}}]}, [], [])
+
+
+def test_battlefield_exact_compares_the_whole_battlefield_as_a_multiset() -> None:
+    check = mr.TerminalCheck(
+        "battlefield_exact", principal="P1", value=("Branch of Boseiju", "Forest", "Forest")
+    )
+    seat = {
+        "player_id": "P1",
+        "battlefield": [
+            {"card_identity": "Forest"},
+            {"card_identity": "Branch of Boseiju"},
+            {"card_identity": "Forest"},
+        ],
+    }
+    assert mr.check_terminal(check, {"seats": [seat]}, [], [])
+    # One land more (a played land would raise the count) or one fewer fails.
+    more = {**seat, "battlefield": [*seat["battlefield"], {"card_identity": "Forest"}]}
+    assert not mr.check_terminal(check, {"seats": [more]}, [], [])
+    assert not mr.check_terminal(
+        check, {"seats": [{**seat, "battlefield": seat["battlefield"][:2]}]}, [], []
+    )
+    assert not mr.check_terminal(check, {"seats": []}, [], [])
+
+
+# --------------------------------------------------------------------------- #
+# Causal stack entries (CARD_13, CARD_22)
+# --------------------------------------------------------------------------- #
+
+
+def _yes_no(value: bool) -> dict[str, Any]:
+    return _offer("Yes" if value else "No", "boolean", value=value)
+
+
+def test_a_boolean_step_answers_the_engine_value_never_the_label() -> None:
+    step = {"selection": {"selector_kind": "boolean", "semantic_value": True}}
+    legal = {"actions": [_yes_no(True), _yes_no(False)]}
+    assert mr._scripted_answer(legal, step, {}, mr.RowSpec(), 0).action is legal["actions"][0]
+    # A label reading "Yes" whose engine value is not True is not the answer.
+    mislabeled = {"actions": [_offer("Yes", "boolean", value=False)]}
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(mislabeled, step, {}, mr.RowSpec(), 0)
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_answer(
+            legal,
+            {"selection": {"selector_kind": "boolean", "semantic_value": "yes"}},
+            {},
+            mr.RowSpec(),
+            0,
+        )
+
+
+def test_an_owed_cost_answers_only_a_frame_that_offers_it() -> None:
+    placed = {"obj:goblin": "goblin-1"}
+    spell_target = {"actions": [_offer("Lightning Bolt", "target", object_id="bolt-spell")]}
+    assert not mr._offers_cost(spell_target, "sacrifice", "obj:goblin", placed)
+    sacrifice = {"actions": [_offer("Raging Goblin", "choice", object_id="goblin-1")]}
+    assert mr._offers_cost(sacrifice, "sacrifice", "obj:goblin", placed)
+
+
+def test_a_stack_spell_is_named_by_the_card_it_was_cast_from() -> None:
+    spell = _offer(
+        "Lightning Bolt", "target", object_id="spell-9", zone="stack", source_card_id="card-1"
+    )
+    assert mr._semantic_offers("obj:bolt", [spell], {"obj:bolt": "card-1"}) == [spell]
+    assert mr._semantic_offers("obj:bolt", [spell], {"obj:bolt": "card-2"}) == []
+
+
+def _payment(unpaid: str, label: str, option_type: str) -> mr.Frame:
+    return mr.Frame(
+        "mana_payment",
+        "P1",
+        [label],
+        selected_label=label,
+        selected_option_type=option_type,
+        decision_id=f"d-{label}",
+        context={"unpaid_mana": unpaid},
+    )
+
+
+def test_a_cost_reduction_is_read_from_the_engine_payment_frame() -> None:
+    cast = mr.Frame("priority", "P1", ["Bolt Bend"], scripted=True, selected_source_object="bb")
+    trace = [
+        cast,
+        _payment("{R}", "Mountain", "mana_ability"),
+        _payment("{R}", "Spend", "mana_pool"),
+    ]
+    obligation = ("bb", "{3}{R}", "{R}")
+    assert mr._verify_cost_determined(-3, trace, obligation) is not None
+    # The undiscounted total, or a different discount, is not the obligation.
+    assert mr._verify_cost_determined(-2, trace, obligation) is None
+    full = [
+        cast,
+        _payment("{3}{R}", "Mountain", "mana_ability"),
+        _payment("{3}{R}", "Spend", "mana_pool"),
+    ]
+    assert mr._verify_cost_determined(-3, full, obligation) is None
+    # A reduction below zero generic is never a cost.
+    assert mr._verify_cost_determined(-5, trace, ("bb", "{3}{R}", "{R}")) is None
+
+
+def test_only_state_reading_checks_ask_the_engine_for_a_readback() -> None:
+    """A row whose evidence is the tape and the decision trace never depends on
+    the engine's state readback (which a parked replacement choice may refuse)."""
+    events = mr.TerminalCheck("events", event_type="COUNTERED", value=1)
+    frame = mr.TerminalCheck("selected_frame", value="target", label="Rograkh")
+    life = mr.TerminalCheck("life", principal="P1", value=40)
+    assert not mr.needs_observation(events)
+    assert not mr.needs_observation(frame)
+    assert not mr.needs_observation(mr.VocabularyToken("mana_paid:2"))
+    assert mr.needs_observation(life)
+    assert mr.needs_observation((events, life))
+    assert not mr.needs_observation((events, frame))
+    for kind in ("power_toughness", "keyword", "token_count", "graveyard_mana_value"):
+        assert mr.needs_observation(mr.TerminalCheck(kind, principal="P1"))
+
+
+# --------------------------------------------------------------------------- #
+# Block declarations (blocker_assignment)
+# --------------------------------------------------------------------------- #
+
+
+def _block_frame(blocker: str, attackers: list[str], minimum: int = 0) -> dict[str, Any]:
+    return {
+        "decision": {"minimum_selections": minimum, "maximum_selections": len(attackers)},
+        "actions": [
+            {
+                "metadata": {
+                    "option_type": "declare_blocker",
+                    "label": f"{blocker} blocks {attacker}",
+                    "xmage_option_metadata": {"blocker_id": blocker, "attacker_id": attacker},
+                }
+            }
+            for attacker in attackers
+        ],
+    }
+
+
+_BLOCK_STEP = {
+    "actor": "P2",
+    "decision_family": "declare_blocker",
+    "selection": {
+        "selector_kind": "blocker_assignment",
+        "semantic_value": {"obj:blocker": "obj:attacker-b"},
+    },
+}
+_BLOCK_PLACED = {
+    "obj:blocker": "n-blocker",
+    "obj:other": "n-other",
+    "obj:attacker-a": "n-attacker-a",
+    "obj:attacker-b": "n-attacker-b",
+}
+_BLOCK_BY_NATIVE = {native: semantic for semantic, native in _BLOCK_PLACED.items()}
+
+
+def test_a_listed_blocker_blocks_exactly_its_named_attacker() -> None:
+    legal = _block_frame("n-blocker", ["n-attacker-a", "n-attacker-b"])
+    blocker, offer = mr._blocker_answer(legal, _BLOCK_STEP, _BLOCK_PLACED, _BLOCK_BY_NATIVE)
+    assert blocker == "obj:blocker"
+    assert offer is not None
+    assert offer["metadata"]["xmage_option_metadata"]["attacker_id"] == "n-attacker-b"
+
+
+def test_an_unlisted_blocker_blocks_nothing_only_on_an_optional_frame() -> None:
+    optional = _block_frame("n-other", ["n-attacker-b"], minimum=0)
+    assert mr._blocker_answer(optional, _BLOCK_STEP, _BLOCK_PLACED, _BLOCK_BY_NATIVE) == (
+        "obj:other",
+        None,
+    )
+    forced = _block_frame("n-other", ["n-attacker-b"], minimum=1)
+    with pytest.raises(ml.MidgameLaneError, match="requires"):
+        mr._blocker_answer(forced, _BLOCK_STEP, _BLOCK_PLACED, _BLOCK_BY_NATIVE)
+
+
+def test_a_named_attacker_the_engine_does_not_offer_fails_closed() -> None:
+    # The engine did not offer the record's attacker for this blocker (it cannot
+    # legally block it): no other attacker is chosen in its place.
+    legal = _block_frame("n-blocker", ["n-attacker-a"])
+    with pytest.raises(ml.MidgameLaneError, match="matched 0"):
+        mr._blocker_answer(legal, _BLOCK_STEP, _BLOCK_PLACED, _BLOCK_BY_NATIVE)
+
+
+def test_a_frame_naming_several_blockers_fails_closed() -> None:
+    legal = _block_frame("n-blocker", ["n-attacker-b"])
+    legal["actions"] += _block_frame("n-other", ["n-attacker-b"])["actions"]
+    with pytest.raises(ml.MidgameLaneError, match="2 blockers"):
+        mr._blocker_answer(legal, _BLOCK_STEP, _BLOCK_PLACED, _BLOCK_BY_NATIVE)

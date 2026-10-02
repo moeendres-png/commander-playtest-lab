@@ -38,9 +38,6 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     actual_card_campaign as campaign,
 )
 from commander_lab.qualification.current_boundary import bridge_launcher  # noqa: E402
-from commander_lab.qualification.current_boundary import (  # noqa: E402
-    midgame_rows as midgame_rows_mod,
-)
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 
 
@@ -114,100 +111,41 @@ def main() -> int:
     runner = receipt_mod.capture_runner_identity(REPO_ROOT)
     receipt_mod.require_clean_runner(runner)
 
-    corpus = campaign.derive_corpus(REPO_ROOT)
-    selected = (
-        [row.fixture_id for row in corpus.rows]
-        if args.rows is None
-        else [str(fixture_id) for fixture_id in args.rows]
-    )
-    known = {row.fixture_id for row in corpus.rows}
-    unknown = [fixture_id for fixture_id in selected if fixture_id not in known]
-    if unknown:
-        print(f"unknown AF07 fixture ids: {unknown}", file=sys.stderr)
-        return 2
-
     candidate_commit = bridge_launcher.canonical_xmage_engine_pin()
-    probe = midgame_rows_mod.probe_module()
-    # The production probe's own declared causal entries: rows whose position the
-    # lane can reach causally even though the direct native load refuses them.
-    causal_entry_rows = frozenset(getattr(probe, "CAUSAL_ROWS", {}) or {})
-
     args.out.mkdir(parents=True, exist_ok=True)
-    measurements_dir = args.out / "measurements"
-    receipts_dir = args.out / "receipts" / receipt_mod.POSITIVE_RECEIPT_SUBDIR
-    measurements_dir.mkdir(parents=True, exist_ok=True)
-    receipts_dir.mkdir(parents=True, exist_ok=True)
-
     campaign_identity = {
         "workstream": "AF07-ACTUAL-CARD-CAMPAIGN-20261001",
-        "execution_mode": campaign.EXECUTION_MODE,
-        "test_identity_prefix": campaign.TEST_IDENTITY_PREFIX,
         "runner": runner.to_document(),
-        "runner_digest": runner.digest(),
-        "candidate": "xmage",
-        "candidate_commit": candidate_commit,
         "engine_runtime_directory": str(runtime_dir),
         "workspace": _workspace_identity(workspace),
-        "selected_rows": selected,
-        "causal_entry_rows": sorted(causal_entry_rows),
-        "seed": args.seed,
     }
-    (args.out / "CAMPAIGN_IDENTITY.json").write_text(
-        json.dumps(campaign_identity, indent=2, sort_keys=True, default=str) + "\n",
-        encoding="utf-8",
-    )
 
-    evaluations: dict[str, dict[str, Any]] = {}
-    measurements: dict[str, campaign.RowMeasurement] = {}
-    engine_artifact: dict[str, Any] | None = None
-    for fixture_id in selected:
-        row = corpus.row(fixture_id)
-        plan = campaign.plan_for(fixture_id)
-        with probe.open_client(workspace) as client:
-            measurement = campaign.measure_row(client, row, plan, seed=args.seed)
-            if client.engine_artifact:
-                engine_artifact = dict(client.engine_artifact)
-        measurement.runtime_error = None
-        measurements[fixture_id] = measurement
-        evaluation = campaign.evaluate_row(
-            row,
-            measurement,
-            expected_engine_commit=candidate_commit,
-            foreign_owned_surfaces=campaign.DEFAULT_FOREIGN_OWNED_SURFACES,
-            causal_entry_rows=causal_entry_rows,
-        )
-        if evaluation.get("outcome") == campaign.OUTCOME_DIRECT_PASS:
-            receipt = campaign.positive_receipt(
-                row,
-                evaluation,
-                measurement,
-                candidate="xmage",
-                candidate_commit=candidate_commit,
-                runner_digest=runner.digest(),
-            )
-            receipt_mod.persist(receipts_dir / f"{fixture_id}.json", receipt)
-            evaluation["receipt_digest"] = receipt["receipt_digest"]
-        else:
-            stale = receipts_dir / f"{fixture_id}.json"
-            if stale.is_file():
-                stale.unlink()
-        evaluations[fixture_id] = evaluation
-        campaign.write_measurement(measurements_dir / f"{fixture_id}.json", measurement)
+    def report(row: campaign.CardRow, evaluation: dict[str, Any]) -> None:
         detail = evaluation.get("blocker_detail") or ""
         print(
-            f"{fixture_id} {row.card_identity}: {evaluation.get('outcome')} "
+            f"{row.fixture_id} {row.card_identity}: {evaluation.get('outcome')} "
             f"{evaluation.get('blocker_class') or ''} {detail[:140]}"
         )
 
-    matrix = campaign.build_matrix(
-        corpus,
-        evaluations,
-        measurements,
-        campaign_identity=campaign_identity,
-    )
-    matrix["campaign"]["engine_artifact"] = engine_artifact
-    matrix["campaign"]["matrix_digest"] = campaign.matrix_digest(
-        {key: value for key, value in matrix.items() if key != "campaign"}
+    try:
+        matrix = campaign.execute_and_persist(
+            workspace=workspace,
+            candidate_commit=candidate_commit,
+            runner_digest=runner.digest(),
+            receipts_dir=args.out / "receipts" / campaign.RECEIPT_SUBDIR,
+            fixtures=args.rows,
+            seed=args.seed,
+            root=REPO_ROOT,
+            measurements_dir=args.out / "measurements",
+            campaign_identity=campaign_identity,
+            on_row=report,
+        )
+    except campaign.ActualCardCampaignError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    (args.out / "CAMPAIGN_IDENTITY.json").write_text(
+        json.dumps(matrix["campaign"], indent=2, sort_keys=True, default=str) + "\n",
+        encoding="utf-8",
     )
     campaign.write_matrix(args.out / "AF07_ACTUAL_CARD_MATRIX.json", matrix)
     print(json.dumps(matrix["summary"], indent=1, default=str))

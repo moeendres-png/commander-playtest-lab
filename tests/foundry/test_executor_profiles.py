@@ -16,8 +16,6 @@ def test_selected_profiles_and_highest_native_efforts_are_exact() -> None:
     doc = _registry()
     expected = {
         "deepseek": ("opencode-go/deepseek-v4.1-flash", "max"),
-        "muse": ("opencode-go/muse-spark-1.3-contributor", "xhigh"),
-        "glm": ("opencode-go/glm-5.3", "max"),
         "space-bunny": ("opencode-go/space-bunny-free", "max"),
     }
     actual = {
@@ -57,9 +55,7 @@ def test_prepared_profiles_do_not_falsely_claim_runtime_activation() -> None:
     assert doc["current_runtime_default"] == "deepseek"
     assert doc["profiles"]["deepseek"]["runtime_status"] == "ACTIVE"
     assert doc["profiles"]["space-bunny"]["runtime_status"] == "ACTIVE"
-    # Muse and GLM keep their historical model identity but are not routed.
-    assert doc["profiles"]["muse"]["runtime_status"] == "INACTIVE_NOT_ROUTED"
-    assert doc["profiles"]["glm"]["runtime_status"] == "INACTIVE_NOT_ROUTED"
+    assert set(doc["profiles"]) == {"deepseek", "space-bunny"}
 
 
 def test_routing_policy_is_stable_and_fallback_free() -> None:
@@ -67,7 +63,7 @@ def test_routing_policy_is_stable_and_fallback_free() -> None:
     routing = doc["routing_policy"]
     assert routing["primary"] == "deepseek"
     assert routing["secondary"] == "space-bunny"
-    assert set(routing["inactive"]) == {"muse", "glm"}
+    assert "inactive" not in routing
     assert routing["automatic_fallback"] is False
     assert doc["policy"]["automatic_fallback"] is False
     # Durable policy only: no volatile price/quota/availability *data* anywhere in
@@ -122,15 +118,8 @@ def test_state_schema_can_persist_cross_model_execution_provenance() -> None:
         (ROOT / ".foundry" / "WORKSTREAM_STATE.schema.json").read_text(encoding="utf-8")
     )
     props = schema["properties"]
-    assert set(props["execution_profile"]["enum"]) == {
-        "deepseek",
-        "muse",
-        "glm",
-        "space-bunny",
-        "muse-free-zen",
-        None,
-    }
-    assert set(props["native_variant"]["enum"]) == {"xhigh", "max", None}
+    assert set(props["execution_profile"]["enum"]) == {"deepseek", "space-bunny", None}
+    assert set(props["native_variant"]["enum"]) == {"max", None}
     for key in (
         "executor_model",
         "variant_resolution",
