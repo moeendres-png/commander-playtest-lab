@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = ROOT / ".github" / "workflows" / "exact-main-recovery.yml"
@@ -112,3 +113,20 @@ def test_the_workflow_builds_the_payload_with_the_builder() -> None:
     text = WORKFLOW.read_text(encoding="utf-8")
     assert "scripts/build_exact_main_recovery_payload.py" in text
     assert "full_game_hidden_information_actor_scoped" not in text
+
+
+def test_workflow_has_one_automatic_main_merge_trigger_plus_manual_dispatch() -> None:
+    workflow = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    events = workflow.get(True, workflow.get("on"))
+    assert isinstance(events, dict)
+    assert set(events) == {"push", "workflow_dispatch"}
+    assert events["push"]["branches"] == ["main"]
+    assert events["workflow_dispatch"] is None
+    assert "pull_request" not in events
+
+
+def test_recovery_concurrency_remains_exact_sha_scoped_and_non_cancelling() -> None:
+    workflow = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    concurrency = workflow["concurrency"]
+    assert concurrency["group"] == "exact-main-recovery-${{ github.sha }}"
+    assert concurrency["cancel-in-progress"] is False
