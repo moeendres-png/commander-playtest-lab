@@ -811,10 +811,12 @@ class XmageNativeStateRestorationTest {
     void aLifeTotalOtherThanTheStartingLifeIsNeverSet() {
         // F-40: 30 life at a starting life of 40 is history (10 life lost); it
         // must be caused through the engine, so it is compared and never set.
+        // P2's starting life of 20 is setup and is set; its 19 is history again:
+        // nothing in this arrival causes it, so it is compared, not fabricated.
         XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
                 "ws2-life-history", 2, 424242L,
                 List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 30, 40),
-                        new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 20, 20)),
+                        new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 19, 20)),
                 List.of(
                         new XmageNativeStateRestoration.RequestedCommander(
                                 "cmd:P1-A", "Rograkh, Son of Rohgahh", "P1", 0),
@@ -826,8 +828,10 @@ class XmageNativeStateRestorationTest {
         XmageNativeStateRestoration.CompareVerdict verdict =
                 restoreAndCompare("ws2-life-history", plan, new XmageDeckImporter());
         assertFalse(verdict.match());
-        assertEquals(List.of("life P1: requested 30 observed 40"), verdict.mismatches(),
-                "P2's starting life of 20 is restored; P1's lost life is not fabricated");
+        assertEquals(
+                List.of("life P1: requested 30 observed 40", "life P2: requested 19 observed 20"),
+                verdict.mismatches(),
+                "P2's starting life of 20 is restored; neither lost life is fabricated");
     }
 
     @Test

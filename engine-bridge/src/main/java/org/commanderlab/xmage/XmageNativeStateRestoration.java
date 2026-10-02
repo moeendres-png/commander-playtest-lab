@@ -1194,11 +1194,13 @@ final class XmageNativeStateRestoration {
     /**
      * F-40: a player's recorded starting life other than the table's is set once,
      * silently, through the engine's own {@code initLife} (the call game start
-     * uses), so no life gain or loss event is fabricated. It is set only while
-     * that player's life is untouched since game start: life the engine already
-     * changed during arrival (a restored start trigger, say) is real history and
-     * is never overwritten. A requested life that differs from the player's
-     * starting life is history too: it must be caused and is only compared.
+     * uses, CR 103.4), so no life gain or loss event is fabricated. It is set only
+     * while that player's life is untouched since game start: life the engine
+     * already changed during arrival is real history and is never overwritten.
+     * The starting life is setup; the requested CURRENT life is history: one
+     * that differs from the starting life must be caused by the arrival (a
+     * restored Psychosis Crawler seeing the turn-1 draw, say) and is only
+     * compared, never set.
      */
     private void restoreStartingLife(GameCommanderImpl game, Map<String, Player> playersByPid) {
         PlayerLostLifeWatcher lost = game.getState().getWatcher(PlayerLostLifeWatcher.class);
@@ -1208,8 +1210,8 @@ final class XmageNativeStateRestoration {
             boolean untouched = player.getLife() == game.getStartingLife()
                     && (lost == null || lost.getLifeLost(player.getId()) == 0)
                     && (gained == null || gained.getLifeGained(player.getId()) == 0);
-            if (requested.life() == requested.startingLife() && untouched) {
-                player.initLife(requested.life());
+            if (untouched) {
+                player.initLife(requested.startingLife());
             }
         }
     }
