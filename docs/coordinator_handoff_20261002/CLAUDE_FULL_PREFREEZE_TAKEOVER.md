@@ -482,7 +482,7 @@ If exact-head runs are already green, prefer evidence inspection and merge over 
 
 # PHASE 2 — CURRENT FOUNDRY EXECUTION AUTHORITY — ALREADY ADJUDICATED
 
-Newest direct owner authority supersedes the earlier Muse-migration plan.
+Newest direct owner authority supersedes the earlier model-migration plan.
 
 Current OpenCode authority:
 - DeepSeek v4.1 Flash MAX default/primary;
@@ -490,7 +490,7 @@ Current OpenCode authority:
 - no other OpenCode execution profile currently authorized;
 - no automatic fallback.
 
-Issue #480 is superseded/not-planned. Do **not** create or revive a Muse/model-migration
+Issue #480 is superseded/not-planned. Do **not** create or revive a model-migration
 workstream from historical references. Expanding or replacing the active pair requires a new
 direct owner instruction.
 
