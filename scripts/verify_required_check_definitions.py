@@ -752,6 +752,22 @@ def inspect_required_check_definitions(repo: Path, base: str, head: str) -> dict
         elif path.startswith("tests/"):
             impact = "quality_test_definition"
             review_reasons.append(f"quality_test_definition_changed:{path}")
+        elif Path(path).name == "conftest.py":
+            impact = "pytest_control_surface"
+            review_reasons.append(f"pytest_control_surface_changed:{path}")
+        elif Path(path).name in {
+            "pyproject.toml",
+            "ruff.toml",
+            ".ruff.toml",
+            "mypy.ini",
+            ".mypy.ini",
+            "pytest.ini",
+            "tox.ini",
+            "setup.cfg",
+            "setup.py",
+        }:
+            impact = "quality_tool_configuration"
+            review_reasons.append(f"quality_tool_configuration_changed:{path}")
         elif path.startswith(".github/actions/"):
             consumed = any(_is_under(path, root) for root in all_local)
             impact = (
