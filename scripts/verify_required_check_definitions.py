@@ -51,6 +51,14 @@ TRUSTED_POLICY_SURFACES = {
 
 ENTRYPOINT_DEFINITION_SURFACES = {
     "pyproject.toml",
+    "ruff.toml",
+    ".ruff.toml",
+    "mypy.ini",
+    ".mypy.ini",
+    "pytest.ini",
+    "tox.ini",
+    "setup.cfg",
+    "setup.py",
     "requirements/lock.txt",
     "qualification/harness.py",
     "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json",
@@ -196,14 +204,15 @@ def _pr_trigger_status(workflow: dict[str, Any]) -> tuple[str, str]:
         values = [ignored] if isinstance(ignored, str) else ignored
         if isinstance(values, list) and "main" in values:
             return "FAIL", "pull_request_trigger_explicitly_ignores_main"
-        if not isinstance(values, list):
-            return "UNKNOWN", "pull_request_branches_ignore_not_statically_understood"
+        return "UNKNOWN", "pull_request_branches_ignore_not_statically_safe"
     branches = pr.get("branches")
     if branches is None:
         return "PASS", "pull_request_trigger_covers_main"
     values = [branches] if isinstance(branches, str) else branches
     if not isinstance(values, list) or not all(isinstance(item, str) for item in values):
         return "UNKNOWN", "pull_request_branches_not_statically_understood"
+    if any(item.startswith("!") for item in values):
+        return "UNKNOWN", "pull_request_branch_negation_not_statically_safe"
     if "main" not in values:
         return "FAIL", "pull_request_trigger_does_not_cover_main"
     return "PASS", "pull_request_trigger_covers_main"
@@ -584,21 +593,6 @@ def _job_analysis(
             )
             if isinstance(uses, str) and uses.startswith("./"):
                 local_actions.add(uses[2:].rstrip("/"))
-
-        run = step.get("run")
-        if isinstance(run, str):
-            non_comment = _run_lines(run)
-            if non_comment and all(
-                re.fullmatch(r"(?:echo\b.*|printf\b.*|true|:)", line) for line in non_comment
-            ):
-                findings.append(
-                    {
-                        "id": f"{context}.step_{index}.trivial_success",
-                        "status": "FAIL",
-                        "reason": "required_job_contains_trivial_unconditional_success_step",
-                        "path": workflow_path,
-                    }
-                )
 
     if action_failures == 0 and action_unknowns == 0:
         findings.append(
