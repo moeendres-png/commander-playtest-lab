@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.721,
+  "elapsed_s": 9.273,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "1b02cf9afab1f6e1f0e409557464425298f1a8b59243f801d16abada4c0d8935",
+        "decision_id": "ed0c7274297801e5ba74bda9163a9cb2be4a3e8de128b396604980189c22a7ba",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -36,27 +36,366 @@
         "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Ashnod's Altar \u2014 Sacrifice a creature: Add {C}{C}.",
+        "selected_option_ids": [
+          "88e50811be8c4f23c8fbee8005004cf6b79375cffad3e331fb22977f9ab6cb56"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "5746f5a8-457d-4694-b85d-3ed327d5533d"
+      },
+      {
+        "context": {
+          "outcome": "sacrifice",
+          "required": false,
+          "target_description": "a creature",
+          "target_name": "creature",
+          "targeted": false
+        },
+        "decision_class": "choose_object",
+        "decision_id": "92c743cf44626a89f2357c5d618965385615e330d04443c56a3ec2a41a3db858",
+        "numeric": null,
+        "offered_labels": [
+          "Butcher of Malakir",
+          "Grizzly Bears"
+        ],
+        "principal": "P1",
+        "prompt": "Select a creature (to sacrifice)",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": "sacrifice:obj:card19-p1-other",
+        "selected_label": "Grizzly Bears",
+        "selected_option_ids": [
+          "340280ca-6c65-4736-8b4e-24188220ad8b"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "063900ffa05d6deca21e903a3e3e67e7588e7532c263441309815f4749a5304e",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Ashnod's Altar \u2014 Sacrifice a creature: Add {C}{C}."
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
         "selected_option_ids": [],
         "selected_option_type": null,
         "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "5f3b02d0cd71123e8c36a7b0fe8a974e1a39f97275da7764227dc614def6471a",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "f812ccd00f008af6914ce3a9b43341c82d715f09c4ed434757ccced8ff21c1ad",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "43afbad6fea146c59444669ea00c20dd69e02847376db30ac04432a70c2f2c84",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "sacrifice",
+          "required": true,
+          "target_description": "a creature",
+          "target_name": "creature",
+          "targeted": false
+        },
+        "decision_class": "choose_object",
+        "decision_id": "202136c79e74fe16b6ebfdab838e1b8c5047cfa87a0c3e363d4b02f7434b0f25",
+        "numeric": null,
+        "offered_labels": [
+          "Grizzly Bears"
+        ],
+        "principal": "P2",
+        "prompt": "Select a creature (to sacrifice)",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Grizzly Bears",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "sacrifice",
+          "required": true,
+          "target_description": "a creature",
+          "target_name": "creature",
+          "targeted": false
+        },
+        "decision_class": "choose_object",
+        "decision_id": "157a9d9ee92d80450cd36d85046c98424f47ec524200b03ad4e555533ac40ad1",
+        "numeric": null,
+        "offered_labels": [
+          "Grizzly Bears"
+        ],
+        "principal": "P3",
+        "prompt": "Select a creature (to sacrifice)",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Grizzly Bears",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "outcome": "sacrifice",
+          "required": true,
+          "target_description": "a creature",
+          "target_name": "creature",
+          "targeted": false
+        },
+        "decision_class": "choose_object",
+        "decision_id": "9c89497f31c31ee377d3d5a84a2bf32033e948852a1eee99c7b1f4e4626affe8",
+        "numeric": null,
+        "offered_labels": [
+          "Grizzly Bears"
+        ],
+        "principal": "P4",
+        "prompt": "Select a creature (to sacrifice)",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Grizzly Bears",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
       }
     ],
-    "detail": "execution failed closed: scripted priority action 'activate' is not executed by this lane",
+    "detail": "obligation observed",
     "fixture_id": "CARD_19",
-    "missing_tokens": [
-      "P1_creature_dies",
-      "Butcher_trigger",
-      "opponents_choose_sacrifices",
-      "simultaneous_sacrifices"
-    ],
+    "missing_tokens": [],
     "refusals": [],
-    "tape": [],
-    "terminal_facts": {},
-    "token_evidence": {},
-    "verified": false
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Ashnod's Altar",
+        "source_object": "obj:card19-altar",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card19-p1-other",
+        "turn": 1,
+        "type": "SACRIFICED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Ashnod's Altar",
+        "source_object": "obj:card19-altar",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card19-p1-other",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Butcher of Malakir",
+        "source_object": "obj:card_19-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "stack ability (Whenever {this} or another creature you control dies, each opponent sacrifices a creature of their choice.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P4",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Butcher of Malakir",
+        "source_object": "obj:card_19-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card19-P4-creature",
+        "turn": 1,
+        "type": "SACRIFICED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Butcher of Malakir",
+        "source_object": "obj:card_19-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card19-P2-creature",
+        "turn": 1,
+        "type": "SACRIFICED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P3",
+        "public_identity": true,
+        "sequence": 12,
+        "source_name": "Butcher of Malakir",
+        "source_object": "obj:card_19-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card19-P3-creature",
+        "turn": 1,
+        "type": "SACRIFICED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P4",
+        "public_identity": true,
+        "sequence": 13,
+        "source_name": "Butcher of Malakir",
+        "source_object": "obj:card_19-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card19-P4-creature",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 14,
+        "source_name": "Butcher of Malakir",
+        "source_object": "obj:card_19-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card19-P2-creature",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P3",
+        "public_identity": true,
+        "sequence": 15,
+        "source_name": "Butcher of Malakir",
+        "source_object": "obj:card_19-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card19-P3-creature",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      }
+    ],
+    "terminal_facts": {
+      "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P2": true,
+      "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P3": true,
+      "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P4": true
+    },
+    "token_evidence": {
+      "Butcher_trigger": {
+        "events": [
+          9
+        ]
+      },
+      "P1_creature_dies": {
+        "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:card19-p1-other, from=BATTLEFIELD, to=GRAVEYARD",
+        "events": [
+          8
+        ]
+      },
+      "opponents_choose_sacrifices": {
+        "binding": "exactly 3 SACRIFICED_PERMANENT event(s) with source_object=obj:card_19-subject",
+        "events": [
+          10,
+          11,
+          12
+        ]
+      },
+      "simultaneous_sacrifices": {
+        "binding": "every SACRIFICED_PERMANENT event with source_object=obj:card_19-subject precedes the first ZONE_CHANGE event with source_object=obj:card_19-subject, from=BATTLEFIELD, to=GRAVEYARD",
+        "observation": "engine terminal observation"
+      }
+    },
+    "verified": true
   },
   "fixture_id": "CARD_19",
   "phase": "EXECUTED",

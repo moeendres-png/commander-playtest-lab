@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 9.283,
+  "elapsed_s": 9.389,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "d271b44adb0267a677932ec7a46ef5230e7f2f3d6a0f56ab0a844e4ebba02459",
+        "decision_id": "f79e9535df4561d834e7366ae31a971a4429af9f52ad3aaef16f1c3b6f06426a",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -47,17 +47,17 @@
         "selected_key": null,
         "selected_label": "Vandalblast \u2014 Cast Vandalblast with overload",
         "selected_option_ids": [
-          "64aac545c45e54e91d4253debf8acedf49740f27f218b8db6ec2fe96719148ef"
+          "f7f366145718063397f247c40a2c7b17230a46db87f9b70652f102f3b45bb01a"
         ],
         "selected_option_type": null,
-        "selected_source_object": "989f6c4b-786a-4c7d-ae85-6dd46155db0a"
+        "selected_source_object": "037c4133-2093-496e-bac8-55630b39cce5"
       },
       {
         "context": {
           "unpaid_mana": "{4}{R}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "b8de40438ac01992dcc662f73f5c22ca77488d28270d1ec998c956a4b20fc3ef",
+        "decision_id": "1aef28b24f27f8a61a8f04e9879d9b23dc16ac4821424b7aa22af43d1e127379",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -69,14 +69,14 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{4}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
+        "prompt": "{4}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "49102f001a569399f007a4ddfe38dea212f79a73d64f4d8965f9634c15a949d2"
+          "330752f38aaaf3e65c5b2d2a00131bcb7f2052c0212d43920fde6f0584848dd6"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -86,7 +86,7 @@
           "unpaid_mana": "{4}{R}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "16f3ee39a0157f663f437e57b05c4ce91d9c7d0d030c2b3acca8413e9760b51b",
+        "decision_id": "bab85fdc408be62fbbb63e42ae15395fedf5b30c9c1251d579db5d1fd305e18e",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -98,7 +98,7 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{4}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
+        "prompt": "{4}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -115,7 +115,7 @@
           "unpaid_mana": "{4}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "213e2f9403aabb813acf1cad042cd12e1bc57a956ce20c36695d4dbbd1e039b7",
+        "decision_id": "74f89e290acdbcb34a5a477f8163c6212e0268c161ff7bf5868ed1c96dda530d",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -126,14 +126,14 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{4}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
+        "prompt": "{4}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "aa558ade4ed33a2e01eaf2f950f04375e2fe15c9534388b0fc2a1b2f579f90b1"
+          "4346d5fc997c1e9854fb3f85d69a14a3b5bb59cc8e7eea28139176b3bcf33305"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -143,7 +143,7 @@
           "unpaid_mana": "{4}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "54f4afbe6516faadaa4f12ec983cd63a088e262921af3e22fdec3cd36ce7cd1a",
+        "decision_id": "b8353425ba825c79b91c39096a692b886534141910e4408b84a82987e49e8c36",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -154,7 +154,7 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{4}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
+        "prompt": "{4}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -171,7 +171,7 @@
           "unpaid_mana": "{3}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "8946c8f7a9a820f9e88833de34323dfbb2dc95a232e69461abedb1ceb2436713",
+        "decision_id": "83b0163246824e21b1aa7d0656680dc790c027bd8145952726bc003ebac855a0",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -181,14 +181,14 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{3}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
+        "prompt": "{3}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "e2962b6c4bde23b05a0134b1db09e1a913db38478b589f98b8c9f5638bb8dced"
+          "70cf1be764bccc40b09986aa7798b18967ba407bd3b3c7dbf95c96e990bb95e3"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -198,7 +198,7 @@
           "unpaid_mana": "{3}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "69fcd800d18cf71935ddeb56f8780366d20fbbb360e01694f921407cd0b3c747",
+        "decision_id": "229aaa6dc83c38cacd8ca4af00810997ca89a59e12cdc27e051cee50f1f44be1",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -208,7 +208,7 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{3}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
+        "prompt": "{3}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -225,7 +225,7 @@
           "unpaid_mana": "{2}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "a3d614f398df52338044d03d08c73a5e0c44e176fd4b5b9cb16e3aa472e00698",
+        "decision_id": "5baa5d30c6659f71cd07c260cc64c9cb072cc3a1b09ba5a58bc0378227a33a81",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -234,14 +234,14 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{2}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
+        "prompt": "{2}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "ce6d811a025bf6b92240fff724d02c6bbacbd75ebbbdf80d753125b13162a9c5"
+          "7f26d0a808def1b0450495452e2134f27d5c21dbfb83589bece2b3bedd036733"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -251,7 +251,7 @@
           "unpaid_mana": "{2}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "0730492d418208fd5d8008be03abf9102f62f2665c7ae366db56b99c6415ed80",
+        "decision_id": "e3c4e92a1723e09fbe8d31317675bad26cd73b676dd8245de208d8444617e594",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -260,7 +260,7 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{2}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
+        "prompt": "{2}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -277,7 +277,7 @@
           "unpaid_mana": "{1}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "ee3253b92a1fb8478aa0febeee8a8f27b042df99c935204778466bb8d9b32509",
+        "decision_id": "508ed210ab0989091fa7c1cc87e1b0df15bbbc95de8c4ba8ec93b73912b3190a",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -285,14 +285,14 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "49671590b155cbf8174347fab1ba044f81f41d419b28ae973105d634aaab1cd9"
+          "57216b4a0acab6db10550090d393bdf9a9d173f989ccc0821cc7b0b69a16bf6d"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -302,7 +302,7 @@
           "unpaid_mana": "{1}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "fa2b91956c6737ea011a3d919ec26baf48367e8e81afe9ee40cc6ca93e83531d",
+        "decision_id": "4e8ea42c15063ac88872795b134a5a77b3c33e59a3a435f457345d85820cc133",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -310,7 +310,7 @@
           "Sol Ring \u2014 {T}: Add {C}{C}."
         ],
         "principal": "P1",
-        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='989f6c4b-786a-4c7d-ae85-6dd46155db0a'>Vandalblast</font> [989]</div>",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='037c4133-2093-496e-bac8-55630b39cce5'>Vandalblast</font> [037]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -325,7 +325,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "7a0c476bd2f0de2f3472eff3aa89807b111aa8cee2b32488ec7a97a05fc00705",
+        "decision_id": "603d3f1221b1e267a60305d57436b4d1255ca8f5306d05f04dea2286db39002c",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -345,7 +345,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "8e3967a30afbc14933fa17666d3d0fae5c480485d4df188ffd8f8e7cac5ce889",
+        "decision_id": "64f67be73763d8bad395462c9255c0ec97a02015df21905aae5b30671f0eb654",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -365,7 +365,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "150743d6bc2eefbc3f6db29a6e31efad7563a1bf90a4e391fdfc3d2a5c97c35a",
+        "decision_id": "49a5cd6659f6e87a2f7526e9e652760329687c10254e6722685dd29e77cbb57d",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -385,7 +385,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "da7370a62abefaf9b9ca978b578b5b40095039e24a53cae923c861f908e83cec",
+        "decision_id": "e29db7bb2c6350544df5d89e7c9f12b824633b8e44f8ec42162f18340f458892",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -440,13 +440,27 @@
       {
         "amount": 0,
         "flag": false,
-        "player_player": "P2",
+        "player_player": "P4",
         "public_identity": true,
         "sequence": 9,
         "source_name": "Vandalblast",
         "source_object": "obj:card_14-subject",
         "step": "PRECOMBAT_MAIN",
         "target_name": "Sol Ring",
+        "target_object": "obj:card14-p4-artifact",
+        "turn": 1,
+        "type": "DESTROYED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Vandalblast",
+        "source_object": "obj:card_14-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Sol Ring",
         "target_object": "obj:card14-p2-artifact",
         "turn": 1,
         "type": "DESTROYED_PERMANENT"
@@ -456,7 +470,7 @@
         "flag": false,
         "player_player": "P3",
         "public_identity": true,
-        "sequence": 10,
+        "sequence": 11,
         "source_name": "Vandalblast",
         "source_object": "obj:card_14-subject",
         "step": "PRECOMBAT_MAIN",
@@ -468,16 +482,18 @@
       {
         "amount": 0,
         "flag": false,
+        "from": "BATTLEFIELD",
         "player_player": "P4",
         "public_identity": true,
-        "sequence": 11,
+        "sequence": 12,
         "source_name": "Vandalblast",
         "source_object": "obj:card_14-subject",
         "step": "PRECOMBAT_MAIN",
         "target_name": "Sol Ring",
         "target_object": "obj:card14-p4-artifact",
+        "to": "GRAVEYARD",
         "turn": 1,
-        "type": "DESTROYED_PERMANENT"
+        "type": "ZONE_CHANGE"
       },
       {
         "amount": 0,
@@ -485,7 +501,7 @@
         "from": "BATTLEFIELD",
         "player_player": "P2",
         "public_identity": true,
-        "sequence": 12,
+        "sequence": 13,
         "source_name": "Vandalblast",
         "source_object": "obj:card_14-subject",
         "step": "PRECOMBAT_MAIN",
@@ -501,28 +517,12 @@
         "from": "BATTLEFIELD",
         "player_player": "P3",
         "public_identity": true,
-        "sequence": 13,
-        "source_name": "Vandalblast",
-        "source_object": "obj:card_14-subject",
-        "step": "PRECOMBAT_MAIN",
-        "target_name": "Sol Ring",
-        "target_object": "obj:card14-p3-artifact",
-        "to": "GRAVEYARD",
-        "turn": 1,
-        "type": "ZONE_CHANGE"
-      },
-      {
-        "amount": 0,
-        "flag": false,
-        "from": "BATTLEFIELD",
-        "player_player": "P4",
-        "public_identity": true,
         "sequence": 14,
         "source_name": "Vandalblast",
         "source_object": "obj:card_14-subject",
         "step": "PRECOMBAT_MAIN",
         "target_name": "Sol Ring",
-        "target_object": "obj:card14-p4-artifact",
+        "target_object": "obj:card14-p3-artifact",
         "to": "GRAVEYARD",
         "turn": 1,
         "type": "ZONE_CHANGE"

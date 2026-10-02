@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.738,
+  "elapsed_s": 9.267,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "d99da8d26564dcf22fa9fd633d868180d3976d133f21bbedaa314590db472e86",
+        "decision_id": "1dbb64193c12d6455cd21b80b9b8bbdef3761008e458e09f9ad5bf731d0faf11",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -44,17 +44,17 @@
         "selected_key": null,
         "selected_label": "Wrath of God \u2014 Cast Wrath of God",
         "selected_option_ids": [
-          "3f4f1a91c26c79f83c21363428ac78d7871e84146f4f01c7e770ee1faf2891c3"
+          "909389850958030b9b1838e5279feb36f18518a3f0d7a1be5d335f1415d98311"
         ],
         "selected_option_type": null,
-        "selected_source_object": "c9184556-957b-4093-928e-db555d1c5692"
+        "selected_source_object": "aa467351-b3d7-48b0-a579-26924fb1832c"
       },
       {
         "context": {
           "unpaid_mana": "{2}{W}{W}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "9c978048f9413820bdc9af7a6822cdb34a9790ca773104981d212ae0500e719c",
+        "decision_id": "a90d9fbd8bcea165d73886dc904789e967a0fc83343fb5e5b72d38e51151df73",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -64,14 +64,14 @@
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
-        "prompt": "{2}{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='c9184556-957b-4093-928e-db555d1c5692'>Wrath of God</font> [c91]</div>",
+        "prompt": "{2}{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='aa467351-b3d7-48b0-a579-26924fb1832c'>Wrath of God</font> [aa4]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "0def1065142a45e1eb80a0ecb6e7543e98cd61be92f618968c1272ae982c2963"
+          "b1a29cdf6aa970454c8626381fd7124c3b988b7785f93384e9097fdad487f2f3"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -81,7 +81,7 @@
           "unpaid_mana": "{2}{W}{W}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "438aba3793476ef83b761953fa5c2c3bf012def2589ff66c11be8651caa2c4e4",
+        "decision_id": "21f3d3182893672a22d283baee47fdf8fba1a8c7b98aad5dcd9d0a77196b89a3",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -91,7 +91,7 @@
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
-        "prompt": "{2}{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='c9184556-957b-4093-928e-db555d1c5692'>Wrath of God</font> [c91]</div>",
+        "prompt": "{2}{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='aa467351-b3d7-48b0-a579-26924fb1832c'>Wrath of God</font> [aa4]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -108,7 +108,7 @@
           "unpaid_mana": "{1}{W}{W}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "ef871ece1f4a3eb995b41d327be6f8e48fd5081e50246148f9759fe851d26efa",
+        "decision_id": "f1ecdeeca9b928a1f2e1a075e56589e4a1833a8410540a4d3265eba41d0f80b9",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -117,14 +117,14 @@
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
-        "prompt": "{1}{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='c9184556-957b-4093-928e-db555d1c5692'>Wrath of God</font> [c91]</div>",
+        "prompt": "{1}{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='aa467351-b3d7-48b0-a579-26924fb1832c'>Wrath of God</font> [aa4]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "4d452b1436b5c391f2588546e16d57eb7d96dcb18a2d725ecd9fae95d209620c"
+          "295b7ffebc8e57b5dac564be6582436799eba0fe8c8f4058b128d10ac7c54a86"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -134,7 +134,7 @@
           "unpaid_mana": "{1}{W}{W}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "81463f43f33b8976bd8d0d7189e96ca962da083e1d074a28e0cbd61bd3f06cac",
+        "decision_id": "a6fc89c2dff2d8599da4fe49e2fdf3125d8710da3a41d4ccbc16a403e278758e",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -143,7 +143,7 @@
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
-        "prompt": "{1}{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='c9184556-957b-4093-928e-db555d1c5692'>Wrath of God</font> [c91]</div>",
+        "prompt": "{1}{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='aa467351-b3d7-48b0-a579-26924fb1832c'>Wrath of God</font> [aa4]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -160,7 +160,7 @@
           "unpaid_mana": "{W}{W}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "91d8a8791a55d65fe2528556bdb0e3d27975fefbc8613b29cfe68c06cc4da58c",
+        "decision_id": "3fd44396a4f4fc5f2500ada242042692a9644a995e08ca24aae4c6da3dcb3e72",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -168,14 +168,14 @@
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
-        "prompt": "{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='c9184556-957b-4093-928e-db555d1c5692'>Wrath of God</font> [c91]</div>",
+        "prompt": "{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='aa467351-b3d7-48b0-a579-26924fb1832c'>Wrath of God</font> [aa4]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Plains \u2014 {T}: Add {W}.",
         "selected_option_ids": [
-          "015d73526fb4a7fe19e85b0a40a4036d99cacafac6c895e040ce7de3ca0dbc08"
+          "9862a6547e762127e4aba2439308f5a032959b40ca449d7c7dee2f57ef186f1b"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -185,7 +185,7 @@
           "unpaid_mana": "{W}{W}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "9a1c31b61d12afa6f0f8a7d11f484636e54e83d36b717c90472c365622e153b7",
+        "decision_id": "1963c3e76b3c3848248b9e22426c210ce5925606d5178f4c6540b926d719a9e3",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -193,7 +193,7 @@
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
-        "prompt": "{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='c9184556-957b-4093-928e-db555d1c5692'>Wrath of God</font> [c91]</div>",
+        "prompt": "{W}{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='aa467351-b3d7-48b0-a579-26924fb1832c'>Wrath of God</font> [aa4]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -210,21 +210,21 @@
           "unpaid_mana": "{W}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "14e95eced79b8d4352023b57273e8ee5d3ae9526f2f571517044eb925ec9333d",
+        "decision_id": "07567933cc885574b5704c46644cd27a22b32771d03f0a79a50d9f487624f534",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
           "Plains \u2014 {T}: Add {W}."
         ],
         "principal": "P2",
-        "prompt": "{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='c9184556-957b-4093-928e-db555d1c5692'>Wrath of God</font> [c91]</div>",
+        "prompt": "{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='aa467351-b3d7-48b0-a579-26924fb1832c'>Wrath of God</font> [aa4]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Plains \u2014 {T}: Add {W}.",
         "selected_option_ids": [
-          "f38474e9c01493a51eea9c79d3ac3a07d2e0a031cd4849797f964f54fb647cac"
+          "c21e230c9b74d7f3907c474ac190522a8f646f7f10adba18f999aca1994aae37"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -234,14 +234,14 @@
           "unpaid_mana": "{W}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "6421bc0a4e799ca9eb08c273984121c81e7affc5852ba4f5a3b664fcb7ab943b",
+        "decision_id": "1efa4a43305db52305d2cc46f4836a50489d1b53b65527a874e64b752e6791c6",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
           "Spend white mana from pool"
         ],
         "principal": "P2",
-        "prompt": "{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='c9184556-957b-4093-928e-db555d1c5692'>Wrath of God</font> [c91]</div>",
+        "prompt": "{W}<div style='font-size:11pt'><font color='#F0E68C' object_id='aa467351-b3d7-48b0-a579-26924fb1832c'>Wrath of God</font> [aa4]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -262,7 +262,7 @@
           "targeted": true
         },
         "decision_class": "target",
-        "decision_id": "b0a1be2f465d80a37330d9731dbe93f8ae70c4d106e6686e6ece8300dfdc9e0d",
+        "decision_id": "aca54d5ee3a32694d276dc8c57544aa6b958c25d53729e7f30c98c7a1fa88392",
         "numeric": null,
         "offered_labels": [
           "Full Game Seat 1",
@@ -285,7 +285,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "471d4b2e43751e6ae616f68cf1cbfd044d9109d7c600513dbf56f3b0efa506d2",
+        "decision_id": "9f3d6b1b3452c586f7c464afec4f0157b2c991f40fe6a35024ad1aae0dd633be",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -304,7 +304,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "166f5ff45853fc27587956dd76aae41d71af3fc8094b68d4210a0cf6a21f8d60",
+        "decision_id": "62aa275666d2410866ca46a2b8da50c15c3cd86b1325f6e7f22775434b32737e",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -323,7 +323,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "877c658c61e2505cbe34b5138998a1461ee2967e398a2690a6f96aafd6480918",
+        "decision_id": "a532faca78adbcbf3851465857d762cc8316aab8c5394fcc21a57c7078fa09c1",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -342,7 +342,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "a411a868e14af95c9870e0543319afcc4666ad3b07b40e293b6e57ef451c9947",
+        "decision_id": "3e2bb0dc442d9a0f61c6603022da4328c774156071d0ce70b3157cbe996d60f7",
         "numeric": null,
         "offered_labels": [
           "Pass priority"

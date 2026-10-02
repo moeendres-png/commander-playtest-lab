@@ -1,9 +1,9 @@
 {
   "arrival_detail": null,
   "construction_mismatches": [],
-  "construction_verdict": null,
+  "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.352,
+  "elapsed_s": 8.733,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -12,16 +12,425 @@
   },
   "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
   "execution": {
-    "construction_verdict": null,
-    "decision_trace": [],
-    "detail": "arrival failed closed: the engine reached COMBAT/DECLARE_ATTACKERS before the record's requested COMBAT/COMBAT_DAMAGE checkpoint",
+    "construction_verdict": "EXACT",
+    "decision_trace": [
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "b89fbfc13058c4e73572d02a1d14c4e08cb291082f03c9cfd77e48a07d64ce77",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "3ae1b12a61ba98e4c2555d2cd8ed232054f40ef2458425c07087c8ad2b25b023",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "dc32b70d9b0ded6d3a84f63b375fca4d158831d49b6c20069dfe8c60a9cfaba0",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "399888004a42cf9aefe523ce94daa4ee6338a0500aa0162456b06ea18e7238bf",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "3a46d82b9e88f5d7d96619a76162737d77a2cd97b440d4fe448d9276b21196b1",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "f12a3fe8d39b8c8a68819387762d8512718fda4841220a9005831ed741d5b531",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "76ab4fd8328fd3d49315609e924138b6dc99a3aee0c40ea09ee0dd4985d42003",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "abc026e49c0faa4c981e1ae49110295d82fc7e0de5fe810b1cba1f9087aaf226",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "declare_attacker",
+        "decision_id": "2d19dc8e018a0dda1527d1974da7e1e1c226bccbdccde38c04841df717cf101e",
+        "numeric": null,
+        "offered_labels": [
+          "Do not attack with Hill Giant",
+          "Hill Giant attacks Full Game Seat 2",
+          "Hill Giant attacks Full Game Seat 3",
+          "Hill Giant attacks Full Game Seat 4"
+        ],
+        "principal": "P1",
+        "prompt": "Choose attack for Hill Giant",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Hill Giant attacks Full Game Seat 2",
+        "selected_option_ids": [
+          "595fbf84d87c6e4e263a68ed3b5e83c24fed08ff89e2afc04dd362ee6ebca0ec"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "7f368f7be54372441aac8d29479878205bb059ba1571ac5c0e94a8ab387e633f",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "e191839fcaf6949d549cf1740c7a5495f0605a7d705fc475e1ae3f77aaf7f004",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "9047e200f92ca1394015a85a313d36f1a380eaa3e74170f16e058618c57417f5",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "2168b05a55f5bc5f8235f7520b4d2330879bbb03fb8e6f456a620954b8a76b28",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "6c729ffd38ee72221eaa5add4b983a48a6311f9f061cb9e2f99ef083909647bd",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "984e38760c9b4778087c9cce1d8ce07b8203098219822801d2dae7b5cfde83ad",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "0d4f8d6f4710a4874531048d653cfbbdcfb12eb9396e5af128bfd7c84215e8a0",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "088b18ad5c3747ae1c78354b8cc6740bf41c86c59c6a0e4be9c90653c78d43a2",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      }
+    ],
+    "detail": "obligation observed",
     "fixture_id": "CARD_21",
     "missing_tokens": [],
     "refusals": [],
-    "tape": [],
-    "terminal_facts": {},
-    "token_evidence": {},
-    "verified": false
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Hill Giant",
+        "source_object": "obj:card21-creature",
+        "step": "DECLARE_ATTACKERS",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "ATTACKER_DECLARED"
+      },
+      {
+        "amount": 6,
+        "flag": true,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 8,
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "LOST_LIFE"
+      },
+      {
+        "amount": 6,
+        "combat": true,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Hill Giant",
+        "source_object": "obj:card21-creature",
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "DAMAGED_PLAYER"
+      }
+    ],
+    "terminal_facts": {
+      "P2 is at 34 life": true,
+      "exactly 0 DAMAGED_PLAYER event(s) with target_player=P2, amount=3": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2, source_object=obj:card21-creature, amount=6": true
+    },
+    "token_evidence": {
+      "damage:P2:6": {
+        "events": [
+          9
+        ]
+      },
+      "damage_would_be:3": {
+        "binding": "every Hill Giant on P1's battlefield is 3/3",
+        "observation": "engine terminal observation"
+      },
+      "replacement_effect": {
+        "binding": [
+          "every Hill Giant on P1's battlefield is 3/3",
+          "at least one DAMAGED_PLAYER event(s) with source_object=obj:card21-creature, combat=True, amount=6"
+        ],
+        "parts": [
+          {
+            "binding": "every Hill Giant on P1's battlefield is 3/3",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "at least one DAMAGED_PLAYER event(s) with source_object=obj:card21-creature, combat=True, amount=6",
+            "events": [
+              9
+            ]
+          }
+        ]
+      }
+    },
+    "verified": true
   },
   "fixture_id": "CARD_21",
   "phase": "EXECUTED",

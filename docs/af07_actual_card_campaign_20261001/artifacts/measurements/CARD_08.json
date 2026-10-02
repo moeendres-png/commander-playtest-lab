@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.336,
+  "elapsed_s": 9.234,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "61f6cb2c1c110ff2856c24aaf0f2e121bdaa52f0024f92dde03ab603a75dc345",
+        "decision_id": "3bf2c866f3c235a6b142702e5f7aebc7c1122739543429cfbea69106bb1c8a7f",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -38,6 +38,177 @@
         "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Jeska, Thrice Reborn \u2014 Cast Jeska, Thrice Reborn",
+        "selected_option_ids": [
+          "d24bb1c4a2f608114c9c8b12a83a43043af139af939a9ee57079167a8e17b7e6"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "8ac57c79-9bd9-4ad7-bd41-4d7d73e9b156"
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "3cb7df2cb81eb16875ddd5db8549c6e7a6cbdb18a30816d5fb2c6ec0d471669c",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='8ac57c79-9bd9-4ad7-bd41-4d7d73e9b156'>Jeska, Thrice Reborn</font> [8ac]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "8a42c097e974c70141a0dd1c5fc5584b0678bf7fe8a2000248555ce3e5ff47e7"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "52376af000041af7e322f2a67ddf26d9daa84cab0bf2ae5b91f9ab256a4977d4",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}{R}<div style='font-size:11pt'><font color='#FF6347' object_id='8ac57c79-9bd9-4ad7-bd41-4d7d73e9b156'>Jeska, Thrice Reborn</font> [8ac]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "a9266b65b55adf581121e7eb37299e5f68a93e6bafd29319a736611759789026",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}<div style='font-size:11pt'><font color='#FF6347' object_id='8ac57c79-9bd9-4ad7-bd41-4d7d73e9b156'>Jeska, Thrice Reborn</font> [8ac]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "441e60b221117ac7d9b276e1c091bcce4094a0f38d25fe19261c76bdda371a1e"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "11d5766c8ca25ff50524725c62767b96e770168582df23e14d7ef5c6c3cad159",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}<div style='font-size:11pt'><font color='#FF6347' object_id='8ac57c79-9bd9-4ad7-bd41-4d7d73e9b156'>Jeska, Thrice Reborn</font> [8ac]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "c7972898e74f08413bb21a6b196b532addcfe5f6df92b6d2449557508cc97beb",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='8ac57c79-9bd9-4ad7-bd41-4d7d73e9b156'>Jeska, Thrice Reborn</font> [8ac]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "6ddb973e099f4338bedcb85748481149be1569f6f85b3862029333bd2458b082"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "917e20d069eddfbfd1655fbabcc00f8950a220f5a3e4e0e4b85b641ddd96c850",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool"
+        ],
+        "principal": "P1",
+        "prompt": "{1}<div style='font-size:11pt'><font color='#FF6347' object_id='8ac57c79-9bd9-4ad7-bd41-4d7d73e9b156'>Jeska, Thrice Reborn</font> [8ac]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "6c2671d3041c49a73e5e719a57a8758a7159dd5d07df7a909fac151b2d7417e9",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
@@ -48,7 +219,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "cc05c606180241ba6fa082e4e80577860e5900c7a8496c490293a00ca17d9e14",
+        "decision_id": "da6fc9fbebdeca2ab4e856f267b2a275c1d64c126b972ad7321199a419ec08d9",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -67,7 +238,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "4948a99aec10ff228e4d6a8745024d8768d5308f463385fb3e29e292bcaaecdb",
+        "decision_id": "ff94f32791c6ae417da05de154b60064f09b1ce42af76df809d3bfc6a7a3307a",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -86,7 +257,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "b0a6eaf15c4648827a29fff51f7af4a08be3daac352070519403accd2273e343",
+        "decision_id": "6c8d9b7c9fc4886233ce95e464dd05eb523a1d7d59f9f5586f6f306d33e3ba18",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -105,13 +276,66 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "5351aac6773e9cbb26bb460996d5041f206e7134f271c509afb43694bada0fa9",
+        "decision_id": "640c1d25b04c43da5b7aa6954ac91a71bcf7dd03c8b5b8469223eeb0e0132211",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}."
+          "Jeska, Thrice Reborn \u2014 -X: {this} deals X damage to each of up to three targets.",
+          "Jeska, Thrice Reborn \u2014 0: Choose target creature. Until your next turn, if that creature would deal combat damage to one of your opponents, it deals triple that damage to that player instead.",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Jeska, Thrice Reborn \u2014 0: Choose target creature. Until your next turn, if that creature would deal combat damage to one of your opponents, it deals triple that damage to that player instead.",
+        "selected_option_ids": [
+          "e86a3fc98922bd8e6d565bca8aea81944b94976acad696d85d9246fd40743b49"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": "8ac57c79-9bd9-4ad7-bd41-4d7d73e9b156"
+      },
+      {
+        "context": {
+          "outcome": "damage",
+          "required": false,
+          "target_description": "target creature",
+          "target_name": "creature",
+          "targeted": true
+        },
+        "decision_class": "target",
+        "decision_id": "acc137453623be3912e25607f14545de3c4f44cfea9d7f966d8b18bc7546cd3c",
+        "numeric": null,
+        "offered_labels": [
+          "Grizzly Bears"
+        ],
+        "principal": "P1",
+        "prompt": "Select a creature",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Grizzly Bears",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "d8713a0d72f4b7d72b7bcec3e379b6108ae80d0dfe0659b91a9c75c1c041b121",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
         ],
         "principal": "P1",
         "prompt": "Choose priority action",
@@ -127,7 +351,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "1e94a35a071c2983c41a7492d7b07a712fb730c233dcb04ef013122f029be8a3",
+        "decision_id": "21d18af887e47ff995d0cdea278dac7aae02eded3d4cdfccdd189dd1d101fa92",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -146,7 +370,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "88fb3f0a8cc9431795538ec59cc79f47f7e3fb2b424b26c4d215f1507c696aee",
+        "decision_id": "222cdde7da2d854ef48e733ab4663bc16ae0a666431c6ede8a878245954d8bb9",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -165,7 +389,167 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "8a324c8faa7b695fa9c217f20b9c2304b92ce047d0914729b54d7a3b86be2b72",
+        "decision_id": "86ae3fb83b18fd2ce514813025241e565ac9b4b871d25bd4f62a655787fa4c37",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "157812747a7e2f1f14fde1d0d54544c57e393b951cf8a3917677a249e6f1273b",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain",
+          "Mountain \u2014 Play Mountain"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "e76137b1edaa42ac5bcda18bffc8540c0519302e032decb983c0da770ebc7460",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "1dafa55b50966e904568d294ef0a26c053527a234dd0024bf0db497be72fa152",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "6132caf4a51322fc80933dea7eacc28be18135c94b94278e887091aa442b0c9c",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "8733d373ca98eb199be0c7f536fcd85f99b802a61234a6275613fdfae4b81552",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "c935ec2cccc8d01cc7b14848786e9a97d7b5038ab2cdb744ae04cf1c734a2cb2",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "f0c01628559d64b7b0d70c61143cf8eeedd5c6e1af34356a57526b9b30d0860b",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "2cbd8bbaa2c461d67ea8c8f17a5f83e298e2cb606d89a8d38b237e65ba120d7a",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -184,7 +568,7 @@
       {
         "context": {},
         "decision_class": "declare_attacker",
-        "decision_id": "d3eeb45ce66e8a6111f51cccb7fb992d440c99e6d1d3fa56e82a5e72ee79c486",
+        "decision_id": "87437a1e3944f1f2c28c784895f40261dee2d2b03f5d84a76045d2c3a5cf6533",
         "numeric": null,
         "offered_labels": [
           "Do not attack with Grizzly Bears",
@@ -196,6 +580,160 @@
         "prompt": "Choose attack for Grizzly Bears",
         "refusal_kind": null,
         "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Grizzly Bears attacks Full Game Seat 2",
+        "selected_option_ids": [
+          "aebaa11a37142be79d80431763b629b45363217a863e606883d29372131635f0"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "8c0d8047d8e562964e5cbc35292afcc21cdd52daccc96ba530488487b2e33b83",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "f51c261860b5d8f43ec102b57143e3584629a5d144e32ecb1955ef01e6a8d8e2",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "82f15337a1b930e4afb099aba7938cedb774410d6090e845d9f9512d6e671c73",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "b891a290db0f35b1a37c4d5d37ceff72d95a000bc8bbb534f38ae7fb2b883dfb",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "384a09e85c289ef501edb3bd61fd8908c1753c1fc56fbdf03ff674c5acbb4c45",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "7332be9aa91031bea5274b31a604e32f41eba5611737fb0906be6bc1c3626af0",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "0da5cb80fab59def493ce04fe407f4f3cb7ee3da1079617240b359634586c901",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "f6b99906a06ed2835fe655d041f66eb847dd100496326f86292bd449b914cedb",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
@@ -204,18 +742,164 @@
         "selected_source_object": null
       }
     ],
-    "detail": "unscripted declare_attacker for P1: the row stops unverified",
+    "detail": "obligation observed",
     "fixture_id": "CARD_08",
-    "missing_tokens": [
-      "Jeska_enters_loyalty:2",
-      "loyalty_ability:0",
-      "combat_damage_replaced:2->6"
-    ],
+    "missing_tokens": [],
     "refusals": [],
-    "tape": [],
-    "terminal_facts": {},
-    "token_evidence": {},
-    "verified": false
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Jeska, Thrice Reborn",
+        "source_object": "obj:card_08-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Jeska, Thrice Reborn",
+        "target_object": "obj:card_08-subject",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Jeska, Thrice Reborn",
+        "source_object": "obj:card_08-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Jeska, Thrice Reborn",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 1,
+        "data": "loyalty",
+        "flag": true,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Jeska, Thrice Reborn",
+        "source_object": "obj:card_08-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Jeska, Thrice Reborn",
+        "target_object": "obj:card_08-subject",
+        "turn": 1,
+        "type": "COUNTER_ADDED"
+      },
+      {
+        "amount": 1,
+        "data": "loyalty",
+        "flag": true,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Jeska, Thrice Reborn",
+        "source_object": "obj:card_08-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Jeska, Thrice Reborn",
+        "target_object": "obj:card_08-subject",
+        "turn": 1,
+        "type": "COUNTER_ADDED"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "STACK",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Jeska, Thrice Reborn",
+        "source_object": "obj:card_08-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Jeska, Thrice Reborn",
+        "target_object": "obj:card_08-subject",
+        "to": "BATTLEFIELD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 12,
+        "source_name": "Grizzly Bears",
+        "source_object": "obj:card08-attacker",
+        "step": "DECLARE_ATTACKERS",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "ATTACKER_DECLARED"
+      },
+      {
+        "amount": 6,
+        "flag": true,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 13,
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "LOST_LIFE"
+      },
+      {
+        "amount": 6,
+        "combat": true,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 14,
+        "source_name": "Grizzly Bears",
+        "source_object": "obj:card08-attacker",
+        "step": "COMBAT_DAMAGE",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "DAMAGED_PLAYER"
+      }
+    ],
+    "terminal_facts": {
+      "every COUNTER_ADDED event with target_object=obj:card_08-subject, data=loyalty precedes the first ZONE_CHANGE event with target_object=obj:card_08-subject, from=STACK, to=BATTLEFIELD": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2, amount=6, combat=True, source_object=obj:card08-attacker": true,
+      "exactly 2 COUNTER_ADDED event(s) with target_object=obj:card_08-subject, data=loyalty": true
+    },
+    "token_evidence": {
+      "Jeska_enters_loyalty:2": {
+        "binding": "exactly 2 COUNTER_ADDED event(s) with target_object=obj:card_08-subject, data=loyalty",
+        "events": [
+          9,
+          10
+        ]
+      },
+      "combat_damage_replaced:2->6": {
+        "binding": [
+          "every Grizzly Bears on P1's battlefield is 2/2",
+          "at least one DAMAGED_PLAYER event(s) with amount=6, combat=True, source_object=obj:card08-attacker"
+        ],
+        "parts": [
+          {
+            "binding": "every Grizzly Bears on P1's battlefield is 2/2",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "at least one DAMAGED_PLAYER event(s) with amount=6, combat=True, source_object=obj:card08-attacker",
+            "events": [
+              14
+            ]
+          }
+        ]
+      },
+      "loyalty_ability:0": {
+        "binding": "a scripted priority frame selected an engine offer naming '0: Choose target creature'",
+        "decision_frames": [
+          11
+        ]
+      }
+    },
+    "verified": true
   },
   "fixture_id": "CARD_08",
   "phase": "EXECUTED",

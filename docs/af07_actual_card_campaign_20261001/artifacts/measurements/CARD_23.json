@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 7.725,
+  "elapsed_s": 9.091,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "61f32651a903af4c8bd006c80140887e7f5d888e0b3447a56de05aba4beff081",
+        "decision_id": "ebe9bd07d576936ec0e084e59ea28b7bc88161fc97b783a6b79ed79691b42008",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -46,10 +46,10 @@
         "selected_key": null,
         "selected_label": "Makeshift Mannequin \u2014 Cast Makeshift Mannequin",
         "selected_option_ids": [
-          "6ee63d471f0b2f5e7ff50893fb323d8434e7196529055d92760f7c860293e704"
+          "fe6d5e0277b2c021f90721843235cbdfa09eeb1fb22bf4d217078c6bb0f3b758"
         ],
         "selected_option_type": null,
-        "selected_source_object": "2ef4e4ad-3c91-4c13-af03-96bc13a723aa"
+        "selected_source_object": "85a1450b-0720-4e1d-93d3-a58c0781b96f"
       },
       {
         "context": {
@@ -60,7 +60,7 @@
           "targeted": true
         },
         "decision_class": "target",
-        "decision_id": "1f9d3c9379bc3fc5c005e5bfa906aae8d90d53f2c00b995c8dc1017f3e2fb20b",
+        "decision_id": "5f2cfb87bd68fc8001e89e4cc4755b7a840ba4111bbeef6c636b782755b3fe4d",
         "numeric": null,
         "offered_labels": [
           "Grizzly Bears"
@@ -81,7 +81,7 @@
           "unpaid_mana": "{3}{B}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "d07e1a6a085523af6100891db1f16fafb8887791028c121c8668588c7be453bf",
+        "decision_id": "ede065037304a79a55e2e6b8563c9b42055848bfd28618fb5f9a98eb157a88c7",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -92,14 +92,14 @@
           "Swamp \u2014 {T}: Add {B}."
         ],
         "principal": "P1",
-        "prompt": "{3}{B}<div style='font-size:11pt'><font color='#696969' object_id='2ef4e4ad-3c91-4c13-af03-96bc13a723aa'>Makeshift Mannequin</font> [2ef]</div>",
+        "prompt": "{3}{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "4cf659c4d809742c7e6b2eb8276a13a35eb3115f6478b5a5b05863d0d100a78c"
+          "709c52e9b886e1311cd62ac001169efb68944dec370dfa1d34b6b27e279751e8"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -109,7 +109,7 @@
           "unpaid_mana": "{3}{B}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "d81810c7bad7063a9441370c8580156869afa72554323aa7208e388de5ea4b5a",
+        "decision_id": "13ff584907f6c6c6d2dda0ecf9505a3b754f1275fe03f68e85758135fb8ca8f0",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -120,7 +120,7 @@
           "Swamp \u2014 {T}: Add {B}."
         ],
         "principal": "P1",
-        "prompt": "{3}{B}<div style='font-size:11pt'><font color='#696969' object_id='2ef4e4ad-3c91-4c13-af03-96bc13a723aa'>Makeshift Mannequin</font> [2ef]</div>",
+        "prompt": "{3}{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -137,7 +137,7 @@
           "unpaid_mana": "{2}{B}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "3f87a0ba7e3a37f9f9c48ee41a4814f49140107b510705d35e552cde71a98fe7",
+        "decision_id": "e8dcfbb25686baafb96913a41ead1659680b9578b9423a8f1eff72fbfe4e2035",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -147,14 +147,14 @@
           "Swamp \u2014 {T}: Add {B}."
         ],
         "principal": "P1",
-        "prompt": "{2}{B}<div style='font-size:11pt'><font color='#696969' object_id='2ef4e4ad-3c91-4c13-af03-96bc13a723aa'>Makeshift Mannequin</font> [2ef]</div>",
+        "prompt": "{2}{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "347dcd094cbb1d3db9a5df48df3dda87c33f8ef27ef30039fda879c39392355e"
+          "3d16953bd336cd2e7ee49ed11c41225b7dcd9bf2749aa2242341ad2ffd43af18"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -164,7 +164,7 @@
           "unpaid_mana": "{2}{B}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "4ad39a07ca143e8c3648b20c28bb1f7986331555462278de76a6b79e707430c8",
+        "decision_id": "84c86ac7d24830cdf58a459a67a9c5b087198bf7f5a3f30adc1bf49be65218c4",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -174,7 +174,7 @@
           "Swamp \u2014 {T}: Add {B}."
         ],
         "principal": "P1",
-        "prompt": "{2}{B}<div style='font-size:11pt'><font color='#696969' object_id='2ef4e4ad-3c91-4c13-af03-96bc13a723aa'>Makeshift Mannequin</font> [2ef]</div>",
+        "prompt": "{2}{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -191,7 +191,7 @@
           "unpaid_mana": "{1}{B}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "0016caead586af4f033ac56e8a6a5aa521aedab5247fd5e175e7b63bd47d6885",
+        "decision_id": "f9ddf5f5bae37ee499987582485543c1eef6f6a3016db7921d49e0840d267ad7",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -200,14 +200,14 @@
           "Swamp \u2014 {T}: Add {B}."
         ],
         "principal": "P1",
-        "prompt": "{1}{B}<div style='font-size:11pt'><font color='#696969' object_id='2ef4e4ad-3c91-4c13-af03-96bc13a723aa'>Makeshift Mannequin</font> [2ef]</div>",
+        "prompt": "{1}{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "08c3579ee0bc465332129c4bd85c6206109c6dfb156fadae94c8ef66eba1e89c"
+          "1137ca5b0f61699d2478fde6817184846da894ef0a8608f468669d145b3803dc"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -217,7 +217,7 @@
           "unpaid_mana": "{1}{B}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "a54490801154ab906b75520f22e5f4acbe3a843a5096f8879cf10f254670c1ae",
+        "decision_id": "4b2c794dc4b26de97f38b7393c4eb24a9642b24fb5250363a08a6d123419111b",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -226,7 +226,7 @@
           "Swamp \u2014 {T}: Add {B}."
         ],
         "principal": "P1",
-        "prompt": "{1}{B}<div style='font-size:11pt'><font color='#696969' object_id='2ef4e4ad-3c91-4c13-af03-96bc13a723aa'>Makeshift Mannequin</font> [2ef]</div>",
+        "prompt": "{1}{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -243,7 +243,7 @@
           "unpaid_mana": "{B}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "44e960029c6160f5295eb61f56f396f0b39474ceac4a2247f33494b645baedd7",
+        "decision_id": "a12f8903badda867e10175ad432c2f55e43e4e615f6f5ab7169a0c99fa4e9c12",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -251,14 +251,14 @@
           "Swamp \u2014 {T}: Add {B}."
         ],
         "principal": "P1",
-        "prompt": "{B}<div style='font-size:11pt'><font color='#696969' object_id='2ef4e4ad-3c91-4c13-af03-96bc13a723aa'>Makeshift Mannequin</font> [2ef]</div>",
+        "prompt": "{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Mountain \u2014 {T}: Add {R}.",
         "selected_option_ids": [
-          "b5e267695a649f06e7bf7fd707cf96a8ccbf4b605b2986770599036f5993bb4d"
+          "06ef62e906722055e16e4629fd6afaa00139169b1456e44dfe511af785b0a32d"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -268,7 +268,7 @@
           "unpaid_mana": "{B}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "7fec2393169a8c5a68f18bb1b36661c973bc20c0f37e54e8544ba667bad43603",
+        "decision_id": "7c218856a030000752c6fc9d482ccd56dc1bff3514c64bbe22467ee5780ddd9d",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -276,14 +276,14 @@
           "Swamp \u2014 {T}: Add {B}."
         ],
         "principal": "P1",
-        "prompt": "{B}<div style='font-size:11pt'><font color='#696969' object_id='2ef4e4ad-3c91-4c13-af03-96bc13a723aa'>Makeshift Mannequin</font> [2ef]</div>",
+        "prompt": "{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": "Swamp \u2014 {T}: Add {B}.",
         "selected_option_ids": [
-          "947d80235aab1a20b129309a5ef1316f0874005815cd5473f0b5e088ad42e774"
+          "5f27837f4ab8133223337268d62d5bc5457a2000b49971bffe27323f53c9570c"
         ],
         "selected_option_type": "mana_ability",
         "selected_source_object": null
@@ -293,7 +293,7 @@
           "unpaid_mana": "{B}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "d0a3437640fa723e144195acc23ed01eccff383112aa16992e29bd2add172aa9",
+        "decision_id": "c6984e106cb501dd29fbc37b4da609929e7feafeb45f61959ce07898022d9994",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
@@ -301,7 +301,7 @@
           "Spend red mana from pool"
         ],
         "principal": "P1",
-        "prompt": "{B}<div style='font-size:11pt'><font color='#696969' object_id='2ef4e4ad-3c91-4c13-af03-96bc13a723aa'>Makeshift Mannequin</font> [2ef]</div>",
+        "prompt": "{B}<div style='font-size:11pt'><font color='#696969' object_id='85a1450b-0720-4e1d-93d3-a58c0781b96f'>Makeshift Mannequin</font> [85a]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -316,7 +316,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "59217865e3e921501612a65b960c75b9ee512f7acb97fb8b1cc408e36e26dd2b",
+        "decision_id": "ad697f7d3e3f6110644568575783d509ecac7b514a2fe479afd03a18d0665f32",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -336,7 +336,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "1750b08348bedd941f4fed0b3abcee18053a7acb9380be87416ea54700e1a52f",
+        "decision_id": "cc354020f2f4f5f00d11de7ccefc8fcf979a5c069b5505b2cd8d59edff5076f8",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -355,7 +355,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "4284a91e304696e4d9fa161bcb55e24d25d07d31b699ac106dd8eb7caf19364e",
+        "decision_id": "a1b7ea7171d543fea2d5225d8bd9c66bf78686f8a260b1879b286b0dbc98848f",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -374,7 +374,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "6e3cca851e710b257303bb231c040dc253d798d0f968dbcff8cef963046dec7c",
+        "decision_id": "7c89782e44cee86e27ddf773946a38af9c43f5eaf6377beb628676fb4f7d0cc1",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -393,7 +393,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "69da87d09e88d5d01d85d094b30a4771ad741ee6d3a924ccfe1c5bececbff6f8",
+        "decision_id": "d712844f528f43e7bc1421d59d026e78f904bb1eeab9b1c8c2878ff393fe46e2",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -416,10 +416,10 @@
         "selected_key": null,
         "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
         "selected_option_ids": [
-          "5a6054ee5be3de0beb54f1564fb1201646cf7b0fe63d4fb9c664e78005589525"
+          "e3aa077b2a32dc4691f2e8f96f076f46b1e5618c3c057ed738a4771649b3f8d8"
         ],
         "selected_option_type": null,
-        "selected_source_object": "6f418a55-bbef-4a0b-9506-2a0d75701015"
+        "selected_source_object": "4b04a225-583d-4b1e-af29-6728f6f296a2"
       },
       {
         "context": {
@@ -430,7 +430,7 @@
           "targeted": true
         },
         "decision_class": "target",
-        "decision_id": "3088cb27f0ef2b67b61d5a13a6244caf28d4edcab1d78cfde9a3d50edc052165",
+        "decision_id": "e3fb9eaef199c12a5011482446f82878f66d5686f378df2f4c45333e977e0808",
         "numeric": null,
         "offered_labels": [
           "Full Game Seat 1",
@@ -455,14 +455,14 @@
           "unpaid_mana": "{R}"
         },
         "decision_class": "mana_payment",
-        "decision_id": "3b170474216803996381bf2b313b4ae88d9d7a5815cbf07f4e2c352f4fc708dc",
+        "decision_id": "2970d9717f2f36544a6d2bbb3e71a8b19b6d762e9963d2bc0e7f02feb685ddb4",
         "numeric": null,
         "offered_labels": [
           "Cancel mana payment",
           "Spend red mana from pool"
         ],
         "principal": "P1",
-        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='6f418a55-bbef-4a0b-9506-2a0d75701015'>Lightning Bolt</font> [6f4]</div>",
+        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='4b04a225-583d-4b1e-af29-6728f6f296a2'>Lightning Bolt</font> [4b0]</div>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -477,7 +477,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "144ddc7b896b712db59847339b260c639e05e62946f69384d76fae0b648d0aee",
+        "decision_id": "d72b2620bfaa9f56b210587f57372127595782ae0c7d9e32e4b8c7d099d4cbba",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -496,7 +496,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "4ce379332f1ab373c03efd1648dd8b9d490b18a584333af858386de7f4bd2ff8",
+        "decision_id": "ff8fe2c8f7d1e2d18535ea11c1b437b992b14b420c9c828151fa6a3e68ccc566",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -515,7 +515,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "b36382185d340fb2b119f45a821809fcfd551fe25bdc3da9312e38dda0a0a7b2",
+        "decision_id": "5dbfcdffab7cb464b1099223e655f414c80dd864ecd06bd90c46dd9ac5780751",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -534,7 +534,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "4e16ead86272d3bd7771a159b430208c57791ec5d67b2534988a66dd5742afd8",
+        "decision_id": "28fda98c567caf05cfaf0c98421f2ee88a7a0ee2b403e7f55b58399ce04fe350",
         "numeric": null,
         "offered_labels": [
           "Pass priority"

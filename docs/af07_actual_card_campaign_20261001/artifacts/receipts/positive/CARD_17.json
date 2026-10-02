@@ -56,9 +56,9 @@
     "typed_refusals": []
   },
   "outcome": "PASS",
-  "receipt_digest": "22a297f30e545327d6542b873b9477d5f530afac64bc794c7184e4262518418a",
-  "runner_digest": "3054fdac7bcf34ab9a18df83866ea803918fe34e63e9747ea0580f469e26633f",
-  "runtime_receipt_digest": "1d5ce7e321f35c9dad21d5c5ceaa31d0bd5d724c2c57feea6539cacfe0dc55e7",
+  "receipt_digest": "1f6a0f94338d103ee37bbffdfa53981707ee3ecf3f3f27e86888c24e908d4c86",
+  "runner_digest": "1f3f9673a20ed174feb2982d4d38fc4f0a82f022de6ae89a35849eee70d5009c",
+  "runtime_receipt_digest": "1785f455b9e30580ec57258a0ab3cf3c2a96eea1d3c67d37fb36dfa6fff48a23",
   "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
   "test_identity": "af07-actual-card-campaign#CARD_17"
 }
