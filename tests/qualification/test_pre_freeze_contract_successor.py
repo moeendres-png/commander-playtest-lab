@@ -12,9 +12,12 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_16.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_17.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_16.json"
+)
+V115_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_15.json"
 )
 V106_CONTRACT_PATH = (
@@ -69,6 +72,8 @@ LATE_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_10", "HIDDEN_13"]
 # that outlives its source, and a cloaked permanent's ward as a hidden source
 # and a hidden ability.
 BATCH5_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_05", "HIDDEN_15", "HIDDEN_16"]
+# HIDDEN_11 (1.0.17): real ordered look followed by a native shuffle.
+BATCH6_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_11"]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -84,6 +89,7 @@ CHANGED_FIXTURE_IDS = [
     *CARD_ERRATA_IDS,
     *LATE_HIDDEN_EVENT_ERRATA_IDS,
     *BATCH5_HIDDEN_EVENT_ERRATA_IDS,
+    *BATCH6_HIDDEN_EVENT_ERRATA_IDS,
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
@@ -98,7 +104,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_16_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_17_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -133,7 +139,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_16.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_17.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -201,7 +207,7 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
 
     contract = _json(SUCCESSOR_PATH)
     predecessor = _json(PREDECESSOR_CONTRACT_PATH)
-    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_15.json")
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_16.json")
     assert (
         contract["predecessor"]["sha256"]
         == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
@@ -375,7 +381,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.16-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.17-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -387,9 +393,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.16-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.17-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.16-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.17-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -774,6 +780,7 @@ def test_the_other_hidden_records_keep_their_predecessor_bytes() -> None:
             *HIDDEN_EVENT_ERRATA_IDS,
             *LATE_HIDDEN_EVENT_ERRATA_IDS,
             *BATCH5_HIDDEN_EVENT_ERRATA_IDS,
+            *BATCH6_HIDDEN_EVENT_ERRATA_IDS,
         ):
             continue
         assert fixture_id not in CHANGED_FIXTURE_IDS
@@ -842,6 +849,7 @@ def test_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -> None:
         if patch.get("correction_class") == "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
         and patch["fixture_id"] not in LATE_HIDDEN_EVENT_ERRATA_IDS
         and patch["fixture_id"] not in BATCH5_HIDDEN_EVENT_ERRATA_IDS
+        and patch["fixture_id"] not in BATCH6_HIDDEN_EVENT_ERRATA_IDS
     }
     assert sorted(errata) == sorted(HIDDEN_EVENT_ERRATA_IDS)
     added = {
@@ -1086,8 +1094,8 @@ def test_batch5_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -
     metadata) and HIDDEN_16 (ability metadata) name a hidden exile, source or
     ability, but no event ever makes one. The 1.0.16 successor adds the event on
     the lossless base; the obligation and the viewer state are unchanged."""
-    contract = _json(SUCCESSOR_PATH)
-    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    contract = _json(PREDECESSOR_CONTRACT_PATH)
+    predecessor = _json(V115_CONTRACT_PATH)
     resolver = _resolver()
     base = {
         record["fixture_id"]: record
