@@ -350,6 +350,37 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         {"type": "ZONE_CHANGE", "from": "LIBRARY", "to": "LIBRARY", "player_player": "P1"}
         for _ in range(2 if kind == "scry_knowledge" else 0)
     ]
+    temporal_snapshots: list[dict[str, Any]] = []
+    if kind == "shuffle_invalidates_order":
+        pre_projection = copy.deepcopy(projections["P1"])
+        pre_projection["view"]["looked_at"] = [
+            {
+                "title": "Orcish Spy",
+                "cards": [
+                    {"name": "Vampiric Tutor"},
+                    {"name": "Mystical Tutor"},
+                    {"name": "Enlightened Tutor"},
+                ],
+            }
+        ]
+        temporal_snapshots.append(
+            {
+                "causal_step_id": "elixir-shuffle",
+                "script_position": 2,
+                "tape_index": len(tape),
+                "projection": pre_projection,
+                "events": {"events": []},
+            }
+        )
+        events.append(
+            {
+                "sequence": 10,
+                "type": "LIBRARY_SHUFFLED",
+                "player_player": "P2",
+                "target_player": "P2",
+                "public_identity": True,
+            }
+        )
     if kind == "exile_permission_persists":
         # Gonti exiles P2's library card face down; P1 alone may look at it,
         # and still does after P2's Bolt has destroyed Gonti.
@@ -438,6 +469,7 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         script_start=script_start,
         script_trace=[{"decision_class": "priority", "step": 0}] if script_start else [],
         script_complete=script_start is not None,
+        temporal_snapshots=temporal_snapshots,
     )
 
 
@@ -1060,6 +1092,55 @@ def test_shuffle_invalidation_keeps_identity_memory_but_not_the_old_order(
         "Mystical Tutor",
         "Vampiric Tutor",
     ]
+
+
+def test_shuffle_without_pre_shuffle_snapshot_is_unverified(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.temporal_snapshots = []
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.UNVERIFIED
+    assert "pre_shuffle_snapshot_observed" in _failed(verdict)
+
+
+def test_final_state_without_a_new_native_shuffle_event_is_unverified(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.events["events"] = [
+            event
+            for event in capture.events["events"]
+            if event.get("type") != "LIBRARY_SHUFFLED"
+        ]
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.UNVERIFIED
+    assert "native_shuffle_observed_after_ordered_snapshot" in _failed(verdict)
+
+
+def test_shuffle_event_not_ordered_after_the_snapshot_is_unverified(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.temporal_snapshots[0]["events"] = copy.deepcopy(capture.events)
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.UNVERIFIED
+    assert "native_shuffle_observed_after_ordered_snapshot" in _failed(verdict)
+
+
+def test_pre_shuffle_snapshot_must_show_the_order_the_engine_actually_revealed(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        looked = capture.temporal_snapshots[0]["projection"]["view"]["looked_at"][0]
+        looked["cards"] = list(reversed(looked["cards"]))
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert "pre_shuffle_ordered_snapshot_matches_engine_look" in _failed(verdict)
 
 
 def test_shuffle_without_explicit_order_invalidation_is_a_leak(
