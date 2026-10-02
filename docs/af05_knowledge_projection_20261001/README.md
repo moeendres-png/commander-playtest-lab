@@ -318,3 +318,61 @@ Both records come from the 1.0.5 base. Each declares an obligation, but its deci
 - a private identity in a pile label (leak);
 - piles that never reached the table (unmeasured);
 - the pile selector.
+
+## M2 batch 5: HIDDEN_05, HIDDEN_15 and HIDDEN_16, contract 1.0.16
+
+Contract 1.0.16 carries the 37 overlays of 1.0.15 byte for byte and adds the `HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04` class for three more rows on the lossless base.
+- Obligations, expected events, postconditions and viewer states are unchanged, so the obligation digests equal the predecessor's.
+- All three rows are in the provider denominator. The unchanged-row count drops from 84 to 81; the denominator itself is unchanged.
+
+| Row | Scenario | Verifier |
+|---|---|---|
+| HIDDEN_05 | <ul><li>The predecessor puts `obj:hidden-hand` face down in exile with a look permission for P1. No constructed state can carry such a permission: it must come from a real effect.</li><li>`obj:hidden-hand` starts on top of P2's library, and `obj:hidden-lib-0` fifth from the top.</li><li>P1 casts **Gonti, Lord of Luxury** (four Swamps) at P2, looks at P2's top four cards and exiles `obj:hidden-hand` face down. Gonti's text: "for as long as that card remains exiled, you may look at it".</li><li>P2 then casts **Lightning Bolt** on Gonti.</li><li>The look is measured after the effect that granted it has left the battlefield, while the card is still the same exile object.</li></ul> | `exile_permission_persists` |
+| HIDDEN_15 | <ul><li>P2 activates **Ransom Note** ({2}, sacrifice: cloak the top card of your library), turning `obj:hidden-lib-0` into a face-down 2/2 with ward {2}.</li><li>P1 activates **Prodigal Pyromancer** at it. The ward trigger asks P1 to pay {2}; P1 has two untapped Mountains, so the engine asks. P1 declines.</li><li>The ward frame's source is the hidden permanent.</li></ul> | `source_metadata` |
+| HIDDEN_16 | <ul><li>The same route as HIDDEN_15.</li><li>The record also declares a fragment of the hidden card's own rules text, `then shuffle and put that card on top` (Vampiric Tutor), as a scan sentinel.</li></ul> | `ability_metadata` |
+
+**`exile_permission_persists`**
+- The permission is the record's own: `look_at_face_down_exile` for P1, with `persists_while_in_same_exile_object`.
+- The public tape must show exactly one unnamed move from a hidden zone into exile, and that move's public source must leave the battlefield afterwards. Without the departure the row is unmeasured, never verified.
+- P1's own view of P2's exile must still show the card face down.
+- P2, P3 and P4 see no face-down card in that exile, and their full channels are scanned.
+- P2 never saw the card (it went from P2's library to exile face down), so P2 is scanned in full too.
+
+**`source_metadata`**
+- The hidden source is a face-down permanent the viewer does not control, as the viewer's own projection shows it.
+- Every viewer frame whose source is that permanent must carry no denied identity in its prompt, context or source metadata, and no source name.
+- At least one such frame must reach the viewer, otherwise the row is unmeasured.
+- Every principal other than the viewer and the permanent's controller is scanned in full.
+
+**`ability_metadata`**
+- It collects every piece of ability metadata the viewer receives about the hidden permanent: a frame's source ability, an option's ability fields, and the permanent's own ability list in the viewer's projection.
+- None may carry a denied identity or the declared rules-text fragment.
+- At least one piece must reach the viewer.
+
+**Verifier changes shared with every row**
+- An `oracle_ability_text:` construction note declares a rules-text fragment of an object. Like a honey sentinel, it is forbidden to every principal not entitled to that object. A positive control requires the fragment to be found in the harness's own create request.
+- The honey positive control also covers a honey-bound object outside any hand (HIDDEN_05's library card). It must be found in the projection of every principal the scripted event entitles to it.
+- `run_script` binds a scripted mode key per row (`MODE_BINDINGS`, the mid-game rows' convention). The bound text must occur in exactly one engine mode label.
+
+### Finding: the public event tape named a card exiled face down
+
+The first local HIDDEN_05 run showed P2, P3 and P4 receiving `target_name: Demonic Tutor` and `target_object: obj:hidden-hand` on the public tape.
+- The event was `ZONE_CHANGE LIBRARY -> EXILED`, which `XmagePublicEventWatcher` counted as public because exile is a public zone.
+- Gonti's effect (`ExileFaceDownYouMayPlayAsLongAsExiledTargetEffect`) turns the card face down only right after the move, as Kheru Mind-Eater and Bane Alley Broker do. At the instant of the event the card still read face up.
+
+Fixed in the Lab adapter:
+- A move from a hidden zone into exile is recorded unnamed.
+- Its identity is decided when the tape is read while the engine thread is parked on a decision, so no exiling effect is half done. A card that stayed face up in that exile is named; one that is face down, or has left that exile since, stays unnamed.
+- A face-down exiled card is never named as the source or target of a later event.
+- The move's public source (Gonti) stays named.
+
+Tests:
+- `XmageMidgameKnowledgeProjectionTest.thePublicEventTapeNeverNamesACardExiledFaceDownFromALibrary` fails on the previous watcher ("the public event tape names Vampiric Tutor") and passes now.
+- `thePublicEventTapeNamesACardExiledFaceUpFromALibrary` is the positive control: Act on Impulse's three face-up exiles are named.
+
+**Result.** The local run on the committed tree (`c788197b`, XMage `37e4df6c`) verifies 17 of 17 HIDDEN rows: the 14 earlier rows plus HIDDEN_05, HIDDEN_15 and HIDDEN_16, each with its honey scan and controls. The 22 FULL107 mid-game rows still verify after the watcher change. This is development validation, not evidence: credit comes only from the PB-03 receipts.
+
+Remaining XMage AF05 rows:
+- HIDDEN_06 (invalidation of a face-down exile look).
+- HIDDEN_11 (shuffle invalidates order knowledge). Its engine facts and a proposed adapter remedy are on #441.
+- HIDDEN_12 (controlled-player authority).

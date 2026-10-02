@@ -173,6 +173,41 @@ def _target_frame(label: str = "") -> dict[str, Any]:
     }
 
 
+def _ward_frame(source_name: str = "", **extra: Any) -> dict[str, Any]:
+    """P1's ward payment frame, sourced by P2's face-down permanent."""
+    return {
+        "actor_id": NATIVE["P1"],
+        "decision_id": "ward-p1",
+        "decision_class": "choose_use",
+        "prompt": "Pay {2}?",
+        "context": {"outcome": "benefit"},
+        "source_object": {
+            "source_object_id": "p2-fd",
+            "ability_original_id": "ward-ability",
+            "ability_type": "triggered_nonmana",
+            "source_name": source_name,
+            **extra,
+        },
+        "legal_options": [
+            {"option_id": "yes", "label": "Yes", "metadata": {"value": True}},
+            {"option_id": "no", "label": "No", "metadata": {"value": False}},
+        ],
+        "pilot_state": _view("P1"),
+    }
+
+
+def _without_p2_hand_card(value: Any) -> None:
+    """Replace P2's requested hand card by a template card everywhere."""
+    if isinstance(value, dict):
+        if value.get("object_id") == "dt" and value.get("name") == "Demonic Tutor":
+            value["name"] = "Mountain"
+        for item in value.values():
+            _without_p2_hand_card(item)
+    elif isinstance(value, list):
+        for item in value:
+            _without_p2_hand_card(item)
+
+
 def _ok(payload: dict[str, Any]) -> dict[str, Any]:
     return {"success": True, "payload": payload}
 
@@ -299,6 +334,52 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         split["decision_class"] = "choose_object"
         tape.append(_entry("get_midgame_decision", None, _ok({"decision": split})))
         tape.append(_entry("get_midgame_decision", None, _ok({"decision": _pile_frame("P1")})))
+    events: list[dict[str, Any]] = [
+        {"type": "ZONE_CHANGE", "from": "LIBRARY", "to": "LIBRARY", "player_player": "P1"}
+        for _ in range(2 if kind == "scry_knowledge" else 0)
+    ]
+    if kind == "exile_permission_persists":
+        # Gonti exiles P2's library card face down; P1 alone may look at it,
+        # and still does after P2's Bolt has destroyed Gonti.
+        projections["P1"]["view"]["players"][1]["exile"].append(
+            {"name": "Demonic Tutor", "object_id": "dt-exiled", "face_down": True}
+        )
+        for label in LABELS:
+            projections[label]["view"]["players"][1]["exile_count"] = 2
+        events += [
+            {
+                "type": "ZONE_CHANGE",
+                "from": "LIBRARY",
+                "to": "EXILED",
+                "public_identity": False,
+                "player_player": "P2",
+                "source_object": "obj:hidden05-gonti",
+                "source_name": "Gonti, Lord of Luxury",
+            },
+            {
+                "type": "ZONE_CHANGE",
+                "from": "BATTLEFIELD",
+                "to": "GRAVEYARD",
+                "public_identity": True,
+                "player_player": "P1",
+                "target_object": "obj:hidden05-gonti",
+                "target_name": "Gonti, Lord of Luxury",
+            },
+        ]
+    if kind in ("source_metadata", "ability_metadata"):
+        # P2's cloaked permanent (P2 may look at it); P1 targets it and its ward
+        # trigger asks P1 to pay {2}.
+        for label in LABELS:
+            permanent: dict[str, Any] = {
+                "face_down": True,
+                "name": "",
+                "object_id": "p2-fd",
+                "abilities": [],
+            }
+            if label == "P2":
+                permanent["private_identity"] = "Vampiric Tutor"
+            projections[label]["view"]["players"][1]["battlefield"] = [permanent]
+        tape.append(_entry("get_midgame_decision", None, _ok({"decision": _ward_frame()})))
     for label in LABELS:
         tape.append(_entry("get_midgame_projection", {"actor_id": label}, _ok(projections[label])))
     tape.append(
@@ -327,6 +408,8 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
                 "error_code": "refused",
             }
         )
+    if kind == "exile_permission_persists":
+        _without_p2_hand_card(tape)
     return kp.Capture(
         arrival_verdict="EXACT",
         arrival_mismatches=[],
@@ -335,12 +418,7 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         projections=projections,
         natives=dict(NATIVE),
         viewer_state={"actor_id": NATIVE["P1"]},
-        events={
-            "events": [
-                {"type": "ZONE_CHANGE", "from": "LIBRARY", "to": "LIBRARY", "player_player": "P1"}
-                for _ in range(2 if kind == "scry_knowledge" else 0)
-            ]
-        },
+        events={"events": events},
         capabilities=copy.deepcopy(CAPABILITIES),
         attempts=attempts,
         tape=tape,
@@ -1046,3 +1124,190 @@ def test_a_pile_is_chosen_only_by_the_engine_label_the_record_names() -> None:
     with pytest.raises(kp.ml.MidgameLaneError):
         kp._pile_offer(legal, {"selection": {"selector_kind": "pile_label", "semantic_value": 1}})
     assert kp._pile_offer(legal, {"selection": {"selector_kind": "semantic_object"}}) is None
+
+
+# --------------------------------------------------------------------------- #
+# 1.0.16: a persistent look at a face-down exiled card, a hidden source, a
+# hidden ability
+# --------------------------------------------------------------------------- #
+
+
+def _exile_view(capture: kp.Capture, label: str) -> list[dict[str, Any]]:
+    exile: list[dict[str, Any]] = capture.projections[label]["view"]["players"][1]["exile"]
+    return exile
+
+
+def test_a_face_down_exiled_card_shown_to_another_principal_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        _exile_view(capture, "P3").append(
+            {"name": "Demonic Tutor", "object_id": "dt-exiled", "face_down": True}
+        )
+
+    verdict = _verdict(records, "HIDDEN_05", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "face_down_exile_withheld_from:obj:hidden-hand:P3" in _failed(verdict)
+
+
+def test_a_look_that_ends_with_its_source_is_a_denied_entitlement(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        exile = _exile_view(capture, "P1")
+        exile[:] = [card for card in exile if not card.get("face_down")]
+
+    verdict = _verdict(records, "HIDDEN_05", mutate)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert "face_down_exile_shown_to_viewer:obj:hidden-hand" in _failed(verdict)
+
+
+def test_a_look_measured_while_its_source_remains_is_unverified(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    """Persistence is measured only after the granting source has gone."""
+
+    def mutate(capture: kp.Capture) -> None:
+        capture.events["events"] = [
+            event for event in capture.events["events"] if event.get("from") != "BATTLEFIELD"
+        ]
+
+    verdict = _verdict(records, "HIDDEN_05", mutate)
+    assert verdict.classification == kp.UNVERIFIED
+    assert "granting_source_left_before_measurement" in _failed(verdict)
+
+
+def test_a_face_down_exile_named_on_the_public_tape_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        named = {
+            "type": "ZONE_CHANGE",
+            "from": "LIBRARY",
+            "to": "EXILED",
+            "public_identity": True,
+            "target_name": "Demonic Tutor",
+            "target_object": "obj:hidden-hand",
+        }
+        capture.events["events"][0] = named
+        for entry in capture.tape:
+            if entry["message_type"] == "get_midgame_events":
+                entry["response"]["payload"]["events"].append(dict(named))
+
+    verdict = _verdict(records, "HIDDEN_05", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    failed = _failed(verdict)
+    assert "face_down_exile_on_public_tape" in failed
+    assert "no_forbidden_token_in_channels_of:P2" in failed
+
+
+def test_a_hidden_source_named_in_its_frame_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        _replace_entry(
+            capture,
+            lambda item: (
+                item["message_type"] == "get_midgame_decision"
+                and (item["response"]["payload"].get("decision") or {}).get("decision_id")
+                == "ward-p1"
+            ),
+            _entry(
+                "get_midgame_decision",
+                None,
+                _ok({"decision": _ward_frame(source_name="Vampiric Tutor")}),
+            ),
+        )
+
+    verdict = _verdict(records, "HIDDEN_15", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert any(
+        name.startswith("hidden_source_frame_carries_no_identity") for name in _failed(verdict)
+    )
+
+
+def test_a_hidden_source_that_never_reaches_the_viewer_is_unverified(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.tape[:] = [
+            item
+            for item in capture.tape
+            if (item["response"].get("payload") or {}).get("decision", {}) is None
+            or ((item["response"].get("payload") or {}).get("decision") or {}).get("decision_id")
+            != "ward-p1"
+        ]
+
+    verdict = _verdict(records, "HIDDEN_15", mutate)
+    assert verdict.classification == kp.UNVERIFIED
+    assert "hidden_source_frame_reached:P1" in _failed(verdict)
+
+
+def test_a_hidden_cards_rules_text_in_ability_metadata_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        _replace_entry(
+            capture,
+            lambda item: (
+                item["message_type"] == "get_midgame_decision"
+                and (item["response"]["payload"].get("decision") or {}).get("decision_id")
+                == "ward-p1"
+            ),
+            _entry(
+                "get_midgame_decision",
+                None,
+                _ok(
+                    {
+                        "decision": _ward_frame(
+                            rule="Search your library for a card, then shuffle and put that "
+                            "card on top."
+                        )
+                    }
+                ),
+            ),
+        )
+
+    verdict = _verdict(records, "HIDDEN_16", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    failed = _failed(verdict)
+    assert "hidden_ability_metadata_carries_nothing_hidden:P1" in failed
+
+
+def test_a_hidden_permanents_projected_abilities_are_scanned(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.projections["P1"]["view"]["players"][1]["battlefield"][0]["abilities"] = [
+            "Search your library for a card, then shuffle and put that card on top."
+        ]
+
+    verdict = _verdict(records, "HIDDEN_16", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "hidden_ability_metadata_carries_nothing_hidden:P1" in _failed(verdict)
+
+
+def test_a_hidden_ability_that_never_reaches_the_viewer_is_unverified(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        for item in capture.tape:
+            decision = (item["response"].get("payload") or {}).get("decision")
+            if isinstance(decision, dict) and decision.get("decision_id") == "ward-p1":
+                decision["source_object"] = None
+
+    verdict = _verdict(records, "HIDDEN_16", mutate)
+    assert verdict.classification == kp.UNVERIFIED
+    assert "hidden_ability_metadata_reached:P1" in _failed(verdict)
+
+
+def test_a_declared_rules_text_fragment_is_forbidden_only_where_the_object_is(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    fragment = "then shuffle and put that card on top"
+    record = records["HIDDEN_16"]
+    assert kp.ability_text_bindings(record) == {fragment: "obj:hidden-lib-0"}
+    for label in ("P1", "P3", "P4"):
+        assert fragment in kp.forbidden_tokens(record, label, after_event=True).tokens
+    # A record that declares no fragment forbids none.
+    assert kp.ability_text_bindings(records["HIDDEN_15"]) == {}
