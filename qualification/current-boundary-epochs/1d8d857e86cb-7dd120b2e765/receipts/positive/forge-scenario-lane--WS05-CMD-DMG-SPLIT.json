@@ -1,0 +1,38 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "forge",
+  "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+  "fixture_id": "WS05-CMD-DMG-SPLIT",
+  "obligation_exercised": {
+    "forbidden_events": [],
+    "obligation_digest": "83757741ec0456622067e39629c51ad8ba0b89576fb6176ae8b202e0e41b52aa",
+    "requested_state_digest": "e2dc3ae318347404fed0c82c8e2376c2c3c5f8c70c92c86a3e8eb0deeeb0fbc4",
+    "required_events": [
+      "commander_damage_checked_per_commander"
+    ],
+    "terminal_postconditions": [
+      "P2 has 21 aggregate commander damage but no single commander has dealt 21; P2 does not lose for commander damage."
+    ]
+  },
+  "observed_assertion": {
+    "checkpoint_variance_source": null,
+    "checkpoint_verdict": "EXACT",
+    "engine_authored_decision_count": 17,
+    "external_decision_selection_sha256": "2640d001cd92bd70709a95f5ee976970e971dea17b028292bd2111ece8f7e1bd",
+    "native_bootstrap_applied": true,
+    "obligation_kind": "commander_damage_checked_per_commander",
+    "row_document_sha256": "fc6a902521b60c59eecfde622e30d80c0787ed5fcf371507d65c24c8d9ba7e3b",
+    "semantic_events": [
+      "commander_damage_per_commander_evaluated:p2"
+    ],
+    "terminal_facts_sha256": "f35a03a11362e507ddc015057705e7c3078c7368367f65b7aac53cbacc5f6502"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "20a5ecf71765ec9428c1da4c526ac1192fe10401db59ee9eb99a53155189bf91",
+  "runner_digest": "226faaf2a90c093ebd8242faf47cee964a3b3c089ff26c9ed3e99789758a61aa",
+  "runtime_receipt_digest": "fc6a902521b60c59eecfde622e30d80c0787ed5fcf371507d65c24c8d9ba7e3b",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-DMG-SPLIT"
+}

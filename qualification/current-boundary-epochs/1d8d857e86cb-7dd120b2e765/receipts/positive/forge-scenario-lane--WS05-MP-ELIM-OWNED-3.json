@@ -1,0 +1,39 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED_FIXTURE_DECLARED_CAUSE_VARIANCE",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "forge",
+  "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+  "fixture_id": "WS05-MP-ELIM-OWNED-3",
+  "obligation_exercised": {
+    "forbidden_events": [],
+    "obligation_digest": "f0f10842a314d162000246cd8b149e32039f5f20a027157e9e90aeee12a61d95",
+    "requested_state_digest": "3a61678e0529798ec3755c1c434be9ac8bccdc0d546b6eb020f25eddf2648c19",
+    "required_events": [
+      "player_leaves:P2",
+      "multiplayer_cleanup:CR800.4"
+    ],
+    "terminal_postconditions": [
+      "All objects owned by P2 leave the game, including obj:leave-owned."
+    ]
+  },
+  "observed_assertion": {
+    "checkpoint_variance_source": "fixture.native_procedure NATIVE_CAUSE_DECLARED_PLAYER_LOSS + declared terminal_postconditions; the cause transition is declared by the frozen fixture, not invented by this lane",
+    "checkpoint_verdict": "ALLOWED_VARIANCE",
+    "engine_authored_decision_count": 8,
+    "external_decision_selection_sha256": "0d15ddf16a02ddf4c6493d5feaf576cf8e69e9d2fc3188158de88923495573ed",
+    "native_bootstrap_applied": true,
+    "obligation_kind": "player_leaves_multiplayer_cleanup",
+    "row_document_sha256": "1288608e0cb5fa7a4be13e7a6e6f46fb36187ed530a25c23605b08575bfc8e20",
+    "semantic_events": [
+      "player_leaves:p2"
+    ],
+    "terminal_facts_sha256": "ba8815af3349490f916bfb5b9d80bf22f342f00b142d3e014d3e803bbe4f54c6"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "2b69e82adb8224d21285fd11d548712371bbaffb4ecfaf18366c57e35ef033e9",
+  "runner_digest": "226faaf2a90c093ebd8242faf47cee964a3b3c089ff26c9ed3e99789758a61aa",
+  "runtime_receipt_digest": "1288608e0cb5fa7a4be13e7a6e6f46fb36187ed530a25c23605b08575bfc8e20",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-MP-ELIM-OWNED-3"
+}
