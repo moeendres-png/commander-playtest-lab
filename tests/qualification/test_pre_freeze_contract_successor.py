@@ -12,10 +12,10 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_13.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_14.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_12.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_13.json"
 )
 V106_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json"
@@ -48,7 +48,20 @@ HIDDEN_EVENT_ERRATA_IDS = [
 CARD_LIBRARY_ERRATA_IDS = ["CARD_09", "CARD_12", "CARD_15", "CARD_27", "CARD_29"]
 # The AF07 decision-script errata (1.0.13): CARD_09 keeps its place (its
 # lossless-library overlay is carried inside it); the others are appended.
-CARD_SCRIPT_ERRATA_IDS = ["CARD_01", "CARD_04", "CARD_05", "CARD_18", "CARD_23", "CARD_26"]
+CARD_SCRIPT_ERRATA_IDS = [
+    "CARD_01",
+    "CARD_04",
+    "CARD_05",
+    "CARD_18",
+    "CARD_23",
+    "CARD_26",
+    "CARD_08",
+    "CARD_11",
+    "CARD_21",
+]
+# Rows whose 1.0.12 lossless-library overlay travels inside a later
+# decision-script erratum (they keep their place in the patch order).
+CARRIED_LIBRARY_ERRATA_IDS = ["CARD_09", "CARD_15", "CARD_27"]
 CARD_ERRATA_IDS = [*CARD_LIBRARY_ERRATA_IDS, *CARD_SCRIPT_ERRATA_IDS]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
@@ -77,7 +90,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_13_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_14_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -112,7 +125,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_13.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_14.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -180,28 +193,30 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
 
     contract = _json(SUCCESSOR_PATH)
     predecessor = _json(PREDECESSOR_CONTRACT_PATH)
-    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_12.json")
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_13.json")
     assert (
         contract["predecessor"]["sha256"]
         == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
     )
     # Every predecessor overlay is carried over unchanged, in order, digests
-    # included, except CARD_09, whose lossless-library overlay now travels
-    # inside its decision-script erratum (checked below).
+    # included, except the rows whose lossless-library overlay now travels
+    # inside a decision-script erratum (checked below).
     carried = contract["record_successors"][: len(predecessor["record_successors"])]
     assert [patch["fixture_id"] for patch in carried] == [
         patch["fixture_id"] for patch in predecessor["record_successors"]
     ]
     for new, old in zip(carried, predecessor["record_successors"], strict=True):
-        if old["fixture_id"] != "CARD_09":
+        if new["correction_class"] == old["correction_class"]:
             assert new == old
-    card09 = next(p for p in carried if p["fixture_id"] == "CARD_09")
-    old09 = next(p for p in predecessor["record_successors"] if p["fixture_id"] == "CARD_09")
-    assert card09["replace"]["deck_state"] == old09["replace"]["deck_state"]
-    assert card09["append_native_procedure"][0] == old09["append_native_procedure"][0]
-    assert (
-        card09["predecessor_requested_state_digest"] == old09["predecessor_requested_state_digest"]
-    )
+            continue
+        # A lossless-library overlay now carried inside a decision-script erratum.
+        assert new["fixture_id"] in CARRIED_LIBRARY_ERRATA_IDS
+        assert old["correction_class"] == "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04"
+        assert new["replace"]["deck_state"] == old["replace"]["deck_state"]
+        assert new["append_native_procedure"][0] == old["append_native_procedure"][0]
+        assert (
+            new["predecessor_requested_state_digest"] == old["predecessor_requested_state_digest"]
+        )
     # The CR 103.8a patch still equals the 1.0.6 original.
     start2 = next(
         patch
@@ -352,7 +367,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.13-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.14-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -364,9 +379,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.13-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.14-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.13-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.14-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -893,7 +908,7 @@ def test_card_library_errata_complete_the_library_and_keep_the_obligation() -> N
         patch["fixture_id"]: patch
         for patch in contract["record_successors"]
         if patch.get("correction_class") == "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04"
-        or patch["fixture_id"] == "CARD_09"
+        or patch["fixture_id"] in CARRIED_LIBRARY_ERRATA_IDS
     }
     assert sorted(errata) == CARD_LIBRARY_ERRATA_IDS
     assert contract["change_accounting"]["unchanged_provider_denominator_rows"] == 107 - len(
@@ -901,7 +916,7 @@ def test_card_library_errata_complete_the_library_and_keep_the_obligation() -> N
     )
     for fixture_id in CARD_LIBRARY_ERRATA_IDS:
         assert fixture_id not in denominator
-        script_erratum = fixture_id in CARD_SCRIPT_ERRATA_IDS or fixture_id == "CARD_09"
+        script_erratum = fixture_id in CARRIED_LIBRARY_ERRATA_IDS
         assert sorted(errata[fixture_id]["replace"]) == (
             ["decision_script", "deck_state"] if script_erratum else ["deck_state"]
         )
@@ -945,7 +960,7 @@ def test_card_script_errata_answer_the_engine_asked_decisions_and_keep_the_oblig
         for patch in contract["record_successors"]
         if patch.get("correction_class") == "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM"
     }
-    assert sorted(errata) == sorted(["CARD_09", *CARD_SCRIPT_ERRATA_IDS])
+    assert sorted(errata) == sorted([*CARRIED_LIBRARY_ERRATA_IDS, *CARD_SCRIPT_ERRATA_IDS])
     for fixture_id, patch in errata.items():
         assert fixture_id not in denominator
         record = resolver.effective_record(fixture_id)
@@ -958,7 +973,12 @@ def test_card_script_errata_answer_the_engine_asked_decisions_and_keep_the_oblig
             patch["predecessor_invalidity"]["predecessor_decision_script"]
             == (predecessor["decision_script"])
         )
-        assert set(patch["replace"]) <= {"decision_script", "action_cost_state", "deck_state"}
+        assert set(patch["replace"]) <= {
+            "decision_script",
+            "action_cost_state",
+            "deck_state",
+            "temporal_state",
+        }
         erratum = record["native_procedure"][-1]["details"]
         assert erratum["erratum_class"] == "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM"
         assert erratum["obligation_changed"] is False

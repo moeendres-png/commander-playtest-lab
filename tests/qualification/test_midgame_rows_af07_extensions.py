@@ -360,3 +360,201 @@ def test_a_bound_token_takes_precedence_and_an_unbound_unknown_token_stays_unobs
     assert mr.verify_token("spell_cast:P2", TAPE, [], set()) is None
     binding = mr.TerminalCheck("events", event_type="SPELL_CAST", where=(("player_player", "P2"),))
     assert mr.bound_token_evidence(binding, {}, TAPE, []) is not None
+
+
+# --------------------------------------------------------------------------- #
+# Phase 2c: card parts, activations, owed cost choices, empty selections
+# --------------------------------------------------------------------------- #
+
+
+def _part(label: str, source: str, parent: str | None, name: str) -> dict[str, Any]:
+    engine: dict[str, Any] = {
+        "source_object_id": source,
+        "ability_type": "spell",
+        "source_name": name,
+    }
+    if parent is not None:
+        engine["source_parent_object_id"] = parent
+    return _offer(label, "activated_ability", **engine)
+
+
+SPLIT = {
+    "actions": [
+        _part("Tear — Cast Tear", "half-tear", "native-1", "Tear"),
+        _part("Wear — Cast Wear", "half-wear", "native-1", "Wear"),
+        _part("Wear // Tear — Cast fused Wear // Tear", "native-1", None, "Wear // Tear"),
+        _part("Other — Cast Tear", "half-other", "native-9", "Tear"),
+    ]
+}
+
+
+def test_a_split_half_is_the_placed_cards_part_named_by_the_half() -> None:
+    step = _priority_step(action="cast_split_half", half="Tear")
+    chosen = mr._scripted_priority_action(SPLIT, step, PLACED, {})
+    assert mr._engine_meta(chosen)["source_object_id"] == "half-tear"
+    with pytest.raises(mr.ml.MidgameLaneError, match="matched 0"):
+        mr._scripted_priority_action(
+            SPLIT, _priority_step(action="cast_split_half", half="X"), PLACED, {}
+        )
+
+
+def test_the_fused_cast_is_the_engine_offer_naming_the_fused_cast() -> None:
+    chosen = mr._scripted_priority_action(SPLIT, _priority_step(action="cast_fused"), PLACED, {})
+    assert mr._label_of(chosen).endswith("Cast fused Wear // Tear")
+
+
+def test_a_plain_cast_of_a_split_card_names_no_part_and_fails_closed() -> None:
+    with pytest.raises(mr.ml.MidgameLaneError, match="names none"):
+        mr._scripted_priority_action(SPLIT, _priority_step(), PLACED, {})
+
+
+def _ability_offer(label: str, mana: bool, native: str = "native-1") -> dict[str, Any]:
+    return _offer(
+        label,
+        "mana_ability" if mana else "activated_ability",
+        source_object_id=native,
+        ability_type="activated_mana" if mana else "activated_nonmana",
+        mana_ability=mana,
+    )
+
+
+def _activation(**value: Any) -> dict[str, Any]:
+    return {
+        "decision_family": "priority",
+        "selection": {
+            "selector_kind": "semantic_action",
+            "semantic_value": {"source": "obj:x", **value},
+        },
+    }
+
+
+def test_an_activation_is_the_sources_ability_named_by_its_rules_text() -> None:
+    legal = {
+        "actions": [
+            _ability_offer("Jeska — +1: Add {R}{R}.", False),
+            _ability_offer("Jeska — 0: Choose target creature.", False),
+            _ability_offer("Other — 0: Choose", False, native="native-2"),
+            _cast("Jeska — Cast Jeska"),
+        ]
+    }
+    chosen = mr._scripted_priority_action(
+        legal, _activation(action="activate", ability="0:"), PLACED, {}
+    )
+    assert "0: Choose target" in mr._label_of(chosen)
+    with pytest.raises(mr.ml.MidgameLaneError, match="matched 2"):
+        mr._scripted_priority_action(legal, _activation(action="activate"), PLACED, {})
+
+
+def test_activate_mana_requires_a_mana_ability() -> None:
+    legal = {"actions": [_ability_offer("Altar — Sacrifice a creature: Add {C}{C}.", True)]}
+    assert mr._scripted_priority_action(legal, _activation(action="activate_mana"), PLACED, {})
+    assert mr._scripted_priority_action(legal, _activation(action="activate"), PLACED, {})
+    nonmana = {"actions": [_ability_offer("Spy — {T}: Look", False)]}
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._scripted_priority_action(nonmana, _activation(action="activate_mana"), PLACED, {})
+    with pytest.raises(mr.ml.MidgameLaneError, match="was not placed"):
+        mr._scripted_priority_action(
+            nonmana, _activation(action="activate", source="obj:y"), PLACED, {}
+        )
+
+
+def test_owed_cost_choices_are_answered_from_the_engines_own_offers() -> None:
+    step = _activation(action="activate", sacrifice_cost="obj:x", color="R")
+    assert mr._pending_cost_choices(step) == [("sacrifice", "obj:x"), ("color", "R")]
+    bears = _offer("Grizzly Bears", "choice", object_id="native-1")
+    legal = {"actions": [bears, _offer("Hill Giant", "choice", object_id="native-2")]}
+    assert mr._cost_choice_answer(legal, "sacrifice", "obj:x", PLACED) is bears
+    colors = {"actions": [_offer("Red", "choice"), _offer("Green", "choice")]}
+    assert mr._label_of(mr._cost_choice_answer(colors, "color", "R", PLACED)) == "Red"
+    with pytest.raises(mr.ml.MidgameLaneError):
+        mr._cost_choice_answer(colors, "color", "U", PLACED)
+
+
+def _multi(minimum: int) -> dict[str, Any]:
+    return {
+        "decision": {"minimum_selections": minimum, "maximum_selections": 1},
+        "actions": [_offer("Mountain", "target", object_id="native-1")],
+    }
+
+
+def test_an_empty_selection_needs_a_frame_whose_minimum_is_zero() -> None:
+    step = {
+        "decision_family": "target",
+        "selection": {"selector_kind": "semantic_objects", "semantic_value": []},
+    }
+    answer = mr._scripted_answer(_multi(0), step, PLACED, mr.RowSpec())
+    assert answer.action is None and answer.key == "none"
+    with pytest.raises(mr.ml.MidgameLaneError, match="requires"):
+        mr._scripted_answer(_multi(1), step, PLACED, mr.RowSpec())
+
+
+def test_ordering_frame_count_pool_and_hand_checks() -> None:
+    tape = [
+        {"sequence": 1, "type": "SACRIFICED_PERMANENT", "source_object": "obj:b"},
+        {"sequence": 2, "type": "SACRIFICED_PERMANENT", "source_object": "obj:b"},
+        {"sequence": 3, "type": "ZONE_CHANGE", "source_object": "obj:b", "to": "GRAVEYARD"},
+        {"sequence": 4, "type": "SACRIFICED_PERMANENT", "source_object": "obj:late"},
+    ]
+    precede = mr.TerminalCheck(
+        "events_precede",
+        event_type="SACRIFICED_PERMANENT",
+        where=(("source_object", "obj:b"),),
+        value=("ZONE_CHANGE", (("to", "GRAVEYARD"),)),
+    )
+    assert mr.check_terminal(precede, {}, tape, [])
+    late = mr.TerminalCheck(
+        "events_precede",
+        event_type="SACRIFICED_PERMANENT",
+        where=(),
+        value=("ZONE_CHANGE", (("to", "GRAVEYARD"),)),
+    )
+    assert not mr.check_terminal(late, {}, tape, [])
+    scry = mr.Frame("target", "P1", ["Mountain"], prompt="Select up to one card (Scry)")
+    once = mr.TerminalCheck("frame_count", value=("target", 1), principal="P1", label="(Scry)")
+    assert mr.check_terminal(once, {}, [], [scry])
+    assert not mr.check_terminal(once, {}, [], [scry, scry])
+    spend = mr.Frame(
+        "mana_payment",
+        "P1",
+        ["Spend red mana from pool"],
+        "Spend red mana from pool",
+        selected_option_type="mana_pool",
+    )
+    assert mr.check_terminal(mr.TerminalCheck("pool_spend", value="red"), {}, [], [spend])
+    assert not mr.check_terminal(mr.TerminalCheck("pool_spend", value="blue"), {}, [], [spend])
+    observation = {
+        "seats": [
+            {
+                "player_id": "P1",
+                "hand_count": 17,
+                "graveyard": ["Sol Ring"],
+                "battlefield": [
+                    {"card_identity": "Island", "tapped": False},
+                    {"card_identity": "Island", "tapped": True},
+                ],
+            }
+        ]
+    }
+    hand = mr.TerminalCheck("hand_count_min", principal="P1", value=8)
+    assert mr.check_terminal(hand, observation, [], [])
+    grave = mr.TerminalCheck("in_graveyard", principal="P1", card_identity="Sol Ring")
+    assert mr.check_terminal(grave, observation, [], [])
+    untapped = _state("untapped_count", "Island", 1)
+    assert mr.check_terminal(untapped, observation, [], [])
+    assert not mr.check_terminal(_state("untapped_count", "Island", 2), observation, [], [])
+    discard = mr.Frame("choose_object", "P2", ["Mountain"], prompt="Select a card to discard")
+    no_p1_discard = mr.TerminalCheck(
+        "no_frame", value="choose_object", principal="P1", label="discard"
+    )
+    assert mr.check_terminal(no_p1_discard, {}, [], [discard])
+    assert not mr.check_terminal(
+        mr.TerminalCheck("no_frame", value="choose_object", label="discard"), {}, [], [discard]
+    )
+
+
+def test_a_token_bound_to_several_checks_needs_every_one() -> None:
+    cast = mr.TerminalCheck("events", event_type="SPELL_CAST", where=(("player_player", "P2"),))
+    absent = mr.TerminalCheck("events", event_type="DAMAGED_PLAYER")
+    both = mr.bound_token_evidence((cast, cast), {}, TAPE, [])
+    assert both is not None and len(both["parts"]) == 2
+    assert mr.bound_token_evidence((cast, absent), {}, TAPE, []) is None

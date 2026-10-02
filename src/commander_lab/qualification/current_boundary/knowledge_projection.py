@@ -642,6 +642,8 @@ def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dic
                 chosen = midgame_rows_mod._scripted_answer(
                     legal, step, placed, midgame_rows_mod.RowSpec()
                 ).action
+                if chosen is None:
+                    raise ml.MidgameLaneError("an empty selection is not part of a scripted event")
             probe.submit_proposal(client, legal, chosen, f"knowledge-{len(trace)}")
             trace.append({"decision_class": decision_class, "step": position})
             position += 1

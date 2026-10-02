@@ -72,10 +72,38 @@ class TerminalCheck:
             constraints = ", ".join(f"{key}={value}" for key, value in self.where)
             amount = "at least one" if self.value is None else f"exactly {self.value}"
             return f"{amount} {self.event_type} event(s) with {constraints or 'any fields'}"
+        if self.kind == "events_precede":
+            later_type, later_where = self.value
+            later = ", ".join(f"{key}={value}" for key, value in later_where)
+            earlier = ", ".join(f"{key}={value}" for key, value in self.where)
+            return (
+                f"every {self.event_type} event with {earlier} precedes the first "
+                f"{later_type} event with {later}"
+            )
+        if self.kind == "in_graveyard":
+            return f"{self.card_identity} is in {self.principal}'s graveyard"
         if self.kind == "selected_frame":
             return f"a scripted {self.value} frame selected an engine offer naming {self.label!r}"
         if self.kind == "no_frame":
-            return f"the engine asked no {self.value} decision"
+            who = f" of {self.principal}" if self.principal else ""
+            about = f" about {self.label!r}" if self.label else ""
+            return f"the engine asked no {self.value} decision{who}{about}"
+        if self.kind == "frame_count":
+            decision_class, count = self.value
+            who = f" of {self.principal}" if self.principal else ""
+            return (
+                f"the engine asked exactly {count} {decision_class} decision(s){who} "
+                f"about {self.label!r}"
+            )
+        if self.kind == "pool_spend":
+            return f"a mana payment spent {self.value} mana from the pool"
+        if self.kind == "untapped_count":
+            return (
+                f"exactly {self.value} {self.card_identity} on {self.principal}'s battlefield "
+                "are untapped"
+            )
+        if self.kind == "hand_count_min":
+            return f"{self.principal} holds at least {self.value} cards"
         if self.kind == "not_on_battlefield":
             return f"no {self.card_identity} is on {self.principal}'s battlefield"
         if self.kind == "power_toughness":
@@ -152,7 +180,7 @@ class RowSpec:
     # binding states, per fixture, which engine event pattern, decision frame or
     # engine-observed state the token names. An unbound token the generic
     # vocabulary does not understand stays unobserved.
-    token_bindings: tuple[tuple[str, TerminalCheck], ...] = ()
+    token_bindings: tuple[tuple[str, TerminalCheck | tuple[TerminalCheck, ...]], ...] = ()
 
 
 # The record's decision family and the engine's decision class name the same
@@ -910,10 +938,50 @@ def check_terminal(
     if check.kind == "events":
         hits = matching_events(check, tape)
         return bool(hits) if check.value is None else len(hits) == check.value
+    if check.kind == "events_precede":
+        later_type, later_where = check.value
+        earlier = matching_events(check, tape)
+        later = matching_events(
+            TerminalCheck("events", event_type=later_type, where=tuple(later_where)), tape
+        )
+        return (
+            bool(earlier)
+            and bool(later)
+            and (max(int(e["sequence"]) for e in earlier) < min(int(e["sequence"]) for e in later))
+        )
+    if check.kind == "in_graveyard":
+        return check.card_identity in (seat.get("graveyard") or ())
     if check.kind == "selected_frame":
         return bool(_selected_frames(check, trace))
     if check.kind == "no_frame":
-        return not any(frame.decision_class == check.value for frame in trace)
+        return not any(
+            frame.decision_class == check.value
+            and (check.principal is None or frame.principal == check.principal)
+            and (check.label is None or str(check.label).lower() in frame.prompt.lower())
+            for frame in trace
+        )
+    if check.kind == "frame_count":
+        decision_class, count = check.value
+        asked = [
+            frame
+            for frame in trace
+            if frame.decision_class == decision_class
+            and (check.principal is None or frame.principal == check.principal)
+            and str(check.label or "").lower() in frame.prompt.lower()
+        ]
+        return bool(len(asked) == count)
+    if check.kind == "pool_spend":
+        # The executor spends the pool only from the record's declared sources;
+        # the engine's own spend offer names the color it spends.
+        return any(
+            frame.decision_class == "mana_payment"
+            and frame.selected_option_type == "mana_pool"
+            and f"spend {str(check.value).lower()} mana" in str(frame.selected_label or "").lower()
+            for frame in trace
+        )
+    if check.kind == "hand_count_min":
+        count = seat.get("hand_count")
+        return isinstance(count, int) and count >= check.value
     cards = [
         card
         for card in seat.get("battlefield") or ()
@@ -921,6 +989,8 @@ def check_terminal(
     ]
     if check.kind == "not_on_battlefield":
         return bool(seat) and not cards
+    if check.kind == "untapped_count":
+        return bool(seat) and sum(1 for card in cards if card.get("tapped") is False) == check.value
     # The permanent-state checks below hold for every permanent of the named
     # identity on the principal's battlefield, and need at least one.
     if check.kind == "power_toughness":
@@ -973,7 +1043,7 @@ def _selected_frames(check: TerminalCheck, trace: list[Frame]) -> list[int]:
 
 
 def bound_token_evidence(
-    check: TerminalCheck,
+    check: TerminalCheck | tuple[TerminalCheck, ...],
     observation: dict[str, Any],
     tape: list[dict[str, Any]],
     trace: list[Frame],
@@ -982,7 +1052,13 @@ def bound_token_evidence(
 
     The evidence names what the binding observed: the matching engine events,
     the matching decision frames, or the engine-observed state the check read.
+    A token bound to several checks needs every one of them.
     """
+    if isinstance(check, tuple):
+        parts = [bound_token_evidence(part, observation, tape, trace) for part in check]
+        if any(part is None for part in parts):
+            return None
+        return {"binding": [part["binding"] for part in parts if part], "parts": parts}
     if not check_terminal(check, observation, tape, trace):
         return None
     evidence: dict[str, Any] = {"binding": check.describe()}
@@ -1013,7 +1089,9 @@ def _scripted_priority_action(
 ) -> dict[str, Any]:
     value = (step.get("selection") or {}).get("semantic_value") or {}
     action = str(value.get("action"))
-    if action == "cast":
+    if action in ("activate", "activate_mana"):
+        return _scripted_activation(legal, value, placed)
+    if action in ("cast", "cast_split_half", "cast_fused"):
         native = placed.get(str(value.get("object")))
     elif action == "cast_commander":
         native = commanders.get(str(value.get("commander_id")))
@@ -1026,6 +1104,27 @@ def _scripted_priority_action(
     offers = _source_casts(legal, native)
     if not offers:
         raise ml.MidgameLaneError(f"the engine did not offer the scripted {action} of {value}")
+    if action == "cast_split_half":
+        # One half of a split card, by the half's own name (the engine's
+        # offer for a half is sourced from the half, a part of the placed card).
+        half = str(value.get("half") or "")
+        named = [
+            offer
+            for offer in offers
+            if (_engine_meta(offer).get("source_name") or "") == half and half
+        ]
+        if len(named) != 1:
+            raise ml.MidgameLaneError(
+                f"the half {half!r} matched {len(named)} engine casts of {value.get('object')}"
+            )
+        return named[0]
+    if action == "cast_fused":
+        fused = [offer for offer in offers if "cast fused" in _label_of(offer).lower()]
+        if len(fused) != 1:
+            raise ml.MidgameLaneError(
+                f"the fused cast matched {len(fused)} engine casts of {value.get('object')}"
+            )
+        return fused[0]
     alternative = value.get("alternative_cost")
     if alternative:
         # The engine either offers the alternative cast as its own spell ability
@@ -1048,17 +1147,92 @@ def _scripted_priority_action(
     return offers[0]
 
 
+def _engine_meta(action: dict[str, Any]) -> dict[str, Any]:
+    return dict((action.get("metadata") or {}).get("xmage_option_metadata") or {})
+
+
 def _source_casts(legal: dict[str, Any], native_source_id: str) -> list[dict[str, Any]]:
-    """Every engine-offered spell cast of one native source object."""
+    """Every engine-offered spell cast of one native card, its parts included.
+
+    A part of a card (a split half, an adventure) is its own engine object; the
+    engine's offer names the whole card it belongs to as its parent.
+    """
     offers = []
     for action in legal.get("actions") or ():
-        engine = (action.get("metadata") or {}).get("xmage_option_metadata") or {}
-        if (
-            engine.get("source_object_id") == native_source_id
-            and engine.get("ability_type") == "spell"
+        engine = _engine_meta(action)
+        if engine.get("ability_type") == "spell" and native_source_id in (
+            engine.get("source_object_id"),
+            engine.get("source_parent_object_id"),
         ):
             offers.append(action)
     return offers
+
+
+def _scripted_activation(
+    legal: dict[str, Any], value: dict[str, Any], placed: dict[str, str]
+) -> dict[str, Any]:
+    """The engine's offer of the activated (or mana) ability the record names.
+
+    The source is the record's semantic object; when it has several activated
+    abilities, the record's ``ability`` names a fragment of the one's rules
+    text. ``activate_mana`` additionally requires the offer to be a mana ability.
+    """
+    source = str(value.get("source") or "")
+    native = placed.get(source)
+    if native is None:
+        raise ml.MidgameLaneError(f"the scripted activation source {source!r} was not placed")
+    mana = value.get("action") == "activate_mana"
+    offers: list[dict[str, Any]] = [
+        action
+        for action in legal.get("actions") or ()
+        if _engine_meta(action).get("source_object_id") == native
+        and _engine_meta(action).get("ability_type") not in (None, "spell", "play_land")
+        and (not mana or bool(_engine_meta(action).get("mana_ability")))
+    ]
+    fragment = value.get("ability")
+    if fragment:
+        offers = [o for o in offers if str(fragment).lower() in _label_of(o).lower()]
+    if len(offers) != 1:
+        raise ml.MidgameLaneError(
+            f"the scripted {value.get('action')} of {source} matched {len(offers)} engine offers"
+        )
+    return offers[0]
+
+
+def _pending_cost_choices(step: dict[str, Any]) -> list[tuple[str, str]]:
+    """The cost choices a scripted priority action still owes the engine.
+
+    ``sacrifice_cost`` names the object to sacrifice; ``color`` the mana color
+    an any-color mana ability produces. Each is answered on the engine's own
+    frame for it, in the order the engine asks.
+    """
+    value = (step.get("selection") or {}).get("semantic_value") or {}
+    owed: list[tuple[str, str]] = []
+    if value.get("sacrifice_cost"):
+        owed.append(("sacrifice", str(value["sacrifice_cost"])))
+    if value.get("color"):
+        owed.append(("color", str(value["color"])))
+    return owed
+
+
+_COLOR_NAMES = {"W": "white", "U": "blue", "B": "black", "R": "red", "G": "green"}
+
+
+def _cost_choice_answer(
+    legal: dict[str, Any], kind: str, wanted: str, placed: dict[str, str]
+) -> dict[str, Any]:
+    """The engine's own offer for an owed cost choice, or fail closed."""
+    actions = list(legal.get("actions") or ())
+    if kind == "sacrifice":
+        matches = _semantic_offers(wanted, actions, placed)
+    else:
+        name = _COLOR_NAMES.get(wanted.upper(), wanted).lower()
+        matches = [a for a in actions if _label_of(a).strip().lower() in (name, wanted.lower())]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(
+            f"the owed {kind} choice {wanted!r} matched {len(matches)} engine offers"
+        )
+    return matches[0]
 
 
 def _pending_alternative_cost(step: dict[str, Any], selected: dict[str, Any]) -> str | None:
@@ -1096,7 +1270,8 @@ class ScriptedAnswer:
     option the record did not request.
     """
 
-    action: dict[str, Any]
+    # None only for the empty selection an optional frame authorizes.
+    action: dict[str, Any] | None
     key: str | None = None
     numeric: int | None = None
     option_ids: tuple[str, ...] = ()
@@ -1229,6 +1404,15 @@ def _scripted_answer(
     numeric: int | None = None
     if kind in ("semantic_player", "semantic_object"):
         matches = _semantic_offers(str(value), actions, placed)
+    elif kind == "semantic_objects" and value == []:
+        # The record selects nothing on an optional frame ("up to N"). Only a
+        # frame whose own minimum is zero authorizes the empty selection.
+        bounds = _engine_selection_bounds(legal)
+        if bounds is None or bounds[0] != 0:
+            raise ml.MidgameLaneError(
+                f"the record selects nothing, the engine frame requires {bounds}"
+            )
+        return ScriptedAnswer(None, key="none")
     elif kind == "semantic_objects":
         # A multi-select target frame: the record names the complete requested
         # set; every identity must map to exactly one engine-offered target and
@@ -1532,6 +1716,7 @@ def execute_row(
     refusals: list[dict[str, Any]] = []
     bindings = dict(spec.token_bindings)
     pending_alternative: str | None = None
+    pending_costs: list[tuple[str, str]] = []
 
     def token_evidence(
         token: str, tape: list[dict[str, Any]], observation: dict[str, Any] | None
@@ -1638,12 +1823,24 @@ def execute_row(
                     frame.selected_option_ids = _single_option_id(action)
                     probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                     pending_alternative = _pending_alternative_cost(step, action)
+                    pending_costs = _pending_cost_choices(step)
                     position += 1
                     continue
                 passed = probe.option_of_type(decision, "pass_priority")
                 if passed is None:
                     raise ml.MidgameLaneError("the engine offered no pass")
                 client.submit_options(decision, [passed])
+                continue
+            if pending_costs and decision_class in ("choose_object", "target", "choice"):
+                # The engine asks for a cost of the action the record just
+                # took; the record's own step named it.
+                kind, wanted = pending_costs[0]
+                action = _cost_choice_answer(legal, kind, wanted, placed)
+                frame.selected_label, frame.scripted = _label_of(action), True
+                frame.selected_key = f"{kind}:{wanted}"
+                frame.selected_option_ids = _single_option_id(action)
+                probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
+                pending_costs = pending_costs[1:]
                 continue
             if decision_class == "choice" and pending_alternative is not None:
                 # The engine asks for the cost of the cast the record just made;
@@ -1672,6 +1869,12 @@ def execute_row(
                 and engine_decision_class(str(step.get("decision_family"))) == decision_class
             ):
                 answer = _scripted_answer(legal, step, placed, spec, ordinal)
+                if answer.action is None:
+                    client.submit_options(decision, [])
+                    frame.scripted, frame.selected_key = True, answer.key
+                    ordinal = 0
+                    position += 1
+                    continue
                 frame.selected_label, frame.scripted = _label_of(answer.action), True
                 frame.selected_key, frame.numeric = answer.key, answer.numeric
                 frame.selected_source_object = _source_of(answer.action)

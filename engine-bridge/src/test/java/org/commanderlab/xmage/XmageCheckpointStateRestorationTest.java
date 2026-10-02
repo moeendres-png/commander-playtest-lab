@@ -33,7 +33,15 @@ class XmageCheckpointStateRestorationTest {
 
     private static final long SEED = 424242L;
 
-    private record Lane(XmageMidgameJsonlBridge bridge, List<String> responses) {
+    private static final class Lane {
+        private final XmageMidgameJsonlBridge bridge;
+        private final List<String> responses;
+        private JsonObject placed;
+
+        Lane(XmageMidgameJsonlBridge bridge, List<String> responses) {
+            this.bridge = bridge;
+            this.responses = responses;
+        }
 
         JsonObject call(String messageType, JsonObject payload) {
             JsonObject request = new JsonObject();
@@ -156,13 +164,17 @@ class XmageCheckpointStateRestorationTest {
     }
 
     private static JsonObject arrive(String fixtureId, List<String> earlierArrivals) {
-        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
+        return arriveOn(new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>()), fixtureId, earlierArrivals);
+    }
+
+    private static JsonObject arriveOn(Lane lane, String fixtureId, List<String> earlierArrivals) {
         JsonObject create = new JsonObject();
         create.addProperty("game_id", fixtureId);
         create.addProperty("plan_id", fixtureId);
         create.addProperty("seed", SEED);
         create.add("requested_starting_state", effectiveRecord(fixtureId));
-        lane.ok("create_midgame_game", create);
+        JsonObject created = lane.ok("create_midgame_game", create);
+        lane.placed = created.getAsJsonObject("placed_objects");
         lane.ok("start_midgame_game", null);
         for (int step = 0; step < 80; step++) {
             JsonObject decision = pendingDecision(lane);
@@ -305,6 +317,39 @@ class XmageCheckpointStateRestorationTest {
             }
         }
         assertTrue(sawCounters, "the requested +1/+1 counters must read back");
+    }
+
+    /**
+     * A part of a card (here a split card's halves) is its own engine object;
+     * its cast offer names the placed card it belongs to, so a caller can bind
+     * "cast this half of that card" without guessing.
+     */
+    @Test
+    void aSplitHalfsCastOfferNamesThePlacedCardAsItsParent() {
+        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
+        arriveOn(lane, "CARD_11", new ArrayList<>());
+        String placed = lane.placed.get("obj:card_11-subject").getAsString();
+        int halves = 0;
+        boolean fused = false;
+        for (JsonElement element : lane.ok("get_legal_actions", null).getAsJsonArray("actions")) {
+            JsonObject engine = element.getAsJsonObject().getAsJsonObject("metadata")
+                    .getAsJsonObject("xmage_option_metadata");
+            if (engine == null || !engine.has("source_name")) {
+                continue;
+            }
+            String name = engine.get("source_name").getAsString();
+            if ("Wear".equals(name) || "Tear".equals(name)) {
+                assertEquals(placed, engine.get("source_parent_object_id").getAsString(), name);
+                assertFalse(placed.equals(engine.get("source_object_id").getAsString()), name);
+                halves++;
+            } else if ("Wear // Tear".equals(name)) {
+                assertEquals(placed, engine.get("source_object_id").getAsString());
+                assertFalse(engine.has("source_parent_object_id"), "a whole card names no parent");
+                fused = true;
+            }
+        }
+        assertEquals(2, halves, "both halves must be offered with their parent");
+        assertTrue(fused, "the fused cast is the whole card's own offer");
     }
 
     @Test

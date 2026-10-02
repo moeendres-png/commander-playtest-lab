@@ -599,7 +599,14 @@ class ObligationPlan:
             "mode_bindings": [list(binding) for binding in self.mode_bindings],
             "commander_printed_mana_value": self.commander_printed_mana_value,
             "token_bindings": [
-                {"token": token, "check": _check_document(check)}
+                {
+                    "token": token,
+                    "check": (
+                        [_check_document(part) for part in check]
+                        if isinstance(check, tuple)
+                        else _check_document(check)
+                    ),
+                }
                 for token, check in self.token_bindings
             ],
         }
@@ -647,6 +654,35 @@ def _permanent(kind: str, principal: str, identity: str, value: Any) -> Any:
 
 def _tapped(principal: str, identity: str) -> Any:
     return _permanent("tapped", principal, identity, True)
+
+
+def _precede(earlier: Any, later: Any) -> Any:
+    """Every event of ``earlier``'s pattern precedes the first of ``later``'s."""
+    return midgame_rows_mod.TerminalCheck(
+        "events_precede",
+        event_type=earlier.event_type,
+        where=earlier.where,
+        value=(later.event_type, later.where),
+    )
+
+
+def _in_graveyard(principal: str, identity: str) -> Any:
+    return midgame_rows_mod.TerminalCheck(
+        "in_graveyard", principal=principal, card_identity=identity
+    )
+
+
+# P1 reached the next turn holding more than seven cards and the engine never
+# asked P1 to discard: P1's own cleanup step passed with no maximum hand size.
+_NO_MAX_HAND_P1 = (
+    midgame_rows_mod.TerminalCheck(
+        "events", event_type="BEGIN_TURN", where=(("turn", 2),), value=None
+    ),
+    midgame_rows_mod.TerminalCheck("hand_count_min", principal="P1", value=8),
+    midgame_rows_mod.TerminalCheck(
+        "no_frame", value="choose_object", principal="P1", label="discard"
+    ),
+)
 
 
 # Plans are onboarded fixture by fixture. Each one covers the effective
@@ -925,6 +961,331 @@ PLANS: dict[str, ObligationPlan] = {
             (
                 "sacrifice_Shriekmaw",
                 _events("SACRIFICED_PERMANENT", ("target_object", "obj:card_18-subject")),
+            ),
+        ),
+    ),
+    # Jeska, Thrice Reborn is cast and enters with two loyalty counters; her 0
+    # ability chooses the Bears, whose 2 combat damage to P2 is tripled to 6.
+    "CARD_08": ObligationPlan(
+        fixture_id="CARD_08",
+        proofs=(
+            PostconditionProof(
+                "Jeska enters with two loyalty counters.",
+                terminal_check=_events(
+                    "COUNTER_ADDED",
+                    ("target_object", "obj:card_08-subject"),
+                    ("data", "loyalty"),
+                    count=2,
+                ),
+                also=(
+                    _precede(
+                        _events(
+                            "COUNTER_ADDED",
+                            ("target_object", "obj:card_08-subject"),
+                            ("data", "loyalty"),
+                        ),
+                        _events(
+                            "ZONE_CHANGE",
+                            ("target_object", "obj:card_08-subject"),
+                            ("from", "STACK"),
+                            ("to", "BATTLEFIELD"),
+                        ),
+                    ),
+                ),
+            ),
+            PostconditionProof(
+                "P2 is dealt 6 combat damage by the affected creature.",
+                terminal_check=_events(
+                    "DAMAGED_PLAYER",
+                    ("target_player", "P2"),
+                    ("amount", 6),
+                    ("combat", True),
+                    ("source_object", "obj:card08-attacker"),
+                    count=1,
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "Jeska_enters_loyalty:2",
+                _events(
+                    "COUNTER_ADDED",
+                    ("target_object", "obj:card_08-subject"),
+                    ("data", "loyalty"),
+                    count=2,
+                ),
+            ),
+            ("loyalty_ability:0", _selected("priority", "0: Choose target creature")),
+            (
+                "combat_damage_replaced:2->6",
+                (
+                    _permanent("power_toughness", "P1", "Grizzly Bears", (2, 2)),
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("amount", 6),
+                        ("combat", True),
+                        ("source_object", "obj:card08-attacker"),
+                    ),
+                ),
+            ),
+        ),
+    ),
+    # Path of Ancestry: its mana (red, Rograkh's identity) is spent on Keldon
+    # Marauders, which shares the Warrior type with Rograkh; that spend triggers
+    # exactly one scry 1 (the record keeps the top card: an empty selection).
+    "CARD_27": ObligationPlan(
+        fixture_id="CARD_27",
+        proofs=(
+            PostconditionProof(
+                "P1 performs exactly one scry 1 from this mana expenditure.",
+                terminal_check=midgame_rows_mod.TerminalCheck(
+                    "frame_count", value=("target", 1), principal="P1", label="(Scry)"
+                ),
+                also=(
+                    _events(
+                        "TRIGGERED_ABILITY",
+                        ("source_object", "obj:card_27-subject"),
+                        count=1,
+                    ),
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "mana_ability:red",
+                (
+                    _selected("priority", "Path of Ancestry — {T}: Add one mana"),
+                    midgame_rows_mod.TerminalCheck("pool_spend", value="red"),
+                ),
+            ),
+            (
+                "mana_spent_on_shared_type_creature",
+                _events(
+                    "TRIGGERED_ABILITY",
+                    ("source_object", "obj:card_27-subject"),
+                    ("target_name~", "stack ability (When that mana is spent to cast a creature"),
+                ),
+            ),
+            (
+                "scry:1",
+                midgame_rows_mod.TerminalCheck(
+                    "frame_count", value=("target", 1), principal="P1", label="(Scry)"
+                ),
+            ),
+        ),
+    ),
+    # Wear // Tear fused: the engine's own offer names the fused cast; both
+    # halves destroy their targets, which are then in P2's graveyard.
+    "CARD_11": ObligationPlan(
+        fixture_id="CARD_11",
+        proofs=(
+            PostconditionProof(
+                "Both target permanents are in P2 graveyard.",
+                terminal_check=_in_graveyard("P2", "Sol Ring"),
+                also=(_in_graveyard("P2", "Glorious Anthem"),),
+            ),
+        ),
+        token_bindings=(
+            ("fused_split_spell_cast", _selected("priority", "cast fused")),
+            (
+                "destroy_artifact",
+                _events("DESTROYED_PERMANENT", ("target_object", "obj:card11-artifact")),
+            ),
+            (
+                "destroy_enchantment",
+                _events("DESTROYED_PERMANENT", ("target_object", "obj:card11-enchantment")),
+            ),
+        ),
+    ),
+    # Butcher of Malakir: P1 sacrifices its Bears to Ashnod's Altar; Butcher's
+    # trigger has each opponent sacrifice the creature its own scripted choice
+    # names. The sacrifices are simultaneous: every one is performed before any
+    # of the sacrificed creatures leaves the battlefield.
+    "CARD_19": ObligationPlan(
+        fixture_id="CARD_19",
+        proofs=(
+            PostconditionProof(
+                "P2/P3/P4 each sacrificed exactly one creature.",
+                terminal_check=_events("SACRIFICED_PERMANENT", ("player_player", "P2"), count=1),
+                also=(
+                    _events("SACRIFICED_PERMANENT", ("player_player", "P3"), count=1),
+                    _events("SACRIFICED_PERMANENT", ("player_player", "P4"), count=1),
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "P1_creature_dies",
+                _events(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:card19-p1-other"),
+                    ("from", "BATTLEFIELD"),
+                    ("to", "GRAVEYARD"),
+                ),
+            ),
+            (
+                "opponents_choose_sacrifices",
+                _events(
+                    "SACRIFICED_PERMANENT",
+                    ("source_object", "obj:card_19-subject"),
+                    count=3,
+                ),
+            ),
+            (
+                "simultaneous_sacrifices",
+                _precede(
+                    _events("SACRIFICED_PERMANENT", ("source_object", "obj:card_19-subject")),
+                    _events(
+                        "ZONE_CHANGE",
+                        ("source_object", "obj:card_19-subject"),
+                        ("from", "BATTLEFIELD"),
+                        ("to", "GRAVEYARD"),
+                    ),
+                ),
+            ),
+        ),
+    ),
+    # Find // Finality cast as its Finality half: two +1/+1 counters on P1's
+    # Bears (a 2/2 with one counter: 5/5, then -4/-4 is 1/1), and P2's Hill
+    # Giant (3/3 with one counter: 4/4, then 0/0) goes to the graveyard as a
+    # state-based action, neither destroyed nor dealt damage.
+    "CARD_28": ObligationPlan(
+        fixture_id="CARD_28",
+        proofs=(
+            PostconditionProof(
+                "P1 creature is 1/1 for remainder of turn absent other effects.",
+                terminal_check=_permanent("power_toughness", "P1", "Grizzly Bears", (1, 1)),
+            ),
+            PostconditionProof(
+                "P2 4/4 becomes 0/0 and is put into graveyard as SBA.",
+                terminal_check=_events(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:card28-p2-creature"),
+                    ("from", "BATTLEFIELD"),
+                    ("to", "GRAVEYARD"),
+                    count=1,
+                ),
+                also=(
+                    _events(
+                        "DESTROYED_PERMANENT", ("target_object", "obj:card28-p2-creature"), count=0
+                    ),
+                    _events(
+                        "DAMAGED_PERMANENT", ("target_object", "obj:card28-p2-creature"), count=0
+                    ),
+                    _not_on_battlefield("P2", "Hill Giant"),
+                ),
+            ),
+        ),
+        token_bindings=(
+            ("cast_split_half:Finality", _selected("priority", "Cast Finality")),
+            (
+                "put_+1/+1_counters:2",
+                _events(
+                    "COUNTER_ADDED",
+                    ("target_object", "obj:card28-p1-creature"),
+                    ("data", "+1/+1"),
+                    count=2,
+                ),
+            ),
+            (
+                "continuous_-4/-4_all_creatures",
+                _permanent("power_toughness", "P1", "Grizzly Bears", (1, 1)),
+            ),
+            (
+                "state_based_actions",
+                _events(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:card28-p2-creature"),
+                    ("from", "BATTLEFIELD"),
+                    ("to", "GRAVEYARD"),
+                ),
+            ),
+        ),
+    ),
+    # Finale of Revelation with X=10: the graveyard goes into the library and
+    # the library is shuffled before the ten draws; the five constructed-tapped
+    # Islands are untapped (the two paying Islands stay tapped); P1 then passes
+    # its own cleanup holding far more than seven cards without being asked to
+    # discard, which is the observable consequence of no maximum hand size.
+    "CARD_15": ObligationPlan(
+        fixture_id="CARD_15",
+        proofs=(
+            PostconditionProof(
+                "Pre-resolution graveyard cards were shuffled before draws.",
+                terminal_check=_events(
+                    "ZONE_CHANGE",
+                    ("source_object", "obj:card_15-subject"),
+                    ("from", "GRAVEYARD"),
+                    ("to", "LIBRARY"),
+                    count=3,
+                ),
+                also=(
+                    _precede(
+                        _events("LIBRARY_SHUFFLED", ("source_object", "obj:card_15-subject")),
+                        _events(
+                            "ZONE_CHANGE",
+                            ("from", "LIBRARY"),
+                            ("to", "HAND"),
+                            ("player_player", "P1"),
+                        ),
+                    ),
+                    _precede(
+                        _events(
+                            "ZONE_CHANGE",
+                            ("source_object", "obj:card_15-subject"),
+                            ("from", "GRAVEYARD"),
+                        ),
+                        _events(
+                            "ZONE_CHANGE",
+                            ("from", "LIBRARY"),
+                            ("to", "HAND"),
+                            ("player_player", "P1"),
+                        ),
+                    ),
+                ),
+            ),
+            PostconditionProof(
+                "P1 drew 10, five lands untapped, no maximum hand size for rest of game, "
+                "Finale exiled.",
+                terminal_check=midgame_rows_mod.TerminalCheck("draws", principal="P1", value=10),
+                also=(
+                    _permanent("untapped_count", "P1", "Island", 5),
+                    *_NO_MAX_HAND_P1,
+                    _events(
+                        "ZONE_CHANGE",
+                        ("target_object", "obj:card_15-subject"),
+                        ("from", "STACK"),
+                        ("to", "EXILED"),
+                        count=1,
+                    ),
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "shuffle_graveyard_into_library",
+                (
+                    _events("LIBRARY_SHUFFLED", ("source_object", "obj:card_15-subject")),
+                    _events(
+                        "ZONE_CHANGE",
+                        ("source_object", "obj:card_15-subject"),
+                        ("from", "GRAVEYARD"),
+                        ("to", "LIBRARY"),
+                        count=3,
+                    ),
+                ),
+            ),
+            ("draw:10", midgame_rows_mod.TerminalCheck("draws", principal="P1", value=10)),
+            ("untap_lands:5", _permanent("untapped_count", "P1", "Island", 5)),
+            ("grant_no_max_hand_size", _NO_MAX_HAND_P1),
+            (
+                "exile_Finale",
+                _events(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:card_15-subject"),
+                    ("from", "STACK"),
+                    ("to", "EXILED"),
+                ),
             ),
         ),
     ),
