@@ -799,3 +799,25 @@ def test_matrix_refuses_a_pass_without_receipt_eligibility() -> None:
 
 def test_no_surface_has_a_foreign_writer_once_450_and_462_are_merged() -> None:
     assert dict(campaign.DEFAULT_FOREIGN_OWNED_SURFACES) == {}
+
+
+def test_a_vocabulary_binding_and_its_cost_obligation_reach_the_row_spec() -> None:
+    """CARD_03's free-text cost token is bound to the engine-verified cost
+    vocabulary, and the plan's cost declaration reaches the executor's spec; the
+    free text itself never verifies anything."""
+    plan = campaign.plan_for("CARD_03")
+    assert plan is not None
+    bindings = dict(plan.token_bindings)
+    cost = bindings["total_cost_determined"]
+    assert isinstance(cost, midgame_rows_mod.VocabularyToken)
+    assert cost.token == "cost_determined:base_plus_3_generic"
+    record = {"action_cost_state": [], "terminal_postconditions": []}
+    spec = campaign.derive_row_spec(record, plan)
+    assert spec.cost_obligation == ("obj:card03-spell", "{6}{U}{R}", "{9}{U}{R}")
+    document = plan.document()
+    rendered = {item["token"]: item["check"] for item in document["token_bindings"]}
+    assert rendered["total_cost_determined"] == {
+        "vocabulary_token": "cost_determined:base_plus_3_generic"
+    }
+    # A row with no plan carries no cost declaration.
+    assert campaign.derive_row_spec(record, None).cost_obligation is None

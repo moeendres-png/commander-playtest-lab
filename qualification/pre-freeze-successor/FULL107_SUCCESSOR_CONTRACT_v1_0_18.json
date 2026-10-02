@@ -1,7 +1,7 @@
 {
  "change_accounting": {
   "change_class": "MIXED_FIXTURE_CONTRACT_ERRATA_AND_RULES_AUTHORITY_CORRECTION",
-  "changed_fixture_count": 44,
+  "changed_fixture_count": 45,
   "changed_fixture_ids": [
    "WS05-CMD-START-2",
    "MICRO_MODES",
@@ -46,7 +46,8 @@
    "HIDDEN_11",
    "HIDDEN_06",
    "HIDDEN_12",
-   "CARD_06"
+   "CARD_06",
+   "CARD_03"
   ],
   "historical_predecessor_preserved": true,
   "per_fixture_correction_class": {
@@ -93,7 +94,8 @@
    "HIDDEN_11": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
    "HIDDEN_06": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
    "HIDDEN_12": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
-   "CARD_06": "ACTUAL_CARD_OBLIGATION_ERRATUM"
+   "CARD_06": "ACTUAL_CARD_OBLIGATION_ERRATUM",
+   "CARD_03": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM"
   },
   "provider_semantics_used_to_define_successor": false,
   "unchanged_provider_denominator_rows": 78
@@ -111,11 +113,11 @@
   "successor_contract_creation_is_runtime_credit": false,
   "xmage_predecessor_start2_blocker_is_historical_provenance": true
  },
- "materialization_schema_version_note": "the record shape is unchanged from the 1.0.8 successor schema; 1.0.18 adds the CARD_06 actual-card obligation erratum (Oracle conflict) while preserving every 1.0.17 overlay byte-semantically",
+ "materialization_schema_version_note": "the record shape is unchanged from the 1.0.8 successor schema; 1.0.18 adds the CARD_06 actual-card obligation erratum (Oracle conflict) and the CARD_03 decision-script erratum while preserving every 1.0.17 overlay byte-semantically",
  "predecessor": {
   "path": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_17.json",
   "record_count": 43,
-  "role": "historical successor overlays are preserved; this contract re-applies every current overlay to the same 1.0.5 historical base and adds CARD_06",
+  "role": "historical successor overlays are preserved; this contract re-applies every current overlay to the same 1.0.5 historical base and adds CARD_06 and CARD_03",
   "schema_version": "commander-lab.full107-successor-contract/1.0.0",
   "sha256": "6ef49f1fed2e3aebef2507ff378ce2c5429107b831e6965733bcaaba6a118813"
  },
@@ -11273,6 +11275,162 @@
     ]
    },
    "successor_requested_state_digest": "47c0136ab96cd663ba34750031020943d6a9196cbd37e9cfb91f36fc2352412d"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255 comment 5925956587 (SLOT-04): lossy or ambiguous fixtures are corrected and versioned rather than weakening execution; a record's decision script answers only the discretionary decisions the Rules Core itself asks, and an unscripted discretionary decision stops the row",
+      "correction": "script the cast, the divided damage and the two tap targets as the engine's own decisions, with the predecessor's targets and an even split",
+      "defect": "the record folds every target into one announce_cast action the engine never offers; the engine asks the cast, then the divided damage, then the tap targets",
+      "erratum_class": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
+      "includes_lossless_library_erratum": false,
+      "obligation_changed": false,
+      "prose_derived_action_injection": false,
+      "provider_semantics_used": false
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-decision-script-card_03"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 actual-card decision script",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The decision script (and, where named, the declared payment sources) change, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "CARD_03",
+   "knowledge_state_channel_policy": "RSP actor-aware observation applies to prompts, context, options, source/ability metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "predecessor_decision_script": [
+     {
+      "actor": "P2",
+      "causal_step_id": "cause-0",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "announce_cast",
+        "damage_targets": [
+         "obj:P1-commander",
+         "obj:card03-cmd-b"
+        ],
+        "object": "obj:card03-spell",
+        "tap_targets": [
+         "obj:P1-commander",
+         "obj:card03-cmd-b"
+        ]
+       }
+      }
+     }
+    ],
+    "reason": "an announce_cast action with folded targets is not an engine decision"
+   },
+   "predecessor_requested_state_digest": "d4019717873412187a5d4eb3e7acc40a7220c53b3c99053992867bc64a74e14a",
+   "replace": {
+    "decision_script": [
+     {
+      "actor": "P2",
+      "causal_step_id": "cast-opus",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:card03-spell"
+       }
+      }
+     },
+     {
+      "actor": "P2",
+      "causal_step_id": "divide-damage",
+      "decision_family": "target_amount",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "the predecessor's damage_targets: 4 damage divided between P1's two commanders",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "amount_assignment",
+       "semantic_value": {
+        "obj:P1-commander": 2,
+        "obj:card03-cmd-b": 2
+       }
+      }
+     },
+     {
+      "actor": "P2",
+      "causal_step_id": "tap-targets",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "the predecessor's tap_targets: 'Tap two target permanents' is a targeted choice made on casting (CR 601.2c)",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_objects",
+       "semantic_value": [
+        "obj:P1-commander",
+        "obj:card03-cmd-b"
+       ]
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "d4019717873412187a5d4eb3e7acc40a7220c53b3c99053992867bc64a74e14a"
   }
  ],
  "rules_authority": {

@@ -82,6 +82,8 @@ BATCH6_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_11", "HIDDEN_06", "HIDDEN_12"]
 # The AF07 obligation erratum (1.0.18): an obligation that conflicts with the
 # card's Oracle text, versioned with its predecessor obligation preserved.
 CARD_OBLIGATION_ERRATA_IDS = ["CARD_06"]
+# The final AF07 decision-script errata (1.0.18): the obligation is untouched.
+FINAL_CARD_SCRIPT_ERRATA_IDS = ["CARD_03"]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -99,13 +101,14 @@ CHANGED_FIXTURE_IDS = [
     *BATCH5_HIDDEN_EVENT_ERRATA_IDS,
     *BATCH6_HIDDEN_EVENT_ERRATA_IDS,
     *CARD_OBLIGATION_ERRATA_IDS,
+    *FINAL_CARD_SCRIPT_ERRATA_IDS,
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
 DENOMINATOR_CHANGED_FIXTURE_IDS = [
     fixture
     for fixture in CHANGED_FIXTURE_IDS
-    if fixture not in (*CARD_ERRATA_IDS, *CARD_OBLIGATION_ERRATA_IDS)
+    if fixture not in (*CARD_ERRATA_IDS, *CARD_OBLIGATION_ERRATA_IDS, *FINAL_CARD_SCRIPT_ERRATA_IDS)
 ]
 AF01_PATH = REPO_ROOT / "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json"
 AF_CATALOG_PATH = (
@@ -993,7 +996,9 @@ def test_card_script_errata_answer_the_engine_asked_decisions_and_keep_the_oblig
         for patch in contract["record_successors"]
         if patch.get("correction_class") == "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM"
     }
-    assert sorted(errata) == sorted([*CARRIED_LIBRARY_ERRATA_IDS, *CARD_SCRIPT_ERRATA_IDS])
+    assert sorted(errata) == sorted(
+        [*CARRIED_LIBRARY_ERRATA_IDS, *CARD_SCRIPT_ERRATA_IDS, *FINAL_CARD_SCRIPT_ERRATA_IDS]
+    )
     for fixture_id, patch in errata.items():
         assert fixture_id not in denominator
         record = resolver.effective_record(fixture_id)
@@ -1392,7 +1397,10 @@ def test_card06_obligation_erratum_is_versioned_with_its_predecessor_preserved()
         )["records"]
     }
     added = contract["record_successors"][len(predecessor["record_successors"]) :]
-    assert [patch["fixture_id"] for patch in added] == CARD_OBLIGATION_ERRATA_IDS
+    assert [patch["fixture_id"] for patch in added] == [
+        *CARD_OBLIGATION_ERRATA_IDS,
+        *FINAL_CARD_SCRIPT_ERRATA_IDS,
+    ]
     patch = added[0]
     old = base["CARD_06"]
     assert patch["correction_class"] == "ACTUAL_CARD_OBLIGATION_ERRATUM"
@@ -1442,3 +1450,36 @@ def test_card06_obligation_erratum_is_versioned_with_its_predecessor_preserved()
         "target",
         "trigger_order",
     ]
+
+
+def test_card03_script_erratum_answers_the_engine_decisions_and_keeps_the_obligation() -> None:
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    patch = next(p for p in contract["record_successors"] if p["fixture_id"] == "CARD_03")
+    old = base["CARD_03"]
+    assert patch["correction_class"] == "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM"
+    assert patch["append_native_procedure"][0]["details"]["obligation_changed"] is False
+    assert patch["predecessor_invalidity"]["predecessor_decision_script"] == old["decision_script"]
+    record = next(
+        r
+        for r in resolver.load_effective_materialization()["records"]
+        if r["fixture_id"] == "CARD_03"
+    )
+    # The obligation keys are untouched, so the obligation digest is the predecessor's.
+    assert record["obligation_digest"] == old["obligation_digest"]
+    assert record["terminal_postconditions"] == old["terminal_postconditions"]
+    assert record["semantic_objects"] == old["semantic_objects"]
+    # The predecessor's folded targets become the engine's own decisions, with
+    # the same targets: the divided damage and the two tap targets.
+    folded = old["decision_script"][0]["selection"]["semantic_value"]
+    steps = record["decision_script"]
+    assert [step["decision_family"] for step in steps] == ["priority", "target_amount", "target"]
+    assert steps[0]["selection"]["semantic_value"] == {"action": "cast", "object": folded["object"]}
+    assert sorted(steps[1]["selection"]["semantic_value"]) == sorted(folded["damage_targets"])
+    assert steps[2]["selection"]["semantic_value"] == folded["tap_targets"]

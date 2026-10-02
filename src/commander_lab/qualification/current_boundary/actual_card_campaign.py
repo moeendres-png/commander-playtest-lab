@@ -554,6 +554,11 @@ class ObligationPlan:
     # The record's own required-event tokens, each bound to the explicit check
     # that observes it on this engine (see ``RowSpec.token_bindings``).
     token_bindings: tuple[tuple[str, Any], ...] = ()
+    # The engine-authored cost of the scripted cast this row observes: (the
+    # cast's semantic object, the record's base mana, the record's total mana).
+    # Verified only against the engine's own payment frame for that exact cast
+    # (see ``RowSpec.cost_obligation``).
+    cost_obligation: tuple[str, str, str] | None = None
 
     @property
     def terminal_checks(self) -> tuple[Any, ...]:
@@ -604,6 +609,8 @@ class ObligationPlan:
                     "check": (
                         [_check_document(part) for part in check]
                         if isinstance(check, tuple)
+                        else {"vocabulary_token": check.token}
+                        if isinstance(check, midgame_rows_mod.VocabularyToken)
                         else _check_document(check)
                     ),
                 }
@@ -831,6 +838,28 @@ PLANS: dict[str, ObligationPlan] = {
             (
                 "Veyran_additional_trigger",
                 _events("TRIGGERED_ABILITY", ("source_object", "obj:card_05-subject"), count=2),
+            ),
+        ),
+    ),
+    # Esior taxes a spell an opponent casts that targets one or more commanders
+    # P1 controls by exactly {3}, once, however many commanders it targets. The
+    # cost is read from the engine's own payment frame for P2's exact Magma Opus
+    # cast: {6}{U}{R} plus exactly three generic, and exactly that much charged.
+    "CARD_03": ObligationPlan(
+        fixture_id="CARD_03",
+        proofs=(
+            PostconditionProof(
+                "Total cost is pre-Esior total + exactly {3} generic, not +{6}.",
+                event_token="total_cost_determined",
+            ),
+        ),
+        cost_obligation=("obj:card03-spell", "{6}{U}{R}", "{9}{U}{R}"),
+        token_bindings=(
+            ("spell_announced", _events("SPELL_CAST", ("source_object", "obj:card03-spell"))),
+            ("targets_locked", midgame_rows_mod.VocabularyToken("amount_assignment:2+2")),
+            (
+                "total_cost_determined",
+                midgame_rows_mod.VocabularyToken("cost_determined:base_plus_3_generic"),
             ),
         ),
     ),
@@ -1477,6 +1506,7 @@ def derive_row_spec(record: Mapping[str, Any], plan: ObligationPlan | None) -> A
         ),
         mode_bindings=plan.mode_bindings if plan is not None else (),
         token_bindings=plan.token_bindings if plan is not None else (),
+        cost_obligation=plan.cost_obligation if plan is not None else None,
     )
 
 

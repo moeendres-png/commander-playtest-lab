@@ -159,6 +159,23 @@ class TerminalCheck:
 
 
 @dataclass(frozen=True)
+class VocabularyToken:
+    """A record token observed exactly as one engine-verified vocabulary token.
+
+    Record tokens are free text; some name a fact the generic vocabulary
+    already verifies against the engine (e.g. ``total_cost_determined`` is the
+    engine's own payment frame, which ``cost_determined:base_plus_N_generic``
+    verifies). The binding states that equivalence per fixture; the named
+    token is then verified by the generic vocabulary, never by the free text.
+    """
+
+    token: str
+
+    def describe(self) -> str:
+        return f"engine-verified {self.token}"
+
+
+@dataclass(frozen=True)
 class RowSpec:
     """What the executor may answer for a row and what it must observe."""
 
@@ -188,7 +205,9 @@ class RowSpec:
     # binding states, per fixture, which engine event pattern, decision frame or
     # engine-observed state the token names. An unbound token the generic
     # vocabulary does not understand stays unobserved.
-    token_bindings: tuple[tuple[str, TerminalCheck | tuple[TerminalCheck, ...]], ...] = ()
+    token_bindings: tuple[
+        tuple[str, TerminalCheck | tuple[TerminalCheck, ...] | VocabularyToken], ...
+    ] = ()
 
 
 # The record's decision family and the engine's decision class name the same
@@ -1749,6 +1768,17 @@ def execute_row(
         token: str, tape: list[dict[str, Any]], observation: dict[str, Any] | None
     ) -> dict[str, Any] | None:
         check = bindings.get(token)
+        if isinstance(check, VocabularyToken):
+            evidence = verify_token(
+                check.token,
+                tape,
+                trace,
+                semantic_commanders,
+                spec.commander_printed_mana_value,
+                refusals,
+                cost_obligation,
+            )
+            return None if evidence is None else {"binding": check.describe(), **evidence}
         if check is not None:
             if observation is None:
                 observation = client.complete_arrival().get("observation") or {}
@@ -1766,7 +1796,10 @@ def execute_row(
     def observed_all(tape: list[dict[str, Any]]) -> bool:
         observation = (
             client.complete_arrival().get("observation") or {}
-            if any(token in bindings for token in required)
+            if any(
+                token in bindings and not isinstance(bindings[token], VocabularyToken)
+                for token in required
+            )
             else None
         )
         return all(token_evidence(t, tape, observation) is not None for t in required)
