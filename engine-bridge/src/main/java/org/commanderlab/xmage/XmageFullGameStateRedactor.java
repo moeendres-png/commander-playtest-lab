@@ -22,6 +22,8 @@ import mage.watchers.common.CommanderPlaysCountWatcher;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,6 +71,17 @@ final class XmageFullGameStateRedactor {
     private static final Map<String, List<ObservedCards>> OBSERVED_CARDS =
             new ConcurrentHashMap<>();
 
+    /**
+     * HIDDEN_11: monotonically increasing native-library shuffle epochs.
+     *
+     * <p>The Rules Core owns whether/when a shuffle occurs. The adapter records
+     * only the completed native action, keyed by game and library owner, so an
+     * older ordered observation can stop presenting an obsolete order. This is
+     * observation provenance, not a second shuffle implementation.</p>
+     */
+    private static final Map<String, Map<UUID, Long>> LIBRARY_SHUFFLE_EPOCHS =
+            new ConcurrentHashMap<>();
+
     private static final class ObservedCards {
         private final boolean revealed;
         private final UUID principalId;
@@ -77,9 +90,11 @@ final class XmageFullGameStateRedactor {
         private final String title;
         private final List<String> names;
         private final List<UUID> owners;
+        private final Map<UUID, Long> libraryShuffleEpochs;
 
         private ObservedCards(boolean revealed, UUID principalId, UUID controllerId, int turn,
-                              String title, List<String> names, List<UUID> owners) {
+                              String title, List<String> names, List<UUID> owners,
+                              Map<UUID, Long> libraryShuffleEpochs) {
             this.revealed = revealed;
             this.principalId = principalId;
             this.controllerId = controllerId;
@@ -87,7 +102,25 @@ final class XmageFullGameStateRedactor {
             this.title = title;
             this.names = names;
             this.owners = owners;
+            this.libraryShuffleEpochs = libraryShuffleEpochs;
         }
+    }
+
+    static void recordLibraryShuffle(Game game, UUID libraryOwnerId) {
+        if (game == null || libraryOwnerId == null || game.isSimulation()) {
+            return;
+        }
+        LIBRARY_SHUFFLE_EPOCHS
+                .computeIfAbsent(game.getId().toString(), ignored -> new ConcurrentHashMap<>())
+                .merge(libraryOwnerId, 1L, Long::sum);
+    }
+
+    private static long libraryShuffleEpoch(Game game, UUID ownerId) {
+        if (game == null || ownerId == null) {
+            return 0L;
+        }
+        Map<UUID, Long> byOwner = LIBRARY_SHUFFLE_EPOCHS.get(game.getId().toString());
+        return byOwner == null ? 0L : byOwner.getOrDefault(ownerId, 0L);
     }
 
     /** {@code title} is the engine's own window title for the look (CardUtil). */
@@ -119,6 +152,12 @@ final class XmageFullGameStateRedactor {
         }
         List<ObservedCards> log = OBSERVED_CARDS
                 .computeIfAbsent(game.getId().toString(), ignored -> new CopyOnWriteArrayList<>());
+        Map<UUID, Long> shuffleEpochs = new HashMap<>();
+        for (UUID ownerId : owners) {
+            if (ownerId != null) {
+                shuffleEpochs.put(ownerId, libraryShuffleEpoch(game, ownerId));
+            }
+        }
         ObservedCards entry = new ObservedCards(
                 revealed,
                 principalId,
@@ -126,7 +165,8 @@ final class XmageFullGameStateRedactor {
                 game.getState().getTurnNum(),
                 title,
                 names,
-                owners
+                owners,
+                Map.copyOf(shuffleEpochs)
         );
         if (update) {
             log.removeIf(old -> old.revealed == revealed && old.principalId.equals(principalId)
@@ -196,11 +236,25 @@ final class XmageFullGameStateRedactor {
             if (revealed) {
                 item.addProperty("revealed_by_seat", seat(game, entry.principalId));
             }
-            JsonArray cards = new JsonArray();
+            boolean orderInvalidated = entry.libraryShuffleEpochs.entrySet().stream()
+                    .anyMatch(epoch -> libraryShuffleEpoch(game, epoch.getKey()) > epoch.getValue());
+            if (orderInvalidated) {
+                item.addProperty("order_invalidated_by_shuffle", true);
+            }
+            List<Integer> indices = new ArrayList<>();
             for (int i = 0; i < entry.names.size(); i++) {
+                indices.add(i);
+            }
+            if (orderInvalidated) {
+                indices.sort(Comparator
+                        .comparing((Integer i) -> entry.names.get(i))
+                        .thenComparing(i -> String.valueOf(seat(game, entry.owners.get(i)))));
+            }
+            JsonArray cards = new JsonArray();
+            for (int index : indices) {
                 JsonObject card = new JsonObject();
-                card.addProperty("name", entry.names.get(i));
-                card.addProperty("owner_seat", seat(game, entry.owners.get(i)));
+                card.addProperty("name", entry.names.get(index));
+                card.addProperty("owner_seat", seat(game, entry.owners.get(index)));
                 cards.add(card);
             }
             item.add("cards", cards);
