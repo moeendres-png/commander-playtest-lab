@@ -506,7 +506,8 @@
     "materialization_version": {
      "enum": [
       "commander-lab.semantic-fixture-materialization/1.0.5",
-      "commander-lab.semantic-fixture-materialization/1.0.16-successor"
+      "commander-lab.semantic-fixture-materialization/1.0.16-successor",
+      "commander-lab.semantic-fixture-materialization/1.0.17-successor"
      ]
     },
     "native_procedure": {
