@@ -2802,3 +2802,120 @@ def write_measurement(path: Path, measurement: RowMeasurement) -> Path:
 
 def matrix_digest(matrix: Mapping[str, Any]) -> str:
     return receipt_mod.document_digest(dict(matrix))
+
+
+# --------------------------------------------------------------------------- #
+# Same-epoch producer (PB-03)
+# --------------------------------------------------------------------------- #
+
+#: The campaign's positive receipts live in their own subdirectory of the
+#: receipt directory. The FULL107 assembler credits denominator rows from
+#: ``positive/`` only; keeping the corpus receipts apart means a campaign
+#: receipt can never relabel a FULL107 row, and CARD_02's two producers (the
+#: midgame denominator lane and this campaign) cannot overwrite each other.
+RECEIPT_SUBDIR = "actual_card"
+EXECUTIONS_SCHEMA = "commander-lab.af07-actual-card-campaign-executions/1.0.0"
+
+
+def execute_and_persist(
+    *,
+    workspace: Path,
+    candidate_commit: str,
+    runner_digest: str,
+    receipts_dir: Path,
+    candidate: str = "xmage",
+    fixtures: Collection[str] | None = None,
+    seed: int = SEED,
+    root: Path | None = None,
+    measurements_dir: Path | None = None,
+    campaign_identity: Mapping[str, Any] | None = None,
+    on_row: Any | None = None,
+) -> dict[str, Any]:
+    """Execute the corpus rows, each on a fresh lane process, and persist receipts.
+
+    Every selected row's earlier receipt is removed before anything executes,
+    so a row that no longer verifies cannot keep credit from a previous run.
+    Only a ``DIRECT_PASS`` row gets a receipt. A row whose lane process raises
+    is recorded as ``LANE_FAILED`` with the error and earns nothing; it does
+    not abort the remaining rows. The returned document is the 29-row matrix
+    bound to the candidate commit and runner digest; the assembler credits only
+    the receipts, never the matrix's own outcome labels.
+    """
+    corpus = derive_corpus(root)
+    known = [row.fixture_id for row in corpus.rows]
+    selected = known if fixtures is None else [str(fixture_id) for fixture_id in fixtures]
+    unknown = sorted(set(selected) - set(known))
+    if unknown:
+        raise ActualCardCampaignError(f"unknown AF07 fixture ids: {unknown}")
+
+    probe = midgame_rows_mod.probe_module()
+    # The production probe's own declared causal entries: rows whose position
+    # the lane reaches causally even though the direct native load refuses them.
+    causal_entry_rows = frozenset(getattr(probe, "CAUSAL_ROWS", {}) or {})
+
+    receipts_dir.mkdir(parents=True, exist_ok=True)
+    for fixture_id in selected:
+        (receipts_dir / f"{fixture_id}.json").unlink(missing_ok=True)
+
+    evaluations: dict[str, dict[str, Any]] = {}
+    measurements: dict[str, RowMeasurement] = {}
+    engine_artifact: dict[str, Any] | None = None
+    for fixture_id in selected:
+        row = corpus.row(fixture_id)
+        plan = plan_for(fixture_id)
+        try:
+            with probe.open_client(workspace) as client:
+                measurement = measure_row(client, row, plan, seed=seed)
+                if client.engine_artifact:
+                    engine_artifact = dict(client.engine_artifact)
+        except Exception as exc:  # one row's crash is that row's evidence, not the run's
+            measurement = RowMeasurement(
+                fixture_id=fixture_id,
+                phase="LANE_FAILED",
+                runtime_error=f"{type(exc).__name__}: {exc}",
+                arrival_detail=f"the lane process raised {type(exc).__name__}: {exc}",
+            )
+        measurements[fixture_id] = measurement
+        evaluation = evaluate_row(
+            row,
+            measurement,
+            expected_engine_commit=candidate_commit,
+            foreign_owned_surfaces=DEFAULT_FOREIGN_OWNED_SURFACES,
+            causal_entry_rows=causal_entry_rows,
+        )
+        if evaluation.get("outcome") == OUTCOME_DIRECT_PASS:
+            receipt = positive_receipt(
+                row,
+                evaluation,
+                measurement,
+                candidate=candidate,
+                candidate_commit=candidate_commit,
+                runner_digest=runner_digest,
+            )
+            receipt_mod.persist(receipts_dir / f"{fixture_id}.json", receipt)
+            evaluation["receipt_digest"] = receipt["receipt_digest"]
+        evaluations[fixture_id] = evaluation
+        if measurements_dir is not None:
+            write_measurement(measurements_dir / f"{fixture_id}.json", measurement)
+        if on_row is not None:
+            on_row(row, evaluation)
+
+    identity = {
+        "execution_mode": EXECUTION_MODE,
+        "test_identity_prefix": TEST_IDENTITY_PREFIX,
+        "candidate": candidate,
+        "candidate_commit": candidate_commit,
+        "runner_digest": runner_digest,
+        "selected_rows": list(selected),
+        "causal_entry_rows": sorted(causal_entry_rows),
+        "seed": seed,
+        "receipt_subdir": RECEIPT_SUBDIR,
+        **dict(campaign_identity or {}),
+    }
+    matrix = build_matrix(corpus, evaluations, measurements, campaign_identity=identity)
+    matrix["campaign"]["engine_artifact"] = engine_artifact
+    matrix["campaign"]["matrix_digest"] = matrix_digest(
+        {key: value for key, value in matrix.items() if key != "campaign"}
+    )
+    matrix["executions_schema"] = EXECUTIONS_SCHEMA
+    return matrix

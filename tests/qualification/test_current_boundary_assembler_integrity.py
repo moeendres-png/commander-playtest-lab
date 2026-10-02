@@ -460,3 +460,32 @@ def test_the_runner_persists_knowledge_projection_receipts_after_the_pb03_ledger
     window = source[executions : executions + 700]
     assert "runner_digest=runner.digest()" in window
     assert "RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR" in window
+
+
+def test_the_runner_persists_actual_card_campaign_receipts_after_the_runner_is_bound() -> None:
+    """AF07 credit comes from the same runner identity, in its own receipt subdir."""
+    source = _source(RUNNER)
+    bound = source.index("receipt_mod.require_clean_runner(runner)")
+    executions = source.index('"ACTUAL_CARD_CAMPAIGN_XMAGE.json"')
+    assert bound < executions
+    window = source[executions : executions + 700]
+    assert "runner_digest=runner.digest()" in window
+    assert "candidate_commit=canonical_xmage_engine_pin()" in window
+    assert "RECEIPT_DIR / actual_card_campaign_mod.RECEIPT_SUBDIR" in window
+    assert "POSITIVE_RECEIPT_SUBDIR" not in window
+
+
+def test_the_assembler_credits_af07_only_from_bound_campaign_receipts() -> None:
+    source = _source(ASSEMBLER)
+    helper = source[source.index("def actual_card_campaign_credit(") :]
+    helper = helper[: helper.index("\ndef ")]
+    # A carried-forward column never reads the campaign; the receipts are checked
+    # against the current effective records, this runner and this engine commit.
+    assert '!= "FRESH_CURRENT_BOUNDARY_EXECUTION"' in helper
+    assert "actual_card_campaign_mod.RECEIPT_SUBDIR" in helper
+    assert "derive_corpus(REPO)" in helper
+    assert "runner_digest=runner_digest" in helper
+    assert "test_identity_prefix=actual_card_campaign_mod.TEST_IDENTITY_PREFIX" in helper
+    call = source.index("gate_derivations_mod.af07_actual_card(")
+    assert "actual_card_campaign_credit(" in source[call : call + 600]
+    assert "assembly_runner_digest" in source[call : call + 600]

@@ -15,6 +15,7 @@ from typing import Any
 import pytest
 
 from commander_lab.qualification.current_boundary import gate_derivations as g
+from commander_lab.qualification.current_boundary import receipts as receipt_mod
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -234,6 +235,141 @@ def test_af07_a_failed_mandatory_card_row_is_fail() -> None:
     gate = g.af07_actual_card("forge", rows, COMPLETE_CORPUS)
     assert gate["verdict"] == "FAIL"
     assert gate["blocking_rows"] == ["CARD_02"]
+
+
+# --------------------------------------------------------------------------- #
+# AF07 same-epoch campaign credit
+# --------------------------------------------------------------------------- #
+
+_PIN = "f" * 40
+_RUNNER = "d" * 64
+_PREFIX = "af07-actual-card-campaign#"
+
+
+def _card_records() -> dict[str, dict[str, Any]]:
+    identities, _corpus = g.actual_card_corpus(REPO)
+    return {
+        fixture: {"requested_state_digest": f"{index:064x}", "obligation_digest": "b" * 64}
+        for index, fixture in enumerate(sorted(identities))
+    }
+
+
+def _campaign_receipt(fixture: str, records: dict[str, dict[str, Any]], **over: Any) -> dict:
+    receipt: dict[str, Any] = {
+        "schema_version": receipt_mod.POSITIVE_FIXTURE_RECEIPT_SCHEMA,
+        "candidate": "xmage",
+        "candidate_commit": _PIN,
+        "runner_digest": _RUNNER,
+        "fixture_id": fixture,
+        "test_identity": _PREFIX + fixture,
+        "obligation_exercised": {
+            "requested_state_digest": records[fixture]["requested_state_digest"],
+            "obligation_digest": records[fixture]["obligation_digest"],
+        },
+        "observed_assertion": {"terminal_facts": {"held": True}},
+        "assertion_kind": "POSITIVE_BEHAVIOUR",
+        "outcome": "PASS",
+    }
+    receipt.update(over)
+    return receipt
+
+
+def _campaign_states(receipts: list[dict], records: dict, **over: Any) -> dict[str, str]:
+    arguments: dict[str, Any] = {
+        "candidate": "xmage",
+        "candidate_commit": _PIN,
+        "runner_digest": _RUNNER,
+        "records": records,
+        "test_identity_prefix": _PREFIX,
+    }
+    arguments.update(over)
+    return g.actual_card_campaign_states(receipts, **arguments)
+
+
+def test_af07_campaign_receipts_complete_the_corpus_outside_the_denominator() -> None:
+    records = _card_records()
+    states = _campaign_states([_campaign_receipt(fixture, records) for fixture in records], records)
+    assert set(states.values()) == {"PASS"}
+    # Only CARD_02 is a denominator row; the campaign supplies the other 28.
+    rows = {"CARD_02": _row("PASS")}
+    gate = g.af07_actual_card("xmage", rows, COMPLETE_CORPUS, campaign_states=states)
+    assert gate["verdict"] == "PASS", gate
+    assert any("credited from same-epoch" in line for line in gate["evidence"])
+
+
+def test_af07_the_denominator_row_wins_over_a_campaign_receipt_for_its_own_fixture() -> None:
+    records = _card_records()
+    states = _campaign_states([_campaign_receipt(fixture, records) for fixture in records], records)
+    rows = {"CARD_02": _row("UNKNOWN")}
+    gate = g.af07_actual_card("xmage", rows, COMPLETE_CORPUS, campaign_states=states)
+    assert gate["verdict"] == "UNKNOWN"
+    assert "CARD_02" in gate["blocking_rows"]
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        {"runner_digest": "0" * 64},
+        {"candidate_commit": "0" * 40},
+        {"candidate": "forge"},
+        {"test_identity": "midgame-row#CARD_05"},
+        {"outcome": "FAIL"},
+        {"assertion_kind": "NEGATIVE_CONTROL"},
+        {"observed_assertion": {}},
+    ],
+)
+def test_af07_a_campaign_receipt_bound_to_anything_else_earns_nothing(
+    mutation: dict[str, Any],
+) -> None:
+    records = _card_records()
+    states = _campaign_states([_campaign_receipt("CARD_05", records, **mutation)], records)
+    assert states == {}
+
+
+def test_af07_a_campaign_receipt_for_a_drifted_record_earns_nothing() -> None:
+    records = _card_records()
+    receipt = _campaign_receipt("CARD_05", records)
+    drifted = {**records, "CARD_05": {**records["CARD_05"], "obligation_digest": "c" * 64}}
+    assert _campaign_states([receipt], drifted) == {}
+
+
+def test_af07_the_campaign_documents_own_pass_label_promotes_nothing() -> None:
+    records = _card_records()
+    document = {
+        "campaign": {"candidate": "xmage", "candidate_commit": _PIN, "runner_digest": _RUNNER},
+        "rows": [{"fixture_id": "CARD_05", "verdict": {"outcome": "DIRECT_PASS"}}],
+    }
+    assert _campaign_states([], records, campaign_document=document) == {}
+
+
+def test_af07_a_bound_campaign_fail_is_fail_and_is_never_masked() -> None:
+    records = _card_records()
+    document = {
+        "campaign": {"candidate": "xmage", "candidate_commit": _PIN, "runner_digest": _RUNNER},
+        "rows": [{"fixture_id": "CARD_02", "verdict": {"outcome": "FAIL"}}],
+    }
+    states = _campaign_states([], records, campaign_document=document)
+    assert states == {"CARD_02": "FAIL"}
+    gate = g.af07_actual_card(
+        "xmage", {"CARD_02": _row("PASS")}, COMPLETE_CORPUS, campaign_states=states
+    )
+    assert gate["verdict"] == "FAIL"
+    assert gate["blocking_rows"] == ["CARD_02"]
+
+
+def test_af07_an_unbound_campaign_fail_is_not_evidence() -> None:
+    records = _card_records()
+    document = {
+        "campaign": {"candidate": "xmage", "candidate_commit": _PIN, "runner_digest": "0" * 64},
+        "rows": [{"fixture_id": "CARD_02", "verdict": {"outcome": "FAIL"}}],
+    }
+    assert _campaign_states([], records, campaign_document=document) == {}
+
+
+def test_af07_without_campaign_credit_says_so() -> None:
+    gate = g.af07_actual_card("forge", {"CARD_02": _row("PASS")}, COMPLETE_CORPUS)
+    assert gate["verdict"] == "UNKNOWN"
+    assert "no same-epoch actual-card campaign credit was supplied" in gate["evidence"]
 
 
 # --------------------------------------------------------------------------- #

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 
@@ -848,3 +848,102 @@ def test_a_causal_reconstruction_is_its_own_receipt_fact() -> None:
         causal_reconstruction={"entry_mode": "causal_stack", "verdict": verdict},
     )
     assert causal.document()["causal_reconstruction"]["verdict"] == verdict
+
+
+# --------------------------------------------------------------------------- #
+# Same-epoch producer (PB-03)
+# --------------------------------------------------------------------------- #
+
+
+class _FakeProbe:
+    CAUSAL_ROWS: ClassVar[dict[str, Any]] = {}
+
+    class _Client:
+        engine_artifact: ClassVar[dict[str, str]] = {"kind": "file", "sha256": "e" * 64}
+
+        def __enter__(self) -> _FakeProbe._Client:
+            return self
+
+        def __exit__(self, *exc: object) -> None:
+            return None
+
+    def open_client(self, workspace: Path) -> _FakeProbe._Client:
+        return self._Client()
+
+
+def test_execute_and_persist_receipts_only_direct_passes_and_survives_a_crash(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    receipts_dir = tmp_path / "receipts" / campaign.RECEIPT_SUBDIR
+    receipts_dir.mkdir(parents=True)
+    # A receipt left by an earlier run for a row that no longer verifies.
+    (receipts_dir / "CARD_05.json").write_text("{}", encoding="utf-8")
+
+    def fake_measure(client: Any, row: campaign.CardRow, plan: Any, *, seed: int) -> Any:
+        if row.fixture_id == "CARD_02":
+            raise RuntimeError("bridge process died")
+        return _measurement(row.fixture_id)
+
+    def fake_evaluate(row: campaign.CardRow, measurement: Any, **_: Any) -> dict[str, Any]:
+        passed = row.fixture_id == "CARD_24" and measurement.phase == "EXECUTED"
+        return {
+            "outcome": campaign.OUTCOME_DIRECT_PASS if passed else campaign.OUTCOME_BLOCKED,
+            "blocker_class": None if passed else campaign.BLOCKER_HARNESS_DEFECT,
+            "blocker_detail": None if passed else measurement.phase,
+            "direct_receipt_eligible": passed,
+            "construction_verdict": "EXACT",
+            "postcondition_proofs": [],
+        }
+
+    monkeypatch.setattr(midgame_rows_mod, "probe_module", lambda: _FakeProbe())
+    monkeypatch.setattr(campaign, "measure_row", fake_measure)
+    monkeypatch.setattr(campaign, "evaluate_row", fake_evaluate)
+
+    seen: list[str] = []
+    matrix = campaign.execute_and_persist(
+        workspace=tmp_path,
+        candidate_commit=PIN,
+        runner_digest="d" * 64,
+        receipts_dir=receipts_dir,
+        fixtures=["CARD_24", "CARD_02", "CARD_05"],
+        root=REPO_ROOT,
+        measurements_dir=tmp_path / "measurements",
+        on_row=lambda row, evaluation: seen.append(row.fixture_id),
+    )
+
+    assert seen == ["CARD_24", "CARD_02", "CARD_05"]
+    assert sorted(path.name for path in receipts_dir.iterdir()) == ["CARD_24.json"]
+    receipt = receipt_mod.load_positive_fixture_receipt(receipts_dir / "CARD_24.json")
+    assert receipt["runner_digest"] == "d" * 64
+    assert receipt["candidate_commit"] == PIN
+    crashed = json.loads((tmp_path / "measurements" / "CARD_02.json").read_text())
+    assert crashed["phase"] == "LANE_FAILED"
+    assert "bridge process died" in crashed["runtime_error"]
+    assert matrix["campaign"]["candidate_commit"] == PIN
+    assert matrix["campaign"]["runner_digest"] == "d" * 64
+    assert matrix["campaign"]["receipt_subdir"] == campaign.RECEIPT_SUBDIR
+    assert matrix["summary"]["direct_pass"] == ["CARD_24"]
+    # The rows that were not selected are present and unexecuted, never credited.
+    assert matrix["summary"]["outcomes"][campaign.OUTCOME_UNKNOWN] == campaign.CORPUS_COUNT - 3
+
+
+def test_execute_and_persist_refuses_an_unknown_fixture_before_touching_receipts(
+    tmp_path: Path,
+) -> None:
+    receipts_dir = tmp_path / "receipts"
+    with pytest.raises(campaign.ActualCardCampaignError, match="CARD_99"):
+        campaign.execute_and_persist(
+            workspace=tmp_path,
+            candidate_commit=PIN,
+            runner_digest="d" * 64,
+            receipts_dir=receipts_dir,
+            fixtures=["CARD_99"],
+            root=REPO_ROOT,
+        )
+    assert not receipts_dir.exists()
+
+
+def test_campaign_receipts_never_share_the_full107_receipt_directory() -> None:
+    # CARD_02 is produced by both the midgame denominator lane and the campaign;
+    # one directory would let either producer overwrite the other's evidence.
+    assert campaign.RECEIPT_SUBDIR != receipt_mod.POSITIVE_RECEIPT_SUBDIR
