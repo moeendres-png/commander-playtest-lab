@@ -1621,11 +1621,12 @@ def test_card16_obligation_erratum_restates_the_hand_size_at_the_natural_hand() 
     """The predecessor measured the Crawler at a five-card hand, which needs P1's
     turn-1 hand to be exactly its three named Mountains: the vehicle plays the
     real start-of-game procedure, so P1 also holds the opening seven and the
-    turn-1 draw, and no Lab-side hand mutation is allowed (SLOT-04 L7). The
-    erratum declares that natural hand and library, restates the hand size at
-    it (13 after Divination's two draws), keeps the Rules content (P/T equal to
-    the hand size, one life per draw per opponent, the CR 603.3b order) and
-    preserves the predecessor obligation as provenance."""
+    turn-1 draw, which the Crawler sees, and no Lab-side hand mutation is allowed
+    (SLOT-04 L7). The erratum declares that natural hand, library and life,
+    restates the postconditions at it (13 cards and 17 life after Divination's
+    two draws), keeps the Rules content (P/T equal to the hand size, one life
+    per draw per opponent, the CR 603.3b order) and preserves the predecessor
+    obligation as provenance."""
     contract = _json(SUCCESSOR_PATH)
     resolver = _resolver()
     base = {
@@ -1641,6 +1642,7 @@ def test_card16_obligation_erratum_restates_the_hand_size_at_the_natural_hand() 
     assert sorted(patch["replace"]) == [
         "decision_script",
         "deck_state",
+        "players",
         "scenario_notes",
         "terminal_postconditions",
     ]
@@ -1652,11 +1654,24 @@ def test_card16_obligation_erratum_restates_the_hand_size_at_the_natural_hand() 
     record = resolver.effective_record("CARD_16")
     assert record["obligation_digest"] != old["obligation_digest"]
     assert record["historical_digests"]["obligation_digest"] == old["obligation_digest"]
-    # Only the hand size it is measured at changes; the life obligation does not.
+    # The obligation is restated at the natural checkpoint: the hand size and the
+    # opponents' life after the two draws; each draw still costs each opponent 1.
     assert record["terminal_postconditions"] == [
         "P1 hand size=13 and Crawler is 13/13 absent other modifiers.",
-        old["terminal_postconditions"][1],
+        "P2/P3/P4 are each at 17 life.",
     ]
+    # The Crawler saw P1's turn-1 draw: each opponent is at 19 from a starting 20.
+    before = {player["player_id"]: player for player in old["players"]}
+    for player in record["players"]:
+        expected = 19 if player["player_id"] != "P1" else before["P1"]["life"]
+        assert player["life"] == expected
+        assert player["starting_life"] == before[player["player_id"]]["starting_life"]
+    assert all(
+        int(after.split()[-2]) == player["life"] - 2
+        for player in record["players"]
+        if player["player_id"] != "P1"
+        for after in record["terminal_postconditions"][1:]
+    )
     assert record["expected_events"] == old["expected_events"]
     assert record["stack_state"] == old["stack_state"]
     assert record["semantic_objects"] == old["semantic_objects"]

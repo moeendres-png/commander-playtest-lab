@@ -20,7 +20,8 @@ Psychosis Crawler on P1's battlefield. The predecessor requires:
 Obligation digest: `bda1a2e3…f764`.
 
 The five-card hand assumes that P1 holds exactly the record's three named Mountains
-before Divination draws two cards.
+before Divination draws two cards. The 18 life assumes the opponents are still at their
+starting 20 at the checkpoint.
 
 ## Why it is unreachable
 
@@ -38,6 +39,12 @@ A smaller hand is not reachable. It would need either of two routes:
   XMage's RG-06A seam `Library.restoreOrderForGameLoad` only reorders cards already
   in the library and "never moves cards between zones".
 
+The Crawler is on the battlefield from the moment the first turn begins (CR 103.6a; see
+`PLACEMENT_POINT_ADJUDICATION.md`), so it sees P1's turn-1 draw. Each opponent's starting
+life of 20 is set before the draw step, so the opponents are at 19 at the checkpoint, not
+20. No legal history puts the Crawler on the battlefield on P1's turn-1 main phase
+without it seeing that draw.
+
 With the predecessor obligation, the 1.0.18 scenario erratum declared a complete
 three-card hand. That hand always failed closed with `INCOMPLETE_LIBRARY_ORDER`:
 101 library cards requested against 93 present, because eight drawn template cards
@@ -50,11 +57,14 @@ stayed in hand.
   exactly as CARD_07 declares), plus the three named Mountains, for eleven cards.
   The library is declared complete: the two named cards on top of the 91 remaining
   template Mountains.
-- **Hand-size postcondition.** Restated at that hand: "P1 hand size=13 and Crawler is
-  13/13 absent other modifiers."
-- **Unchanged.** The life postcondition, the required events (two draws, two Crawler
-  triggers), the objects, the stack, the temporal state, and the decision script.
-  The script holds the CR 603.3b ordering of the two simultaneous triggers.
+- **Opponents' life.** The checkpoint life that the turn-1 draw's trigger caused is
+  declared: 19 each, with starting life 20.
+- **Postconditions.** Both are restated at that checkpoint:
+  - "P1 hand size=13 and Crawler is 13/13 absent other modifiers."
+  - "P2/P3/P4 are each at 17 life."
+- **Unchanged.** The required events (two draws, two Crawler triggers), the objects,
+  the stack, the temporal state, and the decision script. The script holds the
+  CR 603.3b ordering of the two simultaneous triggers.
 
 The Rules content of the obligation is preserved:
 
@@ -63,7 +73,7 @@ The Rules content of the obligation is preserved:
 - each opponent loses 1 life per draw;
 - P1 orders the two simultaneous triggers.
 
-Only the hand size at which power and toughness are measured changes. The new check
+Only the state at which these are measured changes. The new check
 is an exact hand count (`hand_count`), not the former minimum (`hand_count_min`).
 
 ## Lineage

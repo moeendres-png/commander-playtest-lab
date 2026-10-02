@@ -1357,9 +1357,9 @@ PLANS: dict[str, ObligationPlan] = {
                 ),
             ),
             PostconditionProof(
-                "P2/P3/P4 are each at 18 life.",
-                terminal_check=_life("P2", 18),
-                also=(_life("P3", 18), _life("P4", 18)),
+                "P2/P3/P4 are each at 17 life.",
+                terminal_check=_life("P2", 17),
+                also=(_life("P3", 17), _life("P4", 17)),
             ),
         ),
         token_bindings=(

@@ -123,7 +123,7 @@
   "successor_contract_creation_is_runtime_credit": false,
   "xmage_predecessor_start2_blocker_is_historical_provenance": true
  },
- "materialization_schema_version_note": "the record shape is unchanged from the 1.0.8 successor schema; 1.0.18 adds two actual-card obligation errata (CARD_06: Oracle conflict; CARD_16: the hand size restated at the construction vehicle's natural turn-1 hand), the CARD_03/CARD_13/CARD_22 decision-script errata and the CARD_07/CARD_10 scenario errata while preserving every 1.0.17 overlay byte-semantically",
+ "materialization_schema_version_note": "the record shape is unchanged from the 1.0.8 successor schema; 1.0.18 adds two actual-card obligation errata (CARD_06: Oracle conflict; CARD_16: the obligation restated at the construction vehicle's natural turn-1 state), the CARD_03/CARD_13/CARD_22 decision-script errata and the CARD_07/CARD_10 scenario errata while preserving every 1.0.17 overlay byte-semantically",
  "predecessor": {
   "path": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_17.json",
   "record_count": 43,
@@ -12872,13 +12872,13 @@
      "actor": null,
      "details": {
       "authority": "Coordinator adjudication 2026-10-02 (docs/af07_final_closure_20261002/PLACEMENT_POINT_ADJUDICATION.md and CARD16_OBLIGATION_ERRATUM.md): an obligation the construction vehicle cannot reach without a forbidden hand mutation is corrected by a versioned obligation erratum that keeps its Rules content; predecessor lineage is preserved, the obligation digest changes explicitly and no predecessor evidence transfers. #255 SLOT-04 for the complete checkpoint and the decision script",
-      "correction": "declare P1's natural checkpoint hand (the opening seven and the turn-1 draw as template Mountains, plus the three named Mountains: eleven cards) and the matching complete library (the two named cards on top of the 91 remaining template Mountains), and restate the hand-size postcondition for that hand: Divination's two draws make it thirteen and the Crawler 13/13; the Rules content of the obligation (power and toughness equal to the hand size, one trigger and one life lost by each opponent per draw, the CR 603.3b ordering of the two simultaneous triggers) is unchanged",
-      "defect": "the predecessor measures the Crawler at a five-card hand, which needs P1's turn-1 checkpoint hand to be exactly its three named Mountains; the construction vehicle plays the real start-of-game procedure, so P1 holds the opening seven plus the turn-1 draw (CR 103.8c: no player skips the first draw in a multiplayer game) besides the named Mountains, and a smaller hand needs either a Lab-side hand mutation (forbidden by SLOT-04 L7) or an engine game-load seam that moves cards out of a hand, which neither candidate has; the 1.0.18 scenario erratum's complete three-card hand therefore always failed closed (INCOMPLETE_LIBRARY_ORDER)",
+      "correction": "declare P1's natural checkpoint hand (the opening seven and the turn-1 draw as template Mountains, plus the three named Mountains: eleven cards), the matching complete library (the two named cards on top of the 91 remaining template Mountains) and the opponents' checkpoint life the turn-1 draw's trigger caused (19, starting life 20), and restate the postconditions at that state: Divination's two draws make P1's hand thirteen and the Crawler 13/13, and leave each opponent at 17; the Rules content of the obligation (power and toughness equal to the hand size, one trigger and one life lost by each opponent per draw, the CR 603.3b ordering of the two simultaneous triggers) is unchanged",
+      "defect": "the predecessor measures the Crawler at a five-card hand with the opponents at 20 life on P1's turn-1 main phase; the construction vehicle plays the real start-of-game procedure and turn, so P1 holds the opening seven plus the turn-1 draw (CR 103.5, 103.8c: no player skips the first draw in a multiplayer game) besides the named Mountains, and the Crawler, on the battlefield since the first turn began, sees that draw, so each opponent (starting life 20) is at 19; a smaller hand needs a Lab-side hand mutation (forbidden by SLOT-04 L7) or an engine game-load seam that moves cards out of a hand, which neither candidate has, so the 1.0.18 scenario erratum's complete three-card hand always failed closed (INCOMPLETE_LIBRARY_ORDER)",
       "erratum_class": "ACTUAL_CARD_OBLIGATION_ERRATUM",
       "obligation_changed": true,
       "prose_derived_action_injection": false,
       "provider_semantics_used": false,
-      "rules_basis": "CR 103.5 and 103.8c (the natural turn-1 hand: opening seven plus the first draw in a multiplayer game); #255 SLOT-04 (L7 lossless construction); CR 603.3b (simultaneous triggers are ordered by their controller)",
+      "rules_basis": "CR 103.5, 103.6a and 103.8c (restored permanents enter when the first turn begins; the natural turn-1 hand is the opening seven plus the first draw in a multiplayer game, which the Crawler sees); #255 SLOT-04 (L7 lossless construction); CR 603.3b (simultaneous triggers are ordered by their controller)",
       "stack_entry": "causal_stack route of the production probe",
       "includes_lossless_library_erratum": true,
       "predecessor_obligation_digest": "bda1a2e3ba2cd856a6ee6f0291959afaed31bff2ce1dc0f3a395ed078f57f764",
@@ -12894,7 +12894,7 @@
    ],
    "authority_overlay": {
     "comprehensive_rules_effective_date": "2026-09-25",
-    "comprehensive_rules_rule": "fixture-contract successor rule: actual-card obligation erratum (construction-vehicle hand); #255 SLOT-04 actual-card decision script",
+    "comprehensive_rules_rule": "fixture-contract successor rule: actual-card obligation erratum (construction-vehicle checkpoint); #255 SLOT-04 actual-card decision script",
     "historical_rsp": "commander-lab.rules-service/1.1.0",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
     "transport_protocol": "2.0.0"
@@ -12903,7 +12903,7 @@
    "digest_migration": {
     "obligation_digest": "CHANGED_OBLIGATION_ERRATUM",
     "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
-    "reason": "The checkpoint hand, the library, the decision script and the hand-size postcondition change, so the requested-state, obligation and materialization digests all change; the predecessor obligation digest is preserved under historical_digests and in this erratum's details",
+    "reason": "The checkpoint hand, the library, the opponents' checkpoint life, the decision script and both postconditions change, so the requested-state, obligation and materialization digests all change; the predecessor obligation digest is preserved under historical_digests and in this erratum's details",
     "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
    },
    "evidence_survival": "REQUALIFICATION_REQUIRED",
@@ -12918,7 +12918,7 @@
      "P1 hand size=5 and Crawler is 5/5 absent other modifiers.",
      "P2/P3/P4 are each at 18 life."
     ],
-    "reason": "the predecessor measures the Crawler at a five-card hand, which needs P1's turn-1 checkpoint hand to be exactly its three named Mountains; the construction vehicle plays the real start-of-game procedure, so P1 holds the opening seven plus the turn-1 draw (CR 103.8c: no player skips the first draw in a multiplayer game) besides the named Mountains, and a smaller hand needs either a Lab-side hand mutation (forbidden by SLOT-04 L7) or an engine game-load seam that moves cards out of a hand, which neither candidate has; the 1.0.18 scenario erratum's complete three-card hand therefore always failed closed (INCOMPLETE_LIBRARY_ORDER)"
+    "reason": "the predecessor measures the Crawler at a five-card hand with the opponents at 20 life on P1's turn-1 main phase; the construction vehicle plays the real start-of-game procedure and turn, so P1 holds the opening seven plus the turn-1 draw (CR 103.5, 103.8c: no player skips the first draw in a multiplayer game) besides the named Mountains, and the Crawler, on the battlefield since the first turn began, sees that draw, so each opponent (starting life 20) is at 19; a smaller hand needs a Lab-side hand mutation (forbidden by SLOT-04 L7) or an engine game-load seam that moves cards out of a hand, which neither candidate has, so the 1.0.18 scenario erratum's complete three-card hand always failed closed (INCOMPLETE_LIBRARY_ORDER)"
    },
    "predecessor_requested_state_digest": "679402de5e889a344e8599883d5324b700f64278d7143208f9c892e89f086f4b",
    "replace": {
@@ -13034,18 +13034,56 @@
       }
      }
     ],
+    "players": [
+     {
+      "eliminated": false,
+      "life": 40,
+      "lost": false,
+      "player_id": "P1",
+      "poison": 0,
+      "seat": 1,
+      "starting_life": 40
+     },
+     {
+      "eliminated": false,
+      "life": 19,
+      "lost": false,
+      "player_id": "P2",
+      "poison": 0,
+      "seat": 2,
+      "starting_life": 20
+     },
+     {
+      "eliminated": false,
+      "life": 19,
+      "lost": false,
+      "player_id": "P3",
+      "poison": 0,
+      "seat": 3,
+      "starting_life": 20
+     },
+     {
+      "eliminated": false,
+      "life": 19,
+      "lost": false,
+      "player_id": "P4",
+      "poison": 0,
+      "seat": 4,
+      "starting_life": 20
+     }
+    ],
     "terminal_postconditions": [
      "P1 hand size=13 and Crawler is 13/13 absent other modifiers.",
-     "P2/P3/P4 are each at 18 life."
+     "P2/P3/P4 are each at 17 life."
     ],
     "scenario_notes": [
      "Minimal deterministic provider-neutral representative of the frozen obligation; provider-native construction and legality remain authoritative.",
      "P1 controls Psychosis Crawler and holds its natural turn-1 hand (the opening seven and the turn-1 draw) plus three named Mountains: eleven cards.",
-     "P2/P3/P4 start at 20 life.",
+     "P2/P3/P4 start at 20 life; P1's turn-1 draw has triggered the Crawler once, so each is at 19.",
      "Divination will make P1 draw two cards sequentially."
     ]
    },
-   "successor_requested_state_digest": "c180674767e287adc3fe7499f27c54e73e66a61bcf694e07f84791393185787e"
+   "successor_requested_state_digest": "c73ab4b536fcf42d25d0d5b3e155de783b01235f59bcf4dacba324572887146b"
   }
  ],
  "rules_authority": {
