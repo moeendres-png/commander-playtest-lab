@@ -751,3 +751,25 @@ def test_a_graveyard_mana_value_is_the_engine_characteristic_of_a_card_present()
     # The value alone, without the card in the graveyard, proves nothing.
     assert not mr.check_terminal(check, {"seats": [{**seat, "graveyard": []}]}, [], [])
     assert not mr.check_terminal(check, {"seats": [{**seat, "graveyard_mana_values": {}}]}, [], [])
+
+
+def test_battlefield_exact_compares_the_whole_battlefield_as_a_multiset() -> None:
+    check = mr.TerminalCheck(
+        "battlefield_exact", principal="P1", value=("Branch of Boseiju", "Forest", "Forest")
+    )
+    seat = {
+        "player_id": "P1",
+        "battlefield": [
+            {"card_identity": "Forest"},
+            {"card_identity": "Branch of Boseiju"},
+            {"card_identity": "Forest"},
+        ],
+    }
+    assert mr.check_terminal(check, {"seats": [seat]}, [], [])
+    # One land more (a played land would raise the count) or one fewer fails.
+    more = {**seat, "battlefield": [*seat["battlefield"], {"card_identity": "Forest"}]}
+    assert not mr.check_terminal(check, {"seats": [more]}, [], [])
+    assert not mr.check_terminal(
+        check, {"seats": [{**seat, "battlefield": seat["battlefield"][:2]}]}, [], []
+    )
+    assert not mr.check_terminal(check, {"seats": []}, [], [])

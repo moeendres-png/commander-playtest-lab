@@ -6110,32 +6110,131 @@
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
      "step_id": "erratum-lossless-library-card_29"
+    },
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255 comment 5925956587 (SLOT-04): lossy or ambiguous fixtures are corrected and versioned rather than weakening execution; a record's decision script answers only the discretionary decisions the Rules Core itself asks, and an unscripted discretionary decision stops the row",
+      "correction": "each player controls a Spellbook (no maximum hand size, a non-land artifact, so P1's land count and Branch of Boseiju's P/T are unchanged); chapter I's two Forests are answered on the engine's own target frame",
+      "defect": "the obligation spans three of P1's turns, but every lossless hand holds at least the opening seven cards, so each player's cleanup step asks a discard the record cannot script; and chapter I's search is scripted as a choose_object step where the engine asks one multi-select target frame",
+      "erratum_class": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
+      "includes_lossless_library_erratum": true,
+      "includes_requested_state_addition": [
+       "obj:card29-book-p1",
+       "obj:card29-book-p2",
+       "obj:card29-book-p3",
+       "obj:card29-book-p4"
+      ],
+      "obligation_changed": false,
+      "prose_derived_action_injection": false,
+      "provider_semantics_used": false
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-decision-script-card_29"
     }
    ],
    "authority_overlay": {
     "comprehensive_rules_effective_date": "2026-09-25",
-    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 lossless library construction",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 actual-card decision script",
     "historical_rsp": "commander-lab.rules-service/1.1.0",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
     "transport_protocol": "2.0.0"
    },
-   "correction_class": "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04",
+   "correction_class": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
    "digest_migration": {
     "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
     "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
-    "reason": "The requested state gains complete checkpoint libraries and hands, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "reason": "The decision script (and, where named, the declared payment sources) change, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
     "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
    },
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "fixture_id": "CARD_29",
    "knowledge_state_channel_policy": "RSP actor-aware observation applies to prompts, context, options, source/ability metadata, events, transcripts and logs.",
    "predecessor_invalidity": {
-    "partial_library_objects": [
-     "obj:card29-lib-forest-0",
-     "obj:card29-lib-forest-1"
+    "lossless_library": {
+     "partial_library_objects": [
+      "obj:card29-lib-forest-0",
+      "obj:card29-lib-forest-1"
+     ],
+     "reason": "the predecessor names only the top library cards the obligation uses and nothing else; under SLOT-04 L7 a partial library request fails closed, so no lossless construction of the predecessor exists",
+     "undeclared_checkpoint_hands": true
+    },
+    "predecessor_decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-0",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:card_29-subject"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-1",
+      "decision_family": "choose_object",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_object_set",
+       "semantic_value": [
+        "obj:card29-lib-forest-0",
+        "obj:card29-lib-forest-1"
+       ]
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-2",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_object",
+       "semantic_value": "obj:card29-gy-forest"
+      }
+     }
     ],
-    "reason": "the predecessor names only the top library cards the obligation uses and nothing else; under SLOT-04 L7 a partial library request fails closed, so no lossless construction of the predecessor exists",
-    "undeclared_checkpoint_hands": true
+    "reason": "the obligation spans three of P1's turns, but every lossless hand holds at least the opening seven cards, so each player's cleanup step asks a discard the record cannot script; and chapter I's search is scripted as a choose_object step where the engine asks one multi-select target frame"
    },
    "predecessor_requested_state_digest": "bf808faf04a30a321ab505f266b5b7e2e076c7790624238f7f3d0bee497f48fc",
    "replace": {
@@ -6223,9 +6322,267 @@
       "player_id": "P4",
       "shuffle_channel": "library_shuffle:P4"
      }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-0",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:card_29-subject"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-1",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "chapter I: the engine asks the basic Forest cards to find as one multi-select target frame",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_objects",
+       "semantic_value": [
+        "obj:card29-lib-forest-0",
+        "obj:card29-lib-forest-1"
+       ]
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-2",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_object",
+       "semantic_value": "obj:card29-gy-forest"
+      }
+     }
+    ],
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "card_lineage_id": "line:obj:card_29-subject",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card_29-subject",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Forest",
+      "card_lineage_id": "line:obj:card29-gy-forest",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card29-gy-forest",
+      "tapped": false,
+      "zone": "graveyard"
+     },
+     {
+      "card_identity": "Forest",
+      "card_lineage_id": "line:obj:card29-lib-forest-0",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card29-lib-forest-0",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 0
+     },
+     {
+      "card_identity": "Forest",
+      "card_lineage_id": "line:obj:card29-lib-forest-1",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card29-lib-forest-1",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 1
+     },
+     {
+      "card_identity": "Forest",
+      "card_lineage_id": "line:obj:card29-land-0",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card29-land-0",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Forest",
+      "card_lineage_id": "line:obj:card29-land-1",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card29-land-1",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Forest",
+      "card_lineage_id": "line:obj:card29-land-2",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card29-land-2",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Forest",
+      "card_lineage_id": "line:obj:card29-land-3",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card29-land-3",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Spellbook",
+      "card_lineage_id": "line:obj:card29-book-p1",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card29-book-p1",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Spellbook",
+      "card_lineage_id": "line:obj:card29-book-p2",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:card29-book-p2",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Spellbook",
+      "card_lineage_id": "line:obj:card29-book-p3",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:card29-book-p3",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Spellbook",
+      "card_lineage_id": "line:obj:card29-book-p4",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:card29-book-p4",
+      "tapped": false,
+      "zone": "battlefield"
+     }
     ]
    },
-   "successor_requested_state_digest": "2e7dc8f28ab285c9f9d962da3bc7fa795cd944235cc874b8ea9010c379cbc578"
+   "successor_requested_state_digest": "099554901126add0f83f9037a2bc624b8db375004b09509cfc3d95aaddafd875"
   },
   {
    "append_native_procedure": [

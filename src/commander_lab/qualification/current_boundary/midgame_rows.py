@@ -127,6 +127,11 @@ class TerminalCheck:
                 f"every {self.card_identity} on {self.principal}'s battlefield has an "
                 f"engine {trigger} triggered ability with a {effect}"
             )
+        if self.kind == "battlefield_exact":
+            return (
+                f"{self.principal}'s battlefield is exactly {sorted(self.value)} "
+                "(by card identity, as a multiset)"
+            )
         if self.kind == "graveyard_mana_value":
             return (
                 f"{self.card_identity} in {self.principal}'s graveyard has mana value {self.value}"
@@ -1021,6 +1026,11 @@ def check_terminal(
             and f"spend {str(check.value).lower()} mana" in str(frame.selected_label or "").lower()
             for frame in trace
         )
+    if check.kind == "battlefield_exact":
+        identities = sorted(
+            str(card.get("card_identity")) for card in seat.get("battlefield") or ()
+        )
+        return bool(seat) and identities == sorted(check.value)
     if check.kind == "frame_offers":
         decision_class, count = check.value
         return any(

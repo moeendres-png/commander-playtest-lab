@@ -949,6 +949,106 @@ PLANS: dict[str, ObligationPlan] = {
             ),
         ),
     ),
+    # Boseiju Reaches Skyward across three of P1's turns: each chapter is the
+    # Saga's own engine trigger; chapter III exiles the Saga and returns it as
+    # Branch of Boseiju, a reach creature whose P/T the engine reports. P1's
+    # battlefield holds exactly four Forests as lands (Spellbook is an artifact).
+    "CARD_29": ObligationPlan(
+        fixture_id="CARD_29",
+        proofs=(
+            PostconditionProof(
+                "After chapter III Branch of Boseiju is on P1 battlefield transformed with reach "
+                "and P/T equal to P1 current land count.",
+                terminal_check=_on_battlefield("P1", "Branch of Boseiju"),
+                also=(
+                    _permanent("keyword", "P1", "Branch of Boseiju", "reach"),
+                    _permanent("power_toughness", "P1", "Branch of Boseiju", (4, 4)),
+                    midgame_rows_mod.TerminalCheck(
+                        "battlefield_exact",
+                        principal="P1",
+                        value=(
+                            "Branch of Boseiju",
+                            "Forest",
+                            "Forest",
+                            "Forest",
+                            "Forest",
+                            "Spellbook",
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        max_decisions=900,
+        token_bindings=(
+            (
+                "Saga_I",
+                (
+                    _events(
+                        "TRIGGERED_ABILITY",
+                        ("source_name", "Boseiju Reaches Skyward"),
+                        ("target_name~", "stack ability (I - "),
+                        count=1,
+                    ),
+                    _events(
+                        "ZONE_CHANGE",
+                        ("source_name", "Boseiju Reaches Skyward"),
+                        ("from", "LIBRARY"),
+                        ("to", "HAND"),
+                        count=2,
+                    ),
+                ),
+            ),
+            (
+                "Saga_II",
+                (
+                    _events(
+                        "TRIGGERED_ABILITY",
+                        ("source_name", "Boseiju Reaches Skyward"),
+                        ("target_name~", "stack ability (II - "),
+                        count=1,
+                    ),
+                    _events(
+                        "ZONE_CHANGE",
+                        ("target_object", "obj:card29-gy-forest"),
+                        ("from", "GRAVEYARD"),
+                        ("to", "LIBRARY"),
+                        count=1,
+                    ),
+                ),
+            ),
+            (
+                "Saga_III",
+                _events(
+                    "TRIGGERED_ABILITY",
+                    ("source_name", "Boseiju Reaches Skyward"),
+                    ("target_name~", "stack ability (III - "),
+                    count=1,
+                ),
+            ),
+            (
+                "exile_Saga",
+                _events(
+                    "ZONE_CHANGE",
+                    ("target_name", "Boseiju Reaches Skyward"),
+                    ("player_player", "P1"),
+                    ("from", "BATTLEFIELD"),
+                    ("to", "EXILED"),
+                    count=1,
+                ),
+            ),
+            (
+                "return_transformed:Branch_of_Boseiju",
+                _events(
+                    "ZONE_CHANGE",
+                    ("target_name", "Branch of Boseiju"),
+                    ("player_player", "P1"),
+                    ("from", "EXILED"),
+                    ("to", "BATTLEFIELD"),
+                    count=1,
+                ),
+            ),
+        ),
+    ),
     # Harmonic Prodigy makes Talrand's cast trigger trigger an additional time:
     # the engine reports exactly two Talrand trigger instances for the one Bolt.
     "CARD_06": ObligationPlan(

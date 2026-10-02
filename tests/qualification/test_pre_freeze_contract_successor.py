@@ -68,7 +68,7 @@ CARD_SCRIPT_ERRATA_IDS = [
 ]
 # Rows whose 1.0.12 lossless-library overlay travels inside a later
 # decision-script erratum (they keep their place in the patch order).
-CARRIED_LIBRARY_ERRATA_IDS = ["CARD_09", "CARD_15", "CARD_27", "CARD_12"]
+CARRIED_LIBRARY_ERRATA_IDS = ["CARD_09", "CARD_15", "CARD_27", "CARD_12", "CARD_29"]
 CARD_ERRATA_IDS = [*CARD_LIBRARY_ERRATA_IDS, *CARD_SCRIPT_ERRATA_IDS]
 # The later SLOT-04 event-scenario errata (1.0.15): a scry and a pile split.
 LATE_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_10", "HIDDEN_13"]
@@ -125,6 +125,23 @@ RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_R
 
 def _json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _declared_object_additions(patch: dict) -> list[str]:
+    """The objects an erratum declares it adds to the requested state."""
+    added: list[str] = []
+    for step in patch["append_native_procedure"]:
+        added += list(step["details"].get("includes_requested_state_addition") or ())
+    return added
+
+
+def _assert_objects_only_gain_declared_additions(
+    record: dict, predecessor: dict, added: list[str]
+) -> None:
+    """Every predecessor object is kept byte for byte; only declared ids are new."""
+    objects = record["semantic_objects"]
+    assert objects[: len(predecessor["semantic_objects"])] == predecessor["semantic_objects"]
+    assert [o["semantic_id"] for o in objects[len(predecessor["semantic_objects"]) :]] == added
 
 
 def _resolver():
@@ -953,13 +970,16 @@ def test_card_library_errata_complete_the_library_and_keep_the_obligation() -> N
     for fixture_id in CARD_LIBRARY_ERRATA_IDS:
         assert fixture_id not in denominator
         script_erratum = fixture_id in CARRIED_LIBRARY_ERRATA_IDS
+        added = _declared_object_additions(errata[fixture_id])
         assert sorted(errata[fixture_id]["replace"]) == (
-            ["decision_script", "deck_state"] if script_erratum else ["deck_state"]
+            sorted(["decision_script", "deck_state", *(["semantic_objects"] if added else [])])
+            if script_erratum
+            else ["deck_state"]
         )
         record = resolver.effective_record(fixture_id)
         predecessor = base[fixture_id]
         assert record["obligation_digest"] == predecessor["obligation_digest"]
-        assert record["semantic_objects"] == predecessor["semantic_objects"]
+        _assert_objects_only_gain_declared_additions(record, predecessor, added)
         if not script_erratum:
             assert record["decision_script"] == predecessor["decision_script"]
         library_objects = sorted(
@@ -1004,19 +1024,20 @@ def test_card_script_errata_answer_the_engine_asked_decisions_and_keep_the_oblig
         record = resolver.effective_record(fixture_id)
         predecessor = base[fixture_id]
         assert record["obligation_digest"] == predecessor["obligation_digest"]
-        assert record["semantic_objects"] == predecessor["semantic_objects"]
+        _assert_objects_only_gain_declared_additions(
+            record, predecessor, _declared_object_additions(patch)
+        )
         assert record["expected_events"] == predecessor["expected_events"]
         assert record["terminal_postconditions"] == predecessor["terminal_postconditions"]
         assert (
             patch["predecessor_invalidity"]["predecessor_decision_script"]
             == (predecessor["decision_script"])
         )
-        assert set(patch["replace"]) <= {
-            "decision_script",
-            "action_cost_state",
-            "deck_state",
-            "temporal_state",
-        }
+        allowed = {"decision_script", "action_cost_state", "deck_state", "temporal_state"}
+        if _declared_object_additions(patch):
+            # Only an erratum that declares its added objects may touch them.
+            allowed.add("semantic_objects")
+        assert set(patch["replace"]) <= allowed
         erratum = record["native_procedure"][-1]["details"]
         assert erratum["erratum_class"] == "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM"
         assert erratum["obligation_changed"] is False
