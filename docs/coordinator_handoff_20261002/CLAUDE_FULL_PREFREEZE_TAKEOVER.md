@@ -4,7 +4,7 @@
 
 This file is a durable Coordinator handoff for **Commander Simulator Next — Full-Rules Engineering**.
 
-It is deliberately a **single sequential continuation prompt**. The owner has explicitly instructed that Claude should take over the work that had previously been split between Sol High and OpenCode/Muse, execute it itself in order, persist each milestone, and continue until the pre-Freeze campaign is complete or a genuine terminal Authority/Rules/Permission/Ownership gate is proven.
+It is deliberately a **single sequential continuation prompt**. The owner has explicitly instructed that Claude should take over the work that had previously been split between Sol High and OpenCode, execute it itself in order, persist each milestone, and continue until the pre-Freeze campaign is complete or a genuine terminal Authority/Rules/Permission/Ownership gate is proven.
 
 This document is a snapshot and **never overrides fresher GitHub truth**. Every phase begins with a fresh source lock.
 
@@ -18,7 +18,7 @@ You are Claude operating as the single sequential Coordinator + engineering exec
 
 **Commander Simulator Next — Full-Rules Engineering**
 
-You have GitHub access and are expected to perform the work directly. Do **not** hand the campaign back to OpenCode, Sol, another model, or another parallel writer unless the owner explicitly asks you to. The latest direct owner instruction for this takeover is that **Claude itself should continue and finish the work that had previously been planned for OpenCode/Muse and Sol High, sequentially**.
+You have GitHub access and are expected to perform the work directly. Do **not** hand the campaign back to OpenCode, Sol, another model, or another parallel writer unless the owner explicitly asks you to. The latest direct owner instruction for this takeover is that **Claude itself should continue and finish the work that had previously been planned for OpenCode and Sol High, sequentially**.
 
 This is a one-writer takeover. Preserve resumability after every material milestone.
 
@@ -110,12 +110,13 @@ Two separate facts must not be confused:
 
 1. **This campaign:** the latest direct owner instruction explicitly assigns the whole remaining sequential campaign to **Claude**. Therefore you are authorized to implement, test, integrate and adjudicate the phases below yourself.
 
-2. **Future project default execution routing:** the owner's standing project preference remains:
-   - OpenCode Go + Muse Spark 1.3 Contributor as primary implementation execution direction;
-   - HIGH for normal substantial work;
-   - XHIGH for difficult, non-local, architecture-near or evidence-sensitive work.
+2. **Future project default execution routing:** newest direct owner authority is:
+   - DeepSeek v4.1 Flash MAX as the default/primary OpenCode executor;
+   - Space Bunny MAX as the explicit secondary OpenCode executor;
+   - no other OpenCode execution profile is currently authorized;
+   - no automatic fallback.
 
-The repository was freshly found stale against that standing default: it still routes primarily to DeepSeek MAX and marks Muse inactive. One phase below reconciles that repository default for future Foundry/OpenCode operation. That phase does **not** invalidate this direct Claude takeover.
+Historical executor/model references are provenance only and are not migration targets. They must not create a routing/governance task without a new direct owner instruction. This routing authority does **not** invalidate the direct Claude takeover.
 
 ## 5. FRESHLY VERIFIED SNAPSHOT — DISCOVERY INPUT ONLY
 
@@ -479,53 +480,28 @@ If exact-head runs are already green, prefer evidence inspection and merge over 
 
 ---
 
-# PHASE 2 — RECONCILE FUTURE FOUNDRY EXECUTION AUTHORITY
+# PHASE 2 — CURRENT FOUNDRY EXECUTION AUTHORITY — ALREADY ADJUDICATED
 
-Workstream:
-`GOV-MUSE-EXECUTION-AUTHORITY-RECONCILIATION-20261002`
+Newest direct owner authority supersedes the earlier Muse-migration plan.
 
-Repository:
-`moeendres-png/commander-playtest-lab`
+Current OpenCode authority:
+- DeepSeek v4.1 Flash MAX default/primary;
+- Space Bunny MAX explicit secondary;
+- no other OpenCode execution profile currently authorized;
+- no automatic fallback.
 
-Fresh audit finding:
-`REPO_CONFIG_STALE_AGAINST_USER_AUTHORITY`
+Issue #480 is superseded/not-planned. Do **not** create or revive a Muse/model-migration
+workstream from historical references. Expanding or replacing the active pair requires a new
+direct owner instruction.
 
-Current repository surfaces had:
-- DeepSeek `opencode-go/deepseek-v4.1-flash` as primary;
-- native `max`;
-- Muse inactive/not routed;
-- agent definitions hard-wired to DeepSeek MAX.
+Canonical current authority is maintained in:
+- `AGENTS.md`;
+- `docs/CURRENT_EXECUTION_AUTHORITY.md`;
+- `docs/foundry-execution/ROUTING_AND_EFFORT.md`;
+- `.foundry/executor-profiles.json`;
+- `opencode.json`.
 
-Standing owner authority for future default Foundry/OpenCode execution:
-- OpenCode Go + Muse Spark 1.3 Contributor primary;
-- HIGH normal;
-- XHIGH difficult/non-local/architecture-near.
-
-Inspect at least:
-- `AGENTS.md`
-- `opencode.json`
-- `.foundry/executor-profiles.json`
-- `tools/foundry/launcher.py`
-- `.opencode/agents/foundry-implementer.md`
-- `.opencode/agents/foundry-adjudicator.md`
-- `.opencode/agents/foundry-reviewer.md`
-- routing docs
-- relevant tests/workflows
-
-Requirements:
-- verify the live OpenCode model/variant names before writing;
-- use actual supported HIGH/XHIGH mappings, never guessed strings;
-- fail closed if the required Muse model/variant is unavailable;
-- no silent DeepSeek/Space Bunny fallback;
-- persist exact chosen model/effort in launch context/telemetry;
-- preserve role-based permission boundaries;
-- no Rules/engine/pin/FULL107 changes.
-
-Create a bounded branch/PR.
-Run focused launcher/routing tests and negative wrong-model/wrong-effort controls.
-Merge only exact-head green/review-clean.
-
-This phase sets the future default. It does not change the owner-authorized Claude execution of this takeover.
+No engineering action is required in this takeover merely to revisit executor selection.
 
 ---
 
@@ -963,7 +939,7 @@ Never rewrite history to remove provenance.
 Keep security/governance separate from Rules qualification.
 
 Current audit classification:
-- P1: repository execution routing stale against owner Muse HIGH/XHIGH authority
+- RESOLVED/SUPERSEDED: current OpenCode routing authority is DeepSeek MAX primary + Space Bunny MAX explicit secondary; historical model references are not migration targets
 - P2: Foundry least-privilege/interpreter-mediated write risk
 - P2: Forge mutable Actions / unprotected default
 - P2: Mage mutable Actions / pull_request_target/write automation / unprotected default
