@@ -695,12 +695,18 @@ def test_a_hidden_public_exile_card_is_a_denied_entitlement(
 # --------------------------------------------------------------------------- #
 
 
+def _remove_one_lossless_check(capture: kp.Capture) -> None:
+    checks = capture.scoped_arrival["lossless_hidden_checks"]
+    assert checks
+    checks.pop(sorted(checks)[0])
+
+
 @pytest.mark.parametrize(
     ("name", "mutate"),
     [
         (
             "a lossless check that never ran",
-            lambda c: c.scoped_arrival["lossless_hidden_checks"].pop("face_down"),
+            _remove_one_lossless_check,
         ),
         ("an inexact construction", lambda c: setattr(c, "arrival_verdict", "MISMATCH")),
         ("a construction mismatch", lambda c: c.scoped_arrival.update(mismatches=["x"])),
