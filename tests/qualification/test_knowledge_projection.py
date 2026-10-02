@@ -409,6 +409,91 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
                 "target_name": "Gonti, Lord of Luxury",
             },
         ]
+    controlled_decision: dict[str, Any] | None = None
+    controlled_submission: dict[str, Any] | None = None
+    if kind == "exile_permission_invalidates":
+        pre_projections = {label: copy.deepcopy(projections[label]) for label in LABELS}
+        pre_projections["P1"]["view"]["players"][1]["exile"].append(
+            {"name": "Memnite", "object_id": "memnite-exiled", "face_down": True}
+        )
+        for label in LABELS:
+            pre_projections[label]["view"]["players"][1]["exile_count"] = 2
+        grant = {
+            "sequence": 3,
+            "type": "ZONE_CHANGE",
+            "from": "LIBRARY",
+            "to": "EXILED",
+            "public_identity": False,
+            "player_player": "P2",
+            "source_object": "obj:hidden06-gonti",
+            "source_name": "Gonti, Lord of Luxury",
+        }
+        departure = {
+            "sequence": 7,
+            "type": "ZONE_CHANGE",
+            "from": "EXILED",
+            "to": "STACK",
+            "public_identity": True,
+            "player_player": "P2",
+            "target_name": "Memnite",
+        }
+        temporal_snapshots.append(
+            {
+                "causal_step_id": "cast-exiled-card",
+                "script_position": 3,
+                "tape_index": len(tape),
+                "projection": copy.deepcopy(pre_projections["P1"]),
+                "projections": pre_projections,
+                "events": {"events": [grant]},
+            }
+        )
+        events.extend([grant, departure])
+        for label in LABELS:
+            projections[label]["view"]["players"][0]["battlefield"].append(
+                {"name": "Memnite", "object_id": "memnite-new-object", "face_down": False}
+            )
+
+    if kind == "controlled_player_authority":
+        p1_view = copy.deepcopy(projections["P1"]["view"])
+        p2_row = p1_view["players"][1]
+        p2_row["private_state_visible"] = True
+        p2_row["hand"] = [{"name": "Demonic Tutor", "object_id": "dt-controlled"}]
+        controlled_decision = _frame("P1", "controlled-p2")
+        controlled_decision["seat"] = 0
+        controlled_decision["acting_for_seat"] = 1
+        controlled_decision["pilot_state"] = p1_view
+        controlled_decision["legal_options"] = [
+            {
+                "option_id": "controlled-pass",
+                "option_type": "pass_priority",
+                "label": "Pass priority",
+                "metadata": {},
+            }
+        ]
+        controlled_submission = {
+            "decision_id": "controlled-p2",
+            "actor_id": NATIVE["P1"],
+            "selected_option_id": "controlled-pass",
+            "accepted": True,
+        }
+        tape.append(
+            _entry("get_midgame_decision", None, _ok({"decision": controlled_decision}))
+        )
+        tape.append(
+            _entry(
+                "submit_midgame_decision",
+                {
+                    "response": {
+                        "decision_id": "controlled-p2",
+                        "actor_id": NATIVE["P1"],
+                        "selected_option_ids": ["controlled-pass"],
+                    }
+                },
+                _ok({}),
+            )
+        )
+        projections["P1"]["view"] = copy.deepcopy(p1_view)
+
     if kind in ("source_metadata", "ability_metadata"):
         # P2's cloaked permanent (P2 may look at it); P1 targets it and its ward
         # trigger asks P1 to pay {2}.
@@ -470,6 +555,8 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         script_trace=[{"decision_class": "priority", "step": 0}] if script_start else [],
         script_complete=script_start is not None,
         temporal_snapshots=temporal_snapshots,
+        controlled_decision=controlled_decision,
+        controlled_submission=controlled_submission,
     )
 
 
