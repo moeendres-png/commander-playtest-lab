@@ -92,9 +92,7 @@ class TerminalCheck:
                 f"{'/'.join(self.value)}"
             )
         if self.kind == "keyword":
-            return (
-                f"every {self.card_identity} on {self.principal}'s battlefield has {self.value}"
-            )
+            return f"every {self.card_identity} on {self.principal}'s battlefield has {self.value}"
         if self.kind == "life":
             return f"{self.principal} is at {self.value} life"
         if self.kind == "trigger_count":
@@ -1013,7 +1011,6 @@ def _label_of(action: dict[str, Any]) -> str:
 def _scripted_priority_action(
     legal: dict[str, Any], step: dict[str, Any], placed: dict[str, str], commanders: dict[str, str]
 ) -> dict[str, Any]:
-    probe = probe_module()
     value = (step.get("selection") or {}).get("semantic_value") or {}
     action = str(value.get("action"))
     if action == "cast":
@@ -1075,7 +1072,7 @@ def _pending_alternative_cost(step: dict[str, Any], selected: dict[str, Any]) ->
 
 def _alternative_cost_answer(legal: dict[str, Any], alternative: str) -> dict[str, Any]:
     """The engine's own cost-choice offer naming the record's alternative cost."""
-    matches = [
+    matches: list[dict[str, Any]] = [
         action
         for action in legal.get("actions") or ()
         if _option_type(action) == "choice"
@@ -1353,7 +1350,9 @@ def _interchangeable(actions: list[dict[str, Any]]) -> bool:
     """Whether offers are instances of one ability of one source, alike in label."""
     identities = {
         (
-            ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("ability_original_id"),
+            ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get(
+                "ability_original_id"
+            ),
             ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("source_object_id"),
             _label_of(a),
         )

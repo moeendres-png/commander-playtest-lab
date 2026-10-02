@@ -700,9 +700,7 @@ PLANS: dict[str, ObligationPlan] = {
                 event_token="damage:P2:4",
             ),
         ),
-        token_bindings=(
-            ("opponent_spell_cast", _events("SPELL_CAST", ("player_player", "P2"))),
-        ),
+        token_bindings=(("opponent_spell_cast", _events("SPELL_CAST", ("player_player", "P2"))),),
     ),
     # Ishai gains its counter from P2's cast; the counter is read from the
     # engine's own COUNTER_ADDED event and from Ishai's terminal counters.
@@ -858,7 +856,9 @@ PLANS: dict[str, ObligationPlan] = {
                     _not_on_battlefield("P4", "Sol Ring"),
                 ),
             ),
-            PostconditionProof("P1 Sol Ring remains.", terminal_check=_on_battlefield("P1", "Sol Ring")),
+            PostconditionProof(
+                "P1 Sol Ring remains.", terminal_check=_on_battlefield("P1", "Sol Ring")
+            ),
             PostconditionProof(
                 "The overloaded spell has no targets.",
                 terminal_check=midgame_rows_mod.TerminalCheck("no_frame", value="target"),
@@ -868,9 +868,7 @@ PLANS: dict[str, ObligationPlan] = {
             ("overload_cast", _selected("priority", "with overload")),
             (
                 "destroy_each_opponent_artifact",
-                _events(
-                    "DESTROYED_PERMANENT", ("source_object", "obj:card_14-subject"), count=3
-                ),
+                _events("DESTROYED_PERMANENT", ("source_object", "obj:card_14-subject"), count=3),
             ),
         ),
     ),

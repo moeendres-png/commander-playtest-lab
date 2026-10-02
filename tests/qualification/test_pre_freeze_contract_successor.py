@@ -192,14 +192,16 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
     assert [patch["fixture_id"] for patch in carried] == [
         patch["fixture_id"] for patch in predecessor["record_successors"]
     ]
-    for new, old in zip(carried, predecessor["record_successors"]):
+    for new, old in zip(carried, predecessor["record_successors"], strict=True):
         if old["fixture_id"] != "CARD_09":
             assert new == old
     card09 = next(p for p in carried if p["fixture_id"] == "CARD_09")
     old09 = next(p for p in predecessor["record_successors"] if p["fixture_id"] == "CARD_09")
     assert card09["replace"]["deck_state"] == old09["replace"]["deck_state"]
     assert card09["append_native_procedure"][0] == old09["append_native_procedure"][0]
-    assert card09["predecessor_requested_state_digest"] == old09["predecessor_requested_state_digest"]
+    assert (
+        card09["predecessor_requested_state_digest"] == old09["predecessor_requested_state_digest"]
+    )
     # The CR 103.8a patch still equals the 1.0.6 original.
     start2 = next(
         patch
@@ -952,8 +954,9 @@ def test_card_script_errata_answer_the_engine_asked_decisions_and_keep_the_oblig
         assert record["semantic_objects"] == predecessor["semantic_objects"]
         assert record["expected_events"] == predecessor["expected_events"]
         assert record["terminal_postconditions"] == predecessor["terminal_postconditions"]
-        assert patch["predecessor_invalidity"]["predecessor_decision_script"] == (
-            predecessor["decision_script"]
+        assert (
+            patch["predecessor_invalidity"]["predecessor_decision_script"]
+            == (predecessor["decision_script"])
         )
         assert set(patch["replace"]) <= {"decision_script", "action_cost_state", "deck_state"}
         erratum = record["native_procedure"][-1]["details"]

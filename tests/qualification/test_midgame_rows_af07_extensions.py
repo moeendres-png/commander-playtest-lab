@@ -82,7 +82,9 @@ def test_several_casts_of_one_card_without_a_named_cost_fail_closed() -> None:
 def test_an_alternative_cost_no_offer_or_two_offers_name_fails_closed() -> None:
     legal = {"actions": [_cast("Cast A with flashback"), _cast("Cast A with flashback, kicked")]}
     with pytest.raises(mr.ml.MidgameLaneError, match="alternative cost"):
-        mr._scripted_priority_action(legal, _priority_step(alternative_cost="flashback"), PLACED, {})
+        mr._scripted_priority_action(
+            legal, _priority_step(alternative_cost="flashback"), PLACED, {}
+        )
     legal = {"actions": [_cast("Cast A"), _cast("Cast A from exile")]}
     with pytest.raises(mr.ml.MidgameLaneError):
         mr._scripted_priority_action(legal, _priority_step(alternative_cost="evoke"), PLACED, {})
@@ -325,7 +327,9 @@ def test_permanent_state_checks_hold_for_every_permanent_of_the_identity() -> No
             }
         ]
     }
-    assert not mr.check_terminal(_state("power_toughness", "Devil Token", (1, 1)), one_differs, [], [])
+    assert not mr.check_terminal(
+        _state("power_toughness", "Devil Token", (1, 1)), one_differs, [], []
+    )
     assert not mr.check_terminal(_state("keyword", "Devil Token", "haste"), one_differs, [], [])
 
 
@@ -340,12 +344,16 @@ def test_a_permanent_check_on_an_absent_identity_never_holds() -> None:
 
 
 def test_not_on_battlefield_needs_the_seat_and_no_permanent_of_the_identity() -> None:
-    assert mr.check_terminal(_state("not_on_battlefield", "Sol Ring", None, "P2"), OBSERVATION, [], [])
+    assert mr.check_terminal(
+        _state("not_on_battlefield", "Sol Ring", None, "P2"), OBSERVATION, [], []
+    )
     assert not mr.check_terminal(
         _state("not_on_battlefield", "Devil Token", None), OBSERVATION, [], []
     )
     # An unobserved seat is no evidence of absence.
-    assert not mr.check_terminal(_state("not_on_battlefield", "Sol Ring", None, "P3"), OBSERVATION, [], [])
+    assert not mr.check_terminal(
+        _state("not_on_battlefield", "Sol Ring", None, "P3"), OBSERVATION, [], []
+    )
 
 
 def test_a_bound_token_takes_precedence_and_an_unbound_unknown_token_stays_unobserved() -> None:
