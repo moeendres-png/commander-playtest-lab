@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +44,7 @@ class XmageKnowledgeShuffleInvalidationTest {
                 4,
                 "P1",
                 objects,
-                Map.of("P2", List.of("Vampiric Tutor", "Mystical Tutor", "Enlightened Tutor"))
+                Map.of("P2", List.of("Sol Ring", "Mind Stone", "Arcane Signet"))
         );
         GameCommanderImpl game = s.session.restorationGame();
         Player p1 = s.seats.get("P1");
@@ -54,9 +53,9 @@ class XmageKnowledgeShuffleInvalidationTest {
         // Losslessly choose a deliberately non-canonical top-three order so
         // retaining the old order is observable after the shuffle.
         List<String> current = libraryNames(p2, game);
-        removeOnce(current, "Vampiric Tutor");
-        removeOnce(current, "Mystical Tutor");
-        removeOnce(current, "Enlightened Tutor");
+        removeOnce(current, "Sol Ring");
+        removeOnce(current, "Mind Stone");
+        removeOnce(current, "Arcane Signet");
         List<String> requested = new ArrayList<>(List.of(
                 "Vampiric Tutor", "Mystical Tutor", "Enlightened Tutor"));
         requested.addAll(current);
@@ -69,7 +68,7 @@ class XmageKnowledgeShuffleInvalidationTest {
                         List.of())
         );
         assertEquals(
-                List.of("Vampiric Tutor", "Mystical Tutor", "Enlightened Tutor"),
+                List.of("Sol Ring", "Mind Stone", "Arcane Signet"),
                 libraryNames(p2, game).subList(0, 3)
         );
 
@@ -86,7 +85,7 @@ class XmageKnowledgeShuffleInvalidationTest {
         assertNotNull(before, "Spy must create a real principal-scoped look observation");
         assertFalse(before.has("order_invalidated_by_shuffle"));
         assertEquals(
-                List.of("Vampiric Tutor", "Mystical Tutor", "Enlightened Tutor"),
+                List.of("Sol Ring", "Mind Stone", "Arcane Signet"),
                 names(before)
         );
         for (String pid : List.of("P2", "P3", "P4")) {
@@ -116,12 +115,12 @@ class XmageKnowledgeShuffleInvalidationTest {
         );
         List<String> remembered = names(after);
         assertEquals(
-                List.of("Enlightened Tutor", "Mystical Tutor", "Vampiric Tutor"),
+                List.of("Arcane Signet", "Mind Stone", "Sol Ring"),
                 remembered,
                 "identity memory remains, but only in deterministic non-order form"
         );
         assertNotEquals(
-                List.of("Vampiric Tutor", "Mystical Tutor", "Enlightened Tutor"),
+                List.of("Sol Ring", "Mind Stone", "Arcane Signet"),
                 remembered,
                 "pre-shuffle engine order must not survive as current-order knowledge"
         );
