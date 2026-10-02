@@ -470,7 +470,9 @@ def test_shadow_workflow_executes_trusted_base_only() -> None:
     inspect = next(step for step in steps if step.get("id") == "inspect")
     assert inspect["env"]["BASE_SHA"] == "${{ github.event.pull_request.base.sha }}"
     assert inspect["env"]["CANDIDATE_SHA"] == "${{ github.event.pull_request.head.sha }}"
-    assert 'git fetch --no-tags --depth=1 origin "$CANDIDATE_SHA"' in inspect["run"]
+    assert inspect["env"]["PR_NUMBER"] == "${{ github.event.pull_request.number }}"
+    assert 'git fetch --no-tags --depth=1 origin "refs/pull/$PR_NUMBER/head"' in inspect["run"]
+    assert 'test "$(git rev-parse FETCH_HEAD)" = "$CANDIDATE_SHA"' in inspect["run"]
     assert "git checkout" not in inspect["run"]
     assert "git switch" not in inspect["run"]
 
@@ -494,6 +496,13 @@ def test_shadow_workflow_executes_trusted_base_only() -> None:
         "critical_local_action_changed",
         "validator_changed",
         "unknown_dynamic_steps",
+        "pr_path_filter",
+        "pr_types_closed",
+        "job_name_changed",
+        "job_needs",
+        "job_if_false",
+        "custom_shell",
+        "pytest_masked_exit_zero",
     ],
 )
 def test_required_mutation_campaign_never_silently_passes(
@@ -544,6 +553,26 @@ def test_required_mutation_campaign_never_silently_passes(
                 document["jobs"]["quality"]["steps"][0]["uses"] = "actions/checkout@v5"
             elif mutation == "unknown_dynamic_steps":
                 document["jobs"]["quality"]["steps"] = "${{ fromJSON(vars.REQUIRED_STEPS) }}"
+            elif mutation == "pr_path_filter":
+                events(document)["pull_request"] = {"paths": ["docs/**"]}
+            elif mutation == "pr_types_closed":
+                events(document)["pull_request"] = {"types": ["closed"]}
+            elif mutation == "job_name_changed":
+                document["jobs"]["quality"]["name"] = "not-quality"
+            elif mutation == "job_needs":
+                document["jobs"]["quality"]["needs"] = "candidate-controlled-preflight"
+            elif mutation == "job_if_false":
+                document["jobs"]["quality"]["if"] = False
+            elif mutation in {"custom_shell", "pytest_masked_exit_zero"}:
+                step = next(
+                    item
+                    for item in document["jobs"]["quality"]["steps"]
+                    if "pytest -q" in str(item.get("run", ""))
+                )
+                if mutation == "custom_shell":
+                    step["shell"] = "bash {0}"
+                else:
+                    step["run"] = "pytest -q || exit 0"
             else:
                 raise AssertionError(mutation)
 
@@ -561,4 +590,10 @@ def test_chained_required_command_is_recognized_as_command_segment() -> None:
     run = "mkdir -p artifacts/security && cyclonedx-py environment --output-format JSON"
     assert guard._matching_command_is_enforcing(
         run, guard.CATEGORY_PATTERNS["sbom"]
+    )
+
+
+def test_critical_command_or_success_masking_is_not_enforcing() -> None:
+    assert not guard._matching_command_is_enforcing(
+        "pytest -q || exit 0", guard.CATEGORY_PATTERNS["pytest"]
     )
