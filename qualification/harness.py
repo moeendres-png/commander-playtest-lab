@@ -33,9 +33,9 @@ def sha256_file(p):
 
 
 def canonical_sha256(value):
-    encoded = json.dumps(
-        value, sort_keys=True, separators=(",", ":"), ensure_ascii=False
-    ).encode("utf-8")
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode(
+        "utf-8"
+    )
     return hashlib.sha256(encoded).hexdigest()
 
 
@@ -276,18 +276,14 @@ def execute(candidate, source_lock, manifest, command=None):
         }
         resp, err = run_provider(command, req)
         if err:
-            results.append(
-                normalize_missing(candidate, source_lock, fx, err, "RUNTIME_NOT_RUN")
-            )
+            results.append(normalize_missing(candidate, source_lock, fx, err, "RUNTIME_NOT_RUN"))
             continue
 
         payload, validation_error = _validated_provider_result(
             candidate, source_lock, manifest, fx, req, resp
         )
         if validation_error:
-            results.append(
-                normalize_invalid_provider(candidate, source_lock, fx, validation_error)
-            )
+            results.append(normalize_invalid_provider(candidate, source_lock, fx, validation_error))
             continue
 
         verdict = payload["verdict"]
@@ -328,9 +324,7 @@ def aggregate(results, required_fixture_ids):
     present_ids = set(counts)
     missing = [fid for fid in required_fixture_ids if fid not in present_ids]
     bad = [
-        by[fid]
-        for fid in required_fixture_ids
-        if fid in by and by[fid].get("verdict") != "PASS"
+        by[fid] for fid in required_fixture_ids if fid in by and by[fid].get("verdict") != "PASS"
     ]
 
     blocking_results = [
@@ -367,9 +361,7 @@ def aggregate(results, required_fixture_ids):
         "production_admission": admission,
         "required_fixture_count": len(required_fixture_ids),
         "pass_count": sum(
-            1
-            for fid in required_fixture_ids
-            if fid in by and by[fid].get("verdict") == "PASS"
+            1 for fid in required_fixture_ids if fid in by and by[fid].get("verdict") == "PASS"
         ),
         "missing_fixture_ids": missing,
         "duplicate_fixture_ids": duplicate_fixture_ids,
