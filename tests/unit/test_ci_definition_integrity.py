@@ -597,7 +597,6 @@ def test_critical_command_or_success_masking_is_not_enforcing() -> None:
     )
 
 
-
 def test_general_test_definition_change_requires_review(
     repository: tuple[Path, str],
 ) -> None:
