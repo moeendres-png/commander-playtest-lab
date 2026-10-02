@@ -260,9 +260,8 @@ native_variant: max
 variant_resolution: native_max
 
 exact_next_action: >-
-  Phase 2 integration is code-complete and validated by focused tests plus a
-  live smoke run. Next: run the canonical current-boundary qualification at a
-  clean committed head (FORGE_WORKSPACE at the pinned bridge checkout,
-  --candidate all), run the canonical assembler, persist the new epoch, run
-  PB-03 on that exact head, then fresh-context review and PR #464 ready/merge
-  if every gate holds.
+  Phase 2 is code-complete and the canonical epoch is sealed. Push the branch
+  with safe_push, let the pb03-runtime workflow run on the exact head, dispatch
+  a fresh-context review of the integration diff and epoch, repair any P1/P2,
+  then mark PR #464 ready and merge through the normal GitHub path if every
+  gate holds. Verify canonical main SHA/tree afterwards.
