@@ -588,9 +588,7 @@ def test_required_mutation_campaign_never_silently_passes(
 
 def test_chained_required_command_is_recognized_as_command_segment() -> None:
     run = "mkdir -p artifacts/security && cyclonedx-py environment --output-format JSON"
-    assert guard._matching_command_is_enforcing(
-        run, guard.CATEGORY_PATTERNS["sbom"]
-    )
+    assert guard._matching_command_is_enforcing(run, guard.CATEGORY_PATTERNS["sbom"])
 
 
 def test_critical_command_or_success_masking_is_not_enforcing() -> None:
@@ -607,14 +605,15 @@ def test_general_test_definition_change_requires_review(
     head = candidate(
         repo,
         base,
-        lambda root: write(root, "tests/unit/test_new_gate_signal.py", "def test_signal(): assert True\n"),
+        lambda root: write(
+            root, "tests/unit/test_new_gate_signal.py", "def test_signal(): assert True\n"
+        ),
         "change quality test definition",
     )
     report = guard.inspect_required_check_definitions(repo, base, head)
     assert report["overall_classification"] == "GATE_DEFINITION_CHANGED_REVIEW_REQUIRED"
     assert any(
-        item["impact"] == "quality_test_definition"
-        for item in report["changed_protected_surfaces"]
+        item["impact"] == "quality_test_definition" for item in report["changed_protected_surfaces"]
     )
 
 
@@ -629,9 +628,7 @@ def test_general_test_definition_change_requires_review(
     ],
 )
 def test_critical_command_success_masking_is_not_enforcing(run: str) -> None:
-    assert not guard._matching_command_is_enforcing(
-        run, guard.CATEGORY_PATTERNS["pytest"]
-    )
+    assert not guard._matching_command_is_enforcing(run, guard.CATEGORY_PATTERNS["pytest"])
 
 
 @pytest.mark.parametrize(
