@@ -2,6 +2,7 @@ name: CI Definition Integrity Shadow
 
 on:
   pull_request_target:
+    branches: [main]
     types: [opened, synchronize, reopened, ready_for_review, edited]
 
 permissions:
@@ -24,7 +25,7 @@ jobs:
       - name: Checkout trusted base
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
-          ref: ${{ github.event.pull_request.base.sha }}
+          ref: ${{ github.sha }}
           persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
@@ -38,7 +39,8 @@ jobs:
         id: inspect
         shell: bash
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_SHA: ${{ github.sha }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
           CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
@@ -46,6 +48,7 @@ jobs:
           [[ "$BASE_SHA" =~ ^[0-9a-f]{40}$ ]] || exit 1
           [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]] || exit 1
           [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]] || exit 1
+          test "$BASE_REF" = "main"
           test "$(git rev-parse HEAD)" = "$BASE_SHA"
           git fetch --no-tags --depth=1 origin "refs/pull/$PR_NUMBER/head"
           test "$(git rev-parse FETCH_HEAD)" = "$CANDIDATE_SHA"
