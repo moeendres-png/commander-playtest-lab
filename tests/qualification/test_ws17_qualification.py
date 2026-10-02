@@ -479,6 +479,8 @@ def test_dq01_missing_or_unbound_artifact_hashes_fail_closed(monkeypatch):
         "missing",
         "empty",
         "missing-evidence",
+        "empty-evidence",
+        "unknown-artifact",
         "wrong-result",
         "wrong-binding",
         "wrong-evidence",
@@ -493,6 +495,19 @@ def test_dq01_missing_or_unbound_artifact_hashes_fail_closed(monkeypatch):
             elif mode == "missing-evidence":
                 del document["payload"]["events"]
                 document["payload"]["artifact_hashes"].pop("events_sha256")
+            elif mode == "empty-evidence":
+                document["payload"]["events"] = []
+                document["payload"]["artifact_hashes"]["events_sha256"] = _canonical_sha256([])
+                result_payload = {
+                    key: value
+                    for key, value in document["payload"].items()
+                    if key != "artifact_hashes"
+                }
+                document["payload"]["artifact_hashes"]["fixture_result_sha256"] = (
+                    _canonical_sha256(result_payload)
+                )
+            elif mode == "unknown-artifact":
+                document["payload"]["artifact_hashes"]["unverifiable_sha256"] = "1" * 64
             elif mode == "wrong-result":
                 document["payload"]["artifact_hashes"]["fixture_result_sha256"] = "0" * 64
             elif mode == "wrong-binding":
