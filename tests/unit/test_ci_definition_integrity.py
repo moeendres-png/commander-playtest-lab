@@ -226,7 +226,7 @@ def test_fixture_trusted_base_passes(repository: tuple[Path, str]) -> None:
 def test_real_repository_current_tree_positive_control() -> None:
     head = git(ROOT, "rev-parse", "HEAD")
     report = guard.inspect_required_check_definitions(ROOT, head, head)
-    assert report["overall_classification"] == "PASS"
+    assert report["overall_classification"] == "PASS", json.dumps(report, indent=2, sort_keys=True)
     assert report["base"]["tree"] == git(ROOT, "rev-parse", "HEAD^{tree}")
     assert report["candidate"]["tree"] == report["base"]["tree"]
 
