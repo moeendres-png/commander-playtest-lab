@@ -57,7 +57,7 @@ class XmageKnowledgeShuffleInvalidationTest {
         removeOnce(current, "Mind Stone");
         removeOnce(current, "Arcane Signet");
         List<String> requested = new ArrayList<>(List.of(
-                "Vampiric Tutor", "Mystical Tutor", "Enlightened Tutor"));
+                "Sol Ring", "Mind Stone", "Arcane Signet"));
         requested.addAll(current);
         XmageHiddenStateRestoration.apply(
                 game,
