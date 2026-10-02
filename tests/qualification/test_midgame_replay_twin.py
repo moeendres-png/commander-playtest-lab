@@ -252,8 +252,9 @@ def _twin(role: str, **overrides: Any) -> twins.TwinRun:
                     "result_digest": "r" * 64,
                 },
                 # ... and the randomness each answer let the engine consume.
-                {"sequence": 0, "before": 396, "after": 396},
-            ]
+                {"sequence": 0, "before": 99, "after": 99},
+            ],
+            "rules_random_calls_total": 99,
         },
         "decisions": [
             {
@@ -298,7 +299,11 @@ def _runs(**replay_overrides: Any) -> tuple[mrt.ProcessRun, mrt.ProcessRun]:
     return record, replay
 
 
-DETECTED = {"control": "DIFFERENT_SEED_CHANGES_RULES_RNG_RESULT", "detected": True}
+DETECTED = {
+    "control": "DIFFERENT_SEED_CHANGES_RULES_RNG_RESULT",
+    "detected": True,
+    "state_changed": True,
+}
 
 
 @pytest.mark.parametrize("fixture_id", mrt.ROWS)
@@ -402,11 +407,21 @@ def test_a_native_id_on_the_event_tape_fails_the_event_row() -> None:
     assert properties["event_tape_free_of_native_ids"] is False
 
 
-def test_rng_coordinates_inside_the_decision_tape_fail_the_rng_row() -> None:
+def test_an_untaped_random_operation_leaves_the_tape_incomplete() -> None:
     record, replay = _runs()
-    record.twin.decisions[0]["rules_random_calls"] = 3
-    properties = mrt.row_properties("RNG_RULES_TAPE", record, replay, True)
-    assert properties["rng_tape_separate_from_decisions"] is False
+    record.twin.rules_rng["rules_random_calls_total"] = 101
+    properties = mrt.row_properties("RNG_RULES_TAPE", record, replay, True, seed_control=DETECTED)
+    assert properties["rng_operations_account_for_all_calls"] is False
+
+
+def test_a_result_without_a_state_consequence_is_no_rules_rng_evidence() -> None:
+    """Re-review P1-B: a shuffle of identical cards changes the RNG stream but
+    not the game; the row needs the different seed to change the game."""
+    record, replay = _runs()
+    control = {**DETECTED, "state_changed": False}
+    properties = mrt.row_properties("RNG_RULES_TAPE", record, replay, True, seed_control=control)
+    assert properties["rng_result_depends_on_seed"] is True
+    assert properties["rng_result_has_state_consequence"] is False
 
 
 def test_row_properties_refuse_a_non_replay_row() -> None:
@@ -539,6 +554,9 @@ class FakeEngine(mrt.TapingLaneClient):
         seed_sensitive: bool = True,
         diverge_frame: bool = False,
         diverge_terminal: bool = False,
+        state_follows_seed: bool = True,
+        diverge_first_frame: bool = False,
+        crash_before_mode: bool = False,
     ) -> None:
         super().__init__(("fake-engine",), Path("."))
         FakeEngine.processes += 1
@@ -546,6 +564,9 @@ class FakeEngine(mrt.TapingLaneClient):
         self.seed_sensitive = seed_sensitive
         self.diverge_frame = diverge_frame
         self.diverge_terminal = diverge_terminal
+        self.state_follows_seed = state_follows_seed
+        self.diverge_first_frame = diverge_first_frame
+        self.crash_before_mode = crash_before_mode
         self.burn = str(uuid.uuid4())
         self.devils = [str(uuid.uuid4()) for _ in range(3)]
         self.stage = 0
@@ -563,6 +584,8 @@ class FakeEngine(mrt.TapingLaneClient):
 
     def _decision(self) -> dict[str, Any] | None:
         state = {"turn_number": 1, "phase": "precombat_main", "stage": self.stage}
+        if self.stage == 1 and self.crash_before_mode:
+            return None
         if self.stage == 0:
             options = [
                 {
@@ -571,7 +594,11 @@ class FakeEngine(mrt.TapingLaneClient):
                     "label": "Cast Burn Down the House",
                     "metadata": {"object_id": self.burn},
                 },
-                {"option_id": "pass", "option_type": "action", "label": "Pass priority"},
+                {
+                    "option_id": "pass",
+                    "option_type": "action",
+                    "label": "Pass priority" if not self.diverge_first_frame else "Pass",
+                },
             ]
             return {
                 "decision_id": f"{uuid.uuid4()}",
@@ -646,7 +673,9 @@ class FakeEngine(mrt.TapingLaneClient):
             result = {"success": True, "payload": {}}
         elif message_type == "get_rules_rng_tape":
             seed_part = self.seed if self.seed_sensitive else 0
+            state_seed = self.seed if self.state_follows_seed else 0
             terminal = "diverged" if (self.diverge_terminal and self.stage >= 2) else ""
+            engine_state = "FAILED" if (self.crash_before_mode and self.stage == 1) else "PARKED"
             result = {
                 "success": True,
                 "payload": {
@@ -662,7 +691,8 @@ class FakeEngine(mrt.TapingLaneClient):
                             "result_digest": _sha("shuffle", seed_part),
                         }
                     ],
-                    "privileged_state_digest": _sha("state", self.stage, terminal),
+                    "engine_state": engine_state,
+                    "privileged_state_digest": _sha("state", self.stage, terminal, state_seed),
                 },
             }
         elif message_type == "get_midgame_events":
@@ -884,3 +914,66 @@ def test_a_bound_demonstrated_divergence_is_reported_as_a_failure() -> None:
     assert (
         mrt.demonstrated_failures(document, candidate_commit="d" * 40, runner_digest="r" * 64) == {}
     )
+
+
+def test_a_shuffle_without_a_state_consequence_leaves_the_rng_row_open(
+    fake_lane: dict[str, Any],
+) -> None:
+    """The live scenario's shape: results follow the seed, the game does not."""
+
+    def factory(_workspace: Path) -> FakeEngine:
+        return FakeEngine(state_follows_seed=False)
+
+    document = mrt.twin_row(
+        Path("."),
+        _scenario("RNG_RULES_TAPE"),
+        seed=424242,
+        lab_source={"commit": "l"},
+        client_factory=factory,
+    )
+    assert document["verified"] is False
+    assert document["demonstrated_divergence"] is None
+    assert document["row_properties"]["rng_result_depends_on_seed"] is True
+    assert document["row_properties"]["rng_result_has_state_consequence"] is False
+
+
+def test_a_divergence_at_the_first_frame_is_a_demonstrated_violation(
+    fake_lane: dict[str, Any],
+) -> None:
+    document = mrt.twin_row(
+        Path("."),
+        _scenario("REPLAY_CLEAN_PROCESS"),
+        seed=424242,
+        lab_source={"commit": "l"},
+        client_factory=_factory(diverge_first_frame=True),
+    )
+    assert document["verified"] is False
+    assert document["demonstrated_divergence"]["classification"] == "REPLAY_FRAME_DIVERGENCE"
+
+
+def test_an_engine_failure_mid_replay_is_a_harness_refusal(fake_lane: dict[str, Any]) -> None:
+    document = mrt.twin_row(
+        Path("."),
+        _scenario("REPLAY_CLEAN_PROCESS"),
+        seed=424242,
+        lab_source={"commit": "l"},
+        client_factory=_factory(crash_before_mode=True),
+    )
+    assert document["verified"] is False
+    assert document.get("demonstrated_divergence") is None
+    assert "failed closed" in document["detail"]
+
+
+def test_the_canonical_launch_carries_a_per_twin_orchestration_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seen: list[str] = []
+
+    from types import SimpleNamespace
+
+    plan = SimpleNamespace(argv=("java",), cwd=Path("."), env_overrides={"A": "1"})
+    monkeypatch.setattr(mrt.bridge_launcher, "build_launch_plan", lambda *a, **k: plan)
+    client = mrt.open_taping_client(Path("."), orchestration_key="ab" * 32)
+    seen.append(client._env_overrides[mrt.ORCHESTRATION_KEY_VARIABLE])
+    assert seen == ["ab" * 32]
+    assert client._env_overrides["A"] == "1"

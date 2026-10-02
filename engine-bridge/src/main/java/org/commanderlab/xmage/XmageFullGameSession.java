@@ -480,25 +480,55 @@ final class XmageFullGameSession {
 
     /**
      * AF09 orchestration channel: the engine's Rules-RNG results and a
-     * privileged state digest, digests only. The privileged digest covers every
-     * player's zones in seating order (library order included) through
-     * process-independent tokens: a requested object's semantic id, otherwise
-     * the object's name. No
-     * native id and no card identity leaves the engine; no principal receives
-     * this channel.
+     * privileged state digest, HMAC digests only under the launch's
+     * orchestration key ({@link XmageRulesRngResultTape}). Read only while the
+     * engine is parked on a decision or has ended; {@code engine_state} says
+     * which, and whether an end was a clean game over or a failure.
      */
     synchronized JsonObject rulesRngTapePayload() {
         ensureStarted();
+        if (!XmageRulesRngResultTape.enabled()) {
+            throw new IllegalStateException(
+                    "ORCHESTRATION_CHANNEL_NOT_ENABLED: this launch carries no orchestration key");
+        }
+        String engineState = engineState();
+        if ("RUNNING".equals(engineState)) {
+            throw new IllegalStateException("ENGINE_NOT_PARKED: the engine is neither parked nor ended");
+        }
         JsonObject payload = new JsonObject();
+        payload.addProperty("engine_state", engineState);
         payload.addProperty("rules_random_calls", game.getRulesRandomCalls());
         payload.add("rules_rng_results", XmageRulesRngResultTape.results(game));
         payload.addProperty("privileged_state_digest", privilegedStateDigest());
-        payload.addProperty("observation_scope", "orchestration_only_digests");
+        payload.addProperty("observation_scope", "orchestration_keyed_digests");
         return payload;
     }
 
+    private String engineState() {
+        if (controller.terminalFailure() != null) {
+            return "FAILED";
+        }
+        if (controller.pendingDecision() != null) {
+            return "PARKED";
+        }
+        if (engineThread != null && !engineThread.isAlive()) {
+            return game.hasEnded() ? "CLEAN_TERMINAL" : "FAILED";
+        }
+        return "RUNNING";
+    }
+
+    /**
+     * Every player's zones in seating order (library order included), the
+     * command zone, the stack and the turn position, each object written as its
+     * requested semantic id or otherwise its true name (a face-down object by
+     * its underlying card), with tapped, face-down, phasing, damage, counters
+     * and attachment.
+     */
     private String privilegedStateDigest() {
         List<String> lines = new ArrayList<>();
+        mage.game.turn.Step step = game.getStep();
+        lines.add("turn:" + game.getTurnNum() + " step:" + (step == null ? "none" : step.getType())
+                + " active:" + XmageRulesRngResultTape.seatIndex(game, game.getActivePlayerId()));
         for (UUID playerId : game.getState().getPlayerList()) {
             Player player = game.getPlayer(playerId);
             if (player == null) {
@@ -506,30 +536,48 @@ final class XmageFullGameSession {
             }
             lines.add("seat:" + XmageRulesRngResultTape.seatIndex(game, playerId)
                     + " life:" + player.getLife() + " in_game:" + player.isInGame());
-            lines.add("library:" + String.join(",", tokens(playerId, player.getLibrary().getCardList(), false)));
-            lines.add("hand:" + String.join(",", tokens(playerId, new ArrayList<>(player.getHand()), true)));
-            lines.add("graveyard:" + String.join(",", tokens(playerId, new ArrayList<>(player.getGraveyard()), false)));
+            lines.add("library:" + String.join(",", tokens(player.getLibrary().getCardList(), false)));
+            lines.add("hand:" + String.join(",", tokens(new ArrayList<>(player.getHand()), true)));
+            lines.add("graveyard:" + String.join(",", tokens(new ArrayList<>(player.getGraveyard()), false)));
             List<UUID> exiled = new ArrayList<>();
             for (mage.cards.Card card : game.getExile().getAllCards(game)) {
                 if (playerId.equals(card.getOwnerId())) {
                     exiled.add(card.getId());
                 }
             }
-            lines.add("exile:" + String.join(",", tokens(playerId, exiled, true)));
+            lines.add("exile:" + String.join(",", tokens(exiled, true)));
             List<String> permanents = new ArrayList<>();
-            for (mage.game.permanent.Permanent permanent
-                    : game.getBattlefield().getAllActivePermanents(playerId)) {
+            for (mage.game.permanent.Permanent permanent : game.getBattlefield().getAllPermanents()) {
+                if (!playerId.equals(permanent.getControllerId())) {
+                    continue;
+                }
                 List<String> counters = new ArrayList<>();
                 for (mage.counters.Counter counter : permanent.getCounters(game).values()) {
                     counters.add(counter.getName() + "=" + counter.getCount());
                 }
                 Collections.sort(counters);
-                permanents.add(token(permanent.getOwnerId(), permanent.getId(), permanent.getName())
-                        + (permanent.isTapped() ? "|tapped" : "") + "|" + String.join(";", counters));
+                String name = permanent.getName();
+                if (permanent.isFaceDown(game)) {
+                    mage.cards.Card card = game.getCard(permanent.getId());
+                    name = "face_down:" + (card == null ? "?" : card.getName());
+                }
+                UUID attachedTo = permanent.getAttachedTo();
+                permanents.add(token(permanent.getId(), name)
+                        + (permanent.isTapped() ? "|tapped" : "")
+                        + (permanent.isPhasedIn() ? "" : "|phased_out")
+                        + "|damage=" + permanent.getDamage()
+                        + "|attached=" + (attachedTo == null ? "" : token(attachedTo, nameOf(attachedTo)))
+                        + "|" + String.join(";", counters));
             }
             Collections.sort(permanents);
             lines.add("battlefield:" + String.join(",", permanents));
         }
+        List<String> command = new ArrayList<>();
+        for (mage.game.command.CommandObject object : game.getState().getCommand()) {
+            command.add(token(object.getId(), object.getName()));
+        }
+        Collections.sort(command);
+        lines.add("command:" + String.join(",", command));
         List<String> stack = new ArrayList<>();
         for (mage.game.stack.StackObject object : game.getStack()) {
             stack.add(object.getName());
@@ -538,11 +586,16 @@ final class XmageFullGameSession {
         return XmageRulesRngResultTape.digest(lines);
     }
 
-    private List<String> tokens(UUID ownerId, List<UUID> ids, boolean sorted) {
+    private String nameOf(UUID id) {
+        mage.MageObject object = game.getObject(id);
+        return object == null ? "?" : object.getName();
+    }
+
+    private List<String> tokens(List<UUID> ids, boolean sorted) {
         List<String> out = new ArrayList<>(ids.size());
         for (UUID id : ids) {
             mage.cards.Card card = game.getCard(id);
-            out.add(token(ownerId, id, card == null ? "?" : card.getName()));
+            out.add(token(id, card == null ? "?" : card.getName()));
         }
         if (sorted) {
             Collections.sort(out);
@@ -550,15 +603,7 @@ final class XmageFullGameSession {
         return out;
     }
 
-    /**
-     * A requested object's semantic id, otherwise its name. Two cards of the
-     * same name that the record does not name are the same state: which one
-     * stands where is no Rules fact (the restoration's game-load seam fills a
-     * requested template run with any of them), so the privileged digest never
-     * tells them apart. A shuffle's result is the permutation itself and is
-     * taped separately ({@link XmageRulesRngResultTape}).
-     */
-    private String token(UUID ownerId, UUID id, String name) {
+    private String token(UUID id, String name) {
         String semantic = restoration == null ? null : restoration.semanticIdOf(id);
         return semantic != null ? "s:" + semantic : "n:" + name;
     }

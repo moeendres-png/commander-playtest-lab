@@ -117,6 +117,9 @@ OMNISCIENCE_ATTEMPTS: tuple[tuple[str, dict[str, Any]], ...] = (
     ("get_omniscient_state", {}),
     ("dump_engine_state", {}),
     ("get_raw_engine_object_graph", {}),
+    # The AF09 orchestration channel: refused on every launch without an
+    # orchestration key, which no principal-facing launch carries.
+    ("get_rules_rng_tape", {}),
 )
 
 # A scripted mode key, per row, bound to the text of the one engine-offered mode

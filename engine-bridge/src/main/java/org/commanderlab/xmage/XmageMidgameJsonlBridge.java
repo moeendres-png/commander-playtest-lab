@@ -997,8 +997,9 @@ final class XmageMidgameJsonlBridge {
 
     /**
      * AF09: the engine's Rules-RNG results and a privileged state digest for the
-     * clean-process replay twin. Digests only, for the orchestration; it is never
-     * a principal's observation and carries no card identity or native id.
+     * clean-process replay twin. Refused unless the launch carries an
+     * orchestration key; HMAC digests under that key only, never a principal's
+     * observation, no card identity and no native id.
      */
     private Result getRulesRngTape(String requestId) {
         try {
@@ -1336,6 +1337,9 @@ final class XmageMidgameJsonlBridge {
         // AF05: every observation this lane answers, with its scope. There is no
         // principal-neutral full state and no omniscient or raw-object message:
         // the principal-scoped ones require a known requester and fail closed.
+        // The one orchestration channel (get_rules_rng_tape, AF09) is not an
+        // observation: it is refused on every launch without an orchestration
+        // key and answers HMAC digests under that key only.
         capabilities.addProperty("knowledge_projection_supported", true);
         JsonObject observationScopes = new JsonObject();
         observationScopes.addProperty("get_midgame_projection", "principal_scoped_required_requester");
@@ -1343,7 +1347,10 @@ final class XmageMidgameJsonlBridge {
         observationScopes.addProperty("get_midgame_decision", "acting_principal_frame");
         observationScopes.addProperty("get_legal_actions", "acting_principal_frame");
         observationScopes.addProperty("get_midgame_events", "public_semantic_event_tape");
-        observationScopes.addProperty("get_rules_rng_tape", "orchestration_only_digests");
+        // Not an observation: an orchestration channel for the replay twin, refused
+        // unless the launch carries an orchestration key, and HMAC digests only.
+        observationScopes.addProperty("get_rules_rng_tape",
+                "orchestration_keyed_digests_refused_without_launch_key");
         observationScopes.addProperty("complete_midgame_arrival",
                 "principal_scoped_or_principal_neutral_opponent_hands_counts_only");
         capabilities.add("observation_scopes", observationScopes);

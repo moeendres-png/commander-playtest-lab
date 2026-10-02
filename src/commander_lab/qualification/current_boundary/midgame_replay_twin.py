@@ -9,11 +9,13 @@ property of a clean replay of that scenario. This module produces the twin on
 the production midgame lane and maps it to each row's own property.
 
 The Rules RNG is taped with its *results*, not only call counts: the engine
-reports each library shuffle's result as a digest of the permutation it left
-the library in, relative to the deck's own first-seen order
-(``get_rules_rng_tape``, an orchestration channel of digests only). The same
-seed reproduces it in every process; a live control in a third process proves
-that a different seed changes it.
+reports each library shuffle's result as a digest of the permutation it applied
+(``get_rules_rng_tape``, an orchestration channel refused on any launch without
+this twin's key, HMAC digests only). The same seed reproduces it in every
+process; a live control in a third process checks that a different seed changes
+it and the game. In this scenario the only shuffle reorders identical
+scaffolding cards, so ``RNG_RULES_TAPE`` stays open: its result has no Rules
+consequence.
 
 Record and replay
 -----------------
@@ -51,7 +53,9 @@ request kinds, or decides a Rules question.
 
 from __future__ import annotations
 
+import functools
 import re
+import secrets
 import subprocess
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
@@ -102,6 +106,10 @@ def rules_rng_tape(client: ml.MidgameLaneClient) -> dict[str, Any]:
     if not response.get("success"):
         raise ReplayTwinRowError(f"get_rules_rng_tape failed closed: {response.get('errors')}")
     payload = dict(response.get("payload") or {})
+    if payload.get("engine_state") not in {"PARKED", "CLEAN_TERMINAL"}:
+        raise ReplayTwinRowError(
+            f"the engine is not parked or cleanly ended: {payload.get('engine_state')}"
+        )
     if not isinstance(payload.get("rules_random_calls"), int) or not payload.get(
         "privileged_state_digest"
     ):
@@ -188,10 +196,21 @@ class TapingLaneClient(ml.MidgameLaneClient):
         return process.pid if process is not None else None
 
 
-def open_taping_client(workspace: Path) -> TapingLaneClient:
-    """The canonical midgame launch plan, as ``probe.open_client`` builds it."""
+#: The launch variable that enables the bridge's orchestration channel. A launch
+#: without it (every pilot-facing and AF05 launch) refuses ``get_rules_rng_tape``.
+ORCHESTRATION_KEY_VARIABLE = "COMMANDER_LAB_ORCHESTRATION_KEY"
+
+
+def open_taping_client(workspace: Path, *, orchestration_key: str) -> TapingLaneClient:
+    """The canonical midgame launch plan, plus this twin's orchestration key.
+
+    The key is generated per twin and given to its record, replay and control
+    processes only; every digest the channel returns is an HMAC under it.
+    """
     plan = bridge_launcher.build_launch_plan("xmage", lane="midgame", xmage_workspace=workspace)
-    return TapingLaneClient(plan.argv, plan.cwd, env_overrides=dict(plan.env_overrides))
+    env = dict(plan.env_overrides)
+    env[ORCHESTRATION_KEY_VARIABLE] = orchestration_key
+    return TapingLaneClient(plan.argv, plan.cwd, env_overrides=env)
 
 
 # --------------------------------------------------------------------------- #
@@ -474,8 +493,9 @@ def _rules_rng(
         "acknowledged_seed": acknowledged,
         "classification": "EXPLICIT_RULES_SEED" if acknowledged == seed else "UNACKNOWLEDGED",
         "controlled": acknowledged == seed,
-        "rng_credit": "RULES_RNG_COORDINATES_PER_DECISION",
+        "rng_credit": "RULES_RNG_OPERATIONS_WITH_RESULTS_AND_DECISION_COORDINATES",
         "rng_call_coordinates": coordinates,
+        "rules_random_calls_total": terminal_calls,
         "seed_scope": binding.get("seed_scope"),
     }
 
@@ -490,9 +510,11 @@ def _final_readback(
     unreadable RNG tape fails closed.
     """
     client.pending_decision(attempts=5)
+    # The digests are read before the arrival readback, which re-runs the
+    # restoration's revalidation.
+    tape = rules_rng_tape(client)
     observation = client.complete_arrival().get("observation") or {}
     events = client.events(0).get("events") or []
-    tape = rules_rng_tape(client)
     results = [dict(entry) for entry in tape.get("rules_rng_results") or ()]
     return (
         dict(observation),
@@ -720,7 +742,14 @@ def replay_process(
                     continue
                 decision = client.pending_decision()
                 if decision is None:
-                    raise ReplayDivergence(f"the engine went terminal before input {position}")
+                    # A divergence only if the engine reports a clean game over;
+                    # a timeout or an engine failure is a harness refusal.
+                    state = rules_rng_tape(client).get("engine_state")
+                    if state == "CLEAN_TERMINAL":
+                        raise ReplayDivergence(f"the engine ended cleanly before input {position}")
+                    raise ReplayTwinRowError(
+                        f"no decision at input {position} (engine state {state})"
+                    )
                 if entry.get("numeric_choice") is not None:
                     raise ReplayTwinRowError(
                         "a recorded numeric answer is outside this replay consumer"
@@ -881,12 +910,19 @@ def row_properties(
                 event.get("type") == "LIBRARY_SHUFFLED" and event.get("player_player") == "P1"
                 for event in events
             ),
+            # Every Rules random call is accounted for by a taped operation:
+            # an untaped random operation leaves the tape incomplete.
+            "rng_operations_account_for_all_calls": isinstance(
+                record_run.twin.rules_rng.get("rules_random_calls_total"), int
+            )
+            and sum(int(entry["after"]) - int(entry["before"]) for entry in shuffles)
+            == record_run.twin.rules_rng["rules_random_calls_total"],
             # The replay reproduced every result (the twin compares them); a
-            # different seed in a third fresh process changed P1's result.
+            # different seed in a third fresh process changed P1's result ...
             "rng_result_depends_on_seed": control.get("detected") is True,
-            "rng_tape_separate_from_decisions": all(
-                "rules_random_calls" not in decision for decision in decisions
-            ),
+            # ... and changed the game: a result with no Rules consequence (a
+            # shuffle of identical cards) is no Rules RNG evidence.
+            "rng_result_has_state_consequence": control.get("state_changed") is True,
         }
     else:
         raise ReplayTwinRowError(f"{fixture_id} is not a replay/RNG row")
@@ -968,21 +1004,35 @@ def seed_control(
     recorded_digest = first_shuffle_digest(_shuffle_results(recorded), seat)
     control_seed = seed + 1
     with client_factory(workspace) as client:
-        _create(client, record, control_seed, "SEED_CONTROL")
+        created = _create(client, record, control_seed, "SEED_CONTROL")
+        acknowledged = bool(_rules_rng(created, control_seed, (), None)["controlled"])
+        build = _build(client)
         if client.pending_decision() is None:
             raise ReplayTwinRowError("the seed control reached no decision")
         tape = rules_rng_tape(client)
     control_digest = first_shuffle_digest(tape.get("rules_rng_results") or (), seat)
+    recorded_state = (
+        recorded.twin.checkpoint_state_hashes[0].get("privileged_state_digest")
+        if recorded.twin.checkpoint_state_hashes
+        else None
+    )
+    valid = acknowledged and build == recorded.twin.candidate_build
     return {
         "control": "DIFFERENT_SEED_CHANGES_RULES_RNG_RESULT",
         "seat": seat,
         "seed": seed,
         "control_seed": control_seed,
+        "control_seed_acknowledged": acknowledged,
+        "control_build_matches": build == recorded.twin.candidate_build,
         "recorded_result_digest": recorded_digest,
         "control_result_digest": control_digest,
-        "detected": bool(recorded_digest)
-        and bool(control_digest)
+        "detected": bool(valid and recorded_digest and control_digest)
         and recorded_digest != control_digest,
+        # Whether the different result changed the game at the first decision.
+        "recorded_first_decision_state": recorded_state,
+        "control_first_decision_state": tape.get("privileged_state_digest"),
+        "state_changed": bool(valid and recorded_state)
+        and recorded_state != tape.get("privileged_state_digest"),
     }
 
 
@@ -1016,7 +1066,23 @@ def demonstrated_divergence(
     if not (recorded.execution or {}).get("verified"):
         return None
     failed = {check["check"] for check in comparison.checks if not check["passed"]}
-    if failed & _PRECONDITION_CHECKS or any(
+    if failed & _PRECONDITION_CHECKS:
+        return None
+    if replayed.divergence:
+        # The replay may have stopped at its first input, so only the record's
+        # own sections must be complete.
+        if not (
+            recorded.twin.decisions
+            and recorded.twin.semantic_events
+            and recorded.twin.checkpoint_state_hashes
+        ):
+            return None
+        return {
+            "classification": "REPLAY_FRAME_DIVERGENCE",
+            "detail": replayed.twin.failure,
+            "differing_checks": sorted(failed - {"terminal_complete"}),
+        }
+    if any(
         name.startswith("required_section:") and name != "required_section:terminal_outcome"
         for name in failed
     ):
@@ -1031,12 +1097,6 @@ def demonstrated_divergence(
             "terminal_outcome",
         }
     )
-    if replayed.divergence:
-        return {
-            "classification": "REPLAY_FRAME_DIVERGENCE",
-            "detail": replayed.twin.failure,
-            "differing_checks": semantic,
-        }
     if replayed.twin.failure is not None:
         # The replay stopped on a harness refusal; its tapes are truncated, so
         # an unequal tape demonstrates nothing about the engine.
@@ -1060,8 +1120,16 @@ def twin_row(
     lab_source: Mapping[str, Any],
     client_factory: Any = open_taping_client,
 ) -> dict[str, Any]:
-    """Record, replay, compare and evaluate one replay/RNG row."""
+    """Record, replay, compare and evaluate one replay/RNG row.
+
+    One orchestration key is generated for this twin and given to its record,
+    replay and control processes only.
+    """
     fixture_id = str(record["fixture_id"])
+    if client_factory is open_taping_client:
+        client_factory = functools.partial(
+            open_taping_client, orchestration_key=secrets.token_hex(32)
+        )
     try:
         recorded = record_process(
             workspace, record, seed=seed, lab_source=lab_source, client_factory=client_factory

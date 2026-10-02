@@ -16,7 +16,7 @@ current-boundary chain.
 | `REPLAY_DECISION_TAPE` | every taped answer carries semantic selection fingerprints, and the mode choice is taped |
 | `REPLAY_EVENT_TAPE` | the canonical event tape records the three Devil tokens and holds no native id |
 | `REPLAY_STATE_HASHES` | public, actor and privileged digests are recorded at every decision and at the terminal, and the processes' native object ids are disjoint |
-| `RNG_RULES_TAPE` | every Rules-RNG operation is taped with the randomness it consumed (`before` < `after`) and its result digest; P1's own library shuffle is taped; a different seed in a third fresh process changes P1's result (live control); the RNG tape stays separate from the decision tape |
+| `RNG_RULES_TAPE` | every Rules-RNG operation is taped with the randomness it consumed (`before` < `after`) and its result digest, and the taped operations account for every Rules random call; P1's own library shuffle is taped; in a third fresh process a different seed changes P1's result **and the game state** (live control). **Not creditable from this scenario**: see below |
 
 Two further properties are required of every row:
 
@@ -27,8 +27,9 @@ Two further properties are required of every row:
 ## Scenario
 
 All five rows share one scenario. P1 casts Burn Down the House and chooses the
-Devil mode, and three Devil tokens enter. The start-of-game library shuffle
-(CR 103.2) is the Rules RNG operation.
+Devil mode, and three Devil tokens enter. The record's required RNG event
+`rules_rng:library_shuffle:P1` is the engine's start-of-game shuffle of P1's
+library (CR 103.2).
 
 Successor contract **1.0.19** adds the SLOT-04 lossless library errata these rows
 need. The records named seven of P1's library cards without declaring a complete
@@ -46,8 +47,8 @@ The obligation digest is unchanged.
 
 - **Record, process A.** The row's decision script runs on the generic executor.
   The taping client records each distinct engine decision once. With it, it
-  records the engine's live `rules_random_calls`, which come from an
-  orchestration-scoped `get_midgame_state` read. Every accepted state-changing
+  records the engine's Rules-RNG coordinate, results and privileged state digest
+  from the orchestration channel described below. Every accepted state-changing
   request becomes the external input stream: decision answers and arrival
   completions. Each answer is identified by its WS218 fingerprint plus the
   record semantic ids of the objects it names. Without that occurrence identity,
@@ -63,41 +64,58 @@ The obligation digest is unchanged.
 
 ## The Rules RNG and its results
 
-The engine reports each library shuffle it performs through a new orchestration
-channel, `get_rules_rng_tape`. The channel carries digests only, never card
-identities or native ids, and no principal receives it. For each shuffle it
-reports:
+The engine reports each library shuffle it performs through an orchestration
+channel, `get_rules_rng_tape`. For each shuffle it reports:
 
 - the seat;
 - the `rules_random_calls` before and after the shuffle;
-- a digest of the permutation the shuffle left the library in, relative to the
-  deck's own first-seen order.
+- a digest of the permutation the shuffle applied, relative to the library's
+  order immediately before it.
 
-The same seed reproduces that digest in every process. A different seed changes
-it; `XmageRulesRngResultTapeTest` pins this, and the live seed control rechecks it
-for every `RNG_RULES_TAPE` run.
+That permutation depends only on the Rules RNG and the library size. The same
+seed reproduces it in every process, and a different seed changes it.
+`XmageRulesRngResultTapeTest` pins both, and the live seed control rechecks them.
+
+**The channel is not an observation.** The bridge refuses it on every launch that
+does not carry an orchestration key (`COMMANDER_LAB_ORCHESTRATION_KEY`). No
+pilot-facing or AF05 launch carries one, and AF05's omniscience probes now include
+the message, so it must be refused there. Each twin generates one random key and
+gives it to its own record, replay and control processes only. Every digest is an
+HMAC under that key, so nobody without the key can read a hidden order out of a
+digest or test a guess against it. The engine answers only while it is parked on a
+decision or has ended, and it reports which (`engine_state`).
 
 The same channel reports a **privileged state digest**: every player's zones in
-seating order, the library order included. Each object is written as its
-requested semantic id, or otherwise its name. Two cards of the same name that the
-record does not name are the same state, so the digest never tells them apart.
-That matters because the restoration's game-load seam fills a requested template
-run with any of them, and which one lands where is no Rules fact. (The first live
-run showed it: deck-position tokens made the digests of two otherwise identical
-processes differ at the checkpoint seam.)
+seating order, including library order, damage, counters, tapped, face-down and
+phasing state and attachments, plus the command zone, the stack and the turn
+position. Each object is written as its requested semantic id, otherwise its true
+name. Two cards of the same name that the record does not name are the same state:
+the restoration's game-load seam fills a requested template run with any of them.
+(The first live run showed it: deck-position tokens made two otherwise identical
+processes differ at the checkpoint seam.) The twin records this digest at every
+decision and at the terminal.
 
-The twin records this digest at every decision and at the terminal. A shuffle's
-result is the permutation itself, and it is taped separately.
+### Why `RNG_RULES_TAPE` stays UNKNOWN
 
 The record's native step `rules-shuffle` (`NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY`)
-names a shuffle after resolution, but nothing in the scenario causes one, and a
-shuffle ordered by the harness would be state the Rules Core never caused. The
-1.0.19 erratum therefore declares the step realized by the engine's own
-start-of-game shuffle of P1's library (CR 103.2). That shuffle is the record's
-`NATIVE_LIBRARY_SHUFFLE` channel and its required event
-`rules_rng:library_shuffle:P1`. The erratum states the substitution explicitly
-(`rules_rng_procedure`, `native_procedure_step_realized_by`). Its generator is
+names a shuffle of the declared library after the cast resolves. Nothing in the
+scenario causes one, and a shuffle ordered by the harness would be state the Rules
+Core never caused, so **the step is not executed**. The 1.0.19 erratum says so
+(`rules_rng_procedure`, `native_procedure_step_not_executed`). Its generator is
 `generate_contract_1_0_19.py`.
+
+The shuffle the scenario does contain is the start-of-game shuffle. It reorders
+identical scaffolding cards, which the checkpoint's complete library then
+replaces, so its result has no Rules consequence. The live seed control measures
+exactly this: a different seed changes the shuffle results but not the game state
+(`rng_result_has_state_consequence` is false). The result is taped, replayed and
+compared, but it is no Rules RNG evidence. `RNG_RULES_TAPE` therefore stays
+UNKNOWN with that exact blocker.
+
+A scenario in which a Rules-caused shuffle of distinguishable cards occurs is an
+obligation-adjacent erratum and needs Coordinator adjudication (#255). Until then,
+AF09 XMage cannot reach PASS: the midgame twin reaches the gate only when all five
+rows verified.
 
 ## Independence and failure classification
 
@@ -113,8 +131,14 @@ start-of-game shuffle of P1's library (CR 103.2). That shuffle is the record's
 
   The finding is bound to the commit and the runner. The assembler records it as
   a FAIL row, the same way AF05 records a demonstrated leak.
-- **A harness refusal is never a FAIL.** An ambiguous fingerprint or a missing
-  observation stays unexecuted.
+  A frame divergence at the very first input counts too: only the record's own
+  sections must be complete.
+- **A harness refusal is never a FAIL.** None of these stays anything but
+  unexecuted:
+  - an ambiguous fingerprint or a missing observation;
+  - a replay stopped by an engine failure or a timeout (the engine reports no clean
+    game over);
+  - a run whose identity or precondition checks failed.
 
 ## Departures from the Phase 1 contract
 
@@ -126,6 +150,9 @@ start-of-game shuffle of P1's library (CR 103.2). That shuffle is the record's
   decision's checkpoint is the post-answer state.
 - **Game id.** The game id is deliberately the same in both processes. Decision
   ids and native object ids differ.
+- **Taped operations.** Only library shuffles are taped as RNG operations. A run
+  in which any other Rules random call happened (a coin flip, a random discard)
+  fails `rng_operations_account_for_all_calls` and stays UNKNOWN.
 
 ## PB-03 integration
 

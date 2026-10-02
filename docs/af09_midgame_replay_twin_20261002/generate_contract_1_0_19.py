@@ -91,16 +91,16 @@ for fixture in ROWS:
             "the record's native step 'rules-shuffle' (NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY) "
             "names a shuffle of the declared library after the cast resolves, but nothing in the "
             "scenario causes one, and a shuffle ordered by the harness would be state the Rules "
-            "Core never caused. The step is realized by the engine's own start-of-game shuffle of "
-            "P1's library (CR 103.2): the record's NATIVE_LIBRARY_SHUFFLE channel and its required "
-            "event rules_rng:library_shuffle:P1. Its result is taped as the permutation digest "
-            "the engine reports (get_rules_rng_tape), which the clean replay must reproduce and "
-            "a different seed must change. The complete library declared here is the library AT "
-            "the checkpoint, applied through the native game-load seam after that shuffle"
+            "Core never caused, so the step is NOT executed. The record's required event "
+            "rules_rng:library_shuffle:P1 is the engine's own start-of-game shuffle of P1's "
+            "library (CR 103.2). That shuffle reorders identical scaffolding cards that the "
+            "checkpoint's complete library then replaces, so its result has no Rules "
+            "consequence: it is taped and replayed, but it is no Rules RNG evidence, and "
+            "RNG_RULES_TAPE (whose own postcondition is the RNG tape's results) cannot be "
+            "credited from this scenario. A scenario in which a Rules-caused shuffle of "
+            "distinguishable cards occurs needs Coordinator adjudication"
         ),
-        "native_procedure_step_realized_by": {
-            "rules-shuffle": "ENGINE_START_OF_GAME_LIBRARY_SHUFFLE_CR_103_2"
-        },
+        "native_procedure_step_not_executed": {"rules-shuffle": "NO_RULES_CAUSE_IN_SCENARIO"},
         "scaffolding_template": template["append_native_procedure"][0]["details"][
             "scaffolding_template"
         ],
