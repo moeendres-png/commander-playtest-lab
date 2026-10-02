@@ -56,11 +56,7 @@ def _sha256(path: Path) -> str:
 
 def _payload_files(root: Path) -> list[Path]:
     return sorted(
-        (
-            path
-            for path in root.rglob("*")
-            if path.is_file() and path.name != MANIFEST_NAME
-        ),
+        (path for path in root.rglob("*") if path.is_file() and path.name != MANIFEST_NAME),
         key=lambda path: path.relative_to(root).as_posix(),
     )
 
@@ -68,9 +64,7 @@ def _payload_files(root: Path) -> list[Path]:
 def _require_evidence(root: Path) -> None:
     missing = [name for name in REQUIRED_EVIDENCE if not (root / name).is_file()]
     if missing:
-        raise ArtifactIntegrityError(
-            "required full-game evidence missing: " + ", ".join(missing)
-        )
+        raise ArtifactIntegrityError("required full-game evidence missing: " + ", ".join(missing))
 
 
 def write_manifest(root: Path) -> Path:
@@ -87,10 +81,7 @@ def write_manifest(root: Path) -> Path:
     if not files:
         raise ArtifactIntegrityError("artifact root contains no payload files")
 
-    lines = [
-        f"{_sha256(path)}  ./{path.relative_to(root).as_posix()}"
-        for path in files
-    ]
+    lines = [f"{_sha256(path)}  ./{path.relative_to(root).as_posix()}" for path in files]
     manifest.write_text("\n".join(lines) + "\n", encoding="utf-8")
     if manifest.stat().st_size == 0:
         raise ArtifactIntegrityError("checksum manifest is empty")
@@ -129,14 +120,10 @@ def verify_manifest(root: Path) -> None:
     required_missing = [name for name in REQUIRED_EVIDENCE if name not in entries]
     if required_missing:
         raise ArtifactIntegrityError(
-            "required evidence absent from checksum manifest: "
-            + ", ".join(required_missing)
+            "required evidence absent from checksum manifest: " + ", ".join(required_missing)
         )
 
-    actual_files = {
-        path.relative_to(root).as_posix()
-        for path in _payload_files(root)
-    }
+    actual_files = {path.relative_to(root).as_posix() for path in _payload_files(root)}
     listed_files = set(entries)
     if actual_files != listed_files:
         missing = sorted(actual_files - listed_files)
