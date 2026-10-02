@@ -349,7 +349,7 @@ def test_policy_layers_kept(repo_root: Path):
         encoding="utf-8"
     )
     assert "opencode-go/deepseek-v4.1-flash" in routing
-    assert "Muse and GLM are inactive" in routing
+    assert "No other OpenCode executor is selectable" in routing
     implementer = (repo_root / ".opencode/agents/foundry-implementer.md").read_text(
         encoding="utf-8"
     )
