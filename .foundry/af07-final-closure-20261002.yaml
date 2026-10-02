@@ -1,12 +1,12 @@
 # AF07 final actual-card closure: resumable workstream state (#453, parent #255).
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: scratchpad/wt-af07 (session-local git worktree of the canonical clone)
+worktree: commander-playtest-lab (session-local canonical clone; the earlier wt-af07 container is gone)
 branch: hardening/af07-final-closure-20261002
 audit_base_sha: 38647c1153e01da5837671de53bf3b0e4c2fab0d
 audit_base_tree: beda05179f2b261bf9b7e2954ab630fd312078b6
-state_written_against_head: 6ca77e4417565fe9a4b4300271dd92c572f904a2
-validated_head: 6ca77e4417565fe9a4b4300271dd92c572f904a2
+state_written_against_head: 15a9c4937da2d8bbbe5b24a59e4a92823edf11ad
+validated_head: 15a9c4937da2d8bbbe5b24a59e4a92823edf11ad
 workstream: AF07-FINAL-ACTUAL-CARD-CLOSURE-20261002
 issue: 453
 parent: 255
@@ -135,15 +135,27 @@ milestones:
       a real effect, equip through a real activation in the checkpoint turn's
       main phase); the harness has no such route and no fabricated token or
       attachment state is allowed.
+  - id: M11
+    rows: [CARD_01..CARD_29 on XMage]
+    result: >-
+      Same-epoch PB-03 credit route integrated; local official run on the
+      merged head (main 2027eb5a merged): 26 DIRECT_PASS, CARD_07/16/25 fail
+      closed, identical to M5-M9.
+    summary: >-
+      actual_card_campaign.execute_and_persist runs the corpus inside the
+      PB-03 runner with the bound runner identity and persists receipts in
+      receipts/actual_card (never FULL107 credit). The assembler derives
+      AF07 from receipts against the current effective record digests;
+      denominator rows win for their own fixture (CARD_02). The previous
+      container's unpushed credit-route work was lost and rebuilt here.
 open_items:
   - CARD_06 and CARD_07 official Oracle receipts pending (Scryfall/Gatherer unreachable from this runner).
-  - Exact-head PB-03 does not yet run the AF07 campaign; the same-epoch credit route is still to integrate.
 remaining_scope:
   - Forge decision-execution selector surface (prerequisite for any Forge AF07 credit)
-  - AF07 same-epoch credit route
   - restoration placement point (pre-start vs after the start-of-game procedure vs checkpoint step): Rules/Coordinator decision; prototype in docs/af07_final_closure_20261002
   - CARD_16 native hand-composition API (provider change, Coordinator decision)
   - CARD_25 multi-turn causal setup route
 exact_next_action: >-
-  Push the causal lossless fix with the CARD_16 erratum and the Forge 29-card
-  matrix; obtain the placement-point ruling, then requalify CARD_07.
+  Drive #484 to an exact-head green PB-03 that credits the 26 corpus
+  identities; then adjudicate the restoration placement point against CR 103
+  (CARD_07, CARD_16) and requalify the affected rows.
