@@ -42,7 +42,8 @@ class XmageNativeStateRestorationTest {
             "Rograkh, Son of Rohgahh", List.of("R"),
             "Kediss, Emberclaw Familiar", List.of("R"),
             "Isamaru, Hound of Konda", List.of("W"),
-            "Esika, God of the Tree", List.of("W", "U", "B", "R", "G"));
+            "Esika, God of the Tree", List.of("W", "U", "B", "R", "G"),
+            "Kytheon, Hero of Akros", List.of("W"));
 
     static Path repoRoot() {
         Path candidate = Path.of(System.getProperty("user.dir"));

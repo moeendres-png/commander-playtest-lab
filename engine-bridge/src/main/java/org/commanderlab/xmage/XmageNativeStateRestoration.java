@@ -1179,10 +1179,12 @@ final class XmageNativeStateRestoration {
     }
 
     /**
-     * Every permanent deferred to the first turn entered when it began
-     * ({@link XmageFirstTurnSetupWatcher}); one still outside the game
-     * means the engine never began turn 1 under this restoration, and the
-     * restoration fails closed rather than placing it late.
+     * Every permanent deferred to the first turn, battlefield commanders
+     * included, was put onto the battlefield by the setup watcher when turn 1
+     * began ({@link XmageFirstTurnSetupWatcher}) and is still there at the
+     * checkpoint. One the watcher did not place, or one no longer on the
+     * battlefield, fails closed with FIRST_TURN_PLACEMENT_MISSED; nothing is
+     * placed late.
      */
     private void requireFirstTurnPlacement(GameCommanderImpl game) {
         if (firstTurnPlacedSemanticIds.isEmpty()) {
@@ -1191,7 +1193,8 @@ final class XmageNativeStateRestoration {
         XmageFirstTurnSetupWatcher setup = game.getState().getWatcher(XmageFirstTurnSetupWatcher.class);
         List<UUID> placed = setup == null ? List.of() : setup.placedIds();
         for (String semanticId : firstTurnPlacedSemanticIds) {
-            if (!placed.contains(injectedObjectId(semanticId))) {
+            UUID id = injectedObjectId(semanticId);
+            if (!placed.contains(id) || game.getPermanent(id) == null) {
                 throw new RestorationException("FIRST_TURN_PLACEMENT_MISSED", semanticId);
             }
         }
@@ -1826,6 +1829,9 @@ final class XmageNativeStateRestoration {
         unsupported.add("legacy/frozen face_down=true without explicit native type: fail closed");
         unsupported.add("revealed-zone restoration");
         unsupported.add("controller/owner divergence (engine layers re-derive control)");
+        unsupported.add("battlefield commanders whose permanent is another face or part "
+                + "(modal double-faced, transforming): refused before game start "
+                + "(UNSUPPORTED_COMMANDER_FACE)");
         unsupported.add("attachments (aura/equipment attachment relations)");
         unsupported.add("counters other than +1/+1 and -1/-1, and counters on commanders or "
                 + "on objects off the battlefield");

@@ -43,7 +43,9 @@ verifies the request:
 - P2's permanents keep `true`. They are the turn-1 active player's, and their turn
   began with them on the battlefield.
 - No other requested state changes. The record's provenance changes with it:
-  `repair_provenance.correction_class` and the appended `native_procedure` step.
+  `repair_provenance.correction_class`, the appended `native_procedure` step, and
+  two new `predecessor_invalidity` keys (`controlled_since_turn_began` and
+  `control_history_reason`).
 - **Obligation unchanged.** The obligation digest is unchanged: Hex's six targets,
   the `cost_determined:base_plus_3_generic` event and the commander-tax
   postcondition. None of them depends on summoning sickness.
@@ -63,14 +65,18 @@ corpus, finds three more records that request an unreachable `true`:
 - MICRO_STACK: the same.
 
 None of them is credited through a lane today. All three are native micro rows,
-and the gap is recorded here for the workstream that will route them (#456). They
-do reach the restoration in two places:
+and the gap is recorded here for the workstream that will route them (#456).
 
-- **Capability probe.** `scripts/run_midgame_capability_probe.py` runs MICRO_PRIORITY
-  and MICRO_STACK as causal-stack rows on their 1.0.5 historical records.
-- **Bridge tests.** `XmagePb03Tier2StackTest` (MICRO_PRIORITY, MICRO_STACK) and
-  `XmagePb03Tier1RowsTest` (MICRO_PREVENTION) drive them through the restoration
-  without calling the checkpoint verification.
+**Capability probe.** `scripts/run_midgame_capability_probe.py` runs MICRO_PRIORITY
+and MICRO_STACK as causal-stack rows on their 1.0.5 historical records, and its
+arrival completion runs the checkpoint verification. A rerun therefore fails
+closed with a construction mismatch on `obj:micro-forest`, and the probe's causal
+credit gate withholds the row. The committed probe output
+`qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json`
+predates the verification and is stale on this point.
 
-Once one is routed through a credited lane, the checkpoint verification refuses it
-fail-closed. The restoration never accepts or sets the value.
+**Bridge tests.** `XmagePb03Tier2StackTest` (MICRO_PRIORITY, MICRO_STACK) and
+`XmagePb03Tier1RowsTest` (MICRO_PREVENTION) drive these records through the
+restoration without calling the checkpoint verification.
+
+The restoration never accepts or sets the value.

@@ -69,7 +69,11 @@ of the rules citation until then: `CODE_DERIVED` plus rule-number citation, not
   other restored permanent. Before this ruling it was moved at the checkpoint
   through the engine's setup primitive, which also cleared summoning sickness, so
   its control history was set rather than derived. Its requested
-  `controlled_since_turn_began` is now verified like any permanent's.
+  `controlled_since_turn_began` is now verified like any permanent's. A
+  commander whose battlefield permanent is another face or part (a modal
+  double-faced or transforming card) cannot enter through this setup; it is
+  refused before game start with `UNSUPPORTED_COMMANDER_FACE` and listed as an
+  unsupported dimension.
 
 Unchanged by this ruling:
 
@@ -117,5 +121,7 @@ Unchanged by this ruling:
   is verified and fails closed on a mismatch.
 
 Implementation: `engine-bridge/src/main/java/org/commanderlab/xmage/XmageFirstTurnSetupWatcher.java`
-and `XmageNativeStateRestoration.applyPreStart`. A deferred permanent still outside
-the game at the checkpoint fails closed with `FIRST_TURN_PLACEMENT_MISSED`.
+and `XmageNativeStateRestoration.applyPreStart`. At the checkpoint, every deferred
+permanent and battlefield commander must have been placed by the setup watcher and
+still be on the battlefield. Anything else fails closed with
+`FIRST_TURN_PLACEMENT_MISSED`.
