@@ -263,6 +263,18 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         projections["P1"]["view"]["looked_at"] = [
             {"title": "Orcish Spy", "cards": [{"name": "Vampiric Tutor"}, {"name": "Mountain"}]}
         ]
+    if kind == "shuffle_invalidates_order":
+        projections["P1"]["view"]["looked_at"] = [
+            {
+                "title": "Orcish Spy",
+                "order_invalidated_by_shuffle": True,
+                "cards": [
+                    {"name": "Enlightened Tutor"},
+                    {"name": "Mystical Tutor"},
+                    {"name": "Vampiric Tutor"},
+                ],
+            }
+        ]
     tape: list[dict[str, Any]] = [
         _entry("get_capabilities", None, _ok(copy.deepcopy(CAPABILITIES))),
         _entry(
@@ -1023,6 +1035,88 @@ def test_a_card_the_script_casts_is_public_only_after_the_event(
     # Nothing else about P2's hidden cards becomes public with it.
     after = kp.forbidden_tokens(record, "P3", after_event=True).tokens
     assert {"Demonic Tutor", "Vampiric Tutor"} <= set(after)
+
+
+# --------------------------------------------------------------------------- #
+# HIDDEN_11 — native shuffle invalidates order while retaining identity memory
+# --------------------------------------------------------------------------- #
+
+
+def _hidden11_observation(capture: kp.Capture) -> dict[str, Any]:
+    looked = capture.projections["P1"]["view"]["looked_at"]
+    assert len(looked) == 1
+    return looked[0]
+
+
+def test_shuffle_invalidation_keeps_identity_memory_but_not_the_old_order(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    verdict = _verdict(records, "HIDDEN_11")
+    assert verdict.classification == kp.VERIFIED, _failed(verdict)
+    observation = _hidden11_observation(_capture(records["HIDDEN_11"]))
+    assert observation["order_invalidated_by_shuffle"] is True
+    assert [card["name"] for card in observation["cards"]] == [
+        "Enlightened Tutor",
+        "Mystical Tutor",
+        "Vampiric Tutor",
+    ]
+
+
+def test_shuffle_without_explicit_order_invalidation_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        _hidden11_observation(capture).pop("order_invalidated_by_shuffle")
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "shuffle_order_invalidated_explicitly" in _failed(verdict)
+
+
+def test_shuffle_that_retains_pre_shuffle_order_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        _hidden11_observation(capture)["cards"] = [
+            {"name": "Vampiric Tutor"},
+            {"name": "Mystical Tutor"},
+            {"name": "Enlightened Tutor"},
+        ]
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert {
+        "pre_shuffle_order_not_retained",
+        "invalidated_memory_is_canonical_not_engine_order",
+    } <= set(_failed(verdict))
+
+
+def test_shuffle_that_erases_a_legitimately_seen_identity_is_denied(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        _hidden11_observation(capture)["cards"] = _hidden11_observation(capture)["cards"][:2]
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.FAIL_ENTITLEMENT_DENIED
+    assert "remembered_identity_set_observed" in _failed(verdict)
+
+
+def test_shuffle_memory_leaked_to_another_principal_is_a_demonstrated_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def mutate(capture: kp.Capture) -> None:
+        capture.projections["P3"]["view"]["looked_at"] = [
+            {
+                "title": "Orcish Spy",
+                "order_invalidated_by_shuffle": True,
+                "cards": [{"name": "Vampiric Tutor"}],
+            }
+        ]
+
+    verdict = _verdict(records, "HIDDEN_11", mutate)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert "remembered_identity_withheld_from:P3" in _failed(verdict)
 
 
 # --------------------------------------------------------------------------- #
