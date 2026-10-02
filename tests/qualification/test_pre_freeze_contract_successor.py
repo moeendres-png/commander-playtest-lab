@@ -1110,7 +1110,7 @@ def test_batch6_hidden11_adds_ordered_look_then_native_shuffle_without_changing_
     assert patch["correction_class"] == "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
     assert patch["authority_overlay"]["comprehensive_rules_rule"] == "701.24a"
     assert patch["successor_requested_state_digest"] == (
-        "d2310a2be374a3a6db5703d879a92dae3cfc9b7cd290183efb2ac2b288f4f5e6"
+        "b326e480861f33a9aabac35a2ce614725fed48bc7ac5e537fe2c19be0b0f2928"
     )
 
     record = resolver.effective_record("HIDDEN_11")
@@ -1160,6 +1160,17 @@ def test_batch6_hidden11_adds_ordered_look_then_native_shuffle_without_changing_
         "obj:hidden11-lib-1",
         "obj:hidden11-lib-2",
     ]
+    # The complete native library: the three requested cards over every template
+    # card outside the hand (battlefield Mountains are requested objects, not
+    # template cards), and the face-down object typed as on every lossless row.
+    assert runs[3:] == [
+        {
+            "card_identity": "Mountain",
+            "count": p2["library_template"]["count"] - p2["checkpoint_hand"]["template_count"],
+        }
+    ]
+    assert objects["obj:facedown"]["face_down_type"] == "MANIFESTED"
+    assert not any(o.get("face_down") and not o.get("face_down_type") for o in objects.values())
 
 
 def test_batch6_hidden06_and_hidden12_add_native_invalidation_and_control_routes() -> None:
@@ -1178,7 +1189,7 @@ def test_batch6_hidden06_and_hidden12_add_native_invalidation_and_control_routes
 
     expected_digests = {
         "HIDDEN_06": "6e76fe052384d35fde93725ac46e74b0f999e20d8fdfe5a19732a3d1d5225b00",
-        "HIDDEN_12": "24c95853e7ec3e152c64d5d01835b51b90b75097daf4d66bdb2014915aaf17b6",
+        "HIDDEN_12": "f630608c9f3fa6f639c50ca6dafa371cc14a22e1a16125dc15536b1389161b89",
     }
     expected_steps = {
         "HIDDEN_06": [
@@ -1232,11 +1243,22 @@ def test_batch6_hidden06_and_hidden12_add_native_invalidation_and_control_routes
     assert h12["temporal_state"] == {
         "active_player": "P1",
         "extra_turn_queue": [],
-        "phase": "postcombat_main",
+        "phase": "precombat_main",
         "priority_player": "P1",
         "step": "main",
         "turn_number": 1,
     }
+    # The checkpoint state the engine restores at precombat main: P1's
+    # manifested 2/2 tapped (no attack declaration on the way to P2's turn),
+    # P1's eight cards and no maximum hand size (no cleanup discard), P3's
+    # seven-card opening hand plus the requested Mind Stone.
+    assert h12_objects["obj:facedown"]["tapped"] is True
+    assert h12_objects["obj:facedown"]["face_down_type"] == "MANIFESTED"
+    assert h12_objects["obj:hidden12-tower"]["card_identity"] == "Reliquary Tower"
+    h12_hands = {
+        deck["player_id"]: deck["checkpoint_hand"]["template_count"] for deck in h12["deck_state"]
+    }
+    assert (h12_hands["P1"], h12_hands["P3"]) == (8, 7)
     assert h12["knowledge_state"]["viewer_states"][0]["temporary_permissions"] == [
         {
             "controlled_player": "P2",

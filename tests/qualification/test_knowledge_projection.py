@@ -411,6 +411,7 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         ]
     controlled_decision: dict[str, Any] | None = None
     controlled_submission: dict[str, Any] | None = None
+    cast_index: int | None = None
     if kind == "exile_permission_invalidates":
         pre_projections = {label: copy.deepcopy(projections[label]) for label in LABELS}
         pre_projections["P1"]["view"]["players"][1]["exile"].append(
@@ -437,6 +438,7 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
             "player_player": "P2",
             "target_name": "Memnite",
         }
+        cast_index = len(tape)
         temporal_snapshots.append(
             {
                 "causal_step_id": "cast-exiled-card",
@@ -461,6 +463,7 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         controlled_decision = _frame("P1", "controlled-p2")
         controlled_decision["seat"] = 0
         controlled_decision["acting_for_seat"] = 1
+        controlled_decision["decision_offset"] = 52
         controlled_decision["pilot_state"] = p1_view
         controlled_decision["legal_options"] = [
             {
@@ -472,9 +475,16 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         ]
         controlled_submission = {
             "decision_id": "controlled-p2",
+            "decision_offset": 52,
             "actor_id": NATIVE["P1"],
             "selected_option_id": "controlled-pass",
             "accepted": True,
+            # The live binding probes: the answered id replayed and the next
+            # decision under a foreign actor are both refused, changing nothing.
+            "stale_replay_rejected": "external_pilot_decision_rejected",
+            "foreign_actor_rejected": "external_pilot_decision_rejected",
+            "foreign_actor_attempted": True,
+            "pending_unchanged": True,
         }
         tape.append(_entry("get_midgame_decision", None, _ok({"decision": controlled_decision})))
         tape.append(
@@ -550,7 +560,17 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         tape=tape,
         log="log4j:WARN No appenders could be found for logger (mage.util.ClassScanner).\n",
         script_start=script_start,
-        script_trace=[{"decision_class": "priority", "step": 0}] if script_start else [],
+        script_trace=(
+            [{"decision_class": "priority", "step": 0}]
+            # HIDDEN_06's cast of the exiled card enters the tape at the snapshot.
+            + (
+                [{"decision_class": "priority", "step": 3, "tape_index": cast_index}]
+                if cast_index is not None
+                else []
+            )
+            if script_start
+            else []
+        ),
         script_complete=script_start is not None,
         temporal_snapshots=temporal_snapshots,
         controlled_decision=controlled_decision,
@@ -1695,3 +1715,184 @@ def test_a_declared_rules_text_fragment_is_forbidden_only_where_the_object_is(
         assert fragment in kp.forbidden_tokens(record, label, after_event=True).tokens
     # A record that declares no fragment forbids none.
     assert kp.ability_text_bindings(records["HIDDEN_15"]) == {}
+
+
+# --------------------------------------------------------------------------- #
+# Whole-surface, temporal privacy for HIDDEN_06 and HIDDEN_12 (#457 gate)
+# --------------------------------------------------------------------------- #
+
+
+def _public_event(capture: kp.Capture, at: int, event: dict[str, Any]) -> None:
+    """A public event tape document inserted at tape index ``at``."""
+    capture.tape.insert(
+        at, _entry("get_midgame_events", {"after_offset": 0}, _ok({"events": [event]}))
+    )
+
+
+def _cast_at(capture: kp.Capture) -> int:
+    return next(
+        int(entry["tape_index"])
+        for entry in capture.script_trace
+        if entry.get("step") == 3 and "tape_index" in entry
+    )
+
+
+def test_hidden06_identity_through_a_public_event_before_the_cast_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def early(capture: kp.Capture) -> None:
+        assert capture.script_start is not None
+        _public_event(
+            capture, capture.script_start, {"type": "ZONE_CHANGE", "target_name": "Memnite"}
+        )
+        for entry in capture.script_trace:
+            if "tape_index" in entry:
+                entry["tape_index"] += 1
+
+    verdict = _verdict(records, "HIDDEN_06", early)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert {
+        "no_forbidden_token_in_channels_of:P2",
+        "no_forbidden_token_in_channels_of:P3",
+        "no_forbidden_token_in_channels_of:P4",
+    } <= set(_failed(verdict))
+
+
+def test_hidden06_identity_public_after_the_cast_is_not_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def late(capture: kp.Capture) -> None:
+        _public_event(
+            capture, _cast_at(capture) + 1, {"type": "ZONE_CHANGE", "target_name": "Memnite"}
+        )
+
+    verdict = _verdict(records, "HIDDEN_06", late)
+    assert verdict.classification == kp.VERIFIED, _failed(verdict)
+
+
+def test_hidden06_exile_handle_reaching_another_principal_before_the_cast_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def handle(capture: kp.Capture) -> None:
+        assert capture.script_start is not None
+        _public_event(
+            capture, capture.script_start, {"type": "ZONE_CHANGE", "target": "memnite-exiled"}
+        )
+        for entry in capture.script_trace:
+            if "tape_index" in entry:
+                entry["tape_index"] += 1
+
+    verdict = _verdict(records, "HIDDEN_06", handle)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert set(_failed(verdict)) == {
+        f"face_down_handle_withheld_before_zone_change:{label}" for label in ("P2", "P3", "P4")
+    }
+
+
+def _control_index(capture: kp.Capture) -> int:
+    return next(
+        index
+        for index, entry in enumerate(capture.tape)
+        if isinstance((entry.get("response") or {}).get("payload"), dict)
+        and isinstance(entry["response"]["payload"].get("decision"), dict)
+        and entry["response"]["payload"]["decision"].get("acting_for_seat") is not None
+    )
+
+
+def test_hidden12_controlled_hand_reaching_an_unrelated_principal_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def other(capture: kp.Capture) -> None:
+        frame = _frame("P3", "p3-frame")
+        frame["context"] = {"note": "Demonic Tutor"}
+        capture.tape.insert(
+            _control_index(capture) + 1,
+            _entry("get_midgame_decision", None, _ok({"decision": frame})),
+        )
+
+    verdict = _verdict(records, "HIDDEN_12", other)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert _failed(verdict) == ["no_forbidden_token_in_channels_of:P3"]
+
+
+def test_hidden12_controlled_hand_before_the_control_begins_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def early(capture: kp.Capture) -> None:
+        frame = _frame("P1", "p1-before-control")
+        frame["context"] = {"note": "Demonic Tutor"}
+        capture.tape.insert(
+            _control_index(capture),
+            _entry("get_midgame_decision", None, _ok({"decision": frame})),
+        )
+
+    verdict = _verdict(records, "HIDDEN_12", early)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert _failed(verdict) == ["no_forbidden_token_in_channels_of:P1"]
+
+
+def test_hidden12_controlled_decision_id_through_another_channel_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    def status(capture: kp.Capture) -> None:
+        _public_event(capture, len(capture.tape), {"type": "NOTE", "data": "controlled-p2"})
+
+    verdict = _verdict(records, "HIDDEN_12", status)
+    assert verdict.classification == kp.FAIL_DEMONSTRATED_LEAK
+    assert set(_failed(verdict)) == {
+        f"controlled_decision_identity_withheld_from:{label}" for label in ("P2", "P3", "P4")
+    }
+
+
+def test_hidden12_unproven_actor_or_revision_binding_is_unverified(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    for field, value in (
+        ("stale_replay_rejected", None),
+        ("foreign_actor_rejected", None),
+        ("foreign_actor_attempted", False),
+        ("pending_unchanged", False),
+        ("decision_offset", 51),
+    ):
+
+        def mutate(capture: kp.Capture, field: str = field, value: Any = value) -> None:
+            assert capture.controlled_submission is not None
+            capture.controlled_submission[field] = value
+
+        verdict = _verdict(records, "HIDDEN_12", mutate)
+        assert verdict.classification == kp.UNVERIFIED, field
+        assert _failed(verdict) == ["controlled_decision_revision_and_actor_bound"], field
+
+
+def test_a_submission_status_and_next_actions_answer_their_own_principals() -> None:
+    """A submission's status echoes the submitter's answer; its next_actions
+    project the next frame and go with it; a refused submission's request is
+    still its author's, while the refusal itself stays public."""
+    frame = _frame("P2", "next")
+    action = {"action_type": "pass_priority", "metadata": {"decision_id": "next"}}
+    tape = [
+        _entry(
+            "submit_action",
+            {"proposal": {"actor_id": NATIVE["P1"]}},
+            _ok({"decision": frame, "executed_action_id": "p1-card", "next_actions": [action]}),
+        ),
+        _entry(
+            "submit_midgame_decision",
+            {"response": {"actor_id": NATIVE["P1"], "decision_id": "old"}},
+            {"success": False, "errors": [{"code": "rejected", "message": "stale"}]},
+        ),
+    ]
+    documents = kp.addressed_documents(tape, dict(NATIVE))
+    by_channel = {item.channel: item.addressee for item in documents}
+    assert by_channel["tape[0]:submit_action.status"] == "P1"
+    assert by_channel["tape[0]:submit_action.next_actions"] == "P2"
+    assert by_channel["tape[0]:submit_action.frame"] == "P2"
+    assert by_channel["tape[1]:submit_midgame_decision.request"] == "P1"
+    assert by_channel["tape[1]:submit_midgame_decision.response"] is None
+    # next_actions naming another decision stay public (fail closed).
+    stray = copy.deepcopy(tape[:1])
+    stray[0]["response"]["payload"]["next_actions"] = [
+        {"action_type": "pass_priority", "metadata": {"decision_id": "other"}}
+    ]
+    stray_channels = {item.channel for item in kp.addressed_documents(stray, dict(NATIVE))}
+    assert "tape[0]:submit_action.next_actions" not in stray_channels

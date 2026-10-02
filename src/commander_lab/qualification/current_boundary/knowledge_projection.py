@@ -292,7 +292,12 @@ def known_range_objects(record: dict[str, Any]) -> list[tuple[str, dict[str, Any
 
 
 def forbidden_tokens(
-    record: dict[str, Any], viewer: str, *, after_event: bool = False
+    record: dict[str, Any],
+    viewer: str,
+    *,
+    after_event: bool = False,
+    casts: Iterable[str] | None = None,
+    control_active: bool = True,
 ) -> ForbiddenTokens:
     """The identities, semantic ids and sentinels ``viewer`` is not entitled to.
 
@@ -300,6 +305,9 @@ def forbidden_tokens(
     (or through its scaffolding template) cannot decide anything and is set
     aside as ambiguous rather than scanned. ``after_event`` applies the record's
     temporary permissions, which hold only once its scripted event happened.
+    ``casts`` names the scripted casts already made (every scripted cast when
+    None); ``control_active`` says whether a declared control has begun. A
+    scan of a capture binds both to the tape (``_token_segments``).
     """
     state = _viewer_state(record)
     permissions = state.get("face_down_look_permissions") or ()
@@ -313,9 +321,11 @@ def forbidden_tokens(
         ]
         # A card the script itself casts is put onto the stack, a public zone
         # (CR 601.2a): after the event every principal may know it.
+        made = _scripted_casts(record) if casts is None else set(casts)
         temporary += [
             {"object": cast, "permission": "reveal", "viewer": "ALL_PLAYERS"}
             for cast in _scripted_casts(record)
+            if cast in made
         ]
         # A library range the record says a viewer knows (a scry or surveil of
         # the top N) entitles that viewer, and only that viewer, to the range's
@@ -334,7 +344,8 @@ def forbidden_tokens(
             controlled = relation.get("controlled_player")
             controller = relation.get("controller")
             if (
-                relation.get("permission")
+                control_active
+                and relation.get("permission")
                 == "only information P1 is entitled to while making P2 decisions under rules"
                 and controller == viewer
                 and controlled
@@ -428,6 +439,13 @@ def expected_lossless_checks(record: dict[str, Any]) -> dict[str, int]:
     for obj in _objects(record):
         if obj.get("face_down_type"):
             add("face_down")
+        # The engine's checkpoint verification also checks every requested
+        # tapped state and counter set of a permanent.
+        if obj.get("zone") == "battlefield":
+            if obj.get("tapped"):
+                add("tapped")
+            if obj.get("counters"):
+                add("counters")
     return counts
 
 
@@ -901,9 +919,11 @@ def advance_to_controlled_decision(
             client.submit_options(decision, [passed])
             return observed, {
                 "decision_id": str(decision.get("decision_id")),
+                "decision_offset": decision.get("decision_offset"),
                 "actor_id": str(decision.get("actor_id")),
                 "selected_option_id": str(passed),
                 "accepted": True,
+                **_binding_controls(client, record, decision, str(passed)),
             }
 
         if str(decision.get("decision_class")) != "priority":
@@ -916,6 +936,80 @@ def advance_to_controlled_decision(
             raise ml.MidgameLaneError("the engine offered no pass while advancing turns")
         client.submit_options(decision, [passed])
     raise ml.MidgameLaneError("the controlled-player authority frame was not reached")
+
+
+def _rejection(client: ml.MidgameLaneClient, response: dict[str, Any]) -> str | None:
+    """Submit a raw decision response; the engine's error code, or None if it
+    was accepted."""
+    result = client.request("submit_midgame_decision", {"response": response})
+    return None if result.get("success") else str(_error_code(result) or "REJECTED")
+
+
+def _binding_controls(
+    client: ml.MidgameLaneClient,
+    record: dict[str, Any],
+    answered: dict[str, Any],
+    option_id: str,
+) -> dict[str, Any]:
+    """Actor and revision binding of the controlled decision, exercised live.
+
+    The lane's decision id is derived by the engine from the game, the decision
+    offset (its revision), the deciding actor and the decision class, so an id
+    names one revision of one actor's decision. Two submissions the engine must
+    refuse without touching the game prove it: the answered (now stale) id
+    again, and the next pending decision submitted under a foreign actor. The
+    next pending decision must be unchanged afterwards.
+    """
+    _, controlled = _controlled_relationship(record)
+    stale = _rejection(
+        client,
+        {
+            "decision_id": answered["decision_id"],
+            "actor_id": answered["actor_id"],
+            "selected_option_ids": [option_id],
+            "ordering": [],
+        },
+    )
+    pending = client.pending_decision(attempts=5)
+    foreign_native = None
+    labels = [label for label in _labels(record) if label != controlled]
+    for label in labels:
+        response = client.request("get_midgame_projection", {"actor_id": label})
+        actor = ((_payload(response).get("view") or {}).get("actor_id")) if response else None
+        if pending is not None and isinstance(actor, str) and actor != pending.get("actor_id"):
+            foreign_native = actor
+            break
+    # The probe must be refused for its actor; it offers only an engine pass,
+    # so even a wrongly accepted probe could not choose anything substantive.
+    options = [
+        str(option.get("option_id"))
+        for option in (pending or {}).get("legal_options") or ()
+        if isinstance(option, dict)
+        and option.get("option_id")
+        and option.get("option_type") == "pass_priority"
+    ]
+    foreign = (
+        _rejection(
+            client,
+            {
+                "decision_id": pending["decision_id"],
+                "actor_id": foreign_native,
+                "selected_option_ids": options[:1],
+                "ordering": [],
+            },
+        )
+        if pending is not None and foreign_native is not None and options
+        else None
+    )
+    after = client.pending_decision(attempts=5)
+    return {
+        "stale_replay_rejected": stale,
+        "foreign_actor_rejected": foreign,
+        "foreign_actor_attempted": foreign_native is not None and bool(options),
+        "pending_unchanged": pending is not None
+        and after is not None
+        and after.get("decision_id") == pending.get("decision_id"),
+    }
 
 
 def run_script(
@@ -993,8 +1087,13 @@ def run_script(
                         )
                 if action is None:
                     raise ml.MidgameLaneError("the scripted action matched no engine offer")
+                index = len(client.tape)
                 probe.submit_proposal(client, legal, action, f"knowledge-{len(trace)}")
-                trace.append({"decision_class": decision_class, "step": position})
+                # Where the scripted action entered the tape: a cast is public
+                # from here on, never earlier (_token_segments).
+                trace.append(
+                    {"decision_class": decision_class, "step": position, "tape_index": index}
+                )
                 position += 1
                 continue
             passed = probe.option_of_type(decision, "pass_priority")
@@ -1106,12 +1205,22 @@ def addressed_documents(
         response = entry.get("response") or {}
         body = _payload(response)
         if not response.get("success"):
-            out.append(AddressedDocument(None, f"{name}.request", request))
+            # A refused submission's request is still its submitter's own
+            # answer; the engine's refusal stays public, so anything the refusal
+            # carries is scanned for every principal.
+            author: str | None = None
+            if message_type in {"submit_midgame_decision", "submit_action"}:
+                answer = payload.get(
+                    "response" if message_type == "submit_midgame_decision" else "proposal"
+                )
+                author = label_of(answer.get("actor_id")) if isinstance(answer, dict) else None
+            out.append(AddressedDocument(author, f"{name}.request", request))
             out.append(AddressedDocument(None, f"{name}.response", response))
             continue
         if message_type in {"get_midgame_decision", "submit_midgame_decision", "submit_action"}:
             # Both submission messages answer with the next pending frame; the
             # answer itself is the submitter's (an option answer or a proposal).
+            submitter: str | None = None
             if message_type != "get_midgame_decision":
                 answer = payload.get(
                     "response" if message_type == "submit_midgame_decision" else "proposal"
@@ -1121,13 +1230,31 @@ def addressed_documents(
             else:
                 out.append(AddressedDocument(None, f"{name}.request", request))
             decision = body.get("decision")
+            private = {"decision"}
             if isinstance(decision, dict) and decision:
-                out.append(
-                    AddressedDocument(label_of(decision.get("actor_id")), f"{name}.frame", decision)
-                )
+                actor = label_of(decision.get("actor_id"))
+                out.append(AddressedDocument(actor, f"{name}.frame", decision))
+                # A submission's next_actions project that same next decision,
+                # so they are routed with its frame. Only when every action names
+                # that frame's decision; otherwise they stay public and are
+                # scanned for every principal (fail closed).
+                if _projects_frame(body.get("next_actions"), decision):
+                    private.add("next_actions")
+                    out.append(
+                        AddressedDocument(actor, f"{name}.next_actions", body["next_actions"])
+                    )
             status = {key: value for key, value in response.items() if key != "payload"}
-            status["payload"] = {key: value for key, value in body.items() if key != "decision"}
-            out.append(AddressedDocument(None, f"{name}.status", status))
+            status["payload"] = {key: value for key, value in body.items() if key not in private}
+            # A submission's status echoes the submitter's own answer (the
+            # executed action and its ids): it answers the submitter. A pure
+            # read of the pending decision has no submitter and stays public.
+            out.append(
+                AddressedDocument(
+                    submitter,
+                    f"{name}.status",
+                    status,
+                )
+            )
             continue
         if message_type == "get_legal_actions":
             out.append(AddressedDocument(None, f"{name}.request", request))
@@ -1145,6 +1272,18 @@ def addressed_documents(
         out.append(AddressedDocument(None, f"{name}.request", request))
         out.append(AddressedDocument(None, f"{name}.response", response))
     return out
+
+
+def _projects_frame(actions: Any, decision: dict[str, Any]) -> bool:
+    """Whether a non-empty action list projects exactly this decision frame."""
+    if not isinstance(actions, list) or not actions:
+        return False
+    decision_id = decision.get("decision_id")
+    return bool(decision_id) and all(
+        isinstance(action, dict)
+        and (action.get("metadata") or {}).get("decision_id") == decision_id
+        for action in actions
+    )
 
 
 def principal_documents(
@@ -2575,6 +2714,26 @@ def _exile_permission_invalidates(
                 "LEAK",
             )
         )
+    # Whole surface, in time: until the cast nobody but the viewer may receive
+    # the face-down card's identity, semantic id or exile handle on any channel.
+    # From the cast on the card is a public object; the engine keeps its native
+    # id across zones, so the handle then names a public object.
+    cast_at = _cast_indices(record, capture).get(object_id)
+    boundary = cast_at if cast_at is not None else len(capture.tape)
+    for label in _labels(record):
+        if label == viewer:
+            continue
+        early = principal_documents(capture.tape[:boundary], label, capture.natives)
+        handle_hits = scan([(item.channel, item.document) for item in early], stale_handles)
+        checks.append(
+            Check(
+                f"face_down_handle_withheld_before_zone_change:{label}",
+                bool(stale_handles) and not handle_hits,
+                f"{len(handle_hits)} occurrences of the exile handle before tape {boundary}",
+                "LEAK" if stale_handles else "MEASURED",
+            )
+        )
+    checks.extend(_scan_others(record, capture, skip=(viewer,)))
     return checks
 
 
@@ -2700,6 +2859,47 @@ def _controlled_player_authority(
                 "LEAK",
             )
         )
+        # The decision's own identity (its revision-unique decision id) reaches
+        # nobody else through any channel either. Option ids are not material:
+        # the engine derives them from the option, so an ordinary pass carries
+        # the same id in every principal's frames.
+        decision_id = str(decision.get("decision_id") or "")
+        material = scan(
+            [
+                (item.channel, item.document)
+                for item in principal_documents(capture.tape, label, capture.natives)
+            ],
+            [decision_id] if decision_id else [],
+        )
+        checks.append(
+            Check(
+                f"controlled_decision_identity_withheld_from:{label}",
+                bool(decision_id) and not material,
+                f"{len(material)} occurrences of the controlled decision id",
+                "LEAK",
+            )
+        )
+    # Actor + revision binding, exercised live: the answered id is refused when
+    # replayed, a foreign actor is refused on the next decision, and neither
+    # probe changes the pending decision.
+    checks.append(
+        Check(
+            "controlled_decision_revision_and_actor_bound",
+            submission.get("decision_offset") == decision.get("decision_offset")
+            and isinstance(decision.get("decision_offset"), int)
+            and submission.get("stale_replay_rejected") is not None
+            and submission.get("foreign_actor_attempted") is True
+            and submission.get("foreign_actor_rejected") is not None
+            and submission.get("pending_unchanged") is True,
+            f"offset={submission.get('decision_offset')}; "
+            f"stale replay -> {submission.get('stale_replay_rejected')}; "
+            f"foreign actor -> {submission.get('foreign_actor_rejected')}; "
+            f"pending unchanged={submission.get('pending_unchanged')}",
+        )
+    )
+    # Every principal other than the controller, on every channel, in time:
+    # the controlled player keeps its own hand; nobody else ever sees it.
+    checks.extend(_scan_others(record, capture, skip=(controller,)))
     return checks
 
 
@@ -2877,26 +3077,110 @@ def _no_omniscient_api(capture: Capture) -> list[Check]:
     return checks
 
 
+def _cast_indices(record: dict[str, Any], capture: Capture) -> dict[str, int | None]:
+    """Scripted cast object -> the tape index of its submission (None when the
+    trace does not record one: the cast then counts from the script's start)."""
+    script = list(record.get("decision_script") or ())
+    at = {
+        int(entry["step"]): entry.get("tape_index")
+        for entry in capture.script_trace
+        if isinstance(entry, dict) and isinstance(entry.get("step"), int)
+    }
+    indices: dict[str, int | None] = {}
+    for position, step in enumerate(script):
+        value = ((step or {}).get("selection") or {}).get("semantic_value")
+        if isinstance(value, dict) and value.get("action") == "cast" and value.get("object"):
+            index = at.get(position)
+            indices[str(value["object"])] = index if isinstance(index, int) else None
+    return indices
+
+
+def _control_start(record: dict[str, Any], capture: Capture) -> int | None:
+    """The tape index of the first frame the engine addresses to a declared
+    controller acting for the controlled player, or None if there is none (or
+    no control is declared)."""
+    if capture.script_start is None:
+        return None
+    try:
+        controller, controlled = _controlled_relationship(record)
+        seat = _record_seat_index(record, controlled)
+    except ml.MidgameLaneError:
+        return None
+    for index in range(capture.script_start, len(capture.tape)):
+        documents = principal_documents(
+            capture.tape[index : index + 1], controller, capture.natives, start=index
+        )
+        for frame in frames_of(item for item in documents if item.addressee == controller):
+            if frame.get("acting_for_seat") == seat:
+                return index
+    return None
+
+
+def _token_segments(
+    record: dict[str, Any], capture: Capture, principal: str
+) -> list[tuple[int, ForbiddenTokens]]:
+    """(first tape index, tokens) for each stretch of the tape over which the
+    principal's entitlement is constant.
+
+    Before the record's scripted event nothing temporary holds. From it on the
+    record's temporary permissions hold, except two whose start the engine
+    itself marks on the tape: a scripted cast makes its card public only from
+    its own submission on (CR 601.2a), and a declared control entitles its
+    controller only from the first frame the engine addresses to it acting for
+    the controlled player. A control no frame shows is unmeasured rather than
+    absent: its window then starts with the event, and the row cannot verify
+    (its controlled-frame checks fail).
+    """
+    segments = [(0, forbidden_tokens(record, principal))]
+    if capture.script_start is None:
+        return segments
+    casts = _cast_indices(record, capture)
+    control = _control_start(record, capture)
+    if control is None:
+        control = capture.script_start
+    points = {capture.script_start}
+    points.update(i for i in casts.values() if i is not None and i > capture.script_start)
+    if control is not None:
+        points.add(control)
+    for point in sorted(points):
+        made = [cast for cast, index in casts.items() if index is None or index <= point]
+        segments.append(
+            (
+                point,
+                forbidden_tokens(
+                    record,
+                    principal,
+                    after_event=True,
+                    casts=made,
+                    control_active=control <= point,
+                ),
+            )
+        )
+    return segments
+
+
 def _scan_principal(
     record: dict[str, Any], capture: Capture, principal: str
 ) -> tuple[list[dict[str, str]], dict[str, int], ForbiddenTokens]:
-    """Scan everything the principal received. Documents before the record's
-    scripted event are held to the entitlement before it; documents after it,
-    and the process log, to the entitlement after it."""
-    before = forbidden_tokens(record, principal)
-    after = forbidden_tokens(record, principal, after_event=capture.script_start is not None)
-    split = len(capture.tape) if capture.script_start is None else capture.script_start
-    early = principal_documents(capture.tape[:split], principal, capture.natives)
-    late = principal_documents(capture.tape[split:], principal, capture.natives, start=split)
-    scanned, coverage = channel_documents(early + late, capture.log)
-    early_names = {item.channel for item in early}
-    hits = scan(
-        [(name, doc) for name, doc in scanned if name in early_names], before.tokens
-    ) + scan([(name, doc) for name, doc in scanned if name not in early_names], after.tokens)
-    merged = ForbiddenTokens(
-        {**before.tokens, **after.tokens}, {**before.ambiguous, **after.ambiguous}
-    )
-    return hits, coverage, merged
+    """Scan everything the principal received, each document against the
+    entitlement of the stretch of the tape it belongs to (``_token_segments``),
+    and the process log against the entitlement at the end."""
+    segments = _token_segments(record, capture, principal)
+    bounds = [start for start, _ in segments[1:]] + [len(capture.tape)]
+    documents: list[AddressedDocument] = []
+    hits: list[dict[str, str]] = []
+    for (start, tokens), end in zip(segments, bounds, strict=True):
+        part = principal_documents(capture.tape[start:end], principal, capture.natives, start=start)
+        documents.extend(part)
+        hits += scan([(item.channel, item.document) for item in part], tokens.tokens)
+    scanned, coverage = channel_documents(documents, capture.log)
+    hits += scan([(name, doc) for name, doc in scanned if name == "log"], segments[-1][1].tokens)
+    merged_tokens: dict[str, str] = {}
+    merged_ambiguous: dict[str, str] = {}
+    for _, tokens in segments:
+        merged_tokens.update(tokens.tokens)
+        merged_ambiguous.update(tokens.ambiguous)
+    return hits, coverage, ForbiddenTokens(merged_tokens, merged_ambiguous)
 
 
 def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> RowVerdict:

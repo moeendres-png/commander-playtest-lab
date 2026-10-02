@@ -9735,7 +9735,9 @@
       "obligation_changed": false,
       "prose_derived_action_injection": false,
       "provider_semantics_used": false,
-      "viewer_state_parameter_erratum": "known_library_ranges count 2 -> 3 because the actual-card route looks at exactly three cards"
+      "viewer_state_parameter_erratum": "known_library_ranges count 2 -> 3 because the actual-card route looks at exactly three cards",
+      "face_down_type_erratum": "obj:facedown carries its native FaceDownType (MANIFESTED), as on every other SLOT-04 lossless HIDDEN record; untyped face_down=true is unsupported and the lane refuses it (UNSUPPORTED_FACEDOWN)",
+      "library_count_erratum": "P2's complete checkpoint library is the three requested cards over 92 template cards (99 template cards minus the 7-card template hand); the two battlefield Mountains are requested objects, not template cards, so the predecessor's 90 left the native library order incomplete (INCOMPLETE_LIBRARY_ORDER)"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
@@ -9903,7 +9905,7 @@
         },
         {
          "card_identity": "Mountain",
-         "count": 90
+         "count": 92
         }
        ]
       },
@@ -10086,7 +10088,8 @@
       "owner": "P1",
       "semantic_id": "obj:facedown",
       "tapped": false,
-      "zone": "battlefield"
+      "zone": "battlefield",
+      "face_down_type": "MANIFESTED"
      },
      {
       "card_identity": "Vampiric Tutor",
@@ -10173,7 +10176,7 @@
      }
     ]
    },
-   "successor_requested_state_digest": "d2310a2be374a3a6db5703d879a92dae3cfc9b7cd290183efb2ac2b288f4f5e6"
+   "successor_requested_state_digest": "b326e480861f33a9aabac35a2ce614725fed48bc7ac5e537fe2c19be0b0f2928"
   },
   {
    "append_native_procedure": [
@@ -10597,12 +10600,13 @@
      "details": {
       "authority": "#255/#457 SLOT-04: event-driven hidden-information rows must execute the real Rules-Core transition; no static projection earns credit",
       "erratum_class": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
-      "event_route": "At P1's postcombat main, P1 activates Mindslaver with four explicit mana sources and targets P2. After that native effect resolves, the lane advances only by exact engine-offered pass_priority options. The first XMage frame explicitly addressed actor=P1 acting_for=P2 is captured and answered with that frame's own pass option. The frame must carry P2-private information P1 is legally entitled to while controlling P2, but neither P2-library omniscience nor unrelated principals' private hands.",
+      "event_route": "At P1's precombat main, P1 activates Mindslaver with four explicit mana sources and targets P2. After that native effect resolves, the lane advances only by exact engine-offered pass_priority options. The first XMage frame explicitly addressed actor=P1 acting_for=P2 is captured and answered with that frame's own pass option. The frame must carry P2-private information P1 is legally entitled to while controlling P2, but neither P2-library omniscience nor unrelated principals' private hands.",
       "includes_lossless_state_erratum": true,
       "obligation_changed": false,
       "prose_derived_action_injection": false,
       "provider_semantics_used": false,
-      "measurement_progression": "ENGINE_OFFERED_PASS_PRIORITY_ONLY_UNTIL_FIRST_ACTING_FOR_FRAME_THEN_SUBMIT_ITS_EXACT_PASS"
+      "measurement_progression": "ENGINE_OFFERED_PASS_PRIORITY_ONLY_UNTIL_FIRST_ACTING_FOR_FRAME_THEN_SUBMIT_ITS_EXACT_PASS",
+      "checkpoint_erratum": "the checkpoint is P1's precombat main: the lossless state (obj:facedown tapped) is restored at the checkpoint, so a later checkpoint is unreachable while P1's manifested 2/2 is still untapped during the arrival's combat; with it tapped, P1's combat asks nothing. P1 holds its eight cards (the turn-1 draw) and Reliquary Tower removes the maximum hand size, so P1's cleanup asks no discard. P3's hand is the seven-card opening hand plus the requested Mind Stone"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
@@ -10709,7 +10713,7 @@
       "checkpoint_hand": {
        "completeness": "COMPLETE",
        "template_card_identity": "Mountain",
-       "template_count": 7
+       "template_count": 8
       },
       "commander_ids": [
        "cmd:P1-A"
@@ -10755,7 +10759,7 @@
       "checkpoint_hand": {
        "completeness": "COMPLETE",
        "template_card_identity": "Mountain",
-       "template_count": 6
+       "template_count": 7
       },
       "commander_ids": [
        "cmd:P3-A"
@@ -10887,7 +10891,7 @@
       "face_down_type": "MANIFESTED",
       "owner": "P1",
       "semantic_id": "obj:facedown",
-      "tapped": false,
+      "tapped": true,
       "zone": "battlefield"
      },
      {
@@ -10958,18 +10962,29 @@
       "semantic_id": "obj:hidden12-p3-hand",
       "tapped": false,
       "zone": "hand"
+     },
+     {
+      "card_identity": "Reliquary Tower",
+      "card_lineage_id": "line:obj:hidden12-tower",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:hidden12-tower",
+      "tapped": false,
+      "zone": "battlefield"
      }
     ],
     "temporal_state": {
      "active_player": "P1",
      "extra_turn_queue": [],
-     "phase": "postcombat_main",
+     "phase": "precombat_main",
      "priority_player": "P1",
      "step": "main",
      "turn_number": 1
     }
    },
-   "successor_requested_state_digest": "24c95853e7ec3e152c64d5d01835b51b90b75097daf4d66bdb2014915aaf17b6"
+   "successor_requested_state_digest": "f630608c9f3fa6f639c50ca6dafa371cc14a22e1a16125dc15536b1389161b89"
   }
  ],
  "rules_authority": {
