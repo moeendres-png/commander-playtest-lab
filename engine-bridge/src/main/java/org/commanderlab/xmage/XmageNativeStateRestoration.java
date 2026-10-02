@@ -1406,6 +1406,32 @@ final class XmageNativeStateRestoration {
                 if (keywords.size() > 0) {
                     entry.add("keywords", keywords);
                 }
+                // Token-ness and triggered abilities are public permanent
+                // state too. Each triggered ability is reported by the engine's
+                // own ability and effect classes (plus its rules text, for
+                // reading only), so a check binds to what the engine will
+                // trigger rather than to prose. Reported only when present.
+                if (permanent instanceof mage.game.permanent.PermanentToken) {
+                    entry.addProperty("token", true);
+                }
+                JsonArray triggered = new JsonArray();
+                for (Ability ability : permanent.getAbilities(game)) {
+                    if (!(ability instanceof mage.abilities.TriggeredAbility)) {
+                        continue;
+                    }
+                    JsonObject trigger = new JsonObject();
+                    trigger.addProperty("trigger", ability.getClass().getSimpleName());
+                    JsonArray effects = new JsonArray();
+                    for (mage.abilities.effects.Effect effect : ability.getEffects()) {
+                        effects.add(effect.getClass().getSimpleName());
+                    }
+                    trigger.add("effects", effects);
+                    trigger.addProperty("rule", ability.getRule());
+                    triggered.add(trigger);
+                }
+                if (triggered.size() > 0) {
+                    entry.add("triggered_abilities", triggered);
+                }
                 mage.ObjectColor color = permanent.getColor(game);
                 JsonArray colors = new JsonArray();
                 if (color.isWhite()) {

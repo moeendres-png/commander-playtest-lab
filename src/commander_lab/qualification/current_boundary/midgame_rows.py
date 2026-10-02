@@ -121,6 +121,14 @@ class TerminalCheck:
             )
         if self.kind == "keyword":
             return f"every {self.card_identity} on {self.principal}'s battlefield has {self.value}"
+        if self.kind == "triggered_ability":
+            trigger, effect = self.value
+            return (
+                f"every {self.card_identity} on {self.principal}'s battlefield has an "
+                f"engine {trigger} triggered ability with a {effect}"
+            )
+        if self.kind == "token_count":
+            return f"exactly {self.value} {self.card_identity} tokens are on {self.principal}'s battlefield"
         if self.kind == "life":
             return f"{self.principal} is at {self.value} life"
         if self.kind == "trigger_count":
@@ -1004,6 +1012,25 @@ def check_terminal(
         )
     if check.kind == "keyword":
         return bool(cards) and all(check.value in (card.get("keywords") or ()) for card in cards)
+    if check.kind == "token_count":
+        # Every permanent of the identity counts, and each must be an engine
+        # token: a card of the same name can never stand in for one.
+        return (
+            bool(seat)
+            and len(cards) == check.value
+            and all(card.get("token") is True for card in cards)
+        )
+    if check.kind == "triggered_ability":
+        # The engine's own triggered-ability and effect classes, never the
+        # rules text: the text is reported for reading only.
+        trigger, effect = check.value
+        return bool(cards) and all(
+            any(
+                ability.get("trigger") == trigger and effect in (ability.get("effects") or ())
+                for ability in card.get("triggered_abilities") or ()
+            )
+            for card in cards
+        )
     if check.kind == "colors":
         return bool(cards) and all(
             sorted(card.get("colors") or ()) == sorted(check.value) for card in cards

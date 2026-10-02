@@ -12,9 +12,13 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_17.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_17.json"
+)
+V117_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
+V116_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_16.json"
 )
 V115_CONTRACT_PATH = (
@@ -75,6 +79,9 @@ BATCH5_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_05", "HIDDEN_15", "HIDDEN_16"]
 # Final XMage AF05 event rows in 1.0.17: shuffle invalidation, face-down
 # exile invalidation, and controlled-player authority.
 BATCH6_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_11", "HIDDEN_06", "HIDDEN_12"]
+# The AF07 obligation erratum (1.0.18): an obligation that conflicts with the
+# card's Oracle text, versioned with its predecessor obligation preserved.
+CARD_OBLIGATION_ERRATA_IDS = ["CARD_06"]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -91,11 +98,14 @@ CHANGED_FIXTURE_IDS = [
     *LATE_HIDDEN_EVENT_ERRATA_IDS,
     *BATCH5_HIDDEN_EVENT_ERRATA_IDS,
     *BATCH6_HIDDEN_EVENT_ERRATA_IDS,
+    *CARD_OBLIGATION_ERRATA_IDS,
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
 DENOMINATOR_CHANGED_FIXTURE_IDS = [
-    fixture for fixture in CHANGED_FIXTURE_IDS if fixture not in CARD_ERRATA_IDS
+    fixture
+    for fixture in CHANGED_FIXTURE_IDS
+    if fixture not in (*CARD_ERRATA_IDS, *CARD_OBLIGATION_ERRATA_IDS)
 ]
 AF01_PATH = REPO_ROOT / "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json"
 AF_CATALOG_PATH = (
@@ -105,7 +115,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_17_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_18_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -140,7 +150,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_17.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -208,7 +218,7 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
 
     contract = _json(SUCCESSOR_PATH)
     predecessor = _json(PREDECESSOR_CONTRACT_PATH)
-    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_16.json")
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_17.json")
     assert (
         contract["predecessor"]["sha256"]
         == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
@@ -382,7 +392,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.17-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.18-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -394,9 +404,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.17-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.18-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.17-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.18-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -1093,8 +1103,8 @@ def test_late_hidden_event_errata_add_a_scry_and_a_pile_split() -> None:
 def test_batch6_hidden11_adds_ordered_look_then_native_shuffle_without_changing_obligation() -> (
     None
 ):
-    contract = _json(SUCCESSOR_PATH)
-    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    contract = _json(V117_CONTRACT_PATH)
+    predecessor = _json(V116_CONTRACT_PATH)
     resolver = _resolver()
     base = {
         record["fixture_id"]: record
@@ -1174,8 +1184,8 @@ def test_batch6_hidden11_adds_ordered_look_then_native_shuffle_without_changing_
 
 
 def test_batch6_hidden06_and_hidden12_add_native_invalidation_and_control_routes() -> None:
-    contract = _json(SUCCESSOR_PATH)
-    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    contract = _json(V117_CONTRACT_PATH)
+    predecessor = _json(V116_CONTRACT_PATH)
     resolver = _resolver()
     base = {
         record["fixture_id"]: record
@@ -1277,7 +1287,7 @@ def test_batch5_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -
     metadata) and HIDDEN_16 (ability metadata) name a hidden exile, source or
     ability, but no event ever makes one. The 1.0.16 successor adds the event on
     the lossless base; the obligation and the viewer state are unchanged."""
-    contract = _json(PREDECESSOR_CONTRACT_PATH)
+    contract = _json(V116_CONTRACT_PATH)
     predecessor = _json(V115_CONTRACT_PATH)
     resolver = _resolver()
     base = {
@@ -1365,3 +1375,70 @@ def test_batch5_hidden_event_errata_add_a_real_event_and_keep_the_obligation() -
             if fixture_id == "HIDDEN_16"
             else []
         )
+
+
+def test_card06_obligation_erratum_is_versioned_with_its_predecessor_preserved() -> None:
+    """Harmonic Prodigy doubles only abilities of Shamans and other Wizards; Docent
+    of Perfection is an Insect Horror, so the predecessor obligation is impossible.
+    The 1.0.18 erratum names a Wizard instead, changes the obligation digest
+    explicitly and keeps the predecessor obligation as provenance."""
+    contract = _json(SUCCESSOR_PATH)
+    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    added = contract["record_successors"][len(predecessor["record_successors"]) :]
+    assert [patch["fixture_id"] for patch in added] == CARD_OBLIGATION_ERRATA_IDS
+    patch = added[0]
+    old = base["CARD_06"]
+    assert patch["correction_class"] == "ACTUAL_CARD_OBLIGATION_ERRATUM"
+    assert patch["predecessor_requested_state_digest"] == old["requested_state_digest"]
+    assert patch["digest_migration"]["obligation_digest"] == "CHANGED_OBLIGATION_ERRATUM"
+    details = patch["append_native_procedure"][0]["details"]
+    assert details["obligation_changed"] is True
+    assert details["predecessor_terminal_postconditions"] == old["terminal_postconditions"]
+    assert details["predecessor_obligation_digest"] == old["obligation_digest"]
+    # The Oracle basis: the doubler's own condition and both creatures' type lines.
+    oracle = details["oracle_basis"]
+    assert "another Wizard" in oracle["Harmonic Prodigy"]["relevant_text"]
+    assert "Wizard" not in oracle["Docent of Perfection"]["type_line"]
+    assert oracle["Talrand, Sky Summoner"]["type_line"].endswith("Wizard")
+    # An external Oracle receipt is still owed; the erratum says so instead of
+    # presenting provider copies as the official source.
+    assert (
+        details["oracle_receipt"]["status"]
+        == "PROVIDER_CROSS_CHECKED_COPY_EXTERNAL_RECEIPT_PENDING"
+    )
+
+    record = next(
+        r
+        for r in resolver.load_effective_materialization()["records"]
+        if r["fixture_id"] == "CARD_06"
+    )
+    assert record["card_authority_binding"] == old["card_authority_binding"]
+    assert record["expected_events"] == old["expected_events"]
+    assert record["terminal_postconditions"] == [
+        "Exactly two Talrand, Sky Summoner trigger instances are created for the single "
+        "instant cast."
+    ]
+    wizard = [o for o in record["semantic_objects"] if o["semantic_id"] == "obj:card06-wizard"]
+    assert [o["card_identity"] for o in wizard] == ["Talrand, Sky Summoner"]
+    # Every other object is the predecessor's, byte for byte.
+    assert [o for o in record["semantic_objects"] if o["semantic_id"] != "obj:card06-wizard"] == [
+        o for o in old["semantic_objects"] if o["semantic_id"] != "obj:card06-wizard"
+    ]
+    assert record["obligation_digest"] != old["obligation_digest"]
+    assert record["obligation_digest"] == resolver.obligation_digest(record)
+    assert record["historical_digests"]["obligation_digest"] == old["obligation_digest"]
+    assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
+    # The script answers only what the engine asks: the cast, the Bolt's target
+    # and the order of the simultaneous triggers.
+    assert [step["decision_family"] for step in record["decision_script"]] == [
+        "priority",
+        "target",
+        "trigger_order",
+    ]

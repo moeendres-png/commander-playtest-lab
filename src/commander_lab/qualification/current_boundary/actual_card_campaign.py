@@ -834,6 +834,31 @@ PLANS: dict[str, ObligationPlan] = {
             ),
         ),
     ),
+    # Harmonic Prodigy makes Talrand's cast trigger trigger an additional time:
+    # the engine reports exactly two Talrand trigger instances for the one Bolt.
+    "CARD_06": ObligationPlan(
+        fixture_id="CARD_06",
+        proofs=(
+            PostconditionProof(
+                "Exactly two Talrand, Sky Summoner trigger instances are created for the single "
+                "instant cast.",
+                terminal_check=_events(
+                    "TRIGGERED_ABILITY", ("source_object", "obj:card06-wizard"), count=2
+                ),
+                also=(_events("SPELL_CAST", ("source_object", "obj:card06-bolt"), count=1),),
+            ),
+        ),
+        token_bindings=(
+            (
+                "Wizard_trigger_event",
+                _events("TRIGGERED_ABILITY", ("source_object", "obj:card06-wizard")),
+            ),
+            (
+                "additional_trigger",
+                _events("TRIGGERED_ABILITY", ("source_object", "obj:card06-wizard"), count=2),
+            ),
+        ),
+    ),
     # Magma Opus: the divided damage and the draw are tape events; XMage reports
     # no tap event, so the two taps are read from the engine-observed tapped
     # state of the only two P4 permanents (constructed untapped).
@@ -1376,6 +1401,44 @@ PLANS: dict[str, ObligationPlan] = {
                 "sacrifice_returned_creature",
                 _events("SACRIFICED_PERMANENT", ("target_object", "obj:card23-creature")),
             ),
+        ),
+    ),
+    # Burn Down the House, Devil mode: the engine's own mode offer is selected;
+    # the tape reports three Devil tokens created; the engine's readback shows
+    # exactly three Devil tokens on P1's battlefield, each a red 1/1 with haste
+    # and with the engine's dies-trigger dealing damage. The trigger is read as
+    # the engine's ability and effect classes, never from rules text.
+    "CARD_26": ObligationPlan(
+        fixture_id="CARD_26",
+        proofs=(
+            PostconditionProof(
+                "P1 controls exactly three new 1/1 red Devil tokens, each with printed death "
+                "trigger and haste until EOT.",
+                terminal_check=midgame_rows_mod.TerminalCheck(
+                    "tokens_created", card_identity="Devil", value=3
+                ),
+                also=(
+                    _permanent("token_count", "P1", "Devil Token", 3),
+                    _permanent("power_toughness", "P1", "Devil Token", (1, 1)),
+                    _permanent("colors", "P1", "Devil Token", ("red",)),
+                    _permanent("keyword", "P1", "Devil Token", "haste"),
+                    _permanent(
+                        "triggered_ability",
+                        "P1",
+                        "Devil Token",
+                        ("DiesSourceTriggeredAbility", "DamageTargetEffect"),
+                    ),
+                ),
+            ),
+        ),
+        mode_bindings=(("create_devils", "Devil creature tokens"),),
+        token_bindings=(
+            ("modal_choice:devils", _selected("mode", "Devil creature tokens")),
+            (
+                "create_Devil_token:3",
+                midgame_rows_mod.TerminalCheck("tokens_created", card_identity="Devil", value=3),
+            ),
+            ("grant_haste_until_EOT", _permanent("keyword", "P1", "Devil Token", "haste")),
         ),
     ),
 }
