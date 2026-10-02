@@ -67,6 +67,9 @@ ROWS: dict[str, str] = {
     "HIDDEN_18": "transcript_privacy",
     "HIDDEN_10": "scry_knowledge",
     "HIDDEN_13": "pile_metadata",
+    "HIDDEN_05": "exile_permission_persists",
+    "HIDDEN_15": "source_metadata",
+    "HIDDEN_16": "ability_metadata",
 }
 
 # The record's own obligation sentence for each kind. A record whose viewer
@@ -86,6 +89,9 @@ OBLIGATION_TEXT: dict[str, str] = {
     "transcript_privacy": "transcripts omit actor-private state",
     "scry_knowledge": "scry/surveil top-N actor knowledge",
     "pile_metadata": "pile metadata does not leak",
+    "exile_permission_persists": "face-down exile actor-specific permission persists",
+    "source_metadata": "source metadata does not leak",
+    "ability_metadata": "ability metadata does not leak",
     "honey_sentinel": (
         "unique forbidden sentinels scanned across prompt/context/option IDs/labels/"
         "metadata/source/state/transcript/logs"
@@ -106,6 +112,15 @@ OMNISCIENCE_ATTEMPTS: tuple[tuple[str, dict[str, Any]], ...] = (
     ("dump_engine_state", {}),
     ("get_raw_engine_object_graph", {}),
 )
+
+# A scripted mode key, per row, bound to the text of the one engine-offered mode
+# it names (the same convention as the mid-game rows' ``mode_bindings``). The
+# key has no machine meaning in the record; the bound text must occur in exactly
+# one engine mode label or the scripted step fails closed.
+MODE_BINDINGS: dict[str, tuple[tuple[str, str], ...]] = {
+    "HIDDEN_15": (("cloak_top", "Cloak the top card"),),
+    "HIDDEN_16": (("cloak_top", "Cloak the top card"),),
+}
 
 # Observation messages whose scope the lane must declare.
 SCOPED_OBSERVATIONS = (
@@ -215,6 +230,22 @@ def honey_bindings(record: dict[str, Any]) -> dict[str, str]:
     return bindings
 
 
+#: A construction note that names a distinctive fragment of an object's own
+#: rules text. Like a honey sentinel it is the harness's knowledge only: a
+#: principal not entitled to the object must never receive the fragment.
+ABILITY_TEXT_NOTE = "oracle_ability_text:"
+
+
+def ability_text_bindings(record: dict[str, Any]) -> dict[str, str]:
+    """Rules-text fragment -> semantic id of the object the record attaches it to."""
+    bindings: dict[str, str] = {}
+    for obj in _objects(record):
+        for note in obj.get("construction_notes") or ():
+            if isinstance(note, str) and note.startswith(ABILITY_TEXT_NOTE):
+                bindings[note.removeprefix(ABILITY_TEXT_NOTE)] = str(obj["semantic_id"])
+    return bindings
+
+
 @dataclass(frozen=True)
 class ForbiddenTokens:
     """Strings a principal must never receive, and the tokens that cannot decide."""
@@ -289,6 +320,7 @@ def forbidden_tokens(
         ]
     visible: set[str] = set()
     hidden: dict[str, str] = {}
+    texts = ability_text_bindings(record)
     for obj in _objects(record):
         identity = str(obj["card_identity"])
         if entitled(obj, viewer, permissions, temporary):
@@ -296,6 +328,9 @@ def forbidden_tokens(
         else:
             hidden[identity] = f"identity of {obj['semantic_id']}"
             hidden[str(obj["semantic_id"])] = "semantic id of a hidden object"
+            for fragment, owner in texts.items():
+                if owner == obj["semantic_id"]:
+                    hidden[fragment] = f"rules text of {obj['semantic_id']}"
     for deck in record.get("deck_state") or ():
         template = (deck.get("library_template") or {}).get("card_identity")
         if template:
@@ -748,9 +783,10 @@ def run_script(client: ml.MidgameLaneClient, record: dict[str, Any]) -> list[dic
             if chosen is None:
                 chosen = _face_down_target_offer(client, legal, step, principal)
             if chosen is None:
-                chosen = midgame_rows_mod._scripted_answer(
-                    legal, step, placed, midgame_rows_mod.RowSpec()
-                ).action
+                spec = midgame_rows_mod.RowSpec(
+                    mode_bindings=MODE_BINDINGS.get(str(record.get("fixture_id")), ())
+                )
+                chosen = midgame_rows_mod._scripted_answer(legal, step, placed, spec).action
                 if chosen is None:
                     # The record selects nothing on a frame whose own minimum
                     # is zero (a scry that keeps every card on top).
@@ -1779,6 +1815,248 @@ def _transcript_privacy(record: dict[str, Any], capture: Capture, viewer: str) -
     return checks
 
 
+def _after_event_permissions(record: dict[str, Any]) -> list[Any]:
+    """The record's temporary permissions, which hold once its event happened."""
+    return list(_viewer_state(record).get("temporary_permissions") or ())
+
+
+def _hidden_permanents(record: dict[str, Any], capture: Capture, viewer: str) -> dict[str, str]:
+    """Face-down permanent handle -> controller, for every face-down permanent the
+    viewer does not control, as the viewer's own projection shows them."""
+    own = capture.projections.get(viewer) or {}
+    return {
+        handle: label
+        for label in _labels(record)
+        if label != viewer
+        for handle in face_down_permanents(own, label)
+    }
+
+
+def _scan_others(record: dict[str, Any], capture: Capture, skip: Iterable[str]) -> list[Check]:
+    """Every other principal's full channel scan, except the ones named."""
+    checks: list[Check] = []
+    skipped = set(skip)
+    for label in _labels(record):
+        if label in skipped:
+            continue
+        hits, _, tokens = _scan_principal(record, capture, label)
+        checks.append(
+            Check(
+                f"no_forbidden_token_in_channels_of:{label}",
+                not hits,
+                f"{len(hits)} occurrences of {sorted(tokens.tokens)}",
+                "LEAK",
+            )
+        )
+    return checks
+
+
+def _exile_permission_persists(
+    record: dict[str, Any], capture: Capture, viewer: str
+) -> list[Check]:
+    """A permission to look at a face-down exiled card lasts while the card does.
+
+    The permission is the record's own (``look_at_face_down_exile`` for the
+    viewer, persisting while the card stays the same exile object). The public
+    tape shows the move into exile without the card's identity and names its
+    public source; that source must have left the battlefield before the
+    projections were read, so the look is measured after the effect that
+    granted it is gone. The viewer's own projection must then still show the
+    card face down in its owner's exile, and nobody else may see it anywhere.
+    """
+    checks = _event_checks(capture)
+    permissions = [
+        permission
+        for permission in _after_event_permissions(record)
+        if isinstance(permission, dict)
+        and permission.get("permission") == "look_at_face_down_exile"
+        and permission.get("viewer") == viewer
+    ]
+    checks.append(
+        Check(
+            "persistent_exile_look_declared",
+            bool(permissions)
+            and all(p.get("persists_while_in_same_exile_object") is True for p in permissions),
+            f"{len(permissions)} persistent look permissions for {viewer}",
+        )
+    )
+    events = list((capture.events or {}).get("events") or ())
+    moves = [
+        index
+        for index, event in enumerate(events)
+        if event.get("type") == "ZONE_CHANGE"
+        and event.get("to") == "EXILED"
+        and event.get("from") in ("LIBRARY", "HAND")
+        and event.get("public_identity") is False
+    ]
+    checks.append(
+        Check(
+            "face_down_exile_on_public_tape",
+            len(moves) == 1,
+            f"{len(moves)} unnamed moves from a hidden zone into exile",
+        )
+    )
+    source = events[moves[0]].get("source_object") if len(moves) == 1 else None
+    later = events[moves[0] + 1 :] if len(moves) == 1 else []
+    departures = [
+        event
+        for event in later
+        if event.get("type") == "ZONE_CHANGE"
+        and event.get("from") == "BATTLEFIELD"
+        and source is not None
+        and event.get("target_object") == source
+    ]
+    checks.append(
+        Check(
+            "granting_source_left_before_measurement",
+            source is not None and bool(departures),
+            f"the exile's public source {source} left the battlefield {len(departures)} times "
+            "after the exile",
+        )
+    )
+    objects = {str(obj["semantic_id"]): obj for obj in _objects(record)}
+    for permission in permissions:
+        obj = objects.get(str(permission.get("object")))
+        if obj is None:
+            checks.append(Check("exile_look_object_declared", False, str(permission)))
+            continue
+        identity = str(obj["card_identity"])
+        for label, projection in capture.projections.items():
+            entry = _player_entry(projection, str(obj["owner"])) or {}
+            face_down = [
+                card
+                for card in entry.get("exile") or ()
+                if isinstance(card, dict) and card.get("face_down") is True
+            ]
+            shown = [card for card in face_down if card.get("name") == identity]
+            if label == viewer:
+                checks.append(
+                    Check(
+                        f"face_down_exile_shown_to_viewer:{obj['semantic_id']}",
+                        len(shown) == 1,
+                        f"{viewer}'s view of {obj['owner']}'s exile shows the card face down: "
+                        f"{len(shown)}",
+                        "ENTITLEMENT",
+                    )
+                )
+            else:
+                checks.append(
+                    Check(
+                        f"face_down_exile_withheld_from:{obj['semantic_id']}:{label}",
+                        not face_down,
+                        f"{label}'s view of {obj['owner']}'s exile lists {len(face_down)} "
+                        "face-down cards",
+                        "LEAK",
+                    )
+                )
+    checks.extend(_scan_others(record, capture, skip=(viewer,)))
+    return checks
+
+
+def _source_metadata(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+    """A decision whose source is a hidden permanent names nothing hidden.
+
+    The hidden source is a face-down permanent the viewer does not control, as
+    the viewer's own projection shows it; the record's script makes it the
+    source of a decision the viewer must answer (a ward trigger asking the
+    viewer to pay). Each such frame's prompt, context and source metadata must
+    carry no identity the viewer is denied, and the source is named by nothing
+    beyond its public face-down characteristics (no name). Every principal but
+    the viewer and the face-down permanent's controller is scanned in full.
+    """
+    checks = _event_checks(capture)
+    hidden = _hidden_permanents(record, capture, viewer)
+    denied = forbidden_tokens(record, viewer, after_event=True).tokens
+    frames = [
+        frame
+        for frame in _after_event_frames(capture, viewer)
+        if (frame.get("source_object") or {}).get("source_object_id") in hidden
+    ]
+    checks.append(
+        Check(
+            f"hidden_source_frame_reached:{viewer}",
+            bool(hidden) and bool(frames),
+            f"{len(hidden)} face-down permanents the viewer does not control; {len(frames)} "
+            "frames whose source is one of them",
+        )
+    )
+    for frame in frames:
+        source = frame.get("source_object") or {}
+        hits = scan(
+            [
+                ("prompt", frame.get("prompt")),
+                ("context", frame.get("context")),
+                ("source_metadata", source),
+            ],
+            denied,
+        )
+        checks.append(
+            Check(
+                f"hidden_source_frame_carries_no_identity:{frame.get('decision_id')}",
+                not hits and not source.get("source_name"),
+                f"source name {source.get('source_name')!r}; {len(hits)} denied tokens",
+                "LEAK",
+            )
+        )
+    checks.extend(_scan_others(record, capture, skip=(viewer, *hidden.values())))
+    return checks
+
+
+def _ability_metadata(record: dict[str, Any], capture: Capture, viewer: str) -> list[Check]:
+    """An ability of a hidden permanent is described by its public face only.
+
+    The hidden permanent is a face-down permanent the viewer does not control;
+    the record's script puts one of its abilities in front of the viewer (a
+    ward trigger). Every piece of ability metadata the viewer receives about it
+    (a frame's source ability, an option's ability fields, the permanent's own
+    ability list) must carry no identity or rules text the viewer is denied,
+    including the hidden card's own rules text the record declares. Every
+    principal but the viewer and the face-down permanent's controller is
+    scanned in full.
+    """
+    checks = _event_checks(capture)
+    hidden = _hidden_permanents(record, capture, viewer)
+    denied = forbidden_tokens(record, viewer, after_event=True).tokens
+    documents: list[tuple[str, Any]] = []
+    for frame in _after_event_frames(capture, viewer):
+        source = frame.get("source_object") or {}
+        if source.get("source_object_id") in hidden and source.get("ability_type"):
+            documents.append((f"frame:{frame.get('decision_id')}:source_ability", source))
+        for option in frame.get("legal_options") or ():
+            metadata = (option.get("metadata") or {}) if isinstance(option, dict) else {}
+            if metadata.get("source_object_id") in hidden and any(
+                str(key).startswith("ability_") for key in metadata
+            ):
+                documents.append((f"frame:{frame.get('decision_id')}:option_ability", option))
+    reached = len(documents)
+    own = capture.projections.get(viewer) or {}
+    for label in set(hidden.values()):
+        entry = _player_entry(own, label) or {}
+        for permanent in entry.get("battlefield") or ():
+            if isinstance(permanent, dict) and permanent.get("object_id") in hidden:
+                documents.append((f"projection:{permanent.get('object_id')}", permanent))
+    checks.append(
+        Check(
+            f"hidden_ability_metadata_reached:{viewer}",
+            bool(hidden) and reached > 0,
+            f"{len(hidden)} face-down permanents the viewer does not control; {reached} "
+            "pieces of ability metadata about them",
+        )
+    )
+    hits = scan(documents, denied)
+    checks.append(
+        Check(
+            f"hidden_ability_metadata_carries_nothing_hidden:{viewer}",
+            not hits,
+            f"{len(documents)} documents; {len(hits)} denied tokens "
+            f"(including {len(ability_text_bindings(record))} declared rules-text fragments)",
+            "LEAK",
+        )
+    )
+    checks.extend(_scan_others(record, capture, skip=(viewer, *hidden.values())))
+    return checks
+
+
 def _no_omniscient_api(capture: Capture) -> list[Check]:
     capabilities = capture.capabilities.get("capabilities") or {}
     scopes = capabilities.get("observation_scopes") or {}
@@ -1928,23 +2206,51 @@ def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> R
         )
     )
     owner_controls: list[bool] = []
+    after_temporary = _after_event_permissions(record) if capture.script_start is not None else []
     for obj in _objects(record):
-        if obj.get("zone") == "hand" and obj["card_identity"] in bindings.values():
+        if obj["card_identity"] not in bindings.values():
+            continue
+        identity = [str(obj["card_identity"])]
+        if obj.get("zone") == "hand":
             owner_controls.append(
                 bool(
                     scan(
                         [("projection", capture.projections.get(str(obj["owner"])) or {})],
-                        [str(obj["card_identity"])],
+                        identity,
                     )
+                )
+            )
+            continue
+        # A honey-bound object outside any hand (moved there by the record's
+        # scripted event) is found where the event entitles a principal to it.
+        entitled_labels = [
+            label
+            for label in _labels(record)
+            if entitled(obj, label, state.get("face_down_look_permissions") or (), after_temporary)
+        ]
+        if entitled_labels:
+            owner_controls.append(
+                all(
+                    scan([("projection", capture.projections.get(label) or {})], identity)
+                    for label in entitled_labels
                 )
             )
     scan_checks.append(
         Check(
             "scanner_detects_honey_identity_where_entitled",
             bool(owner_controls) and all(owner_controls),
-            "the honey-bound identity is found in its owner's own projection",
+            "the honey-bound identity is found in the projection of every principal entitled to it",
         )
     )
+    texts = ability_text_bindings(record)
+    if texts:
+        scan_checks.append(
+            Check(
+                "scanner_detects_ability_text_in_request",
+                all(scan([("tape", capture.tape)], [fragment]) for fragment in texts),
+                "each declared rules-text fragment is found in the harness's own create request",
+            )
+        )
     checks.extend(scan_checks)
 
     focus: list[Check]
@@ -1987,6 +2293,12 @@ def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> R
         focus = _copy_face_down(record, capture, viewer)
     elif kind == "transcript_privacy":
         focus = _transcript_privacy(record, capture, viewer)
+    elif kind == "exile_permission_persists":
+        focus = _exile_permission_persists(record, capture, viewer)
+    elif kind == "source_metadata":
+        focus = _source_metadata(record, capture, viewer)
+    elif kind == "ability_metadata":
+        focus = _ability_metadata(record, capture, viewer)
     else:
         # The sentinel row's obligation is the scan itself, with its controls.
         focus = []
