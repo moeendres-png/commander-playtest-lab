@@ -394,6 +394,12 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
         ],
         "terminal": "scripted_decision_offered",
     },
+    "CARD_10": {
+        "entry_mode": "causal_stack",
+        # Rograkh costs {0}: the commander spell needs no fuel.
+        "fuel": [],
+        "terminal": "scripted_decision_offered",
+    },
     "CARD_22": {
         "entry_mode": "causal_stack",
         "fuel": [

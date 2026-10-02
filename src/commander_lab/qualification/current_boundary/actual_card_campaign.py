@@ -1250,6 +1250,50 @@ PLANS: dict[str, ObligationPlan] = {
             ),
         ),
     ),
+    # Wash Away after the causal-stack entry reconstructed P2's commander spell
+    # (cast from the command zone through the engine and verified on the
+    # stack): P1's normal cast targets that spell on the engine's own frame and
+    # the engine counters it (COUNTERED); the commander leaves the stack.
+    "CARD_10": ObligationPlan(
+        fixture_id="CARD_10",
+        proofs=(
+            PostconditionProof(
+                "P2 commander spell is countered.",
+                terminal_check=_events(
+                    "COUNTERED",
+                    ("player_player", "P2"),
+                    ("source_object", "obj:card_10-subject"),
+                    count=1,
+                ),
+                also=(
+                    _events(
+                        "ZONE_CHANGE",
+                        ("target_name", "Rograkh, Son of Rohgahh"),
+                        ("player_player", "P2"),
+                        ("from", "STACK"),
+                        count=1,
+                    ),
+                ),
+            ),
+        ),
+        token_bindings=(
+            ("commander_spell_targeted", _selected("target", "Rograkh, Son of Rohgahh")),
+            (
+                "Wash_Away_resolves",
+                _events(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:card_10-subject"),
+                    ("from", "STACK"),
+                    ("to", "GRAVEYARD"),
+                    count=1,
+                ),
+            ),
+            (
+                "spell_countered",
+                _events("COUNTERED", ("source_object", "obj:card_10-subject"), count=1),
+            ),
+        ),
+    ),
     # Harmonic Prodigy makes Talrand's cast trigger trigger an additional time:
     # the engine reports exactly two Talrand trigger instances for the one Bolt.
     "CARD_06": ObligationPlan(

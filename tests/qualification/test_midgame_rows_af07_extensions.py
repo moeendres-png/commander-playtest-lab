@@ -849,3 +849,19 @@ def test_a_cost_reduction_is_read_from_the_engine_payment_frame() -> None:
     assert mr._verify_cost_determined(-3, full, obligation) is None
     # A reduction below zero generic is never a cost.
     assert mr._verify_cost_determined(-5, trace, ("bb", "{3}{R}", "{R}")) is None
+
+
+def test_only_state_reading_checks_ask_the_engine_for_a_readback() -> None:
+    """A row whose evidence is the tape and the decision trace never depends on
+    the engine's state readback (which a parked replacement choice may refuse)."""
+    events = mr.TerminalCheck("events", event_type="COUNTERED", value=1)
+    frame = mr.TerminalCheck("selected_frame", value="target", label="Rograkh")
+    life = mr.TerminalCheck("life", principal="P1", value=40)
+    assert not mr.needs_observation(events)
+    assert not mr.needs_observation(frame)
+    assert not mr.needs_observation(mr.VocabularyToken("mana_paid:2"))
+    assert mr.needs_observation(life)
+    assert mr.needs_observation((events, life))
+    assert not mr.needs_observation((events, frame))
+    for kind in ("power_toughness", "keyword", "token_count", "graveyard_mana_value"):
+        assert mr.needs_observation(mr.TerminalCheck(kind, principal="P1"))

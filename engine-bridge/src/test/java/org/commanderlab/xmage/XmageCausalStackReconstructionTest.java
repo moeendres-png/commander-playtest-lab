@@ -132,6 +132,54 @@ class XmageCausalStackReconstructionTest {
         assertTrue(e2.getMessage().startsWith("CONTROL_DIVERGENT_STACK_SOURCE"));
     }
 
+    @Test
+    void commanderStackSourceIsPreparedInTheCommandZoneNotInHand() {
+        // A commander spell was cast from the command zone (CR 903.8): its
+        // pre-causal position is the command zone, recorded on the commander.
+        JsonObject record = baseRecord("rg01-commander", 4);
+        for (JsonElement element : record.getAsJsonObject("commander_state")
+                .getAsJsonArray("commanders")) {
+            JsonObject commander = element.getAsJsonObject();
+            commander.addProperty("zone",
+                    "cmd:P2".equals(commander.get("commander_id").getAsString()) ? "stack" : "command");
+        }
+        addObject(record, "obj:p2-cmd", "Rograkh, Son of Rohgahh", "P2", "P2", "stack");
+        lastObject(record).addProperty("commander_id", "cmd:P2");
+        addStackFrame(record, "obj:p2-cmd", "P2", List.of(), List.of());
+
+        XmageCausalStackReconstruction.Prepared prepared =
+                XmageCausalStackReconstruction.prepare(record, "rg01-commander", SEED);
+        XmageNativeStateRestoration.RequestedCommander p2 = prepared.preStackPlan().commanders()
+                .stream()
+                .filter(commander -> "cmd:P2".equals(commander.commanderId()))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(mage.constants.Zone.COMMAND, p2.zone());
+        assertTrue(prepared.preStackPlan().objects().stream()
+                .noneMatch(object -> "obj:p2-cmd".equals(object.semanticId())
+                        && "hand".equalsIgnoreCase(String.valueOf(object.zone()))));
+        assertEquals(List.of("obj:p2-cmd"),
+                prepared.bottomToTop().stream()
+                        .map(XmageCausalStackReconstruction.StackFrame::semanticId).toList());
+    }
+
+    @Test
+    void commanderStackSourceWithoutAStackCommanderIsRefused() {
+        JsonObject record = baseRecord("rg01-commander-unbound", 4);
+        addObject(record, "obj:p2-cmd", "Rograkh, Son of Rohgahh", "P2", "P2", "stack");
+        lastObject(record).addProperty("commander_id", "cmd:P2");
+        addStackFrame(record, "obj:p2-cmd", "P2", List.of(), List.of());
+        XmageCausalStackReconstruction.ReconstructionException error = assertThrows(
+                XmageCausalStackReconstruction.ReconstructionException.class,
+                () -> XmageCausalStackReconstruction.prepare(record, "unbound", SEED));
+        assertTrue(error.getMessage().startsWith("UNBOUND_STACK_COMMANDER"));
+    }
+
+    private static JsonObject lastObject(JsonObject record) {
+        JsonArray objects = record.getAsJsonArray("semantic_objects");
+        return objects.get(objects.size() - 1).getAsJsonObject();
+    }
+
     private static Run reconstruct(
             JsonObject record,
             String tag,

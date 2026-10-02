@@ -84,6 +84,9 @@ BATCH6_HIDDEN_EVENT_ERRATA_IDS = ["HIDDEN_11", "HIDDEN_06", "HIDDEN_12"]
 CARD_OBLIGATION_ERRATA_IDS = ["CARD_06"]
 # The final AF07 decision-script errata (1.0.18): the obligation is untouched.
 FINAL_CARD_SCRIPT_ERRATA_IDS = ["CARD_03", "CARD_22", "CARD_13"]
+# The AF07 scenario errata (1.0.18): a frozen position the Comprehensive Rules
+# make unreachable as recorded; every obligation key is untouched.
+CARD_SCENARIO_ERRATA_IDS = ["CARD_10"]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -102,13 +105,20 @@ CHANGED_FIXTURE_IDS = [
     *BATCH6_HIDDEN_EVENT_ERRATA_IDS,
     *CARD_OBLIGATION_ERRATA_IDS,
     *FINAL_CARD_SCRIPT_ERRATA_IDS,
+    *CARD_SCENARIO_ERRATA_IDS,
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
 DENOMINATOR_CHANGED_FIXTURE_IDS = [
     fixture
     for fixture in CHANGED_FIXTURE_IDS
-    if fixture not in (*CARD_ERRATA_IDS, *CARD_OBLIGATION_ERRATA_IDS, *FINAL_CARD_SCRIPT_ERRATA_IDS)
+    if fixture
+    not in (
+        *CARD_ERRATA_IDS,
+        *CARD_OBLIGATION_ERRATA_IDS,
+        *FINAL_CARD_SCRIPT_ERRATA_IDS,
+        *CARD_SCENARIO_ERRATA_IDS,
+    )
 ]
 AF01_PATH = REPO_ROOT / "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json"
 AF_CATALOG_PATH = (
@@ -1446,6 +1456,7 @@ def test_card06_obligation_erratum_is_versioned_with_its_predecessor_preserved()
     assert [patch["fixture_id"] for patch in added] == [
         *CARD_OBLIGATION_ERRATA_IDS,
         *FINAL_CARD_SCRIPT_ERRATA_IDS,
+        *CARD_SCENARIO_ERRATA_IDS,
     ]
     patch = added[0]
     old = base["CARD_06"]
@@ -1529,3 +1540,33 @@ def test_card03_script_erratum_answers_the_engine_decisions_and_keeps_the_obliga
     assert steps[0]["selection"]["semantic_value"] == {"action": "cast", "object": folded["object"]}
     assert sorted(steps[1]["selection"]["semantic_value"]) == sorted(folded["damage_targets"])
     assert steps[2]["selection"]["semantic_value"] == folded["tap_targets"]
+
+
+def test_card10_scenario_erratum_changes_only_the_active_player_and_the_script() -> None:
+    """P2's commander creature spell cannot be on the stack during P1's turn
+    (CR 302.1, Rograkh has no flash): the erratum makes P2 active and keeps the
+    requested stack, the objects and every obligation key."""
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    patch = next(p for p in contract["record_successors"] if p["fixture_id"] == "CARD_10")
+    old = base["CARD_10"]
+    assert patch["correction_class"] == "ACTUAL_CARD_SCENARIO_ERRATUM"
+    assert sorted(patch["replace"]) == ["decision_script", "temporal_state"]
+    details = patch["append_native_procedure"][0]["details"]
+    assert details["obligation_changed"] is False
+    assert "302.1" in details["rules_basis"]
+    record = resolver.effective_record("CARD_10")
+    assert record["obligation_digest"] == old["obligation_digest"]
+    assert record["stack_state"] == old["stack_state"]
+    assert record["semantic_objects"] == old["semantic_objects"]
+    assert record["temporal_state"] == {**old["temporal_state"], "active_player": "P2"}
+    assert [step["decision_family"] for step in record["decision_script"]] == [
+        "priority",
+        "target",
+    ]

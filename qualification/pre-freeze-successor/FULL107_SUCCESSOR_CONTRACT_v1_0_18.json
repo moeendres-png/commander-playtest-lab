@@ -1,7 +1,7 @@
 {
  "change_accounting": {
   "change_class": "MIXED_FIXTURE_CONTRACT_ERRATA_AND_RULES_AUTHORITY_CORRECTION",
-  "changed_fixture_count": 47,
+  "changed_fixture_count": 48,
   "changed_fixture_ids": [
    "WS05-CMD-START-2",
    "MICRO_MODES",
@@ -49,7 +49,8 @@
    "CARD_06",
    "CARD_03",
    "CARD_22",
-   "CARD_13"
+   "CARD_13",
+   "CARD_10"
   ],
   "historical_predecessor_preserved": true,
   "per_fixture_correction_class": {
@@ -99,7 +100,8 @@
    "CARD_06": "ACTUAL_CARD_OBLIGATION_ERRATUM",
    "CARD_03": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
    "CARD_22": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
-   "CARD_13": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM"
+   "CARD_13": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
+   "CARD_10": "ACTUAL_CARD_SCENARIO_ERRATUM"
   },
   "provider_semantics_used_to_define_successor": false,
   "unchanged_provider_denominator_rows": 78
@@ -12352,6 +12354,147 @@
     ]
    },
    "successor_requested_state_digest": "daa83d4be8163eb66111dff94f025c89e0895e79c85b821e90c9943b2e1176d7"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255 comment 5925956587 (SLOT-04): lossy or ambiguous fixtures are corrected and versioned rather than weakening execution; a record's decision script answers only the discretionary decisions the Rules Core itself asks, and an unscripted discretionary decision stops the row",
+      "correction": "P2 is the active player, so P2's commander spell can be on the stack (cast from the command zone in P2's main phase); P1 still holds priority to respond, and the cast's mode and target are scripted as the engine asks them",
+      "defect": "the record puts P2's commander creature spell on the stack while P1 is the active player; Rograkh has no flash, so no player can cast it then, and no causal route can reach that position; the record also folds the target into the cast",
+      "erratum_class": "ACTUAL_CARD_SCENARIO_ERRATUM",
+      "obligation_changed": false,
+      "prose_derived_action_injection": false,
+      "provider_semantics_used": false,
+      "rules_basis": "CR 302.1 (a creature spell is cast during its controller's main phase with an empty stack)",
+      "stack_entry": "causal_stack route of the production probe"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-scenario-card_10"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 actual-card decision script",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "ACTUAL_CARD_SCENARIO_ERRATUM",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The decision script (and, where named, the declared payment sources) change, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "CARD_10",
+   "knowledge_state_channel_policy": "RSP actor-aware observation applies to prompts, context, options, source/ability metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "predecessor_values": {
+     "temporal_state": {
+      "active_player": "P2",
+      "extra_turn_queue": [],
+      "phase": "precombat_main",
+      "priority_player": "P1",
+      "step": "main",
+      "turn_number": 1
+     },
+     "decision_script": [
+      {
+       "actor": "P1",
+       "causal_step_id": "cause-0",
+       "decision_family": "priority",
+       "forbidden_fallbacks": [
+        "first_option",
+        "random_option",
+        "default_yes_no",
+        "internal_ai",
+        "gui_default",
+        "silent_skip",
+        "parent_class_fallback"
+       ],
+       "notes": "",
+       "selection": {
+        "matches_only_provider_offered_legal_options": true,
+        "on_multiple_match": "FAIL_CLOSED",
+        "on_zero_match": "FAIL_CLOSED",
+        "selector_kind": "semantic_action",
+        "semantic_value": {
+         "action": "cast",
+         "cast_mode": "normal_noncleave",
+         "object": "obj:card_10-subject",
+         "target": "obj:card10-p2cmd"
+        }
+       }
+      }
+     ]
+    },
+    "reason": "the record puts P2's commander creature spell on the stack while P1 is the active player; Rograkh has no flash, so no player can cast it then, and no causal route can reach that position; the record also folds the target into the cast"
+   },
+   "predecessor_requested_state_digest": "7949fde6bc0c81931d4866787cbe4e39b30eaedf16438789ce65fbb50d873a0b",
+   "replace": {
+    "temporal_state": {
+     "active_player": "P2",
+     "extra_turn_queue": [],
+     "phase": "precombat_main",
+     "priority_player": "P1",
+     "step": "main",
+     "turn_number": 1
+    },
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "cast-wash-away",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "the record's normal non-cleave cast: P1's one Island pays only {U}, so the engine offers no cleave cast ({1}{U}{U})",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:card_10-subject"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "target-commander-spell",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "Wash Away targets P2's commander spell on the stack",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_object",
+       "semantic_value": "obj:card10-p2cmd"
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "7949fde6bc0c81931d4866787cbe4e39b30eaedf16438789ce65fbb50d873a0b"
   }
  ],
  "rules_authority": {

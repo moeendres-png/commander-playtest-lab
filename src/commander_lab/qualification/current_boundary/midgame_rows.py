@@ -1929,12 +1929,49 @@ def _timing_allows(step: dict[str, Any], decision: dict[str, Any]) -> bool:
     return not stack
 
 
+# The check kinds that read the engine's state readback; every other kind reads
+# only the event tape or the decision trace.
+OBSERVATION_KINDS = frozenset(
+    {
+        "life",
+        "commander_prior_casts",
+        "on_battlefield",
+        "tapped",
+        "hand_count_min",
+        "in_graveyard",
+        "not_on_battlefield",
+        "untapped_count",
+        "power_toughness",
+        "counters",
+        "keyword",
+        "colors",
+        "token_count",
+        "triggered_ability",
+        "battlefield_exact",
+        "graveyard_mana_value",
+    }
+)
+
+
+def needs_observation(check: Any) -> bool:
+    """Whether a check (or a bound tuple of checks) reads the engine readback."""
+    if isinstance(check, tuple):
+        return any(needs_observation(part) for part in check)
+    if isinstance(check, VocabularyToken):
+        return False
+    return bool(getattr(check, "kind", None) in OBSERVATION_KINDS)
+
+
 def _terminal_holds(
     client: ml.MidgameLaneClient, spec: RowSpec, tape: list[dict[str, Any]], trace: list[Frame]
 ) -> bool:
     if not spec.terminal_checks:
         return True
-    observation = client.complete_arrival().get("observation") or {}
+    observation = (
+        client.complete_arrival().get("observation") or {}
+        if any(needs_observation(check) for check in spec.terminal_checks)
+        else {}
+    )
     return all(check_terminal(check, observation, tape, trace) for check in spec.terminal_checks)
 
 
@@ -2073,7 +2110,11 @@ def execute_row(
             return None if evidence is None else {"binding": check.describe(), **evidence}
         if check is not None:
             if observation is None:
-                observation = client.complete_arrival().get("observation") or {}
+                observation = (
+                    client.complete_arrival().get("observation") or {}
+                    if needs_observation(check)
+                    else {}
+                )
             return bound_token_evidence(check, observation, tape, trace)
         return verify_token(
             token,
@@ -2088,10 +2129,7 @@ def execute_row(
     def observed_all(tape: list[dict[str, Any]]) -> bool:
         observation = (
             client.complete_arrival().get("observation") or {}
-            if any(
-                token in bindings and not isinstance(bindings[token], VocabularyToken)
-                for token in required
-            )
+            if any(token in bindings and needs_observation(bindings[token]) for token in required)
             else None
         )
         return all(token_evidence(t, tape, observation) is not None for t in required)
@@ -2328,7 +2366,30 @@ def execute_row(
     except ml.MidgameLaneError as exc:
         detail = f"execution failed closed: {exc}"
     tape = client.events(baseline)["events"]
-    observation = client.complete_arrival().get("observation") or {}
+    readback_needed = any(needs_observation(check) for check in spec.terminal_checks) or any(
+        needs_observation(bindings[token]) for token in required if token in bindings
+    )
+    try:
+        # The final readback is a pure query of a parked engine: wait until the
+        # engine has parked on its next decision (or ended) before asking.
+        client.pending_decision(attempts=5)
+        observation = client.complete_arrival().get("observation") or {}
+    except ml.MidgameLaneError as exc:
+        if not readback_needed:
+            # Nothing this row verifies reads the readback: the tape and the
+            # decision trace are the whole evidence.
+            observation = {}
+        else:
+            return RowExecution(
+                fixture_id,
+                False,
+                construction,
+                f"{detail}; the final engine readback failed closed: {exc}",
+                decision_trace=[frame.__dict__ for frame in trace],
+                tape=tape,
+                refusals=refusals,
+                causal_reconstruction=reconstruction,
+            )
     evidence: dict[str, Any] = {}
     missing: list[str] = []
     for token in required:
