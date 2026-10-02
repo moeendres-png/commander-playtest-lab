@@ -91,6 +91,10 @@ CARD_SCENARIO_ERRATA_IDS = ["CARD_10", "CARD_07"]
 # restated at the natural turn-1 hand the vehicle reaches; its Rules content and
 # predecessor obligation are preserved.
 CARD_VEHICLE_OBLIGATION_ERRATA_IDS = ["CARD_16"]
+# The AF07 causal-attachment scenario erratum (1.0.18): an attachment and a
+# token the Rules Core must cause are reached through the engine's own equip
+# activation on a card; every obligation key is untouched.
+CARD_CAUSAL_SCENARIO_ERRATA_IDS = ["CARD_25"]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -111,6 +115,7 @@ CHANGED_FIXTURE_IDS = [
     *FINAL_CARD_SCRIPT_ERRATA_IDS,
     *CARD_SCENARIO_ERRATA_IDS,
     *CARD_VEHICLE_OBLIGATION_ERRATA_IDS,
+    *CARD_CAUSAL_SCENARIO_ERRATA_IDS,
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
@@ -124,6 +129,7 @@ DENOMINATOR_CHANGED_FIXTURE_IDS = [
         *FINAL_CARD_SCRIPT_ERRATA_IDS,
         *CARD_SCENARIO_ERRATA_IDS,
         *CARD_VEHICLE_OBLIGATION_ERRATA_IDS,
+        *CARD_CAUSAL_SCENARIO_ERRATA_IDS,
     )
 ]
 AF01_PATH = REPO_ROOT / "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json"
@@ -1464,6 +1470,7 @@ def test_card06_obligation_erratum_is_versioned_with_its_predecessor_preserved()
         *FINAL_CARD_SCRIPT_ERRATA_IDS,
         *CARD_SCENARIO_ERRATA_IDS,
         *CARD_VEHICLE_OBLIGATION_ERRATA_IDS,
+        *CARD_CAUSAL_SCENARIO_ERRATA_IDS,
     ]
     patch = added[0]
     old = base["CARD_06"]
@@ -1699,3 +1706,61 @@ def test_card16_obligation_erratum_restates_the_hand_size_at_the_natural_hand() 
         "trigger:Psychosis_Crawler",
         "trigger:Psychosis_Crawler",
     ]
+
+
+def test_card25_scenario_erratum_causes_the_attachment_through_the_equip_ability() -> None:
+    """The predecessor checkpoint has Basilisk Collar already attached to a 1/1
+    Soldier token: a token is created by an effect and an attachment is history
+    the Rules Core must cause, so neither can be placed. The erratum puts a
+    vanilla 1/1 Human Soldier card in the token's place, starts the Collar
+    unattached with two Plains for Equip {2}, moves the checkpoint to P1's
+    precombat main of the same turn and scripts the equip activation before
+    the unchanged attack and block; every obligation key is untouched."""
+    contract = _json(SUCCESSOR_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    patch = next(p for p in contract["record_successors"] if p["fixture_id"] == "CARD_25")
+    old = base["CARD_25"]
+    assert patch["correction_class"] == "ACTUAL_CARD_SCENARIO_ERRATUM"
+    assert patch["digest_migration"]["obligation_digest"] == "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED"
+    assert patch["predecessor_requested_state_digest"] == old["requested_state_digest"]
+    details = patch["append_native_procedure"][0]["details"]
+    assert details["obligation_changed"] is False
+    assert "702.6a" in details["rules_basis"] and "111.1" in details["rules_basis"]
+    record = resolver.effective_record("CARD_25")
+    assert record["obligation_digest"] == old["obligation_digest"]
+    assert record["expected_events"] == old["expected_events"]
+    assert record["terminal_postconditions"] == old["terminal_postconditions"]
+    assert record["players"] == old["players"]
+    objects = {obj["semantic_id"]: obj for obj in record["semantic_objects"]}
+    before = {obj["semantic_id"]: obj for obj in old["semantic_objects"]}
+    # Nothing is attached and nothing is a token in the requested state.
+    assert all(not obj.get("attached_to") for obj in record["semantic_objects"])
+    assert all("Token" not in obj["card_identity"] for obj in record["semantic_objects"])
+    assert objects["obj:card25-attacker"]["card_identity"] == "Eager Cadet"
+    assert objects["obj:card25-blocker"] == before["obj:card25-blocker"]
+    added = sorted(set(objects) - set(before))
+    assert added == ["obj:card25-equip-mana-0", "obj:card25-equip-mana-1"]
+    assert {objects[sid]["card_identity"] for sid in added} == {"Plains"}
+    assert record["temporal_state"] == {
+        **old["temporal_state"],
+        "phase": "precombat_main",
+        "step": "main",
+    }
+    families = [step["decision_family"] for step in record["decision_script"]]
+    assert families == ["priority", "target", "declare_attacker", "declare_blocker"]
+    activate, target = record["decision_script"][:2]
+    assert activate["selection"]["semantic_value"] == {
+        "action": "activate",
+        "object": "obj:card_25-subject",
+    }
+    assert target["selection"]["semantic_value"] == "obj:card25-attacker"
+    assert record["decision_script"][2:] == old["decision_script"]
+    (cost,) = record["action_cost_state"]
+    assert cost["decision_index"] == 0 and cost["minimum_mana_or_equivalent"] == 2
+    assert cost["explicit_payment_sources"] == added

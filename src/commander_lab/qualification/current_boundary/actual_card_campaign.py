@@ -1370,6 +1370,66 @@ PLANS: dict[str, ObligationPlan] = {
             ),
         ),
     ),
+    # Basilisk Collar equipped through the engine's own Equip activation: the
+    # vanilla 1/1 Cadet's 1 combat damage destroys the 5/5 blocker only through
+    # deathtouch, and gains P1 exactly 1 life only through lifelink; the blocker's
+    # 5 damage kills the Cadet. Neither keyword exists without the attachment.
+    "CARD_25": ObligationPlan(
+        fixture_id="CARD_25",
+        proofs=(
+            PostconditionProof(
+                "P1 is at 21 life.",
+                terminal_check=_life("P1", 21),
+                also=(_events("GAINED_LIFE", ("player_player", "P1"), ("amount", 1), count=1),),
+            ),
+            PostconditionProof(
+                "P2 5/5 is destroyed by deathtouch SBA; P1 1/1 also dies absent other effects.",
+                terminal_check=_events(
+                    "DESTROYED_PERMANENT", ("target_object", "obj:card25-blocker"), count=1
+                ),
+                also=(
+                    _in_graveyard("P2", "Colossal Dreadmaw"),
+                    _not_on_battlefield("P2", "Colossal Dreadmaw"),
+                    _in_graveyard("P1", "Eager Cadet"),
+                    _not_on_battlefield("P1", "Eager Cadet"),
+                    _on_battlefield("P1", "Basilisk Collar"),
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "combat_damage:1_to_blocker",
+                _events(
+                    "DAMAGED_PERMANENT",
+                    ("target_object", "obj:card25-blocker"),
+                    ("source_object", "obj:card25-attacker"),
+                    ("amount", 1),
+                    count=1,
+                ),
+            ),
+            (
+                "combat_damage:5_to_attacker",
+                _events(
+                    "DAMAGED_PERMANENT",
+                    ("target_object", "obj:card25-attacker"),
+                    ("source_object", "obj:card25-blocker"),
+                    ("amount", 5),
+                    count=1,
+                ),
+            ),
+            (
+                "lifelink_gain:P1:1",
+                _events("GAINED_LIFE", ("player_player", "P1"), ("amount", 1), count=1),
+            ),
+            (
+                "deathtouch_SBA",
+                _precede(
+                    _events("DAMAGED_PERMANENT", ("target_object", "obj:card25-blocker")),
+                    _events("DESTROYED_PERMANENT", ("target_object", "obj:card25-blocker")),
+                ),
+            ),
+        ),
+    ),
     # Harmonic Prodigy makes Talrand's cast trigger trigger an additional time:
     # the engine reports exactly two Talrand trigger instances for the one Bolt.
     "CARD_06": ObligationPlan(

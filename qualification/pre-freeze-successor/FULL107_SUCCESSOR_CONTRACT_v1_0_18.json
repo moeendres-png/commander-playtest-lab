@@ -1,7 +1,7 @@
 {
  "change_accounting": {
   "change_class": "MIXED_FIXTURE_CONTRACT_ERRATA_AND_RULES_AUTHORITY_CORRECTION",
-  "changed_fixture_count": 50,
+  "changed_fixture_count": 51,
   "changed_fixture_ids": [
    "WS05-CMD-START-2",
    "MICRO_MODES",
@@ -52,7 +52,8 @@
    "CARD_13",
    "CARD_10",
    "CARD_07",
-   "CARD_16"
+   "CARD_16",
+   "CARD_25"
   ],
   "historical_predecessor_preserved": true,
   "per_fixture_correction_class": {
@@ -105,7 +106,8 @@
    "CARD_13": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
    "CARD_10": "ACTUAL_CARD_SCENARIO_ERRATUM",
    "CARD_07": "ACTUAL_CARD_SCENARIO_ERRATUM",
-   "CARD_16": "ACTUAL_CARD_OBLIGATION_ERRATUM"
+   "CARD_16": "ACTUAL_CARD_OBLIGATION_ERRATUM",
+   "CARD_25": "ACTUAL_CARD_SCENARIO_ERRATUM"
   },
   "provider_semantics_used_to_define_successor": false,
   "unchanged_provider_denominator_rows": 78
@@ -123,7 +125,7 @@
   "successor_contract_creation_is_runtime_credit": false,
   "xmage_predecessor_start2_blocker_is_historical_provenance": true
  },
- "materialization_schema_version_note": "the record shape is unchanged from the 1.0.8 successor schema; 1.0.18 adds two actual-card obligation errata (CARD_06: Oracle conflict; CARD_16: the obligation restated at the construction vehicle's natural turn-1 state), the CARD_03/CARD_13/CARD_22 decision-script errata and the CARD_07/CARD_10 scenario errata while preserving every 1.0.17 overlay byte-semantically",
+ "materialization_schema_version_note": "the record shape is unchanged from the 1.0.8 successor schema; 1.0.18 adds two actual-card obligation errata (CARD_06: Oracle conflict; CARD_16: the obligation restated at the construction vehicle's natural turn-1 state), the CARD_03/CARD_13/CARD_22 decision-script errata and the CARD_07/CARD_10/CARD_25 scenario errata while preserving every 1.0.17 overlay byte-semantically",
  "predecessor": {
   "path": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_17.json",
   "record_count": 43,
@@ -13084,6 +13086,298 @@
     ]
    },
    "successor_requested_state_digest": "c73ab4b536fcf42d25d0d5b3e155de783b01235f59bcf4dacba324572887146b"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "Coordinator adjudication 2026-10-02 (docs/af07_final_closure_20261002/CARD25_SCENARIO_ERRATUM.md): a checkpoint the Rules Core must cause is reached through the engine's own actions, never fabricated; #255 SLOT-04 (a record's script answers only the decisions the Rules Core asks)",
+      "correction": "the attacker is Eager Cadet, a vanilla 1/1 Human Soldier creature card (the token's characteristics as a card), the Collar starts unattached with two Plains for its equip cost, the checkpoint moves to P1's precombat main phase of the same turn, and the decision script has P1 activate Equip targeting the Cadet before the scripted attack and block; every obligation key (events, postconditions, card binding) is untouched",
+      "defect": "the predecessor checkpoint (P1's declare-attackers step with Basilisk Collar already attached to a 1/1 Soldier token) cannot be constructed: a token is created by an effect and is never a card a restoration vehicle can load, and an attachment is history the Rules Core must cause (an equip activation or an effect), so placing the Collar attached would fabricate it; the XMage restoration does not read attached_to at all and now fails closed on it (UNSUPPORTED_ATTACHMENTS)",
+      "erratum_class": "ACTUAL_CARD_SCENARIO_ERRATUM",
+      "obligation_changed": false,
+      "prose_derived_action_injection": false,
+      "provider_semantics_used": false,
+      "rules_basis": "CR 111.1 and 111.4 (tokens are created by effects); CR 301.5 and 702.6a (an Equipment becomes attached through its equip ability, activated only as a sorcery); CR 302.6 (the Cadet has been under P1's control continuously since the turn began)"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-scenario-card_25"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 actual-card scenario erratum (causal attachment)",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "ACTUAL_CARD_SCENARIO_ERRATUM",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The objects, the checkpoint step, the decision script and the declared payment sources change, so the requested-state and materialization digests change; the obligation keys are untouched, so the recomputed obligation digest equals the predecessor's",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "CARD_25",
+   "knowledge_state_channel_policy": "RSP actor-aware observation applies to prompts, context, options, source/ability metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "predecessor_values": {
+     "attacker_card_identity": "Soldier Token",
+     "collar_attached_to": "obj:card25-attacker",
+     "temporal_state": {
+      "active_player": "P1",
+      "extra_turn_queue": [],
+      "phase": "combat",
+      "priority_player": "P1",
+      "step": "declare_attackers",
+      "turn_number": 1
+     }
+    },
+    "reason": "the predecessor checkpoint (P1's declare-attackers step with Basilisk Collar already attached to a 1/1 Soldier token) cannot be constructed: a token is created by an effect and is never a card a restoration vehicle can load, and an attachment is history the Rules Core must cause (an equip activation or an effect), so placing the Collar attached would fabricate it; the XMage restoration does not read attached_to at all and now fails closed on it (UNSUPPORTED_ATTACHMENTS)"
+   },
+   "predecessor_requested_state_digest": "819dd4cc70302881df2b3496eeeb66a77676ed1f1307819582ef07ff5ac2ea01",
+   "replace": {
+    "action_cost_state": [
+     {
+      "actor": "P1",
+      "card_identity": "Basilisk Collar",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:card25-equip-mana-0",
+       "obj:card25-equip-mana-1"
+      ],
+      "minimum_mana_or_equivalent": 2,
+      "payable": true,
+      "source_semantic_id": "obj:card_25-subject"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "equip-collar",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "Equip {2} is Basilisk Collar's only activated ability; P1 activates it at sorcery speed in its precombat main phase (CR 702.6a)",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "activate",
+        "object": "obj:card_25-subject"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "equip-target",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "Equip targets a creature P1 controls (CR 702.6a)",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_object",
+       "semantic_value": "obj:card25-attacker"
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cause-0",
+      "decision_family": "declare_attacker",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "attacker_assignment",
+       "semantic_value": {
+        "obj:card25-attacker": "P2"
+       }
+      }
+     },
+     {
+      "actor": "P2",
+      "causal_step_id": "cause-1",
+      "decision_family": "declare_blocker",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "blocker_assignment",
+       "semantic_value": {
+        "obj:card25-blocker": "obj:card25-attacker"
+       }
+      }
+     }
+    ],
+    "scenario_notes": [
+     "Minimal deterministic provider-neutral representative of the frozen obligation; provider-native construction and legality remain authoritative.",
+     "P1 starts at 20 life and controls Eager Cadet (a 1/1 Human Soldier), an unattached Basilisk Collar and two Plains; P1 equips the Collar to the Cadet in its precombat main phase.",
+     "P2 controls a 5/5 creature able to block."
+    ],
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Basilisk Collar",
+      "card_lineage_id": "line:obj:card_25-subject",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card_25-subject",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Eager Cadet",
+      "card_lineage_id": "line:obj:card25-attacker",
+      "construction_notes": [
+       "1/1 Human Soldier creature card (vanilla)"
+      ],
+      "controlled_since_turn_began": true,
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card25-attacker",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Colossal Dreadmaw",
+      "card_lineage_id": "line:obj:card25-blocker",
+      "controller": "P2",
+      "counters": {
+       "-1/-1": 1
+      },
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:card25-blocker",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Plains",
+      "card_lineage_id": "line:obj:card25-equip-mana-0",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card25-equip-mana-0",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Plains",
+      "card_lineage_id": "line:obj:card25-equip-mana-1",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:card25-equip-mana-1",
+      "tapped": false,
+      "zone": "battlefield"
+     }
+    ],
+    "temporal_state": {
+     "active_player": "P1",
+     "extra_turn_queue": [],
+     "phase": "precombat_main",
+     "priority_player": "P1",
+     "step": "main",
+     "turn_number": 1
+    }
+   },
+   "successor_requested_state_digest": "202e97eed60277dd4d081c8f245521c83c1354f6794c1348df6f955f00ee9376"
   }
  ],
  "rules_authority": {

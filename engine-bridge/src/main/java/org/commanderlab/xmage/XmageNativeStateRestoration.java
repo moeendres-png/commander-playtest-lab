@@ -495,6 +495,12 @@ final class XmageNativeStateRestoration {
                     && !object.getAsJsonArray("attachments").isEmpty()) {
                 throw new RestorationException("UNSUPPORTED_ATTACHMENTS", fixtureId + " " + semanticId);
             }
+            // An attachment is history the Rules Core must cause (an equip
+            // activation, an Aura resolving): this vehicle never places one, so a
+            // requested attachment fails closed instead of being silently dropped.
+            if (object.has("attached_to") && !object.get("attached_to").isJsonNull()) {
+                throw new RestorationException("UNSUPPORTED_ATTACHMENTS", fixtureId + " " + semanticId);
+            }
             String zoneName = object.get("zone").getAsString();
             String objectCommanderId = object.has("commander_id") && !object.get("commander_id").isJsonNull()
                     ? object.get("commander_id").getAsString() : null;

@@ -808,6 +808,31 @@ class XmageNativeStateRestorationTest {
     }
 
     @Test
+    void aRequestedAttachmentFailsClosedInsteadOfBeingDropped() {
+        // The restoration never places an attachment; before this check it read
+        // no attached_to at all, so the request vanished from a construction
+        // that could still read EXACT.
+        JsonObject attached = commanderOnBattlefieldRecord();
+        JsonObject commander = semanticObject(attached, "obj:cmd-zone-test");
+        JsonObject equipment = commander.deepCopy();
+        equipment.addProperty("semantic_id", "obj:attached-collar");
+        equipment.addProperty("card_identity", "Basilisk Collar");
+        equipment.remove("commander_id");
+        equipment.addProperty("attached_to", "obj:cmd-zone-test");
+        attached.getAsJsonArray("semantic_objects").add(equipment);
+        assertPlanRejected(attached, "UNSUPPORTED_ATTACHMENTS");
+
+        JsonObject unattached = commanderOnBattlefieldRecord();
+        JsonObject loose = semanticObject(unattached, "obj:cmd-zone-test").deepCopy();
+        loose.addProperty("semantic_id", "obj:loose-collar");
+        loose.addProperty("card_identity", "Basilisk Collar");
+        loose.remove("commander_id");
+        loose.add("attached_to", com.google.gson.JsonNull.INSTANCE);
+        unattached.getAsJsonArray("semantic_objects").add(loose);
+        XmageNativeStateRestoration.planFromFrozenRecord(unattached, "ws2-unattached", 424242L);
+    }
+
+    @Test
     void aLifeTotalOtherThanTheStartingLifeIsNeverSet() {
         // F-40: 30 life at a starting life of 40 is history (10 life lost); it
         // must be caused through the engine, so it is compared and never set.
