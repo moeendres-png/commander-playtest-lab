@@ -292,6 +292,17 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
         if new["correction_class"] == old["correction_class"]:
             assert new == old
             continue
+        if new["fixture_id"] == "MICRO_COSTS":
+            # The CR 307.1 erratum now also carries its CR 302.6 consequence
+            # (checked in its own test); the original step and the temporal
+            # correction are unchanged.
+            assert new["append_native_procedure"][0] == old["append_native_procedure"][0]
+            assert new["replace"]["temporal_state"] == old["replace"]["temporal_state"]
+            assert (
+                new["predecessor_requested_state_digest"]
+                == old["predecessor_requested_state_digest"]
+            )
+            continue
         # A lossless-library overlay now carried inside a decision-script erratum.
         assert new["fixture_id"] in CARRIED_LIBRARY_ERRATA_IDS
         assert old["correction_class"] == "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04"
@@ -394,10 +405,54 @@ def test_micro_costs_correction_makes_the_scripted_sorcery_legal_and_preserves_t
     assert record["terminal_postconditions"] == [
         "Targeting two P1 commanders while Esior is controlled adds exactly {3} total, once."
     ]
-    assert record["repair_provenance"]["correction_class"] == ("FIXTURE_DEFECT_CORRECTION_CR307_1")
-    erratum = record["native_procedure"][-1]["details"]
+    assert record["repair_provenance"]["correction_class"] == (
+        "FIXTURE_DEFECT_CORRECTION_CR307_1_CR302_6"
+    )
+    erratum = record["native_procedure"][-2]["details"]
     assert erratum["comprehensive_rules"] == "307.1"
     assert erratum["provider_semantics_used"] is False
+
+
+def test_micro_costs_control_history_is_the_one_turn_1_of_p2_can_reach() -> None:
+    """CR 302.6: with P2 active on turn 1, P1, P3 and P4 have had no turn, so none
+    of their permanents has been controlled since its controller's turn began.
+    The 1.0.18 correction declares exactly that; the obligation is untouched."""
+    resolver = _resolver()
+    record = resolver.effective_record("MICRO_COSTS")
+    base = {
+        item["fixture_id"]: item
+        for item in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }["MICRO_COSTS"]
+    active = record["temporal_state"]["active_player"]
+    assert (active, record["temporal_state"]["turn_number"]) == ("P2", 1)
+    before = {item["semantic_id"]: item for item in base["semantic_objects"]}
+    corrected = []
+    for item in record["semantic_objects"]:
+        old = before[item["semantic_id"]]
+        changed = {key for key in item if item[key] != old.get(key)}
+        if item["zone"] != "battlefield" or item.get("controlled_since_turn_began") is None:
+            assert not changed
+            continue
+        # The only reachable value: true only for the turn-1 active player's.
+        assert item["controlled_since_turn_began"] is (item["controller"] == active)
+        if changed:
+            assert changed == {"controlled_since_turn_began"}
+            corrected.append(item["semantic_id"])
+    assert sorted(corrected) == [
+        "obj:P1-commander",
+        "obj:cost-a",
+        "obj:cost-c",
+        "obj:cost-d",
+        "obj:micro-cmd-b",
+    ]
+    assert record["obligation_digest"] == base["obligation_digest"]
+    erratum = record["native_procedure"][-1]
+    assert erratum["step_id"] == "erratum-micro-costs-control-history"
+    assert erratum["details"]["comprehensive_rules"] == "302.6"
+    assert erratum["details"]["obligation_changed"] is False
+    assert sorted(erratum["details"]["corrected_objects"]) == sorted(corrected)
 
 
 def test_lane_rows_bound_to_corrected_fixtures_agree_with_the_records() -> None:

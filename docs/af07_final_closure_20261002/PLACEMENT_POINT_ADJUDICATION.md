@@ -63,6 +63,14 @@ of the rules citation until then: `CODE_DERIVED` plus rule-number citation, not
    impossible history with another one, in which permanents appear mid-game
    without an event.
 
+- **Battlefield commanders.** A commander requested on the battlefield is the
+  genuine commander. Game start puts it into the command zone (CR 903.6). It
+  leaves the command zone at the same `BEGIN_TURN` point, in the same way as every
+  other restored permanent. Before this ruling it was moved at the checkpoint
+  through the engine's setup primitive, which also cleared summoning sickness, so
+  its control history was set rather than derived. Its requested
+  `controlled_since_turn_began` is now verified like any permanent's.
+
 Unchanged by this ruling:
 
 - **Face-down objects.** They are still turned face down before game start (SLOT-04),
@@ -96,6 +104,10 @@ Unchanged by this ruling:
   controlled since the turn began. Every other player's stay summoning sick until that
   player's turn begins. A record's `controlled_since_turn_began` is verified at the
   checkpoint and never set.
+- **MICRO_COSTS** (provider denominator). This verification exposed a fixture
+  defect: on P2's turn 1, the record requested a control history for the
+  permanents of P1, P3 and P4 that no game can reach. It is corrected by
+  `MICRO_COSTS_CONTROL_HISTORY_ERRATUM.md`.
 - **Public tape.** The setup placement is muted on the public event tape. For example,
   an entering planeswalker's loyalty counters are setup, as they were when placement
   preceded the tape.
