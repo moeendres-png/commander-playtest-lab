@@ -17,7 +17,7 @@ from typing import Any
 
 import yaml
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 REQUIRED_CONTEXTS: dict[str, dict[str, Any]] = {
     "quality": {
@@ -127,6 +127,26 @@ def _validate_commit(repo: Path, revision: str) -> str:
     if SHA_RE.fullmatch(tree) is None:
         raise InspectionError("commit_tree_identity_invalid")
     return tree
+
+
+def _comparison_base(repo: Path, trusted: str, head: str) -> str:
+    """The candidate's effective comparison base: the unique merge base of the
+    trusted validator source and the candidate.
+
+    Diffing the candidate against current trusted main would attribute every
+    later main change to the candidate. The merge base is where the candidate
+    forked from (or last merged) main, so a diff from it holds exactly what the
+    candidate itself changed, as the pull request diff does. No merge base, or
+    several (criss-cross history), cannot be adjudicated and fails closed.
+    """
+    try:
+        payload = _git(repo, "merge-base", "--all", trusted, head)
+    except InspectionError as exc:
+        raise InspectionError("comparison_base_unavailable") from exc
+    bases = sorted({line.strip() for line in payload.decode().splitlines() if line.strip()})
+    if len(bases) != 1 or SHA_RE.fullmatch(bases[0]) is None:
+        raise InspectionError(f"comparison_base_not_unique:{len(bases)}")
+    return bases[0]
 
 
 def _changed_paths(repo: Path, base: str, head: str) -> list[str]:
@@ -654,16 +674,56 @@ def _is_under(path: str, root: str) -> bool:
 
 
 def inspect_required_check_definitions(repo: Path, base: str, head: str) -> dict[str, Any]:
+    """Explicit single-base mode: ``base`` is both the trusted policy source and
+    the comparison base (a fresh candidate whose base is current main)."""
+    return _inspect(repo, base, head, comparison_base=base, derivation="explicit_single_base")
+
+
+def inspect_candidate(repo: Path, trusted: str, head: str) -> dict[str, Any]:
+    """Three-identity mode: ``trusted`` is the executing validator's own source
+    and the trusted policy baseline; the comparison base is derived as the
+    merge base of ``trusted`` and ``head`` (``_comparison_base``)."""
+    try:
+        _validate_commit(repo.resolve(), trusted)
+        _validate_commit(repo.resolve(), head)
+        comparison = _comparison_base(repo.resolve(), trusted, head)
+    except InspectionError as exc:
+        return _unknown_report(trusted, head, None, str(exc))
+    return _inspect(repo, trusted, head, comparison_base=comparison, derivation="merge_base")
+
+
+def _unknown_report(trusted: str, head: str, comparison: str | None, reason: str) -> dict[str, Any]:
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "trusted_validator": {"sha": trusted},
+        "comparison_base": {"sha": comparison},
+        "candidate": {"sha": head},
+        "inspected_files": [],
+        "changed_protected_surfaces": [],
+        "invariant_results": [
+            {"id": "source_identity", "status": "UNKNOWN", "reason": reason, "path": None}
+        ],
+        "overall_classification": "UNKNOWN",
+        "reasons": [reason],
+        "candidate_code_executed": False,
+    }
+
+
+def _inspect(
+    repo: Path, base: str, head: str, *, comparison_base: str, derivation: str
+) -> dict[str, Any]:
     repo = repo.resolve()
     inspected: set[str] = set()
     try:
         base_tree = _validate_commit(repo, base)
         head_tree = _validate_commit(repo, head)
-        changed = _changed_paths(repo, base, head)
+        comparison_tree = _validate_commit(repo, comparison_base)
+        changed = _changed_paths(repo, comparison_base, head)
     except InspectionError as exc:
         return {
             "schema_version": SCHEMA_VERSION,
-            "base": {"sha": base},
+            "trusted_validator": {"sha": base},
+            "comparison_base": {"sha": comparison_base, "derivation": derivation},
             "candidate": {"sha": head},
             "inspected_files": [],
             "changed_protected_surfaces": [],
@@ -791,7 +851,14 @@ def inspect_required_check_definitions(repo: Path, base: str, head: str) -> dict
 
     return {
         "schema_version": SCHEMA_VERSION,
-        "base": {"sha": base, "tree": base_tree},
+        # The executing validator's own source, also the trusted policy baseline.
+        "trusted_validator": {"sha": base, "tree": base_tree},
+        # What the candidate's changes are measured against.
+        "comparison_base": {
+            "sha": comparison_base,
+            "tree": comparison_tree,
+            "derivation": derivation,
+        },
         "candidate": {"sha": head, "tree": head_tree},
         "inspected_files": sorted(inspected),
         "changed_files": changed,
@@ -816,13 +883,23 @@ def _exit_code(classification: str) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--base", required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument(
+        "--trusted",
+        help="trusted validator source; the comparison base is its merge base with --head",
+    )
+    source.add_argument(
+        "--base", help="explicit single base: trusted policy source and comparison base"
+    )
     parser.add_argument("--head", required=True)
     parser.add_argument("--repo", type=Path, default=Path.cwd())
     parser.add_argument("--output", type=Path)
     args = parser.parse_args(argv)
 
-    report = inspect_required_check_definitions(args.repo, args.base, args.head)
+    if args.trusted is not None:
+        report = inspect_candidate(args.repo, args.trusted, args.head)
+    else:
+        report = inspect_required_check_definitions(args.repo, args.base, args.head)
     rendered = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if args.output is not None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
