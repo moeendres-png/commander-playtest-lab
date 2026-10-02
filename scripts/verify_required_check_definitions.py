@@ -181,6 +181,16 @@ def _pr_trigger_status(workflow: dict[str, Any]) -> tuple[str, str]:
         return "PASS", "pull_request_trigger_covers_main"
     if not isinstance(pr, dict):
         return "UNKNOWN", "pull_request_trigger_shape_not_statically_understood"
+    if "paths" in pr or "paths-ignore" in pr:
+        return "UNKNOWN", "pull_request_path_filter_can_skip_required_context"
+    types = pr.get("types")
+    if types is not None:
+        values = [types] if isinstance(types, str) else types
+        required_types = {"opened", "synchronize", "reopened"}
+        if not isinstance(values, list) or not all(isinstance(item, str) for item in values):
+            return "UNKNOWN", "pull_request_types_not_statically_understood"
+        if not required_types.issubset(values):
+            return "FAIL", "pull_request_types_do_not_cover_required_pr_updates"
     ignored = pr.get("branches-ignore")
     if ignored is not None:
         values = [ignored] if isinstance(ignored, str) else ignored
@@ -237,8 +247,16 @@ def _matching_command_is_enforcing(run: str, patterns: tuple[re.Pattern[str], ..
             and "set -euo pipefail" not in run
         ):
             continue
-        if "set +e" in run and ("rc=$?" not in run or 'exit "$rc"' not in run):
-            continue
+        if "set +e" in run:
+            has_unconditional_zero_exit = any(
+                re.fullmatch(r"exit\s+0", command) for command in _run_commands(run)
+            )
+            if (
+                "rc=$?" not in run
+                or 'exit "$rc"' not in run
+                or has_unconditional_zero_exit
+            ):
+                continue
         return True
     return False
 
@@ -260,6 +278,15 @@ def _continue_on_error(value: Any) -> tuple[str, str]:
     return "UNKNOWN", "continue_on_error_expression_not_statically_safe"
 
 
+def _shell_status(step: dict[str, Any]) -> tuple[str, str]:
+    shell = step.get("shell")
+    if shell is None or shell == "bash":
+        return "PASS", "critical_step_shell_preserves_fail_closed_bash_semantics"
+    if not isinstance(shell, str):
+        return "UNKNOWN", "critical_step_shell_not_statically_understood"
+    return "UNKNOWN", f"critical_step_custom_shell_not_statically_safe:{shell}"
+
+
 def _category_status(category: str, steps: list[dict[str, Any]]) -> tuple[str, str]:
     if category == "secret_sentinel":
         candidates = []
@@ -270,6 +297,9 @@ def _category_status(category: str, steps: list[dict[str, Any]]) -> tuple[str, s
         if not candidates:
             return "FAIL", "project_secret_sentinel_missing"
         for step in candidates:
+            shell_status, shell_reason = _shell_status(step)
+            if shell_status != "PASS":
+                return shell_status, shell_reason
             condition_status, condition_reason = _step_condition(step)
             if condition_status != "PASS":
                 return condition_status, condition_reason
@@ -289,6 +319,9 @@ def _category_status(category: str, steps: list[dict[str, Any]]) -> tuple[str, s
             pattern.search(line) for line in _command_segments(run) for pattern in patterns
         ):
             continue
+        shell_status, shell_reason = _shell_status(step)
+        if shell_status != "PASS":
+            return shell_status, shell_reason
         condition_status, condition_reason = _step_condition(step)
         if condition_status == "FAIL":
             return "FAIL", condition_reason
@@ -393,6 +426,81 @@ def _job_analysis(
             }
         )
         return findings, set()
+
+    job_name = job.get("name")
+    if job_name is None or job_name == context:
+        findings.append(
+            {
+                "id": f"{context}.check_context_name",
+                "status": "PASS",
+                "reason": "required_check_context_name_preserved",
+                "path": workflow_path,
+            }
+        )
+    elif not isinstance(job_name, str) or "${{" in job_name:
+        findings.append(
+            {
+                "id": f"{context}.check_context_name",
+                "status": "UNKNOWN",
+                "reason": "required_check_context_name_not_statically_understood",
+                "path": workflow_path,
+            }
+        )
+    else:
+        findings.append(
+            {
+                "id": f"{context}.check_context_name",
+                "status": "FAIL",
+                "reason": f"required_check_context_renamed:{job_name}",
+                "path": workflow_path,
+            }
+        )
+
+    if job.get("needs") is not None:
+        findings.append(
+            {
+                "id": f"{context}.needs",
+                "status": "UNKNOWN",
+                "reason": "required_job_needs_dependency_can_suppress_context_execution",
+                "path": workflow_path,
+            }
+        )
+    else:
+        findings.append(
+            {
+                "id": f"{context}.needs",
+                "status": "PASS",
+                "reason": "required_job_has_no_needs_skip_dependency",
+                "path": workflow_path,
+            }
+        )
+
+    strategy = job.get("strategy")
+    if isinstance(strategy, dict) and strategy.get("matrix") is not None:
+        findings.append(
+            {
+                "id": f"{context}.matrix",
+                "status": "UNKNOWN",
+                "reason": "required_job_matrix_can_change_check_context_identity",
+                "path": workflow_path,
+            }
+        )
+
+    for defaults, scope in (
+        (workflow.get("defaults"), "workflow"),
+        (job.get("defaults"), "job"),
+    ):
+        if isinstance(defaults, dict):
+            run_defaults = defaults.get("run")
+            if isinstance(run_defaults, dict) and run_defaults.get("shell") not in (None, "bash"):
+                findings.append(
+                    {
+                        "id": f"{context}.{scope}_default_shell",
+                        "status": "UNKNOWN",
+                        "reason": "required_job_default_shell_not_statically_safe",
+                        "path": workflow_path,
+                    }
+                )
 
     job_if = _normalize_if(job.get("if"))
     if job_if in {"false", "cancelled()"}:
