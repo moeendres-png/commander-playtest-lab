@@ -1090,7 +1090,9 @@ def test_late_hidden_event_errata_add_a_scry_and_a_pile_split() -> None:
     ]
 
 
-def test_batch6_hidden11_adds_ordered_look_then_native_shuffle_without_changing_obligation() -> None:
+def test_batch6_hidden11_adds_ordered_look_then_native_shuffle_without_changing_obligation() -> (
+    None
+):
     contract = _json(SUCCESSOR_PATH)
     predecessor = _json(PREDECESSOR_CONTRACT_PATH)
     resolver = _resolver()
