@@ -12002,24 +12002,18 @@
      "actor": null,
      "details": {
       "authority": "#255 comment 5925956587 (SLOT-04): lossy or ambiguous fixtures are corrected and versioned rather than weakening execution; a record's decision script answers only the discretionary decisions the Rules Core itself asks, and an unscripted discretionary decision stops the row",
-      "correction": "P2 casts Lightning Bolt targeting P1 from hand with its own Mountain; P1 then casts Bolt Bend targeting that spell and the engine asks the new target",
-      "defect": "the record places a cast spell on the stack; the engine cannot restore a stack object and a fabricated one is forbidden, so the row never reaches its obligation",
+      "correction": "script Bolt Bend's target as its own step: the Lightning Bolt spell on the stack",
+      "defect": "the record folds the spell target into its cast action; the engine asks the target as its own decision on casting",
       "erratum_class": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
-      "includes_causal_stack_entry": true,
-      "causal_stack_objects": [
-       "obj:card22-bolt"
-      ],
       "includes_lossless_library_erratum": false,
-      "includes_requested_state_addition": [
-       "obj:card22-p2-mana"
-      ],
       "obligation_changed": false,
       "prose_derived_action_injection": false,
-      "provider_semantics_used": false
+      "provider_semantics_used": false,
+      "stack_entry": "causal_stack route of the production probe; the record's stack is unchanged"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
-     "step_id": "erratum-causal-stack-card_22"
+     "step_id": "erratum-decision-script-card_22"
     }
    ],
    "authority_overlay": {
@@ -12090,96 +12084,11 @@
       }
      }
     ],
-    "predecessor_stack_state": [
-     {
-      "cast_complete": true,
-      "controller": "P2",
-      "costs_paid": true,
-      "modes": [],
-      "source_semantic_id": "obj:card22-bolt",
-      "targets": [
-       "P1"
-      ]
-     }
-    ],
-    "reason": "the record places a cast spell on the stack; the engine cannot restore a stack object and a fabricated one is forbidden, so the row never reaches its obligation"
+    "reason": "the record folds the spell target into its cast action; the engine asks the target as its own decision on casting"
    },
    "predecessor_requested_state_digest": "68663026e3a7d16515ef4fd75f592a3f0a47d02c87ce79f168b49f522b270a54",
    "replace": {
-    "action_cost_state": [
-     {
-      "actor": "P2",
-      "card_identity": "Lightning Bolt",
-      "decision_index": 0,
-      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
-      "explicit_payment_sources": [
-       "obj:card22-p2-mana"
-      ],
-      "minimum_mana_or_equivalent": 1,
-      "payable": true,
-      "source_semantic_id": "obj:card22-bolt"
-     },
-     {
-      "actor": "P1",
-      "card_identity": "Bolt Bend",
-      "decision_index": 1,
-      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
-      "explicit_payment_sources": [
-       "obj:card_22-mana-p1-0"
-      ],
-      "minimum_mana_or_equivalent": 1,
-      "payable": true,
-      "source_semantic_id": "obj:card_22-subject"
-     }
-    ],
     "decision_script": [
-     {
-      "actor": "P2",
-      "causal_step_id": "cast-bolt",
-      "decision_family": "priority",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "the spell the predecessor placed on the stack, cast causally by its controller",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "semantic_action",
-       "semantic_value": {
-        "action": "cast",
-        "object": "obj:card22-bolt"
-       }
-      }
-     },
-     {
-      "actor": "P2",
-      "causal_step_id": "target-bolt",
-      "decision_family": "target",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "the predecessor's stack target",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "semantic_player",
-       "semantic_value": "P1"
-      }
-     },
      {
       "actor": "P1",
       "causal_step_id": "cast-bolt-bend",
@@ -12218,7 +12127,7 @@
        "silent_skip",
        "parent_class_fallback"
       ],
-      "notes": "Bolt Bend targets the Lightning Bolt spell on the stack",
+      "notes": "Bolt Bend targets the Lightning Bolt spell on the stack (CR 601.2c)",
       "selection": {
        "matches_only_provider_offered_legal_options": true,
        "on_multiple_match": "FAIL_CLOSED",
@@ -12249,117 +12158,9 @@
        "semantic_value": "P3"
       }
      }
-    ],
-    "semantic_objects": [
-     {
-      "card_identity": "Rograkh, Son of Rohgahh",
-      "card_lineage_id": "line:obj:P1-commander",
-      "commander_id": "cmd:P1-A",
-      "controller": "P1",
-      "counters": {},
-      "face_down": false,
-      "owner": "P1",
-      "semantic_id": "obj:P1-commander",
-      "tapped": false,
-      "zone": "command"
-     },
-     {
-      "card_identity": "Rograkh, Son of Rohgahh",
-      "card_lineage_id": "line:obj:P2-commander",
-      "commander_id": "cmd:P2-A",
-      "controller": "P2",
-      "counters": {},
-      "face_down": false,
-      "owner": "P2",
-      "semantic_id": "obj:P2-commander",
-      "tapped": false,
-      "zone": "command"
-     },
-     {
-      "card_identity": "Rograkh, Son of Rohgahh",
-      "card_lineage_id": "line:obj:P3-commander",
-      "commander_id": "cmd:P3-A",
-      "controller": "P3",
-      "counters": {},
-      "face_down": false,
-      "owner": "P3",
-      "semantic_id": "obj:P3-commander",
-      "tapped": false,
-      "zone": "command"
-     },
-     {
-      "card_identity": "Rograkh, Son of Rohgahh",
-      "card_lineage_id": "line:obj:P4-commander",
-      "commander_id": "cmd:P4-A",
-      "controller": "P4",
-      "counters": {},
-      "face_down": false,
-      "owner": "P4",
-      "semantic_id": "obj:P4-commander",
-      "tapped": false,
-      "zone": "command"
-     },
-     {
-      "card_identity": "Bolt Bend",
-      "card_lineage_id": "line:obj:card_22-subject",
-      "controller": "P1",
-      "counters": {},
-      "face_down": false,
-      "owner": "P1",
-      "semantic_id": "obj:card_22-subject",
-      "tapped": false,
-      "zone": "hand"
-     },
-     {
-      "card_identity": "Hill Giant",
-      "card_lineage_id": "line:obj:card22-power4",
-      "controller": "P1",
-      "counters": {
-       "+1/+1": 1
-      },
-      "face_down": false,
-      "owner": "P1",
-      "semantic_id": "obj:card22-power4",
-      "tapped": false,
-      "zone": "battlefield"
-     },
-     {
-      "card_identity": "Lightning Bolt",
-      "card_lineage_id": "line:obj:card22-bolt",
-      "controller": "P2",
-      "counters": {},
-      "face_down": false,
-      "owner": "P2",
-      "semantic_id": "obj:card22-bolt",
-      "tapped": false,
-      "zone": "hand"
-     },
-     {
-      "card_identity": "Mountain",
-      "card_lineage_id": "line:obj:card_22-mana-p1-0",
-      "controller": "P1",
-      "counters": {},
-      "face_down": false,
-      "owner": "P1",
-      "semantic_id": "obj:card_22-mana-p1-0",
-      "tapped": false,
-      "zone": "battlefield"
-     },
-     {
-      "card_identity": "Mountain",
-      "card_lineage_id": "line:obj:card22-p2-mana",
-      "controller": "P2",
-      "counters": {},
-      "face_down": false,
-      "owner": "P2",
-      "semantic_id": "obj:card22-p2-mana",
-      "tapped": false,
-      "zone": "battlefield"
-     }
-    ],
-    "stack_state": []
+    ]
    },
-   "successor_requested_state_digest": "8cba2590f7da73c990f504f3a9fd4a5e371ef30c8b1f9a5d0b46bcd7135a858b"
+   "successor_requested_state_digest": "68663026e3a7d16515ef4fd75f592a3f0a47d02c87ce79f168b49f522b270a54"
   },
   {
    "append_native_procedure": [
@@ -12367,24 +12168,18 @@
      "actor": null,
      "details": {
       "authority": "#255 comment 5925956587 (SLOT-04): lossy or ambiguous fixtures are corrected and versioned rather than weakening execution; a record's decision script answers only the discretionary decisions the Rules Core itself asks, and an unscripted discretionary decision stops the row",
-      "correction": "P2, the active player, casts Lightning Bolt targeting P1 from hand with its own Mountain; P1 then casts Flare of Duplication for its alternative cost on that spell",
-      "defect": "the record places a cast spell on the stack; the engine cannot restore a stack object and a fabricated one is forbidden, so the row never reaches its obligation; the cast_alt_cost action folds the cost, the sacrifice and the target",
+      "correction": "cast for the engine's own alternative-cost offer, answer the sacrifice and the spell target on their own frames, and answer the copy's new-target choice",
+      "defect": "the record's cast_alt_cost action folds the alternative cost, the sacrifice and the target spell into one step the engine never offers, and leaves the copy's new-target choice unscripted",
       "erratum_class": "ACTUAL_CARD_DECISION_SCRIPT_ERRATUM",
-      "includes_causal_stack_entry": true,
-      "causal_stack_objects": [
-       "obj:card13-bolt"
-      ],
       "includes_lossless_library_erratum": false,
-      "includes_requested_state_addition": [
-       "obj:card13-p2-mana"
-      ],
       "obligation_changed": false,
       "prose_derived_action_injection": false,
-      "provider_semantics_used": false
+      "provider_semantics_used": false,
+      "stack_entry": "causal_stack route of the production probe; the record's stack is unchanged"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
-     "step_id": "erratum-causal-stack-card_13"
+     "step_id": "erratum-decision-script-card_13"
     }
    ],
    "authority_overlay": {
@@ -12456,94 +12251,11 @@
       }
      }
     ],
-    "predecessor_stack_state": [
-     {
-      "cast_complete": true,
-      "controller": "P2",
-      "costs_paid": true,
-      "modes": [],
-      "source_semantic_id": "obj:card13-bolt",
-      "targets": [
-       "P1"
-      ]
-     }
-    ],
-    "reason": "the record places a cast spell on the stack; the engine cannot restore a stack object and a fabricated one is forbidden, so the row never reaches its obligation; the cast_alt_cost action folds the cost, the sacrifice and the target"
+    "reason": "the record's cast_alt_cost action folds the alternative cost, the sacrifice and the target spell into one step the engine never offers, and leaves the copy's new-target choice unscripted"
    },
    "predecessor_requested_state_digest": "daa83d4be8163eb66111dff94f025c89e0895e79c85b821e90c9943b2e1176d7",
    "replace": {
-    "action_cost_state": [
-     {
-      "actor": "P2",
-      "card_identity": "Lightning Bolt",
-      "decision_index": 0,
-      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
-      "explicit_payment_sources": [
-       "obj:card13-p2-mana"
-      ],
-      "minimum_mana_or_equivalent": 1,
-      "payable": true,
-      "source_semantic_id": "obj:card13-bolt"
-     },
-     {
-      "actor": "P1",
-      "card_identity": "Flare of Duplication",
-      "decision_index": 1,
-      "evidence_basis": "ORACLE_ALTERNATIVE_COST_NONACTIVE_TURN_PLUS_NONTOKEN_RED_SACRIFICE",
-      "explicit_payment_sources": [],
-      "minimum_mana_or_equivalent": 0,
-      "payable": true,
-      "source_semantic_id": "obj:card_13-subject"
-     }
-    ],
     "decision_script": [
-     {
-      "actor": "P2",
-      "causal_step_id": "cast-bolt",
-      "decision_family": "priority",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "the spell the predecessor placed on the stack, cast causally by its controller",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "semantic_action",
-       "semantic_value": {
-        "action": "cast",
-        "object": "obj:card13-bolt"
-       }
-      }
-     },
-     {
-      "actor": "P2",
-      "causal_step_id": "target-bolt",
-      "decision_family": "target",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "the predecessor's stack target",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "semantic_player",
-       "semantic_value": "P1"
-      }
-     },
      {
       "actor": "P1",
       "causal_step_id": "cast-flare",
@@ -12637,115 +12349,9 @@
        "semantic_value": "P3"
       }
      }
-    ],
-    "semantic_objects": [
-     {
-      "card_identity": "Rograkh, Son of Rohgahh",
-      "card_lineage_id": "line:obj:P1-commander",
-      "commander_id": "cmd:P1-A",
-      "controller": "P1",
-      "counters": {},
-      "face_down": false,
-      "owner": "P1",
-      "semantic_id": "obj:P1-commander",
-      "tapped": false,
-      "zone": "command"
-     },
-     {
-      "card_identity": "Rograkh, Son of Rohgahh",
-      "card_lineage_id": "line:obj:P2-commander",
-      "commander_id": "cmd:P2-A",
-      "controller": "P2",
-      "counters": {},
-      "face_down": false,
-      "owner": "P2",
-      "semantic_id": "obj:P2-commander",
-      "tapped": false,
-      "zone": "command"
-     },
-     {
-      "card_identity": "Rograkh, Son of Rohgahh",
-      "card_lineage_id": "line:obj:P3-commander",
-      "commander_id": "cmd:P3-A",
-      "controller": "P3",
-      "counters": {},
-      "face_down": false,
-      "owner": "P3",
-      "semantic_id": "obj:P3-commander",
-      "tapped": false,
-      "zone": "command"
-     },
-     {
-      "card_identity": "Rograkh, Son of Rohgahh",
-      "card_lineage_id": "line:obj:P4-commander",
-      "commander_id": "cmd:P4-A",
-      "controller": "P4",
-      "counters": {},
-      "face_down": false,
-      "owner": "P4",
-      "semantic_id": "obj:P4-commander",
-      "tapped": false,
-      "zone": "command"
-     },
-     {
-      "card_identity": "Flare of Duplication",
-      "card_lineage_id": "line:obj:card_13-subject",
-      "controller": "P1",
-      "counters": {},
-      "face_down": false,
-      "owner": "P1",
-      "semantic_id": "obj:card_13-subject",
-      "tapped": false,
-      "zone": "hand"
-     },
-     {
-      "card_identity": "Raging Goblin",
-      "card_lineage_id": "line:obj:card13-red-creature",
-      "construction_notes": [
-       "nontoken red creature"
-      ],
-      "controller": "P1",
-      "counters": {},
-      "face_down": false,
-      "owner": "P1",
-      "semantic_id": "obj:card13-red-creature",
-      "tapped": false,
-      "zone": "battlefield"
-     },
-     {
-      "card_identity": "Lightning Bolt",
-      "card_lineage_id": "line:obj:card13-bolt",
-      "controller": "P2",
-      "counters": {},
-      "face_down": false,
-      "owner": "P2",
-      "semantic_id": "obj:card13-bolt",
-      "tapped": false,
-      "zone": "hand"
-     },
-     {
-      "card_identity": "Mountain",
-      "card_lineage_id": "line:obj:card13-p2-mana",
-      "controller": "P2",
-      "counters": {},
-      "face_down": false,
-      "owner": "P2",
-      "semantic_id": "obj:card13-p2-mana",
-      "tapped": false,
-      "zone": "battlefield"
-     }
-    ],
-    "stack_state": [],
-    "temporal_state": {
-     "active_player": "P2",
-     "extra_turn_queue": [],
-     "phase": "precombat_main",
-     "priority_player": "P2",
-     "step": "main",
-     "turn_number": 1
-    }
+    ]
    },
-   "successor_requested_state_digest": "4099c517a8935e73bb6bc2ef95464b0c72034b5de2e57f07f3960f283e176295"
+   "successor_requested_state_digest": "daa83d4be8163eb66111dff94f025c89e0895e79c85b821e90c9943b2e1176d7"
   }
  ],
  "rules_authority": {

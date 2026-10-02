@@ -439,8 +439,17 @@ class RowExecution:
     tape: list[dict[str, Any]] = field(default_factory=list)
     # Explicit typed refusals this row performed, with their no-mutation proofs.
     refusals: list[dict[str, Any]] = field(default_factory=list)
+    # A causal-stack entry's own facts: the engine-cast frames and the engine's
+    # checkpoint-equivalence verdict. Absent for a placement row.
+    causal_reconstruction: dict[str, Any] | None = None
 
     def document(self) -> dict[str, Any]:
+        document = self._base_document()
+        if self.causal_reconstruction is not None:
+            document["causal_reconstruction"] = self.causal_reconstruction
+        return document
+
+    def _base_document(self) -> dict[str, Any]:
         return {
             "fixture_id": self.fixture_id,
             "verified": self.verified,
@@ -1934,9 +1943,17 @@ def execute_row(
     record: dict[str, Any],
     created: dict[str, Any],
     spec: RowSpec,
+    causal: dict[str, Any] | None = None,
 ) -> RowExecution:
     """Arrive, execute the scripted obligation and verify it. Never raises for a
-    lane-level refusal: an unverifiable row is returned unverified with the reason."""
+    lane-level refusal: an unverifiable row is returned unverified with the reason.
+
+    ``causal`` is a causal-stack entry (its declared fuel): the record's stack is
+    never placed. After the pre-causal arrival the engine casts every stack
+    frame, and the engine's own reconstruction verdict must match the requested
+    stack exactly before the record's script runs. The tape baseline is the
+    reconstructed checkpoint, so only the obligation's own events count.
+    """
     probe = probe_module()
     fixture_id = str(record["fixture_id"])
     if not (record.get("expected_events") or {}).get("required_events") and not (
@@ -1947,6 +1964,11 @@ def execute_row(
             fixture_id, False, None, "the obligation names no required event and no terminal check"
         )
     placed = {str(k): str(v) for k, v in (created.get("placed_objects") or {}).items()}
+    causal_plan = created.get("causal_plan") or {}
+    if causal is not None:
+        placed.update(
+            {str(k): str(v) for k, v in (causal_plan.get("placed_objects") or {}).items()}
+        )
     placed.update(library_positions(record, placed))
     commanders = {str(k): str(v) for k, v in (created.get("commander_objects") or {}).items()}
     semantic_commanders = {
@@ -1969,6 +1991,38 @@ def execute_row(
             construction,
             f"construction {construction}: {list(arrival.mismatches)}",
         )
+    reconstruction: dict[str, Any] | None = None
+    if causal is not None:
+        declared_fuel = [str(card["semantic_id"]) for card in causal.get("fuel") or ()]
+        fuel = [placed[semantic] for semantic in declared_fuel if semantic in placed]
+        if len(fuel) != len(declared_fuel):
+            return RowExecution(
+                fixture_id, False, construction, "a declared fuel card was not placed"
+            )
+        try:
+            probe.causal_stack_frames(client, f"{fixture_id}-causal", causal_plan, placed, fuel)
+            verdict = probe.complete_causal(client, "stack").get("verdict") or {}
+        except ml.MidgameLaneError as exc:
+            return RowExecution(
+                fixture_id, False, construction, f"causal reconstruction failed closed: {exc}"
+            )
+        reconstruction = {
+            "entry_mode": "causal_stack",
+            "fuel": declared_fuel,
+            "frames_bottom_to_top": [
+                str(frame.get("semantic_id"))
+                for frame in causal_plan.get("frames_bottom_to_top") or ()
+            ],
+            "verdict": verdict,
+        }
+        if not verdict.get("causal_match") or verdict.get("mismatches"):
+            return RowExecution(
+                fixture_id,
+                False,
+                construction,
+                f"the causal reconstruction does not match the requested stack: {verdict}",
+                causal_reconstruction=reconstruction,
+            )
     baseline = 0 if spec.observe_from_game_start else int(client.events(0)["latest_offset"])
     script = list(record.get("decision_script") or ())
     sources = [placed[s] for s in spec.mana_sources if s in placed]
@@ -2304,6 +2358,7 @@ def execute_row(
         decision_trace=[frame.__dict__ for frame in trace],
         tape=tape,
         refusals=refusals,
+        causal_reconstruction=reconstruction,
     )
 
 

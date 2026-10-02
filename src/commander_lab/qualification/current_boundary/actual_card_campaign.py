@@ -1049,7 +1049,8 @@ PLANS: dict[str, ObligationPlan] = {
             ),
         ),
     ),
-    # Bolt Bend: P2's Lightning Bolt is cast causally at P1; Bolt Bend costs {3}
+    # Bolt Bend: the causal-stack entry reconstructs P2's Lightning Bolt at P1 on
+    # the stack (the engine casts it and verifies the position); Bolt Bend costs {3}
     # less with P1's 4-power creature (the engine's own payment frame), targets
     # that spell and the engine's new-target choice names P3. The Bolt then deals
     # its 3 damage to P3 and none to P1: same spell, same mode, new target.
@@ -1103,11 +1104,12 @@ PLANS: dict[str, ObligationPlan] = {
             ),
         ),
     ),
-    # Flare of Duplication for its alternative cost: the engine's own cost offer
-    # and the sacrifice of the red creature; the engine copies P2's Lightning
-    # Bolt (COPIED_STACKOBJECT, never a SPELL_CAST), the copy's target changes to
-    # P3 on the engine's own frames, and the copy deals its 3 damage to P3 while
-    # the original Bolt still deals its 3 to P1.
+    # Flare of Duplication for its alternative cost, after the causal-stack entry
+    # reconstructed P2's Lightning Bolt on the stack: the engine's own cost offer
+    # and the sacrifice of the red creature; the engine copies the Bolt
+    # (COPIED_STACKOBJECT, never a SPELL_CAST), the copy's target changes to P3
+    # on the engine's own frames, and the copy deals its 3 damage to P3 while the
+    # original Bolt still deals its 3 to P1.
     "CARD_13": ObligationPlan(
         fixture_id="CARD_13",
         proofs=(
@@ -1134,11 +1136,13 @@ PLANS: dict[str, ObligationPlan] = {
             ),
             PostconditionProof(
                 "Creating the copy did not create a cast event.",
-                terminal_check=_events("SPELL_CAST", ("source_name", "Lightning Bolt"), count=1),
+                # From the reconstructed checkpoint on (P2's Bolt already cast
+                # and verified on the stack), the only cast is Flare's own: the
+                # copy reports COPIED_STACKOBJECT and no SPELL_CAST.
+                terminal_check=_events("SPELL_CAST", ("source_name", "Lightning Bolt"), count=0),
                 also=(
-                    _events(
-                        "SPELL_CAST", ("source_object", "obj:card13-bolt"), ("player_player", "P2")
-                    ),
+                    _events("SPELL_CAST", ("source_object", "obj:card_13-subject"), count=1),
+                    _events("SPELL_CAST", count=1),
                 ),
             ),
         ),
@@ -1168,6 +1172,80 @@ PLANS: dict[str, ObligationPlan] = {
                         ("target_player", "P3"),
                         count=1,
                     ),
+                ),
+            ),
+        ),
+    ),
+    # Syphon Mind cast causally by P1: each other player discards the card the
+    # record names on its own engine frame, and P1 draws one card per discard;
+    # every move is attributed to Syphon Mind on the engine's tape.
+    "CARD_20": ObligationPlan(
+        fixture_id="CARD_20",
+        proofs=(
+            PostconditionProof(
+                "Exactly three cards were discarded this way and P1 drew exactly three cards.",
+                terminal_check=_events(
+                    "ZONE_CHANGE",
+                    ("source_object", "obj:card_20-subject"),
+                    ("from", "HAND"),
+                    ("to", "GRAVEYARD"),
+                    count=3,
+                ),
+                also=(
+                    _events(
+                        "ZONE_CHANGE",
+                        ("source_object", "obj:card_20-subject"),
+                        ("player_player", "P1"),
+                        ("from", "LIBRARY"),
+                        ("to", "HAND"),
+                        count=3,
+                    ),
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "discard:P2:1",
+                _events(
+                    "ZONE_CHANGE",
+                    ("source_object", "obj:card_20-subject"),
+                    ("player_player", "P2"),
+                    ("from", "HAND"),
+                    ("to", "GRAVEYARD"),
+                    count=1,
+                ),
+            ),
+            (
+                "discard:P3:1",
+                _events(
+                    "ZONE_CHANGE",
+                    ("source_object", "obj:card_20-subject"),
+                    ("player_player", "P3"),
+                    ("from", "HAND"),
+                    ("to", "GRAVEYARD"),
+                    count=1,
+                ),
+            ),
+            (
+                "discard:P4:1",
+                _events(
+                    "ZONE_CHANGE",
+                    ("source_object", "obj:card_20-subject"),
+                    ("player_player", "P4"),
+                    ("from", "HAND"),
+                    ("to", "GRAVEYARD"),
+                    count=1,
+                ),
+            ),
+            (
+                "draw:P1:3",
+                _events(
+                    "ZONE_CHANGE",
+                    ("source_object", "obj:card_20-subject"),
+                    ("player_player", "P1"),
+                    ("from", "LIBRARY"),
+                    ("to", "HAND"),
+                    count=3,
                 ),
             ),
         ),
@@ -1872,6 +1950,15 @@ class RowMeasurement:
         }
 
 
+def causal_entry(fixture_id: str) -> dict[str, Any] | None:
+    """The production probe's declared causal-stack entry for a row, or None."""
+    rows = getattr(midgame_rows_mod.probe_module(), "CAUSAL_ROWS", {}) or {}
+    entry = rows.get(fixture_id)
+    if not isinstance(entry, dict) or entry.get("entry_mode") != "causal_stack":
+        return None
+    return dict(entry)
+
+
 def measure_row(
     client: ml.MidgameLaneClient,
     row: CardRow,
@@ -1889,12 +1976,19 @@ def measure_row(
     started = time.time()
     record = dict(row.record)
     game_id = f"af07-{row.fixture_id}"
-    request = {
+    request: dict[str, Any] = {
         "game_id": game_id,
         "plan_id": game_id,
         "seed": seed,
         "requested_starting_state": record,
     }
+    # A row whose record places spells on the stack enters through the
+    # production probe's declared causal-stack route (its fuel is declared there
+    # and published); the engine casts the frames and verifies the position.
+    causal = causal_entry(row.fixture_id)
+    if causal is not None:
+        request["entry_mode"] = "causal_stack"
+        request["fuel"] = list(causal.get("fuel") or ())
     dimension_manifest: Mapping[str, Any] | None = None
     try:
         client.request("get_provider_version", None)
@@ -1932,7 +2026,9 @@ def measure_row(
             elapsed_s=round(time.time() - started, 3),
         )
     spec = derive_row_spec(record, plan)
-    execution = midgame_rows_mod.execute_row(client, record, created.get("payload") or {}, spec)
+    execution = midgame_rows_mod.execute_row(
+        client, record, created.get("payload") or {}, spec, causal=causal
+    )
     document = execution.document()
     return RowMeasurement(
         fixture_id=row.fixture_id,

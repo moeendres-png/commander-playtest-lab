@@ -821,3 +821,29 @@ def test_a_vocabulary_binding_and_its_cost_obligation_reach_the_row_spec() -> No
     }
     # A row with no plan carries no cost declaration.
     assert campaign.derive_row_spec(record, None).cost_obligation is None
+
+
+def test_stack_rows_enter_through_the_declared_causal_stack_route() -> None:
+    """A record that places spells on the stack is never placed with them: it
+    enters through the production probe's declared causal-stack route, whose
+    fuel is declared there; a placement row has no causal entry."""
+    for fixture_id in ("CARD_13", "CARD_20", "CARD_22"):
+        entry = campaign.causal_entry(fixture_id)
+        assert entry is not None and entry["entry_mode"] == "causal_stack"
+        assert entry["fuel"], fixture_id
+    assert campaign.causal_entry("CARD_02") is None
+    assert campaign.causal_entry("CARD_26") is None
+
+
+def test_a_causal_reconstruction_is_its_own_receipt_fact() -> None:
+    placement = midgame_rows_mod.RowExecution("CARD_02", True, "EXACT", "ok")
+    assert "causal_reconstruction" not in placement.document()
+    verdict = {"causal_match": True, "mismatches": [], "frames_verified": 1}
+    causal = midgame_rows_mod.RowExecution(
+        "CARD_22",
+        True,
+        "EXACT",
+        "ok",
+        causal_reconstruction={"entry_mode": "causal_stack", "verdict": verdict},
+    )
+    assert causal.document()["causal_reconstruction"]["verdict"] == verdict
