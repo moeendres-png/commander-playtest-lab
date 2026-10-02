@@ -1506,6 +1506,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public void shuffleLibrary(Ability source, Game game) {
         super.shuffleLibrary(source, game);
+        if (game != null && !game.isSimulation()) {
+            XmageFullGameStateRedactor.recordLibraryShuffle(game, getId());
+        }
     }
 
     /**
