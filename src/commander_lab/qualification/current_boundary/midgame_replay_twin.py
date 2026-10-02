@@ -606,10 +606,12 @@ def _submit(
     ]
     if len(actions) != 1:
         raise ReplayTwinRowError(f"a replayed proposal matched {len(actions)} engine actions")
+    # Exactly one engine action carries the recorded selection; never a first match.
+    (matched,) = actions
     probe.submit_proposal(
         client,
         legal,
-        actions[0],
+        matched,
         f"af09-replay-{len(client.checkpoints)}",
         selected_option_ids=option_ids if len(option_ids) > 1 else None,
     )
