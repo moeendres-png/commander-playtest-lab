@@ -4,7 +4,7 @@ worktree: /home/moeen/code/lab-af09-replay-twins-20261001
 branch: hardening/af09-replay-twins-20261001
 audit_base_sha: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
 audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552
-state_written_against_head: b58e499362a64a808ba4454c180d584e6d0027f0
+state_written_against_head: 0c6a3dd5211794ce10ad97d3eddb43eb718b7d70
 validated_head: b58e499362a64a808ba4454c180d584e6d0027f0
 
 objective: >-
