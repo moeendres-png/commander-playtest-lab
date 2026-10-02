@@ -476,9 +476,7 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
             "selected_option_id": "controlled-pass",
             "accepted": True,
         }
-        tape.append(
-            _entry("get_midgame_decision", None, _ok({"decision": controlled_decision}))
-        )
+        tape.append(_entry("get_midgame_decision", None, _ok({"decision": controlled_decision})))
         tape.append(
             _entry(
                 "submit_midgame_decision",
@@ -1323,9 +1321,7 @@ def test_final_state_without_a_new_native_shuffle_event_is_unverified(
 ) -> None:
     def mutate(capture: kp.Capture) -> None:
         capture.events["events"] = [
-            event
-            for event in capture.events["events"]
-            if event.get("type") != "LIBRARY_SHUFFLED"
+            event for event in capture.events["events"] if event.get("type") != "LIBRARY_SHUFFLED"
         ]
 
     verdict = _verdict(records, "HIDDEN_11", mutate)
