@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.308,
+  "elapsed_s": 8.496,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "3904c3ee53e675b5007bd86086fca81c92f614cc68b87c54c8249779c4debdf6",
+        "decision_id": "8d011b1a62289a2dc3b961f65c4ee9eefc320c20eea647f8bc2d9af6e54a7f40",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -41,509 +41,26 @@
         "prompt": "Choose priority action",
         "refusal_kind": null,
         "refused": false,
-        "scripted": false,
+        "scripted": true,
         "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "b64d32485c2bfee84d71fe7317e7238a2b829662812f751de6605fda2fd4b788",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
+        "selected_label": "Burn Down the House \u2014 Cast Burn Down the House",
+        "selected_option_ids": [
+          "a4531183c0ed20950196e598c509a80bcd96e519684dd0d6336788608e08b731"
         ],
-        "principal": "P2",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
         "selected_option_type": null,
-        "selected_source_object": null
+        "selected_source_object": "ce2b00b6-fef4-45f8-a5c2-bcc6f535577e"
       },
       {
         "context": {},
-        "decision_class": "priority",
-        "decision_id": "3672455daa868477013353e24d11b1a2db8bfc9117e89e35b8845c456627ef0c",
+        "decision_class": "mode",
+        "decision_id": "45bf98a0b5347778dac1bf52dd0d3b0567a427c457941ee64444d601cf2d8ebd",
         "numeric": null,
         "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P3",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "78fa2025fa69b57cba9a1a3127548dd716ddf25f29e5304edb1c62d218601543",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P4",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "399ad8af22a5c6d165f1f8eb55668951e14c5bc847e9d11929ba0995673403ea",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}."
+          "{this} deals 5 damage to each creature and each planeswalker.",
+          "create three 1/1 red Devil creature tokens with \"When this creature dies, it deals 1 damage to any target.\" They gain haste until end of turn."
         ],
         "principal": "P1",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "d9e63189b9bd8e554aea714067f2ae89438b0df497fba243c7e28997f57248a7",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P2",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "c57f72df4044fcd8a32af5410d5150ec9cf2eb426eb996c77a8ce2cd29dc28d8",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P3",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "b2d2bede2b564e87dde1a7f25fded009c4b94616667cfc8a4a6a3ef535ea2176",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P4",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "8bf1a9dfbec42fe74f6be4de88c637988bde7a09490f6ebc5e9073cde8da2599",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}."
-        ],
-        "principal": "P1",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "51101d6a352efdfe89c89f3247ed712958c9fda9ce7ebcfb3cf795b24b39b4a9",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P2",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "f4f32d9892d43d0f1da1107969a510ce9cdd94209aa262d443fb0145c0b3855b",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P3",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "d731c084274901acc6fe96ca01d75270b7d307bb141e7c45bf71ad3bbb58b798",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P4",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "db3629a629029995017aab124c639418c68ffbbfd248af2762edf67e9fb6b5ca",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}."
-        ],
-        "principal": "P1",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "e4eb34b8e548aef3212fbd8c470d11f3a383dd85fc7977993e96d5e25d99d294",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P2",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "becb48cb8947bb6abde26231f203fc1c889768bb2cfd1448def8270e118ad285",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P3",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "fba6169875bc900265a273ba930254c64d89dfff55198d85f1dc3959a3c77f52",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P4",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "2c6be0bd526381a30a88dc825a36f6b118a4c8135f3720f20699f82dc7f10efc",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Rograkh, Son of Rohgahh \u2014 Cast Rograkh, Son of Rohgahh",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Mountain \u2014 Play Mountain",
-          "Burn Down the House \u2014 Cast Burn Down the House",
-          "Mountain \u2014 Play Mountain"
-        ],
-        "principal": "P1",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "1284ca36bca5743cd6eecc8b4461ef21c5fd3a40523b7e832eeb80720ba0a2ae",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P2",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "cee2dd81fd8465b05d3c5734ac98ed17e848233f3a79c975721bd4128ebfc4e1",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P3",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "c2548a0784fe8ec142d3c1965996131ba1de9568bd5bfdb03e2fd0c8744f2fbf",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P4",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "bdbd1a62165011a4c8b57e8f429791fc5cc5c212e6b7ed33f6633f1e5cd98d66",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}.",
-          "Mountain \u2014 {T}: Add {R}."
-        ],
-        "principal": "P1",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "d9a08d8fbad57f7d0568f52ff0ccefb52c0e1e7867d5779f0531607ba52529ac",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P2",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "501769af9066214882e319a3f3c2a9593f52ee49cfad5920ffd3ab294acabc70",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P3",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {},
-        "decision_class": "priority",
-        "decision_id": "3d368fd2a0d0c24b2f0f5edbd9888ce8a60afa955d1672aea14fb8a09a65cf77",
-        "numeric": null,
-        "offered_labels": [
-          "Pass priority"
-        ],
-        "principal": "P4",
-        "prompt": "Choose priority action",
-        "refusal_kind": null,
-        "refused": false,
-        "scripted": false,
-        "selected_key": null,
-        "selected_label": null,
-        "selected_option_ids": [],
-        "selected_option_type": null,
-        "selected_source_object": null
-      },
-      {
-        "context": {
-          "outcome": "discard",
-          "required": true,
-          "target_description": "two target card to discard",
-          "target_name": "card to discard",
-          "targeted": false
-        },
-        "decision_class": "choose_object",
-        "decision_id": "01487da9a0820fd85e7835a676ba75d284389f253637caeef6943fe6f1b0ae8d",
-        "numeric": null,
-        "offered_labels": [
-          "Mountain",
-          "Mountain",
-          "Mountain",
-          "Mountain",
-          "Mountain",
-          "Mountain",
-          "Mountain",
-          "Burn Down the House",
-          "Mountain"
-        ],
-        "principal": "P1",
-        "prompt": "Select card to discard (selected 0 of 2, min 2)",
+        "prompt": "choose one &mdash;<br>&bull {this} deals 5 damage to each creature and each planeswalker.<br>&bull Create three 1/1 red Devil creature tokens with \"When this creature dies, it deals 1 damage to any target.\" They gain haste until end of turn.<br>",
         "refusal_kind": null,
         "refused": false,
         "scripted": false,
@@ -554,7 +71,7 @@
         "selected_source_object": null
       }
     ],
-    "detail": "unscripted choose_object for P1: the row stops unverified",
+    "detail": "execution failed closed: mode key 'create_devils' has no binding for this row",
     "fixture_id": "CARD_26",
     "missing_tokens": [
       "modal_choice:devils",
@@ -562,7 +79,24 @@
       "grant_haste_until_EOT"
     ],
     "refusals": [],
-    "tape": [],
+    "tape": [
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "HAND",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 7,
+        "source_name": "Burn Down the House",
+        "source_object": "obj:card_26-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Burn Down the House",
+        "target_object": "obj:card_26-subject",
+        "to": "STACK",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      }
+    ],
     "terminal_facts": {},
     "token_evidence": {},
     "verified": false

@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 7.933,
+  "elapsed_s": 9.465,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "0ea60bb4771b2074272ef206ba247e03d8799d7028a0b320e8f24ccd981880fa",
+        "decision_id": "3ffcc19407e3e92035747c0d2be5bd074ba6c33cf8a3375936e331ca2d0e483b",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -49,10 +49,10 @@
         "selected_key": null,
         "selected_label": "Magma Opus \u2014 Cast Magma Opus",
         "selected_option_ids": [
-          "9ba1802b46211645770c7236759d7124233f0c2af2eeacd126bea06fb6842d27"
+          "5a71925facd52616cea7ecc07c97479ed2dd6790b927b6e29a3f7b1f3a5f0734"
         ],
         "selected_option_type": null,
-        "selected_source_object": "790a76da-8f4c-4b74-8c9b-5f29b5e9485c"
+        "selected_source_object": "8fd7c194-e4a8-4862-8197-016241384834"
       },
       {
         "context": {
@@ -62,7 +62,7 @@
           "outcome": "damage"
         },
         "decision_class": "target_amount",
-        "decision_id": "b31c4a79ef5886df307e5d1c63b5b6db96f174778626dc83183d004e9905e68e",
+        "decision_id": "3cf82f59bd68d063edcdf7363885bc11d8ac094886ab76ef7fe6e47f9a11f911",
         "numeric": 2,
         "offered_labels": [
           "Full Game Seat 1",
@@ -79,7 +79,7 @@
         "selected_key": "P2",
         "selected_label": "Full Game Seat 2",
         "selected_option_ids": [
-          "d0c1a034-7211-44b2-9ba3-13177f9b4ee8"
+          "5f444c90-bd39-469b-8dfb-1b5ad13f72d1"
         ],
         "selected_option_type": null,
         "selected_source_object": null
@@ -92,7 +92,7 @@
           "outcome": "damage"
         },
         "decision_class": "target_amount",
-        "decision_id": "7882e87fe9b05a76f93d836b84895e2e85aa099d2e9aa3ae5b3a2996827067c1",
+        "decision_id": "a5337681513fa3f900e44f5fb488c2ba770c491ec96e380b428ed3ac90e6ce9d",
         "numeric": 2,
         "offered_labels": [
           "Full Game Seat 1",
@@ -108,7 +108,7 @@
         "selected_key": "obj:card09-p3-creature",
         "selected_label": "Grizzly Bears",
         "selected_option_ids": [
-          "aa1f41c2-9b24-482c-b43e-8ad64910079d"
+          "d5457666-29e6-4eae-bc6f-221d3d0d7035"
         ],
         "selected_option_type": null,
         "selected_source_object": null
@@ -122,7 +122,7 @@
           "targeted": true
         },
         "decision_class": "target",
-        "decision_id": "f8667e75f0819cac22047a71f1ba3ce58795033dd3984b777bd73df85cd92c8b",
+        "decision_id": "6d179f6a4afd9f840466c1ff17e7293a9c4445526b2522d1a5e193e965f1ab77",
         "numeric": null,
         "offered_labels": [
           "Grizzly Bears",
@@ -141,6 +141,527 @@
         "prompt": "Select permanents (selected 0 of 2, min 2) (tap)",
         "refusal_kind": null,
         "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Sol Ring",
+        "selected_option_ids": [
+          "0e8f8d72-71e0-4791-9f71-5c30bd6973db",
+          "5d916547-4232-4586-9ed8-3ae2beaae408"
+        ],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{6}{U}{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "dcdf6bff3cf75a96a4b6b45b9449c4575b640190518a3c46f3878b0005ac6a1e",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{6}{U}{R}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "8909dd18f9906535e79dabbe99e85ac448a828b49c9ce80b934ce02d362741ea"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{6}{U}{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "79828fb3a8e4cbfbb23b84fd888b4a2055e44069e9cfb193e2a9116873403ff9",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{6}{U}{R}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{6}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "e81fdbbd508c1abd68629f5a166065a81dc8506dc5877c82ebc756c9ef4b51b8",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{6}{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "514e88d0e110f4e71f9b7a648cbe2cb784822bae3dbe5ff093f9b32f0170920c"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{6}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "463517e09a4bd2aa9212641977c026d8e099748c918f0008cadbc67c58374720",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{6}{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{5}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "4e88f42e433744bae55c34a688fa96a1e40003f5f18ca157e72cda9ba161816b",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{5}{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "67d2f84d1383c32b343179baf38a5370927157db199d821e2018be27d2fe0a32"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{5}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "5439e522dd25872f83c420a685ff32a9442578661576fca5bc6b19d57057c8e8",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{5}{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{4}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "a7b94bcea967f42e7a2ff803de8c9f0ed4f9314404f4b88e56e44c90c28dfa1c",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{4}{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "16554cd4bf2e5b59dacb8fbfe078cad0b4fb5296be348308f5d4042e8da40942"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{4}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "2217514837482bf8f49857e6b76360d455066a14ba397ae5c402401db665ffff",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{4}{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{3}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "c366ebda608cf8c6dd29a3f8e1d9b67388b730e6a2582135e5a9781bcd0ad5b3",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{3}{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "0bd8afac1789456ceca4ed6d09b032b8210012f1fe8c4b67a24ff09a9f8b385c"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{3}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "3573af0a3d37fc47e5507a0be64788cec97a9b9f2e6b7f1628003e643b1779e4",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{3}{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "5023b19ae05716d8cd03a51b091f539f2bfebec138ecec0da979bd26d862733e",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "268da1f01f1e6d3644c4f5ebe9e92a2ada45940b64cc4d5a7e6aa189d27da58e"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{2}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "770b2ad4d5d91c04fc034065710f83636ead818429a3e45606a500c9fc8871aa",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{2}{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "bb2653625fb5d181135ebedea24ef1c80e69f097a4b387761aa1ea47b54fc8a1",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}.",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "d0c93e55a077038fd18a5c725875eaed45330c1918effeeedd645a92affcf725"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{1}{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "df8b40db08e76168120dfc2bee11274b22bb1301829be7fd521b061ba0a1b0ec",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool",
+          "Island \u2014 {T}: Add {U}."
+        ],
+        "principal": "P1",
+        "prompt": "{1}{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "2cdeb003ece7b2172486f45b49eff28fa238ecbd1a13a026d79208a889e0e71e",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Island \u2014 {T}: Add {U}."
+        ],
+        "principal": "P1",
+        "prompt": "{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Island \u2014 {T}: Add {U}.",
+        "selected_option_ids": [
+          "7d0c9b8fecca6c1e1a5fb4533d6a32315da781ee0f5d310662f7ac2de55a3703"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{U}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "a386c2890f08d6efeddfd043041a97b3245bdfb77dd7e0edcb14742d63424853",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend blue mana from pool"
+        ],
+        "principal": "P1",
+        "prompt": "{U}<div style='font-size:11pt'><font color='#DAA520' object_id='8fd7c194-e4a8-4862-8197-016241384834'>Magma Opus</font> [8fd]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend blue mana from pool",
+        "selected_option_ids": [
+          "dbdec347cd4f2112d9f40fce5f0fdc80218bee7d96734f208ee0d3615cfabd39"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "faac7f9ac9b26fbaa74e116f325eef4e259cbf0efe4107d837860aaba8aa9af9",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "4bc6fd672cff622f7f442c6fdc5be5df0c84022df6387c173d506e72e2c22eec",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "4c6a8b7291c4c786af04fef81fed94f87214a29ee015afda3985e0bc6adcba5c",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "668a7e738a7863c90b90d7c7f27f2766e8cfb536c2c08f4569694063b793840e",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority",
+          "Mountain \u2014 {T}: Add {R}.",
+          "Sol Ring \u2014 {T}: Add {C}{C}."
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
@@ -149,16 +670,9 @@
         "selected_source_object": null
       }
     ],
-    "detail": "unscripted target for P1: the row stops unverified",
+    "detail": "obligation observed",
     "fixture_id": "CARD_09",
-    "missing_tokens": [
-      "damage:P2:2",
-      "damage:obj:card09-p3-creature:2",
-      "tap:obj:card09-p4-a",
-      "tap:obj:card09-p4-b",
-      "token_created:4/4_Elemental",
-      "draw:P1:2"
-    ],
+    "missing_tokens": [],
     "refusals": [],
     "tape": [
       {
@@ -176,11 +690,196 @@
         "to": "STACK",
         "turn": 1,
         "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Magma Opus",
+        "source_object": "obj:card_09-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Magma Opus",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 2,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Magma Opus",
+        "source_object": "obj:card_09-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "LOST_LIFE"
+      },
+      {
+        "amount": 2,
+        "combat": false,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Magma Opus",
+        "source_object": "obj:card_09-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_player": "P2",
+        "turn": 1,
+        "type": "DAMAGED_PLAYER"
+      },
+      {
+        "amount": 2,
+        "combat": false,
+        "flag": false,
+        "player_player": "P3",
+        "public_identity": true,
+        "sequence": 11,
+        "source_name": "Magma Opus",
+        "source_object": "obj:card_09-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card09-p3-creature",
+        "turn": 1,
+        "type": "DAMAGED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "OUTSIDE",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 12,
+        "source_name": "Magma Opus",
+        "source_object": "obj:card_09-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Elemental Token",
+        "to": "BATTLEFIELD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 13,
+        "source_name": "Magma Opus",
+        "source_object": "obj:card_09-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Elemental Token",
+        "turn": 1,
+        "type": "CREATED_TOKEN"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 14,
+        "step": "PRECOMBAT_MAIN",
+        "to": "HAND",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "LIBRARY",
+        "player_player": "P1",
+        "public_identity": false,
+        "sequence": 15,
+        "step": "PRECOMBAT_MAIN",
+        "to": "HAND",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "STACK",
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 16,
+        "source_name": "Magma Opus",
+        "source_object": "obj:card_09-subject",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Magma Opus",
+        "target_object": "obj:card_09-subject",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P3",
+        "public_identity": true,
+        "sequence": 17,
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card09-p3-creature",
+        "turn": 1,
+        "type": "DESTROYED_PERMANENT"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "from": "BATTLEFIELD",
+        "player_player": "P3",
+        "public_identity": true,
+        "sequence": 18,
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Grizzly Bears",
+        "target_object": "obj:card09-p3-creature",
+        "to": "GRAVEYARD",
+        "turn": 1,
+        "type": "ZONE_CHANGE"
       }
     ],
-    "terminal_facts": {},
-    "token_evidence": {},
-    "verified": false
+    "terminal_facts": {
+      "Mountain on P4's battlefield is tapped=True": true,
+      "P1 moved exactly 2 card(s) from library to hand": true,
+      "P2 is at 38 life": true,
+      "Sol Ring on P4's battlefield is tapped=True": true,
+      "every Elemental Token on P1's battlefield is 4/4": true,
+      "every Elemental Token on P1's battlefield is blue/red": true,
+      "exactly 1 Elemental Token token(s) were created": true
+    },
+    "token_evidence": {
+      "damage:P2:2": {
+        "events": [
+          10
+        ]
+      },
+      "damage:obj:card09-p3-creature:2": {
+        "binding": "at least one DAMAGED_PERMANENT event(s) with target_object=obj:card09-p3-creature, amount=2",
+        "events": [
+          11
+        ]
+      },
+      "draw:P1:2": {
+        "binding": "P1 moved exactly 2 card(s) from library to hand",
+        "observation": "engine terminal observation"
+      },
+      "tap:obj:card09-p4-a": {
+        "binding": "Sol Ring on P4's battlefield is tapped=True",
+        "observation": "engine terminal observation"
+      },
+      "tap:obj:card09-p4-b": {
+        "binding": "Mountain on P4's battlefield is tapped=True",
+        "observation": "engine terminal observation"
+      },
+      "token_created:4/4_Elemental": {
+        "binding": "exactly 1 Elemental Token token(s) were created",
+        "observation": "engine terminal observation"
+      }
+    },
+    "verified": true
   },
   "fixture_id": "CARD_09",
   "phase": "EXECUTED",

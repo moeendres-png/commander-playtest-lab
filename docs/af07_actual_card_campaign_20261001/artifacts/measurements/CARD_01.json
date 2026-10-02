@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "ALLOWED_VARIANCE",
   "creation_errors": [],
-  "elapsed_s": 29.303,
+  "elapsed_s": 31.373,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "960385e0c86f426ecb39ff2f87db170fcf20b20b6cb1a9e890d04a57181b5f9b",
+        "decision_id": "595b687f22cd42c25930c5bf85fbfd40098161c02c5870d05c4959954a77d37d",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -45,7 +45,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "60af68fa8083a4e249bc7fa453e857892f4b7418c7ac5b4791275e7a7b654ad9",
+        "decision_id": "ed7333729057e7663a936b96fe32f17e17d1eddbb5cdcb3ed59e87571304d53a",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -60,10 +60,10 @@
         "selected_key": null,
         "selected_label": "Lightning Bolt \u2014 Cast Lightning Bolt",
         "selected_option_ids": [
-          "02fe7bc96d2a81d7c0257e24a0b95396552ae809ca296523be42470ee5d075e0"
+          "3b7846998714d0c131508aa885d69d50584dcb99e3b131eb09b3e6913fd0d8d9"
         ],
         "selected_option_type": null,
-        "selected_source_object": "53772368-1706-493c-b21b-6276f9a713f0"
+        "selected_source_object": "982bdb05-83d4-427f-b93f-f83ab8f557e7"
       },
       {
         "context": {
@@ -74,7 +74,7 @@
           "targeted": true
         },
         "decision_class": "target",
-        "decision_id": "ee7ef3c242bde6cba261c376e7c2e4b47d1a47cccd3ce1f971b3697cd8f4e857",
+        "decision_id": "d95edc1a15f23b21463cdc225024f5f43d5db76487da538c1f2d3913776491a1",
         "numeric": null,
         "offered_labels": [
           "Full Game Seat 1",
@@ -87,6 +87,130 @@
         "prompt": "Select any target",
         "refusal_kind": null,
         "refused": false,
+        "scripted": true,
+        "selected_key": null,
+        "selected_label": "Full Game Seat 3",
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "3055b91914070ecb7b75cbcd20209d2af1a3c83cbd4a7f251a92de4a3444eb25",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Mountain \u2014 {T}: Add {R}."
+        ],
+        "principal": "P2",
+        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='982bdb05-83d4-427f-b93f-f83ab8f557e7'>Lightning Bolt</font> [982]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Mountain \u2014 {T}: Add {R}.",
+        "selected_option_ids": [
+          "c05100a75cfef8a4e097e341fbd927480d219b6cc124c91347933463e301bb32"
+        ],
+        "selected_option_type": "mana_ability",
+        "selected_source_object": null
+      },
+      {
+        "context": {
+          "unpaid_mana": "{R}"
+        },
+        "decision_class": "mana_payment",
+        "decision_id": "8fca58204968299446dccbd09ddcc37704f5b90b075462c5f6c41174ddd24861",
+        "numeric": null,
+        "offered_labels": [
+          "Cancel mana payment",
+          "Spend red mana from pool"
+        ],
+        "principal": "P2",
+        "prompt": "{R}<div style='font-size:11pt'><font color='#FF6347' object_id='982bdb05-83d4-427f-b93f-f83ab8f557e7'>Lightning Bolt</font> [982]</div>",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": "Spend red mana from pool",
+        "selected_option_ids": [
+          "c59fb8a96e3b0ae3be19f778dd96f8ee14c8f04eeab686c4b5f3232bcf5cac36"
+        ],
+        "selected_option_type": "mana_pool",
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "57293741e19511c67df9916c70b92a8ab3384bb0e45fd79fa89633e45fdd8047",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P2",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "b0ea863fc90c43fc4b130336d317990a378092963ac3ed6597feaf7a0ff48dd8",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P3",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "6bf26f16c2829490660794d7bc9d8977f636ae1aabb5ef54a03d68e91fd1de31",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P4",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
+        "scripted": false,
+        "selected_key": null,
+        "selected_label": null,
+        "selected_option_ids": [],
+        "selected_option_type": null,
+        "selected_source_object": null
+      },
+      {
+        "context": {},
+        "decision_class": "priority",
+        "decision_id": "0983bab3fe55ef15e1703939ac74c7bfc21d6d9437c4ee08dbb63739a437232c",
+        "numeric": null,
+        "offered_labels": [
+          "Pass priority"
+        ],
+        "principal": "P1",
+        "prompt": "Choose priority action",
+        "refusal_kind": null,
+        "refused": false,
         "scripted": false,
         "selected_key": null,
         "selected_label": null,
@@ -95,13 +219,9 @@
         "selected_source_object": null
       }
     ],
-    "detail": "unscripted target for P2: the row stops unverified",
+    "detail": "obligation observed",
     "fixture_id": "CARD_01",
-    "missing_tokens": [
-      "spell_cast:P2",
-      "trigger:Ishai",
-      "counter_change:+1/+1:+1"
-    ],
+    "missing_tokens": [],
     "refusals": [],
     "tape": [
       {
@@ -119,11 +239,72 @@
         "to": "STACK",
         "turn": 1,
         "type": "ZONE_CHANGE"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P2",
+        "public_identity": true,
+        "sequence": 8,
+        "source_name": "Lightning Bolt",
+        "source_object": "obj:card01-bolt",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Lightning Bolt",
+        "turn": 1,
+        "type": "SPELL_CAST"
+      },
+      {
+        "amount": 0,
+        "flag": false,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 9,
+        "source_name": "Ishai, Ojutai Dragonspeaker",
+        "source_object": "obj:card01-ishai",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "stack ability (Whenever an opponent casts a spell, put a +1/+1 counter on {this}.)",
+        "turn": 1,
+        "type": "TRIGGERED_ABILITY"
+      },
+      {
+        "amount": 1,
+        "data": "+1/+1",
+        "flag": true,
+        "player_player": "P1",
+        "public_identity": true,
+        "sequence": 10,
+        "source_name": "Ishai, Ojutai Dragonspeaker",
+        "source_object": "obj:card01-ishai",
+        "step": "PRECOMBAT_MAIN",
+        "target_name": "Ishai, Ojutai Dragonspeaker",
+        "target_object": "obj:card01-ishai",
+        "turn": 1,
+        "type": "COUNTER_ADDED"
       }
     ],
-    "terminal_facts": {},
-    "token_evidence": {},
-    "verified": false
+    "terminal_facts": {
+      "every Ishai, Ojutai Dragonspeaker on P1's battlefield has counters {'+1/+1': 1}": true
+    },
+    "token_evidence": {
+      "counter_change:+1/+1:+1": {
+        "binding": "exactly 1 COUNTER_ADDED event(s) with target_object=obj:card01-ishai, data=+1/+1, amount=1",
+        "events": [
+          10
+        ]
+      },
+      "spell_cast:P2": {
+        "binding": "at least one SPELL_CAST event(s) with player_player=P2",
+        "events": [
+          8
+        ]
+      },
+      "trigger:Ishai": {
+        "events": [
+          9
+        ]
+      }
+    },
+    "verified": true
   },
   "fixture_id": "CARD_01",
   "phase": "EXECUTED",

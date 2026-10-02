@@ -59,8 +59,40 @@ class TerminalCheck:
     value: Any = None
     source_name: str | None = None
     card_identity: str | None = None
+    # Event-pattern checks: the engine event type and the field constraints an
+    # event must meet. A key ending in ``~`` matches a name by prefix (as the
+    # trigger tokens do); every other key must equal the value exactly.
+    event_type: str | None = None
+    where: tuple[tuple[str, Any], ...] = ()
+    # Decision-frame checks: text the engine's own selected offer label contains.
+    label: str | None = None
 
     def describe(self) -> str:
+        if self.kind == "events":
+            constraints = ", ".join(f"{key}={value}" for key, value in self.where)
+            amount = "at least one" if self.value is None else f"exactly {self.value}"
+            return f"{amount} {self.event_type} event(s) with {constraints or 'any fields'}"
+        if self.kind == "selected_frame":
+            return f"a scripted {self.value} frame selected an engine offer naming {self.label!r}"
+        if self.kind == "no_frame":
+            return f"the engine asked no {self.value} decision"
+        if self.kind == "not_on_battlefield":
+            return f"no {self.card_identity} is on {self.principal}'s battlefield"
+        if self.kind == "power_toughness":
+            power, toughness = self.value
+            return f"every {self.card_identity} on {self.principal}'s battlefield is {power}/{toughness}"
+        if self.kind == "counters":
+            return (
+                f"every {self.card_identity} on {self.principal}'s battlefield has counters "
+                f"{dict(self.value)}"
+            )
+        if self.kind == "colors":
+            return (
+                f"every {self.card_identity} on {self.principal}'s battlefield is "
+                f"{'/'.join(self.value)}"
+            )
+        if self.kind == "keyword":
+            return f"every {self.card_identity} on {self.principal}'s battlefield has {self.value}"
         if self.kind == "life":
             return f"{self.principal} is at {self.value} life"
         if self.kind == "trigger_count":
@@ -115,6 +147,12 @@ class RowSpec:
     # is verified against the engine's own payment frame for this exact cast,
     # never against a Lab-computed rule.
     cost_obligation: tuple[str, str, str] | None = None
+    # A record's required-event token, bound to the explicit check that observes
+    # it. Record tokens are free text written before any engine existed; a
+    # binding states, per fixture, which engine event pattern, decision frame or
+    # engine-observed state the token names. An unbound token the generic
+    # vocabulary does not understand stays unobserved.
+    token_bindings: tuple[tuple[str, TerminalCheck], ...] = ()
 
 
 # The record's decision family and the engine's decision class name the same
@@ -869,7 +907,92 @@ def check_terminal(
         return bool(frames) and all(
             frame.numeric is not None and frame.numeric >= check.value for frame in frames
         )
+    if check.kind == "events":
+        hits = matching_events(check, tape)
+        return bool(hits) if check.value is None else len(hits) == check.value
+    if check.kind == "selected_frame":
+        return bool(_selected_frames(check, trace))
+    if check.kind == "no_frame":
+        return not any(frame.decision_class == check.value for frame in trace)
+    cards = [
+        card
+        for card in seat.get("battlefield") or ()
+        if card.get("card_identity") == check.card_identity
+    ]
+    if check.kind == "not_on_battlefield":
+        return bool(seat) and not cards
+    # The permanent-state checks below hold for every permanent of the named
+    # identity on the principal's battlefield, and need at least one.
+    if check.kind == "power_toughness":
+        power, toughness = check.value
+        return bool(cards) and all(
+            card.get("power") == power and card.get("toughness") == toughness for card in cards
+        )
+    if check.kind == "counters":
+        return bool(cards) and all(
+            (card.get("counters") or {}) == dict(check.value) for card in cards
+        )
+    if check.kind == "keyword":
+        return bool(cards) and all(check.value in (card.get("keywords") or ()) for card in cards)
+    if check.kind == "colors":
+        return bool(cards) and all(
+            sorted(card.get("colors") or ()) == sorted(check.value) for card in cards
+        )
     return False
+
+
+def matching_events(check: TerminalCheck, tape: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The engine events an ``events`` check's pattern matches, in tape order."""
+    hits = []
+    for event in _events(tape, str(check.event_type)):
+        matched = True
+        for key, value in check.where:
+            if key.endswith("~"):
+                matched = _name_matches(event, key[:-1], str(value))
+            else:
+                matched = event.get(key) == value
+            if not matched:
+                break
+        if matched:
+            hits.append(event)
+    return hits
+
+
+def _selected_frames(check: TerminalCheck, trace: list[Frame]) -> list[int]:
+    wanted = str(check.label or "").lower()
+    return [
+        index
+        for index, frame in enumerate(trace)
+        if frame.decision_class == check.value
+        and frame.scripted
+        and frame.selected_label is not None
+        and frame.selected_label in frame.offered_labels
+        and wanted
+        and wanted in frame.selected_label.lower()
+    ]
+
+
+def bound_token_evidence(
+    check: TerminalCheck,
+    observation: dict[str, Any],
+    tape: list[dict[str, Any]],
+    trace: list[Frame],
+) -> dict[str, Any] | None:
+    """Positive evidence for a bound record token, or None.
+
+    The evidence names what the binding observed: the matching engine events,
+    the matching decision frames, or the engine-observed state the check read.
+    """
+    if not check_terminal(check, observation, tape, trace):
+        return None
+    evidence: dict[str, Any] = {"binding": check.describe()}
+    if check.kind == "events":
+        evidence["events"] = [event["sequence"] for event in matching_events(check, tape)]
+    elif check.kind == "selected_frame":
+        evidence["decision_frames"] = _selected_frames(check, trace)
+    else:
+        evidence["observation"] = "engine terminal observation"
+    return evidence
 
 
 # --------------------------------------------------------------------------- #
@@ -888,7 +1011,6 @@ def _label_of(action: dict[str, Any]) -> str:
 def _scripted_priority_action(
     legal: dict[str, Any], step: dict[str, Any], placed: dict[str, str], commanders: dict[str, str]
 ) -> dict[str, Any]:
-    probe = probe_module()
     value = (step.get("selection") or {}).get("semantic_value") or {}
     action = str(value.get("action"))
     if action == "cast":
@@ -899,10 +1021,69 @@ def _scripted_priority_action(
         raise ml.MidgameLaneError(
             f"scripted priority action {action!r} is not executed by this lane"
         )
-    offer: dict[str, Any] | None = probe.find_source_cast(legal, native) if native else None
-    if offer is None:
+    if not native:
         raise ml.MidgameLaneError(f"the engine did not offer the scripted {action} of {value}")
-    return offer
+    offers = _source_casts(legal, native)
+    if not offers:
+        raise ml.MidgameLaneError(f"the engine did not offer the scripted {action} of {value}")
+    alternative = value.get("alternative_cost")
+    if alternative:
+        # The engine either offers the alternative cast as its own spell ability
+        # (its label names it) or offers one cast and asks for the cost later.
+        named = [offer for offer in offers if str(alternative).lower() in _label_of(offer).lower()]
+        if len(named) == 1:
+            return named[0]
+        if not named and len(offers) == 1:
+            return offers[0]
+        raise ml.MidgameLaneError(
+            f"the engine offered {len(offers)} casts of {value}, {len(named)} naming "
+            f"the alternative cost {alternative!r}"
+        )
+    if len(offers) != 1:
+        # Several ways to cast the same card (an overload, an adventure, a split
+        # half): the record must name which, never the first offer.
+        raise ml.MidgameLaneError(
+            f"the engine offered {len(offers)} casts of {value} and the record names none"
+        )
+    return offers[0]
+
+
+def _source_casts(legal: dict[str, Any], native_source_id: str) -> list[dict[str, Any]]:
+    """Every engine-offered spell cast of one native source object."""
+    offers = []
+    for action in legal.get("actions") or ():
+        engine = (action.get("metadata") or {}).get("xmage_option_metadata") or {}
+        if (
+            engine.get("source_object_id") == native_source_id
+            and engine.get("ability_type") == "spell"
+        ):
+            offers.append(action)
+    return offers
+
+
+def _pending_alternative_cost(step: dict[str, Any], selected: dict[str, Any]) -> str | None:
+    """The alternative cost a scripted cast still owes the engine's cost choice."""
+    value = (step.get("selection") or {}).get("semantic_value") or {}
+    alternative = value.get("alternative_cost")
+    if not alternative or str(alternative).lower() in _label_of(selected).lower():
+        return None
+    return str(alternative)
+
+
+def _alternative_cost_answer(legal: dict[str, Any], alternative: str) -> dict[str, Any]:
+    """The engine's own cost-choice offer naming the record's alternative cost."""
+    matches: list[dict[str, Any]] = [
+        action
+        for action in legal.get("actions") or ()
+        if _option_type(action) == "choice"
+        and "alternative cost" in _label_of(action).lower()
+        and alternative.lower() in _label_of(action).lower()
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(
+            f"the alternative cost {alternative!r} matched {len(matches)} engine cost offers"
+        )
+    return matches[0]
 
 
 @dataclass(frozen=True)
@@ -1133,17 +1314,29 @@ def _scripted_answer(
         if not isinstance(value, list) or ordinal >= len(value):
             raise ml.MidgameLaneError(f"order selector has no entry {ordinal} in {value!r}")
         key = str(value[ordinal])
-        wanted = re.fullmatch(r"trigger:(.+)", key)
+        # ``trigger:<source>`` names a source's ability; ``trigger:<source>|<text>``
+        # also names a fragment of the ability's own rules text, for a source
+        # with several triggered abilities.
+        wanted = re.fullmatch(r"trigger:([^|]+)(?:\|(.+))?", key)
         if wanted is None:
             raise ml.MidgameLaneError(f"order entry {key!r} names no triggered ability")
         name = wanted.group(1).replace("_", " ")
+        text = wanted.group(2)
         matches = [
             a
             for a in actions
             if _option_type(a) == "triggered_ability"
             and ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("source_name")
             == name
+            and (text is None or text.lower() in _label_of(a).lower())
         ]
+        if len(matches) > 1 and value.count(key) == len(matches) and _interchangeable(matches):
+            # The record lists this ability once per instance and the engine
+            # offers exactly that many instances of one ability of one source:
+            # the instances are indistinguishable, so their relative order is
+            # not a choice the record could make. Any other ambiguity fails
+            # closed below.
+            matches = matches[:1]
     else:
         raise ml.MidgameLaneError(f"selector {kind!r} is not executed by this lane")
     if len(matches) != 1:
@@ -1151,6 +1344,21 @@ def _scripted_answer(
             f"the scripted {step.get('decision_family')} {value!r} matched {len(matches)} engine offers"
         )
     return ScriptedAnswer(matches[0], key=key, numeric=numeric)
+
+
+def _interchangeable(actions: list[dict[str, Any]]) -> bool:
+    """Whether offers are instances of one ability of one source, alike in label."""
+    identities = {
+        (
+            ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get(
+                "ability_original_id"
+            ),
+            ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("source_object_id"),
+            _label_of(a),
+        )
+        for a in actions
+    }
+    return len(identities) == 1 and None not in next(iter(identities))
 
 
 def _attacker_answer(
@@ -1233,6 +1441,25 @@ def _single_pool_spend(actions: list[dict[str, Any]]) -> dict[str, Any] | None:
     return spends[0] if len(spends) == 1 else None
 
 
+def _timing_allows(step: dict[str, Any], decision: dict[str, Any]) -> bool:
+    """Whether a scripted priority action may be taken at this priority.
+
+    A step whose value declares ``timing: empty_stack`` starts its own event:
+    it waits, passing priority, until everything already on the stack resolved.
+    A step without a timing is taken at the actor's first priority, as before.
+    """
+    value = (step.get("selection") or {}).get("semantic_value") or {}
+    timing = value.get("timing")
+    if timing is None:
+        return True
+    if timing != "empty_stack":
+        raise ml.MidgameLaneError(f"scripted timing {timing!r} is not executed by this lane")
+    stack = (decision.get("pilot_state") or {}).get("stack")
+    if not isinstance(stack, list):
+        raise ml.MidgameLaneError("the engine's priority frame exposes no stack")
+    return not stack
+
+
 def _terminal_holds(
     client: ml.MidgameLaneClient, spec: RowSpec, tape: list[dict[str, Any]], trace: list[Frame]
 ) -> bool:
@@ -1303,25 +1530,42 @@ def execute_row(
     declaring = False
     placed_by_native = {native: semantic for semantic, native in placed.items()}
     refusals: list[dict[str, Any]] = []
+    bindings = dict(spec.token_bindings)
+    pending_alternative: str | None = None
+
+    def token_evidence(
+        token: str, tape: list[dict[str, Any]], observation: dict[str, Any] | None
+    ) -> dict[str, Any] | None:
+        check = bindings.get(token)
+        if check is not None:
+            if observation is None:
+                observation = client.complete_arrival().get("observation") or {}
+            return bound_token_evidence(check, observation, tape, trace)
+        return verify_token(
+            token,
+            tape,
+            trace,
+            semantic_commanders,
+            spec.commander_printed_mana_value,
+            refusals,
+            cost_obligation,
+        )
+
+    def observed_all(tape: list[dict[str, Any]]) -> bool:
+        observation = (
+            client.complete_arrival().get("observation") or {}
+            if any(token in bindings for token in required)
+            else None
+        )
+        return all(token_evidence(t, tape, observation) is not None for t in required)
+
     detail = "bound reached"
     try:
         for _ in range(spec.max_decisions):
             tape = client.events(baseline)["events"]
             if (
                 position >= len(script)
-                and all(
-                    verify_token(
-                        t,
-                        tape,
-                        trace,
-                        semantic_commanders,
-                        spec.commander_printed_mana_value,
-                        refusals,
-                        cost_obligation,
-                    )
-                    is not None
-                    for t in required
-                )
+                and observed_all(tape)
                 and _terminal_holds(client, spec, tape, trace)
             ):
                 detail = "obligation observed"
@@ -1382,18 +1626,34 @@ def execute_row(
                 declaring = True
                 continue
             if decision_class == "priority":
-                if scripted and step is not None and step.get("decision_family") == "priority":
+                if (
+                    scripted
+                    and step is not None
+                    and step.get("decision_family") == "priority"
+                    and _timing_allows(step, decision)
+                ):
                     action = _scripted_priority_action(legal, step, placed, commanders)
                     frame.selected_label, frame.scripted = _label_of(action), True
                     frame.selected_source_object = _source_of(action)
                     frame.selected_option_ids = _single_option_id(action)
                     probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
+                    pending_alternative = _pending_alternative_cost(step, action)
                     position += 1
                     continue
                 passed = probe.option_of_type(decision, "pass_priority")
                 if passed is None:
                     raise ml.MidgameLaneError("the engine offered no pass")
                 client.submit_options(decision, [passed])
+                continue
+            if decision_class == "choice" and pending_alternative is not None:
+                # The engine asks for the cost of the cast the record just made;
+                # the record's own step named the alternative cost to pay.
+                action = _alternative_cost_answer(legal, pending_alternative)
+                frame.selected_label, frame.scripted = _label_of(action), True
+                frame.selected_key = pending_alternative
+                frame.selected_option_ids = _single_option_id(action)
+                probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
+                pending_alternative = None
                 continue
             if decision_class == "mana_payment":
                 offer = _mana_offer(legal, sources)
@@ -1457,15 +1717,7 @@ def execute_row(
     evidence: dict[str, Any] = {}
     missing: list[str] = []
     for token in required:
-        found = verify_token(
-            token,
-            tape,
-            trace,
-            semantic_commanders,
-            spec.commander_printed_mana_value,
-            refusals,
-            cost_obligation,
-        )
+        found = token_evidence(token, tape, observation)
         if found is None:
             missing.append(token)
         else:

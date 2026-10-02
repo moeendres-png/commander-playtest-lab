@@ -489,6 +489,9 @@ class PostconditionProof:
     postcondition: str
     event_token: str | None = None
     terminal_check: Any | None = None
+    # Further checks a postcondition that states several facts needs; each must
+    # hold too. Only a terminal-check proof carries them.
+    also: tuple[Any, ...] = ()
 
     def __post_init__(self) -> None:
         if (self.event_token is None) == (self.terminal_check is None):
@@ -496,22 +499,42 @@ class PostconditionProof:
                 f"proof for {self.postcondition!r} must set exactly one of "
                 "event_token/terminal_check"
             )
+        if self.also and self.terminal_check is None:
+            raise ActualCardCampaignError(
+                f"proof for {self.postcondition!r} adds checks to an event-token proof"
+            )
+
+    @property
+    def checks(self) -> tuple[Any, ...]:
+        return () if self.terminal_check is None else (self.terminal_check, *self.also)
 
     def document(self) -> dict[str, Any]:
         if self.event_token is not None:
             return {"postcondition": self.postcondition, "event_token": self.event_token}
-        check = self.terminal_check
-        assert check is not None  # guaranteed by __post_init__
-        return {
+        documents = [_check_document(check) for check in self.checks]
+        document: dict[str, Any] = {
             "postcondition": self.postcondition,
-            "terminal_check": {
-                "kind": check.kind,
-                "principal": check.principal,
-                "value": check.value,
-                "source_name": check.source_name,
-                "card_identity": check.card_identity,
-            },
+            "terminal_check": documents[0],
         }
+        if len(documents) > 1:
+            document["also"] = documents[1:]
+        return document
+
+
+def _check_document(check: Any) -> dict[str, Any]:
+    document = {
+        "kind": check.kind,
+        "principal": check.principal,
+        "value": list(check.value) if isinstance(check.value, tuple) else check.value,
+        "source_name": check.source_name,
+        "card_identity": check.card_identity,
+    }
+    if check.event_type is not None:
+        document["event_type"] = check.event_type
+        document["where"] = [list(item) for item in check.where]
+    if check.label is not None:
+        document["label"] = check.label
+    return document
 
 
 @dataclass(frozen=True)
@@ -528,12 +551,13 @@ class ObligationPlan:
     mode_bindings: tuple[tuple[str, str], ...] = ()
     commander_printed_mana_value: int | None = None
     max_decisions: int = 120
+    # The record's own required-event tokens, each bound to the explicit check
+    # that observes it on this engine (see ``RowSpec.token_bindings``).
+    token_bindings: tuple[tuple[str, Any], ...] = ()
 
     @property
     def terminal_checks(self) -> tuple[Any, ...]:
-        return tuple(
-            proof.terminal_check for proof in self.proofs if proof.terminal_check is not None
-        )
+        return tuple(check for proof in self.proofs for check in proof.checks)
 
     @property
     def event_tokens(self) -> tuple[str, ...]:
@@ -560,6 +584,12 @@ class ObligationPlan:
                 reasons.append(
                     f"proof token {proof.event_token!r} is not one of the record's required events"
                 )
+        bound = [token for token, _ in self.token_bindings]
+        if len(bound) != len(set(bound)):
+            reasons.append("the plan binds a token more than once")
+        for token in bound:
+            if token not in required:
+                reasons.append(f"bound token {token!r} is not one of the record's required events")
         return tuple(reasons)
 
     def document(self) -> dict[str, Any]:
@@ -568,6 +598,10 @@ class ObligationPlan:
             "proofs": [proof.document() for proof in self.proofs],
             "mode_bindings": [list(binding) for binding in self.mode_bindings],
             "commander_printed_mana_value": self.commander_printed_mana_value,
+            "token_bindings": [
+                {"token": token, "check": _check_document(check)}
+                for token, check in self.token_bindings
+            ],
         }
 
 
@@ -583,6 +617,36 @@ def _on_battlefield(principal: str, identity: str) -> Any:
     return midgame_rows_mod.TerminalCheck(
         "on_battlefield", principal=principal, card_identity=identity
     )
+
+
+def _not_on_battlefield(principal: str, identity: str) -> Any:
+    return midgame_rows_mod.TerminalCheck(
+        "not_on_battlefield", principal=principal, card_identity=identity
+    )
+
+
+def _events(event_type: str, *where: tuple[str, Any], count: int | None = None) -> Any:
+    """Engine tape events of one type meeting every field constraint.
+
+    ``count=None`` needs at least one; an integer needs exactly that many.
+    """
+    return midgame_rows_mod.TerminalCheck(
+        "events", value=count, event_type=event_type, where=tuple(where)
+    )
+
+
+def _selected(decision_class: str, label: str) -> Any:
+    return midgame_rows_mod.TerminalCheck("selected_frame", value=decision_class, label=label)
+
+
+def _permanent(kind: str, principal: str, identity: str, value: Any) -> Any:
+    return midgame_rows_mod.TerminalCheck(
+        kind, principal=principal, card_identity=identity, value=value
+    )
+
+
+def _tapped(principal: str, identity: str) -> Any:
+    return _permanent("tapped", principal, identity, True)
 
 
 # Plans are onboarded fixture by fixture. Each one covers the effective
@@ -625,7 +689,8 @@ PLANS: dict[str, ObligationPlan] = {
     ),
     # Kaervek's obligation is the triggered damage itself; the record's required
     # event ``damage:P2:4`` is the exact obligated fact, so the proof binds to
-    # the tape rather than to an arithmetic total the record never states.
+    # the tape rather than to an arithmetic total the record never states. The
+    # opponent's spell is P2's own cast on the tape.
     "CARD_17": ObligationPlan(
         fixture_id="CARD_17",
         proofs=(
@@ -633,6 +698,278 @@ PLANS: dict[str, ObligationPlan] = {
                 "P2 is dealt 4 damage by Kaervek before the triggering spell resolves "
                 "if no responses intervene.",
                 event_token="damage:P2:4",
+            ),
+        ),
+        token_bindings=(("opponent_spell_cast", _events("SPELL_CAST", ("player_player", "P2"))),),
+    ),
+    # Ishai gains its counter from P2's cast; the counter is read from the
+    # engine's own COUNTER_ADDED event and from Ishai's terminal counters.
+    "CARD_01": ObligationPlan(
+        fixture_id="CARD_01",
+        proofs=(
+            PostconditionProof(
+                "obj:card01-ishai has exactly one +1/+1 counter.",
+                terminal_check=_permanent(
+                    "counters", "P1", "Ishai, Ojutai Dragonspeaker", (("+1/+1", 1),)
+                ),
+            ),
+        ),
+        token_bindings=(
+            ("spell_cast:P2", _events("SPELL_CAST", ("player_player", "P2"))),
+            (
+                "counter_change:+1/+1:+1",
+                _events(
+                    "COUNTER_ADDED",
+                    ("target_object", "obj:card01-ishai"),
+                    ("data", "+1/+1"),
+                    ("amount", 1),
+                    count=1,
+                ),
+            ),
+        ),
+    ),
+    # Bruse Tarl (cmd:P1-A) deals 3 combat damage to P2; Kediss's trigger has
+    # the commander deal that much to P3 and P4. "Only P2" is the single combat
+    # damage event to any player, and "does not retrigger" is Kediss's single
+    # triggered ability on the tape.
+    "CARD_04": ObligationPlan(
+        fixture_id="CARD_04",
+        proofs=(
+            PostconditionProof(
+                "P2=P3=P4=17 life.",
+                terminal_check=_life("P2", 17),
+                also=(_life("P3", 17), _life("P4", 17)),
+            ),
+            PostconditionProof(
+                "Only P2 gained commander combat damage; Kediss damage does not retrigger Kediss.",
+                terminal_check=_events("DAMAGED_PLAYER", ("combat", True), count=1),
+                also=(
+                    _events(
+                        "DAMAGED_PLAYER",
+                        ("combat", True),
+                        ("target_player", "P2"),
+                        ("source_object", "obj:card04-attacker"),
+                        count=1,
+                    ),
+                    midgame_rows_mod.TerminalCheck(
+                        "trigger_count", source_name="Kediss, Emberclaw Familiar", value=1
+                    ),
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "commander_combat_damage:P2:3",
+                _events(
+                    "DAMAGED_PLAYER",
+                    ("target_player", "P2"),
+                    ("amount", 3),
+                    ("combat", True),
+                    ("source_object", "obj:card04-attacker"),
+                ),
+            ),
+        ),
+    ),
+    # Veyran's magecraft triggers twice for one instant cast; the +2/+2 is read
+    # from the engine's own P/T against Veyran's printed 2/2.
+    "CARD_05": ObligationPlan(
+        fixture_id="CARD_05",
+        proofs=(
+            PostconditionProof(
+                "After both triggers resolve Veyran has +2/+2 until end of turn.",
+                terminal_check=_permanent(
+                    "power_toughness", "P1", "Veyran, Voice of Duality", (4, 4)
+                ),
+            ),
+        ),
+        token_bindings=(
+            ("instant_cast", _events("SPELL_CAST", ("source_object", "obj:card05-bolt"))),
+            (
+                "Veyran_magecraft_trigger",
+                _events(
+                    "TRIGGERED_ABILITY",
+                    ("source_object", "obj:card_05-subject"),
+                    ("target_name~", "stack ability (<i>Magecraft</i>"),
+                ),
+            ),
+            (
+                "Veyran_additional_trigger",
+                _events("TRIGGERED_ABILITY", ("source_object", "obj:card_05-subject"), count=2),
+            ),
+        ),
+    ),
+    # Magma Opus: the divided damage and the draw are tape events; XMage reports
+    # no tap event, so the two taps are read from the engine-observed tapped
+    # state of the only two P4 permanents (constructed untapped).
+    "CARD_09": ObligationPlan(
+        fixture_id="CARD_09",
+        proofs=(
+            PostconditionProof("P2 lost 2 life.", terminal_check=_life("P2", 38)),
+            PostconditionProof(
+                "Both selected P4 permanents are tapped.",
+                terminal_check=_tapped("P4", "Sol Ring"),
+                also=(_tapped("P4", "Mountain"),),
+            ),
+            PostconditionProof(
+                "P1 controls one new 4/4 blue/red Elemental and drew two cards.",
+                terminal_check=midgame_rows_mod.TerminalCheck(
+                    "tokens_created", card_identity="Elemental Token", value=1
+                ),
+                also=(
+                    _permanent("power_toughness", "P1", "Elemental Token", (4, 4)),
+                    _permanent("colors", "P1", "Elemental Token", ("blue", "red")),
+                    midgame_rows_mod.TerminalCheck("draws", principal="P1", value=2),
+                ),
+            ),
+        ),
+        token_bindings=(
+            (
+                "damage:obj:card09-p3-creature:2",
+                _events(
+                    "DAMAGED_PERMANENT",
+                    ("target_object", "obj:card09-p3-creature"),
+                    ("amount", 2),
+                ),
+            ),
+            ("tap:obj:card09-p4-a", _tapped("P4", "Sol Ring")),
+            ("tap:obj:card09-p4-b", _tapped("P4", "Mountain")),
+            (
+                "token_created:4/4_Elemental",
+                midgame_rows_mod.TerminalCheck(
+                    "tokens_created", card_identity="Elemental Token", value=1
+                ),
+            ),
+            ("draw:P1:2", midgame_rows_mod.TerminalCheck("draws", principal="P1", value=2)),
+        ),
+    ),
+    # Vandalblast with overload: the engine's own offer names the overload; it
+    # destroys the three opponents' Sol Rings and leaves P1's, and the engine
+    # asks for no target.
+    "CARD_14": ObligationPlan(
+        fixture_id="CARD_14",
+        proofs=(
+            PostconditionProof(
+                "P2/P3/P4 artifacts are destroyed.",
+                terminal_check=_not_on_battlefield("P2", "Sol Ring"),
+                also=(
+                    _not_on_battlefield("P3", "Sol Ring"),
+                    _not_on_battlefield("P4", "Sol Ring"),
+                ),
+            ),
+            PostconditionProof(
+                "P1 Sol Ring remains.", terminal_check=_on_battlefield("P1", "Sol Ring")
+            ),
+            PostconditionProof(
+                "The overloaded spell has no targets.",
+                terminal_check=midgame_rows_mod.TerminalCheck("no_frame", value="target"),
+            ),
+        ),
+        token_bindings=(
+            ("overload_cast", _selected("priority", "with overload")),
+            (
+                "destroy_each_opponent_artifact",
+                _events("DESTROYED_PERMANENT", ("source_object", "obj:card_14-subject"), count=3),
+            ),
+        ),
+    ),
+    # Shriekmaw evoked: the engine's cost offer names the evoke; both enter
+    # triggers, the destruction and the sacrifice are tape events.
+    "CARD_18": ObligationPlan(
+        fixture_id="CARD_18",
+        proofs=(
+            PostconditionProof(
+                "Grizzly Bears is destroyed and Shriekmaw is sacrificed.",
+                terminal_check=_events(
+                    "DESTROYED_PERMANENT", ("target_object", "obj:card18-target"), count=1
+                ),
+                also=(
+                    _events(
+                        "SACRIFICED_PERMANENT", ("target_object", "obj:card_18-subject"), count=1
+                    ),
+                    _not_on_battlefield("P2", "Grizzly Bears"),
+                    _not_on_battlefield("P1", "Shriekmaw"),
+                ),
+            ),
+        ),
+        token_bindings=(
+            ("evoke_cast", _selected("choice", "evoke alternative cost")),
+            (
+                "Shriekmaw_enters",
+                _events(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:card_18-subject"),
+                    ("from", "STACK"),
+                    ("to", "BATTLEFIELD"),
+                ),
+            ),
+            (
+                "destroy_trigger",
+                _events(
+                    "TRIGGERED_ABILITY",
+                    ("source_object", "obj:card_18-subject"),
+                    ("target_name~", "stack ability (When {this} enters, destroy target"),
+                ),
+            ),
+            (
+                "evoke_sacrifice_trigger",
+                _events(
+                    "TRIGGERED_ABILITY",
+                    ("source_object", "obj:card_18-subject"),
+                    ("target_name~", "stack ability (When this permanent enters, if its evoke"),
+                ),
+            ),
+            (
+                "destroy_target",
+                _events("DESTROYED_PERMANENT", ("target_object", "obj:card18-target")),
+            ),
+            (
+                "sacrifice_Shriekmaw",
+                _events("SACRIFICED_PERMANENT", ("target_object", "obj:card_18-subject")),
+            ),
+        ),
+    ),
+    # Makeshift Mannequin returns the Bears with a mannequin counter; Lightning
+    # Bolt targets it. XMage reports no separate targeting event: the granted
+    # "becomes the target" trigger is the engine's own report of the targeting.
+    # The row stops as soon as the Bears is sacrificed, with the Bolt still
+    # unresolved on the stack.
+    "CARD_23": ObligationPlan(
+        fixture_id="CARD_23",
+        proofs=(
+            PostconditionProof(
+                "Returned creature is sacrificed when granted trigger resolves before Lightning "
+                "Bolt would resolve if no responses intervene.",
+                terminal_check=_events(
+                    "SACRIFICED_PERMANENT", ("target_object", "obj:card23-creature"), count=1
+                ),
+                also=(_not_on_battlefield("P1", "Grizzly Bears"),),
+            ),
+        ),
+        token_bindings=(
+            (
+                "return_creature_with_mannequin_counter",
+                _events(
+                    "COUNTER_ADDED",
+                    ("target_object", "obj:card23-creature"),
+                    ("data", "mannequin"),
+                    ("amount", 1),
+                ),
+            ),
+            (
+                "creature_becomes_target",
+                _events(
+                    "TRIGGERED_ABILITY",
+                    ("source_object", "obj:card23-creature"),
+                    ("target_name~", "stack ability (When {this} becomes the target"),
+                ),
+            ),
+            (
+                "granted_trigger",
+                _events("TRIGGERED_ABILITY", ("source_object", "obj:card23-creature"), count=1),
+            ),
+            (
+                "sacrifice_returned_creature",
+                _events("SACRIFICED_PERMANENT", ("target_object", "obj:card23-creature")),
             ),
         ),
     ),
@@ -671,6 +1008,7 @@ def derive_row_spec(record: Mapping[str, Any], plan: ObligationPlan | None) -> A
             plan.commander_printed_mana_value if plan is not None else None
         ),
         mode_bindings=plan.mode_bindings if plan is not None else (),
+        token_bindings=plan.token_bindings if plan is not None else (),
     )
 
 
@@ -826,18 +1164,17 @@ def plan_proof_status(row: CardRow, execution: Mapping[str, Any]) -> list[dict[s
                 }
             )
         else:
-            check = proof.terminal_check
-            assert check is not None  # guaranteed by PostconditionProof.__post_init__
-            description = check.describe()
-            held = bool(terminal_facts.get(description))
-            statuses.append(
-                {
-                    "postcondition": proof.postcondition,
-                    "kind": "terminal_check",
-                    "check": description,
-                    "held": held,
-                }
-            )
+            descriptions = [check.describe() for check in proof.checks]
+            held = all(bool(terminal_facts.get(description)) for description in descriptions)
+            status = {
+                "postcondition": proof.postcondition,
+                "kind": "terminal_check",
+                "check": descriptions[0],
+                "held": held,
+            }
+            if len(descriptions) > 1:
+                status["also"] = descriptions[1:]
+            statuses.append(status)
     return statuses
 
 

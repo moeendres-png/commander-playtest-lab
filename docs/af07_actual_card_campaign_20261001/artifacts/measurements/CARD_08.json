@@ -3,7 +3,7 @@
   "construction_mismatches": [],
   "construction_verdict": "EXACT",
   "creation_errors": [],
-  "elapsed_s": 8.259,
+  "elapsed_s": 8.336,
   "engine_artifact": {
     "kind": "file",
     "path": "file:/tmp/claude-0/-home-user/bb42cdf1-e048-5348-9310-61196bf01d6b/scratchpad/m2-xmage-candidate-37e4df6c/org/mage/mage/1.4.61/mage-1.4.61.jar",
@@ -17,7 +17,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "3e9184f9498465ca5f5d843d316aadf7f3c916b3dd29ced6faf29cdb158748ae",
+        "decision_id": "61f6cb2c1c110ff2856c24aaf0f2e121bdaa52f0024f92dde03ab603a75dc345",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -48,7 +48,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "891120c5da57470e2baafe6971701750d67ad159e5b1e2daed3a1894031c626b",
+        "decision_id": "cc05c606180241ba6fa082e4e80577860e5900c7a8496c490293a00ca17d9e14",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -67,7 +67,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "514afa9dac1b6821e729a3a483437b45d11c238d6a036a4637d1688c4ef98192",
+        "decision_id": "4948a99aec10ff228e4d6a8745024d8768d5308f463385fb3e29e292bcaaecdb",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -86,7 +86,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "2a539293b9a43caaf4860614d958b39967241d2b7676b90961aa14bdc61a30fa",
+        "decision_id": "b0a6eaf15c4648827a29fff51f7af4a08be3daac352070519403accd2273e343",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -105,7 +105,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "55780ea98e838056dc1e520926c8d3319d08e65eddb296fa6b466a8c4c19e295",
+        "decision_id": "5351aac6773e9cbb26bb460996d5041f206e7134f271c509afb43694bada0fa9",
         "numeric": null,
         "offered_labels": [
           "Pass priority",
@@ -127,7 +127,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "42a003b6519d493f5c641bd64a97f98f80c26333da2a6159ed49e8029cdd8e26",
+        "decision_id": "1e94a35a071c2983c41a7492d7b07a712fb730c233dcb04ef013122f029be8a3",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -146,7 +146,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "858b807e4288bc06fe419bf89245d9c0d08e8bbc183980beb2a84fce9a0d0953",
+        "decision_id": "88fb3f0a8cc9431795538ec59cc79f47f7e3fb2b424b26c4d215f1507c696aee",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -165,7 +165,7 @@
       {
         "context": {},
         "decision_class": "priority",
-        "decision_id": "8252c0ce2fa88ee019f33c81f0ed04d53cd3e999517b78f897a0eda2c4e54c92",
+        "decision_id": "8a324c8faa7b695fa9c217f20b9c2304b92ce047d0914729b54d7a3b86be2b72",
         "numeric": null,
         "offered_labels": [
           "Pass priority"
@@ -184,7 +184,7 @@
       {
         "context": {},
         "decision_class": "declare_attacker",
-        "decision_id": "4a2802179931045855f94a22fe63c853a57a6a635a2e4aedbac179b21045dff4",
+        "decision_id": "d3eeb45ce66e8a6111f51cccb7fb992d440c99e6d1d3fa56e82a5e72ee79c486",
         "numeric": null,
         "offered_labels": [
           "Do not attack with Grizzly Bears",

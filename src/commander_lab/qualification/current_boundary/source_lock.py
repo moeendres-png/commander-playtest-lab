@@ -23,7 +23,7 @@ CURRENT_RULES_TXT_SHA256 = "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b86
 CURRENT_RULES_TXT_URL = "https://media.wizards.com/2026/downloads/MagicCompRules%2020260925.txt"
 
 FULL107_FROZEN_SOURCE = "5a2e4f462fd45bba25f2271153212aab9faf09f5"
-# 1.0.12 re-applies every current overlay to the same 1.0.5 historical base:
+# 1.0.13 re-applies every current overlay to the same 1.0.5 historical base:
 # START-2 (CR 103.8a), the fixture-script errata for the rows whose script began
 # inside a cast (#255/441 section C1), the MICRO_COSTS CR 307.1 fixture
 # correction (C2), and the SLOT-04 lossless hidden-state errata for the six
@@ -32,10 +32,12 @@ FULL107_FROZEN_SOURCE = "5a2e4f462fd45bba25f2271153212aab9faf09f5"
 # HIDDEN_08, HIDDEN_09, HIDDEN_14, HIDDEN_17 and HIDDEN_18 (a real reveal, look,
 # search, hidden target, copy of a hidden permanent and private look), and the
 # SLOT-04 lossless-library errata for the AF07 rows CARD_09, 12, 15, 27 and 29
-# (outside the provider denominator). The 1.0.8 schema added the lossless record
-# shapes; 1.0.12 keeps that shape.
-FULL107_SUCCESSOR_CONTRACT = "1.0.12-successor"
-FULL107_MATERIALIZATION_SCHEMA = "commander-lab.semantic-fixture-materialization/1.0.12-successor"
+# (outside the provider denominator), and the AF07 decision-script errata for
+# CARD_01, 04, 05, 09, 18, 23 and 26 (the discretionary decisions the Rules Core
+# asks that their scripts did not answer; also outside the denominator). The
+# 1.0.8 schema added the lossless record shapes; 1.0.13 keeps that shape.
+FULL107_SUCCESSOR_CONTRACT = "1.0.13-successor"
+FULL107_MATERIALIZATION_SCHEMA = "commander-lab.semantic-fixture-materialization/1.0.13-successor"
 
 XMAGE_CANDIDATE_COMMIT = "b19596980f2734496ea1896504253e1bdd2756dd"
 XMAGE_LAB_RUNTIME_AUTHORITY = "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
@@ -101,11 +103,11 @@ FORGE_LICENSE = "GPL-3.0"
 CONTRACT_PATHS = {
     "current_pre_freeze_contract": "qualification/CURRENT_PRE_FREEZE_CONTRACT.json",
     "full107_successor_contract": "qualification/pre-freeze-successor/"
-    "FULL107_SUCCESSOR_CONTRACT_v1_0_12.json",
+    "FULL107_SUCCESSOR_CONTRACT_v1_0_13.json",
     "full107_successor_contract_predecessor": "qualification/pre-freeze-successor/"
-    "FULL107_SUCCESSOR_CONTRACT_v1_0_11.json",
+    "FULL107_SUCCESSOR_CONTRACT_v1_0_12.json",
     "materialization_schema": "qualification/pre-freeze-successor/"
-    "SEMANTIC_FIXTURE_SCHEMA_v1_0_12_SUCCESSOR.json",
+    "SEMANTIC_FIXTURE_SCHEMA_v1_0_13_SUCCESSOR.json",
     "af01_boundary": "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json",
     "freeze_gate_catalog": "qualification/pre-freeze-successor/"
     "architecture_freeze_gate_catalog_v2.json",

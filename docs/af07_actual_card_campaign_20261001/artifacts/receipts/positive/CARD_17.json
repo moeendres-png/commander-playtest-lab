@@ -5,20 +5,18 @@
   "candidate_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
   "construction_verdict": "EXACT",
   "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
-  "fixture_id": "CARD_24",
+  "fixture_id": "CARD_17",
   "obligation_exercised": {
-    "obligation_digest": "b927ab440a08c427980ff248da031c596cc4980257b339fa0d8a4814090d6411",
-    "requested_state_digest": "8c152e36bc3e315cd1efa09d70c88286ccbba942e2f905541a3cb999a555b408",
+    "obligation_digest": "8c1fc624e8ed86ef820c1ffc52e3f1f9142a080898b9a9de6aa0e013a97e8410",
+    "requested_state_digest": "7541eec769ad239cfebd2970b9c6079e4d0cb8dc422643aa593e6fcb38e747c0",
     "required_events": [
-      "creature_enters",
-      "Warstorm_trigger",
-      "entering_creature_damage:P2:2"
+      "opponent_spell_cast",
+      "Kaervek_trigger",
+      "damage:P2:4"
     ],
-    "terminal_checks": [
-      "P2 is at 18 life"
-    ],
+    "terminal_checks": [],
     "terminal_postconditions": [
-      "P2 is at 18 life after trigger resolves."
+      "P2 is dealt 4 damage by Kaervek before the triggering spell resolves if no responses intervene."
     ]
   },
   "observed_assertion": {
@@ -30,38 +28,37 @@
     },
     "postcondition_proofs": [
       {
-        "check": "P2 is at 18 life",
         "held": true,
-        "kind": "terminal_check",
-        "postcondition": "P2 is at 18 life after trigger resolves."
+        "kind": "event_token",
+        "postcondition": "P2 is dealt 4 damage by Kaervek before the triggering spell resolves if no responses intervene.",
+        "token": "damage:P2:4"
       }
     ],
-    "terminal_facts": {
-      "P2 is at 18 life": true
-    },
+    "terminal_facts": {},
     "token_evidence": {
-      "Warstorm_trigger": {
-        "events": [
-          10
-        ]
-      },
-      "creature_enters": {
+      "Kaervek_trigger": {
         "events": [
           9
         ]
       },
-      "entering_creature_damage:P2:2": {
+      "damage:P2:4": {
         "events": [
-          12
+          11
+        ]
+      },
+      "opponent_spell_cast": {
+        "binding": "at least one SPELL_CAST event(s) with player_player=P2",
+        "events": [
+          8
         ]
       }
     },
     "typed_refusals": []
   },
   "outcome": "PASS",
-  "receipt_digest": "af43d93fd92dbc87ffec56fe26dca88f56c23a82df6a3c6572e01cac5134e40b",
+  "receipt_digest": "22a297f30e545327d6542b873b9477d5f530afac64bc794c7184e4262518418a",
   "runner_digest": "3054fdac7bcf34ab9a18df83866ea803918fe34e63e9747ea0580f469e26633f",
-  "runtime_receipt_digest": "c714d0f6fef4ff24fc0bd1d0e2b608978f5f67ae48e3fabfed01f3152207c9cf",
+  "runtime_receipt_digest": "1d5ce7e321f35c9dad21d5c5ceaa31d0bd5d724c2c57feea6539cacfe0dc55e7",
   "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
-  "test_identity": "af07-actual-card-campaign#CARD_24"
+  "test_identity": "af07-actual-card-campaign#CARD_17"
 }

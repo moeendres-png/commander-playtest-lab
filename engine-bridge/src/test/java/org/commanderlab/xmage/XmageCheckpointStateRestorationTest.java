@@ -262,6 +262,51 @@ class XmageCheckpointStateRestorationTest {
         assertTrue(arrival.get("construction_match").getAsBoolean(), arrival.toString());
     }
 
+    private static JsonObject permanent(JsonObject arrival, String player, String identity) {
+        for (JsonElement seat : arrival.getAsJsonObject("observation").getAsJsonArray("seats")) {
+            if (!player.equals(seat.getAsJsonObject().get("player_id").getAsString())) {
+                continue;
+            }
+            for (JsonElement entry : seat.getAsJsonObject().getAsJsonArray("battlefield")) {
+                if (identity.equals(entry.getAsJsonObject().get("card_identity").getAsString())) {
+                    return entry.getAsJsonObject();
+                }
+            }
+        }
+        fail(identity + " is not on " + player + "'s battlefield");
+        return null;
+    }
+
+    /**
+     * The readback reports a permanent's counters, evergreen keywords and
+     * colors (public permanent state the AF07 obligations name), each only
+     * when present, so a permanent without them reads back as before.
+     */
+    @Test
+    void theReadbackReportsCountersKeywordsAndColorsOnlyWhenPresent() {
+        JsonObject arrival = arrive("CARD_01");
+        JsonObject ishai = permanent(arrival, "P1", "Ishai, Ojutai Dragonspeaker");
+        assertFalse(ishai.has("counters"), "Ishai starts with no counter: " + ishai);
+        assertEquals("[\"flying\"]", ishai.getAsJsonArray("keywords").toString());
+        assertEquals("[\"white\",\"blue\"]", ishai.getAsJsonArray("colors").toString());
+        JsonObject mountain = permanent(arrival, "P2", "Mountain");
+        assertFalse(mountain.has("counters") || mountain.has("keywords") || mountain.has("colors"),
+                "a basic land reads back without the new fields: " + mountain);
+
+        JsonObject countered = arrive("CARD_28");
+        boolean sawCounters = false;
+        for (JsonElement seat : countered.getAsJsonObject("observation").getAsJsonArray("seats")) {
+            for (JsonElement entry : seat.getAsJsonObject().getAsJsonArray("battlefield")) {
+                JsonObject object = entry.getAsJsonObject();
+                if (object.has("counters")) {
+                    assertTrue(object.getAsJsonObject("counters").get("+1/+1").getAsInt() > 0, object.toString());
+                    sawCounters = true;
+                }
+            }
+        }
+        assertTrue(sawCounters, "the requested +1/+1 counters must read back");
+    }
+
     @Test
     void anUnrestoredCounterTypeStillFailsClosed() {
         assertEquals(mage.counters.CounterType.P1P1, XmageNativeStateRestoration.counterType("+1/+1"));
