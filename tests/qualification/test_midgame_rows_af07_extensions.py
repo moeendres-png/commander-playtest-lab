@@ -537,6 +537,16 @@ def test_ordering_frame_count_pool_and_hand_checks() -> None:
     }
     hand = mr.TerminalCheck("hand_count_min", principal="P1", value=8)
     assert mr.check_terminal(hand, observation, [], [])
+    # The exact count holds only at the exact value; a minimum never stands in for it.
+    assert mr.check_terminal(
+        mr.TerminalCheck("hand_count", principal="P1", value=17), observation, [], []
+    )
+    for wrong in (16, 18):
+        exact = mr.TerminalCheck("hand_count", principal="P1", value=wrong)
+        assert not mr.check_terminal(exact, observation, [], [])
+    assert not mr.check_terminal(
+        mr.TerminalCheck("hand_count", principal="P2", value=17), observation, [], []
+    )
     grave = mr.TerminalCheck("in_graveyard", principal="P1", card_identity="Sol Ring")
     assert mr.check_terminal(grave, observation, [], [])
     untapped = _state("untapped_count", "Island", 1)

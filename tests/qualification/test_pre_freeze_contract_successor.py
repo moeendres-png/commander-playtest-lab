@@ -86,7 +86,11 @@ CARD_OBLIGATION_ERRATA_IDS = ["CARD_06"]
 FINAL_CARD_SCRIPT_ERRATA_IDS = ["CARD_03", "CARD_22", "CARD_13"]
 # The AF07 scenario errata (1.0.18): a frozen position the Comprehensive Rules
 # make unreachable as recorded; every obligation key is untouched.
-CARD_SCENARIO_ERRATA_IDS = ["CARD_10", "CARD_07", "CARD_16"]
+CARD_SCENARIO_ERRATA_IDS = ["CARD_10", "CARD_07"]
+# The AF07 construction-vehicle obligation erratum (1.0.18): the obligation is
+# restated at the natural turn-1 hand the vehicle reaches; its Rules content and
+# predecessor obligation are preserved.
+CARD_VEHICLE_OBLIGATION_ERRATA_IDS = ["CARD_16"]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -106,6 +110,7 @@ CHANGED_FIXTURE_IDS = [
     *CARD_OBLIGATION_ERRATA_IDS,
     *FINAL_CARD_SCRIPT_ERRATA_IDS,
     *CARD_SCENARIO_ERRATA_IDS,
+    *CARD_VEHICLE_OBLIGATION_ERRATA_IDS,
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
@@ -118,6 +123,7 @@ DENOMINATOR_CHANGED_FIXTURE_IDS = [
         *CARD_OBLIGATION_ERRATA_IDS,
         *FINAL_CARD_SCRIPT_ERRATA_IDS,
         *CARD_SCENARIO_ERRATA_IDS,
+        *CARD_VEHICLE_OBLIGATION_ERRATA_IDS,
     )
 ]
 AF01_PATH = REPO_ROOT / "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json"
@@ -1457,6 +1463,7 @@ def test_card06_obligation_erratum_is_versioned_with_its_predecessor_preserved()
         *CARD_OBLIGATION_ERRATA_IDS,
         *FINAL_CARD_SCRIPT_ERRATA_IDS,
         *CARD_SCENARIO_ERRATA_IDS,
+        *CARD_VEHICLE_OBLIGATION_ERRATA_IDS,
     ]
     patch = added[0]
     old = base["CARD_06"]
@@ -1610,12 +1617,15 @@ def test_card07_scenario_erratum_substitutes_only_the_draw_spell() -> None:
     assert record["temporal_state"]["active_player"] == "P1"
 
 
-def test_card16_scenario_erratum_declares_the_complete_hand_and_the_trigger_order() -> None:
-    """The frozen hand size (five after Divination's two draws) needs P1's hand
-    to be exactly its three named cards: the erratum declares that complete
-    checkpoint hand and library (SLOT-04) and scripts the CR 603.3b ordering of
-    the two simultaneous Crawler triggers; the objects, the stack and every
-    obligation key are unchanged."""
+def test_card16_obligation_erratum_restates_the_hand_size_at_the_natural_hand() -> None:
+    """The predecessor measured the Crawler at a five-card hand, which needs P1's
+    turn-1 hand to be exactly its three named Mountains: the vehicle plays the
+    real start-of-game procedure, so P1 also holds the opening seven and the
+    turn-1 draw, and no Lab-side hand mutation is allowed (SLOT-04 L7). The
+    erratum declares that natural hand and library, restates the hand size at
+    it (13 after Divination's two draws), keeps the Rules content (P/T equal to
+    the hand size, one life per draw per opponent, the CR 603.3b order) and
+    preserves the predecessor obligation as provenance."""
     contract = _json(SUCCESSOR_PATH)
     resolver = _resolver()
     base = {
@@ -1626,21 +1636,47 @@ def test_card16_scenario_erratum_declares_the_complete_hand_and_the_trigger_orde
     }
     patch = next(p for p in contract["record_successors"] if p["fixture_id"] == "CARD_16")
     old = base["CARD_16"]
-    assert patch["correction_class"] == "ACTUAL_CARD_SCENARIO_ERRATUM"
-    assert sorted(patch["replace"]) == ["decision_script", "deck_state"]
+    assert patch["correction_class"] == "ACTUAL_CARD_OBLIGATION_ERRATUM"
+    assert patch["digest_migration"]["obligation_digest"] == "CHANGED_OBLIGATION_ERRATUM"
+    assert sorted(patch["replace"]) == [
+        "decision_script",
+        "deck_state",
+        "scenario_notes",
+        "terminal_postconditions",
+    ]
     details = patch["append_native_procedure"][0]["details"]
-    assert details["obligation_changed"] is False
-    assert "603.3b" in details["rules_basis"]
+    assert details["obligation_changed"] is True
+    assert details["predecessor_obligation_digest"] == old["obligation_digest"]
+    assert details["predecessor_terminal_postconditions"] == old["terminal_postconditions"]
+    assert "603.3b" in details["rules_basis"] and "103.8c" in details["rules_basis"]
     record = resolver.effective_record("CARD_16")
-    assert record["obligation_digest"] == old["obligation_digest"]
+    assert record["obligation_digest"] != old["obligation_digest"]
+    assert record["historical_digests"]["obligation_digest"] == old["obligation_digest"]
+    # Only the hand size it is measured at changes; the life obligation does not.
+    assert record["terminal_postconditions"] == [
+        "P1 hand size=13 and Crawler is 13/13 absent other modifiers.",
+        old["terminal_postconditions"][1],
+    ]
+    assert record["expected_events"] == old["expected_events"]
     assert record["stack_state"] == old["stack_state"]
     assert record["semantic_objects"] == old["semantic_objects"]
     assert record["temporal_state"] == old["temporal_state"]
     (p1,) = [deck for deck in record["deck_state"] if deck["player_id"] == "P1"]
-    assert p1["checkpoint_hand"]["template_count"] == 0
-    assert p1["checkpoint_library"]["runs"][:2] == [
+    # The natural turn-1 hand: the opening seven plus the turn-1 draw (CR 103.8c),
+    # as CARD_07 declares, and the three named Mountains on top of it.
+    assert p1["checkpoint_hand"] == {
+        "completeness": "COMPLETE",
+        "template_card_identity": "Mountain",
+        "template_count": 8,
+    }
+    named_hand = [
+        obj for obj in record["semantic_objects"] if obj["owner"] == "P1" and obj["zone"] == "hand"
+    ]
+    assert len(named_hand) + p1["checkpoint_hand"]["template_count"] + 2 == 13
+    assert p1["checkpoint_library"]["runs"] == [
         {"semantic_id": "obj:card16-lib-0"},
         {"semantic_id": "obj:card16-lib-1"},
+        {"card_identity": "Mountain", "count": 99 - 8},
     ]
     (order,) = record["decision_script"]
     assert order["actor"] == "P1" and order["decision_family"] == "trigger_order"

@@ -1349,10 +1349,10 @@ PLANS: dict[str, ObligationPlan] = {
         fixture_id="CARD_16",
         proofs=(
             PostconditionProof(
-                "P1 hand size=5 and Crawler is 5/5 absent other modifiers.",
-                terminal_check=_permanent("power_toughness", "P1", "Psychosis Crawler", (5, 5)),
+                "P1 hand size=13 and Crawler is 13/13 absent other modifiers.",
+                terminal_check=_permanent("power_toughness", "P1", "Psychosis Crawler", (13, 13)),
                 also=(
-                    midgame_rows_mod.TerminalCheck("hand_count_min", principal="P1", value=5),
+                    midgame_rows_mod.TerminalCheck("hand_count", principal="P1", value=13),
                     midgame_rows_mod.TerminalCheck("draws", principal="P1", value=2),
                 ),
             ),

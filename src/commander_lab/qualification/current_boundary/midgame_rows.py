@@ -104,6 +104,8 @@ class TerminalCheck:
             )
         if self.kind == "hand_count_min":
             return f"{self.principal} holds at least {self.value} cards"
+        if self.kind == "hand_count":
+            return f"{self.principal} holds exactly {self.value} cards"
         if self.kind == "not_on_battlefield":
             return f"no {self.card_identity} is on {self.principal}'s battlefield"
         if self.kind == "power_toughness":
@@ -1073,6 +1075,9 @@ def check_terminal(
     if check.kind == "hand_count_min":
         count = seat.get("hand_count")
         return isinstance(count, int) and count >= check.value
+    if check.kind == "hand_count":
+        count = seat.get("hand_count")
+        return isinstance(count, int) and not isinstance(count, bool) and count == check.value
     cards = [
         card
         for card in seat.get("battlefield") or ()
@@ -1938,6 +1943,7 @@ OBSERVATION_KINDS = frozenset(
         "on_battlefield",
         "tapped",
         "hand_count_min",
+        "hand_count",
         "in_graveyard",
         "not_on_battlefield",
         "untapped_count",
