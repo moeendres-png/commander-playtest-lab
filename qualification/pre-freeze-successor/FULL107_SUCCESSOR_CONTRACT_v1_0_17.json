@@ -1,7 +1,7 @@
 {
  "change_accounting": {
   "change_class": "MIXED_FIXTURE_CONTRACT_ERRATA_AND_RULES_AUTHORITY_CORRECTION",
-  "changed_fixture_count": 41,
+  "changed_fixture_count": 43,
   "changed_fixture_ids": [
    "WS05-CMD-START-2",
    "MICRO_MODES",
@@ -43,7 +43,9 @@
    "HIDDEN_05",
    "HIDDEN_15",
    "HIDDEN_16",
-   "HIDDEN_11"
+   "HIDDEN_11",
+   "HIDDEN_06",
+   "HIDDEN_12"
   ],
   "historical_predecessor_preserved": true,
   "per_fixture_correction_class": {
@@ -87,10 +89,12 @@
    "PILOT_MULTI_AMOUNT": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
    "PILOT_TARGET_AMOUNT": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
    "WS05-CMD-START-2": "OFFICIAL_RULES_AUTHORITY_CORRECTION",
-   "HIDDEN_11": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
+   "HIDDEN_11": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
+   "HIDDEN_06": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
+   "HIDDEN_12": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04"
   },
   "provider_semantics_used_to_define_successor": false,
-  "unchanged_provider_denominator_rows": 80
+  "unchanged_provider_denominator_rows": 64
  },
  "contract_id": "commander-lab.full107/1.0.17-successor",
  "effective_materialization_version": "commander-lab.semantic-fixture-materialization/1.0.17-successor",
@@ -10170,6 +10174,802 @@
     ]
    },
    "successor_requested_state_digest": "d2310a2be374a3a6db5703d879a92dae3cfc9b7cd290183efb2ac2b288f4f5e6"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255/#457 SLOT-04: event-driven hidden-information rows must execute the real Rules-Core transition; no static projection earns credit",
+      "erratum_class": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
+      "event_route": "P1 casts Gonti targeting P2 and chooses P2's top Memnite for the engine's face-down exile permission. Immediately before P1 casts that exact actor-visible face-down exiled card, all four principal-scoped projections and the public event tape are snapshotted. P1 then casts the exact engine-offered exile object for {0}, causing a native EXILED -> STACK zone change. The verifier requires the permission before the move and no stale face-down exile entry afterward.",
+      "includes_lossless_state_erratum": true,
+      "obligation_changed": false,
+      "prose_derived_action_injection": false,
+      "provider_semantics_used": false
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-hidden-event-scenario-hidden_06"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #255 SLOT-04 hidden event scenario; permission ends when exiled object changes zone",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The requested state gains a lossless typed hidden-state checkpoint and a real event route; obligation keys remain unchanged.",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "HIDDEN_06",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "empty_decision_script": true,
+    "reason": "the predecessor begins with a synthetic face-down exile object and permission but performs no native zone change, so the invalidation condition can never be observed",
+    "untyped_face_down_objects": [
+     "obj:facedown",
+     "obj:hidden-hand"
+    ],
+    "partial_library_objects": [
+     "obj:hidden-lib-0"
+    ]
+   },
+   "predecessor_requested_state_digest": "5dbc36acd8b137e3dbe38f0e8f1e7aac969b8fa5b0a8544e4c70132744eea340",
+   "replace": {
+    "action_cost_state": [
+     {
+      "actor": "P1",
+      "card_identity": "Gonti, Lord of Luxury",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:hidden06-swamp-1",
+       "obj:hidden06-swamp-2",
+       "obj:hidden06-swamp-3",
+       "obj:hidden06-swamp-4"
+      ],
+      "minimum_mana_or_equivalent": null,
+      "payable": true,
+      "source_semantic_id": "obj:hidden06-gonti"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "cast-gonti",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:hidden06-gonti"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "gonti-target-opponent",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_player",
+       "semantic_value": "P2"
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "gonti-exile-face-down",
+      "decision_family": "choose_object",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_object",
+       "semantic_value": "obj:hidden-hand"
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cast-exiled-card",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:hidden-hand",
+        "timing": "empty_stack"
+       }
+      }
+     }
+    ],
+    "deck_state": [
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 8
+      },
+      "commander_ids": [
+       "cmd:P1-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P1",
+      "shuffle_channel": "library_shuffle:P1"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P2-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P2",
+      "shuffle_channel": "library_shuffle:P2",
+      "checkpoint_library": {
+       "completeness": "COMPLETE_TOP_TO_BOTTOM",
+       "runs": [
+        {
+         "semantic_id": "obj:hidden-hand"
+        },
+        {
+         "card_identity": "Mountain",
+         "count": 3
+        },
+        {
+         "semantic_id": "obj:hidden-lib-0"
+        },
+        {
+         "card_identity": "Mountain",
+         "count": 89
+        }
+       ]
+      }
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P3-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P3",
+      "shuffle_channel": "library_shuffle:P3"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P4-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P4",
+      "shuffle_channel": "library_shuffle:P4"
+     }
+    ],
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Memnite",
+      "card_lineage_id": "line:obj:hidden-hand",
+      "construction_notes": [
+       "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-hand",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 0
+     },
+     {
+      "card_identity": "Vampiric Tutor",
+      "card_lineage_id": "line:obj:hidden-lib-0",
+      "construction_notes": [
+       "private library top sentinel"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-lib-0",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 4
+     },
+     {
+      "card_identity": "Sol Ring",
+      "card_lineage_id": "line:obj:public-exile",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:public-exile",
+      "tapped": false,
+      "zone": "exile"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:facedown",
+      "construction_notes": [
+       "fixture grants controller-only look permission where relevant"
+      ],
+      "controller": "P1",
+      "counters": {},
+      "face_down": true,
+      "face_down_type": "MANIFESTED",
+      "owner": "P1",
+      "semantic_id": "obj:facedown",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Gonti, Lord of Luxury",
+      "card_lineage_id": "line:obj:hidden06-gonti",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:hidden06-gonti",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:hidden06-swamp-1",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:hidden06-swamp-1",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:hidden06-swamp-2",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:hidden06-swamp-2",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:hidden06-swamp-3",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:hidden06-swamp-3",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:hidden06-swamp-4",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:hidden06-swamp-4",
+      "tapped": false,
+      "zone": "battlefield"
+     }
+    ]
+   },
+   "successor_requested_state_digest": "6e76fe052384d35fde93725ac46e74b0f999e20d8fdfe5a19732a3d1d5225b00"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "authority": "#255/#457 SLOT-04: event-driven hidden-information rows must execute the real Rules-Core transition; no static projection earns credit",
+      "erratum_class": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
+      "event_route": "At P1's postcombat main, P1 activates Mindslaver with four explicit mana sources and targets P2. After that native effect resolves, the lane advances only by exact engine-offered pass_priority options. The first XMage frame explicitly addressed actor=P1 acting_for=P2 is captured and answered with that frame's own pass option. The frame must carry P2-private information P1 is legally entitled to while controlling P2, but neither P2-library omniscience nor unrelated principals' private hands.",
+      "includes_lossless_state_erratum": true,
+      "obligation_changed": false,
+      "prose_derived_action_injection": false,
+      "provider_semantics_used": false,
+      "measurement_progression": "ENGINE_OFFERED_PASS_PRIORITY_ONLY_UNTIL_FIRST_ACTING_FOR_FRAME_THEN_SUBMIT_ITS_EXACT_PASS"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-hidden-event-scenario-hidden_12"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "CR 723.4; fixture-contract successor rule: #255 SLOT-04 hidden event scenario",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "reason": "The requested state gains a lossless typed hidden-state checkpoint and a real event route; obligation keys remain unchanged.",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests"
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "HIDDEN_12",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "empty_decision_script": true,
+    "reason": "the predecessor declares controlled-player authority without any real effect that establishes control or any decision frame addressed under that relationship",
+    "untyped_face_down_objects": [
+     "obj:facedown"
+    ],
+    "partial_library_objects": [
+     "obj:hidden-lib-0"
+    ]
+   },
+   "predecessor_requested_state_digest": "e3f5a7db644bbe43f6b9661fe96e15eb0fc43d42c390580d29f5509e1efa9439",
+   "replace": {
+    "action_cost_state": [
+     {
+      "actor": "P1",
+      "card_identity": "Mindslaver",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:hidden12-island-1",
+       "obj:hidden12-island-2",
+       "obj:hidden12-island-3",
+       "obj:hidden12-island-4"
+      ],
+      "minimum_mana_or_equivalent": null,
+      "payable": true,
+      "source_semantic_id": "obj:hidden12-mindslaver"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "activate-mindslaver",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "activate",
+        "object": "obj:hidden12-mindslaver"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "mindslaver-target-p2",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_player",
+       "semantic_value": "P2"
+      }
+     }
+    ],
+    "deck_state": [
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 8
+      },
+      "commander_ids": [
+       "cmd:P1-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P1",
+      "shuffle_channel": "library_shuffle:P1"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P2-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P2",
+      "shuffle_channel": "library_shuffle:P2",
+      "checkpoint_library": {
+       "completeness": "COMPLETE_TOP_TO_BOTTOM",
+       "runs": [
+        {
+         "semantic_id": "obj:hidden-lib-0"
+        },
+        {
+         "card_identity": "Mountain",
+         "count": 92
+        }
+       ]
+      }
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 6
+      },
+      "commander_ids": [
+       "cmd:P3-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P3",
+      "shuffle_channel": "library_shuffle:P3"
+     },
+     {
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 7
+      },
+      "commander_ids": [
+       "cmd:P4-A"
+      ],
+      "library_template": {
+       "card_identity": "Mountain",
+       "count": 99
+      },
+      "opening_hand_size": 7,
+      "player_id": "P4",
+      "shuffle_channel": "library_shuffle:P4"
+     }
+    ],
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Demonic Tutor",
+      "card_lineage_id": "line:obj:hidden-hand",
+      "construction_notes": [
+       "honey_sentinel:WS30_HONEY_P2_PRIVATE_7F3A"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-hand",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Vampiric Tutor",
+      "card_lineage_id": "line:obj:hidden-lib-0",
+      "construction_notes": [
+       "private library top sentinel"
+      ],
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:hidden-lib-0",
+      "tapped": false,
+      "zone": "library",
+      "zone_position": 0
+     },
+     {
+      "card_identity": "Sol Ring",
+      "card_lineage_id": "line:obj:public-exile",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:public-exile",
+      "tapped": false,
+      "zone": "exile"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:facedown",
+      "construction_notes": [
+       "fixture grants controller-only look permission where relevant"
+      ],
+      "controller": "P1",
+      "counters": {},
+      "face_down": true,
+      "face_down_type": "MANIFESTED",
+      "owner": "P1",
+      "semantic_id": "obj:facedown",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Mindslaver",
+      "card_lineage_id": "line:obj:hidden12-mindslaver",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:hidden12-mindslaver",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Island",
+      "card_lineage_id": "line:obj:hidden12-island-1",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:hidden12-island-1",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Island",
+      "card_lineage_id": "line:obj:hidden12-island-2",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:hidden12-island-2",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Island",
+      "card_lineage_id": "line:obj:hidden12-island-3",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:hidden12-island-3",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Island",
+      "card_lineage_id": "line:obj:hidden12-island-4",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:hidden12-island-4",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Mind Stone",
+      "card_lineage_id": "line:obj:hidden12-p3-hand",
+      "construction_notes": [
+       "unrelated principal private hand sentinel"
+      ],
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:hidden12-p3-hand",
+      "tapped": false,
+      "zone": "hand"
+     }
+    ],
+    "temporal_state": {
+     "active_player": "P1",
+     "extra_turn_queue": [],
+     "phase": "postcombat_main",
+     "priority_player": "P1",
+     "step": "main",
+     "turn_number": 1
+    }
+   },
+   "successor_requested_state_digest": "983a9009fa30755912a999eb1a9063b4323c0434464f72af21b1028aa9312300"
   }
  ],
  "rules_authority": {
