@@ -204,7 +204,7 @@ milestones:
       29/29 DIRECT_PASS, FULL107 midgame rows 22/22, AF05 knowledge-projection
       rows 20/20, Python 3339 passed / 22 skipped / 0 failed (clean tree).
 open_items:
-  - MICRO_PREVENTION, MICRO_PRIORITY and MICRO_STACK request an unreachable controlled_since_turn_began (P2's Forest on P1's turn 1); they do not run on the restoration lane yet; recorded for #456.
+  - MICRO_PREVENTION, MICRO_PRIORITY and MICRO_STACK request an unreachable controlled_since_turn_began (P2's Forest on P1's turn 1); none is credited through a lane yet (the capability probe and two bridge tests drive them through the restoration without the checkpoint verification); recorded for #456.
   - CARD_06/07/16/25 official Oracle and CR text receipts pending (Scryfall, Gatherer and media.wizards.com are denied by this runner's egress policy).
 remaining_scope:
   - Forge decision-execution selector surface (prerequisite for any Forge AF07 credit)

@@ -42,7 +42,8 @@ verifies the request:
 - The five requests above are corrected to `false`, the only reachable value.
 - P2's permanents keep `true`. They are the turn-1 active player's, and their turn
   began with them on the battlefield.
-- Nothing else in the record changes.
+- No other requested state changes. The record's provenance changes with it:
+  `repair_provenance.correction_class` and the appended `native_procedure` step.
 - **Obligation unchanged.** The obligation digest is unchanged: Hex's six targets,
   the `cost_determined:base_plus_3_generic` event and the commander-tax
   postcondition. None of them depends on summoning sickness.
@@ -61,7 +62,15 @@ corpus, finds three more records that request an unreachable `true`:
 - MICRO_PRIORITY: the same;
 - MICRO_STACK: the same.
 
-None of them runs on the restoration lane today. All three are native micro rows,
-and the gap is recorded here for the workstream that will route them (#456). Once
-one is routed through the restoration, the checkpoint verification refuses it
+None of them is credited through a lane today. All three are native micro rows,
+and the gap is recorded here for the workstream that will route them (#456). They
+do reach the restoration in two places:
+
+- **Capability probe.** `scripts/run_midgame_capability_probe.py` runs MICRO_PRIORITY
+  and MICRO_STACK as causal-stack rows on their 1.0.5 historical records.
+- **Bridge tests.** `XmagePb03Tier2StackTest` (MICRO_PRIORITY, MICRO_STACK) and
+  `XmagePb03Tier1RowsTest` (MICRO_PREVENTION) drive them through the restoration
+  without calling the checkpoint verification.
+
+Once one is routed through a credited lane, the checkpoint verification refuses it
 fail-closed. The restoration never accepts or sets the value.

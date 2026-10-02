@@ -316,7 +316,7 @@ final class XmageNativeStateRestoration {
     /**
      * Native ids of the commanders requested outside the command zone, keyed by
      * their semantic object id. Bound before the game starts, so a pilot can
-     * match the engine's offers before the post-arrival placement moves them.
+     * match the engine's offers before the first-turn setup moves them.
      */
     Map<String, UUID> commanderObjectIds() {
         return Map.copyOf(commanderObjectIdsBySemanticId);
@@ -1044,8 +1044,19 @@ final class XmageNativeStateRestoration {
         List<UUID> commanderOwnerIds = new ArrayList<>();
         for (RequestedCommander requested : plan.commanders()) {
             if (requested.zone() == Zone.BATTLEFIELD) {
-                commanderIds.add(commanderObjectIdsBySemanticId.get(requested.semanticId()));
+                UUID commanderId = commanderObjectIdsBySemanticId.get(requested.semanticId());
+                Card commander = game.getCard(commanderId);
+                if (commander == null || !XmageFirstTurnSetupWatcher.deferrable(game, commander)) {
+                    // A commander whose battlefield permanent is another face or
+                    // part (a modal double-faced or transforming card) cannot
+                    // enter through the first-turn setup; refused before game
+                    // start rather than half-moved inside the engine's turn.
+                    throw new RestorationException(
+                            "UNSUPPORTED_COMMANDER_FACE", requested.commanderId());
+                }
+                commanderIds.add(commanderId);
                 commanderOwnerIds.add(requirePlayer(playersByPid, requested.owner()).getId());
+                firstTurnPlacedSemanticIds.add(requested.semanticId());
             }
         }
         if (!deferredCardIds.isEmpty() || !commanderIds.isEmpty() || !lifePlayerIds.isEmpty()) {
@@ -1081,6 +1092,11 @@ final class XmageNativeStateRestoration {
         // never considered Commander identities.
         Map<String, UUID> liveCommanderIds =
                 bindLiveCommanderIds(game, playersByPid);
+        // Bind the battlefield commanders before any history is restored, so a
+        // binding refusal can never leave a partial restore behind. Their
+        // presence is verified at the checkpoint with every first-turn
+        // placement (requireFirstTurnPlacement).
+        bindCommandersOutsideCommandZone(playersByPid, liveCommanderIds);
 
         CommanderPlaysCountWatcher castWatcher =
                 game.getState().getWatcher(CommanderPlaysCountWatcher.class);
@@ -1138,7 +1154,6 @@ final class XmageNativeStateRestoration {
                     "COMMANDER_HISTORY_REJECTED", String.valueOf(exc.getMessage()));
         }
 
-        placeCommandersOutsideCommandZone(game, playersByPid, liveCommanderIds);
         arrivalRestored = true;
         applyLosslessLibrariesAtCheckpoint(game, playersByPid);
     }
@@ -1283,15 +1298,16 @@ final class XmageNativeStateRestoration {
 
     /**
      * F-38: a commander requested on the battlefield is the genuine commander. It
-     * left the command zone when the first turn began, as every restored
-     * permanent entered ({@link XmageFirstTurnSetupWatcher}), never as a generic
+     * leaves the command zone when the first turn begins, as every restored
+     * permanent enters ({@link XmageFirstTurnSetupWatcher}), never as a generic
      * setup copy, which the engine would not treat as a commander (no commander
      * zone choice, tax or damage). Here it is only bound: the engine must report
-     * the commander published before game start, and it must be on the
-     * battlefield, or the restoration fails closed.
+     * the commander published before game start. That the setup watcher itself
+     * put it onto the battlefield is verified at the checkpoint
+     * ({@link #requireFirstTurnPlacement}), like every first-turn placement.
      */
-    private void placeCommandersOutsideCommandZone(
-            GameCommanderImpl game, Map<String, Player> playersByPid, Map<String, UUID> liveCommanderIds) {
+    private void bindCommandersOutsideCommandZone(
+            Map<String, Player> playersByPid, Map<String, UUID> liveCommanderIds) {
         for (RequestedCommander requested : plan.commanders()) {
             if (requested.zone() != Zone.BATTLEFIELD) {
                 continue;
@@ -1304,10 +1320,6 @@ final class XmageNativeStateRestoration {
                         "COMMANDER_IDENTITY_AMBIGUOUS", requested.commanderId());
             }
             requirePlayer(playersByPid, requested.owner());
-            if (game.getPermanent(liveId) == null) {
-                throw new RestorationException(
-                        "FIRST_TURN_PLACEMENT_MISSED", requested.commanderId());
-            }
             injectedObjectIdsBySemanticId.put(requested.semanticId(), liveId);
         }
     }

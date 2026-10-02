@@ -294,14 +294,29 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
             continue
         if new["fixture_id"] == "MICRO_COSTS":
             # The CR 307.1 erratum now also carries its CR 302.6 consequence
-            # (checked in its own test); the original step and the temporal
-            # correction are unchanged.
-            assert new["append_native_procedure"][0] == old["append_native_procedure"][0]
+            # (checked in its own test). Exactly the declared keys change;
+            # everything the predecessor carried is kept.
+            declared = {
+                "correction_class",
+                "append_native_procedure",
+                "predecessor_invalidity",
+                "replace",
+                "successor_requested_state_digest",
+            }
+            assert {key: value for key, value in new.items() if key not in declared} == {
+                key: value for key, value in old.items() if key not in declared
+            }
+            previous_steps = old["append_native_procedure"]
+            assert new["append_native_procedure"][: len(previous_steps)] == previous_steps
+            assert len(new["append_native_procedure"]) == len(previous_steps) + 1
+            assert set(new["replace"]) == set(old["replace"]) | {"semantic_objects"}
             assert new["replace"]["temporal_state"] == old["replace"]["temporal_state"]
-            assert (
-                new["predecessor_requested_state_digest"]
-                == old["predecessor_requested_state_digest"]
-            )
+            assert set(new["predecessor_invalidity"]) == set(old["predecessor_invalidity"]) | {
+                "controlled_since_turn_began",
+                "control_history_reason",
+            }
+            for key, value in old["predecessor_invalidity"].items():
+                assert new["predecessor_invalidity"][key] == value
             continue
         # A lossless-library overlay now carried inside a decision-script erratum.
         assert new["fixture_id"] in CARRIED_LIBRARY_ERRATA_IDS
@@ -428,6 +443,9 @@ def test_micro_costs_control_history_is_the_one_turn_1_of_p2_can_reach() -> None
     active = record["temporal_state"]["active_player"]
     assert (active, record["temporal_state"]["turn_number"]) == ("P2", 1)
     before = {item["semantic_id"]: item for item in base["semantic_objects"]}
+    assert [item["semantic_id"] for item in record["semantic_objects"]] == [
+        item["semantic_id"] for item in base["semantic_objects"]
+    ]
     corrected = []
     for item in record["semantic_objects"]:
         old = before[item["semantic_id"]]

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -55,30 +56,42 @@ class XmageFirstTurnSetupTest {
     /** P2's commander requested on the battlefield; P1 takes the first turn. */
     private static XmageNativeStateRestoration.Plan commanderPlan(
             String planId, Map<String, Boolean> controlledSinceTurnBegan) {
+        return commanderPlan(planId, "Rograkh, Son of Rohgahh", "P1", controlledSinceTurnBegan);
+    }
+
+    /** Both commanders requested on the battlefield; {@code active} takes the first turn. */
+    private static XmageNativeStateRestoration.Plan commanderPlan(
+            String planId, String p1Commander, String active,
+            Map<String, Boolean> controlledSinceTurnBegan) {
         return new XmageNativeStateRestoration.Plan(
                 planId, 2, 424242L,
                 List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
                         new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40)),
                 List.of(new XmageNativeStateRestoration.RequestedCommander(
-                                "cmd:P1-A", "Rograkh, Son of Rohgahh", "P1", 0,
+                                "cmd:P1-A", p1Commander, "P1", 0,
                                 Zone.BATTLEFIELD, "obj:p1-commander"),
                         new XmageNativeStateRestoration.RequestedCommander(
                                 "cmd:P2-A", "Rograkh, Son of Rohgahh", "P2", 0,
                                 Zone.BATTLEFIELD, "obj:p2-commander")),
                 List.of(),
                 List.of(),
-                1, TurnPhase.PRECOMBAT_MAIN, PhaseStep.PRECOMBAT_MAIN, "P1", "P1",
+                1, TurnPhase.PRECOMBAT_MAIN, PhaseStep.PRECOMBAT_MAIN, active, active,
                 Map.of(), controlledSinceTurnBegan);
     }
 
     private static Arrived arrive(XmageNativeStateRestoration.Plan plan) {
+        return arrive(plan, 0);
+    }
+
+    /** {@code startingSeat} is the seat the bridge starts with (its starting_player_seat). */
+    private static Arrived arrive(XmageNativeStateRestoration.Plan plan, int startingSeat) {
         XmageDeckImporter importer = new XmageDeckImporter();
         XmageNativeStateRestoration restoration =
                 XmageNativeStateRestorationTest.restorationFor(plan);
         List<String> handles =
                 XmageNativeStateRestorationTest.importScaffolding(importer, plan, plan.planId());
         XmageFullGameSession session = new XmageFullGameSession(
-                plan.planId(), handles, 0, 40, plan.seed(), importer, restoration);
+                plan.planId(), handles, startingSeat, 40, plan.seed(), importer, restoration);
         session.start();
         Map<String, Player> seats = session.restorationSeats();
         XmageNativeStateRestorationTest.completeArrival(session, restoration, seats);
@@ -163,5 +176,53 @@ class XmageFirstTurnSetupTest {
                 .losslessHiddenVerification(arrived.session().restorationGame(), arrived.seats());
         assertEquals(List.of("controlled_since_turn_began obj:p2-commander: requested true observed false"),
                 verification.mismatches());
+    }
+
+    @Test
+    void theCommandObjectLeavesTheCommandZone() {
+        Arrived arrived = arrive(commanderPlan("setup-command-zone", Map.of()));
+        UUID p1 = permanent(arrived, "obj:p1-commander").getId();
+        UUID p2 = permanent(arrived, "obj:p2-commander").getId();
+        for (mage.game.command.CommandObject object
+                : arrived.session().restorationGame().getState().getCommand()) {
+            assertFalse(object.getId().equals(p1) || object.getId().equals(p2),
+                    "a placed commander is still a command object: " + object.getName());
+        }
+    }
+
+    @Test
+    void onP2sFirstTurnP1sBattlefieldCommanderIsNotControlledSinceItsTurnBegan() {
+        // The MICRO_COSTS shape (CR 302.6): P2 takes turn 1, P1 has had no turn.
+        Arrived arrived = arrive(commanderPlan("setup-micro-costs", "Rograkh, Son of Rohgahh", "P2",
+                Map.of("obj:p1-commander", false, "obj:p2-commander", true)), 1);
+        assertFalse(permanent(arrived, "obj:p1-commander").wasControlledFromStartOfControllerTurn());
+        assertTrue(permanent(arrived, "obj:p2-commander").wasControlledFromStartOfControllerTurn());
+        XmageLosslessHiddenPlan.Verification verification = arrived.restoration()
+                .losslessHiddenVerification(arrived.session().restorationGame(), arrived.seats());
+        assertTrue(verification.checks().containsAll(List.of(
+                "controlled_since_turn_began:obj:p1-commander",
+                "controlled_since_turn_began:obj:p2-commander")));
+        assertEquals(List.of(), verification.mismatches());
+    }
+
+    @Test
+    void aDoubleFacedBattlefieldCommanderIsRefusedBeforeGameStart() {
+        XmageNativeStateRestoration.Plan plan =
+                commanderPlan("setup-mdfc", "Esika, God of the Tree", "P1", Map.of());
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageNativeStateRestoration restoration =
+                XmageNativeStateRestorationTest.restorationFor(plan);
+        List<String> handles =
+                XmageNativeStateRestorationTest.importScaffolding(importer, plan, plan.planId());
+        // Refused while the restoration is applied, before the game starts.
+        RuntimeException refused = org.junit.jupiter.api.Assertions.assertThrows(
+                RuntimeException.class, () -> new XmageFullGameSession(
+                        plan.planId(), handles, 0, 40, plan.seed(), importer, restoration).start());
+        Throwable cause = refused;
+        while (cause != null && !(cause instanceof XmageNativeStateRestoration.RestorationException)) {
+            cause = cause.getCause();
+        }
+        assertNotNull(cause, "expected a coded restoration refusal, got " + refused);
+        assertTrue(cause.getMessage().contains("UNSUPPORTED_COMMANDER_FACE"), cause.getMessage());
     }
 }
