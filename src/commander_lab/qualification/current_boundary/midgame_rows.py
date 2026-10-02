@@ -1835,6 +1835,56 @@ def _interchangeable(actions: list[dict[str, Any]]) -> bool:
     return len(identities) == 1 and None not in next(iter(identities))
 
 
+def _blocker_answer(
+    legal: dict[str, Any],
+    step: dict[str, Any],
+    placed: dict[str, str],
+    placed_by_native: dict[str, str],
+) -> tuple[str | None, dict[str, Any] | None]:
+    """The engine offer the record's blocker assignment names for this blocker.
+
+    XMage asks once per creature able to block, offering exactly the attackers
+    it may legally block (CR 509.1a, 802.4a). The assignment is complete for the
+    defending player: a listed creature blocks its named attacker, every other
+    creature blocks nothing, and the empty selection is answered only on a frame
+    whose own minimum is zero. Returns the blocker's semantic id and the offer
+    (None for no block).
+    """
+    assignment = (step.get("selection") or {}).get("semantic_value") or {}
+    if not isinstance(assignment, dict):
+        raise ml.MidgameLaneError(f"a block assignment is not a mapping: {assignment!r}")
+    actions = list(legal.get("actions") or ())
+    blockers = {
+        str(((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("blocker_id"))
+        for a in actions
+    }
+    if len(blockers) != 1:
+        raise ml.MidgameLaneError(f"a block declaration names {len(blockers)} blockers")
+    semantic = placed_by_native.get(blockers.pop())
+    if semantic not in assignment:
+        bounds = _engine_selection_bounds(legal)
+        if bounds is None or bounds[0] != 0:
+            raise ml.MidgameLaneError(
+                f"{semantic or 'an unplaced creature'} blocks nothing in the record, "
+                f"the engine frame requires {bounds}"
+            )
+        return semantic, None
+    attacker = placed.get(str(assignment[semantic]))
+    matches = [
+        a
+        for a in actions
+        if (a.get("metadata") or {}).get("option_type") == "declare_blocker"
+        and ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("attacker_id")
+        == attacker
+        and attacker is not None
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(
+            f"the block of {assignment[semantic]} by {semantic} matched {len(matches)} engine offers"
+        )
+    return semantic, matches[0]
+
+
 def _attacker_answer(
     legal: dict[str, Any], step: dict[str, Any], placed_by_native: dict[str, str]
 ) -> dict[str, Any]:
@@ -2086,6 +2136,8 @@ def execute_row(
     position = 0
     ordinal = 0
     declaring = False
+    blocking = False
+    answered_blockers: set[str] = set()
     placed_by_native = {native: semantic for semantic, native in placed.items()}
     unresolved_library = {
         semantic: native
@@ -2179,6 +2231,18 @@ def execute_row(
                 declaring = False
                 position += 1
                 step = script[position] if position < len(script) else None
+            if blocking and decision_class != "declare_blocker":
+                # The block declarations are complete. Every creature the record
+                # names as a blocker must have been asked about by the engine.
+                blocking = False
+                assigned = ((step or {}).get("selection") or {}).get("semantic_value") or {}
+                unasked = sorted(set(assigned) - answered_blockers)
+                if unasked:
+                    raise ml.MidgameLaneError(
+                        f"the engine never asked about the record's blockers {unasked}"
+                    )
+                position += 1
+                step = script[position] if position < len(script) else None
             scripted = step is not None and step.get("actor") == principal
             if (
                 scripted
@@ -2211,6 +2275,26 @@ def execute_row(
                 frame.selected_option_ids = _single_option_id(action)
                 probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                 declaring = True
+                continue
+            if (
+                decision_class == "declare_blocker"
+                and scripted
+                and step is not None
+                and step.get("decision_family") == "declare_blocker"
+                and str((step.get("selection") or {}).get("selector_kind")) == "blocker_assignment"
+            ):
+                blocker, block_offer = _blocker_answer(legal, step, placed, placed_by_native)
+                frame.scripted = True
+                if blocker is not None:
+                    answered_blockers.add(blocker)
+                if block_offer is None:
+                    client.submit_options(decision, [])
+                    frame.selected_key = "none"
+                else:
+                    frame.selected_label = _label_of(block_offer)
+                    frame.selected_option_ids = _single_option_id(block_offer)
+                    probe.submit_proposal(client, legal, block_offer, f"{fixture_id}-{len(trace)}")
+                blocking = True
                 continue
             if decision_class == "priority":
                 if (
