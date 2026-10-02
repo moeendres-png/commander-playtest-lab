@@ -179,13 +179,14 @@ outputs:
   pull_request: 464
   pull_request_url: https://github.com/moeendres-png/commander-playtest-lab/pull/464
   pull_request_state: DRAFT_OPEN
-  branch_pushed_at: e9e5087f1e3d9d1b0e8b593693a715294ef1b7d6
+  branch_pushed_at: 3d9d14e3f8979deaea4a96240883eefc12d5c72b
+  integration_commit: d2cc6f9f
   evidence_source_commit: ffa0e9107b6e7b946e48f255aada3fa0ed13a24a
 
 remaining_scope:
-  - Phase 2 integration into the shared current-boundary evidence chain, gated on #450 terminal
-  - re-derive against current main (contract 1.0.10) and impact-adjudicate before re-running
-  - optional: observation contracts for MICRO_LAYERS layer events and START-3 draw evidence
+  - produce the canonical new current-boundary epoch at the integrated head (runner --candidate all + assembler) and commit it
+  - run PB-03 on the exact integrated head
+  - optional: observation contracts for MICRO_LAYERS layer events and START-2/START-3 draw evidence
   - optional: execute remaining constructible-not-observable rows once owner/attachment/graveyard projection exists
 
 status: ACTIVE
