@@ -191,8 +191,12 @@ jobs:
           }
           path.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n')
           PY
-          find artifacts/xmage-full-game -type f ! -name SHA256SUMS -print0 \
-            | sort -z | xargs -0 sha256sum > artifacts/xmage-full-game/SHA256SUMS || true
+          python scripts/seal_xmage_full_game_artifacts.py --root artifacts/xmage-full-game
+          (
+            cd artifacts/xmage-full-game
+            test -s SHA256SUMS
+            sha256sum -c SHA256SUMS
+          )
       - name: Upload full-game technical conformance evidence
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
