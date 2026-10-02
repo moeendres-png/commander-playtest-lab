@@ -464,12 +464,15 @@ def test_dq01_missing_evidence_class_fails_closed(monkeypatch):
     _assert_provider_response_rejected(results)
 
 
-def test_dq01_non_runtime_evidence_class_cannot_earn_pass(monkeypatch):
-    _mod, results = _execute_with_response(
-        monkeypatch,
-        lambda request: _bound_provider_response(request, evidence_class="CODE_DERIVED"),
-    )
-    _assert_provider_response_rejected(results)
+def test_dq01_non_runtime_or_invalid_evidence_class_cannot_earn_pass(monkeypatch):
+    for evidence_class in ("CODE_DERIVED", "INVALID_EVIDENCE_CLASS"):
+        _mod, results = _execute_with_response(
+            monkeypatch,
+            lambda request, evidence_class=evidence_class: _bound_provider_response(
+                request, evidence_class=evidence_class
+            ),
+        )
+        _assert_provider_response_rejected(results)
 
 
 def test_dq01_missing_or_unbound_artifact_hashes_fail_closed(monkeypatch):
@@ -478,6 +481,7 @@ def test_dq01_missing_or_unbound_artifact_hashes_fail_closed(monkeypatch):
         "empty",
         "missing-evidence",
         "empty-evidence",
+        "malformed-hash",
         "unknown-artifact",
         "wrong-result",
         "wrong-binding",
@@ -504,6 +508,8 @@ def test_dq01_missing_or_unbound_artifact_hashes_fail_closed(monkeypatch):
                 document["payload"]["artifact_hashes"]["fixture_result_sha256"] = _canonical_sha256(
                     result_payload
                 )
+            elif mode == "malformed-hash":
+                document["payload"]["artifact_hashes"]["events_sha256"] = "not-a-sha256"
             elif mode == "unknown-artifact":
                 document["payload"]["artifact_hashes"]["unverifiable_sha256"] = "1" * 64
             elif mode == "wrong-result":
