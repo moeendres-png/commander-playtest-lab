@@ -760,14 +760,7 @@ def _face_down_exile_cast_offer(
         raise ml.MidgameLaneError(
             f"the scripted face-down exile cast has {len(handles)} actor-visible handles"
         )
-    matches = [
-        action
-        for action in legal.get("actions") or ()
-        if ((action.get("metadata") or {}).get("xmage_option_metadata") or {}).get(
-            "source_object_id"
-        )
-        == handles[0]
-    ]
+    matches = midgame_rows_mod._source_casts(legal, handles[0])
     if len(matches) != 1:
         raise ml.MidgameLaneError(
             f"the face-down exile handle matched {len(matches)} engine legal actions"
@@ -827,6 +820,21 @@ def _record_seat_index(record: dict[str, Any], label: str) -> int:
     return matches[0]
 
 
+def _unique_option_of_type(decision: dict[str, Any], option_type: str) -> str:
+    matches = [
+        str(option.get("option_id"))
+        for option in decision.get("legal_options") or ()
+        if isinstance(option, dict)
+        and option.get("option_type") == option_type
+        and option.get("option_id")
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(
+            f"expected exactly one {option_type} option, observed {len(matches)}"
+        )
+    return matches[0]
+
+
 def advance_to_controlled_decision(
     client: ml.MidgameLaneClient, record: dict[str, Any]
 ) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -879,8 +887,8 @@ def advance_to_controlled_decision(
                 "advancing to the controlled turn encountered unsupported "
                 f"{decision.get('decision_class')}"
             )
-        passed = probe.option_of_type(decision, "pass_priority")
-        if passed is None:
+        passed = _unique_option_of_type(decision, "pass_priority")
+        if not passed:
             raise ml.MidgameLaneError("the engine offered no pass while advancing turns")
         client.submit_options(decision, [passed])
     raise ml.MidgameLaneError("the controlled-player authority frame was not reached")
