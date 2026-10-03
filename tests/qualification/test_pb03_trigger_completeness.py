@@ -17,6 +17,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import tomllib
 from functools import cache
 from pathlib import Path
 
@@ -145,13 +146,33 @@ def test_every_measured_input_triggers_pb03() -> None:
     assert not uncovered, f"PB-03 inputs that do not trigger PB-03 on a PR: {uncovered}"
 
 
+def _packaging_inputs() -> set[str]:
+    """Files ``pip install -e .`` reads: pyproject.toml and the files it declares."""
+    project = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    declared = set()
+    readme = project.get("readme")
+    if isinstance(readme, str):
+        declared.add(readme)
+    elif isinstance(readme, dict) and "file" in readme:
+        declared.add(readme["file"])
+    license_ = project.get("license")
+    if isinstance(license_, dict) and "file" in license_:
+        declared.add(license_["file"])
+    declared.update(project.get("license-files") or ())
+    return {"pyproject.toml", *declared}
+
+
+def test_the_packaging_inputs_include_the_declared_readme() -> None:
+    assert "README.md" in _packaging_inputs()
+
+
 def test_every_file_the_workflow_runs_triggers_pb03() -> None:
     steps = [step.get("run") or "" for job in _workflow()["jobs"].values() for step in job["steps"]]
     invoked = sorted(
         set(re.findall(r"(?:scripts|tests)/[\w./-]+\.py", "\n".join(steps)))
+        | _packaging_inputs()
         | {
             "requirements/lock.txt",
-            "pyproject.toml",
             ".github/workflows/pb03-runtime-qualification.yml",
         }
     )
