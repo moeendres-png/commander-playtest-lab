@@ -2405,7 +2405,13 @@ def evaluate_commander_zone_choice(
     facts["commander_zones"] = zones_at
 
     casts = [frame for frame in run.frames if frame.reason == f"causal cast {spell.semantic_id}"]
-    targets = [frame for frame in run.frames if frame.reason == "causal target"]
+    target_refs = [
+        (ref.get("kind"), ref.get("name"), str(ref.get("controller") or "").lower())
+        for frame in run.frames
+        if frame.reason == "causal target"
+        for ref in frame.refs
+    ]
+    target_frames = sum(1 for frame in run.frames if frame.reason == "causal target")
     answers = run.scripted_answers
     wanted_answer = choice == "command"
     settled_zone = "command" if wanted_answer else event_zone
@@ -2418,11 +2424,7 @@ def evaluate_commander_zone_choice(
         ),
         "cast_by_declared_controller": len(casts) == 1
         and casts[0].actor.lower() == spell.controller,
-        "target_is_the_commander": len(targets) == 1
-        and len(targets[0].refs) == 1
-        and targets[0].refs[0].get("kind") == "card"
-        and targets[0].refs[0].get("name") == name
-        and str(targets[0].refs[0].get("controller") or "").lower() == owner,
+        "target_is_the_commander": target_frames == 1 and target_refs == [("card", name, owner)],
         "one_scripted_answer_on_the_rule_frame": len(answers) == 1
         and answers[0].get("frame_kind") == _COMMANDER_EVENT_FRAMES[event_zone]
         and answers[0].get("boolean") is wanted_answer,

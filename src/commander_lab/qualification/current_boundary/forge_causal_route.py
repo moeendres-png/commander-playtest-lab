@@ -295,12 +295,11 @@ def run_causal_route(
             if pending_targets:
                 if decision_class != "target":
                     raise CausalRouteError(f"expected the spell's target frame, got {kind}")
-                chosen = ss.select(
-                    _target_step(pending_targets[0]), decision_class, options, objects
-                )
+                # The record's targets, consumed in declaration order.
+                target = pending_targets.pop(0)
+                chosen = ss.select(_target_step(target), decision_class, options, objects)
                 _submit(proc, game_id, frame, chosen)
                 _record(run, frame, decision_class, options, chosen, "causal target")
-                pending_targets.pop(0)
                 continue
             if decision_class == "mana_payment":
                 chosen, source = ss.select_mana_source(
