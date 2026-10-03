@@ -1,0 +1,40 @@
+# B6 PB09 identity tests in a source-materialized required lane: resumable state (#487, parent #479).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: scratchpad/wtb6 (session-local git worktree of the canonical clone)
+branch: hardening/b6-pb09-source-materialized-20261003
+audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
+state_written_against_head: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+workstream: B6-PB09-SOURCE-MATERIALIZED-20261003
+issue: 487
+parent: 479
+pull_request: null
+objective: >-
+  The two Forge-source-dependent PB09 identity tests execute in the required
+  infrastructure lane with the exact pinned commits instead of skipping.
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+status: ACTIVE
+ownership: B6-PB09-SOURCE-MATERIALIZED-20261003 (Claude, sole executor)
+in_scope:
+  - .github/workflows/production-qualification.yml (infrastructure job: Forge reference step, test-step env)
+  - tests/qualification/test_current_boundary_pb09_engine_identity.py
+out_of_scope:
+  - the PB09 identity semantics themselves; any Forge change
+hard_gates:
+  - no skip-based green signal in the required lane
+  - local runs without a reference still skip with the existing reason
+milestones:
+  - id: M1
+    result: >-
+      infrastructure clones moeendres-png/forge commit-only (--filter=tree:0,
+      about 2 s and 23 MB locally), requires the three pinned commits, and runs
+      tests/qualification with FORGE_SOURCE_DIR and
+      PB09_REQUIRE_FORGE_REFERENCE=1. Locally: no env -> 2 skips; required with
+      reference -> 20 passed; required without -> 2 failed.
+open_items:
+  - Exact-head infrastructure must show the two tests executed (no skips).
+exact_next_action: >-
+  Push, open the PR, confirm the infrastructure log shows no PB09 skip,
+  fresh-context review, merge under the gates.
