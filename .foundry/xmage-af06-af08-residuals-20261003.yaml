@@ -1,11 +1,11 @@
 # XMage AF06/AF08 residual closure: resumable workstream state (#456, parent #255).
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: commander-playtest-lab (session-local canonical clone)
+worktree: scratchpad/wt505 (session-local git worktree of the canonical clone)
 branch: hardening/xmage-af06-af08-residuals-20261003
 audit_base_sha: 01d70279dbb6eaf2b694ca27e6489ee582418d3d
 audit_base_tree: 0e520ae41518cb9195078cee0df4b245d3f7fa2f
-state_written_against_head: 01d70279dbb6eaf2b694ca27e6489ee582418d3d
+state_written_against_head: a3d3b923b6a02a2cf0fcc659dd3220d987278c6a
 workstream: XMAGE-AF06-AF08-RESIDUALS-20261003
 issue: 456
 parent: 255
@@ -93,6 +93,29 @@ milestones:
       AF07 29/29 PASS. Local battery on 2f469997: engine-bridge 942/0/1, AF07
       29/29, midgame rows 54/55 (ELIM-TURN-3 candidate engine defect), AF05
       20/20.
+  - id: M6
+    rows: [all]
+    result: >-
+      Two fresh-context adversarial reviews resolved through a3d3b923. Local
+      evidence on a3d3b923 and its parent: Python 3511 passed; ruff, format
+      and mypy clean; engine-bridge 942 on feb44e05 with the touched classes
+      re-run on a3d3b923 (MidgameCausal 26, CommanderDamage 11, Tier2Stack 8);
+      AF07 campaign exit 0; midgame rows 57/58 and AF05 hidden 20/20 on
+      feb44e05; the live PB-03 producer verifies 57/58 midgame rows.
+    summary: >-
+      Review fixes: five RowSpecs restored; no zone-change-counter field (CR
+      400.7 evidence is the public ZONE_CHANGE between zones); turn, principal
+      and defender checks in answer_requested_combat; explicit object presence
+      (<role>_present), None and UNNAMED_OBJECT match semantics and
+      player_in_game in the bridge; last_power/last_toughness; the PB-03
+      admission guard reads dimension_admission.CURRENT_BOUNDARY_COUNTS (13
+      admitted / 17 blocked after the DMG-CONTROL erratum).
+  - id: M7
+    rows: [all]
+    result: ownership transferred to the continuation executor at a3d3b923 (handover 2026-10-03)
+    summary: >-
+      The previous Claude executor handed the campaign over with the PR head
+      unchanged; this commit records the review state and the merge gates.
 open_items:
   - WS05-MP-ELIM-TURN-3 candidate XMage defect (GameImpl.playPriority asks a player who just left); for #255 adjudication
   - WS05-MP-ELIM-STACK-3 and WS05-MP-ELIM-CONTROL-3 need composed causal routes (stack or control plus elimination)
@@ -100,6 +123,8 @@ open_items:
   - WS05-CMD-MULL-2/4 natural-start lane with London mulligan bottom choice
   - WS05-CMD-PARTNER-ZONE XMage emits no game-start command-zone event; record forbids static credit
 exact_next_action: >-
-  Resolve the fresh-context adversarial review of 01d70279..HEAD, confirm PB-03
-  on the final head (expected XMage AF06 5 / AF08 8 blocking), then merge PR
-  #505 under the project gates and post the #456 handoff.
+  Confirm exact-head CI on this head (PB-03 above all, with the expected XMage
+  gates: AF05 PASS, AF07 29/29, AF06 blocking only ELIM-CONTROL-3,
+  ELIM-STACK-3, ELIM-TURN-3, TURN-3, TURN-5, AF08 adding MULL-2, MULL-4,
+  PARTNER-ZONE, AF09 1 RNG_RULES_TAPE), merge PR #505 under the project gates,
+  verify main, then post the #456 handoff and the #255 adjudication comment.
