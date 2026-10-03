@@ -1,0 +1,27 @@
+{
+  "parent_head": "e87f256ed63fdbec0b97c641258de2f4a0feece3",
+  "parent_tree": "7b18540cddb29daf8c88554e74023ccd628b2ad2",
+  "patch_sha256": "f56bf81a9992f8f78525edaa3660ce9ef604603d0bd7538fe79325ce230a4407",
+  "passed": 191,
+  "records": {
+    "B10-root-config-RED.json": {
+      "gzip_sha256": "3877e5f8e5058e7edef8e470d8a2ba522cd26886a6cbacd2919daa86c39078f7",
+      "raw_sha256": "4a2e905433542c52f097e6e911f7ea49b0e4e89de4bd185ec382586dcec9ca41"
+    },
+    "B10-root-config-GREEN.json": {
+      "gzip_sha256": "d3077d0105903d5e174eff96e62018e2e9c72d0cd36d43c95c439b1714dc355a",
+      "raw_sha256": "0f3886225eac96098c1d5cc0cbdf12e148a1b5341241d30cac88f3fe0918818d"
+    },
+    "B10-root-config-positive-GREEN.json": {
+      "gzip_sha256": "2f8e6ab3f3be481ddf74f666ba0be9a8632ba48c8cd049864f28211f6e3616ed",
+      "raw_sha256": "13a65a197b95af50cd5fcf62ae37a11c6692a9d23f9ad7e5b752988009f01e2a"
+    },
+    "B10-root-config-unit-GREEN.xml": {
+      "gzip_sha256": "9b83298cae7aae9a774782be71d5be4ad17b1330c6c06a68798c9bb57116e999",
+      "raw_sha256": "f9a984dd56a670198f1a7470f9ab32199675abe1acabf2e71c97313112614385"
+    }
+  },
+  "scope": "Local affected/full-path before-after controls, no exact-head CI or engine qualification credit.",
+  "reproduction": "Use pinned red_controls github-pat generated in memory, append its content as a comment to a temporary Git-tracked copy of .gitleaks.toml; set scanner ROOT/CONFIG to that fixture, call main with checksum-verified gitleaks8.28.0. Before:13controlsPASS, scanPASS/no findings; after:14controlsPASS, scanFAIL exit1 with redacted github-pat finding at .gitleaks.toml. Canonical dirty-tree positive control:3040tracked files, zero findings. CI must repeat against published exact head.",
+  "upstream_source": "https://github.com/gitleaks/gitleaks/blob/v8.28.0/config/gitleaks.toml#L13-L18"
+}
