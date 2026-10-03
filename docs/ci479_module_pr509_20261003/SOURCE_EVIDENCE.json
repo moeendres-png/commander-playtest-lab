@@ -1,0 +1,17 @@
+{
+  "parent_head": "310e72671df5b196650ee39ba2ce9c06e8b16185",
+  "parent_tree": "6457c03668339ad595aea98040d2354f5cdd9c00",
+  "patch_sha256": "657211b974ef576387ae33c175c206d437111f4014b4fbbcc66e60025099f39f",
+  "passed": 74,
+  "records": {
+    "B9-recorded-module-RED.xml": {
+      "gzip_sha256": "ef66e688c284bdcc53169232727d6a6bae337756427482d93f03f75059268563",
+      "raw_sha256": "250d417897c75cc4dadea7a87ada95cb2e9c673806d21ea8c8be88eed86d3393"
+    },
+    "B9-recorded-module-GREEN.xml": {
+      "gzip_sha256": "2e21b2eff36330642a649de84a5ba924f215d9cd123dfb2535cfd840a3547c07",
+      "raw_sha256": "b1359f3f0fefc9f4a78ed90b130efe73f86aa6dd7ef52cc3a1f3f8f27537ce9f"
+    }
+  },
+  "scope": "Local affected/full-path before-after controls, no exact-head CI or engine qualification credit."
+}
