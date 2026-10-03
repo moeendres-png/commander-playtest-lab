@@ -14,6 +14,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -1122,6 +1123,10 @@ class XmageMidgameCausalTest {
             }
             if ("DESTROYED_PERMANENT".equals(type)
                     && "obj:cmd-zone-test".equals(text(event, "target_object"))) {
+                // The destroy has a source (Doom Blade); the tape says so even
+                // where it would withhold which object it is.
+                assertTrue(event.has("source_present") && event.get("source_present").getAsBoolean(),
+                        "a sourced event reports source_present: " + event);
                 destroyed = true;
             }
             if ("ZONE_CHANGE".equals(type) && "obj:cmd-zone-test".equals(text(event, "target_object"))
@@ -1129,18 +1134,12 @@ class XmageMidgameCausalTest {
                 toGraveyard = true;
             }
             if ("ZONE_CHANGE".equals(type) && "obj:cmd-zone-source".equals(text(event, "target_object"))) {
-                // CR 400.7: every public move of Doom Blade is reported by the
-                // engine as a new object, and no raw zone-change counter leaves
-                // the engine (it would count hidden moves too).
-                // The first move after setup has no earlier engine zone change
-                // to compare against and reports nothing; every later move does.
-                if (sourceMoves > 0) {
-                    assertTrue(event.has("new_object"), "a public move reports new_object: " + event);
-                }
-                if (event.has("new_object")) {
-                    assertTrue(event.get("new_object").getAsBoolean(),
-                            "each move makes a new object: " + event);
-                }
+                // CR 400.7: each public move of Doom Blade is a move between
+                // zones, and no zone-change counter (or anything derived from
+                // it) leaves the engine: it also counts hidden moves.
+                assertTrue(event.get("public_identity").getAsBoolean(), "a public move: " + event);
+                assertNotEquals(text(event, "from"), text(event, "to"), "a move between zones: " + event);
+                assertFalse(event.has("new_object"), "no counter-derived flag on the tape: " + event);
                 assertFalse(event.has("incarnation"), "no raw counter on the tape: " + event);
                 sourceMoves++;
             }
@@ -1148,7 +1147,7 @@ class XmageMidgameCausalTest {
                     && "HAND".equals(text(event, "to"))) {
                 assertFalse(event.get("public_identity").getAsBoolean(), "a draw is hidden: " + event);
                 assertFalse(event.has("target_name") || event.has("target_object"), "a draw names nothing: " + event);
-                assertFalse(event.has("new_object"), "a hidden move reports nothing: " + event);
+                assertFalse(event.has("new_object") || event.has("incarnation"), "a hidden move reports no counter: " + event);
                 hiddenDraws++;
             }
         }

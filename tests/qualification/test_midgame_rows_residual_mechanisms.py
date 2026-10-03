@@ -6,19 +6,22 @@
   record's commander object and the scripted answer on the engine's frame;
 * a record's requested combat (``combat_state``) is declared on the engine's
   own frames and then verified against the engine's declaration events;
-* CR 400.7 new-object evidence is the engine's own incarnation, never assumed;
+* CR 400.7 new-object evidence is the engine's own public move between zones;
 * commander damage is read from the engine's per-commander readback;
 * a FULL107 row with a declared causal-stack entry enters through it.
 """
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import pytest
 
 from commander_lab.qualification.current_boundary import midgame_lane as ml
 from commander_lab.qualification.current_boundary import midgame_rows as mr
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # --------------------------------------------------------------------------- #
 # Yes/no frames named by their rules family
@@ -216,29 +219,42 @@ def test_the_engine_declarations_must_be_exactly_the_requested_combat() -> None:
 RECORD = {"semantic_objects": [{"semantic_id": "obj:bolt", "card_lineage_id": "line:bolt"}]}
 
 
-def _moved(sequence: int, source: str, destination: str, new_object: Any) -> dict[str, Any]:
-    event = _move(sequence, source, destination, obj="obj:bolt")
-    if new_object is not None:
-        event["new_object"] = new_object
-    return event
+def _moved(sequence: int, source: str, destination: str, public: bool = True) -> dict[str, Any]:
+    return {**_move(sequence, source, destination, obj="obj:bolt"), "public_identity": public}
 
 
-def test_a_public_move_the_engine_reports_as_a_new_object_is_evidence() -> None:
-    window = [_moved(5, "STACK", "GRAVEYARD", True)]
-    assert mr.new_incarnation_evidence("line:bolt", RECORD, [], window) == {
+def test_a_public_move_between_zones_is_new_object_evidence() -> None:
+    window = [_moved(5, "STACK", "GRAVEYARD")]
+    assert mr.new_incarnation_evidence("line:bolt", RECORD, window) == {
         "events": [5],
-        "new_object": True,
+        "from": "STACK",
+        "to": "GRAVEYARD",
     }
 
 
-def test_no_report_or_a_negative_report_is_no_evidence() -> None:
-    for value in (None, False):
-        window = [_moved(5, "STACK", "GRAVEYARD", value)]
-        assert mr.new_incarnation_evidence("line:bolt", RECORD, [], window) is None
+def test_no_public_move_between_zones_is_no_evidence() -> None:
+    assert mr.new_incarnation_evidence("line:bolt", RECORD, []) is None
+    assert mr.new_incarnation_evidence("line:bolt", RECORD, [_moved(5, "STACK", "STACK")]) is None
+    hidden = [_moved(5, "LIBRARY", "HAND", public=False)]
+    assert mr.new_incarnation_evidence("line:bolt", RECORD, hidden) is None
     # Only the lineage's last move counts.
-    window = [_moved(4, "HAND", "STACK", True), _moved(5, "STACK", "GRAVEYARD", False)]
-    assert mr.new_incarnation_evidence("line:bolt", RECORD, [], window) is None
-    assert mr.new_incarnation_evidence("line:other", RECORD, [], window) is None
+    window = [_moved(4, "HAND", "STACK"), _moved(5, "GRAVEYARD", "LIBRARY", public=False)]
+    assert mr.new_incarnation_evidence("line:bolt", RECORD, window) is None
+    assert (
+        mr.new_incarnation_evidence("line:other", RECORD, [_moved(5, "STACK", "GRAVEYARD")]) is None
+    )
+
+
+def test_no_engine_event_carries_a_zone_change_counter() -> None:
+    """Hidden-zone history never reaches the tape: no counter, no new-object flag."""
+    source = (
+        REPO_ROOT
+        / "engine-bridge/src/main/java/org/commanderlab/xmage/XmagePublicEventWatcher.java"
+    ).read_text(encoding="utf-8")
+    # The watcher reads the counter only to settle a pending exile move; no
+    # published key carries it or anything derived from it.
+    for key in ('"new_object"', '"incarnation"', '"zone_change_counter"'):
+        assert key not in source, key
 
 
 # --------------------------------------------------------------------------- #
@@ -471,8 +487,25 @@ def test_an_absent_source_means_no_source_of_any_kind() -> None:
         "events", event_type="DESTROYED_PERMANENT", where=(("source_object", None),), value=1
     )
     assert mr.check_terminal(check, {}, [{"type": "DESTROYED_PERMANENT", "sequence": 1}], [])
-    for other in ({"source_player": "P2"}, {"source_hidden": True}, {"source_object": "obj:x"}):
+    # The bridge reports `source_present` for a source it withholds or cannot map.
+    for other in ({"source_player": "P2"}, {"source_present": True}, {"source_object": "obj:x"}):
         event = {"type": "DESTROYED_PERMANENT", "sequence": 1, **other}
+        assert not mr.check_terminal(check, {}, [event], []), other
+
+
+def test_an_unnamed_object_is_present_but_not_named() -> None:
+    check = mr.TerminalCheck(
+        "events",
+        event_type="DAMAGED_PLAYER",
+        where=(("source_object", mr.UNNAMED_OBJECT),),
+        value=1,
+    )
+    copy = {"type": "DAMAGED_PLAYER", "sequence": 1, "source_present": True}
+    assert mr.check_terminal(check, {}, [copy], [])
+    for other in ({}, {"source_object": "obj:x"}, {"source_player": "P2"}):
+        event = {"type": "DAMAGED_PLAYER", "sequence": 1, "source_present": True, **other}
+        if not other:
+            event.pop("source_present")
         assert not mr.check_terminal(check, {}, [event], []), other
 
 
@@ -491,7 +524,15 @@ def test_a_player_in_the_game_has_neither_lost_nor_left() -> None:
 
 def test_requested_blocks_are_checked_even_when_the_script_attacks() -> None:
     combat = mr.RequestedCombat(attackers=(("obj:a", "P2"),), blocks=(("obj:b", "obj:a"),))
-    blocks_only = [_declared("BLOCKER_DECLARED", "obj:b", "obj:a")]
+    blocks_only = [
+        _declared("ATTACKER_DECLARED", "obj:a", "P3"),
+        _declared("BLOCKER_DECLARED", "obj:b", "obj:a"),
+    ]
     # The script's own attack is not compared; the requested block is.
     assert mr.combat_matches_request(combat, blocks_only, compare_attacks=False)["holds"]
     assert not mr.combat_matches_request(combat, [], compare_attacks=False)["holds"]
+    # With every attacker unblocked, a scripted attack must still have happened.
+    unblocked = mr.RequestedCombat(attackers=(("obj:a", "P2"),), blocks=())
+    assert not mr.combat_matches_request(unblocked, [], compare_attacks=False)["holds"]
+    attacked = [_declared("ATTACKER_DECLARED", "obj:a", "P2")]
+    assert mr.combat_matches_request(unblocked, attacked, compare_attacks=False)["holds"]

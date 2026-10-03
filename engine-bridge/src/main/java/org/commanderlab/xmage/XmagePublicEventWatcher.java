@@ -93,8 +93,6 @@ final class XmagePublicEventWatcher extends Watcher {
      * placement preceded the tape. Always reset within the same engine call.
      */
     private boolean muted;
-    /** Each card's zone-change counter at its last zone change (never published). */
-    private java.util.Map<UUID, Integer> lastZoneChangeCounter = new java.util.HashMap<>();
 
     void mute(boolean value) {
         muted = value;
@@ -153,21 +151,6 @@ final class XmagePublicEventWatcher extends Watcher {
             record.addProperty("coin_result", flipped.getResultName().toUpperCase(java.util.Locale.ROOT));
             if (flipped.isWinnable()) {
                 record.addProperty("coin_won", flipped.wasWon());
-            }
-        }
-        if (event instanceof ZoneChangeEvent) {
-            // CR 400.7: whether the engine made a new object of the moved card,
-            // read from its own zone-change counter against the counter at the
-            // card's previous zone change. Only that boolean is reported, and
-            // only on a public move: the raw counter also counts hidden moves
-            // and would reveal hidden-zone history to the pilots.
-            Card moved = game.getCard(event.getTargetId());
-            if (moved != null) {
-                int now = moved.getZoneChangeCounter(game);
-                Integer previous = lastZoneChangeCounter.put(event.getTargetId(), now);
-                if (publicIdentity && !pending && previous != null) {
-                    record.addProperty("new_object", now > previous);
-                }
             }
         }
         record.addProperty("public_identity", publicIdentity);

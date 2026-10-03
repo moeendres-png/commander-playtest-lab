@@ -1145,7 +1145,7 @@ final class XmageMidgameJsonlBridge {
     private JsonObject publicEvent(JsonObject raw, Map<String, String> seatByPlayer) {
         JsonObject event = new JsonObject();
         for (String key : List.of("sequence", "type", "turn", "step", "amount", "flag", "data",
-                "from", "to", "combat", "new_object", "last_power", "last_toughness", "coin_result", "coin_won",
+                "from", "to", "combat", "last_power", "last_toughness", "coin_result", "coin_won",
                 "public_identity", "target_name", "source_name")) {
             if (raw.has(key)) {
                 event.add(key, raw.get(key));
@@ -1160,7 +1160,15 @@ final class XmageMidgameJsonlBridge {
             String seat = seatByPlayer.get(nativeId);
             if (seat != null) {
                 event.addProperty(key + "_player", seat);
-            } else if (!"player".equals(key) && !hiddenOnTape(raw, key, publicIdentity)) {
+                continue;
+            }
+            if (!"player".equals(key)) {
+                // Only that the event has an object in this role, never which one:
+                // a withheld or unmapped object is still an object, so "no
+                // source" can be told apart from "a source the tape does not name".
+                event.addProperty(key + "_present", true);
+            }
+            if (!"player".equals(key) && !hiddenOnTape(raw, key, publicIdentity)) {
                 String semanticId = restoration.semanticIdOf(UUID.fromString(nativeId));
                 if (semanticId != null) {
                     event.addProperty(key + "_object", semanticId);

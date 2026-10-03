@@ -54,6 +54,11 @@ REQUESTED_COMBAT_FACT = (
 )
 
 
+# A `*_object` value meaning "an object the tape does not name" (see
+# matching_events); `None` means "no object at all".
+UNNAMED_OBJECT = "<unnamed-object>"
+
+
 @dataclass(frozen=True)
 class TerminalCheck:
     """One explicit terminal postcondition, read from the engine's observation."""
@@ -1094,7 +1099,7 @@ ROWS: dict[str, RowSpec] = {
                             "Lightning Bolt",
                             ("target_player", "P2"),
                             ("amount", 3),
-                            ("source_object", None),
+                            ("source_object", UNNAMED_OBJECT),
                         ),
                         1,
                     ),
@@ -1733,31 +1738,34 @@ def _commander_choice(
 def new_incarnation_evidence(
     lineage: str,
     record: dict[str, Any],
-    history: list[dict[str, Any]],
     window: list[dict[str, Any]],
 ) -> dict[str, Any] | None:
-    """CR 400.7: the lineage's latest public move made a new engine object.
+    """CR 400.7: the lineage's latest move in the window made a new object.
 
-    The record names a card lineage. On every public move the engine reports
-    whether its own zone-change counter for the card advanced past the counter
-    at the card's previous zone change (``new_object``); no raw counter leaves
-    the engine. The lineage's last move in this obligation's window must be a
-    reported new object. ``history`` is accepted for the call shape only.
+    An object that moves from one zone to another becomes a new object. The
+    evidence is the engine's own public ZONE_CHANGE of a card of the record's
+    lineage between two different zones, and it must be the lineage's last move
+    in this obligation's window. Nothing about the card's earlier, hidden moves
+    is read or reported.
     """
-    del history
     objects = {
         str(o.get("semantic_id"))
         for o in record.get("semantic_objects") or ()
         if o.get("card_lineage_id") == lineage
     }
-    moves = [
-        e
-        for e in _events(window, "ZONE_CHANGE")
-        if e.get("target_object") in objects and isinstance(e.get("new_object"), bool)
-    ]
-    if not objects or not moves or moves[-1]["new_object"] is not True:
+    moves = [e for e in _events(window, "ZONE_CHANGE") if e.get("target_object") in objects]
+    if not objects or not moves:
         return None
-    return {"events": [moves[-1]["sequence"]], "new_object": True}
+    last = moves[-1]
+    source, destination = last.get("from"), last.get("to")
+    if (
+        last.get("public_identity") is not True
+        or not isinstance(source, str)
+        or not isinstance(destination, str)
+        or source == destination
+    ):
+        return None
+    return {"events": [last["sequence"]], "from": source, "to": destination}
 
 
 def _assignment_frames(trace: list[Frame]) -> list[Frame]:
@@ -2238,14 +2246,25 @@ def matching_events(check: TerminalCheck, tape: list[dict[str, Any]]) -> list[di
         for key, value in check.where:
             if key.endswith("~"):
                 matched = _name_matches(event, key[:-1], str(value))
-            elif value is None and key.endswith("_object"):
-                # "No such object" means no source/target at all: neither a
-                # player in that role nor an object hidden from the tape.
+            elif value == UNNAMED_OBJECT and key.endswith("_object"):
+                # An object is in that role, and the tape names neither it nor
+                # a player there: an object the record never requested (a copy).
                 role = key[: -len("_object")]
                 matched = (
                     event.get(key) is None
                     and event.get(f"{role}_player") is None
-                    and not event.get(f"{role}_hidden")
+                    and event.get(f"{role}_present") is True
+                )
+            elif value is None and key.endswith("_object"):
+                # "No such object" means no source/target at all: neither a
+                # player in that role nor any object, named or not (the engine
+                # reports `<role>_present` for an object the tape withholds or
+                # cannot map).
+                role = key[: -len("_object")]
+                matched = (
+                    event.get(key) is None
+                    and event.get(f"{role}_player") is None
+                    and event.get(f"{role}_present") is not True
                 )
             else:
                 matched = event.get(key) == value
@@ -3220,7 +3239,8 @@ def combat_matches_request(
         (str(e.get("source_object")), str(e.get("target_object")))
         for e in _events(tape, "BLOCKER_DECLARED")
     )
-    attacks_match = not compare_attacks or attacks == sorted(combat.attackers)
+    # A run whose attacks are scripted still needs a combat to have happened.
+    attacks_match = attacks == sorted(combat.attackers) if compare_attacks else bool(attacks)
     blocks_match = combat.blocks is None or blocks == sorted(combat.blocks)
     return {
         "holds": attacks_match and blocks_match,
@@ -3534,9 +3554,7 @@ def execute_row(
         token: str, tape: list[dict[str, Any]], observation: dict[str, Any] | None
     ) -> dict[str, Any] | None:
         if match := re.fullmatch(r"new_object_incarnation:(line:.+)", token):
-            return new_incarnation_evidence(
-                match.group(1), record, client.events(0)["events"], tape
-            )
+            return new_incarnation_evidence(match.group(1), record, tape)
         check = bindings.get(token)
         if isinstance(check, VocabularyToken):
             evidence = verify_token(
