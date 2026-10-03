@@ -70,12 +70,36 @@ milestones:
       CR 400.7 incarnation on public moves, event/frame order and block
       partition checks. Contract 1.0.20 corrects ten fixture defects (one
       obligation erratum, MICRO_CONTINUOUS_EFFECTS, on the CARD_16 precedent).
+  - id: M3
+    rows: [WS05-MP-ELIM-5, WS05-MP-ELIM-OWNED-3, WS05-MP-ELIM-PRIO-3, WS05-CMD-PARTNER-DMG,
+           MICRO_MANA_PAYMENT, MICRO_COPY, MICRO_RULES_RANDOMNESS]
+    result: verified locally; PB-03 on 14e43354 credited ELIM-5/OWNED-3/PRIO-3 and PARTNER-DMG
+    summary: >-
+      Causal elimination on the FULL107 route, the stack-object selector,
+      scripted payment steps, coin-flip and pending-extra-turn engine
+      evidence, copier and coin-call script errata.
+  - id: M4
+    rows: [MICRO_CONTROL, WS05-CMD-DMG-CONTROL, WS05-CMD-PARTNER-TAX]
+    result: verified locally
+    summary: >-
+      Caused-control scenario errata (Control Magic; Act of Treason on P3's
+      turn) and real partner casts whose tax is read from the engine's payment
+      frames. A WS05-CMD-PARTNER-ZONE script erratum was reverted: Forge
+      executes that record as written.
+  - id: M5
+    rows: [all]
+    result: >-
+      PB-03 on 14e43354: XMage AF06 38 -> 10 blocking, AF08 30 -> 10, AF05 PASS,
+      AF07 29/29 PASS. Local battery on 2f469997: engine-bridge 942/0/1, AF07
+      29/29, midgame rows 54/55 (ELIM-TURN-3 candidate engine defect), AF05
+      20/20.
 open_items:
-  - causal elimination on the FULL107 route (WS05-MP-ELIM-5/OWNED-3/PRIO-3/TURN-3/STACK-3)
-  - attachments and control divergence (MICRO_CONTROL, WS05-MP-ELIM-CONTROL-3, WS05-CMD-DMG-CONTROL)
-  - undeclared stack entries (MICRO_COPY, MICRO_RULES_RANDOMNESS) and the stack-object selector (MICRO_MANA_PAYMENT)
-  - extra-turn causal setup (WS05-MP-TURN-3/5); natural game start (WS05-CMD-MULL-2/4); partner rows
+  - WS05-MP-ELIM-TURN-3 candidate XMage defect (GameImpl.playPriority asks a player who just left); for #255 adjudication
+  - WS05-MP-ELIM-STACK-3 and WS05-MP-ELIM-CONTROL-3 need composed causal routes (stack or control plus elimination)
+  - WS05-MP-TURN-3/5 extra-turn setup (Nexus of Fate graveyard conflict; full turns need discard and combat steps)
+  - WS05-CMD-MULL-2/4 natural-start lane with London mulligan bottom choice
+  - WS05-CMD-PARTNER-ZONE XMage emits no game-start command-zone event; record forbids static credit
 exact_next_action: >-
-  Push M2; read the PB-03 af_gates print on the pushed head and confirm the 25
-  rows PASS there; then take the causal-elimination route on the FULL107 path
-  (five rows), then attachments/control divergence.
+  Resolve the fresh-context adversarial review of 01d70279..HEAD, confirm PB-03
+  on the final head (expected XMage AF06 5 / AF08 8 blocking), then merge PR
+  #505 under the project gates and post the #456 handoff.
