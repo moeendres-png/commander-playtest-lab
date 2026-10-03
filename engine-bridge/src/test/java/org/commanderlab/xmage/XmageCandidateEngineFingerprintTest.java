@@ -20,7 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Successor-repin identity guard (2026-09-29, successor v2 2026-09-30, v3 2026-10-01): the bridge
+ * Successor-repin identity guard (2026-09-29, successor v2 2026-09-30, v3 2026-10-01,
+ * v4 2026-10-03): the bridge
  * declares the XMage multiplayer candidate as its engine commit, and the engine
  * classes actually loaded at runtime are that candidate's.
  *
@@ -32,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class XmageCandidateEngineFingerprintTest {
 
-    static final String CANDIDATE = "37e4df6c914f1e189e24f0ef59fa91734c922436";
+    static final String CANDIDATE = "b479fe74fd1eaf899ff16c6a9203e74a91c0f339";
 
     @Test
     void declaredEngineCommitIsTheCandidate() {
@@ -73,6 +74,13 @@ class XmageCandidateEngineFingerprintTest {
      * PlayerImpl.moveObjectToLibrary only; neither has a structural signature.
      * Their native regressions TriggerOrderLeaver4PTest and SuddenSetbackCopyTest
      * run in the candidate's Mage.Tests.
+     *
+     * <p>Successor v4 (2026-10-03): the CR 117.5 / 800.4a priority repair after
+     * state-based player elimination (mage#41, a patch-identical port of master
+     * mage#40) is a guard inside GameImpl.playPriority only, with no structural
+     * signature. Its native regression PriorityEliminationTest runs in the
+     * candidate's Mage.Tests; the declared commit and the artifact digest below
+     * bind the loaded engine.</p>
      */
     @Test
     void loadedEngineCarriesTheF43Revalidation() throws Exception {
