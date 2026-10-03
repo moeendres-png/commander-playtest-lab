@@ -1,0 +1,50 @@
+# XMage AF06/AF08 residual closure: resumable workstream state (#456, parent #255).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: commander-playtest-lab (session-local canonical clone)
+branch: hardening/xmage-af06-af08-residuals-20261003
+audit_base_sha: 01d70279dbb6eaf2b694ca27e6489ee582418d3d
+audit_base_tree: 0e520ae41518cb9195078cee0df4b245d3f7fa2f
+state_written_against_head: 01d70279dbb6eaf2b694ca27e6489ee582418d3d
+workstream: XMAGE-AF06-AF08-RESIDUALS-20261003
+issue: 456
+parent: 255
+objective: >-
+  Close the remaining XMage AF06 GENERAL_RULES_CORRECTNESS and AF08
+  MULTIPLAYER_COMMANDER rows on the current production midgame/causal lane:
+  every residual row freshly PASS or terminally classified with an exact
+  blocker (DIRECT_EXISTING_LANE, CAUSAL_ROUTE_EXECUTABLE, SELECTOR_GAP,
+  FIXTURE_DEFECT, HARNESS_GAP, ENGINE_DEFECT, TERMINAL_UNSUPPORTED).
+candidates:
+  xmage: 37e4df6c914f1e189e24f0ef59fa91734c922436
+contract: commander-lab.full107/1.0.19-successor
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+status: ACTIVE
+ownership: XMAGE-AF06-AF08-RESIDUALS-20261003 (Claude, sole executor)
+in_scope:
+  - XMage AF06 and AF08 residual rows of the 107-row denominator
+  - .github/workflows/pb03-runtime-qualification.yml (residual visibility print)
+  - src/commander_lab/qualification/current_boundary/midgame_rows.py
+  - scripts/run_current_boundary_qualification.py
+  - scripts/assemble_current_boundary_evidence.py
+  - engine-bridge restoration/causal surfaces when a row needs them
+out_of_scope:
+  - AF05, AF07, AF09
+  - Forge lanes (#458, #459)
+  - provider ranking or selection, AF11, Architecture Freeze
+hard_gates:
+  - engine-authored decisions only; no first-option, random or default answers
+  - exact checkpoint equivalence for causal routes under R-4
+  - no manual outcome or state injection; no historical PASS transfer
+  - wrong-reason controls for every promotion mechanism; UNKNOWN != PASS
+baseline:
+  epoch: 4bc2ebe5206f-0e520ae41518 (PB-03 on #461 head 2f4975b7)
+  xmage_full107: {PASS: 51, FAIL: 0, UNKNOWN: 18, BLOCKED: 38}
+  xmage_af06: UNKNOWN (38 blocking rows)
+  xmage_af08: UNKNOWN (30 blocking rows)
+exact_next_action: >-
+  Push this branch as a draft PR; read the PB-03 job log's per-row print
+  (non_pass_rows, blocking_row_ids) and partition every XMage AF06/AF08
+  residual into exactly one mechanism class; then take the generic mechanism
+  repair that closes the most rows first.

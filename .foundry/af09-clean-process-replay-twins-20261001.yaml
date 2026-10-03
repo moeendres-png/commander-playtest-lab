@@ -31,7 +31,7 @@ out_of_scope:
 
 ownership: AF09-CLEAN-PROCESS-REPLAY-TWINS-20261001
 
-status: ACTIVE
+status: COMPLETE
 
 execution_profile: deepseek
 executor_model: opencode-go/deepseek-v4.1-flash
@@ -282,11 +282,5 @@ phase2:
     - fresh-context review 2: P1-A, P1-B, P2-A..C, P3 resolved (592adf7a)
     - fresh-context review 3: no P1; P2-1 (inherited key), P2-2 (seed-control point), P3 resolved
 exact_next_action: >-
-  After AF07 #484 merges: merge main into hardening/af09-replay-twins-20261001,
-  run the Python suite on a clean tree and the bridge suite, push, drive the
-  exact-head PB-03 run (expected: four replay rows PASS through
-  af09-midgame-replay-twin receipts, RNG_RULES_TAPE UNKNOWN with the
-  state-consequence blocker, AF09 XMage UNKNOWN), run a final fresh-context
-  review and merge. RNG_RULES_TAPE waits on the #255 adjudication. Forge's
-  replay/RNG rows stay UNKNOWN until the Forge scenario lane executes
-  decisions (#459).
+  None in this workstream: merged to main; terminal handoff on #454. Open
+  items are listed above and tracked on their own issues.
