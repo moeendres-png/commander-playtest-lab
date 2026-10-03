@@ -69,6 +69,8 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     forge_hidden_information as forge_hidden_information_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
     forge_residuals as forge_residuals_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
