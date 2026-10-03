@@ -5,8 +5,8 @@
   "branch": "hardening/lab-b9-packaging-smoke-20261003",
   "audit_base_sha": "286f78d0169766b7a9765bd6c50d41c06d4f8fa0",
   "audit_base_tree": "8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c",
-  "state_written_against_head": "c3eaf42da45f93a7f4a5df91e31d7fd856fe80a7",
-  "validated_head": "c3eaf42da45f93a7f4a5df91e31d7fd856fe80a7",
+  "state_written_against_head": "8b4f9f19a35d98842cbb552429ba1bcdf7f6e890",
+  "validated_head": "8b4f9f19a35d98842cbb552429ba1bcdf7f6e890",
   "objective": "Issue #490 (parent #479, child B9): add a deterministic packaging smoke that proves the actually built wheel installs into a clean isolated Python environment and that the installed package imports and its officially supported CLI entrypoints run from the installation, with machine-readable evidence bound to source SHA/TREE and wheel SHA-256 digest, and that broken/missing/ambiguous/tampered wheels, version mismatches, missing entrypoints, source-tree-import contamination, editable installs and missing/malformed evidence all fail closed.",
   "in_scope": [
     "scripts/verify_packaging_smoke.py (new deterministic packaging-smoke consumer + evidence producer)",
@@ -100,18 +100,25 @@
     "CODE_DERIVED + DIRECTLY_VERIFIED: the smoke requires the imported module file to resolve under the venv purelib and forbids repository paths on the probe sys.path; the decoy-wheel control proves a genuinely succeeding source-tree import is rejected rather than passed.",
     "DIRECTLY_VERIFIED: setuptools wheels are not byte-reproducible here (two builds of identical source produced digests 4d721b05... and 060610754...), so evidence binds to the digest of the wheel built in that run.",
     "DIRECTLY_VERIFIED: measured additive packaging-smoke cost with a warm pip cache is ~19 s, so the required quality job's 25-minute budget was left unchanged rather than widened.",
-    "DIRECTLY_VERIFIED: CI-02 Phase 1 remains COMPLETE, informational/shadow and not server-required; B9 did not modify scripts/verify_required_check_definitions.py and did not add any required context."
+    "DIRECTLY_VERIFIED: CI-02 Phase 1 remains COMPLETE, informational/shadow and not server-required; B9 did not modify scripts/verify_required_check_definitions.py and did not add any required context.",
+    "DIRECTLY_VERIFIED (exact head 8b4f9f19, GitHub Actions, Python 3.12.14): required contexts quality, security and infrastructure all PASS. Runs 37119295136 (CI) and 37119295137 (Production Qualification). quality ran 14m25s with every step green, including step 12 'Packaging smoke (isolated wheel install, import and CLI)' and step 13 'Packaging smoke evidence check'.",
+    "DIRECTLY_VERIFIED (exact head): the CI-produced artifacts/quality/PACKAGING_SMOKE.json from run 37119295136 records overall_classification=PASS, source_sha=bbf0f381d3c293d71445df9c6543ceb72914242b (the PR merge commit that pull_request checks out), source_tree=385f1b39847394905aed43c20dfb8177a262f5a2, wheel_filename=commander_playtest_lab-1.25.0-py3-none-any.whl, wheel_sha256=9ae05cd677a23c2c373ffae8a2623b903a846e60adfa5d2df344d4e2bd4e6e2a, package_version=1.25.0, python_version=3.12.14, install_source=wheel, install.direct_url_sha256 equal to wheel_sha256, installed_import.module_file_relative_to_purelib=commander_lab/__init__.py, installed_import.resolved_in_isolated_environment=true, both declared console entrypoints status=PASS with returncode=0, and no absolute runner path anywhere in the document.",
+    "DIRECTLY_VERIFIED (exact head): CI-02 informational shadow run 37119294270, executed from the trusted base validator 286f78d0, reports overall_classification=GATE_DEFINITION_CHANGED_REVIEW_REQUIRED with 39/39 invariants PASS, zero non-PASS invariants and candidate_code_executed=false. The shadow red is the correct classification for a legitimate required-gate definition change and was not used to weaken the validator.",
+    "DIRECTLY_VERIFIED (exact head): ancillary checks repository-tree-integrity (37119294314), windows-runtime (37119295141), h4-docker-materialization preflight (37119295152), external-xmage-integration (37119295134), xmage-real-4p (37119295118) and xmage-full-game (37119295131) all PASS.",
+    "DIRECTLY_VERIFIED: the first exact-head CI run failed in quality at 'Test suite' (not at the packaging steps) because tests/unit/test_first_option_ratchet.py reported 3 first-option picks in the new script. Those were implicit candidates[0] picks in the venv interpreter/site-packages resolution. They were eliminated with an explicit _only() helper that fails closed on ambiguity; no BASELINE entry was added and no gate was weakened. This also closed a real latent defect where a venv with two lib/python*/site-packages trees would have silently used the first. The next exact-head run is fully green."
   ],
   "artifacts": [
-    "artifacts/quality/PACKAGING_SMOKE.json (schema packaging-smoke-1.0.0; produced by both ci.yml steps and uploaded with the existing ci-evidence artifact)",
-    "Draft PR #509 - https://github.com/moeendres-png/commander-playtest-lab/pull/509"
+    "Draft PR #509 - https://github.com/moeendres-png/commander-playtest-lab/pull/509 (DRAFT, open, not merged, not marked ready)",
+    "artifacts/quality/PACKAGING_SMOKE.json (schema packaging-smoke-1.0.0; produced by both ci.yml steps, uploaded with the existing ci-evidence artifact)",
+    "CI run 37119295136 (CI: quality + security) - PASS on exact head",
+    "CI run 37119295137 (Production Qualification: infrastructure) - PASS on exact head",
+    "CI run 37119294270 (CI Definition Integrity Shadow) - expected GATE_DEFINITION_CHANGED_REVIEW_REQUIRED, 39/39 invariants PASS"
   ],
   "remaining_scope": [
-    "Observe the exact-head GitHub CI result on PR #509 and adjudicate any attributable failure fully.",
-    "Coordinator/owner review of the required-gate definition change recorded by CI-02 as GATE_DEFINITION_CHANGED_REVIEW_REQUIRED (Phase 2 reviewer acknowledgement is Coordinator-owned and was NOT reopened here).",
-    "Merge decision is NOT owned by this workstream; the PR stays Draft and was not self-merged."
+    "Owner review of Draft PR #509 and the merge decision. NOT owned by this workstream: the PR stays Draft, was not marked ready and was not self-merged.",
+    "Coordinator adjudication of the single CI-02 review item GATE_DEFINITION_CHANGED_REVIEW_REQUIRED for the legitimate required-gate definition change (required_workflow_changed:.github/workflows/ci.yml and quality_test_definition_changed:tests/unit/test_packaging_smoke.py). Phase-2 reviewer acknowledgement is Coordinator-owned policy and was deliberately not reopened or weakened here."
   ],
-  "status": "ACTIVE",
+  "status": "COMPLETE",
   "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
   "current_reasoning_tier": "max",
   "hypotheses_rejected": [
@@ -169,8 +176,8 @@
   ],
   "first_failing_boundary": "NONE",
   "root_cause_class": "NONE",
-  "next_action": "Observe exact-head CI on Draft PR #509 and adjudicate any attributable failure.",
-  "exact_next_action": "Watch `gh run list --branch hardening/lab-b9-packaging-smoke-20261003` and `gh pr checks 509` to completion. If any check fails, adjudicate whether it is attributable to B9 and repair it systemically; if it is not attributable, record that adjudication with evidence rather than retrying to green. Then leave the Draft PR for the owner: do NOT mark ready and do NOT merge.",
+  "next_action": "No further implementation work remains in B9; hand off to the owner for review and merge decision.",
+  "exact_next_action": "B9 is COMPLETE. No further B9 implementation step remains: the candidate wheel is built, digest-bound, installed into a clean isolated environment, imported from that installation, both declared CLI entrypoints run, source SHA/TREE are bound, the machine-readable report exists and is independently re-checked, the red controls kill their failure classes, no source-tree import can pass as packaging evidence, and no required gate was weakened - all proven on exact head 8b4f9f19a35d98842cbb552429ba1bcdf7f6e890 with quality, security and infrastructure PASS. Exact next action belongs to the owner: adjudicate the CI-02 GATE_DEFINITION_CHANGED_REVIEW_REQUIRED review item on Draft PR #509 and decide whether to mark it ready and merge. Do not mark ready and do not merge from this workstream.",
   "execution_profile": "space-bunny",
   "executor_model": "opencode-go/space-bunny-free",
   "native_variant": "max",
