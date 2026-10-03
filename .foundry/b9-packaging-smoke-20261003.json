@@ -1,0 +1,103 @@
+{
+  "schema_version": "2.0",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "worktree": "/home/moeen/work/lab-b9",
+  "branch": "hardening/lab-b9-packaging-smoke-20261003",
+  "audit_base_sha": "286f78d0169766b7a9765bd6c50d41c06d4f8fa0",
+  "audit_base_tree": "8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c",
+  "state_written_against_head": "286f78d0169766b7a9765bd6c50d41c06d4f8fa0",
+  "validated_head": null,
+  "objective": "Issue #490 (parent #479, child B9): add a deterministic packaging smoke that proves the actually built wheel installs into a clean isolated Python environment and that the installed package imports and its officially supported CLI entrypoints run from the installation, with machine-readable evidence bound to source SHA/TREE and wheel SHA-256 digest, and that broken/missing/ambiguous/tampered wheels, version mismatches, missing entrypoints, source-tree-import contamination, editable installs and missing/malformed evidence all fail closed.",
+  "in_scope": [
+    "scripts/verify_packaging_smoke.py (new deterministic packaging-smoke consumer + evidence producer)",
+    ".github/workflows/ci.yml (add the packaging-smoke step into the existing required `quality` job; keep every existing step and the `python -m pip wheel` build step unchanged)",
+    "tests/unit/test_packaging_smoke.py (focused unit/contract tests for every red control and the positive control)",
+    "tests/unit/test_release_workflow_contract.py (only if the shared packaging contract needs a shared assertion)",
+    "docs/ packaging-smoke contract documentation if required by the report"
+  ],
+  "out_of_scope": [
+    "Rules Core of any kind (XMage / Forge / Mage engine logic, pins, or provider qualification)",
+    "FULL107 / PB03 / AF05 / AF06 / AF08 semantics",
+    "tests/qualification/** reorganisation or semantics",
+    "Roadmap children B5 (#486), B6 (#487), B7 (#488), B8 (#489), B10 (#491), B11 (#492)",
+    "Mage C12/C13/C14/C15/C16 and Forge D17-D23 workstreams",
+    "Production Provider selection",
+    "Architecture Freeze claim",
+    "Performance gates",
+    "PR #506 surface (.foundry/forge-af05-*, docs/forge_af05_hidden_20261003/**, scripts/run_current_boundary_qualification.py, scripts/run_forge_hidden_census.py, src/commander_lab/qualification/current_boundary/forge_hidden_information.py, tests/qualification/test_forge_hidden_information.py)",
+    "PR #478 surface (docs/coordinator_handoff_20261002/**)",
+    "Making CI-02 required or weakening scripts/verify_required_check_definitions.py"
+  ],
+  "ownership": "LAB-B9-PACKAGING-SMOKE-20261003 (sole writer of the packaging-smoke surface listed in in_scope); no other open PR owns these paths as of the fresh lock",
+  "dependencies": [
+    "Issue #490 (child objective), parent roadmap Issue #479",
+    "Fresh lock: origin/main == 286f78d0169766b7a9765bd6c50d41c06d4f8fa0, tree 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c",
+    "CI-02 Phase 1 COMPLETE and informational/shadow; GATE_DEFINITION_CHANGED_REVIEW_REQUIRED is expected evidence for a legitimate gate-definition change"
+  ],
+  "hard_gates": [
+    "Wheel selection must be deterministic: exactly one project wheel or fail closed",
+    "The isolated smoke environment must contain no editable install of the project and must import the package from the venv's own site-packages, never from src/ or a worktree PYTHONPATH",
+    "Evidence must be bound to source SHA + TREE + wheel filename + wheel SHA-256 + installed package version",
+    "UNKNOWN is never PASS; the consumer must reject missing or malformed machine-readable evidence",
+    "Existing required contexts quality/security/infrastructure and every existing ci.yml step must survive unchanged, including `python -m pip wheel --no-deps --wheel-dir dist .`",
+    "No continue-on-error, no `|| true` on decisive packaging steps, no job-level if: skip, no retry-until-green",
+    "CI-02 must not be weakened and must not be made required"
+  ],
+  "forbidden_shortcuts": [
+    "pip wheel construction alone as packaging evidence",
+    "Import from the source tree as packaging evidence",
+    "A CLI invocation that resolves through the worktree or PYTHONPATH",
+    "First-file wheel selection when several project wheels exist",
+    "Consuming unpinned dependencies from an arbitrary global environment instead of the hash-pinned project lock",
+    "Weakening existing tests, denominators or assertions to obtain green CI"
+  ],
+  "validated_gates": [],
+  "failed_gates": [],
+  "invalidated_gates": [],
+  "do_not_rerun": [
+    "Historical release-artifacts.yml wheel roundtrip claims: donor/regression hint only, never a current PASS",
+    "FullGame / engine qualification suites: not affected by B9 and authoritatively executed by repository gates"
+  ],
+  "current_failure": "NONE",
+  "failure_class": "NONE",
+  "current_hypothesis": "Not yet adjudicated: the existing release-artifacts.yml isolated-venv roundtrip may be reusable, or B9 needs a bounded new packaging-smoke implementation. Fresh read shows the release smoke is release-scoped (push to main/release/** plus a pyproject.toml path filter), is not a required context, covers only one of two console scripts, emits no machine-readable SHA/TREE/digest-bound evidence, and installs the wheel with unpinned index resolution of its dependency closure.",
+  "files_modified": [],
+  "tests_run": [],
+  "evidence": [
+    "DIRECTLY_VERIFIED: .github/workflows/ci.yml quality job runs `python -m pip wheel --no-deps --wheel-dir dist .` (construction only, no isolated install).",
+    "DIRECTLY_VERIFIED: .github/workflows/release-artifacts.yml `Verify package and artifact roundtrip` step already creates a venv, installs release/commander_playtest_lab-<version>-py3-none-any.whl, asserts importlib.metadata.version equals the declared version, and runs `commander-lab --help`.",
+    "DIRECTLY_VERIFIED: pyproject.toml declares console scripts commander-lab = commander_lab.cli.main:app and commander-lab-optimizer = commander_lab.optimizer_v2_cli:app; version 1.25.0; requires-python >=3.12.",
+    "DIRECTLY_VERIFIED: scripts/verify_required_check_definitions.py requires the `package_wheel` category pattern `python -m pip wheel` in the required quality job, so that step must be preserved.",
+    "CODE_DERIVED: isolated-install feasibility proven locally on Python 3.14.4 - hash-pinned `pip install --require-hashes -r requirements/lock.txt` succeeds in a fresh venv, `pip install --no-index --no-deps <wheel>` succeeds and writes direct_url.json containing the wheel sha256, `python -I -c 'import commander_lab'` resolves inside the venv site-packages, and both `commander-lab --help` and `commander-lab-optimizer --help` exit 0."
+  ],
+  "artifacts": [],
+  "remaining_scope": [
+    "Adjudicate reuse vs bounded new implementation and persist the decision",
+    "Implement scripts/verify_packaging_smoke.py with smoke + check-evidence modes",
+    "Add the packaging-smoke step to the required quality job in ci.yml",
+    "Write focused unit/contract tests including all eight required red controls and the positive control",
+    "Run the positive control on the actual candidate wheel and validate the machine-readable evidence",
+    "Run workflow syntax validation, ruff, mypy, pytest and the CI-definition-integrity tests",
+    "Open a Draft PR against main and post the full handoff on Issue #490"
+  ],
+  "status": "ACTIVE",
+  "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
+  "current_reasoning_tier": "max",
+  "hypotheses_rejected": [
+    "H0 (rejected by fresh read): 'the existing release-artifacts.yml smoke already satisfies #490' - it is release-scoped, not a required per-PR context, covers one of two console scripts, emits no machine-readable digest/SHA-bound evidence, and has no adversarial control."
+  ],
+  "technical_decisions": [],
+  "authority_gates": [
+    "PRODUCTION_PROVIDER selection (NOT SELECTED) and ARCHITECTURE_FREEZE (NOT CLAIMED) remain Coordinator decisions"
+  ],
+  "first_failing_boundary": "NONE",
+  "root_cause_class": "NONE",
+  "next_action": "Implement the packaging-smoke consumer and its tests.",
+  "exact_next_action": "Write scripts/verify_packaging_smoke.py implementing deterministic wheel selection, sha256 binding, isolated venv install from the built wheel, installed-import provenance proof, CLI entrypoint probes, machine-readable PACKAGING_SMOKE.json evidence and an independent check-evidence consumer; then wire it into the required quality job in .github/workflows/ci.yml and add tests/unit/test_packaging_smoke.py.",
+  "execution_profile": "space-bunny",
+  "executor_model": "opencode-go/space-bunny-free",
+  "native_variant": "max",
+  "variant_resolution": "Session identity declared by the launcher prompt as space-bunny-free at native max; no silent fallback and no rerouting performed.",
+  "executor_handoff_from": null,
+  "executor_handoff_reason": null
+}
