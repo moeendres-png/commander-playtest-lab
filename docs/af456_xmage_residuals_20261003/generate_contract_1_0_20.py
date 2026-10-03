@@ -760,6 +760,47 @@ add(
     "The objects, the decision script and the declared payment sources change.",
 )
 
+# --- WS05-CMD-PARTNER-ZONE: one partner leaves, the other stays -------------- #
+
+old = base["WS05-CMD-PARTNER-ZONE"]
+assert old["decision_script"] == [] and old["action_cost_state"] == []
+add(
+    "WS05-CMD-PARTNER-ZONE",
+    "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+    {
+        "decision_script": [
+            _step(
+                "P1",
+                "cast-partner-a",
+                "priority",
+                "semantic_action",
+                {"action": "cast_commander", "commander_id": "cmd:P1-A"},
+            )
+        ]
+    },
+    [
+        _erratum_step(
+            "WS05-CMD-PARTNER-ZONE",
+            "partner-zone-change",
+            {
+                "comprehensive_rules": "903.3, 702.124",
+                "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_COMMANDER_CASTS",
+                "prose_derived_action_injection": False,
+                "reason": (
+                    "the record's procedure executes a partner commander zone change with "
+                    "independent identities, but its script makes none, and its static "
+                    "command-zone assertion is marked as no execution credit. The successor "
+                    "scripts P1's cast of Rograkh ({0}) from the command zone: the engine "
+                    "moves exactly that commander out of the command zone while its partner "
+                    "Kediss, a separate commander identity, stays there"
+                ),
+            },
+        )
+    ],
+    {"decision_script": [], "reason": "no scripted zone change, only a static assertion"},
+    "Only the decision script changes.",
+)
+
 # --- MICRO_CONTINUOUS_EFFECTS: the natural arrival (CR 103.8a) --------------- #
 
 old = base["MICRO_CONTINUOUS_EFFECTS"]

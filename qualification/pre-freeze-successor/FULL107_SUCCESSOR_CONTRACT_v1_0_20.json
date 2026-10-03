@@ -1,7 +1,7 @@
 {
  "change_accounting": {
   "change_class": "MIXED_FIXTURE_CONTRACT_ERRATA_AND_RULES_AUTHORITY_CORRECTION",
-  "changed_fixture_count": 71,
+  "changed_fixture_count": 72,
   "changed_fixture_ids": [
    "WS05-CMD-START-2",
    "MICRO_MODES",
@@ -73,6 +73,7 @@
    "MICRO_CONTROL",
    "WS05-CMD-DMG-CONTROL",
    "WS05-CMD-PARTNER-TAX",
+   "WS05-CMD-PARTNER-ZONE",
    "MICRO_CONTINUOUS_EFFECTS"
   ],
   "historical_predecessor_preserved": true,
@@ -147,10 +148,11 @@
    "MICRO_CONTROL": "ACTUAL_CARD_SCENARIO_ERRATUM",
    "WS05-CMD-DMG-CONTROL": "ACTUAL_CARD_SCENARIO_ERRATUM",
    "WS05-CMD-PARTNER-TAX": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "WS05-CMD-PARTNER-ZONE": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
    "MICRO_CONTINUOUS_EFFECTS": "FIXTURE_OBLIGATION_ERRATUM_CR103_8A"
   },
   "provider_semantics_used_to_define_successor": false,
-  "unchanged_provider_denominator_rows": 58
+  "unchanged_provider_denominator_rows": 57
  },
  "contract_id": "commander-lab.full107/1.0.20-successor",
  "effective_materialization_version": "commander-lab.semantic-fixture-materialization/1.0.20-successor",
@@ -16862,6 +16864,76 @@
     ]
    },
    "successor_requested_state_digest": "7844ce608c3dda5fa2c5cf4184bcbb0f17c1a3a7bf6833c7dd137fdf7e7c1ac5"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "comprehensive_rules": "903.3, 702.124",
+      "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_COMMANDER_CASTS",
+      "prose_derived_action_injection": false,
+      "reason": "the record's procedure executes a partner commander zone change with independent identities, but its script makes none, and its static command-zone assertion is marked as no execution credit. The successor scripts P1's cast of Rograkh ({0}) from the command zone: the engine moves exactly that commander out of the command zone while its partner Kediss, a separate commander identity, stays there"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-partner-zone-change-ws05-cmd-partner-zone"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #456 residual errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests",
+    "reason": "Only the decision script changes."
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "WS05-CMD-PARTNER-ZONE",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "decision_script": [],
+    "reason": "no scripted zone change, only a static assertion"
+   },
+   "predecessor_requested_state_digest": "d13cf57e931370ea78f14b5cc8008d0204ed1bc03a6d83986b5974b0d57b9a05",
+   "replace": {
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "cast-partner-a",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast_commander",
+        "commander_id": "cmd:P1-A"
+       }
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "7018ae8d6490344be8e6123431632e359627cab44992f1b4127b0e2dc6662b36"
   },
   {
    "append_native_procedure": [

@@ -175,6 +175,11 @@ class TerminalCheck:
                 f"the engine's first {len(principals)} {decision_class} decisions went to "
                 f"{list(principals)} in that order"
             )
+        if self.kind == "commander_zone":
+            return (
+                f"the engine's zone of {self.principal}'s commander {self.card_identity} is "
+                f"{self.value}"
+            )
         if self.kind == "cast_cost":
             return (
                 f"the engine determined {self.value} for the scripted cast of {self.card_identity}"
@@ -981,6 +986,51 @@ ROWS: dict[str, RowSpec] = {
         ),
     ),
     "PILOT_DECLARE_BLOCKER": RowSpec(),
+    # WS05-CMD-PARTNER-ZONE (1.0.20 erratum): P1 casts Rograkh from the
+    # command zone. The engine moves exactly that commander out of the command
+    # zone (it began there), while its partner Kediss, a separate commander
+    # identity, stays in the command zone (CR 903.3, 702.124).
+    "WS05-CMD-PARTNER-ZONE": RowSpec(
+        token_bindings=(
+            (
+                "game_start_command_zone:cmd:P1-A",
+                (
+                    _exactly(
+                        _named(
+                            "ZONE_CHANGE",
+                            "target_name",
+                            "Rograkh, Son of Rohgahh",
+                            ("player_player", "P1"),
+                            ("from", "COMMAND"),
+                            ("to", "STACK"),
+                        ),
+                        1,
+                    ),
+                    TerminalCheck("selected_frame", value="priority", label="Rograkh"),
+                ),
+            ),
+            (
+                "game_start_command_zone:cmd:P1-B",
+                (
+                    TerminalCheck(
+                        "commander_zone",
+                        principal="P1",
+                        card_identity="Kediss, Emberclaw Familiar",
+                        value="COMMAND",
+                    ),
+                    _exactly(
+                        _named("ZONE_CHANGE", "target_name", "Kediss", ("from", "COMMAND")), 0
+                    ),
+                    TerminalCheck(
+                        "commander_zone",
+                        principal="P1",
+                        card_identity="Rograkh, Son of Rohgahh",
+                        value="BATTLEFIELD",
+                    ),
+                ),
+            ),
+        ),
+    ),
     # WS05-CMD-PARTNER-TAX (1.0.20 erratum): P1 casts both partners from the
     # command zone; the engine's own payment frame for each cast shows its tax
     # independently (CR 903.8): Rograkh ({0}, two prior casts) costs {4},
@@ -1990,6 +2040,14 @@ def check_terminal(
         return order[: len(principals)] == list(principals)
     if check.kind == "player_left":
         return seat.get("left") is True and seat.get("lost") is True
+    if check.kind == "commander_zone":
+        # The engine's own zone of one of the principal's commander identities.
+        entries = [
+            entry
+            for entry in seat.get("commanders") or ()
+            if entry.get("card_identity") == check.card_identity
+        ]
+        return len(entries) == 1 and entries[0].get("zone") == check.value
     if check.kind == "cast_cost":
         # The engine's own determined cost for the one scripted cast of the
         # named source: the first payment frame after that cast.
@@ -3273,6 +3331,7 @@ OBSERVATION_KINDS = frozenset(
         "commander_damage",
         "player_left",
         "pending_extra_turns",
+        "commander_zone",
     }
 )
 
