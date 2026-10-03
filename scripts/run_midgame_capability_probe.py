@@ -1920,6 +1920,27 @@ def elimination_request(spec: dict[str, object]) -> dict[str, Any]:
     }
 
 
+def elimination_instrument_ids(plan: dict[str, Any]) -> tuple[list[str], list[str]]:
+    """The engine's native ids of the plan's declared bolts and mountains.
+
+    Only the declared instruments count, bound by the engine's own native ids:
+    the record's other objects (a Bolt or a Mountain of the victim's) are never
+    instruments, whatever they are called.
+    """
+    instruments = [entry for entry in plan.get("instruments") or () if isinstance(entry, dict)]
+    bolts = sorted(
+        str(entry["native_id"])
+        for entry in instruments
+        if entry.get("card_identity") == "Lightning Bolt" and entry.get("zone") == "hand"
+    )
+    mountains = sorted(
+        str(entry["native_id"])
+        for entry in instruments
+        if entry.get("card_identity") == "Mountain" and entry.get("zone") == "battlefield"
+    )
+    return bolts, mountains
+
+
 def eliminate_causally(
     client: ml.MidgameLaneClient,
     tag: str,
@@ -1929,21 +1950,7 @@ def eliminate_causally(
     """Cast every declared bolt at the victim through the engine; the engine's
     own elimination verdict afterwards. Every answer is an engine offer; the
     engine alone deals the damage and applies the state-based loss."""
-    plan = created.get("elimination_plan") or {}
-    # Only the declared instruments, bound by the engine's own native ids: the
-    # record's other objects (a Bolt or a Mountain of the victim's) are never
-    # instruments, whatever they are called.
-    instruments = [entry for entry in plan.get("instruments") or () if isinstance(entry, dict)]
-    bolt_ids = sorted(
-        str(entry["native_id"])
-        for entry in instruments
-        if entry.get("card_identity") == "Lightning Bolt" and entry.get("zone") == "hand"
-    )
-    mountain_ids = sorted(
-        str(entry["native_id"])
-        for entry in instruments
-        if entry.get("card_identity") == "Mountain" and entry.get("zone") == "battlefield"
-    )
+    bolt_ids, mountain_ids = elimination_instrument_ids(created.get("elimination_plan") or {})
     victim_seat = seat_label(str(spec["elimination_victim"]))
     bolt_count = int(spec.get("bolt_count") or 0)
     if len(bolt_ids) != bolt_count or len(mountain_ids) != bolt_count:

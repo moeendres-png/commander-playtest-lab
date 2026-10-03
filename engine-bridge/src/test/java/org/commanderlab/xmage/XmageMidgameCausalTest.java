@@ -1383,6 +1383,104 @@ class XmageMidgameCausalTest {
                         .get("code").getAsString());
     }
 
+    @Test
+    void elimStack3ComposedEntryRemovesTheVictimsSpellWithTheVictim() {
+        Lane lane = newLane();
+        JsonArray fuel = new JsonArray();
+        fuel.add(fuelCard("obj:fuel-mountain-p2", "Mountain", "P2", "battlefield"));
+        JsonArray instruments = new JsonArray();
+        for (int index = 0; index < 14; index++) {
+            instruments.add(fuelCard("obj:elim-bolt-" + index, "Lightning Bolt", "P1", "hand"));
+            instruments.add(fuelCard("obj:elim-mountain-" + index, "Mountain", "P1",
+                    "battlefield"));
+        }
+        JsonObject request = causalStackCreate(
+                "causal-elim-stack-composed", "WS05-MP-ELIM-STACK-3", fuel);
+        request.addProperty("entry_mode", "causal_stack_elimination");
+        JsonObject spec = new JsonObject();
+        spec.addProperty("actor", "P1");
+        spec.addProperty("victim", "P2");
+        spec.add("instruments", instruments);
+        request.add("elimination", spec);
+        JsonObject created = lane.ok("create_midgame_game", request);
+        assertEquals("causal_stack_elimination", created.get("entry_mode").getAsString());
+        JsonObject causalPlan = created.getAsJsonObject("causal_plan");
+        JsonObject eliminationPlan = created.getAsJsonObject("elimination_plan");
+        JsonObject substitution = eliminationPlan.getAsJsonArray("life_substitutions")
+                .get(0).getAsJsonObject();
+        assertEquals("P2", substitution.get("player_id").getAsString());
+        assertEquals(0, substitution.get("recorded_life").getAsInt());
+        JsonObject frame = causalPlan.getAsJsonArray("frames_bottom_to_top")
+                .get(0).getAsJsonObject();
+        assertEquals("obj:leave-bolt", frame.get("semantic_id").getAsString());
+        JsonObject placed = causalPlan.getAsJsonObject("placed_objects");
+        List<String> boltIds = new ArrayList<>();
+        List<String> mountainIds = new ArrayList<>();
+        for (JsonElement element : eliminationPlan.getAsJsonArray("instruments")) {
+            JsonObject instrument = element.getAsJsonObject();
+            String nativeId = instrument.get("native_id").getAsString();
+            if ("Lightning Bolt".equals(instrument.get("card_identity").getAsString())) {
+                boltIds.add(nativeId);
+            } else {
+                mountainIds.add(nativeId);
+            }
+        }
+        assertEquals(14, boltIds.size());
+        assertEquals(14, mountainIds.size());
+        // P2's own Bolt and fuel Mountain are not instruments.
+        assertFalse(boltIds.contains(placed.get("obj:leave-bolt").getAsString()));
+        lane.ok("start_midgame_game", null);
+
+        driveArrival(lane, "P1");
+        castFrameSource(lane, "composed-cast", frame.get("native_source_id").getAsString());
+        answerPlayerTarget(lane, "composed-target", seatLabel("P1"));
+        answerManaFromSet(lane, "composed-mana",
+                List.of(placed.get("obj:fuel-mountain-p2").getAsString()));
+        JsonObject stackVerify = new JsonObject();
+        stackVerify.addProperty("mode", "stack");
+        JsonObject stackVerdict = lane.ok("complete_causal_reconstruction", stackVerify)
+                .getAsJsonObject("verdict");
+        assertTrue(stackVerdict.get("causal_match").getAsBoolean(),
+                "P2's Bolt must be on the stack before the loss: "
+                        + stackVerdict.getAsJsonArray("mismatches"));
+
+        int expectedLife = 40;
+        for (int bolt = 0; bolt < 14; bolt++) {
+            castFrameSource(lane, "composed-bolt-" + bolt, boltIds.get(bolt));
+            answerPlayerTarget(lane, "composed-bolt-target-" + bolt, seatLabel("P2"));
+            answerManaFromSet(lane, "composed-bolt-mana-" + bolt, mountainIds);
+            expectedLife -= 3;
+            resolveUntilLifeReaches(lane, "composed-bolt-resolve-" + bolt, "P2", expectedLife);
+        }
+
+        JsonObject eliminationVerify = new JsonObject();
+        eliminationVerify.addProperty("mode", "elimination");
+        JsonObject verdict = lane.ok("complete_causal_reconstruction", eliminationVerify)
+                .getAsJsonObject("verdict");
+        assertTrue(verdict.get("causal_match").getAsBoolean(),
+                "the engine must eliminate P2: " + verdict.getAsJsonArray("mismatches"));
+        // P2's Bolt left with P2 (CR 800.4a): it never resolved at P1.
+        assertEquals(40, verdict.getAsJsonObject("life_totals").get("P1").getAsInt());
+        JsonObject after = lane.ok("complete_causal_reconstruction", stackVerify)
+                .getAsJsonObject("verdict");
+        assertFalse(after.get("causal_match").getAsBoolean(),
+                "the victim's spell must be gone from the stack after the loss");
+    }
+
+    @Test
+    void composedEntryWithoutEliminationSpecFailsClosed() {
+        Lane lane = newLane();
+        JsonArray fuel = new JsonArray();
+        fuel.add(fuelCard("obj:fuel-mountain-p2", "Mountain", "P2", "battlefield"));
+        JsonObject request = causalStackCreate(
+                "causal-elim-stack-nospec", "WS05-MP-ELIM-STACK-3", fuel);
+        request.addProperty("entry_mode", "causal_stack_elimination");
+        JsonObject response = lane.rejected("create_midgame_game", request);
+        JsonObject error = response.getAsJsonArray("errors").get(0).getAsJsonObject();
+        assertEquals("midgame_causal_preparation_rejected", error.get("code").getAsString());
+        assertTrue(error.get("message").getAsString().contains("MISSING_ELIMINATION_SPEC"));
+    }
+
     // ------------------------------------------------------------------
     // Lane drivers: every answer is an engine-offered option.
     // ------------------------------------------------------------------
