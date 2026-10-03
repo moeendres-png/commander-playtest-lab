@@ -4,11 +4,11 @@ worktree: /home/moeen/work/takeover-pr513-20261003
 branch: hardening/b12-pb03-trigger-telemetry-20261003
 audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
 audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
-state_written_against_head: 4bc3aa27242bdfca36326f1ae275161b9e51148b
-validated_head: 4bc3aa27242bdfca36326f1ae275161b9e51148b
-objective: Resume transferred Claude pre-Freeze campaign; review, repair, qualify
-  and integrate existing PR surfaces without losing provenance
-ownership: CLAUDE-CAMPAIGN-TAKEOVER-20261003
+state_written_against_head: 6b6bb44713d0e52d543f2ee1542dda9cb90e457e
+validated_head: null
+objective: Complete bounded B12 trigger completeness and telemetry under the Owner
+  CI-roadmap transfer
+ownership: CI479-ROADMAP-CAMPAIGN-20261003
 status: WAITING
 in_scope:
 - Transferred Lab PR513 implementation, tests, evidence, normal base merge and GitHub
@@ -37,12 +37,17 @@ authority_gates:
 - Rules/evidence-policy/provider/freeze decisions remain reserved
 execution_profile: direct-owner-authorized-codex-takeover
 technical_decisions:
-- User explicitly transfers Claude campaign after usage limit; earlier Claude-only
-  reservation superseded for named Lab surfaces. Direct Codex engineering is the requested
-  takeover, not an automatic OpenCode fallback.
-- Remote published source is reused. Unavailable Claude cloud edits are not assumed
-  present. Existing local D17 processes and uncommitted Forge work are preserved.
-exact_next_action: Push checkpoint once; require fresh exact-head PB03, required CI
-  and independent review before merge. Earlier fe73b980 PB03 remains historical.
+- Consumed canonical STOPPED handoff and Owner CI479 assignment. Existing historical
+  source lock and evidence retained.
+- Only full comment lines are excluded from executable install scanning; actual unhashed
+  pip install -e still fails. No install command, pin, gate exemption or existing
+  expectation relaxed.
+exact_next_action: Publish follow-up, obtain fresh independent review and required
+  exact-head CI; check PB03 producer identity and phase-duration output before ordinary
+  merge.
 tests_run:
-- 45 targeted B12, workflow-impact and ownership tests PASS on clean code commit 4bc3aa27242bdfca36326f1ae275161b9e51148b
+- 'CI6b6bb447 quality failure reproduced: explanatory YAML comment mistaken for executable
+  range install'
+- 'Red control: comment test FAIL, genuine unlocked command rejection PASS'
+- 59 affected environment, B12 trigger, test-ownership and workflow-impact tests PASS
+  after comment exclusion
