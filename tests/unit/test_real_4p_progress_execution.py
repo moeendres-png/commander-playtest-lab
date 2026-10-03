@@ -186,3 +186,16 @@ def test_the_active_seat_is_resolved_in_the_deciders_view(monkeypatch) -> None:
     assert {row[2]: row[5] for row in result.progress_trace} == {1: 0, 2: 1, 3: 2, 4: 3}
     assert full_game._active_seat({"active_player_id": "x", "players": []}) is None
     assert full_game._active_seat(None) is None
+
+
+def test_boundary_returned_by_final_allowed_submission_is_observed(monkeypatch) -> None:
+    result, client = _run(monkeypatch, _round(), cap=16)
+    assert result.stop_reason == "turn_boundary"
+    assert result.stop_turn_number == 5
+    assert result.decision_count == len(client.submissions) == 16
+
+
+def test_failed_final_allowed_submission_cannot_become_boundary_pass(monkeypatch) -> None:
+    statuses = [*_round()[:-1], {"failure": {"message": "engine failure"}}]
+    with pytest.raises(FullGameConformanceError, match="ENGINE_FAILURE"):
+        _run(monkeypatch, statuses, cap=16)

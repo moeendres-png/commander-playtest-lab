@@ -4,11 +4,11 @@ worktree: /home/moeen/work/takeover-pr518-20261003
 branch: hardening/b8-real4p-progress-20261003
 audit_base_sha: 92ac2ef7d4876dd19a3f1b2ad85c8386a913df27
 audit_base_tree: 785f02937170c88576fba9e11b26844493532fc0
-state_written_against_head: 583133052706d7fc03dfe83f038c5a13ee280c5d
+state_written_against_head: a2ca4f3743ef17c1a00c7370a40bef451072d2fa
 validated_head: null
 objective: Close transferred CI479 B8 review gaps without changing rules or qualification
   verdicts
-ownership: CI479-ROADMAP-CAMPAIGN-20261003
+ownership: PRE-FREEZE-CAMPAIGN-SINGLE-COORDINATOR-20261003
 status: WAITING
 in_scope:
 - Transferred Lab PR518 implementation, tests, evidence, normal base merge and GitHub
@@ -38,10 +38,7 @@ technical_decisions:
   takeover, not an automatic OpenCode fallback.
 - Remote published source is reused. Unavailable Claude cloud edits are not assumed
   present. Existing local D17 processes and uncommitted Forge work are preserved.
-exact_next_action: Read required and affected CI for the published head, independently
-  review, verify source-bound artifact bytes, then adjudicate target drift and merge
-  normally.
+exact_next_action: Inspect fresh exact-head CI and independent review after integrating
+  main50e8; adjudicate CI02 honestly, verify artifacts, then merge only reviewed head.
 tests_run:
-- 87 affected tests PASS; raw reports are retained losslessly under docs/ci479_followup_pr518_20261003/
-- Exact-head CI and independent review pending; local results do not prove engine
-  Rules behavior
+- 75 affected tests PASS; full-path before/after evidence in docs/ci479_boundary_pr518_20261003

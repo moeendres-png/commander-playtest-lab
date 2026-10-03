@@ -1,0 +1,22 @@
+{
+  "parent_head": "a2ca4f3743ef17c1a00c7370a40bef451072d2fa",
+  "parent_tree": "2384fcb7f5d9eba85eded58d18dc40db0516f700",
+  "target_integrated": "50e8b6bfac3533f92ebd3670f09e9dd3ab9dbb69",
+  "patch_sha256": "4b9883346e272458155f473533cad4b694cf1977a744fd0f5042201dbbae86c6",
+  "reports": {
+    "B8-cap-RED.xml.gz": {
+      "sha256": "4263692b75ce4a9d5651a0185d6fa411f19e5a49516b90d19e233f69680d29dc",
+      "raw_sha256": "13493be75ccc413910ac590b45df44284e67840144b16602ca9281688de701a1"
+    },
+    "B8-cap-GREEN.xml.gz": {
+      "sha256": "4ff51c1bea080bfbd4957d56dd1384c6baa52698e72c586a8ae1dcb04f5603e5",
+      "raw_sha256": "570eea6259bbd5a8adb00de0cf752212cb57d95291cd23ab58b240277c0f8e62"
+    },
+    "B8-cap-contract-GREEN.xml.gz": {
+      "sha256": "80ddbc340bc4a19a22703ea2b3f1fe07ecad80418f48cddc1cc1bb53cea8b533",
+      "raw_sha256": "d5b98d2c61b40dcd0bbbadb1deeb99e4e09271c7be901fdff8496edee1ca0313"
+    }
+  },
+  "passing_tests": 75,
+  "scope": "Affected local controls; exact-head CI and independent review pending. No Rules qualification credit."
+}

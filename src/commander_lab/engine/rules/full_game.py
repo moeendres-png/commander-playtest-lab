@@ -2358,6 +2358,12 @@ class XmageFullGameRunner:
                     if stop is not None:
                         stop.update(reason="turn_boundary", turn=turn)
                     return decision_count, observed, False
+                # Inspect the frame returned by the final permitted submission
+                # before applying the cap; it may already be the turn boundary.
+                if stop_after is not None and decision_count >= stop_after:
+                    if stop is not None:
+                        stop.update(reason="decision_limit")
+                    return decision_count, observed, False
                 decision_count += 1
                 if decision_count > self.max_decisions:
                     raise FullGameConformanceError(
@@ -2408,17 +2414,15 @@ class XmageFullGameRunner:
                             _active_seat(pilot_state),
                         )
                     )
-                if stop_after is not None and decision_count >= stop_after:
-                    if isinstance(status.get("failure"), dict):
-                        continue  # the shared failure check must reject the failed submission
-                    if stop is not None:
-                        stop.update(reason="decision_limit")
-                    return decision_count, observed, False
                 continue
             if bool(status.get("terminal")):
                 if stop is not None:
                     stop.update(reason="terminal")
                 return decision_count, observed, True
+            if stop_after is not None and decision_count >= stop_after:
+                if stop is not None:
+                    stop.update(reason="decision_limit")
+                return decision_count, observed, False
             status = client.request("get_full_game_decision")
 
     @staticmethod
