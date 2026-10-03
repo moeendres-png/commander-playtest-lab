@@ -12,8 +12,7 @@ PB-03 on main `286f78d0` (epoch `18f0097373e6-8f04fe18d6c9`), Forge Rules Core
 - 63 of the 70 in-scope rows are not PASS.
 
 Most of those rows carried a generic reason ("no current-boundary execution seam", or
-"no current-boundary execution path for this obligation in this run"). Rows the Forge
-scenario lane had attempted also lost the lane's own result in the row reason.
+"no current-boundary execution path for this obligation in this run").
 
 ## What this workstream changes
 1. **Exact reasons.** `current_boundary/forge_residuals.py` classifies every in-scope
@@ -25,8 +24,9 @@ scenario lane had attempted also lost the lane's own result in the row reason.
    lane's runner-bound receipt in PB-03.
 
 ## How a row is classified
-A row passes through three stages, and its class is the first stage that is missing a
-mechanism:
+A row passes through three stages. Every missing mechanism is recorded in pipeline order.
+The row's class is that of the first provider gap, if there is any, because no Lab work
+alone closes such a row; otherwise it is the first Lab gap:
 
 1. **Construction**, from the Forge scenario lane's own model
    (`forge_scenario_lane.model_requested_state`):
@@ -37,9 +37,11 @@ mechanism:
    - a requested field the readback cannot show is a `PROVIDER_ADAPTER_GAP` of
      observation (owner, attachment, object identity in a public zone).
 
-   Provider gaps are listed first, because no Lab work reaches past them.
-2. **Execution**: each scripted decision family is a `LAB_EXECUTION_GAP` while the lane
-   has no selector for it.
+2. **Execution**: each scripted decision family maps to the pinned bridge's frame kinds
+   that carry it (`_DECISION_FAMILIES`), and is a `LAB_EXECUTION_GAP` while the lane has
+   no selector for it. The exception is a **mulligan**: the bridge frames keep or
+   mulligan, but taking one calls `tuckCardsViaMulligan`, which the pinned bridge always
+   rejects. That makes it a `PROVIDER_ADAPTER_GAP`.
 3. **Observation**: each required obligation token is observable through
    - the **state readback** (life, loss, zones, P/T, stack, command zone, commander damage
      and cast counts, turn position);
@@ -55,8 +57,8 @@ An unmapped dimension or token raises instead of defaulting to a class.
 ## Result
 | Class | Rows (of 70) |
 |---|---|
-| `LAB_EXECUTION_GAP` | 58 |
-| `PROVIDER_ADAPTER_GAP` | 5 |
+| `LAB_EXECUTION_GAP` | 46 |
+| `PROVIDER_ADAPTER_GAP` | 17 |
 | `SCENARIO_LANE_EXECUTABLE` | 7 (six already PASS in the baseline epoch, plus WS05-CMD-START-3) |
 
 The matrix describes the scenario lane only. WS05-CMD-START-2 passes in the baseline on
@@ -64,10 +66,17 @@ the generic lane's own route, and the scenario lane has no contract for its
 `first_turn_draw_step_skipped` token, so it is counted under `LAB_EXECUTION_GAP` here. Its
 receipt, not this matrix, decides its row.
 
-Eleven rows also carry event-only obligation tokens. They need a Forge event log even
-after all Lab work is done.
+The 17 provider gaps break down as follows:
+- 11 rows need an event log;
+- three need a mulligan (PILOT_MULLIGAN, WS05-CMD-MULL-2 and WS05-CMD-MULL-4);
+- one needs predetermined draws (MICRO_RULES_RANDOMNESS);
+- five need a readback of owner, attachment, a revealed zone, the library, or object
+  identity in a public zone.
 
-**The dominant blocker is Lab-side.** The Forge bridge projects the engine's choices as
+Some rows have more than one provider gap. Each row's matrix entry lists every
+mechanism.
+
+**The larger blocker is Lab-side.** The Forge bridge projects the engine's choices as
 decision frames, among them:
 - `ATTACK_DECLARATION` and `BLOCK_DECLARATION`;
 - `TARGETING` and `MODE_SUBSET`;
@@ -88,7 +97,7 @@ every mechanism of every row; the table shows the first one.
 
 | Row | Class | First missing mechanism | Event-only tokens |
 |---|---|---|---|
-| MICRO_COMBAT | LAB_EXECUTION_GAP | construction: `combat_state` | `combat_damage:attacker_to_blocker:2`, `combat_damage:blocker_to_attacker:2`, `state_based_actions` |
+| MICRO_COMBAT | PROVIDER_ADAPTER_GAP | observation: `event_log` | `combat_damage:attacker_to_blocker:2`, `combat_damage:blocker_to_attacker:2`, `state_based_actions` |
 | MICRO_CONTINUOUS_EFFECTS | LAB_EXECUTION_GAP | construction: `temporal_checkpoint.exact_hand_after_draw` | — |
 | MICRO_CONTROL | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_COPY | LAB_EXECUTION_GAP | construction: `stack_state` | — |
@@ -96,27 +105,27 @@ every mechanism of every row; the table shows the first one.
 | MICRO_LAYERS | PROVIDER_ADAPTER_GAP | observation: `event_log` | `layer6_remove_abilities`, `layer7b_set_pt:1/1`, `layer7c_modify_pt:+1/+1` |
 | MICRO_MANA_PAYMENT | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | MICRO_MODES | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
-| MICRO_PREVENTION | LAB_EXECUTION_GAP | construction: `combat_state` | `combat_damage_would_be:P2:2`, `prevention_applied`, `combat_damage_prevented:P2:2` |
+| MICRO_PREVENTION | PROVIDER_ADAPTER_GAP | observation: `event_log` | `combat_damage_would_be:P2:2`, `prevention_applied`, `combat_damage_prevented:P2:2` |
 | MICRO_PRIORITY | LAB_EXECUTION_GAP | construction: `stack_state` | — |
-| MICRO_REPLACEMENT | LAB_EXECUTION_GAP | construction: `combat_state` | `damage_would_be:P2:3`, `replacement_effect:double` |
+| MICRO_REPLACEMENT | PROVIDER_ADAPTER_GAP | observation: `event_log` | `damage_would_be:P2:3`, `replacement_effect:double` |
 | MICRO_RULES_RANDOMNESS | PROVIDER_ADAPTER_GAP | construction: `rules_randomness.predetermined_semantic_draws` | `rules_rng:coin_flip:HEADS`, `extra_turn_created:P1` |
 | MICRO_STACK | LAB_EXECUTION_GAP | construction: `stack_state` | — |
-| MICRO_STATE_BASED_ACTIONS | LAB_EXECUTION_GAP | construction: `action_cost_state` | `state_based_actions` |
+| MICRO_STATE_BASED_ACTIONS | PROVIDER_ADAPTER_GAP | observation: `event_log` | `state_based_actions` |
 | MICRO_TARGETS | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_TRIGGERS | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
-| MICRO_ZONE_CHANGES | LAB_EXECUTION_GAP | construction: `stack_state` | `new_object_incarnation:line:micro-bolt` |
+| MICRO_ZONE_CHANGES | PROVIDER_ADAPTER_GAP | observation: `event_log` | `new_object_incarnation:line:micro-bolt` |
 | PILOT_ANNOUNCE_X | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | PILOT_CHOICE | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | PILOT_CHOOSE_ABILITY | LAB_EXECUTION_GAP | execution: `decision_execution.choose_ability.semantic_ability_key` | — |
 | PILOT_CHOOSE_MODE | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | PILOT_CHOOSE_OBJECT | LAB_EXECUTION_GAP | construction: `stack_state` | — |
-| PILOT_CHOOSE_USE | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
+| PILOT_CHOOSE_USE | PROVIDER_ADAPTER_GAP | checkpoint_readback: `semantic_objects.zone:library` | — |
 | PILOT_DECLARE_ATTACKER | LAB_EXECUTION_GAP | construction: `combat_state` | — |
 | PILOT_DECLARE_BLOCKER | LAB_EXECUTION_GAP | construction: `combat_state` | — |
 | PILOT_MANA_PAYMENT | LAB_EXECUTION_GAP | construction: `stack_state` | — |
-| PILOT_MULLIGAN | LAB_EXECUTION_GAP | construction: `temporal_state.turn_number` | — |
+| PILOT_MULLIGAN | PROVIDER_ADAPTER_GAP | execution: `decision_execution.mulligan.semantic_action` | — |
 | PILOT_MULTI_AMOUNT | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
-| PILOT_PILE | LAB_EXECUTION_GAP | construction: `stack_state` | — |
+| PILOT_PILE | PROVIDER_ADAPTER_GAP | checkpoint_readback: `semantic_objects.zone:revealed` | — |
 | PILOT_PRIORITY | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | PILOT_REPLACEMENT_EFFECT | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | PILOT_TARGET | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
@@ -126,8 +135,8 @@ every mechanism of every row; the table shows the first one.
 | WS05-CMD-DMG-SAME-21 | LAB_EXECUTION_GAP | construction: `combat_state` | — |
 | WS05-CMD-DMG-SPLIT (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
 | WS05-CMD-ELIM-4 | LAB_EXECUTION_GAP | construction: `combat_state` | — |
-| WS05-CMD-MULL-2 | LAB_EXECUTION_GAP | construction: `temporal_state.turn_number` | — |
-| WS05-CMD-MULL-4 | LAB_EXECUTION_GAP | construction: `temporal_state.turn_number` | — |
+| WS05-CMD-MULL-2 | PROVIDER_ADAPTER_GAP | execution: `decision_execution.mulligan.semantic_action` | — |
+| WS05-CMD-MULL-4 | PROVIDER_ADAPTER_GAP | execution: `decision_execution.mulligan.semantic_action` | — |
 | WS05-CMD-PARTNER-DMG (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
 | WS05-CMD-PARTNER-TAX | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | WS05-CMD-PARTNER-ZONE (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
@@ -154,8 +163,8 @@ every mechanism of every row; the table shows the first one.
 | WS05-MP-ELIM-TURN-3 | LAB_EXECUTION_GAP | construction: `temporal_state.active_player` | — |
 | WS05-MP-PRIO-3 | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | WS05-MP-PRIO-5 | LAB_EXECUTION_GAP | construction: `stack_state` | — |
-| WS05-MP-TRIG-3 | LAB_EXECUTION_GAP | construction: `action_cost_state` | `simultaneous_trigger_event` |
-| WS05-MP-TRIG-5 | LAB_EXECUTION_GAP | construction: `action_cost_state` | `simultaneous_trigger_event` |
+| WS05-MP-TRIG-3 | PROVIDER_ADAPTER_GAP | observation: `event_log` | `simultaneous_trigger_event` |
+| WS05-MP-TRIG-5 | PROVIDER_ADAPTER_GAP | observation: `event_log` | `simultaneous_trigger_event` |
 | WS05-MP-TURN-3 | PROVIDER_ADAPTER_GAP | checkpoint_readback: `semantic_objects.zone:graveyard` | `extra_turn_created:P2`, `extra_turn_created:P3` |
 | WS05-MP-TURN-5 | PROVIDER_ADAPTER_GAP | checkpoint_readback: `semantic_objects.zone:graveyard` | `extra_turn_created:P2`, `extra_turn_created:P3` |
 
@@ -172,6 +181,15 @@ snapshot before it against the first one in it), all of these hold:
 
 Local run against the pinned bridge: P1 7→8 in hand and 92→91 in library; P2 and P3
 unchanged.
+
+**Basis of the starter.** The starting player is not an engine observation. The engine
+picks a chooser (P2 in the local run) and offers it every seat, and the lane answers with
+the record's requested active player (`requested_starting_seat`, an engine-offered option).
+The verdict requires that recorded selection, names its basis
+(`LAB_SELECTED_ENGINE_OFFERED`) and checks only that the engine then started that seat's
+turn. The draw half (CR 103.8) is the engine-observed fact. Whether a selection derived
+from the requested state counts as a scripted response when the record's decision script
+is empty is put to #255 as a flag; the receipt names the basis either way.
 
 Wrong-reason controls, run on the engine locally and as unit tests:
 - the wrong value (`first_turn_draw:false`) is refused;

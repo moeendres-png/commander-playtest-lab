@@ -1717,6 +1717,21 @@ def drive_scenario_game(
                     )
                 [chosen_action] = options
                 chosen = str(chosen_action["action_id"])
+                # The starter is the Lab's selection among engine-offered seats
+                # (requested_starting_seat), not an engine observation; it is
+                # recorded so an obligation can name that basis.
+                result.terminal_facts["starting_player_choice"] = {
+                    "chooser": actor,
+                    "revision": revision,
+                    "chosen_seat": wanted,
+                    "offered_seats": sorted(
+                        str(action.get("source_object_id"))
+                        for action in actions
+                        if action.get("action_type") == "structural_decision"
+                    ),
+                    "policy": "requested_starting_seat",
+                    "basis": "LAB_SELECTED_ENGINE_OFFERED",
+                }
                 response = proc.request(
                     "submit_action",
                     {
@@ -1927,7 +1942,9 @@ def _required_token(required: list[Any], prefix: str) -> str | None:
 
 
 def evaluate_first_turn_draw(
-    required: list[Any], progression: list[dict[str, Any]]
+    required: list[Any],
+    progression: list[dict[str, Any]],
+    starting_choice: dict[str, Any] | None = None,
 ) -> ObligationVerdict:
     """CR 103.8: the starting player's first draw step, from the engine's own counts.
 
@@ -1937,6 +1954,11 @@ def evaluate_first_turn_draw(
     -1) exactly when ``first_turn_draw`` is true (CR 103.8a skips it only in a
     two-player game); every other player's counts must not change. A missing
     snapshot on either side fails closed.
+
+    The starter itself is not an engine observation: the Lab selects it among
+    the seats the engine's starting-player frame offers. The verdict requires
+    that recorded selection, names its basis, and checks only that the engine
+    then started that seat's turn.
     """
     starter_token = _required_token(required, "starting_player:")
     draw_token = _required_token(required, "first_turn_draw:")
@@ -1959,6 +1981,14 @@ def evaluate_first_turn_draw(
     if starter_token is None or draw_token not in {"true", "false"}:
         return verdict(False, "the record does not name exactly one starter and draw value")
     starter = starter_token.lower()
+    facts["starting_player_choice"] = starting_choice
+    if (
+        not starting_choice
+        or starting_choice.get("chosen_seat") != starter
+        or starter not in (starting_choice.get("offered_seats") or [])
+    ):
+        return verdict(False, "no recorded engine-offered starting-player selection of the starter")
+    facts["starting_player_basis"] = starting_choice.get("basis")
     turn_one = [snap for snap in progression if snap.get("turn_number") == 1]
     draw_index = next(
         (index for index, snap in enumerate(turn_one) if snap.get("step") == "draw"), None
@@ -1971,6 +2001,10 @@ def evaluate_first_turn_draw(
     facts["in_draw_step"] = after
     if before.get("active_player") != starter or after.get("active_player") != starter:
         return verdict(False, "the engine's turn-1 active player is not the requested starter")
+    if before.get("phase") != "beginning" or after.get("priority_player") != starter:
+        return verdict(
+            False, "the snapshots do not bracket the starter's draw step in the beginning phase"
+        )
     if set(before.get("players") or {}) != set(after.get("players") or {}):
         return verdict(False, "the player set changed across the draw step")
     expected = 1 if draw_token == "true" else 0
@@ -2003,7 +2037,9 @@ def evaluate_first_turn_draw(
     return verdict(
         True,
         "the engine's counts across the starting player's turn-1 draw step match "
-        f"first_turn_draw:{draw_token} for starter {starter}, and no other player's counts changed",
+        f"first_turn_draw:{draw_token} for starter {starter}, and no other player's counts "
+        "changed; the starter is the Lab's selection among the engine-offered seats "
+        "(LAB_SELECTED_ENGINE_OFFERED), and the engine started that seat's turn",
     )
 
 
@@ -2011,6 +2047,7 @@ def evaluate_obligation(
     model: RequestedStateModel,
     seat_observations: dict[str, dict[str, Any]],
     progression: list[dict[str, Any]] | None = None,
+    starting_choice: dict[str, Any] | None = None,
 ) -> ObligationVerdict:
     """Evaluate the fixture obligation from engine-reported facts only."""
     required = list((model.record.get("expected_events") or {}).get("required_events") or [])
@@ -2022,7 +2059,7 @@ def evaluate_obligation(
     kind = _obligation_kind(model)
 
     if kind == "starting_player_first_turn_draw":
-        return evaluate_first_turn_draw(required, progression or [])
+        return evaluate_first_turn_draw(required, progression or [], starting_choice)
 
     if kind == "commander_damage_checked_per_commander":
         facts: dict[str, Any] = {}
@@ -2490,7 +2527,10 @@ def probe_row(
     )
 
     obligation = evaluate_obligation(
-        model, observations, drive.terminal_facts.get("progression") or []
+        model,
+        observations,
+        drive.terminal_facts.get("progression") or [],
+        drive.terminal_facts.get("starting_player_choice"),
     )
     evidence.set("semantic_events", obligation.semantic_events)
     evidence.set(

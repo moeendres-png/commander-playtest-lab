@@ -86,13 +86,14 @@ _CONSTRUCTION: dict[str, tuple[str, str]] = {
     ),
     "temporal_state.turn_number": (
         LAB_EXECUTION_GAP,
-        "the requested turn is reached only by native progression through decisions "
-        "(mulligans, turns) the lane does not execute",
+        "the requested turn is reached only by native progression through turns the lane "
+        "does not drive",
     ),
     "temporal_state.active_player": (
         LAB_EXECUTION_GAP,
-        "another player's turn is reached only by native progression through turns the "
-        "lane does not drive",
+        "the lane model accepts only p1 as the turn-1 active player, although the engine's "
+        "starting-player frame offers every seat; another starter needs the lane to accept "
+        "it",
     ),
     "temporal_checkpoint.exact_hand_after_draw": (
         LAB_EXECUTION_GAP,
@@ -119,6 +120,34 @@ _CONSTRUCTION: dict[str, tuple[str, str]] = {
     ),
 }
 _DECISION_PREFIX = "decision_execution."
+
+# Scripted decision families (``decision_execution.<family>.<selector>``): the
+# pinned bridge's frame kinds that carry each family, or the provider reason no
+# frame can. An unmapped family raises.
+_DECISION_FAMILIES: dict[str, tuple[str, str]] = {
+    "announce_x": (LAB_EXECUTION_GAP, "ANNOUNCE"),
+    "choice": (LAB_EXECUTION_GAP, "CARD_LIST, STRING, COLOR or BOOLEAN"),
+    "choose_ability": (LAB_EXECUTION_GAP, "SPELL_ABILITY"),
+    "choose_mode": (LAB_EXECUTION_GAP, "MODE_SUBSET"),
+    "choose_object": (LAB_EXECUTION_GAP, "CARD, CARD_LIST or GAME_ENTITY"),
+    "choose_use": (LAB_EXECUTION_GAP, "BOOLEAN"),
+    "declare_attacker": (LAB_EXECUTION_GAP, "ATTACK_DECLARATION"),
+    "declare_blocker": (LAB_EXECUTION_GAP, "BLOCK_DECLARATION"),
+    "mana_payment": (LAB_EXECUTION_GAP, "MANA or MANA_COMBO"),
+    "multi_amount": (LAB_EXECUTION_GAP, "AMOUNT_DISTRIBUTION_SELECTION"),
+    "pile": (LAB_EXECUTION_GAP, "CARD_LIST"),
+    "priority": (LAB_EXECUTION_GAP, "PRIORITY (cast and activate actions)"),
+    "replacement_effect": (LAB_EXECUTION_GAP, "REPLACEMENT_EFFECT"),
+    "target": (LAB_EXECUTION_GAP, "TARGETING"),
+    "target_amount": (LAB_EXECUTION_GAP, "DIVIDED_TARGET"),
+    "trigger_order": (LAB_EXECUTION_GAP, "ORDER"),
+    "mulligan": (
+        PROVIDER_ADAPTER_GAP,
+        "the bridge frames keep or mulligan, but taking a mulligan calls "
+        "tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card "
+        "selection is not externally represented')",
+    ),
+}
 
 # Requested fields the generic readback cannot show (``unobservable``).
 _UNOBSERVABLE: dict[str, tuple[str, str]] = {
@@ -283,6 +312,14 @@ class ForgeResidual:
 
     @property
     def first_missing(self) -> dict[str, str] | None:
+        """The first provider gap in pipeline order, else the first Lab gap.
+
+        A provider gap anywhere means no Lab work alone closes the row, so it
+        names the row's class even when a Lab gap comes earlier in the pipeline.
+        """
+        for mechanism in self.mechanisms:
+            if mechanism["class"] == PROVIDER_ADAPTER_GAP:
+                return mechanism
         return self.mechanisms[0] if self.mechanisms else None
 
     @property
@@ -307,7 +344,7 @@ class ForgeResidual:
             f"Forge {self.classification}: first missing mechanism at "
             f"{first['stage']} ({first['dimension']}): {first['detail']}"
         ]
-        later = self.mechanisms[1:]
+        later = [item for item in self.mechanisms if item is not first]
         if later:
             parts.append(
                 "then: "
@@ -339,10 +376,16 @@ class ForgeResidual:
 def _construction(dimension: str) -> tuple[str, str]:
     if dimension.startswith(_DECISION_PREFIX):
         family = dimension[len(_DECISION_PREFIX) :].split(".", 1)[0]
+        mapped = _DECISION_FAMILIES.get(family)
+        if mapped is None:
+            raise ValueError(f"unmapped Forge decision family {family!r}")
+        gap_class, frames = mapped
+        if gap_class == PROVIDER_ADAPTER_GAP:
+            return gap_class, f"the record scripts a {family} decision: {frames}"
         return (
-            LAB_EXECUTION_GAP,
-            f"the record scripts a {family} decision; the bridge offers the engine's own "
-            f"{family} frames, but the lane has no selector for them",
+            gap_class,
+            f"the record scripts a {family} decision; the bridge carries it on its "
+            f"{frames} frames, but the lane has no selector for them",
         )
     if dimension in _CONSTRUCTION:
         return _CONSTRUCTION[dimension]
@@ -369,8 +412,6 @@ def classify_row(record: dict[str, Any]) -> ForgeResidual:
             execution.append({**entry, "stage": "execution"})
         else:
             construction.append({**entry, "stage": "construction"})
-    # Provider construction gaps come first: no Lab work reaches past them.
-    construction.sort(key=lambda item: item["class"] != PROVIDER_ADAPTER_GAP)
     readback = []
     for finding in model.unobservable:
         mapped = _UNOBSERVABLE.get(finding.dimension)

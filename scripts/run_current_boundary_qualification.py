@@ -1757,7 +1757,15 @@ def classify_remaining(
             and rows
             and rows[-1].fixture_id == fixture_id
         ):
-            rows[-1].reason = erratum + forge_residuals_mod.row_reason(record)
+            try:
+                rows[-1].reason = erratum + forge_residuals_mod.row_reason(record)
+            except ValueError as error:
+                # Fail closed without stopping the run: the outcome above stands
+                # and the reason says the classification itself is incomplete.
+                rows[-1].reason = erratum + (
+                    f"Forge residual classification failed closed ({error}); the outcome "
+                    "above stands and the row stays unestablished."
+                )
     return rows
 
 

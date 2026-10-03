@@ -5,12 +5,12 @@
  "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
  "rows": [
   {
-   "classification": "LAB_EXECUTION_GAP",
+   "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
-    "class": "LAB_EXECUTION_GAP",
-    "detail": "combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector",
-    "dimension": "combat_state",
-    "stage": "construction"
+    "class": "PROVIDER_ADAPTER_GAP",
+    "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
+    "dimension": "event_log",
+    "stage": "observation"
    },
    "fixture_id": "MICRO_COMBAT",
    "lane_obligation_kind": null,
@@ -45,7 +45,7 @@
      "both_creatures_die"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: observation event_log (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: combat_damage:attacker_to_blocker:2, combat_damage:blocker_to_attacker:2, state_based_actions. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: combat_damage:attacker_to_blocker:2, combat_damage:blocker_to_attacker:2, state_based_actions. no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -104,13 +104,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_object",
      "stage": "execution"
     },
@@ -154,7 +154,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choice decision; the bridge offers the engine's own choice frames, but the lane has no selector for them",
+     "detail": "the record scripts a choice decision; the bridge carries it on its CARD_LIST, STRING, COLOR or BOOLEAN frames, but the lane has no selector for them",
      "dimension": "decision_execution.choice.boolean",
      "stage": "execution"
     },
@@ -193,7 +193,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "another player's turn is reached only by native progression through turns the lane does not drive",
+     "detail": "the lane model accepts only p1 as the turn-1 active player, although the engine's starting-player frame offers every seat; another starter needs the lane to accept it",
      "dimension": "temporal_state.active_player",
      "stage": "construction"
     },
@@ -205,13 +205,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_objects",
      "stage": "execution"
     },
@@ -301,19 +301,19 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_stack_object",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a mana_payment decision; the bridge offers the engine's own mana_payment frames, but the lane has no selector for them",
+     "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
      "dimension": "decision_execution.mana_payment.mana_payment",
      "stage": "execution"
     },
@@ -359,13 +359,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choose_mode decision; the bridge offers the engine's own choose_mode frames, but the lane has no selector for them",
+     "detail": "the record scripts a choose_mode decision; the bridge carries it on its MODE_SUBSET frames, but the lane has no selector for them",
      "dimension": "decision_execution.choose_mode.semantic_mode_key",
      "stage": "execution"
     },
@@ -388,12 +388,12 @@
    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane has no cast or payment selector. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.choose_mode.semantic_mode_key (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
-   "classification": "LAB_EXECUTION_GAP",
+   "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
-    "class": "LAB_EXECUTION_GAP",
-    "detail": "combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector",
-    "dimension": "combat_state",
-    "stage": "construction"
+    "class": "PROVIDER_ADAPTER_GAP",
+    "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
+    "dimension": "event_log",
+    "stage": "observation"
    },
    "fixture_id": "MICRO_PREVENTION",
    "lane_obligation_kind": null,
@@ -430,7 +430,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
@@ -455,7 +455,7 @@
      "combat_damage_prevented:P2:2"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation event_log (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: combat_damage_would_be:P2:2, prevention_applied, combat_damage_prevented:P2:2. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: combat_damage_would_be:P2:2, prevention_applied, combat_damage_prevented:P2:2. no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -500,13 +500,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_object",
      "stage": "execution"
     },
@@ -532,12 +532,12 @@
    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane has no cast selector. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
-   "classification": "LAB_EXECUTION_GAP",
+   "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
-    "class": "LAB_EXECUTION_GAP",
-    "detail": "combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector",
-    "dimension": "combat_state",
-    "stage": "construction"
+    "class": "PROVIDER_ADAPTER_GAP",
+    "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
+    "dimension": "event_log",
+    "stage": "observation"
    },
    "fixture_id": "MICRO_REPLACEMENT",
    "lane_obligation_kind": null,
@@ -583,7 +583,7 @@
      "damage:P2:6"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); observation event_log (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: damage_would_be:P2:3, replacement_effect:double. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: damage_would_be:P2:3, replacement_effect:double. no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -597,15 +597,15 @@
    "lane_obligation_kind": null,
    "mechanisms": [
     {
-     "class": "PROVIDER_ADAPTER_GAP",
-     "detail": "predetermined draws have no bootstrap field and no engine action causes them",
-     "dimension": "rules_randomness.predetermined_semantic_draws",
-     "stage": "construction"
-    },
-    {
      "class": "LAB_EXECUTION_GAP",
      "detail": "a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane has no cast selector",
      "dimension": "stack_state",
+     "stage": "construction"
+    },
+    {
+     "class": "PROVIDER_ADAPTER_GAP",
+     "detail": "predetermined draws have no bootstrap field and no engine action causes them",
+     "dimension": "rules_randomness.predetermined_semantic_draws",
      "stage": "construction"
     },
     {
@@ -616,7 +616,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choice decision; the bridge offers the engine's own choice frames, but the lane has no selector for them",
+     "detail": "the record scripts a choice decision; the bridge carries it on its CARD_LIST, STRING, COLOR or BOOLEAN frames, but the lane has no selector for them",
      "dimension": "decision_execution.choice.boolean",
      "stage": "execution"
     },
@@ -685,13 +685,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_object",
      "stage": "execution"
     },
@@ -717,12 +717,12 @@
    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane has no cast selector. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
-   "classification": "LAB_EXECUTION_GAP",
+   "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
-    "class": "LAB_EXECUTION_GAP",
-    "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane has no cast or payment selector",
-    "dimension": "action_cost_state",
-    "stage": "construction"
+    "class": "PROVIDER_ADAPTER_GAP",
+    "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
+    "dimension": "event_log",
+    "stage": "observation"
    },
    "fixture_id": "MICRO_STATE_BASED_ACTIONS",
    "lane_obligation_kind": null,
@@ -747,7 +747,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
@@ -774,7 +774,7 @@
      "move_to_graveyard:obj:micro-zero"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane has no cast or payment selector. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation event_log (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: state_based_actions. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: state_based_actions. no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -807,13 +807,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_player",
      "stage": "execution"
     },
@@ -864,13 +864,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_player",
      "stage": "execution"
     },
@@ -892,12 +892,12 @@
    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane has no cast or payment selector. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
-   "classification": "LAB_EXECUTION_GAP",
+   "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
-    "class": "LAB_EXECUTION_GAP",
-    "detail": "a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane has no cast selector",
-    "dimension": "stack_state",
-    "stage": "construction"
+    "class": "PROVIDER_ADAPTER_GAP",
+    "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
+    "dimension": "event_log",
+    "stage": "observation"
    },
    "fixture_id": "MICRO_ZONE_CHANGES",
    "lane_obligation_kind": null,
@@ -937,7 +937,7 @@
      "zone_change:stack->graveyard"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane has no cast selector. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); observation event_log (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: new_object_incarnation:line:micro-bolt. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction stack_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: new_object_incarnation:line:micro-bolt. no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -970,13 +970,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a announce_x decision; the bridge offers the engine's own announce_x frames, but the lane has no selector for them",
+     "detail": "the record scripts a announce_x decision; the bridge carries it on its ANNOUNCE frames, but the lane has no selector for them",
      "dimension": "decision_execution.announce_x.integer",
      "stage": "execution"
     },
@@ -1021,7 +1021,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choice decision; the bridge offers the engine's own choice frames, but the lane has no selector for them",
+     "detail": "the record scripts a choice decision; the bridge carries it on its CARD_LIST, STRING, COLOR or BOOLEAN frames, but the lane has no selector for them",
      "dimension": "decision_execution.choice.semantic_choice_key",
      "stage": "execution"
     },
@@ -1045,7 +1045,7 @@
    "classification": "LAB_EXECUTION_GAP",
    "first_missing": {
     "class": "LAB_EXECUTION_GAP",
-    "detail": "the record scripts a choose_ability decision; the bridge offers the engine's own choose_ability frames, but the lane has no selector for them",
+    "detail": "the record scripts a choose_ability decision; the bridge carries it on its SPELL_ABILITY frames, but the lane has no selector for them",
     "dimension": "decision_execution.choose_ability.semantic_ability_key",
     "stage": "execution"
    },
@@ -1054,7 +1054,7 @@
    "mechanisms": [
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choose_ability decision; the bridge offers the engine's own choose_ability frames, but the lane has no selector for them",
+     "detail": "the record scripts a choose_ability decision; the bridge carries it on its SPELL_ABILITY frames, but the lane has no selector for them",
      "dimension": "decision_execution.choose_ability.semantic_ability_key",
      "stage": "execution"
     },
@@ -1072,7 +1072,7 @@
      "ability_selected:loyalty_0_triple_damage"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at execution (decision_execution.choose_ability.semantic_ability_key): the record scripts a choose_ability decision; the bridge offers the engine's own choose_ability frames, but the lane has no selector for them. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at execution (decision_execution.choose_ability.semantic_ability_key): the record scripts a choose_ability decision; the bridge carries it on its SPELL_ABILITY frames, but the lane has no selector for them. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -1105,13 +1105,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choose_mode decision; the bridge offers the engine's own choose_mode frames, but the lane has no selector for them",
+     "detail": "the record scripts a choose_mode decision; the bridge carries it on its MODE_SUBSET frames, but the lane has no selector for them",
      "dimension": "decision_execution.choose_mode.semantic_mode_key",
      "stage": "execution"
     },
@@ -1156,13 +1156,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "another player's turn is reached only by native progression through turns the lane does not drive",
+     "detail": "the lane model accepts only p1 as the turn-1 active player, although the engine's starting-player frame offers every seat; another starter needs the lane to accept it",
      "dimension": "temporal_state.active_player",
      "stage": "construction"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choose_object decision; the bridge offers the engine's own choose_object frames, but the lane has no selector for them",
+     "detail": "the record scripts a choose_object decision; the bridge carries it on its CARD, CARD_LIST or GAME_ENTITY frames, but the lane has no selector for them",
      "dimension": "decision_execution.choose_object.semantic_object",
      "stage": "execution"
     },
@@ -1183,12 +1183,12 @@
    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane has no cast selector. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_state.active_player (LAB_EXECUTION_GAP); execution decision_execution.choose_object.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
-   "classification": "LAB_EXECUTION_GAP",
+   "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
-    "class": "LAB_EXECUTION_GAP",
-    "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane has no cast or payment selector",
-    "dimension": "action_cost_state",
-    "stage": "construction"
+    "class": "PROVIDER_ADAPTER_GAP",
+    "detail": "library contents are never exposed",
+    "dimension": "semantic_objects.zone:library",
+    "stage": "checkpoint_readback"
    },
    "fixture_id": "PILOT_CHOOSE_USE",
    "lane_obligation_kind": null,
@@ -1219,19 +1219,19 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a mana_payment decision; the bridge offers the engine's own mana_payment frames, but the lane has no selector for them",
+     "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
      "dimension": "decision_execution.mana_payment.mana_payment",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choose_use decision; the bridge offers the engine's own choose_use frames, but the lane has no selector for them",
+     "detail": "the record scripts a choose_use decision; the bridge carries it on its BOOLEAN frames, but the lane has no selector for them",
      "dimension": "decision_execution.choose_use.boolean",
      "stage": "execution"
     },
@@ -1249,7 +1249,7 @@
      "scry_choice:keep_top"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane has no cast or payment selector. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.zone:library (PROVIDER_ADAPTER_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.choose_use.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:library): library contents are never exposed. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.choose_use.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -1282,7 +1282,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a declare_attacker decision; the bridge offers the engine's own declare_attacker frames, but the lane has no selector for them",
+     "detail": "the record scripts a declare_attacker decision; the bridge carries it on its ATTACK_DECLARATION frames, but the lane has no selector for them",
      "dimension": "decision_execution.declare_attacker.attacker_assignment",
      "stage": "execution"
     },
@@ -1327,7 +1327,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a declare_blocker decision; the bridge offers the engine's own declare_blocker frames, but the lane has no selector for them",
+     "detail": "the record scripts a declare_blocker decision; the bridge carries it on its BLOCK_DECLARATION frames, but the lane has no selector for them",
      "dimension": "decision_execution.declare_blocker.blocker_assignment",
      "stage": "execution"
     },
@@ -1384,19 +1384,19 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_stack_object",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a mana_payment decision; the bridge offers the engine's own mana_payment frames, but the lane has no selector for them",
+     "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
      "dimension": "decision_execution.mana_payment.mana_payment",
      "stage": "execution"
     },
@@ -1417,25 +1417,25 @@
    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane has no cast selector. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_stack_object (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
-   "classification": "LAB_EXECUTION_GAP",
+   "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
-    "class": "LAB_EXECUTION_GAP",
-    "detail": "the requested turn is reached only by native progression through decisions (mulligans, turns) the lane does not execute",
-    "dimension": "temporal_state.turn_number",
-    "stage": "construction"
+    "class": "PROVIDER_ADAPTER_GAP",
+    "detail": "the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented')",
+    "dimension": "decision_execution.mulligan.semantic_action",
+    "stage": "execution"
    },
    "fixture_id": "PILOT_MULLIGAN",
    "lane_obligation_kind": null,
    "mechanisms": [
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the requested turn is reached only by native progression through decisions (mulligans, turns) the lane does not execute",
+     "detail": "the requested turn is reached only by native progression through turns the lane does not drive",
      "dimension": "temporal_state.turn_number",
      "stage": "construction"
     },
     {
-     "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a mulligan decision; the bridge offers the engine's own mulligan frames, but the lane has no selector for them",
+     "class": "PROVIDER_ADAPTER_GAP",
+     "detail": "the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented')",
      "dimension": "decision_execution.mulligan.semantic_action",
      "stage": "execution"
     },
@@ -1459,7 +1459,7 @@
      "bottom_count:P1:0"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (temporal_state.turn_number): the requested turn is reached only by native progression through decisions (mulligans, turns) the lane does not execute. then: execution decision_execution.mulligan.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at execution (decision_execution.mulligan.semantic_action): the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented'). then: construction temporal_state.turn_number (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -1486,13 +1486,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a multi_amount decision; the bridge offers the engine's own multi_amount frames, but the lane has no selector for them",
+     "detail": "the record scripts a multi_amount decision; the bridge carries it on its AMOUNT_DISTRIBUTION_SELECTION frames, but the lane has no selector for them",
      "dimension": "decision_execution.multi_amount.amount_assignment",
      "stage": "execution"
     },
@@ -1513,12 +1513,12 @@
    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane has no cast or payment selector. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.multi_amount.amount_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
-   "classification": "LAB_EXECUTION_GAP",
+   "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
-    "class": "LAB_EXECUTION_GAP",
-    "detail": "a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane has no cast selector",
-    "dimension": "stack_state",
-    "stage": "construction"
+    "class": "PROVIDER_ADAPTER_GAP",
+    "detail": "revealed zones have no projection",
+    "dimension": "semantic_objects.zone:revealed",
+    "stage": "checkpoint_readback"
    },
    "fixture_id": "PILOT_PILE",
    "lane_obligation_kind": null,
@@ -1543,7 +1543,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a pile decision; the bridge offers the engine's own pile frames, but the lane has no selector for them",
+     "detail": "the record scripts a pile decision; the bridge carries it on its CARD_LIST frames, but the lane has no selector for them",
      "dimension": "decision_execution.pile.partition",
      "stage": "execution"
     },
@@ -1561,7 +1561,7 @@
      "partition_created:2/3"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane has no cast selector. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.zone:revealed (PROVIDER_ADAPTER_GAP); execution decision_execution.pile.partition (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:revealed): revealed zones have no projection. then: construction stack_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.pile.partition (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -1594,13 +1594,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_player",
      "stage": "execution"
     },
@@ -1645,7 +1645,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a replacement_effect decision; the bridge offers the engine's own replacement_effect frames, but the lane has no selector for them",
+     "detail": "the record scripts a replacement_effect decision; the bridge carries it on its REPLACEMENT_EFFECT frames, but the lane has no selector for them",
      "dimension": "decision_execution.replacement_effect.boolean",
      "stage": "execution"
     },
@@ -1696,13 +1696,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_player",
      "stage": "execution"
     },
@@ -1747,13 +1747,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target_amount decision; the bridge offers the engine's own target_amount frames, but the lane has no selector for them",
+     "detail": "the record scripts a target_amount decision; the bridge carries it on its DIVIDED_TARGET frames, but the lane has no selector for them",
      "dimension": "decision_execution.target_amount.amount_assignment",
      "stage": "execution"
     },
@@ -1777,7 +1777,7 @@
    "classification": "LAB_EXECUTION_GAP",
    "first_missing": {
     "class": "LAB_EXECUTION_GAP",
-    "detail": "the record scripts a trigger_order decision; the bridge offers the engine's own trigger_order frames, but the lane has no selector for them",
+    "detail": "the record scripts a trigger_order decision; the bridge carries it on its ORDER frames, but the lane has no selector for them",
     "dimension": "decision_execution.trigger_order.order",
     "stage": "execution"
    },
@@ -1786,7 +1786,7 @@
    "mechanisms": [
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a trigger_order decision; the bridge offers the engine's own trigger_order frames, but the lane has no selector for them",
+     "detail": "the record scripts a trigger_order decision; the bridge carries it on its ORDER frames, but the lane has no selector for them",
      "dimension": "decision_execution.trigger_order.order",
      "stage": "execution"
     },
@@ -1804,7 +1804,7 @@
      "trigger_order_frame:P1"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at execution (decision_execution.trigger_order.order): the record scripts a trigger_order decision; the bridge offers the engine's own trigger_order frames, but the lane has no selector for them. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at execution (decision_execution.trigger_order.order): the record scripts a trigger_order decision; the bridge carries it on its ORDER frames, but the lane has no selector for them. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -1831,19 +1831,19 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "another player's turn is reached only by native progression through turns the lane does not drive",
+     "detail": "the lane model accepts only p1 as the turn-1 active player, although the engine's starting-player frame offers every seat; another starter needs the lane to accept it",
      "dimension": "temporal_state.active_player",
      "stage": "construction"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_object",
      "stage": "execution"
     },
@@ -1947,25 +1947,25 @@
    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
-   "classification": "LAB_EXECUTION_GAP",
+   "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
-    "class": "LAB_EXECUTION_GAP",
-    "detail": "the requested turn is reached only by native progression through decisions (mulligans, turns) the lane does not execute",
-    "dimension": "temporal_state.turn_number",
-    "stage": "construction"
+    "class": "PROVIDER_ADAPTER_GAP",
+    "detail": "the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented')",
+    "dimension": "decision_execution.mulligan.semantic_action",
+    "stage": "execution"
    },
    "fixture_id": "WS05-CMD-MULL-2",
    "lane_obligation_kind": null,
    "mechanisms": [
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the requested turn is reached only by native progression through decisions (mulligans, turns) the lane does not execute",
+     "detail": "the requested turn is reached only by native progression through turns the lane does not drive",
      "dimension": "temporal_state.turn_number",
      "stage": "construction"
     },
     {
-     "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a mulligan decision; the bridge offers the engine's own mulligan frames, but the lane has no selector for them",
+     "class": "PROVIDER_ADAPTER_GAP",
+     "detail": "the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented')",
      "dimension": "decision_execution.mulligan.semantic_action",
      "stage": "execution"
     },
@@ -1985,28 +1985,28 @@
      "free_mulligan:false"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (temporal_state.turn_number): the requested turn is reached only by native progression through decisions (mulligans, turns) the lane does not execute. then: execution decision_execution.mulligan.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at execution (decision_execution.mulligan.semantic_action): the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented'). then: construction temporal_state.turn_number (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
-   "classification": "LAB_EXECUTION_GAP",
+   "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
-    "class": "LAB_EXECUTION_GAP",
-    "detail": "the requested turn is reached only by native progression through decisions (mulligans, turns) the lane does not execute",
-    "dimension": "temporal_state.turn_number",
-    "stage": "construction"
+    "class": "PROVIDER_ADAPTER_GAP",
+    "detail": "the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented')",
+    "dimension": "decision_execution.mulligan.semantic_action",
+    "stage": "execution"
    },
    "fixture_id": "WS05-CMD-MULL-4",
    "lane_obligation_kind": null,
    "mechanisms": [
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the requested turn is reached only by native progression through decisions (mulligans, turns) the lane does not execute",
+     "detail": "the requested turn is reached only by native progression through turns the lane does not drive",
      "dimension": "temporal_state.turn_number",
      "stage": "construction"
     },
     {
-     "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a mulligan decision; the bridge offers the engine's own mulligan frames, but the lane has no selector for them",
+     "class": "PROVIDER_ADAPTER_GAP",
+     "detail": "the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented')",
      "dimension": "decision_execution.mulligan.semantic_action",
      "stage": "execution"
     },
@@ -2026,7 +2026,7 @@
      "free_mulligan:true"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (temporal_state.turn_number): the requested turn is reached only by native progression through decisions (mulligans, turns) the lane does not execute. then: execution decision_execution.mulligan.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at execution (decision_execution.mulligan.semantic_action): the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented'). then: construction temporal_state.turn_number (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "SCENARIO_LANE_EXECUTABLE",
@@ -2063,7 +2063,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
@@ -2165,7 +2165,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
@@ -2211,7 +2211,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
@@ -2257,7 +2257,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choice decision; the bridge offers the engine's own choice frames, but the lane has no selector for them",
+     "detail": "the record scripts a choice decision; the bridge carries it on its CARD_LIST, STRING, COLOR or BOOLEAN frames, but the lane has no selector for them",
      "dimension": "decision_execution.choice.boolean",
      "stage": "execution"
     },
@@ -2304,7 +2304,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choice decision; the bridge offers the engine's own choice frames, but the lane has no selector for them",
+     "detail": "the record scripts a choice decision; the bridge carries it on its CARD_LIST, STRING, COLOR or BOOLEAN frames, but the lane has no selector for them",
      "dimension": "decision_execution.choice.boolean",
      "stage": "execution"
     },
@@ -2351,7 +2351,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choice decision; the bridge offers the engine's own choice frames, but the lane has no selector for them",
+     "detail": "the record scripts a choice decision; the bridge carries it on its CARD_LIST, STRING, COLOR or BOOLEAN frames, but the lane has no selector for them",
      "dimension": "decision_execution.choice.boolean",
      "stage": "execution"
     },
@@ -2398,7 +2398,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choice decision; the bridge offers the engine's own choice frames, but the lane has no selector for them",
+     "detail": "the record scripts a choice decision; the bridge carries it on its CARD_LIST, STRING, COLOR or BOOLEAN frames, but the lane has no selector for them",
      "dimension": "decision_execution.choice.boolean",
      "stage": "execution"
     },
@@ -2445,7 +2445,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a replacement_effect decision; the bridge offers the engine's own replacement_effect frames, but the lane has no selector for them",
+     "detail": "the record scripts a replacement_effect decision; the bridge carries it on its REPLACEMENT_EFFECT frames, but the lane has no selector for them",
      "dimension": "decision_execution.replacement_effect.boolean",
      "stage": "execution"
     },
@@ -2492,7 +2492,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a replacement_effect decision; the bridge offers the engine's own replacement_effect frames, but the lane has no selector for them",
+     "detail": "the record scripts a replacement_effect decision; the bridge carries it on its REPLACEMENT_EFFECT frames, but the lane has no selector for them",
      "dimension": "decision_execution.replacement_effect.boolean",
      "stage": "execution"
     },
@@ -2539,7 +2539,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a replacement_effect decision; the bridge offers the engine's own replacement_effect frames, but the lane has no selector for them",
+     "detail": "the record scripts a replacement_effect decision; the bridge carries it on its REPLACEMENT_EFFECT frames, but the lane has no selector for them",
      "dimension": "decision_execution.replacement_effect.boolean",
      "stage": "execution"
     },
@@ -2586,7 +2586,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a replacement_effect decision; the bridge offers the engine's own replacement_effect frames, but the lane has no selector for them",
+     "detail": "the record scripts a replacement_effect decision; the bridge carries it on its REPLACEMENT_EFFECT frames, but the lane has no selector for them",
      "dimension": "decision_execution.replacement_effect.boolean",
      "stage": "execution"
     },
@@ -2633,7 +2633,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a declare_blocker decision; the bridge offers the engine's own declare_blocker frames, but the lane has no selector for them",
+     "detail": "the record scripts a declare_blocker decision; the bridge carries it on its BLOCK_DECLARATION frames, but the lane has no selector for them",
      "dimension": "decision_execution.declare_blocker.blocker_assignment",
      "stage": "execution"
     },
@@ -2684,7 +2684,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a declare_attacker decision; the bridge offers the engine's own declare_attacker frames, but the lane has no selector for them",
+     "detail": "the record scripts a declare_attacker decision; the bridge carries it on its ATTACK_DECLARATION frames, but the lane has no selector for them",
      "dimension": "decision_execution.declare_attacker.attacker_assignment",
      "stage": "execution"
     },
@@ -2735,7 +2735,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a declare_attacker decision; the bridge offers the engine's own declare_attacker frames, but the lane has no selector for them",
+     "detail": "the record scripts a declare_attacker decision; the bridge carries it on its ATTACK_DECLARATION frames, but the lane has no selector for them",
      "dimension": "decision_execution.declare_attacker.attacker_assignment",
      "stage": "execution"
     },
@@ -2871,7 +2871,7 @@
    "classification": "LAB_EXECUTION_GAP",
    "first_missing": {
     "class": "LAB_EXECUTION_GAP",
-    "detail": "another player's turn is reached only by native progression through turns the lane does not drive",
+    "detail": "the lane model accepts only p1 as the turn-1 active player, although the engine's starting-player frame offers every seat; another starter needs the lane to accept it",
     "dimension": "temporal_state.active_player",
     "stage": "construction"
    },
@@ -2880,7 +2880,7 @@
    "mechanisms": [
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "another player's turn is reached only by native progression through turns the lane does not drive",
+     "detail": "the lane model accepts only p1 as the turn-1 active player, although the engine's starting-player frame offers every seat; another starter needs the lane to accept it",
      "dimension": "temporal_state.active_player",
      "stage": "construction"
     }
@@ -2892,7 +2892,7 @@
      "multiplayer_cleanup:CR800.4"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (temporal_state.active_player): another player's turn is reached only by native progression through turns the lane does not drive. no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (temporal_state.active_player): the lane model accepts only p1 as the turn-1 active player, although the engine's starting-player frame offers every seat; another starter needs the lane to accept it. no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -2931,13 +2931,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_object",
      "stage": "execution"
     },
@@ -2997,13 +2997,13 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge offers the engine's own target frames, but the lane has no selector for them",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
      "dimension": "decision_execution.target.semantic_object",
      "stage": "execution"
     },
@@ -3027,12 +3027,12 @@
    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane has no cast selector. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
-   "classification": "LAB_EXECUTION_GAP",
+   "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
-    "class": "LAB_EXECUTION_GAP",
-    "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane has no cast or payment selector",
-    "dimension": "action_cost_state",
-    "stage": "construction"
+    "class": "PROVIDER_ADAPTER_GAP",
+    "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
+    "dimension": "event_log",
+    "stage": "observation"
    },
    "fixture_id": "WS05-MP-TRIG-3",
    "lane_obligation_kind": null,
@@ -3057,7 +3057,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
@@ -3083,15 +3083,15 @@
      "APNAP_stack_order"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane has no cast or payment selector. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation event_log (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: simultaneous_trigger_event. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: simultaneous_trigger_event. no receipt; the row stays unestablished."
   },
   {
-   "classification": "LAB_EXECUTION_GAP",
+   "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
-    "class": "LAB_EXECUTION_GAP",
-    "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane has no cast or payment selector",
-    "dimension": "action_cost_state",
-    "stage": "construction"
+    "class": "PROVIDER_ADAPTER_GAP",
+    "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
+    "dimension": "event_log",
+    "stage": "observation"
    },
    "fixture_id": "WS05-MP-TRIG-5",
    "lane_obligation_kind": null,
@@ -3110,7 +3110,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a priority decision; the bridge offers the engine's own priority frames, but the lane has no selector for them",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
     },
@@ -3136,7 +3136,7 @@
      "APNAP_stack_order"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane has no cast or payment selector. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation event_log (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: simultaneous_trigger_event. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: simultaneous_trigger_event. no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -3228,8 +3228,8 @@
  "schema_version": "commander-lab.forge-residuals/1.0.0",
  "summary": {
   "classifications": {
-   "LAB_EXECUTION_GAP": 58,
-   "PROVIDER_ADAPTER_GAP": 5,
+   "LAB_EXECUTION_GAP": 46,
+   "PROVIDER_ADAPTER_GAP": 17,
    "SCENARIO_LANE_EXECUTABLE": 7
   },
   "needs_event_log": 11,

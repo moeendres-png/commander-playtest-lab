@@ -42,8 +42,9 @@ milestones:
   - id: M1
     rows: [MICRO_*, PILOT_*, WS05-* (70 rows; 63 non-PASS at epoch 18f0097373e6)]
     result: >-
-      70 rows classified: 58 LAB_EXECUTION_GAP, 5 PROVIDER_ADAPTER_GAP,
-      7 SCENARIO_LANE_EXECUTABLE; 11 rows need a Forge event log.
+      70 rows classified: 46 LAB_EXECUTION_GAP, 17 PROVIDER_ADAPTER_GAP,
+      7 SCENARIO_LANE_EXECUTABLE; 11 rows need a Forge event log, 3 a mulligan
+      the bridge rejects (tuckCardsViaMulligan).
       WS05-CMD-START-3 observed locally from the engine's draw-step counts.
     summary: >-
       forge_residuals names each row's first missing mechanism from the lane's
@@ -52,6 +53,16 @@ milestones:
       each Forge row's outcome and gives it that reason. The scenario lane now
       records progression snapshots (counts only) and evaluates the
       starting_player / first_turn_draw obligation, with wrong-reason controls.
+  - id: M2
+    result: fresh-context review resolved (no P1; two P2, five P3)
+    summary: >-
+      Decision families map explicitly to the bridge's frame kinds (unmapped
+      raises); a mulligan is a provider gap because the bridge rejects
+      tuckCardsViaMulligan. A provider gap anywhere names the row's class. The
+      starter is bound to the recorded engine-offered selection and named
+      LAB_SELECTED_ENGINE_OFFERED; the draw-step snapshots must bracket the
+      starter's draw step in the beginning phase. A classification error keeps
+      the outcome and fails the reason closed instead of stopping the run.
 open_items:
   - Exact-head PB-03 must credit WS05-CMD-START-3 through the lane receipt.
   - Merge main after #506 (runner import block) without rebasing.

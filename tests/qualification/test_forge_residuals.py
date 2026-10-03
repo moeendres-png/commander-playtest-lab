@@ -165,3 +165,49 @@ def test_the_runner_reason_is_exact_for_forge_only(records, monkeypatch) -> None
         else:
             assert "first missing mechanism" not in forge.reason, fixture
     assert all("first missing mechanism" not in row.reason for row in rows["xmage"].values())
+
+
+@pytest.mark.parametrize("fixture", ["PILOT_MULLIGAN", "WS05-CMD-MULL-2", "WS05-CMD-MULL-4"])
+def test_a_mulligan_is_a_provider_gap(records, fixture) -> None:
+    """Taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge rejects."""
+    row = fr.classify_row(records[fixture])
+    assert row.classification == fr.PROVIDER_ADAPTER_GAP
+    assert row.first_missing["dimension"].startswith("decision_execution.mulligan")
+    assert "tuckCardsViaMulligan" in row.first_missing["detail"]
+
+
+def test_an_unmapped_decision_family_fails_closed(records, monkeypatch) -> None:
+    monkeypatch.delitem(fr._DECISION_FAMILIES, "declare_attacker")
+    with pytest.raises(ValueError, match="unmapped Forge decision family"):
+        fr.classify_row(records["PILOT_DECLARE_ATTACKER"])
+
+
+def test_a_provider_gap_anywhere_names_the_class(records) -> None:
+    """A Lab gap earlier in the pipeline does not hide a provider gap later in it."""
+    row = fr.classify_row(records["MICRO_PREVENTION"])
+    assert row.mechanisms[0]["class"] == fr.LAB_EXECUTION_GAP
+    assert row.classification == fr.PROVIDER_ADAPTER_GAP
+    assert row.first_missing["dimension"] == "event_log"
+
+
+def test_a_classification_error_keeps_the_outcome(monkeypatch) -> None:
+    """A contract change the table does not know fails the reason closed, not the run."""
+    runner = _runner(monkeypatch)
+    materialization = runner.load_effective_materialization(REPO_ROOT)
+    identity = {"starting_state_injection_supported": True}
+    before = {
+        row.fixture_id: row.outcome
+        for row in runner.classify_remaining(
+            materialization, set(), candidate="forge", identity=identity
+        )
+    }
+
+    def broken(record):
+        raise ValueError("unmapped obligation token family 'new'")
+
+    monkeypatch.setattr(runner.forge_residuals_mod, "row_reason", broken)
+    rows = runner.classify_remaining(materialization, set(), candidate="forge", identity=identity)
+    for row in rows:
+        assert row.outcome == before[row.fixture_id]
+        if fr.in_scope(row.fixture_id):
+            assert "classification failed closed" in row.reason

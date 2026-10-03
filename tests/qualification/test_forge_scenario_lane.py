@@ -595,6 +595,14 @@ def test_commander_damage_obligation_observed_and_missing():
 # First-turn draw (WS05-CMD-START-3): engine counts across the draw step
 # ---------------------------------------------------------------------------
 _START = ["starting_player:P1", "first_turn_draw:true"]
+_CHOICE = {
+    "chooser": "p2",
+    "revision": 1,
+    "chosen_seat": "p1",
+    "offered_seats": ["p1", "p2", "p3"],
+    "policy": "requested_starting_seat",
+    "basis": "LAB_SELECTED_ENGINE_OFFERED",
+}
 
 
 def _snap(step: str, hands: dict, libraries: dict, *, active: str = "p1", turn: int = 1) -> dict:
@@ -629,8 +637,10 @@ def test_first_turn_draw_obligation_is_mapped_from_the_record():
 
 
 def test_first_turn_draw_observed_from_the_draw_step_counts():
-    verdict = fsl.evaluate_first_turn_draw(list(_START), _draw_progression())
+    verdict = fsl.evaluate_first_turn_draw(list(_START), _draw_progression(), dict(_CHOICE))
     assert verdict.observed is True
+    assert verdict.terminal_facts["starting_player_basis"] == "LAB_SELECTED_ENGINE_OFFERED"
+    assert "LAB_SELECTED_ENGINE_OFFERED" in verdict.reason
     assert verdict.credit_eligible_observation is True
     assert verdict.semantic_events == _START
     assert verdict.terminal_facts["deltas"]["p1"] == {"hand": 1, "library": -1}
@@ -643,8 +653,18 @@ def test_first_turn_draw_observed_from_the_draw_step_counts():
         (_START, _draw_progression(p1_hand_after=7, p1_library_after=92), "do not match"),
         # The wrong value: the engine drew but the record says it must not.
         (["starting_player:P1", "first_turn_draw:false"], _draw_progression(), "do not match"),
-        # The wrong starter.
-        (["starting_player:P2", "first_turn_draw:true"], _draw_progression(), "starter"),
+        # The wrong starter: no recorded selection of P2.
+        (["starting_player:P2", "first_turn_draw:true"], _draw_progression(), "selection"),
+        # The engine started another seat's turn than the one selected.
+        (_START, _draw_progression(active="p2"), "starter"),
+        # The earlier snapshot is not in the beginning phase.
+        (_START, [dict(_draw_progression()[0], phase="main"), _draw_progression()[1]], "bracket"),
+        # The draw-step snapshot does not give the starter priority.
+        (
+            _START,
+            [_draw_progression()[0], dict(_draw_progression()[1], priority_player="p2")],
+            "bracket",
+        ),
         # Another player's counts changed in the same window.
         (_START, _draw_progression(hands={"p2": 8}, libraries={"p2": 91}), "do not match"),
         # A hand change that did not come from the library (not a draw).
@@ -658,7 +678,7 @@ def test_first_turn_draw_observed_from_the_draw_step_counts():
     ],
 )
 def test_first_turn_draw_wrong_reasons_fail_closed(required, progression, reason):
-    verdict = fsl.evaluate_first_turn_draw(list(required), progression)
+    verdict = fsl.evaluate_first_turn_draw(list(required), progression, dict(_CHOICE))
     assert verdict.observed is False
     assert verdict.credit_eligible_observation is False
     assert verdict.semantic_events == []
@@ -1304,3 +1324,18 @@ def test_execute_and_persist_writes_only_observed_receipts(monkeypatch, tmp_path
     receipt_mod.load_positive_fixture_receipt(
         tmp_path / f"{fsl.FORGE_SCENARIO_RECEIPT_PREFIX}OBSERVED.json"
     )
+
+
+@pytest.mark.parametrize(
+    "choice",
+    [
+        None,
+        dict(_CHOICE, chosen_seat="p2"),
+        dict(_CHOICE, offered_seats=["p2", "p3"]),
+    ],
+)
+def test_first_turn_draw_requires_the_recorded_starting_selection(choice):
+    """The starter is the Lab's engine-offered selection; without that record, no credit."""
+    verdict = fsl.evaluate_first_turn_draw(list(_START), _draw_progression(), choice)
+    assert verdict.observed is False
+    assert "selection" in verdict.reason
