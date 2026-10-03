@@ -17,6 +17,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import tomllib
 from functools import cache
 from pathlib import Path
 
@@ -25,6 +26,10 @@ import yaml
 
 REPO = Path(__file__).resolve().parents[2]
 WORKFLOW = REPO / ".github" / "workflows" / "pb03-runtime-qualification.yml"
+# setuptools' PEP 639 ``license-files`` default when the project declares none.
+SETUPTOOLS_DEFAULT_LICENSE_FILES = ("LICEN[CS]E*", "COPYING*", "NOTICE*", "AUTHORS*")
+# Root files setuptools reads when they exist next to pyproject.toml.
+SETUPTOOLS_ROOT_FILES = ("setup.py", "setup.cfg", "MANIFEST.in")
 SCRIPTS = (
     "scripts/run_current_boundary_qualification.py",
     "scripts/assemble_current_boundary_evidence.py",
@@ -100,8 +105,55 @@ def _trigger_paths() -> list[str]:
     return list(triggers["pull_request"]["paths"])
 
 
-def _covered(path: str) -> bool:
-    return any(_pattern(glob).match(path) for glob in _trigger_paths())
+def _covered(path: str, trigger_paths: list[str] | None = None) -> bool:
+    globs = _trigger_paths() if trigger_paths is None else trigger_paths
+    return any(_pattern(glob).match(path) for glob in globs)
+
+
+def _install_inputs(root: Path) -> list[str]:
+    """Files the build backend reads for ``pip install -e .``, derived from pyproject.toml.
+
+    The declared readme (string or ``{file = ...}`` table), a ``{file = ...}``
+    license, the ``license-files`` globs (setuptools' default globs when none are
+    declared), file-backed ``[tool.setuptools.dynamic]`` metadata and the legacy
+    setuptools root files, each only where it resolves to a real file.
+    """
+    pyproject = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
+    project = pyproject.get("project", {})
+    setuptools_config = pyproject.get("tool", {}).get("setuptools", {})
+    declared: set[str] = {"pyproject.toml"}
+    for field in (project.get("readme"), project.get("license")):
+        if isinstance(field, dict) and "file" in field:
+            declared.add(field["file"])
+    if isinstance(project.get("readme"), str):
+        declared.add(project["readme"])
+    for spec in setuptools_config.get("dynamic", {}).values():
+        if isinstance(spec, dict) and "file" in spec:
+            files = spec["file"]
+            declared.update([files] if isinstance(files, str) else files)
+    license_globs = project.get(
+        "license-files",
+        setuptools_config.get("license-files", SETUPTOOLS_DEFAULT_LICENSE_FILES),
+    )
+    for glob in license_globs:
+        declared.update(path.relative_to(root).as_posix() for path in root.glob(glob))
+    declared.update(SETUPTOOLS_ROOT_FILES)
+    return sorted(path for path in declared if (root / path).is_file())
+
+
+def _uncovered_workflow_files(trigger_paths: list[str]) -> list[str]:
+    steps = [step.get("run") or "" for job in _workflow()["jobs"].values() for step in job["steps"]]
+    script = "\n".join(steps)
+    # The workflow installs the project itself, so the build backend's inputs are inputs.
+    assert re.search(r"pip install [^\n]*-e \.(?:\s|$)", script), (
+        "PB-03 no longer runs pip install -e ."
+    )
+    invoked = sorted(
+        set(re.findall(r"(?:scripts|tests)/[\w./-]+\.py", script))
+        | set(_install_inputs(REPO))
+        | {"requirements/lock.txt", ".github/workflows/pb03-runtime-qualification.yml"}
+    )
+    return [path for path in invoked if not _covered(path, trigger_paths)]
 
 
 @cache
@@ -146,17 +198,67 @@ def test_every_measured_input_triggers_pb03() -> None:
 
 
 def test_every_file_the_workflow_runs_triggers_pb03() -> None:
-    steps = [step.get("run") or "" for job in _workflow()["jobs"].values() for step in job["steps"]]
-    invoked = sorted(
-        set(re.findall(r"(?:scripts|tests)/[\w./-]+\.py", "\n".join(steps)))
-        | {
-            "requirements/lock.txt",
-            "pyproject.toml",
-            ".github/workflows/pb03-runtime-qualification.yml",
-        }
-    )
-    uncovered = [path for path in invoked if not _covered(path)]
+    uncovered = _uncovered_workflow_files(_trigger_paths())
     assert not uncovered, f"files the PB-03 workflow runs or installs from: {uncovered}"
+
+
+def test_the_package_readme_is_a_derived_install_input() -> None:
+    """The live derivation reads ``readme = "README.md"`` from pyproject.toml."""
+    assert {"pyproject.toml", "README.md"} <= set(_install_inputs(REPO))
+
+
+def test_red_control_a_trigger_list_without_the_readme_fails() -> None:
+    """The pre-fix trigger list (no README.md) is rejected for exactly the readme."""
+    without_readme = [path for path in _trigger_paths() if path != "README.md"]
+    assert without_readme != _trigger_paths()
+    assert _uncovered_workflow_files(without_readme) == ["README.md"]
+
+
+def test_install_inputs_follow_every_declared_build_backend_file(tmp_path) -> None:
+    (tmp_path / "pyproject.toml").write_text(
+        "[project]\n"
+        'readme = { file = "docs/INTRO.rst", content-type = "text/x-rst" }\n'
+        'license = { file = "LICENSE.txt" }\n'
+        'license-files = ["legal/*.md"]\n'
+        "[tool.setuptools.dynamic]\n"
+        'version = { file = "VERSION" }\n'
+        'dependencies = { file = ["requirements/a.in", "requirements/missing.in"] }\n',
+        encoding="utf-8",
+    )
+    for name in (
+        "docs/INTRO.rst",
+        "LICENSE.txt",
+        "legal/TERMS.md",
+        "VERSION",
+        "requirements/a.in",
+        "setup.cfg",
+        "MANIFEST.in",
+        "COPYING",
+    ):
+        (tmp_path / name).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / name).write_text("x", encoding="utf-8")
+    # Declared license-files replace the default globs, so COPYING is not read.
+    assert _install_inputs(tmp_path) == [
+        "LICENSE.txt",
+        "MANIFEST.in",
+        "VERSION",
+        "docs/INTRO.rst",
+        "legal/TERMS.md",
+        "pyproject.toml",
+        "requirements/a.in",
+        "setup.cfg",
+    ]
+    (tmp_path / "pyproject.toml").write_text('[project]\nreadme = "README.md"\n', encoding="utf-8")
+    (tmp_path / "README.md").write_text("x", encoding="utf-8")
+    # Without declared license-files setuptools' default globs apply.
+    assert _install_inputs(tmp_path) == [
+        "COPYING",
+        "LICENSE.txt",
+        "MANIFEST.in",
+        "README.md",
+        "pyproject.toml",
+        "setup.cfg",
+    ]
 
 
 @pytest.mark.parametrize(

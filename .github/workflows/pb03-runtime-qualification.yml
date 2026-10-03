@@ -13,6 +13,8 @@ on:
       - "qualification/manifests/**"
       - "requirements/lock.txt"
       - "pyproject.toml"
+      # The readme pyproject.toml declares: `pip install -e .` reads it.
+      - "README.md"
       - "scripts/resolve_pre_freeze_contract.py"
       - "schemas/engine_adapter_protocol.schema.json"
       - "engine-bridge/**"
