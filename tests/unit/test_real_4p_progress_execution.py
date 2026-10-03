@@ -43,6 +43,7 @@ def _frame(turn: int, seat: int = 0) -> dict:
                 "turn_number": turn,
                 "phase": "PRECOMBAT_MAIN",
                 "seat": seat,
+                "active_player_id": f"p-{(turn - 1) % 4}",
                 "players": [{"player_id": f"p-{i}", "seat": i} for i in range(4)],
             },
             "legal_options": [{"option_id": "pass", "kind": "pass", "label": "Pass"}],
@@ -178,3 +179,10 @@ def test_script_keeps_technical_evidence_boundary(monkeypatch, repo_root, tmp_pa
     assert report["official_campaign_eligible"] is False
     assert report["actual_card_behavior_coverage_claim"] is False
     assert report["progress_contract"]["through_turn"] == 4
+
+
+def test_the_active_seat_is_resolved_in_the_deciders_view(monkeypatch) -> None:
+    result, _client = _run(monkeypatch, _round())
+    assert {row[2]: row[5] for row in result.progress_trace} == {1: 0, 2: 1, 3: 2, 4: 3}
+    assert full_game._active_seat({"active_player_id": "x", "players": []}) is None
+    assert full_game._active_seat(None) is None

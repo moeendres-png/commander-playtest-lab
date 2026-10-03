@@ -7,6 +7,8 @@ on:
     paths:
       - "engine-bridge/**"
       - "src/commander_lab/engine/rules/full_game.py"
+      # full_game.py fingerprints responses with semantic_replay helpers.
+      - "src/commander_lab/semantic_replay/**"
       - "src/commander_lab/agents/**"
       - "src/commander_lab/models/**"
       - "src/commander_lab/storage/**"
@@ -173,6 +175,8 @@ jobs:
           assert contract["turns_observed"][-1] >= 4
           assert contract["priority_seats"] == [0, 1, 2, 3]
           assert contract["priority_turns"] == [1, 2, 3, 4]
+          actives = contract["active_seats_by_turn"]
+          assert sorted(seat for seats in actives.values() for seat in seats) == [0, 1, 2, 3], actives
           assert report["twin_runs"] == 2
           assert all(row["met"] is True for row in report["twin_progress_contracts"])
           assert report["twin_stop_reasons"] == ["turn_boundary", "turn_boundary"]
