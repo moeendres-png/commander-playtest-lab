@@ -261,7 +261,7 @@ class FullGameSmokeResult(_StrictModel):
     observed_decision_classes: tuple[str, ...]
     # B8 (#489): the public progress trace of the answered decisions, one
     # (decision_class, seat, turn_number, phase) entry each, and its digest.
-    # Empty when the caller did not ask for progress.
+    # Recorded on every smoke; only --progress-turns evaluates it.
     progress_trace: tuple[tuple[str, int | None, int | None, str | None], ...] = ()
     progress_digest: str | None = None
     unsupported_callback_seen: Literal[False] = False
