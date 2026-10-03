@@ -9,6 +9,7 @@ on:
       - "config/rules_engines.json"
       - "src/commander_lab/engine/rules/full_game.py"
       - "src/commander_lab/engine/rules/full_game_batch.py"
+      - "src/commander_lab/semantic_replay/**"
       - "src/commander_lab/agents/**"
       - "src/commander_lab/models/pilots.py"
       - "src/commander_lab/candidates/models.py"

@@ -1,0 +1,24 @@
+{
+  "head": "208c149ec86f04fc88fdb5e9f83f64485216c0f0",
+  "tree": "54f81b863d96bfc2015e11cbd1eeb042cf73b4ab",
+  "working_diff_sha256": "e52ee22d5b52454fc717a84377d51a79cca8926258a11ac90b2671a4a800845d",
+  "source_hashes": {
+    "src/commander_lab/engine/rules/full_game.py": "c3073356c79ee7efbe3f276ed65d4966ece15173fe229401c7850c334ebc5317",
+    "scripts/run_real_4p_full_game_smoke.py": "8a853237cd87196fcf1fb52e84905928915513ee10698cd9e66c52b0c96f1e62",
+    "tests/unit/test_real_4p_progress_execution.py": "c279cfd285fd2017feb9bd002cc93158f23aaef01d34bded9b85b4a8ce460a82",
+    "tests/unit/test_real_4p_progress_contract.py": "db68b326a8f4e447e261031d6a640a2fcb2d831e8807aa56af695331d84abecb",
+    ".github/workflows/xmage-real-4p-smoke.yml": "970691a55119c265c9c77126092db1aa9fae545a1046f2449df651b0807dcbc5"
+  },
+  "command": [
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/test_real_4p_progress_execution.py",
+    "-k",
+    "decision_cap or early_terminal or response_content or second_twin or missing_twin",
+    "--junitxml=/home/moeen/work/takeover-evidence-20261003/pr518/RED-progress.xml"
+  ],
+  "exit": 1,
+  "log_sha256": "588f5e9ee06b751098a4bf79015cae8a56a71f9dcd4006731c98bfdaffd799fc"
+}

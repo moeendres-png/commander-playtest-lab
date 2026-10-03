@@ -16,6 +16,7 @@ on:
       - "src/commander_lab/engine/**"
       - "src/commander_lab/models/**"
       - "tests/conftest.py"
+      - "src/commander_lab/semantic_replay/**"
   push:
     branches: [main]
   workflow_dispatch:

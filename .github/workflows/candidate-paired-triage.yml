@@ -51,6 +51,7 @@ on:
       - "src/commander_lab/whole_deck/**"
       - "src/commander_lab/workflow_identity.py"
       - "src/commander_lab/workflow_session.py"
+      - "src/commander_lab/semantic_replay/**"
   workflow_dispatch:
 
 permissions:
