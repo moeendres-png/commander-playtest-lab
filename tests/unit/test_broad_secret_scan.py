@@ -312,3 +312,30 @@ def test_security_scan_uses_the_exact_event_head() -> None:
         "${{ github.event.pull_request.head.sha || github.sha }}"
     )
     assert checkout["with"]["persist-credentials"] is False
+
+
+def test_root_configuration_bytes_are_scanned_outside_filename_allowlist(tmp_path, monkeypatch):
+    scanner = _scanner()
+    content = b"# configuration must not disappear from the scan\n"
+    (tmp_path / ".gitleaks.toml").write_bytes(content)
+    calls = []
+
+    def fake_scan(binary, tree, config):
+        calls.append(tree)
+        if tree == tmp_path:
+            return []  # mirrors upstream filename suppression
+        assert (tree / "root-security-configuration.txt").read_bytes() == content
+        return [
+            {
+                "rule": "github-pat",
+                "file": "root-security-configuration.txt",
+                "line": 1,
+                "fingerprint": "root-security-configuration.txt:github-pat:1",
+            }
+        ]
+
+    monkeypatch.setattr(scanner, "_scan_once", fake_scan)
+    rows = scanner.scan(tmp_path / "scanner", tmp_path, CONFIG)
+    assert len(calls) == 2
+    assert rows[0]["file"] == ".gitleaks.toml"
+    assert rows[0]["fingerprint"] == ".gitleaks.toml:github-pat:1"

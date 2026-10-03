@@ -4,7 +4,7 @@ worktree: /home/moeen/work/takeover-pr519-20261003
 branch: hardening/b10-broad-secret-scan-20261003
 audit_base_sha: e827a981d204333fbbc7638a84836e7d1da52630
 audit_base_tree: 213c2f5539ee1cc13db854575113efb331596e3b
-state_written_against_head: ec789789995720ab26350c079c475c7a158b13d5
+state_written_against_head: e87f256ed63fdbec0b97c641258de2f4a0feece3
 validated_head: null
 objective: Close transferred CI479 B10 review gaps without changing rules or qualification
   verdicts
@@ -38,8 +38,7 @@ technical_decisions:
   takeover, not an automatic OpenCode fallback.
 - Remote published source is reused. Unavailable Claude cloud edits are not assumed
   present. Existing local D17 processes and uncommitted Forge work are preserved.
-exact_next_action: Read fresh exact-head security/quality/infrastructure, independently
-  verify downloaded security artifact bytes and event-head source binding, review,
-  adjudicate CI02 and normal merge.
+exact_next_action: Read new exact-head CI and independent review. Verify artifact
+  bytes/source lock, adjudicate CI02 honestly, then merge only reviewed head.
 tests_run:
-- 190 affected tests PASS; exact event-head checkout guard failed before repair
+- 191 affected tests PASS; full-path before/after controls retained in docs/ci479_root_config_pr519_20261003

@@ -140,7 +140,7 @@ def _parse_report(text: str) -> list[dict[str, Any]]:
         raise ScannerError(f"gitleaks report is malformed: {exc}") from exc
 
 
-def scan(binary: Path, tree: Path, config: Path) -> list[dict[str, Any]]:
+def _scan_once(binary: Path, tree: Path, config: Path) -> list[dict[str, Any]]:
     """Every finding in ``tree``, sorted, without secret values."""
     if any(tree.rglob(SUPPRESSION_FILE)):
         raise ScannerError(f"refusing to scan a tree that holds a {SUPPRESSION_FILE}")
@@ -285,6 +285,28 @@ def exclusions(config: Path) -> list[dict[str, str]]:
         raise ScannerError("gitleaks configuration malformed: " + type(error).__name__) from error
 
 
+def scan(binary: Path, tree: Path, config: Path) -> list[dict[str, Any]]:
+    """Scan the root configuration too, outside the upstream filename allowlist."""
+    root_config = tree / ".gitleaks.toml"
+    if root_config.is_symlink():
+        raise ScannerError("root configuration symlink cannot be scanned")
+    findings = _scan_once(binary, tree, config)
+    if root_config.is_file():
+        # Upstream defaults globally allowlist gitleaks.toml filenames. Scan
+        # the same bytes under a neutral name, then retain the original path
+        # identity in the redacted evidence; rule/value exclusions stay intact.
+        with tempfile.TemporaryDirectory() as scratch:
+            alias = "root-security-configuration.txt"
+            (Path(scratch) / alias).write_bytes(root_config.read_bytes())
+            for row in _scan_once(binary, Path(scratch), config):
+                row["file"] = ".gitleaks.toml"
+                row["fingerprint"] = row["fingerprint"].replace(alias, ".gitleaks.toml")
+                findings.append(row)
+    return sorted(
+        findings, key=lambda row: (row["file"], row["line"], row["rule"], row["fingerprint"])
+    )
+
+
 def run_controls(binary: Path, config: Path) -> list[dict[str, Any]]:
     """Each control in its own tree: it passes only with exactly the expected outcome."""
     cases: list[dict[str, Any]] = [{**control, "expect": "FOUND"} for control in red_controls()]
@@ -308,6 +330,16 @@ def run_controls(binary: Path, config: Path) -> list[dict[str, Any]]:
                 "expect": "FOUND",
             }
         )
+    configuration_secret = next(case for case in red_controls() if case["rule"] == "github-pat")
+    cases.append(
+        {
+            **configuration_secret,
+            "control": "root_configuration_is_scanned",
+            "path": ".gitleaks.toml",
+            "content": "# " + configuration_secret["content"],
+            "expect": "FOUND",
+        }
+    )
     allowed = red_controls()[0]
     cases.append(
         {
