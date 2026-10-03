@@ -173,3 +173,26 @@ def test_the_runner_uses_the_exact_reason_for_forge_only() -> None:
     assert xmage < branch < generic
     assert "forge_hidden_information_mod.row_reason(record)" in source[branch:generic]
     assert 'outcome="UNKNOWN"' in source[branch:generic]
+
+
+def test_the_committed_matrix_is_current(records) -> None:
+    """Stale-evidence control: the committed matrix is bound to the current contract and bridge."""
+    import json
+
+    from commander_lab.qualification.current_boundary.bridge_launcher import (
+        canonical_forge_authority,
+    )
+
+    path = REPO_ROOT / "docs" / "forge_af05_hidden_20261003" / "FORGE_AF05_MATRIX.json"
+    matrix = json.loads(path.read_text(encoding="utf-8"))
+    identity = load_effective_materialization(REPO_ROOT).receipt()
+    assert matrix["contract_id"] == identity["contract_id"]
+    assert matrix["canonical_bundle_digest"] == identity["canonical_bundle_digest"]
+    assert matrix["bridge_commit"] == canonical_forge_authority()["bridge_commit"]
+    fresh = [
+        fh.classify_row(records[fixture]).to_document()
+        for fixture in sorted(knowledge_projection.ROWS)
+    ]
+    assert matrix["rows"] == fresh
+    assert matrix["summary"]["pass"] == 0
+    assert matrix["summary"]["af05_forge"] == "UNKNOWN"

@@ -5,7 +5,7 @@ worktree: scratchpad/wt506 (session-local git worktree of the canonical clone)
 branch: claude/pensive-mayer-f8spwn
 audit_base_sha: 01d70279dbb6eaf2b694ca27e6489ee582418d3d
 audit_base_tree: 0e520ae41518cb9195078cee0df4b245d3f7fa2f
-state_written_against_head: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0 (main after #505, merged into this branch)
+state_written_against_head: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
 workstream: FORGE-AF05-HIDDEN-INFORMATION-CAMPAIGN-20261003
 issue: 458
 parent: 255
