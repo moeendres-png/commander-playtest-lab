@@ -304,7 +304,8 @@ def test_security_scan_uses_the_exact_event_head() -> None:
 
     workflow = yaml.safe_load((REPO / ".github/workflows/ci.yml").read_text())
     checkout = next(
-        step for step in workflow["jobs"]["security"]["steps"]
+        step
+        for step in workflow["jobs"]["security"]["steps"]
         if step.get("uses", "").startswith("actions/checkout@")
     )
     assert checkout.get("with", {}).get("ref") == (
