@@ -5,8 +5,8 @@
   "branch": "hardening/lab-b9-packaging-smoke-20261003",
   "audit_base_sha": "286f78d0169766b7a9765bd6c50d41c06d4f8fa0",
   "audit_base_tree": "8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c",
-  "state_written_against_head": "286f78d0169766b7a9765bd6c50d41c06d4f8fa0",
-  "validated_head": null,
+  "state_written_against_head": "c3eaf42da45f93a7f4a5df91e31d7fd856fe80a7",
+  "validated_head": "c3eaf42da45f93a7f4a5df91e31d7fd856fe80a7",
   "objective": "Issue #490 (parent #479, child B9): add a deterministic packaging smoke that proves the actually built wheel installs into a clean isolated Python environment and that the installed package imports and its officially supported CLI entrypoints run from the installation, with machine-readable evidence bound to source SHA/TREE and wheel SHA-256 digest, and that broken/missing/ambiguous/tampered wheels, version mismatches, missing entrypoints, source-tree-import contamination, editable installs and missing/malformed evidence all fail closed.",
   "in_scope": [
     "scripts/verify_packaging_smoke.py (new deterministic packaging-smoke consumer + evidence producer)",
@@ -51,34 +51,65 @@
     "Consuming unpinned dependencies from an arbitrary global environment instead of the hash-pinned project lock",
     "Weakening existing tests, denominators or assertions to obtain green CI"
   ],
-  "validated_gates": [],
+  "validated_gates": [
+    "POSITIVE CONTROL: real wheel from the current candidate installs into a clean isolated venv; installed import resolves in the venv purelib; both declared console entrypoints exit 0 on --help; overall_classification PASS. (DIRECTLY_VERIFIED)",
+    "RED CONTROLS: 9 distinct failure classes killed through the real script entry point - missing wheel, ambiguous wheel set, expected-digest mismatch, wheel tampered after binding, source SHA/TREE binding mismatch, package/version mismatch after a real install, missing expected CLI entrypoint after a real install, source-tree import substitution, editable install markers, pre-existing environment, scratch-dir-inside-repository, and missing/malformed/UNKNOWN/incomplete/unbound evidence. (DIRECTLY_VERIFIED)",
+    "MACHINE-READABLE EVIDENCE: artifacts/quality/PACKAGING_SMOKE.json schema packaging-smoke-1.0.0 written on both PASS and FAIL, all required keys present, classification vocabulary PASS/FAIL/UNKNOWN, no absolute temp path used as semantic identity, no hidden data. (DIRECTLY_VERIFIED)",
+    "REQUIRED GATES NOT WEAKENED: scripts/verify_required_check_definitions.py --base <audit base> --head <candidate> returns GATE_DEFINITION_CHANGED_REVIEW_REQUIRED (exit 2) with 39/39 invariants PASS, zero non-PASS invariants and candidate_code_executed=false. CI-02 itself is not in the diff. (DIRECTLY_VERIFIED)",
+    "CI WIRED COMMANDS EXECUTED VERBATIM: both new ci.yml steps run from the repository root with --venv-dir \"$RUNNER_TEMP/packaging-smoke-venv\" and the relative --output artifacts/quality/PACKAGING_SMOKE.json; both exited 0. (DIRECTLY_VERIFIED)",
+    "STATIC QUALITY GATES: ruff check . clean; ruff format --check . 1255 files formatted; python -m compileall -q src tests scripts clean; mypy src/commander_lab Success (290 source files) inside the hash-pinned CI environment. (DIRECTLY_VERIFIED)",
+    "REPOSITORY TREE + SECRET SENTINEL: scripts/verify_repository_tree.py --head <candidate> valid=true, errors=[]; the quality job's verbatim secret-pattern git grep finds no matches. (DIRECTLY_VERIFIED)",
+    "FOCUSED + ADJACENT TESTS: pytest tests/unit/test_packaging_smoke.py tests/unit/test_ci_definition_integrity.py tests/unit/test_release_workflow_contract.py -> 83 passed (27 B9 controls). Whole-suite collection intact at 3562 tests. (DIRECTLY_VERIFIED)",
+    "FAIL-CLOSED ON ENVIRONMENT DEFECT: an exhausted /tmp tmpfs made the smoke report isolated_environment_creation_failed:exit=1 and exit 1 instead of emitting a PASS; a bounded stderr diagnostic was added to the consumer as a result. (DIRECTLY_VERIFIED)"
+  ],
   "failed_gates": [],
   "invalidated_gates": [],
   "do_not_rerun": [
-    "Historical release-artifacts.yml wheel roundtrip claims: donor/regression hint only, never a current PASS",
-    "FullGame / engine qualification suites: not affected by B9 and authoritatively executed by repository gates"
+    "Historical release-artifacts.yml wheel roundtrip claims: donor/regression hint only, never a current PASS (adjudicated fresh in technical_decisions B9-D1).",
+    "FullGame / engine qualification suites: unchanged by B9 and authoritatively executed by repository gates.",
+    "Local mypy outside the hash-pinned lock environment: it reports 8 import-not-found/import-untyped errors for the api/openai extras and the types-* stubs. That is a local environment gap, not a code defect; the same command inside the hash-pinned environment is clean. Do not 'fix' those imports."
   ],
   "current_failure": "NONE",
   "failure_class": "NONE",
-  "current_hypothesis": "Not yet adjudicated: the existing release-artifacts.yml isolated-venv roundtrip may be reusable, or B9 needs a bounded new packaging-smoke implementation. Fresh read shows the release smoke is release-scoped (push to main/release/** plus a pyproject.toml path filter), is not a required context, covers only one of two console scripts, emits no machine-readable SHA/TREE/digest-bound evidence, and installs the wheel with unpinned index resolution of its dependency closure.",
-  "files_modified": [],
-  "tests_run": [],
-  "evidence": [
-    "DIRECTLY_VERIFIED: .github/workflows/ci.yml quality job runs `python -m pip wheel --no-deps --wheel-dir dist .` (construction only, no isolated install).",
-    "DIRECTLY_VERIFIED: .github/workflows/release-artifacts.yml `Verify package and artifact roundtrip` step already creates a venv, installs release/commander_playtest_lab-<version>-py3-none-any.whl, asserts importlib.metadata.version equals the declared version, and runs `commander-lab --help`.",
-    "DIRECTLY_VERIFIED: pyproject.toml declares console scripts commander-lab = commander_lab.cli.main:app and commander-lab-optimizer = commander_lab.optimizer_v2_cli:app; version 1.25.0; requires-python >=3.12.",
-    "DIRECTLY_VERIFIED: scripts/verify_required_check_definitions.py requires the `package_wheel` category pattern `python -m pip wheel` in the required quality job, so that step must be preserved.",
-    "CODE_DERIVED: isolated-install feasibility proven locally on Python 3.14.4 - hash-pinned `pip install --require-hashes -r requirements/lock.txt` succeeds in a fresh venv, `pip install --no-index --no-deps <wheel>` succeeds and writes direct_url.json containing the wheel sha256, `python -I -c 'import commander_lab'` resolves inside the venv site-packages, and both `commander-lab --help` and `commander-lab-optimizer --help` exit 0."
+  "current_hypothesis": "RESOLVED. The existing release-artifacts.yml isolated-venv roundtrip is a valid partial donor but is insufficient for #490, so B9 needed a bounded new packaging-smoke implementation that reuses its proven sequence. See technical_decisions.",
+  "files_modified": [
+    ".foundry/b9-packaging-smoke-20261003.json",
+    ".github/workflows/ci.yml",
+    "scripts/verify_packaging_smoke.py",
+    "tests/unit/test_packaging_smoke.py"
   ],
-  "artifacts": [],
+  "tests_run": [
+    "pytest tests/unit/test_packaging_smoke.py tests/unit/test_ci_definition_integrity.py tests/unit/test_release_workflow_contract.py -q  -> 83 passed",
+    "pytest --collect-only -q  -> 3562 tests collected",
+    "ruff check .  -> All checks passed",
+    "ruff format --check .  -> 1255 files already formatted",
+    "python -m compileall -q src tests scripts  -> clean",
+    "mypy src/commander_lab (inside hash-pinned lock venv)  -> Success: no issues found in 290 source files",
+    "python scripts/verify_required_check_definitions.py --base 286f78d0... --head c3eaf42d...  -> GATE_DEFINITION_CHANGED_REVIEW_REQUIRED, 39/39 invariants PASS, exit 2",
+    "python scripts/verify_repository_tree.py --head c3eaf42d...  -> {\"errors\": [], \"valid\": true}",
+    "python scripts/verify_packaging_smoke.py smoke --repo . --wheel-dir dist --venv-dir \"$RUNNER_TEMP/packaging-smoke-venv\" --output artifacts/quality/PACKAGING_SMOKE.json  -> exit 0",
+    "python scripts/verify_packaging_smoke.py check --repo . --wheel-dir dist --evidence artifacts/quality/PACKAGING_SMOKE.json  -> exit 0"
+  ],
+  "evidence": [
+    "DIRECTLY_VERIFIED: ci.yml `quality` ran only `python -m pip wheel --no-deps --wheel-dir dist .`, which proves wheel construction and nothing about install, import or CLI behaviour.",
+    "DIRECTLY_VERIFIED: release-artifacts.yml `Verify package and artifact roundtrip` already performs an isolated venv install of the built wheel, an importlib.metadata version equality check and `commander-lab --help` - a valid donor for the sequence, insufficient for #490 (see B9-D1).",
+    "DIRECTLY_VERIFIED: pyproject.toml declares version 1.25.0 and console scripts commander-lab = commander_lab.cli.main:app and commander-lab-optimizer = commander_lab.optimizer_v2_cli:app. The smoke reads this contract at runtime and refuses to run against a contract declaring no console scripts.",
+    "DIRECTLY_VERIFIED: scripts/verify_required_check_definitions.py requires the `package_wheel` category pattern `python -m pip wheel` in the required quality job, so that step was preserved byte-identically.",
+    "DIRECTLY_VERIFIED: install provenance is provable from pip's own direct_url.json, which records the wheel filename and its sha256 for a direct wheel install.",
+    "DIRECTLY_VERIFIED: both declared entrypoints implement `--help` deterministically with no external service; commander-lab --help on Python 3.12 is additionally attested by the existing release-artifacts.yml workflow.",
+    "CODE_DERIVED + DIRECTLY_VERIFIED: the smoke requires the imported module file to resolve under the venv purelib and forbids repository paths on the probe sys.path; the decoy-wheel control proves a genuinely succeeding source-tree import is rejected rather than passed.",
+    "DIRECTLY_VERIFIED: setuptools wheels are not byte-reproducible here (two builds of identical source produced digests 4d721b05... and 060610754...), so evidence binds to the digest of the wheel built in that run.",
+    "DIRECTLY_VERIFIED: measured additive packaging-smoke cost with a warm pip cache is ~19 s, so the required quality job's 25-minute budget was left unchanged rather than widened.",
+    "DIRECTLY_VERIFIED: CI-02 Phase 1 remains COMPLETE, informational/shadow and not server-required; B9 did not modify scripts/verify_required_check_definitions.py and did not add any required context."
+  ],
+  "artifacts": [
+    "artifacts/quality/PACKAGING_SMOKE.json (schema packaging-smoke-1.0.0; produced by both ci.yml steps and uploaded with the existing ci-evidence artifact)",
+    "Draft PR #509 - https://github.com/moeendres-png/commander-playtest-lab/pull/509"
+  ],
   "remaining_scope": [
-    "Adjudicate reuse vs bounded new implementation and persist the decision",
-    "Implement scripts/verify_packaging_smoke.py with smoke + check-evidence modes",
-    "Add the packaging-smoke step to the required quality job in ci.yml",
-    "Write focused unit/contract tests including all eight required red controls and the positive control",
-    "Run the positive control on the actual candidate wheel and validate the machine-readable evidence",
-    "Run workflow syntax validation, ruff, mypy, pytest and the CI-definition-integrity tests",
-    "Open a Draft PR against main and post the full handoff on Issue #490"
+    "Observe the exact-head GitHub CI result on PR #509 and adjudicate any attributable failure fully.",
+    "Coordinator/owner review of the required-gate definition change recorded by CI-02 as GATE_DEFINITION_CHANGED_REVIEW_REQUIRED (Phase 2 reviewer acknowledgement is Coordinator-owned and was NOT reopened here).",
+    "Merge decision is NOT owned by this workstream; the PR stays Draft and was not self-merged."
   ],
   "status": "ACTIVE",
   "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
@@ -86,14 +117,60 @@
   "hypotheses_rejected": [
     "H0 (rejected by fresh read): 'the existing release-artifacts.yml smoke already satisfies #490' - it is release-scoped, not a required per-PR context, covers one of two console scripts, emits no machine-readable digest/SHA-bound evidence, and has no adversarial control."
   ],
-  "technical_decisions": [],
+  "technical_decisions": [
+    {
+      "id": "B9-D1-reuse-vs-new",
+      "decision": "Bounded new packaging-smoke implementation (option B), reusing the release-artifacts.yml roundtrip sequence as an EXTRACT_AND_GENERALIZE donor. release-artifacts.yml is left untouched.",
+      "evidence": "The release smoke is insufficient for #490 for five independently verified reasons: (1) it is not a required per-PR context - it triggers on push to main/release/** plus a pull_request paths filter of only pyproject.toml and its own file, so a PR touching ci.yml never runs it, and it is not one of the ruleset required contexts (quality, security, infrastructure); (2) it probes only commander-lab while pyproject.toml declares two console scripts, leaving commander-lab-optimizer unprobed; (3) it emits no machine-readable SHA/TREE/digest-bound evidence; (4) it installs the wheel with default unpinned index resolution of the dependency closure; (5) it has no adversarial controls and nothing proves the import came from the installation rather than a source tree.",
+      "rejected_alternative": "Option A (minimal integration of the existing release smoke into required CI evidence) - rejected because items 1-5 above are each independently disqualifying.",
+      "classification": "DIRECTLY_VERIFIED"
+    },
+    {
+      "id": "B9-D2-required-context-placement",
+      "decision": "Add the packaging smoke as two new steps inside the existing required `quality` job, after `Build wheel`, rather than as a new job or a new workflow.",
+      "evidence": "scripts/verify_required_check_definitions.py defines REQUIRED_CONTEXTS['quality'] with a `package_wheel` category matching '^\\s*python\\s+-m\\s+pip\\s+wheel', so that step is preserved byte-identically. Placing the smoke inside `quality` makes a broken wheel/entrypoint/evidence actually fail the gate, which is issue #490's completion criterion. A new job would be non-required by default and therefore would not gate.",
+      "rejected_alternative": "A separate packaging-smoke job or workflow - rejected because it would not be a required context, so the gate would be advisory.",
+      "classification": "DIRECTLY_VERIFIED"
+    },
+    {
+      "id": "B9-D3-dependency-provisioning",
+      "decision": "Provision the isolated environment's dependency closure from the project's own hash-pinned requirements/lock.txt using `pip install --require-hashes`, then install the project itself with `pip install --no-index --no-deps --force-reinstall <exact wheel path>`, and verify the wheel's own non-extra Requires-Dist entries are satisfied from inside the isolated env.",
+      "evidence": "Measured on Python 3.14.4: hash-pinned lock install into a fresh venv succeeds in ~17 s. `pip download --require-hashes -r requirements/lock.txt` was rejected as the provisioning mechanism because the lock's transitive `pip-api` -> `pip` edge is not `==`-pinned, so a download-based wheelhouse cannot be built without inventing a new pin authority. The `--no-index --no-deps` project install plus an explicit in-venv Requires-Dist satisfaction check is deterministic, uses no new authority surface, and still proves the wheel's own dependency metadata is satisfiable from a fixed hash-pinned artifact set.",
+      "rejected_alternative": "A download-based wheelhouse; consuming the runner's already-installed editable project or its ambient site-packages; default index resolution at install time.",
+      "classification": "DIRECTLY_VERIFIED"
+    },
+    {
+      "id": "B9-D4-install-source-proof",
+      "decision": "Prove install provenance from the installed distribution's own pip `direct_url.json`: require `archive_info`, reject `dir_info`, require the basename to equal the wheel filename, and require the recorded SHA-256 to equal the digest bound before installing. Reject `__editable__*` / `*.egg-link` markers.",
+      "evidence": "Verified locally: `pip install --no-index --no-deps <wheel>` writes direct_url.json = {\"archive_info\": {\"hash\": \"sha256=...\", \"hashes\": {\"sha256\": \"...\"}}, \"url\": \"file:///.../commander_playtest_lab-1.25.0-py3-none-any.whl\"}, which binds the installed distribution to the exact artifact digest.",
+      "classification": "DIRECTLY_VERIFIED"
+    },
+    {
+      "id": "B9-D5-import-provenance-proof",
+      "decision": "Run the import probe with the venv interpreter under `-I` (implies -E -P -s), with PYTHONPATH and PYTHONHOME scrubbed from the child environment and cwd outside the repository; require the imported module file to resolve under the venv's own purelib and require that no repository path appears on the probe's sys.path.",
+      "evidence": "Verified: an ambient PYTHONPATH pointed at <repo>/src does not change the outcome - the positive control still PASSes and still attests installed_import.resolved_in_isolated_environment=true. The strongest control is a decoy wheel that installs cleanly, declares the current version and makes `import commander_lab` genuinely succeed via a .pth pointing at src/; the smoke rejects it with a provenance failure.",
+      "classification": "DIRECTLY_VERIFIED"
+    },
+    {
+      "id": "B9-D6-no-timeout-weakening",
+      "decision": "Leave the required `quality` job's `timeout-minutes: 25` unchanged.",
+      "evidence": "Measured additive cost of the packaging smoke with a warm pip cache: venv creation ~1.7 s, hash-pinned lock install ~16.7 s, wheel install ~0.8 s - about 19 s total, plus two sub-second CLI probes. The job already installs the same lock and configures `cache: pip`, so the additive cost stays far inside the existing budget and no budget had to be widened.",
+      "classification": "DIRECTLY_VERIFIED"
+    },
+    {
+      "id": "B9-D7-no-wheel-reproducibility-claim",
+      "decision": "Bind evidence to the digest of the wheel built in that run and never assume a precomputed wheel digest.",
+      "evidence": "Two builds of the identical source produced digests 4d721b05... and 060610754..., because setuptools wheels are not byte-reproducible by default. Cross-run digest comparison would require a reproducible-build change that is out of B9 scope; it is recorded as a residual risk instead of being claimed.",
+      "classification": "DIRECTLY_VERIFIED"
+    }
+  ],
   "authority_gates": [
     "PRODUCTION_PROVIDER selection (NOT SELECTED) and ARCHITECTURE_FREEZE (NOT CLAIMED) remain Coordinator decisions"
   ],
   "first_failing_boundary": "NONE",
   "root_cause_class": "NONE",
-  "next_action": "Implement the packaging-smoke consumer and its tests.",
-  "exact_next_action": "Write scripts/verify_packaging_smoke.py implementing deterministic wheel selection, sha256 binding, isolated venv install from the built wheel, installed-import provenance proof, CLI entrypoint probes, machine-readable PACKAGING_SMOKE.json evidence and an independent check-evidence consumer; then wire it into the required quality job in .github/workflows/ci.yml and add tests/unit/test_packaging_smoke.py.",
+  "next_action": "Observe exact-head CI on Draft PR #509 and adjudicate any attributable failure.",
+  "exact_next_action": "Watch `gh run list --branch hardening/lab-b9-packaging-smoke-20261003` and `gh pr checks 509` to completion. If any check fails, adjudicate whether it is attributable to B9 and repair it systemically; if it is not attributable, record that adjudication with evidence rather than retrying to green. Then leave the Draft PR for the owner: do NOT mark ready and do NOT merge.",
   "execution_profile": "space-bunny",
   "executor_model": "opencode-go/space-bunny-free",
   "native_variant": "max",
