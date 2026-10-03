@@ -479,6 +479,156 @@ final class XmageFullGameSession {
     }
 
     /**
+     * AF09 orchestration channel: the engine's Rules-RNG results and a
+     * privileged state digest, HMAC digests only under the launch's
+     * orchestration key ({@link XmageRulesRngResultTape}). Read only while the
+     * engine is parked on a decision or has ended; {@code engine_state} says
+     * which, and whether an end was a clean game over or a failure.
+     */
+    synchronized JsonObject rulesRngTapePayload() {
+        ensureStarted();
+        if (!XmageRulesRngResultTape.enabled()) {
+            String problem = XmageRulesRngResultTape.keyProblem();
+            throw new IllegalStateException("ORCHESTRATION_CHANNEL_NOT_ENABLED: "
+                    + (problem == null ? "this launch carries no orchestration key" : problem));
+        }
+        JsonObject payload = new JsonObject();
+        String engineState = engineState();
+        payload.addProperty("engine_state", engineState);
+        payload.addProperty("observation_scope", "orchestration_keyed_digests");
+        if (!"PARKED".equals(engineState) && !"CLEAN_TERMINAL".equals(engineState)) {
+            // No digest of an engine that is still running or failed.
+            return payload;
+        }
+        payload.addProperty("rules_random_calls", game.getRulesRandomCalls());
+        payload.add("rules_rng_results", XmageRulesRngResultTape.results(game));
+        payload.addProperty("privileged_state_digest", privilegedStateDigest());
+        // The engine must still be in the same state after the digest: a
+        // decision answered or a thread ended meanwhile voids it.
+        if (!engineState.equals(engineState())) {
+            JsonObject moved = new JsonObject();
+            moved.addProperty("engine_state", "RUNNING");
+            moved.addProperty("observation_scope", "orchestration_keyed_digests");
+            return moved;
+        }
+        return payload;
+    }
+
+    /**
+     * PARKED: waiting on an external decision. CLEAN_TERMINAL: the engine
+     * thread ended a game that is over, with no failure and no engine error.
+     * FAILED: a failure, or an ended thread without a clean game over.
+     * RUNNING: anything else. Thread liveness is sampled first, so a thread that
+     * fails and ends between two reads is never taken for a clean end.
+     */
+    private String engineState() {
+        boolean alive = engineThread != null && engineThread.isAlive();
+        if (controller.terminalFailure() != null) {
+            return alive ? "RUNNING" : "FAILED";
+        }
+        if (controller.pendingDecision() != null) {
+            return "PARKED";
+        }
+        if (engineThread != null && !alive) {
+            boolean clean = game.hasEnded() && controller.terminalFailure() == null
+                    && game.getTotalErrorsCount() == 0;
+            return clean ? "CLEAN_TERMINAL" : "FAILED";
+        }
+        return "RUNNING";
+    }
+
+    /**
+     * Every player's zones in seating order (library order included), the
+     * command zone, the stack and the turn position, each object written as its
+     * requested semantic id or otherwise its true name (a face-down object by
+     * its underlying card), with tapped, face-down, phasing, damage, counters
+     * and attachment.
+     */
+    private String privilegedStateDigest() {
+        List<String> lines = new ArrayList<>();
+        mage.game.turn.Step step = game.getStep();
+        lines.add("turn:" + game.getTurnNum() + " step:" + (step == null ? "none" : step.getType())
+                + " active:" + XmageRulesRngResultTape.seatIndex(game, game.getActivePlayerId()));
+        for (UUID playerId : game.getState().getPlayerList()) {
+            Player player = game.getPlayer(playerId);
+            if (player == null) {
+                continue;
+            }
+            lines.add("seat:" + XmageRulesRngResultTape.seatIndex(game, playerId)
+                    + " life:" + player.getLife() + " in_game:" + player.isInGame());
+            lines.add("library:" + String.join(",", tokens(player.getLibrary().getCardList(), false)));
+            lines.add("hand:" + String.join(",", tokens(new ArrayList<>(player.getHand()), true)));
+            lines.add("graveyard:" + String.join(",", tokens(new ArrayList<>(player.getGraveyard()), false)));
+            List<UUID> exiled = new ArrayList<>();
+            for (mage.cards.Card card : game.getExile().getAllCards(game)) {
+                if (playerId.equals(card.getOwnerId())) {
+                    exiled.add(card.getId());
+                }
+            }
+            lines.add("exile:" + String.join(",", tokens(exiled, true)));
+            List<String> permanents = new ArrayList<>();
+            for (mage.game.permanent.Permanent permanent : game.getBattlefield().getAllPermanents()) {
+                if (!playerId.equals(permanent.getControllerId())) {
+                    continue;
+                }
+                List<String> counters = new ArrayList<>();
+                for (mage.counters.Counter counter : permanent.getCounters(game).values()) {
+                    counters.add(counter.getName() + "=" + counter.getCount());
+                }
+                Collections.sort(counters);
+                String name = permanent.getName();
+                if (permanent.isFaceDown(game)) {
+                    mage.cards.Card card = game.getCard(permanent.getId());
+                    name = "face_down:" + (card == null ? "?" : card.getName());
+                }
+                UUID attachedTo = permanent.getAttachedTo();
+                permanents.add(token(permanent.getId(), name)
+                        + (permanent.isTapped() ? "|tapped" : "")
+                        + (permanent.isPhasedIn() ? "" : "|phased_out")
+                        + "|damage=" + permanent.getDamage()
+                        + "|attached=" + (attachedTo == null ? "" : token(attachedTo, nameOf(attachedTo)))
+                        + "|" + String.join(";", counters));
+            }
+            Collections.sort(permanents);
+            lines.add("battlefield:" + String.join(",", permanents));
+        }
+        List<String> command = new ArrayList<>();
+        for (mage.game.command.CommandObject object : game.getState().getCommand()) {
+            command.add(token(object.getId(), object.getName()));
+        }
+        Collections.sort(command);
+        lines.add("command:" + String.join(",", command));
+        List<String> stack = new ArrayList<>();
+        for (mage.game.stack.StackObject object : game.getStack()) {
+            stack.add(object.getName());
+        }
+        lines.add("stack:" + String.join(",", stack));
+        return XmageRulesRngResultTape.digest(lines);
+    }
+
+    private String nameOf(UUID id) {
+        mage.MageObject object = game.getObject(id);
+        return object == null ? "?" : object.getName();
+    }
+
+    private List<String> tokens(List<UUID> ids, boolean sorted) {
+        List<String> out = new ArrayList<>(ids.size());
+        for (UUID id : ids) {
+            mage.cards.Card card = game.getCard(id);
+            out.add(token(id, card == null ? "?" : card.getName()));
+        }
+        if (sorted) {
+            Collections.sort(out);
+        }
+        return out;
+    }
+
+    private String token(UUID id, String name) {
+        String semantic = restoration == null ? null : restoration.semanticIdOf(id);
+        return semantic != null ? "s:" + semantic : "n:" + name;
+    }
+
+    /**
      * WS213 authoritative concession offer (WS211 engine contract).
      *
      * <p>Availability originates exclusively in {@code

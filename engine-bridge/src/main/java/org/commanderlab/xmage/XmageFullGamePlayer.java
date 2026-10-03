@@ -1505,9 +1505,18 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public void shuffleLibrary(Ability source, Game game) {
+        boolean taped = game != null && !game.isSimulation();
+        long callsBefore = taped ? game.getRulesRandomCalls() : 0L;
+        if (taped) {
+            XmageRulesRngResultTape.beforeShuffle(game, getId(), getLibrary().getCardList());
+        }
         super.shuffleLibrary(source, game);
-        if (game != null && !game.isSimulation()) {
+        if (taped) {
             XmageFullGameStateRedactor.recordLibraryShuffle(game, getId());
+            // AF09: the result of the engine's own Rules-RNG shuffle, as a
+            // process-independent permutation digest (orchestration only).
+            XmageRulesRngResultTape.afterShuffle(game, getId(), callsBefore,
+                    game.getRulesRandomCalls(), getLibrary().getCardList());
         }
     }
 

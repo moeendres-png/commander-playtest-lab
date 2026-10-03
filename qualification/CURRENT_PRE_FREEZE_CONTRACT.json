@@ -21,7 +21,7 @@
   "denominator_count": 107,
   "historical_base_materialization": "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json",
   "historical_base_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
-  "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json",
+  "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_19.json",
   "changed_fixture_ids": [
    "WS05-CMD-START-2",
    "MICRO_MODES",
@@ -73,9 +73,14 @@
    "CARD_10",
    "CARD_07",
    "CARD_16",
-   "CARD_25"
+   "CARD_25",
+   "REPLAY_CLEAN_PROCESS",
+   "REPLAY_DECISION_TAPE",
+   "REPLAY_EVENT_TAPE",
+   "REPLAY_STATE_HASHES",
+   "RNG_RULES_TAPE"
   ],
-  "unchanged_fixture_count": 78,
+  "unchanged_fixture_count": 73,
   "evidence_survival": {
    "WS05-CMD-START-2": "REQUALIFICATION_REQUIRED_SEMANTIC_CHANGE",
    "MICRO_COSTS": "REQUALIFICATION_REQUIRED_FIXTURE_DEFECT_CORRECTION_CR_307_1",
@@ -128,9 +133,14 @@
    "CARD_10": "REQUALIFICATION_REQUIRED_SCENARIO_ERRATUM",
    "CARD_07": "REQUALIFICATION_REQUIRED_SCENARIO_ERRATUM",
    "CARD_16": "REQUALIFICATION_REQUIRED_ACTUAL_CARD_OBLIGATION_ERRATUM",
-   "CARD_25": "REQUALIFICATION_REQUIRED_SCENARIO_ERRATUM"
+   "CARD_25": "REQUALIFICATION_REQUIRED_SCENARIO_ERRATUM",
+   "REPLAY_CLEAN_PROCESS": "REQUALIFICATION_REQUIRED_LOSSLESS_LIBRARY_ERRATUM_SLOT04",
+   "REPLAY_DECISION_TAPE": "REQUALIFICATION_REQUIRED_LOSSLESS_LIBRARY_ERRATUM_SLOT04",
+   "REPLAY_EVENT_TAPE": "REQUALIFICATION_REQUIRED_LOSSLESS_LIBRARY_ERRATUM_SLOT04",
+   "REPLAY_STATE_HASHES": "REQUALIFICATION_REQUIRED_LOSSLESS_LIBRARY_ERRATUM_SLOT04",
+   "RNG_RULES_TAPE": "REQUALIFICATION_REQUIRED_LOSSLESS_LIBRARY_ERRATUM_SLOT04"
   },
-  "effective_materialization_schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_18_SUCCESSOR.json",
+  "effective_materialization_schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_19_SUCCESSOR.json",
   "evidence_migration": {
    "protocol_boundary_changed": true,
    "automatic_carry_forward": false,

@@ -22,6 +22,7 @@ on:
       - "src/commander_lab/models/**"
       - "src/commander_lab/storage/**"
       - "tests/conftest.py"
+      - "src/commander_lab/semantic_replay/**"
   workflow_dispatch:
 
 permissions:

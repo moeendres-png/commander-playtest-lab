@@ -457,15 +457,72 @@ def test_af09_every_named_twin_element_is_required(missing: str) -> None:
     assert g.af09_rng_replay("forge", ALL_PASS_ROWS, document)["verdict"] == "UNKNOWN"
 
 
-def test_af09_a_refused_export_never_passes_even_with_all_rows_green() -> None:
-    document = {
-        "rules_rng_binding": {"classification": "UNCONTROLLED_ENGINE_RNG"},
-        "semantic_replay": {"error": [{"code": "unsupported_message"}]},
-        **TWIN,
-    }
-    gate = g.af09_rng_replay("forge", ALL_PASS_ROWS, document)
+REFUSED_EXPORT = {
+    "rules_rng_binding": {"classification": "UNCONTROLLED_ENGINE_RNG"},
+    "semantic_replay": {"error": [{"code": "unsupported_message"}]},
+}
+
+
+def test_af09_a_refused_export_without_a_proven_twin_never_passes() -> None:
+    gate = g.af09_rng_replay("forge", ALL_PASS_ROWS, REFUSED_EXPORT)
     assert gate["verdict"] == "UNKNOWN"
     assert any("absent capability" in item for item in gate["nonblocking_limitations"])
+
+
+def test_af09_a_refused_export_is_recorded_but_does_not_block_a_proven_twin() -> None:
+    """Export refusal ruling: the refusal is an absent capability, never credit.
+
+    With a proven clean-process twin and every replay row PASS, the verdict
+    rests on the twin; the refusal stays in the evidence, worded as a refusal.
+    """
+    gate = g.af09_rng_replay("forge", ALL_PASS_ROWS, {**REFUSED_EXPORT, **TWIN})
+    assert gate["verdict"] == "PASS", gate["nonblocking_limitations"]
+    joined = " ".join(gate["evidence"])
+    assert "refused by the engine (codes: unsupported_message)" in joined
+    assert "absent capability" in joined and "only on the proven clean-process twin" in joined
+
+
+def test_af09_a_refused_export_with_an_incomplete_twin_stays_unknown() -> None:
+    twin = dict(TWIN["clean_process_twin"])
+    twin.pop("rules_rng")
+    gate = g.af09_rng_replay("forge", ALL_PASS_ROWS, {**REFUSED_EXPORT, "clean_process_twin": twin})
+    assert gate["verdict"] == "UNKNOWN"
+    assert any("absent capability" in item for item in gate["nonblocking_limitations"])
+
+
+MIDGAME_TWIN = {
+    "rows_declared": 5,
+    "rows_verified": 5,
+    "clean_process_twin": TWIN["clean_process_twin"],
+}
+
+
+def test_af09_takes_the_bound_midgame_twin_when_the_artifact_has_none() -> None:
+    gate = g.af09_rng_replay("xmage", ALL_PASS_ROWS, REFUSED_EXPORT, midgame_twin=MIDGAME_TWIN)
+    assert gate["verdict"] == "PASS", gate["nonblocking_limitations"]
+    assert any("MIDGAME_REPLAY_TWIN_EXECUTIONS.json: 5/5" in item for item in gate["evidence"])
+
+
+def test_af09_an_unproven_midgame_twin_is_not_twin_evidence() -> None:
+    midgame = {**MIDGAME_TWIN, "clean_process_twin": {"verified": True}}
+    gate = g.af09_rng_replay("xmage", ALL_PASS_ROWS, REFUSED_EXPORT, midgame_twin=midgame)
+    assert gate["verdict"] == "UNKNOWN"
+    assert any(
+        "does not carry the required twin evidence" in item
+        for item in gate["nonblocking_limitations"]
+    )
+
+
+def test_af09_a_proven_midgame_twin_never_masks_a_failed_or_open_replay_row() -> None:
+    failed = {**ALL_PASS_ROWS, "RNG_RULES_TAPE": _row("FAIL")}
+    assert (
+        g.af09_rng_replay("xmage", failed, REFUSED_EXPORT, midgame_twin=MIDGAME_TWIN)["verdict"]
+        == "FAIL"
+    )
+    open_row = {**ALL_PASS_ROWS, "RNG_RULES_TAPE": _row("UNKNOWN")}
+    gate = g.af09_rng_replay("xmage", open_row, REFUSED_EXPORT, midgame_twin=MIDGAME_TWIN)
+    assert gate["verdict"] == "UNKNOWN"
+    assert gate["blocking_rows"] == ["RNG_RULES_TAPE"]
 
 
 def test_af09_a_failed_replay_row_is_fail() -> None:
@@ -482,3 +539,38 @@ def test_af09_carries_the_established_refusal_and_seed_wording() -> None:
     gate = g.af09_rng_replay("forge", ALL_PASS_ROWS, ACK_SEED, described=described)
     assert any("refused by the engine" in item for item in gate["evidence"])
     assert any("not semantic replay proof" in item for item in gate["nonblocking_limitations"])
+
+
+def _process(pid: int) -> dict:
+    return {"pid": pid, "start_ticks": 100 + pid, "boot_id": "boot", "observed": True}
+
+
+def test_af09_an_embedded_tape_that_taped_nothing_is_not_twin_evidence() -> None:
+    twin = {**TWIN["clean_process_twin"], "decisions": {"count": 0, "entries": []}}
+    assert "decisions" in g.clean_process_twin_missing(twin)
+
+
+def test_af09_the_twin_must_name_two_distinct_processes() -> None:
+    base = TWIN["clean_process_twin"]
+    assert "distinct_process_identities" in g.clean_process_twin_missing(
+        {**base, "process_identity": [_process(1)]}
+    )
+    assert "distinct_process_identities" in g.clean_process_twin_missing(
+        {**base, "process_identity": [_process(1), _process(1)]}
+    )
+    assert (
+        g.clean_process_twin_missing({**base, "process_identity": [_process(1), _process(2)]}) == []
+    )
+
+
+def test_af09_one_rule_selects_the_twin() -> None:
+    proven = TWIN["clean_process_twin"]
+    midgame = {"clean_process_twin": proven}
+    assert g.select_clean_process_twin({**ACK_SEED, **TWIN}, midgame) == (proven, "RNG_REPLAY")
+    assert g.select_clean_process_twin(ACK_SEED, midgame) == (
+        proven,
+        "MIDGAME_REPLAY_TWIN_EXECUTIONS",
+    )
+    unproven = {"verified": True}
+    assert g.select_clean_process_twin({"clean_process_twin": unproven}, None) == (unproven, None)
+    assert g.select_clean_process_twin(None, {"clean_process_twin": unproven}) == (None, None)

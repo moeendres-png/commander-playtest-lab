@@ -1,0 +1,4393 @@
+{
+  "adversarial_controls": [
+    {
+      "applicable": true,
+      "control": "changed_decision",
+      "detail": "the checker rejected the mutated twin with the expected divergence",
+      "detected": true,
+      "expected": [
+        "DECISION_DIVERGENCE"
+      ],
+      "observed_codes": [
+        "DECISION_DIVERGENCE"
+      ]
+    },
+    {
+      "applicable": true,
+      "control": "changed_seed_or_rng_binding",
+      "detail": "the checker rejected the mutated twin with the expected divergence",
+      "detected": true,
+      "expected": [
+        "RNG_DIVERGENCE"
+      ],
+      "observed_codes": [
+        "RNG_DIVERGENCE"
+      ]
+    },
+    {
+      "applicable": true,
+      "control": "changed_rng_coordinates",
+      "detail": "the checker rejected the mutated twin with the expected divergence",
+      "detected": true,
+      "expected": [
+        "RNG_DIVERGENCE"
+      ],
+      "observed_codes": [
+        "RNG_DIVERGENCE"
+      ]
+    },
+    {
+      "applicable": true,
+      "control": "missing_event",
+      "detail": "the checker rejected the mutated twin with the expected divergence",
+      "detected": true,
+      "expected": [
+        "EVENT_DIVERGENCE",
+        "EVENT_MISSING"
+      ],
+      "observed_codes": [
+        "EVENT_MISSING"
+      ]
+    },
+    {
+      "applicable": true,
+      "control": "reordered_event",
+      "detail": "the checker rejected the mutated twin with the expected divergence",
+      "detected": true,
+      "expected": [
+        "EVENT_DIVERGENCE",
+        "EVENT_REORDERED"
+      ],
+      "observed_codes": [
+        "EVENT_REORDERED"
+      ]
+    },
+    {
+      "applicable": true,
+      "control": "changed_checkpoint_hash",
+      "detail": "the checker rejected the mutated twin with the expected divergence",
+      "detected": true,
+      "expected": [
+        "STATE_DIVERGENCE"
+      ],
+      "observed_codes": [
+        "STATE_DIVERGENCE"
+      ]
+    },
+    {
+      "applicable": true,
+      "control": "changed_terminal",
+      "detail": "the checker rejected the mutated twin with the expected divergence",
+      "detected": true,
+      "expected": [
+        "TERMINAL_DIVERGENCE"
+      ],
+      "observed_codes": [
+        "TERMINAL_DIVERGENCE"
+      ]
+    },
+    {
+      "applicable": true,
+      "control": "same_seed_different_decisions",
+      "detail": "the checker rejected the mutated twin with the expected divergence",
+      "detected": true,
+      "expected": [
+        "DECISION_DIVERGENCE"
+      ],
+      "observed_codes": [
+        "DECISION_DIVERGENCE"
+      ]
+    },
+    {
+      "applicable": true,
+      "control": "same_process_identity_is_not_a_twin",
+      "detail": "the checker rejected the mutated twin with the expected divergence",
+      "detected": true,
+      "expected": [
+        "PROCESS_IDENTITY_NOT_DISTINCT"
+      ],
+      "observed_codes": [
+        "PROCESS_IDENTITY_NOT_DISTINCT"
+      ]
+    },
+    {
+      "applicable": true,
+      "control": "normalization_of_rules_significant_field_fails",
+      "detail": "path 'decisions.*.chosen_fingerprint' is not a declared process-local path; Rules-significant fields may never be normalized",
+      "detected": true
+    },
+    {
+      "applicable": true,
+      "control": "baseline_twin_verified",
+      "detail": "the unmodified twin verifies",
+      "detected": true
+    }
+  ],
+  "candidate": "xmage",
+  "clean_process_twin": {
+    "adversarial_controls": [
+      {
+        "applicable": true,
+        "control": "changed_decision",
+        "detail": "the checker rejected the mutated twin with the expected divergence",
+        "detected": true,
+        "expected": [
+          "DECISION_DIVERGENCE"
+        ],
+        "observed_codes": [
+          "DECISION_DIVERGENCE"
+        ]
+      },
+      {
+        "applicable": true,
+        "control": "changed_seed_or_rng_binding",
+        "detail": "the checker rejected the mutated twin with the expected divergence",
+        "detected": true,
+        "expected": [
+          "RNG_DIVERGENCE"
+        ],
+        "observed_codes": [
+          "RNG_DIVERGENCE"
+        ]
+      },
+      {
+        "applicable": true,
+        "control": "changed_rng_coordinates",
+        "detail": "the checker rejected the mutated twin with the expected divergence",
+        "detected": true,
+        "expected": [
+          "RNG_DIVERGENCE"
+        ],
+        "observed_codes": [
+          "RNG_DIVERGENCE"
+        ]
+      },
+      {
+        "applicable": true,
+        "control": "missing_event",
+        "detail": "the checker rejected the mutated twin with the expected divergence",
+        "detected": true,
+        "expected": [
+          "EVENT_DIVERGENCE",
+          "EVENT_MISSING"
+        ],
+        "observed_codes": [
+          "EVENT_MISSING"
+        ]
+      },
+      {
+        "applicable": true,
+        "control": "reordered_event",
+        "detail": "the checker rejected the mutated twin with the expected divergence",
+        "detected": true,
+        "expected": [
+          "EVENT_DIVERGENCE",
+          "EVENT_REORDERED"
+        ],
+        "observed_codes": [
+          "EVENT_REORDERED"
+        ]
+      },
+      {
+        "applicable": true,
+        "control": "changed_checkpoint_hash",
+        "detail": "the checker rejected the mutated twin with the expected divergence",
+        "detected": true,
+        "expected": [
+          "STATE_DIVERGENCE"
+        ],
+        "observed_codes": [
+          "STATE_DIVERGENCE"
+        ]
+      },
+      {
+        "applicable": true,
+        "control": "changed_terminal",
+        "detail": "the checker rejected the mutated twin with the expected divergence",
+        "detected": true,
+        "expected": [
+          "TERMINAL_DIVERGENCE"
+        ],
+        "observed_codes": [
+          "TERMINAL_DIVERGENCE"
+        ]
+      },
+      {
+        "applicable": true,
+        "control": "same_seed_different_decisions",
+        "detail": "the checker rejected the mutated twin with the expected divergence",
+        "detected": true,
+        "expected": [
+          "DECISION_DIVERGENCE"
+        ],
+        "observed_codes": [
+          "DECISION_DIVERGENCE"
+        ]
+      },
+      {
+        "applicable": true,
+        "control": "same_process_identity_is_not_a_twin",
+        "detail": "the checker rejected the mutated twin with the expected divergence",
+        "detected": true,
+        "expected": [
+          "PROCESS_IDENTITY_NOT_DISTINCT"
+        ],
+        "observed_codes": [
+          "PROCESS_IDENTITY_NOT_DISTINCT"
+        ]
+      },
+      {
+        "applicable": true,
+        "control": "normalization_of_rules_significant_field_fails",
+        "detail": "path 'decisions.*.chosen_fingerprint' is not a declared process-local path; Rules-significant fields may never be normalized",
+        "detected": true
+      },
+      {
+        "applicable": true,
+        "control": "baseline_twin_verified",
+        "detail": "the unmodified twin verifies",
+        "detected": true
+      }
+    ],
+    "candidate_build": {
+      "command": [
+        "java",
+        "-Djava.awt.headless=true",
+        "-Dcommanderlab.repoRoot=/home/moeen/code/lab-af09-replay-twins-20261001",
+        "-cp",
+        "/home/moeen/code/lab-af09-replay-twins-20261001/engine-bridge/target/classes:/home/moeen/code/.af09-m2-repo/org/mage/mage/1.4.61/mage-1.4.61.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/guava/33.4.8-jre/guava-33.4.8-jre.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/failureaccess/1.0.3/failureaccess-1.0.3.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/home/moeen/code/.af09-m2-repo/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar:/home/moeen/code/.af09-m2-repo/com/google/j2objc/j2objc-annotations/3.0.0/j2objc-annotations-3.0.0.jar:/home/moeen/code/.af09-m2-repo/org/jsoup/jsoup/1.21.2/jsoup-1.21.2.jar:/home/moeen/code/.af09-m2-repo/com/google/protobuf/protobuf-java/3.25.8/protobuf-java-3.25.8.jar:/home/moeen/code/.af09-m2-repo/org/slf4j/slf4j-reload4j/2.0.17/slf4j-reload4j-2.0.17.jar:/home/moeen/code/.af09-m2-repo/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar:/home/moeen/code/.af09-m2-repo/ch/qos/reload4j/reload4j/1.2.22/reload4j-1.2.22.jar:/home/moeen/code/.af09-m2-repo/com/j256/ormlite/ormlite-jdbc/5.7/ormlite-jdbc-5.7.jar:/home/moeen/code/.af09-m2-repo/com/j256/ormlite/ormlite-core/5.7/ormlite-core-5.7.jar:/home/moeen/code/.af09-m2-repo/com/h2database/h2/1.4.197/h2-1.4.197.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-deck-constructed/1.4.61/mage-deck-constructed-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-sets/1.4.61/mage-sets-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-game-commanderfreeforall/1.4.61/mage-game-commanderfreeforall-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-game-commanderduel/1.4.61/mage-game-commanderduel-1.4.61.jar:/home/moeen/code/.af09-m2-repo/com/google/code/gson/gson/2.13.2/gson-2.13.2.jar:/home/moeen/code/.af09-m2-repo/com/google/errorprone/error_prone_annotations/2.41.0/error_prone_annotations-2.41.0.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter/5.8.1/junit-jupiter-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-api/5.8.1/junit-jupiter-api-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/moeen/code/.af09-m2-repo/org/junit/platform/junit-platform-commons/1.8.1/junit-platform-commons-1.8.1.jar:/home/moeen/code/.af09-m2-repo/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-params/5.8.1/junit-jupiter-params-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-engine/5.8.1/junit-jupiter-engine-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/platform/junit-platform-engine/1.8.1/junit-platform-engine-1.8.1.jar",
+        "org.commanderlab.xmage.Main",
+        "full-game"
+      ],
+      "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
+      "lane": "full-game",
+      "module": "engine-bridge",
+      "provider": {
+        "engine": "xmage",
+        "engine_artifact_kind": "file",
+        "engine_artifact_path": "file:/home/moeen/code/.af09-m2-repo/org/mage/mage/1.4.61/mage-1.4.61.jar",
+        "engine_artifact_sha256": "bf3d91bc2722d186327a5cc69b6fe931e540219a1f506c48bb7003c84068cc27",
+        "engine_artifact_size": 7113924,
+        "engine_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+        "engine_version": "1.4.61",
+        "protocol_version": "2.0.0",
+        "xmage_code_source": "file:/home/moeen/code/.af09-m2-repo/org/mage/mage/1.4.61/mage-1.4.61.jar"
+      },
+      "provider_probe_process": {
+        "boot_id": "340cab08-401d-4a5a-9b01-e2b4a373a359",
+        "command": [
+          "java",
+          "-Djava.awt.headless=true",
+          "-Dcommanderlab.repoRoot=/home/moeen/code/lab-af09-replay-twins-20261001",
+          "-cp",
+          "/home/moeen/code/lab-af09-replay-twins-20261001/engine-bridge/target/classes:/home/moeen/code/.af09-m2-repo/org/mage/mage/1.4.61/mage-1.4.61.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/guava/33.4.8-jre/guava-33.4.8-jre.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/failureaccess/1.0.3/failureaccess-1.0.3.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/home/moeen/code/.af09-m2-repo/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar:/home/moeen/code/.af09-m2-repo/com/google/j2objc/j2objc-annotations/3.0.0/j2objc-annotations-3.0.0.jar:/home/moeen/code/.af09-m2-repo/org/jsoup/jsoup/1.21.2/jsoup-1.21.2.jar:/home/moeen/code/.af09-m2-repo/com/google/protobuf/protobuf-java/3.25.8/protobuf-java-3.25.8.jar:/home/moeen/code/.af09-m2-repo/org/slf4j/slf4j-reload4j/2.0.17/slf4j-reload4j-2.0.17.jar:/home/moeen/code/.af09-m2-repo/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar:/home/moeen/code/.af09-m2-repo/ch/qos/reload4j/reload4j/1.2.22/reload4j-1.2.22.jar:/home/moeen/code/.af09-m2-repo/com/j256/ormlite/ormlite-jdbc/5.7/ormlite-jdbc-5.7.jar:/home/moeen/code/.af09-m2-repo/com/j256/ormlite/ormlite-core/5.7/ormlite-core-5.7.jar:/home/moeen/code/.af09-m2-repo/com/h2database/h2/1.4.197/h2-1.4.197.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-deck-constructed/1.4.61/mage-deck-constructed-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-sets/1.4.61/mage-sets-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-game-commanderfreeforall/1.4.61/mage-game-commanderfreeforall-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-game-commanderduel/1.4.61/mage-game-commanderduel-1.4.61.jar:/home/moeen/code/.af09-m2-repo/com/google/code/gson/gson/2.13.2/gson-2.13.2.jar:/home/moeen/code/.af09-m2-repo/com/google/errorprone/error_prone_annotations/2.41.0/error_prone_annotations-2.41.0.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter/5.8.1/junit-jupiter-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-api/5.8.1/junit-jupiter-api-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/moeen/code/.af09-m2-repo/org/junit/platform/junit-platform-commons/1.8.1/junit-platform-commons-1.8.1.jar:/home/moeen/code/.af09-m2-repo/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-params/5.8.1/junit-jupiter-params-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-engine/5.8.1/junit-jupiter-engine-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/platform/junit-platform-engine/1.8.1/junit-platform-engine-1.8.1.jar",
+          "org.commanderlab.xmage.Main",
+          "full-game"
+        ],
+        "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
+        "observation": "wrapper-captured before exec",
+        "observed": true,
+        "pid": 2522086,
+        "role": "PROVIDER_PROBE",
+        "start_ticks": 48308826
+      }
+    },
+    "checkpoint_state_hashes": {
+      "count": 124,
+      "embedded": "head_tail_sample",
+      "entries": [
+        {
+          "event_offset": 0,
+          "public_state_digest": "3db16eca7b22d66bc878344821be99aaabab75731fc3734a0d38e883c8298508",
+          "rng_calls": 294,
+          "scope": "initial",
+          "semantic_state_digest": "1d15bcf4d533cbae6a21fd3cae58c4fc9c51d1729b28c1903aa54f5b3e75ded5",
+          "sequence": 0,
+          "turn_number": 1
+        },
+        {
+          "event_offset": 2,
+          "rng_calls": 294,
+          "scope": "post",
+          "semantic_state_digest": "e8b24f4672bd53ff166cf12c7b34eefee1a0be51abf5d36e0f49435f1f3fe785",
+          "sequence": 1
+        },
+        {
+          "event_offset": 3,
+          "rng_calls": 294,
+          "scope": "post",
+          "semantic_state_digest": "c7fb2d2e09fe6c822ab8da741c5ddc2051c266cb31ec51f3c1cad3750afe228c",
+          "sequence": 2
+        },
+        {
+          "event_offset": 4,
+          "rng_calls": 294,
+          "scope": "post",
+          "semantic_state_digest": "cd33925a77fbb9012b1d0e399ea41fc8ae5029412269eef7840f9a9ef63c1178",
+          "sequence": 3
+        },
+        {
+          "event_offset": 5,
+          "rng_calls": 588,
+          "scope": "post",
+          "semantic_state_digest": "c652082de7ee7cc13d294fd4145e0f20b002dad95217f38b93f8ede841b24000",
+          "sequence": 4
+        },
+        {
+          "event_offset": 6,
+          "rng_calls": 588,
+          "scope": "post",
+          "semantic_state_digest": "0d006fb9f28223a1103dd574a2391960390b9b5686f9c5beedf1fc778a9ecd8c",
+          "sequence": 5
+        },
+        {
+          "event_offset": 7,
+          "rng_calls": 588,
+          "scope": "post",
+          "semantic_state_digest": "a0e86c0c88e82de2689932344b6f8d11f826a7d666ce70b58ec1f716c4e968f3",
+          "sequence": 6
+        },
+        {
+          "event_offset": 8,
+          "rng_calls": 686,
+          "scope": "post",
+          "semantic_state_digest": "7acb52aa461867d9efa9d33b1257afeea60232cb36d426af78e4fd83fb6e1828",
+          "sequence": 7
+        },
+        {
+          "event_offset": 9,
+          "rng_calls": 784,
+          "scope": "post",
+          "semantic_state_digest": "daec8f4a0ca49edba6bc4d4f071b1f980e5397aab4a90db51c3c16a31d333c94",
+          "sequence": 8
+        },
+        {
+          "event_offset": 10,
+          "rng_calls": 882,
+          "scope": "post",
+          "semantic_state_digest": "996e2efbb6392d09a928b03f93c81dc316ac9195f16cc54b3859cc551487d61e",
+          "sequence": 9
+        },
+        {
+          "event_offset": 11,
+          "rng_calls": 882,
+          "scope": "post",
+          "semantic_state_digest": "d5c4b6e5bc4e2da876a024617ac7ca39bd88058582aecbd195d2ea2b18aff379",
+          "sequence": 10
+        },
+        {
+          "event_offset": 12,
+          "rng_calls": 882,
+          "scope": "post",
+          "semantic_state_digest": "5b64dec5d497b6a078bba8394c15da331fed97a65698d2a5ca6824441540c3d9",
+          "sequence": 11
+        },
+        {
+          "event_offset": 13,
+          "rng_calls": 882,
+          "scope": "post",
+          "semantic_state_digest": "1b11ae4366ae5b5878f1980ed4936859175cefd94236c3896546e5ae5c53d1f0",
+          "sequence": 12
+        },
+        {
+          "event_offset": 14,
+          "rng_calls": 980,
+          "scope": "post",
+          "semantic_state_digest": "2b1b8804c8c031e374a29d2ebc13c40d844b05788301d49c4e66842e3739ae87",
+          "sequence": 13
+        },
+        {
+          "event_offset": 15,
+          "rng_calls": 980,
+          "scope": "post",
+          "semantic_state_digest": "141e978a5a4e70c06ebb3fc807cff2743cd0fe5cc97a63efce59aa38663d45a0",
+          "sequence": 14
+        },
+        {
+          "event_offset": 16,
+          "rng_calls": 1078,
+          "scope": "post",
+          "semantic_state_digest": "e618ca6249af5816f093f8589a8a446ad72ce6c6333f1f0d6627c976c5216db0",
+          "sequence": 15
+        },
+        {
+          "event_offset": 17,
+          "rng_calls": 1078,
+          "scope": "post",
+          "semantic_state_digest": "0dcae030fbee8e04ef17ccce59fa90f65830434a8c7067d29f482f952c56f12b",
+          "sequence": 16
+        },
+        {
+          "event_offset": 18,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "054fcdd6f16dc7820437df7845646ec45ae545d5fb1928b318d686f48aff60c5",
+          "sequence": 17
+        },
+        {
+          "event_offset": 19,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "cde38aa41bcd117572c814cb591573cad586ae09d849532ca6e25e3daa51add6",
+          "sequence": 18
+        },
+        {
+          "event_offset": 20,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "f504bddacede274d4b0ee8db165bf2e748c4391aae748d30163fb9471f25c29b",
+          "sequence": 19
+        },
+        {
+          "event_offset": 21,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "994b7d25cc823bceb1cd1275a9a7afed31366317519cc01d1b1c76053403585c",
+          "sequence": 20
+        },
+        {
+          "event_offset": 22,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "909eaf0fbbe93eef7440346581a27fd08fb44a9ea9fdd00c8d4635b28315ff9b",
+          "sequence": 21
+        },
+        {
+          "event_offset": 23,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "73457c27bf8257aa7923874338671a8da5eed5c793a8651d06bba0b075ececfc",
+          "sequence": 22
+        },
+        {
+          "event_offset": 24,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "dc67219febcf837ba5a10cdccf041b18d519064c92f2a2c110e1e9cb758d9cd5",
+          "sequence": 23
+        },
+        {
+          "event_offset": 25,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "5d33ee290222db9061a8069b211c99ca69ec8022c9d51c44facd338cdbaac12c",
+          "sequence": 24
+        },
+        {
+          "event_offset": 26,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "07fdf6fa4be10abad7ad61ba91540567cefbd2692671508247275781721f3989",
+          "sequence": 25
+        },
+        {
+          "event_offset": 27,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "9235a014d6f1610839edbf1aa1a4828d79a5e54bff4ffb1affe33fa724f1ea79",
+          "sequence": 26
+        },
+        {
+          "event_offset": 28,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "1e78ea3ae8f5aff87c82eb8547e407a608375cd5e61d080c02d26df76870b439",
+          "sequence": 27
+        },
+        {
+          "event_offset": 29,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "340d0418dc0af90a5a278f9942ede79a85382f342e3896d00082d82600f5962f",
+          "sequence": 28
+        },
+        {
+          "event_offset": 30,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "2eb5bd547bfa9629eab7e4a8beebc9d6c909cd646deea9cd64810416cb1a8e83",
+          "sequence": 29
+        },
+        {
+          "event_offset": 31,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "0128c810e79ef13d7f61f1b7d1ac12f99a91329a2554ba48adee719469d59c25",
+          "sequence": 30
+        },
+        {
+          "event_offset": 32,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "b23d3640555d5845b2f636b6a6c6795049aea46f255b139578a0dc1f86b6da5d",
+          "sequence": 31
+        },
+        {
+          "event_offset": 33,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "601b5f1d502a2d08f08fcfeca7e5cc2a11d2f0b56d438d413718ccc6de01d121",
+          "sequence": 32
+        },
+        {
+          "event_offset": 34,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "ab77358d26ec12459b12b30e1cb0ade390e854b2d750185e4ea8d1d7fb96a76d",
+          "sequence": 33
+        },
+        {
+          "event_offset": 35,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "c194141d2922a8eecccb11424d7ec9ffa1c0f86f6f41aee2c36a5a02fa46f747",
+          "sequence": 34
+        },
+        {
+          "event_offset": 36,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "9d021b47ac75ea93c2718da515bc0eb9553bb0f6e4189134ac19541ebf7205cf",
+          "sequence": 35
+        },
+        {
+          "event_offset": 37,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "9ada834bbdffb70fe51638a64f5d7a3e6ff0956ef288a625455c82d09187ea33",
+          "sequence": 36
+        },
+        {
+          "event_offset": 38,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "429d9087f98a5ff9fbdbd73d2bf882093973a16a4b370be25f64110184a1ce42",
+          "sequence": 37
+        },
+        {
+          "event_offset": 39,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "e9c7cf53f260d45fbfd781b10dba24bacda6d5a3f41ac9c02db1f606af09c41a",
+          "sequence": 38
+        },
+        {
+          "event_offset": 40,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "80be4d167441bb1d271b292ae796762b4380057889da6c97d0ba22632d9f5b24",
+          "sequence": 39
+        },
+        {
+          "event_offset": 41,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "4e96af4270773182ce7873fb179158eca45ddb82516f865b8f60c511a6d53dc6",
+          "sequence": 40
+        },
+        {
+          "event_offset": 42,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "ddea95715205d50b7b775fbecf1ec91b6a5da332006ed4e0c544113cce4b3af0",
+          "sequence": 41
+        },
+        {
+          "event_offset": 43,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "16f5cbefc683ab52b4cd1803796b1dec510f584d93591b0ffa02a5edb97314c4",
+          "sequence": 42
+        },
+        {
+          "event_offset": 44,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "53a0c95cc5f1bf739701ddbd51411ffbd7a070f9ee24c0a933767d29f33151a0",
+          "sequence": 43
+        },
+        {
+          "event_offset": 45,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "6318bb993d4c8ad218b0e1703f434afee5adcdc5e403dd6b699df544e17ccf99",
+          "sequence": 44
+        },
+        {
+          "event_offset": 46,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "36e74f2b77cdc0889fd138193a8cca340b6ceca1672f985261ba25b199d0894c",
+          "sequence": 45
+        },
+        {
+          "event_offset": 47,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "60708365485aa3d8680d3bf1508f975256d70d570c576dc4c9eab812dd3c66ff",
+          "sequence": 46
+        },
+        {
+          "event_offset": 48,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "77451eaaec4b3f46436f8d7bf562c0b7a5a92bc2ffe3456c30f1fac2badc5edd",
+          "sequence": 47
+        },
+        {
+          "event_offset": 77,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "8da3098422789570407de752375bdc6ee342f39afc990b182faaf398ec20a1a3",
+          "sequence": 76
+        },
+        {
+          "event_offset": 78,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "b9900704d8136ae8473861cfd9d777ddcf6661d2919200f730930eb893fcfbc2",
+          "sequence": 77
+        },
+        {
+          "event_offset": 79,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "90ccf7309689bc62b594b9909e6f252206aa7022f9e3a150acc43eab108a2fda",
+          "sequence": 78
+        },
+        {
+          "event_offset": 80,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "122d3722e1f7c573a0a775e62b63f437fb4810e7f08055da4cc1fb00ad74d179",
+          "sequence": 79
+        },
+        {
+          "event_offset": 81,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "d0b8d922a9324a447094133386dfb6e1154f394a81e02ce3d8093d47b09571aa",
+          "sequence": 80
+        },
+        {
+          "event_offset": 82,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "c1cc6ad6bfcc6e146a042d1d223033b337a6a011acf81b376c486a0bc4cb0fb4",
+          "sequence": 81
+        },
+        {
+          "event_offset": 83,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "b9b1e56ae4764d74fe06b624c3e37f9ce90efa9dbb580c7bfc2fb1584a3c4556",
+          "sequence": 82
+        },
+        {
+          "event_offset": 84,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "0cf10605cfc4bf4f6fa653d82bb18938713e50be6f776823a4e8f9dcf66db410",
+          "sequence": 83
+        },
+        {
+          "event_offset": 85,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "ab64e16d50e0ceaf297c94c4d93cbf35932d011b6e06c7180470db1ffa9d2183",
+          "sequence": 84
+        },
+        {
+          "event_offset": 86,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "33f22f300d955bbc0fb673de5503f8ceb132be6eb682a1016d599c4262219f08",
+          "sequence": 85
+        },
+        {
+          "event_offset": 87,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "092ef046bff3619e147f109e5f7bf952d9ba5dcf63c7bf5fdbc46a95924d9fd4",
+          "sequence": 86
+        },
+        {
+          "event_offset": 88,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "0b7c62f30ac2bfd9ee72c8ff4192e8342c66f216285b60b47da3074a4d804ac8",
+          "sequence": 87
+        },
+        {
+          "event_offset": 89,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "e700cc00e8b8b26332d6a13a95298cdfda95bfdc169c6953ede1885ba000c50e",
+          "sequence": 88
+        },
+        {
+          "event_offset": 90,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "1e1ea1e6616010121814243eddf1b1072d9582c884259074c82f39d75c2729a1",
+          "sequence": 89
+        },
+        {
+          "event_offset": 91,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "275c754bd6de755cd16f1864e8ebcfc969f5b31fff10f8f9ec235311b6e44fa1",
+          "sequence": 90
+        },
+        {
+          "event_offset": 92,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "ffefdc3b4a3cd68346e505f989f62b3872c6b00630f1ab045ab7247b6f668ebd",
+          "sequence": 91
+        },
+        {
+          "event_offset": 93,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "63ca7e2bb20e600638616c508ffa97d6190ea97d61a6212600492d53eacad6ad",
+          "sequence": 92
+        },
+        {
+          "event_offset": 94,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "37f21eee4ee0b5ee8275ec21f0028b67397e26e6a334e0e76a44a8303da6f84e",
+          "sequence": 93
+        },
+        {
+          "event_offset": 95,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "26ea40513bfe4436f6ba76afd326841c725c8a1ac769f25252583432b487beb5",
+          "sequence": 94
+        },
+        {
+          "event_offset": 96,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "8cae3ff78101a683f135379788906273696e2aa22980a3c69730d6c9bbbda0d7",
+          "sequence": 95
+        },
+        {
+          "event_offset": 97,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "d2a87e64385321409dbb5168041beb85f2c28c8862552596c16513241b47f05c",
+          "sequence": 96
+        },
+        {
+          "event_offset": 98,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "2450ce99de7b1726725be24beb4ce3986605241def20463da603fad37a130ab5",
+          "sequence": 97
+        },
+        {
+          "event_offset": 99,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "fbb951020add17a402f5c78e54a13a37f20ea9dd92ace6c4e672e93708d1b6d7",
+          "sequence": 98
+        },
+        {
+          "event_offset": 100,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "4230e4df11f7ce80297d8db6cf82f29a7752556ecdfb228cb1e06091ae6b2728",
+          "sequence": 99
+        },
+        {
+          "event_offset": 101,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "b7aa028382f6bc9607d1055460f12cead505165b7b9ef10c0d2bfbb2849af921",
+          "sequence": 100
+        },
+        {
+          "event_offset": 102,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "34d268e446e7d80c55896b63dba72bacad90e761e4032e113f7c2f4eac268b08",
+          "sequence": 101
+        },
+        {
+          "event_offset": 103,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "187ff8764ab356ea6135460a1c091738575dee8ccc66b2322fecb6d2b379594a",
+          "sequence": 102
+        },
+        {
+          "event_offset": 104,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "caef953d5f7b56e2a8603b33596d5109c04f3496a35c487fa7efd5631f77e79a",
+          "sequence": 103
+        },
+        {
+          "event_offset": 105,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "407974f8d966df0b96f75fd9b7a1039dd12ff3061ae9505cb07c8f0417d9bdba",
+          "sequence": 104
+        },
+        {
+          "event_offset": 106,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "2dadcaa2cc090ee345124d3f36c53935fac8904b6365aed722c9a955e781ed58",
+          "sequence": 105
+        },
+        {
+          "event_offset": 107,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "85078db83f9a1ada74d08b67739767104bccd0898d1f87312b5da587bc4dc997",
+          "sequence": 106
+        },
+        {
+          "event_offset": 108,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "b1cc9c7aa6c1aa551b20063ad603de68a7a0cdc3f592e7f9b8f2f3c4a81cb016",
+          "sequence": 107
+        },
+        {
+          "event_offset": 109,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "79214c019ee887e47ba3dfe5e8a405abdbaae5360bc2d8aa258fd704933bb04e",
+          "sequence": 108
+        },
+        {
+          "event_offset": 110,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "1a2a0294e3db577968be2c3053c1c9bd73a89bf076f43def70f11bdf447179ba",
+          "sequence": 109
+        },
+        {
+          "event_offset": 111,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "84a10d72ad657838fb73c71c2f0013ebf64b25c707bed1b4978864062bc8dd60",
+          "sequence": 110
+        },
+        {
+          "event_offset": 112,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "7501eef9582731ce787c830cb107b47e1c75f196d6d3c6cd853165360fd14a4c",
+          "sequence": 111
+        },
+        {
+          "event_offset": 113,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "0ea5c141d8f4cf187df7050077ea3bef04906e81ee5d785f749f4339e133bb25",
+          "sequence": 112
+        },
+        {
+          "event_offset": 114,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "c914b38fefff9f5541963fec63466a5d405171fd5d89bd41abda66443ac2ff7d",
+          "sequence": 113
+        },
+        {
+          "event_offset": 115,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "0930800e3beb65a182e597a6af7068071d79884952a7563505348f2e022f8f29",
+          "sequence": 114
+        },
+        {
+          "event_offset": 116,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "57b639a845265dd4e69006153870634139d576dd6882eee81bc20164866e8462",
+          "sequence": 115
+        },
+        {
+          "event_offset": 117,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "c3234881c3e0e9726ed81fa61a5f5a57ce25fd174ff1c5cec951532195a6eefa",
+          "sequence": 116
+        },
+        {
+          "event_offset": 118,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "f2987abd12dd3d0502e16bfa4e49f28956dd0479fbb7ebbb59e3d8a734a9160c",
+          "sequence": 117
+        },
+        {
+          "event_offset": 119,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "799f4df0d7c3243609fc9f9f33b9881a38e242e751fa30620a85262b21f2161f",
+          "sequence": 118
+        },
+        {
+          "event_offset": 120,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "68f8a250c08610a376b78a89798964881d992f3e70e1eb4a8021b1c8a994e0a8",
+          "sequence": 119
+        },
+        {
+          "event_offset": 121,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": "97ac20c8eb6881f57e825693bcc35ddb2685e88d39b0a88a21a1f14955580b64",
+          "sequence": 120
+        },
+        {
+          "event_offset": 1176,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": null,
+          "sequence": 121
+        },
+        {
+          "event_offset": 1176,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": null,
+          "sequence": 122
+        },
+        {
+          "event_offset": 121,
+          "rng_calls": 1176,
+          "scope": "post",
+          "semantic_state_digest": null,
+          "sequence": 123
+        }
+      ],
+      "omitted": 28,
+      "sha256": "0e9d2a722a8f7f35fac9122e50f235c5cee441fa861a69831a2209286a52f0eb"
+    },
+    "comparison": {
+      "checks": [
+        {
+          "check": "required_section:fixture_identity",
+          "detail": "left present=True right present=True",
+          "passed": true,
+          "section": "fixture_identity"
+        },
+        {
+          "check": "required_section:process_identity",
+          "detail": "left present=True right present=True",
+          "passed": true,
+          "section": "process_identity"
+        },
+        {
+          "check": "required_section:decisions",
+          "detail": "left present=True right present=True",
+          "passed": true,
+          "section": "decisions"
+        },
+        {
+          "check": "required_section:rules_rng",
+          "detail": "left present=True right present=True",
+          "passed": true,
+          "section": "rules_rng"
+        },
+        {
+          "check": "required_section:semantic_events",
+          "detail": "left present=True right present=True",
+          "passed": true,
+          "section": "semantic_events"
+        },
+        {
+          "check": "required_section:checkpoint_state_hashes",
+          "detail": "left present=True right present=True",
+          "passed": true,
+          "section": "checkpoint_state_hashes"
+        },
+        {
+          "check": "required_section:terminal_outcome",
+          "detail": "left present=True right present=True",
+          "passed": true,
+          "section": "terminal_outcome"
+        },
+        {
+          "check": "fixture_identity",
+          "detail": "the two runs must be about the same fixture",
+          "passed": true
+        },
+        {
+          "check": "candidate_build",
+          "detail": "the two runs must execute the same candidate/build identity",
+          "passed": true
+        },
+        {
+          "check": "lab_source",
+          "detail": "the two runs must be produced by the same Lab source identity",
+          "passed": true
+        },
+        {
+          "check": "process_identity_present",
+          "detail": "both engine process identities must be observed from the OS",
+          "passed": true
+        },
+        {
+          "check": "process_identity_distinct",
+          "detail": "the two phases must be genuinely distinct OS processes",
+          "passed": true
+        },
+        {
+          "check": "rules_rng",
+          "detail": "requested seed, provider acknowledgement and RNG coordinates must match",
+          "differing_fields": [],
+          "passed": true
+        },
+        {
+          "check": "rules_rng_acknowledged",
+          "detail": "the provider must acknowledge the requested seed; acknowledgement is a precondition",
+          "passed": true
+        },
+        {
+          "check": "decisions",
+          "detail": "the externally supplied decision tape must replay identically",
+          "first_difference": null,
+          "left_count": 123,
+          "passed": true,
+          "right_count": 123
+        },
+        {
+          "check": "semantic_events",
+          "detail": "the ordered semantic event tape is identical",
+          "passed": true
+        },
+        {
+          "check": "checkpoint_state_hashes",
+          "detail": "the ordered checkpoint chain must be identical",
+          "first_difference": null,
+          "left_count": 124,
+          "passed": true,
+          "right_count": 124
+        },
+        {
+          "check": "terminal_outcome",
+          "detail": "the terminal facts/outcome must be identical",
+          "passed": true
+        },
+        {
+          "check": "terminal_complete",
+          "detail": "a bounded-horizon or missing terminal is never a replay PASS",
+          "passed": true
+        }
+      ],
+      "divergences": [],
+      "normalization": [],
+      "record_role": "RECORD_FIRST",
+      "replay_role": "RECORD_SECOND",
+      "schema_version": "commander-lab.af09-replay-twin/1.0.0",
+      "verdict": "PASS",
+      "verified": true
+    },
+    "decisions": {
+      "count": 123,
+      "embedded": "head_tail_sample",
+      "entries": [
+        {
+          "actor_principal": 3,
+          "decision_class": "choose_object",
+          "decision_revision": 1,
+          "legal_set_size": 3,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "2d1055cd6acf56ca0737c3618589676f5a3c8860b609e402a28b547b924193e0"
+          ],
+          "selected_labels": [
+            "Full Game Seat 3"
+          ],
+          "sequence": 1,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "mulligan",
+          "decision_revision": 2,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+          ],
+          "selected_labels": [
+            "Take mulligan"
+          ],
+          "sequence": 2,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "mulligan",
+          "decision_revision": 3,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+          ],
+          "selected_labels": [
+            "Take mulligan"
+          ],
+          "sequence": 3,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "mulligan",
+          "decision_revision": 4,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+          ],
+          "selected_labels": [
+            "Take mulligan"
+          ],
+          "sequence": 4,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "mulligan",
+          "decision_revision": 5,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+          ],
+          "selected_labels": [
+            "Take mulligan"
+          ],
+          "sequence": 5,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "mulligan",
+          "decision_revision": 6,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+          ],
+          "selected_labels": [
+            "Take mulligan"
+          ],
+          "sequence": 6,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "mulligan",
+          "decision_revision": 7,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+          ],
+          "selected_labels": [
+            "Take mulligan"
+          ],
+          "sequence": 7,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "target",
+          "decision_revision": 8,
+          "legal_set_size": 7,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "b25f15c5f29ecae3e24dd9f6a9a4a682e29cd3bcac2a0e98bf4feed929e74f68"
+          ],
+          "selected_labels": [
+            "Plains"
+          ],
+          "sequence": 8,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "target",
+          "decision_revision": 9,
+          "legal_set_size": 7,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "30e3ec15af53b77d60e9576101a984f399a89fb196e5872001247b958f48fc51"
+          ],
+          "selected_labels": [
+            "Plains"
+          ],
+          "sequence": 9,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "target",
+          "decision_revision": 10,
+          "legal_set_size": 7,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "117af8cc6e158f358857169077e0ad1556664e728bd291d2f9c2ca0bbddf57e4"
+          ],
+          "selected_labels": [
+            "Plains"
+          ],
+          "sequence": 10,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "mulligan",
+          "decision_revision": 11,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+          ],
+          "selected_labels": [
+            "Take mulligan"
+          ],
+          "sequence": 11,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "mulligan",
+          "decision_revision": 12,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+          ],
+          "selected_labels": [
+            "Take mulligan"
+          ],
+          "sequence": 12,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "mulligan",
+          "decision_revision": 13,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "93a0b58f484361bc8dad9ccd521fcc0e0d5f2db9455e388059d7acc31363b71e"
+          ],
+          "selected_labels": [
+            "Take mulligan"
+          ],
+          "sequence": 13,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "target",
+          "decision_revision": 14,
+          "legal_set_size": 7,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "b25f15c5f29ecae3e24dd9f6a9a4a682e29cd3bcac2a0e98bf4feed929e74f68"
+          ],
+          "selected_labels": [
+            "Plains"
+          ],
+          "sequence": 14,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "target",
+          "decision_revision": 15,
+          "legal_set_size": 6,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "cad526dfb511cf4e30da027669e6710423f5b31d005b43c296b0c6399b0ce025"
+          ],
+          "selected_labels": [
+            "Plains"
+          ],
+          "sequence": 15,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "target",
+          "decision_revision": 16,
+          "legal_set_size": 7,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "30e3ec15af53b77d60e9576101a984f399a89fb196e5872001247b958f48fc51"
+          ],
+          "selected_labels": [
+            "Plains"
+          ],
+          "sequence": 16,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "target",
+          "decision_revision": 17,
+          "legal_set_size": 6,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "ff2622a7fe0c18cb73a0750ae380dd323b26dcf20d75bbefcdaeb1d881f619c2"
+          ],
+          "selected_labels": [
+            "Plains"
+          ],
+          "sequence": 17,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "target",
+          "decision_revision": 18,
+          "legal_set_size": 7,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "117af8cc6e158f358857169077e0ad1556664e728bd291d2f9c2ca0bbddf57e4"
+          ],
+          "selected_labels": [
+            "Plains"
+          ],
+          "sequence": 18,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "target",
+          "decision_revision": 19,
+          "legal_set_size": 6,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "1904fbf48a203757d6b55970b0ede749efc36df820f18b20b338b0d42c05c9a5"
+          ],
+          "selected_labels": [
+            "Plains"
+          ],
+          "sequence": 19,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "mulligan",
+          "decision_revision": 20,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "5073b15c685d83c45553b9fc3ad8fe280d82cfdf8f07fd44a33ff74d12743560"
+          ],
+          "selected_labels": [
+            "Keep opening hand"
+          ],
+          "sequence": 20,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "mulligan",
+          "decision_revision": 21,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "5073b15c685d83c45553b9fc3ad8fe280d82cfdf8f07fd44a33ff74d12743560"
+          ],
+          "selected_labels": [
+            "Keep opening hand"
+          ],
+          "sequence": 21,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "mulligan",
+          "decision_revision": 22,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "5073b15c685d83c45553b9fc3ad8fe280d82cfdf8f07fd44a33ff74d12743560"
+          ],
+          "selected_labels": [
+            "Keep opening hand"
+          ],
+          "sequence": 22,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 23,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 23,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 24,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 24,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 25,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 25,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 26,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 26,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 27,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 27,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 28,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 28,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 29,
+          "legal_set_size": 7,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "cedb723fc44272e179f45aa25737a9eb6d4157800b1a7ba8a27a794c5687f0fd"
+          ],
+          "selected_labels": [
+            "Plains \u2014 Play Plains"
+          ],
+          "sequence": 29,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 30,
+          "legal_set_size": 3,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "d8dfb051f1b6796dd6cdeefa7b79dc04360e7c19a5bbe9aba042e80deef7763e"
+          ],
+          "selected_labels": [
+            "Plains \u2014 {T}: Add {W}."
+          ],
+          "sequence": 30,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 31,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "d3cfae7f3e41d0be44bfb6238b16d1368705f6bc50e5c8d06a2d759202f346dd"
+          ],
+          "selected_labels": [
+            "Isamaru, Hound of Konda \u2014 Cast Isamaru, Hound of Konda"
+          ],
+          "sequence": 31,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "mana_payment",
+          "decision_revision": 32,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "39577ed1ff09e0a7f8de6a1c43a371110e80c013c96071f818fd4eb077c457df"
+          ],
+          "selected_labels": [
+            "Spend white mana from pool"
+          ],
+          "sequence": 32,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 33,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 33,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 34,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 34,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 35,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 35,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 36,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 36,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 37,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 37,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 38,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 38,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 39,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 39,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 40,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 40,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 41,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 41,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 42,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 42,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 43,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 43,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 44,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 44,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 45,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 45,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 46,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 46,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 47,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 47,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 48,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 48,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 76,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 76,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 77,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 77,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 78,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 78,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 79,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 79,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 80,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 80,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 81,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 81,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 82,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 82,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 83,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 83,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 84,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 84,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 85,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 85,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 86,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 86,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 87,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 87,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 88,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 88,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 89,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 89,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 90,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 90,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 91,
+          "legal_set_size": 7,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "c150b0ca76b73f0cd948cfdb0c6d5ce68c35253f045be5318fd1be2b21add206"
+          ],
+          "selected_labels": [
+            "Plains \u2014 Play Plains"
+          ],
+          "sequence": 91,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 92,
+          "legal_set_size": 3,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "afe6832537c11bf65157b318dafe5333a8d1b7b83cae25b7fcdd7305337ef32c"
+          ],
+          "selected_labels": [
+            "Plains \u2014 {T}: Add {W}."
+          ],
+          "sequence": 92,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 93,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "c43d7120930850eb357f6f569c2e90770dfa74ef372ef8baec02fa14cdad72b4"
+          ],
+          "selected_labels": [
+            "Isamaru, Hound of Konda \u2014 Cast Isamaru, Hound of Konda"
+          ],
+          "sequence": 93,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "mana_payment",
+          "decision_revision": 94,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "39577ed1ff09e0a7f8de6a1c43a371110e80c013c96071f818fd4eb077c457df"
+          ],
+          "selected_labels": [
+            "Spend white mana from pool"
+          ],
+          "sequence": 94,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 95,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 95,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 96,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 96,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 97,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 97,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 98,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 98,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 99,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 99,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 100,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 100,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 101,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 101,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 102,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 102,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 103,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 103,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 104,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 104,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 105,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 105,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 106,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 106,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 107,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 107,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 108,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 108,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 109,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 109,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 110,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 110,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 111,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 111,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 112,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 112,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 113,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 113,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 114,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 114,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 115,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 115,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 116,
+          "legal_set_size": 2,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "d8dfb051f1b6796dd6cdeefa7b79dc04360e7c19a5bbe9aba042e80deef7763e"
+          ],
+          "selected_labels": [
+            "Plains \u2014 {T}: Add {W}."
+          ],
+          "sequence": 116,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 117,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 117,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 118,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 118,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "decision_revision": 119,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 119,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "decision_revision": 120,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 120,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "concede",
+          "decision_revision": 121,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [],
+          "selected_labels": [
+            "concede seat 2"
+          ],
+          "sequence": 121,
+          "step_kind": "lifecycle_concede"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "concede",
+          "decision_revision": 121,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [],
+          "selected_labels": [
+            "concede seat 3"
+          ],
+          "sequence": 122,
+          "step_kind": "lifecycle_concede"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "decision_revision": 121,
+          "legal_set_size": 1,
+          "numeric_choice": null,
+          "selected_fingerprints": [
+            "df83c4eed8da5aef65f08ea16950eaa515caf346f6b77b5bb115b389d79be28a"
+          ],
+          "selected_labels": [
+            "Pass priority"
+          ],
+          "sequence": 123,
+          "step_kind": "decision"
+        }
+      ],
+      "omitted": 27,
+      "sha256": "2a6ec3801a7e8fbcb8b2f0eec64b8277b114197ade08c2fb2d029dfc836306b7"
+    },
+    "evidence_class": "CLEAN_PROCESS_SEMANTIC_REPLAY_TWIN",
+    "fixture_identity": {
+      "candidate": "xmage",
+      "commander_identities": [
+        "Isamaru, Hound of Konda"
+      ],
+      "fixture_id": "technical-isamaru-full-game-3p-v1",
+      "player_count": 3,
+      "rules_seed": 20260826,
+      "tape_schema_version": "semantic-replay-tape/1.0.0"
+    },
+    "fresh_process_engine_check": {
+      "detail": "123 steps re-derived in a fresh process",
+      "pass": true,
+      "steps_verified": 123,
+      "tape_id": "67537d93593cf1e881d2d35b8b8ac981c4df21f6ccb0bf73f78f27ab798ba1f5"
+    },
+    "lab_source": {
+      "clean": true,
+      "commit": "40c7e5e41f954098e8d8e678a6bdee7f6efa325d",
+      "dirty_paths": [],
+      "repository": "moeendres-png/commander-playtest-lab",
+      "tree": "3bcd540e3b47137e812b1b39d1670b271e5f33db"
+    },
+    "limitations": [],
+    "process_identity": [
+      {
+        "boot_id": "340cab08-401d-4a5a-9b01-e2b4a373a359",
+        "command": [
+          "java",
+          "-Djava.awt.headless=true",
+          "-Dcommanderlab.repoRoot=/home/moeen/code/lab-af09-replay-twins-20261001",
+          "-cp",
+          "/home/moeen/code/lab-af09-replay-twins-20261001/engine-bridge/target/classes:/home/moeen/code/.af09-m2-repo/org/mage/mage/1.4.61/mage-1.4.61.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/guava/33.4.8-jre/guava-33.4.8-jre.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/failureaccess/1.0.3/failureaccess-1.0.3.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/home/moeen/code/.af09-m2-repo/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar:/home/moeen/code/.af09-m2-repo/com/google/j2objc/j2objc-annotations/3.0.0/j2objc-annotations-3.0.0.jar:/home/moeen/code/.af09-m2-repo/org/jsoup/jsoup/1.21.2/jsoup-1.21.2.jar:/home/moeen/code/.af09-m2-repo/com/google/protobuf/protobuf-java/3.25.8/protobuf-java-3.25.8.jar:/home/moeen/code/.af09-m2-repo/org/slf4j/slf4j-reload4j/2.0.17/slf4j-reload4j-2.0.17.jar:/home/moeen/code/.af09-m2-repo/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar:/home/moeen/code/.af09-m2-repo/ch/qos/reload4j/reload4j/1.2.22/reload4j-1.2.22.jar:/home/moeen/code/.af09-m2-repo/com/j256/ormlite/ormlite-jdbc/5.7/ormlite-jdbc-5.7.jar:/home/moeen/code/.af09-m2-repo/com/j256/ormlite/ormlite-core/5.7/ormlite-core-5.7.jar:/home/moeen/code/.af09-m2-repo/com/h2database/h2/1.4.197/h2-1.4.197.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-deck-constructed/1.4.61/mage-deck-constructed-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-sets/1.4.61/mage-sets-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-game-commanderfreeforall/1.4.61/mage-game-commanderfreeforall-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-game-commanderduel/1.4.61/mage-game-commanderduel-1.4.61.jar:/home/moeen/code/.af09-m2-repo/com/google/code/gson/gson/2.13.2/gson-2.13.2.jar:/home/moeen/code/.af09-m2-repo/com/google/errorprone/error_prone_annotations/2.41.0/error_prone_annotations-2.41.0.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter/5.8.1/junit-jupiter-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-api/5.8.1/junit-jupiter-api-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/moeen/code/.af09-m2-repo/org/junit/platform/junit-platform-commons/1.8.1/junit-platform-commons-1.8.1.jar:/home/moeen/code/.af09-m2-repo/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-params/5.8.1/junit-jupiter-params-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-engine/5.8.1/junit-jupiter-engine-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/platform/junit-platform-engine/1.8.1/junit-platform-engine-1.8.1.jar",
+          "org.commanderlab.xmage.Main",
+          "full-game"
+        ],
+        "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
+        "observation": "wrapper-captured before exec",
+        "observed": true,
+        "pid": 2522121,
+        "role": "RECORD_FIRST",
+        "start_ticks": 48308843
+      },
+      {
+        "boot_id": "340cab08-401d-4a5a-9b01-e2b4a373a359",
+        "command": [
+          "java",
+          "-Djava.awt.headless=true",
+          "-Dcommanderlab.repoRoot=/home/moeen/code/lab-af09-replay-twins-20261001",
+          "-cp",
+          "/home/moeen/code/lab-af09-replay-twins-20261001/engine-bridge/target/classes:/home/moeen/code/.af09-m2-repo/org/mage/mage/1.4.61/mage-1.4.61.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/guava/33.4.8-jre/guava-33.4.8-jre.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/failureaccess/1.0.3/failureaccess-1.0.3.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/home/moeen/code/.af09-m2-repo/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar:/home/moeen/code/.af09-m2-repo/com/google/j2objc/j2objc-annotations/3.0.0/j2objc-annotations-3.0.0.jar:/home/moeen/code/.af09-m2-repo/org/jsoup/jsoup/1.21.2/jsoup-1.21.2.jar:/home/moeen/code/.af09-m2-repo/com/google/protobuf/protobuf-java/3.25.8/protobuf-java-3.25.8.jar:/home/moeen/code/.af09-m2-repo/org/slf4j/slf4j-reload4j/2.0.17/slf4j-reload4j-2.0.17.jar:/home/moeen/code/.af09-m2-repo/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar:/home/moeen/code/.af09-m2-repo/ch/qos/reload4j/reload4j/1.2.22/reload4j-1.2.22.jar:/home/moeen/code/.af09-m2-repo/com/j256/ormlite/ormlite-jdbc/5.7/ormlite-jdbc-5.7.jar:/home/moeen/code/.af09-m2-repo/com/j256/ormlite/ormlite-core/5.7/ormlite-core-5.7.jar:/home/moeen/code/.af09-m2-repo/com/h2database/h2/1.4.197/h2-1.4.197.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-deck-constructed/1.4.61/mage-deck-constructed-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-sets/1.4.61/mage-sets-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-game-commanderfreeforall/1.4.61/mage-game-commanderfreeforall-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-game-commanderduel/1.4.61/mage-game-commanderduel-1.4.61.jar:/home/moeen/code/.af09-m2-repo/com/google/code/gson/gson/2.13.2/gson-2.13.2.jar:/home/moeen/code/.af09-m2-repo/com/google/errorprone/error_prone_annotations/2.41.0/error_prone_annotations-2.41.0.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter/5.8.1/junit-jupiter-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-api/5.8.1/junit-jupiter-api-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/moeen/code/.af09-m2-repo/org/junit/platform/junit-platform-commons/1.8.1/junit-platform-commons-1.8.1.jar:/home/moeen/code/.af09-m2-repo/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-params/5.8.1/junit-jupiter-params-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-engine/5.8.1/junit-jupiter-engine-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/platform/junit-platform-engine/1.8.1/junit-platform-engine-1.8.1.jar",
+          "org.commanderlab.xmage.Main",
+          "full-game"
+        ],
+        "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
+        "observation": "wrapper-captured before exec",
+        "observed": true,
+        "pid": 2522241,
+        "role": "RECORD_SECOND",
+        "start_ticks": 48309472
+      },
+      {
+        "boot_id": "340cab08-401d-4a5a-9b01-e2b4a373a359",
+        "command": [
+          "java",
+          "-Djava.awt.headless=true",
+          "-Dcommanderlab.repoRoot=/home/moeen/code/lab-af09-replay-twins-20261001",
+          "-cp",
+          "/home/moeen/code/lab-af09-replay-twins-20261001/engine-bridge/target/classes:/home/moeen/code/.af09-m2-repo/org/mage/mage/1.4.61/mage-1.4.61.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/guava/33.4.8-jre/guava-33.4.8-jre.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/failureaccess/1.0.3/failureaccess-1.0.3.jar:/home/moeen/code/.af09-m2-repo/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/home/moeen/code/.af09-m2-repo/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar:/home/moeen/code/.af09-m2-repo/com/google/j2objc/j2objc-annotations/3.0.0/j2objc-annotations-3.0.0.jar:/home/moeen/code/.af09-m2-repo/org/jsoup/jsoup/1.21.2/jsoup-1.21.2.jar:/home/moeen/code/.af09-m2-repo/com/google/protobuf/protobuf-java/3.25.8/protobuf-java-3.25.8.jar:/home/moeen/code/.af09-m2-repo/org/slf4j/slf4j-reload4j/2.0.17/slf4j-reload4j-2.0.17.jar:/home/moeen/code/.af09-m2-repo/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar:/home/moeen/code/.af09-m2-repo/ch/qos/reload4j/reload4j/1.2.22/reload4j-1.2.22.jar:/home/moeen/code/.af09-m2-repo/com/j256/ormlite/ormlite-jdbc/5.7/ormlite-jdbc-5.7.jar:/home/moeen/code/.af09-m2-repo/com/j256/ormlite/ormlite-core/5.7/ormlite-core-5.7.jar:/home/moeen/code/.af09-m2-repo/com/h2database/h2/1.4.197/h2-1.4.197.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-deck-constructed/1.4.61/mage-deck-constructed-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-sets/1.4.61/mage-sets-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-game-commanderfreeforall/1.4.61/mage-game-commanderfreeforall-1.4.61.jar:/home/moeen/code/.af09-m2-repo/org/mage/mage-game-commanderduel/1.4.61/mage-game-commanderduel-1.4.61.jar:/home/moeen/code/.af09-m2-repo/com/google/code/gson/gson/2.13.2/gson-2.13.2.jar:/home/moeen/code/.af09-m2-repo/com/google/errorprone/error_prone_annotations/2.41.0/error_prone_annotations-2.41.0.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter/5.8.1/junit-jupiter-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-api/5.8.1/junit-jupiter-api-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/moeen/code/.af09-m2-repo/org/junit/platform/junit-platform-commons/1.8.1/junit-platform-commons-1.8.1.jar:/home/moeen/code/.af09-m2-repo/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-params/5.8.1/junit-jupiter-params-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/jupiter/junit-jupiter-engine/5.8.1/junit-jupiter-engine-5.8.1.jar:/home/moeen/code/.af09-m2-repo/org/junit/platform/junit-platform-engine/1.8.1/junit-platform-engine-1.8.1.jar",
+          "org.commanderlab.xmage.Main",
+          "full-game"
+        ],
+        "command_sha256": "0d7d88ae8635d32abdb9170f771e98f6d0cdc7245eb9ac49d9b4633e6a7fd6b3",
+        "observation": "wrapper-captured before exec",
+        "observed": true,
+        "pid": 2522342,
+        "role": "REPLAY_CONSUMER",
+        "start_ticks": 48310119
+      }
+    ],
+    "rules_rng": {
+      "acknowledged_seed": 20260826,
+      "classification": "ACKNOWLEDGED_ENGINE_SEED",
+      "controlled": true,
+      "requested_seed": 20260826,
+      "require_explicit_seed": true,
+      "rng_call_coordinates": [
+        {
+          "after": 294,
+          "before": 294,
+          "sequence": 1
+        },
+        {
+          "after": 294,
+          "before": 294,
+          "sequence": 2
+        },
+        {
+          "after": 294,
+          "before": 294,
+          "sequence": 3
+        },
+        {
+          "after": 588,
+          "before": 294,
+          "sequence": 4
+        },
+        {
+          "after": 588,
+          "before": 588,
+          "sequence": 5
+        },
+        {
+          "after": 588,
+          "before": 588,
+          "sequence": 6
+        },
+        {
+          "after": 686,
+          "before": 588,
+          "sequence": 7
+        },
+        {
+          "after": 784,
+          "before": 686,
+          "sequence": 8
+        },
+        {
+          "after": 882,
+          "before": 784,
+          "sequence": 9
+        },
+        {
+          "after": 882,
+          "before": 882,
+          "sequence": 10
+        },
+        {
+          "after": 882,
+          "before": 882,
+          "sequence": 11
+        },
+        {
+          "after": 882,
+          "before": 882,
+          "sequence": 12
+        },
+        {
+          "after": 980,
+          "before": 882,
+          "sequence": 13
+        },
+        {
+          "after": 980,
+          "before": 980,
+          "sequence": 14
+        },
+        {
+          "after": 1078,
+          "before": 980,
+          "sequence": 15
+        },
+        {
+          "after": 1078,
+          "before": 1078,
+          "sequence": 16
+        },
+        {
+          "after": 1176,
+          "before": 1078,
+          "sequence": 17
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 18
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 19
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 20
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 21
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 22
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 23
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 24
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 25
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 26
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 27
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 28
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 29
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 30
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 31
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 32
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 33
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 34
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 35
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 36
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 37
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 38
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 39
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 40
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 41
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 42
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 43
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 44
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 45
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 46
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 47
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 48
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 49
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 50
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 51
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 52
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 53
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 54
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 55
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 56
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 57
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 58
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 59
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 60
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 61
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 62
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 63
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 64
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 65
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 66
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 67
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 68
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 69
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 70
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 71
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 72
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 73
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 74
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 75
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 76
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 77
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 78
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 79
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 80
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 81
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 82
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 83
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 84
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 85
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 86
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 87
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 88
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 89
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 90
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 91
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 92
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 93
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 94
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 95
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 96
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 97
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 98
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 99
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 100
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 101
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 102
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 103
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 104
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 105
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 106
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 107
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 108
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 109
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 110
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 111
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 112
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 113
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 114
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 115
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 116
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 117
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 118
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 119
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 120
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 121
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 122
+        },
+        {
+          "after": 1176,
+          "before": 1176,
+          "sequence": 123
+        }
+      ],
+      "rng_credit": true,
+      "root_rules_seed": 20260826
+    },
+    "schema_version": "commander-lab.af09-replay-twin/1.0.0",
+    "semantic_events": {
+      "count": 123,
+      "embedded": "head_tail_sample",
+      "entries": [
+        {
+          "actor_principal": 3,
+          "decision_class": "choose_object",
+          "event_digest": "3a6b5bd8e506d732776666349de6e42a6f807ca2aa831b207f0771589b6f95e4",
+          "event_offset_after": 2,
+          "event_offset_before": 1,
+          "rng_calls_after": 294,
+          "rng_calls_before": 294,
+          "sequence": 1,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "mulligan",
+          "event_digest": "495e25e628f3f9d32b5dc97304da7bdce1455d4e05168a2d1043b2ba32a3687c",
+          "event_offset_after": 3,
+          "event_offset_before": 2,
+          "rng_calls_after": 294,
+          "rng_calls_before": 294,
+          "sequence": 2,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "mulligan",
+          "event_digest": "c7eb6561f903d9bd3992767b3171286853d7d88b904c17c4df37cde096fdfc23",
+          "event_offset_after": 4,
+          "event_offset_before": 3,
+          "rng_calls_after": 294,
+          "rng_calls_before": 294,
+          "sequence": 3,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "mulligan",
+          "event_digest": "ea2e4e4c2482c041228a8ea4a1336d3e9e581f4d192a87c5f2c31a956d5d19ee",
+          "event_offset_after": 5,
+          "event_offset_before": 4,
+          "rng_calls_after": 588,
+          "rng_calls_before": 294,
+          "sequence": 4,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "mulligan",
+          "event_digest": "55ba010731ae243611d1177a4ac1771e309597d5b082ca3a47b105f78951c348",
+          "event_offset_after": 6,
+          "event_offset_before": 5,
+          "rng_calls_after": 588,
+          "rng_calls_before": 588,
+          "sequence": 5,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "mulligan",
+          "event_digest": "311863dbfec2f26d475f1f88cc06a46214b9351e49923cfd02dfae92fe171469",
+          "event_offset_after": 7,
+          "event_offset_before": 6,
+          "rng_calls_after": 588,
+          "rng_calls_before": 588,
+          "sequence": 6,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "mulligan",
+          "event_digest": "61b87817b3930440052630e2cc8f36c1d20b252b2b70965a33a239f469ca716f",
+          "event_offset_after": 8,
+          "event_offset_before": 7,
+          "rng_calls_after": 686,
+          "rng_calls_before": 588,
+          "sequence": 7,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "target",
+          "event_digest": "47d5f914f2b32183456a788ee71ee4404233a2326f9ed2edea8f161ae26d91cc",
+          "event_offset_after": 9,
+          "event_offset_before": 8,
+          "rng_calls_after": 784,
+          "rng_calls_before": 686,
+          "sequence": 8,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "target",
+          "event_digest": "d187ea3096b7e26a7848e6df9ee8b66c26e6f6e9adecf3967e3c9e502cf379d4",
+          "event_offset_after": 10,
+          "event_offset_before": 9,
+          "rng_calls_after": 882,
+          "rng_calls_before": 784,
+          "sequence": 9,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "target",
+          "event_digest": "8bea67a3c780af004ce582760fa170d3305045ae781ddcdbfb0cb1d29c24574a",
+          "event_offset_after": 11,
+          "event_offset_before": 10,
+          "rng_calls_after": 882,
+          "rng_calls_before": 882,
+          "sequence": 10,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "mulligan",
+          "event_digest": "f1de4e8f19bef86050325293fc464d8c2dc72ef9b0a1a04a8d69a3e1c1774b74",
+          "event_offset_after": 12,
+          "event_offset_before": 11,
+          "rng_calls_after": 882,
+          "rng_calls_before": 882,
+          "sequence": 11,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "mulligan",
+          "event_digest": "6e583987960a0e5d7415a09d97f106cfce3619d0febaad6a1158f318e44cd7d7",
+          "event_offset_after": 13,
+          "event_offset_before": 12,
+          "rng_calls_after": 882,
+          "rng_calls_before": 882,
+          "sequence": 12,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "mulligan",
+          "event_digest": "5f8a243ee142e6c341a3091d53612c22522dbbd5c65d9769cb51205ffdfeff09",
+          "event_offset_after": 14,
+          "event_offset_before": 13,
+          "rng_calls_after": 980,
+          "rng_calls_before": 882,
+          "sequence": 13,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "target",
+          "event_digest": "32d4510c7ab95bc90400c9cb02b3962a3e6eeab34d054276b4d2595708d2ddef",
+          "event_offset_after": 15,
+          "event_offset_before": 14,
+          "rng_calls_after": 980,
+          "rng_calls_before": 980,
+          "sequence": 14,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "target",
+          "event_digest": "5e835e1874db0eab39036dbc664a371bd79f3e13817b50354f444e83ec660463",
+          "event_offset_after": 16,
+          "event_offset_before": 15,
+          "rng_calls_after": 1078,
+          "rng_calls_before": 980,
+          "sequence": 15,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "target",
+          "event_digest": "e6e91e05aa8407c1cf7044b4076b1812a24c5389a07d50ad221b2a4ae8436539",
+          "event_offset_after": 17,
+          "event_offset_before": 16,
+          "rng_calls_after": 1078,
+          "rng_calls_before": 1078,
+          "sequence": 16,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "target",
+          "event_digest": "fa7fb8e937b82448e126caa8b1589eabe7cc4795805b4b29fcad0fd71e5a9700",
+          "event_offset_after": 18,
+          "event_offset_before": 17,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1078,
+          "sequence": 17,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "target",
+          "event_digest": "e2e47af0c1823f323d34f0e53be272397b1f2e7427bf58775f1613cfa3ea5029",
+          "event_offset_after": 19,
+          "event_offset_before": 18,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 18,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "target",
+          "event_digest": "9de7bd0481e84ce329efeae5a3fea8f60d3854820f5fc14eeba742791b1c3ee4",
+          "event_offset_after": 20,
+          "event_offset_before": 19,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 19,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "mulligan",
+          "event_digest": "3066b6e9c88dc10fdd975759800fe7035e1d764ba2e2d69ade7bf1f5644e3219",
+          "event_offset_after": 21,
+          "event_offset_before": 20,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 20,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "mulligan",
+          "event_digest": "5f2082c33f8ff5fdffbeec308e7b1bb7da3bf0d8872805b2baefb303821cab85",
+          "event_offset_after": 22,
+          "event_offset_before": 21,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 21,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "mulligan",
+          "event_digest": "f10b10516f33be5658dd8182097140866cb4624bb028ed0424e06d99388ea98f",
+          "event_offset_after": 23,
+          "event_offset_before": 22,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 22,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "c5c2af83c9d9673bfb1a2c111060622acdca224b1c4551202284519c2e3183b2",
+          "event_offset_after": 24,
+          "event_offset_before": 23,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 23,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "9cf1e88ae18ee8733617d26f90a3a5c576c622836b4af46621373c902d2d9a3c",
+          "event_offset_after": 25,
+          "event_offset_before": 24,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 24,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "5e24f4d1c9fcf8dd8f86c0ae071aa9b9fa030d52406614044e87c7309e0a7404",
+          "event_offset_after": 26,
+          "event_offset_before": 25,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 25,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "0c397f0617235cb7fd475504a4d5401b1d3400b9a4c0ddba8b45637636f663b5",
+          "event_offset_after": 27,
+          "event_offset_before": 26,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 26,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "6fdadf307e4bea2c705e7185f038884aee43dd69a68435146f83a74d4ade8b62",
+          "event_offset_after": 28,
+          "event_offset_before": 27,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 27,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "eae4acda3a7831288cb708b1054a22f94f89d707c8bf419868e9b948d09dab33",
+          "event_offset_after": 29,
+          "event_offset_before": 28,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 28,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "55b31f09e720d3efb3e66b2a410b4ace01ece93a63deaa73020fa177e85ab78f",
+          "event_offset_after": 30,
+          "event_offset_before": 29,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 29,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "808f7d402a1232080a0459e7d65aa660ab21af8aefffad2bc8231551f283c7f4",
+          "event_offset_after": 31,
+          "event_offset_before": 30,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 30,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "d9772a88853a5378bfede617e39b67e979681815a20035e7631ff0cc6b39d2a2",
+          "event_offset_after": 32,
+          "event_offset_before": 31,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 31,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "mana_payment",
+          "event_digest": "407bb3b852f8aff66726c7249872cf14143ea3dd95e45c33c270e21c24f7ed6c",
+          "event_offset_after": 33,
+          "event_offset_before": 32,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 32,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "20c443d727649a70c89acc040046290729183d17512ad7e0e71ecd023f0cd42d",
+          "event_offset_after": 34,
+          "event_offset_before": 33,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 33,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "57c0b73fbd090233802b2fbee9dde75e85d268d4cbcf77224db1ef9afaa186e2",
+          "event_offset_after": 35,
+          "event_offset_before": 34,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 34,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "019df3715539e2fb795e62724163e35fa2594b5fb4c469f639fb69e30fca4894",
+          "event_offset_after": 36,
+          "event_offset_before": 35,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 35,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "e6f3a78bb5a6ae23ec705d5aa781951803327f2c4c484b7d289ac5a168577c32",
+          "event_offset_after": 37,
+          "event_offset_before": 36,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 36,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "42573977ffa76295e4e714cda2137a616d63fce28c42df673bbc559b9a703491",
+          "event_offset_after": 38,
+          "event_offset_before": 37,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 37,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "4c88332dda3325cf7df098b122990a262561de4edb904785289cb3dfc4a551c8",
+          "event_offset_after": 39,
+          "event_offset_before": 38,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 38,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "67695c0709a7cbfa4a3da3aa3918d878ce5ef7379b4d6aa55b7f2fe730a4e766",
+          "event_offset_after": 40,
+          "event_offset_before": 39,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 39,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "b70326241e6ca5cf0528cedad108e4e122d4298a5c687639cd86e9daf1d42907",
+          "event_offset_after": 41,
+          "event_offset_before": 40,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 40,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "9beb6eced2eae3f39052776753ac21f5de5a0de0f44a864490491a183d470704",
+          "event_offset_after": 42,
+          "event_offset_before": 41,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 41,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "41cc3069d70d47a6b2a1f0a1eb658cf8bbc72c1c18158778cd1965237397a664",
+          "event_offset_after": 43,
+          "event_offset_before": 42,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 42,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "e9f486f6d9032846dfdbc660160ee165a06c76ce232a58b12510520c64b6578c",
+          "event_offset_after": 44,
+          "event_offset_before": 43,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 43,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "e0c428cad538bec36662523c42eeb290fc81a2ab9590a82b1e5523bc598f5984",
+          "event_offset_after": 45,
+          "event_offset_before": 44,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 44,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "be23a0ff3c27b4f166e7efee581b9057c92bc1a96c3e7040948d815d012cfda2",
+          "event_offset_after": 46,
+          "event_offset_before": 45,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 45,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "3bf9bd331ff59dedae7998f1b71801329884c486a8649844c0c8461bd61ce4c9",
+          "event_offset_after": 47,
+          "event_offset_before": 46,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 46,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "ea5e7f2bd22600c8f11f01e77e0df723efbf48b0845060bedc53c8b3ba8648e8",
+          "event_offset_after": 48,
+          "event_offset_before": 47,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 47,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "f5eb47a79e512f656fd4ed28d071e2189e50419d779dcf66358d189ebc1a4c16",
+          "event_offset_after": 49,
+          "event_offset_before": 48,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 48,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "49ed967d9f83be7b19944d93c75586b0af4b2d9d67f58bb1e109469ceac4a374",
+          "event_offset_after": 77,
+          "event_offset_before": 76,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 76,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "988450c424f2c5b009de9f3bacad44f930f25889ce47cfd5d230399c50705a4f",
+          "event_offset_after": 78,
+          "event_offset_before": 77,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 77,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "7e0ad75fcf171666c1e444fb77f946f92b76c78e0da079c7f8191e651faa061c",
+          "event_offset_after": 79,
+          "event_offset_before": 78,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 78,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "d349010738ea6e1390882dd3e167f2a61e968fb9facaa9d3030ce048e2e8edb9",
+          "event_offset_after": 80,
+          "event_offset_before": 79,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 79,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "2c4858f1bb8650dca35a85da30e11d7aee2119fc72a55dd3c51438ed038359df",
+          "event_offset_after": 81,
+          "event_offset_before": 80,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 80,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "a02e8a941814573ad381c99974ef09d76374445e8efb8b794760d9a5567bdd59",
+          "event_offset_after": 82,
+          "event_offset_before": 81,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 81,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "db3015f2bed812742a7e7a911345b6c510d52621448067e78b82abbcba4d82e1",
+          "event_offset_after": 83,
+          "event_offset_before": 82,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 82,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "963608f48f43701c74876218b5af36a53a98c8e926ed31307d16d30b63c89be1",
+          "event_offset_after": 84,
+          "event_offset_before": 83,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 83,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "561fe10b1d3d52795ba24700b2094dc230704899e6e02ae47e6410494a98b6ac",
+          "event_offset_after": 85,
+          "event_offset_before": 84,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 84,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "537af25a310b9a14162b1d6298dc0bb22117ff38a8755cc555f846d97f38de8e",
+          "event_offset_after": 86,
+          "event_offset_before": 85,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 85,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "c70f246c6a25a193a7f7412693768b28de5a091ddbb7921e3d5b6c6028940d8c",
+          "event_offset_after": 87,
+          "event_offset_before": 86,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 86,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "942e050c1fdeb05e8a29c965776daf325be076359d0d53c06820ef926bffdaa5",
+          "event_offset_after": 88,
+          "event_offset_before": 87,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 87,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "27e1e5ff26e1a7ef48f55f92d0e92ec748efba6f32fa55b3fe94fa594a80f457",
+          "event_offset_after": 89,
+          "event_offset_before": 88,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 88,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "01a7e35526c6d7309b7e48a157b9b3d00abf53fefa7cb7a4c7640900bab479ba",
+          "event_offset_after": 90,
+          "event_offset_before": 89,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 89,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "f9e5da2e34eadd6018d89703f9cea18ed15001c69d7bed97f5f1134eb0b0ffe7",
+          "event_offset_after": 91,
+          "event_offset_before": 90,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 90,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "88e8146152f43716f3452b5115a77424260c24df9a16ee6d1aafbcf57b336e75",
+          "event_offset_after": 92,
+          "event_offset_before": 91,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 91,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "deaf6d9794f5b2718851f364ed2c76b568e8af56342911a1cfc0738138a37ed1",
+          "event_offset_after": 93,
+          "event_offset_before": 92,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 92,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "6748d08bade80afb939a2d21c3096e1fa437b15e15de277a0b80e46ead7c9c23",
+          "event_offset_after": 94,
+          "event_offset_before": 93,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 93,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "mana_payment",
+          "event_digest": "4f07b415ae758c27651425356c5bf1e92e499f8588f61d75f929429ab14cb4e1",
+          "event_offset_after": 95,
+          "event_offset_before": 94,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 94,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "d8acb998b444b400f364bd984922d5adf94b528384c630b1618e4721bc3abcfb",
+          "event_offset_after": 96,
+          "event_offset_before": 95,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 95,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "63099e8eefff67e033028ce046d230ee81aa9a757851f052fc0f658a37c1dd35",
+          "event_offset_after": 97,
+          "event_offset_before": 96,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 96,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "bd82251efe7d1410cd4856a89c2f6f9306137b6db7e04f6b02773b14a9ae4c08",
+          "event_offset_after": 98,
+          "event_offset_before": 97,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 97,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "764ac24bdd28bfc48848696a6b38bfb60b2007a674eb6df8510aae4ce0992bdd",
+          "event_offset_after": 99,
+          "event_offset_before": 98,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 98,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "f90a6f9b0fc90aaf72828afa0a5d4bf51b0789762f779c98ad1decb36e1c7bb3",
+          "event_offset_after": 100,
+          "event_offset_before": 99,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 99,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "79fbd1f832db7efe453c55f01ab395f832962b95f6d990ee439c04dc6f4dff6d",
+          "event_offset_after": 101,
+          "event_offset_before": 100,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 100,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "643ee965198cf9b8098a771c8ec244c0e4be3388ac11e1614366c72c982e174e",
+          "event_offset_after": 102,
+          "event_offset_before": 101,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 101,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "8168600e9cf4f31f2af5958282fe0f7c2dd21f6395b2784026c092d70da71b93",
+          "event_offset_after": 103,
+          "event_offset_before": 102,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 102,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "25b53aaab1588c3af3366bd8c6902ab0d5a744bc1f90d0d7f85babb90b0e2130",
+          "event_offset_after": 104,
+          "event_offset_before": 103,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 103,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "e63d496e3a3bc384396439301e6d12b4803fcdecc46a6e8e0a6743cda5849301",
+          "event_offset_after": 105,
+          "event_offset_before": 104,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 104,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "805ce762fffb8baacd500179859b5da92ff17804176d688e7e2046917bdea7e1",
+          "event_offset_after": 106,
+          "event_offset_before": 105,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 105,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "08e9c3588bbf5c2415e94438dc3658f3a8472d68a5961fd25a0bcdd865156f44",
+          "event_offset_after": 107,
+          "event_offset_before": 106,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 106,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "6af89ea24519f8cf30ae5ecee8f6353a211f2921c5fe10afc8dcfc1e34757c18",
+          "event_offset_after": 108,
+          "event_offset_before": 107,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 107,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "3a7c5da256e62ad06ba6f20665ed5c0141c3cf1e1f383b788fc2dc71f3fc8a1b",
+          "event_offset_after": 109,
+          "event_offset_before": 108,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 108,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "281b6264f5b3d5af74933bc25b8107be6be847468e5de4c5a2e425821b2b96f2",
+          "event_offset_after": 110,
+          "event_offset_before": 109,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 109,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "2e8a76406fb86451fec44344349d721a3132396f1b12ed822663964d6b1d1922",
+          "event_offset_after": 111,
+          "event_offset_before": 110,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 110,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "57defc1f6256d666a87edcb26b8423047871b77911c502b10bada36d15e31c7f",
+          "event_offset_after": 112,
+          "event_offset_before": 111,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 111,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "e971f98c9745eb0ec32cc9d8ba3528764bed6183b21c46fef0ad24ffbfc68aba",
+          "event_offset_after": 113,
+          "event_offset_before": 112,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 112,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "28c1a89ad646462e0cbd4fccc46823c6e3093a007bc3780065370639fd0cf5c8",
+          "event_offset_after": 114,
+          "event_offset_before": 113,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 113,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "61aff2b3fedf6baee8edb537be13f05989b37189eb8d3df06b880d039c653f2e",
+          "event_offset_after": 115,
+          "event_offset_before": 114,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 114,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "9587cf2a3ff0348515b908d7a8e4fab669de3071fe6b288d7617ad1073447ed2",
+          "event_offset_after": 116,
+          "event_offset_before": 115,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 115,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "4600f2dde711dfa174a8d2d6eab89a26a824451a885dd7ab1081fc0326e48be0",
+          "event_offset_after": 117,
+          "event_offset_before": 116,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 116,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "cd1dbd05dedfac49df3ed56783b47c98cf1df53f32980003fd6b592110c0e68e",
+          "event_offset_after": 118,
+          "event_offset_before": 117,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 117,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "90016e4f9dbe3ad885e25828b27e8d157c4b3889e8244c4b3e756e910683e06b",
+          "event_offset_after": 119,
+          "event_offset_before": 118,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 118,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "priority",
+          "event_digest": "f5d0f07f469e28863e13255bb5b9ea143daeebd36ed2e0224b2630119137ce10",
+          "event_offset_after": 120,
+          "event_offset_before": 119,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 119,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "priority",
+          "event_digest": "5ae8ae4d4221b66a0982e0d06633dfc8234f738558e462665c91b9321a12e1bc",
+          "event_offset_after": 121,
+          "event_offset_before": 120,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 120,
+          "step_kind": "decision"
+        },
+        {
+          "actor_principal": 2,
+          "decision_class": "concede",
+          "event_digest": "21c161c2ff82f3aee226b6c0e5486074493ae68e9bd382e91a6ccea80fd4479c",
+          "event_offset_after": 1176,
+          "event_offset_before": 1176,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 121,
+          "step_kind": "lifecycle_concede"
+        },
+        {
+          "actor_principal": 3,
+          "decision_class": "concede",
+          "event_digest": "ca79e3cc73c439196cbced722681503a2e711a74637b0c3bc7d241cd20c6930d",
+          "event_offset_after": 1176,
+          "event_offset_before": 1176,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 122,
+          "step_kind": "lifecycle_concede"
+        },
+        {
+          "actor_principal": 1,
+          "decision_class": "priority",
+          "event_digest": "a58aa5bea1d78cddd676e2f94d469665c59b10fbbfbf6b3847e4a52c031a18fc",
+          "event_offset_after": 121,
+          "event_offset_before": 121,
+          "rng_calls_after": 1176,
+          "rng_calls_before": 1176,
+          "sequence": 123,
+          "step_kind": "decision"
+        }
+      ],
+      "omitted": 27,
+      "sha256": "a9e7e9bb109a27cbc97f78cd1cab61cd6b1246e82bdcb78d0f709edbae3ed35b"
+    },
+    "tape_comparison": {
+      "compared_steps": 123,
+      "first_divergence_kind": null,
+      "fresh_process_engine_check": {
+        "detail": "123 steps re-derived in a fresh process",
+        "pass": true,
+        "steps_verified": 123,
+        "tape_id": "67537d93593cf1e881d2d35b8b8ac981c4df21f6ccb0bf73f78f27ab798ba1f5"
+      },
+      "process_identities_distinct": true,
+      "process_identity_detail": "all recorded process identities are observed and pairwise distinct",
+      "tape_comparison_match": true
+    },
+    "terminal_outcome": {
+      "complete": true,
+      "game_over": true,
+      "kind": "GAME_OVER",
+      "outcomes": [
+        {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "seat": 1,
+          "won": true
+        },
+        {
+          "left": true,
+          "life": 40,
+          "lost": true,
+          "seat": 2,
+          "won": false
+        },
+        {
+          "left": true,
+          "life": 40,
+          "lost": true,
+          "seat": 3,
+          "won": false
+        }
+      ],
+      "rng_calls": 1176,
+      "state_digest": "22a9486ff5a4b05c9338feec125c73ed704e8c0e0353e15dfc73efd4859725b1",
+      "terminal_digest": "22a9486ff5a4b05c9338feec125c73ed704e8c0e0353e15dfc73efd4859725b1",
+      "turn_number": 4
+    },
+    "verdict": "PASS",
+    "verified": true
+  },
+  "engine_pins": {
+    "forge_bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+    "forge_bridge_tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+    "forge_rules_core_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+    "xmage_candidate_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436"
+  },
+  "failure": null,
+  "fixture": {
+    "deck_hashes": [
+      "40a81b3379e0a2473948a5b6d5121f5bd1baf63617279b79537f83cf8d1cf8cd",
+      "2f473900d1eb7966c78ac8bee5564b8e6efbe87ec191e377aab53ad45772d87e",
+      "3f93b360de73f638c59c350ca24e7df2746955a30a99a6b7e636674be547f550"
+    ],
+    "player_count": 3,
+    "scenario_id": "technical-isamaru-full-game-3p-v1",
+    "seed": 20260826,
+    "xmage_commit": "37e4df6c914f1e189e24f0ef59fa91734c922436"
+  },
+  "fixture_request": {
+    "player_count": 3,
+    "seed": 424242
+  },
+  "generated_at": "2026-10-01T20:36:52Z",
+  "lab_source": {
+    "clean": true,
+    "commit": "40c7e5e41f954098e8d8e678a6bdee7f6efa325d",
+    "dirty_paths": [],
+    "tree": "3bcd540e3b47137e812b1b39d1670b271e5f33db"
+  },
+  "missing_capability": null,
+  "schema_version": "commander-lab.af09-replay-twin-campaign/1.0.0",
+  "verdict": "PASS"
+}

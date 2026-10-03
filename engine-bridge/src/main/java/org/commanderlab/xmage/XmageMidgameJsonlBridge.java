@@ -113,6 +113,7 @@ final class XmageMidgameJsonlBridge {
             case "complete_causal_reconstruction" ->
                     completeCausalReconstruction(requestId, request);
             case "get_midgame_state" -> getState(requestId, request);
+            case "get_rules_rng_tape" -> getRulesRngTape(requestId);
             case "get_midgame_projection" -> getProjection(requestId, request);
             case "get_midgame_events" -> getEvents(requestId, request);
             case "get_legal_actions" -> getLegalActions(requestId);
@@ -994,6 +995,20 @@ final class XmageMidgameJsonlBridge {
         }
     }
 
+    /**
+     * AF09: the engine's Rules-RNG results and a privileged state digest for the
+     * clean-process replay twin. Refused unless the launch carries an
+     * orchestration key; HMAC digests under that key only, never a principal's
+     * observation, no card identity and no native id.
+     */
+    private Result getRulesRngTape(String requestId) {
+        try {
+            return success(requestId, requireSession().rulesRngTapePayload(), false);
+        } catch (Exception exc) {
+            return error(requestId, "rules_rng_tape_failed", exceptionMessage(exc), false);
+        }
+    }
+
     private Result getState(String requestId, JsonObject request) {
         try {
             JsonObject payload = requireObjectPayload(request, "GET_MIDGAME_STATE requires payload");
@@ -1322,6 +1337,9 @@ final class XmageMidgameJsonlBridge {
         // AF05: every observation this lane answers, with its scope. There is no
         // principal-neutral full state and no omniscient or raw-object message:
         // the principal-scoped ones require a known requester and fail closed.
+        // The one orchestration channel (get_rules_rng_tape, AF09) is not an
+        // observation: it is refused on every launch without an orchestration
+        // key and answers HMAC digests under that key only.
         capabilities.addProperty("knowledge_projection_supported", true);
         JsonObject observationScopes = new JsonObject();
         observationScopes.addProperty("get_midgame_projection", "principal_scoped_required_requester");
@@ -1329,6 +1347,11 @@ final class XmageMidgameJsonlBridge {
         observationScopes.addProperty("get_midgame_decision", "acting_principal_frame");
         observationScopes.addProperty("get_legal_actions", "acting_principal_frame");
         observationScopes.addProperty("get_midgame_events", "public_semantic_event_tape");
+        // Not an observation: an orchestration channel for the replay twin, refused
+        // unless the launch carries an orchestration key, and HMAC digests only.
+        observationScopes.addProperty("get_rules_rng_tape",
+                "orchestration_keyed_digests_refused_without_launch_key");
+        capabilities.addProperty("orchestration_channel_enabled", XmageRulesRngResultTape.enabled());
         observationScopes.addProperty("complete_midgame_arrival",
                 "principal_scoped_or_principal_neutral_opponent_hands_counts_only");
         capabilities.add("observation_scopes", observationScopes);

@@ -40,6 +40,8 @@ from pathlib import Path
 from typing import Any, Literal
 
 PROTOCOL_VERSION = "2.0.0"
+#: Never inherited by a launch (see bridge_launcher.ORCHESTRATION_KEY_VARIABLE).
+ORCHESTRATION_KEY_VARIABLE = "COMMANDER_LAB_ORCHESTRATION_KEY"
 MIDGAME_LANE = "xmage_midgame_native_starting_state"
 MIDGAME_RECEIPT_SCHEMA = "commander-lab.midgame-capability-probe/1.0.0"
 
@@ -327,6 +329,9 @@ class MidgameLaneClient:
         # plan's own overrides are applied on top of the cleared environment.
         env = dict(os.environ)
         env.pop("JAVA_TOOL_OPTIONS", None)
+        # The AF09 orchestration key never reaches a launch by inheritance;
+        # only the replay twin's own launch adds it through its overrides.
+        env.pop(ORCHESTRATION_KEY_VARIABLE, None)
         env.update(self._env_overrides)
         try:
             self._process = subprocess.Popen(
