@@ -145,6 +145,9 @@ def test_a_boolean_answer_records_the_value_it_submitted() -> None:
 def test_a_record_without_combat_requests_none() -> None:
     assert mr.requested_combat({}) is None
     assert mr.requested_combat({"combat_state": None}) is None
+    # An empty attacker map is a checkpoint snapshot with no combat yet; the
+    # record's own script may declare attacks later (CARD_08).
+    assert mr.requested_combat({"combat_state": {"attackers": {}}}) is None
 
 
 def test_listed_blocks_are_the_requested_blocks() -> None:
@@ -334,3 +337,41 @@ def test_the_block_partition_needs_every_offer_to_name_an_attacker_of_the_princi
     assert not mr.check_terminal(check, {}, [], [_block_frame("P3", ("obj:a3",))])
     lone = mr.TerminalCheck("blocker_partition", principal="P2", value=(("obj:a2",), ()))
     assert not mr.check_terminal(lone, {}, [], [_block_frame("P2", ("obj:a2",))])
+
+
+# --------------------------------------------------------------------------- #
+# Causal elimination on the FULL107 route
+# --------------------------------------------------------------------------- #
+
+
+def test_only_a_declared_causal_elimination_entry_routes_an_elimination() -> None:
+    entry = mr.causal_elimination_entry("WS05-MP-ELIM-OWNED-3")
+    assert entry is not None and entry["elimination_victim"] == "P2"
+    assert mr.causal_elimination_entry("WS05-CMD-ZONE-GY-YES") is None
+    assert mr.causal_elimination_entry("NOT_A_FIXTURE") is None
+
+
+def test_the_elimination_instruments_are_one_bolt_and_one_mountain_each() -> None:
+    entry = mr.causal_elimination_entry("WS05-MP-ELIM-5")
+    assert entry is not None
+    request = mr.probe_module().elimination_request(entry)
+    assert request["actor"] == "P1" and request["victim"] == "P3"
+    bolts = [i for i in request["instruments"] if i["card_identity"] == "Lightning Bolt"]
+    lands = [i for i in request["instruments"] if i["card_identity"] == "Mountain"]
+    assert len(bolts) == len(lands) == entry["bolt_count"]
+    assert all(i["owner"] == "P1" for i in request["instruments"])
+    assert {i["zone"] for i in bolts} == {"hand"}
+    assert {i["zone"] for i in lands} == {"battlefield"}
+
+
+def test_a_player_left_only_when_the_engine_reports_both_loss_and_leaving() -> None:
+    check = mr.TerminalCheck("player_left", principal="P2")
+    assert mr.needs_observation(check)
+
+    def seat(**fields: Any) -> dict[str, Any]:
+        return {"seats": [{"player_id": "P2", **fields}]}
+
+    assert mr.check_terminal(check, seat(lost=True, left=True), [], [])
+    assert not mr.check_terminal(check, seat(lost=True, left=False), [], [])
+    assert not mr.check_terminal(check, seat(lost=False, left=True), [], [])
+    assert not mr.check_terminal(check, {"seats": []}, [], [])

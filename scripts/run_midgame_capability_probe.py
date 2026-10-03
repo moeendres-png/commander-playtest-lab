@@ -112,6 +112,43 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
         ],
         "terminal": "commander_zone_choice",
     },
+    # MICRO_COPY: P2's Lightning Bolt, then P1's Flare of Duplication on it.
+    # The engine decides whether the Flare may target that Bolt.
+    "MICRO_COPY": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-mountain-p2",
+                "card_identity": "Mountain",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+            *(
+                {
+                    "semantic_id": f"obj:fuel-mountain-p1-{index}",
+                    "card_identity": "Mountain",
+                    "owner": "P1",
+                    "zone": "battlefield",
+                }
+                for index in range(3)
+            ),
+        ],
+        "terminal": "spell_copied_on_stack",
+    },
+    # MICRO_RULES_RANDOMNESS: P1's Stitch in Time ({1}{U}) on the stack.
+    "MICRO_RULES_RANDOMNESS": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": f"obj:fuel-island-p1-{index}",
+                "card_identity": "Island",
+                "owner": "P1",
+                "zone": "battlefield",
+            }
+            for index in range(2)
+        ],
+        "terminal": "rules_rng_coin_flip",
+    },
     "MICRO_ZONE_CHANGES": {
         "entry_mode": "causal_stack",
         "fuel": [
@@ -1605,31 +1642,7 @@ def probe_causal_row(
         if entry_mode == "causal_stack":
             request["fuel"] = list(spec.get("fuel") or [])
         elif entry_mode == "causal_elimination":
-            instruments: list[dict[str, str]] = []
-            bolt_count = int(spec.get("bolt_count") or 0)
-            actor = str(spec["elimination_actor"])
-            for index in range(bolt_count):
-                instruments.append(
-                    {
-                        "semantic_id": f"obj:elim-bolt-{index}",
-                        "card_identity": "Lightning Bolt",
-                        "owner": actor,
-                        "zone": "hand",
-                    }
-                )
-                instruments.append(
-                    {
-                        "semantic_id": f"obj:elim-mountain-{index}",
-                        "card_identity": "Mountain",
-                        "owner": actor,
-                        "zone": "battlefield",
-                    }
-                )
-            request["elimination"] = {
-                "actor": actor,
-                "victim": str(spec["elimination_victim"]),
-                "instruments": instruments,
-            }
+            request["elimination"] = elimination_request(spec)
         created = client.request("create_midgame_game", request)
         if not created.get("success"):
             errors = created.get("errors") or []
@@ -1879,6 +1892,70 @@ def graveyard_count(client: ml.MidgameLaneClient, record: dict[str, Any]) -> int
     return sum(int(seat.get("graveyard_count") or 0) for seat in seats)
 
 
+def elimination_request(spec: dict[str, object]) -> dict[str, Any]:
+    """The declared instruments of a causal elimination: one Lightning Bolt in
+    the actor's hand and one Mountain on the actor's battlefield per bolt. They
+    are placed through the engine seam and published in the plan payload."""
+    instruments: list[dict[str, str]] = []
+    actor = str(spec["elimination_actor"])
+    for index in range(int(spec.get("bolt_count") or 0)):
+        instruments.append(
+            {
+                "semantic_id": f"obj:elim-bolt-{index}",
+                "card_identity": "Lightning Bolt",
+                "owner": actor,
+                "zone": "hand",
+            }
+        )
+        instruments.append(
+            {
+                "semantic_id": f"obj:elim-mountain-{index}",
+                "card_identity": "Mountain",
+                "owner": actor,
+                "zone": "battlefield",
+            }
+        )
+    return {
+        "actor": actor,
+        "victim": str(spec["elimination_victim"]),
+        "instruments": instruments,
+    }
+
+
+def eliminate_causally(
+    client: ml.MidgameLaneClient,
+    tag: str,
+    created: dict[str, Any],
+    spec: dict[str, object],
+) -> dict[str, Any]:
+    """Cast every declared bolt at the victim through the engine; the engine's
+    own elimination verdict afterwards. Every answer is an engine offer; the
+    engine alone deals the damage and applies the state-based loss."""
+    plan = created.get("elimination_plan") or {}
+    placed = {str(k): str(v) for k, v in (plan.get("placed_objects") or {}).items()}
+    bolt_ids = sorted(v for k, v in placed.items() if "bolt" in k)
+    mountain_ids = sorted(v for k, v in placed.items() if "mountain" in k)
+    victim_seat = seat_label(str(spec["elimination_victim"]))
+    bolt_count = int(spec.get("bolt_count") or 0)
+    if len(bolt_ids) != bolt_count or len(mountain_ids) != bolt_count:
+        raise ml.MidgameLaneError(
+            f"{tag}: the plan placed {len(bolt_ids)} bolts and {len(mountain_ids)} "
+            f"mountains for {bolt_count} declared"
+        )
+    expected_life: int | None = None
+    for index in range(bolt_count):
+        cast_frame_source(client, f"{tag}-cast-{index}", bolt_ids[index])
+        answer_player_target(client, f"{tag}-target-{index}", victim_seat)
+        answer_fuel_mana(client, f"{tag}-mana-{index}", mountain_ids)
+        expected_life = resolve_until_life_drops(
+            client,
+            f"{tag}-resolve-{index}",
+            str(spec["elimination_victim"]),
+            expected_life,
+        )
+    return complete_causal(client, "elimination").get("verdict") or {}
+
+
 def drive_causal_elimination(
     client: ml.MidgameLaneClient,
     fixture_id: str,
@@ -1886,13 +1963,6 @@ def drive_causal_elimination(
     created: dict[str, Any],
     spec: dict[str, object],
 ) -> dict[str, Any]:
-    plan = created.get("elimination_plan") or {}
-    placed = {str(k): str(v) for k, v in (plan.get("placed_objects") or {}).items()}
-    bolt_ids = sorted(v for k, v in placed.items() if "bolt" in k)
-    mountain_ids = sorted(v for k, v in placed.items() if "mountain" in k)
-    victim_seat = seat_label(str(spec["elimination_victim"]))
-    bolt_count = int(spec.get("bolt_count") or 0)
-    assert len(bolt_ids) == bolt_count and len(mountain_ids) == bolt_count
     withheld = ml.causal_credit_gate(
         fixture_id,
         "causal_elimination",
@@ -1901,18 +1971,7 @@ def drive_causal_elimination(
     )
     if withheld is not None:
         return withheld
-    expected_life: int | None = None
-    for index in range(bolt_count):
-        cast_frame_source(client, f"probe-{fixture_id}-cast-{index}", bolt_ids[index])
-        answer_player_target(client, f"probe-{fixture_id}-target-{index}", victim_seat)
-        answer_fuel_mana(client, f"probe-{fixture_id}-mana-{index}", mountain_ids)
-        expected_life = resolve_until_life_drops(
-            client,
-            f"probe-{fixture_id}-resolve-{index}",
-            str(spec["elimination_victim"]),
-            expected_life,
-        )
-    verdict = complete_causal(client, "elimination").get("verdict") or {}
+    verdict = eliminate_causally(client, f"probe-{fixture_id}", created, spec)
     victim_lost = verdict.get("victim_lost") is True
     victim_left = verdict.get("victim_left") is True
     eliminated = victim_lost or victim_left

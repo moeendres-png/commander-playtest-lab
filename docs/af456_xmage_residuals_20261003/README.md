@@ -47,14 +47,21 @@ MICRO_PREVENTION.
 Local evidence is not credit. Credit comes only from the same-epoch PB-03 run on the
 pushed head.
 
-## Remaining classes (not yet repaired)
+## Second wave (in progress)
+
+| Class | Rows | Repair |
+|---|---|---|
+| Causal elimination on the FULL107 route | WS05-MP-ELIM-5, -OWNED-3, -PRIO-3, -TURN-3 | The record requests the victim at 0 life before the state-based actions that remove it, which no priority point shows (CR 704.3). The producer now enters through the probe's declared `causal_elimination` entry: the victim's 0 life is openly substituted at placement, and the declared Lightning Bolts are cast at the victim on the engine's own frames. The engine deals the damage, applies the loss (CR 704.5a) and the cleanup (CR 800.4a), and its own elimination verdict is required. The obligation window opens at that cause. One implementation (`eliminate_causally`) serves the probe and the producer. |
+| Stack-object selector | MICRO_MANA_PAYMENT | `stack:N` names the record's N-th requested stack entry and selects the spell cast from that entry's source object, exactly as `semantic_object` does. Any other value fails closed. |
+| Undeclared causal-stack entries | MICRO_COPY, MICRO_RULES_RANDOMNESS | causal-stack entries with declared fuel. The engine decides target legality: Flare of Duplication copies an instant or sorcery spell *its controller* controls, while the record's Bolt is P2's, a likely fixture defect pending the engine's own verdict. |
+| Partner damage | WS05-CMD-PARTNER-DMG | the DMG-SPLIT readback checks as terminal checks (the record names no required event) |
+
+## Deferred classes (with exact blockers)
 
 | Class | Rows | Blocker |
 |---|---|---|
-| Causal elimination entry on the FULL107 route | WS05-MP-ELIM-5, -OWNED-3, -PRIO-3, -TURN-3, -STACK-3 | requested life 0 needs the probe's causal-elimination route |
-| Attachment / control divergence | MICRO_CONTROL, WS05-MP-ELIM-CONTROL-3, WS05-CMD-DMG-CONTROL | `UNSUPPORTED_ATTACHMENTS` / `UNSUPPORTED_CONTROL_DIVERGENCE`; needs a causal Aura cast |
-| Stack entry not declared | MICRO_COPY, MICRO_RULES_RANDOMNESS | no causal-stack entry; RULES_RANDOMNESS also needs a Rules-RNG coin flip |
-| Stack-object selector | MICRO_MANA_PAYMENT | `semantic_stack_object` selector |
-| Extra-turn causal setup | WS05-MP-TURN-3, WS05-MP-TURN-5 | requested `extra_turn_creation` from spells resolved earlier |
-| Natural game start | WS05-CMD-MULL-2, WS05-CMD-MULL-4 | `INVALID_DECK_STATE` (library template) |
-| Partner rows | WS05-CMD-PARTNER-TAX, -ZONE, -DMG | token vocabulary / no required event |
+| Attachment / control divergence | MICRO_CONTROL, WS05-MP-ELIM-CONTROL-3, WS05-CMD-DMG-CONTROL | The restoration refuses `attached_to` and owner != controller (no fabricated attachment or control state). A scenario erratum must cause the state with a real Aura or control spell. For WS05-CMD-DMG-CONTROL the stolen commander must also be able to attack on turn 1 (CR 302.6), which needs a hasty control effect. |
+| Causal stack plus causal elimination | WS05-MP-ELIM-STACK-3 | P2's spell must be on the stack while P2 is eliminated; the two causal routes are not composed |
+| Extra-turn setup | WS05-MP-TURN-3, WS05-MP-TURN-5 | Both extra turns come from spells resolved earlier. Nexus of Fate is shuffled into its owner's library rather than put into the graveyard, so the requested graveyard Nexus conflicts with its own text. Executing the obligation passes through two whole extra turns, whose combat declarations no record field determines. |
+| Natural game start | WS05-CMD-MULL-2, WS05-CMD-MULL-4 | `INVALID_DECK_STATE` (the record's deck shape predates the library template); the mid-game lane has no pregame mulligan checkpoint |
+| Partner tax and zone | WS05-CMD-PARTNER-TAX, WS05-CMD-PARTNER-ZONE | the tax is engine-observable only on a real cast, and the record scripts none; the zone row's own procedure marks the static assertion as no execution credit |

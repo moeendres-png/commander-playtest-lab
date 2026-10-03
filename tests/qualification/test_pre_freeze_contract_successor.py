@@ -1955,9 +1955,10 @@ def test_residual_errata_correct_unreachable_requests_and_keep_the_obligation() 
     )
     added = contract["record_successors"][len(predecessor["record_successors"]) :]
     assert [patch["fixture_id"] for patch in added] == RESIDUAL_ERRATA_IDS
-    assert contract["predecessor"]["sha256"] == hashlib.sha256(
-        PREDECESSOR_CONTRACT_PATH.read_bytes()
-    ).hexdigest()
+    assert (
+        contract["predecessor"]["sha256"]
+        == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
+    )
     effective = {
         record["fixture_id"]: record
         for record in resolver.load_effective_materialization()["records"]
@@ -2010,9 +2011,7 @@ def test_residual_errata_correct_unreachable_requests_and_keep_the_obligation() 
         ]
         assert obj[key] is value, (fixture_id, semantic, key)
     assert effective["MICRO_REPLACEMENT"]["temporal_state"]["step"] == "declare_blockers"
-    assert [
-        p["life"] for p in effective["MICRO_CONTINUOUS_EFFECTS"]["players"]
-    ] == [40, 39, 39, 39]
+    assert [p["life"] for p in effective["MICRO_CONTINUOUS_EFFECTS"]["players"]] == [40, 39, 39, 39]
     assert effective["MICRO_CONTINUOUS_EFFECTS"]["expected_events"]["required_events"] == [
         "continuous_pt_evaluated:13/13"
     ]

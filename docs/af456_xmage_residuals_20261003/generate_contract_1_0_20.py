@@ -131,7 +131,12 @@ def _objects_with(old: dict, changes: dict[str, dict]) -> list[dict]:
         if change is None:
             continue
         for key, (before, after) in change.items():
-            assert obj.get(key) == before, (old["fixture_id"], obj["semantic_id"], key, obj.get(key))
+            assert obj.get(key) == before, (
+                old["fixture_id"],
+                obj["semantic_id"],
+                key,
+                obj.get(key),
+            )
             obj[key] = after
         found.add(obj["semantic_id"])
     assert found == set(changes), (old["fixture_id"], set(changes) - found)
@@ -183,11 +188,7 @@ def add(
         "correction_class": correction_class,
         "digest_migration": {
             **DIGEST_MIGRATION,
-            **(
-                {"obligation_digest": "CHANGED_OBLIGATION_ERRATUM"}
-                if obligation_changed
-                else {}
-            ),
+            **({"obligation_digest": "CHANGED_OBLIGATION_ERRATUM"} if obligation_changed else {}),
             "reason": reason,
         },
         "evidence_survival": "REQUALIFICATION_REQUIRED",
@@ -287,9 +288,7 @@ for fixture, responder, target, forest in (
                 ),
                 _step(responder, "cast-response", "target", "semantic_object", target),
             ],
-            "action_cost_state": [
-                _cost(responder, "Giant Growth", "obj:mp-response", [forest], 1)
-            ],
+            "action_cost_state": [_cost(responder, "Giant Growth", "obj:mp-response", [forest], 1)],
         },
         [
             _erratum_step(
@@ -338,12 +337,15 @@ for fixture, changes in (
                     "comprehensive_rules": "302.6",
                     "erratum_class": "FIXTURE_DEFECT_CR_302_6",
                     "corrected_objects": _corrected(changes, "controlled_since_turn_began"),
-                    "reason": "P2 has had no turn in this game (P1 is active on turn 1): " + CR302_6,
+                    "reason": "P2 has had no turn in this game (P1 is active on turn 1): "
+                    + CR302_6,
                 },
             )
         ],
         {
-            "controlled_since_turn_began": {k: v["controlled_since_turn_began"][0] for k, v in changes.items()},
+            "controlled_since_turn_began": {
+                k: v["controlled_since_turn_began"][0] for k, v in changes.items()
+            },
             "reason": "the request is unreachable on P1's turn 1 for a permanent P2 controls",
         },
         "Only one permanent's control-history request changes.",
@@ -375,7 +377,8 @@ add(
                 "comprehensive_rules": "508.1f",
                 "erratum_class": "FIXTURE_DEFECT_CR_508_1F",
                 "corrected_objects": _corrected(prevention, "tapped"),
-                "reason": "the checkpoint is P2's priority in the declare attackers step: " + CR508_1F,
+                "reason": "the checkpoint is P2's priority in the declare attackers step: "
+                + CR508_1F,
             },
         ),
     ],

@@ -175,6 +175,8 @@ class TerminalCheck:
                 f"the engine's first {len(principals)} {decision_class} decisions went to "
                 f"{list(principals)} in that order"
             )
+        if self.kind == "player_left":
+            return f"the engine reports {self.principal} lost and left the game"
         if self.kind == "commander_damage":
             damaged, amount = self.value
             return (
@@ -483,6 +485,35 @@ def _priority_response(seats: tuple[str, ...], responder: str) -> RowSpec:
             ),
             ("response_on_stack", (cast, _before(cast, bolt_leaves))),
         ),
+    )
+
+
+def _player_leaves(victim: str) -> tuple[tuple[str, Any], ...]:
+    """CR 800.4a: the victim loses and leaves; everything it owns leaves too.
+
+    The engine reports the loss, its readback shows the victim lost and gone,
+    every move of the victim's objects out of the game follows the loss, and
+    nothing the victim owns is left on the battlefield.
+    """
+    lost = _player_loses(victim)
+    return (
+        (f"player_leaves:{victim}", (lost, TerminalCheck("player_left", principal=victim))),
+        (
+            "multiplayer_cleanup:CR800.4",
+            (
+                _before(lost, _event("ZONE_CHANGE", ("player_player", victim), ("to", "OUTSIDE"))),
+                TerminalCheck("battlefield_exact", principal=victim, value=()),
+            ),
+        ),
+    )
+
+
+def _ring_after_loss(victim: str, ring: tuple[str, ...]) -> tuple[TerminalCheck, ...]:
+    """After the loss the engine asks priority of the live players in seat
+    order only (CR 800.4a): never of the victim again."""
+    return (
+        TerminalCheck("frame_order", value=("priority", ring)),
+        TerminalCheck("no_frame", principal=victim, value="priority"),
     )
 
 
@@ -944,6 +975,43 @@ ROWS: dict[str, RowSpec] = {
         ),
     ),
     "PILOT_DECLARE_BLOCKER": RowSpec(),
+    # MICRO_MANA_PAYMENT: with P2's Bolt on the stack (rebuilt causally), P1
+    # casts Counterspell on it (the record's stack:1), paying {U}{U} from its
+    # two declared Islands; Counterspell counters the Bolt.
+    "MICRO_MANA_PAYMENT": RowSpec(
+        mana_sources=("obj:micro-island-a", "obj:micro-island-b"),
+        token_bindings=(
+            ("mana_abilities_activated:2", VocabularyToken("mana_paid:2")),
+            (
+                "mana_paid:UU",
+                (
+                    TerminalCheck("pool_spend", value="blue"),
+                    _exactly(
+                        _event(
+                            "SPELL_CAST",
+                            ("source_object", "obj:micro-counterspell"),
+                            ("player_player", "P1"),
+                        ),
+                        1,
+                    ),
+                ),
+            ),
+            (
+                "Counterspell_cast",
+                (
+                    _exactly(
+                        _event(
+                            "SPELL_CAST",
+                            ("source_object", "obj:micro-counterspell"),
+                            ("player_player", "P1"),
+                        ),
+                        1,
+                    ),
+                    _exactly(_event("COUNTERED", ("target_object", "obj:micro-bolt")), 1),
+                ),
+            ),
+        ),
+    ),
     # WS05-MP-BLOCK-4: P1 attacks P2 (obj:mp-a2) and P3 (obj:mp-a3); every
     # block the engine offers P2 names only the attacker attacking P2.
     "WS05-MP-BLOCK-4": RowSpec(
@@ -956,6 +1024,68 @@ ROWS: dict[str, RowSpec] = {
                     value=(("obj:mp-a2",), ("obj:mp-a3",)),
                 ),
             ),
+        ),
+    ),
+    # The causal eliminations (WS05-MP-ELIM-*): the record asks for the victim
+    # at 0 life before the state-based actions that remove it, which no
+    # priority point shows (CR 704.3). The declared bolts are cast at the
+    # victim through the engine's own frames; the engine deals the damage,
+    # applies the loss (CR 704.5a) and the multiplayer cleanup (CR 800.4a).
+    "WS05-MP-ELIM-OWNED-3": RowSpec(
+        token_bindings=(
+            *_player_leaves("P2"),
+            (
+                "object_leaves_game:obj:leave-owned",
+                _exactly(
+                    _event(
+                        "ZONE_CHANGE",
+                        ("target_object", "obj:leave-owned"),
+                        ("from", "BATTLEFIELD"),
+                        ("to", "OUTSIDE"),
+                    ),
+                    1,
+                ),
+            ),
+        ),
+        terminal_checks=(
+            _before(
+                _player_loses("P2"),
+                _event("ZONE_CHANGE", ("target_object", "obj:leave-owned"), ("to", "OUTSIDE")),
+            ),
+        ),
+    ),
+    "WS05-MP-ELIM-PRIO-3": RowSpec(
+        token_bindings=_player_leaves("P2"),
+        terminal_checks=_ring_after_loss("P2", ("P1", "P3")),
+    ),
+    "WS05-MP-ELIM-5": RowSpec(
+        token_bindings=_player_leaves("P3"),
+        terminal_checks=_ring_after_loss("P3", ("P1", "P2", "P4", "P5")),
+    ),
+    # WS05-MP-ELIM-TURN-3: the victim is the active player. The turn continues
+    # without an active player and the next turn is the next live player's
+    # (CR 800.4a): P3's, never P2's.
+    "WS05-MP-ELIM-TURN-3": RowSpec(
+        token_bindings=_player_leaves("P2"),
+        terminal_checks=(
+            _before(
+                _player_loses("P2"),
+                _event("BEGIN_TURN", ("turn", 2), ("player_player", "P3")),
+            ),
+            _exactly(_event("BEGIN_TURN", ("player_player", "P2")), 0),
+            TerminalCheck("no_frame", principal="P2", value="priority"),
+        ),
+    ),
+    # WS05-CMD-PARTNER-DMG: the same per-commander rule for partners (12 from
+    # Rograkh, 9 from Kediss): with a priority frame asked after the arrival
+    # (state-based actions checked, CR 117.5), P2 has not lost and the engine
+    # still reads each partner's damage separately (CR 903.10a, 702.124).
+    "WS05-CMD-PARTNER-DMG": RowSpec(
+        terminal_checks=(
+            _commander_damage("P1", "Rograkh, Son of Rohgahh", "P2", 12),
+            _commander_damage("P1", "Kediss, Emberclaw Familiar", "P2", 9),
+            TerminalCheck("frame_count", principal="P1", value=("priority", 1), label=""),
+            _event("LOST", count=0),
         ),
     ),
     # WS05-CMD-DMG-SPLIT: P2 has 11 combat damage from Rograkh and 10 from
@@ -1688,6 +1818,8 @@ def check_terminal(
         decision_class, principals = check.value
         order = [frame.principal for frame in trace if frame.decision_class == decision_class]
         return order[: len(principals)] == list(principals)
+    if check.kind == "player_left":
+        return seat.get("left") is True and seat.get("lost") is True
     if check.kind == "commander_damage":
         damaged, amount = check.value
         entries = [
@@ -2594,6 +2726,32 @@ def _scripted_answer(
     return ScriptedAnswer(matches[0], key=key, numeric=numeric)
 
 
+def stack_object_step(step: dict[str, Any], record: dict[str, Any]) -> dict[str, Any]:
+    """A ``semantic_stack_object`` selection, named by the record's own stack.
+
+    ``stack:N`` names the record's N-th requested stack entry (1-based, in the
+    record's own ``stack_state`` order): the spell cast from that entry's
+    source object. The step then selects that object exactly as a
+    ``semantic_object`` selection does, so the engine's stack spell is matched
+    by the card it was cast from and anything else fails closed.
+    """
+    selection = step.get("selection") or {}
+    if selection.get("selector_kind") != "semantic_stack_object":
+        return step
+    value = str(selection.get("semantic_value") or "")
+    match = re.fullmatch(r"stack:([1-9][0-9]*)", value)
+    stack = list(record.get("stack_state") or ())
+    if match is None or int(match.group(1)) > len(stack):
+        raise ml.MidgameLaneError(f"the stack object {value!r} names no requested stack entry")
+    source = stack[int(match.group(1)) - 1].get("source_semantic_id")
+    if not source:
+        raise ml.MidgameLaneError(f"the stack entry {value!r} names no source object")
+    return {
+        **step,
+        "selection": {**selection, "selector_kind": "semantic_object", "semantic_value": source},
+    }
+
+
 def _interchangeable(actions: list[dict[str, Any]]) -> bool:
     """Whether offers are instances of one ability of one source, alike in label."""
     identities = {
@@ -2728,6 +2886,9 @@ def requested_combat(record: dict[str, Any]) -> RequestedCombat | None:
     attackers = combat.get("attackers") or {}
     if not isinstance(attackers, dict):
         raise ml.MidgameLaneError(f"combat_state.attackers is not a mapping: {attackers!r}")
+    if not attackers:
+        # No attacker requested: the record's combat (if any) is its script's.
+        return None
     blockers = combat.get("blockers")
     if blockers is None:
         unblocked = {str(o) for o in combat.get("unblocked") or ()} | {
@@ -2910,6 +3071,7 @@ OBSERVATION_KINDS = frozenset(
         "battlefield_exact",
         "graveyard_mana_value",
         "commander_damage",
+        "player_left",
     }
 )
 
@@ -2962,7 +3124,7 @@ def execute_row(
             fixture_id, False, None, "the obligation names no required event and no terminal check"
         )
     placed = {str(k): str(v) for k, v in (created.get("placed_objects") or {}).items()}
-    causal_plan = created.get("causal_plan") or {}
+    causal_plan = created.get("causal_plan") or created.get("elimination_plan") or {}
     if causal is not None:
         placed.update(
             {str(k): str(v) for k, v in (causal_plan.get("placed_objects") or {}).items()}
@@ -3021,7 +3183,33 @@ def execute_row(
             f"construction {construction}: {list(arrival.mismatches)}",
         )
     reconstruction: dict[str, Any] | None = None
-    if causal is not None:
+    elimination_baseline: int | None = None
+    if causal is not None and causal.get("entry_mode") == "causal_elimination":
+        # The requested checkpoint is the state-based-action-pending instant
+        # inside the causal cause, so the obligation window opens before it.
+        elimination_baseline = int(client.events(0)["latest_offset"])
+        try:
+            verdict = probe.eliminate_causally(client, f"{fixture_id}-causal", created, causal)
+        except ml.MidgameLaneError as exc:
+            return RowExecution(
+                fixture_id, False, construction, f"causal elimination failed closed: {exc}"
+            )
+        reconstruction = {
+            "entry_mode": "causal_elimination",
+            "actor": str(causal.get("elimination_actor")),
+            "victim": str(causal.get("elimination_victim")),
+            "bolt_count": int(causal.get("bolt_count") or 0),
+            "verdict": verdict,
+        }
+        if not (verdict.get("victim_lost") is True or verdict.get("victim_left") is True):
+            return RowExecution(
+                fixture_id,
+                False,
+                construction,
+                f"the engine did not eliminate the victim causally: {verdict}",
+                causal_reconstruction=reconstruction,
+            )
+    elif causal is not None:
         declared_fuel = [str(card["semantic_id"]) for card in causal.get("fuel") or ()]
         fuel = [placed[semantic] for semantic in declared_fuel if semantic in placed]
         if len(fuel) != len(declared_fuel):
@@ -3052,7 +3240,12 @@ def execute_row(
                 f"the causal reconstruction does not match the requested stack: {verdict}",
                 causal_reconstruction=reconstruction,
             )
-    baseline = 0 if spec.observe_from_game_start else int(client.events(0)["latest_offset"])
+    if spec.observe_from_game_start:
+        baseline = 0
+    elif elimination_baseline is not None:
+        baseline = elimination_baseline
+    else:
+        baseline = int(client.events(0)["latest_offset"])
     script = list(record.get("decision_script") or ())
     sources = [placed[s] for s in spec.mana_sources if s in placed]
     if len(sources) != len(spec.mana_sources):
@@ -3359,7 +3552,9 @@ def execute_row(
                 probe.submit_proposal(client, legal, offer, f"{fixture_id}-mana-{len(trace)}")
                 continue
             if scripted and step is not None and step_decision_class(step) == decision_class:
-                answer = _scripted_answer(legal, step, placed, spec, ordinal)
+                answer = _scripted_answer(
+                    legal, stack_object_step(step, record), placed, spec, ordinal
+                )
                 if answer.action is None:
                     client.submit_options(decision, [])
                     frame.scripted, frame.selected_key = True, answer.key
@@ -3455,10 +3650,16 @@ def execute_row(
         check.describe(): check_terminal(check, observation, tape, trace)
         for check in spec.terminal_checks
     }
-    if combat is not None:
+    if combat is not None and not _scripts_family(record, "declare_attacker"):
         # The requested combat is part of the requested state: the engine's
-        # own declaration events (from game start) must be exactly it.
-        declared = combat_matches_request(combat, client.events(0)["events"])
+        # own declaration events (from game start) must be exactly the part
+        # of it this run answered. Declarations the record's own script makes
+        # are verified by its script and tokens, not here.
+        answered = RequestedCombat(
+            attackers=combat.attackers,
+            blocks=None if _scripts_family(record, "declare_blocker") else combat.blocks,
+        )
+        declared = combat_matches_request(answered, client.events(0)["events"])
         terminal[REQUESTED_COMBAT_FACT] = bool(declared["holds"])
     verified = (
         detail == "obligation observed"
@@ -3541,6 +3742,14 @@ def causal_stack_entry(fixture_id: str) -> dict[str, Any] | None:
     return dict(entry)
 
 
+def causal_elimination_entry(fixture_id: str) -> dict[str, Any] | None:
+    """The production probe's declared causal-elimination entry for a row, or None."""
+    entry = (getattr(probe_module(), "CAUSAL_ROWS", {}) or {}).get(fixture_id)
+    if not isinstance(entry, dict) or entry.get("entry_mode") != "causal_elimination":
+        return None
+    return dict(entry)
+
+
 def execute_and_persist(
     *,
     workspace: Path,
@@ -3583,6 +3792,15 @@ def execute_and_persist(
         if causal is not None:
             request["entry_mode"] = "causal_stack"
             request["fuel"] = list(causal.get("fuel") or ())
+        elimination = causal_elimination_entry(fixture_id)
+        if elimination is not None:
+            # The record asks for a player at 0 life before the state-based
+            # actions that remove it (CR 704.3: no priority point shows that
+            # state). The engine reaches it only causally: the declared bolts
+            # are cast at the victim through the engine's own frames.
+            request["entry_mode"] = "causal_elimination"
+            request["elimination"] = probe.elimination_request(elimination)
+            causal = elimination
         with probe.open_client(workspace) as client:
             client.request("get_provider_version", None)
             client.read_dimension_manifest()
