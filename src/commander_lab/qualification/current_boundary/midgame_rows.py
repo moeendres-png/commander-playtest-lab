@@ -77,6 +77,12 @@ class TerminalCheck:
     label: str | None = None
 
     def describe(self) -> str:
+        if self.kind == "stack_empty_after":
+            constraints = ", ".join(f"{key}={value}" for key, value in self.where)
+            return (
+                f"the first priority frame after the first {self.event_type} event with "
+                f"{constraints} shows an empty stack"
+            )
         if self.kind == "events":
             constraints = ", ".join(f"{key}={value}" for key, value in self.where)
             amount = "at least one" if self.value is None else f"exactly {self.value}"
@@ -1237,33 +1243,21 @@ ROWS: dict[str, RowSpec] = {
     ),
     # WS05-MP-ELIM-STACK-3: P2's own Lightning Bolt (aimed at P1) is on the
     # stack when P2 loses. The engine removes P2's spell with P2 (CR 800.4a):
-    # it leaves the stack for outside the game after P2's loss, never reaches
-    # the graveyard by resolving, and never deals its damage.
+    # the stack is empty at the next priority, the Bolt never reaches the
+    # graveyard by resolving, never deals its damage, and P1 stays at 40.
     "WS05-MP-ELIM-STACK-3": RowSpec(
         token_bindings=_player_leaves("P2"),
         terminal_checks=(
-            _before(
-                _player_loses("P2"),
-                _event(
-                    "ZONE_CHANGE",
-                    ("target_object", "obj:leave-bolt"),
-                    ("from", "STACK"),
-                    ("to", "OUTSIDE"),
-                ),
-            ),
-            _exactly(
-                _event(
-                    "ZONE_CHANGE",
-                    ("target_object", "obj:leave-bolt"),
-                    ("from", "STACK"),
-                    ("to", "OUTSIDE"),
-                ),
-                1,
-            ),
+            # The engine removes the leaving player's spell from the stack
+            # without an event (GameImpl.leave: getStack().removeIf); its own
+            # stack after the loss is the evidence. The stack verifier showed
+            # the spell on the stack before the loss was caused.
+            TerminalCheck("stack_empty_after", event_type="LOST", where=(("player_player", "P2"),)),
             _exactly(
                 _event("ZONE_CHANGE", ("target_object", "obj:leave-bolt"), ("to", "GRAVEYARD")), 0
             ),
             _exactly(_event("DAMAGED_PLAYER", ("source_object", "obj:leave-bolt")), 0),
+            TerminalCheck("life", principal="P1", value=40),
         ),
     ),
     "WS05-MP-ELIM-PRIO-3": RowSpec(
@@ -1361,6 +1355,9 @@ class Frame:
     # The record identity (semantic object or commander id) of the source the
     # scripted priority action named, when the run placed it.
     selected_source_semantic: str | None = None
+    # How many objects the engine's own stack held when it asked this frame
+    # (the frame's pilot_state), or None when the frame shows no stack.
+    stack_size: int | None = None
 
 
 @dataclass
@@ -2110,6 +2107,24 @@ def check_terminal(
         return bool(len(tokens) == check.value)
     if check.kind == "no_permanent_damage":
         return not _events(tape, "DAMAGED_PERMANENT")
+    if check.kind == "stack_empty_after":
+        # The engine's own stack, as shown on the first priority frame it asked
+        # after the event: an object it removed without an event (CR 800.4a,
+        # a leaving player's spells) is gone from it.
+        anchors = matching_events(
+            TerminalCheck("events", event_type=check.event_type, where=check.where), tape
+        )
+        if not anchors:
+            return False
+        anchor = int(anchors[0]["sequence"])
+        after = [
+            frame
+            for frame in trace
+            if frame.decision_class == "priority"
+            and frame.tape_sequence is not None
+            and frame.tape_sequence >= anchor
+        ]
+        return bool(after) and after[0].stack_size == 0
     if check.kind == "stack_order":
         # XMage reports TRIGGERED_ABILITY as each ability is put on the stack, so
         # the tape order is the stack order, bottom first.
@@ -3663,6 +3678,9 @@ def execute_row(
             )
             if decision_class == "declare_blocker":
                 frame.offered_attackers = _offered_attackers(legal, placed_by_native)
+            pilot_stack = (decision.get("pilot_state") or {}).get("stack")
+            if isinstance(pilot_stack, list):
+                frame.stack_size = len(pilot_stack)
             seen = client.events(baseline)["events"]
             frame.tape_sequence = int(seen[-1]["sequence"]) if seen else None
             trace.append(frame)
