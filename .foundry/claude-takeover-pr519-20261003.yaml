@@ -4,7 +4,7 @@ worktree: /home/moeen/work/takeover-pr519-20261003
 branch: hardening/b10-broad-secret-scan-20261003
 audit_base_sha: e827a981d204333fbbc7638a84836e7d1da52630
 audit_base_tree: 213c2f5539ee1cc13db854575113efb331596e3b
-state_written_against_head: ad1d3ebfc45ce480cc57820b4993f58e2be22917
+state_written_against_head: 922d1a229566cfa9bdf4dabc45abed6361cfe79d
 validated_head: null
 objective: Close transferred CI479 B10 review gaps without changing rules or qualification
   verdicts
@@ -31,15 +31,17 @@ hard_gates:
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 authority_gates:
 - Rules/evidence-policy/provider/freeze decisions remain reserved
-execution_profile: direct-owner-authorized-codex-takeover
+execution_profile: null
 technical_decisions:
 - User explicitly transfers Claude campaign after usage limit; earlier Claude-only
   reservation superseded for named Lab surfaces. Direct Codex engineering is the requested
   takeover, not an automatic OpenCode fallback.
 - Remote published source is reused. Unavailable Claude cloud edits are not assumed
   present. Existing local D17 processes and uncommitted Forge work are preserved.
-exact_next_action: Inspect fresh exact-head required and affected CI, independently
-  review these repairs, then adjudicate target drift and merge normally.
+exact_next_action: Read required and affected CI for the published head, independently
+  review, verify source-bound artifact bytes, then adjudicate target drift and merge
+  normally.
 tests_run:
-- 57 affected tests PASS after the new controls failed before the repair
-- 'Raw RED/GREEN JUnit and source/patch digest: docs/ci479_review_pr519_20261003/SOURCE_EVIDENCE.json'
+- 61 affected tests PASS; raw reports are retained losslessly under docs/ci479_followup_pr519_20261003/
+- Exact-head CI and independent review pending; local results do not prove engine
+  Rules behavior

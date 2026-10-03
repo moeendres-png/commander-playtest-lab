@@ -234,17 +234,55 @@ def red_controls(seed: int = 491) -> list[dict[str, str]]:
 
 
 def exclusions(config: Path) -> list[dict[str, str]]:
-    """Every exclusion of the scan configuration: its rule, file and exact value."""
-    document = tomllib.loads(config.read_text(encoding="utf-8"))
-    return [
-        {
-            "rule": rule["id"],
-            "path": entry["paths"][0].removeprefix("^").removesuffix("$").replace("\\.", "."),
-            "value": entry["regexes"][0].removeprefix("^").removesuffix("$"),
-        }
-        for rule in document.get("rules", [])
-        for entry in rule.get("allowlists", [])
-    ]
+    """Validate narrow exclusions before deriving their adversarial controls."""
+    try:
+        document = tomllib.loads(config.read_text(encoding="utf-8"))
+        if (
+            document.get("extend", {}).get("useDefault") is not True
+            or "allowlists" in document
+            or "allowlist" in document
+        ):
+            raise ValueError("upstream defaults and rule-bound exclusions required")
+        rules = document.get("rules", [])
+        if not isinstance(rules, list):
+            raise TypeError("rules must be a list")
+        result = []
+        for rule in rules:
+            if not isinstance(rule, dict) or not isinstance(rule.get("id"), str):
+                raise TypeError("rule id missing")
+            entries = rule.get("allowlists", [])
+            if not isinstance(entries, list):
+                raise TypeError("allowlists must be a list")
+            for entry in entries:
+                if (
+                    not isinstance(entry, dict)
+                    or entry.get("condition") != "AND"
+                    or not str(entry.get("description", "")).strip()
+                ):
+                    raise ValueError("rule exclusion needs AND and a justification")
+                for key in ("paths", "regexes"):
+                    values = entry.get(key)
+                    if (
+                        not isinstance(values, list)
+                        or len(values) != 1
+                        or not isinstance(values[0], str)
+                        or not values[0].startswith("^")
+                        or not values[0].endswith("$")
+                    ):
+                        raise ValueError("rule exclusion needs one anchored path and value")
+                result.append(
+                    {
+                        "rule": rule["id"],
+                        "path": entry["paths"][0]
+                        .removeprefix("^")
+                        .removesuffix("$")
+                        .replace("\\.", "."),
+                        "value": entry["regexes"][0].removeprefix("^").removesuffix("$"),
+                    }
+                )
+        return result
+    except (OSError, ValueError, TypeError, AttributeError, KeyError, IndexError) as error:
+        raise ScannerError("gitleaks configuration malformed: " + type(error).__name__) from error
 
 
 def run_controls(binary: Path, config: Path) -> list[dict[str, Any]]:

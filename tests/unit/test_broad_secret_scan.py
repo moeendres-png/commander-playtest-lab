@@ -236,3 +236,35 @@ def test_tracked_symlink_cannot_receive_pass_by_being_skipped(tmp_path) -> None:
     subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
     with pytest.raises(_scanner().ScannerError, match="symlink"):
         _scanner().materialize_tracked(repo, tmp_path / "scan")
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        "[invalid",
+        'rules = ["wrong"]',
+        '[[rules]]\nid = "x"\n[[rules.allowlists]]\npaths = []\nregexes = []\n',
+    ],
+)
+def test_invalid_configuration_is_a_scanner_error(tmp_path, content) -> None:
+    config = tmp_path / "config.toml"
+    config.write_text(content)
+    with pytest.raises(_scanner().ScannerError, match="configuration"):
+        _scanner().exclusions(config)
+
+
+def test_main_writes_not_run_for_invalid_configuration(tmp_path, monkeypatch) -> None:
+    scanner = _scanner()
+    config = tmp_path / "config.toml"
+    config.write_text("[invalid")
+    report = tmp_path / "evidence.json"
+    report.write_text('{"status":"PASS"}')
+    monkeypatch.setattr(scanner, "CONFIG", config)
+    monkeypatch.setattr(scanner, "verify_scanner", lambda _binary: "0" * 64)
+    monkeypatch.setattr(
+        sys, "argv", ["scan", "--gitleaks", str(tmp_path / "scanner"), "--report", str(report)]
+    )
+    assert scanner.main() == 2
+    document = json.loads(report.read_text())
+    assert document["status"] == "NOT_RUN"
+    assert "configuration" in document["error"]
