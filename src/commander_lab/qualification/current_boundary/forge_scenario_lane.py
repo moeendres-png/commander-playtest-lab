@@ -2395,6 +2395,54 @@ def _route_commander(model: RequestedStateModel) -> dict[str, Any] | None:
     return commanders[0] if len(commanders) == 1 else None
 
 
+def _route_answer_frames(model: RequestedStateModel) -> frozenset[str]:
+    """The only engine frame kind the record's scripted answer may be given on."""
+    required = list((model.record.get("expected_events") or {}).get("required_events") or [])
+    zone = _required_token(required, "commander_zone_event:")
+    frame = _COMMANDER_EVENT_FRAMES.get(zone or "")
+    return frozenset({frame}) if frame else frozenset()
+
+
+def _requested_checkpoint_facts(
+    model: RequestedStateModel, run: fcr.CausalRun, spell_card: str, target_card_id: str | None
+) -> dict[str, Any]:
+    """The record's checkpoint compared with the engine snapshot the route captured."""
+    snapshot = next(
+        (snap["state"] for snap in run.snapshots if snap["at"] == "requested_checkpoint"), None
+    )
+    requested = model.temporal_state
+    if snapshot is None:
+        return {"verdict": CHECKPOINT_MISMATCH, "reason": "no requested-checkpoint snapshot"}
+    stack = [str(entry) for entry in snapshot.get("stack") or ()]
+    fields = {
+        "stack_size": (len(stack), len(model.causal_plan.spells) if model.causal_plan else None),
+        "stack_spell": (stack[0].split(" (")[0] if stack else None, spell_card),
+        "stack_target_card_id": (
+            bool(stack) and target_card_id is not None and f"({target_card_id})" in stack[0],
+            True,
+        ),
+        "active_player": (
+            str(snapshot.get("active_player_id") or "").lower(),
+            str(requested.get("active_player") or "").lower(),
+        ),
+        "priority_player": (
+            str(snapshot.get("priority_player_id") or "").lower(),
+            str(requested.get("priority_player") or "").lower(),
+        ),
+        "phase": (_normalize_phase(snapshot.get("phase")), requested.get("phase")),
+        "step": (_normalize_step(snapshot.get("step")), requested.get("step")),
+        "turn_number": (snapshot.get("turn_number"), requested.get("turn_number")),
+    }
+    mismatched = sorted(name for name, (seen, wanted) in fields.items() if seen != wanted)
+    return {
+        "verdict": CHECKPOINT_EXACT if not mismatched else CHECKPOINT_MISMATCH,
+        "fields": {
+            name: {"observed": seen, "requested": wanted} for name, (seen, wanted) in fields.items()
+        },
+        "mismatched": mismatched,
+    }
+
+
 def evaluate_commander_zone_choice(
     model: RequestedStateModel, run: fcr.CausalRun
 ) -> ObligationVerdict:
@@ -2447,6 +2495,17 @@ def evaluate_commander_zone_choice(
         for ref in frame.refs
     ]
     target_frames = sum(1 for frame in run.frames if frame.reason == "causal target")
+    target_card_ids = [
+        str(ref.get("card_id"))
+        for frame in run.frames
+        if frame.reason == "causal target"
+        for ref in frame.refs
+        if ref.get("card_id") is not None
+    ]
+    requested_checkpoint = _requested_checkpoint_facts(
+        model, run, spell.card, target_card_ids[0] if len(target_card_ids) == 1 else None
+    )
+    facts["requested_checkpoint"] = requested_checkpoint
     answers = run.scripted_answers
     wanted_answer = choice == "command"
     settled_zone = "command" if wanted_answer else event_zone
@@ -2468,6 +2527,8 @@ def evaluate_commander_zone_choice(
         "commander_zone_event": before
         == (["battlefield"] if event_zone == "hand" else [event_zone]),
         "commander_choice": zones_at.get("settled") == [settled_zone],
+        "requested_checkpoint": requested_checkpoint["verdict"] == CHECKPOINT_EXACT
+        and zones_at.get("requested_checkpoint") == ["battlefield"],
     }
     facts["checks"] = checks
     observed = all(checks.values())
@@ -2870,8 +2931,21 @@ def probe_row(
             model.causal_plan,
             seat_count=model.player_count or 2,
             observe=observe_owner,
+            answer_frame_kinds=_route_answer_frames(model),
+            checkpoint_priority=model.temporal_state.get("priority_player"),
         )
         obligation = evaluate_commander_zone_choice(model, run)
+        # The bootstrap checkpoint compared above is the pre-causal position;
+        # the record's own checkpoint (the cast stack, the requested player on
+        # priority) is judged from the engine snapshot the route captured.
+        evidence.set(
+            "checkpoint_equivalence",
+            {
+                **equivalence.to_document(),
+                "checkpoint_basis": "PRE_CAUSAL_POSITION_THEN_CAUSED_STACK",
+                "requested_checkpoint": obligation.terminal_facts.get("requested_checkpoint"),
+            },
+        )
         evidence.set("semantic_events", obligation.semantic_events)
         evidence.set(
             "terminal_facts",
@@ -3007,6 +3081,12 @@ def _receipt_observed_assertion(evidence: RowEvidence) -> dict[str, Any]:
     return {
         "checkpoint_verdict": checkpoint.get("verdict"),
         "checkpoint_variance_source": checkpoint.get("variance_source"),
+        # A causal row's checkpoint verdict is the pre-causal position; its
+        # requested checkpoint is judged separately from the caused stack.
+        "checkpoint_basis": checkpoint.get("checkpoint_basis", "BOOTSTRAP_CHECKPOINT"),
+        "requested_checkpoint_verdict": (checkpoint.get("requested_checkpoint") or {}).get(
+            "verdict"
+        ),
         "obligation_kind": classification.get("obligation_kind"),
         "semantic_events": list(fields.get("semantic_events") or []),
         "row_document_sha256": receipt_mod.document_digest(evidence.to_document()),

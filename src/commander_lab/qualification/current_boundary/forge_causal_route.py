@@ -264,6 +264,8 @@ def run_causal_route(
     *,
     seat_count: int,
     observe: Any,
+    answer_frame_kinds: frozenset[str],
+    checkpoint_priority: str | None,
     max_frames: int = 200,
 ) -> CausalRun:
     """Cast the plan's stack, then run the record's script to its settled end.
@@ -271,6 +273,13 @@ def run_causal_route(
     ``observe(game_id)`` returns the engine's state readback; it is called at
     each scripted decision and at the end so the obligation is judged from
     engine facts only.
+
+    The record's scripted step is answered only on a frame of one of
+    ``answer_frame_kinds`` and only once the requested stack exists; any other
+    non-priority frame fails closed rather than receiving the record's answer.
+    When ``checkpoint_priority`` first holds priority with the requested stack
+    in place, the engine state is captured as the ``requested_checkpoint``
+    snapshot: that, not the pre-causal position, is the record's checkpoint.
     """
     run = CausalRun()
     objects = ss.semantic_objects(record)
@@ -360,6 +369,13 @@ def run_causal_route(
                 and _principal(step.get("actor")) == actor
                 and decision_class != "priority"
             ):
+                if run.stack_after_cast is None or kind not in answer_frame_kinds:
+                    _record(run, frame, decision_class, options, None, "unauthorized frame")
+                    raise CausalRouteError(
+                        f"the engine asked {kind} of {actor}; the record's step "
+                        f"{step.get('causal_step_id')} is answered only on "
+                        f"{sorted(answer_frame_kinds)} after the requested stack is cast"
+                    )
                 state = observe(game_id)
                 run.snapshots.append(
                     {"at": f"before_scripted_{len(run.scripted_answers)}", "state": state}
@@ -378,6 +394,15 @@ def run_causal_route(
                 script.pop(0)
                 continue
             if decision_class == "priority":
+                if (
+                    run.stack_after_cast is not None
+                    and checkpoint_priority is not None
+                    and actor == _principal(checkpoint_priority)
+                    and not any(snap["at"] == "requested_checkpoint" for snap in run.snapshots)
+                ):
+                    state = observe(game_id)
+                    if state.get("stack"):
+                        run.snapshots.append({"at": "requested_checkpoint", "state": state})
                 if not script and not (observe(game_id).get("stack") or []):
                     _record(run, frame, decision_class, options, None, "settled: empty stack")
                     run.snapshots.append({"at": "settled", "state": observe(game_id)})

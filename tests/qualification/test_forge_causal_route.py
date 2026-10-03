@@ -89,6 +89,13 @@ def _record(answer: bool = True, choice: str = "command", zone: str = "graveyard
         "expected_events": {
             "required_events": [f"commander_zone_event:{zone}", f"commander_choice:{choice}"]
         },
+        "temporal_state": {
+            "turn_number": 1,
+            "phase": "precombat_main",
+            "step": "main",
+            "active_player": "P1",
+            "priority_player": "P1",
+        },
     }
 
 
@@ -140,6 +147,7 @@ def _frames(answer_kind: str = "COMMANDER_MOVE") -> list[dict]:
         _priority("p2"),
         _priority("p3"),
         _priority("p4"),
+        _priority("p1"),
         {
             "decision": {"kind": answer_kind, "actor": "p1"},
             "actions": [
@@ -152,7 +160,15 @@ def _frames(answer_kind: str = "COMMANDER_MOVE") -> list[dict]:
 
 
 def _state(stack: list[str], **zones: list[str]) -> dict:
-    return {"stack": stack, "players": [{"player_id": "p1", "zones": zones}]}
+    return {
+        "stack": stack,
+        "players": [{"player_id": "p1", "zones": zones}],
+        "turn_number": 1,
+        "phase": "MAIN1",
+        "step": "MAIN1",
+        "active_player_id": "p1",
+        "priority_player_id": "p1",
+    }
 
 
 class FakeBridge:
@@ -181,12 +197,18 @@ class FakeBridge:
 STATES = {
     0: _state([], battlefield=[ROGRAKH], command=["Commander Effect"]),
     5: _state(["Doom Blade (411) - Destroy Rograkh (100)."], battlefield=[ROGRAKH]),
-    8: _state([], graveyard=[ROGRAKH], command=["Commander Effect"]),
-    9: _state([], command=[ROGRAKH, "Commander Effect"]),
+    9: _state([], graveyard=[ROGRAKH], command=["Commander Effect"]),
+    10: _state([], command=[ROGRAKH, "Commander Effect"]),
 }
 
 
-def _run(monkeypatch, frames: list[dict], states: dict[int, dict] = STATES, record=None):
+def _run(
+    monkeypatch,
+    frames: list[dict],
+    states: dict[int, dict] = STATES,
+    record=None,
+    answer_kind: str = "COMMANDER_MOVE",
+):
     bridge = FakeBridge(frames, states)
     monkeypatch.setattr(fcr, "poll_decision", bridge.poll)
     monkeypatch.setattr(fcr, "decision_identity_params", lambda _c, _f: {})
@@ -200,6 +222,8 @@ def _run(monkeypatch, frames: list[dict], states: dict[int, dict] = STATES, reco
         plan,
         seat_count=4,
         observe=bridge.observe,
+        answer_frame_kinds=frozenset({answer_kind}),
+        checkpoint_priority="p1",
     )
     return bridge, run
 
@@ -255,7 +279,7 @@ def test_the_route_casts_targets_pays_and_answers_on_engine_frames(monkeypatch) 
         if method == "submit_action"
     ]
     assert submitted == ["cast", "tgt", "tap", "tap", "yes"]
-    assert sum(method == "pass_priority" for method, _ in bridge.requests) == 4
+    assert sum(method == "pass_priority" for method, _ in bridge.requests) == 5
     assert run.stack_after_cast == ["Doom Blade (411) - Destroy Rograkh (100)."]
     assert run.scripted_answers == [
         {
@@ -267,6 +291,7 @@ def test_the_route_casts_targets_pays_and_answers_on_engine_frames(monkeypatch) 
     ]
     assert [snapshot["at"] for snapshot in run.snapshots] == [
         "stack_caused",
+        "requested_checkpoint",
         "before_scripted_0",
         "settled",
     ]
@@ -274,7 +299,7 @@ def test_the_route_casts_targets_pays_and_answers_on_engine_frames(monkeypatch) 
 
 def test_an_unexpected_engine_frame_fails_closed(monkeypatch) -> None:
     frames = _frames()
-    frames[8] = {"decision": {"kind": "DECLARE_ATTACKERS", "actor": "p1"}, "actions": []}
+    frames[9] = {"decision": {"kind": "DECLARE_ATTACKERS", "actor": "p1"}, "actions": []}
     _, run = _run(monkeypatch, frames)
     assert run.failure and "unexpected engine frame DECLARE_ATTACKERS" in run.failure
 
@@ -364,14 +389,27 @@ def test_the_commander_zone_choice_is_judged_from_engine_facts(monkeypatch) -> N
 @pytest.mark.parametrize(
     ("frames", "states", "failed"),
     [
-        (_frames("GENERIC_CONFIRM"), STATES, "one_scripted_answer_on_the_rule_frame"),
-        (_frames(), {**STATES, 9: _state([], graveyard=[ROGRAKH])}, "commander_choice"),
+        (_frames("GENERIC_CONFIRM"), STATES, "causal route"),
+        (_frames(), {**STATES, 10: _state([], graveyard=[ROGRAKH])}, "commander_choice"),
         (
             _frames(),
-            {**STATES, 8: _state([], graveyard=[ROGRAKH], hand=[ROGRAKH])},
+            {**STATES, 9: _state([], graveyard=[ROGRAKH], hand=[ROGRAKH])},
             "name_identifies_one_card",
         ),
-        (_frames(), {**STATES, 8: _state([], exile=[ROGRAKH])}, "commander_zone_event"),
+        (_frames(), {**STATES, 9: _state([], exile=[ROGRAKH])}, "commander_zone_event"),
+        (
+            _frames(),
+            {**STATES, 5: {**STATES[5], "priority_player_id": "p2"}},
+            "requested_checkpoint",
+        ),
+        (
+            _frames(),
+            {
+                **STATES,
+                5: _state(["Doom Blade (411) - Destroy Grizzly Bears (7)."], battlefield=[ROGRAKH]),
+            },
+            "requested_checkpoint",
+        ),
     ],
 )
 def test_the_commander_zone_choice_is_not_observed_on_other_facts(
@@ -391,10 +429,16 @@ def test_the_hand_replacement_is_asked_while_the_commander_is_on_the_battlefield
     model = _model(record, monkeypatch)
     states = {
         **STATES,
-        8: _state(["Unsummon"], battlefield=[ROGRAKH]),
-        9: _state([], hand=["Mountain", ROGRAKH]),
+        9: _state(["Unsummon"], battlefield=[ROGRAKH]),
+        10: _state([], hand=["Mountain", ROGRAKH]),
     }
-    _, run = _run(monkeypatch, _frames("REPLACEMENT_CONFIRM"), states, record)
+    _, run = _run(
+        monkeypatch,
+        _frames("REPLACEMENT_CONFIRM"),
+        states,
+        record,
+        answer_kind="REPLACEMENT_CONFIRM",
+    )
     verdict = fsl.evaluate_commander_zone_choice(model, run)
     assert verdict.observed, verdict.reason
     assert verdict.semantic_events == ["commander_zone_event:hand", "commander_choice:hand"]
@@ -404,3 +448,51 @@ def test_a_failed_route_is_never_observed(monkeypatch) -> None:
     model = _model(_record(), monkeypatch)
     verdict = fsl.evaluate_commander_zone_choice(model, fcr.CausalRun(failure="boom"))
     assert not verdict.observed and "boom" in verdict.reason
+
+
+def test_the_scripted_answer_is_refused_on_any_other_choice_frame(monkeypatch) -> None:
+    """Review P2: a trigger the engine asks about first never gets the record's answer."""
+    frames = _frames()
+    frames.insert(
+        8,
+        {
+            "decision": {"kind": "TRIGGER_PLAY", "actor": "p1"},
+            "actions": [
+                _action("ty", "confirm", "Play trigger? [Yes]"),
+                _action("tn", "confirm", "Play trigger? [No]"),
+            ],
+        },
+    )
+    bridge, run = _run(monkeypatch, frames)
+    assert run.failure and "answered only on ['COMMANDER_MOVE']" in run.failure
+    submitted = [
+        p["proposal"]["legal_action_id"] for m, p in bridge.requests if m == "submit_action"
+    ]
+    assert "ty" not in submitted and "tn" not in submitted
+
+
+def test_a_choice_frame_before_the_cast_is_refused(monkeypatch) -> None:
+    frames = _frames()
+    frames.insert(
+        0,
+        {
+            "decision": {"kind": "COMMANDER_MOVE", "actor": "p1"},
+            "actions": [
+                _action("gy", "confirm", "Move? [Yes]"),
+                _action("gn", "confirm", "Move? [No]"),
+            ],
+        },
+    )
+    bridge, run = _run(monkeypatch, frames)
+    assert run.failure and "after the requested stack is cast" in run.failure
+    assert not [m for m, _ in bridge.requests if m == "submit_action"]
+
+
+def test_the_requested_checkpoint_is_judged_from_the_engine_snapshot(monkeypatch) -> None:
+    """Review P2: the record's checkpoint is the caused stack with P1 on priority."""
+    model = _model(_record(), monkeypatch)
+    _, run = _run(monkeypatch, _frames())
+    verdict = fsl.evaluate_commander_zone_choice(model, run)
+    checkpoint = verdict.terminal_facts["requested_checkpoint"]
+    assert checkpoint["verdict"] == fsl.CHECKPOINT_EXACT, checkpoint
+    assert checkpoint["fields"]["stack_target_card_id"]["observed"] is True
