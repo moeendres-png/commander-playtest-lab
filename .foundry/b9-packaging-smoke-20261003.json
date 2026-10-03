@@ -1,12 +1,12 @@
 {
   "schema_version": "2.0",
   "repository": "moeendres-png/commander-playtest-lab",
-  "worktree": "/home/moeen/work/lab-b9",
+  "worktree": "lab-b9 worktree (local path not recorded)",
   "branch": "hardening/lab-b9-packaging-smoke-20261003",
   "audit_base_sha": "286f78d0169766b7a9765bd6c50d41c06d4f8fa0",
   "audit_base_tree": "8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c",
-  "state_written_against_head": "674d82867a22579efa5eedc49e035765509c61fa",
-  "validated_head": "674d82867a22579efa5eedc49e035765509c61fa",
+  "state_written_against_head": "dedbafd38e64c3e2ce798b6a2e211c17ce94695a",
+  "validated_head": null,
   "objective": "Issue #490 (parent #479, child B9): add a deterministic packaging smoke that proves the actually built wheel installs into a clean isolated Python environment and that the installed package imports and its officially supported CLI entrypoints run from the installation, with machine-readable evidence bound to source SHA/TREE and wheel SHA-256 digest, and that broken/missing/ambiguous/tampered wheels, version mismatches, missing entrypoints, source-tree-import contamination, editable installs and missing/malformed evidence all fail closed.",
   "in_scope": [
     "scripts/verify_packaging_smoke.py (new deterministic packaging-smoke consumer + evidence producer)",
@@ -41,7 +41,11 @@
     "UNKNOWN is never PASS; the consumer must reject missing or malformed machine-readable evidence",
     "Existing required contexts quality/security/infrastructure and every existing ci.yml step must survive unchanged, including `python -m pip wheel --no-deps --wheel-dir dist .`",
     "No continue-on-error, no `|| true` on decisive packaging steps, no job-level if: skip, no retry-until-green",
-    "CI-02 must not be weakened and must not be made required"
+    "CI-02 must not be weakened and must not be made required",
+    "Only the wheel's declared runtime dependency closure may be installed in the isolated environment (no whole-lock install that masks undeclared imports)",
+    "The wheel payload must be byte-identical to the git-tracked package source at the clean HEAD it is bound to",
+    "check must independently recompute every field it can and fail on forged or contradictory PASS evidence",
+    "Every smoke failure path, including the earliest, must replace any previous evidence with FAIL/UNKNOWN evidence"
   ],
   "forbidden_shortcuts": [
     "pip wheel construction alone as packaging evidence",
@@ -49,21 +53,27 @@
     "A CLI invocation that resolves through the worktree or PYTHONPATH",
     "First-file wheel selection when several project wheels exist",
     "Consuming unpinned dependencies from an arbitrary global environment instead of the hash-pinned project lock",
-    "Weakening existing tests, denominators or assertions to obtain green CI"
+    "Weakening existing tests, denominators or assertions to obtain green CI",
+    "Installing the whole hash-pinned lock (dev/api/openai extras) into the smoke environment",
+    "Trusting producer-written fields in check without recomputing them"
   ],
   "validated_gates": [
-    "POSITIVE CONTROL: real wheel from the current candidate installs into a clean isolated venv; installed import resolves in the venv purelib; both declared console entrypoints exit 0 on --help; overall_classification PASS. (DIRECTLY_VERIFIED)",
-    "RED CONTROLS: 9 distinct failure classes killed through the real script entry point - missing wheel, ambiguous wheel set, expected-digest mismatch, wheel tampered after binding, source SHA/TREE binding mismatch, package/version mismatch after a real install, missing expected CLI entrypoint after a real install, source-tree import substitution, editable install markers, pre-existing environment, scratch-dir-inside-repository, and missing/malformed/UNKNOWN/incomplete/unbound evidence. (DIRECTLY_VERIFIED)",
-    "MACHINE-READABLE EVIDENCE: artifacts/quality/PACKAGING_SMOKE.json schema packaging-smoke-1.0.0 written on both PASS and FAIL, all required keys present, classification vocabulary PASS/FAIL/UNKNOWN, no absolute temp path used as semantic identity, no hidden data. (DIRECTLY_VERIFIED)",
-    "REQUIRED GATES NOT WEAKENED: scripts/verify_required_check_definitions.py --base <audit base> --head <candidate> returns GATE_DEFINITION_CHANGED_REVIEW_REQUIRED (exit 2) with 39/39 invariants PASS, zero non-PASS invariants and candidate_code_executed=false. CI-02 itself is not in the diff. (DIRECTLY_VERIFIED)",
-    "CI WIRED COMMANDS EXECUTED VERBATIM: both new ci.yml steps run from the repository root with --venv-dir \"$RUNNER_TEMP/packaging-smoke-venv\" and the relative --output artifacts/quality/PACKAGING_SMOKE.json; both exited 0. (DIRECTLY_VERIFIED)",
-    "STATIC QUALITY GATES: ruff check . clean; ruff format --check . 1255 files formatted; python -m compileall -q src tests scripts clean; mypy src/commander_lab Success (290 source files) inside the hash-pinned CI environment. (DIRECTLY_VERIFIED)",
-    "REPOSITORY TREE + SECRET SENTINEL: scripts/verify_repository_tree.py --head <candidate> valid=true, errors=[]; the quality job's verbatim secret-pattern git grep finds no matches. (DIRECTLY_VERIFIED)",
-    "FOCUSED + ADJACENT TESTS: pytest tests/unit/test_packaging_smoke.py tests/unit/test_ci_definition_integrity.py tests/unit/test_release_workflow_contract.py -> 83 passed (27 B9 controls). Whole-suite collection intact at 3562 tests. (DIRECTLY_VERIFIED)",
-    "FAIL-CLOSED ON ENVIRONMENT DEFECT: an exhausted /tmp tmpfs made the smoke report isolated_environment_creation_failed:exit=1 and exit 1 instead of emitting a PASS; a bounded stderr diagnostic was added to the consumer as a result. (DIRECTLY_VERIFIED)"
+    "POSITIVE CONTROL: a wheel built from a clean clone of the candidate HEAD passes smoke and check; installed import resolves in the venv purelib; both declared console entrypoints exit 0 on --help with installed entry-point targets equal to pyproject; only the declared runtime closure (15 distributions plus the venv baseline pip) is installed, each at its lock pin; overall_classification PASS with reasons []. (DIRECTLY_VERIFIED)",
+    "P1-1 UNDECLARED DEPENDENCY: a source-bound wheel from a commit whose package imports jsonschema (locked dev extra, not in Requires-Dist) FAILs with installed_import_failed:ModuleNotFoundError; jsonschema is absent from the recorded installed_distributions. Ground truth: a plain pip install of that wheel followed by commander-lab --help raises ModuleNotFoundError. (DIRECTLY_VERIFIED)",
+    "P1-2 RE-ADJUDICATING CHECK: 29 single-field forgeries of a real PASS document each fail check with a specific code, including evidence_source_sha_not_repository_head, evidence_source_tree_not_repository_tree, install_direct_url_sha256_not_wheel_sha256, install_editable_not_false, install_record_source_not_wheel, environment_invariant_violated:include_system_site_packages, pass_recorded_with_failure_reasons, expected_binding_mismatch:<key> and evidence_required_key_missing:<key>. (DIRECTLY_VERIFIED)",
+    "P2-1 STALE EVIDENCE: with a pre-existing PASS document at the output path, six early failures (missing wheel, digest mismatch, unreadable contract, missing lock, scratch dir inside repository, source binding mismatch) each replace it with FAIL/UNKNOWN evidence carrying exactly one reason and no absolute path, and check FAILs. (DIRECTLY_VERIFIED)",
+    "P2-2 SOURCE BINDING: a wheel built from another commit FAILs before install with wheel_payload_differs_from_source:different=1,extra=0,missing=0; a dirty tracked tree FAILs with source_working_tree_dirty:tracked_changes=1; a source-proxy .pth decoy FAILs with wheel_payload_has_files_not_in_source; the import-provenance guard behind the binding is proven separately (source_tree_leaked_onto_isolated_sys_path:entries=1). (DIRECTLY_VERIFIED)",
+    "P3: installed console_scripts targets are compared with pyproject (cli_entrypoint_target_mismatch control); the version-mismatch control asserts the exact reason package_version_mismatch:expected=9.99.99 installed=1.25.0; failure reasons carry no absolute paths. (DIRECTLY_VERIFIED)",
+    "CI WIRED COMMANDS EXECUTED LOCALLY (paths adapted): python -m pip wheel --no-deps --wheel-dir <scratch dist> . then the ci.yml smoke and check commands with --repo . exited 0 on the committed repair head. (DIRECTLY_VERIFIED, local only; exact-head GitHub CI not yet run)",
+    "STATIC: ruff check and ruff format --check clean on the changed Python files; mypy (repository strict config) clean on scripts/verify_packaging_smoke.py. (DIRECTLY_VERIFIED)",
+    "FOCUSED + ADJACENT TESTS: tests/unit/test_packaging_smoke.py 61 passed (about 80 s locally, 4 isolated environments instead of 11); test_required_test_ownership, test_first_option_ratchet, test_ci_definition_integrity and test_release_workflow_contract 65 passed. (DIRECTLY_VERIFIED)"
   ],
   "failed_gates": [],
-  "invalidated_gates": [],
+  "invalidated_gates": [
+    "Exact-head CI receipts for 8b4f9f19 and 674d8286 (runs 37119295136, 37119295137, 37120371002, 37120371014, CI-02 shadow 37120369359) validate the pre-repair implementation only; they are not evidence for the repaired head.",
+    "Prior claim that the isolated smoke proves the wheel's dependency metadata: invalidated by the adversarial review, because the whole lock (including dev/api/openai extras) was installed and masked undeclared imports.",
+    "Prior claim that check independently re-adjudicates evidence: invalidated by the adversarial review; it accepted forged or contradictory PASS documents."
+  ],
   "do_not_rerun": [
     "Historical release-artifacts.yml wheel roundtrip claims: donor/regression hint only, never a current PASS (adjudicated fresh in technical_decisions B9-D1).",
     "FullGame / engine qualification suites: unchanged by B9 and authoritatively executed by repository gates.",
@@ -71,7 +81,7 @@
   ],
   "current_failure": "NONE",
   "failure_class": "NONE",
-  "current_hypothesis": "RESOLVED. The existing release-artifacts.yml isolated-venv roundtrip is a valid partial donor but is insufficient for #490, so B9 needed a bounded new packaging-smoke implementation that reuses its proven sequence. See technical_decisions.",
+  "current_hypothesis": "RESOLVED for the review findings P1-1, P1-2, P2-1, P2-2 and P3; exact-head CI on the repaired head is still outstanding.",
   "files_modified": [
     ".foundry/b9-packaging-smoke-20261003.json",
     ".github/workflows/ci.yml",
@@ -79,16 +89,14 @@
     "tests/unit/test_packaging_smoke.py"
   ],
   "tests_run": [
-    "pytest tests/unit/test_packaging_smoke.py tests/unit/test_ci_definition_integrity.py tests/unit/test_release_workflow_contract.py -q  -> 83 passed",
-    "pytest --collect-only -q  -> 3562 tests collected",
-    "ruff check .  -> All checks passed",
-    "ruff format --check .  -> 1255 files already formatted",
-    "python -m compileall -q src tests scripts  -> clean",
-    "mypy src/commander_lab (inside hash-pinned lock venv)  -> Success: no issues found in 290 source files",
-    "python scripts/verify_required_check_definitions.py --base 286f78d0... --head c3eaf42d...  -> GATE_DEFINITION_CHANGED_REVIEW_REQUIRED, 39/39 invariants PASS, exit 2",
-    "python scripts/verify_repository_tree.py --head c3eaf42d...  -> {\"errors\": [], \"valid\": true}",
-    "python scripts/verify_packaging_smoke.py smoke --repo . --wheel-dir dist --venv-dir \"$RUNNER_TEMP/packaging-smoke-venv\" --output artifacts/quality/PACKAGING_SMOKE.json  -> exit 0",
-    "python scripts/verify_packaging_smoke.py check --repo . --wheel-dir dist --evidence artifacts/quality/PACKAGING_SMOKE.json  -> exit 0"
+    "pytest -p no:cacheprovider tests/unit/test_packaging_smoke.py -q  -> 61 passed",
+    "pytest -p no:cacheprovider tests/unit/test_required_test_ownership.py tests/unit/test_first_option_ratchet.py tests/unit/test_ci_definition_integrity.py tests/unit/test_release_workflow_contract.py -q  -> 65 passed",
+    "ruff check / ruff format --check scripts/verify_packaging_smoke.py tests/unit/test_packaging_smoke.py  -> clean",
+    "mypy scripts/verify_packaging_smoke.py  -> Success: no issues found in 1 source file",
+    "python -m pip wheel --no-deps --wheel-dir <scratch dist> .  then  python scripts/verify_packaging_smoke.py smoke --repo . --wheel-dir <scratch dist> --venv-dir \"$RUNNER_TEMP/packaging-smoke-venv\" --output artifacts/quality/PACKAGING_SMOKE.json  -> exit 0 (PASS)",
+    "python scripts/verify_packaging_smoke.py check --repo . --wheel-dir <scratch dist> --evidence artifacts/quality/PACKAGING_SMOKE.json  -> exit 0 (PASS)",
+    "Review repro P1-1 (jsonschema import, committed in a temporary clone)  -> smoke exit 1 installed_import_failed:ModuleNotFoundError; check exit 1",
+    "Review repro P1-2 (11 forgeries of the real PASS document)  -> check exit 1 with a specific code for each; unmodified document exit 0"
   ],
   "evidence": [
     "DIRECTLY_VERIFIED: ci.yml `quality` ran only `python -m pip wheel --no-deps --wheel-dir dist .`, which proves wheel construction and nothing about install, import or CLI behaviour.",
@@ -99,14 +107,18 @@
     "DIRECTLY_VERIFIED: both declared entrypoints implement `--help` deterministically with no external service; commander-lab --help on Python 3.12 is additionally attested by the existing release-artifacts.yml workflow.",
     "CODE_DERIVED + DIRECTLY_VERIFIED: the smoke requires the imported module file to resolve under the venv purelib and forbids repository paths on the probe sys.path; the decoy-wheel control proves a genuinely succeeding source-tree import is rejected rather than passed.",
     "DIRECTLY_VERIFIED: setuptools wheels are not byte-reproducible here (two builds of identical source produced digests 4d721b05... and 060610754...), so evidence binds to the digest of the wheel built in that run.",
-    "DIRECTLY_VERIFIED: measured additive packaging-smoke cost with a warm pip cache is ~19 s, so the required quality job's 25-minute budget was left unchanged rather than widened.",
+    "HISTORICAL (pre-repair): measured additive packaging-smoke cost with a warm pip cache was ~19 s, so the required quality job's 25-minute budget was left unchanged rather than widened.",
     "DIRECTLY_VERIFIED: CI-02 Phase 1 remains COMPLETE, informational/shadow and not server-required; B9 did not modify scripts/verify_required_check_definitions.py and did not add any required context.",
-    "DIRECTLY_VERIFIED (exact head 8b4f9f19, GitHub Actions, Python 3.12.14): required contexts quality, security and infrastructure all PASS. Runs 37119295136 (CI) and 37119295137 (Production Qualification). quality ran 14m25s with every step green, including step 12 'Packaging smoke (isolated wheel install, import and CLI)' and step 13 'Packaging smoke evidence check'.",
-    "DIRECTLY_VERIFIED (exact head): the CI-produced artifacts/quality/PACKAGING_SMOKE.json from run 37119295136 records overall_classification=PASS, source_sha=bbf0f381d3c293d71445df9c6543ceb72914242b (the PR merge commit that pull_request checks out), source_tree=385f1b39847394905aed43c20dfb8177a262f5a2, wheel_filename=commander_playtest_lab-1.25.0-py3-none-any.whl, wheel_sha256=9ae05cd677a23c2c373ffae8a2623b903a846e60adfa5d2df344d4e2bd4e6e2a, package_version=1.25.0, python_version=3.12.14, install_source=wheel, install.direct_url_sha256 equal to wheel_sha256, installed_import.module_file_relative_to_purelib=commander_lab/__init__.py, installed_import.resolved_in_isolated_environment=true, both declared console entrypoints status=PASS with returncode=0, and no absolute runner path anywhere in the document.",
-    "DIRECTLY_VERIFIED (exact head): CI-02 informational shadow run 37119294270, executed from the trusted base validator 286f78d0, reports overall_classification=GATE_DEFINITION_CHANGED_REVIEW_REQUIRED with 39/39 invariants PASS, zero non-PASS invariants and candidate_code_executed=false. The shadow red is the correct classification for a legitimate required-gate definition change and was not used to weaken the validator.",
-    "DIRECTLY_VERIFIED (exact head): ancillary checks repository-tree-integrity (37119294314), windows-runtime (37119295141), h4-docker-materialization preflight (37119295152), external-xmage-integration (37119295134), xmage-real-4p (37119295118) and xmage-full-game (37119295131) all PASS.",
+    "HISTORICAL (pre-repair implementation): DIRECTLY_VERIFIED (exact head 8b4f9f19, GitHub Actions, Python 3.12.14): required contexts quality, security and infrastructure all PASS. Runs 37119295136 (CI) and 37119295137 (Production Qualification). quality ran 14m25s with every step green, including step 12 'Packaging smoke (isolated wheel install, import and CLI)' and step 13 'Packaging smoke evidence check'.",
+    "HISTORICAL (pre-repair implementation): DIRECTLY_VERIFIED (exact head): the CI-produced artifacts/quality/PACKAGING_SMOKE.json from run 37119295136 records overall_classification=PASS, source_sha=bbf0f381d3c293d71445df9c6543ceb72914242b (the PR merge commit that pull_request checks out), source_tree=385f1b39847394905aed43c20dfb8177a262f5a2, wheel_filename=commander_playtest_lab-1.25.0-py3-none-any.whl, wheel_sha256=9ae05cd677a23c2c373ffae8a2623b903a846e60adfa5d2df344d4e2bd4e6e2a, package_version=1.25.0, python_version=3.12.14, install_source=wheel, install.direct_url_sha256 equal to wheel_sha256, installed_import.module_file_relative_to_purelib=commander_lab/__init__.py, installed_import.resolved_in_isolated_environment=true, both declared console entrypoints status=PASS with returncode=0, and no absolute runner path anywhere in the document.",
+    "HISTORICAL (pre-repair implementation): DIRECTLY_VERIFIED (exact head): CI-02 informational shadow run 37119294270, executed from the trusted base validator 286f78d0, reports overall_classification=GATE_DEFINITION_CHANGED_REVIEW_REQUIRED with 39/39 invariants PASS, zero non-PASS invariants and candidate_code_executed=false. The shadow red is the correct classification for a legitimate required-gate definition change and was not used to weaken the validator.",
+    "HISTORICAL (pre-repair implementation): DIRECTLY_VERIFIED (exact head): ancillary checks repository-tree-integrity (37119294314), windows-runtime (37119295141), h4-docker-materialization preflight (37119295152), external-xmage-integration (37119295134), xmage-real-4p (37119295118) and xmage-full-game (37119295131) all PASS.",
     "DIRECTLY_VERIFIED: the first exact-head CI run failed in quality at 'Test suite' (not at the packaging steps) because tests/unit/test_first_option_ratchet.py reported 3 first-option picks in the new script. Those were implicit candidates[0] picks in the venv interpreter/site-packages resolution. They were eliminated with an explicit _only() helper that fails closed on ambiguity; no BASELINE entry was added and no gate was weakened. This also closed a real latent defect where a venv with two lib/python*/site-packages trees would have silently used the first. The next exact-head run is fully green.",
-    "DIRECTLY_VERIFIED (FINAL PR head 674d82867a22579efa5eedc49e035765509c61fa, tree 0879a5e34a902f95a071c6a6345467dc671fce4b): required contexts quality (run 37120371002), security (run 37120371002) and infrastructure (run 37120371014) all PASS. quality step 12 'Packaging smoke (isolated wheel install, import and CLI)' -> success and step 13 'Packaging smoke evidence check' -> success. CI-produced artifacts/quality/PACKAGING_SMOKE.json from run 37120371002 records overall_classification=PASS, source_tree=0879a5e34a902f95a071c6a6345467dc671fce4b, wheel_sha256=23723135e356948d6ad5d44aa4415cb0aa3990fb478883db0908e383fd315cbd equal to install.direct_url_sha256, install.editable=false, install.index_access=disabled, installed_import.module_file_relative_to_purelib=commander_lab/__init__.py, installed_import.resolved_in_isolated_environment=true, and both declared console entrypoints commander-lab and commander-lab-optimizer status=PASS returncode=0 on Python 3.12.14, with no absolute runner path anywhere in the document. CI-02 shadow run 37120369359 at the same head reports GATE_DEFINITION_CHANGED_REVIEW_REQUIRED with 39/39 invariants PASS, zero non-PASS invariants and candidate_code_executed=false, executed from the trusted base validator 286f78d0."
+    "DIRECTLY_VERIFIED (FINAL PR head 674d82867a22579efa5eedc49e035765509c61fa, tree 0879a5e34a902f95a071c6a6345467dc671fce4b): required contexts quality (run 37120371002), security (run 37120371002) and infrastructure (run 37120371014) all PASS. quality step 12 'Packaging smoke (isolated wheel install, import and CLI)' -> success and step 13 'Packaging smoke evidence check' -> success. CI-produced artifacts/quality/PACKAGING_SMOKE.json from run 37120371002 records overall_classification=PASS, source_tree=0879a5e34a902f95a071c6a6345467dc671fce4b, wheel_sha256=23723135e356948d6ad5d44aa4415cb0aa3990fb478883db0908e383fd315cbd equal to install.direct_url_sha256, install.editable=false, install.index_access=disabled, installed_import.module_file_relative_to_purelib=commander_lab/__init__.py, installed_import.resolved_in_isolated_environment=true, and both declared console entrypoints commander-lab and commander-lab-optimizer status=PASS returncode=0 on Python 3.12.14, with no absolute runner path anywhere in the document. CI-02 shadow run 37120369359 at the same head reports GATE_DEFINITION_CHANGED_REVIEW_REQUIRED with 39/39 invariants PASS, zero non-PASS invariants and candidate_code_executed=false, executed from the trusted base validator 286f78d0.",
+    "DIRECTLY_VERIFIED (review repro, pre-repair code): adding `import jsonschema` to src/commander_lab/__init__.py still produced smoke PASS because the whole lock was installed; a plain pip install of that wheel then `commander-lab --help` raised ModuleNotFoundError.",
+    "DIRECTLY_VERIFIED: `pip download --no-deps --require-hashes --only-binary=:all: -r requirements/lock.txt` downloads one wheel for each of the 107 lock entries on Python 3.12/Linux; with --no-deps the unpinned transitive pip-api -> pip edge is never resolved, so the earlier objection in B9-D3 does not apply.",
+    "DIRECTLY_VERIFIED: `pip --isolated install --no-index --find-links <wheelhouse> <exact wheel>` installs exactly the wheel's declared closure: annotated-doc, annotated-types, et-xmlfile, markdown-it-py, mdurl, openpyxl, pydantic, pydantic-core, pygments, pyyaml, rich, shellingham, typer, typing-extensions, typing-inspection, plus the venv baseline pip. Measured locally: smoke about 19 s with a warm pip cache (download about 10 s).",
+    "DIRECTLY_VERIFIED: every one of the 290 git-tracked files under src/ is packaged into the wheel byte for byte (git blob object id comparison); there are no tracked non-package files under src/."
   ],
   "artifacts": [
     "Draft PR #509 - https://github.com/moeendres-png/commander-playtest-lab/pull/509 (DRAFT, open, not merged, not marked ready)",
@@ -116,15 +128,17 @@
     "Prior exact-head CI receipts retained: 37119295136 (quality+security), 37119295137 (infrastructure), 37119294270 (CI-02), 37116939904 (first run that exposed the first-option ratchet failure)"
   ],
   "remaining_scope": [
+    "Push of the local repair commits and exact-head CI (quality, security, infrastructure) on the repaired head: owned by the Coordinator; not performed by this repair round.",
     "Owner review of Draft PR #509 and the merge decision. NOT owned by this workstream: the PR stays Draft, was not marked ready and was not self-merged.",
-    "Coordinator adjudication of the single CI-02 review item GATE_DEFINITION_CHANGED_REVIEW_REQUIRED for the legitimate required-gate definition change (required_workflow_changed:.github/workflows/ci.yml and quality_test_definition_changed:tests/unit/test_packaging_smoke.py). Phase-2 reviewer acknowledgement is Coordinator-owned policy and was deliberately not reopened or weakened here."
+    "Coordinator adjudication of the CI-02 review item GATE_DEFINITION_CHANGED_REVIEW_REQUIRED for the legitimate required-gate definition change (ci.yml step comments changed in this round; commands unchanged)."
   ],
-  "status": "COMPLETE",
+  "status": "WAITING",
   "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
   "current_reasoning_tier": "max",
   "hypotheses_rejected": [
     "H0 (rejected by fresh read): 'the existing release-artifacts.yml smoke already satisfies #490' - it is release-scoped, not a required per-PR context, covers one of two console scripts, emits no machine-readable digest/SHA-bound evidence, and has no adversarial control.",
-    "H1 (rejected by exact-head CI): 'B9's packaging smoke would pass through the repository's existing first-option ratchet unchanged' - the ratchet is a real, previously unknown required-context gate under quality/Test suite and rejected the first cut with 3 first-option picks. Repaired by elimination, not by a baseline entry."
+    "H1 (rejected by exact-head CI): 'B9's packaging smoke would pass through the repository's existing first-option ratchet unchanged' - the ratchet is a real, previously unknown required-context gate under quality/Test suite and rejected the first cut with 3 first-option picks. Repaired by elimination, not by a baseline entry.",
+    "H2 (rejected by adversarial review repro): 'installing the whole hash-pinned lock is an adequate dependency source for the smoke' - it masks undeclared runtime imports of any locked package."
   ],
   "technical_decisions": [
     {
@@ -146,7 +160,7 @@
       "decision": "Provision the isolated environment's dependency closure from the project's own hash-pinned requirements/lock.txt using `pip install --require-hashes`, then install the project itself with `pip install --no-index --no-deps --force-reinstall <exact wheel path>`, and verify the wheel's own non-extra Requires-Dist entries are satisfied from inside the isolated env.",
       "evidence": "Measured on Python 3.14.4: hash-pinned lock install into a fresh venv succeeds in ~17 s. `pip download --require-hashes -r requirements/lock.txt` was rejected as the provisioning mechanism because the lock's transitive `pip-api` -> `pip` edge is not `==`-pinned, so a download-based wheelhouse cannot be built without inventing a new pin authority. The `--no-index --no-deps` project install plus an explicit in-venv Requires-Dist satisfaction check is deterministic, uses no new authority surface, and still proves the wheel's own dependency metadata is satisfiable from a fixed hash-pinned artifact set.",
       "rejected_alternative": "A download-based wheelhouse; consuming the runner's already-installed editable project or its ambient site-packages; default index resolution at install time.",
-      "classification": "DIRECTLY_VERIFIED"
+      "classification": "SUPERSEDED_BY_B9-D9"
     },
     {
       "id": "B9-D4-install-source-proof",
@@ -163,7 +177,7 @@
     {
       "id": "B9-D6-no-timeout-weakening",
       "decision": "Leave the required `quality` job's `timeout-minutes: 25` unchanged.",
-      "evidence": "Measured additive cost of the packaging smoke with a warm pip cache: venv creation ~1.7 s, hash-pinned lock install ~16.7 s, wheel install ~0.8 s - about 19 s total, plus two sub-second CLI probes. The job already installs the same lock and configures `cache: pip`, so the additive cost stays far inside the existing budget and no budget had to be widened.",
+      "evidence": "Measured additive cost of the packaging smoke with a warm pip cache: venv creation ~1.7 s, hash-pinned lock install ~16.7 s, wheel install ~0.8 s - about 19 s total, plus two sub-second CLI probes. The job already installs the same lock and configures `cache: pip`, so the additive cost stays far inside the existing budget and no budget had to be widened. Repair round: the closure-only smoke measured about 19 s locally with a warm pip cache; the budget is still unchanged.",
       "classification": "DIRECTLY_VERIFIED"
     },
     {
@@ -178,6 +192,31 @@
       "evidence": "The ratchet's own contract permits either an explicit choice or a reviewed baseline entry. Elimination was chosen because it is strictly stronger: it also closes a real latent defect in which a venv containing two lib/python*/site-packages trees would previously have silently used whichever sorted first, which would have made the evidence non-reproducible. The ratchet now reports zero occurrences for scripts/verify_packaging_smoke.py and no BASELINE entry was added, so the gate was not weakened.",
       "rejected_alternative": "Adding a reviewed BASELINE entry, which would have permitted the latent first-pick ambiguity to remain in a fail-closed isolation tool.",
       "classification": "DIRECTLY_VERIFIED"
+    },
+    {
+      "id": "B9-D9-closure-only-install",
+      "decision": "Supersedes B9-D3. Download the lock with --no-deps --require-hashes --only-binary into a fresh wheelhouse, re-verify every wheelhouse file against the lock pin and hash list, then install the exact wheel path with pip --isolated install --no-index --find-links <wheelhouse>, so pip resolves only the wheel's Requires-Dist. Every installed distribution beyond the venv baseline and the project must be in the declared closure at the lock pin.",
+      "evidence": "The review repro showed the whole-lock install masked an undeclared jsonschema import. --no-deps sidesteps the unpinned pip-api -> pip edge that B9-D3 cited.",
+      "rejected_alternative": "Deriving a closure subset of lock lines from wheel METADATA on the host (duplicates pip's resolver); keeping the whole-lock install.",
+      "classification": "DIRECTLY_VERIFIED"
+    },
+    {
+      "id": "B9-D10-check-recomputes",
+      "decision": "check requires --wheel-dir and recomputes HEAD SHA/TREE, clean tracked tree, wheel digest, wheel-to-source binding, package contract, console-script targets, lock digest and closure pins, and the checking interpreter version; it enforces exact key sets and internal consistency (reasons empty iff PASS, expected bindings, direct_url digest, editable/install source/isolation flags). The producer records observed values only.",
+      "evidence": "The review showed forged PASS documents were accepted; each forgery is now a parametrized red control.",
+      "classification": "DIRECTLY_VERIFIED"
+    },
+    {
+      "id": "B9-D11-source-binding-and-stale-evidence",
+      "decision": "smoke removes previous evidence first and writes FAIL/UNKNOWN evidence on every failure path; it requires no tracked modification and compares each wheel payload file with the git blob at HEAD under the pyproject-declared package source root before installing.",
+      "evidence": "setuptools wheels are not byte-reproducible, but their payload files are; a wheel from another commit or a stale build directory differs, has extra files or misses files.",
+      "classification": "DIRECTLY_VERIFIED"
+    },
+    {
+      "id": "B9-D12-test-runtime",
+      "decision": "Tests run against clean temporary clones of HEAD (never the real tree) and share one honest isolated run through a module-scoped fixture; only the four controls that need a real install (honest, undeclared import, version mismatch, entrypoint missing/retargeted) build an environment.",
+      "evidence": "tests/unit/test_packaging_smoke.py: 61 tests in about 80 s locally; previously 11 isolated environments each installing the whole lock.",
+      "classification": "DIRECTLY_VERIFIED"
     }
   ],
   "authority_gates": [
@@ -185,12 +224,14 @@
   ],
   "first_failing_boundary": "NONE",
   "root_cause_class": "NONE",
-  "next_action": "No further implementation work remains in B9; hand off to the owner for review and merge decision.",
-  "exact_next_action": "B9 is COMPLETE at final PR head 674d82867a22579efa5eedc49e035765509c61fa. No further B9 implementation step remains, and the required quality, security and infrastructure contexts are green on that exact head. Exact next action belongs to the owner: adjudicate the CI-02 GATE_DEFINITION_CHANGED_REVIEW_REQUIRED review item on Draft PR #509 and decide whether to mark it ready and merge. Do not mark ready and do not merge from this workstream.",
+  "next_action": "Push the repair commits and obtain exact-head CI for the repaired head.",
+  "exact_next_action": "Coordinator: push hardening/lab-b9-packaging-smoke-20261003 (normal push, no force) and confirm the required quality context runs both packaging steps green on the exact repaired head; record the run ids here. Do not mark the PR ready and do not merge from this workstream.",
   "execution_profile": "space-bunny",
   "executor_model": "opencode-go/space-bunny-free",
   "native_variant": "max",
   "variant_resolution": "Session identity declared by the launcher prompt as space-bunny-free at native max; no silent fallback and no rerouting performed.",
-  "executor_handoff_from": null,
-  "executor_handoff_reason": null
+  "executor_handoff_from": "space-bunny",
+  "executor_handoff_reason": "Adversarial review repair round (P1-1, P1-2, P2-1, P2-2, P3) executed in a separate session.",
+  "previously_validated_head": "674d82867a22579efa5eedc49e035765509c61fa",
+  "status_detail": "Repair round committed locally; waiting for the Coordinator push and exact-head CI on the repaired head."
 }
