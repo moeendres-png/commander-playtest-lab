@@ -33,6 +33,8 @@ from commander_lab.models import (
     PilotStateView,
     RulesDeckInput,
 )
+from commander_lab.semantic_replay.canonicalization import canonical_hash
+from commander_lab.semantic_replay.tape_helpers import selected_fingerprints_for_response
 
 FULL_GAME_DECISION_PROTOCOL_VERSION = "xmage-external-decision-protocol-1.0.0"
 FULL_GAME_LANE = "xmage_full_game_external_pilots"
@@ -233,6 +235,25 @@ class FullGameConformanceResult(_StrictModel):
     )
 
 
+# B8 (#489): (decision_class, seat, turn_number, phase, response_digest,
+# active_seat). active_seat is the turn's active player, resolved inside the
+# decider's own view (active_player_id -> players[].seat).
+ProgressEntry = tuple[str, int | None, int | None, str | None, str, int | None]
+
+
+def _active_seat(pilot_state: Any) -> int | None:
+    """The active player's seat in one actor-scoped view, or None if unresolvable."""
+    if not isinstance(pilot_state, dict):
+        return None
+    active = pilot_state.get("active_player_id")
+    seats = [
+        player.get("seat")
+        for player in pilot_state.get("players") or ()
+        if isinstance(player, dict) and active is not None and player.get("player_id") == active
+    ]
+    return seats[0] if len(seats) == 1 and type(seats[0]) is int else None
+
+
 class FullGameSmokeResult(_StrictModel):
     """Bounded cardinality smoke outcome (WS223).
 
@@ -243,8 +264,8 @@ class FullGameSmokeResult(_StrictModel):
     (live 4P gate) and the per-count unit outcome guards.
     """
 
-    schema_version: Literal["xmage-full-game-smoke-result-1.0.0"] = (
-        "xmage-full-game-smoke-result-1.0.0"
+    schema_version: Literal["xmage-full-game-smoke-result-1.1.0"] = (
+        "xmage-full-game-smoke-result-1.1.0"
     )
     scenario_id: str
     player_count: int = Field(ge=2, le=6)
@@ -259,6 +280,14 @@ class FullGameSmokeResult(_StrictModel):
     seed_preserved: Literal[True]
     player_count_preserved: Literal[True]
     observed_decision_classes: tuple[str, ...]
+    # B8 (#489): the public progress trace of the answered decisions, one
+    # (decision_class, seat, turn_number, phase, response_digest) entry each.
+    # Version 1.1 binds semantic selections using the existing replay fingerprints.
+    # Recorded on every smoke; only --progress-turns evaluates it.
+    progress_trace: tuple[ProgressEntry, ...] = ()
+    stop_reason: Literal["turn_boundary", "decision_limit", "terminal"] = "decision_limit"
+    stop_turn_number: int | None = None
+    progress_digest: str | None = None
     unsupported_callback_seen: Literal[False] = False
     clean_shutdown: Literal[True] = True
     evidence_class: Literal["technical_conformance_only"] = FULL_GAME_EVIDENCE_CLASS
@@ -266,6 +295,86 @@ class FullGameSmokeResult(_StrictModel):
     holdout_consumed: Literal[False] = False
     official_campaign_eligible: Literal[False] = False
     fallback_used: Literal[False] = False
+
+
+def smoke_progress_contract(
+    trace: tuple[ProgressEntry, ...],
+    *,
+    player_count: int,
+    through_turn: int,
+) -> dict[str, Any]:
+    """Technical progress through a full seat cycle, with attributable responses.
+
+    The caller separately requires the observed next-turn boundary. This trace
+    requires priority in every completed turn and from every seated player; it
+    never claims card behaviour or terminal full-game qualification.
+    """
+    turns = sorted({row[2] for row in trace if type(row[2]) is int})
+    priority = [(row[1], row[2]) for row in trace if row[0] == "priority"]
+    priority_turns = sorted({turn for _seat, turn in priority if type(turn) is int})
+    priority_seats = sorted({seat for seat, _turn in priority if type(seat) is int})
+    violations = []
+    if type(player_count) is not int or not 2 <= player_count <= 6:
+        violations.append("invalid player count")
+    if type(through_turn) is not int or through_turn < player_count:
+        violations.append("progress target must cover a full seat cycle")
+    if not turns or turns[-1] < through_turn:
+        violations.append(f"game did not reach turn {through_turn} (turns {turns})")
+    if any(turn not in priority_turns for turn in range(1, through_turn + 1)):
+        violations.append(f"priority missing from a required turn ({priority_turns})")
+    if priority_seats != list(range(player_count)):
+        violations.append(f"not every seat answered priority (seats {priority_seats})")
+    if any(row[1] is None for row in trace):
+        violations.append("a decision carried no seat")
+    if any(type(row[1]) is not int or not 0 <= row[1] < player_count for row in trace):
+        violations.append("a decision carried an invalid seat")
+    if any(row[0] == "priority" and (type(row[2]) is not int or row[2] < 1) for row in trace):
+        violations.append("a priority decision carried an invalid turn")
+    if any(
+        not isinstance(row[4], str) or re.fullmatch(r"[0-9a-f]{64}", row[4]) is None
+        for row in trace
+    ):
+        violations.append("a decision carried no valid response digest")
+    # Each completed turn has exactly one active player, and the completed turns
+    # of a full cycle are taken by every seat: priority in every turn and from
+    # every seat alone would accept one player taking turns 2..N. Priority only
+    # exists inside a turn, so every priority decision must resolve the active
+    # seat; pre-game choices (mulligans, commander placement) have no active
+    # player yet, but any active seat they do carry must agree.
+    active_by_turn: dict[int, list[int]] = {}
+    unresolved_turns: set[int] = set()
+    for row in trace:
+        if type(row[2]) is int and 1 <= row[2] <= through_turn:
+            active = row[5] if len(row) > 5 else None
+            if active is None and row[0] != "priority":
+                continue
+            if type(active) is not int or not 0 <= active < player_count:
+                unresolved_turns.add(row[2])
+            elif active not in active_by_turn.setdefault(row[2], []):
+                active_by_turn[row[2]].append(active)
+    if unresolved_turns:
+        violations.append(
+            f"decisions with no valid active seat in turns {sorted(unresolved_turns)}"
+        )
+    active_seats_by_turn = {str(turn): seats for turn, seats in sorted(active_by_turn.items())}
+    if any(len(seats) != 1 for seats in active_by_turn.values()):
+        violations.append(f"a turn had more than one active seat ({active_seats_by_turn})")
+    completed = {seats[0] for seats in active_by_turn.values() if len(seats) == 1}
+    if type(player_count) is int and completed != set(range(player_count)):
+        violations.append(
+            f"the completed turns were not taken by every seat ({active_seats_by_turn})"
+        )
+    return {
+        "schema_version": "xmage-smoke-progress-contract-1.2.0",
+        "active_seats_by_turn": active_seats_by_turn,
+        "through_turn": through_turn,
+        "turns_observed": turns,
+        "priority_turns": priority_turns,
+        "priority_seats": priority_seats,
+        "decisions": len(trace),
+        "violations": violations,
+        "met": not violations,
+    }
 
 
 class FullGameSemanticTapeEvidence(_StrictModel):
@@ -2067,6 +2176,7 @@ class XmageFullGameRunner:
         decks: tuple[RulesDeckInput, ...],
         pilots: tuple[FullGamePilotBinding, ...],
         smoke_decision_target: int = 25,
+        stop_at_turn: int | None = None,
     ) -> FullGameSmokeResult:
         """Drive a bounded live lifecycle smoke for one supported cardinality.
 
@@ -2094,8 +2204,15 @@ class XmageFullGameRunner:
         )
         with client:
             provider = self._open_game(client, scenario, decks)
+            progress: list[ProgressEntry] = []
+            stop: dict[str, Any] = {}
             decision_count, observed, terminal = self._drive(
-                client, policy, stop_after=smoke_decision_target
+                client,
+                policy,
+                stop_after=smoke_decision_target,
+                stop_at_turn=stop_at_turn,
+                progress=progress,
+                stop=stop,
             )
         # P1 shutdown evidence: a bounded smoke PASS must rest on observed
         # graceful shutdown, never on a suppressed kill/timeout. Anything
@@ -2109,6 +2226,11 @@ class XmageFullGameRunner:
         if decision_count == 0:
             raise FullGameConformanceError(
                 "bounded smoke observed no authoritative decisions before terminal"
+            )
+
+        if stop_at_turn is not None and stop.get("reason") != "turn_boundary":
+            raise FullGameConformanceError(
+                f"bounded smoke stopped before required turn boundary: {stop.get('reason')}"
             )
 
         return FullGameSmokeResult(
@@ -2125,6 +2247,12 @@ class XmageFullGameRunner:
             seed_preserved=True,
             player_count_preserved=True,
             observed_decision_classes=tuple(observed),
+            stop_reason=stop.get("reason", "terminal" if terminal else "decision_limit"),
+            stop_turn_number=stop.get("turn"),
+            progress_trace=tuple(progress),
+            progress_digest=hashlib.sha256(
+                json.dumps(progress, separators=(",", ":")).encode("utf-8")
+            ).hexdigest(),
         )
 
     def _validated_policy(
@@ -2195,8 +2323,15 @@ class XmageFullGameRunner:
         policy: ExternalPilotDecisionPolicy,
         *,
         stop_after: int | None,
+        stop_at_turn: int | None = None,
+        progress: list[ProgressEntry] | None = None,
+        stop: dict[str, Any] | None = None,
     ) -> tuple[int, list[str], bool]:
         """Drive authoritative decisions until terminal (or ``stop_after`` answers).
+
+        With ``stop_at_turn`` the drive also stops before answering the first
+        decision of that turn. ``progress`` collects each answered decision's
+        public metadata plus the semantic response digest after acknowledged submission.
 
         Returns ``(decision_count, observed_decision_classes, terminal)``.
         Shared verbatim by :meth:`run` (``stop_after=None``) and
@@ -2216,12 +2351,24 @@ class XmageFullGameRunner:
                 )
             decision = status.get("decision")
             if isinstance(decision, dict):
+                decision_class = decision.get("decision_class")
+                pilot_state = decision.get("pilot_state")
+                turn = pilot_state.get("turn_number") if isinstance(pilot_state, dict) else None
+                if stop_at_turn is not None and type(turn) is int and turn >= stop_at_turn:
+                    if stop is not None:
+                        stop.update(reason="turn_boundary", turn=turn)
+                    return decision_count, observed, False
+                # Inspect the frame returned by the final permitted submission
+                # before applying the cap; it may already be the turn boundary.
+                if stop_after is not None and decision_count >= stop_after:
+                    if stop is not None:
+                        stop.update(reason="decision_limit")
+                    return decision_count, observed, False
                 decision_count += 1
                 if decision_count > self.max_decisions:
                     raise FullGameConformanceError(
                         f"full-game exceeded max_decisions={self.max_decisions}"
                     )
-                decision_class = decision.get("decision_class")
                 if isinstance(decision_class, str) and decision_class not in observed:
                     observed.append(decision_class)
                 audit = self._hidden_audit
@@ -2240,11 +2387,42 @@ class XmageFullGameRunner:
                     "submit_full_game_decision",
                     {"response": response},
                 )
-                if stop_after is not None and decision_count >= stop_after:
-                    return decision_count, observed, False
+                if progress is not None and not isinstance(status.get("failure"), dict):
+                    selected, _labels = selected_fingerprints_for_response(
+                        decision, list(response.get("selected_option_ids", []))
+                    )
+                    ordered, _ordered_labels = selected_fingerprints_for_response(
+                        decision, list(response.get("ordering", []))
+                    )
+                    response_digest = canonical_hash(
+                        {
+                            "selected": selected,
+                            "ordering": ordered,
+                            "numeric_choice": response.get("numeric_choice"),
+                            "numeric_choices": response.get("numeric_choices"),
+                        }
+                    )
+                    seat = decision.get("seat")
+                    phase = pilot_state.get("phase") if isinstance(pilot_state, dict) else None
+                    progress.append(
+                        (
+                            str(decision_class),
+                            seat if type(seat) is int else None,
+                            turn if type(turn) is int else None,
+                            phase if isinstance(phase, str) else None,
+                            response_digest,
+                            _active_seat(pilot_state),
+                        )
+                    )
                 continue
             if bool(status.get("terminal")):
+                if stop is not None:
+                    stop.update(reason="terminal")
                 return decision_count, observed, True
+            if stop_after is not None and decision_count >= stop_after:
+                if stop is not None:
+                    stop.update(reason="decision_limit")
+                return decision_count, observed, False
             status = client.request("get_full_game_decision")
 
     @staticmethod

@@ -188,17 +188,38 @@ def test_scripts_do_not_hard_code_the_historical_epoch() -> None:
         )
 
 
-def test_pb03_workflow_consumes_the_resolved_epoch() -> None:
-    text = WORKFLOW.read_text(encoding="utf-8")
-    assert E.HISTORICAL_EPOCH_ID not in text, (
-        "the PB-03 workflow still points at the historical epoch; it must resolve the runtime "
-        "epoch so CI uploads what the run produced"
-    )
-    assert E.EPOCH_ENV in text, (
-        "the PB-03 workflow must resolve the epoch through the shared function and export it "
-        "under the environment variable the runner and assembler read"
-    )
+def _assert_workflow_runtime_epoch(document: dict) -> None:
+    import yaml
+
+    # Trigger paths may name read-only historical test inputs. Execution and
+    # upload paths must still resolve the current source-bound output epoch.
+    text = yaml.safe_dump(document["jobs"])
+    assert E.HISTORICAL_EPOCH_ID not in text, "historical epoch used as a runtime/upload target"
+    assert E.EPOCH_ENV in text
     assert "evidence_epoch" in text
+
+
+def test_pb03_workflow_consumes_the_resolved_epoch() -> None:
+    import yaml
+
+    _assert_workflow_runtime_epoch(yaml.safe_load(WORKFLOW.read_text()))
+
+
+def test_historical_trigger_does_not_grant_historical_upload_credit() -> None:
+    import yaml
+
+    document = yaml.safe_load(WORKFLOW.read_text())
+    triggers = document.get("on") or document.get(True)
+    assert f"qualification/{E.HISTORICAL_EPOCH_ID}/**" in triggers["pull_request"]["paths"]
+    _assert_workflow_runtime_epoch(document)
+    upload = next(
+        step
+        for step in document["jobs"]["pb03-runtime"]["steps"]
+        if str(step.get("uses", "")).startswith("actions/upload-artifact@")
+    )
+    upload["with"]["path"] = f"qualification/{E.HISTORICAL_EPOCH_ID}/"
+    with pytest.raises(AssertionError, match="runtime/upload"):
+        _assert_workflow_runtime_epoch(document)
 
 
 def _runner_script_module(monkeypatch: pytest.MonkeyPatch):

@@ -27,7 +27,7 @@ def test_manifest_pins_unchanged_by_authority_repair(repo_root: Path) -> None:
     config = _manifest(repo_root)
     assert config["secondary_engine"]["commit"] == "bb0a740d2bef725194798383c2452213ecdd0b37"
     # Live pin: multiplayer candidate after F-44 (mage#33), F-43 (mage#29) and F-45 (mage#35), repin v3.
-    assert config["primary_engine"]["commit"] == "37e4df6c914f1e189e24f0ef59fa91734c922436"
+    assert config["primary_engine"]["commit"] == "b479fe74fd1eaf899ff16c6a9203e74a91c0f339"
     assert config["provider_decision"] == "NO_PROVIDER_READY"
     assert config["current_runtime"]["provider_selected"] is False
     assert config["current_runtime"]["production_provider"] is None

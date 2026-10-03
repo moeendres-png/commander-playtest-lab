@@ -7,6 +7,8 @@ on:
     paths:
       - "engine-bridge/**"
       - "src/commander_lab/engine/rules/full_game.py"
+      # full_game.py fingerprints responses with semantic_replay helpers.
+      - "src/commander_lab/semantic_replay/**"
       - "src/commander_lab/agents/**"
       - "src/commander_lab/models/**"
       - "src/commander_lab/storage/**"
@@ -14,6 +16,8 @@ on:
       - "src/commander_lab/engine/rules/project.py"
       - "scripts/run_real_4p_full_game_smoke.py"
       - "tests/unit/test_real_4p_full_game_smoke.py"
+      - "tests/unit/test_real_4p_progress_contract.py"
+      - "tests/unit/test_real_4p_progress_execution.py"
       - "tests/unit/test_rules_project_loader.py"
       - "data/decks/rogshai_current.json"
       - "data/decks/opponents/kaervek/current/deck.json"
@@ -33,7 +37,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  XMAGE_COMMIT: 37e4df6c914f1e189e24f0ef59fa91734c922436
+  XMAGE_COMMIT: b479fe74fd1eaf899ff16c6a9203e74a91c0f339
   PYTHONHASHSEED: "0"
   COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: >-
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game
@@ -65,6 +69,8 @@ jobs:
             src/commander_lab/engine/rules/project.py
             scripts/run_real_4p_full_game_smoke.py
             tests/unit/test_real_4p_full_game_smoke.py
+            tests/unit/test_real_4p_progress_contract.py
+            tests/unit/test_real_4p_progress_execution.py
             tests/unit/test_rules_project_loader.py
             data/decks/rogshai_current.json
             data/decks/opponents/kaervek/current/deck.json
@@ -77,6 +83,7 @@ jobs:
             src/commander_lab/engine/**
             tests/conftest.py
             src/commander_lab/qualification/**
+            src/commander_lab/semantic_replay/**
 
   real-4p-smoke:
     needs: [smoke-scope]
@@ -138,7 +145,10 @@ jobs:
         run: mvn -B -ntp -DskipTests package
 
       - name: Run bounded real 4P technical smoke
-        run: python scripts/run_real_4p_full_game_smoke.py --smoke-decisions 40
+        # B8 (#489): play one full four-player round twice with the same seed; the decision
+        # count is only a cap. smoke_progress_contract must hold and both runs
+        # must produce the same public progress digest.
+        run: python scripts/run_real_4p_full_game_smoke.py --progress-turns 4 --smoke-decisions 3000
 
       - name: Verify evidence boundary
         run: |
@@ -159,6 +169,19 @@ jobs:
           assert report["actual_card_behavior_coverage_claim"] is False
           assert report["canonical_data_mutated"] is False
           assert report["clean_shutdown"] is True
+          contract = report["progress_contract"]
+          assert contract["met"] is True, contract["violations"]
+          assert contract["through_turn"] == 4
+          assert contract["turns_observed"][-1] >= 4
+          assert contract["priority_seats"] == [0, 1, 2, 3]
+          assert contract["priority_turns"] == [1, 2, 3, 4]
+          actives = contract["active_seats_by_turn"]
+          assert sorted(seat for seats in actives.values() for seat in seats) == [0, 1, 2, 3], actives
+          assert report["twin_runs"] == 2
+          assert all(row["met"] is True for row in report["twin_progress_contracts"])
+          assert report["twin_stop_reasons"] == ["turn_boundary", "turn_boundary"]
+          assert report["twin_stop_turn_numbers"] == [5, 5]
+          assert report["twin_progress_digest_match"] is True
           PY
 
       # Preflight writes REAL_4P_PREFLIGHT.json. This unconditional upload

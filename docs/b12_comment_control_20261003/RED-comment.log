@@ -1,0 +1,43 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+_________________ test_locked_install_comment_is_not_a_command _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-moeen/pytest-0/test_locked_install_comment_is0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x714e98361480>
+
+    def test_locked_install_comment_is_not_a_command(tmp_path, monkeypatch):
+        workflow = tmp_path / "test.yml"
+        workflow.write_text("setup-python\n" + "\n".join(LOCKED_INSTALL_MARKERS) + "\n# `pip install -e .` reads package metadata.\n")
+        monkeypatch.setattr(__import__(__name__, fromlist=["_workflow_files"]), "_workflow_files", lambda _: [workflow])
+>       test_locked_install_in_every_ubuntu_lane(tmp_path)
+
+tests/unit/test_ws223_environment_identity.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo_root = PosixPath('/tmp/pytest-of-moeen/pytest-0/test_locked_install_comment_is0')
+
+    def test_locked_install_in_every_ubuntu_lane(repo_root: Path) -> None:
+        for path in _workflow_files(repo_root):
+            if path.name in RANGE_INSTALL_EXEMPT:
+                continue
+            text = path.read_text(encoding="utf-8")
+            if "setup-python" not in text or "runs-on: windows" in text:
+                continue
+            for marker in LOCKED_INSTALL_MARKERS:
+                assert marker in text, f"{path.name} lacks locked-install marker: {marker}"
+            range_installs = [
+                line.strip()
+                for line in text.splitlines()
+                if re.search(r"pip install (-e |.*\[dev|.*\[api|.*\[openai|build$)", line)
+                and "--require-hashes" not in line
+                and "wheel-verify" not in line
+                and "release/" not in line
+            ]
+>           assert not range_installs, f"{path.name} keeps range installs: {range_installs}"
+E           AssertionError: test.yml keeps range installs: ['# `pip install -e .` reads package metadata.']
+E           assert not ['# `pip install -e .` reads package metadata.']
+
+tests/unit/test_ws223_environment_identity.py:101: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_ws223_environment_identity.py::test_locked_install_comment_is_not_a_command
+1 failed, 1 passed, 11 deselected in 0.18s

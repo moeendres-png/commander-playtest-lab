@@ -988,6 +988,29 @@ def carry_forward_unselected_candidates(
     return carried
 
 
+_PHASE: dict[str, Any] = {"name": None, "started": 0.0, "run_started": None}
+
+
+def phase(name: str | None) -> None:
+    """Close the running phase with its duration and open ``name`` (B12).
+
+    The lines go to stdout only, never into an evidence artifact, so the
+    evidence bytes do not depend on wall-clock time.
+    """
+    now = time.monotonic()
+    if _PHASE["run_started"] is None:
+        _PHASE["run_started"] = now
+    if _PHASE["name"] is not None:
+        print(
+            f"[pb03 phase] {_PHASE['name']}: done in {now - _PHASE['started']:.1f}s "
+            f"(run {now - _PHASE['run_started']:.1f}s)",
+            flush=True,
+        )
+    if name is not None:
+        print(f"[pb03 phase] {name}: start", flush=True)
+    _PHASE.update(name=name, started=now)
+
+
 def write(name: str, payload: Any) -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     path = OUT_DIR / name
@@ -1811,6 +1834,7 @@ def main() -> int:
     if carried:
         print("non-selected candidate columns carried forward (historical):", carried)
 
+    phase("effective contract and admission")
     materialization = load_effective_materialization(REPO_ROOT)
     write(
         "EFFECTIVE_FULL107_MANIFEST.json",
@@ -1847,6 +1871,7 @@ def main() -> int:
         record["fixture_id"]: record for record in materialization.denominator_records()
     }
     for candidate in candidates:
+        phase(f"FULL107 {candidate} (execution and classification)")
         outcome = execute_candidate(candidate, materialization)
         identity = outcome["identity"]
         executed = {row.fixture_id for row in outcome["rows"]}
@@ -1893,6 +1918,7 @@ def main() -> int:
 
     # The executing qualification code must be the committed code, or the
     # receipts below would name a provenance the bytes do not have.
+    phase("runner identity and direct receipts")
     runner = receipt_mod.capture_runner_identity(REPO_ROOT)
     receipt_mod.require_clean_runner(runner)
     print(
@@ -1928,6 +1954,7 @@ def main() -> int:
     # observed from engine-reported facts. Construction alone writes no receipt,
     # and the wave rows stay fail-closed with this epoch's own blocker evidence.
     if "forge" in candidates:
+        phase("Forge scenario lane")
         forge = resolve_forge_workspace()
         write(
             "FORGE_SCENARIO_EXECUTIONS.json",
@@ -1949,6 +1976,7 @@ def main() -> int:
         shutil.rmtree(
             REPO_ROOT / "engine-bridge" / "target" / "surefire-reports", ignore_errors=True
         )
+    phase("native suites")
     native_receipts = run_all_native_suites(runner, tuple(candidates))
     if "xmage" in candidates:
         pb03_runtime = pb03_runtime_mod.build_runtime_execution_matrix(
@@ -1978,6 +2006,7 @@ def main() -> int:
         # The PB-03 chain's last links: exact placement obligations executed on
         # the production midgame lane, each verified row persisted as a
         # runner-bound positive fixture receipt the assembler may credit.
+        phase("XMage mid-game rows")
         write(
             "MIDGAME_ROW_EXECUTIONS.json",
             midgame_rows_mod.execute_and_persist(
@@ -1993,6 +2022,7 @@ def main() -> int:
         # AF05: the construct-and-project HIDDEN rows on the same production
         # lane, each verified knowledge boundary persisted as a runner-bound
         # positive receipt; a demonstrated leak is recorded as FAIL.
+        phase("XMage knowledge projection")
         write(
             "KNOWLEDGE_PROJECTION_EXECUTIONS.json",
             knowledge_projection_mod.execute_and_persist(
@@ -2010,6 +2040,7 @@ def main() -> int:
         # and replays it from the taped external inputs alone in another; only
         # a verified twin whose row property held earns a runner-bound
         # positive receipt.
+        phase("XMage replay twins")
         write(
             "MIDGAME_REPLAY_TWIN_EXECUTIONS.json",
             midgame_replay_twin_mod.execute_and_persist(
@@ -2028,6 +2059,7 @@ def main() -> int:
         # persisted as a runner-bound receipt in the campaign's own receipt
         # subdirectory, which never earns FULL107 credit; the assembler derives
         # AF07 from those receipts plus CARD_02's own denominator row.
+        phase("XMage actual-card campaign")
         write(
             "ACTUAL_CARD_CAMPAIGN_XMAGE.json",
             actual_card_campaign_mod.execute_and_persist(
@@ -2054,6 +2086,7 @@ def main() -> int:
         "boundary receipt:",
         json.dumps(boundary_receipt(REPO_ROOT)["contract_blobs"], indent=1)[:200],
     )
+    phase(None)
     return 0
 
 

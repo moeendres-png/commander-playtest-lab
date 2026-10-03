@@ -16,6 +16,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CURRENT_PIN = "37e4df6c914f1e189e24f0ef59fa91734c922436"
 CURRENT_TREE = "dac695ab2862e965cdaa30b0ce67052840dc7a5e"
@@ -25,6 +27,21 @@ PRIOR_PIN = "9375f35ac7c9a540ebcb8b262b8645b8c6b1b326"
 WSR22_PIN = "b19596980f2734496ea1896504253e1bdd2756dd"
 PRIOR_EPOCH = "qualification/current-boundary-epochs/4cad91897216-a43e80d96595"
 SUCCESSOR_LOCK = "qualification/xmage-f43-f44-f45-repin-v3-20261001/SUCCESSOR_SOURCE_LOCK.json"
+
+
+def _live_pin() -> str:
+    manifest = json.loads((REPO_ROOT / "config/rules_engines.json").read_text())
+    return manifest["primary_engine"]["commit"]
+
+
+# This file proves the 2026-10-01 repin EVENT. Its current-pin assertions hold only while
+# this repin's pin is live; after a later forward repin they are superseded by that repin's
+# successor guard (tests/qualification/test_xmage_sba_priority_repin_v4_20261003.py) and are
+# skipped, never rewritten. Its historical assertions stay active.
+superseded_by_later_repin = pytest.mark.skipif(
+    _live_pin() != CURRENT_PIN,
+    reason="superseded: live XMage pin moved forward (see test_xmage_sba_priority_repin_v4_20261003.py)",
+)
 
 # Consumers that cannot read the manifest (workflow YAML env, Java constants)
 # or are the deliberate pin-authority guards (G1). A repin edits only these.
@@ -50,6 +67,7 @@ def _lock() -> dict:
     return json.loads((REPO_ROOT / SUCCESSOR_LOCK).read_text())
 
 
+@superseded_by_later_repin
 def test_live_pin_is_the_successor_candidate() -> None:
     primary = _manifest()["primary_engine"]
     assert primary["commit"] == CURRENT_PIN
@@ -64,6 +82,7 @@ def test_selection_truth_unchanged() -> None:
     assert cfg["current_runtime"]["production_provider"] is None
 
 
+@superseded_by_later_repin
 def test_successor_lock_binds_the_candidate_its_donors_and_the_prior_pin() -> None:
     lock = _lock()
     assert lock["new_live_pin"]["commit"] == CURRENT_PIN
@@ -126,6 +145,7 @@ def test_lineage_binds_each_identity_once() -> None:
     assert lock["lab_runtime_qualification"]["installed_artifacts_commit"] == CURRENT_PIN
 
 
+@superseded_by_later_repin
 def test_all_active_literal_pin_consumers_migrated() -> None:
     for rel in ACTIVE_LITERAL_CONSUMERS:
         text = (REPO_ROOT / rel).read_text()
@@ -134,6 +154,7 @@ def test_all_active_literal_pin_consumers_migrated() -> None:
         assert INTERMEDIATE not in text, rel
 
 
+@superseded_by_later_repin
 def test_prior_pin_and_its_epoch_stay_historical() -> None:
     from commander_lab.qualification.current_boundary import source_lock
 

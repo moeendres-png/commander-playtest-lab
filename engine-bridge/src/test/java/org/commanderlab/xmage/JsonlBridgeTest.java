@@ -74,7 +74,7 @@ class JsonlBridgeTest {
                 payload.get("engine_version").getAsString()
         );
         assertEquals(
-                "37e4df6c914f1e189e24f0ef59fa91734c922436",
+                "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
                 payload.get("engine_commit").getAsString()
         );
         assertTrue(payload.has("xmage_code_source"));

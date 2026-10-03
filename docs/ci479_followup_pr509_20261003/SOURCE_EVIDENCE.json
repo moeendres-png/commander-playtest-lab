@@ -1,0 +1,29 @@
+{
+  "parent_head": "2c43973814062e3c59d199c156f1151c1d7b11ae",
+  "parent_tree": "63d1afe3b29dd0cbfbcfb133456aff70d60f3c00",
+  "patch_sha256": "79d710b09669cd1d042177ebe9c8d8eadcf3280b7ae2185193e733a4ff55dad4",
+  "reports": {
+    "B9-RED.xml.gz": {
+      "sha256": "6b06db9d869742d61e65a2391d10c7de3dc1c4f99bf13ec5644fde12b90073cc",
+      "raw_sha256": "fcf6302210d5d1388d6da141eb7c4b67e0a9bee4478eb5643f3b110af4cc278a"
+    },
+    "B9-RED-closure-v2.xml.gz": {
+      "sha256": "dceaa34e72ad8ec229a50168390e10a8906b9a04a6aed2119bc57eead3509bd5",
+      "raw_sha256": "222d190f6e3c13a7c0d0aa12642fd4c5c34e557753f98019b3feb4d83ff15900"
+    },
+    "B9-GREEN-attempt2.xml.gz": {
+      "sha256": "7b73ae88aca610dd8ed20e7c600aabb94c0deb372920b8f77d31c98a44c98cba",
+      "raw_sha256": "dc2c2595dc5a45c630687071a479be3a127afbebdf9b06484b4e08f2bcc8e203"
+    },
+    "B9-import-timing-GREEN.xml.gz": {
+      "sha256": "4f7f46aac130953a090264f43e9bfcf0708e5986ab49ace71bd705282ab8793b",
+      "raw_sha256": "fa83debc0bd22cc92747fea0cfdc49c9f5e76e520b79846b47a152a8428f3f43"
+    },
+    "B9-GREEN-final.xml.gz": {
+      "sha256": "32e1e1c0bea3cdee423d72034fb51a8b38c1558a11de8c88fbd7646837d685f2",
+      "raw_sha256": "fb9f4a008b012a7fdea66b332b427f032ac7bebbf571d179b1c854d43031f9d4"
+    }
+  },
+  "latest_passing_tests": 74,
+  "evidence_scope": "Affected local controls; no exact-head CI, runtime engine qualification or merge credit yet."
+}

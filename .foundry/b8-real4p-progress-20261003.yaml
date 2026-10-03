@@ -1,0 +1,48 @@
+# B8 Real4P deterministic meaningful-progress contract: resumable state (#489, parent #479).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: scratchpad/wtb8 (session-local git worktree of the canonical clone)
+branch: hardening/b8-real4p-progress-20261003
+audit_base_sha: 92ac2ef7d4876dd19a3f1b2ad85c8386a913df27
+audit_base_tree: 785f02937170c88576fba9e11b26844493532fc0
+state_written_against_head: 92ac2ef7d4876dd19a3f1b2ad85c8386a913df27
+workstream: B8-REAL4P-PROGRESS-20261003
+issue: 489
+parent: 479
+pull_request: null
+objective: >-
+  The Real4P technical smoke fails closed on a trivial start and passes only on
+  deterministic meaningful post-start progress, while staying
+  technical_conformance_only.
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+status: ACTIVE
+ownership: B8-REAL4P-PROGRESS-20261003 (Claude, sole executor)
+in_scope:
+  - src/commander_lab/engine/rules/full_game.py (progress trace, stop_at_turn, smoke_progress_contract)
+  - scripts/run_real_4p_full_game_smoke.py (--progress-turns, twin run, contract)
+  - tests/unit/test_real_4p_progress_contract.py
+  - .github/workflows/xmage-real-4p-smoke.yml (invocation, assertions, push paths)
+out_of_scope:
+  - actual-card qualification or any card-behaviour claim
+  - full-game run() semantics (the trace and the turn stop are opt-in)
+hard_gates:
+  - the contract is evaluated from the public trace only
+  - both runs use the same seed and must produce the same progress digest
+  - the evidence class stays technical_conformance_only
+milestones:
+  - id: M1
+    result: >-
+      Fail-before: the previous invocation (--smoke-decisions 40) never left
+      turn 1, so it violates "game did not reach turn 2". The unit controls
+      cover turn-1-only, mulligan-only, missing-seat and seatless traces.
+  - id: M2
+    result: >-
+      Local live run on the pinned engine 37e4df6c with --progress-turns 2:
+      PASS, 100 decisions per run, turns [1, 2], priority seats [0, 1, 2, 3],
+      twin progress digests equal, 55 s for both runs.
+open_items:
+  - Exact-head XMage Real 4P Technical Smoke must show the contract and the twin.
+exact_next_action: >-
+  Push, open the PR, confirm the smoke on the exact head, fresh-context review,
+  merge under the gates.

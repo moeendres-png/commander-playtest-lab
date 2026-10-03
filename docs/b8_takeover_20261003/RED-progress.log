@@ -1,0 +1,70 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+___________ test_turn_contract_rejects_decision_cap_before_boundary ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7de010fcf360>
+
+    def test_turn_contract_rejects_decision_cap_before_boundary(monkeypatch) -> None:
+>       with pytest.raises(FullGameConformanceError, match="turn boundary"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE FullGameConformanceError
+
+tests/unit/test_real_4p_progress_execution.py:89: Failed
+__________________ test_turn_contract_rejects_early_terminal ___________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7de010fcf5c0>
+
+    def test_turn_contract_rejects_early_terminal(monkeypatch) -> None:
+>       with pytest.raises(FullGameConformanceError, match="turn boundary"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE FullGameConformanceError
+
+tests/unit/test_real_4p_progress_execution.py:94: Failed
+_____________ test_response_content_is_bound_into_progress_digest ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7de01102ac30>
+
+    def test_response_content_is_bound_into_progress_digest(monkeypatch) -> None:
+        first, _ = _run(monkeypatch, _round(), number=1)
+        second, _ = _run(monkeypatch, _round(), number=2)
+>       assert first.progress_digest != second.progress_digest
+E       AssertionError: assert 'efc277bec1f0aac6a13e016a7dba39100363b0736ff0f3f82b77d283d1393fcf' != 'efc277bec1f0aac6a13e016a7dba39100363b0736ff0f3f82b77d283d1393fcf'
+E        +  where 'efc277bec1f0aac6a13e016a7dba39100363b0736ff0f3f82b77d283d1393fcf' = FullGameSmokeResult(schema_version='xmage-full-game-smoke-result-1.0.0', scenario_id='offline-progress', player_count=...only', consumed_gameplay_evidence=False, holdout_consumed=False, official_campaign_eligible=False, fallback_used=False).progress_digest
+E        +  and   'efc277bec1f0aac6a13e016a7dba39100363b0736ff0f3f82b77d283d1393fcf' = FullGameSmokeResult(schema_version='xmage-full-game-smoke-result-1.0.0', scenario_id='offline-progress', player_count=...only', consumed_gameplay_evidence=False, holdout_consumed=False, official_campaign_eligible=False, fallback_used=False).progress_digest
+
+tests/unit/test_real_4p_progress_execution.py:101: AssertionError
+_________________ test_script_checks_the_second_twin_contract __________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7de011035e10>
+repo_root = PosixPath('/home/moeen/work/takeover-pr518-20261003')
+tmp_path = PosixPath('/tmp/pytest-of-moeen/pytest-20/test_script_checks_the_second_0')
+
+    def test_script_checks_the_second_twin_contract(monkeypatch, repo_root, tmp_path) -> None:
+        first, _ = _run(monkeypatch, _round())
+        second = first.model_copy(update={"progress_trace": first.progress_trace[:1]})
+>       with pytest.raises(FullGameConformanceError, match="progress"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE FullGameConformanceError
+
+tests/unit/test_real_4p_progress_execution.py:142: Failed
+__________________ test_script_rejects_a_missing_twin_digest ___________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7de010df07c0>
+repo_root = PosixPath('/home/moeen/work/takeover-pr518-20261003')
+tmp_path = PosixPath('/tmp/pytest-of-moeen/pytest-20/test_script_rejects_a_missing_0')
+
+    def test_script_rejects_a_missing_twin_digest(monkeypatch, repo_root, tmp_path) -> None:
+        result, _ = _run(monkeypatch, _round())
+        invalid = result.model_copy(update={"progress_digest": None})
+>       with pytest.raises(FullGameConformanceError, match="progress"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE FullGameConformanceError
+
+tests/unit/test_real_4p_progress_execution.py:149: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/test_real_4p_progress_execution.py::test_turn_contract_rejects_decision_cap_before_boundary
+FAILED tests/unit/test_real_4p_progress_execution.py::test_turn_contract_rejects_early_terminal
+FAILED tests/unit/test_real_4p_progress_execution.py::test_response_content_is_bound_into_progress_digest
+FAILED tests/unit/test_real_4p_progress_execution.py::test_script_checks_the_second_twin_contract
+FAILED tests/unit/test_real_4p_progress_execution.py::test_script_rejects_a_missing_twin_digest
+5 failed, 2 deselected in 3.10s

@@ -20,7 +20,7 @@ from pathlib import Path
 import yaml
 
 # Live pin: multiplayer candidate after F-44 (mage#33), F-43 (mage#29) and F-45 (mage#35), repin v3.
-CANONICAL_XMAGE_PIN = "37e4df6c914f1e189e24f0ef59fa91734c922436"
+CANONICAL_XMAGE_PIN = "b479fe74fd1eaf899ff16c6a9203e74a91c0f339"
 CANONICAL_FORGE_PIN = "bb0a740d2bef725194798383c2452213ecdd0b37"
 STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"

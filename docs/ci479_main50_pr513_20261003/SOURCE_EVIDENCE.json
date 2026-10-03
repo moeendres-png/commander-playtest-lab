@@ -1,0 +1,10 @@
+{
+  "parent_head": "c3bf414247879d826926fb880f092c08c047b8e4",
+  "parent_tree": "231822fcbf349d64aed7d3aa8051a7ba6916c1f1",
+  "base_integrated": "50e8b6bfac3533f92ebd3670f09e9dd3ab9dbb69",
+  "report_sha256": "a5e6e491a5dad4e5593656d5f7f5dcf8989f536cf853794902fbd01a47860ac7",
+  "raw_sha256": "fa78ed08de73aab21f8073812d62b9da5a8588a902a6076c42f9e6194ea8a773",
+  "passed": 1348,
+  "skipped_not_run": 13,
+  "impact": "Current-main privacy runner added to B12 measured dependency graph; actual offline test input audit and complete qualification selection pass. Fresh PB03 and exact-head CI remain required."
+}
