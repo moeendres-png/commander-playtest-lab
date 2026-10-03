@@ -1,0 +1,1952 @@
+{
+ "bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+ "candidate": "forge",
+ "canonical_bundle_digest": "54eadab30c162541fbb03a4cd1c923a56bcb30e92f3c598f799fcd791502ef1e",
+ "channels": [
+  {
+   "absent_tokens": [],
+   "channel": "principal_scoped_state",
+   "meaning": "get_game_state is projected for one observer principal",
+   "present_fragments": [
+    "public static JsonObject gameState(BridgeSession session, String observerPlayerId)"
+   ],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
+   "status": "SUPPORTED"
+  },
+  {
+   "absent_tokens": [],
+   "channel": "face_down_redaction",
+   "meaning": "a face-down card is named only to a principal the engine lets see it",
+   "present_fragments": [
+    "canBeShownTo"
+   ],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
+   "status": "SUPPORTED"
+  },
+  {
+   "absent_tokens": [],
+   "channel": "library_contents",
+   "meaning": "every library projects as an empty list with library_size; no principal, entitled or not, can observe a library identity or its order",
+   "present_fragments": [
+    "zones.add(\"library\", new JsonArray());"
+   ],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
+   "status": "ABSENT"
+  },
+  {
+   "absent_tokens": [],
+   "channel": "event_log",
+   "meaning": "export_event_log and get_event_log fail closed; no engine event can be observed, so permission timing cannot be tied to the real event",
+   "present_fragments": [
+    "BridgeErrors.EVENT_LOG_UNSUPPORTED",
+    "caps.addProperty(\"event_log_supported\", false);"
+   ],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
+   "status": "ABSENT"
+  },
+  {
+   "absent_tokens": [],
+   "channel": "reveal_look_audience",
+   "meaning": "a reveal or look is recorded only in the bridge's internal audit, which is never pilot-visible; no principal has a revealed or looked-at log",
+   "present_fragments": [
+    "session.audit(\"cards_revealed\", details);"
+   ],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java",
+   "status": "ABSENT"
+  },
+  {
+   "absent_tokens": [],
+   "channel": "replay_transcript",
+   "meaning": "no replay or transcript export exists to audit",
+   "present_fragments": [
+    "export_replay is not supported: deterministic replay is not claimed"
+   ],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
+   "status": "ABSENT"
+  },
+  {
+   "absent_tokens": [
+    "face_down",
+    "FaceDown",
+    "faceDown",
+    "manifest"
+   ],
+   "channel": "face_down_construction",
+   "meaning": "the scenario bootstrap has no face-down field (MANIFESTED, CLOAKED, ...)",
+   "present_fragments": [],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
+   "status": "ABSENT"
+  },
+  {
+   "absent_tokens": [
+    "neutral.has(\"library\")",
+    "\"library_order\""
+   ],
+   "channel": "library_construction",
+   "meaning": "the scenario bootstrap cannot place a library in a requested order",
+   "present_fragments": [],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
+   "status": "ABSENT"
+  },
+  {
+   "absent_tokens": [
+    "knowledge",
+    "permission"
+   ],
+   "channel": "knowledge_construction",
+   "meaning": "the scenario bootstrap has no knowledge or permission field",
+   "present_fragments": [],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
+   "status": "ABSENT"
+  }
+ ],
+ "contract_id": "commander-lab.full107/1.0.19-successor",
+ "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
+ "rows": [
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_01",
+   "lab_execution_gaps": [],
+   "missing_principal_channels": [],
+   "obligation_kind": "opponent_hand",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_hand). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_02",
+   "lab_execution_gaps": [],
+   "missing_principal_channels": [],
+   "obligation_kind": "opponent_library",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_library). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_03",
+   "lab_execution_gaps": [],
+   "missing_principal_channels": [],
+   "obligation_kind": "public_exile",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "knowledge_construction",
+     "detail": "knowledge permissions have no bootstrap field",
+     "dimension": "knowledge_state",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (public_exile). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_04",
+   "lab_execution_gaps": [],
+   "missing_principal_channels": [],
+   "obligation_kind": "face_down_controller",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "knowledge_construction",
+     "detail": "knowledge permissions have no bootstrap field",
+     "dimension": "knowledge_state",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (face_down_controller). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_05",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "cast-gonti",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "cast",
+       "object": "obj:hidden05-gonti"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_player",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "gonti-target-opponent",
+      "decision_index": 1,
+      "selector_kind": "semantic_player",
+      "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.choose_object.semantic_object",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "gonti-exile-face-down",
+      "decision_index": 2,
+      "selector_kind": "semantic_object",
+      "semantic_value": "obj:hidden-hand"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_object",
+     "requested": {
+      "actor": "P2",
+      "causal_step_id": "bolt-target-gonti",
+      "decision_index": 4,
+      "selector_kind": "semantic_object",
+      "semantic_value": "obj:hidden05-gonti"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden05-gonti"
+      },
+      {
+       "actor": "P2",
+       "payable": true,
+       "source_semantic_id": "obj:hidden05-bolt"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log"
+   ],
+   "obligation_kind": "exile_permission_persists",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "knowledge_construction",
+     "detail": "knowledge permissions have no bootstrap field",
+     "dimension": "knowledge_state",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p1": 1,
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 2,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_06",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "cast-gonti",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "cast",
+       "object": "obj:hidden06-gonti"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_player",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "gonti-target-opponent",
+      "decision_index": 1,
+      "selector_kind": "semantic_player",
+      "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.choose_object.semantic_object",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "gonti-exile-face-down",
+      "decision_index": 2,
+      "selector_kind": "semantic_object",
+      "semantic_value": "obj:hidden-hand"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden06-gonti"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log"
+   ],
+   "obligation_kind": "exile_permission_invalidates",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "knowledge_construction",
+     "detail": "knowledge permissions have no bootstrap field",
+     "dimension": "knowledge_state",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p1": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 2,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_07",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "cast-telepathy",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "cast",
+       "object": "obj:hidden07-telepathy"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden07-telepathy"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [
+    "reveal_look_audience",
+    "event_log"
+   ],
+   "obligation_kind": "reveal_audience",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "knowledge_construction",
+     "detail": "knowledge permissions have no bootstrap field",
+     "dimension": "knowledge_state",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p1": 1,
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_08",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "activate-spy",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "activate",
+       "object": "obj:hidden08-spy"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_player",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "target-p2",
+      "decision_index": 1,
+      "selector_kind": "semantic_player",
+      "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden08-spy"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [
+    "reveal_look_audience",
+    "event_log"
+   ],
+   "obligation_kind": "look_audience",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "knowledge_construction",
+     "detail": "knowledge permissions have no bootstrap field",
+     "dimension": "knowledge_state",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_09",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P2",
+      "causal_step_id": "activate-portal",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "activate",
+       "object": "obj:hidden09-portal"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_object",
+     "requested": {
+      "actor": "P2",
+      "causal_step_id": "search-choice",
+      "decision_index": 1,
+      "selector_kind": "semantic_object",
+      "semantic_value": "obj:hidden-lib-0"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P2",
+       "payable": true,
+       "source_semantic_id": "obj:hidden09-portal"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [
+    "library_contents",
+    "event_log"
+   ],
+   "obligation_kind": "search_inspection",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "knowledge_construction",
+     "detail": "knowledge permissions have no bootstrap field",
+     "dimension": "knowledge_state",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_10",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "cast-jet",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "cast",
+       "object": "obj:hidden10-jet"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_player",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "target-jet",
+      "decision_index": 1,
+      "selector_kind": "semantic_player",
+      "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_objects",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "scry-keep-both",
+      "decision_index": 2,
+      "selector_kind": "semantic_objects",
+      "semantic_value": []
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.choose_object.semantic_object",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "order-top",
+      "decision_index": 3,
+      "selector_kind": "semantic_object",
+      "semantic_value": "obj:hidden10-lib-1"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden10-jet"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [
+    "library_contents",
+    "event_log"
+   ],
+   "obligation_kind": "scry_knowledge",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "knowledge_construction",
+     "detail": "knowledge permissions have no bootstrap field",
+     "dimension": "knowledge_state",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p1": 1,
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 3,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_11",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "spy-look",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "activate",
+       "object": "obj:hidden11-spy"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_player",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "spy-target-p2",
+      "decision_index": 1,
+      "selector_kind": "semantic_player",
+      "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden11-spy"
+      },
+      {
+       "actor": "P2",
+       "payable": true,
+       "source_semantic_id": "obj:hidden11-elixir"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [
+    "library_contents",
+    "event_log"
+   ],
+   "obligation_kind": "shuffle_invalidates_order",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "knowledge_construction",
+     "detail": "knowledge permissions have no bootstrap field",
+     "dimension": "knowledge_state",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 3,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_12",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "activate-mindslaver",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "activate",
+       "object": "obj:hidden12-mindslaver"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_player",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "mindslaver-target-p2",
+      "decision_index": 1,
+      "selector_kind": "semantic_player",
+      "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden12-mindslaver"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log"
+   ],
+   "obligation_kind": "controlled_player_authority",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "knowledge_construction",
+     "detail": "knowledge permissions have no bootstrap field",
+     "dimension": "knowledge_state",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1,
+      "p3": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_13",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "cast-fof",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "cast",
+       "object": "obj:hidden13-fof"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_player",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "choose-opponent",
+      "decision_index": 1,
+      "selector_kind": "semantic_player",
+      "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.choose_object.semantic_objects",
+     "requested": {
+      "actor": "P2",
+      "causal_step_id": "split-piles",
+      "decision_index": 2,
+      "selector_kind": "semantic_objects",
+      "semantic_value": [
+       "obj:hidden13-lib-0",
+       "obj:hidden13-lib-1"
+      ]
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.pile.pile_label",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "choose-pile",
+      "decision_index": 3,
+      "selector_kind": "pile_label",
+      "semantic_value": "Pile 1"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden13-fof"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [
+    "library_contents",
+    "event_log"
+   ],
+   "obligation_kind": "pile_metadata",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "knowledge_construction",
+     "detail": "knowledge permissions have no bootstrap field",
+     "dimension": "knowledge_state",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p1": 1,
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 6,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_14",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P2",
+      "causal_step_id": "manifest",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "activate",
+       "object": "obj:hidden14-mastery"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_face_down_permanent",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "target-face-down",
+      "decision_index": 2,
+      "selector_kind": "semantic_face_down_permanent",
+      "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P2",
+       "payable": true,
+       "source_semantic_id": "obj:hidden14-mastery"
+      },
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden14-pyromancer"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [],
+   "obligation_kind": "target_metadata",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_15",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P2",
+      "causal_step_id": "cloak-top-card",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "activate",
+       "object": "obj:hidden15-note"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.choose_mode.semantic_mode_key",
+     "requested": {
+      "actor": "P2",
+      "causal_step_id": "cloak-mode",
+      "decision_index": 1,
+      "selector_kind": "semantic_mode_key",
+      "semantic_value": "cloak_top"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_face_down_permanent",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "target-cloaked",
+      "decision_index": 3,
+      "selector_kind": "semantic_face_down_permanent",
+      "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.choose_use.boolean",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "decline-ward",
+      "decision_index": 4,
+      "selector_kind": "boolean",
+      "semantic_value": false
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P2",
+       "payable": true,
+       "source_semantic_id": "obj:hidden15-note"
+      },
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden15-pyromancer"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [],
+   "obligation_kind": "source_metadata",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_16",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P2",
+      "causal_step_id": "cloak-top-card",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "activate",
+       "object": "obj:hidden16-note"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.choose_mode.semantic_mode_key",
+     "requested": {
+      "actor": "P2",
+      "causal_step_id": "cloak-mode",
+      "decision_index": 1,
+      "selector_kind": "semantic_mode_key",
+      "semantic_value": "cloak_top"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_face_down_permanent",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "target-cloaked",
+      "decision_index": 3,
+      "selector_kind": "semantic_face_down_permanent",
+      "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.choose_use.boolean",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "decline-ward",
+      "decision_index": 4,
+      "selector_kind": "boolean",
+      "semantic_value": false
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P2",
+       "payable": true,
+       "source_semantic_id": "obj:hidden16-note"
+      },
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden16-pyromancer"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [],
+   "obligation_kind": "ability_metadata",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_17",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P2",
+      "causal_step_id": "manifest",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "activate",
+       "object": "obj:hidden17-mastery"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.choose_use.boolean",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "use-copy",
+      "decision_index": 2,
+      "selector_kind": "boolean",
+      "semantic_value": true
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.choose_object.semantic_face_down_permanent",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "copy-face-down",
+      "decision_index": 3,
+      "selector_kind": "semantic_face_down_permanent",
+      "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P2",
+       "payable": true,
+       "source_semantic_id": "obj:hidden17-mastery"
+      },
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden17-image"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [],
+   "obligation_kind": "copy_face_down",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p1": 1,
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_18",
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.priority.semantic_action",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "activate-spy",
+      "decision_index": 0,
+      "selector_kind": "semantic_action",
+      "semantic_value": {
+       "action": "activate",
+       "object": "obj:hidden18-spy"
+      }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.target.semantic_player",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "target-p2",
+      "decision_index": 1,
+      "selector_kind": "semantic_player",
+      "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "dimension": "action_cost_state",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden18-spy"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "missing_principal_channels": [
+    "replay_transcript",
+    "event_log"
+   ],
+   "obligation_kind": "transcript_privacy",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "knowledge_construction",
+     "detail": "knowledge permissions have no bootstrap field",
+     "dimension": "knowledge_state",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: replay_transcript, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_19",
+   "lab_execution_gaps": [],
+   "missing_principal_channels": [],
+   "obligation_kind": "no_omniscient_api",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  },
+  {
+   "af05_effect": "UNKNOWN",
+   "classification": "PROVIDER_ADAPTER_GAP",
+   "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+   "lab_execution_gaps": [],
+   "missing_principal_channels": [
+    "event_log",
+    "replay_transcript"
+   ],
+   "obligation_kind": "honey_sentinel",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
+    {
+     "channel": "face_down_construction",
+     "detail": "face-down state has no bootstrap field and no generic projection",
+     "dimension": "semantic_objects.face_down",
+     "requested": "obj:facedown",
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "library_construction",
+     "detail": "the requested explicit hand must survive the natural first-turn draw step to the requested checkpoint; the bootstrap cannot hold library order or suppress the draw, so exact hand equality is unconstructible",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "requested": {
+      "p2": 1
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unobservable_checkpoint_dimensions": [
+    {
+     "detail": "library contents/order are never exposed; only library_size",
+     "dimension": "semantic_objects.zone:library",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    },
+    {
+     "detail": "exile is exposed as names only, with no semantic identity mapping",
+     "dimension": "semantic_objects.zone:exile",
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNOBSERVABLE"
+    }
+   ]
+  }
+ ],
+ "schema_version": "commander-lab.forge-hidden-information/1.0.0",
+ "sources": {
+  "bootstrap": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
+  "controller": "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java",
+  "engine": "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
+  "projection": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java"
+ },
+ "summary": {
+  "af05_forge": "UNKNOWN",
+  "classifications": {
+   "PROVIDER_ADAPTER_GAP": 20
+  },
+  "pass": 0,
+  "rows": 20
+ }
+}

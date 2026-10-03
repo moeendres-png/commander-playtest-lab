@@ -126,3 +126,50 @@ def test_classification_never_promotes_the_gate(records) -> None:
 def test_module_writes_no_receipt() -> None:
     assert not hasattr(fh, "positive_receipt")
     assert not hasattr(fh, "execute_and_persist")
+
+
+def test_the_reason_names_every_gap(records) -> None:
+    """The runner reason carries every construction gap and every absent channel."""
+    for fixture in knowledge_projection.ROWS:
+        row = fh.classify_row(records[fixture])
+        reason = row.reason()
+        for gap in row.provider_gaps:
+            assert gap["dimension"] in reason and gap["channel"] in reason, fixture
+        for channel in row.missing_channels:
+            assert channel in reason, fixture
+        assert "PASS" not in reason
+        assert "AF05 effect UNKNOWN" in reason
+
+
+def test_the_channel_table_drives_the_missing_channels(records, monkeypatch) -> None:
+    """Wrong-reason control: a channel the bridge supported would leave the list."""
+    before = fh.classify_row(records["HIDDEN_07"]).missing_channels
+    assert "event_log" in before
+    supported = fh.Channel("event_log", fh.CHANNEL_SUPPORTED, "engine")
+    monkeypatch.setitem(fh.CHANNELS_BY_NAME, "event_log", supported)
+    after = fh.classify_row(records["HIDDEN_07"]).missing_channels
+    assert "event_log" not in after
+    assert set(before) - set(after) == {"event_log"}
+
+
+def test_a_lab_only_row_is_never_a_provider_gap() -> None:
+    """With no provider gap and no absent channel the row is a Lab gap, not a provider one."""
+    row = fh.HiddenRowClassification(fixture_id="HIDDEN_01", obligation_kind="opponent_hand")
+    assert row.classification == fh.LAB_ADAPTER_GAP
+    row.lab_gaps.append({"dimension": "decision_execution.priority.semantic_action"})
+    assert row.classification == fh.LAB_ADAPTER_GAP
+    row.missing_channels.append("event_log")
+    assert row.classification == fh.PROVIDER_ADAPTER_GAP
+
+
+def test_the_runner_uses_the_exact_reason_for_forge_only() -> None:
+    """The runner's Forge HIDDEN branch reports row_reason; XMage keeps its projection route."""
+    source = (REPO_ROOT / "scripts" / "run_current_boundary_qualification.py").read_text(
+        encoding="utf-8"
+    )
+    branch = source.index('candidate == "forge" and fixture_id in knowledge_projection_mod.ROWS')
+    xmage = source.index('candidate == "xmage" and fixture_id in knowledge_projection_mod.ROWS')
+    generic = source.index("the effective obligation is a per-scenario hidden-information probe")
+    assert xmage < branch < generic
+    assert "forge_hidden_information_mod.row_reason(record)" in source[branch:generic]
+    assert 'outcome="UNKNOWN"' in source[branch:generic]

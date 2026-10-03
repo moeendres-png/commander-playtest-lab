@@ -68,6 +68,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     evidence_epoch as epoch_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
+    forge_hidden_information as forge_hidden_information_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
     forge_scenario_lane as forge_scenario_lane_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
@@ -1621,6 +1624,22 @@ def classify_remaining(
                 "route's runner-bound positive receipt; a demonstrated leak is recorded "
                 "there as FAIL"
             )
+            rows.append(
+                non_executed_row(
+                    record,
+                    candidate=candidate,
+                    outcome="UNKNOWN",
+                    reason=reason,
+                    runtime_identity=identity,
+                )
+            )
+        elif fixture_id in HIDDEN_SCENARIO_ROWS and (
+            candidate == "forge" and fixture_id in knowledge_projection_mod.ROWS
+        ):
+            # #458: the exact Forge gap, derived from the record through the Forge
+            # scenario lane's own model and the pinned bridge's channel table. A
+            # capability gap is not a demonstrated leak: the row stays UNKNOWN.
+            reason = erratum + forge_hidden_information_mod.row_reason(record)
             rows.append(
                 non_executed_row(
                     record,

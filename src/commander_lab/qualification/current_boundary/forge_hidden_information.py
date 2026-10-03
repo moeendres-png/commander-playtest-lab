@@ -73,7 +73,9 @@ CHANNELS: tuple[Channel, ...] = (
         "principal_scoped_state",
         CHANNEL_SUPPORTED,
         "projection",
-        present=("public static JsonObject gameState(BridgeSession session, String observerPlayerId)",),
+        present=(
+            "public static JsonObject gameState(BridgeSession session, String observerPlayerId)",
+        ),
         meaning="get_game_state is projected for one observer principal",
     ),
     Channel(
@@ -97,7 +99,10 @@ CHANNELS: tuple[Channel, ...] = (
         "event_log",
         CHANNEL_ABSENT,
         "engine",
-        present=("BridgeErrors.EVENT_LOG_UNSUPPORTED", 'caps.addProperty("event_log_supported", false);'),
+        present=(
+            "BridgeErrors.EVENT_LOG_UNSUPPORTED",
+            'caps.addProperty("event_log_supported", false);',
+        ),
         meaning=(
             "export_event_log and get_event_log fail closed; no engine event can be "
             "observed, so permission timing cannot be tied to the real event"
@@ -276,7 +281,9 @@ def _blob(root: Path, commit: str, relative: str) -> str:
             text=True,
         ).stdout
     except subprocess.CalledProcessError as error:
-        raise HiddenChannelDrift(f"{relative} unreadable at {commit}: {error.stderr.strip()}") from error
+        raise HiddenChannelDrift(
+            f"{relative} unreadable at {commit}: {error.stderr.strip()}"
+        ) from error
 
 
 def assert_channels(texts: dict[str, str]) -> list[dict[str, Any]]:

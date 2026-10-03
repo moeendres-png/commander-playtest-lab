@@ -1,0 +1,62 @@
+# Forge AF05 hidden-information campaign: resumable workstream state (#458, parent #255).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: scratchpad/wt506 (session-local git worktree of the canonical clone)
+branch: claude/pensive-mayer-f8spwn
+audit_base_sha: 01d70279dbb6eaf2b694ca27e6489ee582418d3d
+audit_base_tree: 0e520ae41518cb9195078cee0df4b245d3f7fa2f
+state_written_against_head: 43195486b25c0d3808300d4f534262172ff8c44d
+workstream: FORGE-AF05-HIDDEN-INFORMATION-CAMPAIGN-20261003
+issue: 458
+parent: 255
+pull_request: 506
+objective: >-
+  Measure Forge against the same 20 mandatory AF05 HIDDEN rows and privacy
+  standard as XMage: every row either a fresh direct PASS with a current
+  source-bound receipt, or terminally classified with the exact missing
+  provider or Lab capability (or a demonstrated violation).
+candidates:
+  forge_rules_core: bb0a740d2bef725194798383c2452213ecdd0b37
+  forge_bridge: 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+status: ACTIVE
+ownership: FORGE-AF05-HIDDEN-INFORMATION-CAMPAIGN-20261003 (Claude, sole executor)
+in_scope:
+  - src/commander_lab/qualification/current_boundary/forge_hidden_information.py
+  - tests/qualification/test_forge_hidden_information.py
+  - scripts/run_forge_hidden_census.py
+  - scripts/run_current_boundary_qualification.py (Forge HIDDEN row reason only)
+  - docs/forge_af05_hidden_20261003/
+out_of_scope:
+  - Forge Rules Core and bridge (read only; a provider change needs its own authorized issue)
+  - XMage AF05, AF06-AF09 for either candidate
+  - provider ranking or selection, AF11, Architecture Freeze
+hard_gates:
+  - no second Lab permission model and no second Forge scenario translator
+  - a capability gap is UNKNOWN, never FAIL; a classified row is never PASS
+  - every asserted bridge channel is checked against the pinned source blobs; drift fails closed
+forbidden_shortcuts:
+  - inferring hidden permission from the requested fixture
+  - emulating unsupported state in Python
+  - promoting a row from construction, classification or native tests
+milestones:
+  - id: M1
+    rows: [HIDDEN_01..HIDDEN_19, HIDDEN_HONEYCARD_SENTINEL]
+    result: 20/20 PROVIDER_ADAPTER_GAP; Forge AF05 UNKNOWN; no receipts
+    summary: >-
+      forge_hidden_information classifies each row from the Forge lane's own
+      model and a channel table asserted against the pinned bridge blobs
+      (HiddenChannelDrift on any mismatch). Every row requests a face-down
+      permanent and an exact library order that ScenarioBootstrap cannot
+      construct; the event rows also name the absent principal channels
+      (event log, reveal/look audience, library contents, replay). The runner
+      reports the exact reason per row. Matrix and README in
+      docs/forge_af05_hidden_20261003/.
+open_items:
+  - Merge main (with #505) into this branch, regenerate the matrix on contract 1.0.20, then exact-head CI and a fresh-context review.
+  - Forge provider construction and observation gaps need a separately authorized Forge bridge issue.
+exact_next_action: >-
+  After #505 merges, merge main into this branch, regenerate the census and
+  manifests, push, run the fresh-context review, merge PR #506 under the
+  project gates and post the #458 handoff.
