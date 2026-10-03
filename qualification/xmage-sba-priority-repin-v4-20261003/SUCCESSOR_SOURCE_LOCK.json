@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-sba-priority-repin-v4-20261003",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "WIP_EVIDENCE_PENDING",
- "status_note": "native_qualification and lab_runtime_qualification are PENDING; tests/qualification/test_xmage_sba_priority_repin_v4_20261003.py stays red until both are filled from exact-commit runs. Do not open or merge the repin PR before that.",
+ "status": "EVIDENCE_RECORDED_REQUALIFICATION_PENDING",
+ "status_note": "native_qualification and lab_runtime_qualification are recorded from exact-commit GitHub Actions runs. Current-boundary credit for this pin still requires PB-03 on the exact Lab main merge commit (current_boundary).",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -75,12 +75,14 @@
    "command": "maven.yml workflow_dispatch on branch claude/xmage-mp-candidate-20260929",
    "run_id": 37141776698,
    "commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
-   "run": null,
-   "failures": null,
-   "errors": null,
-   "skipped": null,
-   "status": "PENDING",
-   "donor_regressions_in_run": "PriorityEliminationTest, MonarchTest (to confirm in the run's surefire output)"
+   "run": 7042,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "status": "PASS",
+   "donor_regressions_in_run": "PriorityEliminationTest, MonarchTest: both present at b479fe74 and inside the 7042-test Mage Tests run (CODE_DERIVED presence: PriorityEliminationTest has 8 @Test methods, no @Ignore; Mage.Tests surefire has no includes/excludes). Per-class surefire lines fall outside the retained log tail, so per-class execution is not separately quoted.",
+   "job_id": 111257544756,
+   "evidence_class": "DIRECTLY_VERIFIED (surefire reactor summary of Mage Tests in the job log)"
   },
   "mage_verify": {
    "result": "FAIL (pre-existing, baseline-attributed)",
@@ -88,21 +90,24 @@
   }
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "scratchpad m2-b479fe74: copy of the m2-sba repository with org/mage removed, then mage, mage-sets, mage-deck-constructed, mage-game-commanderfreeforall, mage-game-commanderduel (with -am) installed from exact b479fe74",
+  "isolated_maven_repository": "not used: replaced by durable GitHub Actions evidence. XMage Full Game Conformance (workflow_dispatch) run 37150350091, job 111282786389, on Lab 63d6d4f63b4b3261ca5f23072899974a3caf4a05; the job checks out moeendres-png/mage at XMAGE_COMMIT and its 'Verify immutable XMage pin' step asserts HEAD == the pin, then builds/restores the engine by pin commit before the bridge build.",
   "installed_artifacts_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
-  "installed_artifacts": {
-   "org.mage:mage:1.4.61": "sha256 10b1d81609f6793afee6da5943c669f2fb079127e32010effb42e8eb564fa15a",
-   "org.mage:mage-sets:1.4.61": "sha256 04a1a60d4561c503b1adf188850ea113ab2fdc9c3777b083e99969f2caebb9c8"
-  },
   "bridge_suite": {
-   "command": "cd engine-bridge && rm -rf target && mvn -o -Dmaven.repo.local=<isolated> test",
-   "run": null,
-   "failures": null,
-   "errors": null,
-   "skipped": null,
-   "status": "PENDING"
+   "command": "cd engine-bridge && mvn -B -ntp verify",
+   "run_id": 37150350091,
+   "job_id": 111282786389,
+   "lab_commit": "63d6d4f63b4b3261ca5f23072899974a3caf4a05",
+   "run": 950,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "PASS",
+   "pin_guards": "JsonlBridgeTest 10/0/0/0, XmageCandidateEngineFingerprintTest 5/0/0/0",
+   "workflow_conclusion": "success (real seeded 4P game-over/replay conformance and bounded 2/3/5/6 smoke also passed)",
+   "evidence_class": "DIRECTLY_VERIFIED (surefire Results block in the job log)"
   },
-  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit; the repair has no structural signature (a guard inside GameImpl.playPriority); identity rests on the declared commit, the loaded-artifact digest and the native PriorityEliminationTest"
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit; the repair has no structural signature (a guard inside GameImpl.playPriority); identity rests on the declared commit, the loaded-artifact digest and the native PriorityEliminationTest",
+  "installed_artifacts_note": "Earlier local m2 digests were from a scratch repository that no longer exists and were never persisted; they are dropped (OBSOLETE) rather than carried as unverifiable claims."
  },
  "current_boundary": {
   "status": "REQUALIFICATION_REQUIRED",
