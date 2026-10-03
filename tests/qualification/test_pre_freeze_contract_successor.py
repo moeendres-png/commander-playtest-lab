@@ -130,7 +130,6 @@ RESIDUAL_ERRATA_IDS = [
     "MICRO_CONTROL",
     "WS05-CMD-DMG-CONTROL",
     "WS05-CMD-PARTNER-TAX",
-    "WS05-CMD-PARTNER-ZONE",
     "MICRO_CONTINUOUS_EFFECTS",
 ]
 CHANGED_FIXTURE_IDS = [
@@ -1989,7 +1988,6 @@ def test_residual_errata_correct_unreachable_requests_and_keep_the_obligation() 
             "action_cost_state",
         },
         "WS05-CMD-PARTNER-TAX": {"semantic_objects", "decision_script", "action_cost_state"},
-        "WS05-CMD-PARTNER-ZONE": {"decision_script"},
         "MICRO_CONTINUOUS_EFFECTS": {"players", "expected_events", "terminal_postconditions"},
     }
     for patch in added:

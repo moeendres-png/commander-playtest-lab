@@ -175,11 +175,6 @@ class TerminalCheck:
                 f"the engine's first {len(principals)} {decision_class} decisions went to "
                 f"{list(principals)} in that order"
             )
-        if self.kind == "commander_zone":
-            return (
-                f"the engine's zone of {self.principal}'s commander {self.card_identity} is "
-                f"{self.value}"
-            )
         if self.kind == "cast_cost":
             return (
                 f"the engine determined {self.value} for the scripted cast of {self.card_identity}"
@@ -986,199 +981,6 @@ ROWS: dict[str, RowSpec] = {
         ),
     ),
     "PILOT_DECLARE_BLOCKER": RowSpec(),
-    # WS05-CMD-PARTNER-ZONE (1.0.20 erratum): P1 casts Rograkh from the
-    # command zone. The engine moves exactly that commander out of the command
-    # zone (it began there), while its partner Kediss, a separate commander
-    # identity, stays in the command zone (CR 903.3, 702.124).
-    "WS05-CMD-PARTNER-ZONE": RowSpec(
-        token_bindings=(
-            (
-                "game_start_command_zone:cmd:P1-A",
-                (
-                    _exactly(
-                        _named(
-                            "ZONE_CHANGE",
-                            "target_name",
-                            "Rograkh, Son of Rohgahh",
-                            ("player_player", "P1"),
-                            ("from", "COMMAND"),
-                            ("to", "STACK"),
-                        ),
-                        1,
-                    ),
-                    TerminalCheck("selected_frame", value="priority", label="Rograkh"),
-                ),
-            ),
-            (
-                "game_start_command_zone:cmd:P1-B",
-                (
-                    TerminalCheck(
-                        "commander_zone",
-                        principal="P1",
-                        card_identity="Kediss, Emberclaw Familiar",
-                        value="COMMAND",
-                    ),
-                    _exactly(
-                        _named("ZONE_CHANGE", "target_name", "Kediss", ("from", "COMMAND")), 0
-                    ),
-                    TerminalCheck(
-                        "commander_zone",
-                        principal="P1",
-                        card_identity="Rograkh, Son of Rohgahh",
-                        value="BATTLEFIELD",
-                    ),
-                ),
-            ),
-        ),
-    ),
-    # WS05-CMD-PARTNER-TAX (1.0.20 erratum): P1 casts both partners from the
-    # command zone; the engine's own payment frame for each cast shows its tax
-    # independently (CR 903.8): Rograkh ({0}, two prior casts) costs {4},
-    # Kediss ({1}{R}, none) costs {1}{R}.
-    "WS05-CMD-PARTNER-TAX": RowSpec(
-        mana_sources=tuple(f"obj:partner-mountain-{index}" for index in range(6)),
-        token_bindings=(
-            ("tax:cmd:P1-A:+4", TerminalCheck("cast_cost", card_identity="cmd:P1-A", value="{4}")),
-            (
-                "tax:cmd:P1-B:+0",
-                TerminalCheck("cast_cost", card_identity="cmd:P1-B", value="{1}{R}"),
-            ),
-        ),
-    ),
-    # MICRO_CONTROL (1.0.20 caused-control erratum): P1 casts Control Magic on
-    # P2's Grizzly Bears; once the Aura resolves, the engine moves control of
-    # the Bears to P1 (CR 613.1b), its owner unchanged.
-    "MICRO_CONTROL": RowSpec(
-        mana_sources=tuple(f"obj:control-island-{index}" for index in range(4)),
-        token_bindings=(
-            (
-                "control_effect_applied:P2->P1",
-                (
-                    _exactly(
-                        _event(
-                            "GAINED_CONTROL",
-                            ("target_object", "obj:micro-controlled"),
-                            ("player_player", "P1"),
-                        ),
-                        1,
-                    ),
-                    _before(
-                        _event(
-                            "ZONE_CHANGE",
-                            ("target_object", "obj:micro-controlmagic"),
-                            ("to", "BATTLEFIELD"),
-                        ),
-                        _event("GAINED_CONTROL", ("target_object", "obj:micro-controlled")),
-                    ),
-                ),
-            ),
-        ),
-    ),
-    # WS05-CMD-DMG-CONTROL (1.0.20 caused-control erratum): on P3's turn, P3
-    # takes P1's commander Isamaru with Act of Treason and attacks P2 with it;
-    # the 2 combat damage counts for Isamaru's own commander identity (CR
-    # 903.10a), so P2 reaches 21 from it and loses while at 38 life.
-    "WS05-CMD-DMG-CONTROL": RowSpec(
-        mana_sources=tuple(f"obj:treason-mountain-{index}" for index in range(3)),
-        terminal_checks=(_life("P2", 38),),
-        token_bindings=(
-            (
-                "commander_combat_damage:P2:2:cmd:P1-A",
-                (
-                    _combat_damage_to_player("obj:isamaru-controlled", "P2", 2),
-                    _before(
-                        _event(
-                            "GAINED_CONTROL",
-                            ("target_object", "obj:isamaru-controlled"),
-                            ("player_player", "P3"),
-                        ),
-                        _event("DAMAGED_PLAYER", ("source_object", "obj:isamaru-controlled")),
-                    ),
-                    _commander_damage("P1", "Isamaru, Hound of Konda", "P2", 21),
-                ),
-            ),
-            (
-                "player_loses:P2",
-                (
-                    _player_loses("P2"),
-                    _before(
-                        _combat_damage_to_player("obj:isamaru-controlled", "P2", 2),
-                        _player_loses("P2"),
-                    ),
-                ),
-            ),
-        ),
-    ),
-    # MICRO_COPY: P1's Flare of Duplication (rebuilt causally above P2's Bolt)
-    # copies the Bolt; the copy is created on the stack, never cast (CR
-    # 707.10), keeps the copied target (the scripted choice), and resolves as a
-    # distinct object before the original Bolt (CR 405.5).
-    "MICRO_COPY": RowSpec(
-        token_bindings=(
-            (
-                "copy_spell:Lightning_Bolt",
-                (
-                    _exactly(_named("COPIED_STACKOBJECT", "source_name", "Lightning Bolt"), 1),
-                    _exactly(_named("SPELL_CAST", "source_name", "Lightning Bolt"), 0),
-                ),
-            ),
-            (
-                "copy_created_on_stack",
-                (
-                    _exactly(
-                        _named(
-                            "DAMAGED_PLAYER",
-                            "source_name",
-                            "Lightning Bolt",
-                            ("target_player", "P2"),
-                            ("amount", 3),
-                            ("source_object", None),
-                        ),
-                        1,
-                    ),
-                    _exactly(
-                        _event(
-                            "DAMAGED_PLAYER",
-                            ("source_object", "obj:micro-bolt"),
-                            ("target_player", "P2"),
-                            ("amount", 3),
-                        ),
-                        1,
-                    ),
-                    _before(
-                        _named("COPIED_STACKOBJECT", "source_name", "Lightning Bolt"),
-                        _event("DAMAGED_PLAYER", ("source_object", "obj:micro-bolt")),
-                    ),
-                ),
-            ),
-        ),
-    ),
-    # MICRO_RULES_RANDOMNESS: P1 calls heads (scripted); the Rules RNG flips
-    # under the record's own seed and the engine reports the result. The
-    # record's predetermined result (HEADS) and its extra turn are observed
-    # only if the engine's flip produced them; nothing sets the flip.
-    "MICRO_RULES_RANDOMNESS": RowSpec(
-        token_bindings=(
-            (
-                "rules_rng:coin_flip:HEADS",
-                _exactly(
-                    _event(
-                        "COIN_FLIPPED",
-                        ("source_object", "obj:micro-stitch"),
-                        ("coin_result", "HEADS"),
-                        ("coin_won", True),
-                    ),
-                    1,
-                ),
-            ),
-            (
-                # The won flip's extra turn is the engine's own pending turn
-                # (taken after this one); it exists only if the flip was won.
-                "extra_turn_created:P1",
-                TerminalCheck("pending_extra_turns", value=("P1",)),
-            ),
-        ),
-    ),
     # MICRO_MANA_PAYMENT: with P2's Bolt on the stack (rebuilt causally), P1
     # casts Counterspell on it (the record's stack:1), paying {U}{U} from its
     # two declared Islands; Counterspell counters the Bolt.
@@ -2040,14 +1842,6 @@ def check_terminal(
         return order[: len(principals)] == list(principals)
     if check.kind == "player_left":
         return seat.get("left") is True and seat.get("lost") is True
-    if check.kind == "commander_zone":
-        # The engine's own zone of one of the principal's commander identities.
-        entries = [
-            entry
-            for entry in seat.get("commanders") or ()
-            if entry.get("card_identity") == check.card_identity
-        ]
-        return len(entries) == 1 and entries[0].get("zone") == check.value
     if check.kind == "cast_cost":
         # The engine's own determined cost for the one scripted cast of the
         # named source: the first payment frame after that cast.
@@ -3331,7 +3125,6 @@ OBSERVATION_KINDS = frozenset(
         "commander_damage",
         "player_left",
         "pending_extra_turns",
-        "commander_zone",
     }
 )
 
