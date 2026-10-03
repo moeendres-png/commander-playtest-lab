@@ -233,12 +233,25 @@ def select_project_wheel(wheel_dir: Path, contract: PackageContract) -> Path:
         _fail("project_wheel_missing", contract.normalized_name)
     if len(candidates) > 1:
         _fail("project_wheel_ambiguous", ",".join(path.name for path in candidates))
-    return candidates[0]
+    return _only(candidates, code="project_wheel_ambiguous")
 
 
 # --------------------------------------------------------------------------- #
 # Isolated environment
 # --------------------------------------------------------------------------- #
+
+
+def _only(items: list[Path], *, code: str) -> Path:
+    """Return the single element of ``items``, or fail closed.
+
+    The isolation contract requires a *uniquely* determined environment. An
+    ambiguous set is never resolved by taking whichever element happens to sort
+    first, because that would silently substitute one interpreter layout or one
+    site-packages tree for another and would make the evidence non-reproducible.
+    """
+    if len(items) != 1:
+        _fail(code, str(len(items)))
+    return items[0]
 
 
 def isolated_child_environment() -> dict[str, str]:
@@ -312,9 +325,13 @@ def venv_bin(venv_dir: Path, program: str) -> Path:
 
 
 def _venv_python(venv_dir: Path) -> Path:
-    candidates = sorted(venv_dir.glob("lib/python*/site-packages"))
-    if candidates:
-        suffix = candidates[0].parent.name.removeprefix("python")
+    layouts = sorted(venv_dir.glob("lib/python*/site-packages"))
+    if len(layouts) > 1:
+        _fail("isolated_environment_layout_ambiguous", str(len(layouts)))
+    if layouts:
+        suffix = _only(
+            layouts, code="isolated_environment_layout_ambiguous"
+        ).parent.name.removeprefix("python")
         interpreter = venv_bin(venv_dir, f"python{suffix}")
         if interpreter.is_file():
             return interpreter
@@ -328,9 +345,7 @@ def _venv_site_packages(venv_dir: Path) -> Path:
     candidates = sorted(venv_dir.glob("lib/python*/site-packages")) or sorted(
         venv_dir.glob("Lib/site-packages")
     )
-    if len(candidates) != 1:
-        _fail("isolated_environment_site_packages_not_uniquely_resolved", str(len(candidates)))
-    return candidates[0]
+    return _only(candidates, code="isolated_environment_site_packages_not_uniquely_resolved")
 
 
 def create_isolated_environment(venv_dir: Path, *, scratch_dir: Path) -> None:
