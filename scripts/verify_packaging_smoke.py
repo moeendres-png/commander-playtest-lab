@@ -64,6 +64,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import tomllib
 import zipfile
 from pathlib import Path
@@ -1408,6 +1409,35 @@ def check_evidence(args: argparse.Namespace) -> int:
         and str(document["wheel_sha256"]) != args.expect_wheel_sha256
     ):
         reasons.append("evidence_wheel_digest_not_the_expected_artifact")
+
+    # Recorded runtime results are unsigned observations. Re-execute the full
+    # wheel-only installation and probes in a new environment before crediting
+    # PASS; source/artifact hashes alone cannot prove an import or CLI ran.
+    if not reasons:
+        with tempfile.TemporaryDirectory(prefix="b9-independent-check-") as directory:
+            root = Path(directory)
+            fresh_output = root / "RUNTIME_REVERIFICATION.json"
+            probe_args = argparse.Namespace(
+                repo=args.repo,
+                wheel_dir=args.wheel_dir,
+                pyproject=args.pyproject,
+                dependency_lock=None,
+                venv_dir=str(root / "venv"),
+                scratch_dir=str(root / "scratch"),
+                output=str(fresh_output),
+                import_module=DEFAULT_IMPORT_MODULE,
+                expect_source_sha=str(document["source_sha"]),
+                expect_source_tree=str(document["source_tree"]),
+                expect_wheel_sha256=str(document["wheel_sha256"]),
+                expect_version=str(document["package_version"]),
+            )
+            result = run_smoke(probe_args)
+            if result != EXIT_CODES[PASS]:
+                observed = json.loads(fresh_output.read_text())
+                reasons.append(
+                    "runtime_reverification_failed:"
+                    + ",".join(observed.get("reasons", ["no_verdict"]))
+                )
 
     if reasons:
         print("packaging evidence check FAIL: " + "; ".join(reasons), file=sys.stderr)

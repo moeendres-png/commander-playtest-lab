@@ -11,12 +11,11 @@ in_scope:
   integration
 out_of_scope:
 - Rules or qualification obligations
-- Non-CI simulator work owned by Claude
 - Provider/freeze/production repository
 - Deck/inventory/opponent changes
 - Paid services
 - Required-check promotion
-ownership: CI479-ROADMAP-CAMPAIGN-20261003
+ownership: PRE-FREEZE-CAMPAIGN-SINGLE-COORDINATOR-20261003
 dependencies:
 - Direct user CI479 takeover and Lab255 comment5971360874
 - Transferred partial donor4ae79d25 (no prior qualification credit)
@@ -36,14 +35,12 @@ technical_decisions:
 - Check import search path after candidate import as well as before
 authority_gates:
 - Provider selection and Architecture Freeze remain reserved
-state_written_against_head: 2c43973814062e3c59d199c156f1151c1d7b11ae
+state_written_against_head: 60bde10c029d31d88e48757f0c10446e889ef24e
 validated_head: null
 status: WAITING
 execution_profile: null
-exact_next_action: Read required and affected CI for the published head, independently
-  review, verify source-bound artifact bytes, then adjudicate target drift and merge
-  normally.
+exact_next_action: Inspect new exact-head CI and independent review; independently
+  verify CI artifact/source bindings, then adjudicate CI02 and normal merge.
 tests_run:
-- 74 affected tests PASS; raw reports are retained losslessly under docs/ci479_followup_pr509_20261003/
-- Exact-head CI and independent review pending; local results do not prove engine
-  Rules behavior
+- 74 affected tests PASS after actual main50e8 integration, including independently
+  repeated product runtime probes

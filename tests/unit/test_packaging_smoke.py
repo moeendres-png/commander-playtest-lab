@@ -1086,3 +1086,27 @@ def test_undeclared_dependency_is_not_supplied_by_tooling(tmp_path):
         not entry.startswith("jsonschema==")
         for entry in document["dependency_closure"]["requirements"]
     )
+
+    # Forge a structurally consistent PASS for the same source-bound artifact
+    # whose undeclared import actually failed above. The consumer must execute
+    # its own probes rather than accept these unsigned recorded observations.
+    document["overall_classification"] = "PASS"
+    document["reasons"] = ["all_packaging_smoke_invariants_satisfied"]
+    document["installed_import"] = {
+        "status": "PASS", "module": "commander_lab",
+        "resolved_in_isolated_environment": True,
+        "module_file_relative_to_purelib": "commander_lab/__init__.py",
+    }
+    document["cli_entrypoints"] = [
+        {"name": name, "status": "PASS", "returncode": 0}
+        for name in CONTRACT.scripts
+    ]
+    document["cli_entrypoint_results"] = {
+        row["name"]: row for row in document["cli_entrypoints"]
+    }
+    output.write_text(json.dumps(document))
+    checked = _run_script(
+        "check", "--repo", str(child), "--evidence", str(output), "--wheel-dir", str(wheels)
+    )
+    assert checked.returncode == EXIT_FAIL, checked.stdout + checked.stderr
+    assert "runtime_reverification_failed" in checked.stderr
