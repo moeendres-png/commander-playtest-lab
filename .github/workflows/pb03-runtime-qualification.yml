@@ -336,6 +336,7 @@ jobs:
               "forge": os.environ["FORGE_RULES_COMMIT"],
           }
 
+          gate_summary = {}
           for candidate, commit in expected.items():
               upper = candidate.upper()
               full107 = json.loads((root / f"FULL107_{upper}_RESULTS.json").read_text())
@@ -356,6 +357,16 @@ jobs:
               assert af["boundary"] == "FRESH_CURRENT_BOUNDARY_EXECUTION", candidate
               gates = {gate["gate"]: gate for gate in af["gates"]}
               assert set(f"AF{i:02d}" for i in range(11)).issubset(gates), sorted(gates)
+              # The gate verdicts are printed so a reviewer can read them from
+              # the job log; the packet remains the evidence of record.
+              gate_summary[candidate] = {
+                  name: {
+                      "verdict": gate["verdict"],
+                      "blocking_rows": len(gate.get("blocking_rows") or ()),
+                  }
+                  for name, gate in sorted(gates.items())
+              }
+              gate_summary[candidate]["AF07_evidence"] = gates["AF07"].get("evidence")
 
           forge_af01 = json.loads((root / "AF01_FORGE.json").read_text())
           invariants = forge_af01["invariants"]
@@ -382,6 +393,7 @@ jobs:
               "provider": packet["production_provider"],
               "freeze": packet["architecture_freeze"],
           }, sort_keys=True))
+          print(json.dumps({"af_gates": gate_summary}, indent=1, sort_keys=True))
           PY
 
       - name: Hash current-boundary packet
