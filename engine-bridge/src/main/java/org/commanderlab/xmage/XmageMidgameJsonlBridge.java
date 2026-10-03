@@ -68,6 +68,9 @@ final class XmageMidgameJsonlBridge {
     private XmageFullGameSession session;
     private XmageNativeStateRestoration restoration;
     private String planId;
+    /** The composed entry: a causal stack whose controller is then eliminated causally. */
+    static final String CAUSAL_STACK_ELIMINATION = "causal_stack_elimination";
+
     private String entryMode = "placement";
     private XmageMidgameCausalBridge.CausalStackPlan causalStackPlan;
     /** Commander stack sources published with the causal plan, by semantic id. */
@@ -323,12 +326,14 @@ final class XmageMidgameJsonlBridge {
                     : requestedEntryMode;
             if (!resolvedEntryMode.equals("placement")
                     && !resolvedEntryMode.equals("causal_stack")
-                    && !resolvedEntryMode.equals("causal_elimination")) {
+                    && !resolvedEntryMode.equals("causal_elimination")
+                    && !resolvedEntryMode.equals(CAUSAL_STACK_ELIMINATION)) {
                 return error(
                         requestId,
                         "unsupported_entry_mode",
-                        "CREATE_MIDGAME_GAME supports entry_mode placement, causal_stack or "
-                                + "causal_elimination; observed " + requestedEntryMode,
+                        "CREATE_MIDGAME_GAME supports entry_mode placement, causal_stack, "
+                                + "causal_elimination or " + CAUSAL_STACK_ELIMINATION
+                                + "; observed " + requestedEntryMode,
                         false
                 );
             }
@@ -380,6 +385,11 @@ final class XmageMidgameJsonlBridge {
         try {
             if ("causal_stack".equals(resolvedEntryMode)) {
                 return success(requestId, createCausalStack(
+                        requestedState, gameId, planTag, seed,
+                        startingPlayerSeat, startingLife, payload), false);
+            }
+            if (CAUSAL_STACK_ELIMINATION.equals(resolvedEntryMode)) {
+                return success(requestId, createCausalStackElimination(
                         requestedState, gameId, planTag, seed,
                         startingPlayerSeat, startingLife, payload), false);
             }
@@ -581,6 +591,71 @@ final class XmageMidgameJsonlBridge {
         response.addProperty("entry_mode", "causal_elimination");
         response.add("elimination_plan", XmageMidgameCausalBridge.eliminationPlanPayload(
                 elimPlan, restoration));
+        return response;
+    }
+
+    /**
+     * Composed entry: the record's stack is built causally (as
+     * {@link #createCausalStack}) in a position that also holds the
+     * elimination's declared instruments and open life substitution (as
+     * {@link #createCausalElimination}). The pilot casts the frames, the stack
+     * verifier confirms them, and only then does the pilot cause the loss; the
+     * elimination verifier reads the engine's own verdict. Nothing is placed on
+     * the stack and no life total or lost/left flag is set here.
+     */
+    private JsonObject createCausalStackElimination(
+            JsonObject requestedState,
+            String gameId,
+            String planTag,
+            long seed,
+            int startingPlayerSeat,
+            int startingLife,
+            JsonObject payload) {
+        if (!payload.has("elimination") || !payload.get("elimination").isJsonObject()) {
+            throw new XmageMidgameCausalBridge.CausalException(
+                    "MISSING_ELIMINATION_SPEC",
+                    "CREATE_MIDGAME_GAME with entry_mode " + CAUSAL_STACK_ELIMINATION
+                            + " requires payload.elimination {actor, victim, instruments}");
+        }
+        JsonObject spec = payload.getAsJsonObject("elimination");
+        XmageMidgameCausalBridge.CausalStackEliminationPlan composed =
+                XmageMidgameCausalBridge.prepareCausalStackElimination(
+                        requestedState,
+                        parseDeclaredCards(payload, "fuel"),
+                        requiredTextIn(spec, "actor"),
+                        requiredTextIn(spec, "victim"),
+                        parseDeclaredCards(spec, "instruments"),
+                        planTag,
+                        seed);
+        XmageMidgameCausalBridge.CausalStackPlan stackPlan = composed.stack();
+
+        List<String> handles = importScaffolding(
+                stackPlan.prepared().preStackPlan(), planTag,
+                stackPlan.prepared().restoration().losslessHidden());
+        this.restoration = stackPlan.prepared().restoration();
+        this.planId = planTag;
+        this.entryMode = CAUSAL_STACK_ELIMINATION;
+        this.causalStackPlan = stackPlan;
+        this.causalEliminationPlan = composed.elimination();
+        this.session = new XmageFullGameSession(
+                gameId,
+                handles,
+                startingPlayerSeat,
+                startingLife,
+                seed,
+                deckImporter,
+                restoration
+        );
+
+        JsonObject response = createdResponse(
+                gameId, planTag, startingPlayerSeat, startingLife, seed);
+        response.addProperty("entry_mode", CAUSAL_STACK_ELIMINATION);
+        this.causalCommanderSources = Map.copyOf(
+                commanderStackSources(requestedState, stackPlan.prepared()));
+        response.add("causal_plan", XmageMidgameCausalBridge.causalStackPayload(
+                stackPlan, restoration, causalCommanderSources));
+        response.add("elimination_plan", XmageMidgameCausalBridge.eliminationPlanPayload(
+                composed.elimination(), restoration));
         return response;
     }
 
@@ -950,7 +1025,9 @@ final class XmageMidgameJsonlBridge {
             }
             JsonObject verdict;
             if ("stack".equals(mode)) {
-                if (!"causal_stack".equals(entryMode) || causalStackPlan == null) {
+                boolean stackEntry = "causal_stack".equals(entryMode)
+                        || CAUSAL_STACK_ELIMINATION.equals(entryMode);
+                if (!stackEntry || causalStackPlan == null) {
                     return error(
                             requestId,
                             "no_causal_stack_plan",
@@ -965,8 +1042,9 @@ final class XmageMidgameJsonlBridge {
                         causalStackPlan.prepared(),
                         causalCommanderSources);
             } else {
-                if (!"causal_elimination".equals(entryMode)
-                        || causalEliminationPlan == null) {
+                boolean eliminationEntry = "causal_elimination".equals(entryMode)
+                        || CAUSAL_STACK_ELIMINATION.equals(entryMode);
+                if (!eliminationEntry || causalEliminationPlan == null) {
                     return error(
                             requestId,
                             "no_causal_elimination_plan",

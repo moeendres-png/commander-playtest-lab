@@ -63,6 +63,9 @@ PROBE_ROWS: tuple[str, ...] = (
 
 SEED = 424242
 
+# A causal stack whose controller is then eliminated causally in the same game.
+CAUSAL_STACK_ELIMINATION = "causal_stack_elimination"
+
 
 # Causal-entry rows. Each names the frozen record, the entry mode, the
 # declared fuel or instruments, and the terminal obligation the row requires
@@ -310,8 +313,11 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
         "bolt_count": 14,
         "terminal": "victim_eliminated_by_engine",
     },
+    # The victim's own spell must be on the stack while the victim is
+    # eliminated (CR 800.4a). P2 casts it on the engine's frames, the stack
+    # verifier confirms it, and only then does P1 cause P2's loss.
     "WS05-MP-ELIM-STACK-3": {
-        "entry_mode": "causal_stack",
+        "entry_mode": CAUSAL_STACK_ELIMINATION,
         "fuel": [
             {
                 "semantic_id": "obj:fuel-mountain-p2",
@@ -320,7 +326,10 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
                 "zone": "battlefield",
             },
         ],
-        "terminal": "stack_with_elimination_pending",
+        "elimination_actor": "P1",
+        "elimination_victim": "P2",
+        "bolt_count": 14,
+        "terminal": "stack_controller_eliminated",
     },
     "WS05-MP-TURN-5": {
         "entry_mode": "placement",
@@ -1639,9 +1648,9 @@ def probe_causal_row(
             "entry_mode": entry_mode,
             "requested_starting_state": record,
         }
-        if entry_mode == "causal_stack":
+        if entry_mode in ("causal_stack", CAUSAL_STACK_ELIMINATION):
             request["fuel"] = list(spec.get("fuel") or [])
-        elif entry_mode == "causal_elimination":
+        if entry_mode in ("causal_elimination", CAUSAL_STACK_ELIMINATION):
             request["elimination"] = elimination_request(spec)
         created = client.request("create_midgame_game", request)
         if not created.get("success"):
@@ -1673,6 +1682,8 @@ def probe_causal_row(
                 row = drive_causal_stack(client, fixture_id, record, payload, spec)
             elif entry_mode == "causal_elimination":
                 row = drive_causal_elimination(client, fixture_id, record, payload, spec)
+            elif entry_mode == CAUSAL_STACK_ELIMINATION:
+                row = drive_causal_stack_elimination(client, fixture_id, record, payload, spec)
             else:
                 row = drive_placement_obligation(client, fixture_id, record, payload, spec)
         except ml.MidgameLaneError as exc:
@@ -1743,19 +1754,6 @@ def drive_causal_stack(
                 + ("cleanup" if resolution["reached_cleanup_discard"] else "terminal")
                 + f" with no zone-choice decision; trace={trace}",
             }
-    elif terminal_kind == "stack_with_elimination_pending":
-        stack_ok = bool(stack_verdict.get("causal_match")) and not (
-            stack_verdict.get("mismatches") or []
-        )
-        terminal = {
-            "kind": terminal_kind,
-            "observed": False,
-            "detail": "the causal stack is produced and verified; the victim is "
-            "still alive with the spell on the stack. Eliminating in the same "
-            "game needs stack frames and elimination instruments placed "
-            "together (a combined causal entry the lane does not have). "
-            f"stack_match={stack_ok}",
-        }
     elif terminal_kind == "scripted_decision_offered":
         terminal = observe_scripted_decision(client, f"probe-{fixture_id}", record, placed)
     elif terminal_kind == "spell_resolves_to_graveyard":
@@ -1954,6 +1952,76 @@ def eliminate_causally(
             expected_life,
         )
     return complete_causal(client, "elimination").get("verdict") or {}
+
+
+def build_and_eliminate(
+    client: ml.MidgameLaneClient,
+    tag: str,
+    created: dict[str, Any],
+    spec: dict[str, object],
+) -> dict[str, Any]:
+    """The composed route: cast the victim's stack, verify it, then eliminate.
+
+    Returns both engine verdicts. The elimination starts only after the stack
+    verifier confirmed the requested stack, so the victim's spell is provably on
+    the stack when the engine applies the loss.
+    """
+    causal_plan = created.get("causal_plan") or {}
+    placed = {str(k): str(v) for k, v in (causal_plan.get("placed_objects") or {}).items()}
+    declared_fuel = [str(card["semantic_id"]) for card in spec.get("fuel") or ()]  # type: ignore[union-attr,index]
+    fuel = [placed[semantic] for semantic in declared_fuel if semantic in placed]
+    if len(fuel) != len(declared_fuel):
+        raise ml.MidgameLaneError(f"{tag}: a declared fuel card was not placed")
+    causal_stack_frames(client, f"{tag}-stack", causal_plan, placed, fuel)
+    stack_verdict = complete_causal(client, "stack").get("verdict") or {}
+    if not stack_verdict.get("causal_match") or stack_verdict.get("mismatches"):
+        return {"stack": stack_verdict, "elimination": None}
+    elimination = eliminate_causally(client, f"{tag}-elimination", created, spec)
+    return {"stack": stack_verdict, "elimination": elimination}
+
+
+def drive_causal_stack_elimination(
+    client: ml.MidgameLaneClient,
+    fixture_id: str,
+    record: dict[str, Any],
+    created: dict[str, Any],
+    spec: dict[str, object],
+) -> dict[str, Any]:
+    withheld = ml.causal_credit_gate(
+        fixture_id,
+        CAUSAL_STACK_ELIMINATION,
+        drive_arrival(client, record),
+        engine_commit=client.engine_commit,
+    )
+    if withheld is not None:
+        return withheld
+    verdicts = build_and_eliminate(client, f"probe-{fixture_id}", created, spec)
+    stack = verdicts["stack"]
+    elimination = verdicts["elimination"] or {}
+    eliminated = elimination.get("victim_lost") is True or elimination.get("victim_left") is True
+    terminal = {
+        "kind": str(spec.get("terminal")),
+        "observed": verdicts["elimination"] is not None and eliminated,
+        "stack_match": bool(stack.get("causal_match")) and not stack.get("mismatches"),
+        "victim_lost": elimination.get("victim_lost") is True,
+        "victim_left": elimination.get("victim_left") is True,
+        "detail": (
+            "the engine built the victim's stack, then eliminated the victim"
+            if verdicts["elimination"] is not None and eliminated
+            else f"stack={stack} elimination={verdicts['elimination']}"
+        ),
+    }
+    combined = dict(elimination) if verdicts["elimination"] is not None else dict(stack)
+    combined["stack_verdict"] = stack
+    row_verdict = ml.classification_from_causal_verdict(
+        fixture_id,
+        ml.MIDGAME_LANE,
+        CAUSAL_STACK_ELIMINATION,
+        combined,
+        terminal,
+        engine_commit=client.engine_commit,
+    )
+    return row_verdict.as_dict()
 
 
 def drive_causal_elimination(
