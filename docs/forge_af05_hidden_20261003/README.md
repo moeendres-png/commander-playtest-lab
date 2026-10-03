@@ -95,8 +95,8 @@ and exile zones. The remaining columns name what else each row needs.
 | HIDDEN_04 | face_down_controller | knowledge | none | none | none |
 | HIDDEN_05 | exile_permission_persists | cost state, knowledge | event log | none | cast, target player, choose object, target object |
 | HIDDEN_06 | exile_permission_invalidates | cost state, knowledge | event log | none | cast, target player, choose object |
-| HIDDEN_07 | reveal_audience | cost state, knowledge | reveal/look audience, event log | none | cast |
-| HIDDEN_08 | look_audience | cost state, knowledge | reveal/look audience, event log | none | cast, target player |
+| HIDDEN_07 | reveal_audience | cost state, knowledge | reveal/look audience, reveal/look projection, event log | none | cast |
+| HIDDEN_08 | look_audience | cost state, knowledge | reveal/look audience, reveal/look projection, event log | none | cast, target player |
 | HIDDEN_09 | search_inspection | cost state, knowledge | library contents, event log | none | cast, target object |
 | HIDDEN_10 | scry_knowledge | cost state, knowledge | library contents, event log | none | cast, target player, target objects, choose object |
 | HIDDEN_11 | shuffle_invalidates_order | cost state, knowledge | library contents, event log | none | cast, target player |

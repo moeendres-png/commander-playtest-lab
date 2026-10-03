@@ -62,8 +62,8 @@ def test_construction_gaps_are_the_lane_model_findings(records) -> None:
 
 def test_event_rows_name_the_absent_principal_channel(records) -> None:
     expected = {
-        "HIDDEN_07": {"reveal_look_audience", "event_log"},
-        "HIDDEN_08": {"reveal_look_audience", "event_log"},
+        "HIDDEN_07": {"reveal_look_audience", "reveal_look_projection", "event_log"},
+        "HIDDEN_08": {"reveal_look_audience", "reveal_look_projection", "event_log"},
         "HIDDEN_10": {"library_contents", "event_log"},
         "HIDDEN_11": {"library_contents", "event_log"},
         "HIDDEN_18": {"replay_transcript", "event_log"},
@@ -430,3 +430,21 @@ def test_a_changed_lab_launcher_is_re_reviewed(edit) -> None:
     fh.assert_lab_capture(launcher)
     with pytest.raises(fh.HiddenChannelDrift, match="Lab capture gap"):
         fh.assert_lab_capture(edit(launcher))
+
+
+@pytest.mark.parametrize("fixture", ["HIDDEN_07", "HIDDEN_08"])
+def test_audience_projection_gap_is_independent_of_event_channels(records, monkeypatch, fixture):
+    """A working audience/event transport still cannot substitute for its absent projection."""
+    for name in ("reveal_look_audience", "event_log"):
+        monkeypatch.setitem(
+            fh.CHANNELS_BY_NAME, name, fh.Channel(name, fh.CHANNEL_SUPPORTED, "engine")
+        )
+    missing = fh.classify_row(records[fixture]).missing_channels
+    assert missing == ["reveal_look_projection"]
+    assert "reveal_look_projection" in fh.row_reason(records[fixture])
+    monkeypatch.setitem(
+        fh.CHANNELS_BY_NAME,
+        "reveal_look_projection",
+        fh.Channel("reveal_look_projection", fh.CHANNEL_SUPPORTED, "projection"),
+    )
+    assert fh.classify_row(records[fixture]).missing_channels == []

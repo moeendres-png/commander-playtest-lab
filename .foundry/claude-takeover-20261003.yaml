@@ -4,7 +4,7 @@ worktree: /home/moeen/work/takeover-pr506-20261003
 branch: claude/pensive-mayer-f8spwn
 audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
 audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
-state_written_against_head: 22f11a0214f39a580ab50736650b31a0bacf49d8
+state_written_against_head: 4e6a3fbf62ef9c1bc963d3e221f7171dd60c62ee
 validated_head: null
 objective: Resume transferred Claude pre-Freeze campaign; review, repair, qualify
   and integrate existing PR surfaces without losing provenance
@@ -37,15 +37,13 @@ authority_gates:
 - Rules/evidence-policy/provider/freeze decisions remain reserved
 execution_profile: direct-owner-authorized-codex-takeover
 technical_decisions:
-- Direct Owner takeover recorded at Lab255 comment5969650684. Claude cloud writer
-  is quota-stopped; this branch owns no foreign D17 changes.
-- Normal merge current main2296266 into transferred506 is conflict-free. Focused109
-  tests pass. main includes producer changes in510, so old PB03 source-bound epoch
-  is retained as historical, not credited to new tree.
-- All20 Forge AF05 behavior rows remain UNKNOWN; new Lab stderr capture gap persists.
-  No gap is promoted from source census.
-exact_next_action: Consume fresh exact-head required CI, PB03 artifact/source binding
-  and independent review; then integrate506 before resolving511 runner conflict.
+- 'Fresh current-head independent review P2 4173392672 is valid: audience transport
+  and state projection are separate prerequisites. Both audience obligations now inventory
+  reveal_look_projection; no rules obligation or provider credit changed.'
+- Source census reads immutable pinned Forge Git objects only; active D17 worktree
+  and processes are untouched.
+exact_next_action: Push repaired exact head; consume fresh required CI/PB03 and independent
+  review before merge, then integrate511 normally.
 validation_evidence:
   command: python3 -m pytest -q tests/qualification/test_forge_hidden_information.py
     tests/qualification/test_midgame_rows_residual_mechanisms.py tests/unit/test_required_test_ownership.py
@@ -55,3 +53,9 @@ validation_evidence:
   exact_head_ci: PENDING
   independent_review: PENDING
 pr_url: https://github.com/moeendres-png/commander-playtest-lab/pull/506
+tests_run:
+- 'Reveal/look independent projection controls: 2 fail before repair, both pass afterward;
+  evidence in docs/forge_af05_hidden_20261003'
+- 111 affected classification, residual-mechanism and test-ownership tests PASS
+- 'Pinned-object census regenerated: 20 provider adapter gaps, zero PASS, AF05 Forge
+  UNKNOWN'

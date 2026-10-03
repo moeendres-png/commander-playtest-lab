@@ -910,6 +910,7 @@
    ],
    "missing_principal_channels": [
     "reveal_look_audience",
+    "reveal_look_projection",
     "event_log"
    ],
    "obligation_kind": "reveal_audience",
@@ -957,7 +958,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, reveal_look_projection, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
@@ -1013,6 +1014,7 @@
    ],
    "missing_principal_channels": [
     "reveal_look_audience",
+    "reveal_look_projection",
     "event_log"
    ],
    "obligation_kind": "look_audience",
@@ -1059,7 +1061,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, reveal_look_projection, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
