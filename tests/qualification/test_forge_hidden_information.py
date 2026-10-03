@@ -29,6 +29,10 @@ def _texts() -> dict[str, str]:
         texts[channel.source] += "\n".join(channel.present) + "\n"
     texts["bootstrap"] += "".join(f'x.has("{name}");\n' for name in sorted(fh.BOOTSTRAP_FIELDS))
     texts["engine"] += "".join(f"case {label}: break;\n" for label in sorted(fh.MESSAGE_CASES))
+    start, end = fh.CHANNELS_BY_NAME["decision_frames"].region
+    keys = "".join(f'x.addProperty("{key}", v);\n' for key in sorted(fh.DECISION_FRAME_KEYS))
+    texts["projection"] = texts["projection"] + start + " {\n" + keys + "}\n" + end + " {}\n"
+    texts["main"] += "".join(f"System.err.println({text});\n" for text in sorted(fh.STDERR_PRINTS))
     return texts
 
 
@@ -303,19 +307,7 @@ def test_the_committed_matrix_is_current(records) -> None:
         for fixture in sorted(knowledge_projection.ROWS)
     ]
     assert matrix["rows"] == fresh
-    channels = [
-        {
-            "channel": channel.name,
-            "status": channel.status,
-            "source": fh.SOURCES[channel.source],
-            "present_fragments": list(channel.present),
-            "absent_tokens": list(channel.absent),
-            "closed_bootstrap_fields": sorted(channel.fields),
-            "closed_message_types": sorted(channel.cases),
-            "meaning": channel.meaning,
-        }
-        for channel in fh.CHANNELS
-    ]
+    channels = [fh.channel_document(channel) for channel in fh.CHANNELS]
     assert matrix["channels"] == channels
     assert matrix["summary"]["pass"] == 0
     assert matrix["summary"]["af05_forge"] == "UNKNOWN"
@@ -354,3 +346,55 @@ def test_an_unaudited_channel_alone_is_not_a_gap() -> None:
     )
     with pytest.raises(ValueError, match="needs execution"):
         _ = row.classification
+
+
+@pytest.mark.parametrize(
+    ("source", "edit"),
+    [
+        # A new pilot-facing frame key (e.g. a prompt carrying a card name).
+        (
+            "projection",
+            lambda text, region: text.replace(
+                region[1], 'x.addProperty("prompt", p);\n' + region[1]
+            ),
+        ),
+        # A lost frame key: the inventory no longer matches what the frame carries.
+        ("projection", lambda text, region: text.replace('x.addProperty("label", v);', "")),
+        # The frame region is gone.
+        ("projection", lambda text, region: text.replace(region[0], "")),
+        # A new stderr diagnostic in BridgeMain.
+        ("main", lambda text, region: text + 'System.err.println("[bridge] hand: " + hand);\n'),
+        # A second stdout write beside the one response per line.
+        ("main", lambda text, region: text + "protocolOut.print(debug);\n"),
+        # Engine prints are no longer redirected away from the protocol stream.
+        ("main", lambda text, region: text.replace("System.setOut(System.err);", "")),
+    ],
+)
+def test_frame_keys_and_transport_diagnostics_are_closed(source, edit) -> None:
+    """Wrong-reason controls: every frame key and stderr print is inventoried."""
+    texts = _texts()
+    region = fh.CHANNELS_BY_NAME["decision_frames"].region
+    texts[source] = edit(texts[source], region)
+    with pytest.raises(fh.HiddenChannelDrift):
+        fh.assert_channels(texts)
+
+
+def test_every_sentinel_facet_names_inventoried_frame_keys() -> None:
+    facets = fh.DECISION_FRAME_FACETS
+    assert set(facets) == {
+        "prompt_and_context",
+        "option_ids",
+        "labels",
+        "metadata",
+        "object_references",
+        "source",
+    }
+    assert {key for keys in facets.values() for key in keys} <= fh.DECISION_FRAME_KEYS
+
+
+def test_transport_diagnostics_are_unaudited_and_required(records) -> None:
+    assert fh.CHANNELS_BY_NAME["transport_diagnostics"].status == fh.CHANNEL_UNAUDITED
+    for fixture in ("HIDDEN_19", "HIDDEN_HONEYCARD_SENTINEL"):
+        row = fh.classify_row(records[fixture])
+        assert "transport_diagnostics" in row.unaudited_channels, fixture
+        assert "PASS" not in row.reason()

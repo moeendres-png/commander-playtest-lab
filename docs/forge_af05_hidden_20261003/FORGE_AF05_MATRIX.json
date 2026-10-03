@@ -7,7 +7,10 @@
    "absent_tokens": [],
    "channel": "principal_scoped_state",
    "closed_bootstrap_fields": [],
+   "closed_frame_keys": [],
    "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
    "meaning": "get_game_state is projected for one observer principal",
    "present_fragments": [
     "public static JsonObject gameState(BridgeSession session, String observerPlayerId)"
@@ -19,7 +22,10 @@
    "absent_tokens": [],
    "channel": "face_down_redaction",
    "closed_bootstrap_fields": [],
+   "closed_frame_keys": [],
    "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
    "meaning": "a face-down card or stack source is named only to a principal both CardView.canBeShownTo and CardView.canFaceDownBeShownTo admit",
    "present_fragments": [
     "shown = view != null && view.canBeShownTo(observerView) && view.canFaceDownBeShownTo(observerView);",
@@ -36,7 +42,10 @@
    ],
    "channel": "library_contents",
    "closed_bootstrap_fields": [],
+   "closed_frame_keys": [],
    "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
    "meaning": "every library projects as an empty list with library_size; no principal, entitled or not, can observe a library identity or its order",
    "present_fragments": [
     "zones.add(\"library\", new JsonArray());",
@@ -51,7 +60,10 @@
    ],
    "channel": "event_log",
    "closed_bootstrap_fields": [],
+   "closed_frame_keys": [],
    "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
    "meaning": "export_event_log and get_event_log fail closed; no engine event can be observed, so permission timing cannot be tied to the real event",
    "present_fragments": [
     "BridgeErrors.EVENT_LOG_UNSUPPORTED",
@@ -67,7 +79,10 @@
    ],
    "channel": "reveal_look_audience",
    "closed_bootstrap_fields": [],
+   "closed_frame_keys": [],
    "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
    "meaning": "a reveal or look is recorded only in the bridge's internal audit, which is never pilot-visible; no principal has a revealed or looked-at log",
    "present_fragments": [
     "public void reveal(CardCollectionView cards, ZoneType zone, Player owner, String messagePrefix, boolean addMsgSuffix) { auditReveal(cards == null ? 0 : cards.size(), zone); }",
@@ -86,7 +101,10 @@
    ],
    "channel": "reveal_look_projection",
    "closed_bootstrap_fields": [],
+   "closed_frame_keys": [],
    "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
    "meaning": "the state projection carries no revealed or looked-at zone; with the controller's audit-only reveal this is the whole reveal/look evidence",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
@@ -98,7 +116,10 @@
    ],
    "channel": "replay_transcript",
    "closed_bootstrap_fields": [],
+   "closed_frame_keys": [],
    "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
    "meaning": "no replay or transcript export exists to audit",
    "present_fragments": [
     "export_replay is not supported: deterministic replay is not claimed",
@@ -132,7 +153,10 @@
     "stack",
     "tapped"
    ],
+   "closed_frame_keys": [],
    "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
    "meaning": "the scenario bootstrap has no face-down field (MANIFESTED, CLOAKED, ...)",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
@@ -161,7 +185,10 @@
     "stack",
     "tapped"
    ],
+   "closed_frame_keys": [],
    "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
    "meaning": "the scenario bootstrap cannot place a library in a requested order",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
@@ -190,7 +217,10 @@
     "stack",
     "tapped"
    ],
+   "closed_frame_keys": [],
    "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
    "meaning": "the scenario bootstrap has no knowledge or permission field",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
@@ -221,7 +251,10 @@
     "stack",
     "tapped"
    ],
+   "closed_frame_keys": [],
    "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
    "meaning": "the scenario bootstrap has no mid-cast cost or payment state field",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
@@ -231,6 +264,7 @@
    "absent_tokens": [],
    "channel": "message_surface",
    "closed_bootstrap_fields": [],
+   "closed_frame_keys": [],
    "closed_message_types": [
     "\"create_game\"",
     "\"get_event_log\"",
@@ -257,6 +291,8 @@
     "BridgeProtocol.START_GAME",
     "BridgeProtocol.SUBMIT_ACTION"
    ],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
    "meaning": "the bridge's whole request surface is this closed set of message types; an unknown type is refused with UNKNOWN_MESSAGE and the legacy get_state alias is the observer-scoped projection. Whether every message refuses an omniscient read, and what its errors and diagnostics carry, is shown only by the row's runtime refusal probes and channel scan, which were not run",
    "present_fragments": [
     "\"unknown message type: \" + type",
@@ -269,14 +305,130 @@
    "absent_tokens": [],
    "channel": "decision_frames",
    "closed_bootstrap_fields": [],
+   "closed_frame_keys": [
+    "action_id",
+    "action_type",
+    "actor",
+    "actor_id",
+    "allowed_target_ids",
+    "card_id",
+    "choices_schema",
+    "controller",
+    "cost",
+    "cost_order_indices",
+    "decision_class",
+    "decision_protocol_version",
+    "decision_subtype",
+    "divided_min_per_target",
+    "divided_total",
+    "divided_up_to",
+    "event_offset",
+    "frame_kind",
+    "free_input",
+    "hidden",
+    "input_max",
+    "input_min",
+    "kind",
+    "label",
+    "legal_set_digest",
+    "legal_set_size",
+    "lifecycle",
+    "max",
+    "metadata",
+    "min",
+    "modes",
+    "name",
+    "object_refs",
+    "options",
+    "player_id",
+    "principal_observation_digest",
+    "public_state_digest",
+    "reason",
+    "revision",
+    "rng_binding",
+    "semantic_fingerprint",
+    "semantic_key",
+    "semantic_replay_version",
+    "source_object_id",
+    "status",
+    "target_ids",
+    "type",
+    "zone"
+   ],
    "closed_message_types": [],
-   "meaning": "a decision option reaches its actor with a label, a source_object_id built from the source card name, a semantic key and object references; whether a face-down or sentinel identity reaches a principal not entitled to it is shown only by executing the row, which was not run",
+   "closed_stderr_prints": [],
+   "frame_key_facets": {
+    "labels": [
+     "label"
+    ],
+    "metadata": [
+     "metadata",
+     "revision",
+     "decision_subtype",
+     "cost_order_indices",
+     "choices_schema",
+     "object_refs"
+    ],
+    "object_references": [
+     "card_id",
+     "name",
+     "zone",
+     "controller",
+     "player_id",
+     "hidden"
+    ],
+    "option_ids": [
+     "action_id",
+     "semantic_key",
+     "semantic_fingerprint"
+    ],
+    "prompt_and_context": [
+     "label",
+     "reason",
+     "kind",
+     "frame_kind"
+    ],
+    "source": [
+     "source_object_id"
+    ]
+   },
+   "meaning": "a decision frame reaches its actor as a summary and legal actions whose every key is the closed set DECISION_FRAME_KEYS: prompt and context (label, reason, kind), option ids (action_id, semantic_key, semantic_fingerprint), labels, metadata, object references and source (source_object_id, built from the source card name). Whether any of them carries a face-down or sentinel identity to a principal not entitled to it is shown only by the row's sentinel scan, which was not run",
    "present_fragments": [
     "action.addProperty(\"source_object_id\", option.sourceCardName);",
     "metadata.addProperty(\"label\", option.label);",
-    "action.getAsJsonObject(\"metadata\").add(\"object_refs\", refs);"
+    "action.getAsJsonObject(\"metadata\").add(\"object_refs\", refs);",
+    "summary.addProperty(\"reason\", frame.reason);"
    ],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
+   "status": "PRESENT_UNAUDITED"
+  },
+  {
+   "absent_tokens": [
+    "protocolOut.print"
+   ],
+   "channel": "transport_diagnostics",
+   "closed_bootstrap_fields": [],
+   "closed_frame_keys": [],
+   "closed_message_types": [],
+   "closed_stderr_prints": [
+    "\"[bridge] assets dir: \" + HeadlessBridgeGui.resolveAssetsDir()",
+    "\"[bridge] dispatch failed: \" + e",
+    "\"[bridge] engine initialization failed: \" + e",
+    "\"[bridge] engine initialized in \" + bootMillis + \" ms\"",
+    "\"[bridge] engine_commit=\" + VersionInfo.engineCommit() + \" source=\" + VersionInfo.engineCommitSource()",
+    "\"[bridge] exiting\"",
+    "\"[bridge] fatal io error: \" + e",
+    "\"[bridge] starting \" + VersionInfo.BRIDGE_NAME + \"/\" + VersionInfo.BRIDGE_VERSION + \" protocol=\" + BridgeProtocol.PROTOCOL_VERSION"
+   ],
+   "frame_key_facets": {},
+   "meaning": "BridgeMain, the JSONL process the Lab launches, writes exactly one response per line to stdout; a malformed request echoes the parser's message and an internal failure returns a fixed text. Its own stderr diagnostics are the closed set STDERR_PRINTS (exception texts and stack traces included), and every engine System.out print is redirected to stderr, which the Lab captures. What the engine prints there is not bounded by bridge source, so whether stderr carries a hidden identity is shown only by the row's channel scan, which was not run",
+   "present_fragments": [
+    "System.setOut(System.err);",
+    "protocolOut.println(response);",
+    "return BridgeProtocol.error(\"\", BridgeErrors.MALFORMED_REQUEST, e.getMessage(), 0);",
+    "return BridgeProtocol.error(request.requestId, BridgeErrors.INTERNAL_ERROR, \"internal bridge error\", 0);"
+   ],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeMain.java",
    "status": "PRESENT_UNAUDITED"
   }
  ],
@@ -2086,9 +2238,10 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel present but unaudited (needs row execution): message_surface. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel present but unaudited (needs row execution): message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
-    "message_surface"
+    "message_surface",
+    "transport_diagnostics"
    ],
    "unobservable_checkpoint_dimensions": [
     {
@@ -2138,10 +2291,11 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
-    "message_surface"
+    "message_surface",
+    "transport_diagnostics"
    ],
    "unobservable_checkpoint_dimensions": [
     {
@@ -2164,6 +2318,7 @@
  "schema_version": "commander-lab.forge-hidden-information/1.0.0",
  "source_blobs": {
   "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java": "4c207b4c3c75d3183d52886fb7045ad012e2db08",
+  "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeMain.java": "b3fe9cfde4205d59d80fef53ef35954eadbaa2d0",
   "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java": "1875902a3748e97b1b647a26d0f41b51db5e1257",
   "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java": "94ad4423b9c67d0e3242f5de9b59bce3d9eac7a4",
   "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java": "ddd97cb0d1c5e7cf8da86bdf8ed89b5a0d8a085d"
@@ -2172,6 +2327,7 @@
   "bootstrap": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
   "controller": "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java",
   "engine": "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
+  "main": "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeMain.java",
   "projection": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java"
  },
  "summary": {

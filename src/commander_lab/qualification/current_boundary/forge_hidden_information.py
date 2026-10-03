@@ -60,6 +60,7 @@ SOURCES: dict[str, str] = {
     "engine": f"{_BRIDGE_SOURCE}/BridgeEngine.java",
     "projection": f"{_BRIDGE_SOURCE}/StateProjection.java",
     "controller": f"{_BRIDGE_SOURCE}/ExternalPlayerController.java",
+    "main": f"{_BRIDGE_SOURCE}/BridgeMain.java",
 }
 
 
@@ -78,6 +79,11 @@ class Channel:
     absent: tuple[str, ...] = ()
     fields: frozenset[str] = frozenset()
     cases: frozenset[str] = frozenset()
+    # Code between these two fragments (both required) is where ``keys`` and
+    # ``prints`` are extracted; without a region the whole source is used.
+    region: tuple[str, ...] = ()
+    keys: frozenset[str] = frozenset()
+    prints: frozenset[str] = frozenset()
     meaning: str = ""
 
 
@@ -132,6 +138,96 @@ MESSAGE_CASES = frozenset(
         "BridgeProtocol.SUBMIT_ACTION",
     }
 )
+# Every JSON key the projection writes into a decision frame summary, a legal
+# action, its metadata and its object references at the asserted commit. A new
+# or lost key is drift: each key is a pilot-facing field of the frame.
+DECISION_FRAME_KEYS = frozenset(
+    {
+        "action_id",
+        "action_type",
+        "actor",
+        "actor_id",
+        "allowed_target_ids",
+        "card_id",
+        "choices_schema",
+        "controller",
+        "cost",
+        "cost_order_indices",
+        "decision_class",
+        "decision_protocol_version",
+        "decision_subtype",
+        "divided_min_per_target",
+        "divided_total",
+        "divided_up_to",
+        "event_offset",
+        "frame_kind",
+        "free_input",
+        "hidden",
+        "input_max",
+        "input_min",
+        "kind",
+        "label",
+        "legal_set_digest",
+        "legal_set_size",
+        "lifecycle",
+        "max",
+        "metadata",
+        "min",
+        "modes",
+        "name",
+        "object_refs",
+        "options",
+        "player_id",
+        "principal_observation_digest",
+        "public_state_digest",
+        "reason",
+        "revision",
+        "rng_binding",
+        "semantic_fingerprint",
+        "semantic_key",
+        "semantic_replay_version",
+        "source_object_id",
+        "status",
+        "target_ids",
+        "type",
+        "zone",
+    }
+)
+# The honey-sentinel obligation's frame facets, each with the frame keys that
+# carry it. Forge has no separate prompt or context field: the option label and
+# the frame reason are the text a pilot reads. Every facet is PRESENT_UNAUDITED.
+DECISION_FRAME_FACETS: dict[str, tuple[str, ...]] = {
+    "prompt_and_context": ("label", "reason", "kind", "frame_kind"),
+    "option_ids": ("action_id", "semantic_key", "semantic_fingerprint"),
+    "labels": ("label",),
+    "metadata": (
+        "metadata",
+        "revision",
+        "decision_subtype",
+        "cost_order_indices",
+        "choices_schema",
+        "object_refs",
+    ),
+    "object_references": ("card_id", "name", "zone", "controller", "player_id", "hidden"),
+    "source": ("source_object_id",),
+}
+# Every stderr diagnostic BridgeMain itself writes at the asserted commit.
+STDERR_PRINTS = frozenset(
+    {
+        '"[bridge] starting " + VersionInfo.BRIDGE_NAME + "/" + VersionInfo.BRIDGE_VERSION'
+        ' + " protocol=" + BridgeProtocol.PROTOCOL_VERSION',
+        '"[bridge] assets dir: " + HeadlessBridgeGui.resolveAssetsDir()',
+        '"[bridge] engine initialization failed: " + e',
+        '"[bridge] engine initialized in " + bootMillis + " ms"',
+        '"[bridge] engine_commit=" + VersionInfo.engineCommit() + " source=" +'
+        " VersionInfo.engineCommitSource()",
+        '"[bridge] fatal io error: " + e',
+        '"[bridge] exiting"',
+        '"[bridge] dispatch failed: " + e',
+    }
+)
+_WRITE_KEY = re.compile(r'(?:\.addProperty|\.add)\(\s*"([^"]+)"')
+_STDERR_PRINT = re.compile(r"System\.err\.println\((.*?)\);")
 _CASE_LABEL = re.compile(r'\bcase\s+("[^"]*"|[A-Za-z_][\w.]*)\s*:')
 _FIELD_READ = re.compile(
     r'(?:\.has|\.get|\.getAsJsonObject|\.getAsJsonArray|\.getAsJsonPrimitive)\(\s*"([^"]+)"'
@@ -295,12 +391,45 @@ CHANNELS: tuple[Channel, ...] = (
             'action.addProperty("source_object_id", option.sourceCardName);',
             'metadata.addProperty("label", option.label);',
             'action.getAsJsonObject("metadata").add("object_refs", refs);',
+            'summary.addProperty("reason", frame.reason);',
         ),
+        region=(
+            "public static JsonObject decisionSummary(DecisionFrame frame)",
+            "private static JsonObject playerState(",
+        ),
+        keys=DECISION_FRAME_KEYS,
         meaning=(
-            "a decision option reaches its actor with a label, a source_object_id built "
-            "from the source card name, a semantic key and object references; whether a "
-            "face-down or sentinel identity reaches a principal not entitled to it is "
-            "shown only by executing the row, which was not run"
+            "a decision frame reaches its actor as a summary and legal actions whose "
+            "every key is the closed set DECISION_FRAME_KEYS: prompt and context (label, "
+            "reason, kind), option ids (action_id, semantic_key, semantic_fingerprint), "
+            "labels, metadata, object references and source (source_object_id, built "
+            "from the source card name). Whether any of them carries a face-down or "
+            "sentinel identity to a principal not entitled to it is shown only by the "
+            "row's sentinel scan, which was not run"
+        ),
+    ),
+    Channel(
+        "transport_diagnostics",
+        CHANNEL_UNAUDITED,
+        "main",
+        present=(
+            "System.setOut(System.err);",
+            "protocolOut.println(response);",
+            'return BridgeProtocol.error("", BridgeErrors.MALFORMED_REQUEST, e.getMessage(), 0);',
+            "return BridgeProtocol.error(request.requestId, BridgeErrors.INTERNAL_ERROR, "
+            '"internal bridge error", 0);',
+        ),
+        absent=("protocolOut.print",),
+        prints=STDERR_PRINTS,
+        meaning=(
+            "BridgeMain, the JSONL process the Lab launches, writes exactly one response "
+            "per line to stdout; a malformed request echoes the parser's message and an "
+            "internal failure returns a fixed text. Its own stderr diagnostics are the "
+            "closed set STDERR_PRINTS (exception texts and stack traces included), and "
+            "every engine System.out print is redirected to stderr, which the Lab "
+            "captures. What the engine prints there is not bounded by bridge source, so "
+            "whether stderr carries a hidden identity is shown only by the row's channel "
+            "scan, which was not run"
         ),
     ),
 )
@@ -313,13 +442,14 @@ OBSERVATION_REQUIREMENTS: dict[str, tuple[str, ...]] = {
     "opponent_library": ("principal_scoped_state",),
     "public_exile": ("principal_scoped_state",),
     "face_down_controller": ("principal_scoped_state", "face_down_redaction"),
-    "no_omniscient_api": ("principal_scoped_state", "message_surface"),
+    "no_omniscient_api": ("principal_scoped_state", "message_surface", "transport_diagnostics"),
     # Prompt, context, option ids, labels, metadata and source (decision frames),
     # errors and logs (message surface), state, transcript and the event log.
     "honey_sentinel": (
         "principal_scoped_state",
         "decision_frames",
         "message_surface",
+        "transport_diagnostics",
         "event_log",
         "replay_transcript",
     ),
@@ -502,6 +632,27 @@ def _blob(root: Path, commit: str, relative: str) -> str:
     return _git(root, "show", f"{commit}:{relative}")
 
 
+def channel_document(channel: Channel) -> dict[str, Any]:
+    """The matrix entry of one asserted channel."""
+    return {
+        "channel": channel.name,
+        "status": channel.status,
+        "source": SOURCES[channel.source],
+        "present_fragments": list(channel.present),
+        "absent_tokens": list(channel.absent),
+        "closed_bootstrap_fields": sorted(channel.fields),
+        "closed_message_types": sorted(channel.cases),
+        "closed_frame_keys": sorted(channel.keys),
+        "frame_key_facets": (
+            {facet: list(keys) for facet, keys in DECISION_FRAME_FACETS.items()}
+            if channel.keys
+            else {}
+        ),
+        "closed_stderr_prints": sorted(channel.prints),
+        "meaning": channel.meaning,
+    }
+
+
 def assert_channels(texts: dict[str, str]) -> list[dict[str, Any]]:
     """Check every channel against its source code; drift raises."""
     asserted = []
@@ -519,25 +670,40 @@ def assert_channels(texts: dict[str, str]) -> list[dict[str, Any]]:
         cases = frozenset(_CASE_LABEL.findall(code)) if channel.cases else frozenset()
         new_cases = sorted(cases - channel.cases)
         lost_cases = sorted(channel.cases - cases)
-        if missing or found or new_fields or lost_fields or new_cases or lost_cases:
+        region = code
+        if channel.region:
+            start, end = channel.region
+            if start not in code or end not in code or code.index(start) > code.index(end):
+                raise HiddenChannelDrift(
+                    f"channel {channel.name!r}: region {channel.region} not found in "
+                    f"{SOURCES[channel.source]}"
+                )
+            region = code[code.index(start) : code.index(end)]
+        keys = frozenset(_WRITE_KEY.findall(region)) if channel.keys else frozenset()
+        prints = frozenset(_STDERR_PRINT.findall(region)) if channel.prints else frozenset()
+        changed = {
+            "new keys": sorted(keys - channel.keys),
+            "lost keys": sorted(channel.keys - keys),
+            "new stderr prints": sorted(prints - channel.prints),
+            "lost stderr prints": sorted(channel.prints - prints),
+        }
+        if (
+            missing
+            or found
+            or new_fields
+            or lost_fields
+            or new_cases
+            or lost_cases
+            or any(changed.values())
+        ):
             raise HiddenChannelDrift(
                 f"channel {channel.name!r} no longer matches {SOURCES[channel.source]}: "
                 f"missing {missing}, unexpectedly present {found}, "
                 f"new fields {new_fields}, lost fields {lost_fields}, "
-                f"new messages {new_cases}, lost messages {lost_cases}"
+                f"new messages {new_cases}, lost messages {lost_cases}, "
+                + ", ".join(f"{label} {value}" for label, value in changed.items())
             )
-        asserted.append(
-            {
-                "channel": channel.name,
-                "status": channel.status,
-                "source": SOURCES[channel.source],
-                "present_fragments": list(channel.present),
-                "absent_tokens": list(channel.absent),
-                "closed_bootstrap_fields": sorted(channel.fields),
-                "closed_message_types": sorted(channel.cases),
-                "meaning": channel.meaning,
-            }
-        )
+        asserted.append(channel_document(channel))
     return asserted
 
 

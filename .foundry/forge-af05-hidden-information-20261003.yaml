@@ -76,8 +76,21 @@ milestones:
       object_refs) are required by the honey sentinel and the metadata rows.
       Unaudited channels are reported apart from absent ones and never make a
       classification on their own. All 20 rows stay PROVIDER_ADAPTER_GAP.
+  - id: M4
+    result: second Codex round (two P2 on ec065d19) resolved
+    summary: >-
+      decision_frames now inventories every key the projection writes into a
+      frame summary, a legal action, its metadata and its object references as
+      a closed set (DECISION_FRAME_KEYS), with the sentinel obligation's facets
+      (prompt and context, option ids, labels, metadata, object references,
+      source) mapped onto those keys. A new transport_diagnostics channel binds
+      BridgeMain, the launched JSONL process: one response per stdout line, the
+      malformed/internal error texts, and its stderr diagnostics as a closed
+      set; engine prints redirected to stderr keep it PRESENT_UNAUDITED. It is
+      required by no_omniscient_api and honey_sentinel. Still 20/20
+      PROVIDER_ADAPTER_GAP; Forge AF05 UNKNOWN.
 open_items:
-  - exact-head CI and a fresh-context review of the M3 change remain.
+  - exact-head CI on the M4 head and a check that no new review finding remains.
   - Forge provider construction and observation gaps need a separately authorized Forge bridge issue.
 exact_next_action: >-
   Confirm exact-head CI on the pushed head, resolve the fresh-context review,

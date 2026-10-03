@@ -72,7 +72,8 @@ row stays UNKNOWN.
 | knowledge construction | absent | `ScenarioBootstrap` has no knowledge or permission field |
 | cost-state construction | absent | `ScenarioBootstrap` has no mid-cast cost or payment field |
 | message surface | present, unaudited | the whole request surface is 24 dispatched message types (`MESSAGE_CASES`); an unknown type is refused with `UNKNOWN_MESSAGE`, and the legacy `get_state` alias is the observer-scoped projection. Whether every message refuses an omniscient read, and what errors and diagnostics carry, needs the row's runtime refusal probes and channel scan |
-| decision frames | present, unaudited | an option reaches its actor with `metadata.label`, a `source_object_id` built from the source card name, a semantic key and `object_refs`; whether a face-down or sentinel identity reaches a non-entitled principal needs the row's execution |
+| decision frames | present, unaudited | every key the projection writes into a frame summary, a legal action, its metadata and its object references is the closed set `DECISION_FRAME_KEYS` (48 keys; a new or lost key is drift). The sentinel obligation's facets map onto them (`DECISION_FRAME_FACETS`): prompt and context (`label`, `reason`, `kind`, `frame_kind`; Forge has no separate prompt or context field), option ids (`action_id`, `semantic_key`, `semantic_fingerprint`), labels, metadata, object references, and source (`source_object_id`, built from the source card name). Whether any of them carries a face-down or sentinel identity to a non-entitled principal needs the row's sentinel scan |
+| transport diagnostics | present, unaudited | `BridgeMain`, the JSONL process the Lab launches, writes one response per line to stdout and nothing else; a malformed request echoes the parser's message and an internal failure returns a fixed text. Its own stderr diagnostics are the closed set `STDERR_PRINTS`, exception texts and stack traces included, and every engine `System.out` print is redirected to stderr, which the Lab captures. Engine prints are not bounded by bridge source, so whether stderr carries a hidden identity needs the row's channel scan |
 
 The four construction channels share one closed set: the bootstrap reads exactly these
 JSON fields:
@@ -106,8 +107,8 @@ and exile zones. The remaining columns name what else each row needs.
 | HIDDEN_16 | ability_metadata | cost state | none | decision frames | cast, mode, face-down target, yes/no |
 | HIDDEN_17 | copy_face_down | cost state | none | none | cast, yes/no, face-down choice |
 | HIDDEN_18 | transcript_privacy | cost state, knowledge | replay/transcript, event log | none | cast, target player |
-| HIDDEN_19 | no_omniscient_api | none | none | message surface | none |
-| HIDDEN_HONEYCARD_SENTINEL | honey_sentinel | none | event log, replay/transcript | decision frames, message surface | none |
+| HIDDEN_19 | no_omniscient_api | none | none | message surface, transport diagnostics | none |
+| HIDDEN_HONEYCARD_SENTINEL | honey_sentinel | none | event log, replay/transcript | decision frames, message surface, transport diagnostics | none |
 
 ## What would move Forge AF05
 
