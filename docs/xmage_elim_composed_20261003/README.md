@@ -60,36 +60,59 @@ instruments, bound by the engine's native ids (`elimination_instrument_ids`).
 Local evidence is not credit. Credit comes only from the same-epoch PB-03 run on the
 pushed head.
 
-## WS05-MP-ELIM-CONTROL-3: harness gap (not executed in this change)
+## WS05-MP-ELIM-CONTROL-3: executed through caused permanents
 
 **Record.** P1's turn 1, P1 holding priority. P2 is at 0 life, and P2 owns a Control
-Magic attached to P1's Grizzly Bears, which P2 controls.
+Magic attached to P1's Grizzly Bears, which P2 controls. Obligation: P2 leaves the game,
+the P2-owned Control Magic leaves with P2, and P1's Bears stay, their control reverting
+once the Aura's effect ends (CR 800.4a, 613).
 
-**What blocks it.** The harness cannot place an attachment or a control change
+**Why it needs a cause.** The harness cannot place an attachment or a control change
 (MICRO_CONTROL and CARD_25 precedent), so both must be caused by a real Control Magic
 cast. Control Magic is an Aura, cast only when its owner could cast a sorcery
 (CR 303.1, 117.1a), and on P1's turn 1 P2 has had no turn of its own (seat order
-P1 → P2 → P3). A first reading classified this as a fixture defect. That was wrong: the
-fresh-context review showed a route that keeps the record as written. A declared flash
-enabler for P2 (for example Leyline of Anticipation, a placed permanent like the
-existing declared fuel and instruments) lets P2 cast Control Magic on P1's turn after
-P1 passes priority (CR 702.8a). The spell resolves, and P1 again holds priority with an
-empty stack, which is the record's checkpoint. P1 then eliminates P2. Unlike inert fuel
-lands, such an enabler is a rules-relevant extra permanent, so the entry's battlefield
-verifier must account for it explicitly; an instant enabler that leaves nothing behind
-(for example one that lets a player cast spells this turn as though they had flash) avoids
-the extra permanent.
+P1 → P2 → P3). A first reading classified this as a fixture defect; the fresh-context
+review showed the route below, which keeps the record as written.
 
-**Classification:** `HARNESS_GAP`. The lane has no entry that causes a requested
-permanent (with its attachment and control change) by its cast and then verifies the
-resulting battlefield against the record. Such an entry is a generic extension of the
-composed route here: the permanent is cast and resolved, its battlefield state is
-verified, then the elimination runs. It is not a contract erratum. The row stays
-**UNKNOWN** until that entry exists.
+**Caused permanents** (engine bridge, composed entry, declared `caused_permanents`):
+- Each declared Aura on the battlefield becomes a cast of itself, by its controller, at
+  its attachment target. The attached object's recorded control divergence is restored
+  to its owner at placement, because the Aura's effect makes it. Anything else fails
+  closed: an unattached, control-divergent or off-battlefield permanent, or an unbound
+  target.
+- After the stack verifier matches, the pilot passes priority (and nothing else) until
+  the engine's stack is empty. A new verifier mode, `permanents`, then compares the
+  engine's state with the record: the Aura on the battlefield with its identity and
+  controller, attached to its target, and the target controlled as requested; and the
+  engine's own turn, phase, step, active player and priority player equal the record's
+  checkpoint. A cast that became possible only later (another turn) fails here.
+- A record that also requests a stack of its own, two caused permanents on one target,
+  or `caused_permanents` outside the composed entry fails closed.
+
+**Route:**
+1. **Arrival** at P1's turn 1. A declared flash enabler for P2 (Leyline of Anticipation,
+   CR 702.8a) and four Islands are placed like fuel.
+2. **Cause.** P2 casts Control Magic at P1's Bears on the engine's frames (the engine
+   offers it only because of the enabler), the stack verifier matches, the engine
+   resolves it, and the caused-permanent verifier confirms attachment, P2's control and
+   the checkpoint: P1's turn 1, P1 holding priority with an empty stack.
+3. **Elimination.** P1 casts the 14 declared Bolts at P2 on the engine's frames.
+4. **Obligation.** The engine's events: P2's LOST, then the Aura's BATTLEFIELD → OUTSIDE
+   move, then GAINED_CONTROL of the Bears for P1; the Bears never leave the battlefield.
+
+Leyline is a rules-relevant extra permanent, unlike inert fuel lands. It is declared
+and published in the plan, owned by P2, and leaves with P2.
+
+**Local result** (pinned XMage `37e4df6c`):
+- **Probe:** `CAUSAL_ROUTE_REACHABLE`. The probe requires the caused-permanent verifier
+  (including the checkpoint) to match, P2 lost and left, an empty engine stack after the
+  loss and the survivors at their requested life. The Aura leaving and the control
+  reverting are the PB-03 row's checks (below), not the probe's.
+- **PB-03 producer:** verified. On the tape, LOST is sequence 80, the Aura's move to
+  outside is 81, and GAINED_CONTROL of the Bears for P1 is 88.
 
 ## Remaining blockers
 
 | Row | Blocker |
 |---|---|
-| WS05-MP-ELIM-CONTROL-3 | Harness gap: no entry that causes a requested permanent by its cast (flash enabler route above) |
 | WS05-MP-ELIM-TURN-3 | Candidate XMage engine defect; engine remediation is #507 (another owner) |
