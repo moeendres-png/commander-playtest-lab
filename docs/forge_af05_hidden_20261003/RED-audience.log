@@ -1,0 +1,44 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+___ test_audience_projection_gap_is_independent_of_event_channels[HIDDEN_07] ___
+
+records = {'PLAYER_COUNT_2P': {'action_cost_state': [], 'authority_provenance': {'common_manifest_fixture_id': 'PLAYER_COUNT_2P'..._UNSUPPORTED_PROVIDER_AND_NO_RUNTIME_CREDIT', 'provider_must_emit_normalized_constructed_state': True, ...}, ...}, ...}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x79ac9d61eea0>
+fixture = 'HIDDEN_07'
+
+    @pytest.mark.parametrize("fixture", ["HIDDEN_07", "HIDDEN_08"])
+    def test_audience_projection_gap_is_independent_of_event_channels(records, monkeypatch, fixture):
+        """A working audience/event transport still cannot substitute for its absent projection."""
+        for name in ("reveal_look_audience", "event_log"):
+            monkeypatch.setitem(fh.CHANNELS_BY_NAME, name, fh.Channel(name, fh.CHANNEL_SUPPORTED, "engine"))
+        missing = fh.classify_row(records[fixture]).missing_channels
+>       assert missing == ["reveal_look_projection"]
+E       AssertionError: assert [] == ['reveal_look_projection']
+E         
+E         Right contains one more item: 'reveal_look_projection'
+E         Use -v to get more diff
+
+tests/qualification/test_forge_hidden_information.py:441: AssertionError
+___ test_audience_projection_gap_is_independent_of_event_channels[HIDDEN_08] ___
+
+records = {'PLAYER_COUNT_2P': {'action_cost_state': [], 'authority_provenance': {'common_manifest_fixture_id': 'PLAYER_COUNT_2P'..._UNSUPPORTED_PROVIDER_AND_NO_RUNTIME_CREDIT', 'provider_must_emit_normalized_constructed_state': True, ...}, ...}, ...}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x79ac9d61e190>
+fixture = 'HIDDEN_08'
+
+    @pytest.mark.parametrize("fixture", ["HIDDEN_07", "HIDDEN_08"])
+    def test_audience_projection_gap_is_independent_of_event_channels(records, monkeypatch, fixture):
+        """A working audience/event transport still cannot substitute for its absent projection."""
+        for name in ("reveal_look_audience", "event_log"):
+            monkeypatch.setitem(fh.CHANNELS_BY_NAME, name, fh.Channel(name, fh.CHANNEL_SUPPORTED, "engine"))
+        missing = fh.classify_row(records[fixture]).missing_channels
+>       assert missing == ["reveal_look_projection"]
+E       AssertionError: assert [] == ['reveal_look_projection']
+E         
+E         Right contains one more item: 'reveal_look_projection'
+E         Use -v to get more diff
+
+tests/qualification/test_forge_hidden_information.py:441: AssertionError
+=========================== short test summary info ============================
+FAILED tests/qualification/test_forge_hidden_information.py::test_audience_projection_gap_is_independent_of_event_channels[HIDDEN_07]
+FAILED tests/qualification/test_forge_hidden_information.py::test_audience_projection_gap_is_independent_of_event_channels[HIDDEN_08]
+2 failed, 63 deselected in 0.37s
