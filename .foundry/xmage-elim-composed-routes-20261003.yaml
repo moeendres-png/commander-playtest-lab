@@ -1,18 +1,33 @@
-schema_version: 1
+# XMage composed causal elimination routes: resumable workstream state (#508, parent #255).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/user/commander-playtest-lab (session-local canonical clone)
+branch: hardening/xmage-elim-composed-routes-20261003
+audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
+state_written_against_head: 56475948cdeccc77e6de433767ea23917b7e94fc
 workstream: XMAGE-ELIM-COMPOSED-ROUTES-20261003
 issue: 508
 parent: 255
-branch: hardening/xmage-elim-composed-routes-20261003
-base: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+objective: >-
+  Execute WS05-MP-ELIM-STACK-3 and WS05-MP-ELIM-CONTROL-3 through composed
+  engine-caused routes on the production midgame lane, or classify each with an
+  exact blocker.
+candidates:
+  xmage: 37e4df6c914f1e189e24f0ef59fa91734c922436
+contract: commander-lab.full107/1.0.20-successor
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
 status: ACTIVE
 ownership: XMAGE-ELIM-COMPOSED-ROUTES-20261003 (Claude, owner-authorised 2026-10-03)
-owned_surfaces:
-  - engine-bridge XmageMidgameCausalBridge / XmageMidgameJsonlBridge (composed entry only)
+in_scope:
+  - engine-bridge XmageMidgameCausalBridge and XmageMidgameJsonlBridge (composed entry only)
   - scripts/run_midgame_capability_probe.py (ELIM-STACK-3 entry, composed driver, instrument ids)
   - src/commander_lab/qualification/current_boundary/midgame_rows.py (composed routing, stack_empty_after, ELIM-STACK-3 spec)
-  - focused tests, docs/xmage_elim_composed_20261003/**
-not_touched:
-  - XMage engine (#507), Forge (#506, #459), successor contract, runner/assembler, C12
+  - focused tests, docs/xmage_elim_composed_20261003/
+out_of_scope:
+  - XMage engine (#507), Forge (#506, #459), successor contract and errata
+  - runner and assembler, C12 and Mage #39, provider selection, Architecture Freeze
 milestones:
   - id: M1
     result: composed entry causal_stack_elimination; ELIM-STACK-3 verifies locally (probe and PB-03 producer)
@@ -21,6 +36,6 @@ milestones:
 open_items:
   - exact-head CI (PB-03) on the pushed head, fresh-context review, merge
 exact_next_action: >-
-  Push, open the draft PR, confirm PB-03 credits WS05-MP-ELIM-STACK-3 on the exact head,
-  run the fresh-context review and merge under the gates; post the #508 handoff and the
+  Confirm PB-03 credits WS05-MP-ELIM-STACK-3 on the exact head, run the
+  fresh-context review and merge under the gates; post the #508 handoff and the
   ELIM-CONTROL-3 erratum proposal on #255.
