@@ -254,11 +254,29 @@ def isolated_child_environment() -> dict[str, str]:
     }
 
 
+def _diagnostic_tail(completed: subprocess.CompletedProcess[str], *, limit: int = 600) -> str:
+    """A bounded, single-purpose failure excerpt for the step log.
+
+    This is written to stderr only. It is never stored in the evidence document,
+    which must not carry absolute temporary paths as semantic identity.
+    """
+    text = (completed.stderr or completed.stdout or "").strip()
+    if not text:
+        return "<no diagnostic output>"
+    collapsed = " | ".join(line.strip() for line in text.splitlines() if line.strip())
+    return collapsed[-limit:]
+
+
 def _run(
-    command: list[str], *, cwd: Path, env: dict[str, str], timeout: int
+    command: list[str],
+    *,
+    cwd: Path,
+    env: dict[str, str],
+    timeout: int,
+    diagnose: bool = True,
 ) -> subprocess.CompletedProcess[str]:
     try:
-        return subprocess.run(
+        completed = subprocess.run(
             command,
             cwd=str(cwd),
             env=env,
@@ -271,6 +289,13 @@ def _run(
         _fail("command_timed_out", command[0])
     except OSError as exc:
         _unknown("command_not_executable", str(exc))
+    if diagnose and completed.returncode != 0:
+        print(
+            f"  [diagnostic] {Path(command[0]).name} exit={completed.returncode}: "
+            f"{_diagnostic_tail(completed)}",
+            file=sys.stderr,
+        )
+    return completed
 
 
 def _under(path: Path, root: Path) -> bool:
@@ -386,6 +411,7 @@ def installed_distribution_version(
         cwd=scratch_dir,
         env=isolated_child_environment(),
         timeout=DEFAULT_PROBE_TIMEOUT_SECONDS,
+        diagnose=False,
     )
     if completed.returncode != 0:
         return None
@@ -397,6 +423,17 @@ def verify_install_source(
 ) -> dict[str, Any]:
     """Prove the installed distribution came from this wheel, not a source tree."""
     site_packages = _venv_site_packages(venv_dir)
+
+    # Contamination is detected before distribution identity so an editable install
+    # is reported as an editable install rather than as a missing distribution.
+    editable_markers = sorted(
+        path.name
+        for pattern in ("__editable__*", "*.egg-link")
+        for path in site_packages.glob(pattern)
+    )
+    if editable_markers:
+        _fail("editable_install_detected_in_isolated_environment", ",".join(editable_markers))
+
     dist_infos = sorted(
         path
         for path in site_packages.glob("*.dist-info")
@@ -406,14 +443,6 @@ def verify_install_source(
     if len(dist_infos) != 1:
         _fail("installed_distribution_not_uniquely_resolved", str(len(dist_infos)))
     dist_info = dist_infos[0]
-
-    editable_markers = sorted(
-        path.name
-        for pattern in ("__editable__*", "*.egg-link")
-        for path in site_packages.glob(pattern)
-    )
-    if editable_markers:
-        _fail("editable_install_detected_in_isolated_environment", ",".join(editable_markers))
 
     direct_url = dist_info / "direct_url.json"
     if not direct_url.is_file():
