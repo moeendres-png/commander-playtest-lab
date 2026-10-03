@@ -297,3 +297,17 @@ def test_unavailable_config_overwrites_stale_pass(tmp_path, monkeypatch, kind) -
     assert document["status"] == "NOT_RUN"
     assert "error" in document
     assert "config_sha256" not in document
+
+
+def test_security_scan_uses_the_exact_event_head() -> None:
+    import yaml
+
+    workflow = yaml.safe_load((REPO / ".github/workflows/ci.yml").read_text())
+    checkout = next(
+        step for step in workflow["jobs"]["security"]["steps"]
+        if step.get("uses", "").startswith("actions/checkout@")
+    )
+    assert checkout.get("with", {}).get("ref") == (
+        "${{ github.event.pull_request.head.sha || github.sha }}"
+    )
+    assert checkout["with"]["persist-credentials"] is False
