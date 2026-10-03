@@ -1,0 +1,106 @@
+# Forge AF05 hidden-information campaign: resumable workstream state (#458, parent #255).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: scratchpad/wt506 (session-local git worktree of the canonical clone)
+branch: claude/pensive-mayer-f8spwn
+audit_base_sha: 01d70279dbb6eaf2b694ca27e6489ee582418d3d
+audit_base_tree: 0e520ae41518cb9195078cee0df4b245d3f7fa2f
+state_written_against_head: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+workstream: FORGE-AF05-HIDDEN-INFORMATION-CAMPAIGN-20261003
+issue: 458
+parent: 255
+pull_request: 506
+objective: >-
+  Measure Forge against the same 20 mandatory AF05 HIDDEN rows and privacy
+  standard as XMage: every row either a fresh direct PASS with a current
+  source-bound receipt, or terminally classified with the exact missing
+  provider or Lab capability (or a demonstrated violation).
+candidates:
+  forge_rules_core: bb0a740d2bef725194798383c2452213ecdd0b37
+  forge_bridge: 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+status: ACTIVE
+ownership: FORGE-AF05-HIDDEN-INFORMATION-CAMPAIGN-20261003 (Claude, sole executor)
+in_scope:
+  - src/commander_lab/qualification/current_boundary/forge_hidden_information.py
+  - tests/qualification/test_forge_hidden_information.py
+  - scripts/run_forge_hidden_census.py
+  - scripts/run_current_boundary_qualification.py (Forge HIDDEN row reason only)
+  - docs/forge_af05_hidden_20261003/
+out_of_scope:
+  - Forge Rules Core and bridge (read only; a provider change needs its own authorized issue)
+  - XMage AF05, AF06-AF09 for either candidate
+  - provider ranking or selection, AF11, Architecture Freeze
+hard_gates:
+  - no second Lab permission model and no second Forge scenario translator
+  - a capability gap is UNKNOWN, never FAIL; a classified row is never PASS
+  - every asserted bridge channel is checked against the pinned source blobs; drift fails closed
+forbidden_shortcuts:
+  - inferring hidden permission from the requested fixture
+  - emulating unsupported state in Python
+  - promoting a row from construction, classification or native tests
+milestones:
+  - id: M1
+    rows: [HIDDEN_01..HIDDEN_19, HIDDEN_HONEYCARD_SENTINEL]
+    result: 20/20 PROVIDER_ADAPTER_GAP; Forge AF05 UNKNOWN; no receipts (contract 1.0.20)
+    summary: >-
+      forge_hidden_information classifies each row from the Forge lane's own
+      model and a channel table asserted against the pinned bridge blobs
+      (HiddenChannelDrift on any mismatch). Every row requests a face-down
+      permanent and an exact library order that ScenarioBootstrap cannot
+      construct; the event rows also name the absent principal channels
+      (event log, reveal/look audience, library contents, replay). The runner
+      reports the exact reason per row. Matrix and README in
+      docs/forge_af05_hidden_20261003/.
+  - id: M2
+    result: fresh-context adversarial review resolved (no P1; five P2 and three P3 fixed)
+    summary: >-
+      Channel fragments are matched on code with comments stripped; absent
+      tokens are checked after the asserted fragments are removed; the
+      bootstrap's JSON field reads must equal a closed set; replay and reveal
+      are asserted by their capability flag and full method bodies. The table
+      is bound to ASSERTED_BRIDGE_COMMIT (runner reason and census raise on a
+      moved pin). action_cost_state follows the lane's own construction
+      finding. An unmapped lane finding or a gapless row raises instead of
+      defaulting to LAB_ADAPTER_GAP. The matrix records source blob ids and is
+      checked against a fresh classification and the current contract.
+  - id: M3
+    result: Codex review threads (two P2) resolved
+    summary: >-
+      A third channel status, PRESENT_UNAUDITED, marks a principal-facing
+      channel that exists but whose obligation only row execution can show.
+      The bridge's whole request surface is asserted as a closed set of 24
+      message types (a new or lost type is drift) and required by
+      no_omniscient_api; the decision frames (label, source_object_id,
+      object_refs) are required by the honey sentinel and the metadata rows.
+      Unaudited channels are reported apart from absent ones and never make a
+      classification on their own. All 20 rows stay PROVIDER_ADAPTER_GAP.
+  - id: M4
+    result: second Codex round (two P2 on ec065d19) resolved
+    summary: >-
+      decision_frames now inventories every key the projection writes into a
+      frame summary, a legal action, its metadata and its object references as
+      a closed set (DECISION_FRAME_KEYS), with the sentinel obligation's facets
+      (prompt and context, option ids, labels, metadata, object references,
+      source) mapped onto those keys. A new transport_diagnostics channel binds
+      BridgeMain, the launched JSONL process: one response per stdout line, the
+      malformed/internal error texts, and its stderr diagnostics as a closed
+      set; engine prints redirected to stderr keep it PRESENT_UNAUDITED. It is
+      required by no_omniscient_api and honey_sentinel. Still 20/20
+      PROVIDER_ADAPTER_GAP; Forge AF05 UNKNOWN.
+  - id: M5
+    result: third Codex round (one P2 on 6b195b79) resolved
+    summary: >-
+      The Lab pipes the bridge's stderr but BridgeProcess.close discards it, so
+      a row's scan cannot read it. LAB_CAPTURE_GAPS records
+      lab_capture.transport_diagnostics as a Lab gap on HIDDEN_19 and the
+      sentinel row, bound to the launcher's own code by LAB_CAPTURE_ASSERTIONS
+      (a launcher that starts retaining stderr fails the assertion). Still
+      20/20 PROVIDER_ADAPTER_GAP; Forge AF05 UNKNOWN.
+open_items:
+  - exact-head CI on the M4 head and a check that no new review finding remains.
+  - Forge provider construction and observation gaps need a separately authorized Forge bridge issue.
+exact_next_action: >-
+  Confirm exact-head CI on the pushed head, resolve the fresh-context review,
+  merge PR #506 under the project gates and post the #458 handoff.
