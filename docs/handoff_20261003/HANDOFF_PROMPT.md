@@ -114,10 +114,10 @@ You are taking over the sole-executor engineering campaign for **Commander Simul
        - a source-asserted channel table read from the pinned bridge blobs, where drift raises `HiddenChannelDrift`;
        - a per-row classification derived from the lane model and the obligation kind (`knowledge_projection.ROWS`);
        - an exact runner reason.
-   - Open branch `hardening/forge-af05-hidden-current-boundary-20261003` from fresh main after #505 merges.
+   - Continue on draft **PR #506** (branch `claude/pensive-mayer-f8spwn`, which already holds the drafts) after #505 merges, by merging main into it (never rebase). Remove `docs/handoff_20261003/` before merging #506.
    - Wire `row_reason` into `scripts/run_current_boundary_qualification.py`'s Forge HIDDEN branch (currently around line 1633, the generic "Protocol-2 state projection" reason).
    - Add `scripts/run_forge_hidden_census.py` to write `docs/forge_af05_hidden_20261003/FORGE_AF05_MATRIX.json` plus a README. It reads blobs with `git show <bridge_commit>:path`. The local `/home/user/forge` is a shallow clone, so run `git fetch --depth 1 origin 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c` first.
-   - Add the wrong-reason tests and a Foundry state file, and open a draft PR.
+   - Add the wrong-reason tests and a Foundry state file. Update #506's description.
    - Run the fresh review, merge, and post the #458 handoff (format in the issue comment).
    - Do not modify Forge.
 3. **#459:** Forge AF06–AF09, through the merged Forge scenario lane (#455/#464).
