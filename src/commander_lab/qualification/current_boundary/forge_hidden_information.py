@@ -426,10 +426,10 @@ CHANNELS: tuple[Channel, ...] = (
             "per line to stdout; a malformed request echoes the parser's message and an "
             "internal failure returns a fixed text. Its own stderr diagnostics are the "
             "closed set STDERR_PRINTS (exception texts and stack traces included), and "
-            "every engine System.out print is redirected to stderr, which the Lab "
-            "captures. What the engine prints there is not bounded by bridge source, so "
-            "whether stderr carries a hidden identity is shown only by the row's channel "
-            "scan, which was not run"
+            "every engine System.out print is redirected to stderr. What the engine prints "
+            "there is not bounded by bridge source, so whether stderr carries a hidden "
+            "identity is shown only by the row's channel scan, which was not run; the Lab "
+            "does not yet retain stderr for that scan (LAB_CAPTURE_GAPS)"
         ),
     ),
 )
@@ -480,6 +480,43 @@ _PROVIDER_DIMENSIONS: dict[str, str] = {
 # Lab-side lane dimensions: the provider offers the engine's own frames, but the
 # Lab's Forge lane implements no selector execution for them.
 _LAB_DIMENSION_PREFIXES = ("decision_execution.",)
+
+# Principal-facing channels the provider emits but the Lab does not retain for a
+# row's channel scan. Each claim is bound to the Lab's own launcher source by
+# LAB_CAPTURE_ASSERTIONS, so a launcher that starts retaining the channel fails
+# the assertion and the gap is re-reviewed instead of silently staying listed.
+LAB_CAPTURE_GAPS: dict[str, str] = {
+    "transport_diagnostics": (
+        "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close "
+        "discards it; only a 2000-character tail is read, and only when stdout closes "
+        "during a request, so a row's sentinel scan cannot read normal diagnostics"
+    ),
+}
+_LAB_LAUNCHER = Path(__file__).with_name("bridge_launcher.py")
+LAB_CAPTURE_ASSERTIONS: dict[str, tuple[tuple[str, int], ...]] = {
+    # (fragment, exact occurrence count) in the Lab launcher's code
+    "transport_diagnostics": (
+        ("stderr=subprocess.PIPE,", 1),
+        ("self.popen.stderr.read()[-2000:]", 1),
+        (".stderr.read", 1),
+        ("for stream in (self.popen.stdout, self.popen.stderr):", 1),
+    ),
+}
+
+
+def assert_lab_capture(launcher_text: str | None = None) -> None:
+    """Each LAB_CAPTURE_GAPS claim must still describe the Lab launcher's code."""
+    code = code_text(
+        _LAB_LAUNCHER.read_text(encoding="utf-8") if launcher_text is None else launcher_text
+    )
+    for channel, fragments in LAB_CAPTURE_ASSERTIONS.items():
+        wrong = [
+            (fragment, count) for fragment, count in fragments if code.count(fragment) != count
+        ]
+        if wrong:
+            raise HiddenChannelDrift(
+                f"Lab capture gap {channel!r} no longer matches bridge_launcher.py: {wrong}"
+            )
 
 
 @dataclass
@@ -581,6 +618,11 @@ def classify_row(record: dict[str, Any]) -> HiddenRowClassification:
     row.unaudited_channels = [
         name for name in required if CHANNELS_BY_NAME[name].status == CHANNEL_UNAUDITED
     ]
+    for name in required:
+        if name in LAB_CAPTURE_GAPS:
+            row.lab_gaps.append(
+                {"dimension": f"lab_capture.{name}", "detail": LAB_CAPTURE_GAPS[name]}
+            )
     return row
 
 
@@ -712,6 +754,7 @@ def build_matrix(
 ) -> dict[str, Any]:
     """The full Forge AF05 matrix, bound to the pinned bridge source blobs."""
     assert_bridge_pin(bridge_commit)
+    assert_lab_capture()
     texts = {key: _blob(forge_root, bridge_commit, path) for key, path in SOURCES.items()}
     blob_ids = {
         path: _git(forge_root, "rev-parse", f"{bridge_commit}:{path}").strip()

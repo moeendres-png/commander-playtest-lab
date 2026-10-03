@@ -89,6 +89,15 @@ milestones:
       set; engine prints redirected to stderr keep it PRESENT_UNAUDITED. It is
       required by no_omniscient_api and honey_sentinel. Still 20/20
       PROVIDER_ADAPTER_GAP; Forge AF05 UNKNOWN.
+  - id: M5
+    result: third Codex round (one P2 on 6b195b79) resolved
+    summary: >-
+      The Lab pipes the bridge's stderr but BridgeProcess.close discards it, so
+      a row's scan cannot read it. LAB_CAPTURE_GAPS records
+      lab_capture.transport_diagnostics as a Lab gap on HIDDEN_19 and the
+      sentinel row, bound to the launcher's own code by LAB_CAPTURE_ASSERTIONS
+      (a launcher that starts retaining stderr fails the assertion). Still
+      20/20 PROVIDER_ADAPTER_GAP; Forge AF05 UNKNOWN.
 open_items:
   - exact-head CI on the M4 head and a check that no new review finding remains.
   - Forge provider construction and observation gaps need a separately authorized Forge bridge issue.

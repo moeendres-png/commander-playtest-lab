@@ -398,3 +398,35 @@ def test_transport_diagnostics_are_unaudited_and_required(records) -> None:
         row = fh.classify_row(records[fixture])
         assert "transport_diagnostics" in row.unaudited_channels, fixture
         assert "PASS" not in row.reason()
+
+
+def test_stderr_is_a_lab_capture_gap_until_the_lab_retains_it(records) -> None:
+    """The Lab pipes but discards stderr, so a row's scan cannot read it yet."""
+    for fixture in ("HIDDEN_19", "HIDDEN_HONEYCARD_SENTINEL"):
+        row = fh.classify_row(records[fixture])
+        gaps = {gap["dimension"]: gap["detail"] for gap in row.lab_gaps}
+        assert "lab_capture.transport_diagnostics" in gaps, fixture
+        assert "discards" in gaps["lab_capture.transport_diagnostics"]
+        assert "lab_capture.transport_diagnostics" in row.reason()
+    assert not any(
+        gap["dimension"].startswith("lab_capture.")
+        for gap in fh.classify_row(records["HIDDEN_01"]).lab_gaps
+    )
+
+
+@pytest.mark.parametrize(
+    "edit",
+    [
+        # The launcher starts draining stderr into a retained buffer.
+        lambda text: text + "\nself.stderr_lines = list(self.popen.stderr.readlines())\n",
+        # stderr is no longer piped at all.
+        lambda text: text.replace("stderr=subprocess.PIPE,", "stderr=subprocess.DEVNULL,"),
+    ],
+)
+def test_a_changed_lab_launcher_is_re_reviewed(edit) -> None:
+    launcher = (
+        REPO_ROOT / "src/commander_lab/qualification/current_boundary/bridge_launcher.py"
+    ).read_text(encoding="utf-8")
+    fh.assert_lab_capture(launcher)
+    with pytest.raises(fh.HiddenChannelDrift, match="Lab capture gap"):
+        fh.assert_lab_capture(edit(launcher))

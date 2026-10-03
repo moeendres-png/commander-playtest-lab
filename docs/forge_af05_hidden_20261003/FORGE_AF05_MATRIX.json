@@ -421,7 +421,7 @@
     "\"[bridge] starting \" + VersionInfo.BRIDGE_NAME + \"/\" + VersionInfo.BRIDGE_VERSION + \" protocol=\" + BridgeProtocol.PROTOCOL_VERSION"
    ],
    "frame_key_facets": {},
-   "meaning": "BridgeMain, the JSONL process the Lab launches, writes exactly one response per line to stdout; a malformed request echoes the parser's message and an internal failure returns a fixed text. Its own stderr diagnostics are the closed set STDERR_PRINTS (exception texts and stack traces included), and every engine System.out print is redirected to stderr, which the Lab captures. What the engine prints there is not bounded by bridge source, so whether stderr carries a hidden identity is shown only by the row's channel scan, which was not run",
+   "meaning": "BridgeMain, the JSONL process the Lab launches, writes exactly one response per line to stdout; a malformed request echoes the parser's message and an internal failure returns a fixed text. Its own stderr diagnostics are the closed set STDERR_PRINTS (exception texts and stack traces included), and every engine System.out print is redirected to stderr. What the engine prints there is not bounded by bridge source, so whether stderr carries a hidden identity is shown only by the row's channel scan, which was not run; the Lab does not yet retain stderr for that scan (LAB_CAPTURE_GAPS)",
    "present_fragments": [
     "System.setOut(System.err);",
     "protocolOut.println(response);",
@@ -2214,7 +2214,12 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_19",
-   "lab_execution_gaps": [],
+   "lab_execution_gaps": [
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
+    }
+   ],
    "missing_principal_channels": [],
    "obligation_kind": "no_omniscient_api",
    "other_unsupported_dimensions": [],
@@ -2238,7 +2243,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel present but unaudited (needs row execution): message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel present but unaudited (needs row execution): message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "message_surface",
     "transport_diagnostics"
@@ -2264,7 +2269,12 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
-   "lab_execution_gaps": [],
+   "lab_execution_gaps": [
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
+    }
+   ],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -2291,7 +2301,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
