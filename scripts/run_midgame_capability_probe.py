@@ -1930,9 +1930,20 @@ def eliminate_causally(
     own elimination verdict afterwards. Every answer is an engine offer; the
     engine alone deals the damage and applies the state-based loss."""
     plan = created.get("elimination_plan") or {}
-    placed = {str(k): str(v) for k, v in (plan.get("placed_objects") or {}).items()}
-    bolt_ids = sorted(v for k, v in placed.items() if "bolt" in k)
-    mountain_ids = sorted(v for k, v in placed.items() if "mountain" in k)
+    # Only the declared instruments, bound by the engine's own native ids: the
+    # record's other objects (a Bolt or a Mountain of the victim's) are never
+    # instruments, whatever they are called.
+    instruments = [entry for entry in plan.get("instruments") or () if isinstance(entry, dict)]
+    bolt_ids = sorted(
+        str(entry["native_id"])
+        for entry in instruments
+        if entry.get("card_identity") == "Lightning Bolt" and entry.get("zone") == "hand"
+    )
+    mountain_ids = sorted(
+        str(entry["native_id"])
+        for entry in instruments
+        if entry.get("card_identity") == "Mountain" and entry.get("zone") == "battlefield"
+    )
     victim_seat = seat_label(str(spec["elimination_victim"]))
     bolt_count = int(spec.get("bolt_count") or 0)
     if len(bolt_ids) != bolt_count or len(mountain_ids) != bolt_count:
