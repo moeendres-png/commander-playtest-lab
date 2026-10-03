@@ -12,7 +12,10 @@ gitleaks rule set:
    value must still be found outside its own file, a different value must still
    be found inside an allowlisted file, and a clean tree must produce nothing.
    A scanner that finds nothing would otherwise pass every repository scan.
-3. Scan exactly the git-tracked files of the checkout with ``.gitleaks.toml``.
+3. Scan exactly the git-tracked files of the checkout with ``.gitleaks.toml``,
+   bound to the checkout's commit, tree and a manifest digest of the scanned
+   bytes. Inline ``gitleaks:allow`` comments are ignored, a tracked
+   ``.gitleaksignore`` fails the run, and encoded or archived content is decoded.
 
 Exit 0 only when every control behaves and the repository has no finding.
 Exit 1 on a finding or a failed control, 2 when the scanner cannot run. The
@@ -25,13 +28,14 @@ import argparse
 import hashlib
 import io
 import json
+import os
 import random
-import shutil
 import string
 import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 import tomllib
 import urllib.request
 from pathlib import Path
@@ -40,7 +44,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / ".gitleaks.toml"
 DEFAULT_REPORT = Path("artifacts/security/broad-secret-scan.json")
-SCHEMA_VERSION = "b10.broad-secret-scan.v1"
+SCHEMA_VERSION = "b10.broad-secret-scan.v2"
 
 GITLEAKS_VERSION = "8.28.0"
 GITLEAKS_ARCHIVE = f"gitleaks_{GITLEAKS_VERSION}_linux_x64.tar.gz"
@@ -49,41 +53,97 @@ GITLEAKS_URL = (
 )
 # From the release's gitleaks_8.28.0_checksums.txt.
 GITLEAKS_SHA256 = "a65b5253807a68ac0cafa4414031fd740aeb55f54fb7e55f386acb52e6a840eb"
+# The binary inside that archive. A supplied --gitleaks must be this exact binary.
+GITLEAKS_BINARY_SHA256 = "5fd1b3b0073269484d40078662e921d07427340ab9e6ed526ccd215a565b3298"
+
+# Every suppression channel gitleaks honours besides .gitleaks.toml is closed:
+# inline `gitleaks:allow` comments are ignored, a .gitleaksignore (which gitleaks
+# always loads from the scan root) is never scanned with and fails the run when
+# tracked, no baseline is passed, and encoded or archived content is decoded.
+SCAN_FLAGS = (
+    "--ignore-gitleaks-allow",
+    "--max-decode-depth",
+    "3",
+    "--max-archive-depth",
+    "3",
+)
+SUPPRESSION_FILE = ".gitleaksignore"
+INSTALL_ATTEMPTS = 3
 
 
 class ScannerError(RuntimeError):
     """The scanner could not run; the scan is NOT_RUN, never PASS."""
 
 
+def _sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def install(dest: Path) -> Path:
-    with urllib.request.urlopen(GITLEAKS_URL, timeout=120) as response:
-        archive = response.read()
+    archive = b""
+    for attempt in range(1, INSTALL_ATTEMPTS + 1):
+        try:
+            with urllib.request.urlopen(GITLEAKS_URL, timeout=120) as response:
+                archive = response.read()
+            break
+        except OSError as exc:
+            if attempt == INSTALL_ATTEMPTS:
+                raise ScannerError(f"gitleaks download failed: {exc}") from exc
+            time.sleep(5 * attempt)
     digest = hashlib.sha256(archive).hexdigest()
     if digest != GITLEAKS_SHA256:
         raise ScannerError(f"gitleaks archive digest {digest} != pinned {GITLEAKS_SHA256}")
-    with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as bundle:
-        member = bundle.extractfile("gitleaks")
-        if member is None:
-            raise ScannerError("gitleaks archive has no gitleaks binary")
-        dest.mkdir(parents=True, exist_ok=True)
-        binary = dest / "gitleaks"
-        binary.write_bytes(member.read())
+    try:
+        with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as bundle:
+            member = bundle.extractfile("gitleaks")
+            if member is None:
+                raise ScannerError("gitleaks archive member is not a file")
+            data = member.read()
+    except (KeyError, tarfile.TarError) as exc:
+        raise ScannerError(f"gitleaks archive is unreadable: {exc}") from exc
+    dest.mkdir(parents=True, exist_ok=True)
+    binary = dest / "gitleaks"
+    binary.write_bytes(data)
     binary.chmod(0o755)
     return binary
 
 
-def verify_version(binary: Path) -> str:
+def verify_scanner(binary: Path) -> str:
+    """The binary must be the pinned one, by digest and by reported version."""
+    digest = _sha256_file(binary)
+    if digest != GITLEAKS_BINARY_SHA256:
+        raise ScannerError(f"gitleaks binary digest {digest} != pinned {GITLEAKS_BINARY_SHA256}")
     completed = subprocess.run(
         [str(binary), "version"], capture_output=True, text=True, check=False
     )
     observed = completed.stdout.strip()
     if completed.returncode != 0 or observed != GITLEAKS_VERSION:
         raise ScannerError(f"gitleaks version {observed!r} != pinned {GITLEAKS_VERSION}")
-    return observed
+    return digest
+
+
+def _parse_report(text: str) -> list[dict[str, Any]]:
+    try:
+        raw = json.loads(text)
+        if not isinstance(raw, list):
+            raise TypeError("report is not a list")
+        return [
+            {
+                "rule": str(item["RuleID"]),
+                "file": str(item["File"]),
+                "line": int(item["StartLine"]),
+                "fingerprint": str(item["Fingerprint"]),
+            }
+            for item in raw
+        ]
+    except (ValueError, TypeError, KeyError) as exc:
+        raise ScannerError(f"gitleaks report is malformed: {exc}") from exc
 
 
 def scan(binary: Path, tree: Path, config: Path) -> list[dict[str, Any]]:
     """Every finding in ``tree``, sorted, without secret values."""
+    if any(tree.rglob(SUPPRESSION_FILE)):
+        raise ScannerError(f"refusing to scan a tree that holds a {SUPPRESSION_FILE}")
     with tempfile.TemporaryDirectory() as scratch:
         report = Path(scratch) / "report.json"
         completed = subprocess.run(
@@ -96,6 +156,7 @@ def scan(binary: Path, tree: Path, config: Path) -> list[dict[str, Any]]:
                 "--no-banner",
                 "--no-color",
                 "--redact",
+                *SCAN_FLAGS,
                 "--report-format",
                 "json",
                 "--report-path",
@@ -109,20 +170,12 @@ def scan(binary: Path, tree: Path, config: Path) -> list[dict[str, Any]]:
             check=False,
         )
         if completed.returncode != 0 or not report.is_file():
-            raise ScannerError(f"gitleaks failed with exit {completed.returncode}")
-        raw = json.loads(report.read_text(encoding="utf-8"))
-    return sorted(
-        (
-            {
-                "rule": item["RuleID"],
-                "file": item["File"],
-                "line": item["StartLine"],
-                "fingerprint": item["Fingerprint"],
-            }
-            for item in raw
-        ),
-        key=lambda row: (row["file"], row["line"], row["rule"]),
-    )
+            # --redact keeps secret values out of gitleaks' own output.
+            raise ScannerError(
+                f"gitleaks failed with exit {completed.returncode}: {completed.stderr[-500:]}"
+            )
+        findings = _parse_report(report.read_text(encoding="utf-8"))
+    return sorted(findings, key=lambda row: (row["file"], row["line"], row["rule"]))
 
 
 def _chars(rng: random.Random, alphabet: str, count: int) -> str:
@@ -217,6 +270,23 @@ def run_controls(binary: Path, config: Path) -> list[dict[str, Any]]:
                 "expect": "FOUND",
             }
         )
+    allowed = red_controls()[0]
+    cases.append(
+        {
+            **allowed,
+            "control": "inline_allow_comment_is_ignored",
+            "content": allowed["content"].rstrip("\n") + "  # gitleaks:allow\n",
+            "expect": "FOUND",
+        }
+    )
+    cases.append(
+        {
+            **allowed,
+            "control": "suppression_file_is_refused",
+            "extra": {SUPPRESSION_FILE: f"{allowed['path']}:{allowed['rule']}:1\n"},
+            "expect": "REFUSED",
+        }
+    )
     cases.append(
         {
             "control": "clean_tree",
@@ -228,14 +298,28 @@ def run_controls(binary: Path, config: Path) -> list[dict[str, Any]]:
     )
     results = []
     for case in cases:
+        refused = False
         with tempfile.TemporaryDirectory() as scratch:
-            target = Path(scratch) / case["path"]
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(case["content"], encoding="utf-8")
-            findings = scan(binary, Path(scratch), config)
+            files = {case["path"]: case["content"], **case.get("extra", {})}
+            for relative, content in files.items():
+                target = Path(scratch) / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(content, encoding="utf-8")
+            try:
+                findings = scan(binary, Path(scratch), config)
+            except ScannerError:
+                if case["expect"] != "REFUSED":
+                    raise
+                refused, findings = True, []
         rules = sorted({row["rule"] for row in findings})
-        # FOUND: the expected rule fired. NONE: nothing fired at all.
-        passed = case["rule"] in rules if case["expect"] == "FOUND" else not findings
+        # FOUND: the expected rule fired. NONE: nothing fired at all. REFUSED:
+        # the scan refused the tree instead of honouring its suppression file.
+        if case["expect"] == "FOUND":
+            passed = case["rule"] in rules
+        elif case["expect"] == "REFUSED":
+            passed = refused
+        else:
+            passed = not findings
         results.append(
             {
                 "control": case["control"],
@@ -248,30 +332,79 @@ def run_controls(binary: Path, config: Path) -> list[dict[str, Any]]:
     return results
 
 
-def materialize_tracked(root: Path, dest: Path) -> int:
-    """Copy exactly the git-tracked regular files of ``root`` into ``dest``."""
+def _git(root: Path, *args: str) -> str:
+    return subprocess.run(
+        ["git", "-C", str(root), *args], capture_output=True, text=True, check=True
+    ).stdout.strip()
+
+
+def source_identity(root: Path) -> dict[str, Any]:
+    """The commit and tree the scanned bytes belong to, and whether they differ."""
+    return {
+        "head": _git(root, "rev-parse", "HEAD"),
+        "tree": _git(root, "rev-parse", "HEAD^{tree}"),
+        "tracked_changes": bool(_git(root, "status", "--porcelain", "--untracked-files=no")),
+    }
+
+
+def materialize_tracked(root: Path, dest: Path) -> dict[str, Any]:
+    """Copy exactly the git-tracked regular files of ``root`` into ``dest``.
+
+    Symlinks (mode 120000) and submodules (160000) carry no file content and are
+    counted, not copied. A tracked suppression file is never copied and is
+    reported, and so is a path holding ``gitleaks.toml`` other than the config:
+    the upstream default allowlist exempts such paths unanchored. Any other
+    entry that cannot be copied fails the run instead of shrinking the scan.
+    """
     listed = subprocess.run(
-        ["git", "-C", str(root), "ls-files", "-z", "--cached"],
-        capture_output=True,
-        check=True,
-    ).stdout.decode("utf-8")
-    count = 0
-    for relative in filter(None, listed.split("\0")):
-        source = root / relative
-        if source.is_symlink() or not source.is_file():
+        ["git", "-C", str(root), "ls-files", "-z", "--stage"], capture_output=True, check=True
+    ).stdout
+    manifest = hashlib.sha256()
+    copied = symlinks = gitlinks = 0
+    suppression: list[str] = []
+    for entry in filter(None, listed.split(b"\0")):
+        meta, _, raw_path = entry.partition(b"\t")
+        mode = meta.split(b" ", 1)[0].decode("ascii")
+        relative = os.fsdecode(raw_path)
+        name = relative.rsplit("/", 1)[-1]
+        if mode == "120000":
+            symlinks += 1
             continue
+        if mode == "160000":
+            gitlinks += 1
+            continue
+        if name == SUPPRESSION_FILE or (
+            "gitleaks.toml" in relative and relative != ".gitleaks.toml"
+        ):
+            suppression.append(relative)
+            continue
+        source = root / relative
+        if mode not in {"100644", "100755"} or source.is_symlink() or not source.is_file():
+            raise ScannerError(f"tracked entry {relative!r} (mode {mode}) cannot be scanned")
+        data = source.read_bytes()
         target = dest / relative
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, target)
-        count += 1
-    return count
+        target.write_bytes(data)
+        manifest.update(f"{mode} {hashlib.sha256(data).hexdigest()} ".encode() + raw_path + b"\n")
+        copied += 1
+    if copied == 0:
+        raise ScannerError("no tracked file was materialized")
+    return {
+        "files": copied,
+        "skipped_symlinks": symlinks,
+        "skipped_submodules": gitlinks,
+        "suppression_paths": sorted(suppression),
+        "manifest_sha256": manifest.hexdigest(),
+    }
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--install-dir", type=Path, help="install the pinned gitleaks here")
-    source.add_argument("--gitleaks", type=Path, help="an existing gitleaks binary")
+    source.add_argument(
+        "--gitleaks", type=Path, help="an existing gitleaks binary (must be the pinned binary)"
+    )
     parser.add_argument("--report", type=Path, default=DEFAULT_REPORT)
     args = parser.parse_args()
     report_path = args.report if args.report.is_absolute() else ROOT / args.report
@@ -281,36 +414,43 @@ def main() -> int:
         "scanner": "gitleaks",
         "scanner_version": GITLEAKS_VERSION,
         "scanner_archive_sha256": GITLEAKS_SHA256,
-        "config_sha256": hashlib.sha256(CONFIG.read_bytes()).hexdigest(),
+        "scanner_source": "installed_pinned_archive" if args.install_dir else "supplied_binary",
+        "scan_flags": list(SCAN_FLAGS),
+        "config_sha256": _sha256_file(CONFIG),
         "status": "NOT_RUN",
     }
     try:
+        summary["source"] = source_identity(ROOT)
         binary = (install(args.install_dir) if args.install_dir else args.gitleaks).resolve()
-        verify_version(binary)
-        controls = run_controls(binary, CONFIG)
+        summary["scanner_binary_sha256"] = verify_scanner(binary)
+        summary["controls"] = controls = run_controls(binary, CONFIG)
         with tempfile.TemporaryDirectory() as scratch:
-            tracked = materialize_tracked(ROOT, Path(scratch))
+            summary["scanned"] = scanned = materialize_tracked(ROOT, Path(scratch))
             findings = scan(binary, Path(scratch), CONFIG)
-    except (ScannerError, OSError, subprocess.CalledProcessError) as exc:
+    except (ScannerError, OSError, subprocess.CalledProcessError, UnicodeError) as exc:
         summary["error"] = str(exc)
         _write(report_path, summary)
         print(f"broad secret scan NOT_RUN: {exc}", file=sys.stderr)
         return 2
 
     failed_controls = [row["control"] for row in controls if row["status"] != "PASS"]
+    suppression = scanned["suppression_paths"]
     summary.update(
         {
-            "controls": controls,
             "failed_controls": failed_controls,
-            "tracked_files_scanned": tracked,
             "findings": findings,
-            "status": "PASS" if not findings and not failed_controls else "FAIL",
+            "status": "PASS" if not (findings or failed_controls or suppression) else "FAIL",
         }
     )
     _write(report_path, summary)
     for row in controls:
         print(f"control {row['control']}: {row['status']} ({row['observed_rules']})")
-    print(f"tracked files scanned: {tracked}")
+    print(
+        f"tracked files scanned: {scanned['files']} at {summary['source']['tree']} "
+        f"(manifest {scanned['manifest_sha256']})"
+    )
+    for path in suppression:
+        print(f"SUPPRESSION FILE tracked: {path}")
     for row in findings:
         print(f"FINDING {row['rule']} {row['file']}:{row['line']} (value redacted)")
     print(f"broad secret scan: {summary['status']}")

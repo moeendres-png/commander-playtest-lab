@@ -9,6 +9,7 @@ sentinel.
 from __future__ import annotations
 
 import importlib.util
+import json
 import re
 import subprocess
 import sys
@@ -48,6 +49,7 @@ def test_the_scanner_is_pinned_by_version_and_digest() -> None:
     scanner = _scanner()
     assert re.fullmatch(r"\d+\.\d+\.\d+", scanner.GITLEAKS_VERSION)
     assert re.fullmatch(r"[0-9a-f]{64}", scanner.GITLEAKS_SHA256)
+    assert re.fullmatch(r"[0-9a-f]{64}", scanner.GITLEAKS_BINARY_SHA256)
     assert scanner.GITLEAKS_VERSION in scanner.GITLEAKS_URL
     assert scanner.GITLEAKS_URL.startswith("https://github.com/gitleaks/gitleaks/releases/")
 
@@ -70,7 +72,9 @@ def test_every_exclusion_names_one_rule_one_file_one_value_and_a_reason() -> Non
             assert entry["condition"] == "AND"
             assert len(entry["description"].split()) >= 8
             assert len(entry["paths"]) == 1 and len(entry["regexes"]) == 1
-            assert re.fullmatch(r"\^[\w/.\\-]+\$", entry["paths"][0]), entry["paths"][0]
+            # Only literal path characters and escaped dots: exclusions() un-escapes
+            # exactly these, so the value-scope control lands on the real file.
+            assert re.fullmatch(r"\^(?:[A-Za-z0-9_/-]|\\\.)+\$", entry["paths"][0]), entry["paths"]
             assert re.fullmatch(r"\^[\w-]+\$", entry["regexes"][0]), entry["regexes"][0]
 
 
@@ -134,3 +138,85 @@ def test_a_scanner_failure_is_not_run_never_pass(tmp_path, exit_code) -> None:
     fake.chmod(0o755)
     with pytest.raises(scanner.ScannerError):
         scanner.scan(fake, tmp_path, CONFIG)
+
+
+def test_every_gitleaks_suppression_channel_is_closed() -> None:
+    flags = _scanner().SCAN_FLAGS
+    assert "--ignore-gitleaks-allow" in flags
+    assert not any(flag.startswith(("--baseline", "-b", "--gitleaks-ignore")) for flag in flags)
+    controls = {case["control"] for case in _scanner().red_controls()}
+    assert controls  # the run adds inline-allow and suppression-file controls on top
+
+
+def test_no_suppression_file_or_unanchored_allowlist_path_is_tracked() -> None:
+    tracked = subprocess.run(
+        ["git", "-C", str(REPO), "ls-files", "-z"], capture_output=True, check=True
+    ).stdout.decode("utf-8")
+    paths = [path for path in tracked.split("\0") if path]
+    assert not [path for path in paths if path.rsplit("/", 1)[-1] == ".gitleaksignore"]
+    assert [path for path in paths if "gitleaks.toml" in path] == [".gitleaks.toml"]
+
+
+def _fake(tmp_path: Path, body: str) -> Path:
+    fake = tmp_path / "gitleaks"
+    fake.write_text("#!/bin/sh\n" + body, encoding="utf-8")
+    fake.chmod(0o755)
+    return fake
+
+
+@pytest.mark.parametrize("report", ["{not json", '{"a": 1}', '[{"RuleID": "x"}]'])
+def test_a_malformed_report_is_not_run(tmp_path, report) -> None:
+    tree = tmp_path / "tree"
+    tree.mkdir()
+    fake = _fake(
+        tmp_path,
+        'while [ "$1" != "--report-path" ]; do shift; done\n'
+        f"printf '%s' '{report}' > \"$2\"\nexit 0\n",
+    )
+    with pytest.raises(_scanner().ScannerError, match="malformed"):
+        _scanner().scan(fake, tree, CONFIG)
+
+
+def test_a_tree_with_a_suppression_file_is_refused(tmp_path) -> None:
+    (tmp_path / ".gitleaksignore").write_text("a.py:github-pat:1\n", encoding="utf-8")
+    with pytest.raises(_scanner().ScannerError, match="refusing"):
+        _scanner().scan(tmp_path / "gitleaks", tmp_path, CONFIG)
+
+
+def test_a_supplied_binary_must_be_the_pinned_binary(tmp_path) -> None:
+    fake = _fake(tmp_path, "echo 8.28.0\n")
+    with pytest.raises(_scanner().ScannerError, match="binary digest"):
+        _scanner().verify_scanner(fake)
+
+
+def test_main_reports_not_run_with_source_identity(tmp_path, monkeypatch, capsys) -> None:
+    fake = _fake(tmp_path, "echo 8.28.0\n")
+    report = tmp_path / "report.json"
+    monkeypatch.setattr(
+        sys, "argv", ["run_broad_secret_scan.py", "--gitleaks", str(fake), "--report", str(report)]
+    )
+    assert _scanner().main() == 2
+    summary = json.loads(report.read_text(encoding="utf-8"))
+    assert summary["status"] == "NOT_RUN"
+    assert summary["scanner_source"] == "supplied_binary"
+    assert re.fullmatch(r"[0-9a-f]{40}", summary["source"]["head"])
+    assert "binary digest" in summary["error"]
+
+
+def test_materialization_reports_suppression_paths_and_binds_a_manifest(tmp_path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    (repo / "a.py").write_text("x = 1\n", encoding="utf-8")
+    (repo / ".gitleaksignore").write_text("a.py:generic-api-key:1\n", encoding="utf-8")
+    (repo / "docs").mkdir()
+    (repo / "docs" / "notes.gitleaks.toml.md").write_text("n\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+    out = tmp_path / "out"
+    first = _scanner().materialize_tracked(repo, out)
+    assert first["files"] == 1
+    assert first["suppression_paths"] == [".gitleaksignore", "docs/notes.gitleaks.toml.md"]
+    assert not (out / ".gitleaksignore").exists()
+    (repo / "a.py").write_text("x = 2\n", encoding="utf-8")
+    second = _scanner().materialize_tracked(repo, tmp_path / "out2")
+    assert second["manifest_sha256"] != first["manifest_sha256"]
