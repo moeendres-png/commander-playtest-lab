@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-sba-priority-repin-v4-20261003",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "WIP_EVIDENCE_PENDING",
- "status_note": "native_qualification and lab_runtime_qualification are PENDING; tests/qualification/test_xmage_sba_priority_repin_v4_20261003.py stays red until both are filled from exact-commit runs. Do not open or merge the repin PR before that.",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "native and Lab runtime qualification are bound to exact-commit runs below; current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -75,12 +75,14 @@
    "command": "maven.yml workflow_dispatch on branch claude/xmage-mp-candidate-20260929",
    "run_id": 37141776698,
    "commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
-   "run": null,
-   "failures": null,
-   "errors": null,
-   "skipped": null,
-   "status": "PENDING",
-   "donor_regressions_in_run": "PriorityEliminationTest, MonarchTest (to confirm in the run's surefire output)"
+   "run": 7042,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "status": "COMPLETE",
+   "donor_regressions_in_run": "PriorityEliminationTest (8 @Test methods, none @Ignore; presence CODE_DERIVED, per-class line not in the captured tail) and MonarchTest",
+   "source": "Mage Actions run 37141776698 (maven.yml workflow_dispatch, head b479fe74), Mage.Tests module summary; recorded on Lab #255 comment 5973105073",
+   "baseline_at_prior_pin": "7034 run / 125 skipped at 37e4df6c (run 36831202247); +8 PriorityEliminationTest"
   },
   "mage_verify": {
    "result": "FAIL (pre-existing, baseline-attributed)",
@@ -88,19 +90,27 @@
   }
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "scratchpad m2-b479fe74: copy of the m2-sba repository with org/mage removed, then mage, mage-sets, mage-deck-constructed, mage-game-commanderfreeforall, mage-game-commanderduel (with -am) installed from exact b479fe74",
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run above; the local isolated m2 run is a non-authoritative cross-check",
   "installed_artifacts_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
   "installed_artifacts": {
    "org.mage:mage:1.4.61": "sha256 10b1d81609f6793afee6da5943c669f2fb079127e32010effb42e8eb564fa15a",
    "org.mage:mage-sets:1.4.61": "sha256 04a1a60d4561c503b1adf188850ea113ab2fdc9c3777b083e99969f2caebb9c8"
   },
   "bridge_suite": {
-   "command": "cd engine-bridge && rm -rf target && mvn -o -Dmaven.repo.local=<isolated> test",
-   "run": null,
-   "failures": null,
-   "errors": null,
-   "skipped": null,
-   "status": "PENDING"
+   "command": "XMage Full Game Conformance workflow_dispatch on the repin branch head 63d6d4f6 (XMAGE_COMMIT=b479fe74): engine-bridge mvn verify against XMage built from exact b479fe74",
+   "run": 950,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 37150350091,
+   "job": 111282786389,
+   "artifact": {
+    "id": 11283429322,
+    "zip_sha256": "a8b1a78517a90e4991d751d606641e18e22fa71b607e413f5bf06565b0e3a274"
+   },
+   "local_cross_check": "identical 950/0/0/1 from the isolated m2 built from exact b479fe74 (non-authoritative, local)",
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)"
   },
   "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit; the repair has no structural signature (a guard inside GameImpl.playPriority); identity rests on the declared commit, the loaded-artifact digest and the native PriorityEliminationTest"
  },
