@@ -1,0 +1,11 @@
+{
+  "parent_head": "c814a8fc96775487b82e73d6917532a549893e24",
+  "parent_tree": "872d4c084764c60f8f7ec0d7e90e1787f3d5056c",
+  "patch_sha256": "c09efdd5c33a0c0c731e047c6fd160d10efee84f5114c298b3f83e7b7b2f6273",
+  "evidence": {
+    "B8-review-RED.xml": "93da6b0f481cd3767e9e902924ef11791e9a77ce321a8af038cc65cc66d5925e",
+    "B8-review-GREEN.xml": "efcc95f5d8e889f06ea0bb78c304f63c4629ff1d8b84ba01c44d81558e33bdfa"
+  },
+  "passing_tests": 55,
+  "qualification": "Affected offline controls only; fresh exact-head CI and independent review pending."
+}

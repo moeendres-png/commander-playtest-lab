@@ -1,0 +1,44 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/work/takeover-pr518-20261003
+branch: hardening/b8-real4p-progress-20261003
+audit_base_sha: 92ac2ef7d4876dd19a3f1b2ad85c8386a913df27
+audit_base_tree: 785f02937170c88576fba9e11b26844493532fc0
+state_written_against_head: a2ca4f3743ef17c1a00c7370a40bef451072d2fa
+validated_head: null
+objective: Close transferred CI479 B8 review gaps without changing rules or qualification
+  verdicts
+ownership: PRE-FREEZE-CAMPAIGN-SINGLE-COORDINATOR-20261003
+status: WAITING
+in_scope:
+- Transferred Lab PR518 implementation, tests, evidence, normal base merge and GitHub
+  integration
+out_of_scope:
+- Non-CI simulator work owned by Claude (506,511,441,255,Mage40)
+- Rules/evidence-policy/provider/freeze decisions
+- Deck/inventory/opponent changes
+- Paid services
+- Required-check promotion
+dependencies:
+- Direct user transfer of CI479; Lab255 comment5971360874 confirms ownership split
+- Fresh canonical source and exact-head review/CI
+hard_gates:
+- exact-head required CI and affected qualification PASS
+- no unresolved material P1/P2
+- normal merge only and target drift adjudication
+- no false PASS, narrowed denominator or fallback
+- single writer with preserved historical evidence
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+authority_gates:
+- Rules/evidence-policy/provider/freeze decisions remain reserved
+execution_profile: null
+technical_decisions:
+- User explicitly transfers Claude campaign after usage limit; earlier Claude-only
+  reservation superseded for named Lab surfaces. Direct Codex engineering is the requested
+  takeover, not an automatic OpenCode fallback.
+- Remote published source is reused. Unavailable Claude cloud edits are not assumed
+  present. Existing local D17 processes and uncommitted Forge work are preserved.
+exact_next_action: Inspect fresh exact-head CI and independent review after integrating
+  main50e8; adjudicate CI02 honestly, verify artifacts, then merge only reviewed head.
+tests_run:
+- 75 affected tests PASS; full-path before/after evidence in docs/ci479_boundary_pr518_20261003

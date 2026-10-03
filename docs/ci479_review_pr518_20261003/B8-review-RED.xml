@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.063" timestamp="2026-10-03T19:30:22.246634+02:00" hostname="MoritzPC"><testcase classname="tests.unit.test_workflow_impact" name="test_full_game_push_requalifies_semantic_replay_changes" time="0.005"><failure message="AssertionError: assert 'src/commander_lab/semantic_replay/**' in ['engine-bridge/**', 'config/rules_engines.json', 'src/commander_lab/engine/rules/full_game.py', 'src/commander_lab/engine/rules/full_game_batch.py', 'src/commander_lab/agents/**', 'src/commander_lab/models/pilots.py', ...]">def test_full_game_push_requalifies_semantic_replay_changes() -&gt; None:
+        import yaml
+        from pathlib import Path
+        root = Path(__file__).resolve().parents[2]
+        document = yaml.safe_load((root / ".github/workflows/xmage-full-game-conformance.yml").read_text())
+        triggers = document.get("on") or document.get(True)
+&gt;       assert "src/commander_lab/semantic_replay/**" in triggers["push"]["paths"]
+E       AssertionError: assert 'src/commander_lab/semantic_replay/**' in ['engine-bridge/**', 'config/rules_engines.json', 'src/commander_lab/engine/rules/full_game.py', 'src/commander_lab/engine/rules/full_game_batch.py', 'src/commander_lab/agents/**', 'src/commander_lab/models/pilots.py', ...]
+
+tests/unit/test_workflow_impact.py:107: AssertionError</failure></testcase></testsuite></testsuites>

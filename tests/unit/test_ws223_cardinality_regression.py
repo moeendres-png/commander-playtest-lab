@@ -14,7 +14,7 @@ gate instead of merging green:
 
 Plus structural gates on the merge-relevant CI lane itself (cardinalities
 covered, fail-closed step present, variable-player triggers present,
-replay-only paths excluded from the JVM lane, hashseed/caches pinned).
+direct replay dependencies requalified in the JVM lane, hashseed/caches pinned).
 """
 
 from __future__ import annotations
@@ -651,14 +651,21 @@ def test_cardinality_lane_push_and_pr_filters_match(repo_root: Path) -> None:
     assert production <= push_paths, f"push filter gap: {sorted(production - push_paths)}"
 
 
-def test_replay_only_paths_stay_off_the_jvm_lane(repo_root: Path) -> None:
-    """WS218 trigger adjudication: replay-only changes ride the light lane."""
-    text = (repo_root / WORKFLOW_REL).read_text(encoding="utf-8")
-    trigger_lines = [line for line in text.splitlines() if line.strip().startswith("- ")]
-    assert not any("semantic_replay" in line for line in trigger_lines), (
-        "replay-only path triggers would silently multiply JVM cost"
+def test_full_game_replay_dependency_runs_the_jvm_lane(repo_root: Path) -> None:
+    """B8 added a direct replay dependency, superseding WS218's exclusion."""
+    import ast
+
+    source = ast.parse((repo_root / "src/commander_lab/engine/rules/full_game.py").read_text())
+    assert any(
+        isinstance(node, ast.ImportFrom)
+        and (node.module or "").startswith("commander_lab.semantic_replay")
+        for node in ast.walk(source)
     )
-    assert not any("test_semantic_replay_tape" in line for line in trigger_lines)
+    document = yaml.safe_load((repo_root / WORKFLOW_REL).read_text())
+    triggers = document.get("on") or document.get(True)
+    assert "src/commander_lab/semantic_replay/**" in triggers["push"]["paths"]
+    # A change to the replay test alone does not change the JVM's dependencies.
+    assert not any("test_semantic_replay_tape" in path for path in triggers["push"]["paths"])
 
 
 def test_cardinality_lane_pins_hashseed_and_lock_cache(repo_root: Path) -> None:

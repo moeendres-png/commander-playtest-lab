@@ -1,0 +1,18 @@
+{
+  "parent_head": "60bde10c029d31d88e48757f0c10446e889ef24e",
+  "parent_tree": "6a81b54a37afc2e26ca2dff34b0c615477f00cc1",
+  "base_integrated": "50e8b6bfac3533f92ebd3670f09e9dd3ab9dbb69",
+  "patch_sha256": "85f508038d083095553d63a66db1babe8791ffe6875641c29895aa7a9574f7c1",
+  "reports": {
+    "B9-forged-runtime-RED.xml": {
+      "gzip_sha256": "df353faf9195b7a1980301397a4ad4e9ca53deb738b18503d7a98cbd5b694eec",
+      "raw_sha256": "670e0c0e89680d8870692339e426d4686e3bc51400b8f77c2c17f1ca4f24f299"
+    },
+    "B9-forged-runtime-GREEN-final.xml": {
+      "gzip_sha256": "4cadb72058ca07d8055f2d4b4f47fc5043338cce20a0345699f7c9ae81632580",
+      "raw_sha256": "1ae729ad954b13ebd6a136cbb1942c295d76603756d468d0662251367b3340a4"
+    }
+  },
+  "passed": 74,
+  "scope": "Full-path forged-runtime control and positive packaging controls. No Rules qualification. Interim B9-forged-runtime-GREEN.xml is invalid due to missing tempfile import, fixed before the final passing run; deliberately not retained as evidence."
+}
