@@ -226,6 +226,12 @@ class XmageCommanderDamageRestorationTest {
         com.google.gson.JsonArray pending = XmageNativeStateRestoration
                 .readback(arrived.game(), arrived.seats()).getAsJsonArray("pending_extra_turns");
         assertEquals("[\"P3\",\"P2\"]", pending.toString());
+        // The readback's order is the order the engine itself takes them.
+        assertEquals(arrived.seats().get("P3").getId(),
+                arrived.game().getState().getTurnMods().useNextExtraTurn().getPlayerId());
+        assertEquals("[\"P2\"]", XmageNativeStateRestoration
+                .readback(arrived.game(), arrived.seats()).getAsJsonArray("pending_extra_turns")
+                .toString());
     }
 
     @Test

@@ -1145,7 +1145,7 @@ final class XmageMidgameJsonlBridge {
     private JsonObject publicEvent(JsonObject raw, Map<String, String> seatByPlayer) {
         JsonObject event = new JsonObject();
         for (String key : List.of("sequence", "type", "turn", "step", "amount", "flag", "data",
-                "from", "to", "combat", "incarnation", "coin_result", "coin_won",
+                "from", "to", "combat", "new_object", "last_power", "last_toughness", "coin_result", "coin_won",
                 "public_identity", "target_name", "source_name")) {
             if (raw.has(key)) {
                 event.add(key, raw.get(key));

@@ -1112,7 +1112,6 @@ class XmageMidgameCausalTest {
         boolean destroyed = false;
         boolean toGraveyard = false;
         int hiddenDraws = 0;
-        int sourceIncarnation = -1;
         int sourceMoves = 0;
         for (JsonElement element : events) {
             JsonObject event = element.getAsJsonObject();
@@ -1130,20 +1129,26 @@ class XmageMidgameCausalTest {
                 toGraveyard = true;
             }
             if ("ZONE_CHANGE".equals(type) && "obj:cmd-zone-source".equals(text(event, "target_object"))) {
-                // CR 400.7: every public move of Doom Blade carries the
-                // engine's own object incarnation, and each move makes a new one.
-                assertTrue(event.has("incarnation"), "a public move names its incarnation: " + event);
-                int incarnation = event.get("incarnation").getAsInt();
-                assertTrue(incarnation > sourceIncarnation,
-                        "each move makes a new object: " + sourceIncarnation + " -> " + event);
-                sourceIncarnation = incarnation;
+                // CR 400.7: every public move of Doom Blade is reported by the
+                // engine as a new object, and no raw zone-change counter leaves
+                // the engine (it would count hidden moves too).
+                // The first move after setup has no earlier engine zone change
+                // to compare against and reports nothing; every later move does.
+                if (sourceMoves > 0) {
+                    assertTrue(event.has("new_object"), "a public move reports new_object: " + event);
+                }
+                if (event.has("new_object")) {
+                    assertTrue(event.get("new_object").getAsBoolean(),
+                            "each move makes a new object: " + event);
+                }
+                assertFalse(event.has("incarnation"), "no raw counter on the tape: " + event);
                 sourceMoves++;
             }
             if ("ZONE_CHANGE".equals(type) && "LIBRARY".equals(text(event, "from"))
                     && "HAND".equals(text(event, "to"))) {
                 assertFalse(event.get("public_identity").getAsBoolean(), "a draw is hidden: " + event);
                 assertFalse(event.has("target_name") || event.has("target_object"), "a draw names nothing: " + event);
-                assertFalse(event.has("incarnation"), "a hidden move names no incarnation: " + event);
+                assertFalse(event.has("new_object"), "a hidden move reports nothing: " + event);
                 hiddenDraws++;
             }
         }

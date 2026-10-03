@@ -181,6 +181,8 @@ class TerminalCheck:
             )
         if self.kind == "pending_extra_turns":
             return f"the engine's pending extra turns are {list(self.value)}, in the order taken"
+        if self.kind == "player_in_game":
+            return f"the engine reports {self.principal} neither lost nor left"
         if self.kind == "player_left":
             return f"the engine reports {self.principal} lost and left the game"
         if self.kind == "commander_damage":
@@ -361,8 +363,8 @@ def _commander_damage_loss(
 
 
 def _named(event_type: str, key: str, name: str, *where: tuple[str, Any]) -> TerminalCheck:
-    """Engine events of a type whose ``key`` names ``name`` (by prefix)."""
-    return _event(event_type, (f"{key}~", name), *where)
+    """Engine events of a type whose ``key`` is exactly the name ``name``."""
+    return _event(event_type, (key, name), *where)
 
 
 def _exactly(check: TerminalCheck, count: int) -> TerminalCheck:
@@ -785,7 +787,7 @@ ROWS: dict[str, RowSpec] = {
     ),
     # MICRO_ZONE_CHANGES: the Bolt on the stack (rebuilt through the declared
     # causal route) resolves and goes to its owner's graveyard as a new object
-    # (CR 400.7): the engine's incarnation of the card grows with the move.
+    # (CR 400.7): the engine reports the move made a new object.
     "MICRO_ZONE_CHANGES": RowSpec(
         token_bindings=(
             (
@@ -824,21 +826,31 @@ ROWS: dict[str, RowSpec] = {
     # -1/-1; the engine shows it applied (P1's Grizzly Bears read 1/1). Memnite
     # (printed 1/1) is cast for {0}, enters, and is put into its owner's
     # graveyard by the toughness state-based action (CR 704.5f): nothing
-    # destroys it and nothing damages it. Memnite's own 0/0 is never read back
-    # (it does not survive to a readback); the token is bound to the applied
-    # effect and the state-based move it causes.
+    # destroys it and nothing damages it. The engine reports Memnite's
+    # last-known 0/0 on that move.
     "MICRO_STATE_BASED_ACTIONS": RowSpec(
         token_bindings=(
             (
+                # The engine's own last-known 0/0 of Memnite as it left the
+                # battlefield, with the -1/-1 effect visibly applied elsewhere.
                 "continuous_pt:obj:micro-zero:0/0",
                 (
+                    _exactly(
+                        _event(
+                            "ZONE_CHANGE",
+                            ("target_object", "obj:micro-zero"),
+                            ("from", "BATTLEFIELD"),
+                            ("last_power", 0),
+                            ("last_toughness", 0),
+                        ),
+                        1,
+                    ),
                     TerminalCheck(
                         "power_toughness",
                         principal="P1",
                         card_identity="Grizzly Bears",
                         value=(1, 1),
                     ),
-                    TerminalCheck("not_on_battlefield", principal="P1", card_identity="Memnite"),
                 ),
             ),
             (
@@ -981,6 +993,154 @@ ROWS: dict[str, RowSpec] = {
         ),
     ),
     "PILOT_DECLARE_BLOCKER": RowSpec(),
+    # WS05-CMD-PARTNER-TAX (1.0.20 erratum): P1 casts both partners from the
+    # command zone; the engine's own payment frame for each cast shows its tax
+    # independently (CR 903.8): Rograkh ({0}, two prior casts) costs {4},
+    # Kediss ({1}{R}, none) costs {1}{R}.
+    "WS05-CMD-PARTNER-TAX": RowSpec(
+        mana_sources=tuple(f"obj:partner-mountain-{index}" for index in range(6)),
+        token_bindings=(
+            ("tax:cmd:P1-A:+4", TerminalCheck("cast_cost", card_identity="cmd:P1-A", value="{4}")),
+            (
+                "tax:cmd:P1-B:+0",
+                TerminalCheck("cast_cost", card_identity="cmd:P1-B", value="{1}{R}"),
+            ),
+        ),
+    ),
+    # MICRO_CONTROL (1.0.20 caused-control erratum): P1 casts Control Magic on
+    # P2's Grizzly Bears; once the Aura resolves, the engine moves control of
+    # the Bears to P1 (CR 613.1b), its owner unchanged.
+    "MICRO_CONTROL": RowSpec(
+        mana_sources=tuple(f"obj:control-island-{index}" for index in range(4)),
+        token_bindings=(
+            (
+                "control_effect_applied:P2->P1",
+                (
+                    _exactly(
+                        _event(
+                            "GAINED_CONTROL",
+                            ("target_object", "obj:micro-controlled"),
+                            ("player_player", "P1"),
+                        ),
+                        1,
+                    ),
+                    _before(
+                        _event(
+                            "ZONE_CHANGE",
+                            ("target_object", "obj:micro-controlmagic"),
+                            ("to", "BATTLEFIELD"),
+                        ),
+                        _event("GAINED_CONTROL", ("target_object", "obj:micro-controlled")),
+                    ),
+                ),
+            ),
+        ),
+    ),
+    # WS05-CMD-DMG-CONTROL (1.0.20 caused-control erratum): on P3's turn, P3
+    # takes P1's commander Isamaru with Act of Treason and attacks P2 with it;
+    # the 2 combat damage counts for Isamaru's own commander identity (CR
+    # 903.10a), so P2 reaches 21 from it and loses while at 38 life.
+    "WS05-CMD-DMG-CONTROL": RowSpec(
+        mana_sources=tuple(f"obj:treason-mountain-{index}" for index in range(3)),
+        terminal_checks=(_life("P2", 38),),
+        token_bindings=(
+            (
+                "commander_combat_damage:P2:2:cmd:P1-A",
+                (
+                    _combat_damage_to_player("obj:isamaru-controlled", "P2", 2),
+                    _before(
+                        _event(
+                            "GAINED_CONTROL",
+                            ("target_object", "obj:isamaru-controlled"),
+                            ("player_player", "P3"),
+                        ),
+                        _event("DAMAGED_PLAYER", ("source_object", "obj:isamaru-controlled")),
+                    ),
+                    _commander_damage("P1", "Isamaru, Hound of Konda", "P2", 21),
+                ),
+            ),
+            (
+                "player_loses:P2",
+                (
+                    _player_loses("P2"),
+                    _before(
+                        _combat_damage_to_player("obj:isamaru-controlled", "P2", 2),
+                        _player_loses("P2"),
+                    ),
+                ),
+            ),
+        ),
+    ),
+    # MICRO_COPY: P1's Flare of Duplication (rebuilt causally above P2's Bolt)
+    # copies the Bolt; the copy is created on the stack, never cast (CR
+    # 707.10), keeps the copied target (the scripted choice), and resolves as a
+    # distinct object before the original Bolt (CR 405.5).
+    "MICRO_COPY": RowSpec(
+        token_bindings=(
+            (
+                "copy_spell:Lightning_Bolt",
+                (
+                    _exactly(_named("COPIED_STACKOBJECT", "source_name", "Lightning Bolt"), 1),
+                    _exactly(_named("SPELL_CAST", "source_name", "Lightning Bolt"), 0),
+                ),
+            ),
+            (
+                "copy_created_on_stack",
+                (
+                    _exactly(
+                        _named(
+                            "DAMAGED_PLAYER",
+                            "source_name",
+                            "Lightning Bolt",
+                            ("target_player", "P2"),
+                            ("amount", 3),
+                            ("source_object", None),
+                        ),
+                        1,
+                    ),
+                    _exactly(
+                        _event(
+                            "DAMAGED_PLAYER",
+                            ("source_object", "obj:micro-bolt"),
+                            ("target_player", "P2"),
+                            ("amount", 3),
+                        ),
+                        1,
+                    ),
+                    _before(
+                        _named("COPIED_STACKOBJECT", "source_name", "Lightning Bolt"),
+                        _event("DAMAGED_PLAYER", ("source_object", "obj:micro-bolt")),
+                    ),
+                ),
+            ),
+        ),
+    ),
+    # MICRO_RULES_RANDOMNESS: P1 calls heads (scripted); the Rules RNG flips
+    # under the record's own seed and the engine reports the result. The
+    # record's predetermined result (HEADS) and its extra turn are observed
+    # only if the engine's flip produced them; nothing sets the flip.
+    "MICRO_RULES_RANDOMNESS": RowSpec(
+        token_bindings=(
+            (
+                "rules_rng:coin_flip:HEADS",
+                _exactly(
+                    _event(
+                        "COIN_FLIPPED",
+                        ("source_object", "obj:micro-stitch"),
+                        ("coin_result", "HEADS"),
+                        ("coin_won", True),
+                    ),
+                    1,
+                ),
+            ),
+            (
+                # The won flip's extra turn is the engine's own pending turn
+                # (taken after this one); it exists only if the flip was won.
+                "extra_turn_created:P1",
+                TerminalCheck("pending_extra_turns", value=("P1",)),
+            ),
+        ),
+    ),
     # MICRO_MANA_PAYMENT: with P2's Bolt on the stack (rebuilt causally), P1
     # casts Counterspell on it (the record's stack:1), paying {U}{U} from its
     # two declared Islands; Counterspell counters the Bolt.
@@ -1102,6 +1262,7 @@ ROWS: dict[str, RowSpec] = {
             _commander_damage("P1", "Kediss, Emberclaw Familiar", "P2", 9),
             TerminalCheck("frame_count", principal="P1", value=("priority", 1), label=""),
             _event("LOST", count=0),
+            TerminalCheck("player_in_game", principal="P2"),
         ),
     ),
     # WS05-CMD-DMG-SPLIT: P2 has 11 combat damage from Rograkh and 10 from
@@ -1118,6 +1279,7 @@ ROWS: dict[str, RowSpec] = {
                     _commander_damage("P1", "Kediss, Emberclaw Familiar", "P2", 10),
                     TerminalCheck("frame_count", principal="P1", value=("priority", 1), label=""),
                     _event("LOST", count=0),
+                    TerminalCheck("player_in_game", principal="P2"),
                 ),
             ),
         ),
@@ -1576,35 +1738,26 @@ def new_incarnation_evidence(
 ) -> dict[str, Any] | None:
     """CR 400.7: the lineage's latest public move made a new engine object.
 
-    The record names a card lineage; the engine reports its own object
-    incarnation (the card's zone-change counter) on every public move. The
-    lineage's last move in this obligation's window must carry a strictly
-    greater incarnation than its previous public move in the whole game.
+    The record names a card lineage. On every public move the engine reports
+    whether its own zone-change counter for the card advanced past the counter
+    at the card's previous zone change (``new_object``); no raw counter leaves
+    the engine. The lineage's last move in this obligation's window must be a
+    reported new object. ``history`` is accepted for the call shape only.
     """
+    del history
     objects = {
         str(o.get("semantic_id"))
         for o in record.get("semantic_objects") or ()
         if o.get("card_lineage_id") == lineage
     }
-
-    def moves(tape: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        return [
-            e
-            for e in _events(tape, "ZONE_CHANGE")
-            if e.get("target_object") in objects and isinstance(e.get("incarnation"), int)
-        ]
-
-    current = moves(window)
-    if not objects or not current:
+    moves = [
+        e
+        for e in _events(window, "ZONE_CHANGE")
+        if e.get("target_object") in objects and isinstance(e.get("new_object"), bool)
+    ]
+    if not objects or not moves or moves[-1]["new_object"] is not True:
         return None
-    last = current[-1]
-    earlier = [e for e in moves(history) if int(e["sequence"]) < int(last["sequence"])]
-    if not earlier or not int(last["incarnation"]) > int(earlier[-1]["incarnation"]):
-        return None
-    return {
-        "events": [earlier[-1]["sequence"], last["sequence"]],
-        "incarnations": [earlier[-1]["incarnation"], last["incarnation"]],
-    }
+    return {"events": [moves[-1]["sequence"]], "new_object": True}
 
 
 def _assignment_frames(trace: list[Frame]) -> list[Frame]:
@@ -1840,6 +1993,8 @@ def check_terminal(
         decision_class, principals = check.value
         order = [frame.principal for frame in trace if frame.decision_class == decision_class]
         return order[: len(principals)] == list(principals)
+    if check.kind == "player_in_game":
+        return bool(seat) and seat.get("lost") is False and seat.get("left") is False
     if check.kind == "player_left":
         return seat.get("left") is True and seat.get("lost") is True
     if check.kind == "cast_cost":
@@ -2083,6 +2238,15 @@ def matching_events(check: TerminalCheck, tape: list[dict[str, Any]]) -> list[di
         for key, value in check.where:
             if key.endswith("~"):
                 matched = _name_matches(event, key[:-1], str(value))
+            elif value is None and key.endswith("_object"):
+                # "No such object" means no source/target at all: neither a
+                # player in that role nor an object hidden from the tape.
+                role = key[: -len("_object")]
+                matched = (
+                    event.get(key) is None
+                    and event.get(f"{role}_player") is None
+                    and not event.get(f"{role}_hidden")
+                )
             else:
                 matched = event.get(key) == value
             if not matched:
@@ -2979,6 +3143,7 @@ def _offered_attackers(
 
 def answer_requested_combat(
     client: ml.MidgameLaneClient,
+    record: dict[str, Any],
     decision: dict[str, Any],
     decision_class: str,
     combat: RequestedCombat,
@@ -2993,9 +3158,29 @@ def answer_requested_combat(
     """
     probe = probe_module()
     legal = probe.legal_actions(client)
+    principal = probe.decision_principal(decision, legal)
+    temporal = record.get("temporal_state") or {}
+    observed_turn = (client.complete_arrival().get("observation") or {}).get("turn_number")
+    if observed_turn != temporal.get("turn_number"):
+        raise ml.MidgameLaneError(
+            f"the requested combat belongs to turn {temporal.get('turn_number')}; the engine "
+            f"asked {decision_class} in turn {observed_turn}"
+        )
+    if decision_class == "declare_attacker" and principal != temporal.get("active_player"):
+        raise ml.MidgameLaneError(
+            f"the requested combat is {temporal.get('active_player')}'s; the engine asked "
+            f"{principal} to declare attackers"
+        )
+    if decision_class == "declare_blocker" and principal not in {
+        defender for _, defender in combat.attackers
+    }:
+        raise ml.MidgameLaneError(
+            f"the requested combat attacks no creature of {principal}; the engine asked it "
+            "to declare blockers"
+        )
     frame = Frame(
         decision_class,
-        probe.decision_principal(decision, legal),
+        principal,
         _labels(legal),
         scripted=True,
         decision_id=str(decision.get("decision_id") or "") or None,
@@ -3023,7 +3208,9 @@ def answer_requested_combat(
     )
 
 
-def combat_matches_request(combat: RequestedCombat, tape: list[dict[str, Any]]) -> dict[str, Any]:
+def combat_matches_request(
+    combat: RequestedCombat, tape: list[dict[str, Any]], *, compare_attacks: bool = True
+) -> dict[str, Any]:
     """Whether the engine's own declaration events are exactly the requested combat."""
     attacks = sorted(
         (str(e.get("source_object")), str(e.get("target_player")))
@@ -3033,7 +3220,7 @@ def combat_matches_request(combat: RequestedCombat, tape: list[dict[str, Any]]) 
         (str(e.get("source_object")), str(e.get("target_object")))
         for e in _events(tape, "BLOCKER_DECLARED")
     )
-    attacks_match = attacks == sorted(combat.attackers)
+    attacks_match = not compare_attacks or attacks == sorted(combat.attackers)
     blocks_match = combat.blocks is None or blocks == sorted(combat.blocks)
     return {
         "holds": attacks_match and blocks_match,
@@ -3124,6 +3311,7 @@ OBSERVATION_KINDS = frozenset(
         "graveyard_mana_value",
         "commander_damage",
         "player_left",
+        "player_in_game",
         "pending_extra_turns",
     }
 )
@@ -3207,6 +3395,7 @@ def execute_row(
         trace.append(
             answer_requested_combat(
                 client,
+                record,
                 decision,
                 decision_class,
                 combat,
@@ -3522,6 +3711,7 @@ def execute_row(
                 assert combat is not None
                 trace[-1] = answer_requested_combat(
                     client,
+                    record,
                     decision,
                     decision_class,
                     combat,
@@ -3739,16 +3929,23 @@ def execute_row(
         check.describe(): check_terminal(check, observation, tape, trace)
         for check in spec.terminal_checks
     }
-    if combat is not None and not _scripts_family(record, "declare_attacker"):
+    scripted_attacks = _scripts_family(record, "declare_attacker")
+    scripted_blocks = _scripts_family(record, "declare_blocker")
+    if combat is not None and (
+        not scripted_attacks or (combat.blocks is not None and not scripted_blocks)
+    ):
         # The requested combat is part of the requested state: the engine's
         # own declaration events (from game start) must be exactly the part
         # of it this run answered. Declarations the record's own script makes
         # are verified by its script and tokens, not here.
-        answered = RequestedCombat(
-            attackers=combat.attackers,
-            blocks=None if _scripts_family(record, "declare_blocker") else combat.blocks,
+        declared = combat_matches_request(
+            RequestedCombat(
+                attackers=combat.attackers,
+                blocks=None if scripted_blocks else combat.blocks,
+            ),
+            client.events(0)["events"],
+            compare_attacks=not scripted_attacks,
         )
-        declared = combat_matches_request(answered, client.events(0)["events"])
         terminal[REQUESTED_COMBAT_FACT] = bool(declared["holds"])
     verified = (
         detail == "obligation observed"

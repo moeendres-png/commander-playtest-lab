@@ -93,6 +93,8 @@ final class XmagePublicEventWatcher extends Watcher {
      * placement preceded the tape. Always reset within the same engine call.
      */
     private boolean muted;
+    /** Each card's zone-change counter at its last zone change (never published). */
+    private java.util.Map<UUID, Integer> lastZoneChangeCounter = new java.util.HashMap<>();
 
     void mute(boolean value) {
         muted = value;
@@ -136,6 +138,15 @@ final class XmagePublicEventWatcher extends Watcher {
         if (event instanceof DamagedEvent damaged) {
             record.addProperty("combat", damaged.isCombatDamage());
         }
+        if (event instanceof ZoneChangeEvent leaving && publicIdentity
+                && leaving.getFromZone() == Zone.BATTLEFIELD
+                && leaving.getTarget() != null) {
+            // The permanent's last-known power and toughness as it left the
+            // battlefield (CR 608.2h last known information), as the engine
+            // evaluated them: public state of a public permanent.
+            record.addProperty("last_power", leaving.getTarget().getPower().getValue());
+            record.addProperty("last_toughness", leaving.getTarget().getToughness().getValue());
+        }
         if (event instanceof mage.game.events.CoinFlippedEvent flipped) {
             // A coin flip is public (CR 705.1): the Rules RNG's own result and,
             // for a flip that can be won, whether its caller won it.
@@ -144,14 +155,19 @@ final class XmagePublicEventWatcher extends Watcher {
                 record.addProperty("coin_won", flipped.wasWon());
             }
         }
-        if (event instanceof ZoneChangeEvent && publicIdentity && !pending) {
-            // CR 400.7: the engine's own object incarnation after a public move
-            // (the moved card's zone-change counter). A move into a new zone
-            // makes a new object; this is the engine's identity for it. Never
-            // reported for a move that is not public.
+        if (event instanceof ZoneChangeEvent) {
+            // CR 400.7: whether the engine made a new object of the moved card,
+            // read from its own zone-change counter against the counter at the
+            // card's previous zone change. Only that boolean is reported, and
+            // only on a public move: the raw counter also counts hidden moves
+            // and would reveal hidden-zone history to the pilots.
             Card moved = game.getCard(event.getTargetId());
             if (moved != null) {
-                record.addProperty("incarnation", moved.getZoneChangeCounter(game));
+                int now = moved.getZoneChangeCounter(game);
+                Integer previous = lastZoneChangeCounter.put(event.getTargetId(), now);
+                if (publicIdentity && !pending && previous != null) {
+                    record.addProperty("new_object", now > previous);
+                }
             }
         }
         record.addProperty("public_identity", publicIdentity);

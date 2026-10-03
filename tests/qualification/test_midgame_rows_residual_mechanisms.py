@@ -216,27 +216,29 @@ def test_the_engine_declarations_must_be_exactly_the_requested_combat() -> None:
 RECORD = {"semantic_objects": [{"semantic_id": "obj:bolt", "card_lineage_id": "line:bolt"}]}
 
 
-def _incarnated(sequence: int, source: str, destination: str, incarnation: Any) -> dict[str, Any]:
+def _moved(sequence: int, source: str, destination: str, new_object: Any) -> dict[str, Any]:
     event = _move(sequence, source, destination, obj="obj:bolt")
-    if incarnation is not None:
-        event["incarnation"] = incarnation
+    if new_object is not None:
+        event["new_object"] = new_object
     return event
 
 
-def test_a_move_with_a_greater_engine_incarnation_is_a_new_object() -> None:
-    history = [_incarnated(1, "HAND", "STACK", 3), _incarnated(5, "STACK", "GRAVEYARD", 4)]
-    evidence = mr.new_incarnation_evidence("line:bolt", RECORD, history, history[1:])
-    assert evidence == {"events": [1, 5], "incarnations": [3, 4]}
+def test_a_public_move_the_engine_reports_as_a_new_object_is_evidence() -> None:
+    window = [_moved(5, "STACK", "GRAVEYARD", True)]
+    assert mr.new_incarnation_evidence("line:bolt", RECORD, [], window) == {
+        "events": [5],
+        "new_object": True,
+    }
 
 
-def test_no_incarnation_or_no_earlier_move_is_no_evidence() -> None:
-    unreported = [_incarnated(1, "HAND", "STACK", None), _incarnated(5, "STACK", "GRAVEYARD", 4)]
-    assert mr.new_incarnation_evidence("line:bolt", RECORD, unreported, unreported[1:]) is None
-    single = [_incarnated(5, "STACK", "GRAVEYARD", 4)]
-    assert mr.new_incarnation_evidence("line:bolt", RECORD, single, single) is None
-    same = [_incarnated(1, "HAND", "STACK", 4), _incarnated(5, "STACK", "GRAVEYARD", 4)]
-    assert mr.new_incarnation_evidence("line:bolt", RECORD, same, same[1:]) is None
-    assert mr.new_incarnation_evidence("line:other", RECORD, same, same[1:]) is None
+def test_no_report_or_a_negative_report_is_no_evidence() -> None:
+    for value in (None, False):
+        window = [_moved(5, "STACK", "GRAVEYARD", value)]
+        assert mr.new_incarnation_evidence("line:bolt", RECORD, [], window) is None
+    # Only the lineage's last move counts.
+    window = [_moved(4, "HAND", "STACK", True), _moved(5, "STACK", "GRAVEYARD", False)]
+    assert mr.new_incarnation_evidence("line:bolt", RECORD, [], window) is None
+    assert mr.new_incarnation_evidence("line:other", RECORD, [], window) is None
 
 
 # --------------------------------------------------------------------------- #
@@ -412,3 +414,84 @@ def test_pending_extra_turns_are_the_engine_order_exactly() -> None:
     assert mr.check_terminal(check, {"pending_extra_turns": ["P3", "P2"]}, [], [])
     assert not mr.check_terminal(check, {"pending_extra_turns": ["P2", "P3"]}, [], [])
     assert not mr.check_terminal(check, {}, [], [])
+
+
+# --------------------------------------------------------------------------- #
+# Review fixes: row membership, absent sources, players in the game, blocks
+# --------------------------------------------------------------------------- #
+
+# Every row this workstream reports as verified must be produced by the PB-03
+# producer: a spec missing from ROWS is silently never run.
+WORKSTREAM_ROWS = {
+    *(
+        f"WS05-CMD-ZONE-{zone}-{answer}"
+        for zone in ("GY", "EXILE", "HAND", "LIB")
+        for answer in ("YES", "NO")
+    ),
+    "MICRO_COMBAT",
+    "WS05-CMD-DMG-SAME-21",
+    "WS05-CMD-ELIM-4",
+    "WS05-CMD-DMG-SPLIT",
+    "MICRO_ZONE_CHANGES",
+    "MICRO_STATE_BASED_ACTIONS",
+    "MICRO_PRIORITY",
+    "MICRO_STACK",
+    "WS05-MP-PRIO-3",
+    "WS05-MP-PRIO-5",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
+    "MICRO_CONTINUOUS_EFFECTS",
+    "WS05-MP-BLOCK-4",
+    "PILOT_DECLARE_BLOCKER",
+    "MICRO_REPLACEMENT",
+    "MICRO_PREVENTION",
+    "WS05-MP-ELIM-OWNED-3",
+    "WS05-MP-ELIM-PRIO-3",
+    "WS05-MP-ELIM-5",
+    "WS05-MP-ELIM-TURN-3",
+    "WS05-CMD-PARTNER-DMG",
+    "MICRO_MANA_PAYMENT",
+    "MICRO_COPY",
+    "MICRO_RULES_RANDOMNESS",
+    "MICRO_CONTROL",
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-PARTNER-TAX",
+}
+
+
+def test_every_workstream_row_is_produced() -> None:
+    assert set(mr.ROWS) >= WORKSTREAM_ROWS
+    assert len(mr.ROWS) == 22 + len(WORKSTREAM_ROWS)
+    # The partner-zone row is executed by Forge as written; XMage has no spec.
+    assert "WS05-CMD-PARTNER-ZONE" not in mr.ROWS
+
+
+def test_an_absent_source_means_no_source_of_any_kind() -> None:
+    check = mr.TerminalCheck(
+        "events", event_type="DESTROYED_PERMANENT", where=(("source_object", None),), value=1
+    )
+    assert mr.check_terminal(check, {}, [{"type": "DESTROYED_PERMANENT", "sequence": 1}], [])
+    for other in ({"source_player": "P2"}, {"source_hidden": True}, {"source_object": "obj:x"}):
+        event = {"type": "DESTROYED_PERMANENT", "sequence": 1, **other}
+        assert not mr.check_terminal(check, {}, [event], []), other
+
+
+def test_a_player_in_the_game_has_neither_lost_nor_left() -> None:
+    check = mr.TerminalCheck("player_in_game", principal="P2")
+    assert mr.needs_observation(check)
+
+    def seat(**fields: Any) -> dict[str, Any]:
+        return {"seats": [{"player_id": "P2", **fields}]}
+
+    assert mr.check_terminal(check, seat(lost=False, left=False), [], [])
+    assert not mr.check_terminal(check, seat(lost=True, left=False), [], [])
+    assert not mr.check_terminal(check, seat(lost=False), [], [])
+    assert not mr.check_terminal(check, {"seats": []}, [], [])
+
+
+def test_requested_blocks_are_checked_even_when_the_script_attacks() -> None:
+    combat = mr.RequestedCombat(attackers=(("obj:a", "P2"),), blocks=(("obj:b", "obj:a"),))
+    blocks_only = [_declared("BLOCKER_DECLARED", "obj:b", "obj:a")]
+    # The script's own attack is not compared; the requested block is.
+    assert mr.combat_matches_request(combat, blocks_only, compare_attacks=False)["holds"]
+    assert not mr.combat_matches_request(combat, [], compare_attacks=False)["holds"]
