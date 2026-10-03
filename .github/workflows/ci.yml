@@ -136,6 +136,13 @@ jobs:
         run: mkdir -p artifacts/security && cyclonedx-py environment --output-format JSON --output-file artifacts/security/sbom.cdx.json
       - name: License report
         run: pip-licenses --format=json --output-file=artifacts/security/licenses.json
+      - name: Broad secret scan (pinned gitleaks)
+        if: ${{ success() || failure() }}
+        # B10 (#491): the full gitleaks rule set over exactly the tracked files,
+        # after red controls prove the pinned scanner finds representative
+        # secrets. Independent of the audit steps above; the quality job's
+        # Secret-pattern scan stays a separate project sentinel.
+        run: python scripts/run_broad_secret_scan.py --install-dir "${{ runner.temp }}/gitleaks"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0 immutable revision
         if: always()
         with:
