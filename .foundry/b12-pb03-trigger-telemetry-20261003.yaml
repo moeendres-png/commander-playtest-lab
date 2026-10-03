@@ -34,6 +34,17 @@ milestones:
       test_pb03_trigger_completeness measures the producer's inputs under an
       open audit hook; it failed on the old trigger list (6 contract/manifest
       files, pyproject.toml, requirements/lock.txt) and passes on the new one.
+  - id: M2
+    result: fresh-context review resolved (one P1, one P2, one P3)
+    summary: >-
+      The probe ran with a warm bytecode cache, which hid
+      scripts/resolve_pre_freeze_contract.py (loaded by spec_from_file_location,
+      not in sys.modules). It now runs with PYTHONDONTWRITEBYTECODE and an empty
+      PYTHONPYCACHEPREFIX, maps any .pyc to its source, and also measures every
+      runner-identity input (capture_runner_identity), which found
+      schemas/engine_adapter_protocol.schema.json. Both paths are added; the
+      test failed on the previous list. The fake clock no longer patches the
+      global time module.
 open_items:
   - Exact-head PB-03 must run and print the per-phase durations.
 exact_next_action: >-

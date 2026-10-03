@@ -13,6 +13,8 @@ on:
       - "qualification/manifests/**"
       - "requirements/lock.txt"
       - "pyproject.toml"
+      - "scripts/resolve_pre_freeze_contract.py"
+      - "schemas/engine_adapter_protocol.schema.json"
       - "engine-bridge/**"
       - "scripts/run_current_boundary_qualification.py"
       - "scripts/assemble_current_boundary_evidence.py"

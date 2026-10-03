@@ -12,9 +12,11 @@ path.
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
+import tempfile
 from functools import cache
 from pathlib import Path
 
@@ -31,14 +33,17 @@ SCRIPTS = (
 
 # Runs in a fresh interpreter so the audit hook never outlives the measurement.
 _PROBE = r"""
-import json, os, runpy, sys
+import importlib.util, json, os, runpy, sys
 from pathlib import Path
 root = Path(sys.argv[1]).resolve()
 touched = set()
 def hook(event, args):
     if event == "open" and args and isinstance(args[0], (str, bytes, os.PathLike)):
         try:
-            path = Path(os.fsdecode(args[0])).resolve()
+            raw = os.fsdecode(args[0])
+            if raw.endswith(".pyc"):
+                raw = importlib.util.source_from_cache(raw)
+            path = Path(raw).resolve()
             touched.add(str(path.relative_to(root)))
         except Exception:
             pass
@@ -55,6 +60,9 @@ materialization.receipt()
 list(materialization.denominator_records())
 gate_derivations.actual_card_corpus(root)
 bridge_launcher.canonical_forge_authority()
+# Every input the runner digests into its identity is an input of the evidence.
+from commander_lab.qualification.current_boundary import receipts
+touched.update(receipts.capture_runner_identity(root).input_digests)
 modules = {
     str(Path(module.__file__).resolve().relative_to(root))
     for module in list(sys.modules.values())
@@ -98,13 +106,22 @@ def _covered(path: str) -> bool:
 
 @cache
 def _measured_inputs() -> tuple[str, ...]:
-    completed = subprocess.run(
-        [sys.executable, "-c", _PROBE, str(REPO), *SCRIPTS],
-        cwd=REPO,
-        capture_output=True,
-        text=True,
-        check=True,
-    )
+    # No bytecode cache: a warm .pyc would hide the source file it was compiled
+    # from (a module loaded by spec_from_file_location is not in sys.modules).
+    with tempfile.TemporaryDirectory() as empty_cache:
+        env = {
+            **os.environ,
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTHONPYCACHEPREFIX": empty_cache,
+        }
+        completed = subprocess.run(
+            [sys.executable, "-c", _PROBE, str(REPO), *SCRIPTS],
+            cwd=REPO,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
     paths = json.loads(completed.stdout.strip().splitlines()[-1])
     return tuple(
         path
@@ -174,7 +191,7 @@ def test_runner_phases_report_their_duration_on_stdout_only(monkeypatch, capsys,
     spec.loader.exec_module(runner)
     monkeypatch.setattr(runner, "OUT_DIR", tmp_path / "out")
     ticks = iter([10.0, 12.5, 20.0])
-    monkeypatch.setattr(runner.time, "monotonic", lambda: next(ticks))
+    monkeypatch.setattr(runner, "time", type("Clock", (), {"monotonic": lambda: next(ticks)}))
     runner.phase("first")
     runner.phase("second")
     runner.phase(None)
