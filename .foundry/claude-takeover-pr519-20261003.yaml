@@ -4,28 +4,24 @@ worktree: /home/moeen/work/takeover-pr519-20261003
 branch: hardening/b10-broad-secret-scan-20261003
 audit_base_sha: e827a981d204333fbbc7638a84836e7d1da52630
 audit_base_tree: 213c2f5539ee1cc13db854575113efb331596e3b
-state_written_against_head: 7bf240ee112e3f476a7705f25fb51bbaabeb959a
+state_written_against_head: ad1d3ebfc45ce480cc57820b4993f58e2be22917
 validated_head: null
-objective: Resume transferred Claude pre-Freeze campaign; review, repair, qualify
-  and integrate existing PR surfaces without losing provenance
-ownership: CLAUDE-CAMPAIGN-TAKEOVER-20261003
+objective: Close transferred CI479 B10 review gaps without changing rules or qualification
+  verdicts
+ownership: CI479-ROADMAP-CAMPAIGN-20261003
 status: WAITING
 in_scope:
 - Transferred Lab PR519 implementation, tests, evidence, normal base merge and GitHub
   integration
 out_of_scope:
-- Foreign-active D17 writer
-- Rules authority changes
-- provider selection and Architecture Freeze
-- new production repository
-- canonical deck/inventory/opponent mutation
-- paid services
-- required-check promotion
+- Non-CI simulator work owned by Claude (506,511,441,255,Mage40)
+- Rules/evidence-policy/provider/freeze decisions
+- Deck/inventory/opponent changes
+- Paid services
+- Required-check promotion
 dependencies:
-- Direct Owner takeover in this chat
-- Lab255 comment5969650684
-- fresh current target source
-- transferred implementation and reviews
+- Direct user transfer of CI479; Lab255 comment5971360874 confirms ownership split
+- Fresh canonical source and exact-head review/CI
 hard_gates:
 - exact-head required CI and affected qualification PASS
 - no unresolved material P1/P2
@@ -42,10 +38,8 @@ technical_decisions:
   takeover, not an automatic OpenCode fallback.
 - Remote published source is reused. Unavailable Claude cloud edits are not assumed
   present. Existing local D17 processes and uncommitted Forge work are preserved.
-exact_next_action: Validate clean commit with live controls and deterministic readback,
-  then push exact head and require independent review plus required CI before ordinary
-  merge.
+exact_next_action: Inspect fresh exact-head required and affected CI, independently
+  review these repairs, then adjudicate target drift and merge normally.
 tests_run:
-- 9 broad-secret-scan tests PASS
-- 'Live checksum-verified gitleaks8.28.0: all11 red/clean controls PASS; 3016 tracked
-  files scanned with zero findings before checkpoint'
+- 57 affected tests PASS after the new controls failed before the repair
+- 'Raw RED/GREEN JUnit and source/patch digest: docs/ci479_review_pr519_20261003/SOURCE_EVIDENCE.json'

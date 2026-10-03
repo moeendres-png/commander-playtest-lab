@@ -220,3 +220,19 @@ def test_materialization_reports_suppression_paths_and_binds_a_manifest(tmp_path
     (repo / "a.py").write_text("x = 2\n", encoding="utf-8")
     second = _scanner().materialize_tracked(repo, tmp_path / "out2")
     assert second["manifest_sha256"] != first["manifest_sha256"]
+
+
+def test_out_of_range_report_line_is_a_scanner_error() -> None:
+    with pytest.raises(_scanner().ScannerError, match="malformed"):
+        _scanner()._parse_report('[{"RuleID":"x","File":"x","StartLine":1e400,"Fingerprint":"x"}]')
+
+
+def test_tracked_symlink_cannot_receive_pass_by_being_skipped(tmp_path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    (repo / "regular.txt").write_text("clean\n")
+    (repo / "link.txt").symlink_to("unresolved-target")
+    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+    with pytest.raises(_scanner().ScannerError, match="symlink"):
+        _scanner().materialize_tracked(repo, tmp_path / "scan")

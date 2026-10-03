@@ -136,7 +136,7 @@ def _parse_report(text: str) -> list[dict[str, Any]]:
             }
             for item in raw
         ]
-    except (ValueError, TypeError, KeyError) as exc:
+    except (ValueError, TypeError, KeyError, OverflowError) as exc:
         raise ScannerError(f"gitleaks report is malformed: {exc}") from exc
 
 
@@ -350,8 +350,8 @@ def source_identity(root: Path) -> dict[str, Any]:
 def materialize_tracked(root: Path, dest: Path) -> dict[str, Any]:
     """Copy exactly the git-tracked regular files of ``root`` into ``dest``.
 
-    Symlinks (mode 120000) and submodules (160000) carry no file content and are
-    counted, not copied. A tracked suppression file is never copied and is
+    Symlinks (mode 120000) fail closed: their target text is committed content.
+    Submodules (160000) are counted separately and are not file blobs. A tracked suppression file is never copied and is
     reported, and so is a path holding ``gitleaks.toml`` other than the config:
     the upstream default allowlist exempts such paths unanchored. Any other
     entry that cannot be copied fails the run instead of shrinking the scan.
@@ -368,8 +368,8 @@ def materialize_tracked(root: Path, dest: Path) -> dict[str, Any]:
         relative = os.fsdecode(raw_path)
         name = relative.rsplit("/", 1)[-1]
         if mode == "120000":
-            symlinks += 1
-            continue
+            # Target text is committed blob content. A skipped link cannot earn PASS.
+            raise ScannerError(f"tracked symlink {relative!r} cannot be scanned")
         if mode == "160000":
             gitlinks += 1
             continue
