@@ -4,28 +4,24 @@ worktree: /home/moeen/work/takeover-pr518-20261003
 branch: hardening/b8-real4p-progress-20261003
 audit_base_sha: 92ac2ef7d4876dd19a3f1b2ad85c8386a913df27
 audit_base_tree: 785f02937170c88576fba9e11b26844493532fc0
-state_written_against_head: d0195bbf53da25107c05773df12220c4dc4839bf
-validated_head: d0195bbf53da25107c05773df12220c4dc4839bf
-objective: Resume transferred Claude pre-Freeze campaign; review, repair, qualify
-  and integrate existing PR surfaces without losing provenance
-ownership: CLAUDE-CAMPAIGN-TAKEOVER-20261003
+state_written_against_head: c814a8fc96775487b82e73d6917532a549893e24
+validated_head: null
+objective: Close transferred CI479 B8 review gaps without changing rules or qualification
+  verdicts
+ownership: CI479-ROADMAP-CAMPAIGN-20261003
 status: WAITING
 in_scope:
 - Transferred Lab PR518 implementation, tests, evidence, normal base merge and GitHub
   integration
 out_of_scope:
-- Foreign-active D17 writer
-- Rules authority changes
-- provider selection and Architecture Freeze
-- new production repository
-- canonical deck/inventory/opponent mutation
-- paid services
-- required-check promotion
+- Non-CI simulator work owned by Claude (506,511,441,255,Mage40)
+- Rules/evidence-policy/provider/freeze decisions
+- Deck/inventory/opponent changes
+- Paid services
+- Required-check promotion
 dependencies:
-- Direct Owner takeover in this chat
-- Lab255 comment5969650684
-- fresh current target source
-- transferred implementation and reviews
+- Direct user transfer of CI479; Lab255 comment5971360874 confirms ownership split
+- Fresh canonical source and exact-head review/CI
 hard_gates:
 - exact-head required CI and affected qualification PASS
 - no unresolved material P1/P2
@@ -42,11 +38,8 @@ technical_decisions:
   takeover, not an automatic OpenCode fallback.
 - Remote published source is reused. Unavailable Claude cloud edits are not assumed
   present. Existing local D17 processes and uncommitted Forge work are preserved.
-exact_next_action: Push checkpoint once; obtain fresh independent review, exact-head
-  required CI and the live four-player twin through turn 4 before ordinary merge.
+exact_next_action: Inspect fresh exact-head required and affected CI, independently
+  review these repairs, then adjudicate target drift and merge normally.
 tests_run:
-- Full clean-commit Python suite PASS; raw source-bound CLEAN-python evidence at /home/moeen/work/takeover-evidence-20261003/pr518
-- Mypy 290 sources PASS in locked dependency runtime
-- Ruff source/tests and affected script PASS
-- Five before-failing offline controls and 39 repaired affected tests preserved in
-  docs/b8_takeover_20261003
+- 55 affected tests PASS after the new controls failed before the repair
+- 'Raw RED/GREEN JUnit and source/patch digest: docs/ci479_review_pr518_20261003/SOURCE_EVIDENCE.json'
