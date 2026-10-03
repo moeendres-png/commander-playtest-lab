@@ -2132,11 +2132,7 @@ class RowMeasurement:
 
 def causal_entry(fixture_id: str) -> dict[str, Any] | None:
     """The production probe's declared causal-stack entry for a row, or None."""
-    rows = getattr(midgame_rows_mod.probe_module(), "CAUSAL_ROWS", {}) or {}
-    entry = rows.get(fixture_id)
-    if not isinstance(entry, dict) or entry.get("entry_mode") != "causal_stack":
-        return None
-    return dict(entry)
+    return midgame_rows_mod.causal_stack_entry(fixture_id)
 
 
 def measure_row(
@@ -2516,7 +2512,7 @@ def classify(
         # record never scripts is a fixture-contract gap.
         frame_match = re.match(r"unscripted ([a-z_]+) for (P\d+)", detail)
         scripted_classes = {
-            midgame_rows_mod.engine_decision_class(str(step.get("decision_family") or ""))
+            midgame_rows_mod.step_decision_class(step)
             for step in row.record.get("decision_script") or ()
         }
         frame_class = frame_match.group(1) if frame_match else None

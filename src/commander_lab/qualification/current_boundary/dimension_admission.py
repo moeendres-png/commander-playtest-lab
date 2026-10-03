@@ -104,6 +104,12 @@ _ZONE_TOKENS: dict[str, tuple[str, ...]] = {
 # declare the dimension cannot silently admit a record that asks for it. Only
 # attributes the record actually declares are derived; an untapped permanent
 # (tapped=false), empty counters and an empty attachment map declare nothing.
+# The adjudicated projection of the 30-row boundary on the current contract.
+# 1.0.20 (#456) causes WS05-CMD-DMG-CONTROL's control change through the engine,
+# so the record no longer declares owner/controller divergence and is admitted
+# (12/18 under 1.0.19). The runner refuses any other projection.
+CURRENT_BOUNDARY_COUNTS: dict[str, int] = {"admitted": 13, "blocked": 17}
+
 _OWNER_CONTROLLER_DIVERGENCE = "controller/owner divergence"
 _TAPPED_UNQUALIFIED = "tapped permanents"
 # Counters and attachments are separate dimensions: a manifest that still

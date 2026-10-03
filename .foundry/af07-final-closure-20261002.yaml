@@ -22,7 +22,7 @@ candidates:
 contract: commander-lab.full107/1.0.18-successor
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED
-status: ACTIVE
+status: COMPLETE
 ownership: AF07-FINAL-ACTUAL-CARD-CLOSURE-20261002 (Claude lane)
 in_scope:
   - src/commander_lab/qualification/current_boundary/actual_card_campaign.py
@@ -209,6 +209,5 @@ open_items:
 remaining_scope:
   - Forge decision-execution selector surface (prerequisite for any Forge AF07 credit)
 exact_next_action: >-
-  Drive #484 to an exact-head green PB-03 that credits all 29 XMage corpus
-  identities through the same-epoch receipts, run the fresh-context review,
-  merge, then hand off to AF09 (#454/#461).
+  None in this workstream: merged to main; terminal handoff on #453. Open
+  items are listed above and tracked on their own issues.

@@ -24,6 +24,7 @@ import re
 import sys
 import time
 import uuid
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -110,6 +111,43 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
             },
         ],
         "terminal": "commander_zone_choice",
+    },
+    # MICRO_COPY: P2's Lightning Bolt, then P1's Flare of Duplication on it.
+    # The engine decides whether the Flare may target that Bolt.
+    "MICRO_COPY": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": "obj:fuel-mountain-p2",
+                "card_identity": "Mountain",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+            *(
+                {
+                    "semantic_id": f"obj:fuel-mountain-p1-{index}",
+                    "card_identity": "Mountain",
+                    "owner": "P1",
+                    "zone": "battlefield",
+                }
+                for index in range(3)
+            ),
+        ],
+        "terminal": "spell_copied_on_stack",
+    },
+    # MICRO_RULES_RANDOMNESS: P1's Stitch in Time ({1}{U}{R}) on the stack.
+    "MICRO_RULES_RANDOMNESS": {
+        "entry_mode": "causal_stack",
+        "fuel": [
+            {
+                "semantic_id": f"obj:fuel-{identity.lower()}-p1",
+                "card_identity": identity,
+                "owner": "P1",
+                "zone": "battlefield",
+            }
+            for identity in ("Island", "Mountain", "Plains")
+        ],
+        "terminal": "rules_rng_coin_flip",
     },
     "MICRO_ZONE_CHANGES": {
         "entry_mode": "causal_stack",
@@ -530,18 +568,34 @@ def engine_temporal_point(phase: str, step: str, fixture_id: str) -> tuple[str, 
         ) from exc
 
 
-def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.RowVerdict | None:
+def drive_arrival(
+    client: ml.MidgameLaneClient,
+    record: dict[str, Any],
+    declare: Callable[[dict[str, Any], str], bool] | None = None,
+) -> ml.RowVerdict | None:
     """Drive the engine to the record's own temporal checkpoint.
 
     Every step is an external pilot answer selected from the engine's own
     offered options. The function answers nothing on the pilot's behalf and
     fails closed on a decision class it does not recognise.
+
+    ``declare`` answers a combat declaration from the record's own requested
+    combat and reports whether the request determined it. A declaration before
+    the checkpoint that it does not determine fails closed; at the checkpoint
+    step, a determined declaration is answered (the checkpoint is the priority
+    after it) and an undetermined one is the checkpoint itself (the record's
+    script declares). At the checkpoint step, priority is
+    passed until the record's requested priority player holds it (the record's
+    policy scripts exactly the passes needed to reach its declared checkpoint);
+    the step never ends on the way.
     """
     temporal = record["temporal_state"]
     target_phase, target_step = engine_temporal_point(
         str(temporal["phase"]), str(temporal["step"]), str(record["fixture_id"])
     )
     active_label = seat_label(str(temporal["active_player"]))
+    wanted_priority = str(temporal.get("priority_player") or "")
+    reached_checkpoint_step = False
 
     script = list(record.get("decision_script") or ())
     first_family = str(script[0].get("decision_family")) if script else None
@@ -588,13 +642,26 @@ def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.Ro
             client.submit_options(decision, [chosen])
         elif decision_class == "priority":
             probe = client.complete_arrival().get("observation") or {}
-            if str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step:
+            at_checkpoint = (
+                str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step
+            )
+            if reached_checkpoint_step and not at_checkpoint:
+                raise ml.MidgameLaneError(
+                    f"the checkpoint step {target_phase}/{target_step} ended before "
+                    f"{wanted_priority} held priority"
+                )
+            if at_checkpoint and (
+                declare is None
+                or not wanted_priority
+                or str(probe.get("priority_player")) == wanted_priority
+            ):
                 return ml.classification_from_arrival(
                     str(record["fixture_id"]),
                     ml.MIDGAME_LANE,
                     client.complete_arrival(),
                     engine_commit=client.engine_commit,
                 )
+            reached_checkpoint_step = reached_checkpoint_step or at_checkpoint
             passed = option_of_type(decision, "pass_priority")
             if passed is None:
                 raise ml.MidgameLaneError("the engine offered no pass-priority option")
@@ -604,7 +671,17 @@ def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.Ro
             # temporal point. Stop and let the caller decide whether to
             # execute the obligation.
             probe = client.complete_arrival().get("observation") or {}
-            if str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step:
+            at_checkpoint = (
+                str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step
+            )
+            if (
+                declare is not None
+                and (at_checkpoint or _checkpoint_follows(str(probe.get("step")), target_step))
+                and declare(decision, decision_class)
+            ):
+                reached_checkpoint_step = reached_checkpoint_step or at_checkpoint
+                continue
+            if at_checkpoint:
                 return ml.classification_from_arrival(
                     str(record["fixture_id"]),
                     ml.MIDGAME_LANE,
@@ -620,6 +697,31 @@ def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.Ro
                 f"the probe refuses to answer an unrecognised decision class: {decision_class}"
             )
     raise ml.MidgameLaneError("the engine did not reach the record's temporal checkpoint")
+
+
+# The turn's steps in order (CR 500.1), by the engine's own step names.
+_TURN_STEP_ORDER = (
+    "UNTAP",
+    "UPKEEP",
+    "DRAW",
+    "PRECOMBAT_MAIN",
+    "BEGIN_COMBAT",
+    "DECLARE_ATTACKERS",
+    "DECLARE_BLOCKERS",
+    "FIRST_COMBAT_DAMAGE",
+    "COMBAT_DAMAGE",
+    "END_COMBAT",
+    "POSTCOMBAT_MAIN",
+    "END_TURN",
+    "CLEANUP",
+)
+
+
+def _checkpoint_follows(current_step: str, target_step: str) -> bool:
+    """Whether the checkpoint step comes after the engine's current step this turn."""
+    if current_step not in _TURN_STEP_ORDER or target_step not in _TURN_STEP_ORDER:
+        return False
+    return _TURN_STEP_ORDER.index(target_step) > _TURN_STEP_ORDER.index(current_step)
 
 
 def probe_row(workspace: Path, fixture_id: str) -> dict[str, Any]:
@@ -1540,31 +1642,7 @@ def probe_causal_row(
         if entry_mode == "causal_stack":
             request["fuel"] = list(spec.get("fuel") or [])
         elif entry_mode == "causal_elimination":
-            instruments: list[dict[str, str]] = []
-            bolt_count = int(spec.get("bolt_count") or 0)
-            actor = str(spec["elimination_actor"])
-            for index in range(bolt_count):
-                instruments.append(
-                    {
-                        "semantic_id": f"obj:elim-bolt-{index}",
-                        "card_identity": "Lightning Bolt",
-                        "owner": actor,
-                        "zone": "hand",
-                    }
-                )
-                instruments.append(
-                    {
-                        "semantic_id": f"obj:elim-mountain-{index}",
-                        "card_identity": "Mountain",
-                        "owner": actor,
-                        "zone": "battlefield",
-                    }
-                )
-            request["elimination"] = {
-                "actor": actor,
-                "victim": str(spec["elimination_victim"]),
-                "instruments": instruments,
-            }
+            request["elimination"] = elimination_request(spec)
         created = client.request("create_midgame_game", request)
         if not created.get("success"):
             errors = created.get("errors") or []
@@ -1814,6 +1892,70 @@ def graveyard_count(client: ml.MidgameLaneClient, record: dict[str, Any]) -> int
     return sum(int(seat.get("graveyard_count") or 0) for seat in seats)
 
 
+def elimination_request(spec: dict[str, object]) -> dict[str, Any]:
+    """The declared instruments of a causal elimination: one Lightning Bolt in
+    the actor's hand and one Mountain on the actor's battlefield per bolt. They
+    are placed through the engine seam and published in the plan payload."""
+    instruments: list[dict[str, str]] = []
+    actor = str(spec["elimination_actor"])
+    for index in range(int(spec.get("bolt_count") or 0)):
+        instruments.append(
+            {
+                "semantic_id": f"obj:elim-bolt-{index}",
+                "card_identity": "Lightning Bolt",
+                "owner": actor,
+                "zone": "hand",
+            }
+        )
+        instruments.append(
+            {
+                "semantic_id": f"obj:elim-mountain-{index}",
+                "card_identity": "Mountain",
+                "owner": actor,
+                "zone": "battlefield",
+            }
+        )
+    return {
+        "actor": actor,
+        "victim": str(spec["elimination_victim"]),
+        "instruments": instruments,
+    }
+
+
+def eliminate_causally(
+    client: ml.MidgameLaneClient,
+    tag: str,
+    created: dict[str, Any],
+    spec: dict[str, object],
+) -> dict[str, Any]:
+    """Cast every declared bolt at the victim through the engine; the engine's
+    own elimination verdict afterwards. Every answer is an engine offer; the
+    engine alone deals the damage and applies the state-based loss."""
+    plan = created.get("elimination_plan") or {}
+    placed = {str(k): str(v) for k, v in (plan.get("placed_objects") or {}).items()}
+    bolt_ids = sorted(v for k, v in placed.items() if "bolt" in k)
+    mountain_ids = sorted(v for k, v in placed.items() if "mountain" in k)
+    victim_seat = seat_label(str(spec["elimination_victim"]))
+    bolt_count = int(spec.get("bolt_count") or 0)
+    if len(bolt_ids) != bolt_count or len(mountain_ids) != bolt_count:
+        raise ml.MidgameLaneError(
+            f"{tag}: the plan placed {len(bolt_ids)} bolts and {len(mountain_ids)} "
+            f"mountains for {bolt_count} declared"
+        )
+    expected_life: int | None = None
+    for index in range(bolt_count):
+        cast_frame_source(client, f"{tag}-cast-{index}", bolt_ids[index])
+        answer_player_target(client, f"{tag}-target-{index}", victim_seat)
+        answer_fuel_mana(client, f"{tag}-mana-{index}", mountain_ids)
+        expected_life = resolve_until_life_drops(
+            client,
+            f"{tag}-resolve-{index}",
+            str(spec["elimination_victim"]),
+            expected_life,
+        )
+    return complete_causal(client, "elimination").get("verdict") or {}
+
+
 def drive_causal_elimination(
     client: ml.MidgameLaneClient,
     fixture_id: str,
@@ -1821,13 +1963,6 @@ def drive_causal_elimination(
     created: dict[str, Any],
     spec: dict[str, object],
 ) -> dict[str, Any]:
-    plan = created.get("elimination_plan") or {}
-    placed = {str(k): str(v) for k, v in (plan.get("placed_objects") or {}).items()}
-    bolt_ids = sorted(v for k, v in placed.items() if "bolt" in k)
-    mountain_ids = sorted(v for k, v in placed.items() if "mountain" in k)
-    victim_seat = seat_label(str(spec["elimination_victim"]))
-    bolt_count = int(spec.get("bolt_count") or 0)
-    assert len(bolt_ids) == bolt_count and len(mountain_ids) == bolt_count
     withheld = ml.causal_credit_gate(
         fixture_id,
         "causal_elimination",
@@ -1836,18 +1971,7 @@ def drive_causal_elimination(
     )
     if withheld is not None:
         return withheld
-    expected_life: int | None = None
-    for index in range(bolt_count):
-        cast_frame_source(client, f"probe-{fixture_id}-cast-{index}", bolt_ids[index])
-        answer_player_target(client, f"probe-{fixture_id}-target-{index}", victim_seat)
-        answer_fuel_mana(client, f"probe-{fixture_id}-mana-{index}", mountain_ids)
-        expected_life = resolve_until_life_drops(
-            client,
-            f"probe-{fixture_id}-resolve-{index}",
-            str(spec["elimination_victim"]),
-            expected_life,
-        )
-    verdict = complete_causal(client, "elimination").get("verdict") or {}
+    verdict = eliminate_causally(client, f"probe-{fixture_id}", created, spec)
     victim_lost = verdict.get("victim_lost") is True
     victim_left = verdict.get("victim_left") is True
     eliminated = victim_lost or victim_left

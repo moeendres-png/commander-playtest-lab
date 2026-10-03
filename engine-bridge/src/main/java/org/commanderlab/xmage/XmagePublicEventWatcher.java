@@ -136,6 +136,23 @@ final class XmagePublicEventWatcher extends Watcher {
         if (event instanceof DamagedEvent damaged) {
             record.addProperty("combat", damaged.isCombatDamage());
         }
+        if (event instanceof ZoneChangeEvent leaving && publicIdentity
+                && leaving.getFromZone() == Zone.BATTLEFIELD
+                && leaving.getTarget() != null) {
+            // The permanent's last-known power and toughness as it left the
+            // battlefield (CR 608.2h last known information), as the engine
+            // evaluated them: public state of a public permanent.
+            record.addProperty("last_power", leaving.getTarget().getPower().getValue());
+            record.addProperty("last_toughness", leaving.getTarget().getToughness().getValue());
+        }
+        if (event instanceof mage.game.events.CoinFlippedEvent flipped) {
+            // A coin flip is public (CR 705.1): the Rules RNG's own result and,
+            // for a flip that can be won, whether its caller won it.
+            record.addProperty("coin_result", flipped.getResultName().toUpperCase(java.util.Locale.ROOT));
+            if (flipped.isWinnable()) {
+                record.addProperty("coin_won", flipped.wasWon());
+            }
+        }
         record.addProperty("public_identity", publicIdentity);
         boolean sourceIsTarget = event.getSourceId() != null && event.getSourceId().equals(event.getTargetId());
         if (event instanceof ZoneChangeEvent) {
