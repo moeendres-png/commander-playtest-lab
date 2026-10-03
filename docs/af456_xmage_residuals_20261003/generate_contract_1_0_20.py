@@ -6,6 +6,9 @@ one erratum; no obligation key (expected events, terminal postconditions) is
 touched except MICRO_CONTINUOUS_EFFECTS's measured value (below), so every
 other recomputed obligation digest equals its predecessor's.
 
+* ACTUAL_CARD_SCENARIO_ERRATUM (caused control, CARD_25 precedent): MICRO_CONTROL
+  casts Control Magic; WS05-CMD-DMG-CONTROL casts Act of Treason on P3's turn
+  (a creature P3 controls attacks only in P3's combat, CR 506.2).
 * FIXTURE_SCRIPT_CONTRACT_ERRATUM (explicit decisions): MICRO_COPY's copier
   keeps the copy's targets (CR 707.10c); MICRO_RULES_RANDOMNESS's caster calls
   the flip (CR 705.2) whose result stays the Rules RNG's.
@@ -558,6 +561,204 @@ for fixture, step_id, value, erratum_class, reason, invalid in (
         {"decision_script": [], "reason": invalid},
         "Only the decision script changes.",
     )
+
+# --- control the engine must cause (CARD_25 precedent) ----------------------- #
+
+
+def _card(semantic_id: str, identity: str, owner: str, zone: str) -> dict:
+    return {
+        "card_identity": identity,
+        "card_lineage_id": f"line:{semantic_id}",
+        "controller": owner,
+        "counters": {},
+        "face_down": False,
+        "owner": owner,
+        "semantic_id": semantic_id,
+        "tapped": False,
+        "zone": zone,
+    }
+
+
+old = base["MICRO_CONTROL"]
+objects = copy.deepcopy(old["semantic_objects"])
+(aura,) = [o for o in objects if o["semantic_id"] == "obj:micro-controlmagic"]
+(stolen,) = [o for o in objects if o["semantic_id"] == "obj:micro-controlled"]
+assert aura["attached_to"] == "obj:micro-controlled" and aura["zone"] == "battlefield"
+assert stolen["owner"] == "P2" and stolen["controller"] == "P1"
+del aura["attached_to"]
+aura["zone"] = "hand"
+stolen["controller"] = "P2"
+islands = [f"obj:control-island-{index}" for index in range(4)]
+objects.extend(_card(island, "Island", "P1", "battlefield") for island in islands)
+add(
+    "MICRO_CONTROL",
+    "ACTUAL_CARD_SCENARIO_ERRATUM",
+    {
+        "semantic_objects": objects,
+        "decision_script": [
+            _step(
+                "P1",
+                "cast-control-magic",
+                "priority",
+                "semantic_action",
+                {"action": "cast", "object": "obj:micro-controlmagic"},
+            ),
+            _step("P1", "cast-control-magic", "target", "semantic_object", "obj:micro-controlled"),
+        ],
+        "action_cost_state": [_cost("P1", "Control Magic", "obj:micro-controlmagic", islands, 4)],
+    },
+    [
+        _erratum_step(
+            "MICRO_CONTROL",
+            "caused-control",
+            {
+                "erratum_class": "FIXTURE_SCENARIO_ERRATUM_CAUSED_CONTROL",
+                "precedent": "CARD_25 (attachment caused by the engine's own Equip activation)",
+                "prose_derived_action_injection": False,
+                "reason": (
+                    "the predecessor requests Control Magic already attached to P2's Grizzly "
+                    "Bears and the Bears controlled by P1. An attachment and a control "
+                    "change are history: no placement can create them without fabricating "
+                    "state, so the restoration refuses them (UNSUPPORTED_ATTACHMENTS). The "
+                    "successor causes both through the engine: Control Magic starts in P1's "
+                    "hand with four Islands, and P1 casts it on the Bears in the checkpoint "
+                    "turn. The obligation (the control effect applied, P2 -> P1) is then the "
+                    "engine's own"
+                ),
+            },
+        )
+    ],
+    {
+        "attached_to": {"obj:micro-controlmagic": "obj:micro-controlled"},
+        "controller": {"obj:micro-controlled": "P1"},
+        "reason": "an attachment and a control change cannot be placed, only caused",
+    },
+    "The objects, the decision script and the declared payment sources change.",
+)
+
+old = base["WS05-CMD-DMG-CONTROL"]
+objects = copy.deepcopy(old["semantic_objects"])
+(isamaru,) = [o for o in objects if o["semantic_id"] == "obj:isamaru-controlled"]
+assert isamaru["owner"] == "P1" and isamaru["controller"] == "P3"
+isamaru["controller"] = "P1"
+treason = _card("obj:act-of-treason", "Act of Treason", "P3", "hand")
+mountains = [f"obj:treason-mountain-{index}" for index in range(3)]
+objects.append(treason)
+objects.extend(_card(m, "Mountain", "P3", "battlefield") for m in mountains)
+assert old["temporal_state"]["active_player"] == "P1"
+temporal = {**old["temporal_state"], "active_player": "P3", "priority_player": "P3"}
+add(
+    "WS05-CMD-DMG-CONTROL",
+    "ACTUAL_CARD_SCENARIO_ERRATUM",
+    {
+        "semantic_objects": objects,
+        "temporal_state": temporal,
+        "decision_script": [
+            _step(
+                "P3",
+                "cast-act-of-treason",
+                "priority",
+                "semantic_action",
+                {"action": "cast", "object": "obj:act-of-treason"},
+            ),
+            _step(
+                "P3", "cast-act-of-treason", "target", "semantic_object", "obj:isamaru-controlled"
+            ),
+        ],
+        "action_cost_state": [_cost("P3", "Act of Treason", "obj:act-of-treason", mountains, 3)],
+    },
+    [
+        _erratum_step(
+            "WS05-CMD-DMG-CONTROL",
+            "caused-control",
+            {
+                "comprehensive_rules": "302.6, 506.2, 903.10a",
+                "erratum_class": "FIXTURE_SCENARIO_ERRATUM_CAUSED_CONTROL",
+                "precedent": "CARD_25 (attachment caused by the engine's own Equip activation)",
+                "prose_derived_action_injection": False,
+                "reason": (
+                    "the predecessor requests P1's commander Isamaru controlled by P3 and "
+                    "attacking P2 on P1's turn. A control change is history and cannot be "
+                    "placed (UNSUPPORTED_CONTROL_DIVERGENCE), and a creature P3 controls "
+                    "attacks only in P3's combat (CR 506.2). The successor makes the "
+                    "checkpoint P3's turn 1 precombat main: P3 casts Act of Treason on "
+                    "Isamaru (gain control, untap, haste, so CR 302.6 does not stop the "
+                    "attack), and the record's requested combat then attacks P2. The "
+                    "commander's identity and its 19 restored damage to P2 are untouched; "
+                    "commander damage counts by the commander, not its controller (CR "
+                    "903.10a)"
+                ),
+            },
+        )
+    ],
+    {
+        "controller": {"obj:isamaru-controlled": "P3"},
+        "temporal_state": old["temporal_state"],
+        "reason": (
+            "a control change cannot be placed, and P3's creature cannot attack on P1's turn"
+        ),
+    },
+    "The objects, the checkpoint's active player, the script and the payment sources change.",
+)
+
+# --- WS05-CMD-PARTNER-TAX: the tax is observed on real casts ----------------- #
+
+old = base["WS05-CMD-PARTNER-TAX"]
+assert old["decision_script"] == [] and old["action_cost_state"] == []
+objects = copy.deepcopy(old["semantic_objects"])
+partner_mountains = [f"obj:partner-mountain-{index}" for index in range(6)]
+objects.extend(_card(m, "Mountain", "P1", "battlefield") for m in partner_mountains)
+add(
+    "WS05-CMD-PARTNER-TAX",
+    "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+    {
+        "semantic_objects": objects,
+        "decision_script": [
+            _step(
+                "P1",
+                "cast-partner-a",
+                "priority",
+                "semantic_action",
+                {"action": "cast_commander", "commander_id": "cmd:P1-A"},
+            ),
+            _step(
+                "P1",
+                "cast-partner-b",
+                "priority",
+                "semantic_action",
+                {"action": "cast_commander", "commander_id": "cmd:P1-B", "timing": "empty_stack"},
+            ),
+        ],
+        "action_cost_state": [
+            {**_cost("P1", "Rograkh, Son of Rohgahh", None, partner_mountains[:4], 4)},
+            {
+                **_cost("P1", "Kediss, Emberclaw Familiar", None, partner_mountains[4:], 2),
+                "decision_index": 1,
+            },
+        ],
+    },
+    [
+        _erratum_step(
+            "WS05-CMD-PARTNER-TAX",
+            "partner-casts",
+            {
+                "comprehensive_rules": "903.8",
+                "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_COMMANDER_CASTS",
+                "prose_derived_action_injection": False,
+                "reason": (
+                    "the obligation is each partner's own commander tax (+4 for Rograkh "
+                    "after two casts, +0 for Kediss), which the engine determines only when "
+                    "a commander is cast; the predecessor scripted no cast and gave no mana, "
+                    "so its procedure's 'enumerate commander cast costs' had no engine cause. "
+                    "The successor gives P1 six Mountains and scripts both casts from the "
+                    "command zone; the tax is read from the engine's own payment frames"
+                ),
+            },
+        )
+    ],
+    {"decision_script": [], "reason": "no scripted cast, so no engine-determined tax"},
+    "The objects, the decision script and the declared payment sources change.",
+)
 
 # --- MICRO_CONTINUOUS_EFFECTS: the natural arrival (CR 103.8a) --------------- #
 

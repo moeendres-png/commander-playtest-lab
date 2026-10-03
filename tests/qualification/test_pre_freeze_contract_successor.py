@@ -127,6 +127,9 @@ RESIDUAL_ERRATA_IDS = [
     "MICRO_REPLACEMENT",
     "MICRO_COPY",
     "MICRO_RULES_RANDOMNESS",
+    "MICRO_CONTROL",
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-PARTNER-TAX",
     "MICRO_CONTINUOUS_EFFECTS",
 ]
 CHANGED_FIXTURE_IDS = [
@@ -1977,6 +1980,14 @@ def test_residual_errata_correct_unreachable_requests_and_keep_the_obligation() 
         "MICRO_REPLACEMENT": {"temporal_state", "semantic_objects"},
         "MICRO_COPY": {"decision_script"},
         "MICRO_RULES_RANDOMNESS": {"decision_script"},
+        "MICRO_CONTROL": {"semantic_objects", "decision_script", "action_cost_state"},
+        "WS05-CMD-DMG-CONTROL": {
+            "semantic_objects",
+            "temporal_state",
+            "decision_script",
+            "action_cost_state",
+        },
+        "WS05-CMD-PARTNER-TAX": {"semantic_objects", "decision_script", "action_cost_state"},
         "MICRO_CONTINUOUS_EFFECTS": {"players", "expected_events", "terminal_postconditions"},
     }
     for patch in added:

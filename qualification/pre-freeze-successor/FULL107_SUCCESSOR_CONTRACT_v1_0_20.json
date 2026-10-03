@@ -1,7 +1,7 @@
 {
  "change_accounting": {
   "change_class": "MIXED_FIXTURE_CONTRACT_ERRATA_AND_RULES_AUTHORITY_CORRECTION",
-  "changed_fixture_count": 68,
+  "changed_fixture_count": 71,
   "changed_fixture_ids": [
    "WS05-CMD-START-2",
    "MICRO_MODES",
@@ -70,6 +70,9 @@
    "MICRO_REPLACEMENT",
    "MICRO_COPY",
    "MICRO_RULES_RANDOMNESS",
+   "MICRO_CONTROL",
+   "WS05-CMD-DMG-CONTROL",
+   "WS05-CMD-PARTNER-TAX",
    "MICRO_CONTINUOUS_EFFECTS"
   ],
   "historical_predecessor_preserved": true,
@@ -141,10 +144,13 @@
    "MICRO_REPLACEMENT": "FIXTURE_DEFECT_CORRECTION_CR510_CR508_1F",
    "MICRO_COPY": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
    "MICRO_RULES_RANDOMNESS": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "MICRO_CONTROL": "ACTUAL_CARD_SCENARIO_ERRATUM",
+   "WS05-CMD-DMG-CONTROL": "ACTUAL_CARD_SCENARIO_ERRATUM",
+   "WS05-CMD-PARTNER-TAX": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
    "MICRO_CONTINUOUS_EFFECTS": "FIXTURE_OBLIGATION_ERRATUM_CR103_8A"
   },
   "provider_semantics_used_to_define_successor": false,
-  "unchanged_provider_denominator_rows": 61
+  "unchanged_provider_denominator_rows": 58
  },
  "contract_id": "commander-lab.full107/1.0.20-successor",
  "effective_materialization_version": "commander-lab.semantic-fixture-materialization/1.0.20-successor",
@@ -16042,6 +16048,820 @@
     ]
    },
    "successor_requested_state_digest": "2762365a5424db5e8788ee0ad4da211ef3d873b72eb5ccd1af2a9467dd026640"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "erratum_class": "FIXTURE_SCENARIO_ERRATUM_CAUSED_CONTROL",
+      "precedent": "CARD_25 (attachment caused by the engine's own Equip activation)",
+      "prose_derived_action_injection": false,
+      "reason": "the predecessor requests Control Magic already attached to P2's Grizzly Bears and the Bears controlled by P1. An attachment and a control change are history: no placement can create them without fabricating state, so the restoration refuses them (UNSUPPORTED_ATTACHMENTS). The successor causes both through the engine: Control Magic starts in P1's hand with four Islands, and P1 casts it on the Bears in the checkpoint turn. The obligation (the control effect applied, P2 -> P1) is then the engine's own"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-caused-control-micro_control"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #456 residual errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "ACTUAL_CARD_SCENARIO_ERRATUM",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests",
+    "reason": "The objects, the decision script and the declared payment sources change."
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "MICRO_CONTROL",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "attached_to": {
+     "obj:micro-controlmagic": "obj:micro-controlled"
+    },
+    "controller": {
+     "obj:micro-controlled": "P1"
+    },
+    "reason": "an attachment and a control change cannot be placed, only caused"
+   },
+   "predecessor_requested_state_digest": "4a80bb8e9f857c1e8a2294be6ce296ed53d13647c27f024b17ff798f2702315c",
+   "replace": {
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:p1-bears",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:p1-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:p2-bears",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:p2-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:p3-bears",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:p3-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Control Magic",
+      "card_lineage_id": "line:obj:micro-controlmagic",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:micro-controlmagic",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:micro-controlled",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:micro-controlled",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Island",
+      "card_lineage_id": "line:obj:control-island-0",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:control-island-0",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Island",
+      "card_lineage_id": "line:obj:control-island-1",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:control-island-1",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Island",
+      "card_lineage_id": "line:obj:control-island-2",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:control-island-2",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Island",
+      "card_lineage_id": "line:obj:control-island-3",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:control-island-3",
+      "tapped": false,
+      "zone": "battlefield"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "cast-control-magic",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:micro-controlmagic"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cast-control-magic",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_object",
+       "semantic_value": "obj:micro-controlled"
+      }
+     }
+    ],
+    "action_cost_state": [
+     {
+      "actor": "P1",
+      "card_identity": "Control Magic",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:control-island-0",
+       "obj:control-island-1",
+       "obj:control-island-2",
+       "obj:control-island-3"
+      ],
+      "minimum_mana_or_equivalent": 4,
+      "payable": true,
+      "source_semantic_id": "obj:micro-controlmagic"
+     }
+    ]
+   },
+   "successor_requested_state_digest": "f1a7a8565c82bed945bb8b65eed6d97c29c77b05b2401014404e3621543c6987"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "comprehensive_rules": "302.6, 506.2, 903.10a",
+      "erratum_class": "FIXTURE_SCENARIO_ERRATUM_CAUSED_CONTROL",
+      "precedent": "CARD_25 (attachment caused by the engine's own Equip activation)",
+      "prose_derived_action_injection": false,
+      "reason": "the predecessor requests P1's commander Isamaru controlled by P3 and attacking P2 on P1's turn. A control change is history and cannot be placed (UNSUPPORTED_CONTROL_DIVERGENCE), and a creature P3 controls attacks only in P3's combat (CR 506.2). The successor makes the checkpoint P3's turn 1 precombat main: P3 casts Act of Treason on Isamaru (gain control, untap, haste, so CR 302.6 does not stop the attack), and the record's requested combat then attacks P2. The commander's identity and its 19 restored damage to P2 are untouched; commander damage counts by the commander, not its controller (CR 903.10a)"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-caused-control-ws05-cmd-dmg-control"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #456 residual errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "ACTUAL_CARD_SCENARIO_ERRATUM",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests",
+    "reason": "The objects, the checkpoint's active player, the script and the payment sources change."
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "WS05-CMD-DMG-CONTROL",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "controller": {
+     "obj:isamaru-controlled": "P3"
+    },
+    "temporal_state": {
+     "active_player": "P1",
+     "extra_turn_queue": [],
+     "phase": "precombat_main",
+     "priority_player": "P1",
+     "step": "main",
+     "turn_number": 1
+    },
+    "reason": "a control change cannot be placed, and P3's creature cannot attack on P1's turn"
+   },
+   "predecessor_requested_state_digest": "ff4239417bb8172c14d6efc5091b08602006c590cf680599831278b1067d8832",
+   "replace": {
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:P1-bears",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:P2-bears",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:P3-bears",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:P4-bears",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Isamaru, Hound of Konda",
+      "card_lineage_id": "line:isamaru",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:isamaru-controlled",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Act of Treason",
+      "card_lineage_id": "line:obj:act-of-treason",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:act-of-treason",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Mountain",
+      "card_lineage_id": "line:obj:treason-mountain-0",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:treason-mountain-0",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Mountain",
+      "card_lineage_id": "line:obj:treason-mountain-1",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:treason-mountain-1",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Mountain",
+      "card_lineage_id": "line:obj:treason-mountain-2",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:treason-mountain-2",
+      "tapped": false,
+      "zone": "battlefield"
+     }
+    ],
+    "temporal_state": {
+     "active_player": "P3",
+     "extra_turn_queue": [],
+     "phase": "precombat_main",
+     "priority_player": "P3",
+     "step": "main",
+     "turn_number": 1
+    },
+    "decision_script": [
+     {
+      "actor": "P3",
+      "causal_step_id": "cast-act-of-treason",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast",
+        "object": "obj:act-of-treason"
+       }
+      }
+     },
+     {
+      "actor": "P3",
+      "causal_step_id": "cast-act-of-treason",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_object",
+       "semantic_value": "obj:isamaru-controlled"
+      }
+     }
+    ],
+    "action_cost_state": [
+     {
+      "actor": "P3",
+      "card_identity": "Act of Treason",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:treason-mountain-0",
+       "obj:treason-mountain-1",
+       "obj:treason-mountain-2"
+      ],
+      "minimum_mana_or_equivalent": 3,
+      "payable": true,
+      "source_semantic_id": "obj:act-of-treason"
+     }
+    ]
+   },
+   "successor_requested_state_digest": "f04417443daf96f0c3e92e244cbcc8cd9eb8fc14568c99b7ed19bee173b5d508"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "comprehensive_rules": "903.8",
+      "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_COMMANDER_CASTS",
+      "prose_derived_action_injection": false,
+      "reason": "the obligation is each partner's own commander tax (+4 for Rograkh after two casts, +0 for Kediss), which the engine determines only when a commander is cast; the predecessor scripted no cast and gave no mana, so its procedure's 'enumerate commander cast costs' had no engine cause. The successor gives P1 six Mountains and scripts both casts from the command zone; the tax is read from the engine's own payment frames"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-partner-casts-ws05-cmd-partner-tax"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #456 residual errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests",
+    "reason": "The objects, the decision script and the declared payment sources change."
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "WS05-CMD-PARTNER-TAX",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "decision_script": [],
+    "reason": "no scripted cast, so no engine-determined tax"
+   },
+   "predecessor_requested_state_digest": "4478c62dd3156b7fb3c3db0e73cf31635c6f444b69f9114939f31a8cd5025b18",
+   "replace": {
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:P1-bears",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:P2-bears",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:P3-bears",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:P4-bears",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Mountain",
+      "card_lineage_id": "line:obj:partner-mountain-0",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:partner-mountain-0",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Mountain",
+      "card_lineage_id": "line:obj:partner-mountain-1",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:partner-mountain-1",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Mountain",
+      "card_lineage_id": "line:obj:partner-mountain-2",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:partner-mountain-2",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Mountain",
+      "card_lineage_id": "line:obj:partner-mountain-3",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:partner-mountain-3",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Mountain",
+      "card_lineage_id": "line:obj:partner-mountain-4",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:partner-mountain-4",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Mountain",
+      "card_lineage_id": "line:obj:partner-mountain-5",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:partner-mountain-5",
+      "tapped": false,
+      "zone": "battlefield"
+     }
+    ],
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "cast-partner-a",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast_commander",
+        "commander_id": "cmd:P1-A"
+       }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cast-partner-b",
+      "decision_family": "priority",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_action",
+       "semantic_value": {
+        "action": "cast_commander",
+        "commander_id": "cmd:P1-B",
+        "timing": "empty_stack"
+       }
+      }
+     }
+    ],
+    "action_cost_state": [
+     {
+      "actor": "P1",
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "decision_index": 0,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:partner-mountain-0",
+       "obj:partner-mountain-1",
+       "obj:partner-mountain-2",
+       "obj:partner-mountain-3"
+      ],
+      "minimum_mana_or_equivalent": 4,
+      "payable": true,
+      "source_semantic_id": null
+     },
+     {
+      "actor": "P1",
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "decision_index": 1,
+      "evidence_basis": "EXPLICIT_NATIVE_RESOURCE_STATE",
+      "explicit_payment_sources": [
+       "obj:partner-mountain-4",
+       "obj:partner-mountain-5"
+      ],
+      "minimum_mana_or_equivalent": 2,
+      "payable": true,
+      "source_semantic_id": null
+     }
+    ]
+   },
+   "successor_requested_state_digest": "7844ce608c3dda5fa2c5cf4184bcbb0f17c1a3a7bf6833c7dd137fdf7e7c1ac5"
   },
   {
    "append_native_procedure": [

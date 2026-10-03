@@ -175,6 +175,10 @@ class TerminalCheck:
                 f"the engine's first {len(principals)} {decision_class} decisions went to "
                 f"{list(principals)} in that order"
             )
+        if self.kind == "cast_cost":
+            return (
+                f"the engine determined {self.value} for the scripted cast of {self.card_identity}"
+            )
         if self.kind == "pending_extra_turns":
             return f"the engine's pending extra turns are {list(self.value)}, in the order taken"
         if self.kind == "player_left":
@@ -977,6 +981,84 @@ ROWS: dict[str, RowSpec] = {
         ),
     ),
     "PILOT_DECLARE_BLOCKER": RowSpec(),
+    # WS05-CMD-PARTNER-TAX (1.0.20 erratum): P1 casts both partners from the
+    # command zone; the engine's own payment frame for each cast shows its tax
+    # independently (CR 903.8): Rograkh ({0}, two prior casts) costs {4},
+    # Kediss ({1}{R}, none) costs {1}{R}.
+    "WS05-CMD-PARTNER-TAX": RowSpec(
+        mana_sources=tuple(f"obj:partner-mountain-{index}" for index in range(6)),
+        token_bindings=(
+            ("tax:cmd:P1-A:+4", TerminalCheck("cast_cost", card_identity="cmd:P1-A", value="{4}")),
+            (
+                "tax:cmd:P1-B:+0",
+                TerminalCheck("cast_cost", card_identity="cmd:P1-B", value="{1}{R}"),
+            ),
+        ),
+    ),
+    # MICRO_CONTROL (1.0.20 caused-control erratum): P1 casts Control Magic on
+    # P2's Grizzly Bears; once the Aura resolves, the engine moves control of
+    # the Bears to P1 (CR 613.1b), its owner unchanged.
+    "MICRO_CONTROL": RowSpec(
+        mana_sources=tuple(f"obj:control-island-{index}" for index in range(4)),
+        token_bindings=(
+            (
+                "control_effect_applied:P2->P1",
+                (
+                    _exactly(
+                        _event(
+                            "GAINED_CONTROL",
+                            ("target_object", "obj:micro-controlled"),
+                            ("player_player", "P1"),
+                        ),
+                        1,
+                    ),
+                    _before(
+                        _event(
+                            "ZONE_CHANGE",
+                            ("target_object", "obj:micro-controlmagic"),
+                            ("to", "BATTLEFIELD"),
+                        ),
+                        _event("GAINED_CONTROL", ("target_object", "obj:micro-controlled")),
+                    ),
+                ),
+            ),
+        ),
+    ),
+    # WS05-CMD-DMG-CONTROL (1.0.20 caused-control erratum): on P3's turn, P3
+    # takes P1's commander Isamaru with Act of Treason and attacks P2 with it;
+    # the 2 combat damage counts for Isamaru's own commander identity (CR
+    # 903.10a), so P2 reaches 21 from it and loses while at 38 life.
+    "WS05-CMD-DMG-CONTROL": RowSpec(
+        mana_sources=tuple(f"obj:treason-mountain-{index}" for index in range(3)),
+        terminal_checks=(_life("P2", 38),),
+        token_bindings=(
+            (
+                "commander_combat_damage:P2:2:cmd:P1-A",
+                (
+                    _combat_damage_to_player("obj:isamaru-controlled", "P2", 2),
+                    _before(
+                        _event(
+                            "GAINED_CONTROL",
+                            ("target_object", "obj:isamaru-controlled"),
+                            ("player_player", "P3"),
+                        ),
+                        _event("DAMAGED_PLAYER", ("source_object", "obj:isamaru-controlled")),
+                    ),
+                    _commander_damage("P1", "Isamaru, Hound of Konda", "P2", 21),
+                ),
+            ),
+            (
+                "player_loses:P2",
+                (
+                    _player_loses("P2"),
+                    _before(
+                        _combat_damage_to_player("obj:isamaru-controlled", "P2", 2),
+                        _player_loses("P2"),
+                    ),
+                ),
+            ),
+        ),
+    ),
     # MICRO_COPY: P1's Flare of Duplication (rebuilt causally above P2's Bolt)
     # copies the Bolt; the copy is created on the stack, never cast (CR
     # 707.10), keeps the copied target (the scripted choice), and resolves as a
@@ -1226,6 +1308,9 @@ class Frame:
     # The last engine event sequence on the tape when the engine asked this
     # frame (None before any event), so a frame is ordered against the events.
     tape_sequence: int | None = None
+    # The record identity (semantic object or commander id) of the source the
+    # scripted priority action named, when the run placed it.
+    selected_source_semantic: str | None = None
 
 
 @dataclass
@@ -1905,6 +1990,26 @@ def check_terminal(
         return order[: len(principals)] == list(principals)
     if check.kind == "player_left":
         return seat.get("left") is True and seat.get("lost") is True
+    if check.kind == "cast_cost":
+        # The engine's own determined cost for the one scripted cast of the
+        # named source: the first payment frame after that cast.
+        casts = [
+            index
+            for index, frame in enumerate(trace)
+            if frame.decision_class == "priority"
+            and frame.scripted
+            and frame.selected_source_semantic == check.card_identity
+        ]
+        if len(casts) != 1:
+            return False
+        for frame in trace[casts[0] + 1 :]:
+            if frame.decision_class == "priority":
+                return False
+            if frame.decision_class == "mana_payment":
+                return _parse_mana(str(frame.context.get("unpaid_mana") or "")) == _parse_mana(
+                    str(check.value)
+                )
+        return False
     if check.kind == "pending_extra_turns":
         return list(observation.get("pending_extra_turns") or ()) == list(check.value)
     if check.kind == "commander_damage":
@@ -3583,6 +3688,13 @@ def execute_row(
                     action = _scripted_priority_action(legal, step, placed, commanders)
                     frame.selected_label, frame.scripted = _label_of(action), True
                     frame.selected_source_object = _source_of(action)
+                    source_native = frame.selected_source_object
+                    frame.selected_source_semantic = placed_by_native.get(
+                        str(source_native)
+                    ) or next(
+                        (cid for cid, native in commanders.items() if native == source_native),
+                        None,
+                    )
                     frame.selected_option_ids = _single_option_id(action)
                     probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                     pending_alternative = _pending_alternative_cost(step, action)

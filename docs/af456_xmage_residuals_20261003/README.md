@@ -62,12 +62,20 @@ When the last Bolt resolves on P2's turn, the engine gives P2 (the active player
 
 The row stays unverified (its `no_frame P2` check is false). This is recorded as a demonstrated candidate defect for #255 adjudication, and the row is not reported as PASS. ELIM-PRIO-3, where the departing player is not the one about to receive priority, passes.
 
+## Third wave: caused control and observed tax (1.0.20 errata)
+
+| Row | Erratum | Local result |
+|---|---|---|
+| MICRO_CONTROL | ACTUAL_CARD_SCENARIO_ERRATUM (CARD_25 precedent). An attachment and a control change are history and cannot be placed. Control Magic starts in P1's hand with four Islands, and P1 casts it on P2's Bears. The token is the engine's GAINED_CONTROL after the Aura resolves. | verified |
+| WS05-CMD-DMG-CONTROL | ACTUAL_CARD_SCENARIO_ERRATUM. A creature P3 controls attacks only in P3's combat (CR 506.2), so the checkpoint becomes P3's turn 1. P3 casts Act of Treason (control, untap, haste) on P1's commander Isamaru, and the requested combat attacks P2. The engine's commander-damage readback reads 21 for Isamaru's own identity (CR 903.10a), and P2 loses at 38 life. | verified |
+| WS05-CMD-PARTNER-TAX | FIXTURE_SCRIPT_CONTRACT_ERRATUM. Tax exists only on a cast. P1 casts both partners from the command zone with six Mountains, and each tax is read from the engine's own payment frame (`cast_cost`): Rograkh `{4}` (+4 after two casts), Kediss `{1}{R}` (+0). | verified |
+
 ## Deferred classes (with exact blockers)
 
 | Class | Rows | Blocker |
 |---|---|---|
-| Attachment / control divergence | MICRO_CONTROL, WS05-MP-ELIM-CONTROL-3, WS05-CMD-DMG-CONTROL | The restoration refuses `attached_to` and owner != controller (no fabricated attachment or control state). A scenario erratum must cause the state with a real Aura or control spell. For WS05-CMD-DMG-CONTROL the stolen commander must also be able to attack on turn 1 (CR 302.6), which needs a hasty control effect. |
-| Causal stack plus causal elimination | WS05-MP-ELIM-STACK-3 | P2's spell must be on the stack while P2 is eliminated; the two causal routes are not composed |
+| Candidate engine defect | WS05-MP-ELIM-TURN-3 | XMage asks a priority decision of the active player who has just left the game (see above); demonstrated, for #255 adjudication |
+| Causal stack plus causal elimination plus control | WS05-MP-ELIM-STACK-3, WS05-MP-ELIM-CONTROL-3 | The victim's spell (or its Control Magic) must exist while the victim is eliminated. ELIM-CONTROL-3 also needs P2 to cast a sorcery-speed Aura on its own turn before it is eliminated. The causal routes are not composed. |
 | Extra-turn setup | WS05-MP-TURN-3, WS05-MP-TURN-5 | Both extra turns come from spells resolved earlier. Nexus of Fate is shuffled into its owner's library rather than put into the graveyard, so the requested graveyard Nexus conflicts with its own text. Executing the obligation passes through two whole extra turns, whose combat declarations no record field determines. |
 | Natural game start | WS05-CMD-MULL-2, WS05-CMD-MULL-4 | `INVALID_DECK_STATE` (the record's deck shape predates the library template); the mid-game lane has no pregame mulligan checkpoint |
-| Partner tax and zone | WS05-CMD-PARTNER-TAX, WS05-CMD-PARTNER-ZONE | the tax is engine-observable only on a real cast, and the record scripts none; the zone row's own procedure marks the static assertion as no execution credit |
+| Partner zone | WS05-CMD-PARTNER-ZONE | the record's own procedure marks its static command-zone assertion as no execution credit, and it scripts no zone change |
