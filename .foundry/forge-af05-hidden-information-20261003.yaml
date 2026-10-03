@@ -53,6 +53,18 @@ milestones:
       (event log, reveal/look audience, library contents, replay). The runner
       reports the exact reason per row. Matrix and README in
       docs/forge_af05_hidden_20261003/.
+  - id: M2
+    result: fresh-context adversarial review resolved (no P1; five P2 and three P3 fixed)
+    summary: >-
+      Channel fragments are matched on code with comments stripped; absent
+      tokens are checked after the asserted fragments are removed; the
+      bootstrap's JSON field reads must equal a closed set; replay and reveal
+      are asserted by their capability flag and full method bodies. The table
+      is bound to ASSERTED_BRIDGE_COMMIT (runner reason and census raise on a
+      moved pin). action_cost_state follows the lane's own construction
+      finding. An unmapped lane finding or a gapless row raises instead of
+      defaulting to LAB_ADAPTER_GAP. The matrix records source blob ids and is
+      checked against a fresh classification and the current contract.
 open_items:
   - main (with #505) is merged into this branch and the matrix is regenerated on contract 1.0.20 (rows unchanged); exact-head CI and a fresh-context review remain.
   - Forge provider construction and observation gaps need a separately authorized Forge bridge issue.

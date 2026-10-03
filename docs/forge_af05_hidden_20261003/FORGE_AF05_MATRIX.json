@@ -6,6 +6,7 @@
   {
    "absent_tokens": [],
    "channel": "principal_scoped_state",
+   "closed_bootstrap_fields": [],
    "meaning": "get_game_state is projected for one observer principal",
    "present_fragments": [
     "public static JsonObject gameState(BridgeSession session, String observerPlayerId)"
@@ -16,16 +17,24 @@
   {
    "absent_tokens": [],
    "channel": "face_down_redaction",
-   "meaning": "a face-down card is named only to a principal the engine lets see it",
+   "closed_bootstrap_fields": [],
+   "meaning": "a face-down card or stack source is named only to a principal both CardView.canBeShownTo and CardView.canFaceDownBeShownTo admit",
    "present_fragments": [
-    "canBeShownTo"
+    "shown = view != null && view.canBeShownTo(observerView) && view.canFaceDownBeShownTo(observerView);",
+    "return faceDown ? \"<face-down>\" : \"<hidden>\";",
+    "shown = observerView != null && view != null && view.canBeShownTo(observerView) && view.canFaceDownBeShownTo(observerView);"
    ],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
    "status": "SUPPORTED"
   },
   {
-   "absent_tokens": [],
+   "absent_tokens": [
+    "zones.add(\"library\",",
+    "add(\"library_contents\"",
+    "add(\"library_order\""
+   ],
    "channel": "library_contents",
+   "closed_bootstrap_fields": [],
    "meaning": "every library projects as an empty list with library_size; no principal, entitled or not, can observe a library identity or its order",
    "present_fragments": [
     "zones.add(\"library\", new JsonArray());"
@@ -36,6 +45,7 @@
   {
    "absent_tokens": [],
    "channel": "event_log",
+   "closed_bootstrap_fields": [],
    "meaning": "export_event_log and get_event_log fail closed; no engine event can be observed, so permission timing cannot be tied to the real event",
    "present_fragments": [
     "BridgeErrors.EVENT_LOG_UNSUPPORTED",
@@ -45,21 +55,31 @@
    "status": "ABSENT"
   },
   {
-   "absent_tokens": [],
+   "absent_tokens": [
+    "void reveal(",
+    "auditReveal("
+   ],
    "channel": "reveal_look_audience",
+   "closed_bootstrap_fields": [],
    "meaning": "a reveal or look is recorded only in the bridge's internal audit, which is never pilot-visible; no principal has a revealed or looked-at log",
    "present_fragments": [
-    "session.audit(\"cards_revealed\", details);"
+    "public void reveal(CardCollectionView cards, ZoneType zone, Player owner, String messagePrefix, boolean addMsgSuffix) { auditReveal(cards == null ? 0 : cards.size(), zone); }",
+    "public void reveal(List<CardView> cards, ZoneType zone, PlayerView owner, String messagePrefix, boolean addMsgSuffix) { auditReveal(cards == null ? 0 : cards.size(), zone); }",
+    "private void auditReveal(int count, ZoneType zone) { final Map<String, String> details = new LinkedHashMap<>(); details.put(\"actor\", actorId()); details.put(\"count\", Integer.toString(count)); details.put(\"zone\", zone == null ? \"?\" : zone.name()); session.audit(\"cards_revealed\", details); }"
    ],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java",
    "status": "ABSENT"
   },
   {
-   "absent_tokens": [],
+   "absent_tokens": [
+    "caps.addProperty(\"replay_supported\", true)"
+   ],
    "channel": "replay_transcript",
+   "closed_bootstrap_fields": [],
    "meaning": "no replay or transcript export exists to audit",
    "present_fragments": [
-    "export_replay is not supported: deterministic replay is not claimed"
+    "export_replay is not supported: deterministic replay is not claimed",
+    "caps.addProperty(\"replay_supported\", false);"
    ],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
    "status": "ABSENT"
@@ -72,6 +92,23 @@
     "manifest"
    ],
    "channel": "face_down_construction",
+   "closed_bootstrap_fields": [
+    "attached_to",
+    "battlefield",
+    "card",
+    "commander_damage_taken",
+    "continuous_effects_present",
+    "controller",
+    "counters",
+    "decision_script",
+    "hands",
+    "id",
+    "life",
+    "owner",
+    "players",
+    "stack",
+    "tapped"
+   ],
    "meaning": "the scenario bootstrap has no face-down field (MANIFESTED, CLOAKED, ...)",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
@@ -79,10 +116,27 @@
   },
   {
    "absent_tokens": [
-    "neutral.has(\"library\")",
-    "\"library_order\""
+    "\"library",
+    "\"libraries\""
    ],
    "channel": "library_construction",
+   "closed_bootstrap_fields": [
+    "attached_to",
+    "battlefield",
+    "card",
+    "commander_damage_taken",
+    "continuous_effects_present",
+    "controller",
+    "counters",
+    "decision_script",
+    "hands",
+    "id",
+    "life",
+    "owner",
+    "players",
+    "stack",
+    "tapped"
+   ],
    "meaning": "the scenario bootstrap cannot place a library in a requested order",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
@@ -94,7 +148,54 @@
     "permission"
    ],
    "channel": "knowledge_construction",
+   "closed_bootstrap_fields": [
+    "attached_to",
+    "battlefield",
+    "card",
+    "commander_damage_taken",
+    "continuous_effects_present",
+    "controller",
+    "counters",
+    "decision_script",
+    "hands",
+    "id",
+    "life",
+    "owner",
+    "players",
+    "stack",
+    "tapped"
+   ],
    "meaning": "the scenario bootstrap has no knowledge or permission field",
+   "present_fragments": [],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
+   "status": "ABSENT"
+  },
+  {
+   "absent_tokens": [
+    "\"action_cost_state\"",
+    "\"cost",
+    "\"payment",
+    "\"mana_pool\""
+   ],
+   "channel": "cost_state_construction",
+   "closed_bootstrap_fields": [
+    "attached_to",
+    "battlefield",
+    "card",
+    "commander_damage_taken",
+    "continuous_effects_present",
+    "controller",
+    "counters",
+    "decision_script",
+    "hands",
+    "id",
+    "life",
+    "owner",
+    "players",
+    "stack",
+    "tapped"
+   ],
+   "meaning": "the scenario bootstrap has no mid-cast cost or payment state field",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
    "status": "ABSENT"
@@ -362,8 +463,16 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log"
+   ],
+   "obligation_kind": "exile_permission_persists",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -380,14 +489,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [
-    "event_log"
-   ],
-   "obligation_kind": "exile_permission_persists",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
@@ -416,7 +518,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -480,8 +582,16 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log"
+   ],
+   "obligation_kind": "exile_permission_invalidates",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -493,14 +603,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [
-    "event_log"
-   ],
-   "obligation_kind": "exile_permission_invalidates",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
@@ -528,7 +631,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -566,8 +669,17 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "reveal_look_audience",
+    "event_log"
+   ],
+   "obligation_kind": "reveal_audience",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -579,15 +691,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [
-    "reveal_look_audience",
-    "event_log"
-   ],
-   "obligation_kind": "reveal_audience",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
@@ -616,7 +720,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -667,8 +771,17 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "reveal_look_audience",
+    "event_log"
+   ],
+   "obligation_kind": "look_audience",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -680,15 +793,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [
-    "reveal_look_audience",
-    "event_log"
-   ],
-   "obligation_kind": "look_audience",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
@@ -716,7 +821,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -767,8 +872,17 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "library_contents",
+    "event_log"
+   ],
+   "obligation_kind": "search_inspection",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -780,15 +894,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [
-    "library_contents",
-    "event_log"
-   ],
-   "obligation_kind": "search_inspection",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
@@ -816,7 +922,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -893,8 +999,17 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "library_contents",
+    "event_log"
+   ],
+   "obligation_kind": "scry_knowledge",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -906,15 +1021,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [
-    "library_contents",
-    "event_log"
-   ],
-   "obligation_kind": "scry_knowledge",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
@@ -943,7 +1050,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -994,8 +1101,17 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "library_contents",
+    "event_log"
+   ],
+   "obligation_kind": "shuffle_invalidates_order",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -1012,15 +1128,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [
-    "library_contents",
-    "event_log"
-   ],
-   "obligation_kind": "shuffle_invalidates_order",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
@@ -1048,7 +1156,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1099,8 +1207,16 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log"
+   ],
+   "obligation_kind": "controlled_player_authority",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -1112,14 +1228,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [
-    "event_log"
-   ],
-   "obligation_kind": "controlled_player_authority",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
@@ -1148,7 +1257,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1228,8 +1337,17 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "library_contents",
+    "event_log"
+   ],
+   "obligation_kind": "pile_metadata",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -1241,15 +1359,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [
-    "library_contents",
-    "event_log"
-   ],
-   "obligation_kind": "pile_metadata",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
@@ -1278,7 +1388,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1329,8 +1439,14 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [],
+   "obligation_kind": "target_metadata",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -1347,12 +1463,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [],
-   "obligation_kind": "target_metadata",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "face_down_construction",
      "detail": "face-down state has no bootstrap field and no generic projection",
@@ -1372,7 +1483,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1449,8 +1560,14 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [],
+   "obligation_kind": "source_metadata",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -1467,12 +1584,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [],
-   "obligation_kind": "source_metadata",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "face_down_construction",
      "detail": "face-down state has no bootstrap field and no generic projection",
@@ -1492,7 +1604,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1569,8 +1681,14 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [],
+   "obligation_kind": "ability_metadata",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -1587,12 +1705,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [],
-   "obligation_kind": "ability_metadata",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "face_down_construction",
      "detail": "face-down state has no bootstrap field and no generic projection",
@@ -1612,7 +1725,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1676,8 +1789,14 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [],
+   "obligation_kind": "copy_face_down",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -1694,12 +1813,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [],
-   "obligation_kind": "copy_face_down",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "face_down_construction",
      "detail": "face-down state has no bootstrap field and no generic projection",
@@ -1720,7 +1834,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1771,8 +1885,17 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "replay_transcript",
+    "event_log"
+   ],
+   "obligation_kind": "transcript_privacy",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
+     "channel": "cost_state_construction",
      "detail": "mid-cast cost/payment state has no bootstrap field",
      "dimension": "action_cost_state",
      "requested": [
@@ -1784,15 +1907,7 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    }
-   ],
-   "missing_principal_channels": [
-    "replay_transcript",
-    "event_log"
-   ],
-   "obligation_kind": "transcript_privacy",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
+    },
     {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
@@ -1820,7 +1935,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: replay_transcript, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: replay_transcript, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1935,6 +2050,12 @@
   }
  ],
  "schema_version": "commander-lab.forge-hidden-information/1.0.0",
+ "source_blobs": {
+  "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java": "4c207b4c3c75d3183d52886fb7045ad012e2db08",
+  "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java": "1875902a3748e97b1b647a26d0f41b51db5e1257",
+  "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java": "94ad4423b9c67d0e3242f5de9b59bce3d9eac7a4",
+  "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java": "ddd97cb0d1c5e7cf8da86bdf8ed89b5a0d8a085d"
+ },
  "sources": {
   "bootstrap": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
   "controller": "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java",

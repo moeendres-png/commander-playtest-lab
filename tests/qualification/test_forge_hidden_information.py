@@ -27,6 +27,7 @@ def _texts() -> dict[str, str]:
     texts = {key: "" for key in fh.SOURCES}
     for channel in fh.CHANNELS:
         texts[channel.source] += "\n".join(channel.present) + "\n"
+    texts["bootstrap"] += "".join(f'x.has("{name}");\n' for name in sorted(fh.BOOTSTRAP_FIELDS))
     return texts
 
 
@@ -153,26 +154,129 @@ def test_the_channel_table_drives_the_missing_channels(records, monkeypatch) -> 
 
 
 def test_a_lab_only_row_is_never_a_provider_gap() -> None:
-    """With no provider gap and no absent channel the row is a Lab gap, not a provider one."""
+    """A Lab gap alone is LAB_ADAPTER_GAP; no gap at all is never classified."""
     row = fh.HiddenRowClassification(fixture_id="HIDDEN_01", obligation_kind="opponent_hand")
-    assert row.classification == fh.LAB_ADAPTER_GAP
+    with pytest.raises(ValueError, match="no gap found"):
+        row.classification  # noqa: B018
     row.lab_gaps.append({"dimension": "decision_execution.priority.semantic_action"})
     assert row.classification == fh.LAB_ADAPTER_GAP
     row.missing_channels.append("event_log")
     assert row.classification == fh.PROVIDER_ADAPTER_GAP
 
 
-def test_the_runner_uses_the_exact_reason_for_forge_only() -> None:
-    """The runner's Forge HIDDEN branch reports row_reason; XMage keeps its projection route."""
-    source = (REPO_ROOT / "scripts" / "run_current_boundary_qualification.py").read_text(
-        encoding="utf-8"
+def test_an_unmapped_lane_dimension_fails_closed(records, monkeypatch) -> None:
+    """A lane finding with no channel or Lab mapping refuses, never defaults to a class."""
+    monkeypatch.delitem(fh._PROVIDER_DIMENSIONS, "knowledge_state")
+    with pytest.raises(ValueError, match="no channel or Lab mapping"):
+        fh.classify_row(records["HIDDEN_03"])
+    row = fh.HiddenRowClassification(fixture_id="HIDDEN_01", obligation_kind="opponent_hand")
+    row.missing_channels.append("event_log")
+    row.other_unsupported.append({"dimension": "unknown"})
+    with pytest.raises(ValueError, match="unclassified"):
+        row.classification  # noqa: B018
+
+
+def test_cost_state_follows_the_lane_construction_finding(records) -> None:
+    """The lane files mid-cast cost state as a missing bootstrap field; so does this module."""
+    row = fh.classify_row(records["HIDDEN_07"])
+    gaps = {gap["dimension"]: gap for gap in row.provider_gaps}
+    assert gaps["action_cost_state"]["channel"] == "cost_state_construction"
+    assert "no bootstrap field" in gaps["action_cost_state"]["detail"]
+    assert all(not gap["dimension"].startswith("action_cost_state") for gap in row.lab_gaps)
+
+
+def test_a_fragment_only_in_a_comment_is_drift() -> None:
+    """Fragments are matched on code: a gate that survives only in a comment is gone."""
+    texts = _texts()
+    gate = fh.CHANNELS_BY_NAME["face_down_redaction"].present[0]
+    texts["projection"] = texts["projection"].replace(gate, "/* " + gate + " */ shown = true;")
+    with pytest.raises(fh.HiddenChannelDrift):
+        fh.assert_channels(texts)
+    texts = _texts()
+    texts["projection"] = texts["projection"].replace(gate, "// " + gate + "\nshown = true;")
+    with pytest.raises(fh.HiddenChannelDrift):
+        fh.assert_channels(texts)
+
+
+@pytest.mark.parametrize(
+    ("source", "addition"),
+    [
+        ("projection", 'zones.add("library", libraryFor(player, observer));'),
+        ("bootstrap", 'if (neutral.has("libraries")) { }'),
+        ("bootstrap", 'if (entry.has("hidden_face")) { }'),
+        ("bootstrap", 'final String order = optString(entry, "order", "");'),
+        ("engine", 'caps.addProperty("replay_supported", true);'),
+        ("controller", "public void reveal(CardView card) { session.publish(card); }"),
+        ("controller", "auditReveal(1, zone);"),
+    ],
+)
+def test_a_new_capability_is_drift(source, addition) -> None:
+    """Wrong-reason controls: each bypass the reviewer found now breaks the channel table."""
+    texts = _texts()
+    texts[source] += addition + "\n"
+    with pytest.raises(fh.HiddenChannelDrift):
+        fh.assert_channels(texts)
+
+
+def test_a_lost_bootstrap_field_is_drift() -> None:
+    texts = _texts()
+    texts["bootstrap"] = texts["bootstrap"].replace('x.has("hands");', "")
+    with pytest.raises(fh.HiddenChannelDrift, match="lost fields"):
+        fh.assert_channels(texts)
+
+
+def test_the_channel_table_is_bound_to_the_canonical_bridge(records, monkeypatch) -> None:
+    """A moved canonical Forge pin invalidates the table until it is re-asserted."""
+    from commander_lab.qualification.current_boundary.bridge_launcher import (
+        canonical_forge_authority,
     )
-    branch = source.index('candidate == "forge" and fixture_id in knowledge_projection_mod.ROWS')
-    xmage = source.index('candidate == "xmage" and fixture_id in knowledge_projection_mod.ROWS')
-    generic = source.index("the effective obligation is a per-scenario hidden-information probe")
-    assert xmage < branch < generic
-    assert "forge_hidden_information_mod.row_reason(record)" in source[branch:generic]
-    assert 'outcome="UNKNOWN"' in source[branch:generic]
+
+    assert canonical_forge_authority()["bridge_commit"] == fh.ASSERTED_BRIDGE_COMMIT
+    monkeypatch.setattr(fh, "canonical_forge_authority", lambda: {"bridge_commit": "0" * 40})
+    with pytest.raises(fh.HiddenChannelDrift):
+        fh.row_reason(records["HIDDEN_07"])
+    with pytest.raises(fh.HiddenChannelDrift):
+        fh.build_matrix(records, REPO_ROOT, "0" * 40)
+
+
+def _runner(monkeypatch):
+    import importlib.util
+    import sys
+
+    monkeypatch.delenv("FORGE_WORKSPACE", raising=False)
+    path = REPO_ROOT / "scripts" / "run_current_boundary_qualification.py"
+    spec = importlib.util.spec_from_file_location("fh_runner_under_test", path)
+    assert spec is not None and spec.loader is not None
+    runner = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, runner)
+    spec.loader.exec_module(runner)
+    return runner
+
+
+def test_the_runner_uses_the_exact_reason_for_forge_only(records, monkeypatch) -> None:
+    """Forge HIDDEN rows carry row_reason and stay UNKNOWN; XMage keeps its projection route."""
+    runner = _runner(monkeypatch)
+    materialization = runner.load_effective_materialization(REPO_ROOT)
+    identity = {"starting_state_injection_supported": True}
+    rows = {
+        candidate: {
+            row.fixture_id: row
+            for row in runner.classify_remaining(
+                materialization, set(), candidate=candidate, identity=identity
+            )
+        }
+        for candidate in ("forge", "xmage")
+    }
+    for fixture in knowledge_projection.ROWS:
+        forge = rows["forge"][fixture]
+        assert forge.outcome == "UNKNOWN", fixture
+        assert forge.reason.endswith(fh.row_reason(records[fixture])), fixture
+        xmage = rows["xmage"][fixture]
+        assert xmage.outcome == "UNKNOWN", fixture
+        assert "Forge AF05" not in xmage.reason, fixture
+    for fixture, row in rows["forge"].items():
+        if fixture not in knowledge_projection.ROWS:
+            assert "Forge AF05" not in row.reason, fixture
 
 
 def test_the_committed_matrix_is_current(records) -> None:

@@ -10,8 +10,11 @@ Two kinds of evidence go into each row:
   Forge scenario lane's own model (``forge_scenario_lane.model_requested_state``).
   No second translation of the record exists.
 * **Observation channels** come from the pinned bridge source. Each channel
-  is asserted by an exact code fragment in a source blob at the bridge commit.
-  A blob that no longer carries the fragment raises
+  is asserted by exact code fragments in a source blob at the bridge commit,
+  matched on the code alone (comments stripped, whitespace collapsed). Absent
+  tokens are checked after the asserted fragments are removed, and the
+  bootstrap's JSON field reads must equal a closed set. A blob that loses a
+  fragment, gains a token or reads a new field raises
   :class:`HiddenChannelDrift`, so no classification survives a source change
   without review.
 
@@ -24,6 +27,7 @@ Rules Core and bridge are read only; no Lab permission model is created.
 
 from __future__ import annotations
 
+import re
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -31,6 +35,7 @@ from typing import Any
 
 from . import forge_scenario_lane as lane
 from . import knowledge_projection
+from .bridge_launcher import canonical_forge_authority
 
 SCHEMA_VERSION = "commander-lab.forge-hidden-information/1.0.0"
 
@@ -40,6 +45,10 @@ AF05_EFFECT_UNKNOWN = "UNKNOWN"
 
 CHANNEL_SUPPORTED = "SUPPORTED"
 CHANNEL_ABSENT = "ABSENT"
+
+# The bridge commit whose blobs this channel table was asserted against. A
+# moved canonical pin invalidates every channel status until it is re-asserted.
+ASSERTED_BRIDGE_COMMIT = "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c"
 
 _BRIDGE_SOURCE = f"{lane.BRIDGE_MODULE}/src/main/java/forge/bridge"
 SOURCES: dict[str, str] = {
@@ -63,11 +72,40 @@ class Channel:
     source: str
     present: tuple[str, ...] = ()
     absent: tuple[str, ...] = ()
+    fields: frozenset[str] = frozenset()
     meaning: str = ""
 
 
-# Each channel is decided by fragments that must be present (and, for an
-# absent construction field, tokens that must not occur) in the pinned blob.
+# Every JSON field ScenarioBootstrap reads at the asserted commit. A construction
+# channel is ABSENT only while this set is closed: any new field is drift.
+BOOTSTRAP_FIELDS = frozenset(
+    {
+        "attached_to",
+        "battlefield",
+        "card",
+        "commander_damage_taken",
+        "continuous_effects_present",
+        "controller",
+        "counters",
+        "decision_script",
+        "hands",
+        "id",
+        "life",
+        "owner",
+        "players",
+        "stack",
+        "tapped",
+    }
+)
+_FIELD_READ = re.compile(
+    r'(?:\.has|\.get|\.getAsJsonObject|\.getAsJsonArray|\.getAsJsonPrimitive)\(\s*"([^"]+)"'
+    r'|optString\(\s*\w+\s*,\s*"([^"]+)"'
+)
+
+
+# Each channel is decided by fragments that must be present, tokens that must
+# not occur once those fragments are removed, and (for construction) the closed
+# bootstrap field set. Fragments are code with whitespace collapsed.
 CHANNELS: tuple[Channel, ...] = (
     Channel(
         "principal_scoped_state",
@@ -82,14 +120,24 @@ CHANNELS: tuple[Channel, ...] = (
         "face_down_redaction",
         CHANNEL_SUPPORTED,
         "projection",
-        present=("canBeShownTo",),
-        meaning="a face-down card is named only to a principal the engine lets see it",
+        present=(
+            "shown = view != null && view.canBeShownTo(observerView) "
+            "&& view.canFaceDownBeShownTo(observerView);",
+            'return faceDown ? "<face-down>" : "<hidden>";',
+            "shown = observerView != null && view != null && view.canBeShownTo(observerView) "
+            "&& view.canFaceDownBeShownTo(observerView);",
+        ),
+        meaning=(
+            "a face-down card or stack source is named only to a principal both "
+            "CardView.canBeShownTo and CardView.canFaceDownBeShownTo admit"
+        ),
     ),
     Channel(
         "library_contents",
         CHANNEL_ABSENT,
         "projection",
         present=('zones.add("library", new JsonArray());',),
+        absent=('zones.add("library",', 'add("library_contents"', 'add("library_order"'),
         meaning=(
             "every library projects as an empty list with library_size; no principal, "
             "entitled or not, can observe a library identity or its order"
@@ -112,7 +160,21 @@ CHANNELS: tuple[Channel, ...] = (
         "reveal_look_audience",
         CHANNEL_ABSENT,
         "controller",
-        present=('session.audit("cards_revealed", details);',),
+        present=(
+            "public void reveal(CardCollectionView cards, ZoneType zone, Player owner, "
+            "String messagePrefix, boolean addMsgSuffix) { "
+            "auditReveal(cards == null ? 0 : cards.size(), zone); }",
+            "public void reveal(List<CardView> cards, ZoneType zone, PlayerView owner, "
+            "String messagePrefix, boolean addMsgSuffix) { "
+            "auditReveal(cards == null ? 0 : cards.size(), zone); }",
+            "private void auditReveal(int count, ZoneType zone) { "
+            "final Map<String, String> details = new LinkedHashMap<>(); "
+            'details.put("actor", actorId()); '
+            'details.put("count", Integer.toString(count)); '
+            'details.put("zone", zone == null ? "?" : zone.name()); '
+            'session.audit("cards_revealed", details); }',
+        ),
+        absent=("void reveal(", "auditReveal("),
         meaning=(
             "a reveal or look is recorded only in the bridge's internal audit, which is "
             "never pilot-visible; no principal has a revealed or looked-at log"
@@ -122,7 +184,11 @@ CHANNELS: tuple[Channel, ...] = (
         "replay_transcript",
         CHANNEL_ABSENT,
         "engine",
-        present=("export_replay is not supported: deterministic replay is not claimed",),
+        present=(
+            "export_replay is not supported: deterministic replay is not claimed",
+            'caps.addProperty("replay_supported", false);',
+        ),
+        absent=('caps.addProperty("replay_supported", true)',),
         meaning="no replay or transcript export exists to audit",
     ),
     Channel(
@@ -130,13 +196,15 @@ CHANNELS: tuple[Channel, ...] = (
         CHANNEL_ABSENT,
         "bootstrap",
         absent=("face_down", "FaceDown", "faceDown", "manifest"),
+        fields=BOOTSTRAP_FIELDS,
         meaning="the scenario bootstrap has no face-down field (MANIFESTED, CLOAKED, ...)",
     ),
     Channel(
         "library_construction",
         CHANNEL_ABSENT,
         "bootstrap",
-        absent=('neutral.has("library")', '"library_order"'),
+        absent=('"library', '"libraries"'),
+        fields=BOOTSTRAP_FIELDS,
         meaning="the scenario bootstrap cannot place a library in a requested order",
     ),
     Channel(
@@ -144,7 +212,16 @@ CHANNELS: tuple[Channel, ...] = (
         CHANNEL_ABSENT,
         "bootstrap",
         absent=("knowledge", "permission"),
+        fields=BOOTSTRAP_FIELDS,
         meaning="the scenario bootstrap has no knowledge or permission field",
+    ),
+    Channel(
+        "cost_state_construction",
+        CHANNEL_ABSENT,
+        "bootstrap",
+        absent=('"action_cost_state"', '"cost', '"payment', '"mana_pool"'),
+        fields=BOOTSTRAP_FIELDS,
+        meaning="the scenario bootstrap has no mid-cast cost or payment state field",
     ),
 )
 CHANNELS_BY_NAME: dict[str, Channel] = {channel.name: channel for channel in CHANNELS}
@@ -179,10 +256,12 @@ _PROVIDER_DIMENSIONS: dict[str, str] = {
     "semantic_objects.face_down": "face_down_construction",
     "temporal_checkpoint.exact_hand_after_draw": "library_construction",
     "knowledge_state": "knowledge_construction",
+    # The lane's own finding: "mid-cast cost/payment state has no bootstrap field".
+    "action_cost_state": "cost_state_construction",
 }
 # Lab-side lane dimensions: the provider offers the engine's own frames, but the
-# Lab's Forge lane implements no selector or cost-state execution for them.
-_LAB_DIMENSION_PREFIXES = ("decision_execution.", "action_cost_state")
+# Lab's Forge lane implements no selector execution for them.
+_LAB_DIMENSION_PREFIXES = ("decision_execution.",)
 
 
 @dataclass
@@ -197,9 +276,16 @@ class HiddenRowClassification:
 
     @property
     def classification(self) -> str:
+        if self.other_unsupported:
+            raise ValueError(
+                f"{self.fixture_id}: unclassified lane dimensions "
+                f"{[gap['dimension'] for gap in self.other_unsupported]}"
+            )
         if self.provider_gaps or self.missing_channels:
             return PROVIDER_ADAPTER_GAP
-        return LAB_ADAPTER_GAP
+        if self.lab_gaps:
+            return LAB_ADAPTER_GAP
+        raise ValueError(f"{self.fixture_id}: no gap found; a row without a gap needs execution")
 
     def reason(self) -> str:
         parts = [f"Forge AF05 {self.classification} ({self.obligation_kind})"]
@@ -257,6 +343,11 @@ def classify_row(record: dict[str, Any]) -> HiddenRowClassification:
             row.lab_gaps.append(document)
         else:
             row.other_unsupported.append(document)
+    if row.other_unsupported:
+        raise ValueError(
+            f"{fixture_id}: lane dimensions with no channel or Lab mapping: "
+            f"{[gap['dimension'] for gap in row.other_unsupported]}"
+        )
     row.unobservable = [finding.to_document() for finding in model.unobservable]
     row.missing_channels = [
         name
@@ -266,37 +357,73 @@ def classify_row(record: dict[str, Any]) -> HiddenRowClassification:
     return row
 
 
+def assert_bridge_pin(bridge_commit: str) -> None:
+    """The channel table holds only for the bridge commit it was asserted against."""
+    if bridge_commit != ASSERTED_BRIDGE_COMMIT:
+        raise HiddenChannelDrift(
+            f"channel table asserted against {ASSERTED_BRIDGE_COMMIT}, canonical Forge "
+            f"bridge is {bridge_commit}: re-assert the channels before classifying"
+        )
+
+
 def row_reason(record: dict[str, Any]) -> str:
-    """The exact runner reason for a Forge HIDDEN row (record-derived only)."""
+    """The exact runner reason for a Forge HIDDEN row, bound to the canonical pin."""
+    assert_bridge_pin(canonical_forge_authority()["bridge_commit"])
     return classify_row(record).reason()
 
 
-def _blob(root: Path, commit: str, relative: str) -> str:
+_COMMENT_OR_STRING = re.compile(
+    r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\\n])*"|\'(?:\\.|[^\'\\\n])*\'', re.DOTALL
+)
+
+
+def code_text(source: str) -> str:
+    """Java source with comments removed and whitespace collapsed (literals kept)."""
+
+    def keep_literals(match: re.Match[str]) -> str:
+        token = match.group(0)
+        return " " if token.startswith("/") else token
+
+    return " ".join(_COMMENT_OR_STRING.sub(keep_literals, source).split())
+
+
+def bootstrap_fields(code: str) -> frozenset[str]:
+    """Every JSON field name the bootstrap code reads."""
+    return frozenset(a or b for a, b in _FIELD_READ.findall(code))
+
+
+def _git(root: Path, *args: str) -> str:
     try:
         return subprocess.run(
-            ["git", "show", f"{commit}:{relative}"],
-            cwd=root,
-            check=True,
-            capture_output=True,
-            text=True,
+            ["git", *args], cwd=root, check=True, capture_output=True, text=True
         ).stdout
     except subprocess.CalledProcessError as error:
-        raise HiddenChannelDrift(
-            f"{relative} unreadable at {commit}: {error.stderr.strip()}"
-        ) from error
+        raise HiddenChannelDrift(f"git {' '.join(args)} failed: {error.stderr.strip()}") from error
+
+
+def _blob(root: Path, commit: str, relative: str) -> str:
+    return _git(root, "show", f"{commit}:{relative}")
 
 
 def assert_channels(texts: dict[str, str]) -> list[dict[str, Any]]:
-    """Check every channel against its source text; drift raises."""
+    """Check every channel against its source code; drift raises."""
     asserted = []
+    codes = {key: code_text(text) for key, text in texts.items()}
     for channel in CHANNELS:
-        text = texts[channel.source]
-        missing = [fragment for fragment in channel.present if fragment not in text]
-        found = [token for token in channel.absent if token in text]
-        if missing or found:
+        code = codes[channel.source]
+        missing = [fragment for fragment in channel.present if fragment not in code]
+        remainder = code
+        for fragment in channel.present:
+            remainder = remainder.replace(fragment, " ")
+        found = [token for token in channel.absent if token in remainder]
+        fields = bootstrap_fields(code) if channel.fields else frozenset()
+        new_fields = sorted(fields - channel.fields)
+        lost_fields = sorted(channel.fields - fields)
+        if missing or found or new_fields or lost_fields:
             raise HiddenChannelDrift(
                 f"channel {channel.name!r} no longer matches {SOURCES[channel.source]}: "
-                f"missing {missing}, unexpectedly present {found}"
+                f"missing {missing}, unexpectedly present {found}, "
+                f"new fields {new_fields}, lost fields {lost_fields}"
             )
         asserted.append(
             {
@@ -305,6 +432,7 @@ def assert_channels(texts: dict[str, str]) -> list[dict[str, Any]]:
                 "source": SOURCES[channel.source],
                 "present_fragments": list(channel.present),
                 "absent_tokens": list(channel.absent),
+                "closed_bootstrap_fields": sorted(channel.fields),
                 "meaning": channel.meaning,
             }
         )
@@ -315,7 +443,12 @@ def build_matrix(
     records: dict[str, dict[str, Any]], forge_root: Path, bridge_commit: str
 ) -> dict[str, Any]:
     """The full Forge AF05 matrix, bound to the pinned bridge source blobs."""
+    assert_bridge_pin(bridge_commit)
     texts = {key: _blob(forge_root, bridge_commit, path) for key, path in SOURCES.items()}
+    blob_ids = {
+        path: _git(forge_root, "rev-parse", f"{bridge_commit}:{path}").strip()
+        for path in SOURCES.values()
+    }
     channels = assert_channels(texts)
     hidden = sorted(fixture for fixture in records if fixture in knowledge_projection.ROWS)
     missing_rows = sorted(set(knowledge_projection.ROWS) - set(hidden))
@@ -330,6 +463,7 @@ def build_matrix(
         "candidate": "forge",
         "bridge_commit": bridge_commit,
         "sources": dict(SOURCES),
+        "source_blobs": blob_ids,
         "channels": channels,
         "rows": rows,
         "summary": {
