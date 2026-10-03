@@ -47,14 +47,20 @@ MICRO_PREVENTION.
 Local evidence is not credit. Credit comes only from the same-epoch PB-03 run on the
 pushed head.
 
-## Second wave (in progress)
+## Second wave
 
-| Class | Rows | Repair |
-|---|---|---|
-| Causal elimination on the FULL107 route | WS05-MP-ELIM-5, -OWNED-3, -PRIO-3, -TURN-3 | The record requests the victim at 0 life before the state-based actions that remove it, which no priority point shows (CR 704.3). The producer now enters through the probe's declared `causal_elimination` entry: the victim's 0 life is openly substituted at placement, and the declared Lightning Bolts are cast at the victim on the engine's own frames. The engine deals the damage, applies the loss (CR 704.5a) and the cleanup (CR 800.4a), and its own elimination verdict is required. The obligation window opens at that cause. One implementation (`eliminate_causally`) serves the probe and the producer. |
-| Stack-object selector | MICRO_MANA_PAYMENT | `stack:N` names the record's N-th requested stack entry and selects the spell cast from that entry's source object, exactly as `semantic_object` does. Any other value fails closed. |
-| Undeclared causal-stack entries | MICRO_COPY, MICRO_RULES_RANDOMNESS | causal-stack entries with declared fuel. The engine decides target legality: Flare of Duplication copies an instant or sorcery spell *its controller* controls, while the record's Bolt is P2's, a likely fixture defect pending the engine's own verdict. |
-| Partner damage | WS05-CMD-PARTNER-DMG | the DMG-SPLIT readback checks as terminal checks (the record names no required event) |
+| Class | Rows | Repair | Local result |
+|---|---|---|---|
+| Causal elimination on the FULL107 route | WS05-MP-ELIM-5, -OWNED-3, -PRIO-3, -TURN-3 | The record requests the victim at 0 life before the state-based actions that remove it, which no priority point shows (CR 704.3). The producer enters through the probe's declared `causal_elimination` entry: the 0 life is openly substituted at placement, and the declared Lightning Bolts are cast at the victim on the engine's own frames. The engine deals the damage, applies the loss (CR 704.5a) and the cleanup (CR 800.4a), and its elimination verdict is required. One implementation (`eliminate_causally`) serves the probe and the producer. | ELIM-5, -OWNED-3, -PRIO-3 verified; -TURN-3: candidate engine defect (below) |
+| Stack-object selector | MICRO_MANA_PAYMENT | `stack:N` names the record's N-th requested stack entry and selects the spell cast from its source object. A scripted `mana_payment` step owns the cast's payment frames, and the colors the engine spent must equal the step's declared mana. | verified |
+| Undeclared causal-stack entries and unscripted decisions | MICRO_COPY, MICRO_RULES_RANDOMNESS | Causal-stack entries with declared fuel. Erratum (1.0.20): the copier keeps the copy's target (CR 707.10c), and the caster calls the flip (CR 705.2). The engine's coin flips now carry their own result (`coin_result`, `coin_won`), and the readback lists the engine's pending extra turns in the order taken. The flip is never set: under the record's own seed 424242 the engine flipped HEADS and P1 won. | both verified |
+| Partner damage | WS05-CMD-PARTNER-DMG | the DMG-SPLIT readback checks as terminal checks | verified |
+
+### Candidate engine defect: priority for a player who has just left (WS05-MP-ELIM-TURN-3)
+
+When the last Bolt resolves on P2's turn, the engine gives P2 (the active player) priority. Before asking, it checks state-based actions: P2 loses and leaves (tape: LOST at 76, P2's cleanup at 77). It then still asks P2 a priority decision: the frame is recorded at tape position 77, after P2 left. The pinned XMage source shows why. `GameImpl.playPriority` tests `player.canRespond()` before `checkStateAndTriggered()` and calls `player.priority(this)` without testing it again. Under CR 800.4a a player who has left the game receives no priority.
+
+The row stays unverified (its `no_frame P2` check is false). This is recorded as a demonstrated candidate defect for #255 adjudication, and the row is not reported as PASS. ELIM-PRIO-3, where the departing player is not the one about to receive priority, passes.
 
 ## Deferred classes (with exact blockers)
 

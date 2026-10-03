@@ -6,6 +6,9 @@ one erratum; no obligation key (expected events, terminal postconditions) is
 touched except MICRO_CONTINUOUS_EFFECTS's measured value (below), so every
 other recomputed obligation digest equals its predecessor's.
 
+* FIXTURE_SCRIPT_CONTRACT_ERRATUM (explicit decisions): MICRO_COPY's copier
+  keeps the copy's targets (CR 707.10c); MICRO_RULES_RANDOMNESS's caster calls
+  the flip (CR 705.2) whose result stays the Rules RNG's.
 * FIXTURE_SCRIPT_CONTRACT_ERRATUM (explicit cast): WS05-MP-TRIG-5 names the
   entering creature's cast only in native_procedure prose; WS05-MP-PRIO-3/5
   require a response on the stack (``response_on_stack``) that no scripted step
@@ -501,6 +504,60 @@ add(
     },
     "The checkpoint step and the attacker's tapped request change.",
 )
+
+# --- copier and coin-call decisions the records never script ----------------- #
+
+for fixture, step_id, value, erratum_class, reason, invalid in (
+    (
+        "MICRO_COPY",
+        "copy-targets",
+        False,
+        "FIXTURE_SCRIPT_EXPLICIT_COPY_TARGET_CHOICE",
+        (
+            "Flare of Duplication's copy may have new targets chosen by its controller (CR "
+            "707.10c); the engine asks P1 that question when the Flare resolves, and the "
+            "predecessor scripted no answer, so the obligation could never be reached. The "
+            "successor answers it explicitly: the copy keeps the copied Bolt's target, as "
+            "the record's own postcondition requires a copy with the copied characteristics"
+        ),
+        "the copier's optional new-target decision has no scripted answer",
+    ),
+    (
+        "MICRO_RULES_RANDOMNESS",
+        "coin-call",
+        True,
+        "FIXTURE_SCRIPT_EXPLICIT_COIN_CALL",
+        (
+            "Stitch in Time's flip is won or lost (CR 705.2): the engine asks P1 to call it "
+            "before the Rules RNG flips. The record predetermines the flip's result (HEADS) "
+            "and that winning it creates the extra turn, but scripted no call, so the "
+            "obligation could never be reached. The successor scripts P1's call of heads. "
+            "The flip itself stays the Rules RNG's, under the record's own seed; the harness "
+            "never sets it"
+        ),
+        "the caster's call of the coin flip has no scripted answer",
+    ),
+):
+    old = base[fixture]
+    assert old["decision_script"] == [], fixture
+    add(
+        fixture,
+        "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+        {"decision_script": [_step("P1", step_id, "choice", "boolean", value)]},
+        [
+            _erratum_step(
+                fixture,
+                step_id,
+                {
+                    "erratum_class": erratum_class,
+                    "prose_derived_action_injection": False,
+                    "reason": reason,
+                },
+            )
+        ],
+        {"decision_script": [], "reason": invalid},
+        "Only the decision script changes.",
+    )
 
 # --- MICRO_CONTINUOUS_EFFECTS: the natural arrival (CR 103.8a) --------------- #
 

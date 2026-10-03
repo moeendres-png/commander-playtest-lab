@@ -135,17 +135,17 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
         ],
         "terminal": "spell_copied_on_stack",
     },
-    # MICRO_RULES_RANDOMNESS: P1's Stitch in Time ({1}{U}) on the stack.
+    # MICRO_RULES_RANDOMNESS: P1's Stitch in Time ({1}{U}{R}) on the stack.
     "MICRO_RULES_RANDOMNESS": {
         "entry_mode": "causal_stack",
         "fuel": [
             {
-                "semantic_id": f"obj:fuel-island-p1-{index}",
-                "card_identity": "Island",
+                "semantic_id": f"obj:fuel-{identity.lower()}-p1",
+                "card_identity": identity,
                 "owner": "P1",
                 "zone": "battlefield",
             }
-            for index in range(2)
+            for identity in ("Island", "Mountain", "Plains")
         ],
         "terminal": "rules_rng_coin_flip",
     },

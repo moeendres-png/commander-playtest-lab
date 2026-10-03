@@ -175,6 +175,8 @@ class TerminalCheck:
                 f"the engine's first {len(principals)} {decision_class} decisions went to "
                 f"{list(principals)} in that order"
             )
+        if self.kind == "pending_extra_turns":
+            return f"the engine's pending extra turns are {list(self.value)}, in the order taken"
         if self.kind == "player_left":
             return f"the engine reports {self.principal} lost and left the game"
         if self.kind == "commander_damage":
@@ -975,6 +977,76 @@ ROWS: dict[str, RowSpec] = {
         ),
     ),
     "PILOT_DECLARE_BLOCKER": RowSpec(),
+    # MICRO_COPY: P1's Flare of Duplication (rebuilt causally above P2's Bolt)
+    # copies the Bolt; the copy is created on the stack, never cast (CR
+    # 707.10), keeps the copied target (the scripted choice), and resolves as a
+    # distinct object before the original Bolt (CR 405.5).
+    "MICRO_COPY": RowSpec(
+        token_bindings=(
+            (
+                "copy_spell:Lightning_Bolt",
+                (
+                    _exactly(_named("COPIED_STACKOBJECT", "source_name", "Lightning Bolt"), 1),
+                    _exactly(_named("SPELL_CAST", "source_name", "Lightning Bolt"), 0),
+                ),
+            ),
+            (
+                "copy_created_on_stack",
+                (
+                    _exactly(
+                        _named(
+                            "DAMAGED_PLAYER",
+                            "source_name",
+                            "Lightning Bolt",
+                            ("target_player", "P2"),
+                            ("amount", 3),
+                            ("source_object", None),
+                        ),
+                        1,
+                    ),
+                    _exactly(
+                        _event(
+                            "DAMAGED_PLAYER",
+                            ("source_object", "obj:micro-bolt"),
+                            ("target_player", "P2"),
+                            ("amount", 3),
+                        ),
+                        1,
+                    ),
+                    _before(
+                        _named("COPIED_STACKOBJECT", "source_name", "Lightning Bolt"),
+                        _event("DAMAGED_PLAYER", ("source_object", "obj:micro-bolt")),
+                    ),
+                ),
+            ),
+        ),
+    ),
+    # MICRO_RULES_RANDOMNESS: P1 calls heads (scripted); the Rules RNG flips
+    # under the record's own seed and the engine reports the result. The
+    # record's predetermined result (HEADS) and its extra turn are observed
+    # only if the engine's flip produced them; nothing sets the flip.
+    "MICRO_RULES_RANDOMNESS": RowSpec(
+        token_bindings=(
+            (
+                "rules_rng:coin_flip:HEADS",
+                _exactly(
+                    _event(
+                        "COIN_FLIPPED",
+                        ("source_object", "obj:micro-stitch"),
+                        ("coin_result", "HEADS"),
+                        ("coin_won", True),
+                    ),
+                    1,
+                ),
+            ),
+            (
+                # The won flip's extra turn is the engine's own pending turn
+                # (taken after this one); it exists only if the flip was won.
+                "extra_turn_created:P1",
+                TerminalCheck("pending_extra_turns", value=("P1",)),
+            ),
+        ),
+    ),
     # MICRO_MANA_PAYMENT: with P2's Bolt on the stack (rebuilt causally), P1
     # casts Counterspell on it (the record's stack:1), paying {U}{U} from its
     # two declared Islands; Counterspell counters the Bolt.
@@ -1007,7 +1079,17 @@ ROWS: dict[str, RowSpec] = {
                         ),
                         1,
                     ),
-                    _exactly(_event("COUNTERED", ("target_object", "obj:micro-bolt")), 1),
+                    _exactly(_event("COUNTERED", ("source_object", "obj:micro-counterspell")), 1),
+                    _exactly(
+                        _event(
+                            "ZONE_CHANGE",
+                            ("target_object", "obj:micro-bolt"),
+                            ("source_object", "obj:micro-counterspell"),
+                            ("from", "STACK"),
+                            ("to", "GRAVEYARD"),
+                        ),
+                        1,
+                    ),
                 ),
             ),
         ),
@@ -1141,6 +1223,9 @@ class Frame:
     # engine offered this blocker (None for an attacker the record never
     # placed), so a verifier can read the engine's own legal-block partition.
     offered_attackers: tuple[str | None, ...] = ()
+    # The last engine event sequence on the tape when the engine asked this
+    # frame (None before any event), so a frame is ordered against the events.
+    tape_sequence: int | None = None
 
 
 @dataclass
@@ -1820,6 +1905,8 @@ def check_terminal(
         return order[: len(principals)] == list(principals)
     if check.kind == "player_left":
         return seat.get("left") is True and seat.get("lost") is True
+    if check.kind == "pending_extra_turns":
+        return list(observation.get("pending_extra_turns") or ()) == list(check.value)
     if check.kind == "commander_damage":
         damaged, amount = check.value
         entries = [
@@ -2563,6 +2650,14 @@ def _engine_selection_bounds(legal: dict[str, Any]) -> tuple[int, int] | None:
     return low, high
 
 
+def _spent_color(label: str | None) -> str:
+    """The color a pool spend offer names ("Spend blue mana from pool")."""
+    match = re.fullmatch(r"spend (\w+) mana from pool", str(label or "").strip().lower())
+    if match is None:
+        raise ml.MidgameLaneError(f"a pool spend names no color: {label!r}")
+    return match.group(1)
+
+
 def _scripted_answer(
     legal: dict[str, Any],
     step: dict[str, Any],
@@ -3072,6 +3167,7 @@ OBSERVATION_KINDS = frozenset(
         "graveyard_mana_value",
         "commander_damage",
         "player_left",
+        "pending_extra_turns",
     }
 )
 
@@ -3267,6 +3363,8 @@ def execute_row(
     declaring = False
     blocking = False
     answered_blockers: set[str] = set()
+    paying = False
+    spent_colors: list[str] = []
     placed_by_native = {native: semantic for semantic, native in placed.items()}
     answers_attacks = combat is not None and not _scripts_family(record, "declare_attacker")
     answers_blocks = (
@@ -3359,6 +3457,8 @@ def execute_row(
             )
             if decision_class == "declare_blocker":
                 frame.offered_attackers = _offered_attackers(legal, placed_by_native)
+            seen = client.events(baseline)["events"]
+            frame.tape_sequence = int(seen[-1]["sequence"]) if seen else None
             trace.append(frame)
             if unresolved_library:
                 bound = _bind_library_objects(legal, unresolved_library, tape)
@@ -3370,6 +3470,23 @@ def execute_row(
             if declaring and decision_class != "declare_attacker":
                 # The attack declarations are complete: the assignment step is done.
                 declaring = False
+                position += 1
+                step = script[position] if position < len(script) else None
+            if paying and decision_class != "mana_payment":
+                # The scripted payment is complete: the engine spent exactly
+                # the record's declared mana, color for color.
+                paying = False
+                declared = ((step or {}).get("selection") or {}).get("semantic_value") or {}
+                declared_colors = sorted(
+                    _COLOR_NAMES.get(str(m).upper(), str(m)).lower()
+                    for m in (declared.get("mana") or ())
+                )
+                if sorted(spent_colors) != declared_colors:
+                    raise ml.MidgameLaneError(
+                        f"the engine spent {sorted(spent_colors)}, the record declares "
+                        f"{declared_colors}"
+                    )
+                spent_colors = []
                 position += 1
                 step = script[position] if position < len(script) else None
             if blocking and (
@@ -3550,6 +3667,14 @@ def execute_row(
                 frame.selected_option_type = str((offer.get("metadata") or {}).get("option_type"))
                 frame.selected_option_ids = _single_option_id(offer)
                 probe.submit_proposal(client, legal, offer, f"{fixture_id}-mana-{len(trace)}")
+                if scripted and step is not None and step.get("decision_family") == "mana_payment":
+                    # The record scripts this payment: the payment frames are
+                    # its step, and the colors the engine spent are checked
+                    # against the step's declared mana when the payment ends.
+                    frame.scripted = True
+                    paying = True
+                    if frame.selected_option_type == "mana_pool":
+                        spent_colors.append(_spent_color(frame.selected_label))
                 continue
             if scripted and step is not None and step_decision_class(step) == decision_class:
                 answer = _scripted_answer(

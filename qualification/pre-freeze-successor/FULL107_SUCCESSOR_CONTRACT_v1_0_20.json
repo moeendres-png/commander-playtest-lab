@@ -1,7 +1,7 @@
 {
  "change_accounting": {
   "change_class": "MIXED_FIXTURE_CONTRACT_ERRATA_AND_RULES_AUTHORITY_CORRECTION",
-  "changed_fixture_count": 66,
+  "changed_fixture_count": 68,
   "changed_fixture_ids": [
    "WS05-CMD-START-2",
    "MICRO_MODES",
@@ -68,6 +68,8 @@
    "PILOT_DECLARE_BLOCKER",
    "WS05-MP-BLOCK-4",
    "MICRO_REPLACEMENT",
+   "MICRO_COPY",
+   "MICRO_RULES_RANDOMNESS",
    "MICRO_CONTINUOUS_EFFECTS"
   ],
   "historical_predecessor_preserved": true,
@@ -137,10 +139,12 @@
    "PILOT_DECLARE_BLOCKER": "FIXTURE_DEFECT_CORRECTION_CR508_1F",
    "WS05-MP-BLOCK-4": "FIXTURE_DEFECT_CORRECTION_CR508_1F_SCRIPT_CONTRACT",
    "MICRO_REPLACEMENT": "FIXTURE_DEFECT_CORRECTION_CR510_CR508_1F",
+   "MICRO_COPY": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "MICRO_RULES_RANDOMNESS": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
    "MICRO_CONTINUOUS_EFFECTS": "FIXTURE_OBLIGATION_ERRATUM_CR103_8A"
   },
   "provider_semantics_used_to_define_successor": false,
-  "unchanged_provider_denominator_rows": 63
+  "unchanged_provider_denominator_rows": 61
  },
  "contract_id": "commander-lab.full107/1.0.20-successor",
  "effective_materialization_version": "commander-lab.semantic-fixture-materialization/1.0.20-successor",
@@ -15906,6 +15910,138 @@
     ]
    },
    "successor_requested_state_digest": "dda405e286b67c7d5a5ac4c831adc6d13fa14fd5cf4814c664cb9332abd8b0bc"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_COPY_TARGET_CHOICE",
+      "prose_derived_action_injection": false,
+      "reason": "Flare of Duplication's copy may have new targets chosen by its controller (CR 707.10c); the engine asks P1 that question when the Flare resolves, and the predecessor scripted no answer, so the obligation could never be reached. The successor answers it explicitly: the copy keeps the copied Bolt's target, as the record's own postcondition requires a copy with the copied characteristics"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-copy-targets-micro_copy"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #456 residual errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests",
+    "reason": "Only the decision script changes."
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "MICRO_COPY",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "decision_script": [],
+    "reason": "the copier's optional new-target decision has no scripted answer"
+   },
+   "predecessor_requested_state_digest": "a3546f0ca825b7f612e6af93d144c0ce439cacff182cf7a2a86397e65cedc060",
+   "replace": {
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "copy-targets",
+      "decision_family": "choice",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "boolean",
+       "semantic_value": false
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "551af790319399cc9b15155c9ac757c48880947991616ff81efe7ec758f3d882"
+  },
+  {
+   "append_native_procedure": [
+    {
+     "actor": null,
+     "details": {
+      "obligation_changed": false,
+      "provider_semantics_used": false,
+      "erratum_class": "FIXTURE_SCRIPT_EXPLICIT_COIN_CALL",
+      "prose_derived_action_injection": false,
+      "reason": "Stitch in Time's flip is won or lost (CR 705.2): the engine asks P1 to call it before the Rules RNG flips. The record predetermines the flip's result (HEADS) and that winning it creates the extra turn, but scripted no call, so the obligation could never be reached. The successor scripts P1's call of heads. The flip itself stays the Rules RNG's, under the record's own seed; the harness never sets it"
+     },
+     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+     "source_object": null,
+     "step_id": "erratum-coin-call-micro_rules_randomness"
+    }
+   ],
+   "authority_overlay": {
+    "comprehensive_rules_effective_date": "2026-09-25",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #456 residual errata",
+    "historical_rsp": "commander-lab.rules-service/1.1.0",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "transport_protocol": "2.0.0"
+   },
+   "correction_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
+   "digest_migration": {
+    "obligation_digest": "UNCHANGED_OBLIGATION_KEYS_UNTOUCHED",
+    "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+    "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests",
+    "reason": "Only the decision script changes."
+   },
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+   "predecessor_invalidity": {
+    "decision_script": [],
+    "reason": "the caster's call of the coin flip has no scripted answer"
+   },
+   "predecessor_requested_state_digest": "1c67c9c4d7cae38651c697088ce4f82781c4c4ec018184fdba7b0be442dc31be",
+   "replace": {
+    "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "coin-call",
+      "decision_family": "choice",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "boolean",
+       "semantic_value": true
+      }
+     }
+    ]
+   },
+   "successor_requested_state_digest": "2762365a5424db5e8788ee0ad4da211ef3d873b72eb5ccd1af2a9467dd026640"
   },
   {
    "append_native_procedure": [

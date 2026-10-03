@@ -211,6 +211,24 @@ class XmageCommanderDamageRestorationTest {
     }
 
     @Test
+    void theReadbackListsPendingExtraTurnsInTheOrderTheEngineTakesThem() {
+        Arrived arrived = arrive(plan(
+                "rg02b-extra-turns", 3, commanders(3, "Rograkh, Son of Rohgahh"),
+                List.of(), List.of()), "rg02b-extra-turns");
+        assertFalse(XmageNativeStateRestoration.readback(arrived.game(), arrived.seats())
+                .has("pending_extra_turns"), "no extra turn, no field");
+        // Two extra turns created in order (P2's, then P3's): the engine takes
+        // the most recent first (TurnMods.useNextExtraTurn).
+        arrived.game().getState().getTurnMods().add(
+                new mage.game.turn.TurnMod(arrived.seats().get("P2").getId()).withExtraTurn());
+        arrived.game().getState().getTurnMods().add(
+                new mage.game.turn.TurnMod(arrived.seats().get("P3").getId()).withExtraTurn());
+        com.google.gson.JsonArray pending = XmageNativeStateRestoration
+                .readback(arrived.game(), arrived.seats()).getAsJsonArray("pending_extra_turns");
+        assertEquals("[\"P3\",\"P2\"]", pending.toString());
+    }
+
+    @Test
     void aRequestedAttackersTapIsCausedByItsDeclarationNeverSet() {
         XmageNativeStateRestoration.Plan withCombat =
                 XmageNativeStateRestoration.planFromFrozenRecord(

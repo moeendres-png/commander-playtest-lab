@@ -1494,6 +1494,19 @@ final class XmageNativeStateRestoration {
         root.addProperty("rules_seed", game.getRulesSeed());
         root.addProperty("rules_seed_explicit", game.isRulesSeedExplicit());
         root.addProperty("has_extra_turn", game.getState().getExtraTurnId() != null);
+        // The engine's own pending extra turns (CR 500.7), in the order it will
+        // take them: the most recently created first. Reported only when present.
+        JsonArray pendingExtraTurns = new JsonArray();
+        List<mage.game.turn.TurnMod> mods = new ArrayList<>(game.getState().getTurnMods());
+        Collections.reverse(mods);
+        for (mage.game.turn.TurnMod mod : mods) {
+            if (mod.isExtraTurn()) {
+                pendingExtraTurns.add(pidOf(mod.getPlayerId(), playersByPid));
+            }
+        }
+        if (pendingExtraTurns.size() > 0) {
+            root.add("pending_extra_turns", pendingExtraTurns);
+        }
         JsonArray seats = new JsonArray();
         List<String> orderedPids = new ArrayList<>(playersByPid.keySet());
         Collections.sort(orderedPids);

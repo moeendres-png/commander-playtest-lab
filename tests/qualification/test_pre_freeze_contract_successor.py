@@ -125,6 +125,8 @@ RESIDUAL_ERRATA_IDS = [
     "PILOT_DECLARE_BLOCKER",
     "WS05-MP-BLOCK-4",
     "MICRO_REPLACEMENT",
+    "MICRO_COPY",
+    "MICRO_RULES_RANDOMNESS",
     "MICRO_CONTINUOUS_EFFECTS",
 ]
 CHANGED_FIXTURE_IDS = [
@@ -1973,6 +1975,8 @@ def test_residual_errata_correct_unreachable_requests_and_keep_the_obligation() 
         "PILOT_DECLARE_BLOCKER": {"semantic_objects"},
         "WS05-MP-BLOCK-4": {"semantic_objects", "decision_script"},
         "MICRO_REPLACEMENT": {"temporal_state", "semantic_objects"},
+        "MICRO_COPY": {"decision_script"},
+        "MICRO_RULES_RANDOMNESS": {"decision_script"},
         "MICRO_CONTINUOUS_EFFECTS": {"players", "expected_events", "terminal_postconditions"},
     }
     for patch in added:
@@ -2016,9 +2020,34 @@ def test_residual_errata_correct_unreachable_requests_and_keep_the_obligation() 
         "continuous_pt_evaluated:13/13"
     ]
     # Every added script step is an engine-offered selection that fails closed.
-    for fixture_id in ("WS05-MP-TRIG-5", "WS05-MP-PRIO-3", "WS05-MP-PRIO-5", "WS05-MP-BLOCK-4"):
+    for fixture_id in (
+        "WS05-MP-TRIG-5",
+        "WS05-MP-PRIO-3",
+        "WS05-MP-PRIO-5",
+        "WS05-MP-BLOCK-4",
+        "MICRO_COPY",
+        "MICRO_RULES_RANDOMNESS",
+    ):
         for step in effective[fixture_id]["decision_script"]:
             selection = step["selection"]
             assert selection["matches_only_provider_offered_legal_options"] is True
             assert selection["on_multiple_match"] == selection["on_zero_match"] == "FAIL_CLOSED"
     assert [s["actor"] for s in effective["WS05-MP-BLOCK-4"]["decision_script"]] == ["P2", "P3"]
+
+
+def test_the_coin_call_is_scripted_and_the_flip_stays_the_rules_rng() -> None:
+    """MICRO_RULES_RANDOMNESS: the erratum scripts only P1's call of the flip;
+    the predetermined result and the record's own seed are untouched, so the
+    flip itself remains the Rules RNG's under that seed."""
+    record = _resolver().effective_record("MICRO_RULES_RANDOMNESS")
+    base = {
+        r["fixture_id"]: r
+        for r in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }["MICRO_RULES_RANDOMNESS"]
+    assert record["rules_randomness"] == base["rules_randomness"]
+    (step,) = record["decision_script"]
+    assert step["actor"] == "P1"
+    assert step["selection"]["selector_kind"] == "boolean"
+    assert step["selection"]["semantic_value"] is True

@@ -136,6 +136,14 @@ final class XmagePublicEventWatcher extends Watcher {
         if (event instanceof DamagedEvent damaged) {
             record.addProperty("combat", damaged.isCombatDamage());
         }
+        if (event instanceof mage.game.events.CoinFlippedEvent flipped) {
+            // A coin flip is public (CR 705.1): the Rules RNG's own result and,
+            // for a flip that can be won, whether its caller won it.
+            record.addProperty("coin_result", flipped.getResultName().toUpperCase(java.util.Locale.ROOT));
+            if (flipped.isWinnable()) {
+                record.addProperty("coin_won", flipped.wasWon());
+            }
+        }
         if (event instanceof ZoneChangeEvent && publicIdentity && !pending) {
             // CR 400.7: the engine's own object incarnation after a public move
             // (the moved card's zone-change counter). A move into a new zone

@@ -375,3 +375,40 @@ def test_a_player_left_only_when_the_engine_reports_both_loss_and_leaving() -> N
     assert not mr.check_terminal(check, seat(lost=True, left=False), [], [])
     assert not mr.check_terminal(check, seat(lost=False, left=True), [], [])
     assert not mr.check_terminal(check, {"seats": []}, [], [])
+
+
+# --------------------------------------------------------------------------- #
+# Stack objects, scripted payments, pending extra turns
+# --------------------------------------------------------------------------- #
+
+STACK_RECORD = {"stack_state": [{"source_semantic_id": "obj:bolt"}]}
+
+
+def test_a_stack_object_is_the_records_own_stack_entry() -> None:
+    step = {"selection": {"selector_kind": "semantic_stack_object", "semantic_value": "stack:1"}}
+    resolved = mr.stack_object_step(step, STACK_RECORD)
+    assert resolved["selection"]["selector_kind"] == "semantic_object"
+    assert resolved["selection"]["semantic_value"] == "obj:bolt"
+    other = {"selection": {"selector_kind": "semantic_object", "semantic_value": "obj:x"}}
+    assert mr.stack_object_step(other, STACK_RECORD) is other
+
+
+@pytest.mark.parametrize("value", ["stack:2", "stack:0", "top", "", "stack:1x"])
+def test_a_stack_object_the_record_never_requested_fails_closed(value: str) -> None:
+    step = {"selection": {"selector_kind": "semantic_stack_object", "semantic_value": value}}
+    with pytest.raises(ml.MidgameLaneError):
+        mr.stack_object_step(step, STACK_RECORD)
+
+
+def test_a_pool_spend_names_its_color_or_fails_closed() -> None:
+    assert mr._spent_color("Spend blue mana from pool") == "blue"
+    with pytest.raises(ml.MidgameLaneError):
+        mr._spent_color("Island — {T}: Add {U}.")
+
+
+def test_pending_extra_turns_are_the_engine_order_exactly() -> None:
+    check = mr.TerminalCheck("pending_extra_turns", value=("P3", "P2"))
+    assert mr.needs_observation(check)
+    assert mr.check_terminal(check, {"pending_extra_turns": ["P3", "P2"]}, [], [])
+    assert not mr.check_terminal(check, {"pending_extra_turns": ["P2", "P3"]}, [], [])
+    assert not mr.check_terminal(check, {}, [], [])
