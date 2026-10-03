@@ -632,20 +632,24 @@ final class XmageMidgameJsonlBridge {
         List<String> handles = importScaffolding(
                 stackPlan.prepared().preStackPlan(), planTag,
                 stackPlan.prepared().restoration().losslessHidden());
-        this.restoration = stackPlan.prepared().restoration();
-        this.planId = planTag;
-        this.entryMode = CAUSAL_STACK_ELIMINATION;
-        this.causalStackPlan = stackPlan;
-        this.causalEliminationPlan = composed.elimination();
-        this.session = new XmageFullGameSession(
+        XmageNativeStateRestoration composedRestoration = stackPlan.prepared().restoration();
+        // The session first: a constructor failure leaves no plan pointing at
+        // the previous game.
+        XmageFullGameSession composedSession = new XmageFullGameSession(
                 gameId,
                 handles,
                 startingPlayerSeat,
                 startingLife,
                 seed,
                 deckImporter,
-                restoration
+                composedRestoration
         );
+        this.session = composedSession;
+        this.restoration = composedRestoration;
+        this.planId = planTag;
+        this.entryMode = CAUSAL_STACK_ELIMINATION;
+        this.causalStackPlan = stackPlan;
+        this.causalEliminationPlan = composed.elimination();
 
         JsonObject response = createdResponse(
                 gameId, planTag, startingPlayerSeat, startingLife, seed);

@@ -2110,7 +2110,10 @@ def check_terminal(
     if check.kind == "stack_empty_after":
         # The engine's own stack, as shown on the first priority frame it asked
         # after the event: an object it removed without an event (CR 800.4a,
-        # a leaving player's spells) is gone from it.
+        # a leaving player's spells) is gone from it. The trace holds the frames
+        # the obligation loop recorded; a causal route that ends at the event
+        # (the elimination stops at the first life drop) leaves the engine
+        # parked on exactly that first frame.
         anchors = matching_events(
             TerminalCheck("events", event_type=check.event_type, where=check.where), tape
         )
@@ -3525,9 +3528,28 @@ def execute_row(
                 False,
                 construction,
                 f"the causal reconstruction does not match the requested stack: {verdict}",
-                causal_reconstruction=reconstruction,
+                causal_reconstruction=(
+                    {
+                        "entry_mode": probe.CAUSAL_STACK_ELIMINATION,
+                        "stack": reconstruction,
+                        "elimination": None,
+                    }
+                    if composed
+                    else reconstruction
+                ),
             )
     stack_reconstruction = reconstruction if composed else None
+
+    def composed_document(elimination: dict[str, Any] | None) -> dict[str, Any] | None:
+        # A composed row keeps both halves on every exit, success or not.
+        if not composed:
+            return elimination
+        return {
+            "entry_mode": probe.CAUSAL_STACK_ELIMINATION,
+            "stack": stack_reconstruction,
+            "elimination": elimination,
+        }
+
     if causal is not None and mode in ("causal_elimination", probe.CAUSAL_STACK_ELIMINATION):
         # The requested checkpoint is the state-based-action-pending instant
         # inside the causal cause, so the obligation window opens before it.
@@ -3536,15 +3558,21 @@ def execute_row(
             verdict = probe.eliminate_causally(client, f"{fixture_id}-causal", created, causal)
         except ml.MidgameLaneError as exc:
             return RowExecution(
-                fixture_id, False, construction, f"causal elimination failed closed: {exc}"
+                fixture_id,
+                False,
+                construction,
+                f"causal elimination failed closed: {exc}",
+                causal_reconstruction=composed_document(None),
             )
-        reconstruction = {
-            "entry_mode": "causal_elimination",
-            "actor": str(causal.get("elimination_actor")),
-            "victim": str(causal.get("elimination_victim")),
-            "bolt_count": int(causal.get("bolt_count") or 0),
-            "verdict": verdict,
-        }
+        reconstruction = composed_document(
+            {
+                "entry_mode": "causal_elimination",
+                "actor": str(causal.get("elimination_actor")),
+                "victim": str(causal.get("elimination_victim")),
+                "bolt_count": int(causal.get("bolt_count") or 0),
+                "verdict": verdict,
+            }
+        )
         if not (verdict.get("victim_lost") is True or verdict.get("victim_left") is True):
             return RowExecution(
                 fixture_id,
@@ -3553,12 +3581,6 @@ def execute_row(
                 f"the engine did not eliminate the victim causally: {verdict}",
                 causal_reconstruction=reconstruction,
             )
-        if composed:
-            reconstruction = {
-                "entry_mode": probe.CAUSAL_STACK_ELIMINATION,
-                "stack": stack_reconstruction,
-                "elimination": reconstruction,
-            }
     if spec.observe_from_game_start:
         baseline = 0
     elif elimination_baseline is not None:

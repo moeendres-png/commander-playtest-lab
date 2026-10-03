@@ -34,8 +34,10 @@ only in games without elimination instruments.
    by P2, targeting P1.
 3. **Elimination.** P1 casts the 14 declared Bolts at P2 on the engine's frames. The
    engine deals the damage and applies the loss (CR 704.5a), then the cleanup
-   (CR 800.4a). The elimination verifier must report P2 lost and left, with P1 and P3
-   surviving.
+   (CR 800.4a). The elimination verifier reads the engine's verdict (P1 and P3 survive);
+   the row binding `player_leaves:P2` then requires both the LOST event and the engine
+   reporting P2 lost and left. The probe requires the same, plus an empty engine stack
+   at the next decision and every survivor at its requested life.
 4. **Obligation.** XMage removes a leaving player's stack objects without an event
    (`GameImpl.leave`: `getStack().removeIf(object -> object.isControlledBy(playerId))`).
    The evidence is therefore the engine's own stack:
@@ -58,29 +60,32 @@ instruments, bound by the engine's native ids (`elimination_instrument_ids`).
 Local evidence is not credit. Credit comes only from the same-epoch PB-03 run on the
 pushed head.
 
-## WS05-MP-ELIM-CONTROL-3: blocked by a temporal impossibility in the record
+## WS05-MP-ELIM-CONTROL-3: harness gap (not executed in this change)
 
 **Record.** P1's turn 1, P1 holding priority. P2 is at 0 life, and P2 owns a Control
 Magic attached to P1's Grizzly Bears, which P2 controls.
 
-**Why it cannot be executed as written:**
-- The harness cannot place an attachment or a control change (MICRO_CONTROL and CARD_25
-  precedent), so both must be caused by a real Control Magic cast.
-- Control Magic is an Aura without flash, cast at sorcery speed (CR 307.1) and only by
-  its owner P2 on P2's own turn.
-- The turn order is seat order (P1 → P2 → P3; F-41), so P2's first turn is turn 2. On P1's
-  turn 1, no P2 turn has happened, so no causal history can reach the requested state.
+**What blocks it.** The harness cannot place an attachment or a control change
+(MICRO_CONTROL and CARD_25 precedent), so both must be caused by a real Control Magic
+cast. Control Magic is an Aura, cast only when its owner could cast a sorcery
+(CR 303.1, 117.1a), and on P1's turn 1 P2 has had no turn of its own (seat order
+P1 → P2 → P3). A first reading classified this as a fixture defect. That was wrong: the
+fresh-context review showed a route that keeps the record as written. A declared flash
+enabler for P2 (for example Leyline of Anticipation, a placed permanent like the
+existing declared fuel and instruments) lets P2 cast Control Magic on P1's turn after
+P1 passes priority (CR 702.8a). The spell resolves, and P1 again holds priority with an
+empty stack, which is the record's checkpoint. P1 then eliminates P2.
 
-**Classification:** `FIXTURE_DEFECT`. A versioned contract erratum would have to move the
-checkpoint to a turn after P2's first turn, for example P1's turn 4: P2 casts Control
-Magic on its turn 2, and P1 eliminates P2 on turn 4. That changes the record's
-temporal state, and passing through whole turns needs combat declarations no record
-field determines. The successor contract is outside this workstream's ownership, and the
-erratum needs Coordinator adjudication under #255. The row stays **UNKNOWN**.
+**Classification:** `HARNESS_GAP`. The lane has no entry that causes a requested
+permanent (with its attachment and control change) by its cast and then verifies the
+resulting battlefield against the record. Such an entry is a generic extension of the
+composed route here: the permanent is cast and resolved, its battlefield state is
+verified, then the elimination runs. It is not a contract erratum. The row stays
+**UNKNOWN** until that entry exists.
 
 ## Remaining blockers
 
 | Row | Blocker |
 |---|---|
-| WS05-MP-ELIM-CONTROL-3 | Fixture temporal impossibility (above); a contract erratum needs Coordinator adjudication |
+| WS05-MP-ELIM-CONTROL-3 | Harness gap: no entry that causes a requested permanent by its cast (flash enabler route above) |
 | WS05-MP-ELIM-TURN-3 | Candidate XMage engine defect; engine remediation is #507 (another owner) |

@@ -2016,17 +2016,40 @@ def drive_causal_stack_elimination(
     verdicts = build_and_eliminate(client, f"probe-{fixture_id}", created, spec)
     stack = verdicts["stack"]
     elimination = verdicts["elimination"] or {}
-    eliminated = elimination.get("victim_lost") is True or elimination.get("victim_left") is True
+    # The obligation, not only the elimination: the victim left (lost and
+    # left), the engine's own stack is empty at the next decision, and no
+    # survivor's life moved from the record's request (the victim's spells
+    # never resolved).
+    eliminated = elimination.get("victim_lost") is True and elimination.get("victim_left") is True
+    decision = client.pending_decision()
+    pilot_stack = ((decision or {}).get("pilot_state") or {}).get("stack")
+    stack_empty = isinstance(pilot_stack, list) and not pilot_stack
+    requested_life = {
+        str(player.get("player_id")): player.get("life")
+        for player in record.get("players") or ()
+        if player.get("player_id") != spec.get("elimination_victim")
+    }
+    life_totals = elimination.get("life_totals") or {}
+    survivors_untouched = bool(requested_life) and all(
+        life_totals.get(pid) == life for pid, life in requested_life.items()
+    )
+    observed = (
+        verdicts["elimination"] is not None and eliminated and stack_empty and survivors_untouched
+    )
     terminal = {
         "kind": str(spec.get("terminal")),
-        "observed": verdicts["elimination"] is not None and eliminated,
+        "observed": observed,
         "stack_match": bool(stack.get("causal_match")) and not stack.get("mismatches"),
         "victim_lost": elimination.get("victim_lost") is True,
         "victim_left": elimination.get("victim_left") is True,
+        "stack_empty_after_loss": stack_empty,
+        "survivors_at_requested_life": survivors_untouched,
         "detail": (
-            "the engine built the victim's stack, then eliminated the victim"
-            if verdicts["elimination"] is not None and eliminated
-            else f"stack={stack} elimination={verdicts['elimination']}"
+            "the engine built the victim's stack, eliminated the victim, and the "
+            "victim's spells left without resolving"
+            if observed
+            else f"stack={stack} elimination={verdicts['elimination']} "
+            f"stack_after={pilot_stack} life={life_totals} requested={requested_life}"
         ),
     }
     combined = dict(elimination) if verdicts["elimination"] is not None else dict(stack)

@@ -32,10 +32,10 @@ milestones:
   - id: M1
     result: composed entry causal_stack_elimination; ELIM-STACK-3 verifies locally (probe and PB-03 producer)
   - id: M2
-    result: ELIM-CONTROL-3 classified FIXTURE_DEFECT (P2 cannot cast a sorcery-speed Aura before P1's turn 1)
+    result: ELIM-CONTROL-3 classified HARNESS_GAP (a declared flash enabler reaches the record as written; the lane has no causal-permanent entry), corrected after the fresh-context review
 open_items:
   - exact-head CI (PB-03) on the pushed head, fresh-context review, merge
 exact_next_action: >-
-  Confirm PB-03 credits WS05-MP-ELIM-STACK-3 on the exact head, run the
-  fresh-context review and merge under the gates; post the #508 handoff and the
-  ELIM-CONTROL-3 erratum proposal on #255.
+  Confirm PB-03 credits WS05-MP-ELIM-STACK-3 on the exact head after the
+  review fixes, merge under the gates and post the #508 handoff; then the
+  causal-permanent entry for ELIM-CONTROL-3.

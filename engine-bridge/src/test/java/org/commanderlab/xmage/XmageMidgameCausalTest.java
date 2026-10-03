@@ -1459,12 +1459,18 @@ class XmageMidgameCausalTest {
                 .getAsJsonObject("verdict");
         assertTrue(verdict.get("causal_match").getAsBoolean(),
                 "the engine must eliminate P2: " + verdict.getAsJsonArray("mismatches"));
-        // P2's Bolt left with P2 (CR 800.4a): it never resolved at P1.
+        assertTrue(verdict.get("victim_lost").getAsBoolean(), "P2 lost: " + verdict);
+        assertTrue(verdict.get("victim_left").getAsBoolean(), "P2 left: " + verdict);
+        // P2's Bolt left with P2 (CR 800.4a): it never resolved at P1, and the
+        // engine's own stack is empty at the next decision.
         assertEquals(40, verdict.getAsJsonObject("life_totals").get("P1").getAsInt());
+        JsonObject next = pendingDecision(lane);
+        assertEquals(0, next.getAsJsonObject("pilot_state").getAsJsonArray("stack").size(),
+                "the victim's spell must be gone from the engine's stack: " + next);
         JsonObject after = lane.ok("complete_causal_reconstruction", stackVerify)
                 .getAsJsonObject("verdict");
         assertFalse(after.get("causal_match").getAsBoolean(),
-                "the victim's spell must be gone from the stack after the loss");
+                "the stack verifier no longer finds the victim's spell after the loss");
     }
 
     @Test
