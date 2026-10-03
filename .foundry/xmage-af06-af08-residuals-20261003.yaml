@@ -17,7 +17,7 @@ objective: >-
   FIXTURE_DEFECT, HARNESS_GAP, ENGINE_DEFECT, TERMINAL_UNSUPPORTED).
 candidates:
   xmage: 37e4df6c914f1e189e24f0ef59fa91734c922436
-contract: commander-lab.full107/1.0.19-successor
+contract: commander-lab.full107/1.0.20-successor
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED
 status: ACTIVE
@@ -29,6 +29,12 @@ in_scope:
   - scripts/run_current_boundary_qualification.py
   - scripts/assemble_current_boundary_evidence.py
   - engine-bridge restoration/causal surfaces when a row needs them
+  - scripts/run_midgame_capability_probe.py (arrival declarations)
+  - qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_20.json
+  - qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_20_SUCCESSOR.json
+  - qualification/CURRENT_PRE_FREEZE_CONTRACT.json
+  - qualification/SHA256SUMS
+  - WS17_SHA256SUMS
 out_of_scope:
   - AF05, AF07, AF09
   - Forge lanes (#458, #459)
@@ -43,8 +49,33 @@ baseline:
   xmage_full107: {PASS: 51, FAIL: 0, UNKNOWN: 18, BLOCKED: 38}
   xmage_af06: UNKNOWN (38 blocking rows)
   xmage_af08: UNKNOWN (30 blocking rows)
+milestones:
+  - id: M1
+    rows: [all 38 BLOCKED and the WS05 UNKNOWN XMage rows]
+    result: partitioned into mechanism classes (local production-lane triage)
+    summary: >-
+      docs/af456_xmage_residuals_20261003/README.md lists every class, the rows
+      in it and the generic repair.
+  - id: M2
+    rows: [WS05-CMD-ZONE-* (8), MICRO_COMBAT, WS05-CMD-DMG-SAME-21, WS05-CMD-ELIM-4,
+           WS05-CMD-DMG-SPLIT, MICRO_ZONE_CHANGES, MICRO_STATE_BASED_ACTIONS,
+           MICRO_PRIORITY, MICRO_STACK, WS05-MP-PRIO-3, WS05-MP-PRIO-5, WS05-MP-TRIG-3,
+           WS05-MP-TRIG-5, MICRO_CONTINUOUS_EFFECTS, WS05-MP-BLOCK-4,
+           PILOT_DECLARE_BLOCKER, MICRO_REPLACEMENT, MICRO_PREVENTION]
+    result: 25 rows verified locally by the PB-03 producer (not credit until PB-03)
+    summary: >-
+      Generic repairs: yes/no family binding, causal-stack entry on the FULL107
+      route, requested-combat declarations (arrival and executor, verified
+      against the engine's declaration events), commander-damage readback,
+      CR 400.7 incarnation on public moves, event/frame order and block
+      partition checks. Contract 1.0.20 corrects ten fixture defects (one
+      obligation erratum, MICRO_CONTINUOUS_EFFECTS, on the CARD_16 precedent).
+open_items:
+  - causal elimination on the FULL107 route (WS05-MP-ELIM-5/OWNED-3/PRIO-3/TURN-3/STACK-3)
+  - attachments and control divergence (MICRO_CONTROL, WS05-MP-ELIM-CONTROL-3, WS05-CMD-DMG-CONTROL)
+  - undeclared stack entries (MICRO_COPY, MICRO_RULES_RANDOMNESS) and the stack-object selector (MICRO_MANA_PAYMENT)
+  - extra-turn causal setup (WS05-MP-TURN-3/5); natural game start (WS05-CMD-MULL-2/4); partner rows
 exact_next_action: >-
-  Push this branch as a draft PR; read the PB-03 job log's per-row print
-  (non_pass_rows, blocking_row_ids) and partition every XMage AF06/AF08
-  residual into exactly one mechanism class; then take the generic mechanism
-  repair that closes the most rows first.
+  Push M2; read the PB-03 af_gates print on the pushed head and confirm the 25
+  rows PASS there; then take the causal-elimination route on the FULL107 path
+  (five rows), then attachments/control divergence.

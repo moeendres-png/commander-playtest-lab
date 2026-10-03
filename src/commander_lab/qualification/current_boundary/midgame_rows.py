@@ -48,6 +48,10 @@ EXECUTION_MODE = "MIDGAME_LANE_PLACEMENT_OBLIGATION"
 TEST_IDENTITY_PREFIX = "midgame-lane:placement-obligation#"
 POSITIVE_FIXTURE_RECEIPT_SCHEMA = receipt_mod.POSITIVE_FIXTURE_RECEIPT_SCHEMA
 ACCEPTED_CONSTRUCTION = {"EXACT", "ALLOWED_VARIANCE"}
+REQUESTED_COMBAT_FACT = (
+    "the engine's declared attacks (and blocks, when requested) are exactly the record's "
+    "combat_state"
+)
 
 
 @dataclass(frozen=True)
@@ -153,6 +157,30 @@ class TerminalCheck:
             return f"exactly {self.value} {self.card_identity} tokens are on {self.principal}'s battlefield"
         if self.kind == "life":
             return f"{self.principal} is at {self.value} life"
+        if self.kind == "blocker_partition":
+            return (
+                f"every block the engine offered {self.principal} names an attacker attacking "
+                f"{self.principal}"
+            )
+        if self.kind == "event_order":
+            field_name, expected = self.value
+            constraints = ", ".join(f"{key}={value}" for key, value in self.where)
+            return (
+                f"the {self.event_type} events with {constraints or 'any fields'} carry "
+                f"{field_name} {list(expected)} in tape order"
+            )
+        if self.kind == "frame_order":
+            decision_class, principals = self.value
+            return (
+                f"the engine's first {len(principals)} {decision_class} decisions went to "
+                f"{list(principals)} in that order"
+            )
+        if self.kind == "commander_damage":
+            damaged, amount = self.value
+            return (
+                f"the engine's commander combat damage from {self.principal}'s "
+                f"{self.card_identity} to {damaged} is {amount}"
+            )
         if self.kind == "trigger_count":
             return f"{self.source_name} triggered exactly {self.value} time(s)"
         if self.kind == "commander_prior_casts":
@@ -245,8 +273,217 @@ def engine_decision_class(family: str) -> str:
     return ENGINE_DECISION_CLASS.get(family, family)
 
 
+# XMage asks every yes/no question through one decision class, ``choose_use``
+# (its chooseUse surface). A record step that answers a yes/no question with a
+# boolean selector may name the question's rules family instead (the owner's
+# commander zone choice is a ``choice`` or a ``replacement_effect`` in the
+# records). The binding changes only which engine frame the step answers; the
+# boolean selector still matches exactly the engine's own boolean offer that
+# carries the record's value, and fails closed on anything else.
+BOOLEAN_DECISION_CLASS = "choose_use"
+BOOLEAN_QUESTION_FAMILIES = frozenset({"choice", "replacement_effect"})
+
+
+def step_decision_class(step: dict[str, Any]) -> str:
+    """The engine decision class a record's scripted step answers."""
+    family = str(step.get("decision_family") or "")
+    selector = str((step.get("selection") or {}).get("selector_kind") or "")
+    if selector == "boolean" and family in BOOLEAN_QUESTION_FAMILIES:
+        return BOOLEAN_DECISION_CLASS
+    return engine_decision_class(family)
+
+
 def _life(principal: str, value: int) -> TerminalCheck:
     return TerminalCheck("life", principal=principal, value=value)
+
+
+def _event(event_type: str, *where: tuple[str, Any], count: int | None = None) -> TerminalCheck:
+    """Engine tape events of one type meeting every field constraint.
+
+    ``count=None`` needs at least one; an integer needs exactly that many.
+    """
+    return TerminalCheck("events", value=count, event_type=event_type, where=tuple(where))
+
+
+def _before(earlier: TerminalCheck, later: TerminalCheck) -> TerminalCheck:
+    """Every event of ``earlier``'s pattern precedes the first of ``later``'s."""
+    return TerminalCheck(
+        "events_precede",
+        event_type=earlier.event_type,
+        where=earlier.where,
+        value=(later.event_type, later.where),
+    )
+
+
+def _commander_damage(owner: str, commander: str, damaged: str, amount: int) -> TerminalCheck:
+    return TerminalCheck(
+        "commander_damage", principal=owner, card_identity=commander, value=(damaged, amount)
+    )
+
+
+def _combat_damage_to_player(source: str, player: str, amount: int) -> TerminalCheck:
+    return _event(
+        "DAMAGED_PLAYER",
+        ("source_object", source),
+        ("target_player", player),
+        ("amount", amount),
+        ("combat", True),
+        count=1,
+    )
+
+
+def _player_loses(player: str) -> TerminalCheck:
+    return _event("LOST", ("player_player", player), count=1)
+
+
+def _commander_damage_loss(
+    attacker: str, owner: str, commander: str, damaged: str
+) -> tuple[tuple[str, Any], ...]:
+    """CR 903.10a / 704.6c: one commander's combat damage takes a player to 21.
+
+    The engine's own commander-damage readback reads 21 from that commander,
+    the engine reports the loss, and the commander's combat damage precedes it.
+    """
+    damage = _combat_damage_to_player(attacker, damaged, 2)
+    lost = _player_loses(damaged)
+    return (
+        (f"commander_damage_total:{damaged}:21", _commander_damage(owner, commander, damaged, 21)),
+        (f"player_loses:{damaged}", (lost, _before(damage, lost))),
+    )
+
+
+def _named(event_type: str, key: str, name: str, *where: tuple[str, Any]) -> TerminalCheck:
+    """Engine events of a type whose ``key`` names ``name`` (by prefix)."""
+    return _event(event_type, (f"{key}~", name), *where)
+
+
+def _exactly(check: TerminalCheck, count: int) -> TerminalCheck:
+    """The same event pattern, needing exactly ``count`` matching events."""
+    return TerminalCheck("events", value=count, event_type=check.event_type, where=check.where)
+
+
+def _response_spec(responder: str, response: str, spell: str, target: str, forest: str) -> RowSpec:
+    """MICRO_PRIORITY / MICRO_STACK: a response resolves before the spell it answers.
+
+    ``responder`` casts the record's response through the engine's own
+    legal-action domain while ``spell`` is on the stack; the response resolves
+    first (CR 405.5), then the spell deals its 3 damage to the record's target,
+    which survives, and leaves the stack: the stack is empty again.
+    """
+    cast = _event("SPELL_CAST", ("source_object", response), ("player_player", responder))
+    pushed = _event("ZONE_CHANGE", ("target_object", response), ("from", "HAND"), ("to", "STACK"))
+    resolved = _event(
+        "ZONE_CHANGE", ("target_object", response), ("from", "STACK"), ("to", "GRAVEYARD")
+    )
+    damage = _event(
+        "DAMAGED_PERMANENT", ("source_object", spell), ("target_object", target), ("amount", 3)
+    )
+    spell_resolved = _event(
+        "ZONE_CHANGE", ("target_object", spell), ("from", "STACK"), ("to", "GRAVEYARD")
+    )
+    return RowSpec(
+        mana_sources=(forest,),
+        terminal_checks=(
+            _exactly(_event("ZONE_CHANGE", ("target_object", target), ("from", "BATTLEFIELD")), 0),
+        ),
+        token_bindings=(
+            (
+                # The responder held priority: its scripted priority frame cast
+                # the response, and the engine attributes the cast to it.
+                f"priority:{responder}",
+                (
+                    TerminalCheck("selected_frame", value="priority", label="Giant Growth"),
+                    _exactly(cast, 1),
+                ),
+            ),
+            ("spell_cast:Giant_Growth", _exactly(cast, 1)),
+            ("stack_push:Giant_Growth", (_exactly(pushed, 1), _before(pushed, cast))),
+            ("resolve:Giant_Growth", (_exactly(resolved, 1), _before(resolved, damage))),
+            (
+                "resolve:Lightning_Bolt",
+                (
+                    _exactly(damage, 1),
+                    _exactly(spell_resolved, 1),
+                    _before(resolved, spell_resolved),
+                ),
+            ),
+        ),
+    )
+
+
+def _apnap_triggers(source: str, seats: tuple[str, ...], entering: str) -> tuple[Any, ...]:
+    """Simultaneous triggers of every seat's ``source`` put on the stack in APNAP order.
+
+    One event (``entering`` enters the battlefield) triggers every seat's
+    ``source`` at once: every trigger is put on the stack after that event and
+    before the first of them resolves (CR 603.3b), in APNAP order from the
+    active player (CR 101.4), so they resolve in the reverse order.
+    """
+    triggers = _named("TRIGGERED_ABILITY", "source_name", source)
+    gains = _named("GAINED_LIFE", "source_name", source)
+    enters = _event("ZONE_CHANGE", ("target_object", entering), ("to", "BATTLEFIELD"))
+    return (
+        (
+            "simultaneous_trigger_event",
+            (
+                _exactly(triggers, len(seats)),
+                _before(enters, triggers),
+                _before(triggers, gains),
+            ),
+        ),
+        (
+            "APNAP_stack_order",
+            (
+                TerminalCheck(
+                    "event_order",
+                    event_type="TRIGGERED_ABILITY",
+                    where=triggers.where,
+                    value=("player_player", seats),
+                ),
+                TerminalCheck(
+                    "event_order",
+                    event_type="GAINED_LIFE",
+                    where=gains.where,
+                    value=("target_player", tuple(reversed(seats))),
+                ),
+            ),
+        ),
+    )
+
+
+def _priority_response(seats: tuple[str, ...], responder: str) -> RowSpec:
+    """WS05-MP-PRIO-N: the live priority ring and the pass count reset by an action.
+
+    With P1's Bolt on the stack, priority passes P1..PN in seat order (CR
+    117.3d, 800.4); the last seat responds, receives priority again (CR
+    117.3c), and every other live player must pass again before the response
+    resolves (CR 117.4). The Bolt resolves after the response.
+    """
+    ring = tuple(seats)
+    reset = (*ring, responder, *ring[:-1])
+    response, bolt = "obj:mp-response", "obj:mp-bolt"
+    cast = _event("SPELL_CAST", ("source_object", response), ("player_player", responder), count=1)
+    bolt_leaves = _event("ZONE_CHANGE", ("target_object", bolt), ("from", "STACK"))
+    resolved = _event(
+        "ZONE_CHANGE", ("target_object", response), ("from", "STACK"), ("to", "GRAVEYARD")
+    )
+    return RowSpec(
+        mana_sources=(f"obj:ws05-prio{len(seats)}-green-0",),
+        terminal_checks=(
+            TerminalCheck("on_battlefield", principal=responder, card_identity="Grizzly Bears"),
+        ),
+        token_bindings=(
+            ("priority_ring_live_order", TerminalCheck("frame_order", value=("priority", ring))),
+            (
+                "priority_action_resets_pass_count",
+                (
+                    TerminalCheck("frame_order", value=("priority", reset)),
+                    _before(resolved, bolt_leaves),
+                ),
+            ),
+            ("response_on_stack", (cast, _before(cast, bolt_leaves))),
+        ),
+    )
 
 
 # FULL107 denominator rows, onboarded one at a time, each with its record's own
@@ -395,6 +632,350 @@ ROWS: dict[str, RowSpec] = {
     "NEGATIVE_SILENT_SKIP": RowSpec(
         mana_sources=("obj:negative_silent_skip-mana-0",),
     ),
+    # The commander zone choice (CR 903.9): the opponent's removal spell is
+    # rebuilt on the stack through the declared causal route and resolves; the
+    # engine then asks the commander's owner, on its own yes/no frame, whether
+    # the commander goes to the command zone. Graveyard and exile are a choice
+    # after the move (CR 903.9a); hand and library replace the move (CR 903.9b).
+    # The tokens are verified against the engine's zone-change events of the
+    # record's commander object and the scripted answer on that frame.
+    **{
+        f"WS05-CMD-ZONE-{zone}-{answer}": RowSpec()
+        for zone in ("GY", "EXILE", "HAND", "LIB")
+        for answer in ("YES", "NO")
+    },
+    # MICRO_COMBAT: the record's requested combat (P1's Bears attack P2 and
+    # P2's Bears block it) is declared on the engine's own frames; the two 2/2s
+    # deal combat damage to each other simultaneously and state-based actions
+    # destroy both (CR 510.2, 704.5g): no source destroys them.
+    "MICRO_COMBAT": RowSpec(
+        token_bindings=(
+            (
+                "combat_damage:attacker_to_blocker:2",
+                _event(
+                    "DAMAGED_PERMANENT",
+                    ("source_object", "obj:micro-attacker"),
+                    ("target_object", "obj:micro-blocker"),
+                    ("amount", 2),
+                    ("combat", True),
+                    count=1,
+                ),
+            ),
+            (
+                "combat_damage:blocker_to_attacker:2",
+                _event(
+                    "DAMAGED_PERMANENT",
+                    ("source_object", "obj:micro-blocker"),
+                    ("target_object", "obj:micro-attacker"),
+                    ("amount", 2),
+                    ("combat", True),
+                    count=1,
+                ),
+            ),
+            (
+                "state_based_actions",
+                (
+                    _event(
+                        "DESTROYED_PERMANENT",
+                        ("target_object", "obj:micro-attacker"),
+                        ("source_object", None),
+                        count=1,
+                    ),
+                    _event(
+                        "DESTROYED_PERMANENT",
+                        ("target_object", "obj:micro-blocker"),
+                        ("source_object", None),
+                        count=1,
+                    ),
+                    _before(
+                        _event("DAMAGED_PERMANENT", ("combat", True)),
+                        _event("DESTROYED_PERMANENT"),
+                    ),
+                ),
+            ),
+            (
+                "both_creatures_die",
+                tuple(
+                    _event(
+                        "ZONE_CHANGE",
+                        ("target_object", creature),
+                        ("from", "BATTLEFIELD"),
+                        ("to", "GRAVEYARD"),
+                        count=1,
+                    )
+                    for creature in ("obj:micro-attacker", "obj:micro-blocker")
+                ),
+            ),
+        ),
+    ),
+    # WS05-CMD-DMG-SAME-21: Isamaru (P1's commander) has dealt P2 19 combat
+    # damage (restored and verified); the requested attack deals 2 more and
+    # P2 loses for 21 commander damage from one commander while at 38 life.
+    "WS05-CMD-DMG-SAME-21": RowSpec(
+        terminal_checks=(_life("P2", 38),),
+        token_bindings=(
+            (
+                "commander_combat_damage:P2:2",
+                _combat_damage_to_player("obj:isamaru", "P2", 2),
+            ),
+            *_commander_damage_loss("obj:isamaru", "P1", "Isamaru, Hound of Konda", "P2"),
+        ),
+    ),
+    # WS05-CMD-ELIM-4: the same commander-damage loss, then the multiplayer
+    # cleanup (CR 800.4a): every object P2 owns leaves the game after the loss.
+    "WS05-CMD-ELIM-4": RowSpec(
+        terminal_checks=(_life("P2", 38),),
+        token_bindings=(
+            *_commander_damage_loss("obj:elim-isamaru", "P1", "Isamaru, Hound of Konda", "P2"),
+            (
+                "multiplayer_cleanup:CR800.4",
+                _before(
+                    _player_loses("P2"),
+                    _event("ZONE_CHANGE", ("player_player", "P2"), ("to", "OUTSIDE")),
+                ),
+            ),
+            (
+                "object_leaves_game:obj:p2-owned",
+                _event(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:p2-owned"),
+                    ("from", "BATTLEFIELD"),
+                    ("to", "OUTSIDE"),
+                    count=1,
+                ),
+            ),
+        ),
+    ),
+    # MICRO_ZONE_CHANGES: the Bolt on the stack (rebuilt through the declared
+    # causal route) resolves and goes to its owner's graveyard as a new object
+    # (CR 400.7): the engine's incarnation of the card grows with the move.
+    "MICRO_ZONE_CHANGES": RowSpec(
+        token_bindings=(
+            (
+                "resolve:obj:micro-bolt-stack",
+                (
+                    _event(
+                        "DAMAGED_PLAYER",
+                        ("source_object", "obj:micro-bolt-stack"),
+                        ("target_player", "P2"),
+                        ("amount", 3),
+                        count=1,
+                    ),
+                    _before(
+                        _event("DAMAGED_PLAYER", ("source_object", "obj:micro-bolt-stack")),
+                        _event(
+                            "ZONE_CHANGE",
+                            ("target_object", "obj:micro-bolt-stack"),
+                            ("from", "STACK"),
+                        ),
+                    ),
+                ),
+            ),
+            (
+                "zone_change:stack->graveyard",
+                _event(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:micro-bolt-stack"),
+                    ("from", "STACK"),
+                    ("to", "GRAVEYARD"),
+                    count=1,
+                ),
+            ),
+        ),
+    ),
+    # MICRO_STATE_BASED_ACTIONS: Night of Souls' Betrayal gives every creature
+    # -1/-1; the engine shows it applied (P1's Grizzly Bears read 1/1). Memnite
+    # (printed 1/1) is cast for {0}, enters, and is put into its owner's
+    # graveyard by the toughness state-based action (CR 704.5f): nothing
+    # destroys it and nothing damages it. Memnite's own 0/0 is never read back
+    # (it does not survive to a readback); the token is bound to the applied
+    # effect and the state-based move it causes.
+    "MICRO_STATE_BASED_ACTIONS": RowSpec(
+        token_bindings=(
+            (
+                "continuous_pt:obj:micro-zero:0/0",
+                (
+                    TerminalCheck(
+                        "power_toughness",
+                        principal="P1",
+                        card_identity="Grizzly Bears",
+                        value=(1, 1),
+                    ),
+                    TerminalCheck("not_on_battlefield", principal="P1", card_identity="Memnite"),
+                ),
+            ),
+            (
+                "state_based_actions",
+                (
+                    _event("DESTROYED_PERMANENT", ("target_object", "obj:micro-zero"), count=0),
+                    _event("DAMAGED_PERMANENT", ("target_object", "obj:micro-zero"), count=0),
+                    _before(
+                        _event(
+                            "ZONE_CHANGE",
+                            ("target_object", "obj:micro-zero"),
+                            ("to", "BATTLEFIELD"),
+                        ),
+                        _event(
+                            "ZONE_CHANGE",
+                            ("target_object", "obj:micro-zero"),
+                            ("from", "BATTLEFIELD"),
+                            ("to", "GRAVEYARD"),
+                        ),
+                    ),
+                ),
+            ),
+            (
+                "move_to_graveyard:obj:micro-zero",
+                _event(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:micro-zero"),
+                    ("from", "BATTLEFIELD"),
+                    ("to", "GRAVEYARD"),
+                    ("source_object", None),
+                    count=1,
+                ),
+            ),
+        ),
+    ),
+    "MICRO_PRIORITY": _response_spec(
+        "P2", "obj:micro-growth", "obj:micro-bolt", "obj:micro-target", "obj:micro-forest"
+    ),
+    "MICRO_STACK": _response_spec(
+        "P2", "obj:micro-growth", "obj:micro-bolt", "obj:micro-target", "obj:micro-forest"
+    ),
+    "WS05-MP-PRIO-3": _priority_response(("P1", "P2", "P3"), "P3"),
+    "WS05-MP-PRIO-5": _priority_response(("P1", "P2", "P3", "P4", "P5"), "P5"),
+    "WS05-MP-TRIG-3": RowSpec(
+        mana_sources=("obj:mp-trigger-forest-1", "obj:mp-trigger-forest-2"),
+        token_bindings=_apnap_triggers("Soul Warden", ("P1", "P2", "P3"), "obj:mp-enter"),
+    ),
+    "WS05-MP-TRIG-5": RowSpec(
+        mana_sources=("obj:ws05-trig5-cast-0", "obj:ws05-trig5-cast-1"),
+        token_bindings=_apnap_triggers(
+            "Soul Warden", ("P1", "P2", "P3", "P4", "P5"), "obj:mp-enter"
+        ),
+    ),
+    # MICRO_REPLACEMENT: Hill Giant (3 power) attacks P2 unblocked, as the
+    # requested combat states; Gratuitous Violence doubles the combat damage it
+    # would deal (CR 614.1a), so P2 is dealt 6, never 3 (CR 510.1a: a creature
+    # assigns combat damage equal to its power).
+    "MICRO_REPLACEMENT": RowSpec(
+        terminal_checks=(_life("P2", 34),),
+        token_bindings=(
+            (
+                "damage_would_be:P2:3",
+                TerminalCheck(
+                    "power_toughness", principal="P1", card_identity="Hill Giant", value=(3, 3)
+                ),
+            ),
+            (
+                "replacement_effect:double",
+                (
+                    TerminalCheck(
+                        "on_battlefield", principal="P1", card_identity="Gratuitous Violence"
+                    ),
+                    _combat_damage_to_player("obj:micro-3power", "P2", 6),
+                    _exactly(_event("DAMAGED_PLAYER", ("target_player", "P2")), 1),
+                ),
+            ),
+        ),
+    ),
+    # MICRO_CONTINUOUS_EFFECTS (1.0.20 obligation erratum): Psychosis Crawler's
+    # power and toughness are a characteristic-defining ability (CR 604.3) the
+    # engine evaluates from P1's hand size; at the reachable 13-card hand it
+    # reads 13/13, and the Crawler triggers nothing in the obligation window.
+    "MICRO_CONTINUOUS_EFFECTS": RowSpec(
+        token_bindings=(
+            (
+                "continuous_pt_evaluated:13/13",
+                (
+                    TerminalCheck(
+                        "power_toughness",
+                        principal="P1",
+                        card_identity="Psychosis Crawler",
+                        value=(13, 13),
+                    ),
+                    TerminalCheck("hand_count", principal="P1", value=13),
+                    _exactly(
+                        _event("TRIGGERED_ABILITY", ("source_object", "obj:micro-crawler")), 0
+                    ),
+                ),
+            ),
+        ),
+    ),
+    # MICRO_PREVENTION: P1's 2-power attacker attacks P2 unblocked (the
+    # requested combat); P2 casts Fog on its own priority in the declare
+    # attackers step, and the engine prevents the 2 combat damage it would deal
+    # P2 (CR 615.1): a prevention event and no damage, so P2 loses no life.
+    "MICRO_PREVENTION": RowSpec(
+        mana_sources=("obj:fog-forest-1",),
+        terminal_checks=(_life("P2", 40),),
+        token_bindings=(
+            (
+                "combat_damage_would_be:P2:2",
+                (
+                    TerminalCheck(
+                        "power_toughness",
+                        principal="P1",
+                        card_identity="Grizzly Bears",
+                        value=(2, 2),
+                    ),
+                    _exactly(_event("PREVENTED_DAMAGE", ("target_player", "P2"), ("amount", 2)), 1),
+                ),
+            ),
+            (
+                "prevention_applied",
+                _exactly(
+                    _event(
+                        "PREVENTED_DAMAGE",
+                        ("source_object", "obj:micro-fog"),
+                        ("target_player", "P2"),
+                    ),
+                    1,
+                ),
+            ),
+            (
+                "combat_damage_prevented:P2:2",
+                (
+                    _exactly(_event("PREVENTED_DAMAGE", ("target_player", "P2"), ("amount", 2)), 1),
+                    _exactly(_event("DAMAGED_PLAYER", ("target_player", "P2")), 0),
+                ),
+            ),
+        ),
+    ),
+    "PILOT_DECLARE_BLOCKER": RowSpec(),
+    # WS05-MP-BLOCK-4: P1 attacks P2 (obj:mp-a2) and P3 (obj:mp-a3); every
+    # block the engine offers P2 names only the attacker attacking P2.
+    "WS05-MP-BLOCK-4": RowSpec(
+        token_bindings=(
+            (
+                "legal_blocker_partition:P2",
+                TerminalCheck(
+                    "blocker_partition",
+                    principal="P2",
+                    value=(("obj:mp-a2",), ("obj:mp-a3",)),
+                ),
+            ),
+        ),
+    ),
+    # WS05-CMD-DMG-SPLIT: P2 has 11 combat damage from Rograkh and 10 from
+    # Kediss (21 in aggregate). The engine checks state-based actions before
+    # every priority (CR 117.5): with a priority frame asked after the arrival,
+    # P2 has not lost, and the engine's own readback still holds the damage
+    # per commander (CR 903.10a counts each commander separately).
+    "WS05-CMD-DMG-SPLIT": RowSpec(
+        token_bindings=(
+            (
+                "commander_damage_checked_per_commander",
+                (
+                    _commander_damage("P1", "Rograkh, Son of Rohgahh", "P2", 11),
+                    _commander_damage("P1", "Kediss, Emberclaw Familiar", "P2", 10),
+                    TerminalCheck("frame_count", principal="P1", value=("priority", 1), label=""),
+                    _event("LOST", count=0),
+                ),
+            ),
+        ),
+    ),
 }
 
 
@@ -426,6 +1007,10 @@ class Frame:
     # answer carries one; a multi-select answer carries the complete vector, so
     # the receipt shows exactly which targets the engine accepted.
     selected_option_ids: tuple[str, ...] = ()
+    # On a block declaration frame: the record identities of the attackers the
+    # engine offered this blocker (None for an attacker the record never
+    # placed), so a verifier can read the engine's own legal-block partition.
+    offered_attackers: tuple[str | None, ...] = ()
 
 
 @dataclass
@@ -723,11 +1308,151 @@ def verify_token(
     if match := re.fullmatch(r"amount_assignment:(\d+(?:\+\d+)*)", token):
         declared = [int(part) for part in match.group(1).split("+")]
         return _verify_amount_assignment(declared, trace)
+    if match := re.fullmatch(r"commander_zone_event:(graveyard|exile|hand|library)", token):
+        return _commander_zone_event(match.group(1), tape, trace, commander_object_ids)
+    if match := re.fullmatch(r"commander_choice:(command|graveyard|exile|hand|library)", token):
+        return _commander_choice(match.group(1), tape, trace, commander_object_ids)
     if match := re.fullmatch(r"cost_determined:base_plus_(\d+)_generic", token):
         return _verify_cost_determined(int(match.group(1)), trace, cost_obligation)
     if match := re.fullmatch(r"cost_determined:base_minus_(\d+)_generic", token):
         return _verify_cost_determined(-int(match.group(1)), trace, cost_obligation)
     return None
+
+
+# The record's zone word and the engine's zone name for a commander leaving
+# the battlefield.
+COMMANDER_DESTINATIONS = {
+    "graveyard": "GRAVEYARD",
+    "exile": "EXILED",
+    "hand": "HAND",
+    "library": "LIBRARY",
+}
+# CR 903.9b: a commander that would be put into its owner's hand or library is
+# a replacement, so the move to that zone never happens when the owner takes
+# the command zone instead. The engine's own frame names the replaced zone.
+REPLACED_DESTINATION_PROMPTS = {
+    "hand": "instead of your hand",
+    "library": "instead of your library",
+}
+
+
+def _commander_moves(
+    tape: list[dict[str, Any]], commander_object_ids: set[str]
+) -> list[dict[str, Any]]:
+    return [
+        e for e in _events(tape, "ZONE_CHANGE") if e.get("target_object") in commander_object_ids
+    ]
+
+
+def _commander_zone_frames(trace: list[Frame]) -> list[tuple[int, Frame]]:
+    """The scripted yes/no frames this run answered about a commander's zone."""
+    return [
+        (index, frame)
+        for index, frame in enumerate(trace)
+        if frame.decision_class == BOOLEAN_DECISION_CLASS
+        and frame.scripted
+        and frame.selected_key in {"true", "false"}
+        and frame.selected_label in frame.offered_labels
+        and "command zone" in frame.prompt
+    ]
+
+
+def _commander_zone_event(
+    zone: str,
+    tape: list[dict[str, Any]],
+    trace: list[Frame],
+    commander_object_ids: set[str],
+) -> dict[str, Any] | None:
+    """A commander left the battlefield for ``zone`` (CR 903.9).
+
+    Either the engine moved it there (graveyard and exile always; hand and
+    library when the owner declined the command zone), or the engine asked its
+    owner whether to replace the move to the hand or library (CR 903.9b) and
+    the commander went from the battlefield straight to the command zone.
+    """
+    moves = _commander_moves(tape, commander_object_ids)
+    direct = [
+        e["sequence"]
+        for e in moves
+        if e.get("from") == "BATTLEFIELD" and e.get("to") == COMMANDER_DESTINATIONS[zone]
+    ]
+    if direct:
+        return {"events": direct}
+    replaced_prompt = REPLACED_DESTINATION_PROMPTS.get(zone)
+    if replaced_prompt is None:
+        return None
+    frames = [
+        index for index, frame in _commander_zone_frames(trace) if replaced_prompt in frame.prompt
+    ]
+    to_command = [
+        e["sequence"] for e in moves if e.get("from") == "BATTLEFIELD" and e.get("to") == "COMMAND"
+    ]
+    return {"decision_frames": frames, "events": to_command} if frames and to_command else None
+
+
+def _commander_choice(
+    destination: str,
+    tape: list[dict[str, Any]],
+    trace: list[Frame],
+    commander_object_ids: set[str],
+) -> dict[str, Any] | None:
+    """The owner's scripted command-zone answer and the engine's resulting zone.
+
+    ``command`` is a "yes" on the engine's command-zone frame and a final move
+    into the command zone; any other destination is a "no" and a final move
+    into that zone with no later move to the command zone.
+    """
+    wanted = "true" if destination == "command" else "false"
+    frames = [
+        index for index, frame in _commander_zone_frames(trace) if frame.selected_key == wanted
+    ]
+    moves = _commander_moves(tape, commander_object_ids)
+    if not frames or not moves:
+        return None
+    final = moves[-1]
+    expected = "COMMAND" if destination == "command" else COMMANDER_DESTINATIONS[destination]
+    if final.get("to") != expected:
+        return None
+    return {"decision_frames": frames, "events": [final["sequence"]]}
+
+
+def new_incarnation_evidence(
+    lineage: str,
+    record: dict[str, Any],
+    history: list[dict[str, Any]],
+    window: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    """CR 400.7: the lineage's latest public move made a new engine object.
+
+    The record names a card lineage; the engine reports its own object
+    incarnation (the card's zone-change counter) on every public move. The
+    lineage's last move in this obligation's window must carry a strictly
+    greater incarnation than its previous public move in the whole game.
+    """
+    objects = {
+        str(o.get("semantic_id"))
+        for o in record.get("semantic_objects") or ()
+        if o.get("card_lineage_id") == lineage
+    }
+
+    def moves(tape: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        return [
+            e
+            for e in _events(tape, "ZONE_CHANGE")
+            if e.get("target_object") in objects and isinstance(e.get("incarnation"), int)
+        ]
+
+    current = moves(window)
+    if not objects or not current:
+        return None
+    last = current[-1]
+    earlier = [e for e in moves(history) if int(e["sequence"]) < int(last["sequence"])]
+    if not earlier or not int(last["incarnation"]) > int(earlier[-1]["incarnation"]):
+        return None
+    return {
+        "events": [earlier[-1]["sequence"], last["sequence"]],
+        "incarnations": [earlier[-1]["incarnation"], last["incarnation"]],
+    }
 
 
 def _assignment_frames(trace: list[Frame]) -> list[Frame]:
@@ -931,6 +1656,48 @@ def check_terminal(
     seat = seats.get(check.principal or "") or {}
     if check.kind == "life":
         return bool(seat.get("life") == check.value)
+    if check.kind == "blocker_partition":
+        # CR 802.4a: a defending player's creature may block only a creature
+        # attacking that player. ``value`` is the record's requested combat split
+        # (attackers of the principal, attackers of other players); the row's
+        # requested-combat fact verifies it against the engine's own declaration
+        # events. Every block frame the engine asked of the principal offered
+        # only attackers of the principal, while another player was attacked.
+        own, others = check.value
+        frames = [
+            frame
+            for frame in trace
+            if frame.decision_class == "declare_blocker" and frame.principal == check.principal
+        ]
+        return (
+            bool(frames)
+            and bool(others)
+            and all(
+                frame.offered_attackers
+                and all(attacker in own for attacker in frame.offered_attackers)
+                for frame in frames
+            )
+        )
+    if check.kind == "event_order":
+        field_name, expected = check.value
+        hits = matching_events(
+            TerminalCheck("events", event_type=check.event_type, where=check.where), tape
+        )
+        return [e.get(field_name) for e in hits] == list(expected)
+    if check.kind == "frame_order":
+        decision_class, principals = check.value
+        order = [frame.principal for frame in trace if frame.decision_class == decision_class]
+        return order[: len(principals)] == list(principals)
+    if check.kind == "commander_damage":
+        damaged, amount = check.value
+        entries = [
+            entry
+            for entry in seat.get("commanders") or ()
+            if entry.get("card_identity") == check.card_identity
+        ]
+        return (
+            len(entries) == 1 and (entries[0].get("combat_damage_to") or {}).get(damaged) == amount
+        )
     if check.kind == "trigger_count":
         hits = [
             e
@@ -1766,6 +2533,7 @@ def _scripted_answer(
         # record's answer; the label is never read.
         if not isinstance(value, bool):
             raise ml.MidgameLaneError(f"boolean selector carries {value!r}")
+        key = "true" if value else "false"
         matches = [
             a
             for a in actions
@@ -1931,6 +2699,136 @@ def _attacker_answer(
     return chosen
 
 
+@dataclass(frozen=True)
+class RequestedCombat:
+    """The record's own requested combat (its ``combat_state``).
+
+    ``attackers`` maps each attacking creature to the player it attacks; every
+    other creature of the attacking player is held. ``blocks`` maps each
+    blocking creature to the attacker it blocks, or is None when the record
+    leaves the blocks to its own decision script. A record that lists no
+    blocks but names every attacker unblocked requests that nothing blocks.
+    """
+
+    attackers: tuple[tuple[str, str], ...]
+    blocks: tuple[tuple[str, str], ...] | None
+
+    def attack_step(self) -> dict[str, Any]:
+        return {"selection": {"semantic_value": dict(self.attackers)}}
+
+    def block_step(self) -> dict[str, Any]:
+        return {"selection": {"semantic_value": dict(self.blocks or ())}}
+
+
+def requested_combat(record: dict[str, Any]) -> RequestedCombat | None:
+    """The record's requested combat, or None when it requests none."""
+    combat = record.get("combat_state")
+    if not combat:
+        return None
+    attackers = combat.get("attackers") or {}
+    if not isinstance(attackers, dict):
+        raise ml.MidgameLaneError(f"combat_state.attackers is not a mapping: {attackers!r}")
+    blockers = combat.get("blockers")
+    if blockers is None:
+        unblocked = {str(o) for o in combat.get("unblocked") or ()} | {
+            str(o) for o in combat.get("unblocked_attackers") or ()
+        }
+        blockers = {} if attackers and unblocked >= {str(a) for a in attackers} else None
+    if blockers is not None and not isinstance(blockers, dict):
+        raise ml.MidgameLaneError(f"combat_state.blockers is not a mapping: {blockers!r}")
+    return RequestedCombat(
+        attackers=tuple(sorted((str(k), str(v)) for k, v in attackers.items())),
+        blocks=(
+            None
+            if blockers is None
+            else tuple(sorted((str(k), str(v)) for k, v in blockers.items()))
+        ),
+    )
+
+
+def _scripts_family(record: dict[str, Any], family: str) -> bool:
+    return any(
+        step.get("decision_family") == family for step in record.get("decision_script") or ()
+    )
+
+
+def _offered_attackers(
+    legal: dict[str, Any], placed_by_native: dict[str, str]
+) -> tuple[str | None, ...]:
+    return tuple(
+        placed_by_native.get(
+            str(((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("attacker_id"))
+        )
+        for a in legal.get("actions") or ()
+        if (a.get("metadata") or {}).get("option_type") == "declare_blocker"
+    )
+
+
+def answer_requested_combat(
+    client: ml.MidgameLaneClient,
+    decision: dict[str, Any],
+    decision_class: str,
+    combat: RequestedCombat,
+    placed: dict[str, str],
+    placed_by_native: dict[str, str],
+    tag: str,
+) -> Frame:
+    """Answer one engine declaration frame from the record's requested combat.
+
+    Only engine-offered options are submitted, matched by semantic identity;
+    a frame the requested combat does not determine fails closed.
+    """
+    probe = probe_module()
+    legal = probe.legal_actions(client)
+    frame = Frame(
+        decision_class,
+        probe.decision_principal(decision, legal),
+        _labels(legal),
+        scripted=True,
+        decision_id=str(decision.get("decision_id") or "") or None,
+        prompt=str(decision.get("prompt") or ""),
+        context=dict(decision.get("context") or {}),
+        selected_key="requested_combat",
+    )
+    if decision_class == "declare_attacker":
+        action = _attacker_answer(legal, combat.attack_step(), placed_by_native)
+        frame.selected_label = _label_of(action)
+        frame.selected_option_ids = _single_option_id(action)
+        probe.submit_proposal(client, legal, action, tag)
+        return frame
+    if decision_class == "declare_blocker" and combat.blocks is not None:
+        _, offer = _blocker_answer(legal, combat.block_step(), placed, placed_by_native)
+        if offer is None:
+            client.submit_options(decision, [])
+        else:
+            frame.selected_label = _label_of(offer)
+            frame.selected_option_ids = _single_option_id(offer)
+            probe.submit_proposal(client, legal, offer, tag)
+        return frame
+    raise ml.MidgameLaneError(
+        f"the record's requested combat does not determine the engine's {decision_class} frame"
+    )
+
+
+def combat_matches_request(combat: RequestedCombat, tape: list[dict[str, Any]]) -> dict[str, Any]:
+    """Whether the engine's own declaration events are exactly the requested combat."""
+    attacks = sorted(
+        (str(e.get("source_object")), str(e.get("target_player")))
+        for e in _events(tape, "ATTACKER_DECLARED")
+    )
+    blocks = sorted(
+        (str(e.get("source_object")), str(e.get("target_object")))
+        for e in _events(tape, "BLOCKER_DECLARED")
+    )
+    attacks_match = attacks == sorted(combat.attackers)
+    blocks_match = combat.blocks is None or blocks == sorted(combat.blocks)
+    return {
+        "holds": attacks_match and blocks_match,
+        "declared_attacks": attacks,
+        "declared_blocks": blocks,
+    }
+
+
 def _mana_offer(legal: dict[str, Any], sources: list[str]) -> dict[str, Any] | None:
     """The one advancing pool spend, else the next declared mana source.
 
@@ -2011,6 +2909,7 @@ OBSERVATION_KINDS = frozenset(
         "triggered_ability",
         "battlefield_exact",
         "graveyard_mana_value",
+        "commander_damage",
     }
 )
 
@@ -2074,8 +2973,39 @@ def execute_row(
         str(o["semantic_id"]) for o in record.get("semantic_objects") or () if o.get("commander_id")
     }
     trace: list[Frame] = []
+    placed_by_native = {native: semantic for semantic, native in placed.items()}
+    combat = requested_combat(record)
+
+    def declare(decision: dict[str, Any], decision_class: str) -> bool:
+        # A combat checkpoint: the record's requested combat is declared on
+        # the engine's own frames before it. A declaration the record's own
+        # script makes is not the requested combat's to answer.
+        assert combat is not None
+        if decision_class == "declare_attacker" and _scripts_family(record, "declare_attacker"):
+            return False
+        if decision_class == "declare_blocker" and (
+            combat.blocks is None or _scripts_family(record, "declare_blocker")
+        ):
+            return False
+        if decision_class not in {"declare_attacker", "declare_blocker"}:
+            return False
+        trace.append(
+            answer_requested_combat(
+                client,
+                decision,
+                decision_class,
+                combat,
+                placed,
+                placed_by_native,
+                f"{fixture_id}-arrival-{len(trace)}",
+            )
+        )
+        return True
+
     try:
-        arrival = probe.drive_arrival(client, record)
+        arrival = probe.drive_arrival(
+            client, record, declare=declare if combat is not None else None
+        )
     except ml.MidgameLaneError as exc:
         return RowExecution(fixture_id, False, None, f"arrival failed closed: {exc}")
     if arrival is None:
@@ -2145,6 +3075,12 @@ def execute_row(
     blocking = False
     answered_blockers: set[str] = set()
     placed_by_native = {native: semantic for semantic, native in placed.items()}
+    answers_attacks = combat is not None and not _scripts_family(record, "declare_attacker")
+    answers_blocks = (
+        combat is not None
+        and combat.blocks is not None
+        and not _scripts_family(record, "declare_blocker")
+    )
     unresolved_library = {
         semantic: native
         for semantic, native in placed.items()
@@ -2160,6 +3096,10 @@ def execute_row(
     def token_evidence(
         token: str, tape: list[dict[str, Any]], observation: dict[str, Any] | None
     ) -> dict[str, Any] | None:
+        if match := re.fullmatch(r"new_object_incarnation:(line:.+)", token):
+            return new_incarnation_evidence(
+                match.group(1), record, client.events(0)["events"], tape
+            )
         check = bindings.get(token)
         if isinstance(check, VocabularyToken):
             evidence = verify_token(
@@ -2224,6 +3164,8 @@ def execute_row(
                 prompt=str(decision.get("prompt") or ""),
                 context=dict(decision.get("context") or {}),
             )
+            if decision_class == "declare_blocker":
+                frame.offered_attackers = _offered_attackers(legal, placed_by_native)
             trace.append(frame)
             if unresolved_library:
                 bound = _bind_library_objects(legal, unresolved_library, tape)
@@ -2237,9 +3179,13 @@ def execute_row(
                 declaring = False
                 position += 1
                 step = script[position] if position < len(script) else None
-            if blocking and decision_class != "declare_blocker":
-                # The block declarations are complete. Every creature the record
-                # names as a blocker must have been asked about by the engine.
+            if blocking and (
+                decision_class != "declare_blocker" or principal != (step or {}).get("actor")
+            ):
+                # The step's block declarations are complete: the engine asks
+                # something else, or asks the next defending player. Every
+                # creature the record names as a blocker must have been asked
+                # about by the engine.
                 blocking = False
                 assigned = ((step or {}).get("selection") or {}).get("semantic_value") or {}
                 unasked = sorted(set(assigned) - answered_blockers)
@@ -2247,6 +3193,7 @@ def execute_row(
                     raise ml.MidgameLaneError(
                         f"the engine never asked about the record's blockers {unasked}"
                     )
+                answered_blockers = set()
                 position += 1
                 step = script[position] if position < len(script) else None
             scripted = step is not None and step.get("actor") == principal
@@ -2301,6 +3248,20 @@ def execute_row(
                     frame.selected_option_ids = _single_option_id(block_offer)
                     probe.submit_proposal(client, legal, block_offer, f"{fixture_id}-{len(trace)}")
                 blocking = True
+                continue
+            if (decision_class == "declare_attacker" and answers_attacks) or (
+                decision_class == "declare_blocker" and answers_blocks
+            ):
+                assert combat is not None
+                trace[-1] = answer_requested_combat(
+                    client,
+                    decision,
+                    decision_class,
+                    combat,
+                    placed,
+                    placed_by_native,
+                    f"{fixture_id}-{len(trace)}",
+                )
                 continue
             if decision_class == "priority":
                 if (
@@ -2397,11 +3358,7 @@ def execute_row(
                 frame.selected_option_ids = _single_option_id(offer)
                 probe.submit_proposal(client, legal, offer, f"{fixture_id}-mana-{len(trace)}")
                 continue
-            if (
-                scripted
-                and step is not None
-                and engine_decision_class(str(step.get("decision_family"))) == decision_class
-            ):
+            if scripted and step is not None and step_decision_class(step) == decision_class:
                 answer = _scripted_answer(legal, step, placed, spec, ordinal)
                 if answer.action is None:
                     client.submit_options(decision, [])
@@ -2498,6 +3455,11 @@ def execute_row(
         check.describe(): check_terminal(check, observation, tape, trace)
         for check in spec.terminal_checks
     }
+    if combat is not None:
+        # The requested combat is part of the requested state: the engine's
+        # own declaration events (from game start) must be exactly it.
+        declared = combat_matches_request(combat, client.events(0)["events"])
+        terminal[REQUESTED_COMBAT_FACT] = bool(declared["holds"])
     verified = (
         detail == "obligation observed"
         and position >= len(script)
@@ -2563,8 +3525,20 @@ def positive_receipt(
         "outcome": "PASS",
         "runtime_receipt_digest": receipt_mod._digest(execution.document()),
     }
+    if execution.causal_reconstruction is not None:
+        # The engine's own verdict that the causal route rebuilt exactly the
+        # requested stack before the record's script ran.
+        document["causal_reconstruction"] = execution.causal_reconstruction
     document["receipt_digest"] = receipt_mod._digest(document)
     return document
+
+
+def causal_stack_entry(fixture_id: str) -> dict[str, Any] | None:
+    """The production probe's declared causal-stack entry for a row, or None."""
+    entry = (getattr(probe_module(), "CAUSAL_ROWS", {}) or {}).get(fixture_id)
+    if not isinstance(entry, dict) or entry.get("entry_mode") != "causal_stack":
+        return None
+    return dict(entry)
 
 
 def execute_and_persist(
@@ -2601,6 +3575,14 @@ def execute_and_persist(
             "seed": probe.SEED,
             "requested_starting_state": record,
         }
+        # A record whose stack holds spells enters through the production
+        # probe's declared causal-stack route, exactly as the actual-card
+        # campaign does: the engine casts the frames, verifies the position
+        # and only then runs the record's script.
+        causal = causal_stack_entry(fixture_id)
+        if causal is not None:
+            request["entry_mode"] = "causal_stack"
+            request["fuel"] = list(causal.get("fuel") or ())
         with probe.open_client(workspace) as client:
             client.request("get_provider_version", None)
             client.read_dimension_manifest()
@@ -2612,7 +3594,9 @@ def execute_and_persist(
                 }
                 continue
             client.request("start_midgame_game", None)
-            execution = execute_row(client, record, created.get("payload") or {}, ROWS[fixture_id])
+            execution = execute_row(
+                client, record, created.get("payload") or {}, ROWS[fixture_id], causal=causal
+            )
         document = execution.document()
         if client.engine_commit != candidate_commit:
             document["verified"] = False

@@ -1112,6 +1112,8 @@ class XmageMidgameCausalTest {
         boolean destroyed = false;
         boolean toGraveyard = false;
         int hiddenDraws = 0;
+        int sourceIncarnation = -1;
+        int sourceMoves = 0;
         for (JsonElement element : events) {
             JsonObject event = element.getAsJsonObject();
             String type = event.get("type").getAsString();
@@ -1127,10 +1129,21 @@ class XmageMidgameCausalTest {
                     && "BATTLEFIELD".equals(text(event, "from")) && "GRAVEYARD".equals(text(event, "to"))) {
                 toGraveyard = true;
             }
+            if ("ZONE_CHANGE".equals(type) && "obj:cmd-zone-source".equals(text(event, "target_object"))) {
+                // CR 400.7: every public move of Doom Blade carries the
+                // engine's own object incarnation, and each move makes a new one.
+                assertTrue(event.has("incarnation"), "a public move names its incarnation: " + event);
+                int incarnation = event.get("incarnation").getAsInt();
+                assertTrue(incarnation > sourceIncarnation,
+                        "each move makes a new object: " + sourceIncarnation + " -> " + event);
+                sourceIncarnation = incarnation;
+                sourceMoves++;
+            }
             if ("ZONE_CHANGE".equals(type) && "LIBRARY".equals(text(event, "from"))
                     && "HAND".equals(text(event, "to"))) {
                 assertFalse(event.get("public_identity").getAsBoolean(), "a draw is hidden: " + event);
                 assertFalse(event.has("target_name") || event.has("target_object"), "a draw names nothing: " + event);
+                assertFalse(event.has("incarnation"), "a hidden move names no incarnation: " + event);
                 hiddenDraws++;
             }
         }
@@ -1138,6 +1151,7 @@ class XmageMidgameCausalTest {
         assertTrue(destroyed, "the commander's destruction is on the tape");
         assertTrue(toGraveyard, "the commander's move to the graveyard is on the tape");
         assertTrue(hiddenDraws >= 1, "the turn draw is on the tape, anonymously: " + hiddenDraws);
+        assertEquals(2, sourceMoves, "Doom Blade moved hand -> stack -> graveyard");
 
         JsonObject beyond = new JsonObject();
         beyond.addProperty("after_offset", events.size() + 1);

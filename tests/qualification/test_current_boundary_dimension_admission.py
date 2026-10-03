@@ -45,6 +45,10 @@ def manifest() -> dict:
             "life totals (pre-start assembly; state-based actions stay authoritative)",
             "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, "
             "declare blockers, combat damage, postcombat main",
+            # As the live manifest declares: a requested tapped permanent is
+            # set at the checkpoint (or caused, for a declared attacker) and
+            # verified engine-direct.
+            "tapped permanents set at the requested checkpoint and verified engine-direct",
         ],
         "unsupported_dimensions": [
             "stack spells (casting requires real costs/timing: executor scope)",

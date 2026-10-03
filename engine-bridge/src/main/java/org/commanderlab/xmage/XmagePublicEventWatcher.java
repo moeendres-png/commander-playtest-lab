@@ -136,6 +136,16 @@ final class XmagePublicEventWatcher extends Watcher {
         if (event instanceof DamagedEvent damaged) {
             record.addProperty("combat", damaged.isCombatDamage());
         }
+        if (event instanceof ZoneChangeEvent && publicIdentity && !pending) {
+            // CR 400.7: the engine's own object incarnation after a public move
+            // (the moved card's zone-change counter). A move into a new zone
+            // makes a new object; this is the engine's identity for it. Never
+            // reported for a move that is not public.
+            Card moved = game.getCard(event.getTargetId());
+            if (moved != null) {
+                record.addProperty("incarnation", moved.getZoneChangeCounter(game));
+            }
+        }
         record.addProperty("public_identity", publicIdentity);
         boolean sourceIsTarget = event.getSourceId() != null && event.getSourceId().equals(event.getTargetId());
         if (event instanceof ZoneChangeEvent) {

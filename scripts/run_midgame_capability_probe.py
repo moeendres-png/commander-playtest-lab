@@ -24,6 +24,7 @@ import re
 import sys
 import time
 import uuid
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -530,18 +531,34 @@ def engine_temporal_point(phase: str, step: str, fixture_id: str) -> tuple[str, 
         ) from exc
 
 
-def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.RowVerdict | None:
+def drive_arrival(
+    client: ml.MidgameLaneClient,
+    record: dict[str, Any],
+    declare: Callable[[dict[str, Any], str], bool] | None = None,
+) -> ml.RowVerdict | None:
     """Drive the engine to the record's own temporal checkpoint.
 
     Every step is an external pilot answer selected from the engine's own
     offered options. The function answers nothing on the pilot's behalf and
     fails closed on a decision class it does not recognise.
+
+    ``declare`` answers a combat declaration from the record's own requested
+    combat and reports whether the request determined it. A declaration before
+    the checkpoint that it does not determine fails closed; at the checkpoint
+    step, a determined declaration is answered (the checkpoint is the priority
+    after it) and an undetermined one is the checkpoint itself (the record's
+    script declares). At the checkpoint step, priority is
+    passed until the record's requested priority player holds it (the record's
+    policy scripts exactly the passes needed to reach its declared checkpoint);
+    the step never ends on the way.
     """
     temporal = record["temporal_state"]
     target_phase, target_step = engine_temporal_point(
         str(temporal["phase"]), str(temporal["step"]), str(record["fixture_id"])
     )
     active_label = seat_label(str(temporal["active_player"]))
+    wanted_priority = str(temporal.get("priority_player") or "")
+    reached_checkpoint_step = False
 
     script = list(record.get("decision_script") or ())
     first_family = str(script[0].get("decision_family")) if script else None
@@ -588,13 +605,26 @@ def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.Ro
             client.submit_options(decision, [chosen])
         elif decision_class == "priority":
             probe = client.complete_arrival().get("observation") or {}
-            if str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step:
+            at_checkpoint = (
+                str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step
+            )
+            if reached_checkpoint_step and not at_checkpoint:
+                raise ml.MidgameLaneError(
+                    f"the checkpoint step {target_phase}/{target_step} ended before "
+                    f"{wanted_priority} held priority"
+                )
+            if at_checkpoint and (
+                declare is None
+                or not wanted_priority
+                or str(probe.get("priority_player")) == wanted_priority
+            ):
                 return ml.classification_from_arrival(
                     str(record["fixture_id"]),
                     ml.MIDGAME_LANE,
                     client.complete_arrival(),
                     engine_commit=client.engine_commit,
                 )
+            reached_checkpoint_step = reached_checkpoint_step or at_checkpoint
             passed = option_of_type(decision, "pass_priority")
             if passed is None:
                 raise ml.MidgameLaneError("the engine offered no pass-priority option")
@@ -604,7 +634,17 @@ def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.Ro
             # temporal point. Stop and let the caller decide whether to
             # execute the obligation.
             probe = client.complete_arrival().get("observation") or {}
-            if str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step:
+            at_checkpoint = (
+                str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step
+            )
+            if (
+                declare is not None
+                and (at_checkpoint or _checkpoint_follows(str(probe.get("step")), target_step))
+                and declare(decision, decision_class)
+            ):
+                reached_checkpoint_step = reached_checkpoint_step or at_checkpoint
+                continue
+            if at_checkpoint:
                 return ml.classification_from_arrival(
                     str(record["fixture_id"]),
                     ml.MIDGAME_LANE,
@@ -620,6 +660,31 @@ def drive_arrival(client: ml.MidgameLaneClient, record: dict[str, Any]) -> ml.Ro
                 f"the probe refuses to answer an unrecognised decision class: {decision_class}"
             )
     raise ml.MidgameLaneError("the engine did not reach the record's temporal checkpoint")
+
+
+# The turn's steps in order (CR 500.1), by the engine's own step names.
+_TURN_STEP_ORDER = (
+    "UNTAP",
+    "UPKEEP",
+    "DRAW",
+    "PRECOMBAT_MAIN",
+    "BEGIN_COMBAT",
+    "DECLARE_ATTACKERS",
+    "DECLARE_BLOCKERS",
+    "FIRST_COMBAT_DAMAGE",
+    "COMBAT_DAMAGE",
+    "END_COMBAT",
+    "POSTCOMBAT_MAIN",
+    "END_TURN",
+    "CLEANUP",
+)
+
+
+def _checkpoint_follows(current_step: str, target_step: str) -> bool:
+    """Whether the checkpoint step comes after the engine's current step this turn."""
+    if current_step not in _TURN_STEP_ORDER or target_step not in _TURN_STEP_ORDER:
+        return False
+    return _TURN_STEP_ORDER.index(target_step) > _TURN_STEP_ORDER.index(current_step)
 
 
 def probe_row(workspace: Path, fixture_id: str) -> dict[str, Any]:

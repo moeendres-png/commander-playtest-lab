@@ -12,12 +12,15 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_19.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_20.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_19.json"
+)
+V119_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
+V118_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json"
 )
-V118_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
 V117_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_17.json"
 )
@@ -108,6 +111,22 @@ REPLAY_LIBRARY_ERRATA_IDS = [
     "REPLAY_STATE_HASHES",
     "RNG_RULES_TAPE",
 ]
+# The #456 residual errata (1.0.20), all inside the provider denominator:
+# explicit casts the records' own procedures and required events name, CR
+# 302.6 / 508.1f / 510 fixture-defect corrections, and one CR 103.8a obligation
+# erratum (MICRO_CONTINUOUS_EFFECTS, on the CARD_16 precedent).
+RESIDUAL_ERRATA_IDS = [
+    "WS05-MP-TRIG-5",
+    "WS05-MP-PRIO-3",
+    "WS05-MP-PRIO-5",
+    "MICRO_PRIORITY",
+    "MICRO_STACK",
+    "MICRO_PREVENTION",
+    "PILOT_DECLARE_BLOCKER",
+    "WS05-MP-BLOCK-4",
+    "MICRO_REPLACEMENT",
+    "MICRO_CONTINUOUS_EFFECTS",
+]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -130,6 +149,7 @@ CHANGED_FIXTURE_IDS = [
     *CARD_VEHICLE_OBLIGATION_ERRATA_IDS,
     *CARD_CAUSAL_SCENARIO_ERRATA_IDS,
     *REPLAY_LIBRARY_ERRATA_IDS,
+    *RESIDUAL_ERRATA_IDS,
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
@@ -154,7 +174,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_19_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_20_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -222,7 +242,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_19.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_20.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -290,7 +310,7 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
 
     contract = _json(SUCCESSOR_PATH)
     predecessor = _json(PREDECESSOR_CONTRACT_PATH)
-    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_18.json")
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_19.json")
     assert (
         contract["predecessor"]["sha256"]
         == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
@@ -360,6 +380,9 @@ def test_inside_cast_errata_reach_the_opening_cast_through_the_legal_action_doma
         patch["fixture_id"]: patch
         for patch in contract["record_successors"]
         if patch.get("correction_class") == "FIXTURE_SCRIPT_CONTRACT_ERRATUM"
+        # The 1.0.20 residual casts open a whole obligation, not an inside-cast
+        # decision; test_residual_errata_* covers them.
+        and patch["fixture_id"] not in RESIDUAL_ERRATA_IDS
     }
     assert set(errata) == {
         "MICRO_MODES",
@@ -513,7 +536,9 @@ def test_lane_rows_bound_to_corrected_fixtures_agree_with_the_records() -> None:
         priority_steps = [
             step for step in record["decision_script"] if step["decision_family"] == "priority"
         ]
-        assert priority_steps, fixture_id
+        # A row that spends declared mana casts through a scripted priority step;
+        # a combat or state row (no mana sources) need not script one.
+        assert priority_steps or not spec.mana_sources, fixture_id
         for step in priority_steps:
             target = step["selection"]["semantic_value"].get("object")
             if target is not None:
@@ -537,7 +562,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.19-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.20-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -549,9 +574,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.19-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.20-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.19-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.20-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -1861,8 +1886,8 @@ def test_replay_library_errata_complete_the_zones_and_keep_the_obligation() -> N
     declared no complete library, which SLOT-04 L7 refuses on every candidate.
     Each erratum declares complete checkpoint hands and P1's complete library;
     the obligation, the objects and the Rules RNG operation are untouched."""
-    contract = _json(SUCCESSOR_PATH)
-    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    contract = _json(V119_CONTRACT_PATH)
+    predecessor = _json(V118_CONTRACT_PATH)
     resolver = _resolver()
     base = {
         record["fixture_id"]: record
@@ -1909,3 +1934,92 @@ def test_replay_library_errata_complete_the_zones_and_keep_the_obligation() -> N
         assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
         assert record["requested_state_digest"] == resolver.requested_state_digest(record)
         assert record["requested_state_digest"] != old["requested_state_digest"]
+
+
+def test_residual_errata_correct_unreachable_requests_and_keep_the_obligation() -> None:
+    """1.0.20 (#456): each residual erratum corrects one request no legal game
+    reaches, or adds the scripted action the record's own procedure and
+    required events name. Only MICRO_CONTINUOUS_EFFECTS changes an obligation
+    (its measured value, at the reachable hand), explicitly and versioned."""
+    contract = _json(SUCCESSOR_PATH)
+    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    denominator = set(
+        _json(REPO_ROOT / "qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json")["fixture_ids"]
+    )
+    added = contract["record_successors"][len(predecessor["record_successors"]) :]
+    assert [patch["fixture_id"] for patch in added] == RESIDUAL_ERRATA_IDS
+    assert contract["predecessor"]["sha256"] == hashlib.sha256(
+        PREDECESSOR_CONTRACT_PATH.read_bytes()
+    ).hexdigest()
+    effective = {
+        record["fixture_id"]: record
+        for record in resolver.load_effective_materialization()["records"]
+    }
+    expected_keys = {
+        "WS05-MP-TRIG-5": {"decision_script", "action_cost_state"},
+        "WS05-MP-PRIO-3": {"decision_script", "action_cost_state"},
+        "WS05-MP-PRIO-5": {"decision_script", "action_cost_state"},
+        "MICRO_PRIORITY": {"semantic_objects"},
+        "MICRO_STACK": {"semantic_objects"},
+        "MICRO_PREVENTION": {"semantic_objects"},
+        "PILOT_DECLARE_BLOCKER": {"semantic_objects"},
+        "WS05-MP-BLOCK-4": {"semantic_objects", "decision_script"},
+        "MICRO_REPLACEMENT": {"temporal_state", "semantic_objects"},
+        "MICRO_CONTINUOUS_EFFECTS": {"players", "expected_events", "terminal_postconditions"},
+    }
+    for patch in added:
+        fixture_id = patch["fixture_id"]
+        old = base[fixture_id]
+        record = effective[fixture_id]
+        assert fixture_id in denominator
+        assert patch["evidence_survival"] == "REQUALIFICATION_REQUIRED"
+        assert patch["predecessor_requested_state_digest"] == old["requested_state_digest"]
+        assert set(patch["replace"]) == expected_keys[fixture_id]
+        assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
+        assert record["requested_state_digest"] == resolver.requested_state_digest(record)
+        assert record["requested_state_digest"] != old["requested_state_digest"]
+        for step in patch["append_native_procedure"]:
+            assert step["operation"] == "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
+            assert step["details"]["provider_semantics_used"] is False
+        changed = fixture_id == "MICRO_CONTINUOUS_EFFECTS"
+        assert (record["obligation_digest"] != old["obligation_digest"]) is changed
+        assert all(
+            step["details"]["obligation_changed"] is changed
+            for step in patch["append_native_procedure"]
+        )
+    # The corrected values are the only reachable ones.
+    for fixture_id, semantic, key, value in (
+        ("MICRO_PRIORITY", "obj:micro-forest", "controlled_since_turn_began", False),
+        ("MICRO_STACK", "obj:micro-forest", "controlled_since_turn_began", False),
+        ("MICRO_PREVENTION", "obj:fog-forest-1", "controlled_since_turn_began", False),
+        ("MICRO_PREVENTION", "obj:micro-attacker", "tapped", True),
+        ("PILOT_DECLARE_BLOCKER", "obj:p1-bears", "tapped", True),
+        ("WS05-MP-BLOCK-4", "obj:mp-a2", "tapped", True),
+        ("WS05-MP-BLOCK-4", "obj:mp-a3", "tapped", True),
+        ("MICRO_REPLACEMENT", "obj:micro-3power", "tapped", True),
+    ):
+        (obj,) = [
+            o for o in effective[fixture_id]["semantic_objects"] if o["semantic_id"] == semantic
+        ]
+        assert obj[key] is value, (fixture_id, semantic, key)
+    assert effective["MICRO_REPLACEMENT"]["temporal_state"]["step"] == "declare_blockers"
+    assert [
+        p["life"] for p in effective["MICRO_CONTINUOUS_EFFECTS"]["players"]
+    ] == [40, 39, 39, 39]
+    assert effective["MICRO_CONTINUOUS_EFFECTS"]["expected_events"]["required_events"] == [
+        "continuous_pt_evaluated:13/13"
+    ]
+    # Every added script step is an engine-offered selection that fails closed.
+    for fixture_id in ("WS05-MP-TRIG-5", "WS05-MP-PRIO-3", "WS05-MP-PRIO-5", "WS05-MP-BLOCK-4"):
+        for step in effective[fixture_id]["decision_script"]:
+            selection = step["selection"]
+            assert selection["matches_only_provider_offered_legal_options"] is True
+            assert selection["on_multiple_match"] == selection["on_zero_match"] == "FAIL_CLOSED"
+    assert [s["actor"] for s in effective["WS05-MP-BLOCK-4"]["decision_script"]] == ["P2", "P3"]

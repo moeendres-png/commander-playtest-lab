@@ -181,6 +181,50 @@ class XmageCommanderDamageRestorationTest {
     }
 
     @Test
+    void theReadbackReportsEachCommandersOwnCombatDamage() {
+        List<XmageNativeStateRestoration.RequestedCommander> split = List.of(
+                commander("cmd:P1-A", "Rograkh, Son of Rohgahh", "P1"),
+                commander("cmd:P1-B", "Kediss, Emberclaw Familiar", "P1"),
+                commander("cmd:P2-A", "Rograkh, Son of Rohgahh", "P2"),
+                commander("cmd:P3-A", "Rograkh, Son of Rohgahh", "P3"));
+        Arrived arrived = arrive(plan(
+                "rg02b-readback", 3, split,
+                List.of(damage("cmd:P1-A", "P2", 11), damage("cmd:P1-B", "P2", 10)),
+                List.of()), "rg02b-readback");
+        com.google.gson.JsonObject observed =
+                XmageNativeStateRestoration.readback(arrived.game(), arrived.seats());
+        java.util.Map<String, com.google.gson.JsonObject> byName = new java.util.HashMap<>();
+        for (com.google.gson.JsonElement seat : observed.getAsJsonArray("seats")) {
+            String pid = seat.getAsJsonObject().get("player_id").getAsString();
+            for (com.google.gson.JsonElement entry
+                    : seat.getAsJsonObject().getAsJsonArray("commanders")) {
+                byName.put(pid + "|" + entry.getAsJsonObject().get("card_identity").getAsString(),
+                        entry.getAsJsonObject());
+            }
+        }
+        assertEquals(11, byName.get("P1|Rograkh, Son of Rohgahh")
+                .getAsJsonObject("combat_damage_to").get("P2").getAsInt());
+        assertEquals(10, byName.get("P1|Kediss, Emberclaw Familiar")
+                .getAsJsonObject("combat_damage_to").get("P2").getAsInt());
+        // A commander that has dealt no combat damage reports none at all.
+        assertFalse(byName.get("P2|Rograkh, Son of Rohgahh").has("combat_damage_to"));
+    }
+
+    @Test
+    void aRequestedAttackersTapIsCausedByItsDeclarationNeverSet() {
+        XmageNativeStateRestoration.Plan withCombat =
+                XmageNativeStateRestoration.planFromFrozenRecord(
+                        XmageNativeStateRestorationTest.frozenRecord("WS05-CMD-DMG-SAME-21"),
+                        "rg02b-attackers", 424242L);
+        assertEquals(java.util.Set.of("obj:isamaru"), withCombat.declaredAttackers());
+        XmageNativeStateRestoration.Plan withoutCombat =
+                XmageNativeStateRestoration.planFromFrozenRecord(
+                        XmageNativeStateRestorationTest.frozenRecord("WS05-CMD-DMG-SPLIT"),
+                        "rg02b-no-attackers", 424242L);
+        assertTrue(withoutCombat.declaredAttackers().isEmpty());
+    }
+
+    @Test
     void modalDoubleFacedCommanderBindsThroughNativeCommanderIdentity() {
         XmageNativeStateRestoration.Plan p = plan(
                 "rg02b-mdfc", 3, commanders(3, "Esika, God of the Tree"),
