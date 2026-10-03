@@ -74,7 +74,11 @@ fresh-context review showed a route that keeps the record as written. A declared
 enabler for P2 (for example Leyline of Anticipation, a placed permanent like the
 existing declared fuel and instruments) lets P2 cast Control Magic on P1's turn after
 P1 passes priority (CR 702.8a). The spell resolves, and P1 again holds priority with an
-empty stack, which is the record's checkpoint. P1 then eliminates P2.
+empty stack, which is the record's checkpoint. P1 then eliminates P2. Unlike inert fuel
+lands, such an enabler is a rules-relevant extra permanent, so the entry's battlefield
+verifier must account for it explicitly; an instant enabler that leaves nothing behind
+(for example one that lets a player cast spells this turn as though they had flash) avoids
+the extra permanent.
 
 **Classification:** `HARNESS_GAP`. The lane has no entry that causes a requested
 permanent (with its attachment and control change) by its cast and then verifies the

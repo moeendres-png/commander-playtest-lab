@@ -2021,7 +2021,9 @@ def drive_causal_stack_elimination(
     # survivor's life moved from the record's request (the victim's spells
     # never resolved).
     eliminated = elimination.get("victim_lost") is True and elimination.get("victim_left") is True
-    decision = client.pending_decision()
+    # The next decision is read only after an elimination ran: a stack mismatch
+    # keeps its exact diagnosis instead of waiting on a decision.
+    decision = client.pending_decision() if verdicts["elimination"] is not None else None
     pilot_stack = ((decision or {}).get("pilot_state") or {}).get("stack")
     stack_empty = isinstance(pilot_stack, list) and not pilot_stack
     requested_life = {

@@ -3502,16 +3502,30 @@ def execute_row(
     if causal is not None and mode in ("causal_stack", probe.CAUSAL_STACK_ELIMINATION):
         declared_fuel = [str(card["semantic_id"]) for card in causal.get("fuel") or ()]
         fuel = [placed[semantic] for semantic in declared_fuel if semantic in placed]
+        # A composed row's document names both halves even when the stack never ran.
+        unbuilt = (
+            {"entry_mode": probe.CAUSAL_STACK_ELIMINATION, "stack": None, "elimination": None}
+            if composed
+            else None
+        )
         if len(fuel) != len(declared_fuel):
             return RowExecution(
-                fixture_id, False, construction, "a declared fuel card was not placed"
+                fixture_id,
+                False,
+                construction,
+                "a declared fuel card was not placed",
+                causal_reconstruction=unbuilt,
             )
         try:
             probe.causal_stack_frames(client, f"{fixture_id}-causal", causal_plan, placed, fuel)
             verdict = probe.complete_causal(client, "stack").get("verdict") or {}
         except ml.MidgameLaneError as exc:
             return RowExecution(
-                fixture_id, False, construction, f"causal reconstruction failed closed: {exc}"
+                fixture_id,
+                False,
+                construction,
+                f"causal reconstruction failed closed: {exc}",
+                causal_reconstruction=unbuilt,
             )
         reconstruction = {
             "entry_mode": "causal_stack",
