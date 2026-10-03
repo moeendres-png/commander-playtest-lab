@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import mage.game.Game;
+import mage.game.permanent.Permanent;
 import mage.game.stack.StackObject;
 import mage.players.Player;
 
@@ -104,7 +105,25 @@ final class XmageMidgameCausalBridge {
      */
     record CausalStackEliminationPlan(
             CausalStackPlan stack,
-            CausalEliminationPlan elimination
+            CausalEliminationPlan elimination,
+            List<CausedPermanent> causedPermanents,
+            String requestedPriorityPlayer
+    ) {
+    }
+
+    /**
+     * A requested permanent the engine must cause by its cast: an Aura on the
+     * battlefield attached to {@code attachedTo}. The cast resolves before the
+     * checkpoint; the controller the Aura gives its object, when the record
+     * names one other than the object's owner, is the cause's result and is
+     * verified, never placed.
+     */
+    record CausedPermanent(
+            String semanticId,
+            String cardIdentity,
+            String controller,
+            String attachedTo,
+            String attachedController
     ) {
     }
 
@@ -256,15 +275,221 @@ final class XmageMidgameCausalBridge {
             List<DeclaredCard> instruments,
             String planId,
             long seed) {
+        return prepareCausalStackElimination(
+                frozenRecord, fuel, actorPid, victimPid, instruments, List.of(), planId, seed);
+    }
+
+    /**
+     * As above, with declared caused permanents: each becomes a cast of itself
+     * at its attachment target (see {@link #causePermanents}), so the engine
+     * builds, resolves and attaches it before the elimination.
+     */
+    static CausalStackEliminationPlan prepareCausalStackElimination(
+            JsonObject frozenRecord,
+            List<DeclaredCard> fuel,
+            String actorPid,
+            String victimPid,
+            List<DeclaredCard> instruments,
+            List<String> causedPermanentIds,
+            String planId,
+            long seed) {
         EliminationRecord prepared =
                 eliminationRecord(frozenRecord, actorPid, victimPid, instruments);
+        // The record's own priority player, read before the stack preparation
+        // moves pre-causal priority to the active player.
+        String requestedPriority = requiredText(
+                prepared.record().getAsJsonObject("temporal_state"), "priority_player");
+        List<CausedPermanent> caused = causePermanents(prepared.record(), causedPermanentIds);
         CausalStackPlan stack = prepareCausalStack(prepared.record(), fuel, planId, seed);
         CausalEliminationPlan elimination = new CausalEliminationPlan(
                 stack.prepared().preStackPlan(), actorPid, victimPid,
                 List.copyOf(instruments),
                 List.copyOf(prepared.substitutions()),
                 Set.copyOf(prepared.survivors()));
-        return new CausalStackEliminationPlan(stack, elimination);
+        return new CausalStackEliminationPlan(stack, elimination, caused, requestedPriority);
+    }
+
+    /**
+     * Rewrites each declared caused permanent of {@code record} into a cast of
+     * itself. The Aura moves to the stack as a frame its controller casts at its
+     * attachment target; its attachment is dropped (the resolution makes it);
+     * the attached object's recorded controller, when it differs from the
+     * object's owner, is restored to the owner (the Aura's effect makes it).
+     * Anything else fails closed: only an owner-controlled permanent on the
+     * battlefield attached to a permanent on the battlefield is caused here,
+     * each target at most once, and only in a record that requests no stack
+     * of its own (a resolution of the caused casts would resolve it too). That
+     * the cast attaches it (an Aura, CR 303.4) is the engine's to show: the
+     * verifier then reads the attachment.
+     */
+    static List<CausedPermanent> causePermanents(JsonObject record, List<String> causedIds) {
+        if (causedIds.isEmpty()) {
+            return List.of();
+        }
+        String fixtureId = requiredText(record, "fixture_id");
+        if (record.has("stack_state") && record.get("stack_state").isJsonArray()
+                && !record.getAsJsonArray("stack_state").isEmpty()) {
+            throw new CausalException("CAUSED_PERMANENT_WITH_REQUESTED_STACK",
+                    fixtureId + ": resolving the caused casts would resolve the requested stack");
+        }
+        Map<String, JsonObject> objects = new LinkedHashMap<>();
+        // Every recorded controller, read once before any rewrite.
+        Map<String, String> recordedControllers = new LinkedHashMap<>();
+        for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
+            JsonObject object = element.getAsJsonObject();
+            String id = requiredText(object, "semantic_id");
+            objects.put(id, object);
+            if (object.has("controller") && !object.get("controller").isJsonNull()) {
+                recordedControllers.put(id, object.get("controller").getAsString());
+            }
+        }
+        record.add("stack_state", new JsonArray());
+        Set<String> causedTargets = new LinkedHashSet<>();
+        List<CausedPermanent> caused = new ArrayList<>();
+        Set<String> seen = new LinkedHashSet<>();
+        for (String semanticId : causedIds) {
+            if (!seen.add(semanticId)) {
+                throw new CausalException("DUPLICATE_CAUSED_PERMANENT", fixtureId + " " + semanticId);
+            }
+            JsonObject object = objects.get(semanticId);
+            if (object == null) {
+                throw new CausalException("UNBOUND_CAUSED_PERMANENT", fixtureId + " " + semanticId);
+            }
+            if (!"battlefield".equals(requiredText(object, "zone"))) {
+                throw new CausalException("CAUSED_PERMANENT_NOT_ON_BATTLEFIELD",
+                        fixtureId + " " + semanticId);
+            }
+            String owner = requiredText(object, "owner");
+            String controller = recordedControllers.get(semanticId);
+            if (controller == null || !owner.equals(controller)) {
+                throw new CausalException("CAUSED_PERMANENT_CONTROL_DIVERGENT",
+                        fixtureId + " " + semanticId);
+            }
+            if (!object.has("attached_to") || !object.get("attached_to").isJsonPrimitive()
+                    || !object.get("attached_to").getAsJsonPrimitive().isString()) {
+                throw new CausalException("CAUSED_PERMANENT_NOT_ATTACHED",
+                        fixtureId + " " + semanticId + ": only an attached Aura is caused here");
+            }
+            String target = object.get("attached_to").getAsString();
+            if (!causedTargets.add(target)) {
+                throw new CausalException("CAUSED_PERMANENT_SHARED_TARGET",
+                        fixtureId + " " + target + " is the target of two caused permanents");
+            }
+            JsonObject attached = objects.get(target);
+            if (attached == null || !"battlefield".equals(requiredText(attached, "zone"))) {
+                throw new CausalException("CAUSED_PERMANENT_TARGET_UNBOUND",
+                        fixtureId + " " + semanticId + " -> " + target);
+            }
+            String attachedOwner = requiredText(attached, "owner");
+            String attachedController = recordedControllers.get(target);
+            if (attachedController == null) {
+                throw new CausalException("CAUSED_PERMANENT_TARGET_UNCONTROLLED",
+                        fixtureId + " " + target);
+            }
+            if (!attachedOwner.equals(attachedController)) {
+                attached.addProperty("controller", attachedOwner);
+            }
+            object.addProperty("zone", "stack");
+            object.remove("attached_to");
+            JsonObject frame = new JsonObject();
+            frame.addProperty("source_semantic_id", semanticId);
+            frame.addProperty("controller", controller);
+            JsonArray targets = new JsonArray();
+            targets.add(target);
+            frame.add("targets", targets);
+            frame.add("modes", new JsonArray());
+            frame.addProperty("cast_complete", true);
+            frame.addProperty("costs_paid", true);
+            record.getAsJsonArray("stack_state").add(frame);
+            caused.add(new CausedPermanent(
+                    semanticId, requiredText(object, "card_identity"), controller,
+                    target, attachedController));
+        }
+        return List.copyOf(caused);
+    }
+
+    /**
+     * Verifies every caused permanent against the record: on the battlefield
+     * with its identity, its controller, attached to its target, and its target
+     * controlled as the record requests. Reads live engine state only.
+     */
+    static JsonObject verifyCausedPermanents(
+            XmageFullGameSession session,
+            Map<String, Player> seats,
+            XmageNativeStateRestoration restoration,
+            List<CausedPermanent> caused,
+            XmageNativeStateRestoration.Plan checkpoint,
+            String requestedPriorityPlayer) {
+        List<String> failures = new ArrayList<>();
+        Game game = session.restorationGame();
+        // The cause must land on the record's own checkpoint: the same turn,
+        // phase, step, active player and priority player. A cast that only
+        // became possible later (a different turn) is not this checkpoint.
+        String active = game.getState().getActivePlayerId() == null
+                ? null : pidOf(seats, game.getState().getActivePlayerId().toString());
+        String priority = game.getState().getPriorityPlayerId() == null
+                ? null : pidOf(seats, game.getState().getPriorityPlayerId().toString());
+        if (game.getTurnNum() != checkpoint.turnNumber()
+                || game.getTurnPhaseType() != checkpoint.phase()
+                || game.getTurnStepType() != checkpoint.step()
+                || !checkpoint.activePlayer().equals(active)
+                || !requestedPriorityPlayer.equals(priority)) {
+            failures.add("CAUSED_CHECKPOINT_MISMATCH: expected turn=" + checkpoint.turnNumber()
+                    + " " + checkpoint.phase() + "/" + checkpoint.step()
+                    + " active=" + checkpoint.activePlayer() + " priority=" + requestedPriorityPlayer
+                    + "; engine turn=" + game.getTurnNum() + " " + game.getTurnPhaseType() + "/"
+                    + game.getTurnStepType() + " active=" + active + " priority=" + priority);
+        }
+        for (CausedPermanent permanent : caused) {
+            UUID id;
+            UUID targetId;
+            try {
+                id = restoration.injectedObjectId(permanent.semanticId());
+                targetId = restoration.injectedObjectId(permanent.attachedTo());
+            } catch (XmageNativeStateRestoration.RestorationException exc) {
+                failures.add("CAUSED_PERMANENT_UNBOUND: " + permanent.semanticId());
+                continue;
+            }
+            Permanent found = game.getPermanent(id);
+            if (found == null) {
+                failures.add("CAUSED_PERMANENT_ABSENT: " + permanent.semanticId()
+                        + " is not on the battlefield");
+                continue;
+            }
+            if (!permanent.cardIdentity().equals(found.getName())) {
+                failures.add("CAUSED_PERMANENT_IDENTITY: " + permanent.semanticId()
+                        + " actual=" + found.getName());
+            }
+            String controller = pidOf(seats, found.getControllerId().toString());
+            if (!permanent.controller().equals(controller)) {
+                failures.add("CAUSED_PERMANENT_CONTROLLER: " + permanent.semanticId()
+                        + " expected=" + permanent.controller() + " actual=" + controller);
+            }
+            if (!targetId.equals(found.getAttachedTo())) {
+                failures.add("CAUSED_PERMANENT_ATTACHMENT: " + permanent.semanticId()
+                        + " expected=" + permanent.attachedTo());
+            }
+            Permanent target = game.getPermanent(targetId);
+            String targetController = target == null
+                    ? null : pidOf(seats, target.getControllerId().toString());
+            if (target == null || !permanent.attachedController().equals(targetController)) {
+                failures.add("CAUSED_CONTROL_MISMATCH: " + permanent.attachedTo()
+                        + " expected=" + permanent.attachedController()
+                        + " actual=" + targetController);
+            }
+        }
+        JsonObject verdict = new JsonObject();
+        verdict.addProperty("causal_match", failures.isEmpty() && !caused.isEmpty());
+        JsonArray mismatches = new JsonArray();
+        failures.forEach(mismatches::add);
+        if (caused.isEmpty()) {
+            mismatches.add("NO_CAUSED_PERMANENTS: nothing was declared");
+        }
+        verdict.add("mismatches", mismatches);
+        JsonArray verified = new JsonArray();
+        caused.forEach(permanent -> verified.add(permanent.semanticId()));
+        verdict.add("caused_permanents", verified);
+        return verdict;
     }
 
     private static EliminationRecord eliminationRecord(
