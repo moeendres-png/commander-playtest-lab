@@ -1,0 +1,13 @@
+{
+  "parent_head": "583133052706d7fc03dfe83f038c5a13ee280c5d",
+  "parent_tree": "1c070106549323aa8321443c111e51398b2adb2f",
+  "patch_sha256": "ccd6e7022edb7bcfbe6b4fec89340ed46be3f6cb90caf197de5f85783d22e8d4",
+  "reports": {
+    "B8-policy-GREEN.xml.gz": {
+      "sha256": "510cf25b09aebc509b52c8b2ac60233dcc0848514c1ebbdefbd37462ba72d904",
+      "raw_sha256": "4a2eae95051ec75c9d61d75c2cf64e0dfc530f392a08b6338a1cf5c27d254f69"
+    }
+  },
+  "latest_passing_tests": 87,
+  "evidence_scope": "Affected local controls; no exact-head CI, runtime engine qualification or merge credit yet."
+}

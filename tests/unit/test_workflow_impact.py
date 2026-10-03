@@ -96,3 +96,16 @@ def test_a_whole_subpackage_is_covered_at_once() -> None:
         AUDIT.cover_glob("src/commander_lab/advancement.py") == "src/commander_lab/advancement.py"
     )
     assert AUDIT.cover_glob("tests/conftest.py") == "tests/conftest.py"
+
+
+def test_full_game_push_requalifies_semantic_replay_changes() -> None:
+    from pathlib import Path
+
+    import yaml
+
+    root = Path(__file__).resolve().parents[2]
+    document = yaml.safe_load(
+        (root / ".github/workflows/xmage-full-game-conformance.yml").read_text()
+    )
+    triggers = document.get("on") or document.get(True)
+    assert "src/commander_lab/semantic_replay/**" in triggers["push"]["paths"]

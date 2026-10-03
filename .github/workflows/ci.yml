@@ -103,6 +103,36 @@ jobs:
       - name: Build wheel
         if: ${{ success() || failure() }}
         run: python -m pip wheel --no-deps --wheel-dir dist .
+      - name: Packaging smoke (isolated wheel install, import and CLI)
+        # Issue #490. Wheel construction above proves packaging can produce an
+        # artifact; this proves the artifact installs into a clean isolated
+        # environment and that the *installed* package imports and exposes its
+        # officially supported console entrypoints. The isolated environment is
+        # created outside the workspace, never inherits system site-packages,
+        # installs the project with --no-index --no-deps from the exact wheel
+        # path, takes its dependency closure from the hash-pinned project lock,
+        # and probes imports with -I so no worktree PYTHONPATH can substitute the
+        # source tree for the installation. No continue-on-error, no || true and
+        # no skip condition: a broken wheel, entrypoint or evidence document
+        # fails this required context.
+        if: ${{ success() || failure() }}
+        run: |
+          python scripts/verify_packaging_smoke.py smoke \
+            --repo . \
+            --wheel-dir dist \
+            --venv-dir "$RUNNER_TEMP/packaging-smoke-venv" \
+            --output artifacts/quality/PACKAGING_SMOKE.json
+      - name: Packaging smoke evidence check
+        # Independently re-adjudicate the machine-readable evidence, including
+        # re-verifying that the built wheel still hashes to the bound digest.
+        # Missing, truncated, malformed, UNKNOWN or unbound evidence is never
+        # promoted to PASS.
+        if: ${{ success() || failure() }}
+        run: |
+          python scripts/verify_packaging_smoke.py check \
+            --repo . \
+            --wheel-dir dist \
+            --evidence artifacts/quality/PACKAGING_SMOKE.json
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0 immutable revision
         if: always()
         with:

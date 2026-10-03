@@ -90,6 +90,7 @@ jobs:
             tests/unit/test_models.py
             tests/unit/test_phase8_rules_models.py
             tests/unit/test_xmage_compatibility_provider.py
+            src/commander_lab/semantic_replay/**
 
   build-and-integrate:
     needs: [integration-scope]

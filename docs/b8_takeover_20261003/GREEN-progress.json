@@ -1,0 +1,25 @@
+{
+  "head": "208c149ec86f04fc88fdb5e9f83f64485216c0f0",
+  "tree": "54f81b863d96bfc2015e11cbd1eeb042cf73b4ab",
+  "working_diff_sha256": "1bfd239e55b698a7fd0b736ede869d4d8678488f87ec9603d60b77b2de8900b3",
+  "source_hashes": {
+    "src/commander_lab/engine/rules/full_game.py": "7e96427f91496e46ea074d3c18356388c4aa4ddf899c1a54468b691ef5552b04",
+    "scripts/run_real_4p_full_game_smoke.py": "0e7420f4ee0131fcf9796cd2c30ddd50d6c17a5eb44fd8708da70a5558b579c0",
+    "tests/unit/test_real_4p_progress_execution.py": "6770a10c53cb89a6d9663c8cadb9b5cf858bcb1f122c817488ca4f237a7df0ed",
+    "tests/unit/test_real_4p_progress_contract.py": "2a2b7629c7e572634a5425232f6f57349cb31c65457d7abeea7986b0c04aa829",
+    ".github/workflows/xmage-real-4p-smoke.yml": "85429073a430871e755b24bef0f40d1ade50b3aeb746f09a052010e1c83c7fa5"
+  },
+  "command": [
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/test_real_4p_progress_execution.py",
+    "tests/unit/test_real_4p_progress_contract.py",
+    "tests/unit/test_real_4p_full_game_smoke.py",
+    "tests/unit/test_full_game_shutdown.py",
+    "--junitxml=/home/moeen/work/takeover-evidence-20261003/pr518/GREEN-progress.xml"
+  ],
+  "exit": 0,
+  "log_sha256": "c39c3875fc02b1fda1f9a2c619889795512842938b00383d7c74b907e1acb371"
+}

@@ -133,6 +133,7 @@ jobs:
             src/commander_lab/workflow_session.py
             tests/conftest.py
             tests/unit/test_h4_workflow_structure.py
+            src/commander_lab/semantic_replay/**
       - name: Provider scope of this change
         id: scope
         shell: bash
