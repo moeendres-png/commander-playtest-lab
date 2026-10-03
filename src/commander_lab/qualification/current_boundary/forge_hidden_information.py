@@ -17,6 +17,10 @@ Two kinds of evidence go into each row:
   fragment, gains a token or reads a new field raises
   :class:`HiddenChannelDrift`, so no classification survives a source change
   without review.
+* **Required channels** per row are the shared mandatory verifier's whole
+  scanned surface (``VERIFIER_CHANNELS``, on every row), the obligation's own
+  channels and the record's (face-down redaction). Every required channel that
+  is absent or unaudited is listed on the row; none is dropped.
 
 Nothing here executes a row, writes a receipt or promotes credit. A row the
 provider cannot construct is a ``PROVIDER_ADAPTER_GAP``, and its AF05 effect is
@@ -435,49 +439,83 @@ CHANNELS: tuple[Channel, ...] = (
 )
 CHANNELS_BY_NAME: dict[str, Channel] = {channel.name: channel for channel in CHANNELS}
 
-# The principal-facing channels each AF05 obligation needs, beyond construction.
-# Kinds are knowledge_projection.ROWS's, so both providers share one row set.
-OBSERVATION_REQUIREMENTS: dict[str, tuple[str, ...]] = {
-    "opponent_hand": ("principal_scoped_state",),
-    "opponent_library": ("principal_scoped_state",),
-    "public_exile": ("principal_scoped_state",),
-    "face_down_controller": ("principal_scoped_state", "face_down_redaction"),
-    "no_omniscient_api": ("principal_scoped_state", "message_surface", "transport_diagnostics"),
-    # Prompt, context, option ids, labels, metadata and source (decision frames),
-    # errors and logs (message surface), state, transcript and the event log.
-    "honey_sentinel": (
-        "principal_scoped_state",
-        "decision_frames",
-        "message_surface",
-        "transport_diagnostics",
-        "event_log",
-        "replay_transcript",
-    ),
-    "reveal_audience": (
-        "principal_scoped_state",
-        "reveal_look_audience",
-        "reveal_look_projection",
-        "event_log",
-    ),
-    "look_audience": (
-        "principal_scoped_state",
-        "reveal_look_audience",
-        "reveal_look_projection",
-        "event_log",
-    ),
-    "search_inspection": ("principal_scoped_state", "library_contents", "event_log"),
-    "scry_knowledge": ("principal_scoped_state", "library_contents", "event_log"),
-    "pile_metadata": ("principal_scoped_state", "decision_frames", "library_contents", "event_log"),
-    "shuffle_invalidates_order": ("principal_scoped_state", "library_contents", "event_log"),
-    "exile_permission_persists": ("principal_scoped_state", "face_down_redaction", "event_log"),
-    "exile_permission_invalidates": ("principal_scoped_state", "face_down_redaction", "event_log"),
-    "target_metadata": ("principal_scoped_state", "face_down_redaction", "decision_frames"),
-    "source_metadata": ("principal_scoped_state", "face_down_redaction", "decision_frames"),
-    "ability_metadata": ("principal_scoped_state", "face_down_redaction", "decision_frames"),
-    "copy_face_down": ("principal_scoped_state", "face_down_redaction"),
-    "transcript_privacy": ("principal_scoped_state", "replay_transcript", "event_log"),
-    "controlled_player_authority": ("principal_scoped_state", "event_log"),
+# The shared mandatory verifier (``knowledge_projection.verify``) runs the same
+# forbidden-identity and sentinel scan for EVERY HIDDEN row, whatever its
+# obligation: it scans every document the principal receives and the process log
+# (``_scan_principal``), and its ``scan_coverage`` check needs content on each
+# channel of ``knowledge_projection.REQUIRED_COVERAGE``. Each verifier channel
+# (the keys of ``knowledge_projection.channel_documents``'s coverage) is carried
+# at the pinned bridge by one principal-facing channel here:
+#
+# * prompt, context, option ids, labels and option, source, ability and pile
+#   metadata reach a principal only in a decision frame (``decision_frames``);
+# * state is the observer-scoped projection (``principal_scoped_state``);
+# * event is the principal's event stream (``event_log``);
+# * transcript is every request/response document the principal receives, i.e.
+#   the bridge's whole request surface with its errors (``message_surface``);
+# * log is the bridge process's diagnostics (``transport_diagnostics``).
+#
+# A row's required channels therefore always include every channel below; an
+# obligation's own channels are layered on top. A test binds the keys to the
+# verifier's coverage, so a verifier channel can never go unmapped.
+VERIFIER_CHANNELS: dict[str, str] = {
+    "state": "principal_scoped_state",
+    "prompt": "decision_frames",
+    "context": "decision_frames",
+    "option_id": "decision_frames",
+    "option_label": "decision_frames",
+    "option_metadata": "decision_frames",
+    "source_metadata": "decision_frames",
+    "ability_metadata": "decision_frames",
+    "pile_metadata": "decision_frames",
+    "event": "event_log",
+    "transcript": "message_surface",
+    "log": "transport_diagnostics",
 }
+UNIVERSAL_PRINCIPAL_CHANNELS: tuple[str, ...] = tuple(dict.fromkeys(VERIFIER_CHANNELS.values()))
+
+# The principal-facing channels each AF05 obligation needs beyond the universal
+# surface and construction. Kinds are knowledge_projection.ROWS's, so both
+# providers share one row set. An empty entry means the obligation is decided on
+# the universal surface alone.
+OBSERVATION_REQUIREMENTS: dict[str, tuple[str, ...]] = {
+    "opponent_hand": (),
+    "opponent_library": (),
+    "public_exile": (),
+    "face_down_controller": ("face_down_redaction",),
+    "no_omniscient_api": (),
+    # The sentinel obligation also names the transcript, which Forge can only
+    # offer as a replay or transcript export.
+    "honey_sentinel": ("replay_transcript",),
+    "reveal_audience": ("reveal_look_audience", "reveal_look_projection"),
+    "look_audience": ("reveal_look_audience", "reveal_look_projection"),
+    "search_inspection": ("library_contents",),
+    "scry_knowledge": ("library_contents",),
+    "pile_metadata": ("library_contents",),
+    "shuffle_invalidates_order": ("library_contents",),
+    "exile_permission_persists": ("face_down_redaction",),
+    "exile_permission_invalidates": ("face_down_redaction",),
+    "target_metadata": ("face_down_redaction",),
+    "source_metadata": ("face_down_redaction",),
+    "ability_metadata": ("face_down_redaction",),
+    "copy_face_down": ("face_down_redaction",),
+    "transcript_privacy": ("replay_transcript",),
+    "controlled_player_authority": (),
+}
+
+
+def required_channels(record: dict[str, Any], kind: str) -> list[str]:
+    """Every principal channel a row needs: universal, then obligation, then record.
+
+    A record that places a face-down object makes the shared scan forbid that
+    identity to every principal not entitled to it, so the state projection's
+    face-down redaction is part of that row's surface whatever its obligation.
+    """
+    required = list(UNIVERSAL_PRINCIPAL_CHANNELS) + list(OBSERVATION_REQUIREMENTS[kind])
+    if any(obj.get("face_down") for obj in record.get("semantic_objects") or ()):
+        required.append("face_down_redaction")
+    return list(dict.fromkeys(required))
+
 
 # Lane dimensions the provider itself cannot represent, by construction channel.
 _PROVIDER_DIMENSIONS: dict[str, str] = {
@@ -537,6 +575,7 @@ class HiddenRowClassification:
     lab_gaps: list[dict[str, Any]] = field(default_factory=list)
     unobservable: list[dict[str, Any]] = field(default_factory=list)
     other_unsupported: list[dict[str, Any]] = field(default_factory=list)
+    required_channels: list[str] = field(default_factory=list)
     missing_channels: list[str] = field(default_factory=list)
     unaudited_channels: list[str] = field(default_factory=list)
 
@@ -589,6 +628,7 @@ class HiddenRowClassification:
             "classification": self.classification,
             "af05_effect": AF05_EFFECT_UNKNOWN,
             "provider_construction_gaps": self.provider_gaps,
+            "required_principal_channels": self.required_channels,
             "missing_principal_channels": self.missing_channels,
             "unaudited_principal_channels": self.unaudited_channels,
             "lab_execution_gaps": self.lab_gaps,
@@ -621,7 +661,8 @@ def classify_row(record: dict[str, Any]) -> HiddenRowClassification:
             f"{[gap['dimension'] for gap in row.other_unsupported]}"
         )
     row.unobservable = [finding.to_document() for finding in model.unobservable]
-    required = OBSERVATION_REQUIREMENTS[kind]
+    required = required_channels(record, kind)
+    row.required_channels = required
     row.missing_channels = [
         name for name in required if CHANNELS_BY_NAME[name].status == CHANNEL_ABSENT
     ]

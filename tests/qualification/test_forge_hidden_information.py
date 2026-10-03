@@ -70,15 +70,20 @@ def test_event_rows_name_the_absent_principal_channel(records) -> None:
     }
     for fixture, channels in expected.items():
         assert set(fh.classify_row(records[fixture]).missing_channels) == channels, fixture
-    # A pure projection row needs only the principal-scoped state, which exists.
-    assert fh.classify_row(records["HIDDEN_01"]).missing_channels == []
+    # A pure projection row still needs the shared verifier's whole surface: its
+    # event coverage has no Forge channel, so the event log is absent there too.
+    assert fh.classify_row(records["HIDDEN_01"]).missing_channels == ["event_log"]
 
 
 def test_scripted_rows_record_the_lab_execution_gap(records) -> None:
     row = fh.classify_row(records["HIDDEN_13"])
     assert any(gap["dimension"] == "decision_execution.pile.pile_label" for gap in row.lab_gaps)
     assert "Lab Forge lane has no execution" in row.reason()
-    assert not fh.classify_row(records["HIDDEN_01"]).lab_gaps
+    # A pure projection row has no scripted decision; only the universal stderr
+    # capture gap is left.
+    assert [gap["dimension"] for gap in fh.classify_row(records["HIDDEN_01"]).lab_gaps] == [
+        "lab_capture.transport_diagnostics"
+    ]
 
 
 def test_the_classification_follows_the_record_not_the_row_id(records) -> None:
@@ -401,17 +406,17 @@ def test_transport_diagnostics_are_unaudited_and_required(records) -> None:
 
 
 def test_stderr_is_a_lab_capture_gap_until_the_lab_retains_it(records) -> None:
-    """The Lab pipes but discards stderr, so a row's scan cannot read it yet."""
-    for fixture in ("HIDDEN_19", "HIDDEN_HONEYCARD_SENTINEL"):
+    """The Lab pipes but discards stderr, so no row's scan can read it yet.
+
+    The shared verifier scans the process log for every row, so the gap is on
+    every row, not only on the omniscience and sentinel rows.
+    """
+    for fixture in knowledge_projection.ROWS:
         row = fh.classify_row(records[fixture])
         gaps = {gap["dimension"]: gap["detail"] for gap in row.lab_gaps}
         assert "lab_capture.transport_diagnostics" in gaps, fixture
         assert "discards" in gaps["lab_capture.transport_diagnostics"]
         assert "lab_capture.transport_diagnostics" in row.reason()
-    assert not any(
-        gap["dimension"].startswith("lab_capture.")
-        for gap in fh.classify_row(records["HIDDEN_01"]).lab_gaps
-    )
 
 
 @pytest.mark.parametrize(
@@ -448,3 +453,81 @@ def test_audience_projection_gap_is_independent_of_event_channels(records, monke
         fh.Channel("reveal_look_projection", fh.CHANNEL_SUPPORTED, "projection"),
     )
     assert fh.classify_row(records[fixture]).missing_channels == []
+
+
+def _universal_omissions(rows: list[dict]) -> list[tuple[str, str]]:
+    """Every (row, universal channel) pair a row's required channel set lacks."""
+    universal = set(fh.VERIFIER_CHANNELS.values())
+    return [
+        (row["fixture_id"], channel)
+        for row in rows
+        for channel in sorted(universal - set(row["required_principal_channels"]))
+    ]
+
+
+def test_no_row_omits_a_universal_principal_channel(records) -> None:
+    """Re-omission control: every row requires the shared verifier's whole surface.
+
+    The mandatory verifier scans prompt, context, option ids, labels, metadata,
+    source, state, event, transcript and log for every HIDDEN row, so no row's
+    required channels may lack the Forge channel carrying any of them, and each
+    required channel that is absent or unaudited is listed, never dropped.
+    """
+    _, coverage = knowledge_projection.channel_documents([], "")
+    assert set(fh.VERIFIER_CHANNELS) == set(coverage)
+    assert set(knowledge_projection.REQUIRED_COVERAGE) <= set(fh.VERIFIER_CHANNELS)
+    assert set(fh.VERIFIER_CHANNELS.values()) <= set(fh.CHANNELS_BY_NAME)
+    assert set(fh.UNIVERSAL_PRINCIPAL_CHANNELS) == set(fh.VERIFIER_CHANNELS.values())
+    assert set(fh.UNIVERSAL_PRINCIPAL_CHANNELS) == {
+        "principal_scoped_state",
+        "decision_frames",
+        "event_log",
+        "message_surface",
+        "transport_diagnostics",
+    }
+    fresh = [
+        fh.classify_row(records[fixture]).to_document()
+        for fixture in sorted(knowledge_projection.ROWS)
+    ]
+    assert _universal_omissions(fresh) == []
+    import json
+
+    path = REPO_ROOT / "docs" / "forge_af05_hidden_20261003" / "FORGE_AF05_MATRIX.json"
+    committed = json.loads(path.read_text(encoding="utf-8"))["rows"]
+    assert _universal_omissions(committed) == []
+    for row in fresh + committed:
+        required = row["required_principal_channels"]
+        statuses = {name: fh.CHANNELS_BY_NAME[name].status for name in required}
+        assert row["missing_principal_channels"] == [
+            name for name in required if statuses[name] == fh.CHANNEL_ABSENT
+        ], row["fixture_id"]
+        assert row["unaudited_principal_channels"] == [
+            name for name in required if statuses[name] == fh.CHANNEL_UNAUDITED
+        ], row["fixture_id"]
+        assert "event_log" in row["missing_principal_channels"], row["fixture_id"]
+        assert {"decision_frames", "message_surface", "transport_diagnostics"} <= set(
+            row["unaudited_principal_channels"]
+        ), row["fixture_id"]
+
+
+@pytest.mark.parametrize("dropped", sorted(set(fh.VERIFIER_CHANNELS.values())))
+def test_a_re_omitted_universal_channel_is_caught(records, monkeypatch, dropped) -> None:
+    """The control fails when any universal channel is dropped from the row surface."""
+    monkeypatch.setattr(
+        fh,
+        "UNIVERSAL_PRINCIPAL_CHANNELS",
+        tuple(name for name in fh.UNIVERSAL_PRINCIPAL_CHANNELS if name != dropped),
+    )
+    for kind in fh.OBSERVATION_REQUIREMENTS:
+        monkeypatch.setitem(
+            fh.OBSERVATION_REQUIREMENTS,
+            kind,
+            tuple(name for name in fh.OBSERVATION_REQUIREMENTS[kind] if name != dropped),
+        )
+    rows = [
+        fh.classify_row(records[fixture]).to_document()
+        for fixture in sorted(knowledge_projection.ROWS)
+    ]
+    omissions = _universal_omissions(rows)
+    assert {channel for _, channel in omissions} == {dropped}
+    assert sorted(fixture for fixture, _ in omissions) == sorted(knowledge_projection.ROWS)

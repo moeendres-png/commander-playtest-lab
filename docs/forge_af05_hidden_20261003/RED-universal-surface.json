@@ -1,0 +1,19 @@
+{
+  "base_head": "462dd38250a89290b13b73e589012483bc7efb87",
+  "tree": "this repair's module, tests and regenerated matrix with only forge_hidden_information.required_channels reverted to the pre-repair OBSERVATION_REQUIREMENTS table of 462dd382",
+  "working_diff_sha256": "47576c688500dd376996d6ba4a2b676aa2486a2ae39f0bcd9b6f4b4b114a173a",
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "tests/qualification/test_forge_hidden_information.py",
+    "-k",
+    "universal"
+  ],
+  "exit": 1,
+  "omitted_row_channel_pairs": 60,
+  "log_sha256": "73cede8c4679234c19ad0cb22113e77da68018284ea46c2b6ec81090cf4555e1"
+}

@@ -1,0 +1,17 @@
+{
+  "tree": "this repair (universal principal surface on every row)",
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "tests/qualification/test_forge_hidden_information.py",
+    "-k",
+    "universal"
+  ],
+  "exit": 0,
+  "omitted_row_channel_pairs": 0,
+  "log_sha256": "d6291959ad149acd5c37fcad13fd2377ec310e2e290a5ff4a5ebe1272277992a"
+}

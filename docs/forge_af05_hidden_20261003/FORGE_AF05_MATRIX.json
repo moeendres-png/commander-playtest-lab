@@ -439,8 +439,15 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_01",
-   "lab_execution_gaps": [],
-   "missing_principal_channels": [],
+   "lab_execution_gaps": [
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log"
+   ],
    "obligation_kind": "opponent_hand",
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
@@ -463,8 +470,20 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_hand). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_hand). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -486,8 +505,15 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_02",
-   "lab_execution_gaps": [],
-   "missing_principal_channels": [],
+   "lab_execution_gaps": [
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log"
+   ],
    "obligation_kind": "opponent_library",
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
@@ -510,8 +536,20 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_library). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_library). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -533,8 +571,15 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_03",
-   "lab_execution_gaps": [],
-   "missing_principal_channels": [],
+   "lab_execution_gaps": [
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log"
+   ],
    "obligation_kind": "public_exile",
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
@@ -565,8 +610,20 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (public_exile). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (public_exile). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -588,8 +645,15 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_04",
-   "lab_execution_gaps": [],
-   "missing_principal_channels": [],
+   "lab_execution_gaps": [
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log"
+   ],
    "obligation_kind": "face_down_controller",
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
@@ -620,8 +684,20 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (face_down_controller). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (face_down_controller). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -698,6 +774,10 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
    "missing_principal_channels": [
@@ -753,8 +833,20 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -818,6 +910,10 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
    "missing_principal_channels": [
@@ -867,8 +963,20 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -906,12 +1014,16 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
    "missing_principal_channels": [
+    "event_log",
     "reveal_look_audience",
-    "reveal_look_projection",
-    "event_log"
+    "reveal_look_projection"
    ],
    "obligation_kind": "reveal_audience",
    "other_unsupported_dimensions": [],
@@ -958,8 +1070,22 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, reveal_look_projection, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "reveal_look_audience",
+    "reveal_look_projection",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1010,12 +1136,16 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
    "missing_principal_channels": [
+    "event_log",
     "reveal_look_audience",
-    "reveal_look_projection",
-    "event_log"
+    "reveal_look_projection"
    ],
    "obligation_kind": "look_audience",
    "other_unsupported_dimensions": [],
@@ -1061,8 +1191,22 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, reveal_look_projection, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "reveal_look_audience",
+    "reveal_look_projection",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1113,11 +1257,15 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
    "missing_principal_channels": [
-    "library_contents",
-    "event_log"
+    "event_log",
+    "library_contents"
    ],
    "obligation_kind": "search_inspection",
    "other_unsupported_dimensions": [],
@@ -1163,8 +1311,21 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "library_contents",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1241,11 +1402,15 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
    "missing_principal_channels": [
-    "library_contents",
-    "event_log"
+    "event_log",
+    "library_contents"
    ],
    "obligation_kind": "scry_knowledge",
    "other_unsupported_dimensions": [],
@@ -1292,8 +1457,21 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "library_contents",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1344,11 +1522,15 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
    "missing_principal_channels": [
-    "library_contents",
-    "event_log"
+    "event_log",
+    "library_contents"
    ],
    "obligation_kind": "shuffle_invalidates_order",
    "other_unsupported_dimensions": [],
@@ -1399,8 +1581,21 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "library_contents",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1451,6 +1646,10 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
    "missing_principal_channels": [
@@ -1501,8 +1700,20 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1582,11 +1793,15 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
    "missing_principal_channels": [
-    "library_contents",
-    "event_log"
+    "event_log",
+    "library_contents"
    ],
    "obligation_kind": "pile_metadata",
    "other_unsupported_dimensions": [],
@@ -1633,9 +1848,20 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. principal channel present but unaudited (needs row execution): decision_frames. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "library_contents",
+    "face_down_redaction"
+   ],
    "unaudited_principal_channels": [
-    "decision_frames"
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
    ],
    "unobservable_checkpoint_dimensions": [
     {
@@ -1687,9 +1913,15 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
-   "missing_principal_channels": [],
+   "missing_principal_channels": [
+    "event_log"
+   ],
    "obligation_kind": "target_metadata",
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
@@ -1731,9 +1963,19 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel present but unaudited (needs row execution): decision_frames. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "face_down_redaction"
+   ],
    "unaudited_principal_channels": [
-    "decision_frames"
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
    ],
    "unobservable_checkpoint_dimensions": [
     {
@@ -1811,9 +2053,15 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
-   "missing_principal_channels": [],
+   "missing_principal_channels": [
+    "event_log"
+   ],
    "obligation_kind": "source_metadata",
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
@@ -1855,9 +2103,19 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel present but unaudited (needs row execution): decision_frames. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "face_down_redaction"
+   ],
    "unaudited_principal_channels": [
-    "decision_frames"
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
    ],
    "unobservable_checkpoint_dimensions": [
     {
@@ -1935,9 +2193,15 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
-   "missing_principal_channels": [],
+   "missing_principal_channels": [
+    "event_log"
+   ],
    "obligation_kind": "ability_metadata",
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
@@ -1979,9 +2243,19 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel present but unaudited (needs row execution): decision_frames. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "face_down_redaction"
+   ],
    "unaudited_principal_channels": [
-    "decision_frames"
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
    ],
    "unobservable_checkpoint_dimensions": [
     {
@@ -2046,9 +2320,15 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
-   "missing_principal_channels": [],
+   "missing_principal_channels": [
+    "event_log"
+   ],
    "obligation_kind": "copy_face_down",
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
@@ -2091,8 +2371,20 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -2143,11 +2435,15 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
+     "dimension": "lab_capture.transport_diagnostics"
     }
    ],
    "missing_principal_channels": [
-    "replay_transcript",
-    "event_log"
+    "event_log",
+    "replay_transcript"
    ],
    "obligation_kind": "transcript_privacy",
    "other_unsupported_dimensions": [],
@@ -2193,8 +2489,21 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: replay_transcript, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
-   "unaudited_principal_channels": [],
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "replay_transcript",
+    "face_down_redaction"
+   ],
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -2222,7 +2531,9 @@
      "dimension": "lab_capture.transport_diagnostics"
     }
    ],
-   "missing_principal_channels": [],
+   "missing_principal_channels": [
+    "event_log"
+   ],
    "obligation_kind": "no_omniscient_api",
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
@@ -2245,8 +2556,17 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel present but unaudited (needs row execution): message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "face_down_redaction"
+   ],
    "unaudited_principal_channels": [
+    "decision_frames",
     "message_surface",
     "transport_diagnostics"
    ],
@@ -2304,6 +2624,15 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "required_principal_channels": [
+    "principal_scoped_state",
+    "decision_frames",
+    "event_log",
+    "message_surface",
+    "transport_diagnostics",
+    "replay_transcript",
+    "face_down_redaction"
+   ],
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",

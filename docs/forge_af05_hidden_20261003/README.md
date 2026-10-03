@@ -33,7 +33,33 @@ to:
 
    A lane finding with no mapping, or a row with no gap at all, raises instead of
    defaulting to a class.
-2. **Observation.** Each obligation kind needs a set of principal-facing channels.
+2. **Observation.** Each row needs a set of principal-facing channels
+   (`required_principal_channels` in the matrix), built in three layers:
+   - **Universal surface, on every row.** The shared mandatory verifier
+     (`knowledge_projection.verify`) runs one forbidden-identity and sentinel scan for
+     every HIDDEN row, whatever its obligation, and its `scan_coverage` check needs
+     content on each of its channels. `VERIFIER_CHANNELS` maps every verifier channel
+     to the Forge channel that carries it: prompt, context, option ids, labels and
+     option, source, ability and pile metadata to `decision_frames`; state to
+     `principal_scoped_state`; event to `event_log`; transcript (every document the
+     principal receives) to `message_surface`; log to `transport_diagnostics`. So
+     every row requires all five (`UNIVERSAL_PRINCIPAL_CHANNELS`).
+   - **Obligation channels** (`OBSERVATION_REQUIREMENTS`), layered on top: reveal and
+     look audience and projection, library contents, face-down redaction, and the
+     replay or transcript export.
+   - **Record channels:** a record that places a face-down object makes the shared scan
+     forbid its identity to every non-entitled principal, so the row also requires
+     `face_down_redaction`.
+
+   Every required channel that is absent or unaudited is listed on the row; none is
+   omitted. `test_no_row_omits_a_universal_principal_channel` fails if any row (fresh or
+   in the committed matrix) lacks a universal channel, if a verifier channel has no
+   mapping, or if the absent and unaudited lists drop a required channel.
+   `test_a_re_omitted_universal_channel_is_caught` removes each universal channel in
+   turn and shows the control catches it on all 20 rows. Against the earlier
+   per-obligation table the control fails with 60 omitted (row, channel) pairs
+   (`RED-universal-surface.*`; `GREEN-universal-surface.*` after the repair).
+
    Every channel is asserted against the pinned bridge source blobs, read with
    `git show <bridge_commit>:<path>`. Matching uses the code only: comments are
    stripped and whitespace is collapsed. `HiddenChannelDrift` is raised when:
@@ -73,7 +99,7 @@ row stays UNKNOWN.
 | cost-state construction | absent | `ScenarioBootstrap` has no mid-cast cost or payment field |
 | message surface | present, unaudited | the whole request surface is 24 dispatched message types (`MESSAGE_CASES`); an unknown type is refused with `UNKNOWN_MESSAGE`, and the legacy `get_state` alias is the observer-scoped projection. Whether every message refuses an omniscient read, and what errors and diagnostics carry, needs the row's runtime refusal probes and channel scan |
 | decision frames | present, unaudited | every key the projection writes into a frame summary, a legal action, its metadata and its object references is the closed set `DECISION_FRAME_KEYS` (48 keys; a new or lost key is drift). The sentinel obligation's facets map onto them (`DECISION_FRAME_FACETS`): prompt and context (`label`, `reason`, `kind`, `frame_kind`; Forge has no separate prompt or context field), option ids (`action_id`, `semantic_key`, `semantic_fingerprint`), labels, metadata, object references, and source (`source_object_id`, built from the source card name). Whether any of them carries a face-down or sentinel identity to a non-entitled principal needs the row's sentinel scan |
-| transport diagnostics | present, unaudited | `BridgeMain`, the JSONL process the Lab launches, writes one response per line to stdout and nothing else; a malformed request echoes the parser's message and an internal failure returns a fixed text. Its own stderr diagnostics are the closed set `STDERR_PRINTS`, exception texts and stack traces included, and every engine `System.out` print is redirected to stderr. Engine prints are not bounded by bridge source, so whether stderr carries a hidden identity needs the row's channel scan. **The Lab cannot run that scan yet:** `bridge_launcher` pipes stderr but discards it on close and reads only a 2000-character tail when stdout closes mid-request, so `lab_capture.transport_diagnostics` is a Lab gap on the rows that need this channel (bound to the launcher source by `LAB_CAPTURE_ASSERTIONS`) |
+| transport diagnostics | present, unaudited | `BridgeMain`, the JSONL process the Lab launches, writes one response per line to stdout and nothing else; a malformed request echoes the parser's message and an internal failure returns a fixed text. Its own stderr diagnostics are the closed set `STDERR_PRINTS`, exception texts and stack traces included, and every engine `System.out` print is redirected to stderr. Engine prints are not bounded by bridge source, so whether stderr carries a hidden identity needs the row's channel scan. **The Lab cannot run that scan yet:** `bridge_launcher` pipes stderr but discards it on close and reads only a 2000-character tail when stdout closes mid-request, so `lab_capture.transport_diagnostics` is a Lab gap on every row, since the shared verifier scans the process log for every row (bound to the launcher source by `LAB_CAPTURE_ASSERTIONS`) |
 
 The four construction channels share one closed set: the bootstrap reads exactly these
 JSON fields:
@@ -85,30 +111,40 @@ JSON fields:
 
 All 20 rows request a face-down permanent and an exact library order, which the
 bootstrap cannot construct. Every row's readback also cannot prove the requested library
-and exile zones. The remaining columns name what else each row needs.
+and exile zones.
 
-| Row | Obligation | Other construction gaps | Absent principal channels | Unaudited principal channels | Lab execution gaps |
-|---|---|---|---|---|---|
-| HIDDEN_01 | opponent_hand | none | none | none | none |
-| HIDDEN_02 | opponent_library | none | none | none | none |
-| HIDDEN_03 | public_exile | knowledge | none | none | none |
-| HIDDEN_04 | face_down_controller | knowledge | none | none | none |
-| HIDDEN_05 | exile_permission_persists | cost state, knowledge | event log | none | cast, target player, choose object, target object |
-| HIDDEN_06 | exile_permission_invalidates | cost state, knowledge | event log | none | cast, target player, choose object |
-| HIDDEN_07 | reveal_audience | cost state, knowledge | reveal/look audience, reveal/look projection, event log | none | cast |
-| HIDDEN_08 | look_audience | cost state, knowledge | reveal/look audience, reveal/look projection, event log | none | cast, target player |
-| HIDDEN_09 | search_inspection | cost state, knowledge | library contents, event log | none | cast, target object |
-| HIDDEN_10 | scry_knowledge | cost state, knowledge | library contents, event log | none | cast, target player, target objects, choose object |
-| HIDDEN_11 | shuffle_invalidates_order | cost state, knowledge | library contents, event log | none | cast, target player |
-| HIDDEN_12 | controlled_player_authority | cost state, knowledge | event log | none | cast, target player |
-| HIDDEN_13 | pile_metadata | cost state, knowledge | library contents, event log | decision frames | cast, target player, choose objects, pile |
-| HIDDEN_14 | target_metadata | cost state | none | decision frames | cast, face-down target |
-| HIDDEN_15 | source_metadata | cost state | none | decision frames | cast, mode, face-down target, yes/no |
-| HIDDEN_16 | ability_metadata | cost state | none | decision frames | cast, mode, face-down target, yes/no |
-| HIDDEN_17 | copy_face_down | cost state | none | none | cast, yes/no, face-down choice |
-| HIDDEN_18 | transcript_privacy | cost state, knowledge | replay/transcript, event log | none | cast, target player |
-| HIDDEN_19 | no_omniscient_api | none | none | message surface, transport diagnostics | stderr capture |
-| HIDDEN_HONEYCARD_SENTINEL | honey_sentinel | none | event log, replay/transcript | decision frames, message surface, transport diagnostics | stderr capture |
+Every row carries the universal surface the shared verifier scans, plus face-down
+redaction (each record places a face-down object). On every row that means:
+- **required:** principal-scoped state, decision frames, event log, message surface,
+  transport diagnostics, face-down redaction;
+- **absent:** event log;
+- **present but unaudited:** decision frames, message surface, transport diagnostics;
+- **Lab gap:** stderr capture (`lab_capture.transport_diagnostics`).
+
+The table names what each row needs beyond that.
+
+| Row | Obligation | Other construction gaps | Absent principal channels | Other Lab execution gaps |
+|---|---|---|---|---|
+| HIDDEN_01 | opponent_hand | none | event log | none |
+| HIDDEN_02 | opponent_library | none | event log | none |
+| HIDDEN_03 | public_exile | knowledge | event log | none |
+| HIDDEN_04 | face_down_controller | knowledge | event log | none |
+| HIDDEN_05 | exile_permission_persists | cost state, knowledge | event log | cast, target player, choose object, target object |
+| HIDDEN_06 | exile_permission_invalidates | cost state, knowledge | event log | cast, target player, choose object |
+| HIDDEN_07 | reveal_audience | cost state, knowledge | event log, reveal/look audience, reveal/look projection | cast |
+| HIDDEN_08 | look_audience | cost state, knowledge | event log, reveal/look audience, reveal/look projection | cast, target player |
+| HIDDEN_09 | search_inspection | cost state, knowledge | event log, library contents | cast, target object |
+| HIDDEN_10 | scry_knowledge | cost state, knowledge | event log, library contents | cast, target player, target objects, choose object |
+| HIDDEN_11 | shuffle_invalidates_order | cost state, knowledge | event log, library contents | cast, target player |
+| HIDDEN_12 | controlled_player_authority | cost state, knowledge | event log | cast, target player |
+| HIDDEN_13 | pile_metadata | cost state, knowledge | event log, library contents | cast, target player, choose objects, pile |
+| HIDDEN_14 | target_metadata | cost state | event log | cast, face-down target |
+| HIDDEN_15 | source_metadata | cost state | event log | cast, mode, face-down target, yes/no |
+| HIDDEN_16 | ability_metadata | cost state | event log | cast, mode, face-down target, yes/no |
+| HIDDEN_17 | copy_face_down | cost state | event log | cast, yes/no, face-down choice |
+| HIDDEN_18 | transcript_privacy | cost state, knowledge | event log, replay/transcript | cast, target player |
+| HIDDEN_19 | no_omniscient_api | none | event log | none |
+| HIDDEN_HONEYCARD_SENTINEL | honey_sentinel | none | event log, replay/transcript | none |
 
 ## What would move Forge AF05
 
@@ -121,13 +157,15 @@ In dependency order, all outside this Lab workstream:
    channel, library contents for an entitled principal, and a readback that proves the
    requested library and exile zones.
 3. Runtime audit: once a row can be constructed, its refusal probes and its leak and
-   sentinel scan over the message surface and the decision frames.
+   sentinel scan over the message surface, the decision frames and the transport
+   diagnostics. Every row needs this, because the shared verifier scans that whole
+   surface on every row. The Lab must first retain the bridge's stderr.
 4. Lab execution: the shared mid-game selector surface on the Forge scenario lane
    (#459) for the scripted decision families.
 
 No row needs only one of these steps:
-- The pure projection rows (HIDDEN_01, 02 and 19) need steps 1 and 2. Step 2 is needed
-  for the library and exile readback.
+- The pure projection rows (HIDDEN_01, 02 and 19) need steps 1, 2 and 3. Step 2 is
+  needed for the event log and for the library and exile readback.
 - HIDDEN_03 and 04 need the same, with knowledge state in step 1.
 
 `PRODUCTION_PROVIDER = NOT_SELECTED` · `ARCHITECTURE_FREEZE = NOT_CLAIMED`
