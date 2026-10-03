@@ -1,0 +1,49 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/work/ci479-b9-repair-20261003
+branch: hardening/lab-b9-packaging-smoke-20261003
+audit_base_sha: cf2360d4ef37959fb7cc8a543015df419e346296
+audit_base_tree: 25ac40c77e36aee8afb09148ad26cef63326f21b
+objective: Close B9 false packaging PASS outcomes with product-only installation and
+  independent artifact/source/evidence verification
+in_scope:
+- B9 packaging script, workflow integration, tests, source-bound evidence and PR509
+  integration
+out_of_scope:
+- Rules or qualification obligations
+- Non-CI simulator work owned by Claude
+- Provider/freeze/production repository
+- Deck/inventory/opponent changes
+- Paid services
+- Required-check promotion
+ownership: CI479-ROADMAP-CAMPAIGN-20261003
+dependencies:
+- Direct user CI479 takeover and Lab255 comment5971360874
+- Transferred partial donor4ae79d25 (no prior qualification credit)
+- main ea2690dc merged normally
+hard_gates:
+- Positive and adversarial full execution controls
+- Exact-head required CI
+- Independent review without unresolved P1/P2
+- Fresh target drift adjudication before ordinary merge
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+technical_decisions:
+- Install only wheel-declared base runtime closure, with hash-pinned dependencies
+  and pip check
+- Verify wheel source files, dependency metadata and entrypoints against exact Git
+  objects
+- Reject stale, partial, malformed, foreign and inconsistent evidence
+- Check import search path after candidate import as well as before
+authority_gates:
+- Provider selection and Architecture Freeze remain reserved
+state_written_against_head: 2c43973814062e3c59d199c156f1151c1d7b11ae
+validated_head: null
+status: WAITING
+execution_profile: null
+exact_next_action: Read required and affected CI for the published head, independently
+  review, verify source-bound artifact bytes, then adjudicate target drift and merge
+  normally.
+tests_run:
+- 74 affected tests PASS; raw reports are retained losslessly under docs/ci479_followup_pr509_20261003/
+- Exact-head CI and independent review pending; local results do not prove engine
+  Rules behavior

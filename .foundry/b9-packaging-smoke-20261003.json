@@ -63,7 +63,9 @@
     "FAIL-CLOSED ON ENVIRONMENT DEFECT: an exhausted /tmp tmpfs made the smoke report isolated_environment_creation_failed:exit=1 and exit 1 instead of emitting a PASS; a bounded stderr diagnostic was added to the consumer as a result. (DIRECTLY_VERIFIED)"
   ],
   "failed_gates": [],
-  "invalidated_gates": [],
+  "invalidated_gates": [
+    "Historical packaging PASS did not prove runtime-only closure, source/wheel binding, stale evidence rejection, or full consumer validation."
+  ],
   "do_not_rerun": [
     "Historical release-artifacts.yml wheel roundtrip claims: donor/regression hint only, never a current PASS (adjudicated fresh in technical_decisions B9-D1).",
     "FullGame / engine qualification suites: unchanged by B9 and authoritatively executed by repository gates.",
@@ -119,7 +121,7 @@
     "Owner review of Draft PR #509 and the merge decision. NOT owned by this workstream: the PR stays Draft, was not marked ready and was not self-merged.",
     "Coordinator adjudication of the single CI-02 review item GATE_DEFINITION_CHANGED_REVIEW_REQUIRED for the legitimate required-gate definition change (required_workflow_changed:.github/workflows/ci.yml and quality_test_definition_changed:tests/unit/test_packaging_smoke.py). Phase-2 reviewer acknowledgement is Coordinator-owned policy and was deliberately not reopened or weakened here."
   ],
-  "status": "COMPLETE",
+  "status": "SUPERSEDED",
   "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
   "current_reasoning_tier": "max",
   "hypotheses_rejected": [
@@ -186,7 +188,7 @@
   "first_failing_boundary": "NONE",
   "root_cause_class": "NONE",
   "next_action": "No further implementation work remains in B9; hand off to the owner for review and merge decision.",
-  "exact_next_action": "B9 is COMPLETE at final PR head 674d82867a22579efa5eedc49e035765509c61fa. No further B9 implementation step remains, and the required quality, security and infrastructure contexts are green on that exact head. Exact next action belongs to the owner: adjudicate the CI-02 GATE_DEFINITION_CHANGED_REVIEW_REQUIRED review item on Draft PR #509 and decide whether to mark it ready and merge. Do not mark ready and do not merge from this workstream.",
+  "exact_next_action": "Historical B9 checkpoint superseded after independently reproduced P1/P2 defects. Current ownership, repairs and pending gates: .foundry/ci479-b9-20261003.yaml",
   "execution_profile": "space-bunny",
   "executor_model": "opencode-go/space-bunny-free",
   "native_variant": "max",

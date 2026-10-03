@@ -510,11 +510,80 @@ def test_red_control_source_tree_import_substitution_fails_closed(
 
     completed, document = _smoke(wheel_dir, work_dir)
     assert completed.returncode == EXIT_FAIL, completed.stdout + completed.stderr
-    assert any(code in completed.stderr for code in _PROVENANCE_FAILURE_CODES), completed.stderr
+    # The stronger source binding rejects this foreign, incomplete artifact
+    # before installation. The following source-locked control exercises the
+    # isolated import guard itself through the full execution path.
+    assert "wheel_dependencies_differ_from_source" in completed.stderr
     assert document["overall_classification"] == "FAIL"
-    assert document["reasons"]
-    # The failure reason is a provenance failure, never a silent success.
-    assert any(reason.startswith(_PROVENANCE_FAILURE_CODES) for reason in document["reasons"])
+    assert not (work_dir / "venv").exists()
+
+
+def test_source_locked_candidate_import_cannot_add_its_worktree(tmp_path):
+    child = tmp_path / "candidate"
+    subprocess.run(
+        ["git", "clone", "--local", "--no-hardlinks", str(ROOT), str(child)],
+        check=True,
+        capture_output=True,
+    )
+    init = child / "src/commander_lab/__init__.py"
+    init.write_text(
+        init.read_text() + f"\nimport sys\nsys.path.insert(0, {str(child / 'src')!r})\n"
+    )
+    subprocess.run(["git", "-C", str(child), "add", "src/commander_lab/__init__.py"], check=True)
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(child),
+            "-c",
+            "user.name=Packaging Control",
+            "-c",
+            "user.email=control@example.invalid",
+            "commit",
+            "-m",
+            "Control: source-path injection",
+        ],
+        check=True,
+        capture_output=True,
+    )
+    wheels = tmp_path / "wheels"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "wheel",
+            "--no-deps",
+            "--no-build-isolation",
+            "--wheel-dir",
+            str(wheels),
+            ".",
+        ],
+        cwd=child,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    output = tmp_path / "evidence.json"
+    result = _run_script(
+        "smoke",
+        "--repo",
+        str(child),
+        "--wheel-dir",
+        str(wheels),
+        "--venv-dir",
+        str(tmp_path / "venv"),
+        "--scratch-dir",
+        str(tmp_path / "scratch"),
+        "--output",
+        str(output),
+    )
+    assert result.returncode == EXIT_FAIL, result.stdout + result.stderr
+    document = json.loads(output.read_text())
+    assert document["wheel_source_binding"]["status"] == "PASS", document
+    assert any(reason.startswith(_PROVENANCE_FAILURE_CODES) for reason in document["reasons"]), (
+        document
+    )
 
 
 def test_editable_install_markers_are_rejected_by_the_isolation_contract(tmp_path: Path) -> None:
@@ -749,30 +818,27 @@ def test_package_contract_is_read_from_the_live_pyproject() -> None:
         assert module_path.is_file(), (script_name, target)
 
 
-def test_scratch_dir_inside_the_repository_is_rejected(built_wheel: tuple[Path, str]) -> None:
+def test_scratch_dir_inside_the_repository_is_rejected(built_wheel, tmp_path) -> None:
     wheel, _ = built_wheel
-    with pytest.raises(packaging._Classification) as failure:
-        packaging.run_smoke(
-            packaging.build_parser().parse_args(
-                [
-                    "smoke",
-                    "--repo",
-                    str(ROOT),
-                    "--wheel-dir",
-                    str(wheel.parent),
-                    "--venv-dir",
-                    str(ROOT / "b9-should-not-exist"),
-                    "--scratch-dir",
-                    str(ROOT / "artifacts"),
-                    "--output",
-                    str(ROOT / "artifacts" / "quality" / "B9_SHOULD_NOT_EXIST.json"),
-                ]
-            )
-        )
-    assert failure.value.classification == "FAIL"
-    assert failure.value.code.startswith("scratch_dir_inside_repository")
+    output = tmp_path / "failure.json"
+    result = _run_script(
+        "smoke",
+        "--repo",
+        str(ROOT),
+        "--wheel-dir",
+        str(wheel.parent),
+        "--venv-dir",
+        str(ROOT / "b9-should-not-exist"),
+        "--scratch-dir",
+        str(ROOT / "artifacts"),
+        "--output",
+        str(output),
+    )
+    assert result.returncode == EXIT_FAIL, result.stdout + result.stderr
+    document = json.loads(output.read_text())
+    assert document["overall_classification"] == "FAIL"
+    assert document["reasons"] == ["scratch_dir_inside_repository"]
     assert not (ROOT / "b9-should-not-exist").exists()
-    assert not (ROOT / "artifacts" / "quality" / "B9_SHOULD_NOT_EXIST.json").exists()
 
 
 # --------------------------------------------------------------------------- #
@@ -872,3 +938,151 @@ def test_required_check_static_invariants_still_hold_for_the_candidate() -> None
         item["id"] for item in report["invariant_results"] if item["status"] == "PASS"
     }
     assert report["candidate_code_executed"] is False
+
+
+def test_early_failure_overwrites_stale_pass(work_dir, tmp_path):
+    output = work_dir / "evidence" / "PACKAGING_SMOKE.json"
+    output.parent.mkdir()
+    output.write_text(json.dumps({"overall_classification": "PASS"}))
+    missing = tmp_path / "missing-wheels"
+    missing.mkdir()
+    completed, document = _smoke(missing, work_dir)
+    assert completed.returncode == EXIT_FAIL
+    assert document.get("overall_classification") != "PASS"
+    assert document.get("reasons"), document
+
+
+def test_every_forged_binding_is_rejected_independently(built_wheel, work_dir, tmp_path):
+    import copy
+
+    wheel, _ = built_wheel
+    wheel_dir = tmp_path / "dist"
+    wheel_dir.mkdir()
+    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
+    completed, valid = _smoke(wheel_dir, work_dir)
+    assert completed.returncode == EXIT_PASS, completed.stderr
+    controls = [
+        (("source_sha",), "0" * 40),
+        (("source_tree",), "0" * 40),
+        (("install", "direct_url_sha256"), "0" * 64),
+        (("install", "editable"), True),
+        (("install", "install_source"), "directory"),
+        (("install", "index_access"), "enabled"),
+        (("environment", "include_system_site_packages"), True),
+        (("environment", "created_by_this_run"), False),
+        (("reasons",), ["unresolved_failure"]),
+        (("package_contract",), {}),
+        (("cli_entrypoints",), []),
+        (("expected_bindings",), {"source_sha": "0" * 40}),
+    ]
+    for keys, value in controls:
+        forged = copy.deepcopy(valid)
+        target = forged
+        for key in keys[:-1]:
+            target = target[key]
+        target[keys[-1]] = value
+        evidence = tmp_path / "forged.json"
+        evidence.write_text(json.dumps(forged))
+        checked = _run_script(
+            "check", "--repo", str(ROOT), "--evidence", str(evidence), "--wheel-dir", str(wheel_dir)
+        )
+        assert checked.returncode == EXIT_FAIL, (keys, checked.stdout, checked.stderr)
+    for key in ("package_contract", "environment", "install", "cli_entrypoints"):
+        forged = copy.deepcopy(valid)
+        del forged[key]
+        evidence.write_text(json.dumps(forged))
+        checked = _run_script(
+            "check", "--repo", str(ROOT), "--evidence", str(evidence), "--wheel-dir", str(wheel_dir)
+        )
+        assert checked.returncode == EXIT_FAIL, key
+
+
+def test_wheel_from_foreign_source_fails_binding(built_wheel, work_dir, tmp_path):
+    wheel, _ = built_wheel
+    wheel_dir = tmp_path / "dist"
+    wheel_dir.mkdir()
+    foreign = wheel_dir / wheel.name
+    with zipfile.ZipFile(wheel) as original, zipfile.ZipFile(foreign, "w") as out:
+        for info in original.infolist():
+            data = original.read(info.filename)
+            if info.filename == "commander_lab/__init__.py":
+                data += b"\n# foreign source revision\n"
+            out.writestr(info, data)
+    completed, document = _smoke(wheel_dir, work_dir)
+    assert completed.returncode == EXIT_FAIL, completed.stdout
+    assert any(
+        reason.startswith("wheel_file_differs_from_source:")
+        for reason in document.get("reasons", [])
+    ), document
+
+
+def test_undeclared_dependency_is_not_supplied_by_tooling(tmp_path):
+    child = tmp_path / "candidate"
+    result = subprocess.run(
+        ["git", "clone", "--local", "--no-hardlinks", str(ROOT), str(child)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    init = child / "src/commander_lab/__init__.py"
+    init.write_text(
+        init.read_text() + "\nimport jsonschema  # deliberately undeclared runtime dependency\n"
+    )
+    subprocess.run(["git", "-C", str(child), "add", "src/commander_lab/__init__.py"], check=True)
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(child),
+            "-c",
+            "user.name=Packaging Control",
+            "-c",
+            "user.email=control@example.invalid",
+            "commit",
+            "-m",
+            "Control: undeclared runtime import",
+        ],
+        check=True,
+        capture_output=True,
+    )
+    wheels = tmp_path / "wheels"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "wheel",
+            "--no-deps",
+            "--no-build-isolation",
+            "--wheel-dir",
+            str(wheels),
+            ".",
+        ],
+        cwd=child,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    scratch = tmp_path / "scratch"
+    output = tmp_path / "failure.json"
+    result = _run_script(
+        "smoke",
+        "--repo",
+        str(child),
+        "--wheel-dir",
+        str(wheels),
+        "--venv-dir",
+        str(tmp_path / "venv"),
+        "--scratch-dir",
+        str(scratch),
+        "--output",
+        str(output),
+    )
+    assert result.returncode == EXIT_FAIL, result.stdout + result.stderr
+    document = json.loads(output.read_text())
+    assert document["reasons"] == ["installed_import_failed:ModuleNotFoundError"], document
+    assert document["wheel_source_binding"]["status"] == "PASS", document
+    assert all(
+        not entry.startswith("jsonschema==")
+        for entry in document["dependency_closure"]["requirements"]
+    )

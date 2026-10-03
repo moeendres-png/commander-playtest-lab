@@ -549,42 +549,104 @@ def _git_blob_id(data: bytes) -> str:
 
 
 def verify_wheel_matches_source(wheel: Path, repo: Path, source_sha: str) -> dict[str, Any]:
-    """Every wheel file is the source blob at ``source_sha``; no tracked module is missing."""
+    """Bind code, dependencies and entrypoints to the exact Git source, not wheel claims."""
+    import configparser
+
+    from packaging.requirements import Requirement
+
     listed = _git_text(repo, "ls-tree", "-r", "-z", source_sha, "--", "src")
     if listed is None:
         _unknown("source_tree_listing_unavailable")
     source: dict[str, str] = {}
     for entry in filter(None, listed.split("\0")):
         meta, _, path = entry.partition("\t")
-        _mode, kind, blob = meta.split()
-        if kind == "blob" and path.startswith("src/"):
-            source[path.removeprefix("src/")] = blob
+        mode, kind, blob = meta.split()
+        if kind != "blob" or mode not in {"100644", "100755"}:
+            _fail("source_package_entry_not_regular", path)
+        source[path.removeprefix("src/")] = blob
+    project_text = _git_text(repo, "show", f"{source_sha}:pyproject.toml")
+    if project_text is None:
+        _unknown("source_package_contract_unavailable")
+    project = tomllib.loads(project_text)["project"]
+    expected_requirements = {str(Requirement(raw)) for raw in project.get("dependencies", [])}
+    for extra, requirements in project.get("optional-dependencies", {}).items():
+        for raw in requirements:
+            requirement = Requirement(raw)
+            marker = f"({requirement.marker}) and " if requirement.marker else ""
+            requirement.marker = None
+            expected_requirements.add(
+                str(Requirement(f'{requirement}; {marker}extra == "{extra}"'))
+            )
     packaged: set[str] = set()
     try:
         with zipfile.ZipFile(wheel) as archive:
+            names = archive.namelist()
+            if len(names) != len(set(names)):
+                _fail("wheel_duplicate_entries")
+            metadata_name = _only(
+                [Path(name) for name in names if name.endswith(".dist-info/METADATA")],
+                code="wheel_metadata_not_unique",
+            )
+            metadata = email.parser.Parser().parsestr(
+                archive.read(metadata_name.as_posix()).decode("utf-8")
+            )
+            if (
+                normalize_distribution_name(metadata.get("Name", ""))
+                != normalize_distribution_name(project["name"])
+                or metadata.get("Version") != project["version"]
+            ):
+                _fail("wheel_metadata_identity_differs_from_source")
+            if {
+                str(Requirement(raw)) for raw in metadata.get_all("Requires-Dist") or []
+            } != expected_requirements:
+                _fail("wheel_dependencies_differ_from_source")
+            if metadata.get("Requires-Python") != project.get("requires-python"):
+                _fail("wheel_python_requirement_differs_from_source")
+            entrypoints = configparser.ConfigParser(interpolation=None)
+            entrypoints.optionxform = str
+            entrypoints.read_string(
+                archive.read(str(metadata_name.parent / "entry_points.txt")).decode("utf-8")
+            )
+            actual_scripts = (
+                dict(entrypoints.items("console_scripts"))
+                if entrypoints.has_section("console_scripts")
+                else {}
+            )
+            if actual_scripts != project.get("scripts", {}):
+                _fail("wheel_entrypoints_differ_from_source")
             for info in archive.infolist():
                 top = info.filename.split("/", 1)[0]
-                if info.is_dir() or top.endswith((".dist-info", ".data")):
+                if info.is_dir() or top.endswith(".dist-info"):
                     continue
+                if top.endswith(".data"):
+                    _fail("wheel_unexpected_data_payload", info.filename)
                 blob = _git_blob_id(archive.read(info))
                 if info.filename not in source:
                     _fail("wheel_file_not_in_source", info.filename)
                 if source[info.filename] != blob:
                     _fail("wheel_file_differs_from_source", info.filename)
                 packaged.add(info.filename)
-    except (OSError, zipfile.BadZipFile) as exc:
+    except (
+        OSError,
+        zipfile.BadZipFile,
+        KeyError,
+        UnicodeError,
+        ValueError,
+        configparser.Error,
+    ) as exc:
         _fail("wheel_unreadable", str(exc))
-    packages = sorted({name.split("/", 1)[0] for name in packaged})
-    missing = sorted(
-        path
-        for path in source
-        if path.split("/", 1)[0] in packages and path.endswith(".py") and path not in packaged
-    )
+    missing = sorted(path for path in source if path.endswith(".py") and path not in packaged)
     if missing:
         _fail("wheel_missing_source_module", ",".join(missing[:10]))
     if not packaged:
         _fail("wheel_carries_no_package_files")
-    return {"status": PASS, "files": len(packaged), "packages": packages, "source_sha": source_sha}
+    return {
+        "status": PASS,
+        "files": len(packaged),
+        "packages": sorted({name.split("/", 1)[0] for name in packaged}),
+        "source_sha": source_sha,
+        "metadata_bound_to_source": True,
+    }
 
 
 def installed_distribution_version(
@@ -709,34 +771,11 @@ try:
 except importlib.metadata.PackageNotFoundError:
     requirements = []
 
-from packaging.requirements import Requirement
-from packaging.utils import canonicalize_name
-
-satisfied = []
-unresolved = []
-for raw in requirements:
-    requirement = Requirement(raw)
-    if requirement.marker is not None and not requirement.marker.evaluate({"extra": ""}):
-        continue
-    try:
-        installed_version = importlib.metadata.version(canonicalize_name(requirement.name))
-    except importlib.metadata.PackageNotFoundError:
-        unresolved.append({"requirement": raw, "reason": "not_installed"})
-        continue
-    if requirement.specifier and not requirement.specifier.contains(installed_version, prereleases=True):
-        unresolved.append(
-            {
-                "requirement": raw,
-                "reason": "version_not_satisfied",
-                "installed_version": installed_version,
-            }
-        )
-        continue
-    satisfied.append({"requirement": raw, "installed_version": installed_version})
-
-payload["dependency_check"] = "complete"
-payload["runtime_requirements_satisfied"] = satisfied
-payload["runtime_requirements_unresolved"] = unresolved
+payload["sys_path"] = list(sys.path)  # Recheck after importing candidate code.
+payload["runtime_requirements"] = requirements
+payload["installed_versions"] = {
+    dist.metadata["Name"]: dist.version for dist in importlib.metadata.distributions()
+}
 
 print(json.dumps(payload))
 """
@@ -786,7 +825,28 @@ def run_installed_probe(
         _fail("installed_import_resolved_outside_isolated_environment", module_file.name)
     if str(payload.get("sys_prefix")) != str(venv_dir.resolve()):
         _fail("probe_interpreter_is_not_the_isolated_environment")
-    unresolved = payload.get("runtime_requirements_unresolved")
+    # The parser is audit tooling, so keep it outside the product-only venv.
+    from packaging.requirements import Requirement
+
+    versions = {
+        normalize_distribution_name(name): value
+        for name, value in payload.get("installed_versions", {}).items()
+    }
+    satisfied, unresolved = [], []
+    for raw in payload.get("runtime_requirements", []):
+        requirement = Requirement(raw)
+        if requirement.marker is not None and not requirement.marker.evaluate({"extra": ""}):
+            continue
+        version = versions.get(normalize_distribution_name(requirement.name))
+        if version is None or (
+            requirement.specifier and not requirement.specifier.contains(version, prereleases=True)
+        ):
+            unresolved.append({"requirement": raw, "reason": "not_installed_or_unsatisfying"})
+        else:
+            satisfied.append({"requirement": raw, "installed_version": version})
+    payload["dependency_check"] = "complete"
+    payload["runtime_requirements_satisfied"] = satisfied
+    payload["runtime_requirements_unresolved"] = unresolved
     if payload.get("dependency_check") != "complete":
         _fail("runtime_dependency_satisfaction_not_verifiable")
     if unresolved:
@@ -855,6 +915,13 @@ REQUIRED_EVIDENCE_KEYS: tuple[str, ...] = (
     "cli_entrypoint_results",
     "overall_classification",
     "reasons",
+    "package_contract",
+    "environment",
+    "install",
+    "cli_entrypoints",
+    "wheel_source_binding",
+    "dependency_closure",
+    "expected_bindings",
 )
 
 
@@ -922,7 +989,7 @@ def write_evidence(output: Path, evidence: dict[str, Any]) -> None:
 # --------------------------------------------------------------------------- #
 
 
-def run_smoke(args: argparse.Namespace) -> int:
+def _run_smoke_bound(args: argparse.Namespace) -> int:
     repo = Path(args.repo).resolve()
     wheel_dir = Path(args.wheel_dir).resolve()
     pyproject = Path(args.pyproject).resolve() if args.pyproject else repo / "pyproject.toml"
@@ -939,6 +1006,12 @@ def run_smoke(args: argparse.Namespace) -> int:
         _fail("scratch_dir_inside_repository")
     source_sha, source_tree = read_source_identity(repo)
     contract = read_package_contract(pyproject)
+    if not dependency_lock.is_file():
+        _fail("dependency_lock_missing", dependency_lock.name)
+    if not args.dependency_lock:
+        committed_lock = _git_text(repo, "show", f"{source_sha}:requirements/lock.txt")
+        if committed_lock is None or dependency_lock.read_text().strip() != committed_lock:
+            _fail("dependency_lock_not_the_source_input")
     wheel = select_project_wheel(wheel_dir, contract)
     wheel_sha256 = sha256_file(wheel)
     if args.expect_wheel_sha256 is not None and args.expect_wheel_sha256 != wheel_sha256:
@@ -986,7 +1059,21 @@ def run_smoke(args: argparse.Namespace) -> int:
     }
     classification = PASS
     reasons: list[str] = []
+    closure_record: dict[str, Any] = {"status": "NOT_RUN"}
+    source_record: dict[str, Any] = {"status": "NOT_RUN"}
     try:
+        source_record = verify_wheel_matches_source(wheel, repo, source_sha)
+        closure = runtime_dependency_closure(wheel, dependency_lock)
+        scratch_dir.mkdir(parents=True, exist_ok=True)
+        subset = write_runtime_lock(
+            closure, dependency_lock, scratch_dir / "runtime-requirements.lock"
+        )
+        closure_record = {
+            "status": PASS,
+            "requirements": [f"{name}=={version}" for name, version in closure],
+            "lock_subset_sha256": sha256_file(subset),
+            "scope": "wheel_declared_base_runtime_only",
+        }
         scratch_dir.mkdir(parents=True, exist_ok=True)
         create_isolated_environment(venv_dir, scratch_dir=scratch_dir)
         interpreter = _venv_python(venv_dir)
@@ -1001,8 +1088,9 @@ def run_smoke(args: argparse.Namespace) -> int:
         if version_probe.returncode != 0 or not state["python_version"]:
             _unknown("isolated_python_version_not_resolvable")
 
-        install_pinned_dependencies(interpreter, dependency_lock, scratch_dir=scratch_dir)
+        install_pinned_dependencies(interpreter, subset, scratch_dir=scratch_dir)
         install_wheel_from_artifact(interpreter, wheel, scratch_dir=scratch_dir)
+        check_isolated_dependencies(interpreter, scratch_dir=scratch_dir)
         state["install_record"] = verify_install_source(venv_dir, wheel, wheel_sha256, contract)
 
         installed_version = installed_distribution_version(
@@ -1066,12 +1154,51 @@ def run_smoke(args: argparse.Namespace) -> int:
         classification=classification,
         reasons=reasons,
     )
+    evidence["dependency_closure"] = closure_record
+    evidence["wheel_source_binding"] = source_record
     write_evidence(output, evidence)
     if classification == PASS:
         print(f"packaging smoke PASS: {wheel.name} sha256={wheel_sha256}")
         return EXIT_CODES[PASS]
     print(f"packaging smoke {classification}: {', '.join(reasons)}", file=sys.stderr)
     return EXIT_CODES[classification]
+
+
+def run_smoke(args: argparse.Namespace) -> int:
+    output = Path(args.output).resolve()
+    # An interrupted/early failure can never leave an older PASS available.
+    write_evidence(
+        output,
+        {
+            "schema_version": SCHEMA_VERSION,
+            "overall_classification": "NOT_RUN",
+            "reasons": ["smoke_started_no_verdict_yet"],
+        },
+    )
+    try:
+        return _run_smoke_bound(args)
+    except _Classification as failure:
+        write_evidence(
+            output,
+            {
+                "schema_version": SCHEMA_VERSION,
+                "overall_classification": failure.classification,
+                "reasons": [failure.code],
+            },
+        )
+        print(f"packaging smoke {failure.classification}: {failure.code}", file=sys.stderr)
+        return EXIT_CODES[failure.classification]
+    except (OSError, UnicodeError, ValueError) as error:
+        write_evidence(
+            output,
+            {
+                "schema_version": SCHEMA_VERSION,
+                "overall_classification": UNKNOWN,
+                "reasons": ["smoke_input_unreadable:" + type(error).__name__],
+            },
+        )
+        print("packaging smoke UNKNOWN: smoke_input_unreadable", file=sys.stderr)
+        return EXIT_CODES[UNKNOWN]
 
 
 # --------------------------------------------------------------------------- #
@@ -1160,6 +1287,76 @@ def check_evidence(args: argparse.Namespace) -> int:
         return EXIT_CODES[FAIL]
 
     reasons = _structural_reasons(document)
+    if document["reasons"] != ["all_packaging_smoke_invariants_satisfied"]:
+        reasons.append("pass_carries_failure_reasons")
+    try:
+        actual_sha, actual_tree = read_source_identity(Path(args.repo))
+        if document["source_sha"] != actual_sha or document["source_tree"] != actual_tree:
+            reasons.append("evidence_source_identity_not_current")
+    except _Classification as failure:
+        reasons.append(failure.code)
+    install = document.get("install")
+    if not isinstance(install, dict):
+        reasons.append("install_not_a_mapping")
+    else:
+        for key, expected in {
+            "direct_url_sha256": document["wheel_sha256"],
+            "editable": False,
+            "install_source": "wheel",
+            "index_access": "disabled",
+        }.items():
+            if install.get(key) != expected or (
+                key == "editable" and install.get(key) is not False
+            ):
+                reasons.append("install_binding_invalid:" + key)
+        try:
+            if install.get("dependency_lock_sha256") != sha256_file(
+                Path(args.repo) / "requirements/lock.txt"
+            ):
+                reasons.append("dependency_lock_binding_invalid")
+        except _Classification as failure:
+            reasons.append(failure.code)
+    environment = document.get("environment")
+    if not isinstance(environment, dict):
+        reasons.append("environment_not_a_mapping")
+    else:
+        for key, expected in {
+            "include_system_site_packages": False,
+            "isolated_environment": True,
+            "created_by_this_run": True,
+            "pythonpath_scrubbed": True,
+            "pythonhome_scrubbed": True,
+            "probe_cwd_outside_repository": True,
+            "probe_isolated_flag": "-I",
+        }.items():
+            if environment.get(key) != expected or (
+                isinstance(expected, bool) and environment.get(key) is not expected
+            ):
+                reasons.append("environment_binding_invalid:" + key)
+    bindings = document.get("expected_bindings")
+    if bindings is not None:
+        if not isinstance(bindings, dict):
+            reasons.append("expected_bindings_not_mapping")
+        else:
+            for key, expected in bindings.items():
+                if key not in {"source_sha", "source_tree", "wheel_sha256", "package_version"} or (
+                    expected is not None and document.get(key) != expected
+                ):
+                    reasons.append("expected_binding_mismatch:" + key)
+    entries = document.get("cli_entrypoints")
+    if not isinstance(entries, list) or any(not isinstance(row, dict) for row in entries):
+        reasons.append("cli_entrypoints_not_records")
+    elif any(not isinstance(row.get("name"), str) for row in entries):
+        reasons.append("cli_entrypoint_name_not_string")
+    elif len({row.get("name") for row in entries}) != len(entries) or {
+        row.get("name"): row for row in entries
+    } != document.get("cli_entrypoint_results"):
+        reasons.append("cli_entrypoint_sections_inconsistent")
+    for key in ("wheel_source_binding", "dependency_closure"):
+        if not isinstance(document.get(key), dict) or document[key].get("status") != PASS:
+            reasons.append(key + "_not_pass")
+    if not args.wheel_dir:
+        reasons.append("artifact_reverification_required")
 
     contract: PackageContract | None = None
     try:
@@ -1170,6 +1367,8 @@ def check_evidence(args: argparse.Namespace) -> int:
         reasons.append(f"package_contract_unusable:{failure.code}")
     if contract is not None:
         reasons.extend(_contract_reasons(document, contract))
+        if document.get("package_contract") != contract.to_json():
+            reasons.append("package_contract_not_current")
         if args.wheel_dir:
             try:
                 observed = select_project_wheel(Path(args.wheel_dir), contract)
@@ -1180,6 +1379,27 @@ def check_evidence(args: argparse.Namespace) -> int:
                     reasons.append("artifact_reverification_filename_mismatch")
                 elif sha256_file(observed) != str(document["wheel_sha256"]):
                     reasons.append("artifact_reverification_digest_mismatch")
+                else:
+                    try:
+                        source_record = verify_wheel_matches_source(
+                            observed, Path(args.repo), str(document["source_sha"])
+                        )
+                        if document.get("wheel_source_binding") != source_record:
+                            reasons.append("wheel_source_binding_invalid")
+                        lock = Path(args.repo) / "requirements/lock.txt"
+                        closure = runtime_dependency_closure(observed, lock)
+                        blocks = lock_blocks(lock.read_text())
+                        subset = "\n".join(blocks[name][1] for name, _ in closure) + "\n"
+                        expected = {
+                            "status": PASS,
+                            "requirements": [f"{name}=={version}" for name, version in closure],
+                            "lock_subset_sha256": hashlib.sha256(subset.encode()).hexdigest(),
+                            "scope": "wheel_declared_base_runtime_only",
+                        }
+                        if document.get("dependency_closure") != expected:
+                            reasons.append("runtime_dependency_closure_invalid")
+                    except _Classification as failure:
+                        reasons.append("artifact_reverification_failed:" + failure.code)
 
     if args.expect_source_sha is not None and str(document["source_sha"]) != args.expect_source_sha:
         reasons.append("evidence_source_sha_not_the_expected_candidate")
