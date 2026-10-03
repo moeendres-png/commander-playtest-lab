@@ -80,6 +80,25 @@ def test_current_boundary_projection_is_exact_13_admitted_17_blocked(
     assert "owner/controller" in doc["derivation"]
 
 
+def test_pb03_workflow_pins_the_current_admission_counts() -> None:
+    """The exact-head PB-03 assertion pins the same projection as the code.
+
+    The workflow keeps its own literal (a CI-definition change is a reviewed
+    change), so an adjudicated projection change must update both places; a
+    stale literal fails PB-03 only after the full runner has executed.
+    """
+    workflow = (
+        Path(__file__).resolve().parents[2] / ".github/workflows/pb03-runtime-qualification.yml"
+    ).read_text(encoding="utf-8")
+    counts = A.CURRENT_BOUNDARY_COUNTS
+    pinned = (
+        f'assert admission["counts"] == {{"admitted": {counts["admitted"]}, '
+        f'"blocked": {counts["blocked"]}}}'
+    )
+    assert workflow.count('assert admission["counts"] ==') == 1
+    assert pinned in workflow
+
+
 def test_declared_control_divergence_decides_admission(materialization, manifest) -> None:
     """A record that declares owner != controller asks for a divergent state.
 

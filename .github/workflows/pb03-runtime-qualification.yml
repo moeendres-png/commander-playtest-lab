@@ -250,7 +250,7 @@ jobs:
           expected_engine = bridge_launcher.canonical_xmage_engine_pin()
 
           assert admission["rows_total"] == 30
-          assert admission["counts"] == {"admitted": 12, "blocked": 18}
+          assert admission["counts"] == {"admitted": 13, "blocked": 17}
           assert admission["classification"] == "TECHNICALLY_CONFORMANT"
           assert admission["manifest_source"].endswith("state_restoration_dimensions")
 
