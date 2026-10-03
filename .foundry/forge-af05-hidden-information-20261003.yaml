@@ -5,7 +5,7 @@ worktree: scratchpad/wt506 (session-local git worktree of the canonical clone)
 branch: claude/pensive-mayer-f8spwn
 audit_base_sha: 01d70279dbb6eaf2b694ca27e6489ee582418d3d
 audit_base_tree: 0e520ae41518cb9195078cee0df4b245d3f7fa2f
-state_written_against_head: 43195486b25c0d3808300d4f534262172ff8c44d
+state_written_against_head: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0 (main after #505, merged into this branch)
 workstream: FORGE-AF05-HIDDEN-INFORMATION-CAMPAIGN-20261003
 issue: 458
 parent: 255
@@ -43,7 +43,7 @@ forbidden_shortcuts:
 milestones:
   - id: M1
     rows: [HIDDEN_01..HIDDEN_19, HIDDEN_HONEYCARD_SENTINEL]
-    result: 20/20 PROVIDER_ADAPTER_GAP; Forge AF05 UNKNOWN; no receipts
+    result: 20/20 PROVIDER_ADAPTER_GAP; Forge AF05 UNKNOWN; no receipts (contract 1.0.20)
     summary: >-
       forge_hidden_information classifies each row from the Forge lane's own
       model and a channel table asserted against the pinned bridge blobs
@@ -54,9 +54,8 @@ milestones:
       reports the exact reason per row. Matrix and README in
       docs/forge_af05_hidden_20261003/.
 open_items:
-  - Merge main (with #505) into this branch, regenerate the matrix on contract 1.0.20, then exact-head CI and a fresh-context review.
+  - main (with #505) is merged into this branch and the matrix is regenerated on contract 1.0.20 (rows unchanged); exact-head CI and a fresh-context review remain.
   - Forge provider construction and observation gaps need a separately authorized Forge bridge issue.
 exact_next_action: >-
-  After #505 merges, merge main into this branch, regenerate the census and
-  manifests, push, run the fresh-context review, merge PR #506 under the
-  project gates and post the #458 handoff.
+  Confirm exact-head CI on the pushed head, resolve the fresh-context review,
+  merge PR #506 under the project gates and post the #458 handoff.
