@@ -1260,6 +1260,40 @@ ROWS: dict[str, RowSpec] = {
             TerminalCheck("life", principal="P1", value=40),
         ),
     ),
+    # WS05-MP-ELIM-CONTROL-3: P2's Control Magic (caused by its cast, verified
+    # attached to P1's Bears with P2 controlling them) leaves the game with P2
+    # (CR 800.4a), and the Bears stay on the battlefield, their control
+    # returning to P1 when the Aura's effect ends (the engine's GAINED_CONTROL).
+    "WS05-MP-ELIM-CONTROL-3": RowSpec(
+        token_bindings=_player_leaves("P2"),
+        terminal_checks=(
+            _before(
+                _player_loses("P2"),
+                _event(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:leave-controlmagic"),
+                    ("from", "BATTLEFIELD"),
+                    ("to", "OUTSIDE"),
+                ),
+            ),
+            _before(
+                _player_loses("P2"),
+                _event(
+                    "GAINED_CONTROL",
+                    ("target_object", "obj:p1-owned-controlled"),
+                    ("player_player", "P1"),
+                ),
+            ),
+            _exactly(
+                _event(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:p1-owned-controlled"),
+                    ("from", "BATTLEFIELD"),
+                ),
+                0,
+            ),
+        ),
+    ),
     "WS05-MP-ELIM-PRIO-3": RowSpec(
         token_bindings=_player_leaves("P2"),
         terminal_checks=_ring_after_loss("P2", ("P1", "P3")),
@@ -3552,6 +3586,39 @@ def execute_row(
                     else reconstruction
                 ),
             )
+    if composed and causal is not None and causal.get("caused_permanents"):
+        # Caused permanents exist once their casts resolve; the verifier then
+        # compares attachment and control with the record before the loss.
+        try:
+            probe.resolve_stack(client, f"{fixture_id}-causal-resolve")
+            permanents = probe.complete_causal(client, "permanents").get("verdict") or {}
+        except ml.MidgameLaneError as exc:
+            return RowExecution(
+                fixture_id,
+                False,
+                construction,
+                f"caused permanents failed closed: {exc}",
+                causal_reconstruction={
+                    "entry_mode": probe.CAUSAL_STACK_ELIMINATION,
+                    "stack": reconstruction,
+                    "permanents": None,
+                    "elimination": None,
+                },
+            )
+        assert reconstruction is not None
+        reconstruction["permanents"] = permanents
+        if not permanents.get("causal_match") or permanents.get("mismatches"):
+            return RowExecution(
+                fixture_id,
+                False,
+                construction,
+                f"the caused permanents do not match the record: {permanents}",
+                causal_reconstruction={
+                    "entry_mode": probe.CAUSAL_STACK_ELIMINATION,
+                    "stack": reconstruction,
+                    "elimination": None,
+                },
+            )
     stack_reconstruction = reconstruction if composed else None
 
     def composed_document(elimination: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -4219,6 +4286,8 @@ def execute_and_persist(
             request["entry_mode"] = probe.CAUSAL_STACK_ELIMINATION
             request["fuel"] = list(composed.get("fuel") or ())
             request["elimination"] = probe.elimination_request(composed)
+            if composed.get("caused_permanents"):
+                request["caused_permanents"] = list(composed["caused_permanents"])
             causal = composed
         with probe.open_client(workspace) as client:
             client.request("get_provider_version", None)

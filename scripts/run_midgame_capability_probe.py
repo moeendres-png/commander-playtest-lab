@@ -292,12 +292,35 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
         "bolt_count": 14,
         "terminal": "victim_eliminated_by_engine",
     },
+    # P2's Control Magic must control P1's Bears while P2 is eliminated. An
+    # attachment and a control change are caused, never placed: P2 casts the
+    # Aura at the Bears on P1's turn under a declared flash enabler (Leyline of
+    # Anticipation, CR 702.8a), the engine resolves it and the caused-permanent
+    # verifier confirms attachment and control; only then does P1 cause P2's loss.
     "WS05-MP-ELIM-CONTROL-3": {
-        "entry_mode": "causal_elimination",
+        "entry_mode": CAUSAL_STACK_ELIMINATION,
+        "fuel": [
+            {
+                "semantic_id": "obj:enabler-leyline-p2",
+                "card_identity": "Leyline of Anticipation",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+            *(
+                {
+                    "semantic_id": f"obj:fuel-island-p2-{index}",
+                    "card_identity": "Island",
+                    "owner": "P2",
+                    "zone": "battlefield",
+                }
+                for index in range(4)
+            ),
+        ],
+        "caused_permanents": ["obj:leave-controlmagic"],
         "elimination_actor": "P1",
         "elimination_victim": "P2",
         "bolt_count": 14,
-        "terminal": "victim_eliminated_by_engine",
+        "terminal": "stack_controller_eliminated",
     },
     "WS05-MP-ELIM-TURN-3": {
         "entry_mode": "causal_elimination",
@@ -1652,6 +1675,8 @@ def probe_causal_row(
             request["fuel"] = list(spec.get("fuel") or [])
         if entry_mode in ("causal_elimination", CAUSAL_STACK_ELIMINATION):
             request["elimination"] = elimination_request(spec)
+        if spec.get("caused_permanents"):
+            request["caused_permanents"] = list(spec["caused_permanents"])  # type: ignore[call-overload]
         created = client.request("create_midgame_game", request)
         if not created.get("success"):
             errors = created.get("errors") or []
@@ -1993,9 +2018,44 @@ def build_and_eliminate(
     causal_stack_frames(client, f"{tag}-stack", causal_plan, placed, fuel)
     stack_verdict = complete_causal(client, "stack").get("verdict") or {}
     if not stack_verdict.get("causal_match") or stack_verdict.get("mismatches"):
-        return {"stack": stack_verdict, "elimination": None}
+        return {"stack": stack_verdict, "permanents": None, "elimination": None}
+    permanents: dict[str, Any] | None = None
+    if spec.get("caused_permanents"):
+        # The caused permanents exist only once their casts resolve: the engine
+        # resolves the stack, and the verifier compares attachment and control
+        # with the record before anything else happens.
+        resolve_stack(client, f"{tag}-resolve")
+        permanents = complete_causal(client, "permanents").get("verdict") or {}
+        if not permanents.get("causal_match") or permanents.get("mismatches"):
+            return {"stack": stack_verdict, "permanents": permanents, "elimination": None}
     elimination = eliminate_causally(client, f"{tag}-elimination", created, spec)
-    return {"stack": stack_verdict, "elimination": elimination}
+    return {"stack": stack_verdict, "permanents": permanents, "elimination": elimination}
+
+
+def resolve_stack(client: ml.MidgameLaneClient, tag: str, limit: int = 30) -> None:
+    """Pass priority until the engine's own stack is empty at a priority frame.
+
+    Only priority passes are submitted; any other decision while resolving is
+    not something this route answers, so it fails closed.
+    """
+    for _ in range(limit):
+        decision = client.pending_decision()
+        if decision is None:
+            raise ml.MidgameLaneError(f"{tag}: the engine went terminal while resolving")
+        if str(decision.get("decision_class")) != "priority":
+            raise ml.MidgameLaneError(
+                f"{tag}: unexpected {decision.get('decision_class')} while resolving"
+            )
+        stack = (decision.get("pilot_state") or {}).get("stack")
+        if not isinstance(stack, list):
+            raise ml.MidgameLaneError(f"{tag}: the engine's priority frame exposes no stack")
+        if not stack:
+            return
+        passed = option_of_type(decision, "pass_priority")
+        if passed is None:
+            raise ml.MidgameLaneError(f"{tag}: the engine offered no pass")
+        client.submit_options(decision, [passed])
+    raise ml.MidgameLaneError(f"{tag}: the stack never emptied")
 
 
 def drive_causal_stack_elimination(
@@ -2035,8 +2095,16 @@ def drive_causal_stack_elimination(
     survivors_untouched = bool(requested_life) and all(
         life_totals.get(pid) == life for pid, life in requested_life.items()
     )
+    permanents = verdicts.get("permanents")
+    permanents_ok = permanents is None or (
+        bool(permanents.get("causal_match")) and not permanents.get("mismatches")
+    )
     observed = (
-        verdicts["elimination"] is not None and eliminated and stack_empty and survivors_untouched
+        verdicts["elimination"] is not None
+        and eliminated
+        and stack_empty
+        and survivors_untouched
+        and permanents_ok
     )
     terminal = {
         "kind": str(spec.get("terminal")),
@@ -2046,6 +2114,7 @@ def drive_causal_stack_elimination(
         "victim_left": elimination.get("victim_left") is True,
         "stack_empty_after_loss": stack_empty,
         "survivors_at_requested_life": survivors_untouched,
+        "caused_permanents": permanents,
         "detail": (
             "the engine built the victim's stack, eliminated the victim, and the "
             "victim's spells left without resolving"
@@ -2054,8 +2123,16 @@ def drive_causal_stack_elimination(
             f"stack_after={pilot_stack} life={life_totals} requested={requested_life}"
         ),
     }
-    combined = dict(elimination) if verdicts["elimination"] is not None else dict(stack)
+    if verdicts["elimination"] is not None:
+        combined = dict(elimination)
+    elif permanents is not None:
+        # The caused permanents did not match: that verdict is the row's.
+        combined = dict(permanents)
+    else:
+        combined = dict(stack)
     combined["stack_verdict"] = stack
+    if permanents is not None:
+        combined["permanents_verdict"] = permanents
     row_verdict = ml.classification_from_causal_verdict(
         fixture_id,
         ml.MIDGAME_LANE,
