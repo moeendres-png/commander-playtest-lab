@@ -36,6 +36,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from commander_lab.qualification.current_boundary import forge_causal_route as fcr
 from commander_lab.qualification.current_boundary import receipts as receipt_mod
 
 from .bridge_launcher import (
@@ -85,6 +86,10 @@ CHECKPOINT_TRANSPORT_FAILURE = "TRANSPORT_FAILURE"
 DIMENSION_SUPPORTED = "SUPPORTED"
 DIMENSION_UNSUPPORTED = "UNSUPPORTED"
 DIMENSION_UNOBSERVABLE = "UNOBSERVABLE"
+# Requested state that the bootstrap cannot place but the lane reaches causally
+# through the engine's own frames (``forge_causal_route``). It earns nothing by
+# itself: the route must run and its terminal obligation must be observed.
+DIMENSION_CAUSED = "CAUSED"
 
 
 class ScenarioLaneError(RuntimeError):
@@ -308,6 +313,23 @@ _UNSUPPORTED_RECORD_DIMENSIONS: dict[str, str] = {
 # family is never silently ignored and no option is ever fabricated.
 _LANE_EXECUTABLE_DECISION_SELECTORS: frozenset[str] = frozenset()
 
+# The causal stack route (#520) answers a record's scripted steps through the
+# shared fail-closed selector (``scripted_selection``) only for these selectors,
+# and only for a declared terminal whose obligation this lane can judge from
+# engine readback. Commander zone choices (CR 903.9): graveyard and exile are
+# the state-based choice (a COMMANDER_MOVE frame after the move), hand is the
+# replacement (a REPLACEMENT_CONFIRM frame before it). Library contents are
+# never exposed by the readback, so a library row stays unsupported.
+_CAUSAL_ROUTE_SELECTORS: frozenset[str] = frozenset(
+    {"choice.boolean", "replacement_effect.boolean"}
+)
+_CAUSAL_ROUTE_TERMINALS: frozenset[str] = frozenset({"commander_zone_choice"})
+_COMMANDER_EVENT_FRAMES: dict[str, str] = {
+    "graveyard": "COMMANDER_MOVE",
+    "exile": "COMMANDER_MOVE",
+    "hand": "REPLACEMENT_CONFIRM",
+}
+
 # Refusal dimension for a starting-player obligation the record does not script.
 STARTING_PLAYER_UNSCRIPTED = "decision_execution.starting_player.unscripted"
 # The only basis on which a starting-player selection may earn credit.
@@ -424,6 +446,7 @@ class RequestedStateModel:
     dimensions: list[DimensionFinding] = field(default_factory=list)
     player_count: int = 0
     unscoped_requested_fields: dict[str, Any] = field(default_factory=dict)
+    causal_plan: fcr.CausalPlan | None = None
 
     @property
     def hard_unsupported(self) -> list[DimensionFinding]:
@@ -458,6 +481,7 @@ class RequestedStateModel:
             "credit_eligible": self.credit_eligible,
             "dimensions": [item.to_document() for item in self.dimensions],
             "unscoped_requested_fields": self.unscoped_requested_fields,
+            "causal_plan": None if self.causal_plan is None else self.causal_plan.to_document(),
         }
 
 
@@ -569,6 +593,43 @@ def _requested_temporal(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def lane_causal_plan(record: dict[str, Any]) -> fcr.CausalPlan | None:
+    """The causal stack route this lane can run and judge for a record, or None.
+
+    The route needs the shared declared entry (with its fuel), a modeless,
+    complete stack, a terminal this lane can evaluate, a commander zone the
+    readback exposes, and scripted steps the shared selector answers.
+    """
+    fixture_id = str(record.get("fixture_id"))
+    entry = fcr.declared_causal_entry(fixture_id)
+    if entry is None or entry.get("terminal") not in _CAUSAL_ROUTE_TERMINALS:
+        return None
+    required = list((record.get("expected_events") or {}).get("required_events") or [])
+    zone = _required_token(required, "commander_zone_event:")
+    if zone not in _COMMANDER_EVENT_FRAMES or not _required_token(required, "commander_choice:"):
+        return None
+    script = [step for step in record.get("decision_script") or () if isinstance(step, dict)]
+    if not script or any(
+        f"{step.get('decision_family')}.{(step.get('selection') or {}).get('selector_kind')}"
+        not in _CAUSAL_ROUTE_SELECTORS
+        for step in script
+    ):
+        return None
+    plan = fcr.causal_plan(record, entry)
+    if plan is None or len(plan.spells) != 1:
+        return None
+    commanders = [
+        obj
+        for obj in record.get("semantic_objects") or ()
+        if isinstance(obj, dict)
+        and obj.get("commander_id")
+        and obj.get("semantic_id") in plan.spells[0].targets
+    ]
+    if len(plan.spells[0].targets) != 1 or len(commanders) != 1:
+        return None
+    return plan
+
+
 def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
     """Translate an effective FULL107 record into the bootstrap contract.
 
@@ -601,8 +662,12 @@ def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
             for player_id, damage in commander_damage.items()
         ]
 
+    plan = lane_causal_plan(record)
+    if plan is not None:
+        neutral = fcr.pre_causal_state(neutral, plan)
+
     dimensions: list[DimensionFinding] = []
-    dimensions.extend(_classify_record_dimensions(record))
+    dimensions.extend(_classify_record_dimensions(record, plan))
 
     # Requested zones the bootstrap cannot place.
     zone_objects = Counter(
@@ -619,13 +684,17 @@ def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
     ):
         if zone_objects.get(zone):
             status = DIMENSION_UNSUPPORTED if zone == "stack" else DIMENSION_UNOBSERVABLE
+            if zone == "stack" and plan is not None:
+                status, reason = DIMENSION_CAUSED, _CAUSED_STACK_DETAIL
             dimensions.append(
                 DimensionFinding(
                     dimension=f"semantic_objects.zone:{zone}",
                     status=status,
                     detail=reason,
                     requested=zone_objects[zone],
-                    runtime_probe="stack" if zone == "stack" else None,
+                    runtime_probe="stack"
+                    if status == DIMENSION_UNSUPPORTED and zone == "stack"
+                    else None,
                 )
             )
     for obj in record.get("semantic_objects") or []:
@@ -781,18 +850,31 @@ def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
         temporal_state=temporal,
         dimensions=_dedupe(dimensions),
         player_count=player_count,
+        causal_plan=plan,
     )
 
 
-def _classify_record_dimensions(record: dict[str, Any]) -> list[DimensionFinding]:
+_CAUSED_STACK_DETAIL = (
+    "reached causally: the declared spell is cast by its controller from a pre-causal "
+    "position with declared fuel, on the engine's own frames (forge_causal_route)"
+)
+
+
+def _classify_record_dimensions(
+    record: dict[str, Any], plan: fcr.CausalPlan | None = None
+) -> list[DimensionFinding]:
     findings: list[DimensionFinding] = []
     stack_state = record.get("stack_state") or []
     if stack_state:
         findings.append(
             DimensionFinding(
                 dimension="stack_state",
-                status=DIMENSION_UNSUPPORTED,
-                detail=_UNSUPPORTED_RECORD_DIMENSIONS["stack_state"],
+                status=DIMENSION_UNSUPPORTED if plan is None else DIMENSION_CAUSED,
+                detail=(
+                    _UNSUPPORTED_RECORD_DIMENSIONS["stack_state"]
+                    if plan is None
+                    else _CAUSED_STACK_DETAIL
+                ),
                 requested=[
                     {
                         "source_semantic_id": entry.get("source_semantic_id"),
@@ -802,7 +884,7 @@ def _classify_record_dimensions(record: dict[str, Any]) -> list[DimensionFinding
                     for entry in stack_state
                     if isinstance(entry, dict)
                 ],
-                runtime_probe="stack",
+                runtime_probe="stack" if plan is None else None,
             )
         )
     # A fixture decision_script is an EXECUTION requirement (the engine must
@@ -818,6 +900,25 @@ def _classify_record_dimensions(record: dict[str, Any]) -> list[DimensionFinding
         selector_kind = str(selector.get("selector_kind") or "unknown")
         token = f"{family}.{selector_kind}"
         if token in _LANE_EXECUTABLE_DECISION_SELECTORS:
+            continue
+        if plan is not None and token in _CAUSAL_ROUTE_SELECTORS:
+            findings.append(
+                DimensionFinding(
+                    dimension=f"decision_execution.{token}",
+                    status=DIMENSION_CAUSED,
+                    detail=(
+                        "answered on the engine's own frame by the shared fail-closed "
+                        "selector during the causal route"
+                    ),
+                    requested={
+                        "decision_index": index,
+                        "actor": entry.get("actor"),
+                        "causal_step_id": entry.get("causal_step_id"),
+                        "selector_kind": selector_kind,
+                        "semantic_value": selector.get("semantic_value"),
+                    },
+                )
+            )
             continue
         findings.append(
             DimensionFinding(
@@ -1936,6 +2037,10 @@ def _obligation_kind(model: RequestedStateModel) -> str | None:
     declared terminal postconditions second. It never derives an obligation
     from card text or from a provider observation.
     """
+    if model.causal_plan is not None:
+        # Only a routable record has a plan (``lane_causal_plan``); its terminal
+        # is judged from the route's readback by evaluate_commander_zone_choice.
+        return "commander_zone_choice"
     required = [
         str(event)
         for event in (model.record.get("expected_events") or {}).get("required_events") or []
@@ -2096,6 +2201,16 @@ def evaluate_obligation(
     if kind == "starting_player_first_turn_draw":
         return evaluate_first_turn_draw(required, progression or [], starting_choice)
 
+    if kind == "commander_zone_choice":
+        return ObligationVerdict(
+            kind,
+            False,
+            False,
+            {"required_events": required},
+            [],
+            "a commander zone choice is judged only from the causal route's engine facts",
+        )
+
     if kind == "commander_damage_checked_per_commander":
         facts: dict[str, Any] = {}
         loss_free = True
@@ -2251,6 +2366,182 @@ def evaluate_obligation(
             "construction alone earns no credit"
         ),
     )
+
+
+_READBACK_ZONES = ("battlefield", "graveyard", "exile", "command", "hand")
+
+
+def _named_zones(state: dict[str, Any], owner: str, name: str) -> list[str]:
+    """Every zone of the owner's own view holding a card of this name, once per card."""
+    zones = (_players_by_id(state).get(owner) or {}).get("zones") or {}
+    return [zone for zone in _READBACK_ZONES for card in zones.get(zone) or () if card == name]
+
+
+def _route_commander(model: RequestedStateModel) -> dict[str, Any] | None:
+    plan = model.causal_plan
+    if plan is None:
+        return None
+    objects = {
+        str(entry.get("semantic_id")): entry
+        for entry in model.record.get("semantic_objects") or ()
+        if isinstance(entry, dict)
+    }
+    commanders = [
+        objects[target]
+        for spell in plan.spells
+        for target in spell.targets
+        if target in objects and objects[target].get("commander_id")
+    ]
+    return commanders[0] if len(commanders) == 1 else None
+
+
+def _route_answer_frames(model: RequestedStateModel) -> frozenset[str]:
+    """The only engine frame kind the record's scripted answer may be given on."""
+    required = list((model.record.get("expected_events") or {}).get("required_events") or [])
+    zone = _required_token(required, "commander_zone_event:")
+    frame = _COMMANDER_EVENT_FRAMES.get(zone or "")
+    return frozenset({frame}) if frame else frozenset()
+
+
+def _requested_checkpoint_facts(
+    model: RequestedStateModel, run: fcr.CausalRun, spell_card: str, target_card_id: str | None
+) -> dict[str, Any]:
+    """The record's checkpoint compared with the engine snapshot the route captured."""
+    snapshot = next(
+        (snap["state"] for snap in run.snapshots if snap["at"] == "requested_checkpoint"), None
+    )
+    requested = model.temporal_state
+    if snapshot is None:
+        return {"verdict": CHECKPOINT_MISMATCH, "reason": "no requested-checkpoint snapshot"}
+    stack = [str(entry) for entry in snapshot.get("stack") or ()]
+    fields = {
+        "stack_size": (len(stack), len(model.causal_plan.spells) if model.causal_plan else None),
+        "stack_spell": (stack[0].split(" (")[0] if stack else None, spell_card),
+        "stack_target_card_id": (
+            bool(stack) and target_card_id is not None and f"({target_card_id})" in stack[0],
+            True,
+        ),
+        "active_player": (
+            str(snapshot.get("active_player_id") or "").lower(),
+            str(requested.get("active_player") or "").lower(),
+        ),
+        "priority_player": (
+            str(snapshot.get("priority_player_id") or "").lower(),
+            str(requested.get("priority_player") or "").lower(),
+        ),
+        "phase": (_normalize_phase(snapshot.get("phase")), requested.get("phase")),
+        "step": (_normalize_step(snapshot.get("step")), requested.get("step")),
+        "turn_number": (snapshot.get("turn_number"), requested.get("turn_number")),
+    }
+    mismatched = sorted(name for name, (seen, wanted) in fields.items() if seen != wanted)
+    return {
+        "verdict": CHECKPOINT_EXACT if not mismatched else CHECKPOINT_MISMATCH,
+        "fields": {
+            name: {"observed": seen, "requested": wanted} for name, (seen, wanted) in fields.items()
+        },
+        "mismatched": mismatched,
+    }
+
+
+def evaluate_commander_zone_choice(
+    model: RequestedStateModel, run: fcr.CausalRun
+) -> ObligationVerdict:
+    """CR 903.9 from the causal route's engine readback and decision tape only.
+
+    The commander is identified by name inside its owner's own view; the check
+    requires that name to be held by exactly one card across the owner's
+    readable zones at every snapshot, so the name cannot stand for two objects.
+    ``commander_zone_event:<zone>`` is the engine's move to the graveyard or
+    exile observed before the owner's COMMANDER_MOVE answer (CR 903.9a), or,
+    for the hand, the engine's REPLACEMENT_CONFIRM asked while the commander is
+    still on the battlefield (CR 903.9b). ``commander_choice:<zone>`` is the
+    scripted answer on that frame and the commander's settled zone.
+    """
+    kind = "commander_zone_choice"
+    required = list((model.record.get("expected_events") or {}).get("required_events") or [])
+    event_zone = _required_token(required, "commander_zone_event:")
+    choice = _required_token(required, "commander_choice:")
+    commander = _route_commander(model)
+    plan = model.causal_plan
+    facts: dict[str, Any] = {
+        "causal_route": run.to_document(),
+        "commander_zone_event": event_zone,
+        "commander_choice": choice,
+    }
+    if run.failure:
+        return ObligationVerdict(kind, False, False, facts, [], f"causal route: {run.failure}")
+    if (
+        plan is None
+        or commander is None
+        or event_zone not in _COMMANDER_EVENT_FRAMES
+        or choice not in ("command", event_zone)
+    ):
+        return ObligationVerdict(
+            kind, False, False, facts, [], "the record's commander zone obligation is not routable"
+        )
+    owner = str(commander.get("owner") or "").lower()
+    name = str(commander.get("card_identity") or "")
+    spell = plan.spells[0]
+    snapshots = {snapshot["at"]: snapshot["state"] for snapshot in run.snapshots}
+    zones_at = {at: _named_zones(state, owner, name) for at, state in snapshots.items()}
+    facts["commander"] = {"semantic_id": commander.get("semantic_id"), "owner": owner, "name": name}
+    facts["commander_zones"] = zones_at
+
+    casts = [frame for frame in run.frames if frame.reason == f"causal cast {spell.semantic_id}"]
+    target_refs = [
+        (ref.get("kind"), ref.get("name"), str(ref.get("controller") or "").lower())
+        for frame in run.frames
+        if frame.reason == "causal target"
+        for ref in frame.refs
+    ]
+    target_frames = sum(1 for frame in run.frames if frame.reason == "causal target")
+    target_card_ids = [
+        str(ref.get("card_id"))
+        for frame in run.frames
+        if frame.reason == "causal target"
+        for ref in frame.refs
+        if ref.get("card_id") is not None
+    ]
+    requested_checkpoint = _requested_checkpoint_facts(
+        model, run, spell.card, target_card_ids[0] if len(target_card_ids) == 1 else None
+    )
+    facts["requested_checkpoint"] = requested_checkpoint
+    answers = run.scripted_answers
+    wanted_answer = choice == "command"
+    settled_zone = "command" if wanted_answer else event_zone
+    before = zones_at.get("before_scripted_0")
+    checks = {
+        "stack_caused": (
+            run.stack_after_cast is not None
+            and len(run.stack_after_cast) == 1
+            and str(run.stack_after_cast[0]).startswith(f"{spell.card} (")
+        ),
+        "cast_by_declared_controller": len(casts) == 1
+        and casts[0].actor.lower() == spell.controller,
+        "target_is_the_commander": target_frames == 1 and target_refs == [("card", name, owner)],
+        "one_scripted_answer_on_the_rule_frame": len(answers) == 1
+        and answers[0].get("frame_kind") == _COMMANDER_EVENT_FRAMES[event_zone]
+        and answers[0].get("boolean") is wanted_answer,
+        "name_identifies_one_card": bool(zones_at)
+        and all(len(zones) == 1 for zones in zones_at.values()),
+        "commander_zone_event": before
+        == (["battlefield"] if event_zone == "hand" else [event_zone]),
+        "commander_choice": zones_at.get("settled") == [settled_zone],
+        "requested_checkpoint": requested_checkpoint["verdict"] == CHECKPOINT_EXACT
+        and zones_at.get("requested_checkpoint") == ["battlefield"],
+    }
+    facts["checks"] = checks
+    observed = all(checks.values())
+    events = (
+        [f"commander_zone_event:{event_zone}", f"commander_choice:{choice}"] if observed else []
+    )
+    reason = (
+        f"the engine moved the commander per CR 903.9 ({event_zone}) and the owner's scripted "
+        f"{'yes' if wanted_answer else 'no'} left it in the {settled_zone} zone"
+        if observed
+        else "not observed: " + ", ".join(check for check, ok in checks.items() if not ok)
+    )
+    return ObligationVerdict(kind, observed, observed, facts, events, reason)
 
 
 # ---------------------------------------------------------------------------
@@ -2561,12 +2852,22 @@ def probe_row(
         ],
     )
 
-    obligation = evaluate_obligation(
-        model,
-        observations,
-        drive.terminal_facts.get("progression") or [],
-        drive.terminal_facts.get("starting_player_choice"),
-    )
+    if model.causal_plan is None:
+        obligation = evaluate_obligation(
+            model,
+            observations,
+            drive.terminal_facts.get("progression") or [],
+            drive.terminal_facts.get("starting_player_choice"),
+        )
+    else:
+        obligation = ObligationVerdict(
+            "commander_zone_choice",
+            False,
+            False,
+            {"causal_route": None},
+            [],
+            "the causal route runs only from a credit-eligible checkpoint after a clean drive",
+        )
     evidence.set("semantic_events", obligation.semantic_events)
     evidence.set(
         "terminal_facts",
@@ -2614,6 +2915,63 @@ def probe_row(
             {"result": RESULT_TRANSPORT_FAILURE, "reasons": [drive.failure]},
         )
         return evidence
+
+    if model.causal_plan is not None:
+        # The checkpoint is the pre-causal position; the requested stack is now
+        # cast on the engine's own frames and the script answered from there.
+        owner = str((_route_commander(model) or {}).get("owner") or "").lower()
+
+        def observe_owner(game_id: str) -> dict[str, Any]:
+            return _state_view(observe_seat_state(proc, game_id, owner))
+
+        run = fcr.run_causal_route(
+            proc,
+            drive.game_id,
+            model.record,
+            model.causal_plan,
+            seat_count=model.player_count or 2,
+            observe=observe_owner,
+            answer_frame_kinds=_route_answer_frames(model),
+            checkpoint_priority=model.temporal_state.get("priority_player"),
+        )
+        obligation = evaluate_commander_zone_choice(model, run)
+        # The bootstrap checkpoint compared above is the pre-causal position;
+        # the record's own checkpoint (the cast stack, the requested player on
+        # priority) is judged from the engine snapshot the route captured.
+        evidence.set(
+            "checkpoint_equivalence",
+            {
+                **equivalence.to_document(),
+                "checkpoint_basis": "PRE_CAUSAL_POSITION_THEN_CAUSED_STACK",
+                "requested_checkpoint": obligation.terminal_facts.get("requested_checkpoint"),
+            },
+        )
+        evidence.set("semantic_events", obligation.semantic_events)
+        evidence.set(
+            "terminal_facts",
+            {
+                "drive": drive.terminal_facts,
+                "obligation": obligation.terminal_facts,
+                "drive_failure": drive.failure,
+            },
+        )
+        evidence.set(
+            "external_decision_selection",
+            [
+                *(evidence.fields.get("external_decision_selection") or []),
+                *(
+                    {
+                        "step": f"causal-{index}",
+                        "kind": frame.kind,
+                        "actor": frame.actor,
+                        "policy": frame.reason,
+                        "chosen_option_id": frame.chosen_option_id,
+                        "offered_labels": frame.offered,
+                    }
+                    for index, frame in enumerate(run.frames)
+                ),
+            ],
+        )
 
     if not obligation.credit_eligible_observation:
         evidence.set(
@@ -2723,6 +3081,12 @@ def _receipt_observed_assertion(evidence: RowEvidence) -> dict[str, Any]:
     return {
         "checkpoint_verdict": checkpoint.get("verdict"),
         "checkpoint_variance_source": checkpoint.get("variance_source"),
+        # A causal row's checkpoint verdict is the pre-causal position; its
+        # requested checkpoint is judged separately from the caused stack.
+        "checkpoint_basis": checkpoint.get("checkpoint_basis", "BOOTSTRAP_CHECKPOINT"),
+        "requested_checkpoint_verdict": (checkpoint.get("requested_checkpoint") or {}).get(
+            "verdict"
+        ),
         "obligation_kind": classification.get("obligation_kind"),
         "semantic_events": list(fields.get("semantic_events") or []),
         "row_document_sha256": receipt_mod.document_digest(evidence.to_document()),

@@ -60,23 +60,29 @@ READBACK = "READBACK"
 DECISION_FRAME = "DECISION_FRAME"
 EVENT_LOG = "EVENT_LOG"
 
+_CAUSAL_ROUTE_SCOPE = (
+    "the lane casts only through its causal stack route (#520): one complete, modeless "
+    "spell with declared fuel, aimed at a commander, for a commander zone choice to the "
+    "graveyard, exile or hand"
+)
+
 # Construction dimensions of the lane's model (``hard_unsupported``), by exact
 # dimension or by prefix (``decision_execution.<family>.<selector>``).
 _CONSTRUCTION: dict[str, tuple[str, str]] = {
     "stack_state": (
         LAB_EXECUTION_GAP,
         "a stack object is caused by a cast on the engine's own frames (the bootstrap "
-        "rejects stack injection); the lane has no cast selector",
+        "rejects stack injection); " + _CAUSAL_ROUTE_SCOPE,
     ),
     "semantic_objects.zone:stack": (
         LAB_EXECUTION_GAP,
-        "a requested stack object is caused by a cast on the engine's own frames; the "
-        "lane has no cast selector",
+        "a requested stack object is caused by a cast on the engine's own frames; "
+        + _CAUSAL_ROUTE_SCOPE,
     ),
     "action_cost_state": (
         LAB_EXECUTION_GAP,
         "mid-cast cost state is caused by casting and paying on the engine's own frames "
-        "(the bootstrap has no cost field); the lane has no cast or payment selector",
+        "(the bootstrap has no cost field); " + _CAUSAL_ROUTE_SCOPE,
     ),
     "combat_state": (
         LAB_EXECUTION_GAP,
@@ -108,7 +114,7 @@ _CONSTRUCTION: dict[str, tuple[str, str]] = {
     "commander_state.prior_command_zone_cast_count": (
         LAB_EXECUTION_GAP,
         "prior command-zone casts are caused by casting the commander on the engine's "
-        "frames (the bootstrap has no cast-count field); the lane has no cast selector",
+        "frames (the bootstrap has no cast-count field); " + _CAUSAL_ROUTE_SCOPE,
     ),
     "rules_randomness.predetermined_semantic_draws": (
         PROVIDER_ADAPTER_GAP,
@@ -292,6 +298,7 @@ OBSERVATION: dict[str, str] = {
 _LANE_OBLIGATION_KINDS = frozenset(
     {
         "commander_damage_checked_per_commander",
+        "commander_zone_choice",
         "game_start_command_zone",
         "player_leaves_multiplayer_cleanup",
         "starting_player_first_turn_draw",
