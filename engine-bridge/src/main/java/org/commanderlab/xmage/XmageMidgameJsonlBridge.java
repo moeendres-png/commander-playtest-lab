@@ -76,6 +76,9 @@ final class XmageMidgameJsonlBridge {
     /** Commander stack sources published with the causal plan, by semantic id. */
     private Map<String, UUID> causalCommanderSources = Map.of();
     private XmageMidgameCausalBridge.CausalEliminationPlan causalEliminationPlan;
+    /** Permanents the composed entry causes by their cast, verified after resolution. */
+    private List<XmageMidgameCausalBridge.CausedPermanent> causedPermanents = List.of();
+    private String causedPriorityPlayer;
 
     record Result(String json, boolean shutdown) {
     }
@@ -338,6 +341,16 @@ final class XmageMidgameJsonlBridge {
                 );
             }
 
+            if (payload.has("caused_permanents")
+                    && !CAUSAL_STACK_ELIMINATION.equals(resolvedEntryMode)) {
+                return error(
+                        requestId,
+                        "midgame_causal_preparation_rejected",
+                        "CausalException: CAUSED_PERMANENTS_OUTSIDE_COMPOSED_ENTRY: caused_permanents "
+                                + "is read only by entry_mode " + CAUSAL_STACK_ELIMINATION,
+                        false
+                );
+            }
             return createForEntryMode(
                     requestId,
                     payload.getAsJsonObject("requested_starting_state"),
@@ -625,6 +638,7 @@ final class XmageMidgameJsonlBridge {
                         requiredTextIn(spec, "actor"),
                         requiredTextIn(spec, "victim"),
                         parseDeclaredCards(spec, "instruments"),
+                        stringList(payload, "caused_permanents"),
                         planTag,
                         seed);
         XmageMidgameCausalBridge.CausalStackPlan stackPlan = composed.stack();
@@ -650,6 +664,8 @@ final class XmageMidgameJsonlBridge {
         this.entryMode = CAUSAL_STACK_ELIMINATION;
         this.causalStackPlan = stackPlan;
         this.causalEliminationPlan = composed.elimination();
+        this.causedPermanents = composed.causedPermanents();
+        this.causedPriorityPlayer = composed.requestedPriorityPlayer();
 
         JsonObject response = createdResponse(
                 gameId, planTag, startingPlayerSeat, startingLife, seed);
@@ -661,6 +677,28 @@ final class XmageMidgameJsonlBridge {
         response.add("elimination_plan", XmageMidgameCausalBridge.eliminationPlanPayload(
                 composed.elimination(), restoration));
         return response;
+    }
+
+    /** An optional array of strings; absent means empty, anything else fails closed. */
+    private static List<String> stringList(JsonObject payload, String property) {
+        if (!payload.has(property) || payload.get(property).isJsonNull()) {
+            return List.of();
+        }
+        if (!payload.get(property).isJsonArray()) {
+            throw new XmageMidgameCausalBridge.CausalException(
+                    "MALFORMED_" + property.toUpperCase(java.util.Locale.ROOT),
+                    property + " must be an array of semantic ids");
+        }
+        List<String> values = new ArrayList<>();
+        for (JsonElement element : payload.getAsJsonArray(property)) {
+            if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString()) {
+                throw new XmageMidgameCausalBridge.CausalException(
+                        "MALFORMED_" + property.toUpperCase(java.util.Locale.ROOT),
+                        property + " entries must be semantic id strings");
+            }
+            values.add(element.getAsString());
+        }
+        return List.copyOf(values);
     }
 
     private JsonObject createdResponse(
@@ -1018,17 +1056,35 @@ final class XmageMidgameJsonlBridge {
             JsonObject payload = requireObjectPayload(
                     request, "COMPLETE_CAUSAL_RECONSTRUCTION requires an object payload");
             String mode = stringValue(payload, "mode");
-            if (!"stack".equals(mode) && !"elimination".equals(mode)) {
+            if (!"stack".equals(mode) && !"elimination".equals(mode)
+                    && !"permanents".equals(mode)) {
                 return error(
                         requestId,
                         "unknown_causal_mode",
-                        "COMPLETE_CAUSAL_RECONSTRUCTION requires payload.mode stack or "
-                                + "elimination",
+                        "COMPLETE_CAUSAL_RECONSTRUCTION requires payload.mode stack, "
+                                + "elimination or permanents",
                         false
                 );
             }
             JsonObject verdict;
-            if ("stack".equals(mode)) {
+            if ("permanents".equals(mode)) {
+                if (!CAUSAL_STACK_ELIMINATION.equals(entryMode) || causedPermanents.isEmpty()) {
+                    return error(
+                            requestId,
+                            "no_caused_permanents",
+                            "This lane holds no caused permanents; create the game with entry_mode "
+                                    + CAUSAL_STACK_ELIMINATION + " and caused_permanents first",
+                            false
+                    );
+                }
+                verdict = XmageMidgameCausalBridge.verifyCausedPermanents(
+                        requireSession(),
+                        requireSession().restorationSeats(),
+                        restoration,
+                        causedPermanents,
+                        causalStackPlan.prepared().preStackPlan(),
+                        causedPriorityPlayer);
+            } else if ("stack".equals(mode)) {
                 boolean stackEntry = "causal_stack".equals(entryMode)
                         || CAUSAL_STACK_ELIMINATION.equals(entryMode);
                 if (!stackEntry || causalStackPlan == null) {
