@@ -2,29 +2,42 @@
 
 The suite proves three distinct things:
 
-* the **positive control really passes** — a real wheel built from the current
-  source installs into a clean isolated environment, the installed package imports
-  from that installation, and every currently declared console entrypoint runs;
-* every required **red control** kills its failure class instead of passing — a
-  broken, missing, ambiguous or tampered wheel, a version mismatch, a missing
-  entrypoint, a source-tree-import substitution, an editable/contaminated install,
-  and missing, malformed, ``UNKNOWN`` or unbound machine-readable evidence;
+* the **positive control really passes** — a real wheel built from the candidate
+  source installs into a clean isolated environment together with *only* its own
+  declared dependency closure, the installed package imports from that
+  installation, every declared console entrypoint runs, and the independent
+  ``check`` re-adjudicates the evidence to PASS;
+* every required **red control** kills its failure class for the intended reason
+  (each asserts its specific failure code) — a broken, missing, ambiguous,
+  tampered or foreign-commit wheel, a dirty working tree, an undeclared runtime
+  dependency that merely happens to be locked, a version mismatch, a missing or
+  retargeted entrypoint, a source-tree-import substitution, an editable or
+  contaminated install, stale evidence surviving an early failure, and missing,
+  malformed, ``UNKNOWN``, forged, contradictory or unbound evidence;
 * the packaging smoke is wired into the required ``quality`` context without
   weakening any required-check static invariant.
 
 The full-consumer-path controls deliberately use the real script entry point
 rather than a helper function, so a guard that only works in isolation cannot
-produce a false PASS.
+produce a false PASS. Every repository the smoke runs against is a clean clone of
+the current ``HEAD`` in a temporary directory, so the suite never modifies the
+real tree and does not depend on the caller's uncommitted state. The honest
+isolated run is shared by every control that only needs a template document.
 """
 
 from __future__ import annotations
 
+import copy
 import json
 import os
+import shutil
 import subprocess
 import sys
 import zipfile
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -43,19 +56,93 @@ DEPENDENCY_LOCK = ROOT / "requirements" / "lock.txt"
 
 EXIT_PASS = 0
 EXIT_FAIL = 1
+EXIT_UNKNOWN = 3
 
 # Full-consumer-path controls cost one isolated environment each. Keep them bounded
 # so a hung probe fails the control instead of stalling the suite.
 FULL_PATH_TIMEOUT_SECONDS = 2400
 
-_PROVENANCE_FAILURE_CODES = (
-    "source_tree_leaked_onto_isolated_sys_path",
-    "installed_import_resolved_outside_isolated_environment",
+# Locked distributions that belong only to the dev/api/openai extras or to the CI
+# tool pins. None of them is in the wheel's declared runtime closure, so none may
+# appear in the isolated environment.
+EXTRAS_ONLY_DISTRIBUTIONS = frozenset(
+    {
+        "pytest",
+        "hypothesis",
+        "jsonschema",
+        "mypy",
+        "ruff",
+        "fastapi",
+        "uvicorn",
+        "openai",
+        "openai-agents",
+        "httpx2",
+        "pip-audit",
+        "cyclonedx-bom",
+    }
+)
+
+_GIT_IDENTITY = (
+    "-c",
+    "user.name=b9-red-control",
+    "-c",
+    "user.email=b9-red-control@invalid.example",
+    "-c",
+    "commit.gpgsign=false",
 )
 
 
-def _source_identity() -> tuple[str, str]:
-    return packaging.read_source_identity(ROOT)
+def _git(repo: Path, *args: str) -> str:
+    completed = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        capture_output=True,
+        text=True,
+        timeout=600,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr[-2000:]
+    return completed.stdout.strip()
+
+
+def _clone_head(source: Path, destination: Path) -> Path:
+    """A clean clone of ``source``'s ``HEAD`` that shares its object store."""
+    head = _git(source, "rev-parse", "HEAD")
+    subprocess.run(
+        ["git", "clone", "--quiet", "--shared", "--no-checkout", str(source), str(destination)],
+        capture_output=True,
+        text=True,
+        timeout=600,
+        check=True,
+    )
+    _git(destination, "checkout", "--quiet", "--detach", head)
+    assert _git(destination, "status", "--porcelain", "--untracked-files=no") == ""
+    return destination
+
+
+def _build_wheel(repo: Path, wheel_dir: Path) -> Path:
+    wheel_dir.mkdir(parents=True, exist_ok=True)
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "wheel",
+            "--no-deps",
+            "--no-build-isolation",
+            "--wheel-dir",
+            str(wheel_dir),
+            ".",
+        ],
+        cwd=str(repo),
+        capture_output=True,
+        text=True,
+        timeout=FULL_PATH_TIMEOUT_SECONDS,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr[-4000:]
+    wheels = sorted(wheel_dir.glob("*.whl"))
+    assert len(wheels) == 1, wheels
+    return wheels[0]
 
 
 def _run_script(*args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
@@ -74,17 +161,19 @@ def _run_script(*args: str, env: dict[str, str] | None = None) -> subprocess.Com
 
 
 def _smoke(
+    repo: Path,
     wheel_dir: Path,
     work_dir: Path,
     *,
     extra: tuple[str, ...] = (),
     env: dict[str, str] | None = None,
-) -> tuple[subprocess.CompletedProcess[str], dict]:
-    output = work_dir / "evidence" / "PACKAGING_SMOKE.json"
+    output: Path | None = None,
+) -> tuple[subprocess.CompletedProcess[str], dict[str, Any]]:
+    output = output or work_dir / "evidence" / "PACKAGING_SMOKE.json"
     completed = _run_script(
         "smoke",
         "--repo",
-        str(ROOT),
+        str(repo),
         "--wheel-dir",
         str(wheel_dir),
         "--venv-dir",
@@ -100,32 +189,131 @@ def _smoke(
     return completed, document
 
 
-@pytest.fixture(scope="session")
-def built_wheel(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, str]:
-    """Build the actual wheel artifact from the current candidate source."""
-    wheel_dir = tmp_path_factory.mktemp("b9-wheel-dir")
-    completed = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "wheel",
-            "--no-deps",
-            "--no-build-isolation",
-            "--wheel-dir",
-            str(wheel_dir),
-            ".",
-        ],
-        cwd=str(ROOT),
-        capture_output=True,
-        text=True,
-        timeout=FULL_PATH_TIMEOUT_SECONDS,
-        check=False,
+def _check(
+    repo: Path, evidence: Path, wheel_dir: Path, *extra: str
+) -> subprocess.CompletedProcess[str]:
+    return _run_script(
+        "check",
+        "--repo",
+        str(repo),
+        "--evidence",
+        str(evidence),
+        "--wheel-dir",
+        str(wheel_dir),
+        *extra,
     )
-    assert completed.returncode == 0, completed.stderr[-4000:]
-    wheels = sorted(wheel_dir.glob("*.whl"))
-    assert len(wheels) == 1, wheels
-    return wheels[0], packaging.sha256_file(wheels[0])
+
+
+def _copy_wheel(wheel: Path, wheel_dir: Path) -> Path:
+    wheel_dir.mkdir(parents=True, exist_ok=True)
+    destination = wheel_dir / wheel.name
+    shutil.copyfile(wheel, destination)
+    return destination
+
+
+# --------------------------------------------------------------------------- #
+# Shared fixtures: one clean source clone, one honest wheel, one honest run.
+# --------------------------------------------------------------------------- #
+
+
+@pytest.fixture(scope="session")
+def source_repo(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """A clean clone of the candidate ``HEAD``; the real tree is never touched."""
+    return _clone_head(ROOT, tmp_path_factory.mktemp("b9-source") / "repo")
+
+
+@pytest.fixture(scope="session")
+def built_wheel(source_repo: Path, tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, str]:
+    """Build the actual wheel artifact from the candidate source."""
+    wheel = _build_wheel(source_repo, tmp_path_factory.mktemp("b9-wheel-dir"))
+    return wheel, packaging.sha256_file(wheel)
+
+
+@dataclass(frozen=True)
+class HonestRun:
+    completed: subprocess.CompletedProcess[str]
+    document: dict[str, Any]
+    evidence: Path
+    wheel_dir: Path
+    work_dir: Path
+    source_sha: str
+    source_tree: str
+    wheel_sha256: str
+
+
+@pytest.fixture(scope="module")
+def honest_run(
+    source_repo: Path, built_wheel: tuple[Path, str], tmp_path_factory: pytest.TempPathFactory
+) -> HonestRun:
+    """The single honest isolated run that every template-only control shares.
+
+    The caller environment is deliberately polluted: ``PYTHONPATH`` points at the
+    candidate ``src`` and the caller runs from the repository root. The installation
+    must still be what is attested.
+    """
+    wheel, wheel_sha256 = built_wheel
+    root = tmp_path_factory.mktemp("b9-honest")
+    wheel_dir = root / "dist"
+    _copy_wheel(wheel, wheel_dir)
+    work_dir = root / "work"
+    source_sha, source_tree = packaging.read_source_identity(source_repo)
+    polluted_env = dict(os.environ)
+    polluted_env["PYTHONPATH"] = str(source_repo / "src")
+    completed, document = _smoke(
+        source_repo,
+        wheel_dir,
+        work_dir,
+        extra=(
+            "--expect-source-sha",
+            source_sha,
+            "--expect-source-tree",
+            source_tree,
+            "--expect-wheel-sha256",
+            wheel_sha256,
+            "--expect-version",
+            CONTRACT.version,
+        ),
+        env=polluted_env,
+    )
+    return HonestRun(
+        completed=completed,
+        document=document,
+        evidence=work_dir / "evidence" / "PACKAGING_SMOKE.json",
+        wheel_dir=wheel_dir,
+        work_dir=work_dir,
+        source_sha=source_sha,
+        source_tree=source_tree,
+        wheel_sha256=wheel_sha256,
+    )
+
+
+@dataclass(frozen=True)
+class ForeignCommit:
+    repo: Path
+    wheel_dir: Path
+
+
+@pytest.fixture(scope="module")
+def undeclared_dependency_commit(
+    source_repo: Path, tmp_path_factory: pytest.TempPathFactory
+) -> ForeignCommit:
+    """A *different* commit whose package imports a locked-but-undeclared package.
+
+    ``jsonschema`` is in ``requirements/lock.txt`` (dev extra) but not in the
+    wheel's ``Requires-Dist``. Installing the whole lock would mask the defect; a
+    plain ``pip install`` of the wheel would then crash on import.
+    """
+    root = tmp_path_factory.mktemp("b9-undeclared")
+    repo = _clone_head(source_repo, root / "repo")
+    init = repo / "src" / "commander_lab" / "__init__.py"
+    init.write_text(
+        init.read_text(encoding="utf-8") + "\nimport jsonschema  # undeclared runtime import\n",
+        encoding="utf-8",
+    )
+    _git(repo, *_GIT_IDENTITY, "commit", "--quiet", "-am", "b9 red control: undeclared import")
+    wheel_dir = root / "dist"
+    _build_wheel(repo, wheel_dir)
+    return ForeignCommit(repo=repo, wheel_dir=wheel_dir)
 
 
 @pytest.fixture
@@ -182,8 +370,13 @@ def _write_source_proxy_wheel(
     return wheel_path
 
 
-def _mutated_pyproject(destination: Path, *, extra_script: str | None = None) -> Path:
-    """Copy the live pyproject, optionally declaring an entrypoint the wheel lacks."""
+def _mutated_pyproject(
+    destination: Path,
+    *,
+    extra_script: str | None = None,
+    retarget: tuple[str, str] | None = None,
+) -> Path:
+    """Copy the live pyproject, optionally declaring or retargeting an entrypoint."""
     text = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     if extra_script is not None:
         marker = f"{next(iter(CONTRACT.scripts))} ="
@@ -193,6 +386,11 @@ def _mutated_pyproject(destination: Path, *, extra_script: str | None = None) ->
             f'{extra_script} = "commander_lab.cli.main:app"\n{marker}',
             1,
         )
+    if retarget is not None:
+        script_name, new_target = retarget
+        line = f'{script_name} = "{CONTRACT.scripts[script_name]}"'
+        assert line in text, line
+        text = text.replace(line, f'{script_name} = "{new_target}"', 1)
     destination.write_text(text, encoding="utf-8")
     return destination
 
@@ -203,49 +401,46 @@ def _mutated_pyproject(destination: Path, *, extra_script: str | None = None) ->
 
 
 def test_positive_control_installs_imports_and_runs_every_declared_entrypoint(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    honest_run: HonestRun, source_repo: Path, built_wheel: tuple[Path, str]
 ) -> None:
-    """A real wheel from the current source must PASS the whole consumer path."""
+    """A real wheel from the candidate source must PASS the whole consumer path."""
     wheel, wheel_sha256 = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    wheel_copy = wheel_dir / wheel.name
-    wheel_copy.write_bytes(wheel.read_bytes())
-    source_sha, source_tree = _source_identity()
-
-    completed, document = _smoke(
-        wheel_dir,
-        work_dir,
-        extra=(
-            "--expect-source-sha",
-            source_sha,
-            "--expect-source-tree",
-            source_tree,
-            "--expect-wheel-sha256",
-            wheel_sha256,
-            "--expect-version",
-            CONTRACT.version,
-        ),
-    )
+    completed, document = honest_run.completed, honest_run.document
 
     assert completed.returncode == EXIT_PASS, completed.stdout + completed.stderr
     assert document["overall_classification"] == "PASS"
-    assert document["reasons"] == ["all_packaging_smoke_invariants_satisfied"]
-    # Bound to the exact candidate and the exact artifact.
-    assert document["source_sha"] == source_sha
-    assert document["source_tree"] == source_tree
+    assert document["reasons"] == []
+    assert document["schema_version"] == packaging.SCHEMA_VERSION
+    assert document["generated_by"] == packaging.GENERATED_BY
+    # Bound to the exact candidate, a clean tree and the exact artifact.
+    assert document["source_sha"] == honest_run.source_sha
+    assert document["source_tree"] == honest_run.source_tree
+    assert document["source_working_tree_clean"] is True
     assert document["wheel_filename"] == wheel.name
     assert document["wheel_sha256"] == wheel_sha256
-    assert document["wheel_sha256"] == packaging.sha256_file(wheel_copy)
+    assert document["wheel_sha256"] == packaging.sha256_file(honest_run.wheel_dir / wheel.name)
+    binding = document["wheel_source_binding"]
+    assert binding["status"] == "PASS"
+    assert binding["compared_files"] == len(
+        _git(source_repo, "ls-files", "--", CONTRACT.source_root).splitlines()
+    )
+    assert (binding["different"], binding["extra"], binding["missing"]) == (0, 0, 0)
     assert document["package_name"] == CONTRACT.name
     assert document["package_version"] == CONTRACT.version
     assert document["install_source"] == "wheel"
-    assert document["python_version"].count(".") == 2
+    assert document["python_version"] == sys.version.split()[0]
     # Installed from the wheel artifact, never an editable install or a directory.
-    assert document["install"]["direct_url_sha256"] == wheel_sha256
-    assert document["install"]["index_access"] == "disabled"
-    assert document["install"]["editable"] is False
-    assert document["install"]["dependency_lock_sha256"] == packaging.sha256_file(DEPENDENCY_LOCK)
+    install = document["install"]
+    assert install["install_source"] == "wheel"
+    assert install["direct_url_sha256"] == wheel_sha256
+    assert install["direct_url_filename"] == wheel.name
+    assert install["index_access"] == "disabled"
+    assert "--no-index" in install["project_install_command"]
+    assert "--no-deps" not in install["project_install_command"]
+    assert install["editable"] is False
+    assert install["dependency_lock_sha256"] == packaging.sha256_file(DEPENDENCY_LOCK)
+    assert install["wheelhouse"]["every_file_lock_pinned_and_hash_listed"] is True
+    assert "--require-hashes" in install["dependency_provisioning_command"]
     # The import came from the installation, not from the worktree.
     assert document["installed_import"]["status"] == "PASS"
     assert document["installed_import"]["resolved_in_isolated_environment"] is True
@@ -259,27 +454,30 @@ def test_positive_control_installs_imports_and_runs_every_declared_entrypoint(
         assert record["status"] == "PASS", (name, record)
         assert record["returncode"] == 0, (name, record)
         assert record["argument"] == packaging.CLI_SMOKE_ARGUMENT
-    # The wheel's own runtime dependency closure is satisfied.
-    satisfied = {
-        item["requirement"]
-        for item in document["installed_import"]["runtime_requirements_satisfied"]
-    }
-    assert satisfied, document["installed_import"]
-    # No absolute temporary path is used as a semantic identity.
+        assert record["installed_target"] == CONTRACT.scripts[name]
+    # Only the wheel's declared runtime closure was installed, at the lock pins.
+    closure = document["dependency_closure"]
+    assert closure["status"] == "PASS"
+    assert closure["runtime_requirements_satisfied"], closure
+    installed = set(closure["installed_distributions"])
+    added = installed - set(closure["baseline_distributions"]) - {CONTRACT.normalized_name}
+    assert added == set(closure["closure"]), (added, closure["closure"])
+    assert not installed & EXTRAS_ONLY_DISTRIBUTIONS, installed & EXTRAS_ONLY_DISTRIBUTIONS
+    pins = packaging.read_dependency_lock(DEPENDENCY_LOCK)
+    for name, version in closure["closure"].items():
+        assert pins[name][0] == version, (name, version)
+    # No absolute temporary or repository path is used as a semantic identity.
     rendered = json.dumps(document)
-    assert str(work_dir) not in rendered
+    assert str(honest_run.work_dir) not in rendered
+    assert str(source_repo) not in rendered
     assert "<repository>" in rendered
 
-    checked = _run_script(
-        "check",
-        "--repo",
-        str(ROOT),
-        "--evidence",
-        str(work_dir / "evidence" / "PACKAGING_SMOKE.json"),
-        "--wheel-dir",
-        str(wheel_dir),
+    checked = _check(
+        source_repo,
+        honest_run.evidence,
+        honest_run.wheel_dir,
         "--expect-source-sha",
-        source_sha,
+        honest_run.source_sha,
         "--expect-wheel-sha256",
         wheel_sha256,
     )
@@ -287,170 +485,304 @@ def test_positive_control_installs_imports_and_runs_every_declared_entrypoint(
 
 
 def test_source_tree_exposure_in_the_ambient_environment_cannot_substitute_for_the_installation(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    honest_run: HonestRun,
 ) -> None:
-    """A maximally polluted caller environment must not be mistaken for the install.
+    """A polluted caller environment must not be mistaken for the install.
 
-    ``PYTHONPATH`` is pointed at the repository ``src`` and the caller runs from the
-    repository root. The smoke still passes *and* still attests the installation,
-    which is what makes the provenance guard in the decoy-wheel control meaningful:
-    the guard is not a red-only assertion.
+    The honest run is executed with ``PYTHONPATH`` pointed at the candidate ``src``
+    from the repository root. It still passes *and* still attests the installation,
+    which is what makes the provenance guard meaningful: it is not red-only.
     """
-    wheel, _ = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-
-    polluted_env = dict(os.environ)
-    polluted_env["PYTHONPATH"] = str(ROOT / "src")
-    completed, document = _smoke(wheel_dir, work_dir, env=polluted_env)
-
-    assert completed.returncode == EXIT_PASS, completed.stdout + completed.stderr
-    assert document["environment"]["pythonpath_scrubbed"] is True
+    document = honest_run.document
+    assert honest_run.completed.returncode == EXIT_PASS
+    environment = document["environment"]
+    assert environment["pythonpath_in_probe_environment"] is False
+    assert environment["pythonhome_in_probe_environment"] is False
+    assert environment["python_isolated_flag"] == 1
+    assert environment["include_system_site_packages"] is False
+    assert environment["created_by_this_run"] is True
+    assert environment["sys_prefix_is_isolated_environment"] is True
     assert document["installed_import"]["resolved_in_isolated_environment"] is True
-    assert document["install_source"] == "wheel"
 
 
 # --------------------------------------------------------------------------- #
-# Red control 1: missing wheel
+# P1-1: undeclared runtime dependencies are not masked by the lock
 # --------------------------------------------------------------------------- #
 
 
-def test_red_control_missing_project_wheel_fails_closed(work_dir: Path, tmp_path: Path) -> None:
-    wheel_dir = tmp_path / "empty-dist"
-    wheel_dir.mkdir()
-    completed, _ = _smoke(wheel_dir, work_dir)
+def test_red_control_undeclared_but_locked_dependency_import_fails_closed(
+    undeclared_dependency_commit: ForeignCommit, work_dir: Path
+) -> None:
+    """A wheel importing a locked package it does not declare must FAIL.
+
+    The source binding is satisfied (the smoke runs against the very commit the
+    wheel was built from), so the failure is the installed import, not binding.
+    """
+    completed, document = _smoke(
+        undeclared_dependency_commit.repo, undeclared_dependency_commit.wheel_dir, work_dir
+    )
+    assert completed.returncode == EXIT_FAIL, completed.stdout + completed.stderr
+    assert document["overall_classification"] == "FAIL"
+    assert document["reasons"] == ["installed_import_failed:ModuleNotFoundError"]
+    assert document["wheel_source_binding"]["status"] == "PASS"
+    installed = set(document["dependency_closure"]["installed_distributions"])
+    assert "jsonschema" not in installed
+    assert not installed & EXTRAS_ONLY_DISTRIBUTIONS
+    checked = _check(
+        undeclared_dependency_commit.repo,
+        work_dir / "evidence" / "PACKAGING_SMOKE.json",
+        undeclared_dependency_commit.wheel_dir,
+    )
+    assert checked.returncode == EXIT_FAIL
+    assert "recorded_classification_not_pass:FAIL" in checked.stderr
+
+
+# --------------------------------------------------------------------------- #
+# P2-2: the wheel is bound to the clean source tree at HEAD
+# --------------------------------------------------------------------------- #
+
+
+def test_red_control_wheel_built_from_another_commit_fails_closed(
+    undeclared_dependency_commit: ForeignCommit, source_repo: Path, work_dir: Path
+) -> None:
+    completed, document = _smoke(source_repo, undeclared_dependency_commit.wheel_dir, work_dir)
+    assert completed.returncode == EXIT_FAIL, completed.stdout + completed.stderr
+    assert document["reasons"] == [
+        "wheel_payload_differs_from_source:different=1,extra=0,missing=0"
+    ]
+    assert not (work_dir / "venv").exists(), "an unbound wheel must never be installed"
+
+
+def test_red_control_dirty_working_tree_fails_closed(
+    source_repo: Path, built_wheel: tuple[Path, str], tmp_path: Path, work_dir: Path
+) -> None:
+    repo = _clone_head(source_repo, tmp_path / "dirty-repo")
+    init = repo / "src" / "commander_lab" / "__init__.py"
+    init.write_text(init.read_text(encoding="utf-8") + "# drift\n", encoding="utf-8")
+    wheel_dir = tmp_path / "dist"
+    _copy_wheel(built_wheel[0], wheel_dir)
+    completed, document = _smoke(repo, wheel_dir, work_dir)
     assert completed.returncode == EXIT_FAIL
-    assert "project_wheel_missing" in completed.stderr
-    assert "packaging smoke FAIL" in completed.stderr
+    assert document["reasons"] == ["source_working_tree_dirty:tracked_changes=1"]
+    assert not (work_dir / "venv").exists()
+
+
+def test_red_control_source_tree_proxy_wheel_is_rejected_before_install(
+    source_repo: Path, work_dir: Path, tmp_path: Path
+) -> None:
+    """A wheel that only proxies imports to the worktree must never PASS.
+
+    The decoy installs cleanly, declares the current version, and would make
+    ``import commander_lab`` genuinely succeed — so a naive import smoke would call
+    this a PASS. Its payload is not the source tree, so it is killed before it is
+    ever installed. The import-provenance guard behind it is proven separately.
+    """
+    wheel_dir = tmp_path / "dist"
+    _write_source_proxy_wheel(
+        wheel_dir,
+        name=CONTRACT.name,
+        version=CONTRACT.version,
+        proxied_source_root=source_repo / "src",
+    )
+    completed, document = _smoke(source_repo, wheel_dir, work_dir)
+    assert completed.returncode == EXIT_FAIL, completed.stdout + completed.stderr
+    assert document["overall_classification"] == "FAIL"
+    assert len(document["reasons"]) == 1
+    assert document["reasons"][0].startswith("wheel_payload_has_files_not_in_source:")
+    assert not (work_dir / "venv").exists()
+
+
+def test_import_provenance_guard_rejects_a_source_tree_import(tmp_path: Path) -> None:
+    """Behind the binding, the probe itself refuses an import resolved via the tree."""
+    venv_dir = tmp_path / "venv"
+    subprocess.run(
+        [sys.executable, "-m", "venv", "--without-pip", str(venv_dir)],
+        capture_output=True,
+        text=True,
+        timeout=600,
+        check=True,
+    )
+    site_packages = packaging._venv_site_packages(venv_dir)
+    (site_packages / "commander_lab_source_proxy.pth").write_text(
+        f"{ROOT / 'src'}\n", encoding="utf-8"
+    )
+    scratch = tmp_path / "scratch"
+    scratch.mkdir()
+    with pytest.raises(packaging._Classification) as failure:
+        packaging.run_installed_probe(
+            venv_dir,
+            module_name=packaging.DEFAULT_IMPORT_MODULE,
+            distribution=CONTRACT.normalized_name,
+            forbidden_roots=[ROOT, ROOT / "src"],
+            scratch_dir=scratch,
+        )
+    assert failure.value.classification == "FAIL"
+    assert failure.value.code == "source_tree_leaked_onto_isolated_sys_path:entries=1"
 
 
 # --------------------------------------------------------------------------- #
-# Red control 2: ambiguous wheel set
+# P2-1: stale evidence never survives an early failure
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(frozen=True)
+class EarlyFailure:
+    """How to provoke one early smoke failure: argument overrides, then the outcome."""
+
+    expected_reason: str
+    expected_exit: int
+    wheel_dir: str | None = None
+    scratch_dir: str | None = None
+    extra: tuple[str, ...] = ()
+
+
+def _early_failures(repo: Path, tmp: Path) -> dict[str, EarlyFailure]:
+    return {
+        "missing_wheel": EarlyFailure(
+            "project_wheel_missing:commander-playtest-lab",
+            EXIT_FAIL,
+            wheel_dir=str(tmp / "empty-dist"),
+        ),
+        "digest_mismatch": EarlyFailure(
+            "wheel_digest_mismatch:", EXIT_FAIL, extra=("--expect-wheel-sha256", "0" * 64)
+        ),
+        "contract_unreadable": EarlyFailure(
+            "package_contract_unreadable:FileNotFoundError",
+            EXIT_UNKNOWN,
+            extra=("--pyproject", str(tmp / "absent-pyproject.toml")),
+        ),
+        "lock_missing": EarlyFailure(
+            "dependency_lock_missing:absent-lock.txt",
+            EXIT_FAIL,
+            extra=("--dependency-lock", str(tmp / "absent-lock.txt")),
+        ),
+        "scratch_dir_inside_repository": EarlyFailure(
+            "scratch_dir_inside_repository", EXIT_FAIL, scratch_dir=str(repo / "b9-scratch")
+        ),
+        "source_binding_mismatch": EarlyFailure(
+            "source_tree_mismatch:", EXIT_FAIL, extra=("--expect-source-tree", "1" * 40)
+        ),
+    }
+
+
+_EARLY_FAILURE_IDS = sorted(_early_failures(Path("/"), Path("/")))
+
+
+@pytest.mark.parametrize("case", _EARLY_FAILURE_IDS)
+def test_red_control_stale_pass_evidence_never_survives_an_early_failure(
+    honest_run: HonestRun, source_repo: Path, tmp_path: Path, work_dir: Path, case: str
+) -> None:
+    """A pre-existing PASS document is replaced by FAIL evidence, never left behind."""
+    failure = _early_failures(source_repo, tmp_path)[case]
+    output = tmp_path / "evidence" / "PACKAGING_SMOKE.json"
+    output.parent.mkdir(parents=True)
+    shutil.copyfile(honest_run.evidence, output)
+    (tmp_path / "empty-dist").mkdir()
+
+    completed = _run_script(
+        "smoke",
+        "--repo",
+        str(source_repo),
+        "--wheel-dir",
+        failure.wheel_dir or str(honest_run.wheel_dir),
+        "--venv-dir",
+        str(work_dir / "venv"),
+        "--scratch-dir",
+        failure.scratch_dir or str(work_dir / "scratch"),
+        "--output",
+        str(output),
+        *failure.extra,
+    )
+    assert completed.returncode == failure.expected_exit, completed.stdout + completed.stderr
+    document = json.loads(output.read_text(encoding="utf-8"))
+    assert document["overall_classification"] != "PASS"
+    assert len(document["reasons"]) == 1
+    assert document["reasons"][0].startswith(failure.expected_reason), document["reasons"]
+    assert str(tmp_path) not in document["reasons"][0]
+    assert not (work_dir / "venv").exists()
+    assert not (source_repo / "b9-scratch").exists()
+
+    checked = _check(source_repo, output, honest_run.wheel_dir)
+    assert checked.returncode == EXIT_FAIL
+    assert "recorded_classification_not_pass" in checked.stderr
+
+
+# --------------------------------------------------------------------------- #
+# Wheel selection and digest binding
 # --------------------------------------------------------------------------- #
 
 
 def test_red_control_ambiguous_project_wheels_fail_instead_of_first_file_selection(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    built_wheel: tuple[Path, str], source_repo: Path, work_dir: Path, tmp_path: Path
 ) -> None:
     wheel, _ = built_wheel
     wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
+    _copy_wheel(wheel, wheel_dir)
     # A second, different artifact for the same project distribution.
     decoy = wheel_dir / f"{wheel.name.split('-')[0]}-9.99.9-py3-none-any.whl"
     decoy.write_bytes(wheel.read_bytes())
 
-    completed, _ = _smoke(wheel_dir, work_dir)
+    completed, document = _smoke(source_repo, wheel_dir, work_dir)
     assert completed.returncode == EXIT_FAIL
     assert "project_wheel_ambiguous" in completed.stderr
     assert wheel.name in completed.stderr
     assert decoy.name in completed.stderr
+    assert document["reasons"][0].startswith("project_wheel_ambiguous:")
     assert not (work_dir / "venv").exists(), (
         "no environment may be created for an ambiguous wheel set"
     )
 
 
-# --------------------------------------------------------------------------- #
-# Red control 3: tampered wheel after digest/source binding
-# --------------------------------------------------------------------------- #
-
-
-def test_red_control_expected_digest_mismatch_fails_closed(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
-) -> None:
-    wheel, wheel_sha256 = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-
-    completed, _ = _smoke(wheel_dir, work_dir, extra=("--expect-wheel-sha256", "0" * 64))
-    assert completed.returncode == EXIT_FAIL
-    assert "wheel_digest_mismatch" in completed.stderr
-    assert wheel_sha256 in completed.stderr
-
-
 def test_red_control_wheel_tampered_after_binding_is_detected_by_the_evidence_consumer(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    honest_run: HonestRun, source_repo: Path, tmp_path: Path
 ) -> None:
     """Bind evidence to a real wheel, then mutate the artifact behind the evidence."""
-    wheel, wheel_sha256 = built_wheel
     wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    artifact = wheel_dir / wheel.name
-    artifact.write_bytes(wheel.read_bytes())
-
-    completed, document = _smoke(wheel_dir, work_dir, extra=("--expect-wheel-sha256", wheel_sha256))
-    assert completed.returncode == EXIT_PASS, completed.stdout + completed.stderr
-    assert document["wheel_sha256"] == wheel_sha256
-
-    checked = _run_script(
-        "check",
-        "--repo",
-        str(ROOT),
-        "--evidence",
-        str(work_dir / "evidence" / "PACKAGING_SMOKE.json"),
-        "--wheel-dir",
-        str(wheel_dir),
-    )
+    shutil.copytree(honest_run.wheel_dir, wheel_dir)
+    checked = _check(source_repo, honest_run.evidence, wheel_dir)
     assert checked.returncode == EXIT_PASS, checked.stdout + checked.stderr
 
-    # Tamper with the artifact *after* the evidence was bound to its digest.
+    artifact = wheel_dir / honest_run.document["wheel_filename"]
     payload = artifact.read_bytes()
     artifact.write_bytes(payload[:-1] + bytes([payload[-1] ^ 0xFF]))
 
-    reverified = _run_script(
-        "check",
-        "--repo",
-        str(ROOT),
-        "--evidence",
-        str(work_dir / "evidence" / "PACKAGING_SMOKE.json"),
-        "--wheel-dir",
-        str(wheel_dir),
-    )
+    reverified = _check(source_repo, honest_run.evidence, wheel_dir)
     assert reverified.returncode == EXIT_FAIL
     assert "artifact_reverification_digest_mismatch" in reverified.stderr
+    assert "artifact_reverification_install_digest_mismatch" in reverified.stderr
 
 
 def test_red_control_source_identity_binding_mismatch_fails_closed(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    honest_run: HonestRun, source_repo: Path, work_dir: Path
 ) -> None:
-    wheel, _ = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-
-    completed, _ = _smoke(wheel_dir, work_dir, extra=("--expect-source-sha", "0" * 40))
-    assert completed.returncode == EXIT_FAIL
-    assert "source_sha_mismatch" in completed.stderr
-
-    completed, _ = _smoke(
-        wheel_dir,
-        work_dir.parent / "other",
-        extra=("--expect-source-tree", "1" * 40),
+    completed, document = _smoke(
+        source_repo, honest_run.wheel_dir, work_dir, extra=("--expect-source-sha", "0" * 40)
     )
     assert completed.returncode == EXIT_FAIL
-    assert "source_tree_mismatch" in completed.stderr
+    assert document["reasons"] == [
+        f"source_sha_mismatch:expected={'0' * 40} observed={honest_run.source_sha}"
+    ]
 
 
 # --------------------------------------------------------------------------- #
-# Red control 4: package/version mismatch (full consumer path)
+# Package/version mismatch and entrypoint contract (full consumer path)
 # --------------------------------------------------------------------------- #
 
 
 def test_red_control_package_version_mismatch_fails_after_isolated_install(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    honest_run: HonestRun, source_repo: Path, work_dir: Path
 ) -> None:
-    wheel, _ = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-
-    completed, document = _smoke(wheel_dir, work_dir, extra=("--expect-version", "9.99.99"))
+    completed, document = _smoke(
+        source_repo, honest_run.wheel_dir, work_dir, extra=("--expect-version", "9.99.99")
+    )
     assert completed.returncode == EXIT_FAIL
-    assert "package_version_mismatch" in completed.stderr
+    assert document["reasons"] == [
+        f"package_version_mismatch:expected=9.99.99 installed={CONTRACT.version}"
+    ]
     # The mismatch was detected only after a real isolated install of the wheel.
-    assert document["install"]["direct_url_sha256"] == packaging.sha256_file(wheel_dir / wheel.name)
+    assert document["install"]["direct_url_sha256"] == honest_run.wheel_sha256
+    assert document["package_version"] == CONTRACT.version
+    assert document["expected_bindings"]["package_version"] == "9.99.99"
     assert document["installed_import"] == {
         "status": "FAIL",
         "module": packaging.DEFAULT_IMPORT_MODULE,
@@ -458,63 +790,37 @@ def test_red_control_package_version_mismatch_fails_after_isolated_install(
     assert document["overall_classification"] == "FAIL"
 
 
-# --------------------------------------------------------------------------- #
-# Red control 5: missing expected CLI entrypoint (full consumer path)
-# --------------------------------------------------------------------------- #
-
-
-def test_red_control_missing_expected_cli_entrypoint_fails_after_install(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+def test_red_control_missing_or_retargeted_cli_entrypoint_fails_after_install(
+    honest_run: HonestRun, source_repo: Path, work_dir: Path, tmp_path: Path
 ) -> None:
-    wheel, _ = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
+    """A declared-but-absent script and a script whose installed target differs."""
+    names = list(CONTRACT.scripts)
+    retargeted = names[-1]
     ghost = tmp_path / "pyproject-with-ghost-entrypoint.toml"
-    _mutated_pyproject(ghost, extra_script="commander-lab-ghost-entrypoint")
+    _mutated_pyproject(
+        ghost,
+        extra_script="commander-lab-ghost-entrypoint",
+        retarget=(retargeted, "commander_lab.cli.main:not_the_installed_target"),
+    )
 
-    completed, document = _smoke(wheel_dir, work_dir, extra=("--pyproject", str(ghost)))
+    completed, document = _smoke(
+        source_repo, honest_run.wheel_dir, work_dir, extra=("--pyproject", str(ghost))
+    )
     assert completed.returncode == EXIT_FAIL
-    assert "cli_entrypoint_smoke_failed" in completed.stderr
-    assert "commander-lab-ghost-entrypoint" in completed.stderr
-    # The genuinely installed entrypoints are still recorded, and the ghost is not.
+    broken = sorted(
+        [
+            f"{retargeted}:cli_entrypoint_target_mismatch",
+            "commander-lab-ghost-entrypoint:cli_entrypoint_missing",
+        ]
+    )
+    assert document["reasons"] == [f"cli_entrypoint_smoke_failed:{','.join(broken)}"]
     results = document["cli_entrypoint_results"]
     assert results["commander-lab-ghost-entrypoint"]["status"] == "FAIL"
     assert results["commander-lab-ghost-entrypoint"]["reason"] == "cli_entrypoint_missing"
-    for name in CONTRACT.scripts:
+    assert results[retargeted]["installed_target"] == CONTRACT.scripts[retargeted]
+    for name in names[:-1]:
         assert results[name]["status"] == "PASS", (name, results[name])
     assert document["installed_import"]["status"] == "PASS"
-
-
-# --------------------------------------------------------------------------- #
-# Red control 6: source-tree import must not count as packaging PASS
-# --------------------------------------------------------------------------- #
-
-
-def test_red_control_source_tree_import_substitution_fails_closed(
-    work_dir: Path, tmp_path: Path
-) -> None:
-    """A wheel that only proxies imports to the worktree must never PASS.
-
-    The decoy installs cleanly, declares the current version, satisfies the
-    dependency install, and ``import commander_lab`` genuinely succeeds — so a
-    naive import smoke would call this a PASS. The provenance contract must not.
-    """
-    wheel_dir = tmp_path / "dist"
-    _write_source_proxy_wheel(
-        wheel_dir,
-        name=CONTRACT.name,
-        version=CONTRACT.version,
-        proxied_source_root=ROOT / "src",
-    )
-
-    completed, document = _smoke(wheel_dir, work_dir)
-    assert completed.returncode == EXIT_FAIL, completed.stdout + completed.stderr
-    assert any(code in completed.stderr for code in _PROVENANCE_FAILURE_CODES), completed.stderr
-    assert document["overall_classification"] == "FAIL"
-    assert document["reasons"]
-    # The failure reason is a provenance failure, never a silent success.
-    assert any(reason.startswith(_PROVENANCE_FAILURE_CODES) for reason in document["reasons"])
 
 
 def test_editable_install_markers_are_rejected_by_the_isolation_contract(tmp_path: Path) -> None:
@@ -552,151 +858,280 @@ def test_editable_install_markers_are_rejected_by_the_isolation_contract(tmp_pat
     assert dir_info_failure.value.code == "install_source_is_directory_not_wheel"
 
 
-def test_preexisting_isolated_environment_is_rejected(work_dir: Path, tmp_path: Path) -> None:
+def test_preexisting_isolated_environment_is_rejected(work_dir: Path) -> None:
     venv_dir = work_dir / "venv"
     venv_dir.mkdir(parents=True)
     with pytest.raises(packaging._Classification) as failure:
         packaging.create_isolated_environment(venv_dir, scratch_dir=work_dir)
     assert failure.value.classification == "FAIL"
-    assert failure.value.code.startswith("isolated_environment_preexisting")
+    assert failure.value.code == "isolated_environment_preexisting:venv"
+
+
+def test_wheelhouse_files_must_be_lock_pinned_and_hash_listed(
+    built_wheel: tuple[Path, str], tmp_path: Path
+) -> None:
+    pins = packaging.read_dependency_lock(DEPENDENCY_LOCK)
+    assert len(pins) >= 4
+    wheelhouse = tmp_path / "wheelhouse"
+    wheelhouse.mkdir()
+    name, (version, _) = next(iter(sorted(pins.items())))
+    forged = wheelhouse / f"{name.replace('-', '_')}-{version}-py3-none-any.whl"
+    forged.write_bytes(b"not the locked artifact")
+    with pytest.raises(packaging._Classification) as failure:
+        packaging.verify_wheelhouse(wheelhouse, pins)
+    assert failure.value.code == f"wheelhouse_wheel_hash_not_in_lock:{name}"
+
+    forged.unlink()
+    _copy_wheel(built_wheel[0], wheelhouse)
+    with pytest.raises(packaging._Classification) as unpinned:
+        packaging.verify_wheelhouse(wheelhouse, pins)
+    assert unpinned.value.code == f"wheelhouse_wheel_not_in_lock:{CONTRACT.normalized_name}"
 
 
 # --------------------------------------------------------------------------- #
-# Red control 7/8: missing, malformed, UNKNOWN or unbound evidence
+# Evidence consumer: missing, malformed, UNKNOWN, forged or unbound evidence
 # --------------------------------------------------------------------------- #
 
 
-def test_red_control_missing_evidence_file_never_passes(tmp_path: Path) -> None:
-    checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(tmp_path / "absent.json"))
+def test_red_control_missing_evidence_file_never_passes(source_repo: Path, tmp_path: Path) -> None:
+    checked = _check(source_repo, tmp_path / "absent.json", tmp_path)
     assert checked.returncode == EXIT_FAIL
     assert "packaging evidence missing" in checked.stderr
 
 
-def test_red_control_malformed_evidence_never_passes(tmp_path: Path) -> None:
+def test_red_control_malformed_evidence_never_passes(source_repo: Path, tmp_path: Path) -> None:
     truncated = tmp_path / "truncated.json"
     truncated.write_text(
-        '{"schema_version": "packaging-smoke-1.0.0", "source_sha":', encoding="utf-8"
+        '{"schema_version": "packaging-smoke-2.0.0", "source_sha":', encoding="utf-8"
     )
-    checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(truncated))
+    checked = _check(source_repo, truncated, tmp_path)
     assert checked.returncode == EXIT_FAIL
     assert "unreadable" in checked.stderr
 
     not_object = tmp_path / "list.json"
     not_object.write_text("[]", encoding="utf-8")
-    checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(not_object))
+    checked = _check(source_repo, not_object, tmp_path)
     assert checked.returncode == EXIT_FAIL
     assert "not a JSON object" in checked.stderr
 
 
-def test_red_control_incomplete_evidence_document_never_passes(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
-) -> None:
-    wheel, wheel_sha256 = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-    _, document = _smoke(wheel_dir, work_dir, extra=("--expect-wheel-sha256", wheel_sha256))
-    assert document["overall_classification"] == "PASS"
-    source_path = work_dir / "evidence" / "PACKAGING_SMOKE.json"
-
-    for dropped in ("wheel_sha256", "cli_entrypoint_results", "installed_import", "reasons"):
-        broken = tmp_path / f"missing-{dropped}.json"
-        mutated = dict(document)
-        del mutated[dropped]
-        broken.write_text(json.dumps(mutated), encoding="utf-8")
-        checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(broken))
-        assert checked.returncode == EXIT_FAIL, dropped
-        assert dropped in checked.stderr, dropped
-
-    assert source_path.is_file()
-
-
 def test_red_control_unknown_or_failed_classification_is_never_promoted_to_pass(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    honest_run: HonestRun, source_repo: Path, tmp_path: Path
 ) -> None:
-    wheel, wheel_sha256 = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-    _, document = _smoke(wheel_dir, work_dir, extra=("--expect-wheel-sha256", wheel_sha256))
-
     for classification in ("UNKNOWN", "FAIL", "PARTIAL", "NOT_RUN"):
         broken = tmp_path / f"classification-{classification}.json"
-        mutated = dict(document)
+        mutated = copy.deepcopy(honest_run.document)
         mutated["overall_classification"] = classification
         broken.write_text(json.dumps(mutated), encoding="utf-8")
-        checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(broken))
+        checked = _check(source_repo, broken, honest_run.wheel_dir)
         assert checked.returncode == EXIT_FAIL, classification
-        assert "recorded_classification_not_pass" in checked.stderr, classification
+        assert f"recorded_classification_not_pass:{classification}" in checked.stderr
+
+
+def _set(path: tuple[str, ...], value: Any) -> Callable[[dict[str, Any]], None]:
+    def mutate(document: dict[str, Any]) -> None:
+        target = document
+        for key in path[:-1]:
+            target = target[key]
+        target[path[-1]] = value
+
+    return mutate
+
+
+def _delete(key: str) -> Callable[[dict[str, Any]], None]:
+    def mutate(document: dict[str, Any]) -> None:
+        del document[key]
+
+    return mutate
+
+
+def _cli_nonzero(document: dict[str, Any]) -> None:
+    name = next(iter(CONTRACT.scripts))
+    for record in document["cli_entrypoints"]:
+        if record["name"] == name:
+            record["returncode"] = 1
+    document["cli_entrypoint_results"][name]["returncode"] = 1
+
+
+def _drop_cli_record(document: dict[str, Any]) -> None:
+    name = next(iter(CONTRACT.scripts))
+    document["cli_entrypoints"] = [
+        record for record in document["cli_entrypoints"] if record["name"] != name
+    ]
+    del document["cli_entrypoint_results"][name]
+
+
+def _undeclared_install(document: dict[str, Any]) -> None:
+    document["dependency_closure"]["installed_distributions"]["jsonschema"] = "4.26.0"
+
+
+def _contract_script_forged(document: dict[str, Any]) -> None:
+    document["package_contract"]["declared_scripts"] = {}
+
+
+_FORGERIES: list[tuple[str, Callable[[dict[str, Any]], None], str]] = [
+    (
+        "source_sha_not_head",
+        _set(("source_sha",), "0" * 40),
+        "evidence_source_sha_not_repository_head",
+    ),
+    (
+        "source_tree_not_head_tree",
+        _set(("source_tree",), "1" * 40),
+        "evidence_source_tree_not_repository_tree",
+    ),
+    (
+        "direct_url_digest_contradicts_wheel",
+        _set(("install", "direct_url_sha256"), "f" * 64),
+        "install_direct_url_sha256_not_wheel_sha256",
+    ),
+    ("editable_install", _set(("install", "editable"), True), "install_editable_not_false"),
+    (
+        "install_record_from_directory",
+        _set(("install", "install_source"), "directory"),
+        "install_record_source_not_wheel",
+    ),
+    (
+        "top_level_install_from_directory",
+        _set(("install_source",), "directory"),
+        "install_source_not_wheel:directory",
+    ),
+    (
+        "index_access_enabled",
+        _set(("install", "index_access"), "enabled"),
+        "install_index_access_not_disabled",
+    ),
+    (
+        "system_site_packages_inherited",
+        _set(("environment", "include_system_site_packages"), True),
+        "environment_invariant_violated:include_system_site_packages",
+    ),
+    (
+        "pythonpath_in_probe",
+        _set(("environment", "pythonpath_in_probe_environment"), True),
+        "environment_invariant_violated:pythonpath_in_probe_environment",
+    ),
+    (
+        "pass_with_reasons",
+        _set(("reasons",), ["installed_import_failed:ModuleNotFoundError"]),
+        "pass_recorded_with_failure_reasons",
+    ),
+    (
+        "expected_binding_mismatch",
+        _set(("expected_bindings", "source_tree"), "1" * 40),
+        "expected_binding_mismatch:source_tree",
+    ),
+    (
+        "missing_cli_entrypoints",
+        _delete("cli_entrypoints"),
+        "evidence_required_key_missing:cli_entrypoints",
+    ),
+    ("missing_generated_by", _delete("generated_by"), "evidence_required_key_missing:generated_by"),
+    ("missing_wheel_sha256", _delete("wheel_sha256"), "evidence_required_key_missing:wheel_sha256"),
+    ("missing_reasons", _delete("reasons"), "evidence_required_key_missing:reasons"),
+    (
+        "missing_installed_import",
+        _delete("installed_import"),
+        "evidence_required_key_missing:installed_import",
+    ),
+    (
+        "missing_package_contract",
+        _delete("package_contract"),
+        "evidence_required_key_missing:package_contract",
+    ),
+    ("unexpected_key", _set(("smuggled",), True), "evidence_unexpected_key:smuggled"),
+    ("foreign_generator", _set(("generated_by",), "elsewhere"), "generated_by_not_this_consumer"),
+    (
+        "contract_forged",
+        _contract_script_forged,
+        "package_contract_not_the_current_contract",
+    ),
+    (
+        "cli_nonzero_exit",
+        _cli_nonzero,
+        f"cli_entrypoint_nonzero_exit:{next(iter(CONTRACT.scripts))}",
+    ),
+    (
+        "cli_record_missing",
+        _drop_cli_record,
+        f"cli_entrypoint_result_missing:{next(iter(CONTRACT.scripts))}",
+    ),
+    (
+        "undeclared_distribution_installed",
+        _undeclared_install,
+        "dependency_closure_not_the_installed_set",
+    ),
+    (
+        "binding_not_passed",
+        _set(("wheel_source_binding", "different"), 1),
+        "wheel_source_binding_not_passed",
+    ),
+    (
+        "forged_import_provenance",
+        _set(("installed_import", "resolved_in_isolated_environment"), False),
+        "installed_import_not_proven_isolated",
+    ),
+    (
+        "stale_version",
+        _set(("package_version",), "0.0.1"),
+        "package_version_not_the_current_declared_version",
+    ),
+    (
+        "lock_digest_forged",
+        _set(("install", "dependency_lock_sha256"), "e" * 64),
+        "dependency_lock_digest_not_the_current_lock",
+    ),
+    (
+        "dirty_tree_claimed_clean_false",
+        _set(("source_working_tree_clean",), False),
+        "evidence_working_tree_not_clean",
+    ),
+    (
+        "python_version_forged",
+        _set(("python_version",), "2.7.18"),
+        "python_version_not_the_checking_interpreter",
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    ("mutate", "expected_code"),
+    [pytest.param(mutate, code, id=name) for name, mutate, code in _FORGERIES],
+)
+def test_red_control_check_re_adjudicates_forged_or_contradictory_pass_evidence(
+    honest_run: HonestRun,
+    source_repo: Path,
+    tmp_path: Path,
+    mutate: Callable[[dict[str, Any]], None],
+    expected_code: str,
+) -> None:
+    """A PASS document with one forged field must be failed by ``check``."""
+    assert honest_run.document["overall_classification"] == "PASS"
+    forged = copy.deepcopy(honest_run.document)
+    mutate(forged)
+    forged_path = tmp_path / "forged.json"
+    forged_path.write_text(json.dumps(forged), encoding="utf-8")
+    checked = _check(source_repo, forged_path, honest_run.wheel_dir)
+    assert checked.returncode == EXIT_FAIL, checked.stdout + checked.stderr
+    assert expected_code in checked.stderr, checked.stderr
 
 
 def test_red_control_evidence_bound_to_a_different_candidate_is_rejected(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    honest_run: HonestRun, source_repo: Path, undeclared_dependency_commit: ForeignCommit
 ) -> None:
-    wheel, wheel_sha256 = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-    _, document = _smoke(wheel_dir, work_dir, extra=("--expect-wheel-sha256", wheel_sha256))
-
-    checked = _run_script(
-        "check",
-        "--repo",
-        str(ROOT),
-        "--evidence",
-        str(work_dir / "evidence" / "PACKAGING_SMOKE.json"),
-        "--expect-source-sha",
-        "0" * 40,
+    checked = _check(
+        source_repo, honest_run.evidence, honest_run.wheel_dir, "--expect-source-sha", "0" * 40
     )
     assert checked.returncode == EXIT_FAIL
     assert "evidence_source_sha_not_the_expected_candidate" in checked.stderr
 
-    stale_version = dict(document)
-    stale_version["package_version"] = "0.0.1"
-    stale_version["declared_version"] = "0.0.1"
-    stale_path = tmp_path / "stale-version.json"
-    stale_path.write_text(json.dumps(stale_version), encoding="utf-8")
-    checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(stale_path))
+    # The same honest evidence, checked against another commit, is not current.
+    checked = _check(undeclared_dependency_commit.repo, honest_run.evidence, honest_run.wheel_dir)
     assert checked.returncode == EXIT_FAIL
-    assert "package_version_not_the_current_declared_version" in checked.stderr
-
-
-def test_red_control_evidence_claiming_a_source_tree_import_is_rejected(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
-) -> None:
-    wheel, wheel_sha256 = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-    _, document = _smoke(wheel_dir, work_dir, extra=("--expect-wheel-sha256", wheel_sha256))
-
-    forged = dict(document)
-    forged_import = dict(document["installed_import"])
-    forged_import["resolved_in_isolated_environment"] = False
-    forged["installed_import"] = forged_import
-    forged_path = tmp_path / "forged-import.json"
-    forged_path.write_text(json.dumps(forged), encoding="utf-8")
-    checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(forged_path))
-    assert checked.returncode == EXIT_FAIL
-    assert "installed_import_not_proven_isolated" in checked.stderr
-
-
-def test_red_control_non_wheel_install_source_claim_is_rejected(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
-) -> None:
-    wheel, wheel_sha256 = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-    _, document = _smoke(wheel_dir, work_dir, extra=("--expect-wheel-sha256", wheel_sha256))
-
-    forged = dict(document)
-    forged["install_source"] = "source_tree"
-    forged_path = tmp_path / "forged-source.json"
-    forged_path.write_text(json.dumps(forged), encoding="utf-8")
-    checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(forged_path))
-    assert checked.returncode == EXIT_FAIL
-    assert "install_source_not_wheel" in checked.stderr
+    assert "evidence_source_sha_not_repository_head" in checked.stderr
+    assert "artifact_reverification_not_bound_to_source:wheel_payload_differs_from_source" in (
+        checked.stderr
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -738,6 +1173,7 @@ def test_distribution_name_normalisation_matches_wheel_filename_spelling() -> No
 def test_package_contract_is_read_from_the_live_pyproject() -> None:
     assert CONTRACT.name == "commander-playtest-lab"
     assert CONTRACT.version
+    assert CONTRACT.source_root == "src"
     assert CONTRACT.scripts, (
         "the project must declare console scripts for the smoke to prove anything"
     )
@@ -749,41 +1185,16 @@ def test_package_contract_is_read_from_the_live_pyproject() -> None:
         assert module_path.is_file(), (script_name, target)
 
 
-def test_scratch_dir_inside_the_repository_is_rejected(built_wheel: tuple[Path, str]) -> None:
-    wheel, _ = built_wheel
-    with pytest.raises(packaging._Classification) as failure:
-        packaging.run_smoke(
-            packaging.build_parser().parse_args(
-                [
-                    "smoke",
-                    "--repo",
-                    str(ROOT),
-                    "--wheel-dir",
-                    str(wheel.parent),
-                    "--venv-dir",
-                    str(ROOT / "b9-should-not-exist"),
-                    "--scratch-dir",
-                    str(ROOT / "artifacts"),
-                    "--output",
-                    str(ROOT / "artifacts" / "quality" / "B9_SHOULD_NOT_EXIST.json"),
-                ]
-            )
-        )
-    assert failure.value.classification == "FAIL"
-    assert failure.value.code.startswith("scratch_dir_inside_repository")
-    assert not (ROOT / "b9-should-not-exist").exists()
-    assert not (ROOT / "artifacts" / "quality" / "B9_SHOULD_NOT_EXIST.json").exists()
-
-
 # --------------------------------------------------------------------------- #
 # CI trust boundary: the required quality context is extended, never weakened
 # --------------------------------------------------------------------------- #
 
 
-def _ci() -> dict:
+def _ci() -> dict[str, Any]:
     import yaml
 
-    return yaml.safe_load(CI_WORKFLOW.read_text(encoding="utf-8"))
+    loaded: dict[str, Any] = yaml.safe_load(CI_WORKFLOW.read_text(encoding="utf-8"))
+    return loaded
 
 
 def test_packaging_smoke_runs_inside_the_required_quality_context() -> None:
@@ -820,6 +1231,8 @@ def test_packaging_evidence_is_independently_rechecked_and_uploaded() -> None:
     assert check["if"] == "${{ success() || failure() }}"
     assert "continue-on-error" not in check
     assert "scripts/verify_packaging_smoke.py check" in check["run"]
+    assert "--wheel-dir dist" in check["run"]
+    assert "--repo ." in check["run"]
     assert "|| true" not in check["run"]
     upload = quality["steps"][-1]
     assert "artifacts/quality/" in upload["with"]["path"]
