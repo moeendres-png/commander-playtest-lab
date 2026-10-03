@@ -42,6 +42,11 @@ technical_decisions:
   takeover, not an automatic OpenCode fallback.
 - Remote published source is reused. Unavailable Claude cloud edits are not assumed
   present. Existing local D17 processes and uncommitted Forge work are preserved.
+- Owner re-transferred PR519 to Claude. Renamed from claude-takeover-20261003.yaml
+  (same filename added by four PRs, add/add conflicts). Repaired three Codex P2
+  findings in scripts/run_broad_secret_scan.py with red-control unit tests -
+  malformed reports are NOT_RUN, external binaries are external_unverified, and
+  the summary binds to commit, tree, dirty state and scanned manifest digest.
 exact_next_action: Validate clean commit with live controls and deterministic readback,
   then push exact head and require independent review plus required CI before ordinary
   merge.

@@ -8,10 +8,14 @@ sentinel.
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
+import io
+import json
 import re
 import subprocess
 import sys
+import tarfile
 import tomllib
 from functools import cache
 from pathlib import Path
@@ -134,3 +138,259 @@ def test_a_scanner_failure_is_not_run_never_pass(tmp_path, exit_code) -> None:
     fake.chmod(0o755)
     with pytest.raises(scanner.ScannerError):
         scanner.scan(fake, tmp_path, CONFIG)
+
+
+def _fake_gitleaks(tmp_path: Path, report_body: str) -> Path:
+    """A stand-in that reports the pinned version and writes ``report_body`` verbatim."""
+    body = tmp_path / "report-body.json"
+    body.write_text(report_body, encoding="utf-8")
+    fake = tmp_path / "bin" / "gitleaks"
+    fake.parent.mkdir(parents=True, exist_ok=True)
+    fake.write_text(
+        "#!/bin/sh\n"
+        f'if [ "$1" = version ]; then echo {_scanner().GITLEAKS_VERSION}; exit 0; fi\n'
+        'while [ "$#" -gt 0 ]; do\n'
+        f'  if [ "$1" = --report-path ]; then cp "{body}" "$2"; fi\n'
+        "  shift\n"
+        "done\n"
+        "exit 0\n",
+        encoding="utf-8",
+    )
+    fake.chmod(0o755)
+    return fake
+
+
+def _summary(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+_ENTRY = {"RuleID": "generic-api-key", "File": "a.py", "StartLine": 1, "Fingerprint": "a.py:1"}
+
+
+@pytest.mark.parametrize(
+    "report_body",
+    [
+        '[{"RuleID": "generic-api-key", "File": ',  # truncated
+        "not json at all",
+        '{"RuleID": "generic-api-key"}',  # not a list
+        "[42]",  # entry is not an object
+        json.dumps([{k: v for k, v in _ENTRY.items() if k != "File"}]),  # missing field
+        json.dumps([{**_ENTRY, "StartLine": "1"}]),  # wrong type
+        json.dumps([{**_ENTRY, "StartLine": True}]),  # bool is not a line number
+    ],
+    ids=["truncated", "invalid", "not_a_list", "entry_not_object", "missing", "type", "bool"],
+)
+def test_a_malformed_report_is_a_scanner_failure(tmp_path, report_body) -> None:
+    """Red control malformed_report_is_not_run: parsing never escapes as a traceback."""
+    scanner = _scanner()
+    fake = _fake_gitleaks(tmp_path, report_body)
+    with pytest.raises(scanner.ScannerError, match="gitleaks report is malformed"):
+        scanner.scan(fake, tmp_path, CONFIG)
+
+
+def test_a_well_formed_report_parses() -> None:
+    scanner = _scanner()
+    assert scanner.parse_finding(0, _ENTRY) == {
+        "rule": "generic-api-key",
+        "file": "a.py",
+        "line": 1,
+        "fingerprint": "a.py:1",
+    }
+
+
+def test_a_malformed_report_writes_not_run_over_a_stale_pass(tmp_path) -> None:
+    """End to end: exit 2 and a NOT_RUN summary replace an earlier PASS summary."""
+    scanner = _scanner()
+    fake = _fake_gitleaks(tmp_path, '[{"RuleID": ')
+    report = tmp_path / "out" / "summary.json"
+    report.parent.mkdir()
+    report.write_text(json.dumps({"status": "PASS"}), encoding="utf-8")
+    assert scanner.main(["--gitleaks", str(fake), "--report", str(report)]) == 2
+    summary = _summary(report)
+    assert summary["status"] == "NOT_RUN"
+    assert "gitleaks report is malformed" in summary["error"]
+
+
+def test_a_stale_summary_is_removed_before_the_scanner_runs(tmp_path, monkeypatch) -> None:
+    """Red control stale_summary_removed: an interrupted run leaves no earlier PASS behind."""
+    scanner = _scanner()
+    report = tmp_path / "summary.json"
+    report.write_text(json.dumps({"status": "PASS"}), encoding="utf-8")
+
+    def interrupted(*_args):  # type: ignore[no-untyped-def]
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(scanner, "resolve_scanner", interrupted)
+    with pytest.raises(KeyboardInterrupt):
+        scanner.main(["--gitleaks", str(tmp_path / "gitleaks"), "--report", str(report)])
+    assert not report.exists()
+
+
+def _clean_run(scanner, monkeypatch, *, dirty: bool = False) -> None:  # type: ignore[no-untyped-def]
+    """Controls and scan pass; only the scanner source and the candidate state vary."""
+    monkeypatch.setattr(
+        scanner,
+        "run_controls",
+        lambda *_: [{"control": "clean_tree", "observed_rules": [], "status": "PASS"}],
+    )
+    monkeypatch.setattr(scanner, "scan", lambda *_: [])
+    monkeypatch.setattr(
+        scanner,
+        "candidate_identity",
+        lambda _root: {
+            "commit": "c" * 40,
+            "tree": "t" * 40,
+            "dirty": dirty,
+            "dirty_paths": ["src/x.py"] if dirty else [],
+        },
+    )
+    monkeypatch.setattr(
+        scanner,
+        "materialize_tracked",
+        lambda _root, _dest: [("b.py", "2" * 64), ("a.py", "1" * 64)],
+    )
+
+
+def test_an_external_binary_is_recorded_by_its_own_digest_and_never_passes(
+    tmp_path, monkeypatch
+) -> None:
+    """Red control external_scanner_unverified: no archive verification is claimed."""
+    scanner = _scanner()
+    _clean_run(scanner, monkeypatch)
+    fake = _fake_gitleaks(tmp_path, "[]")
+    report = tmp_path / "summary.json"
+    assert scanner.main(["--gitleaks", str(fake), "--report", str(report)]) == 1
+    summary = _summary(report)
+    assert summary["source_mode"] == "external_unverified"
+    assert summary["scanner_archive_sha256"] is None
+    assert summary["scanner_binary_sha256"] == hashlib.sha256(fake.read_bytes()).hexdigest()
+    assert summary["scanner_binary_sha256"] != scanner.GITLEAKS_BINARY_SHA256
+    assert summary["blockers"] == ["unverified_scanner"]
+    assert summary["status"] == "FAIL"
+
+
+def test_a_supplied_binary_with_the_pinned_digest_is_verified(tmp_path, monkeypatch) -> None:
+    scanner = _scanner()
+    _clean_run(scanner, monkeypatch)
+    fake = _fake_gitleaks(tmp_path, "[]")
+    digest = hashlib.sha256(fake.read_bytes()).hexdigest()
+    monkeypatch.setattr(scanner, "GITLEAKS_BINARY_SHA256", digest)
+    report = tmp_path / "summary.json"
+    assert scanner.main(["--gitleaks", str(fake), "--report", str(report)]) == 0
+    summary = _summary(report)
+    assert summary["source_mode"] == "pinned_binary_verified"
+    assert summary["scanner_archive_sha256"] is None
+    assert summary["status"] == "PASS"
+
+
+def test_the_installed_archive_is_recorded_as_verified(tmp_path, monkeypatch) -> None:
+    scanner = _scanner()
+    _clean_run(scanner, monkeypatch)
+    fake = _fake_gitleaks(tmp_path, "[]")
+    monkeypatch.setattr(scanner, "install", lambda _dest: fake)
+    report = tmp_path / "summary.json"
+    assert scanner.main(["--install-dir", str(tmp_path / "i"), "--report", str(report)]) == 0
+    summary = _summary(report)
+    assert summary["source_mode"] == "pinned_archive_verified"
+    assert summary["scanner_archive_sha256"] == scanner.GITLEAKS_SHA256
+    assert summary["scanner_binary_sha256"] == hashlib.sha256(fake.read_bytes()).hexdigest()
+
+
+def _archive(payload: bytes) -> bytes:
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w:gz") as bundle:
+        info = tarfile.TarInfo("gitleaks")
+        info.size = len(payload)
+        bundle.addfile(info, io.BytesIO(payload))
+    return buffer.getvalue()
+
+
+def test_install_rejects_a_binary_that_is_not_the_pinned_member(tmp_path, monkeypatch) -> None:
+    """The archive digest alone is not enough: the extracted binary is pinned too."""
+    scanner = _scanner()
+    archive = _archive(b"#!/bin/sh\necho tampered\n")
+
+    class _Response(io.BytesIO):
+        def __enter__(self):  # type: ignore[no-untyped-def]
+            return self
+
+        def __exit__(self, *_exc):  # type: ignore[no-untyped-def]
+            return False
+
+    monkeypatch.setattr(scanner.urllib.request, "urlopen", lambda *_a, **_k: _Response(archive))
+    monkeypatch.setattr(scanner, "GITLEAKS_SHA256", hashlib.sha256(archive).hexdigest())
+    with pytest.raises(scanner.ScannerError, match="gitleaks binary digest"):
+        scanner.install(tmp_path / "install")
+    assert not (tmp_path / "install" / "gitleaks").exists()
+
+
+def test_the_summary_binds_to_commit_tree_and_scanned_manifest(tmp_path, monkeypatch) -> None:
+    scanner = _scanner()
+    _clean_run(scanner, monkeypatch)
+    fake = _fake_gitleaks(tmp_path, "[]")
+    monkeypatch.setattr(scanner, "install", lambda _dest: fake)
+    report = tmp_path / "summary.json"
+    assert scanner.main(["--install-dir", str(tmp_path / "i"), "--report", str(report)]) == 0
+    candidate = _summary(report)["candidate"]
+    expected = hashlib.sha256(f"{'1' * 64}  a.py\n{'2' * 64}  b.py\n".encode()).hexdigest()
+    assert candidate == {
+        "commit": "c" * 40,
+        "tree": "t" * 40,
+        "dirty": False,
+        "dirty_paths": [],
+        "scanned_files": 2,
+        "manifest_sha256": expected,
+    }
+
+
+def test_a_dirty_tree_never_passes(tmp_path, monkeypatch) -> None:
+    """Red control dirty_tree_blocks_pass: scanned bytes that are not HEAD bind to nothing."""
+    scanner = _scanner()
+    _clean_run(scanner, monkeypatch, dirty=True)
+    fake = _fake_gitleaks(tmp_path, "[]")
+    monkeypatch.setattr(scanner, "install", lambda _dest: fake)
+    report = tmp_path / "summary.json"
+    assert scanner.main(["--install-dir", str(tmp_path / "i"), "--report", str(report)]) == 1
+    summary = _summary(report)
+    assert summary["candidate"]["dirty"] is True
+    assert summary["blockers"] == ["dirty_tree"]
+    assert summary["status"] == "FAIL"
+
+
+def _git(repo: Path, *args: str) -> str:
+    return subprocess.run(
+        ["git", "-C", str(repo), *args], capture_output=True, check=True, text=True
+    ).stdout.strip()
+
+
+def test_candidate_identity_and_manifest_follow_the_real_checkout(tmp_path) -> None:
+    scanner = _scanner()
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _git(repo, "init", "-q")
+    (repo / "a.py").write_text("A = 1\n", encoding="utf-8")
+    (repo / "untracked.txt").write_text("not scanned\n", encoding="utf-8")
+    _git(repo, "add", "a.py")
+    _git(
+        repo,
+        "-c",
+        "user.name=t",
+        "-c",
+        "user.email=t@example.invalid",
+        "commit",
+        "-q",
+        "-m",
+        "init",
+    )
+    clean = scanner.candidate_identity(repo)
+    assert clean["commit"] == _git(repo, "rev-parse", "HEAD")
+    assert clean["tree"] == _git(repo, "rev-parse", "HEAD^{tree}")
+    assert clean["dirty"] is False  # untracked files are never scanned
+    manifest = scanner.materialize_tracked(repo, tmp_path / "copy")
+    assert manifest == [("a.py", hashlib.sha256(b"A = 1\n").hexdigest())]
+    (repo / "a.py").write_text("A = 2\n", encoding="utf-8")
+    dirty = scanner.candidate_identity(repo)
+    assert dirty["dirty"] is True and dirty["dirty_paths"] == ["a.py"]
+    assert scanner.manifest_sha256(scanner.materialize_tracked(repo, tmp_path / "c2")) != (
+        scanner.manifest_sha256(manifest)
+    )

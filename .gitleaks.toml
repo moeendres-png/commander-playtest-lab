@@ -1,5 +1,5 @@
 # B10 (#491): broad secret scan configuration for the pinned gitleaks
-# (scripts/run_broad_secret_scan.py holds the version and the archive digest).
+# (scripts/run_broad_secret_scan.py holds the version and the archive and binary digests).
 #
 # The full upstream default rule set applies. Every exclusion below is scoped to
 # one rule, one exact file and one exact value (condition AND), and says why that
