@@ -268,3 +268,32 @@ def test_main_writes_not_run_for_invalid_configuration(tmp_path, monkeypatch) ->
     document = json.loads(report.read_text())
     assert document["status"] == "NOT_RUN"
     assert "configuration" in document["error"]
+
+
+@pytest.mark.parametrize("kind", ["missing", "directory", "unreadable"])
+def test_unavailable_config_overwrites_stale_pass(tmp_path, monkeypatch, kind) -> None:
+    scanner = _scanner()
+    config = tmp_path / "unavailable.toml"
+    if kind == "directory":
+        config.mkdir()
+    elif kind == "unreadable":
+        config.write_text("[extend]\nuseDefault = true\n")
+        original = scanner._sha256_file
+
+        def unreadable(path):
+            if path == config:
+                raise PermissionError("configuration is unreadable")
+            return original(path)
+
+        monkeypatch.setattr(scanner, "_sha256_file", unreadable)
+    report = tmp_path / "evidence.json"
+    report.write_text('{"status":"PASS"}')
+    monkeypatch.setattr(scanner, "CONFIG", config)
+    monkeypatch.setattr(
+        sys, "argv", ["scan", "--gitleaks", str(tmp_path / "scanner"), "--report", str(report)]
+    )
+    assert scanner.main() == 2
+    document = json.loads(report.read_text())
+    assert document["status"] == "NOT_RUN"
+    assert "error" in document
+    assert "config_sha256" not in document

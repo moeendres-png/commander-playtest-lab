@@ -454,10 +454,10 @@ def main() -> int:
         "scanner_archive_sha256": GITLEAKS_SHA256,
         "scanner_source": "installed_pinned_archive" if args.install_dir else "supplied_binary",
         "scan_flags": list(SCAN_FLAGS),
-        "config_sha256": _sha256_file(CONFIG),
         "status": "NOT_RUN",
     }
     try:
+        summary["config_sha256"] = _sha256_file(CONFIG)
         summary["source"] = source_identity(ROOT)
         binary = (install(args.install_dir) if args.install_dir else args.gitleaks).resolve()
         summary["scanner_binary_sha256"] = verify_scanner(binary)
