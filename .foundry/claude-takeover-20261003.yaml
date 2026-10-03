@@ -4,7 +4,7 @@ worktree: /home/moeen/work/takeover-pr506-20261003
 branch: claude/pensive-mayer-f8spwn
 audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
 audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
-state_written_against_head: 83486e05f03257ef2d580f760b3944317fda349c
+state_written_against_head: 22f11a0214f39a580ab50736650b31a0bacf49d8
 validated_head: null
 objective: Resume transferred Claude pre-Freeze campaign; review, repair, qualify
   and integrate existing PR surfaces without losing provenance
