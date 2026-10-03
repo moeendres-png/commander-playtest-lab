@@ -3616,6 +3616,7 @@ def execute_row(
                 causal_reconstruction={
                     "entry_mode": probe.CAUSAL_STACK_ELIMINATION,
                     "stack": reconstruction,
+                    "permanents": permanents,
                     "elimination": None,
                 },
             )

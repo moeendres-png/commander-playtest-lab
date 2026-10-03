@@ -83,15 +83,19 @@ review showed the route below, which keeps the record as written.
 - After the stack verifier matches, the pilot passes priority (and nothing else) until
   the engine's stack is empty. A new verifier mode, `permanents`, then compares the
   engine's state with the record: the Aura on the battlefield with its identity and
-  controller, attached to its target, and the target controlled as requested.
+  controller, attached to its target, and the target controlled as requested; and the
+  engine's own turn, phase, step, active player and priority player equal the record's
+  checkpoint. A cast that became possible only later (another turn) fails here.
+- A record that also requests a stack of its own, two caused permanents on one target,
+  or `caused_permanents` outside the composed entry fails closed.
 
 **Route:**
 1. **Arrival** at P1's turn 1. A declared flash enabler for P2 (Leyline of Anticipation,
    CR 702.8a) and four Islands are placed like fuel.
 2. **Cause.** P2 casts Control Magic at P1's Bears on the engine's frames (the engine
    offers it only because of the enabler), the stack verifier matches, the engine
-   resolves it, and the caused-permanent verifier confirms attachment and P2's control.
-   P1 again holds priority with an empty stack: the record's checkpoint.
+   resolves it, and the caused-permanent verifier confirms attachment, P2's control and
+   the checkpoint: P1's turn 1, P1 holding priority with an empty stack.
 3. **Elimination.** P1 casts the 14 declared Bolts at P2 on the engine's frames.
 4. **Obligation.** The engine's events: P2's LOST, then the Aura's BATTLEFIELD → OUTSIDE
    move, then GAINED_CONTROL of the Bears for P1; the Bears never leave the battlefield.
@@ -100,8 +104,10 @@ Leyline is a rules-relevant extra permanent, unlike inert fuel lands. It is decl
 and published in the plan, owned by P2, and leaves with P2.
 
 **Local result** (pinned XMage `37e4df6c`):
-- **Probe:** `CAUSAL_ROUTE_REACHABLE`, with the caused-permanent verifier matched and
-  every obligation field true.
+- **Probe:** `CAUSAL_ROUTE_REACHABLE`. The probe requires the caused-permanent verifier
+  (including the checkpoint) to match, P2 lost and left, an empty engine stack after the
+  loss and the survivors at their requested life. The Aura leaving and the control
+  reverting are the PB-03 row's checks (below), not the probe's.
 - **PB-03 producer:** verified. On the tape, LOST is sequence 80, the Aura's move to
   outside is 81, and GAINED_CONTROL of the Bears for P1 is 88.
 

@@ -78,6 +78,7 @@ final class XmageMidgameJsonlBridge {
     private XmageMidgameCausalBridge.CausalEliminationPlan causalEliminationPlan;
     /** Permanents the composed entry causes by their cast, verified after resolution. */
     private List<XmageMidgameCausalBridge.CausedPermanent> causedPermanents = List.of();
+    private String causedPriorityPlayer;
 
     record Result(String json, boolean shutdown) {
     }
@@ -340,6 +341,16 @@ final class XmageMidgameJsonlBridge {
                 );
             }
 
+            if (payload.has("caused_permanents")
+                    && !CAUSAL_STACK_ELIMINATION.equals(resolvedEntryMode)) {
+                return error(
+                        requestId,
+                        "midgame_causal_preparation_rejected",
+                        "CausalException: CAUSED_PERMANENTS_OUTSIDE_COMPOSED_ENTRY: caused_permanents "
+                                + "is read only by entry_mode " + CAUSAL_STACK_ELIMINATION,
+                        false
+                );
+            }
             return createForEntryMode(
                     requestId,
                     payload.getAsJsonObject("requested_starting_state"),
@@ -654,6 +665,7 @@ final class XmageMidgameJsonlBridge {
         this.causalStackPlan = stackPlan;
         this.causalEliminationPlan = composed.elimination();
         this.causedPermanents = composed.causedPermanents();
+        this.causedPriorityPlayer = composed.requestedPriorityPlayer();
 
         JsonObject response = createdResponse(
                 gameId, planTag, startingPlayerSeat, startingLife, seed);
@@ -1069,7 +1081,9 @@ final class XmageMidgameJsonlBridge {
                         requireSession(),
                         requireSession().restorationSeats(),
                         restoration,
-                        causedPermanents);
+                        causedPermanents,
+                        causalStackPlan.prepared().preStackPlan(),
+                        causedPriorityPlayer);
             } else if ("stack".equals(mode)) {
                 boolean stackEntry = "causal_stack".equals(entryMode)
                         || CAUSAL_STACK_ELIMINATION.equals(entryMode);

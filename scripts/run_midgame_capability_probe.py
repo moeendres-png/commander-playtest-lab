@@ -320,7 +320,7 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
         "elimination_actor": "P1",
         "elimination_victim": "P2",
         "bolt_count": 14,
-        "terminal": "stack_controller_eliminated",
+        "terminal": "caused_permanent_controller_eliminated",
     },
     "WS05-MP-ELIM-TURN-3": {
         "entry_mode": "causal_elimination",
@@ -2114,10 +2114,14 @@ def drive_causal_stack_elimination(
         "victim_left": elimination.get("victim_left") is True,
         "stack_empty_after_loss": stack_empty,
         "survivors_at_requested_life": survivors_untouched,
-        "caused_permanents": permanents,
         "detail": (
-            "the engine built the victim's stack, eliminated the victim, and the "
-            "victim's spells left without resolving"
+            (
+                "the engine caused the record's permanents at its checkpoint, then "
+                "eliminated their controller"
+                if permanents is not None
+                else "the engine built the victim's stack, eliminated the victim, and "
+                "the victim's spells left without resolving"
+            )
             if observed
             else f"stack={stack} elimination={verdicts['elimination']} "
             f"stack_after={pilot_stack} life={life_totals} requested={requested_life}"
@@ -2133,6 +2137,8 @@ def drive_causal_stack_elimination(
     combined["stack_verdict"] = stack
     if permanents is not None:
         combined["permanents_verdict"] = permanents
+    if permanents is not None:
+        terminal["caused_permanents"] = permanents
     row_verdict = ml.classification_from_causal_verdict(
         fixture_id,
         ml.MIDGAME_LANE,

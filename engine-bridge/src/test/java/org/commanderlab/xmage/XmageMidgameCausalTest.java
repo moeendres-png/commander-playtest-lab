@@ -1567,8 +1567,12 @@ class XmageMidgameCausalTest {
         JsonObject permanents = lane.ok("complete_causal_reconstruction", permanentsVerify)
                 .getAsJsonObject("verdict");
         assertTrue(permanents.get("causal_match").getAsBoolean(),
-                "the Aura must be attached and P2 must control the Bears: "
+                "the Aura must be attached, P2 must control the Bears, and the engine must be "
+                        + "at the record's checkpoint (P1's turn 1, P1 holding priority): "
                         + permanents.getAsJsonArray("mismatches"));
+        JsonObject checkpoint = pendingDecision(lane);
+        assertEquals("priority", checkpoint.get("decision_class").getAsString());
+        assertEquals(0, checkpoint.getAsJsonObject("pilot_state").getAsJsonArray("stack").size());
 
         List<String> boltIds = new ArrayList<>();
         List<String> mountainIds = new ArrayList<>();
@@ -1632,6 +1636,43 @@ class XmageMidgameCausalTest {
         JsonObject response = lane.rejected("complete_causal_reconstruction", permanentsVerify);
         assertEquals("no_caused_permanents", response.getAsJsonArray("errors").get(0)
                 .getAsJsonObject().get("code").getAsString());
+    }
+
+    @Test
+    void aCausedPermanentWithARequestedStackFailsClosed() {
+        // Resolving the caused cast would resolve the requested stack too.
+        Lane lane = newLane();
+        JsonArray fuel = new JsonArray();
+        fuel.add(fuelCard("obj:fuel-mountain-p2", "Mountain", "P2", "battlefield"));
+        JsonObject request = causalStackCreate("caused-with-stack", "WS05-MP-ELIM-STACK-3", fuel);
+        request.addProperty("entry_mode", "causal_stack_elimination");
+        JsonArray caused = new JsonArray();
+        caused.add("obj:P1-bears");
+        request.add("caused_permanents", caused);
+        JsonObject spec = new JsonObject();
+        spec.addProperty("actor", "P1");
+        spec.addProperty("victim", "P2");
+        spec.add("instruments", new JsonArray());
+        request.add("elimination", spec);
+        JsonObject response = lane.rejected("create_midgame_game", request);
+        assertTrue(response.getAsJsonArray("errors").get(0).getAsJsonObject().get("message")
+                .getAsString().contains("CAUSED_PERMANENT_WITH_REQUESTED_STACK"),
+                response.toString());
+    }
+
+    @Test
+    void causedPermanentsOutsideTheComposedEntryAreRefused() {
+        Lane lane = newLane();
+        JsonArray fuel = new JsonArray();
+        fuel.add(fuelCard("obj:fuel-mountain-p2", "Mountain", "P2", "battlefield"));
+        JsonObject request = causalStackCreate("caused-outside", "WS05-MP-ELIM-STACK-3", fuel);
+        JsonArray caused = new JsonArray();
+        caused.add("obj:leave-bolt");
+        request.add("caused_permanents", caused);
+        JsonObject response = lane.rejected("create_midgame_game", request);
+        assertTrue(response.getAsJsonArray("errors").get(0).getAsJsonObject().get("message")
+                .getAsString().contains("CAUSED_PERMANENTS_OUTSIDE_COMPOSED_ENTRY"),
+                response.toString());
     }
 
     @Test

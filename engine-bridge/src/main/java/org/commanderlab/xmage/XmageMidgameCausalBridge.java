@@ -106,7 +106,8 @@ final class XmageMidgameCausalBridge {
     record CausalStackEliminationPlan(
             CausalStackPlan stack,
             CausalEliminationPlan elimination,
-            List<CausedPermanent> causedPermanents
+            List<CausedPermanent> causedPermanents,
+            String requestedPriorityPlayer
     ) {
     }
 
@@ -294,6 +295,10 @@ final class XmageMidgameCausalBridge {
             long seed) {
         EliminationRecord prepared =
                 eliminationRecord(frozenRecord, actorPid, victimPid, instruments);
+        // The record's own priority player, read before the stack preparation
+        // moves pre-causal priority to the active player.
+        String requestedPriority = requiredText(
+                prepared.record().getAsJsonObject("temporal_state"), "priority_player");
         List<CausedPermanent> caused = causePermanents(prepared.record(), causedPermanentIds);
         CausalStackPlan stack = prepareCausalStack(prepared.record(), fuel, planId, seed);
         CausalEliminationPlan elimination = new CausalEliminationPlan(
@@ -301,7 +306,7 @@ final class XmageMidgameCausalBridge {
                 List.copyOf(instruments),
                 List.copyOf(prepared.substitutions()),
                 Set.copyOf(prepared.survivors()));
-        return new CausalStackEliminationPlan(stack, elimination, caused);
+        return new CausalStackEliminationPlan(stack, elimination, caused, requestedPriority);
     }
 
     /**
@@ -310,22 +315,36 @@ final class XmageMidgameCausalBridge {
      * attachment target; its attachment is dropped (the resolution makes it);
      * the attached object's recorded controller, when it differs from the
      * object's owner, is restored to the owner (the Aura's effect makes it).
-     * Anything else fails closed: only an owner-controlled Aura on the
-     * battlefield attached to a permanent on the battlefield is caused here.
+     * Anything else fails closed: only an owner-controlled permanent on the
+     * battlefield attached to a permanent on the battlefield is caused here,
+     * each target at most once, and only in a record that requests no stack
+     * of its own (a resolution of the caused casts would resolve it too). That
+     * the cast attaches it (an Aura, CR 303.4) is the engine's to show: the
+     * verifier then reads the attachment.
      */
     static List<CausedPermanent> causePermanents(JsonObject record, List<String> causedIds) {
         if (causedIds.isEmpty()) {
             return List.of();
         }
         String fixtureId = requiredText(record, "fixture_id");
+        if (record.has("stack_state") && record.get("stack_state").isJsonArray()
+                && !record.getAsJsonArray("stack_state").isEmpty()) {
+            throw new CausalException("CAUSED_PERMANENT_WITH_REQUESTED_STACK",
+                    fixtureId + ": resolving the caused casts would resolve the requested stack");
+        }
         Map<String, JsonObject> objects = new LinkedHashMap<>();
+        // Every recorded controller, read once before any rewrite.
+        Map<String, String> recordedControllers = new LinkedHashMap<>();
         for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
             JsonObject object = element.getAsJsonObject();
-            objects.put(requiredText(object, "semantic_id"), object);
+            String id = requiredText(object, "semantic_id");
+            objects.put(id, object);
+            if (object.has("controller") && !object.get("controller").isJsonNull()) {
+                recordedControllers.put(id, object.get("controller").getAsString());
+            }
         }
-        if (!record.has("stack_state") || !record.get("stack_state").isJsonArray()) {
-            record.add("stack_state", new JsonArray());
-        }
+        record.add("stack_state", new JsonArray());
+        Set<String> causedTargets = new LinkedHashSet<>();
         List<CausedPermanent> caused = new ArrayList<>();
         Set<String> seen = new LinkedHashSet<>();
         for (String semanticId : causedIds) {
@@ -346,18 +365,27 @@ final class XmageMidgameCausalBridge {
                 throw new CausalException("CAUSED_PERMANENT_CONTROL_DIVERGENT",
                         fixtureId + " " + semanticId);
             }
-            if (!object.has("attached_to") || object.get("attached_to").isJsonNull()) {
+            if (!object.has("attached_to") || !object.get("attached_to").isJsonPrimitive()
+                    || !object.get("attached_to").getAsJsonPrimitive().isString()) {
                 throw new CausalException("CAUSED_PERMANENT_NOT_ATTACHED",
                         fixtureId + " " + semanticId + ": only an attached Aura is caused here");
             }
             String target = object.get("attached_to").getAsString();
+            if (!causedTargets.add(target)) {
+                throw new CausalException("CAUSED_PERMANENT_SHARED_TARGET",
+                        fixtureId + " " + target + " is the target of two caused permanents");
+            }
             JsonObject attached = objects.get(target);
             if (attached == null || !"battlefield".equals(requiredText(attached, "zone"))) {
                 throw new CausalException("CAUSED_PERMANENT_TARGET_UNBOUND",
                         fixtureId + " " + semanticId + " -> " + target);
             }
             String attachedOwner = requiredText(attached, "owner");
-            String attachedController = requiredText(attached, "controller");
+            String attachedController = recordedControllers.get(target);
+            if (attachedController == null) {
+                throw new CausalException("CAUSED_PERMANENT_TARGET_UNCONTROLLED",
+                        fixtureId + " " + target);
+            }
             if (!attachedOwner.equals(attachedController)) {
                 attached.addProperty("controller", attachedOwner);
             }
@@ -389,9 +417,29 @@ final class XmageMidgameCausalBridge {
             XmageFullGameSession session,
             Map<String, Player> seats,
             XmageNativeStateRestoration restoration,
-            List<CausedPermanent> caused) {
+            List<CausedPermanent> caused,
+            XmageNativeStateRestoration.Plan checkpoint,
+            String requestedPriorityPlayer) {
         List<String> failures = new ArrayList<>();
         Game game = session.restorationGame();
+        // The cause must land on the record's own checkpoint: the same turn,
+        // phase, step, active player and priority player. A cast that only
+        // became possible later (a different turn) is not this checkpoint.
+        String active = game.getState().getActivePlayerId() == null
+                ? null : pidOf(seats, game.getState().getActivePlayerId().toString());
+        String priority = game.getState().getPriorityPlayerId() == null
+                ? null : pidOf(seats, game.getState().getPriorityPlayerId().toString());
+        if (game.getTurnNum() != checkpoint.turnNumber()
+                || game.getTurnPhaseType() != checkpoint.phase()
+                || game.getTurnStepType() != checkpoint.step()
+                || !checkpoint.activePlayer().equals(active)
+                || !requestedPriorityPlayer.equals(priority)) {
+            failures.add("CAUSED_CHECKPOINT_MISMATCH: expected turn=" + checkpoint.turnNumber()
+                    + " " + checkpoint.phase() + "/" + checkpoint.step()
+                    + " active=" + checkpoint.activePlayer() + " priority=" + requestedPriorityPlayer
+                    + "; engine turn=" + game.getTurnNum() + " " + game.getTurnPhaseType() + "/"
+                    + game.getTurnStepType() + " active=" + active + " priority=" + priority);
+        }
         for (CausedPermanent permanent : caused) {
             UUID id;
             UUID targetId;
