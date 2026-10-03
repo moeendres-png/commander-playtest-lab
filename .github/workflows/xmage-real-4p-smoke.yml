@@ -14,6 +14,7 @@ on:
       - "src/commander_lab/engine/rules/project.py"
       - "scripts/run_real_4p_full_game_smoke.py"
       - "tests/unit/test_real_4p_full_game_smoke.py"
+      - "tests/unit/test_real_4p_progress_contract.py"
       - "tests/unit/test_rules_project_loader.py"
       - "data/decks/rogshai_current.json"
       - "data/decks/opponents/kaervek/current/deck.json"
@@ -138,7 +139,10 @@ jobs:
         run: mvn -B -ntp -DskipTests package
 
       - name: Run bounded real 4P technical smoke
-        run: python scripts/run_real_4p_full_game_smoke.py --smoke-decisions 40
+        # B8 (#489): play two full turns twice with the same seed; the decision
+        # count is only a cap. smoke_progress_contract must hold and both runs
+        # must produce the same public progress digest.
+        run: python scripts/run_real_4p_full_game_smoke.py --progress-turns 2 --smoke-decisions 3000
 
       - name: Verify evidence boundary
         run: |
@@ -159,6 +163,14 @@ jobs:
           assert report["actual_card_behavior_coverage_claim"] is False
           assert report["canonical_data_mutated"] is False
           assert report["clean_shutdown"] is True
+          contract = report["progress_contract"]
+          assert contract["met"] is True, contract["violations"]
+          assert contract["through_turn"] == 2
+          assert contract["turns_observed"][-1] >= 2
+          assert contract["priority_seats"] == [0, 1, 2, 3]
+          assert len(contract["priority_turns"]) >= 2
+          assert report["twin_runs"] == 2
+          assert report["twin_progress_digest_match"] is True
           PY
 
       # Preflight writes REAL_4P_PREFLIGHT.json. This unconditional upload

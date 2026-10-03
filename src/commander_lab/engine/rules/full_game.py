@@ -259,6 +259,11 @@ class FullGameSmokeResult(_StrictModel):
     seed_preserved: Literal[True]
     player_count_preserved: Literal[True]
     observed_decision_classes: tuple[str, ...]
+    # B8 (#489): the public progress trace of the answered decisions, one
+    # (decision_class, seat, turn_number, phase) entry each, and its digest.
+    # Empty when the caller did not ask for progress.
+    progress_trace: tuple[tuple[str, int | None, int | None, str | None], ...] = ()
+    progress_digest: str | None = None
     unsupported_callback_seen: Literal[False] = False
     clean_shutdown: Literal[True] = True
     evidence_class: Literal["technical_conformance_only"] = FULL_GAME_EVIDENCE_CLASS
@@ -266,6 +271,45 @@ class FullGameSmokeResult(_StrictModel):
     holdout_consumed: Literal[False] = False
     official_campaign_eligible: Literal[False] = False
     fallback_used: Literal[False] = False
+
+
+def smoke_progress_contract(
+    trace: tuple[tuple[str, int | None, int | None, str | None], ...],
+    *,
+    player_count: int,
+    through_turn: int,
+) -> dict[str, Any]:
+    """B8 (#489): meaningful post-start progress of a bounded smoke.
+
+    A smoke that only answers mulligans and a few opening passes proves that a
+    game starts, not that it progresses. The contract requires, from the public
+    trace alone, that the game reached ``through_turn``, that priority was
+    answered in at least two distinct turns, and that every seat answered a
+    priority decision. It is technical conformance only: no card behaviour is
+    claimed.
+    """
+    turns = sorted({turn for _cls, _seat, turn, _phase in trace if isinstance(turn, int)})
+    priority = [(seat, turn) for cls, seat, turn, _phase in trace if cls == "priority"]
+    priority_turns = sorted({turn for _seat, turn in priority if isinstance(turn, int)})
+    priority_seats = sorted({seat for seat, _turn in priority if isinstance(seat, int)})
+    violations = []
+    if not turns or turns[-1] < through_turn:
+        violations.append(f"game did not reach turn {through_turn} (turns {turns})")
+    if len(priority_turns) < 2:
+        violations.append(f"priority answered in fewer than two turns ({priority_turns})")
+    if priority_seats != list(range(player_count)):
+        violations.append(f"not every seat answered priority (seats {priority_seats})")
+    if any(seat is None for _cls, seat, _turn, _phase in trace):
+        violations.append("a decision carried no seat")
+    return {
+        "through_turn": through_turn,
+        "turns_observed": turns,
+        "priority_turns": priority_turns,
+        "priority_seats": priority_seats,
+        "decisions": len(trace),
+        "violations": violations,
+        "met": not violations,
+    }
 
 
 class FullGameSemanticTapeEvidence(_StrictModel):
@@ -2067,6 +2111,7 @@ class XmageFullGameRunner:
         decks: tuple[RulesDeckInput, ...],
         pilots: tuple[FullGamePilotBinding, ...],
         smoke_decision_target: int = 25,
+        stop_at_turn: int | None = None,
     ) -> FullGameSmokeResult:
         """Drive a bounded live lifecycle smoke for one supported cardinality.
 
@@ -2094,8 +2139,13 @@ class XmageFullGameRunner:
         )
         with client:
             provider = self._open_game(client, scenario, decks)
+            progress: list[tuple[str, int | None, int | None, str | None]] = []
             decision_count, observed, terminal = self._drive(
-                client, policy, stop_after=smoke_decision_target
+                client,
+                policy,
+                stop_after=smoke_decision_target,
+                stop_at_turn=stop_at_turn,
+                progress=progress,
             )
         # P1 shutdown evidence: a bounded smoke PASS must rest on observed
         # graceful shutdown, never on a suppressed kill/timeout. Anything
@@ -2125,6 +2175,10 @@ class XmageFullGameRunner:
             seed_preserved=True,
             player_count_preserved=True,
             observed_decision_classes=tuple(observed),
+            progress_trace=tuple(progress),
+            progress_digest=hashlib.sha256(
+                json.dumps(progress, separators=(",", ":")).encode("utf-8")
+            ).hexdigest(),
         )
 
     def _validated_policy(
@@ -2195,8 +2249,14 @@ class XmageFullGameRunner:
         policy: ExternalPilotDecisionPolicy,
         *,
         stop_after: int | None,
+        stop_at_turn: int | None = None,
+        progress: list[tuple[str, int | None, int | None, str | None]] | None = None,
     ) -> tuple[int, list[str], bool]:
         """Drive authoritative decisions until terminal (or ``stop_after`` answers).
+
+        With ``stop_at_turn`` the drive also stops before answering the first
+        decision of that turn. ``progress`` collects each answered decision's
+        public (decision_class, seat, turn_number, phase).
 
         Returns ``(decision_count, observed_decision_classes, terminal)``.
         Shared verbatim by :meth:`run` (``stop_after=None``) and
@@ -2222,8 +2282,23 @@ class XmageFullGameRunner:
                         f"full-game exceeded max_decisions={self.max_decisions}"
                     )
                 decision_class = decision.get("decision_class")
+                pilot_state = decision.get("pilot_state")
+                turn = pilot_state.get("turn_number") if isinstance(pilot_state, dict) else None
+                if stop_at_turn is not None and isinstance(turn, int) and turn >= stop_at_turn:
+                    return decision_count - 1, observed, False
                 if isinstance(decision_class, str) and decision_class not in observed:
                     observed.append(decision_class)
+                if progress is not None:
+                    seat = decision.get("seat")
+                    phase = pilot_state.get("phase") if isinstance(pilot_state, dict) else None
+                    progress.append(
+                        (
+                            str(decision_class),
+                            seat if isinstance(seat, int) else None,
+                            turn if isinstance(turn, int) else None,
+                            phase if isinstance(phase, str) else None,
+                        )
+                    )
                 audit = self._hidden_audit
                 if audit is not None:
                     rows, visible, violations = audit_actor_scoped_frame(decision)
