@@ -104,6 +104,8 @@ class TerminalCheck:
             )
         if self.kind == "hand_count_min":
             return f"{self.principal} holds at least {self.value} cards"
+        if self.kind == "hand_count":
+            return f"{self.principal} holds exactly {self.value} cards"
         if self.kind == "not_on_battlefield":
             return f"no {self.card_identity} is on {self.principal}'s battlefield"
         if self.kind == "power_toughness":
@@ -121,6 +123,34 @@ class TerminalCheck:
             )
         if self.kind == "keyword":
             return f"every {self.card_identity} on {self.principal}'s battlefield has {self.value}"
+        if self.kind == "triggered_ability":
+            trigger, effect = self.value
+            return (
+                f"every {self.card_identity} on {self.principal}'s battlefield has an "
+                f"engine {trigger} triggered ability with a {effect}"
+            )
+        if self.kind == "battlefield_exact":
+            return (
+                f"{self.principal}'s battlefield is exactly {sorted(self.value)} "
+                "(by card identity, as a multiset)"
+            )
+        if self.kind == "graveyard_mana_value":
+            return (
+                f"{self.card_identity} in {self.principal}'s graveyard has mana value {self.value}"
+            )
+        if self.kind == "frame_offers":
+            decision_class, count = self.value
+            return (
+                f"a scripted {decision_class} frame about {self.label!r} offered exactly "
+                f"{count} option(s)"
+            )
+        if self.kind == "selected_sequence":
+            return (
+                f"the scripted {self.value[0]} frames about {self.label!r} selected "
+                f"{list(self.value[1])} in that order"
+            )
+        if self.kind == "token_count":
+            return f"exactly {self.value} {self.card_identity} tokens are on {self.principal}'s battlefield"
         if self.kind == "life":
             return f"{self.principal} is at {self.value} life"
         if self.kind == "trigger_count":
@@ -148,6 +178,23 @@ class TerminalCheck:
         if self.kind == "assignment_minimum":
             return f"every engine-accepted amount assignment is at least {self.value}"
         return self.kind
+
+
+@dataclass(frozen=True)
+class VocabularyToken:
+    """A record token observed exactly as one engine-verified vocabulary token.
+
+    Record tokens are free text; some name a fact the generic vocabulary
+    already verifies against the engine (e.g. ``total_cost_determined`` is the
+    engine's own payment frame, which ``cost_determined:base_plus_N_generic``
+    verifies). The binding states that equivalence per fixture; the named
+    token is then verified by the generic vocabulary, never by the free text.
+    """
+
+    token: str
+
+    def describe(self) -> str:
+        return f"engine-verified {self.token}"
 
 
 @dataclass(frozen=True)
@@ -180,7 +227,9 @@ class RowSpec:
     # binding states, per fixture, which engine event pattern, decision frame or
     # engine-observed state the token names. An unbound token the generic
     # vocabulary does not understand stays unobserved.
-    token_bindings: tuple[tuple[str, TerminalCheck | tuple[TerminalCheck, ...]], ...] = ()
+    token_bindings: tuple[
+        tuple[str, TerminalCheck | tuple[TerminalCheck, ...] | VocabularyToken], ...
+    ] = ()
 
 
 # The record's decision family and the engine's decision class name the same
@@ -392,8 +441,23 @@ class RowExecution:
     tape: list[dict[str, Any]] = field(default_factory=list)
     # Explicit typed refusals this row performed, with their no-mutation proofs.
     refusals: list[dict[str, Any]] = field(default_factory=list)
+    # A causal-stack entry's own facts: the engine-cast frames and the engine's
+    # checkpoint-equivalence verdict. Absent for a placement row.
+    causal_reconstruction: dict[str, Any] | None = None
+    # Every scripted step was answered on an engine frame. Only a row that ran
+    # its whole script can demonstrate that the engine's end state contradicts
+    # the obligation; an unfinished script proves nothing either way.
+    script_consumed: bool | None = None
 
     def document(self) -> dict[str, Any]:
+        document = self._base_document()
+        if self.causal_reconstruction is not None:
+            document["causal_reconstruction"] = self.causal_reconstruction
+        if self.script_consumed is not None:
+            document["script_consumed"] = self.script_consumed
+        return document
+
+    def _base_document(self) -> dict[str, Any]:
         return {
             "fixture_id": self.fixture_id,
             "verified": self.verified,
@@ -661,6 +725,8 @@ def verify_token(
         return _verify_amount_assignment(declared, trace)
     if match := re.fullmatch(r"cost_determined:base_plus_(\d+)_generic", token):
         return _verify_cost_determined(int(match.group(1)), trace, cost_obligation)
+    if match := re.fullmatch(r"cost_determined:base_minus_(\d+)_generic", token):
+        return _verify_cost_determined(-int(match.group(1)), trace, cost_obligation)
     return None
 
 
@@ -799,7 +865,7 @@ def _verify_cost_determined(
         return None
     expected = dict(base)
     expected["generic"] += increase
-    if determined != expected:
+    if expected["generic"] < 0 or determined != expected:
         return None
     charged = _mana_charged(payments)
     if charged is None or len(charged) != _mana_total(determined):
@@ -979,9 +1045,45 @@ def check_terminal(
             and f"spend {str(check.value).lower()} mana" in str(frame.selected_label or "").lower()
             for frame in trace
         )
+    if check.kind == "battlefield_exact":
+        identities = sorted(
+            str(card.get("card_identity")) for card in seat.get("battlefield") or ()
+        )
+        return bool(seat) and identities == sorted(check.value)
+    if check.kind == "frame_offers":
+        decision_class, count = check.value
+        return any(
+            frame.decision_class == decision_class
+            and frame.scripted
+            and str(check.label) in frame.prompt
+            and len(frame.offered_labels) == count
+            for frame in trace
+        )
+    if check.kind == "selected_sequence":
+        decision_class, keys = check.value
+        selected = [
+            frame.selected_key
+            for frame in trace
+            if frame.decision_class == decision_class
+            and frame.scripted
+            and str(check.label) in frame.prompt
+        ]
+        return bool(selected) and selected == list(keys)
+    if check.kind == "graveyard_mana_value":
+        values = seat.get("graveyard_mana_values") or {}
+        value = values.get(check.card_identity)
+        return (
+            check.card_identity in (seat.get("graveyard") or ())
+            and isinstance(value, int)
+            and not isinstance(value, bool)
+            and value == check.value
+        )
     if check.kind == "hand_count_min":
         count = seat.get("hand_count")
         return isinstance(count, int) and count >= check.value
+    if check.kind == "hand_count":
+        count = seat.get("hand_count")
+        return isinstance(count, int) and not isinstance(count, bool) and count == check.value
     cards = [
         card
         for card in seat.get("battlefield") or ()
@@ -1004,6 +1106,25 @@ def check_terminal(
         )
     if check.kind == "keyword":
         return bool(cards) and all(check.value in (card.get("keywords") or ()) for card in cards)
+    if check.kind == "token_count":
+        # Every permanent of the identity counts, and each must be an engine
+        # token: a card of the same name can never stand in for one.
+        return (
+            bool(seat)
+            and len(cards) == check.value
+            and all(card.get("token") is True for card in cards)
+        )
+    if check.kind == "triggered_ability":
+        # The engine's own triggered-ability and effect classes, never the
+        # rules text: the text is reported for reading only.
+        trigger, effect = check.value
+        return bool(cards) and all(
+            any(
+                ability.get("trigger") == trigger and effect in (ability.get("effects") or ())
+                for ability in card.get("triggered_abilities") or ()
+            )
+            for card in cards
+        )
     if check.kind == "colors":
         return bool(cards) and all(
             sorted(card.get("colors") or ()) == sorted(check.value) for card in cards
@@ -1218,6 +1339,60 @@ def _pending_cost_choices(step: dict[str, Any]) -> list[tuple[str, str]]:
 _COLOR_NAMES = {"W": "white", "U": "blue", "B": "black", "R": "red", "G": "green"}
 
 
+def _pending_delve(step: dict[str, Any], placed: dict[str, str]) -> list[str]:
+    """The native graveyard objects a scripted cast names to delve, in order."""
+    value = (step.get("selection") or {}).get("semantic_value") or {}
+    wanted = [str(item) for item in value.get("delve_objects") or ()]
+    natives = [placed.get(item) for item in wanted]
+    if any(native is None for native in natives):
+        raise ml.MidgameLaneError(f"a delve object of {wanted} was not placed")
+    return [str(native) for native in natives]
+
+
+def _delve_offer(legal: dict[str, Any]) -> dict[str, Any]:
+    """The engine's own delve special action on its payment frame, or fail closed."""
+    matches = [
+        action for action in legal.get("actions") or () if "delve" in _label_of(action).lower()
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(f"delve matched {len(matches)} engine payment offers")
+    offer: dict[str, Any] = matches[0]
+    return offer
+
+
+def _delve_card_answer(legal: dict[str, Any], native: str) -> dict[str, Any]:
+    """The engine's offer of the exact graveyard card the record delves next.
+
+    The card is named by the engine's own object identity; a frame that does
+    not offer it exactly once, or that is not the delve source's own
+    graveyard choice, fails closed.
+    """
+    matches = []
+    for action in legal.get("actions") or ():
+        metadata = action.get("metadata") or {}
+        engine = metadata.get("xmage_option_metadata") or {}
+        source = metadata.get("source_object") or {}
+        if (
+            engine.get("object_id") == native
+            and engine.get("zone") == "graveyard"
+            and source.get("ability_type") == "special_mana_payment"
+        ):
+            matches.append(action)
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(f"the delve card {native} matched {len(matches)} engine offers")
+    card: dict[str, Any] = matches[0]
+    return card
+
+
+def _offers_cost(legal: dict[str, Any], kind: str, wanted: str, placed: dict[str, str]) -> bool:
+    """Whether this engine frame offers the owed cost choice at all."""
+    try:
+        _cost_choice_answer(legal, kind, wanted, placed)
+    except ml.MidgameLaneError:
+        return False
+    return True
+
+
 def _cost_choice_answer(
     legal: dict[str, Any], kind: str, wanted: str, placed: dict[str, str]
 ) -> dict[str, Any]:
@@ -1298,6 +1473,91 @@ def _single_option_id(action: dict[str, Any]) -> tuple[str, ...]:
     return (option_id,) if option_id else ()
 
 
+LIBRARY_POSITION_PREFIX = "library-position:"
+
+
+def library_positions(record: dict[str, Any], placed: dict[str, str]) -> dict[str, str]:
+    """The record's library objects, keyed for ``_semantic_offers``.
+
+    Each library object the restoration did not report a native id for is
+    named by its checkpoint position and card identity. Valid while the
+    library is unchanged since the checkpoint; a moved card no longer matches
+    its position and identity, and the selection fails closed.
+    """
+    keyed: dict[str, str] = {}
+    for obj in record.get("semantic_objects") or ():
+        semantic = str(obj.get("semantic_id") or "")
+        position = obj.get("zone_position")
+        if (
+            obj.get("zone") != "library"
+            or semantic in placed
+            or not isinstance(position, int)
+            or isinstance(position, bool)
+        ):
+            continue
+        keyed[semantic] = f"{LIBRARY_POSITION_PREFIX}{position}:{obj.get('card_identity')}"
+    return keyed
+
+
+def _library_changed(tape: list[dict[str, Any]]) -> bool:
+    """Whether any library has changed since the checkpoint, per the engine's tape."""
+    return any(
+        event.get("from") == "LIBRARY"
+        or event.get("to") == "LIBRARY"
+        or "SHUFFLE" in str(event.get("type") or "")
+        for event in tape
+    )
+
+
+def _bind_library_objects(
+    legal: dict[str, Any], unresolved: dict[str, str], tape: list[dict[str, Any]]
+) -> dict[str, str]:
+    """Bind library objects to the engine's own object ids at first sight.
+
+    The first frame that offers library cards, while the engine's tape shows
+    no library change since the checkpoint, still shows the checkpoint
+    positions: each requested object offered exactly once at its position with
+    its identity is bound to that offer's engine object id, which then names it
+    for the rest of the row however the library moves. After any library
+    change nothing is bound, and an unbound object's selection fails closed.
+    """
+    offers = [
+        meta
+        for action in legal.get("actions") or ()
+        if (meta := ((action.get("metadata") or {}).get("xmage_option_metadata") or {})).get("zone")
+        == "library"
+    ]
+    if not offers or _library_changed(tape):
+        return {}
+    bound: dict[str, str] = {}
+    for semantic, key in unresolved.items():
+        position, name = _library_position(key)
+        hits = [
+            meta
+            for meta in offers
+            if meta.get("zone_index") == position and meta.get("name") == name
+        ]
+        if len(hits) == 1 and hits[0].get("object_id"):
+            bound[semantic] = str(hits[0]["object_id"])
+    return bound
+
+
+def _next_frame_continues(client: Any, decision_class: str, principal: str | None) -> bool:
+    """Whether the engine's next pending decision is the same class for the same principal."""
+    decision = client.pending_decision(attempts=5)
+    if decision is None:
+        return False
+    if str(decision.get("decision_class")) != decision_class:
+        return False
+    legal = probe_module().legal_actions(client)
+    return bool(probe_module().decision_principal(decision, legal) == principal)
+
+
+def _library_position(key: str) -> tuple[int, str]:
+    position, _, name = key[len(LIBRARY_POSITION_PREFIX) :].partition(":")
+    return int(position), name
+
+
 def _semantic_offers(
     key: str, actions: list[dict[str, Any]], placed: dict[str, str]
 ) -> list[dict[str, Any]]:
@@ -1310,6 +1570,21 @@ def _semantic_offers(
     or ordering: only the engine's offered option metadata is read.
     """
     native = placed.get(key)
+    if native is not None and native.startswith(LIBRARY_POSITION_PREFIX):
+        # A library object: the lane reports no hidden object's native id, so it
+        # is named by the record's checkpoint position and identity, both of
+        # which the engine's own offer to the looking player carries.
+        position, name = _library_position(native)
+        return [
+            action
+            for action in actions
+            if (meta := ((action.get("metadata") or {}).get("xmage_option_metadata") or {})).get(
+                "zone"
+            )
+            == "library"
+            and meta.get("zone_index") == position
+            and meta.get("name") == name
+        ]
     if native is not None:
         return [
             action
@@ -1486,6 +1761,17 @@ def _scripted_answer(
             for a in actions
             if _option_type(a) == "mode" and bound.lower() in _label_of(a).lower()
         ]
+    elif kind == "boolean":
+        # A yes/no frame: the engine's own boolean offer whose value is the
+        # record's answer; the label is never read.
+        if not isinstance(value, bool):
+            raise ml.MidgameLaneError(f"boolean selector carries {value!r}")
+        matches = [
+            a
+            for a in actions
+            if _option_type(a) == "boolean"
+            and ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("value") is value
+        ]
     elif kind == "integer":
         if not isinstance(value, int) or isinstance(value, bool):
             raise ml.MidgameLaneError(f"integer selector carries {value!r}")
@@ -1498,6 +1784,16 @@ def _scripted_answer(
         if not isinstance(value, list) or ordinal >= len(value):
             raise ml.MidgameLaneError(f"order selector has no entry {ordinal} in {value!r}")
         key = str(value[ordinal])
+        if not key.startswith("trigger:"):
+            # An ordered set of objects (cards put on the bottom of a library in
+            # a chosen order): the ordinal-th frame names the ordinal-th object
+            # by its engine identity.
+            matches = _semantic_offers(key, actions, placed)
+            if len(matches) != 1:
+                raise ml.MidgameLaneError(
+                    f"the ordered object {key!r} matched {len(matches)} engine offers"
+                )
+            return ScriptedAnswer(matches[0], key=key)
         # ``trigger:<source>`` names a source's ability; ``trigger:<source>|<text>``
         # also names a fragment of the ability's own rules text, for a source
         # with several triggered abilities.
@@ -1543,6 +1839,56 @@ def _interchangeable(actions: list[dict[str, Any]]) -> bool:
         for a in actions
     }
     return len(identities) == 1 and None not in next(iter(identities))
+
+
+def _blocker_answer(
+    legal: dict[str, Any],
+    step: dict[str, Any],
+    placed: dict[str, str],
+    placed_by_native: dict[str, str],
+) -> tuple[str | None, dict[str, Any] | None]:
+    """The engine offer the record's blocker assignment names for this blocker.
+
+    XMage asks once per creature able to block, offering exactly the attackers
+    it may legally block (CR 509.1a, 802.4a). The assignment is complete for the
+    defending player: a listed creature blocks its named attacker, every other
+    creature blocks nothing, and the empty selection is answered only on a frame
+    whose own minimum is zero. Returns the blocker's semantic id and the offer
+    (None for no block).
+    """
+    assignment = (step.get("selection") or {}).get("semantic_value") or {}
+    if not isinstance(assignment, dict):
+        raise ml.MidgameLaneError(f"a block assignment is not a mapping: {assignment!r}")
+    actions = list(legal.get("actions") or ())
+    blockers = {
+        str(((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("blocker_id"))
+        for a in actions
+    }
+    if len(blockers) != 1:
+        raise ml.MidgameLaneError(f"a block declaration names {len(blockers)} blockers")
+    semantic = placed_by_native.get(blockers.pop())
+    if semantic not in assignment:
+        bounds = _engine_selection_bounds(legal)
+        if bounds is None or bounds[0] != 0:
+            raise ml.MidgameLaneError(
+                f"{semantic or 'an unplaced creature'} blocks nothing in the record, "
+                f"the engine frame requires {bounds}"
+            )
+        return semantic, None
+    attacker = placed.get(str(assignment[semantic]))
+    matches = [
+        a
+        for a in actions
+        if (a.get("metadata") or {}).get("option_type") == "declare_blocker"
+        and ((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("attacker_id")
+        == attacker
+        and attacker is not None
+    ]
+    if len(matches) != 1:
+        raise ml.MidgameLaneError(
+            f"the block of {assignment[semantic]} by {semantic} matched {len(matches)} engine offers"
+        )
+    return semantic, matches[0]
 
 
 def _attacker_answer(
@@ -1644,12 +1990,50 @@ def _timing_allows(step: dict[str, Any], decision: dict[str, Any]) -> bool:
     return not stack
 
 
+# The check kinds that read the engine's state readback; every other kind reads
+# only the event tape or the decision trace.
+OBSERVATION_KINDS = frozenset(
+    {
+        "life",
+        "commander_prior_casts",
+        "on_battlefield",
+        "tapped",
+        "hand_count_min",
+        "hand_count",
+        "in_graveyard",
+        "not_on_battlefield",
+        "untapped_count",
+        "power_toughness",
+        "counters",
+        "keyword",
+        "colors",
+        "token_count",
+        "triggered_ability",
+        "battlefield_exact",
+        "graveyard_mana_value",
+    }
+)
+
+
+def needs_observation(check: Any) -> bool:
+    """Whether a check (or a bound tuple of checks) reads the engine readback."""
+    if isinstance(check, tuple):
+        return any(needs_observation(part) for part in check)
+    if isinstance(check, VocabularyToken):
+        return False
+    return bool(getattr(check, "kind", None) in OBSERVATION_KINDS)
+
+
 def _terminal_holds(
     client: ml.MidgameLaneClient, spec: RowSpec, tape: list[dict[str, Any]], trace: list[Frame]
 ) -> bool:
     if not spec.terminal_checks:
         return True
-    observation = client.complete_arrival().get("observation") or {}
+    observation = (
+        client.complete_arrival().get("observation") or {}
+        if any(needs_observation(check) for check in spec.terminal_checks)
+        else {}
+    )
     return all(check_terminal(check, observation, tape, trace) for check in spec.terminal_checks)
 
 
@@ -1658,9 +2042,17 @@ def execute_row(
     record: dict[str, Any],
     created: dict[str, Any],
     spec: RowSpec,
+    causal: dict[str, Any] | None = None,
 ) -> RowExecution:
     """Arrive, execute the scripted obligation and verify it. Never raises for a
-    lane-level refusal: an unverifiable row is returned unverified with the reason."""
+    lane-level refusal: an unverifiable row is returned unverified with the reason.
+
+    ``causal`` is a causal-stack entry (its declared fuel): the record's stack is
+    never placed. After the pre-causal arrival the engine casts every stack
+    frame, and the engine's own reconstruction verdict must match the requested
+    stack exactly before the record's script runs. The tape baseline is the
+    reconstructed checkpoint, so only the obligation's own events count.
+    """
     probe = probe_module()
     fixture_id = str(record["fixture_id"])
     if not (record.get("expected_events") or {}).get("required_events") and not (
@@ -1671,6 +2063,12 @@ def execute_row(
             fixture_id, False, None, "the obligation names no required event and no terminal check"
         )
     placed = {str(k): str(v) for k, v in (created.get("placed_objects") or {}).items()}
+    causal_plan = created.get("causal_plan") or {}
+    if causal is not None:
+        placed.update(
+            {str(k): str(v) for k, v in (causal_plan.get("placed_objects") or {}).items()}
+        )
+    placed.update(library_positions(record, placed))
     commanders = {str(k): str(v) for k, v in (created.get("commander_objects") or {}).items()}
     semantic_commanders = {
         str(o["semantic_id"]) for o in record.get("semantic_objects") or () if o.get("commander_id")
@@ -1692,6 +2090,38 @@ def execute_row(
             construction,
             f"construction {construction}: {list(arrival.mismatches)}",
         )
+    reconstruction: dict[str, Any] | None = None
+    if causal is not None:
+        declared_fuel = [str(card["semantic_id"]) for card in causal.get("fuel") or ()]
+        fuel = [placed[semantic] for semantic in declared_fuel if semantic in placed]
+        if len(fuel) != len(declared_fuel):
+            return RowExecution(
+                fixture_id, False, construction, "a declared fuel card was not placed"
+            )
+        try:
+            probe.causal_stack_frames(client, f"{fixture_id}-causal", causal_plan, placed, fuel)
+            verdict = probe.complete_causal(client, "stack").get("verdict") or {}
+        except ml.MidgameLaneError as exc:
+            return RowExecution(
+                fixture_id, False, construction, f"causal reconstruction failed closed: {exc}"
+            )
+        reconstruction = {
+            "entry_mode": "causal_stack",
+            "fuel": declared_fuel,
+            "frames_bottom_to_top": [
+                str(frame.get("semantic_id"))
+                for frame in causal_plan.get("frames_bottom_to_top") or ()
+            ],
+            "verdict": verdict,
+        }
+        if not verdict.get("causal_match") or verdict.get("mismatches"):
+            return RowExecution(
+                fixture_id,
+                False,
+                construction,
+                f"the causal reconstruction does not match the requested stack: {verdict}",
+                causal_reconstruction=reconstruction,
+            )
     baseline = 0 if spec.observe_from_game_start else int(client.events(0)["latest_offset"])
     script = list(record.get("decision_script") or ())
     sources = [placed[s] for s in spec.mana_sources if s in placed]
@@ -1712,19 +2142,43 @@ def execute_row(
     position = 0
     ordinal = 0
     declaring = False
+    blocking = False
+    answered_blockers: set[str] = set()
     placed_by_native = {native: semantic for semantic, native in placed.items()}
+    unresolved_library = {
+        semantic: native
+        for semantic, native in placed.items()
+        if native.startswith(LIBRARY_POSITION_PREFIX)
+    }
     refusals: list[dict[str, Any]] = []
     bindings = dict(spec.token_bindings)
     pending_alternative: str | None = None
     pending_costs: list[tuple[str, str]] = []
+    pending_delve: list[str] = []
+    delving = False
 
     def token_evidence(
         token: str, tape: list[dict[str, Any]], observation: dict[str, Any] | None
     ) -> dict[str, Any] | None:
         check = bindings.get(token)
+        if isinstance(check, VocabularyToken):
+            evidence = verify_token(
+                check.token,
+                tape,
+                trace,
+                semantic_commanders,
+                spec.commander_printed_mana_value,
+                refusals,
+                cost_obligation,
+            )
+            return None if evidence is None else {"binding": check.describe(), **evidence}
         if check is not None:
             if observation is None:
-                observation = client.complete_arrival().get("observation") or {}
+                observation = (
+                    client.complete_arrival().get("observation") or {}
+                    if needs_observation(check)
+                    else {}
+                )
             return bound_token_evidence(check, observation, tape, trace)
         return verify_token(
             token,
@@ -1739,7 +2193,7 @@ def execute_row(
     def observed_all(tape: list[dict[str, Any]]) -> bool:
         observation = (
             client.complete_arrival().get("observation") or {}
-            if any(token in bindings for token in required)
+            if any(token in bindings and needs_observation(bindings[token]) for token in required)
             else None
         )
         return all(token_evidence(t, tape, observation) is not None for t in required)
@@ -1771,10 +2225,28 @@ def execute_row(
                 context=dict(decision.get("context") or {}),
             )
             trace.append(frame)
+            if unresolved_library:
+                bound = _bind_library_objects(legal, unresolved_library, tape)
+                for semantic, native in bound.items():
+                    placed[semantic] = native
+                    placed_by_native[native] = semantic
+                    unresolved_library.pop(semantic)
             step = script[position] if position < len(script) else None
             if declaring and decision_class != "declare_attacker":
                 # The attack declarations are complete: the assignment step is done.
                 declaring = False
+                position += 1
+                step = script[position] if position < len(script) else None
+            if blocking and decision_class != "declare_blocker":
+                # The block declarations are complete. Every creature the record
+                # names as a blocker must have been asked about by the engine.
+                blocking = False
+                assigned = ((step or {}).get("selection") or {}).get("semantic_value") or {}
+                unasked = sorted(set(assigned) - answered_blockers)
+                if unasked:
+                    raise ml.MidgameLaneError(
+                        f"the engine never asked about the record's blockers {unasked}"
+                    )
                 position += 1
                 step = script[position] if position < len(script) else None
             scripted = step is not None and step.get("actor") == principal
@@ -1810,6 +2282,26 @@ def execute_row(
                 probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                 declaring = True
                 continue
+            if (
+                decision_class == "declare_blocker"
+                and scripted
+                and step is not None
+                and step.get("decision_family") == "declare_blocker"
+                and str((step.get("selection") or {}).get("selector_kind")) == "blocker_assignment"
+            ):
+                blocker, block_offer = _blocker_answer(legal, step, placed, placed_by_native)
+                frame.scripted = True
+                if blocker is not None:
+                    answered_blockers.add(blocker)
+                if block_offer is None:
+                    client.submit_options(decision, [])
+                    frame.selected_key = "none"
+                else:
+                    frame.selected_label = _label_of(block_offer)
+                    frame.selected_option_ids = _single_option_id(block_offer)
+                    probe.submit_proposal(client, legal, block_offer, f"{fixture_id}-{len(trace)}")
+                blocking = True
+                continue
             if decision_class == "priority":
                 if (
                     scripted
@@ -1824,6 +2316,7 @@ def execute_row(
                     probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                     pending_alternative = _pending_alternative_cost(step, action)
                     pending_costs = _pending_cost_choices(step)
+                    pending_delve = _pending_delve(step, placed)
                     position += 1
                     continue
                 passed = probe.option_of_type(decision, "pass_priority")
@@ -1831,9 +2324,26 @@ def execute_row(
                     raise ml.MidgameLaneError("the engine offered no pass")
                 client.submit_options(decision, [passed])
                 continue
-            if pending_costs and decision_class in ("choose_object", "target", "choice"):
+            if decision_class == "choice" and pending_alternative is not None:
+                # The engine asks for the cost of the cast the record just made;
+                # the record's own step named the alternative cost to pay. The
+                # cost choice comes first: a sacrifice it requires is asked after.
+                action = _alternative_cost_answer(legal, pending_alternative)
+                frame.selected_label, frame.scripted = _label_of(action), True
+                frame.selected_key = pending_alternative
+                frame.selected_option_ids = _single_option_id(action)
+                probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
+                pending_alternative = None
+                continue
+            if (
+                pending_costs
+                and decision_class in ("choose_object", "target", "choice")
+                and _offers_cost(legal, *pending_costs[0], placed)
+            ):
                 # The engine asks for a cost of the action the record just
-                # took; the record's own step named it.
+                # took; the record's own step named it. A frame that does not
+                # offer the owed cost (the spell's target, asked first) is the
+                # scripted step's own.
                 kind, wanted = pending_costs[0]
                 action = _cost_choice_answer(legal, kind, wanted, placed)
                 frame.selected_label, frame.scripted = _label_of(action), True
@@ -1842,15 +2352,39 @@ def execute_row(
                 probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                 pending_costs = pending_costs[1:]
                 continue
-            if decision_class == "choice" and pending_alternative is not None:
-                # The engine asks for the cost of the cast the record just made;
-                # the record's own step named the alternative cost to pay.
-                action = _alternative_cost_answer(legal, pending_alternative)
+            if (
+                decision_class == "mana_payment"
+                and pending_delve
+                and not delving
+                and _mana_offer(legal, sources) is None
+            ):
+                # The record's cast names the graveyard cards it delves. XMage
+                # offers delve as its own special action on the payment frame,
+                # then asks for one graveyard card per activation. The declared
+                # mana sources pay first: once delve has been activated, XMage
+                # no longer offers the other mana abilities on that payment.
+                delve_offer = _delve_offer(legal)
+                frame.selected_label, frame.scripted = _label_of(delve_offer), True
+                frame.selected_key = "delve"
+                frame.selected_option_ids = _single_option_id(delve_offer)
+                probe.submit_proposal(
+                    client, legal, delve_offer, f"{fixture_id}-delve-{len(trace)}"
+                )
+                delving = True
+                continue
+            if delving:
+                if decision_class != "choose_object":
+                    raise ml.MidgameLaneError(
+                        f"delve was activated but the engine asked {decision_class}, "
+                        "not the graveyard card"
+                    )
+                action = _delve_card_answer(legal, pending_delve[0])
                 frame.selected_label, frame.scripted = _label_of(action), True
-                frame.selected_key = pending_alternative
+                frame.selected_key = f"delve:{placed_by_native.get(pending_delve[0])}"
                 frame.selected_option_ids = _single_option_id(action)
                 probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
-                pending_alternative = None
+                pending_delve = pending_delve[1:]
+                delving = False
                 continue
             if decision_class == "mana_payment":
                 offer = _mana_offer(legal, sources)
@@ -1899,6 +2433,18 @@ def execute_row(
                     # asks again, and the last one goes on the stack by itself.
                     ordinal += 1
                     continue
+                if (
+                    selector_kind == "order"
+                    and isinstance(entries, list)
+                    and ordinal + 1 < len(entries)
+                    and not str(entries[ordinal + 1]).startswith("trigger:")
+                    and _next_frame_continues(client, decision_class, principal)
+                ):
+                    # An ordered object set: the engine asks once per object it
+                    # still needs placed; a last object it places by itself
+                    # ends the step.
+                    ordinal += 1
+                    continue
                 if selector_kind == "amount_assignment":
                     # One engine frame per declared leg: the next frame of this
                     # step answers the next leg; the step is done only when
@@ -1916,7 +2462,30 @@ def execute_row(
     except ml.MidgameLaneError as exc:
         detail = f"execution failed closed: {exc}"
     tape = client.events(baseline)["events"]
-    observation = client.complete_arrival().get("observation") or {}
+    readback_needed = any(needs_observation(check) for check in spec.terminal_checks) or any(
+        needs_observation(bindings[token]) for token in required if token in bindings
+    )
+    try:
+        # The final readback is a pure query of a parked engine: wait until the
+        # engine has parked on its next decision (or ended) before asking.
+        client.pending_decision(attempts=5)
+        observation = client.complete_arrival().get("observation") or {}
+    except ml.MidgameLaneError as exc:
+        if not readback_needed:
+            # Nothing this row verifies reads the readback: the tape and the
+            # decision trace are the whole evidence.
+            observation = {}
+        else:
+            return RowExecution(
+                fixture_id,
+                False,
+                construction,
+                f"{detail}; the final engine readback failed closed: {exc}",
+                decision_trace=[frame.__dict__ for frame in trace],
+                tape=tape,
+                refusals=refusals,
+                causal_reconstruction=reconstruction,
+            )
     evidence: dict[str, Any] = {}
     missing: list[str] = []
     for token in required:
@@ -1946,6 +2515,8 @@ def execute_row(
         decision_trace=[frame.__dict__ for frame in trace],
         tape=tape,
         refusals=refusals,
+        causal_reconstruction=reconstruction,
+        script_consumed=position >= len(script),
     )
 
 

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 
@@ -799,3 +799,210 @@ def test_matrix_refuses_a_pass_without_receipt_eligibility() -> None:
 
 def test_no_surface_has_a_foreign_writer_once_450_and_462_are_merged() -> None:
     assert dict(campaign.DEFAULT_FOREIGN_OWNED_SURFACES) == {}
+
+
+def test_a_vocabulary_binding_and_its_cost_obligation_reach_the_row_spec() -> None:
+    """CARD_03's free-text cost token is bound to the engine-verified cost
+    vocabulary, and the plan's cost declaration reaches the executor's spec; the
+    free text itself never verifies anything."""
+    plan = campaign.plan_for("CARD_03")
+    assert plan is not None
+    bindings = dict(plan.token_bindings)
+    cost = bindings["total_cost_determined"]
+    assert isinstance(cost, midgame_rows_mod.VocabularyToken)
+    assert cost.token == "cost_determined:base_plus_3_generic"
+    record = {"action_cost_state": [], "terminal_postconditions": []}
+    spec = campaign.derive_row_spec(record, plan)
+    assert spec.cost_obligation == ("obj:card03-spell", "{6}{U}{R}", "{9}{U}{R}")
+    document = plan.document()
+    rendered = {item["token"]: item["check"] for item in document["token_bindings"]}
+    assert rendered["total_cost_determined"] == {
+        "vocabulary_token": "cost_determined:base_plus_3_generic"
+    }
+    # A row with no plan carries no cost declaration.
+    assert campaign.derive_row_spec(record, None).cost_obligation is None
+
+
+def test_stack_rows_enter_through_the_declared_causal_stack_route() -> None:
+    """A record that places spells on the stack is never placed with them: it
+    enters through the production probe's declared causal-stack route, whose
+    fuel is declared there; a placement row has no causal entry."""
+    for fixture_id in ("CARD_07", "CARD_10", "CARD_13", "CARD_16", "CARD_20", "CARD_22"):
+        entry = campaign.causal_entry(fixture_id)
+        assert entry is not None and entry["entry_mode"] == "causal_stack"
+        # Rograkh costs {0}: CARD_10's commander spell is the one fuel-free frame.
+        assert entry["fuel"] or fixture_id == "CARD_10", fixture_id
+    assert campaign.causal_entry("CARD_02") is None
+    assert campaign.causal_entry("CARD_26") is None
+
+
+def test_a_causal_reconstruction_is_its_own_receipt_fact() -> None:
+    placement = midgame_rows_mod.RowExecution("CARD_02", True, "EXACT", "ok")
+    assert "causal_reconstruction" not in placement.document()
+    verdict = {"causal_match": True, "mismatches": [], "frames_verified": 1}
+    causal = midgame_rows_mod.RowExecution(
+        "CARD_22",
+        True,
+        "EXACT",
+        "ok",
+        causal_reconstruction={"entry_mode": "causal_stack", "verdict": verdict},
+    )
+    assert causal.document()["causal_reconstruction"]["verdict"] == verdict
+
+
+# --------------------------------------------------------------------------- #
+# Same-epoch producer (PB-03)
+# --------------------------------------------------------------------------- #
+
+
+class _FakeProbe:
+    CAUSAL_ROWS: ClassVar[dict[str, Any]] = {}
+
+    class _Client:
+        engine_artifact: ClassVar[dict[str, str]] = {"kind": "file", "sha256": "e" * 64}
+
+        def __enter__(self) -> _FakeProbe._Client:
+            return self
+
+        def __exit__(self, *exc: object) -> None:
+            return None
+
+    def open_client(self, workspace: Path) -> _FakeProbe._Client:
+        return self._Client()
+
+
+def test_execute_and_persist_receipts_only_direct_passes_and_survives_a_crash(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    receipts_dir = tmp_path / "receipts" / campaign.RECEIPT_SUBDIR
+    receipts_dir.mkdir(parents=True)
+    # A receipt left by an earlier run for a row that no longer verifies.
+    (receipts_dir / "CARD_05.json").write_text("{}", encoding="utf-8")
+
+    def fake_measure(client: Any, row: campaign.CardRow, plan: Any, *, seed: int) -> Any:
+        if row.fixture_id == "CARD_02":
+            raise RuntimeError("bridge process died")
+        return _measurement(row.fixture_id)
+
+    def fake_evaluate(row: campaign.CardRow, measurement: Any, **_: Any) -> dict[str, Any]:
+        passed = row.fixture_id == "CARD_24" and measurement.phase == "EXECUTED"
+        return {
+            "outcome": campaign.OUTCOME_DIRECT_PASS if passed else campaign.OUTCOME_BLOCKED,
+            "blocker_class": None if passed else campaign.BLOCKER_HARNESS_DEFECT,
+            "blocker_detail": None if passed else measurement.phase,
+            "direct_receipt_eligible": passed,
+            "construction_verdict": "EXACT",
+            "postcondition_proofs": [],
+        }
+
+    monkeypatch.setattr(midgame_rows_mod, "probe_module", lambda: _FakeProbe())
+    monkeypatch.setattr(campaign, "measure_row", fake_measure)
+    monkeypatch.setattr(campaign, "evaluate_row", fake_evaluate)
+
+    seen: list[str] = []
+    matrix = campaign.execute_and_persist(
+        workspace=tmp_path,
+        candidate_commit=PIN,
+        runner_digest="d" * 64,
+        receipts_dir=receipts_dir,
+        fixtures=["CARD_24", "CARD_02", "CARD_05"],
+        root=REPO_ROOT,
+        measurements_dir=tmp_path / "measurements",
+        on_row=lambda row, evaluation: seen.append(row.fixture_id),
+    )
+
+    assert seen == ["CARD_24", "CARD_02", "CARD_05"]
+    assert sorted(path.name for path in receipts_dir.iterdir()) == ["CARD_24.json"]
+    receipt = receipt_mod.load_positive_fixture_receipt(receipts_dir / "CARD_24.json")
+    assert receipt["runner_digest"] == "d" * 64
+    assert receipt["candidate_commit"] == PIN
+    crashed = json.loads((tmp_path / "measurements" / "CARD_02.json").read_text())
+    assert crashed["phase"] == "LANE_FAILED"
+    assert "bridge process died" in crashed["runtime_error"]
+    assert matrix["campaign"]["candidate_commit"] == PIN
+    assert matrix["campaign"]["runner_digest"] == "d" * 64
+    assert matrix["campaign"]["receipt_subdir"] == campaign.RECEIPT_SUBDIR
+    assert matrix["summary"]["direct_pass"] == ["CARD_24"]
+    # The rows that were not selected are present and unexecuted, never credited.
+    assert matrix["summary"]["outcomes"][campaign.OUTCOME_UNKNOWN] == campaign.CORPUS_COUNT - 3
+
+
+def test_execute_and_persist_refuses_an_unknown_fixture_before_touching_receipts(
+    tmp_path: Path,
+) -> None:
+    receipts_dir = tmp_path / "receipts"
+    with pytest.raises(campaign.ActualCardCampaignError, match="CARD_99"):
+        campaign.execute_and_persist(
+            workspace=tmp_path,
+            candidate_commit=PIN,
+            runner_digest="d" * 64,
+            receipts_dir=receipts_dir,
+            fixtures=["CARD_99"],
+            root=REPO_ROOT,
+        )
+    assert not receipts_dir.exists()
+
+
+def test_campaign_receipts_never_share_the_full107_receipt_directory() -> None:
+    # CARD_02 is produced by both the midgame denominator lane and the campaign;
+    # one directory would let either producer overwrite the other's evidence.
+    assert campaign.RECEIPT_SUBDIR != receipt_mod.POSITIVE_RECEIPT_SUBDIR
+
+
+# --------------------------------------------------------------------------- #
+# Demonstrated failure
+# --------------------------------------------------------------------------- #
+
+
+def _evaluated_facts(row: campaign.CardRow, *, held: bool) -> dict[str, bool]:
+    plan = campaign.plan_for(row.fixture_id)
+    assert plan is not None
+    return {
+        check.describe(): held
+        for proof in plan.proofs
+        if proof.event_token is None
+        for check in proof.checks
+    }
+
+
+def _executed(row: campaign.CardRow, facts: dict[str, bool], **execution: Any) -> Any:
+    measurement = _measurement(row.fixture_id, verified=False, terminal_facts=facts)
+    assert measurement.execution is not None
+    measurement.execution = {**measurement.execution, "script_consumed": True, **execution}
+    return measurement
+
+
+def test_an_evaluated_contradiction_after_the_whole_script_is_fail() -> None:
+    row = _receipt_row()
+    measurement = _executed(row, _evaluated_facts(row, held=False))
+    evaluation = campaign.evaluate_row(
+        row, measurement, expected_engine_commit=PIN, foreign_owned_surfaces={}
+    )
+    assert evaluation["outcome"] == campaign.OUTCOME_FAIL
+    assert evaluation["blocker_class"] == campaign.BLOCKER_ENGINE_DEFECT
+    assert evaluation["direct_receipt_eligible"] is False
+
+
+@pytest.mark.parametrize(
+    "variant",
+    ["unevaluated_check", "script_unfinished", "missing_token", "foreign_build"],
+)
+def test_an_absence_of_evidence_is_never_fail(variant: str) -> None:
+    row = _receipt_row()
+    facts = _evaluated_facts(row, held=False)
+    execution: dict[str, Any] = {}
+    commit = PIN
+    if variant == "unevaluated_check":
+        facts = {}
+    elif variant == "script_unfinished":
+        execution["script_consumed"] = False
+    elif variant == "missing_token":
+        execution["missing_tokens"] = ["entering_creature_damage:P2:2"]
+    else:
+        commit = "0" * 40
+    measurement = _executed(row, facts, **execution)
+    measurement.engine_commit = commit
+    evaluation = campaign.evaluate_row(
+        row, measurement, expected_engine_commit=PIN, foreign_owned_surfaces={}
+    )
+    assert evaluation["outcome"] != campaign.OUTCOME_FAIL

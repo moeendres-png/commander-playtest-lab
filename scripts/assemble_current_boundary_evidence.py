@@ -21,6 +21,9 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
 from commander_lab.qualification.current_boundary import (  # noqa: E402
+    actual_card_campaign as actual_card_campaign_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
     decision_boundary as decision_boundary_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
@@ -632,6 +635,40 @@ def _load_replay_document(candidate: str) -> dict[str, Any] | None:
     return load(path)
 
 
+def actual_card_campaign_credit(
+    candidate: str, data: dict[str, Any], runner_digest: str
+) -> dict[str, str] | None:
+    """Same-epoch AF07 campaign credit for one fresh column, from receipts only.
+
+    None when this column did not execute in this epoch or the runner produced
+    no campaign document for it: the gate then reports that no campaign credit
+    was supplied. Otherwise every fixture's state is derived from the
+    campaign's receipt subdirectory against the CURRENT effective records, so a
+    receipt whose record digests drifted, or that a different runner or engine
+    commit produced, earns nothing.
+    """
+    if data["column_provenance"]["class"] != "FRESH_CURRENT_BOUNDARY_EXECUTION":
+        return None
+    document_path = OUT / f"ACTUAL_CARD_CAMPAIGN_{candidate.upper()}.json"
+    if not document_path.is_file():
+        return None
+    receipts, rejected = receipt_mod.collect_positive_fixture_receipts(
+        RECEIPT_DIR / actual_card_campaign_mod.RECEIPT_SUBDIR
+    )
+    for reason in rejected:
+        print(f"actual-card campaign receipt rejected: {reason}")
+    corpus = actual_card_campaign_mod.derive_corpus(REPO)
+    return gate_derivations_mod.actual_card_campaign_states(
+        receipts,
+        candidate=candidate,
+        candidate_commit=str(data["results_runtime_identity"].get("engine_candidate_commit", "")),
+        runner_digest=runner_digest,
+        records={row.fixture_id: dict(row.record) for row in corpus.rows},
+        test_identity_prefix=actual_card_campaign_mod.TEST_IDENTITY_PREFIX,
+        campaign_document=load(document_path),
+    )
+
+
 def assemble() -> None:
     # Only an epoch whose recorded producing source is the source assembling
     # right now may be credited. An absent identity means no run produced this
@@ -1078,6 +1115,9 @@ def assemble() -> None:
                     load(OUT / f"ACTUAL_CARD_{candidate.upper()}.json")
                     if (OUT / f"ACTUAL_CARD_{candidate.upper()}.json").is_file()
                     else None
+                ),
+                campaign_states=actual_card_campaign_credit(
+                    candidate, data, assembly_runner_digest
                 ),
             ),
             gate_derivations_mod.af08_multiplayer(candidate, data["rows"], cardinality),

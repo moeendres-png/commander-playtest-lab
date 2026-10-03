@@ -843,12 +843,12 @@ class TestTransportDeadlineAndClassification:
             "errors": [
                 {
                     "code": "midgame_arrival_failed",
-                    "message": "RestorationException: COMMANDER_NOT_IN_COMMAND_ZONE: cmd:P1-A",
+                    "message": "RestorationException: FIRST_TURN_PLACEMENT_MISSED: obj:p1-commander",
                 }
             ],
         }
         monkeypatch.setattr(client, "request", lambda *_args, **_kwargs: refusal)
-        with pytest.raises(ml.MidgameLaneArrivalRejected, match="COMMANDER_NOT_IN_COMMAND_ZONE"):
+        with pytest.raises(ml.MidgameLaneArrivalRejected, match="FIRST_TURN_PLACEMENT_MISSED"):
             client.complete_arrival()
 
 

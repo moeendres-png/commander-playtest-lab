@@ -87,9 +87,20 @@ final class XmagePublicEventWatcher extends Watcher {
         super(WatcherScope.GAME);
     }
 
+    /**
+     * True only while the restoration's first-turn setup places permanents: what
+     * that placement reports is setup, not game history, as it was when the
+     * placement preceded the tape. Always reset within the same engine call.
+     */
+    private boolean muted;
+
+    void mute(boolean value) {
+        muted = value;
+    }
+
     @Override
     public void watch(GameEvent event, Game game) {
-        if (!RECORDED.contains(event.getType())) {
+        if (muted || !RECORDED.contains(event.getType())) {
             return;
         }
         JsonObject record = new JsonObject();

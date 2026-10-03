@@ -22,8 +22,6 @@ import mage.players.Player;
 import mage.watchers.common.CommanderInfoWatcher;
 import mage.watchers.common.CommanderPlaysCountState;
 import mage.watchers.common.CommanderPlaysCountWatcher;
-import mage.watchers.common.PlayerGainedLifeWatcher;
-import mage.watchers.common.PlayerLostLifeWatcher;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -173,8 +171,9 @@ final class XmageNativeStateRestoration {
     /** Requested player fields. */
     /**
      * One requested player. {@code startingLife} is the player's own recorded
-     * starting life: a life total equal to it carries no history and is set
-     * once after game start; any other total must be caused, never set (F-40).
+     * starting life (CR 103.4): setup, set when the first turn begins. The
+     * requested {@code life} is history: it is caused by the arrival and only
+     * compared, never set (F-40).
      */
     record RequestedPlayer(String playerId, int seat, int life, int startingLife) {
         RequestedPlayer(String playerId, int seat, int life) {
@@ -196,8 +195,29 @@ final class XmageNativeStateRestoration {
             PhaseStep step,
             String activePlayer,
             String priorityPlayer,
-            Map<String, Map<String, Integer>> objectCounters
+            Map<String, Map<String, Integer>> objectCounters,
+            Map<String, Boolean> controlledSinceTurnBegan
     ) {
+        /** Backward-compatible constructor for plans with no control-history request. */
+        Plan(
+                String planId,
+                int playerCount,
+                long seed,
+                List<RequestedPlayer> players,
+                List<RequestedCommander> commanders,
+                List<RequestedCommanderDamage> commanderDamage,
+                List<RequestedObject> objects,
+                int turnNumber,
+                TurnPhase phase,
+                PhaseStep step,
+                String activePlayer,
+                String priorityPlayer,
+                Map<String, Map<String, Integer>> objectCounters
+        ) {
+            this(planId, playerCount, seed, players, commanders, commanderDamage, objects,
+                    turnNumber, phase, step, activePlayer, priorityPlayer, objectCounters, Map.of());
+        }
+
         /** Backward-compatible constructor for plans with no requested counters. */
         Plan(
                 String planId,
@@ -254,6 +274,8 @@ final class XmageNativeStateRestoration {
     private boolean arrivalRestored;
     private boolean losslessLibrariesApplied;
     private boolean preStartApplied;
+    /** Restored face-up permanents that enter when the first turn begins (CR 103.6). */
+    private final List<String> firstTurnPlacedSemanticIds = new ArrayList<>();
 
     XmageNativeStateRestoration(Plan plan, Deck materializationVehicle) {
         this(plan, materializationVehicle, XmageLosslessHiddenPlan.EMPTY);
@@ -294,7 +316,7 @@ final class XmageNativeStateRestoration {
     /**
      * Native ids of the commanders requested outside the command zone, keyed by
      * their semantic object id. Bound before the game starts, so a pilot can
-     * match the engine's offers before the post-arrival placement moves them.
+     * match the engine's offers before the first-turn setup moves them.
      */
     Map<String, UUID> commanderObjectIds() {
         return Map.copyOf(commanderObjectIdsBySemanticId);
@@ -458,6 +480,7 @@ final class XmageNativeStateRestoration {
         }
         List<RequestedObject> objects = new ArrayList<>();
         Map<String, Map<String, Integer>> objectCounters = new TreeMap<>();
+        Map<String, Boolean> controlledSinceTurnBegan = new TreeMap<>();
         for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
             JsonObject object = element.getAsJsonObject();
             String semanticId = object.has("semantic_id") && !object.get("semantic_id").isJsonNull()
@@ -491,6 +514,21 @@ final class XmageNativeStateRestoration {
             }
             if (object.has("attachments") && !object.get("attachments").isJsonNull()
                     && !object.getAsJsonArray("attachments").isEmpty()) {
+                throw new RestorationException("UNSUPPORTED_ATTACHMENTS", fixtureId + " " + semanticId);
+            }
+            // Whether a permanent has been under its controller's control since
+            // that player's most recent turn began (CR 302.6) is history the
+            // arrival causes; the request is never set, only verified at the
+            // checkpoint (checkpointPermanentVerification).
+            if (object.has("controlled_since_turn_began")
+                    && !object.get("controlled_since_turn_began").isJsonNull()) {
+                controlledSinceTurnBegan.put(
+                        semanticId, object.get("controlled_since_turn_began").getAsBoolean());
+            }
+            // An attachment is history the Rules Core must cause (an equip
+            // activation, an Aura resolving): this vehicle never places one, so a
+            // requested attachment fails closed instead of being silently dropped.
+            if (object.has("attached_to") && !object.get("attached_to").isJsonNull()) {
                 throw new RestorationException("UNSUPPORTED_ATTACHMENTS", fixtureId + " " + semanticId);
             }
             String zoneName = object.get("zone").getAsString();
@@ -593,7 +631,8 @@ final class XmageNativeStateRestoration {
                 step,
                 temporal.get("active_player").getAsString(),
                 temporal.get("priority_player").getAsString(),
-                Map.copyOf(objectCounters));
+                Map.copyOf(objectCounters),
+                Map.copyOf(controlledSinceTurnBegan));
     }
 
     /**
@@ -608,6 +647,10 @@ final class XmageNativeStateRestoration {
         if (identity == null || !identity.contains(" // ")) {
             return identity;
         }
+        // The repository must be loaded before it is asked: on a fresh runtime
+        // directory (every CI runner) an unloaded repository answers nothing,
+        // and the name would fall through unresolved and be refused later.
+        XmageDeckImporter.ensureRepositoryReady();
         CardInfo whole = CardRepository.instance.findCard(identity.trim(), true);
         if (whole != null && identity.trim().equals(whole.getName())) {
             return identity;
@@ -902,10 +945,16 @@ final class XmageNativeStateRestoration {
     /**
      * Pre-start assembly in the constructing thread (engine not running):
      * silent setup placement via the engine's typed setup primitive (setup
-     * attribution makes owners controllers) and watcher registration.
-     * Commander cast counts, commanders outside the command zone and starting
-     * life are restored post-arrival ({@link #restoreAfterArrival}), once game
-     * start has created the commanders and derived life.
+     * attribution makes owners controllers) and watcher registration. Face-up
+     * permanents are loaded here and enter when the first turn begins, where a
+     * recorded starting life is also set ({@link XmageFirstTurnSetupWatcher}):
+     * the battlefield is empty during the start-of-game procedure (CR 103), so
+     * a restored permanent never observes the vehicle's opening-hand draws or
+     * mulligans.
+     * A commander requested on the battlefield leaves the command zone at the
+     * same first-turn point. Commander cast counts are restored post-arrival
+     * ({@link #restoreAfterArrival}), once game start has created the
+     * commanders.
      */
     synchronized void applyPreStart(
             GameCommanderImpl game, Map<String, Player> playersByPid) {
@@ -919,9 +968,12 @@ final class XmageNativeStateRestoration {
             vehicleByName.computeIfAbsent(card.getName(), name -> new ArrayList<>()).add(card);
         }
         Set<Card> consumed = new HashSet<>();
+        List<UUID> deferredCardIds = new ArrayList<>();
+        List<UUID> deferredOwnerIds = new ArrayList<>();
         for (RequestedPlayer requested : plan.players()) {
             Player player = requirePlayer(playersByPid, requested.playerId());
             List<PutToBattlefieldInfo> battlefield = new ArrayList<>();
+            List<Card> deferred = new ArrayList<>();
             List<Card> hand = new ArrayList<>();
             List<Card> graveyard = new ArrayList<>();
             List<Card> exile = new ArrayList<>();
@@ -935,7 +987,21 @@ final class XmageNativeStateRestoration {
                             "DUPLICATE_SEMANTIC_OBJECT", object.semanticId());
                 }
                 switch (object.zone()) {
-                    case BATTLEFIELD -> battlefield.add(new PutToBattlefieldInfo(card, false));
+                    case BATTLEFIELD -> {
+                        // A face-down object turns face down before game start
+                        // (SLOT-04); a card whose battlefield side is another
+                        // part or face would register new watchers while the
+                        // engine iterates them, so it stays a setup placement.
+                        if (!losslessHidden.declaresFaceDown(object.semanticId())
+                                && XmageFirstTurnSetupWatcher.deferrable(game, card)) {
+                            deferred.add(card);
+                            deferredCardIds.add(card.getId());
+                            deferredOwnerIds.add(player.getId());
+                            firstTurnPlacedSemanticIds.add(object.semanticId());
+                        } else {
+                            battlefield.add(new PutToBattlefieldInfo(card, false));
+                        }
+                    }
                     case HAND -> {
                         hand.add(card);
                         injectedHandIdsByPlayer
@@ -954,13 +1020,50 @@ final class XmageNativeStateRestoration {
             // silently corrupt the restored state.
             game.cheat(player.getId(), List.of(), hand, battlefield, graveyard,
                     List.of(), exile);
+            // Loaded outside the game (watchers registered), placed at turn 1.
+            game.loadCards(new HashSet<>(deferred), player.getId());
             // Life is not set here: game start re-derives it (initLife). See
-            // restoreStartingLife, which runs after arrival (F-40).
+            // XmageFirstTurnSetupWatcher, which sets it when the first turn
+            // begins (F-40).
         }
         // SLOT-04: the typed face-down object turns face down here, before game
         // start and before the public event tape exists, so no observation
         // ever shows it face up.
         losslessHidden.applyPreStart(game, this);
+        List<UUID> lifePlayerIds = new ArrayList<>();
+        List<Integer> startingLives = new ArrayList<>();
+        for (RequestedPlayer requested : plan.players()) {
+            if (requested.startingLife() != game.getStartingLife()) {
+                lifePlayerIds.add(requirePlayer(playersByPid, requested.playerId()).getId());
+                startingLives.add(requested.startingLife());
+            }
+        }
+        // A commander requested on the battlefield leaves the command zone when
+        // the first turn begins, like every other restored permanent.
+        List<UUID> commanderIds = new ArrayList<>();
+        List<UUID> commanderOwnerIds = new ArrayList<>();
+        for (RequestedCommander requested : plan.commanders()) {
+            if (requested.zone() == Zone.BATTLEFIELD) {
+                UUID commanderId = commanderObjectIdsBySemanticId.get(requested.semanticId());
+                Card commander = game.getCard(commanderId);
+                if (commander == null || !XmageFirstTurnSetupWatcher.deferrable(game, commander)) {
+                    // A commander whose battlefield permanent is another face or
+                    // part (a modal double-faced or transforming card) cannot
+                    // enter through the first-turn setup; refused before game
+                    // start rather than half-moved inside the engine's turn.
+                    throw new RestorationException(
+                            "UNSUPPORTED_COMMANDER_FACE", requested.commanderId());
+                }
+                commanderIds.add(commanderId);
+                commanderOwnerIds.add(requirePlayer(playersByPid, requested.owner()).getId());
+                firstTurnPlacedSemanticIds.add(requested.semanticId());
+            }
+        }
+        if (!deferredCardIds.isEmpty() || !commanderIds.isEmpty() || !lifePlayerIds.isEmpty()) {
+            game.getState().addWatcher(new XmageFirstTurnSetupWatcher(
+                    deferredCardIds, deferredOwnerIds, commanderIds, commanderOwnerIds,
+                    lifePlayerIds, startingLives));
+        }
         game.getState().addWatcher(new CommanderPlaysCountWatcher());
         // After placement: the public event tape starts with the game, not the setup.
         game.getState().addWatcher(new XmagePublicEventWatcher());
@@ -989,6 +1092,11 @@ final class XmageNativeStateRestoration {
         // never considered Commander identities.
         Map<String, UUID> liveCommanderIds =
                 bindLiveCommanderIds(game, playersByPid);
+        // Bind the battlefield commanders before any history is restored, so a
+        // binding refusal can never leave a partial restore behind. Their
+        // presence is verified at the checkpoint with every first-turn
+        // placement (requireFirstTurnPlacement).
+        bindCommandersOutsideCommandZone(playersByPid, liveCommanderIds);
 
         CommanderPlaysCountWatcher castWatcher =
                 game.getState().getWatcher(CommanderPlaysCountWatcher.class);
@@ -1046,8 +1154,6 @@ final class XmageNativeStateRestoration {
                     "COMMANDER_HISTORY_REJECTED", String.valueOf(exc.getMessage()));
         }
 
-        placeCommandersOutsideCommandZone(game, playersByPid, liveCommanderIds);
-        restoreStartingLife(game, playersByPid);
         arrivalRestored = true;
         applyLosslessLibrariesAtCheckpoint(game, playersByPid);
     }
@@ -1066,9 +1172,32 @@ final class XmageNativeStateRestoration {
         if (losslessLibrariesApplied || !atRequestedCheckpoint(game)) {
             return;
         }
+        requireFirstTurnPlacement(game);
         losslessHidden.applyAfterArrival(game, playersByPid, this);
         applyCheckpointPermanentState(game);
         losslessLibrariesApplied = true;
+    }
+
+    /**
+     * Every permanent deferred to the first turn, battlefield commanders
+     * included, was put onto the battlefield by the setup watcher when turn 1
+     * began ({@link XmageFirstTurnSetupWatcher}) and is still there at the
+     * checkpoint. One the watcher did not place, or one no longer on the
+     * battlefield, fails closed with FIRST_TURN_PLACEMENT_MISSED; nothing is
+     * placed late.
+     */
+    private void requireFirstTurnPlacement(GameCommanderImpl game) {
+        if (firstTurnPlacedSemanticIds.isEmpty()) {
+            return;
+        }
+        XmageFirstTurnSetupWatcher setup = game.getState().getWatcher(XmageFirstTurnSetupWatcher.class);
+        List<UUID> placed = setup == null ? List.of() : setup.placedIds();
+        for (String semanticId : firstTurnPlacedSemanticIds) {
+            UUID id = injectedObjectId(semanticId);
+            if (!placed.contains(id) || game.getPermanent(id) == null) {
+                throw new RestorationException("FIRST_TURN_PLACEMENT_MISSED", semanticId);
+            }
+        }
     }
 
     /**
@@ -1105,10 +1234,20 @@ final class XmageNativeStateRestoration {
         List<String> mismatches = new ArrayList<>();
         for (RequestedObject object : plan.objects()) {
             Map<String, Integer> counters = plan.objectCounters().getOrDefault(object.semanticId(), Map.of());
-            if (object.zone() != Zone.BATTLEFIELD || (!object.tapped() && counters.isEmpty())) {
+            Boolean sinceTurnBegan = plan.controlledSinceTurnBegan().get(object.semanticId());
+            if (object.zone() != Zone.BATTLEFIELD
+                    || (!object.tapped() && counters.isEmpty() && sinceTurnBegan == null)) {
                 continue;
             }
             Permanent permanent = game.getPermanent(injectedObjectId(object.semanticId()));
+            if (sinceTurnBegan != null) {
+                checks.add("controlled_since_turn_began:" + object.semanticId());
+                boolean observed = permanent != null && permanent.wasControlledFromStartOfControllerTurn();
+                if (observed != sinceTurnBegan) {
+                    mismatches.add("controlled_since_turn_began " + object.semanticId()
+                            + ": requested " + sinceTurnBegan + " observed " + observed);
+                }
+            }
             if (object.tapped()) {
                 checks.add("tapped:" + object.semanticId());
                 if (permanent == null || !permanent.isTapped()) {
@@ -1127,11 +1266,28 @@ final class XmageNativeStateRestoration {
                 }
             }
         }
+        // A commander requested on the battlefield is a permanent of its owner
+        // like any other: its requested control history is verified too.
+        for (RequestedCommander commander : plan.commanders()) {
+            Boolean sinceTurnBegan = commander.zone() == Zone.BATTLEFIELD
+                    ? plan.controlledSinceTurnBegan().get(commander.semanticId()) : null;
+            if (sinceTurnBegan == null) {
+                continue;
+            }
+            checks.add("controlled_since_turn_began:" + commander.semanticId());
+            Permanent permanent = game.getPermanent(injectedObjectId(commander.semanticId()));
+            boolean observed = permanent != null && permanent.wasControlledFromStartOfControllerTurn();
+            if (observed != sinceTurnBegan) {
+                mismatches.add("controlled_since_turn_began " + commander.semanticId()
+                        + ": requested " + sinceTurnBegan + " observed " + observed);
+            }
+        }
         return new XmageLosslessHiddenPlan.Verification(checks, mismatches);
     }
 
     private boolean requestsCheckpointState() {
-        if (!losslessHidden.isEmpty() || !plan.objectCounters().isEmpty()) {
+        if (!losslessHidden.isEmpty() || !plan.objectCounters().isEmpty()
+                || !plan.controlledSinceTurnBegan().isEmpty()) {
             return true;
         }
         return plan.objects().stream().anyMatch(RequestedObject::tapped);
@@ -1144,38 +1300,17 @@ final class XmageNativeStateRestoration {
     }
 
     /**
-     * F-40: a player's recorded starting life other than the table's is set once,
-     * silently, through the engine's own {@code initLife} (the call game start
-     * uses), so no life gain or loss event is fabricated. It is set only while
-     * that player's life is untouched since game start: life the engine already
-     * changed during arrival (a restored start trigger, say) is real history and
-     * is never overwritten. A requested life that differs from the player's
-     * starting life is history too: it must be caused and is only compared.
+     * F-38: a commander requested on the battlefield is the genuine commander. It
+     * leaves the command zone when the first turn begins, as every restored
+     * permanent enters ({@link XmageFirstTurnSetupWatcher}), never as a generic
+     * setup copy, which the engine would not treat as a commander (no commander
+     * zone choice, tax or damage). Here it is only bound: the engine must report
+     * the commander published before game start. That the setup watcher itself
+     * put it onto the battlefield is verified at the checkpoint
+     * ({@link #requireFirstTurnPlacement}), like every first-turn placement.
      */
-    private void restoreStartingLife(GameCommanderImpl game, Map<String, Player> playersByPid) {
-        PlayerLostLifeWatcher lost = game.getState().getWatcher(PlayerLostLifeWatcher.class);
-        PlayerGainedLifeWatcher gained = game.getState().getWatcher(PlayerGainedLifeWatcher.class);
-        for (RequestedPlayer requested : plan.players()) {
-            Player player = requirePlayer(playersByPid, requested.playerId());
-            boolean untouched = player.getLife() == game.getStartingLife()
-                    && (lost == null || lost.getLifeLost(player.getId()) == 0)
-                    && (gained == null || gained.getLifeGained(player.getId()) == 0);
-            if (requested.life() == requested.startingLife() && untouched) {
-                player.initLife(requested.life());
-            }
-        }
-    }
-
-    /**
-     * F-38: a commander requested on the battlefield is the genuine commander, moved
-     * there silently with the same public primitives the rest of the placement uses:
-     * {@code Card.removeFromZone(COMMAND)} (the engine's own command-object removal)
-     * and {@code CardUtil.putCardOntoBattlefieldWithEffects} (no ETB, as for every
-     * restored permanent). A generic setup copy is never used, because the engine
-     * would not treat it as a commander (no commander zone choice, tax or damage).
-     */
-    private void placeCommandersOutsideCommandZone(
-            GameCommanderImpl game, Map<String, Player> playersByPid, Map<String, UUID> liveCommanderIds) {
+    private void bindCommandersOutsideCommandZone(
+            Map<String, Player> playersByPid, Map<String, UUID> liveCommanderIds) {
         for (RequestedCommander requested : plan.commanders()) {
             if (requested.zone() != Zone.BATTLEFIELD) {
                 continue;
@@ -1187,25 +1322,7 @@ final class XmageNativeStateRestoration {
                 throw new RestorationException(
                         "COMMANDER_IDENTITY_AMBIGUOUS", requested.commanderId());
             }
-            Card card = game.getCard(liveId);
-            Player owner = requirePlayer(playersByPid, requested.owner());
-            if (card == null || game.getState().getZone(liveId) != Zone.COMMAND) {
-                throw new RestorationException(
-                        "COMMANDER_NOT_IN_COMMAND_ZONE", requested.commanderId());
-            }
-            Ability placement = new mage.abilities.common.SimpleStaticAbility(
-                    Zone.OUTSIDE, new mage.abilities.effects.common.InfoEffect("restoration placement"));
-            placement.setControllerId(owner.getId());
-            placement.setSourceId(liveId);
-            if (!card.removeFromZone(game, Zone.COMMAND, placement)) {
-                throw new RestorationException(
-                        "COMMANDER_NOT_IN_COMMAND_ZONE", requested.commanderId());
-            }
-            mage.util.CardUtil.putCardOntoBattlefieldWithEffects(placement, game, card, owner, false);
-            if (game.getPermanent(liveId) == null) {
-                throw new RestorationException(
-                        "COMMANDER_PLACEMENT_FAILED", requested.commanderId());
-            }
+            requirePlayer(playersByPid, requested.owner());
             injectedObjectIdsBySemanticId.put(requested.semanticId(), liveId);
         }
     }
@@ -1406,6 +1523,32 @@ final class XmageNativeStateRestoration {
                 if (keywords.size() > 0) {
                     entry.add("keywords", keywords);
                 }
+                // Token-ness and triggered abilities are public permanent
+                // state too. Each triggered ability is reported by the engine's
+                // own ability and effect classes (plus its rules text, for
+                // reading only), so a check binds to what the engine will
+                // trigger rather than to prose. Reported only when present.
+                if (permanent instanceof mage.game.permanent.PermanentToken) {
+                    entry.addProperty("token", true);
+                }
+                JsonArray triggered = new JsonArray();
+                for (Ability ability : permanent.getAbilities(game)) {
+                    if (!(ability instanceof mage.abilities.TriggeredAbility)) {
+                        continue;
+                    }
+                    JsonObject trigger = new JsonObject();
+                    trigger.addProperty("trigger", ability.getClass().getSimpleName());
+                    JsonArray effects = new JsonArray();
+                    for (mage.abilities.effects.Effect effect : ability.getEffects()) {
+                        effects.add(effect.getClass().getSimpleName());
+                    }
+                    trigger.add("effects", effects);
+                    trigger.addProperty("rule", ability.getRule());
+                    triggered.add(trigger);
+                }
+                if (triggered.size() > 0) {
+                    entry.add("triggered_abilities", triggered);
+                }
                 mage.ObjectColor color = permanent.getColor(game);
                 JsonArray colors = new JsonArray();
                 if (color.isWhite()) {
@@ -1436,6 +1579,16 @@ final class XmageNativeStateRestoration {
             }
             sortStrings(graveyard);
             seat.add("graveyard", graveyard);
+            // Each graveyard card's mana value, from the engine's own card
+            // object (a characteristic of the card, CR 202.3). Reported only
+            // when the graveyard is not empty.
+            JsonObject graveyardManaValues = new JsonObject();
+            for (Card card : player.getGraveyard().getCards(game)) {
+                graveyardManaValues.addProperty(card.getName(), card.getManaValue());
+            }
+            if (graveyardManaValues.size() > 0) {
+                seat.add("graveyard_mana_values", graveyardManaValues);
+            }
             JsonArray exile = new JsonArray();
             for (Card card : game.getExile().getCardsOwned(game, player.getId())) {
                 exile.add(card.getName());
@@ -1676,6 +1829,9 @@ final class XmageNativeStateRestoration {
         unsupported.add("legacy/frozen face_down=true without explicit native type: fail closed");
         unsupported.add("revealed-zone restoration");
         unsupported.add("controller/owner divergence (engine layers re-derive control)");
+        unsupported.add("battlefield commanders whose permanent is another face or part "
+                + "(modal double-faced, transforming): refused before game start "
+                + "(UNSUPPORTED_COMMANDER_FACE)");
         unsupported.add("attachments (aura/equipment attachment relations)");
         unsupported.add("counters other than +1/+1 and -1/-1, and counters on commanders or "
                 + "on objects off the battlefield");

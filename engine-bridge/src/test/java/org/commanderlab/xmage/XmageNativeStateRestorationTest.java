@@ -42,7 +42,8 @@ class XmageNativeStateRestorationTest {
             "Rograkh, Son of Rohgahh", List.of("R"),
             "Kediss, Emberclaw Familiar", List.of("R"),
             "Isamaru, Hound of Konda", List.of("W"),
-            "Esika, God of the Tree", List.of("W", "U", "B", "R", "G"));
+            "Esika, God of the Tree", List.of("W", "U", "B", "R", "G"),
+            "Kytheon, Hero of Akros", List.of("W"));
 
     static Path repoRoot() {
         Path candidate = Path.of(System.getProperty("user.dir"));
@@ -808,13 +809,40 @@ class XmageNativeStateRestorationTest {
     }
 
     @Test
+    void aRequestedAttachmentFailsClosedInsteadOfBeingDropped() {
+        // The restoration never places an attachment; before this check it read
+        // no attached_to at all, so the request vanished from a construction
+        // that could still read EXACT.
+        JsonObject attached = commanderOnBattlefieldRecord();
+        JsonObject commander = semanticObject(attached, "obj:cmd-zone-test");
+        JsonObject equipment = commander.deepCopy();
+        equipment.addProperty("semantic_id", "obj:attached-collar");
+        equipment.addProperty("card_identity", "Basilisk Collar");
+        equipment.remove("commander_id");
+        equipment.addProperty("attached_to", "obj:cmd-zone-test");
+        attached.getAsJsonArray("semantic_objects").add(equipment);
+        assertPlanRejected(attached, "UNSUPPORTED_ATTACHMENTS");
+
+        JsonObject unattached = commanderOnBattlefieldRecord();
+        JsonObject loose = semanticObject(unattached, "obj:cmd-zone-test").deepCopy();
+        loose.addProperty("semantic_id", "obj:loose-collar");
+        loose.addProperty("card_identity", "Basilisk Collar");
+        loose.remove("commander_id");
+        loose.add("attached_to", com.google.gson.JsonNull.INSTANCE);
+        unattached.getAsJsonArray("semantic_objects").add(loose);
+        XmageNativeStateRestoration.planFromFrozenRecord(unattached, "ws2-unattached", 424242L);
+    }
+
+    @Test
     void aLifeTotalOtherThanTheStartingLifeIsNeverSet() {
         // F-40: 30 life at a starting life of 40 is history (10 life lost); it
         // must be caused through the engine, so it is compared and never set.
+        // P2's starting life of 20 is setup and is set; its 19 is history again:
+        // nothing in this arrival causes it, so it is compared, not fabricated.
         XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
                 "ws2-life-history", 2, 424242L,
                 List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 30, 40),
-                        new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 20, 20)),
+                        new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 19, 20)),
                 List.of(
                         new XmageNativeStateRestoration.RequestedCommander(
                                 "cmd:P1-A", "Rograkh, Son of Rohgahh", "P1", 0),
@@ -826,8 +854,10 @@ class XmageNativeStateRestorationTest {
         XmageNativeStateRestoration.CompareVerdict verdict =
                 restoreAndCompare("ws2-life-history", plan, new XmageDeckImporter());
         assertFalse(verdict.match());
-        assertEquals(List.of("life P1: requested 30 observed 40"), verdict.mismatches(),
-                "P2's starting life of 20 is restored; P1's lost life is not fabricated");
+        assertEquals(
+                List.of("life P1: requested 30 observed 40", "life P2: requested 19 observed 20"),
+                verdict.mismatches(),
+                "P2's starting life of 20 is restored; neither lost life is fabricated");
     }
 
     @Test

@@ -132,6 +132,82 @@ class XmageCausalStackReconstructionTest {
         assertTrue(e2.getMessage().startsWith("CONTROL_DIVERGENT_STACK_SOURCE"));
     }
 
+    @Test
+    void commanderStackSourceIsPreparedInTheCommandZoneNotInHand() {
+        // A commander spell was cast from the command zone (CR 903.8): its
+        // pre-causal position is the command zone, recorded on the commander.
+        JsonObject record = baseRecord("rg01-commander", 4);
+        for (JsonElement element : record.getAsJsonObject("commander_state")
+                .getAsJsonArray("commanders")) {
+            JsonObject commander = element.getAsJsonObject();
+            commander.addProperty("zone",
+                    "cmd:P2".equals(commander.get("commander_id").getAsString()) ? "stack" : "command");
+        }
+        addObject(record, "obj:p2-cmd", "Rograkh, Son of Rohgahh", "P2", "P2", "stack");
+        lastObject(record).addProperty("commander_id", "cmd:P2");
+        addStackFrame(record, "obj:p2-cmd", "P2", List.of(), List.of());
+
+        XmageCausalStackReconstruction.Prepared prepared =
+                XmageCausalStackReconstruction.prepare(record, "rg01-commander", SEED);
+        XmageNativeStateRestoration.RequestedCommander p2 = prepared.preStackPlan().commanders()
+                .stream()
+                .filter(commander -> "cmd:P2".equals(commander.commanderId()))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(mage.constants.Zone.COMMAND, p2.zone());
+        assertTrue(prepared.preStackPlan().objects().stream()
+                .noneMatch(object -> "obj:p2-cmd".equals(object.semanticId())
+                        && "hand".equalsIgnoreCase(String.valueOf(object.zone()))));
+        assertEquals(List.of("obj:p2-cmd"),
+                prepared.bottomToTop().stream()
+                        .map(XmageCausalStackReconstruction.StackFrame::semanticId).toList());
+    }
+
+    @Test
+    void commanderStackSourceWithoutAStackCommanderIsRefused() {
+        JsonObject record = baseRecord("rg01-commander-unbound", 4);
+        addObject(record, "obj:p2-cmd", "Rograkh, Son of Rohgahh", "P2", "P2", "stack");
+        lastObject(record).addProperty("commander_id", "cmd:P2");
+        addStackFrame(record, "obj:p2-cmd", "P2", List.of(), List.of());
+        XmageCausalStackReconstruction.ReconstructionException error = assertThrows(
+                XmageCausalStackReconstruction.ReconstructionException.class,
+                () -> XmageCausalStackReconstruction.prepare(record, "unbound", SEED));
+        assertTrue(error.getMessage().startsWith("UNBOUND_STACK_COMMANDER"));
+    }
+
+    @Test
+    void causalPreparationCarriesTheRecordsLosslessDeclarations() {
+        // A requested complete checkpoint hand binds the causal entry as it
+        // binds a placement: it is applied and verified, never dropped.
+        JsonObject record = baseRecord("rg01-lossless", 4);
+        addObject(record, "obj:bolt", "Lightning Bolt", "P1", "P1", "stack");
+        addObject(record, "obj:red", "Mountain", "P1", "P1", "battlefield");
+        addStackFrame(record, "obj:bolt", "P1", List.of("P2"), List.of());
+        JsonArray decks = new JsonArray();
+        JsonObject deck = new JsonObject();
+        deck.addProperty("player_id", "P1");
+        JsonObject template = new JsonObject();
+        template.addProperty("card_identity", "Mountain");
+        template.addProperty("count", 99);
+        deck.add("library_template", template);
+        JsonObject hand = new JsonObject();
+        hand.addProperty("completeness", "COMPLETE");
+        hand.addProperty("template_card_identity", "Mountain");
+        hand.addProperty("template_count", 8);
+        deck.add("checkpoint_hand", hand);
+        decks.add(deck);
+        record.add("deck_state", decks);
+
+        XmageCausalStackReconstruction.Prepared prepared =
+                XmageCausalStackReconstruction.prepare(record, "rg01-lossless", SEED);
+        assertTrue(!prepared.restoration().losslessHidden().isEmpty());
+    }
+
+    private static JsonObject lastObject(JsonObject record) {
+        JsonArray objects = record.getAsJsonArray("semantic_objects");
+        return objects.get(objects.size() - 1).getAsJsonObject();
+    }
+
     private static Run reconstruct(
             JsonObject record,
             String tag,
