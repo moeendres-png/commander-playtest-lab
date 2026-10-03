@@ -330,6 +330,11 @@ _COMMANDER_EVENT_FRAMES: dict[str, str] = {
     "hand": "REPLACEMENT_CONFIRM",
 }
 
+# Refusal dimension for a starting-player obligation the record does not script.
+STARTING_PLAYER_UNSCRIPTED = "decision_execution.starting_player.unscripted"
+# The only basis on which a starting-player selection may earn credit.
+STARTING_PLAYER_AUTHORIZED_BASIS = "FIXTURE_DECISION_SCRIPT"
+
 # Dimensions whose *observability* (not construction) is missing from the
 # generic Protocol-2 readback. These do not make construction impossible, but a
 # checkpoint field that cannot be observed cannot prove equivalence.
@@ -933,6 +938,29 @@ def _classify_record_dimensions(
                     "selector_kind": selector_kind,
                     "semantic_value": selector.get("semantic_value"),
                 },
+            )
+        )
+    # A starting-player obligation is decided by a player's choice (CR 103.1).
+    # The lane may select the starter only on an authorized scripted response:
+    # choosing it from the requested end state would satisfy the obligation by
+    # construction (requested-option selection), so without a scripted response
+    # the row is refused rather than executed. No frozen record scripts that
+    # decision family today; closing this needs a contract erratum.
+    required_tokens = (record.get("expected_events") or {}).get("required_events") or []
+    if any(str(token).startswith("starting_player:") for token in required_tokens) and not any(
+        isinstance(entry, dict) and entry.get("decision_family") == "starting_player"
+        for entry in record.get("decision_script") or []
+    ):
+        findings.append(
+            DimensionFinding(
+                dimension=STARTING_PLAYER_UNSCRIPTED,
+                status=DIMENSION_UNSUPPORTED,
+                detail=(
+                    "the obligation names a starting player, but the effective record "
+                    "scripts no starting-player response; the Lab may not choose the "
+                    "starter from the requested state"
+                ),
+                requested={"required_events": [str(t) for t in required_tokens]},
             )
         )
     if record.get("combat_state"):
@@ -2094,6 +2122,13 @@ def evaluate_first_turn_draw(
     ):
         return verdict(False, "no recorded engine-offered starting-player selection of the starter")
     facts["starting_player_basis"] = starting_choice.get("basis")
+    if starting_choice.get("basis") != STARTING_PLAYER_AUTHORIZED_BASIS:
+        return verdict(
+            False,
+            "the starter was selected without contract authority "
+            f"({starting_choice.get('basis')}); only a scripted starting-player response "
+            f"({STARTING_PLAYER_AUTHORIZED_BASIS}) may decide it",
+        )
     turn_one = [snap for snap in progression if snap.get("turn_number") == 1]
     draw_index = next(
         (index for index, snap in enumerate(turn_one) if snap.get("step") == "draw"), None
@@ -2143,8 +2178,8 @@ def evaluate_first_turn_draw(
         True,
         "the engine's counts across the starting player's turn-1 draw step match "
         f"first_turn_draw:{draw_token} for starter {starter}, and no other player's counts "
-        "changed; the starter is the Lab's selection among the engine-offered seats "
-        "(LAB_SELECTED_ENGINE_OFFERED), and the engine started that seat's turn",
+        "changed; the starter was decided by the record's scripted response among the "
+        "engine-offered seats, and the engine started that seat's turn",
     )
 
 

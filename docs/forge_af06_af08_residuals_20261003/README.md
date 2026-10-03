@@ -18,10 +18,15 @@ Most of those rows carried a generic reason ("no current-boundary execution seam
 1. **Exact reasons.** `current_boundary/forge_residuals.py` classifies every in-scope
    row by its first missing mechanism. The runner gives each Forge row that reason and
    keeps its outcome. No row is executed, and nothing is credited, by classification.
-2. **WS05-CMD-START-3 executes.** The Forge scenario lane now observes
-   `starting_player` / `first_turn_draw` from the engine's own counts across the
-   starting player's turn-1 draw step (see below). It earns credit only through the
-   lane's runner-bound receipt in PB-03.
+2. **WS05-CMD-START-3 is not credited: CONTRACT_AUTHORITY_GAP (review P1, adjudicated).**
+   The lane can observe `first_turn_draw` from the engine's own counts, but the
+   starting player is a player's choice (CR 103.1). The effective record scripts no
+   starting-player response, and choosing the starter from the requested end state would
+   satisfy the obligation by construction (requested-option selection). The lane
+   therefore refuses every row whose obligation names a starting player without a
+   scripted `starting_player` decision. The verdict also requires the authorized basis
+   `FIXTURE_DECISION_SCRIPT`; `LAB_SELECTED_ENGINE_OFFERED` earns nothing. Closing the
+   gap needs a Coordinator-adjudicated contract erratum that scripts the decision.
 3. **Six commander zone rows execute causally (#520).** WS05-CMD-ZONE-{GY,EXILE,HAND}-
    {YES,NO} ask for an opponent's spell on the stack aimed at P1's commander. The
    bootstrap cannot place a stack object, so the lane's causal stack route
@@ -68,14 +73,16 @@ An unmapped dimension or token raises instead of defaulting to a class.
 ## Result
 | Class | Rows (of 70) |
 |---|---|
-| `LAB_EXECUTION_GAP` | 40 |
+| `LAB_EXECUTION_GAP` | 39 |
 | `PROVIDER_ADAPTER_GAP` | 17 |
-| `SCENARIO_LANE_EXECUTABLE` | 13 (six already PASS in the baseline epoch, WS05-CMD-START-3, and the six causal commander zone rows) |
+| `SCENARIO_LANE_EXECUTABLE` | 12 (six already PASS in the baseline epoch, and the six causal commander zone rows) |
+| `CONTRACT_AUTHORITY_GAP` | 2 (WS05-CMD-START-2, WS05-CMD-START-3: unscripted starting player) |
 
 The matrix describes the scenario lane only. WS05-CMD-START-2 passes in the baseline on
-the generic lane's own route, and the scenario lane has no contract for its
-`first_turn_draw_step_skipped` token, so it is counted under `LAB_EXECUTION_GAP` here. Its
-receipt, not this matrix, decides its row.
+the generic lane's own route; in the scenario lane it is now a `CONTRACT_AUTHORITY_GAP`
+for the same unscripted starting player. Whether the generic route's starter selection
+(`game_driver.STARTING_PLAYER_POLICY`, default seat `p1`) has contract authority is an
+open impact question for the #441 reassembly; see Findings.
 
 The 17 provider gaps break down as follows:
 - 11 rows need an event log;
@@ -154,8 +161,8 @@ every mechanism of every row; the table shows the first one.
 | WS05-CMD-PARTNER-DMG (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
 | WS05-CMD-PARTNER-TAX | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | WS05-CMD-PARTNER-ZONE (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
-| WS05-CMD-START-2 (PASS in epoch `18f0097373e6`) | LAB_EXECUTION_GAP | observation: `observation_contract` | — |
-| WS05-CMD-START-3 | SCENARIO_LANE_EXECUTABLE | — | — |
+| WS05-CMD-START-2 (PASS in epoch `18f0097373e6`, generic route; authority to re-check) | CONTRACT_AUTHORITY_GAP | execution: `decision_execution.starting_player.unscripted` | — |
+| WS05-CMD-START-3 | CONTRACT_AUTHORITY_GAP | execution: `decision_execution.starting_player.unscripted` | — |
 | WS05-CMD-TAX-2 | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | WS05-CMD-TAX-4 | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | WS05-CMD-ZONE-EXILE-NO | SCENARIO_LANE_EXECUTABLE | — | — |
@@ -196,14 +203,14 @@ snapshot before it against the first one in it), all of these hold:
 Local run against the pinned bridge: P1 7→8 in hand and 92→91 in library; P2 and P3
 unchanged.
 
-**Basis of the starter.** The starting player is not an engine observation. The engine
-picks a chooser (P2 in the local run) and offers it every seat, and the lane answers with
-the record's requested active player (`requested_starting_seat`, an engine-offered option).
-The verdict requires that recorded selection, names its basis
-(`LAB_SELECTED_ENGINE_OFFERED`) and checks only that the engine then started that seat's
-turn. The draw half (CR 103.8) is the engine-observed fact. Whether a selection derived
-from the requested state counts as a scripted response when the record's decision script
-is empty is put to #255 as a flag; the receipt names the basis either way.
+**Basis of the starter (adjudicated: no authority).** The starting player is not an
+engine observation. The engine picks a chooser (P2 in the local run) and offers it every
+seat. Answering with the record's requested active player is requested-option selection,
+because the decision script is empty. So the row is refused (`decision_execution.
+starting_player.unscripted`), and the verdict credits a starter only on the
+`FIXTURE_DECISION_SCRIPT` basis (red control `test_a_lab_selected_starter_earns_no_credit`).
+The draw-count verdict below remains implemented for a future erratum that scripts the
+choice.
 
 Wrong-reason controls, run on the engine locally and as unit tests:
 - the wrong value (`first_turn_draw:false`) is refused;
@@ -218,16 +225,22 @@ In a two-player game Forge offers no priority on both sides of the draw step, an
 check fails closed instead of guessing. WS05-CMD-START-2 passes on its own route.
 
 ## Findings for #255
-1. **Hand comparison.** The Forge lane compares a requested hand by exact equality. The
-   engine's natural turn-1 draw adds a card before a main-phase checkpoint, so every row
-   with an explicit hand (`temporal_checkpoint.exact_hand_after_draw`) is unconstructible
-   on Forge today. XMage uses presence semantics: requested cards present, extra natural
-   cards allowed. A provider-neutral rule would require the requested cards plus the
-   engine-observed draw count. This is Lab work.
-2. **MICRO_CONTINUOUS_EFFECTS** stays construction-dependent. Forge's bootstrap gives P1
+1. **Hand comparison (review P2, adjudicated).** The obligation
+   `temporal_checkpoint.exact_hand_after_draw` is exact, and this workstream has no
+   authority to weaken it. The engine's natural turn-1 draw adds a card the lane can
+   neither control nor prove, so the 17 affected rows stay `LAB_EXECUTION_GAP`. The open
+   mechanism is controlling or proving the drawn card, not presence semantics.
+   **Impact flag for #441:** XMage was reported to compare with presence semantics
+   (requested cards present, extra natural cards allowed). Any XMage credit that rests
+   on that weakened comparison must be impact-adjudicated before reuse.
+2. **Starting player (adjudicated).** A starting-player obligation without a scripted
+   response is a `CONTRACT_AUTHORITY_GAP`. **Impact flag for #441:** WS05-CMD-START-2's
+   baseline PASS on the generic route must be re-checked for the authority of its starter
+   selection (`fixture_scripted_seat`, default `p1`).
+3. **MICRO_CONTINUOUS_EFFECTS** stays construction-dependent. Forge's bootstrap gives P1
    six cards at the checkpoint, so the 1.0.20 obligation's 13/13 P/T is XMage's
    construction. This repeats flag 1 of the #456 comment on #255.
-3. **Event-only obligations**, 11 rows: layers, prevention, replacement, state-based
+4. **Event-only obligations**, 11 rows: layers, prevention, replacement, state-based
    actions, simultaneous triggers, CR 400.7 new objects, coin flips and queued extra
    turns. They cannot be observed on Forge without an engine event stream. That needs a
    separately authorized Forge bridge issue.
