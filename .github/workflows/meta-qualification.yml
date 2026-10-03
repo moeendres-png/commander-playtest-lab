@@ -6,6 +6,11 @@ on:
       - "src/commander_lab/meta_qualification.py"
       - "scripts/run_meta_verification.py"
       - "tests/qualification/test_meta_verification.py"
+      # B7 (#488): the live replay consumer, its tape recording and the bridge it runs.
+      - "scripts/run_live_consumer_mutations.py"
+      - "scripts/run_external_full_game_conformance.py"
+      - "tests/qualification/test_meta_live_consumer.py"
+      - "engine-bridge/src/main/**"
       - "qualification/protocol/meta_verification_v1/**"
       - "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
       - "qualification/SHA256SUMS"
@@ -28,6 +33,11 @@ on:
       - "src/commander_lab/meta_qualification.py"
       - "scripts/run_meta_verification.py"
       - "tests/qualification/test_meta_verification.py"
+      # B7 (#488): the live replay consumer, its tape recording and the bridge it runs.
+      - "scripts/run_live_consumer_mutations.py"
+      - "scripts/run_external_full_game_conformance.py"
+      - "tests/qualification/test_meta_live_consumer.py"
+      - "engine-bridge/src/main/**"
       - "qualification/protocol/meta_verification_v1/**"
       - "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
       - "qualification/SHA256SUMS"
@@ -109,6 +119,31 @@ jobs:
           test
       - name: Generate complete mutation evidence
         run: python scripts/run_meta_verification.py --runtime-hidden-killed
+      - name: Package the engine bridge for the live replay consumer
+        working-directory: engine-bridge
+        run: mvn -B -ntp -DskipTests package
+      - name: Kill replay mutations through the live consumer
+        env:
+          COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game
+        run: python scripts/run_live_consumer_mutations.py
+      - name: Verify the live consumer killed every mutation on the pinned engine
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          report = json.loads(
+              Path("artifacts/meta-verification/LIVE_CONSUMER_MUTATIONS.json").read_text()
+          )
+          assert report["baseline"]["status"] == "PASS", report["baseline"]
+          assert report["engine_commit"] == os.environ["XMAGE_COMMIT"], report["engine_commit"]
+          assert report["attempted"] == 7
+          assert report["killed"] == 7
+          assert report["survived"] == 0
+          assert report["not_run"] == 0
+          assert report["complete"] is True
+          assert all(row["execution_tier"] == "LIVE_REPLAY_CONSUMER" for row in report["results"])
+          PY
       - name: Verify complete fail-closed accounting
         run: |
           python - <<'PY'

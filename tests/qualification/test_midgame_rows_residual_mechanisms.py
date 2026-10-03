@@ -382,6 +382,114 @@ def test_the_elimination_instruments_are_one_bolt_and_one_mountain_each() -> Non
     assert {i["zone"] for i in lands} == {"battlefield"}
 
 
+def test_only_the_declared_composed_entry_routes_a_stack_then_elimination() -> None:
+    entry = mr.causal_stack_elimination_entry("WS05-MP-ELIM-STACK-3")
+    assert entry is not None
+    assert entry["entry_mode"] == mr.probe_module().CAUSAL_STACK_ELIMINATION
+    assert entry["elimination_victim"] == "P2" and entry["fuel"]
+    # The composed row is routed by exactly one entry.
+    assert mr.causal_stack_entry("WS05-MP-ELIM-STACK-3") is None
+    assert mr.causal_elimination_entry("WS05-MP-ELIM-STACK-3") is None
+    assert mr.causal_stack_elimination_entry("WS05-MP-ELIM-OWNED-3") is None
+    assert mr.causal_stack_elimination_entry("WS05-MP-PRIO-3") is None
+
+
+def test_the_control_row_causes_its_aura_through_a_declared_flash_enabler() -> None:
+    entry = mr.causal_stack_elimination_entry("WS05-MP-ELIM-CONTROL-3")
+    assert entry is not None
+    assert entry["caused_permanents"] == ["obj:leave-controlmagic"]
+    cards = {card["card_identity"] for card in entry["fuel"]}
+    assert "Leyline of Anticipation" in cards
+    assert all(card["owner"] == "P2" for card in entry["fuel"])
+    # The elimination row without caused permanents keeps its own entry shape.
+    assert not mr.causal_stack_elimination_entry("WS05-MP-ELIM-STACK-3").get("caused_permanents")
+
+
+class _ResolvingClient:
+    """A lane client whose engine offers the given decisions in turn."""
+
+    def __init__(self, decisions: list[dict[str, Any] | None]) -> None:
+        self.decisions = list(decisions)
+        self.submitted: list[list[str]] = []
+
+    def pending_decision(self) -> dict[str, Any] | None:
+        return self.decisions.pop(0) if self.decisions else None
+
+    def submit_options(self, decision: dict[str, Any], options: list[str]) -> None:
+        self.submitted.append(options)
+
+
+def _priority_decision(stack: list[str] | None) -> dict[str, Any]:
+    decision: dict[str, Any] = {
+        "decision_class": "priority",
+        "legal_options": [{"option_type": "pass_priority", "option_id": "pass"}],
+    }
+    if stack is not None:
+        decision["pilot_state"] = {"stack": stack}
+    return decision
+
+
+def test_resolving_the_stack_only_passes_priority_until_it_is_empty() -> None:
+    probe = mr.probe_module()
+    client = _ResolvingClient(
+        [_priority_decision(["aura"]), _priority_decision(["aura"]), _priority_decision([])]
+    )
+    probe.resolve_stack(client, "t")
+    assert client.submitted == [["pass"], ["pass"]]
+    # Any other decision, a frame without a stack, or the engine going
+    # terminal fails closed instead of being answered.
+    for decisions in (
+        [{"decision_class": "target", "legal_options": []}],
+        [_priority_decision(None)],
+        [None],
+    ):
+        with pytest.raises(probe.ml.MidgameLaneError):
+            probe.resolve_stack(_ResolvingClient(decisions), "t")
+
+
+def test_the_victims_own_cards_are_never_elimination_instruments() -> None:
+    """Instruments are the plan's declared ones, never a placed object by its name."""
+    plan = {
+        "placed_objects": {
+            "obj:leave-bolt": "victim-bolt",
+            "obj:fuel-mountain-p2": "victim-mountain",
+            "obj:elim-bolt-0": "bolt-0",
+            "obj:elim-mountain-0": "mountain-0",
+        },
+        "instruments": [
+            {"card_identity": "Lightning Bolt", "zone": "hand", "native_id": "bolt-0"},
+            {"card_identity": "Mountain", "zone": "battlefield", "native_id": "mountain-0"},
+        ],
+    }
+    assert mr.probe_module().elimination_instrument_ids(plan) == (["bolt-0"], ["mountain-0"])
+    assert mr.probe_module().elimination_instrument_ids({}) == ([], [])
+
+
+def _priority(sequence: int | None, stack: int | None) -> mr.Frame:
+    frame = mr.Frame("priority", "P1", ["Pass priority"])
+    frame.tape_sequence = sequence
+    frame.stack_size = stack
+    return frame
+
+
+def test_the_stack_after_an_event_is_read_from_the_next_priority_frame() -> None:
+    check = mr.TerminalCheck(
+        "stack_empty_after", event_type="LOST", where=(("player_player", "P2"),)
+    )
+    tape = [{"type": "LOST", "sequence": 10, "player_player": "P2"}]
+    # The frame asked before the loss still shows the spell; the next one does not.
+    assert mr.check_terminal(check, {}, tape, [_priority(9, 1), _priority(10, 0)])
+    # The spell is still on the stack after the loss: the obligation is not met.
+    assert not mr.check_terminal(check, {}, tape, [_priority(10, 1), _priority(12, 0)])
+    # No priority frame after the loss, no event, or no stack shown: not met.
+    assert not mr.check_terminal(check, {}, tape, [_priority(9, 0)])
+    assert not mr.check_terminal(check, {}, [], [_priority(10, 0)])
+    assert not mr.check_terminal(check, {}, tape, [_priority(10, None)])
+    # Another player's loss is not the anchor.
+    other = [{"type": "LOST", "sequence": 10, "player_player": "P3"}]
+    assert not mr.check_terminal(check, {}, other, [_priority(10, 0)])
+
+
 def test_a_player_left_only_when_the_engine_reports_both_loss_and_leaving() -> None:
     check = mr.TerminalCheck("player_left", principal="P2")
     assert mr.needs_observation(check)
@@ -472,6 +580,8 @@ WORKSTREAM_ROWS = {
     "MICRO_CONTROL",
     "WS05-CMD-DMG-CONTROL",
     "WS05-CMD-PARTNER-TAX",
+    "WS05-MP-ELIM-STACK-3",
+    "WS05-MP-ELIM-CONTROL-3",
 }
 
 
