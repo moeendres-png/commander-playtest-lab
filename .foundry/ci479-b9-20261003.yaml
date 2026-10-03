@@ -35,12 +35,11 @@ technical_decisions:
 - Check import search path after candidate import as well as before
 authority_gates:
 - Provider selection and Architecture Freeze remain reserved
-state_written_against_head: 60bde10c029d31d88e48757f0c10446e889ef24e
+state_written_against_head: 310e72671df5b196650ee39ba2ce9c06e8b16185
 validated_head: null
 status: WAITING
 execution_profile: null
-exact_next_action: Inspect new exact-head CI and independent review; independently
-  verify CI artifact/source bindings, then adjudicate CI02 and normal merge.
+exact_next_action: Read new exact-head CI and independent review. Verify artifact
+  bytes/source lock, adjudicate CI02 honestly, then merge only reviewed head.
 tests_run:
-- 74 affected tests PASS after actual main50e8 integration, including independently
-  repeated product runtime probes
+- 74 affected tests PASS; full-path before/after controls retained in docs/ci479_module_pr509_20261003

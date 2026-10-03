@@ -1235,6 +1235,13 @@ def _structural_reasons(document: dict[str, Any]) -> list[str]:
     if not isinstance(imported, dict):
         reasons.append("installed_import_not_a_mapping")
     else:
+        module = imported.get("module")
+        if (
+            not isinstance(module, str)
+            or not module
+            or any(not part.isidentifier() for part in module.split("."))
+        ):
+            reasons.append("installed_import_module_invalid")
         if imported.get("status") != PASS:
             reasons.append(f"installed_import_not_passed:{imported.get('status')}")
         if imported.get("resolved_in_isolated_environment") is not True:
@@ -1425,7 +1432,7 @@ def check_evidence(args: argparse.Namespace) -> int:
                 venv_dir=str(root / "venv"),
                 scratch_dir=str(root / "scratch"),
                 output=str(fresh_output),
-                import_module=DEFAULT_IMPORT_MODULE,
+                import_module=document["installed_import"]["module"],
                 expect_source_sha=str(document["source_sha"]),
                 expect_source_tree=str(document["source_tree"]),
                 expect_wheel_sha256=str(document["wheel_sha256"]),

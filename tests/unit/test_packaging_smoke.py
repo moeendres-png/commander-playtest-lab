@@ -963,6 +963,10 @@ def test_every_forged_binding_is_rejected_independently(built_wheel, work_dir, t
     assert completed.returncode == EXIT_PASS, completed.stderr
     controls = [
         (("source_sha",), "0" * 40),
+        (("installed_import", "module"), "commander_lab.__b9_missing__"),
+        (("installed_import", "module"), None),
+        (("installed_import", "module"), 123),
+        (("installed_import", "module"), "invalid-name"),
         (("source_tree",), "0" * 40),
         (("install", "direct_url_sha256"), "0" * 64),
         (("install", "editable"), True),
@@ -1093,17 +1097,15 @@ def test_undeclared_dependency_is_not_supplied_by_tooling(tmp_path):
     document["overall_classification"] = "PASS"
     document["reasons"] = ["all_packaging_smoke_invariants_satisfied"]
     document["installed_import"] = {
-        "status": "PASS", "module": "commander_lab",
+        "status": "PASS",
+        "module": "commander_lab",
         "resolved_in_isolated_environment": True,
         "module_file_relative_to_purelib": "commander_lab/__init__.py",
     }
     document["cli_entrypoints"] = [
-        {"name": name, "status": "PASS", "returncode": 0}
-        for name in CONTRACT.scripts
+        {"name": name, "status": "PASS", "returncode": 0} for name in CONTRACT.scripts
     ]
-    document["cli_entrypoint_results"] = {
-        row["name"]: row for row in document["cli_entrypoints"]
-    }
+    document["cli_entrypoint_results"] = {row["name"]: row for row in document["cli_entrypoints"]}
     output.write_text(json.dumps(document))
     checked = _run_script(
         "check", "--repo", str(child), "--evidence", str(output), "--wheel-dir", str(wheels)
