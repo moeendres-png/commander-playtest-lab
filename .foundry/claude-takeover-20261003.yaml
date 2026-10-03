@@ -4,8 +4,8 @@ worktree: /home/moeen/work/takeover-pr518-20261003
 branch: hardening/b8-real4p-progress-20261003
 audit_base_sha: 92ac2ef7d4876dd19a3f1b2ad85c8386a913df27
 audit_base_tree: 785f02937170c88576fba9e11b26844493532fc0
-state_written_against_head: 208c149ec86f04fc88fdb5e9f83f64485216c0f0
-validated_head: null
+state_written_against_head: d0195bbf53da25107c05773df12220c4dc4839bf
+validated_head: d0195bbf53da25107c05773df12220c4dc4839bf
 objective: Resume transferred Claude pre-Freeze campaign; review, repair, qualify
   and integrate existing PR surfaces without losing provenance
 ownership: CLAUDE-CAMPAIGN-TAKEOVER-20261003
@@ -42,11 +42,11 @@ technical_decisions:
   takeover, not an automatic OpenCode fallback.
 - Remote published source is reused. Unavailable Claude cloud edits are not assumed
   present. Existing local D17 processes and uncommitted Forge work are preserved.
-exact_next_action: Validate clean code commit, checkpoint the tested identity, push
-  once, then obtain exact-head CI and fresh independent review before ordinary merge.
+exact_next_action: Push checkpoint once; obtain fresh independent review, exact-head
+  required CI and the live four-player twin through turn 4 before ordinary merge.
 tests_run:
-- Five fail-before controls; attached RED-progress logs and source binding
-- 39 affected tests PASS after repair; attached GREEN-progress logs
-- 66 affected tests including workflow-impact PASS
-- 'First dirty full suite: 3495 passed, 61 failed, 18 skipped, 8 errors; causes recorded
-  in docs/b8_takeover_20261003/README.md'
+- Full clean-commit Python suite PASS; raw source-bound CLEAN-python evidence at /home/moeen/work/takeover-evidence-20261003/pr518
+- Mypy 290 sources PASS in locked dependency runtime
+- Ruff source/tests and affected script PASS
+- Five before-failing offline controls and 39 repaired affected tests preserved in
+  docs/b8_takeover_20261003
