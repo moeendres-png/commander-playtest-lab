@@ -534,7 +534,12 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
     )
     attempts = []
     for message_type, payload in kp.OMNISCIENCE_ATTEMPTS:
-        response = {"success": False, "errors": [{"code": "refused", "message": "no"}]}
+        message = (
+            f"{kp.ORCHESTRATION_REFUSAL}: no key"
+            if message_type in kp.ORCHESTRATION_CHANNELS
+            else "no"
+        )
+        response = {"success": False, "errors": [{"code": "refused", "message": message}]}
         tape.append(_entry(message_type, payload, response))
         attempts.append(
             {
@@ -542,6 +547,7 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
                 "payload": payload,
                 "success": False,
                 "error_code": "refused",
+                "error_message": message,
             }
         )
     if kind == "exile_permission_persists":
@@ -1896,3 +1902,20 @@ def test_a_submission_status_and_next_actions_answer_their_own_principals() -> N
     ]
     stray_channels = {item.channel for item in kp.addressed_documents(stray, dict(NATIVE))}
     assert "tape[0]:submit_action.next_actions" not in stray_channels
+
+
+def test_an_orchestration_channel_refused_for_another_reason_is_a_leak(
+    records: dict[str, dict[str, Any]],
+) -> None:
+    """A launch that refuses get_rules_rng_tape only because the engine was busy
+    carries the channel: that is not a principal-facing launch."""
+    capture = _capture(records["HIDDEN_01"])
+    checks = {check.name: check for check in kp._no_omniscient_api(capture)}
+    disabled = [name for name in checks if name.startswith("orchestration_channel_disabled:")]
+    assert disabled and all(checks[name].holds for name in disabled)
+    for attempt in capture.attempts:
+        if attempt["message_type"] in kp.ORCHESTRATION_CHANNELS:
+            attempt["error_message"] = "ENGINE_NOT_PARKED: busy"
+    checks = {check.name: check for check in kp._no_omniscient_api(capture)}
+    assert not any(checks[name].holds for name in disabled)
+    assert all(checks[name].kind == "LEAK" for name in disabled)

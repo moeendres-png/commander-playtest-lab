@@ -258,9 +258,29 @@ phase2:
       executed; a scenario with a Rules-caused shuffle of distinguishable
       cards is an obligation-adjacent erratum for Coordinator adjudication
       (#255).
+  milestones:
+    - id: P2-M1
+      status: COMMITTED
+      content: >-
+        midgame_replay_twin.py producer (record process on the generic
+        executor, replay process from the tape alone, fingerprint plus record
+        occurrence identity, CHOSEN_OPTION_AMBIGUOUS fail-closed); contract
+        1.0.19.
+    - id: P2-M2
+      status: COMMITTED
+      content: >-
+        PB-03 runner hook, receipt-only credit, AF09 gate taking the bound
+        midgame twin, export-refusal ruling.
+    - id: P2-M3
+      status: COMMITTED
+      content: >-
+        Orchestration-keyed Rules-RNG result channel (stripped from inherited
+        environments, AF05-probed), privileged digests, independent terminals,
+        demonstrated-divergence FAIL, seed control by replay under seed + 1.
   reviews:
     - fresh-context review 1: P1-1, P2-1..5, P3 resolved (3baaac4e, 1b5aa459)
     - fresh-context review 2: P1-A, P1-B, P2-A..C, P3 resolved (592adf7a)
+    - fresh-context review 3: no P1; P2-1 (inherited key), P2-2 (seed-control point), P3 resolved
 exact_next_action: >-
   After AF07 #484 merges: merge main into hardening/af09-replay-twins-20261001,
   run the Python suite on a clean tree and the bridge suite, push, drive the

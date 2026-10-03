@@ -27,6 +27,11 @@ CandidateId = Literal["xmage", "forge"]
 
 DEFAULT_TIMEOUT_S = 180.0
 
+#: The AF09 orchestration key variable. It enables the bridge's
+#: ``get_rules_rng_tape`` channel and is never inherited by a launch: only the
+#: replay twin's own launch sets it, through its explicit overrides.
+ORCHESTRATION_KEY_VARIABLE = "COMMANDER_LAB_ORCHESTRATION_KEY"
+
 _SHA40 = re.compile(r"[0-9a-f]{40}")
 
 
@@ -445,6 +450,9 @@ def launch(plan: LaunchPlan, *, timeout_s: float = 60.0) -> BridgeProcess:
     """Start the external candidate process."""
     env = dict(os.environ)
     env.pop("JAVA_TOOL_OPTIONS", None)
+    # The AF09 orchestration key never reaches a launch by inheritance;
+    # only the replay twin's own launch adds it through its overrides.
+    env.pop(ORCHESTRATION_KEY_VARIABLE, None)
     env.update(plan.env_overrides)
     try:
         popen = subprocess.Popen(

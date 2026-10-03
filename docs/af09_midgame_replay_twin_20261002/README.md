@@ -77,13 +77,22 @@ seed reproduces it in every process, and a different seed changes it.
 `XmageRulesRngResultTapeTest` pins both, and the live seed control rechecks them.
 
 **The channel is not an observation.** The bridge refuses it on every launch that
-does not carry an orchestration key (`COMMANDER_LAB_ORCHESTRATION_KEY`). No
-pilot-facing or AF05 launch carries one, and AF05's omniscience probes now include
-the message, so it must be refused there. Each twin generates one random key and
+does not carry an orchestration key (`COMMANDER_LAB_ORCHESTRATION_KEY`), and its
+capabilities declare `orchestration_channel_enabled`. A launch cannot inherit the
+key: both canonical spawn paths, `bridge_launcher.launch` and
+`MidgameLaneClient`, strip it from the parent environment before applying the
+launch's own overrides, and only the replay twin's launch sets one. A malformed
+key disables the channel; it never crashes a game.
+
+AF05's omniscience probes include the message. They require the refusal reason
+`ORCHESTRATION_CHANNEL_NOT_ENABLED`; a refusal because the engine was busy counts
+as a leak. Each twin generates one random key and
 gives it to its own record, replay and control processes only. Every digest is an
 HMAC under that key, so nobody without the key can read a hidden order out of a
-digest or test a guess against it. The engine answers only while it is parked on a
-decision or has ended, and it reports which (`engine_state`).
+digest or test a guess against it. The engine reports `engine_state` and answers with digests only while it is
+parked on a decision, or after a clean game over (no failure, no engine error).
+It rechecks that state after computing the digest. A running or failed engine
+yields no digest.
 
 The same channel reports a **privileged state digest**: every player's zones in
 seating order, including library order, damage, counters, tapped, face-down and
@@ -106,10 +115,18 @@ Core never caused, so **the step is not executed**. The 1.0.19 erratum says so
 
 The shuffle the scenario does contain is the start-of-game shuffle. It reorders
 identical scaffolding cards, which the checkpoint's complete library then
-replaces, so its result has no Rules consequence. The live seed control measures
-exactly this: a different seed changes the shuffle results but not the game state
-(`rng_result_has_state_consequence` is false). The result is taped, replayed and
-compared, but it is no Rules RNG evidence. `RNG_RULES_TAPE` therefore stays
+replaces, so its result has no Rules consequence.
+
+The live seed control measures this. A third fresh process replays the record's
+own taped inputs under seed + 1. The different seed counts as having a Rules
+consequence only if one of these happens:
+- the engine offers a different frame for those inputs;
+- the replay reaches a different end state (privileged digest).
+
+A difference the restoration erases changes neither, while any Rules-caused
+shuffle in the obligation would show. Here the result changes but the game does
+not (`rng_result_has_state_consequence` is false). The result is taped, replayed
+and compared, but it is no Rules RNG evidence. `RNG_RULES_TAPE` therefore stays
 UNKNOWN with that exact blocker.
 
 A scenario in which a Rules-caused shuffle of distinguishable cards occurs is an

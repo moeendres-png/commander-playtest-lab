@@ -555,6 +555,7 @@ class FakeEngine(mrt.TapingLaneClient):
         diverge_frame: bool = False,
         diverge_terminal: bool = False,
         state_follows_seed: bool = True,
+        seed_only_before_arrival: bool = False,
         diverge_first_frame: bool = False,
         crash_before_mode: bool = False,
     ) -> None:
@@ -565,6 +566,7 @@ class FakeEngine(mrt.TapingLaneClient):
         self.diverge_frame = diverge_frame
         self.diverge_terminal = diverge_terminal
         self.state_follows_seed = state_follows_seed
+        self.seed_only_before_arrival = seed_only_before_arrival
         self.diverge_first_frame = diverge_first_frame
         self.crash_before_mode = crash_before_mode
         self.burn = str(uuid.uuid4())
@@ -674,6 +676,8 @@ class FakeEngine(mrt.TapingLaneClient):
         elif message_type == "get_rules_rng_tape":
             seed_part = self.seed if self.seed_sensitive else 0
             state_seed = self.seed if self.state_follows_seed else 0
+            if self.seed_only_before_arrival and self.stage > 0:
+                state_seed = 0
             terminal = "diverged" if (self.diverge_terminal and self.stage >= 2) else ""
             engine_state = "FAILED" if (self.crash_before_mode and self.stage == 1) else "PARKED"
             result = {
@@ -977,3 +981,99 @@ def test_the_canonical_launch_carries_a_per_twin_orchestration_key(
     seen.append(client._env_overrides[mrt.ORCHESTRATION_KEY_VARIABLE])
     assert seen == ["ab" * 32]
     assert client._env_overrides["A"] == "1"
+
+
+def test_a_seed_difference_the_restoration_erases_is_no_consequence(
+    fake_lane: dict[str, Any],
+) -> None:
+    """Re-review P2-2: a different seed that only changes the pre-arrival state
+    (a scaffolding library the restoration replaces) has no Rules consequence."""
+
+    def factory(_workspace: Path) -> FakeEngine:
+        return FakeEngine(seed_only_before_arrival=True)
+
+    document = mrt.twin_row(
+        Path("."),
+        _scenario("RNG_RULES_TAPE"),
+        seed=424242,
+        lab_source={"commit": "l"},
+        client_factory=factory,
+    )
+    control = document["seed_control"]
+    assert control["detected"] is True
+    assert control["state_changed"] is False
+    assert document["verified"] is False
+
+
+def test_the_seed_control_replays_the_recorded_inputs(fake_lane: dict[str, Any]) -> None:
+    factory = _factory()
+    document = mrt.twin_row(
+        Path("."),
+        _scenario("RNG_RULES_TAPE"),
+        seed=424242,
+        lab_source={"commit": "l"},
+        client_factory=factory,
+    )
+    control = document["seed_control"]
+    assert control["control_seed_acknowledged"] is True
+    assert control["control_build_matches"] is True
+    assert control["state_changed"] is True
+    # The control process answered the same two recorded decisions.
+    assert factory.made[2].stage == 2
+    # Only the record ran the executor.
+    assert fake_lane["execute_row"] == 1
+
+
+def test_twin_row_gives_one_key_to_its_record_and_replay(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    keys: list[str] = []
+
+    def fake_record(*_args: Any, client_factory: Any, **_kwargs: Any) -> Any:
+        keys.append(client_factory.keywords["orchestration_key"])
+        return object()
+
+    def fake_replay(*_args: Any, client_factory: Any, **_kwargs: Any) -> Any:
+        keys.append(client_factory.keywords["orchestration_key"])
+        raise mrt.ReplayTwinRowError("stop")
+
+    monkeypatch.setattr(mrt, "record_process", fake_record)
+    monkeypatch.setattr(mrt, "replay_process", fake_replay)
+    document = mrt.twin_row(Path("."), _scenario("REPLAY_CLEAN_PROCESS"), seed=1, lab_source={})
+    assert document["verified"] is False
+    assert len(keys) == 2 and keys[0] == keys[1] and len(keys[0]) == 64
+
+
+@pytest.mark.parametrize("module_name", ["bridge_launcher", "midgame_lane"])
+def test_an_inherited_orchestration_key_never_reaches_a_launch(module_name: str) -> None:
+    import inspect
+
+    from commander_lab.qualification.current_boundary import bridge_launcher, midgame_lane
+
+    module = {"bridge_launcher": bridge_launcher, "midgame_lane": midgame_lane}[module_name]
+    assert module.ORCHESTRATION_KEY_VARIABLE == "COMMANDER_LAB_ORCHESTRATION_KEY"
+    source = inspect.getsource(module)
+    strip = source.index("env.pop(ORCHESTRATION_KEY_VARIABLE, None)")
+    inherit = source.rindex("env = dict(os.environ)", 0, strip)
+    overrides = source.index("env.update(", strip)
+    assert inherit < strip < overrides
+
+
+def test_the_midgame_client_strips_an_inherited_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    from commander_lab.qualification.current_boundary import midgame_lane
+
+    seen: dict[str, str] = {}
+
+    class _Stop(Exception):
+        pass
+
+    def fake_popen(*_args: Any, env: dict[str, str], **_kwargs: Any) -> Any:
+        seen.update(env)
+        raise _Stop
+
+    monkeypatch.setenv("COMMANDER_LAB_ORCHESTRATION_KEY", "aa" * 32)
+    monkeypatch.setattr(midgame_lane.subprocess, "Popen", fake_popen)
+    client = midgame_lane.MidgameLaneClient(("java",), Path("."))
+    with pytest.raises(_Stop):
+        client.__enter__()
+    assert "COMMANDER_LAB_ORCHESTRATION_KEY" not in seen

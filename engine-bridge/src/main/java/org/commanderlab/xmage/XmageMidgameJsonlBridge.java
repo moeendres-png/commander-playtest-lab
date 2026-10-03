@@ -1351,6 +1351,7 @@ final class XmageMidgameJsonlBridge {
         // unless the launch carries an orchestration key, and HMAC digests only.
         observationScopes.addProperty("get_rules_rng_tape",
                 "orchestration_keyed_digests_refused_without_launch_key");
+        capabilities.addProperty("orchestration_channel_enabled", XmageRulesRngResultTape.enabled());
         observationScopes.addProperty("complete_midgame_arrival",
                 "principal_scoped_or_principal_neutral_opponent_hands_counts_only");
         capabilities.add("observation_scopes", observationScopes);

@@ -489,6 +489,19 @@ def _payload(response: dict[str, Any]) -> dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
+def _error_message(response: dict[str, Any]) -> str:
+    errors = response.get("errors")
+    if isinstance(errors, list) and errors and isinstance(errors[0], dict):
+        return str(errors[0].get("message") or "")
+    return ""
+
+
+#: The refusal reason an orchestration channel must give on a principal-facing
+#: launch: the channel is disabled, not merely unavailable at this moment.
+ORCHESTRATION_REFUSAL = "ORCHESTRATION_CHANNEL_NOT_ENABLED"
+ORCHESTRATION_CHANNELS = frozenset({"get_rules_rng_tape"})
+
+
 def _error_code(response: dict[str, Any]) -> str | None:
     errors = response.get("errors")
     if isinstance(errors, list) and errors and isinstance(errors[0], dict):
@@ -589,6 +602,7 @@ def capture_row(client: ml.MidgameLaneClient, record: dict[str, Any], *, viewer:
                 "payload": payload,
                 "success": bool(response.get("success")),
                 "error_code": _error_code(response),
+                "error_message": _error_message(response),
             }
         )
     return capture
@@ -3049,6 +3063,17 @@ def _no_omniscient_api(capture: Capture) -> list[Check]:
                 f"refusal code {attempt['error_code']}",
             )
         )
+        if attempt["message_type"] in ORCHESTRATION_CHANNELS:
+            # Refused because the channel is disabled on this launch, never
+            # merely because the engine was busy when asked.
+            checks.append(
+                Check(
+                    f"orchestration_channel_disabled:{name}",
+                    ORCHESTRATION_REFUSAL in str(attempt.get("error_message") or ""),
+                    f"refusal message {attempt.get('error_message')!r}",
+                    "LEAK",
+                )
+            )
     checks.append(
         Check(
             "omniscience_attempts_made",

@@ -35,33 +35,55 @@ final class XmageRulesRngResultTape {
 
     static final String KEY_VARIABLE = "COMMANDER_LAB_ORCHESTRATION_KEY";
 
-    private static volatile byte[] KEY = loadKey();
+    // Loaded lazily, on the first use of the channel, never at class load: a
+    // malformed variable must not crash an ordinary game's first shuffle.
+    private static volatile byte[] KEY;
+    private static volatile boolean keyLoaded;
+    private static volatile String keyProblem;
     private static final Map<String, Map<UUID, List<UUID>>> PRE_SHUFFLE = new ConcurrentHashMap<>();
     private static final Map<String, List<JsonObject>> RESULTS = new ConcurrentHashMap<>();
 
     private XmageRulesRngResultTape() {
     }
 
-    private static byte[] loadKey() {
+    private static synchronized void loadKey() {
+        if (keyLoaded) {
+            return;
+        }
+        keyLoaded = true;
         String hex = System.getenv(KEY_VARIABLE);
         if (hex == null || hex.isBlank()) {
-            return null;
+            return;
         }
-        byte[] key = HexFormat.of().parseHex(hex.trim());
-        if (key.length < 16) {
-            throw new IllegalStateException(KEY_VARIABLE + " must carry at least 128 bits");
+        try {
+            byte[] key = HexFormat.of().parseHex(hex.trim());
+            if (key.length < 16) {
+                keyProblem = KEY_VARIABLE + " carries fewer than 128 bits";
+                return;
+            }
+            KEY = key;
+        } catch (IllegalArgumentException exc) {
+            keyProblem = KEY_VARIABLE + " is not hexadecimal";
         }
-        return key;
     }
 
     /** Test seam: the key a test JVM's launch would carry (never set in production code). */
-    static void keyForTests(byte[] key) {
+    static synchronized void keyForTests(byte[] key) {
+        keyLoaded = true;
+        keyProblem = null;
         KEY = key == null ? null : key.clone();
     }
 
-    /** True only when the launch carried an orchestration key. */
+    /** True only when the launch carried a well-formed orchestration key. */
     static boolean enabled() {
+        loadKey();
         return KEY != null;
+    }
+
+    /** Why a key the launch carried was rejected, or null. */
+    static String keyProblem() {
+        loadKey();
+        return keyProblem;
     }
 
     /** Called before the engine shuffles {@code playerId}'s library. */

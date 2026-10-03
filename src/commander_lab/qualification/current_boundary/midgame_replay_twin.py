@@ -196,9 +196,10 @@ class TapingLaneClient(ml.MidgameLaneClient):
         return process.pid if process is not None else None
 
 
-#: The launch variable that enables the bridge's orchestration channel. A launch
-#: without it (every pilot-facing and AF05 launch) refuses ``get_rules_rng_tape``.
-ORCHESTRATION_KEY_VARIABLE = "COMMANDER_LAB_ORCHESTRATION_KEY"
+#: The launch variable that enables the bridge's orchestration channel. The
+#: canonical spawn paths strip it from every inherited environment, so a launch
+#: without this twin's explicit override refuses ``get_rules_rng_tape``.
+ORCHESTRATION_KEY_VARIABLE = bridge_launcher.ORCHESTRATION_KEY_VARIABLE
 
 
 def open_taping_client(workspace: Path, *, orchestration_key: str) -> TapingLaneClient:
@@ -915,6 +916,10 @@ def row_properties(
             "rng_operations_account_for_all_calls": isinstance(
                 record_run.twin.rules_rng.get("rules_random_calls_total"), int
             )
+            and all(
+                isinstance(entry.get("before"), int) and isinstance(entry.get("after"), int)
+                for entry in shuffles
+            )
             and sum(int(entry["after"]) - int(entry["before"]) for entry in shuffles)
             == record_run.twin.rules_rng["rules_random_calls_total"],
             # The replay reproduced every result (the twin compares them); a
@@ -993,46 +998,57 @@ def seed_control(
     seed: int,
     client_factory: Any = open_taping_client,
 ) -> dict[str, Any]:
-    """Live negative control: a different seed must change P1's shuffle result.
+    """Live negative control: a different seed must change the RNG result and the game.
 
-    A third fresh process constructs the same record with ``seed + 1`` and
-    reads the engine's Rules-RNG results once the game reached its first
-    decision. If the result digest did not change, the taped result does not
-    depend on the Rules RNG and is no replay evidence.
+    A third fresh process replays the record's own taped inputs under
+    ``seed + 1`` (the same consumer as the replay twin). ``detected``: P1's
+    first shuffle result differs. ``state_changed``: the different seed had a
+    Rules consequence, seen after the restoration and the whole scenario, where
+    any Rules-caused shuffle of the obligation shows: either the engine offered
+    a different frame for the recorded inputs, or the replay reached a
+    different end state. A difference the restoration erases (a reshuffled
+    scaffolding library it replaces) changes neither.
     """
     seat = p1_seat(record)
-    recorded_digest = first_shuffle_digest(_shuffle_results(recorded), seat)
     control_seed = seed + 1
-    with client_factory(workspace) as client:
-        created = _create(client, record, control_seed, "SEED_CONTROL")
-        acknowledged = bool(_rules_rng(created, control_seed, (), None)["controlled"])
-        build = _build(client)
-        if client.pending_decision() is None:
-            raise ReplayTwinRowError("the seed control reached no decision")
-        tape = rules_rng_tape(client)
-    control_digest = first_shuffle_digest(tape.get("rules_rng_results") or (), seat)
-    recorded_state = (
-        recorded.twin.checkpoint_state_hashes[0].get("privileged_state_digest")
-        if recorded.twin.checkpoint_state_hashes
+    control = replay_process(
+        workspace,
+        record,
+        recorded,
+        seed=control_seed,
+        lab_source=recorded.twin.lab_source,
+        client_factory=client_factory,
+    )
+    acknowledged = bool(control.twin.rules_rng.get("controlled"))
+    build_matches = control.twin.candidate_build == recorded.twin.candidate_build
+    valid = acknowledged and build_matches
+    recorded_digest = first_shuffle_digest(_shuffle_results(recorded), seat)
+    control_digest = first_shuffle_digest(_shuffle_results(control), seat)
+    recorded_end = recorded.twin.terminal.get("privileged_state_digest")
+    control_end = (
+        control.twin.terminal.get("privileged_state_digest")
+        if control.twin.terminal.get("complete")
         else None
     )
-    valid = acknowledged and build == recorded.twin.candidate_build
+    # A harness refusal of the control (not a frame divergence) shows nothing.
+    measured = control.divergence or (control.twin.failure is None and bool(control_end))
     return {
         "control": "DIFFERENT_SEED_CHANGES_RULES_RNG_RESULT",
         "seat": seat,
         "seed": seed,
         "control_seed": control_seed,
         "control_seed_acknowledged": acknowledged,
-        "control_build_matches": build == recorded.twin.candidate_build,
+        "control_build_matches": build_matches,
         "recorded_result_digest": recorded_digest,
         "control_result_digest": control_digest,
         "detected": bool(valid and recorded_digest and control_digest)
         and recorded_digest != control_digest,
-        # Whether the different result changed the game at the first decision.
-        "recorded_first_decision_state": recorded_state,
-        "control_first_decision_state": tape.get("privileged_state_digest"),
-        "state_changed": bool(valid and recorded_state)
-        and recorded_state != tape.get("privileged_state_digest"),
+        "control_failure": control.twin.failure,
+        "control_frame_diverged": control.divergence,
+        "recorded_end_state": recorded_end,
+        "control_end_state": control_end,
+        "state_changed": bool(valid and measured)
+        and (control.divergence or (bool(recorded_end) and recorded_end != control_end)),
     }
 
 

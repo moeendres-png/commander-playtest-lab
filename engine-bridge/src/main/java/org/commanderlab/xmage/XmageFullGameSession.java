@@ -488,31 +488,51 @@ final class XmageFullGameSession {
     synchronized JsonObject rulesRngTapePayload() {
         ensureStarted();
         if (!XmageRulesRngResultTape.enabled()) {
-            throw new IllegalStateException(
-                    "ORCHESTRATION_CHANNEL_NOT_ENABLED: this launch carries no orchestration key");
-        }
-        String engineState = engineState();
-        if ("RUNNING".equals(engineState)) {
-            throw new IllegalStateException("ENGINE_NOT_PARKED: the engine is neither parked nor ended");
+            String problem = XmageRulesRngResultTape.keyProblem();
+            throw new IllegalStateException("ORCHESTRATION_CHANNEL_NOT_ENABLED: "
+                    + (problem == null ? "this launch carries no orchestration key" : problem));
         }
         JsonObject payload = new JsonObject();
+        String engineState = engineState();
         payload.addProperty("engine_state", engineState);
+        payload.addProperty("observation_scope", "orchestration_keyed_digests");
+        if (!"PARKED".equals(engineState) && !"CLEAN_TERMINAL".equals(engineState)) {
+            // No digest of an engine that is still running or failed.
+            return payload;
+        }
         payload.addProperty("rules_random_calls", game.getRulesRandomCalls());
         payload.add("rules_rng_results", XmageRulesRngResultTape.results(game));
         payload.addProperty("privileged_state_digest", privilegedStateDigest());
-        payload.addProperty("observation_scope", "orchestration_keyed_digests");
+        // The engine must still be in the same state after the digest: a
+        // decision answered or a thread ended meanwhile voids it.
+        if (!engineState.equals(engineState())) {
+            JsonObject moved = new JsonObject();
+            moved.addProperty("engine_state", "RUNNING");
+            moved.addProperty("observation_scope", "orchestration_keyed_digests");
+            return moved;
+        }
         return payload;
     }
 
+    /**
+     * PARKED: waiting on an external decision. CLEAN_TERMINAL: the engine
+     * thread ended a game that is over, with no failure and no engine error.
+     * FAILED: a failure, or an ended thread without a clean game over.
+     * RUNNING: anything else. Thread liveness is sampled first, so a thread that
+     * fails and ends between two reads is never taken for a clean end.
+     */
     private String engineState() {
+        boolean alive = engineThread != null && engineThread.isAlive();
         if (controller.terminalFailure() != null) {
-            return "FAILED";
+            return alive ? "RUNNING" : "FAILED";
         }
         if (controller.pendingDecision() != null) {
             return "PARKED";
         }
-        if (engineThread != null && !engineThread.isAlive()) {
-            return game.hasEnded() ? "CLEAN_TERMINAL" : "FAILED";
+        if (engineThread != null && !alive) {
+            boolean clean = game.hasEnded() && controller.terminalFailure() == null
+                    && game.getTotalErrorsCount() == 0;
+            return clean ? "CLEAN_TERMINAL" : "FAILED";
         }
         return "RUNNING";
     }
