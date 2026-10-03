@@ -63,6 +63,9 @@ PROBE_ROWS: tuple[str, ...] = (
 
 SEED = 424242
 
+# A causal stack whose controller is then eliminated causally in the same game.
+CAUSAL_STACK_ELIMINATION = "causal_stack_elimination"
+
 
 # Causal-entry rows. Each names the frozen record, the entry mode, the
 # declared fuel or instruments, and the terminal obligation the row requires
@@ -289,12 +292,35 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
         "bolt_count": 14,
         "terminal": "victim_eliminated_by_engine",
     },
+    # P2's Control Magic must control P1's Bears while P2 is eliminated. An
+    # attachment and a control change are caused, never placed: P2 casts the
+    # Aura at the Bears on P1's turn under a declared flash enabler (Leyline of
+    # Anticipation, CR 702.8a), the engine resolves it and the caused-permanent
+    # verifier confirms attachment and control; only then does P1 cause P2's loss.
     "WS05-MP-ELIM-CONTROL-3": {
-        "entry_mode": "causal_elimination",
+        "entry_mode": CAUSAL_STACK_ELIMINATION,
+        "fuel": [
+            {
+                "semantic_id": "obj:enabler-leyline-p2",
+                "card_identity": "Leyline of Anticipation",
+                "owner": "P2",
+                "zone": "battlefield",
+            },
+            *(
+                {
+                    "semantic_id": f"obj:fuel-island-p2-{index}",
+                    "card_identity": "Island",
+                    "owner": "P2",
+                    "zone": "battlefield",
+                }
+                for index in range(4)
+            ),
+        ],
+        "caused_permanents": ["obj:leave-controlmagic"],
         "elimination_actor": "P1",
         "elimination_victim": "P2",
         "bolt_count": 14,
-        "terminal": "victim_eliminated_by_engine",
+        "terminal": "caused_permanent_controller_eliminated",
     },
     "WS05-MP-ELIM-TURN-3": {
         "entry_mode": "causal_elimination",
@@ -310,8 +336,11 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
         "bolt_count": 14,
         "terminal": "victim_eliminated_by_engine",
     },
+    # The victim's own spell must be on the stack while the victim is
+    # eliminated (CR 800.4a). P2 casts it on the engine's frames, the stack
+    # verifier confirms it, and only then does P1 cause P2's loss.
     "WS05-MP-ELIM-STACK-3": {
-        "entry_mode": "causal_stack",
+        "entry_mode": CAUSAL_STACK_ELIMINATION,
         "fuel": [
             {
                 "semantic_id": "obj:fuel-mountain-p2",
@@ -320,7 +349,10 @@ CAUSAL_ROWS: dict[str, dict[str, object]] = {
                 "zone": "battlefield",
             },
         ],
-        "terminal": "stack_with_elimination_pending",
+        "elimination_actor": "P1",
+        "elimination_victim": "P2",
+        "bolt_count": 14,
+        "terminal": "stack_controller_eliminated",
     },
     "WS05-MP-TURN-5": {
         "entry_mode": "placement",
@@ -1639,10 +1671,12 @@ def probe_causal_row(
             "entry_mode": entry_mode,
             "requested_starting_state": record,
         }
-        if entry_mode == "causal_stack":
+        if entry_mode in ("causal_stack", CAUSAL_STACK_ELIMINATION):
             request["fuel"] = list(spec.get("fuel") or [])
-        elif entry_mode == "causal_elimination":
+        if entry_mode in ("causal_elimination", CAUSAL_STACK_ELIMINATION):
             request["elimination"] = elimination_request(spec)
+        if spec.get("caused_permanents"):
+            request["caused_permanents"] = list(spec["caused_permanents"])  # type: ignore[call-overload]
         created = client.request("create_midgame_game", request)
         if not created.get("success"):
             errors = created.get("errors") or []
@@ -1673,6 +1707,8 @@ def probe_causal_row(
                 row = drive_causal_stack(client, fixture_id, record, payload, spec)
             elif entry_mode == "causal_elimination":
                 row = drive_causal_elimination(client, fixture_id, record, payload, spec)
+            elif entry_mode == CAUSAL_STACK_ELIMINATION:
+                row = drive_causal_stack_elimination(client, fixture_id, record, payload, spec)
             else:
                 row = drive_placement_obligation(client, fixture_id, record, payload, spec)
         except ml.MidgameLaneError as exc:
@@ -1743,19 +1779,6 @@ def drive_causal_stack(
                 + ("cleanup" if resolution["reached_cleanup_discard"] else "terminal")
                 + f" with no zone-choice decision; trace={trace}",
             }
-    elif terminal_kind == "stack_with_elimination_pending":
-        stack_ok = bool(stack_verdict.get("causal_match")) and not (
-            stack_verdict.get("mismatches") or []
-        )
-        terminal = {
-            "kind": terminal_kind,
-            "observed": False,
-            "detail": "the causal stack is produced and verified; the victim is "
-            "still alive with the spell on the stack. Eliminating in the same "
-            "game needs stack frames and elimination instruments placed "
-            "together (a combined causal entry the lane does not have). "
-            f"stack_match={stack_ok}",
-        }
     elif terminal_kind == "scripted_decision_offered":
         terminal = observe_scripted_decision(client, f"probe-{fixture_id}", record, placed)
     elif terminal_kind == "spell_resolves_to_graveyard":
@@ -1922,6 +1945,27 @@ def elimination_request(spec: dict[str, object]) -> dict[str, Any]:
     }
 
 
+def elimination_instrument_ids(plan: dict[str, Any]) -> tuple[list[str], list[str]]:
+    """The engine's native ids of the plan's declared bolts and mountains.
+
+    Only the declared instruments count, bound by the engine's own native ids:
+    the record's other objects (a Bolt or a Mountain of the victim's) are never
+    instruments, whatever they are called.
+    """
+    instruments = [entry for entry in plan.get("instruments") or () if isinstance(entry, dict)]
+    bolts = sorted(
+        str(entry["native_id"])
+        for entry in instruments
+        if entry.get("card_identity") == "Lightning Bolt" and entry.get("zone") == "hand"
+    )
+    mountains = sorted(
+        str(entry["native_id"])
+        for entry in instruments
+        if entry.get("card_identity") == "Mountain" and entry.get("zone") == "battlefield"
+    )
+    return bolts, mountains
+
+
 def eliminate_causally(
     client: ml.MidgameLaneClient,
     tag: str,
@@ -1931,10 +1975,7 @@ def eliminate_causally(
     """Cast every declared bolt at the victim through the engine; the engine's
     own elimination verdict afterwards. Every answer is an engine offer; the
     engine alone deals the damage and applies the state-based loss."""
-    plan = created.get("elimination_plan") or {}
-    placed = {str(k): str(v) for k, v in (plan.get("placed_objects") or {}).items()}
-    bolt_ids = sorted(v for k, v in placed.items() if "bolt" in k)
-    mountain_ids = sorted(v for k, v in placed.items() if "mountain" in k)
+    bolt_ids, mountain_ids = elimination_instrument_ids(created.get("elimination_plan") or {})
     victim_seat = seat_label(str(spec["elimination_victim"]))
     bolt_count = int(spec.get("bolt_count") or 0)
     if len(bolt_ids) != bolt_count or len(mountain_ids) != bolt_count:
@@ -1954,6 +1995,159 @@ def eliminate_causally(
             expected_life,
         )
     return complete_causal(client, "elimination").get("verdict") or {}
+
+
+def build_and_eliminate(
+    client: ml.MidgameLaneClient,
+    tag: str,
+    created: dict[str, Any],
+    spec: dict[str, object],
+) -> dict[str, Any]:
+    """The composed route: cast the victim's stack, verify it, then eliminate.
+
+    Returns both engine verdicts. The elimination starts only after the stack
+    verifier confirmed the requested stack, so the victim's spell is provably on
+    the stack when the engine applies the loss.
+    """
+    causal_plan = created.get("causal_plan") or {}
+    placed = {str(k): str(v) for k, v in (causal_plan.get("placed_objects") or {}).items()}
+    declared_fuel = [str(card["semantic_id"]) for card in spec.get("fuel") or ()]  # type: ignore[union-attr,index]
+    fuel = [placed[semantic] for semantic in declared_fuel if semantic in placed]
+    if len(fuel) != len(declared_fuel):
+        raise ml.MidgameLaneError(f"{tag}: a declared fuel card was not placed")
+    causal_stack_frames(client, f"{tag}-stack", causal_plan, placed, fuel)
+    stack_verdict = complete_causal(client, "stack").get("verdict") or {}
+    if not stack_verdict.get("causal_match") or stack_verdict.get("mismatches"):
+        return {"stack": stack_verdict, "permanents": None, "elimination": None}
+    permanents: dict[str, Any] | None = None
+    if spec.get("caused_permanents"):
+        # The caused permanents exist only once their casts resolve: the engine
+        # resolves the stack, and the verifier compares attachment and control
+        # with the record before anything else happens.
+        resolve_stack(client, f"{tag}-resolve")
+        permanents = complete_causal(client, "permanents").get("verdict") or {}
+        if not permanents.get("causal_match") or permanents.get("mismatches"):
+            return {"stack": stack_verdict, "permanents": permanents, "elimination": None}
+    elimination = eliminate_causally(client, f"{tag}-elimination", created, spec)
+    return {"stack": stack_verdict, "permanents": permanents, "elimination": elimination}
+
+
+def resolve_stack(client: ml.MidgameLaneClient, tag: str, limit: int = 30) -> None:
+    """Pass priority until the engine's own stack is empty at a priority frame.
+
+    Only priority passes are submitted; any other decision while resolving is
+    not something this route answers, so it fails closed.
+    """
+    for _ in range(limit):
+        decision = client.pending_decision()
+        if decision is None:
+            raise ml.MidgameLaneError(f"{tag}: the engine went terminal while resolving")
+        if str(decision.get("decision_class")) != "priority":
+            raise ml.MidgameLaneError(
+                f"{tag}: unexpected {decision.get('decision_class')} while resolving"
+            )
+        stack = (decision.get("pilot_state") or {}).get("stack")
+        if not isinstance(stack, list):
+            raise ml.MidgameLaneError(f"{tag}: the engine's priority frame exposes no stack")
+        if not stack:
+            return
+        passed = option_of_type(decision, "pass_priority")
+        if passed is None:
+            raise ml.MidgameLaneError(f"{tag}: the engine offered no pass")
+        client.submit_options(decision, [passed])
+    raise ml.MidgameLaneError(f"{tag}: the stack never emptied")
+
+
+def drive_causal_stack_elimination(
+    client: ml.MidgameLaneClient,
+    fixture_id: str,
+    record: dict[str, Any],
+    created: dict[str, Any],
+    spec: dict[str, object],
+) -> dict[str, Any]:
+    withheld = ml.causal_credit_gate(
+        fixture_id,
+        CAUSAL_STACK_ELIMINATION,
+        drive_arrival(client, record),
+        engine_commit=client.engine_commit,
+    )
+    if withheld is not None:
+        return withheld
+    verdicts = build_and_eliminate(client, f"probe-{fixture_id}", created, spec)
+    stack = verdicts["stack"]
+    elimination = verdicts["elimination"] or {}
+    # The obligation, not only the elimination: the victim left (lost and
+    # left), the engine's own stack is empty at the next decision, and no
+    # survivor's life moved from the record's request (the victim's spells
+    # never resolved).
+    eliminated = elimination.get("victim_lost") is True and elimination.get("victim_left") is True
+    # The next decision is read only after an elimination ran: a stack mismatch
+    # keeps its exact diagnosis instead of waiting on a decision.
+    decision = client.pending_decision() if verdicts["elimination"] is not None else None
+    pilot_stack = ((decision or {}).get("pilot_state") or {}).get("stack")
+    stack_empty = isinstance(pilot_stack, list) and not pilot_stack
+    requested_life = {
+        str(player.get("player_id")): player.get("life")
+        for player in record.get("players") or ()
+        if player.get("player_id") != spec.get("elimination_victim")
+    }
+    life_totals = elimination.get("life_totals") or {}
+    survivors_untouched = bool(requested_life) and all(
+        life_totals.get(pid) == life for pid, life in requested_life.items()
+    )
+    permanents = verdicts.get("permanents")
+    permanents_ok = permanents is None or (
+        bool(permanents.get("causal_match")) and not permanents.get("mismatches")
+    )
+    observed = (
+        verdicts["elimination"] is not None
+        and eliminated
+        and stack_empty
+        and survivors_untouched
+        and permanents_ok
+    )
+    terminal = {
+        "kind": str(spec.get("terminal")),
+        "observed": observed,
+        "stack_match": bool(stack.get("causal_match")) and not stack.get("mismatches"),
+        "victim_lost": elimination.get("victim_lost") is True,
+        "victim_left": elimination.get("victim_left") is True,
+        "stack_empty_after_loss": stack_empty,
+        "survivors_at_requested_life": survivors_untouched,
+        "detail": (
+            (
+                "the engine caused the record's permanents at its checkpoint, then "
+                "eliminated their controller"
+                if permanents is not None
+                else "the engine built the victim's stack, eliminated the victim, and "
+                "the victim's spells left without resolving"
+            )
+            if observed
+            else f"stack={stack} elimination={verdicts['elimination']} "
+            f"stack_after={pilot_stack} life={life_totals} requested={requested_life}"
+        ),
+    }
+    if verdicts["elimination"] is not None:
+        combined = dict(elimination)
+    elif permanents is not None:
+        # The caused permanents did not match: that verdict is the row's.
+        combined = dict(permanents)
+    else:
+        combined = dict(stack)
+    combined["stack_verdict"] = stack
+    if permanents is not None:
+        combined["permanents_verdict"] = permanents
+    if permanents is not None:
+        terminal["caused_permanents"] = permanents
+    row_verdict = ml.classification_from_causal_verdict(
+        fixture_id,
+        ml.MIDGAME_LANE,
+        CAUSAL_STACK_ELIMINATION,
+        combined,
+        terminal,
+        engine_commit=client.engine_commit,
+    )
+    return row_verdict.as_dict()
 
 
 def drive_causal_elimination(
