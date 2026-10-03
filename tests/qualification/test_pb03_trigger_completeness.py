@@ -227,3 +227,57 @@ def test_runner_phases_report_their_duration_on_stdout_only(monkeypatch, capsys,
     assert not (tmp_path / "out").exists()
     source = path.read_text(encoding="utf-8")
     assert source.count('phase("') + source.count('phase(f"') >= 9
+
+
+@cache
+def _measured_workflow_test_inputs() -> tuple[str, ...]:
+    """Execute the workflow's offline tests under the same file-read audit hook."""
+    steps = "\n".join(
+        step.get("run") or "" for job in _workflow()["jobs"].values() for step in job["steps"]
+    )
+    invoked = sorted(set(re.findall(r"tests/[\w./-]+\.py", steps)))
+    assert invoked, "measurement must execute the workflow's actual tests"
+    probe = (
+        _PROBE[: _PROBE.index("for script in sys.argv[2:]:")]
+        + r"""
+import pytest
+result = pytest.main(["-q", "-p", "no:cacheprovider", "-o", "addopts=", *sys.argv[2:]])
+if result != 0:
+    raise SystemExit(result)
+print(json.dumps(sorted(touched)))
+"""
+    )
+    with tempfile.TemporaryDirectory() as empty_cache:
+        completed = subprocess.run(
+            [sys.executable, "-c", probe, str(REPO), *invoked],
+            cwd=REPO,
+            env={
+                **os.environ,
+                "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+                "PYTHONDONTWRITEBYTECODE": "1",
+                "PYTHONPYCACHEPREFIX": empty_cache,
+            },
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    tracked = set(
+        subprocess.run(
+            ["git", "ls-files", "-z"], cwd=REPO, capture_output=True, text=True, check=True
+        ).stdout.split("\0")
+    )
+    # Qualification consumes canonical files. Cache and temporary outputs are
+    # neither repository inputs nor evidence, and must not widen the trigger.
+    return tuple(
+        path for path in json.loads(completed.stdout.strip().splitlines()[-1]) if path in tracked
+    )
+
+
+def test_workflow_test_data_inputs_trigger_pb03() -> None:
+    inputs = _measured_workflow_test_inputs()
+    assert (
+        "qualification/pb03-fresh-main-reconciliation-20260929/MIDGAME_CAPABILITY_PROBE.json"
+        in inputs
+    )
+    uncovered = [path for path in inputs if not path.startswith(".git/") and not _covered(path)]
+    assert not uncovered, f"PB-03 offline test inputs without a trigger: {uncovered}"

@@ -11,6 +11,12 @@ on:
       - "qualification/pre-freeze-successor/**"
       - "qualification/ws47/**"
       - "qualification/manifests/**"
+      # Committed inputs consumed by the workflow's offline tests (audit measured).
+      - "qualification/final-current-boundary-20260927/**"
+      - "qualification/pb03-fresh-main-reconciliation-20260929/**"
+      - "qualification/xmage-mp-candidate-repin-v2-20260930/**"
+      - "tests/__init__.py"
+      - "tests/qualification/test_pb03_trigger_completeness.py"
       - "requirements/lock.txt"
       - "pyproject.toml"
       # pyproject.toml's declared readme: `pip install -e .` reads it.
