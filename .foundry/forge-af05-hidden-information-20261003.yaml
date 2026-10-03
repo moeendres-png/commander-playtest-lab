@@ -98,6 +98,22 @@ milestones:
       sentinel row, bound to the launcher's own code by LAB_CAPTURE_ASSERTIONS
       (a launcher that starts retaining stderr fails the assertion). Still
       20/20 PROVIDER_ADAPTER_GAP; Forge AF05 UNKNOWN.
+  - id: M6
+    result: Codex P2 "Require the full principal surface for every row" resolved
+    summary: >-
+      The shared mandatory verifier scans prompt, context, option ids, labels,
+      metadata, source, state, event, transcript and log for every HIDDEN row.
+      VERIFIER_CHANNELS maps each verifier coverage channel to its Forge
+      channel, and every row now requires that universal surface
+      (principal_scoped_state, decision_frames, event_log, message_surface,
+      transport_diagnostics), with obligation channels and the record's
+      face_down_redaction layered on top; the matrix lists each row's required
+      channels. Every row now names event_log absent, the three unaudited
+      channels and lab_capture.transport_diagnostics (supersedes M5's
+      HIDDEN_19/sentinel-only scope). Re-omission control
+      test_no_row_omits_a_universal_principal_channel fails with 60 omitted
+      (row, channel) pairs on the earlier table. Still 20/20
+      PROVIDER_ADAPTER_GAP; Forge AF05 UNKNOWN.
 open_items:
   - exact-head CI on the M4 head and a check that no new review finding remains.
   - Forge provider construction and observation gaps need a separately authorized Forge bridge issue.

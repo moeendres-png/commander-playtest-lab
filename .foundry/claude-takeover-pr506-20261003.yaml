@@ -4,7 +4,7 @@ worktree: /home/moeen/work/takeover-pr506-20261003
 branch: claude/pensive-mayer-f8spwn
 audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
 audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
-state_written_against_head: 4e6a3fbf62ef9c1bc963d3e221f7171dd60c62ee
+state_written_against_head: 6958f844fcf66c1e053af59d05be67eef051d19b
 validated_head: null
 objective: Resume transferred Claude pre-Freeze campaign; review, repair, qualify
   and integrate existing PR surfaces without losing provenance
@@ -42,8 +42,17 @@ technical_decisions:
   reveal_look_projection; no rules obligation or provider credit changed.'
 - Source census reads immutable pinned Forge Git objects only; active D17 worktree
   and processes are untouched.
-exact_next_action: Push repaired exact head; consume fresh required CI/PB03 and independent
-  review before merge, then integrate511 normally.
+- 'Codex P2 ''Require the full principal surface for every row'' is valid: the shared
+  mandatory verifier scans prompt/context/options/source/state/event/transcript/log
+  for every HIDDEN row. VERIFIER_CHANNELS maps each verifier coverage channel to its
+  Forge channel; every row now requires principal_scoped_state, decision_frames, event_log,
+  message_surface and transport_diagnostics, with obligation channels and the record''s
+  face_down_redaction layered on top. Re-omission control test_no_row_omits_a_universal_principal_channel.
+  20/20 PROVIDER_ADAPTER_GAP; AF05 Forge UNKNOWN; no credit.'
+- 'State file renamed from claude-takeover-20261003.yaml to claude-takeover-pr506-20261003.yaml:
+  several transferred PRs add the same name.'
+exact_next_action: Push the repaired exact head (universal principal surface, merged
+  current main); consume fresh required CI/PB03 and independent review before merge.
 validation_evidence:
   command: python3 -m pytest -q tests/qualification/test_forge_hidden_information.py
     tests/qualification/test_midgame_rows_residual_mechanisms.py tests/unit/test_required_test_ownership.py
@@ -59,3 +68,6 @@ tests_run:
 - 111 affected classification, residual-mechanism and test-ownership tests PASS
 - 'Pinned-object census regenerated: 20 provider adapter gaps, zero PASS, AF05 Forge
   UNKNOWN'
+- 'Universal-surface re-omission control: fails with 60 omitted (row, channel) pairs
+  on the earlier per-obligation table, passes after the repair; evidence in docs/forge_af05_hidden_20261003/{RED,GREEN}-universal-surface.*'
+- 'tests/qualification/test_forge_hidden_information.py: 71 passed'
