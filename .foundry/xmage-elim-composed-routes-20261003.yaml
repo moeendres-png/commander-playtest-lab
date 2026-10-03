@@ -2,10 +2,10 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
 worktree: /home/user/commander-playtest-lab (session-local canonical clone)
-branch: hardening/xmage-elim-composed-routes-20261003
+branch: hardening/xmage-elim-control-causal-permanent-20261003
 audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
 audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
-state_written_against_head: 56475948cdeccc77e6de433767ea23917b7e94fc
+state_written_against_head: e3dbd60b9e1d604b72b58fb5d25d1fa7419e8fcf
 workstream: XMAGE-ELIM-COMPOSED-ROUTES-20261003
 issue: 508
 parent: 255
@@ -33,9 +33,12 @@ milestones:
     result: composed entry causal_stack_elimination; ELIM-STACK-3 verifies locally (probe and PB-03 producer)
   - id: M2
     result: ELIM-CONTROL-3 classified HARNESS_GAP (a declared flash enabler reaches the record as written; the lane has no causal-permanent entry), corrected after the fresh-context review
+  - id: M3
+    result: caused permanents (declared Aura cast, resolved, verified for attachment and control); ELIM-CONTROL-3 verifies locally (probe and PB-03 producer)
+  - id: M4
+    result: PR #510 merged (92ac2ef7); PB-03 credits WS05-MP-ELIM-STACK-3 (XMage AF06 5 -> 4, AF08 8 -> 7)
 open_items:
-  - exact-head CI (PB-03) on the pushed head, fresh-context review, merge
+  - ELIM-CONTROL-3 PR: exact-head PB-03, fresh-context review, merge
 exact_next_action: >-
-  Confirm PB-03 credits WS05-MP-ELIM-STACK-3 on the exact head after the
-  review fixes, merge under the gates and post the #508 handoff; then the
-  causal-permanent entry for ELIM-CONTROL-3.
+  Confirm PB-03 credits WS05-MP-ELIM-CONTROL-3 on the follow-up PR's exact
+  head, run the fresh-context review and merge; post the #508 terminal handoff.
