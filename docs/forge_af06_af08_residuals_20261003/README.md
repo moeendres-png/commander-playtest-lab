@@ -147,8 +147,8 @@ every mechanism of every row; the table shows the first one.
 | WS05-CMD-PARTNER-DMG (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
 | WS05-CMD-PARTNER-TAX | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | WS05-CMD-PARTNER-ZONE (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
-| WS05-CMD-START-2 (PASS in epoch `18f0097373e6`) | LAB_EXECUTION_GAP | observation: `observation_contract` | — |
-| WS05-CMD-START-3 | SCENARIO_LANE_EXECUTABLE | — | — |
+| WS05-CMD-START-2 (PASS in epoch `18f0097373e6`, generic route; authority to re-check) | CONTRACT_AUTHORITY_GAP | execution: `decision_execution.starting_player.unscripted` | — |
+| WS05-CMD-START-3 | CONTRACT_AUTHORITY_GAP | execution: `decision_execution.starting_player.unscripted` | — |
 | WS05-CMD-TAX-2 | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | WS05-CMD-TAX-4 | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | WS05-CMD-ZONE-EXILE-NO | LAB_EXECUTION_GAP | construction: `stack_state` | — |
