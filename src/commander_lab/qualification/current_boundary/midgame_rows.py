@@ -1235,6 +1235,37 @@ ROWS: dict[str, RowSpec] = {
             ),
         ),
     ),
+    # WS05-MP-ELIM-STACK-3: P2's own Lightning Bolt (aimed at P1) is on the
+    # stack when P2 loses. The engine removes P2's spell with P2 (CR 800.4a):
+    # it leaves the stack for outside the game after P2's loss, never reaches
+    # the graveyard by resolving, and never deals its damage.
+    "WS05-MP-ELIM-STACK-3": RowSpec(
+        token_bindings=_player_leaves("P2"),
+        terminal_checks=(
+            _before(
+                _player_loses("P2"),
+                _event(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:leave-bolt"),
+                    ("from", "STACK"),
+                    ("to", "OUTSIDE"),
+                ),
+            ),
+            _exactly(
+                _event(
+                    "ZONE_CHANGE",
+                    ("target_object", "obj:leave-bolt"),
+                    ("from", "STACK"),
+                    ("to", "OUTSIDE"),
+                ),
+                1,
+            ),
+            _exactly(
+                _event("ZONE_CHANGE", ("target_object", "obj:leave-bolt"), ("to", "GRAVEYARD")), 0
+            ),
+            _exactly(_event("DAMAGED_PLAYER", ("source_object", "obj:leave-bolt")), 0),
+        ),
+    ),
     "WS05-MP-ELIM-PRIO-3": RowSpec(
         token_bindings=_player_leaves("P2"),
         terminal_checks=_ring_after_loss("P2", ("P1", "P3")),
@@ -3446,32 +3477,11 @@ def execute_row(
         )
     reconstruction: dict[str, Any] | None = None
     elimination_baseline: int | None = None
-    if causal is not None and causal.get("entry_mode") == "causal_elimination":
-        # The requested checkpoint is the state-based-action-pending instant
-        # inside the causal cause, so the obligation window opens before it.
-        elimination_baseline = int(client.events(0)["latest_offset"])
-        try:
-            verdict = probe.eliminate_causally(client, f"{fixture_id}-causal", created, causal)
-        except ml.MidgameLaneError as exc:
-            return RowExecution(
-                fixture_id, False, construction, f"causal elimination failed closed: {exc}"
-            )
-        reconstruction = {
-            "entry_mode": "causal_elimination",
-            "actor": str(causal.get("elimination_actor")),
-            "victim": str(causal.get("elimination_victim")),
-            "bolt_count": int(causal.get("bolt_count") or 0),
-            "verdict": verdict,
-        }
-        if not (verdict.get("victim_lost") is True or verdict.get("victim_left") is True):
-            return RowExecution(
-                fixture_id,
-                False,
-                construction,
-                f"the engine did not eliminate the victim causally: {verdict}",
-                causal_reconstruction=reconstruction,
-            )
-    elif causal is not None:
+    mode = causal.get("entry_mode") if causal is not None else None
+    composed = mode == probe.CAUSAL_STACK_ELIMINATION
+    # A composed entry builds the victim's stack first (and requires the stack
+    # verifier's match), then eliminates the victim with that stack intact.
+    if causal is not None and mode in ("causal_stack", probe.CAUSAL_STACK_ELIMINATION):
         declared_fuel = [str(card["semantic_id"]) for card in causal.get("fuel") or ()]
         fuel = [placed[semantic] for semantic in declared_fuel if semantic in placed]
         if len(fuel) != len(declared_fuel):
@@ -3502,6 +3512,38 @@ def execute_row(
                 f"the causal reconstruction does not match the requested stack: {verdict}",
                 causal_reconstruction=reconstruction,
             )
+    stack_reconstruction = reconstruction if composed else None
+    if causal is not None and mode in ("causal_elimination", probe.CAUSAL_STACK_ELIMINATION):
+        # The requested checkpoint is the state-based-action-pending instant
+        # inside the causal cause, so the obligation window opens before it.
+        elimination_baseline = int(client.events(0)["latest_offset"])
+        try:
+            verdict = probe.eliminate_causally(client, f"{fixture_id}-causal", created, causal)
+        except ml.MidgameLaneError as exc:
+            return RowExecution(
+                fixture_id, False, construction, f"causal elimination failed closed: {exc}"
+            )
+        reconstruction = {
+            "entry_mode": "causal_elimination",
+            "actor": str(causal.get("elimination_actor")),
+            "victim": str(causal.get("elimination_victim")),
+            "bolt_count": int(causal.get("bolt_count") or 0),
+            "verdict": verdict,
+        }
+        if not (verdict.get("victim_lost") is True or verdict.get("victim_left") is True):
+            return RowExecution(
+                fixture_id,
+                False,
+                construction,
+                f"the engine did not eliminate the victim causally: {verdict}",
+                causal_reconstruction=reconstruction,
+            )
+        if composed:
+            reconstruction = {
+                "entry_mode": probe.CAUSAL_STACK_ELIMINATION,
+                "stack": stack_reconstruction,
+                "elimination": reconstruction,
+            }
     if spec.observe_from_game_start:
         baseline = 0
     elif elimination_baseline is not None:
@@ -4054,6 +4096,16 @@ def causal_elimination_entry(fixture_id: str) -> dict[str, Any] | None:
     return dict(entry)
 
 
+def causal_stack_elimination_entry(fixture_id: str) -> dict[str, Any] | None:
+    """The production probe's declared composed stack-then-elimination entry, or None."""
+    probe = probe_module()
+    entry = (getattr(probe, "CAUSAL_ROWS", {}) or {}).get(fixture_id)
+    composed = getattr(probe, "CAUSAL_STACK_ELIMINATION", None)
+    if not isinstance(entry, dict) or composed is None or entry.get("entry_mode") != composed:
+        return None
+    return dict(entry)
+
+
 def execute_and_persist(
     *,
     workspace: Path,
@@ -4105,6 +4157,15 @@ def execute_and_persist(
             request["entry_mode"] = "causal_elimination"
             request["elimination"] = probe.elimination_request(elimination)
             causal = elimination
+        composed = causal_stack_elimination_entry(fixture_id)
+        if composed is not None:
+            # The record's stack must exist while its controller is eliminated
+            # (CR 800.4a): the engine casts the frames, the stack verifier
+            # confirms them, and only then is the loss caused.
+            request["entry_mode"] = probe.CAUSAL_STACK_ELIMINATION
+            request["fuel"] = list(composed.get("fuel") or ())
+            request["elimination"] = probe.elimination_request(composed)
+            causal = composed
         with probe.open_client(workspace) as client:
             client.request("get_provider_version", None)
             client.read_dimension_manifest()
