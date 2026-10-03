@@ -1,0 +1,61 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/work/takeover-pr506-20261003
+branch: claude/pensive-mayer-f8spwn
+audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
+state_written_against_head: 4e6a3fbf62ef9c1bc963d3e221f7171dd60c62ee
+validated_head: null
+objective: Resume transferred Claude pre-Freeze campaign; review, repair, qualify
+  and integrate existing PR surfaces without losing provenance
+ownership: CLAUDE-CAMPAIGN-TAKEOVER-20261003
+status: WAITING
+in_scope:
+- Transferred Lab PR506 implementation, tests, evidence, normal base merge and GitHub
+  integration
+out_of_scope:
+- Foreign-active D17 writer
+- Rules authority changes
+- provider selection and Architecture Freeze
+- new production repository
+- canonical deck/inventory/opponent mutation
+- paid services
+- required-check promotion
+dependencies:
+- Direct Owner takeover in this chat
+- Lab255 comment5969650684
+- fresh current target source
+- transferred implementation and reviews
+hard_gates:
+- exact-head required CI and affected qualification PASS
+- no unresolved material P1/P2
+- normal merge only and target drift adjudication
+- no false PASS, narrowed denominator or fallback
+- single writer with preserved historical evidence
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+authority_gates:
+- Rules/evidence-policy/provider/freeze decisions remain reserved
+execution_profile: direct-owner-authorized-codex-takeover
+technical_decisions:
+- 'Fresh current-head independent review P2 4173392672 is valid: audience transport
+  and state projection are separate prerequisites. Both audience obligations now inventory
+  reveal_look_projection; no rules obligation or provider credit changed.'
+- Source census reads immutable pinned Forge Git objects only; active D17 worktree
+  and processes are untouched.
+exact_next_action: Push repaired exact head; consume fresh required CI/PB03 and independent
+  review before merge, then integrate511 normally.
+validation_evidence:
+  command: python3 -m pytest -q tests/qualification/test_forge_hidden_information.py
+    tests/qualification/test_midgame_rows_residual_mechanisms.py tests/unit/test_required_test_ownership.py
+  tests: 109
+  failures: 0
+  runtime: Python3.14 pytest9.1.1
+  exact_head_ci: PENDING
+  independent_review: PENDING
+pr_url: https://github.com/moeendres-png/commander-playtest-lab/pull/506
+tests_run:
+- 'Reveal/look independent projection controls: 2 fail before repair, both pass afterward;
+  evidence in docs/forge_af05_hidden_20261003'
+- 111 affected classification, residual-mechanism and test-ownership tests PASS
+- 'Pinned-object census regenerated: 20 provider adapter gaps, zero PASS, AF05 Forge
+  UNKNOWN'

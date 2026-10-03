@@ -1,0 +1,21 @@
+{
+  "head": "4e6a3fbf62ef9c1bc963d3e221f7171dd60c62ee",
+  "tree": "250c01d973c731b01746aa94201ac3da498f5526",
+  "working_diff_sha256": "544a8f7e67f38b48c7b018a7696468a0ef040cfcf58096eb2795ffc9d4ac2606",
+  "source_hashes": {
+    "src/commander_lab/engine/rules/full_game.py": "7da6aeb75ab8af03537004dda39a287802bbbfa6421cc5652f13d85815dc3f3e",
+    "scripts/run_real_4p_full_game_smoke.py": "9d5cca9fec38c1a49e009a4180d742910d49a5e0bd9c8a4e40bdcb9e56997ce0",
+    ".github/workflows/xmage-real-4p-smoke.yml": "eb8847c60c20f4accba9ce3a474a849fa26b27f13f772dce8cddd391795377a9"
+  },
+  "command": [
+    "/home/moeen/work/takeover-runtime-20261003/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/qualification/test_forge_hidden_information.py",
+    "tests/qualification/test_midgame_rows_residual_mechanisms.py",
+    "tests/unit/test_required_test_ownership.py"
+  ],
+  "exit": 0,
+  "log_sha256": "eb4ecd4c2c7502c8cf72ba6a8247b2fd91ea05fdae5c546c83a6341a6d56678b"
+}
