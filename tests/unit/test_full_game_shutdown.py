@@ -156,7 +156,7 @@ def _run_smoke_with_disposition(monkeypatch: pytest.MonkeyPatch, disposition: st
     monkeypatch.setattr(
         XmageFullGameRunner,
         "_drive",
-        lambda self, client, policy, stop_after=None, stop_at_turn=None, progress=None: (
+        lambda self, client, policy, stop_after=None, stop_at_turn=None, progress=None, stop=None: (
             5,
             ("priority",),
             False,
@@ -199,7 +199,7 @@ def _run_full_game_with_disposition(monkeypatch: pytest.MonkeyPatch, disposition
     monkeypatch.setattr(
         XmageFullGameRunner,
         "_drive",
-        lambda self, client, policy, stop_after=None, stop_at_turn=None, progress=None: (
+        lambda self, client, policy, stop_after=None, stop_at_turn=None, progress=None, stop=None: (
             9,
             ("priority",),
             True,

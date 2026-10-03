@@ -1,0 +1,52 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/work/takeover-pr518-20261003
+branch: hardening/b8-real4p-progress-20261003
+audit_base_sha: 92ac2ef7d4876dd19a3f1b2ad85c8386a913df27
+audit_base_tree: 785f02937170c88576fba9e11b26844493532fc0
+state_written_against_head: 208c149ec86f04fc88fdb5e9f83f64485216c0f0
+validated_head: null
+objective: Resume transferred Claude pre-Freeze campaign; review, repair, qualify
+  and integrate existing PR surfaces without losing provenance
+ownership: CLAUDE-CAMPAIGN-TAKEOVER-20261003
+status: WAITING
+in_scope:
+- Transferred Lab PR518 implementation, tests, evidence, normal base merge and GitHub
+  integration
+out_of_scope:
+- Foreign-active D17 writer
+- Rules authority changes
+- provider selection and Architecture Freeze
+- new production repository
+- canonical deck/inventory/opponent mutation
+- paid services
+- required-check promotion
+dependencies:
+- Direct Owner takeover in this chat
+- Lab255 comment5969650684
+- fresh current target source
+- transferred implementation and reviews
+hard_gates:
+- exact-head required CI and affected qualification PASS
+- no unresolved material P1/P2
+- normal merge only and target drift adjudication
+- no false PASS, narrowed denominator or fallback
+- single writer with preserved historical evidence
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+authority_gates:
+- Rules/evidence-policy/provider/freeze decisions remain reserved
+execution_profile: direct-owner-authorized-codex-takeover
+technical_decisions:
+- User explicitly transfers Claude campaign after usage limit; earlier Claude-only
+  reservation superseded for named Lab surfaces. Direct Codex engineering is the requested
+  takeover, not an automatic OpenCode fallback.
+- Remote published source is reused. Unavailable Claude cloud edits are not assumed
+  present. Existing local D17 processes and uncommitted Forge work are preserved.
+exact_next_action: Validate clean code commit, checkpoint the tested identity, push
+  once, then obtain exact-head CI and fresh independent review before ordinary merge.
+tests_run:
+- Five fail-before controls; attached RED-progress logs and source binding
+- 39 affected tests PASS after repair; attached GREEN-progress logs
+- 66 affected tests including workflow-impact PASS
+- 'First dirty full suite: 3495 passed, 61 failed, 18 skipped, 8 errors; causes recorded
+  in docs/b8_takeover_20261003/README.md'

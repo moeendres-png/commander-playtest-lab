@@ -15,6 +15,7 @@ on:
       - "scripts/run_real_4p_full_game_smoke.py"
       - "tests/unit/test_real_4p_full_game_smoke.py"
       - "tests/unit/test_real_4p_progress_contract.py"
+      - "tests/unit/test_real_4p_progress_execution.py"
       - "tests/unit/test_rules_project_loader.py"
       - "data/decks/rogshai_current.json"
       - "data/decks/opponents/kaervek/current/deck.json"
@@ -66,6 +67,8 @@ jobs:
             src/commander_lab/engine/rules/project.py
             scripts/run_real_4p_full_game_smoke.py
             tests/unit/test_real_4p_full_game_smoke.py
+            tests/unit/test_real_4p_progress_contract.py
+            tests/unit/test_real_4p_progress_execution.py
             tests/unit/test_rules_project_loader.py
             data/decks/rogshai_current.json
             data/decks/opponents/kaervek/current/deck.json
@@ -78,6 +81,7 @@ jobs:
             src/commander_lab/engine/**
             tests/conftest.py
             src/commander_lab/qualification/**
+            src/commander_lab/semantic_replay/**
 
   real-4p-smoke:
     needs: [smoke-scope]
@@ -139,10 +143,10 @@ jobs:
         run: mvn -B -ntp -DskipTests package
 
       - name: Run bounded real 4P technical smoke
-        # B8 (#489): play two full turns twice with the same seed; the decision
+        # B8 (#489): play one full four-player round twice with the same seed; the decision
         # count is only a cap. smoke_progress_contract must hold and both runs
         # must produce the same public progress digest.
-        run: python scripts/run_real_4p_full_game_smoke.py --progress-turns 2 --smoke-decisions 3000
+        run: python scripts/run_real_4p_full_game_smoke.py --progress-turns 4 --smoke-decisions 3000
 
       - name: Verify evidence boundary
         run: |
@@ -165,11 +169,14 @@ jobs:
           assert report["clean_shutdown"] is True
           contract = report["progress_contract"]
           assert contract["met"] is True, contract["violations"]
-          assert contract["through_turn"] == 2
-          assert contract["turns_observed"][-1] >= 2
+          assert contract["through_turn"] == 4
+          assert contract["turns_observed"][-1] >= 4
           assert contract["priority_seats"] == [0, 1, 2, 3]
-          assert len(contract["priority_turns"]) >= 2
+          assert contract["priority_turns"] == [1, 2, 3, 4]
           assert report["twin_runs"] == 2
+          assert all(row["met"] is True for row in report["twin_progress_contracts"])
+          assert report["twin_stop_reasons"] == ["turn_boundary", "turn_boundary"]
+          assert report["twin_stop_turn_numbers"] == [5, 5]
           assert report["twin_progress_digest_match"] is True
           PY
 

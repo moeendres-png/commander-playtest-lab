@@ -240,24 +240,51 @@ def run_live_smoke(
         }
     )
     if progress_turns is not None:
-        contract = smoke_progress_contract(
-            result.progress_trace, player_count=4, through_turn=progress_turns
+        contracts = [
+            smoke_progress_contract(
+                item.progress_trace, player_count=4, through_turn=progress_turns
+            )
+            for item in results
+        ]
+        digests_valid = all(
+            item.progress_digest is not None
+            and item.progress_digest
+            == hashlib.sha256(
+                json.dumps(item.progress_trace, separators=(",", ":")).encode("utf-8")
+            ).hexdigest()
+            for item in results
         )
-        twin_match = all(item.progress_digest == result.progress_digest for item in results)
+        twin_match = digests_valid and all(
+            item.progress_digest == result.progress_digest for item in results
+        )
+        boundaries_met = all(
+            item.stop_reason == "turn_boundary"
+            and item.stop_turn_number == stop_at_turn
+            and item.seed == scenario.seed
+            and item.xmage_commit == scenario.xmage_commit
+            and item.player_count == 4
+            and item.clean_shutdown
+            and item.evidence_class == FULL_GAME_EVIDENCE_CLASS
+            for item in results
+        )
         report.update(
             {
-                "progress_contract": contract,
+                "progress_contract": contracts[0],
+                "twin_progress_contracts": contracts,
                 "progress_digest": result.progress_digest,
                 "twin_progress_digest_match": twin_match,
                 "twin_runs": len(results),
+                "twin_stop_reasons": [item.stop_reason for item in results],
+                "twin_stop_turn_numbers": [item.stop_turn_number for item in results],
             }
         )
-        if not contract["met"] or not twin_match:
+        if not all(item["met"] for item in contracts) or not twin_match or not boundaries_met:
             report["status"] = "FAIL"
             _artifact_path(root).write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
             raise FullGameConformanceError(
                 "real 4P smoke did not show deterministic meaningful progress: "
-                f"{contract['violations']} twin_match={twin_match}"
+                f"{[item['violations'] for item in contracts]} "
+                f"twin_match={twin_match} boundaries_met={boundaries_met}"
             )
     _artifact_path(root).write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     return report
@@ -290,8 +317,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.smoke_decisions < 1:
         parser.error("--smoke-decisions must be positive")
-    if args.progress_turns is not None and args.progress_turns < 2:
-        parser.error("--progress-turns must be at least 2")
+    if args.progress_turns is not None and args.progress_turns < 4:
+        parser.error("--progress-turns must be at least 4 (one full seat cycle)")
 
     report = (
         run_preflight(ROOT)

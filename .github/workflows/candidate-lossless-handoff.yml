@@ -24,6 +24,7 @@ on:
       - "src/commander_lab/semantic_features.py"
       - "src/commander_lab/storage/**"
       - "tests/conftest.py"
+      - "src/commander_lab/semantic_replay/**"
   push:
     branches: [main]
     paths:
@@ -47,6 +48,7 @@ on:
       - "src/commander_lab/semantic_features.py"
       - "src/commander_lab/storage/**"
       - "tests/conftest.py"
+      - "src/commander_lab/semantic_replay/**"
   workflow_dispatch:
 
 permissions:

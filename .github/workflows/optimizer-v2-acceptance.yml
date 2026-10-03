@@ -36,6 +36,7 @@ on:
       - "src/commander_lab/storage/**"
       - "src/commander_lab/technical_truth.py"
       - "tests/conftest.py"
+      - "src/commander_lab/semantic_replay/**"
   workflow_dispatch:
 
 permissions:
