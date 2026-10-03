@@ -39,7 +39,15 @@ to:
    stripped and whitespace is collapsed. `HiddenChannelDrift` is raised when:
    - a blob loses an asserted code fragment;
    - an absent token appears once the asserted fragments are removed;
-   - the bootstrap reads a JSON field outside the closed set `BOOTSTRAP_FIELDS`.
+   - the bootstrap reads a JSON field outside the closed set `BOOTSTRAP_FIELDS`;
+   - the bridge dispatches a message type outside the closed set `MESSAGE_CASES`, or
+     loses one.
+
+   A channel has one of three statuses. **Supported** and **absent** are decided by the
+   source. **Present but unaudited** marks a principal-facing channel that exists but
+   whose obligation (a refusal probe, a leak or sentinel scan) is shown only by executing
+   the row. The source assertion never stands in for that audit, and an unaudited
+   channel alone is not a classification: such a row needs execution.
 
    So no classification silently survives a source change. The table holds only for
    `ASSERTED_BRIDGE_COMMIT`. If the canonical pin moves, both the runner reason and the
@@ -63,6 +71,8 @@ row stays UNKNOWN.
 | library-order construction | absent | `ScenarioBootstrap` cannot place a library in a requested order |
 | knowledge construction | absent | `ScenarioBootstrap` has no knowledge or permission field |
 | cost-state construction | absent | `ScenarioBootstrap` has no mid-cast cost or payment field |
+| message surface | present, unaudited | the whole request surface is 24 dispatched message types (`MESSAGE_CASES`); an unknown type is refused with `UNKNOWN_MESSAGE`, and the legacy `get_state` alias is the observer-scoped projection. Whether every message refuses an omniscient read, and what errors and diagnostics carry, needs the row's runtime refusal probes and channel scan |
+| decision frames | present, unaudited | an option reaches its actor with `metadata.label`, a `source_object_id` built from the source card name, a semantic key and `object_refs`; whether a face-down or sentinel identity reaches a non-entitled principal needs the row's execution |
 
 The four construction channels share one closed set: the bootstrap reads exactly these
 JSON fields:
@@ -76,28 +86,28 @@ All 20 rows request a face-down permanent and an exact library order, which the
 bootstrap cannot construct. Every row's readback also cannot prove the requested library
 and exile zones. The remaining columns name what else each row needs.
 
-| Row | Obligation | Other construction gaps | Absent principal channels | Lab execution gaps |
-|---|---|---|---|---|
-| HIDDEN_01 | opponent_hand | none | none | none |
-| HIDDEN_02 | opponent_library | none | none | none |
-| HIDDEN_03 | public_exile | knowledge | none | none |
-| HIDDEN_04 | face_down_controller | knowledge | none | none |
-| HIDDEN_05 | exile_permission_persists | cost state, knowledge | event log | cast, target player, choose object, target object |
-| HIDDEN_06 | exile_permission_invalidates | cost state, knowledge | event log | cast, target player, choose object |
-| HIDDEN_07 | reveal_audience | cost state, knowledge | reveal/look audience, event log | cast |
-| HIDDEN_08 | look_audience | cost state, knowledge | reveal/look audience, event log | cast, target player |
-| HIDDEN_09 | search_inspection | cost state, knowledge | library contents, event log | cast, target object |
-| HIDDEN_10 | scry_knowledge | cost state, knowledge | library contents, event log | cast, target player, target objects, choose object |
-| HIDDEN_11 | shuffle_invalidates_order | cost state, knowledge | library contents, event log | cast, target player |
-| HIDDEN_12 | controlled_player_authority | cost state, knowledge | event log | cast, target player |
-| HIDDEN_13 | pile_metadata | cost state, knowledge | library contents, event log | cast, target player, choose objects, pile |
-| HIDDEN_14 | target_metadata | cost state | none | cast, face-down target |
-| HIDDEN_15 | source_metadata | cost state | none | cast, mode, face-down target, yes/no |
-| HIDDEN_16 | ability_metadata | cost state | none | cast, mode, face-down target, yes/no |
-| HIDDEN_17 | copy_face_down | cost state | none | cast, yes/no, face-down choice |
-| HIDDEN_18 | transcript_privacy | cost state, knowledge | replay/transcript, event log | cast, target player |
-| HIDDEN_19 | no_omniscient_api | none | none | none |
-| HIDDEN_HONEYCARD_SENTINEL | honey_sentinel | none | event log, replay/transcript | none |
+| Row | Obligation | Other construction gaps | Absent principal channels | Unaudited principal channels | Lab execution gaps |
+|---|---|---|---|---|---|
+| HIDDEN_01 | opponent_hand | none | none | none | none |
+| HIDDEN_02 | opponent_library | none | none | none | none |
+| HIDDEN_03 | public_exile | knowledge | none | none | none |
+| HIDDEN_04 | face_down_controller | knowledge | none | none | none |
+| HIDDEN_05 | exile_permission_persists | cost state, knowledge | event log | none | cast, target player, choose object, target object |
+| HIDDEN_06 | exile_permission_invalidates | cost state, knowledge | event log | none | cast, target player, choose object |
+| HIDDEN_07 | reveal_audience | cost state, knowledge | reveal/look audience, event log | none | cast |
+| HIDDEN_08 | look_audience | cost state, knowledge | reveal/look audience, event log | none | cast, target player |
+| HIDDEN_09 | search_inspection | cost state, knowledge | library contents, event log | none | cast, target object |
+| HIDDEN_10 | scry_knowledge | cost state, knowledge | library contents, event log | none | cast, target player, target objects, choose object |
+| HIDDEN_11 | shuffle_invalidates_order | cost state, knowledge | library contents, event log | none | cast, target player |
+| HIDDEN_12 | controlled_player_authority | cost state, knowledge | event log | none | cast, target player |
+| HIDDEN_13 | pile_metadata | cost state, knowledge | library contents, event log | decision frames | cast, target player, choose objects, pile |
+| HIDDEN_14 | target_metadata | cost state | none | decision frames | cast, face-down target |
+| HIDDEN_15 | source_metadata | cost state | none | decision frames | cast, mode, face-down target, yes/no |
+| HIDDEN_16 | ability_metadata | cost state | none | decision frames | cast, mode, face-down target, yes/no |
+| HIDDEN_17 | copy_face_down | cost state | none | none | cast, yes/no, face-down choice |
+| HIDDEN_18 | transcript_privacy | cost state, knowledge | replay/transcript, event log | none | cast, target player |
+| HIDDEN_19 | no_omniscient_api | none | none | message surface | none |
+| HIDDEN_HONEYCARD_SENTINEL | honey_sentinel | none | event log, replay/transcript | decision frames, message surface | none |
 
 ## What would move Forge AF05
 
@@ -109,7 +119,9 @@ In dependency order, all outside this Lab workstream:
 2. Provider observation: a principal-scoped event log, a reveal and look audience
    channel, library contents for an entitled principal, and a readback that proves the
    requested library and exile zones.
-3. Lab execution: the shared mid-game selector surface on the Forge scenario lane
+3. Runtime audit: once a row can be constructed, its refusal probes and its leak and
+   sentinel scan over the message surface and the decision frames.
+4. Lab execution: the shared mid-game selector surface on the Forge scenario lane
    (#459) for the scripted decision families.
 
 No row needs only one of these steps:

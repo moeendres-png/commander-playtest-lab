@@ -28,6 +28,7 @@ def _texts() -> dict[str, str]:
     for channel in fh.CHANNELS:
         texts[channel.source] += "\n".join(channel.present) + "\n"
     texts["bootstrap"] += "".join(f'x.has("{name}");\n' for name in sorted(fh.BOOTSTRAP_FIELDS))
+    texts["engine"] += "".join(f"case {label}: break;\n" for label in sorted(fh.MESSAGE_CASES))
     return texts
 
 
@@ -310,6 +311,7 @@ def test_the_committed_matrix_is_current(records) -> None:
             "present_fragments": list(channel.present),
             "absent_tokens": list(channel.absent),
             "closed_bootstrap_fields": sorted(channel.fields),
+            "closed_message_types": sorted(channel.cases),
             "meaning": channel.meaning,
         }
         for channel in fh.CHANNELS
@@ -317,3 +319,38 @@ def test_the_committed_matrix_is_current(records) -> None:
     assert matrix["channels"] == channels
     assert matrix["summary"]["pass"] == 0
     assert matrix["summary"]["af05_forge"] == "UNKNOWN"
+
+
+def test_a_new_or_lost_message_type_is_drift() -> None:
+    """The omniscient-read surface is the closed message set; any new API is re-reviewed."""
+    texts = _texts()
+    texts["engine"] += 'case "dump_state": break;\n'
+    with pytest.raises(fh.HiddenChannelDrift, match="new messages"):
+        fh.assert_channels(texts)
+    texts = _texts()
+    texts["engine"] = texts["engine"].replace('case "shutdown": break;\n', "")
+    with pytest.raises(fh.HiddenChannelDrift, match="lost messages"):
+        fh.assert_channels(texts)
+
+
+def test_omniscience_and_sentinel_rows_name_their_unaudited_surfaces(records) -> None:
+    """A source assertion never stands in for the row's refusal probes or sentinel scan."""
+    omniscience = fh.classify_row(records["HIDDEN_19"])
+    assert "message_surface" in omniscience.unaudited_channels
+    assert "needs row execution" in omniscience.reason()
+    sentinel = fh.classify_row(records["HIDDEN_HONEYCARD_SENTINEL"])
+    assert {"decision_frames", "message_surface"} <= set(sentinel.unaudited_channels)
+    assert {"event_log", "replay_transcript"} <= set(sentinel.missing_channels)
+    for fixture in ("HIDDEN_13", "HIDDEN_14", "HIDDEN_15", "HIDDEN_16"):
+        assert "decision_frames" in fh.classify_row(records[fixture]).unaudited_channels, fixture
+
+
+def test_an_unaudited_channel_alone_is_not_a_gap() -> None:
+    """Without a construction gap or an absent channel, the row needs execution, not a class."""
+    row = fh.HiddenRowClassification(
+        fixture_id="HIDDEN_19",
+        obligation_kind="no_omniscient_api",
+        unaudited_channels=["message_surface"],
+    )
+    with pytest.raises(ValueError, match="needs execution"):
+        _ = row.classification

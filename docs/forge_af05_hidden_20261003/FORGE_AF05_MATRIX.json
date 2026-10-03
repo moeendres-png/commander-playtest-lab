@@ -7,6 +7,7 @@
    "absent_tokens": [],
    "channel": "principal_scoped_state",
    "closed_bootstrap_fields": [],
+   "closed_message_types": [],
    "meaning": "get_game_state is projected for one observer principal",
    "present_fragments": [
     "public static JsonObject gameState(BridgeSession session, String observerPlayerId)"
@@ -18,6 +19,7 @@
    "absent_tokens": [],
    "channel": "face_down_redaction",
    "closed_bootstrap_fields": [],
+   "closed_message_types": [],
    "meaning": "a face-down card or stack source is named only to a principal both CardView.canBeShownTo and CardView.canFaceDownBeShownTo admit",
    "present_fragments": [
     "shown = view != null && view.canBeShownTo(observerView) && view.canFaceDownBeShownTo(observerView);",
@@ -34,6 +36,7 @@
    ],
    "channel": "library_contents",
    "closed_bootstrap_fields": [],
+   "closed_message_types": [],
    "meaning": "every library projects as an empty list with library_size; no principal, entitled or not, can observe a library identity or its order",
    "present_fragments": [
     "zones.add(\"library\", new JsonArray());",
@@ -48,6 +51,7 @@
    ],
    "channel": "event_log",
    "closed_bootstrap_fields": [],
+   "closed_message_types": [],
    "meaning": "export_event_log and get_event_log fail closed; no engine event can be observed, so permission timing cannot be tied to the real event",
    "present_fragments": [
     "BridgeErrors.EVENT_LOG_UNSUPPORTED",
@@ -63,6 +67,7 @@
    ],
    "channel": "reveal_look_audience",
    "closed_bootstrap_fields": [],
+   "closed_message_types": [],
    "meaning": "a reveal or look is recorded only in the bridge's internal audit, which is never pilot-visible; no principal has a revealed or looked-at log",
    "present_fragments": [
     "public void reveal(CardCollectionView cards, ZoneType zone, Player owner, String messagePrefix, boolean addMsgSuffix) { auditReveal(cards == null ? 0 : cards.size(), zone); }",
@@ -81,6 +86,7 @@
    ],
    "channel": "reveal_look_projection",
    "closed_bootstrap_fields": [],
+   "closed_message_types": [],
    "meaning": "the state projection carries no revealed or looked-at zone; with the controller's audit-only reveal this is the whole reveal/look evidence",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
@@ -92,6 +98,7 @@
    ],
    "channel": "replay_transcript",
    "closed_bootstrap_fields": [],
+   "closed_message_types": [],
    "meaning": "no replay or transcript export exists to audit",
    "present_fragments": [
     "export_replay is not supported: deterministic replay is not claimed",
@@ -125,6 +132,7 @@
     "stack",
     "tapped"
    ],
+   "closed_message_types": [],
    "meaning": "the scenario bootstrap has no face-down field (MANIFESTED, CLOAKED, ...)",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
@@ -153,6 +161,7 @@
     "stack",
     "tapped"
    ],
+   "closed_message_types": [],
    "meaning": "the scenario bootstrap cannot place a library in a requested order",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
@@ -181,6 +190,7 @@
     "stack",
     "tapped"
    ],
+   "closed_message_types": [],
    "meaning": "the scenario bootstrap has no knowledge or permission field",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
@@ -211,10 +221,63 @@
     "stack",
     "tapped"
    ],
+   "closed_message_types": [],
    "meaning": "the scenario bootstrap has no mid-cast cost or payment state field",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
    "status": "ABSENT"
+  },
+  {
+   "absent_tokens": [],
+   "channel": "message_surface",
+   "closed_bootstrap_fields": [],
+   "closed_message_types": [
+    "\"create_game\"",
+    "\"get_event_log\"",
+    "\"get_state\"",
+    "\"shutdown\"",
+    "BridgeProtocol.ADD_PLAYER",
+    "BridgeProtocol.CHOOSE_MODES",
+    "BridgeProtocol.CONCEDE",
+    "BridgeProtocol.CREATE_COMMANDER_GAME",
+    "BridgeProtocol.EXPORT_EVENT_LOG",
+    "BridgeProtocol.EXPORT_REPLAY",
+    "BridgeProtocol.GET_CAPABILITIES",
+    "BridgeProtocol.GET_GAME_STATE",
+    "BridgeProtocol.GET_LEGAL_ACTIONS",
+    "BridgeProtocol.GET_PROVIDER_VERSION",
+    "BridgeProtocol.IMPORT_DECK",
+    "BridgeProtocol.ORDER_TRIGGERS",
+    "BridgeProtocol.PASS_PRIORITY",
+    "BridgeProtocol.RESOLVE_MULLIGAN",
+    "BridgeProtocol.SELECT_TARGETS",
+    "BridgeProtocol.SHUTDOWN_ENGINE",
+    "BridgeProtocol.SHUTDOWN_GAME",
+    "BridgeProtocol.START_ENGINE",
+    "BridgeProtocol.START_GAME",
+    "BridgeProtocol.SUBMIT_ACTION"
+   ],
+   "meaning": "the bridge's whole request surface is this closed set of message types; an unknown type is refused with UNKNOWN_MESSAGE and the legacy get_state alias is the observer-scoped projection. Whether every message refuses an omniscient read, and what its errors and diagnostics carry, is shown only by the row's runtime refusal probes and channel scan, which were not run",
+   "present_fragments": [
+    "\"unknown message type: \" + type",
+    "case \"get_state\": return getGameState(request);"
+   ],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
+   "status": "PRESENT_UNAUDITED"
+  },
+  {
+   "absent_tokens": [],
+   "channel": "decision_frames",
+   "closed_bootstrap_fields": [],
+   "closed_message_types": [],
+   "meaning": "a decision option reaches its actor with a label, a source_object_id built from the source card name, a semantic key and object references; whether a face-down or sentinel identity reaches a principal not entitled to it is shown only by executing the row, which was not run",
+   "present_fragments": [
+    "action.addProperty(\"source_object_id\", option.sourceCardName);",
+    "metadata.addProperty(\"label\", option.label);",
+    "action.getAsJsonObject(\"metadata\").add(\"object_refs\", refs);"
+   ],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
+   "status": "PRESENT_UNAUDITED"
   }
  ],
  "contract_id": "commander-lab.full107/1.0.20-successor",
@@ -249,6 +312,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_hand). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -295,6 +359,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_library). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -349,6 +414,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (public_exile). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -403,6 +469,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (face_down_controller). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -535,6 +602,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -648,6 +716,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -737,6 +806,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -838,6 +908,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: reveal_look_audience, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -939,6 +1010,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1067,6 +1139,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1173,6 +1246,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1274,6 +1348,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1404,7 +1479,10 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: library_contents, event_log. principal channel present but unaudited (needs row execution): decision_frames. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [
+    "decision_frames"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1499,7 +1577,10 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel present but unaudited (needs row execution): decision_frames. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [
+    "decision_frames"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1620,7 +1701,10 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel present but unaudited (needs row execution): decision_frames. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [
+    "decision_frames"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1741,7 +1825,10 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel present but unaudited (needs row execution): decision_frames. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [
+    "decision_frames"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1851,6 +1938,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1952,6 +2040,7 @@
     }
    ],
    "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: replay_transcript, event_log. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -1997,7 +2086,10 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel present but unaudited (needs row execution): message_surface. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [
+    "message_surface"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",
@@ -2046,7 +2138,11 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "unaudited_principal_channels": [
+    "decision_frames",
+    "message_surface"
+   ],
    "unobservable_checkpoint_dimensions": [
     {
      "detail": "library contents/order are never exposed; only library_size",

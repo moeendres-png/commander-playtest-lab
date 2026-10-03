@@ -65,8 +65,19 @@ milestones:
       finding. An unmapped lane finding or a gapless row raises instead of
       defaulting to LAB_ADAPTER_GAP. The matrix records source blob ids and is
       checked against a fresh classification and the current contract.
+  - id: M3
+    result: Codex review threads (two P2) resolved
+    summary: >-
+      A third channel status, PRESENT_UNAUDITED, marks a principal-facing
+      channel that exists but whose obligation only row execution can show.
+      The bridge's whole request surface is asserted as a closed set of 24
+      message types (a new or lost type is drift) and required by
+      no_omniscient_api; the decision frames (label, source_object_id,
+      object_refs) are required by the honey sentinel and the metadata rows.
+      Unaudited channels are reported apart from absent ones and never make a
+      classification on their own. All 20 rows stay PROVIDER_ADAPTER_GAP.
 open_items:
-  - main (with #505) is merged into this branch and the matrix is regenerated on contract 1.0.20 (rows unchanged); exact-head CI and a fresh-context review remain.
+  - exact-head CI and a fresh-context review of the M3 change remain.
   - Forge provider construction and observation gaps need a separately authorized Forge bridge issue.
 exact_next_action: >-
   Confirm exact-head CI on the pushed head, resolve the fresh-context review,

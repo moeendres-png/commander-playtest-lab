@@ -45,6 +45,10 @@ AF05_EFFECT_UNKNOWN = "UNKNOWN"
 
 CHANNEL_SUPPORTED = "SUPPORTED"
 CHANNEL_ABSENT = "ABSENT"
+# The channel exists and is principal-facing, but whether it honours a row's
+# obligation is shown only by executing the row (a leak or sentinel scan of what
+# it actually emits). A source assertion never stands in for that audit.
+CHANNEL_UNAUDITED = "PRESENT_UNAUDITED"
 
 # The bridge commit whose blobs this channel table was asserted against. A
 # moved canonical pin invalidates every channel status until it is re-asserted.
@@ -73,6 +77,7 @@ class Channel:
     present: tuple[str, ...] = ()
     absent: tuple[str, ...] = ()
     fields: frozenset[str] = frozenset()
+    cases: frozenset[str] = frozenset()
     meaning: str = ""
 
 
@@ -97,6 +102,37 @@ BOOTSTRAP_FIELDS = frozenset(
         "tapped",
     }
 )
+# Every message type the bridge dispatches at the asserted commit (its whole
+# principal-facing request surface). A new or lost case label is drift.
+MESSAGE_CASES = frozenset(
+    {
+        '"create_game"',
+        '"get_event_log"',
+        '"get_state"',
+        '"shutdown"',
+        "BridgeProtocol.ADD_PLAYER",
+        "BridgeProtocol.CHOOSE_MODES",
+        "BridgeProtocol.CONCEDE",
+        "BridgeProtocol.CREATE_COMMANDER_GAME",
+        "BridgeProtocol.EXPORT_EVENT_LOG",
+        "BridgeProtocol.EXPORT_REPLAY",
+        "BridgeProtocol.GET_CAPABILITIES",
+        "BridgeProtocol.GET_GAME_STATE",
+        "BridgeProtocol.GET_LEGAL_ACTIONS",
+        "BridgeProtocol.GET_PROVIDER_VERSION",
+        "BridgeProtocol.IMPORT_DECK",
+        "BridgeProtocol.ORDER_TRIGGERS",
+        "BridgeProtocol.PASS_PRIORITY",
+        "BridgeProtocol.RESOLVE_MULLIGAN",
+        "BridgeProtocol.SELECT_TARGETS",
+        "BridgeProtocol.SHUTDOWN_ENGINE",
+        "BridgeProtocol.SHUTDOWN_GAME",
+        "BridgeProtocol.START_ENGINE",
+        "BridgeProtocol.START_GAME",
+        "BridgeProtocol.SUBMIT_ACTION",
+    }
+)
+_CASE_LABEL = re.compile(r'\bcase\s+("[^"]*"|[A-Za-z_][\w.]*)\s*:')
 _FIELD_READ = re.compile(
     r'(?:\.has|\.get|\.getAsJsonObject|\.getAsJsonArray|\.getAsJsonPrimitive)\(\s*"([^"]+)"'
     r'|optString\(\s*\w+\s*,\s*"([^"]+)"'
@@ -234,6 +270,39 @@ CHANNELS: tuple[Channel, ...] = (
         fields=BOOTSTRAP_FIELDS,
         meaning="the scenario bootstrap has no mid-cast cost or payment state field",
     ),
+    Channel(
+        "message_surface",
+        CHANNEL_UNAUDITED,
+        "engine",
+        present=(
+            '"unknown message type: " + type',
+            'case "get_state": return getGameState(request);',
+        ),
+        cases=MESSAGE_CASES,
+        meaning=(
+            "the bridge's whole request surface is this closed set of message types; an "
+            "unknown type is refused with UNKNOWN_MESSAGE and the legacy get_state alias "
+            "is the observer-scoped projection. Whether every message refuses an "
+            "omniscient read, and what its errors and diagnostics carry, is shown only by "
+            "the row's runtime refusal probes and channel scan, which were not run"
+        ),
+    ),
+    Channel(
+        "decision_frames",
+        CHANNEL_UNAUDITED,
+        "projection",
+        present=(
+            'action.addProperty("source_object_id", option.sourceCardName);',
+            'metadata.addProperty("label", option.label);',
+            'action.getAsJsonObject("metadata").add("object_refs", refs);',
+        ),
+        meaning=(
+            "a decision option reaches its actor with a label, a source_object_id built "
+            "from the source card name, a semantic key and object references; whether a "
+            "face-down or sentinel identity reaches a principal not entitled to it is "
+            "shown only by executing the row, which was not run"
+        ),
+    ),
 )
 CHANNELS_BY_NAME: dict[str, Channel] = {channel.name: channel for channel in CHANNELS}
 
@@ -244,19 +313,27 @@ OBSERVATION_REQUIREMENTS: dict[str, tuple[str, ...]] = {
     "opponent_library": ("principal_scoped_state",),
     "public_exile": ("principal_scoped_state",),
     "face_down_controller": ("principal_scoped_state", "face_down_redaction"),
-    "no_omniscient_api": ("principal_scoped_state",),
-    "honey_sentinel": ("principal_scoped_state", "event_log", "replay_transcript"),
+    "no_omniscient_api": ("principal_scoped_state", "message_surface"),
+    # Prompt, context, option ids, labels, metadata and source (decision frames),
+    # errors and logs (message surface), state, transcript and the event log.
+    "honey_sentinel": (
+        "principal_scoped_state",
+        "decision_frames",
+        "message_surface",
+        "event_log",
+        "replay_transcript",
+    ),
     "reveal_audience": ("principal_scoped_state", "reveal_look_audience", "event_log"),
     "look_audience": ("principal_scoped_state", "reveal_look_audience", "event_log"),
     "search_inspection": ("principal_scoped_state", "library_contents", "event_log"),
     "scry_knowledge": ("principal_scoped_state", "library_contents", "event_log"),
-    "pile_metadata": ("principal_scoped_state", "library_contents", "event_log"),
+    "pile_metadata": ("principal_scoped_state", "decision_frames", "library_contents", "event_log"),
     "shuffle_invalidates_order": ("principal_scoped_state", "library_contents", "event_log"),
     "exile_permission_persists": ("principal_scoped_state", "face_down_redaction", "event_log"),
     "exile_permission_invalidates": ("principal_scoped_state", "face_down_redaction", "event_log"),
-    "target_metadata": ("principal_scoped_state", "face_down_redaction"),
-    "source_metadata": ("principal_scoped_state", "face_down_redaction"),
-    "ability_metadata": ("principal_scoped_state", "face_down_redaction"),
+    "target_metadata": ("principal_scoped_state", "face_down_redaction", "decision_frames"),
+    "source_metadata": ("principal_scoped_state", "face_down_redaction", "decision_frames"),
+    "ability_metadata": ("principal_scoped_state", "face_down_redaction", "decision_frames"),
     "copy_face_down": ("principal_scoped_state", "face_down_redaction"),
     "transcript_privacy": ("principal_scoped_state", "replay_transcript", "event_log"),
     "controlled_player_authority": ("principal_scoped_state", "event_log"),
@@ -284,6 +361,7 @@ class HiddenRowClassification:
     unobservable: list[dict[str, Any]] = field(default_factory=list)
     other_unsupported: list[dict[str, Any]] = field(default_factory=list)
     missing_channels: list[str] = field(default_factory=list)
+    unaudited_channels: list[str] = field(default_factory=list)
 
     @property
     def classification(self) -> str:
@@ -307,6 +385,11 @@ class HiddenRowClassification:
             )
         if self.missing_channels:
             parts.append("principal channel absent: " + ", ".join(self.missing_channels))
+        if self.unaudited_channels:
+            parts.append(
+                "principal channel present but unaudited (needs row execution): "
+                + ", ".join(self.unaudited_channels)
+            )
         if self.lab_gaps:
             parts.append(
                 "Lab Forge lane has no execution for: "
@@ -330,6 +413,7 @@ class HiddenRowClassification:
             "af05_effect": AF05_EFFECT_UNKNOWN,
             "provider_construction_gaps": self.provider_gaps,
             "missing_principal_channels": self.missing_channels,
+            "unaudited_principal_channels": self.unaudited_channels,
             "lab_execution_gaps": self.lab_gaps,
             "unobservable_checkpoint_dimensions": self.unobservable,
             "other_unsupported_dimensions": self.other_unsupported,
@@ -360,10 +444,12 @@ def classify_row(record: dict[str, Any]) -> HiddenRowClassification:
             f"{[gap['dimension'] for gap in row.other_unsupported]}"
         )
     row.unobservable = [finding.to_document() for finding in model.unobservable]
+    required = OBSERVATION_REQUIREMENTS[kind]
     row.missing_channels = [
-        name
-        for name in OBSERVATION_REQUIREMENTS[kind]
-        if CHANNELS_BY_NAME[name].status != CHANNEL_SUPPORTED
+        name for name in required if CHANNELS_BY_NAME[name].status == CHANNEL_ABSENT
+    ]
+    row.unaudited_channels = [
+        name for name in required if CHANNELS_BY_NAME[name].status == CHANNEL_UNAUDITED
     ]
     return row
 
@@ -430,11 +516,15 @@ def assert_channels(texts: dict[str, str]) -> list[dict[str, Any]]:
         fields = bootstrap_fields(code) if channel.fields else frozenset()
         new_fields = sorted(fields - channel.fields)
         lost_fields = sorted(channel.fields - fields)
-        if missing or found or new_fields or lost_fields:
+        cases = frozenset(_CASE_LABEL.findall(code)) if channel.cases else frozenset()
+        new_cases = sorted(cases - channel.cases)
+        lost_cases = sorted(channel.cases - cases)
+        if missing or found or new_fields or lost_fields or new_cases or lost_cases:
             raise HiddenChannelDrift(
                 f"channel {channel.name!r} no longer matches {SOURCES[channel.source]}: "
                 f"missing {missing}, unexpectedly present {found}, "
-                f"new fields {new_fields}, lost fields {lost_fields}"
+                f"new fields {new_fields}, lost fields {lost_fields}, "
+                f"new messages {new_cases}, lost messages {lost_cases}"
             )
         asserted.append(
             {
@@ -444,6 +534,7 @@ def assert_channels(texts: dict[str, str]) -> list[dict[str, Any]]:
                 "present_fragments": list(channel.present),
                 "absent_tokens": list(channel.absent),
                 "closed_bootstrap_fields": sorted(channel.fields),
+                "closed_message_types": sorted(channel.cases),
                 "meaning": channel.meaning,
             }
         )
