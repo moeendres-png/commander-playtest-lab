@@ -1,0 +1,57 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/work/takeover-pr506-20261003
+branch: claude/pensive-mayer-f8spwn
+audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
+state_written_against_head: 83486e05f03257ef2d580f760b3944317fda349c
+validated_head: null
+objective: Resume transferred Claude pre-Freeze campaign; review, repair, qualify
+  and integrate existing PR surfaces without losing provenance
+ownership: CLAUDE-CAMPAIGN-TAKEOVER-20261003
+status: WAITING
+in_scope:
+- Transferred Lab PR506 implementation, tests, evidence, normal base merge and GitHub
+  integration
+out_of_scope:
+- Foreign-active D17 writer
+- Rules authority changes
+- provider selection and Architecture Freeze
+- new production repository
+- canonical deck/inventory/opponent mutation
+- paid services
+- required-check promotion
+dependencies:
+- Direct Owner takeover in this chat
+- Lab255 comment5969650684
+- fresh current target source
+- transferred implementation and reviews
+hard_gates:
+- exact-head required CI and affected qualification PASS
+- no unresolved material P1/P2
+- normal merge only and target drift adjudication
+- no false PASS, narrowed denominator or fallback
+- single writer with preserved historical evidence
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+authority_gates:
+- Rules/evidence-policy/provider/freeze decisions remain reserved
+execution_profile: direct-owner-authorized-codex-takeover
+technical_decisions:
+- Direct Owner takeover recorded at Lab255 comment5969650684. Claude cloud writer
+  is quota-stopped; this branch owns no foreign D17 changes.
+- Normal merge current main2296266 into transferred506 is conflict-free. Focused109
+  tests pass. main includes producer changes in510, so old PB03 source-bound epoch
+  is retained as historical, not credited to new tree.
+- All20 Forge AF05 behavior rows remain UNKNOWN; new Lab stderr capture gap persists.
+  No gap is promoted from source census.
+exact_next_action: Consume fresh exact-head required CI, PB03 artifact/source binding
+  and independent review; then integrate506 before resolving511 runner conflict.
+validation_evidence:
+  command: python3 -m pytest -q tests/qualification/test_forge_hidden_information.py
+    tests/qualification/test_midgame_rows_residual_mechanisms.py tests/unit/test_required_test_ownership.py
+  tests: 109
+  failures: 0
+  runtime: Python3.14 pytest9.1.1
+  exact_head_ci: PENDING
+  independent_review: PENDING
+pr_url: https://github.com/moeendres-png/commander-playtest-lab/pull/506

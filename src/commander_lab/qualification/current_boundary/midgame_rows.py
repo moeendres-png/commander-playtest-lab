@@ -77,6 +77,12 @@ class TerminalCheck:
     label: str | None = None
 
     def describe(self) -> str:
+        if self.kind == "stack_empty_after":
+            constraints = ", ".join(f"{key}={value}" for key, value in self.where)
+            return (
+                f"the first priority frame after the first {self.event_type} event with "
+                f"{constraints} shows an empty stack"
+            )
         if self.kind == "events":
             constraints = ", ".join(f"{key}={value}" for key, value in self.where)
             amount = "at least one" if self.value is None else f"exactly {self.value}"
@@ -1235,6 +1241,25 @@ ROWS: dict[str, RowSpec] = {
             ),
         ),
     ),
+    # WS05-MP-ELIM-STACK-3: P2's own Lightning Bolt (aimed at P1) is on the
+    # stack when P2 loses. The engine removes P2's spell with P2 (CR 800.4a):
+    # the stack is empty at the next priority, the Bolt never reaches the
+    # graveyard by resolving, never deals its damage, and P1 stays at 40.
+    "WS05-MP-ELIM-STACK-3": RowSpec(
+        token_bindings=_player_leaves("P2"),
+        terminal_checks=(
+            # The engine removes the leaving player's spell from the stack
+            # without an event (GameImpl.leave: getStack().removeIf); its own
+            # stack after the loss is the evidence. The stack verifier showed
+            # the spell on the stack before the loss was caused.
+            TerminalCheck("stack_empty_after", event_type="LOST", where=(("player_player", "P2"),)),
+            _exactly(
+                _event("ZONE_CHANGE", ("target_object", "obj:leave-bolt"), ("to", "GRAVEYARD")), 0
+            ),
+            _exactly(_event("DAMAGED_PLAYER", ("source_object", "obj:leave-bolt")), 0),
+            TerminalCheck("life", principal="P1", value=40),
+        ),
+    ),
     "WS05-MP-ELIM-PRIO-3": RowSpec(
         token_bindings=_player_leaves("P2"),
         terminal_checks=_ring_after_loss("P2", ("P1", "P3")),
@@ -1330,6 +1355,9 @@ class Frame:
     # The record identity (semantic object or commander id) of the source the
     # scripted priority action named, when the run placed it.
     selected_source_semantic: str | None = None
+    # How many objects the engine's own stack held when it asked this frame
+    # (the frame's pilot_state), or None when the frame shows no stack.
+    stack_size: int | None = None
 
 
 @dataclass
@@ -2079,6 +2107,27 @@ def check_terminal(
         return bool(len(tokens) == check.value)
     if check.kind == "no_permanent_damage":
         return not _events(tape, "DAMAGED_PERMANENT")
+    if check.kind == "stack_empty_after":
+        # The engine's own stack, as shown on the first priority frame it asked
+        # after the event: an object it removed without an event (CR 800.4a,
+        # a leaving player's spells) is gone from it. The trace holds the frames
+        # the obligation loop recorded; a causal route that ends at the event
+        # (the elimination stops at the first life drop) leaves the engine
+        # parked on exactly that first frame.
+        anchors = matching_events(
+            TerminalCheck("events", event_type=check.event_type, where=check.where), tape
+        )
+        if not anchors:
+            return False
+        anchor = int(anchors[0]["sequence"])
+        after = [
+            frame
+            for frame in trace
+            if frame.decision_class == "priority"
+            and frame.tape_sequence is not None
+            and frame.tape_sequence >= anchor
+        ]
+        return bool(after) and after[0].stack_size == 0
     if check.kind == "stack_order":
         # XMage reports TRIGGERED_ABILITY as each ability is put on the stack, so
         # the tape order is the stack order, bottom first.
@@ -3446,44 +3495,37 @@ def execute_row(
         )
     reconstruction: dict[str, Any] | None = None
     elimination_baseline: int | None = None
-    if causal is not None and causal.get("entry_mode") == "causal_elimination":
-        # The requested checkpoint is the state-based-action-pending instant
-        # inside the causal cause, so the obligation window opens before it.
-        elimination_baseline = int(client.events(0)["latest_offset"])
-        try:
-            verdict = probe.eliminate_causally(client, f"{fixture_id}-causal", created, causal)
-        except ml.MidgameLaneError as exc:
-            return RowExecution(
-                fixture_id, False, construction, f"causal elimination failed closed: {exc}"
-            )
-        reconstruction = {
-            "entry_mode": "causal_elimination",
-            "actor": str(causal.get("elimination_actor")),
-            "victim": str(causal.get("elimination_victim")),
-            "bolt_count": int(causal.get("bolt_count") or 0),
-            "verdict": verdict,
-        }
-        if not (verdict.get("victim_lost") is True or verdict.get("victim_left") is True):
+    mode = causal.get("entry_mode") if causal is not None else None
+    composed = mode == probe.CAUSAL_STACK_ELIMINATION
+    # A composed entry builds the victim's stack first (and requires the stack
+    # verifier's match), then eliminates the victim with that stack intact.
+    if causal is not None and mode in ("causal_stack", probe.CAUSAL_STACK_ELIMINATION):
+        declared_fuel = [str(card["semantic_id"]) for card in causal.get("fuel") or ()]
+        fuel = [placed[semantic] for semantic in declared_fuel if semantic in placed]
+        # A composed row's document names both halves even when the stack never ran.
+        unbuilt = (
+            {"entry_mode": probe.CAUSAL_STACK_ELIMINATION, "stack": None, "elimination": None}
+            if composed
+            else None
+        )
+        if len(fuel) != len(declared_fuel):
             return RowExecution(
                 fixture_id,
                 False,
                 construction,
-                f"the engine did not eliminate the victim causally: {verdict}",
-                causal_reconstruction=reconstruction,
-            )
-    elif causal is not None:
-        declared_fuel = [str(card["semantic_id"]) for card in causal.get("fuel") or ()]
-        fuel = [placed[semantic] for semantic in declared_fuel if semantic in placed]
-        if len(fuel) != len(declared_fuel):
-            return RowExecution(
-                fixture_id, False, construction, "a declared fuel card was not placed"
+                "a declared fuel card was not placed",
+                causal_reconstruction=unbuilt,
             )
         try:
             probe.causal_stack_frames(client, f"{fixture_id}-causal", causal_plan, placed, fuel)
             verdict = probe.complete_causal(client, "stack").get("verdict") or {}
         except ml.MidgameLaneError as exc:
             return RowExecution(
-                fixture_id, False, construction, f"causal reconstruction failed closed: {exc}"
+                fixture_id,
+                False,
+                construction,
+                f"causal reconstruction failed closed: {exc}",
+                causal_reconstruction=unbuilt,
             )
         reconstruction = {
             "entry_mode": "causal_stack",
@@ -3500,6 +3542,57 @@ def execute_row(
                 False,
                 construction,
                 f"the causal reconstruction does not match the requested stack: {verdict}",
+                causal_reconstruction=(
+                    {
+                        "entry_mode": probe.CAUSAL_STACK_ELIMINATION,
+                        "stack": reconstruction,
+                        "elimination": None,
+                    }
+                    if composed
+                    else reconstruction
+                ),
+            )
+    stack_reconstruction = reconstruction if composed else None
+
+    def composed_document(elimination: dict[str, Any] | None) -> dict[str, Any] | None:
+        # A composed row keeps both halves on every exit, success or not.
+        if not composed:
+            return elimination
+        return {
+            "entry_mode": probe.CAUSAL_STACK_ELIMINATION,
+            "stack": stack_reconstruction,
+            "elimination": elimination,
+        }
+
+    if causal is not None and mode in ("causal_elimination", probe.CAUSAL_STACK_ELIMINATION):
+        # The requested checkpoint is the state-based-action-pending instant
+        # inside the causal cause, so the obligation window opens before it.
+        elimination_baseline = int(client.events(0)["latest_offset"])
+        try:
+            verdict = probe.eliminate_causally(client, f"{fixture_id}-causal", created, causal)
+        except ml.MidgameLaneError as exc:
+            return RowExecution(
+                fixture_id,
+                False,
+                construction,
+                f"causal elimination failed closed: {exc}",
+                causal_reconstruction=composed_document(None),
+            )
+        reconstruction = composed_document(
+            {
+                "entry_mode": "causal_elimination",
+                "actor": str(causal.get("elimination_actor")),
+                "victim": str(causal.get("elimination_victim")),
+                "bolt_count": int(causal.get("bolt_count") or 0),
+                "verdict": verdict,
+            }
+        )
+        if not (verdict.get("victim_lost") is True or verdict.get("victim_left") is True):
+            return RowExecution(
+                fixture_id,
+                False,
+                construction,
+                f"the engine did not eliminate the victim causally: {verdict}",
                 causal_reconstruction=reconstruction,
             )
     if spec.observe_from_game_start:
@@ -3621,6 +3714,9 @@ def execute_row(
             )
             if decision_class == "declare_blocker":
                 frame.offered_attackers = _offered_attackers(legal, placed_by_native)
+            pilot_stack = (decision.get("pilot_state") or {}).get("stack")
+            if isinstance(pilot_stack, list):
+                frame.stack_size = len(pilot_stack)
             seen = client.events(baseline)["events"]
             frame.tape_sequence = int(seen[-1]["sequence"]) if seen else None
             trace.append(frame)
@@ -4054,6 +4150,16 @@ def causal_elimination_entry(fixture_id: str) -> dict[str, Any] | None:
     return dict(entry)
 
 
+def causal_stack_elimination_entry(fixture_id: str) -> dict[str, Any] | None:
+    """The production probe's declared composed stack-then-elimination entry, or None."""
+    probe = probe_module()
+    entry = (getattr(probe, "CAUSAL_ROWS", {}) or {}).get(fixture_id)
+    composed = getattr(probe, "CAUSAL_STACK_ELIMINATION", None)
+    if not isinstance(entry, dict) or composed is None or entry.get("entry_mode") != composed:
+        return None
+    return dict(entry)
+
+
 def execute_and_persist(
     *,
     workspace: Path,
@@ -4105,6 +4211,15 @@ def execute_and_persist(
             request["entry_mode"] = "causal_elimination"
             request["elimination"] = probe.elimination_request(elimination)
             causal = elimination
+        composed = causal_stack_elimination_entry(fixture_id)
+        if composed is not None:
+            # The record's stack must exist while its controller is eliminated
+            # (CR 800.4a): the engine casts the frames, the stack verifier
+            # confirms them, and only then is the loss caused.
+            request["entry_mode"] = probe.CAUSAL_STACK_ELIMINATION
+            request["fuel"] = list(composed.get("fuel") or ())
+            request["elimination"] = probe.elimination_request(composed)
+            causal = composed
         with probe.open_client(workspace) as client:
             client.request("get_provider_version", None)
             client.read_dimension_manifest()

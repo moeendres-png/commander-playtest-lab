@@ -96,6 +96,26 @@ final class XmageMidgameCausalBridge {
     ) {
     }
 
+    /**
+     * A composed entry: the record's stack frames prepared causally (sources in
+     * hand, declared fuel) in the same pre-causal position as the elimination's
+     * instruments and open life substitution. Neither half is weakened: each is
+     * the existing preparation, and each is verified by its existing verifier.
+     */
+    record CausalStackEliminationPlan(
+            CausalStackPlan stack,
+            CausalEliminationPlan elimination
+    ) {
+    }
+
+    /** The elimination's record rewrite: substitutions, instruments, survivors. */
+    private record EliminationRecord(
+            JsonObject record,
+            List<LifeSubstitution> substitutions,
+            Set<String> survivors
+    ) {
+    }
+
     static final class CausalException extends RuntimeException {
         CausalException(String code, String detail) {
             super(code + ": " + detail);
@@ -199,6 +219,59 @@ final class XmageMidgameCausalBridge {
             List<DeclaredCard> instruments,
             String planId,
             long seed) {
+        EliminationRecord prepared =
+                eliminationRecord(frozenRecord, actorPid, victimPid, instruments);
+        final XmageNativeStateRestoration.Plan plan;
+        try {
+            plan = XmageNativeStateRestoration.planFromFrozenRecord(
+                    prepared.record(), planId, seed);
+            XmageNativeStateRestoration.validatePlan(plan);
+        } catch (XmageNativeStateRestoration.RestorationException exc) {
+            throw new CausalException(
+                    "CAUSAL_ELIMINATION_PREPARATION_REJECTED", exc.getMessage());
+        }
+        return new CausalEliminationPlan(
+                plan, actorPid, victimPid,
+                List.copyOf(instruments),
+                List.copyOf(prepared.substitutions()),
+                Set.copyOf(prepared.survivors()));
+    }
+
+    /**
+     * Prepares a record whose requested stack must exist while its victim is
+     * eliminated (CR 800.4a: the leaving player's spells leave with them).
+     *
+     * <p>The elimination half rewrites the record exactly as
+     * {@link #planCausalElimination} does (open life substitution, declared
+     * instruments); the stack half then prepares that record exactly as
+     * {@link #prepareCausalStack} does (frame sources in hand, declared fuel).
+     * The engine casts the frames, then causes the loss; this method places
+     * nothing on the stack and sets no life total.</p>
+     */
+    static CausalStackEliminationPlan prepareCausalStackElimination(
+            JsonObject frozenRecord,
+            List<DeclaredCard> fuel,
+            String actorPid,
+            String victimPid,
+            List<DeclaredCard> instruments,
+            String planId,
+            long seed) {
+        EliminationRecord prepared =
+                eliminationRecord(frozenRecord, actorPid, victimPid, instruments);
+        CausalStackPlan stack = prepareCausalStack(prepared.record(), fuel, planId, seed);
+        CausalEliminationPlan elimination = new CausalEliminationPlan(
+                stack.prepared().preStackPlan(), actorPid, victimPid,
+                List.copyOf(instruments),
+                List.copyOf(prepared.substitutions()),
+                Set.copyOf(prepared.survivors()));
+        return new CausalStackEliminationPlan(stack, elimination);
+    }
+
+    private static EliminationRecord eliminationRecord(
+            JsonObject frozenRecord,
+            String actorPid,
+            String victimPid,
+            List<DeclaredCard> instruments) {
         JsonObject record = frozenRecord.deepCopy();
         String fixtureId = requiredText(record, "fixture_id");
         if (!record.has("elimination_trigger")
@@ -252,15 +325,6 @@ final class XmageMidgameCausalBridge {
 
         appendDeclaredCards(record, instruments, "instrument");
 
-        final XmageNativeStateRestoration.Plan plan;
-        try {
-            plan = XmageNativeStateRestoration.planFromFrozenRecord(record, planId, seed);
-            XmageNativeStateRestoration.validatePlan(plan);
-        } catch (XmageNativeStateRestoration.RestorationException exc) {
-            throw new CausalException(
-                    "CAUSAL_ELIMINATION_PREPARATION_REJECTED", exc.getMessage());
-        }
-
         Set<String> survivors = new LinkedHashSet<>();
         for (String pid : playerIds) {
             if (!pid.equals(victimPid)) {
@@ -272,12 +336,9 @@ final class XmageMidgameCausalBridge {
                     "ELIMINATION_NO_SURVIVORS",
                     fixtureId + " expects survivors after " + victimPid + " leaves");
         }
-        return new CausalEliminationPlan(
-                plan, actorPid, victimPid,
-                List.copyOf(instruments),
-                List.copyOf(substitutions),
-                Set.copyOf(survivors));
+        return new EliminationRecord(record, List.copyOf(substitutions), Set.copyOf(survivors));
     }
+
 
     private static void appendDeclaredCards(
             JsonObject record, List<DeclaredCard> cards, String kind) {
