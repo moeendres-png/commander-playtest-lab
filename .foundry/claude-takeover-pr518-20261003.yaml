@@ -4,7 +4,7 @@ worktree: /home/moeen/work/takeover-pr518-20261003
 branch: hardening/b8-real4p-progress-20261003
 audit_base_sha: 92ac2ef7d4876dd19a3f1b2ad85c8386a913df27
 audit_base_tree: 785f02937170c88576fba9e11b26844493532fc0
-state_written_against_head: d0195bbf53da25107c05773df12220c4dc4839bf
+state_written_against_head: aee367509322ea9e5782df9600fb388f7d62e919
 validated_head: d0195bbf53da25107c05773df12220c4dc4839bf
 objective: Resume transferred Claude pre-Freeze campaign; review, repair, qualify
   and integrate existing PR surfaces without losing provenance
@@ -42,6 +42,15 @@ technical_decisions:
   takeover, not an automatic OpenCode fallback.
 - Remote published source is reused. Unavailable Claude cloud edits are not assumed
   present. Existing local D17 processes and uncommitted Forge work are preserved.
+- 'Codex P1 repair: every progress trace row binds the engine-reported active seat
+  (actor-scoped active_player_id resolved through the engine seating, never inferred
+  from the answering seat); turns 1..4 must each have exactly one active seat and the
+  first round must be taken by all four distinct seats; trace/contract version 1.2.0.'
+- 'Codex P2 repair: on.push.paths of the Real4P smoke covers every executed source
+  and every smoke-scope glob (semantic_replay, candidates, cards, engine,
+  qualification, package root, tests/conftest.py, change-scope action).'
+- 'State file renamed from claude-takeover-20261003.yaml to
+  claude-takeover-pr518-20261003.yaml because several PRs add the generic name.'
 exact_next_action: Push checkpoint once; obtain fresh independent review, exact-head
   required CI and the live four-player twin through turn 4 before ordinary merge.
 tests_run:

@@ -254,8 +254,14 @@ def run_live_smoke(
             ).hexdigest()
             for item in results
         )
-        twin_match = digests_valid and all(
-            item.progress_digest == result.progress_digest for item in results
+        # The per-turn active seat is part of every trace row (and so of the
+        # digest); it is also compared explicitly so a twin that took the
+        # round in another seat order can never match.
+        twin_active_seats = [contract["active_seat_by_turn"] for contract in contracts]
+        twin_match = (
+            digests_valid
+            and all(item.progress_digest == result.progress_digest for item in results)
+            and all(seats == twin_active_seats[0] for seats in twin_active_seats)
         )
         boundaries_met = all(
             item.stop_reason == "turn_boundary"
@@ -273,6 +279,7 @@ def run_live_smoke(
                 "twin_progress_contracts": contracts,
                 "progress_digest": result.progress_digest,
                 "twin_progress_digest_match": twin_match,
+                "twin_active_seat_by_turn": twin_active_seats,
                 "twin_runs": len(results),
                 "twin_stop_reasons": [item.stop_reason for item in results],
                 "twin_stop_turn_numbers": [item.stop_turn_number for item in results],

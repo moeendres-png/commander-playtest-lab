@@ -22,6 +22,16 @@ on:
       - "data/opponents/hosts_of_mordor_precon.json"
       - "data/opponents/lorehold_spirit_precon.json"
       - ".github/workflows/xmage-real-4p-smoke.yml"
+      # Every source the smoke executes (the same transitive set as the
+      # smoke-scope gate below), so a main push that changes any of them reruns it.
+      - ".github/actions/**"
+      - "src/commander_lab/__init__.py"
+      - "src/commander_lab/candidates/**"
+      - "src/commander_lab/cards/**"
+      - "src/commander_lab/engine/**"
+      - "tests/conftest.py"
+      - "src/commander_lab/qualification/**"
+      - "src/commander_lab/semantic_replay/**"
   workflow_dispatch:
 
 permissions:
@@ -173,6 +183,14 @@ jobs:
           assert contract["turns_observed"][-1] >= 4
           assert contract["priority_seats"] == [0, 1, 2, 3]
           assert contract["priority_turns"] == [1, 2, 3, 4]
+          # Each of turns 1-4 is bound to one engine-reported active seat, and the
+          # four turns are taken by four distinct seats: one full round.
+          assert len(contract["active_seat_by_turn"]) == 4
+          assert sorted(contract["active_seat_by_turn"]) == [0, 1, 2, 3]
+          assert all(
+              seats == contract["active_seat_by_turn"]
+              for seats in report["twin_active_seat_by_turn"]
+          )
           assert report["twin_runs"] == 2
           assert all(row["met"] is True for row in report["twin_progress_contracts"])
           assert report["twin_stop_reasons"] == ["turn_boundary", "turn_boundary"]

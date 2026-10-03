@@ -96,3 +96,31 @@ def test_a_whole_subpackage_is_covered_at_once() -> None:
         AUDIT.cover_glob("src/commander_lab/advancement.py") == "src/commander_lab/advancement.py"
     )
     assert AUDIT.cover_glob("tests/conftest.py") == "tests/conftest.py"
+
+
+def _push_gates(workflow: dict[Any, Any]) -> list[str] | None:
+    on = workflow.get(True) or workflow.get("on") or {}
+    spec = on.get("push") if isinstance(on, dict) else None
+    if isinstance(spec, dict) and spec.get("paths"):
+        return [str(p) for p in spec["paths"]]
+    return None
+
+
+def test_the_real_4p_smoke_push_trigger_covers_every_executed_source() -> None:
+    """B8 (#489): a main push changing any source the Real4P smoke executes reruns it.
+
+    The pull_request side always runs and gates on ``smoke-scope``; the push side
+    filters on ``on.push.paths``, which previously omitted ``semantic_replay/**``
+    and other transitively executed packages that the scope list already named.
+    """
+    path = ROOT / ".github/workflows/xmage-real-4p-smoke.yml"
+    workflow = __import__("yaml").safe_load(path.read_text())
+    push = _push_gates(workflow)
+    assert push is not None
+    result = AUDIT.audit(path)
+    executed = {p for detail in result["jobs"].values() for p in detail["executed_files"]}
+    assert "src/commander_lab/semantic_replay/canonicalization.py" in executed
+    assert sorted(p for p in executed if not AUDIT.covered(p, push)) == []
+    scope = AUDIT.scope_gates(workflow["jobs"]["smoke-scope"])
+    assert scope is not None
+    assert sorted(glob for glob in scope if glob not in push) == []

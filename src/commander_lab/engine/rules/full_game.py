@@ -235,6 +235,35 @@ class FullGameConformanceResult(_StrictModel):
     )
 
 
+# (decision_class, decider seat, turn_number, phase, engine active seat, response digest)
+ProgressTraceRow = tuple[str, int | None, int | None, str | None, int | None, str]
+
+
+def engine_active_seat(pilot_state: object) -> int | None:
+    """The seat of the engine-reported active player, or ``None`` (fail closed).
+
+    Reads only the Rules Core's own ``active_player_id`` field of the actor-scoped
+    state and resolves it through the engine-reported seating in ``players``. It
+    never infers the active player from who answered a decision. Any missing,
+    ambiguous or ill-typed field yields ``None``, which the progress contract
+    rejects.
+    """
+    if not isinstance(pilot_state, dict):
+        return None
+    active_id = pilot_state.get("active_player_id")
+    players = pilot_state.get("players")
+    if not isinstance(active_id, str) or not active_id or not isinstance(players, list):
+        return None
+    seats = [
+        player.get("seat")
+        for player in players
+        if isinstance(player, dict) and player.get("player_id") == active_id
+    ]
+    if len(seats) != 1 or type(seats[0]) is not int or seats[0] < 0:
+        return None
+    return seats[0]
+
+
 class FullGameSmokeResult(_StrictModel):
     """Bounded cardinality smoke outcome (WS223).
 
@@ -245,8 +274,8 @@ class FullGameSmokeResult(_StrictModel):
     (live 4P gate) and the per-count unit outcome guards.
     """
 
-    schema_version: Literal["xmage-full-game-smoke-result-1.1.0"] = (
-        "xmage-full-game-smoke-result-1.1.0"
+    schema_version: Literal["xmage-full-game-smoke-result-1.2.0"] = (
+        "xmage-full-game-smoke-result-1.2.0"
     )
     scenario_id: str
     player_count: int = Field(ge=2, le=6)
@@ -262,10 +291,12 @@ class FullGameSmokeResult(_StrictModel):
     player_count_preserved: Literal[True]
     observed_decision_classes: tuple[str, ...]
     # B8 (#489): the public progress trace of the answered decisions, one
-    # (decision_class, seat, turn_number, phase, response_digest) entry each.
-    # Version 1.1 binds semantic selections using the existing replay fingerprints.
-    # Recorded on every smoke; only --progress-turns evaluates it.
-    progress_trace: tuple[tuple[str, int | None, int | None, str | None, str], ...] = ()
+    # (decision_class, seat, turn_number, phase, active_seat, response_digest)
+    # entry each. Version 1.1 binds semantic selections using the existing replay
+    # fingerprints; version 1.2 binds the engine-reported active seat of the
+    # turn, so the progress digest (and the twin comparison) covers which seat
+    # took each turn. Recorded on every smoke; only --progress-turns evaluates it.
+    progress_trace: tuple[ProgressTraceRow, ...] = ()
     stop_reason: Literal["turn_boundary", "decision_limit", "terminal"] = "decision_limit"
     stop_turn_number: int | None = None
     progress_digest: str | None = None
@@ -279,7 +310,7 @@ class FullGameSmokeResult(_StrictModel):
 
 
 def smoke_progress_contract(
-    trace: tuple[tuple[str, int | None, int | None, str | None, str], ...],
+    trace: tuple[ProgressTraceRow, ...],
     *,
     player_count: int,
     through_turn: int,
@@ -287,41 +318,77 @@ def smoke_progress_contract(
     """Technical progress through a full seat cycle, with attributable responses.
 
     The caller separately requires the observed next-turn boundary. This trace
-    requires priority in every completed turn and from every seated player; it
-    never claims card behaviour or terminal full-game qualification.
+    requires priority in every completed turn and from every seated player, and
+    binds every completed turn to exactly one engine-reported active seat: the
+    first ``player_count`` turns must be taken by distinct seats covering the
+    whole table (one full round). Seats that merely answered priority in another
+    player's turn never count as having taken a turn. It never claims card
+    behaviour or terminal full-game qualification.
     """
-    turns = sorted({row[2] for row in trace if type(row[2]) is int})
-    priority = [(row[1], row[2]) for row in trace if row[0] == "priority"]
+    violations = []
+    rows = [row for row in trace if isinstance(row, tuple) and len(row) == 6]
+    if len(rows) != len(trace):
+        violations.append("a decision carried a malformed progress row")
+    turns = sorted({row[2] for row in rows if type(row[2]) is int})
+    priority = [(row[1], row[2]) for row in rows if row[0] == "priority"]
     priority_turns = sorted({turn for _seat, turn in priority if type(turn) is int})
     priority_seats = sorted({seat for seat, _turn in priority if type(seat) is int})
-    violations = []
+    active_by_turn: dict[int, set[int]] = {}
+    for row in rows:
+        if type(row[2]) is int and type(row[4]) is int:
+            active_by_turn.setdefault(row[2], set()).add(row[4])
+    required = range(1, through_turn + 1) if type(through_turn) is int else range(0)
+    active_seat_by_turn = [
+        next(iter(active_by_turn[turn])) if len(active_by_turn.get(turn, ())) == 1 else None
+        for turn in required
+    ]
     if type(player_count) is not int or not 2 <= player_count <= 6:
         violations.append("invalid player count")
     if type(through_turn) is not int or through_turn < player_count:
         violations.append("progress target must cover a full seat cycle")
     if not turns or turns[-1] < through_turn:
         violations.append(f"game did not reach turn {through_turn} (turns {turns})")
-    if any(turn not in priority_turns for turn in range(1, through_turn + 1)):
+    if any(turn not in priority_turns for turn in required):
         violations.append(f"priority missing from a required turn ({priority_turns})")
     if priority_seats != list(range(player_count)):
         violations.append(f"not every seat answered priority (seats {priority_seats})")
-    if any(row[1] is None for row in trace):
+    if any(row[1] is None for row in rows):
         violations.append("a decision carried no seat")
-    if any(type(row[1]) is not int or not 0 <= row[1] < player_count for row in trace):
+    if any(type(row[1]) is not int or not 0 <= row[1] < player_count for row in rows):
         violations.append("a decision carried an invalid seat")
-    if any(row[0] == "priority" and (type(row[2]) is not int or row[2] < 1) for row in trace):
+    if any(row[0] == "priority" and (type(row[2]) is not int or row[2] < 1) for row in rows):
         violations.append("a priority decision carried an invalid turn")
+    if any(row[0] == "priority" and row[4] is None for row in rows):
+        violations.append("a priority decision carried no engine-reported active seat")
     if any(
-        not isinstance(row[4], str) or re.fullmatch(r"[0-9a-f]{64}", row[4]) is None
-        for row in trace
+        row[4] is not None and (type(row[4]) is not int or not 0 <= row[4] < player_count)
+        for row in rows
+    ):
+        violations.append("a decision carried an invalid active seat")
+    if any(len(active_by_turn.get(turn, ())) > 1 for turn in required):
+        violations.append("a required turn reported more than one active seat")
+    if any(seat is None for seat in active_seat_by_turn):
+        violations.append(
+            f"a required turn has no engine-reported active seat ({active_seat_by_turn})"
+        )
+    elif type(player_count) is int and sorted(
+        cast(list[int], active_seat_by_turn[:player_count])
+    ) != list(range(player_count)):
+        violations.append(
+            "the first full round was not taken by every seat "
+            f"(active seats by turn {active_seat_by_turn})"
+        )
+    if any(
+        not isinstance(row[5], str) or re.fullmatch(r"[0-9a-f]{64}", row[5]) is None for row in rows
     ):
         violations.append("a decision carried no valid response digest")
     return {
-        "schema_version": "xmage-smoke-progress-contract-1.1.0",
+        "schema_version": "xmage-smoke-progress-contract-1.2.0",
         "through_turn": through_turn,
         "turns_observed": turns,
         "priority_turns": priority_turns,
         "priority_seats": priority_seats,
+        "active_seat_by_turn": active_seat_by_turn,
         "decisions": len(trace),
         "violations": violations,
         "met": not violations,
@@ -2155,7 +2222,7 @@ class XmageFullGameRunner:
         )
         with client:
             provider = self._open_game(client, scenario, decks)
-            progress: list[tuple[str, int | None, int | None, str | None, str]] = []
+            progress: list[ProgressTraceRow] = []
             stop: dict[str, Any] = {}
             decision_count, observed, terminal = self._drive(
                 client,
@@ -2275,14 +2342,15 @@ class XmageFullGameRunner:
         *,
         stop_after: int | None,
         stop_at_turn: int | None = None,
-        progress: list[tuple[str, int | None, int | None, str | None, str]] | None = None,
+        progress: list[ProgressTraceRow] | None = None,
         stop: dict[str, Any] | None = None,
     ) -> tuple[int, list[str], bool]:
         """Drive authoritative decisions until terminal (or ``stop_after`` answers).
 
         With ``stop_at_turn`` the drive also stops before answering the first
         decision of that turn. ``progress`` collects each answered decision's
-        public metadata plus the semantic response digest after acknowledged submission.
+        public metadata (including the engine-reported active seat of the turn) plus
+        the semantic response digest after acknowledged submission.
 
         Returns ``(decision_count, observed_decision_classes, terminal)``.
         Shared verbatim by :meth:`run` (``stop_after=None``) and
@@ -2355,6 +2423,7 @@ class XmageFullGameRunner:
                             seat if type(seat) is int else None,
                             turn if type(turn) is int else None,
                             phase if isinstance(phase, str) else None,
+                            engine_active_seat(pilot_state),
                             response_digest,
                         )
                     )

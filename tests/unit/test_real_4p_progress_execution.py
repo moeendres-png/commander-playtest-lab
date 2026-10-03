@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 
 import pytest
@@ -32,19 +33,27 @@ def _scenario() -> FutureXmageScenario:
     )
 
 
-def _frame(turn: int, seat: int = 0) -> dict:
+def _frame(turn: int, seat: int = 0, active: int | None = None, *, drop_active=False) -> dict:
+    # The engine reports the active player in the actor-scoped id space: the
+    # actor's own id, or the seat-derived opaque token of another principal.
+    active = (turn - 1) % 4 if active is None else active
+    players = [{"player_id": f"p-{i}" if i == seat else f"op-{i}", "seat": i} for i in range(4)]
+    state = {
+        "turn_number": turn,
+        "phase": "PRECOMBAT_MAIN",
+        "seat": seat,
+        "active_player_id": players[active]["player_id"],
+        "players": players,
+    }
+    if drop_active:
+        del state["active_player_id"]
     return {
         "decision": {
             "decision_class": "priority",
             "decision_id": f"d-{turn}-{seat}",
             "actor_id": f"p-{seat}",
             "seat": seat,
-            "pilot_state": {
-                "turn_number": turn,
-                "phase": "PRECOMBAT_MAIN",
-                "seat": seat,
-                "players": [{"player_id": f"p-{i}", "seat": i} for i in range(4)],
-            },
+            "pilot_state": state,
             "legal_options": [{"option_id": "pass", "kind": "pass", "label": "Pass"}],
         }
     }
@@ -97,8 +106,56 @@ def _run(monkeypatch, statuses, *, cap=30, boundary=5, number=1):
     return result, client
 
 
-def _round() -> list[dict]:
-    return [_frame(turn, seat) for turn in range(1, 5) for seat in range(4)] + [_frame(5)]
+def _round(**kwargs) -> list[dict]:
+    return [_frame(turn, seat, **kwargs) for turn in range(1, 5) for seat in range(4)] + [_frame(5)]
+
+
+def _one_seat_round() -> list[dict]:
+    """Every seat answers priority on every turn, but seat 1 is active for turns 2-4."""
+    return [
+        _frame(turn, seat, 0 if turn == 1 else 1) for turn in range(1, 5) for seat in range(4)
+    ] + [_frame(5)]
+
+
+def test_trace_records_the_engine_reported_active_seat(monkeypatch) -> None:
+    result, _ = _run(monkeypatch, _round())
+    # Bound from the engine's active-player field, never from who answered.
+    assert {(row[1], row[2], row[4]) for row in result.progress_trace} == {
+        (seat, turn, turn - 1) for turn in range(1, 5) for seat in range(4)
+    }
+    contract = full_game.smoke_progress_contract(
+        result.progress_trace, player_count=4, through_turn=4
+    )
+    assert contract["met"] is True, contract["violations"]
+    assert contract["active_seat_by_turn"] == [0, 1, 2, 3]
+
+
+def test_active_seat_is_bound_into_progress_digest(monkeypatch) -> None:
+    honest, _ = _run(monkeypatch, _round())
+    other_order, _ = _run(
+        monkeypatch,
+        [_frame(turn, seat, (turn + 1) % 4) for turn in range(1, 5) for seat in range(4)]
+        + [_frame(5)],
+    )
+    assert honest.progress_digest != other_order.progress_digest
+
+
+@pytest.mark.parametrize(
+    "state",
+    [
+        {},
+        {"active_player_id": None, "players": [{"player_id": "op-0", "seat": 0}]},
+        {"active_player_id": "op-9", "players": [{"player_id": "op-0", "seat": 0}]},
+        {"active_player_id": "op-0"},
+        {"active_player_id": "op-0", "players": [{"player_id": "op-0", "seat": True}]},
+        {
+            "active_player_id": "op-0",
+            "players": [{"player_id": "op-0", "seat": 0}, {"player_id": "op-0", "seat": 1}],
+        },
+    ],
+)
+def test_unresolvable_engine_active_player_is_none(state) -> None:
+    assert full_game.engine_active_seat(state) is None
 
 
 def test_turn_contract_rejects_decision_cap_before_boundary(monkeypatch) -> None:
@@ -170,6 +227,36 @@ def test_script_rejects_a_missing_twin_digest(monkeypatch, repo_root, tmp_path) 
         _script_run(monkeypatch, repo_root, tmp_path, [invalid, invalid])
 
 
+def test_script_rejects_one_seat_taking_turns_two_to_four(monkeypatch, repo_root, tmp_path) -> None:
+    result, _ = _run(monkeypatch, _one_seat_round())
+    assert {row[1] for row in result.progress_trace} == {0, 1, 2, 3}
+    with pytest.raises(FullGameConformanceError, match="first full round was not taken"):
+        _script_run(monkeypatch, repo_root, tmp_path, [result, result])
+    report = json.loads(
+        (tmp_path / "artifacts/xmage-full-game/REAL_4P_TECHNICAL_SMOKE.json").read_text()
+    )
+    assert report["status"] == "FAIL"
+    assert report["progress_contract"]["active_seat_by_turn"] == [0, 1, 1, 1]
+
+
+def test_script_rejects_a_missing_engine_active_player(monkeypatch, repo_root, tmp_path) -> None:
+    result, _ = _run(monkeypatch, _round(drop_active=True))
+    assert all(row[4] is None for row in result.progress_trace)
+    with pytest.raises(FullGameConformanceError, match="no engine-reported active seat"):
+        _script_run(monkeypatch, repo_root, tmp_path, [result, result])
+
+
+def test_script_rejects_twins_with_a_different_seat_order(monkeypatch, repo_root, tmp_path) -> None:
+    first, _ = _run(monkeypatch, _round())
+    second, _ = _run(
+        monkeypatch,
+        [_frame(turn, seat, (turn + 1) % 4) for turn in range(1, 5) for seat in range(4)]
+        + [_frame(5)],
+    )
+    with pytest.raises(FullGameConformanceError, match="twin_match=False"):
+        _script_run(monkeypatch, repo_root, tmp_path, [first, second])
+
+
 def test_script_keeps_technical_evidence_boundary(monkeypatch, repo_root, tmp_path) -> None:
     result, _ = _run(monkeypatch, _round())
     report = _script_run(monkeypatch, repo_root, tmp_path, [result, result])
@@ -178,3 +265,5 @@ def test_script_keeps_technical_evidence_boundary(monkeypatch, repo_root, tmp_pa
     assert report["official_campaign_eligible"] is False
     assert report["actual_card_behavior_coverage_claim"] is False
     assert report["progress_contract"]["through_turn"] == 4
+    assert report["progress_contract"]["active_seat_by_turn"] == [0, 1, 2, 3]
+    assert report["twin_active_seat_by_turn"] == [[0, 1, 2, 3], [0, 1, 2, 3]]
