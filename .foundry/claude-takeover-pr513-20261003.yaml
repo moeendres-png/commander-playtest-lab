@@ -4,7 +4,7 @@ worktree: /home/moeen/work/takeover-pr513-20261003
 branch: hardening/b12-pb03-trigger-telemetry-20261003
 audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
 audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
-state_written_against_head: 7140ebffed2c536115b6a06c689adeb5ad4ca217
+state_written_against_head: f6a7e1b9aac5a27fc96bb2c3ea397e4f5d01639e
 validated_head: null
 objective: Close transferred CI479 B12 review gaps without changing rules or qualification
   verdicts
@@ -31,15 +31,16 @@ hard_gates:
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 authority_gates:
 - Rules/evidence-policy/provider/freeze decisions remain reserved
-execution_profile: direct-owner-authorized-codex-takeover
+execution_profile: null
 technical_decisions:
 - Consumed canonical STOPPED handoff and Owner CI479 assignment. Existing historical
   source lock and evidence retained.
 - Only full comment lines are excluded from executable install scanning; actual unhashed
   pip install -e still fails. No install command, pin, gate exemption or existing
   expectation relaxed.
-exact_next_action: Inspect fresh exact-head required and affected CI, independently
-  review these repairs, then adjudicate target drift and merge normally.
+exact_next_action: Read required and affected CI for the published head, independently
+  review, verify source-bound artifact bytes, then adjudicate target drift and merge
+  normally.
 tests_run:
-- 54 affected tests PASS after the new controls failed before the repair
-- 'Raw RED/GREEN JUnit and source/patch digest: docs/ci479_review_pr513_20261003/SOURCE_EVIDENCE.json'
+- 1282 affected tests PASS; raw reports are retained losslessly under docs/ci479_followup_pr513_20261003/
+- 'B12 full qualification suite: 13 skips remain NOT_RUN'
