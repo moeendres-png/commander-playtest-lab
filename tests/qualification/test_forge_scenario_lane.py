@@ -1192,8 +1192,9 @@ def test_selection_covers_eligible_rows_and_the_declared_wave():
         model = fsl.model_requested_state(record)
         if model.credit_eligible and fsl.temporal_reachable(model):
             assert fixture_id in selected
-    # The 9 structurally credit-eligible rows plus the 7 wave rows.
-    assert len(selected) == 16
+    # The 9 structurally credit-eligible rows, the 6 causal-route commander zone
+    # rows (#520) and the 7 wave rows.
+    assert len(selected) == 22
 
 
 def test_execute_and_persist_requires_bound_identity(tmp_path):

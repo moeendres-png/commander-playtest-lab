@@ -229,3 +229,81 @@ def test_semantic_objects_come_from_the_record() -> None:
     assert ss.semantic_objects(record)["obj:x"] == ss.SemanticObject(
         "obj:x", "Doom Blade", "p2", "stack"
     )
+
+
+def _fuel_frame(count: int) -> dict:
+    return {
+        "decision": {"kind": "MANA_PAYMENT", "actor": "p2"},
+        "actions": [
+            {
+                "action_id": f"s{index}",
+                "action_type": "tap_mana_source",
+                "source_object_id": "Swamp",
+                "metadata": {"label": "Tap Swamp for mana"},
+            }
+            for index in range(count)
+        ]
+        + [
+            {
+                "action_id": "decline",
+                "action_type": "tap_mana_source",
+                "source_object_id": None,
+                "metadata": {"label": "Decline to tap (leave cost unpaid)"},
+            }
+        ],
+    }
+
+
+FUEL = [
+    ss.SemanticObject("obj:fuel-swamp-a", "Swamp", "p2", "battlefield"),
+    ss.SemanticObject("obj:fuel-swamp-b", "Swamp", "p2", "battlefield"),
+]
+
+
+def test_identical_declared_fuel_is_interchangeable_only_when_opted_in() -> None:
+    _, options = ss.forge_options(_fuel_frame(2))
+    with pytest.raises(ss.SelectionFailure, match="mana_source_ambiguous"):
+        ss.select_mana_source(options, FUEL, set())
+    chosen, source = ss.select_mana_source(options, FUEL, set(), interchangeable_fuel=True)
+    assert chosen.option_id == "s0" and source.semantic_id == "obj:fuel-swamp-a"
+    _, options = ss.forge_options(_fuel_frame(1))
+    chosen, source = ss.select_mana_source(
+        options, FUEL, {"obj:fuel-swamp-a"}, interchangeable_fuel=True
+    )
+    assert source.semantic_id == "obj:fuel-swamp-b"
+
+
+def test_more_identical_offers_than_declared_fuel_fail_closed() -> None:
+    _, options = ss.forge_options(_fuel_frame(3))
+    with pytest.raises(ss.SelectionFailure, match="mana_source_ambiguous"):
+        ss.select_mana_source(options, FUEL, set(), interchangeable_fuel=True)
+
+
+def test_distinguishable_offers_are_never_interchangeable() -> None:
+    frame = _fuel_frame(2)
+    frame["actions"][1]["metadata"]["object_refs"] = [
+        {"kind": "card", "card_id": 7, "name": "Swamp", "controller": "p2", "zone": "Battlefield"}
+    ]
+    _, options = ss.forge_options(frame)
+    with pytest.raises(ss.SelectionFailure, match="mana_source_ambiguous"):
+        ss.select_mana_source(options, FUEL, set(), interchangeable_fuel=True)
+
+
+def test_the_commander_move_frame_is_a_boolean_choice() -> None:
+    frame = {
+        "decision": {"kind": "COMMANDER_MOVE", "actor": "p1"},
+        "actions": [
+            {
+                "action_id": "y",
+                "action_type": "confirm",
+                "metadata": {"label": "Move Rograkh, Son of Rohgahh to the command zone? [Yes]"},
+            },
+            {
+                "action_id": "n",
+                "action_type": "confirm",
+                "metadata": {"label": "Move Rograkh, Son of Rohgahh to the command zone? [No]"},
+            },
+        ],
+    }
+    assert _select(_step("choice", "boolean", True), frame).option_id == "y"
+    assert _select(_step("choice", "boolean", False), frame).option_id == "n"

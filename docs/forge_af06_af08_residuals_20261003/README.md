@@ -22,6 +22,17 @@ Most of those rows carried a generic reason ("no current-boundary execution seam
    `starting_player` / `first_turn_draw` from the engine's own counts across the
    starting player's turn-1 draw step (see below). It earns credit only through the
    lane's runner-bound receipt in PB-03.
+3. **Six commander zone rows execute causally (#520).** WS05-CMD-ZONE-{GY,EXILE,HAND}-
+   {YES,NO} ask for an opponent's spell on the stack aimed at P1's commander. The
+   bootstrap cannot place a stack object, so the lane's causal stack route
+   (`current_boundary/forge_causal_route.py`) puts the spell in its controller's hand and
+   the row's declared fuel (the same `CAUSAL_ROWS` declaration XMage uses) on the
+   battlefield, then has the controller cast, target and pay on the engine's own frames
+   through the shared fail-closed selector (`scripted_selection.py`). The owner answers
+   the engine's COMMANDER_MOVE (graveyard, exile; CR 903.9a) or REPLACEMENT_CONFIRM
+   (hand; CR 903.9b) frame as scripted, and the lane judges `commander_zone_event` /
+   `commander_choice` from the owner's own readback before the answer and after the stack
+   settles. The library rows stay a gap: the readback never shows library contents.
 
 ## How a row is classified
 A row passes through three stages. Every missing mechanism is recorded in pipeline order.
@@ -57,9 +68,9 @@ An unmapped dimension or token raises instead of defaulting to a class.
 ## Result
 | Class | Rows (of 70) |
 |---|---|
-| `LAB_EXECUTION_GAP` | 46 |
+| `LAB_EXECUTION_GAP` | 40 |
 | `PROVIDER_ADAPTER_GAP` | 17 |
-| `SCENARIO_LANE_EXECUTABLE` | 7 (six already PASS in the baseline epoch, plus WS05-CMD-START-3) |
+| `SCENARIO_LANE_EXECUTABLE` | 13 (six already PASS in the baseline epoch, WS05-CMD-START-3, and the six causal commander zone rows) |
 
 The matrix describes the scenario lane only. WS05-CMD-START-2 passes in the baseline on
 the generic lane's own route, and the scenario lane has no contract for its
@@ -85,10 +96,13 @@ decision frames, among them:
 - `REPLACEMENT_EFFECT`;
 - the mana and cost frames.
 
-The Forge scenario lane answers only priority passes, mulligans (keep), the starting
-player and the cost-part order. A shared, engine-authored selector surface for the Forge
-lane is the next mechanism. It is the Forge counterpart of the XMage mid-game executor.
-Whether each scripted selector maps one-to-one onto a Forge frame is part of that work.
+The Forge scenario lane answers priority passes, mulligans (keep), the starting player
+and the cost-part order itself. The shared fail-closed selector (`scripted_selection.py`,
+#459 phase 2) adds casts, player and object targets, declared mana sources and yes/no
+answers, and the causal stack route uses it for the six commander zone rows above. Every
+other stack row still needs either a terminal the lane can judge, a mode or choice-key
+selector, or several spells on the stack; the 13 rows whose first gap is `stack_state` and
+the 14 whose first gap is `action_cost_state` are that next work.
 
 ## Per-row matrix
 `FORGE_RESIDUAL_MATRIX.json` is written by `scripts/run_forge_residual_census.py` and
@@ -144,12 +158,12 @@ every mechanism of every row; the table shows the first one.
 | WS05-CMD-START-3 | SCENARIO_LANE_EXECUTABLE | — | — |
 | WS05-CMD-TAX-2 | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | WS05-CMD-TAX-4 | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
-| WS05-CMD-ZONE-EXILE-NO | LAB_EXECUTION_GAP | construction: `stack_state` | — |
-| WS05-CMD-ZONE-EXILE-YES | LAB_EXECUTION_GAP | construction: `stack_state` | — |
-| WS05-CMD-ZONE-GY-NO | LAB_EXECUTION_GAP | construction: `stack_state` | — |
-| WS05-CMD-ZONE-GY-YES | LAB_EXECUTION_GAP | construction: `stack_state` | — |
-| WS05-CMD-ZONE-HAND-NO | LAB_EXECUTION_GAP | construction: `stack_state` | — |
-| WS05-CMD-ZONE-HAND-YES | LAB_EXECUTION_GAP | construction: `stack_state` | — |
+| WS05-CMD-ZONE-EXILE-NO | SCENARIO_LANE_EXECUTABLE | — | — |
+| WS05-CMD-ZONE-EXILE-YES | SCENARIO_LANE_EXECUTABLE | — | — |
+| WS05-CMD-ZONE-GY-NO | SCENARIO_LANE_EXECUTABLE | — | — |
+| WS05-CMD-ZONE-GY-YES | SCENARIO_LANE_EXECUTABLE | — | — |
+| WS05-CMD-ZONE-HAND-NO | SCENARIO_LANE_EXECUTABLE | — | — |
+| WS05-CMD-ZONE-HAND-YES | SCENARIO_LANE_EXECUTABLE | — | — |
 | WS05-CMD-ZONE-LIB-NO | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | WS05-CMD-ZONE-LIB-YES | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | WS05-MP-BLOCK-4 | LAB_EXECUTION_GAP | construction: `combat_state` | — |

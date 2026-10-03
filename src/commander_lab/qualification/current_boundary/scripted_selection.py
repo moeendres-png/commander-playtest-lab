@@ -212,14 +212,26 @@ def select(
 
 
 def select_mana_source(
-    options: list[OfferedOption], declared: list[SemanticObject], used: set[str]
+    options: list[OfferedOption],
+    declared: list[SemanticObject],
+    used: set[str],
+    *,
+    interchangeable_fuel: bool = False,
 ) -> tuple[OfferedOption, SemanticObject]:
     """Pay with the next declared source the engine offers to tap.
 
-    The record's ``explicit_payment_sources`` name the sources. An option counts
-    only if its source is a declared source not yet used, and that declared
-    source must be the only declared source with the option's name; anything
-    else fails closed. Declining to pay is never chosen.
+    The declared sources (a record's ``explicit_payment_sources`` or a causal
+    route's declared fuel) name the sources. An option counts only if it taps a
+    declared source not yet used; declining to pay is never chosen.
+
+    Several offers for one card name are ambiguous and fail closed, with one
+    exception the caller must opt into: declared *fuel* (lands the causal route
+    itself placed, never record objects) of one card name, offered as identical
+    options (same label, same source, no references) and no more of them than
+    unused declared fuel of that name. Those are indistinguishable instances,
+    so their order is not a choice the record could make (the XMage lane's
+    ``_interchangeable`` rule); the returned source is the next unused one of
+    that name in declaration order.
     """
     remaining = [source for source in declared if source.semantic_id not in used]
     for source in remaining:
@@ -233,12 +245,17 @@ def select_mana_source(
         ]
         if not matches:
             continue
-        if len(same_name) > 1 or len(matches) > 1:
-            raise SelectionFailure(
-                "mana_source_ambiguous",
-                f"{len(matches)} offers and {len(same_name)} declared sources named {source.name}",
-            )
-        return matches[0], source
+        if len(matches) == 1 and len(same_name) == 1:
+            return matches[0], source
+        identical = len({(o.label, o.source_name, o.refs) for o in matches}) == 1 and not any(
+            o.refs for o in matches
+        )
+        if interchangeable_fuel and identical and len(matches) <= len(same_name):
+            return matches[0], source
+        raise SelectionFailure(
+            "mana_source_ambiguous",
+            f"{len(matches)} offers and {len(same_name)} declared sources named {source.name}",
+        )
     raise SelectionFailure(
         "zero_match",
         f"no declared mana source is offered: declared {[s.semantic_id for s in remaining]}, "
@@ -257,6 +274,8 @@ FORGE_DECISION_CLASSES: dict[str, str] = {
     "REPLACEMENT_CONFIRM": "choice",
     "STATIC_CHOICE": "choice",
     "TRIGGER_PLAY": "choice",
+    # CR 903.9: "may put it into the command zone", a [Yes]/[No] frame.
+    "COMMANDER_MOVE": "choice",
 }
 _FORGE_KINDS: dict[str, str] = {
     "cast_spell": "cast",
