@@ -1,0 +1,111 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-sba-priority-repin-v4-20261003",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "status": "WIP_EVIDENCE_PENDING",
+ "status_note": "native_qualification and lab_runtime_qualification are PENDING; tests/qualification/test_xmage_sba_priority_repin_v4_20261003.py stays red until both are filled from exact-commit runs. Do not open or merge the repin PR before that.",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "prior_live_pin": {
+  "commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+  "tree": "dac695ab2862e965cdaa30b0ce67052840dc7a5e",
+  "role": "prior live XMage pin (F-43 + F-44 + F-45); stays historical",
+  "successor_locks": [
+   "qualification/xmage-mp-candidate-repin-v3-20261001/SUCCESSOR_SOURCE_LOCK.json",
+   "qualification/xmage-f43-f44-f45-repin-v3-20261001/SUCCESSOR_SOURCE_LOCK.json"
+  ]
+ },
+ "lineage": {
+  "prior_pin": {
+   "commit": "37e4df6c914f1e189e24f0ef59fa91734c922436",
+   "tree": "dac695ab2862e965cdaa30b0ce67052840dc7a5e"
+  },
+  "donor_head": {
+   "commit": "8af3d6181ac0050002c65fa3f84997c786c5cb34",
+   "tree": "1ff64c794b1f992a8596c0b1b9952055520ccd10",
+   "parent": "37e4df6c914f1e189e24f0ef59fa91734c922436"
+  },
+  "final_integrated_candidate": {
+   "commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "tree": "1ff64c794b1f992a8596c0b1b9952055520ccd10",
+   "content": "F-43 + F-44 + F-45 + SBA priority repair"
+  },
+  "identity_rule": "each runtime receipt is bound to the commit it ran on; 8af3d618 and b479fe74 share a tree, which is supporting evidence only"
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/xmage-mp-candidate-20260929",
+  "commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "tree": "1ff64c794b1f992a8596c0b1b9952055520ccd10",
+  "parents": [
+   "37e4df6c914f1e189e24f0ef59fa91734c922436",
+   "8af3d6181ac0050002c65fa3f84997c786c5cb34"
+  ],
+  "committed_at": "2026-10-03T19:46:53+02:00",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/b479fe74fd1eaf899ff16c6a9203e74a91c0f339.tar.gz"
+ },
+ "donors": [
+  {
+   "finding": "SBA-PRIORITY (CR 117.5 / 800.4a, 704.5a)",
+   "tracker": "Lab #507",
+   "pr": "moeendres-png/mage#41",
+   "head": "8af3d6181ac0050002c65fa3f84997c786c5cb34",
+   "master_fix": {
+    "pr": "moeendres-png/mage#40",
+    "merge_commit": "6a2422d77a"
+   },
+   "patch_identity": {
+    "Mage/src/main/java/mage/game/GameImpl.java": "63e303861f65",
+    "Mage.Tests/src/test/java/org/mage/test/cards/designations/MonarchTest.java": "d449045d7861",
+    "Mage.Tests/src/test/java/org/mage/test/multiplayer/PriorityEliminationTest.java": "294732953316"
+   },
+   "patch_identity_method": "git patch-id --stable of the master #40 diff and the candidate 37e4df6c..8af3d618 diff, per file",
+   "donor_head_run": "maven.yml 37139572485 on 8af3d618: Mage.Tests SUCCESS; Mage.Verify FAIL (baseline)"
+  }
+ ],
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on branch claude/xmage-mp-candidate-20260929",
+   "run_id": 37141776698,
+   "commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "run": null,
+   "failures": null,
+   "errors": null,
+   "skipped": null,
+   "status": "PENDING",
+   "donor_regressions_in_run": "PriorityEliminationTest, MonarchTest (to confirm in the run's surefire output)"
+  },
+  "mage_verify": {
+   "result": "FAIL (pre-existing, baseline-attributed)",
+   "detail": "VerifyCardDataTest set/card data; identical at 37e4df6c (run 36831202247) and at 8af3d618 (run 37139572485)"
+  }
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "scratchpad m2-b479fe74: copy of the m2-sba repository with org/mage removed, then mage, mage-sets, mage-deck-constructed, mage-game-commanderfreeforall, mage-game-commanderduel (with -am) installed from exact b479fe74",
+  "installed_artifacts_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.61": "sha256 10b1d81609f6793afee6da5943c669f2fb079127e32010effb42e8eb564fa15a",
+   "org.mage:mage-sets:1.4.61": "sha256 04a1a60d4561c503b1adf188850ea113ab2fdc9c3777b083e99969f2caebb9c8"
+  },
+  "bridge_suite": {
+   "command": "cd engine-bridge && rm -rf target && mvn -o -Dmaven.repo.local=<isolated> test",
+   "run": null,
+   "failures": null,
+   "errors": null,
+   "skipped": null,
+   "status": "PENDING"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit; the repair has no structural signature (a guard inside GameImpl.playPriority); identity rests on the declared commit, the loaded-artifact digest and the native PriorityEliminationTest"
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "PB-03 workflow_dispatch on the exact Lab main merge commit of this repin, persisted as a new epoch; until then no FULL107/AF credit is claimed for this pin. Expected effect to verify: WS05-MP-ELIM-TURN-3 becomes executable (Lab #507)"
+ }
+}
