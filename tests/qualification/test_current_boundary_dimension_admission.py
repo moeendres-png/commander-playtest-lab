@@ -74,6 +74,7 @@ def test_current_boundary_projection_is_exact_13_admitted_17_blocked(
     doc = A.admit_manifest(materialization.denominator_records(), manifest)
     assert doc["rows_total"] == 30
     assert doc["counts"] == {"admitted": 13, "blocked": 17}
+    assert doc["counts"] == A.CURRENT_BOUNDARY_COUNTS
     assert set(doc["admitted"]) == EXPECTED_ADMITTED
     assert set(doc["blocked"]) == EXPECTED_BLOCKED
     assert "owner/controller" in doc["derivation"]

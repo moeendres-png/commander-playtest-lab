@@ -1211,7 +1211,7 @@ def build_xmage_pb03_admission(materialization) -> dict[str, Any]:
             ),
         }
     )
-    if document["counts"] != {"admitted": 12, "blocked": 18}:
+    if document["counts"] != pb03_admission_mod.CURRENT_BOUNDARY_COUNTS:
         raise SystemExit(
             "PB-03 admission projection drifted from the adjudicated current "
             f"30-row boundary: {document['counts']}"
