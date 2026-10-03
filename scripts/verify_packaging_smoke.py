@@ -29,8 +29,13 @@ Isolation invariants enforced here:
 * ``pyvenv.cfg`` must declare ``include-system-site-packages = false``;
 * the project is installed with ``--no-index --no-deps`` from the exact wheel
   path, so no dependency is resolved from an arbitrary index at install time;
-* dependencies come from the project's own hash-pinned lock
-  (``requirements/lock.txt``) installed with ``--require-hashes``;
+* dependencies are exactly the wheel's own runtime closure: its non-extra
+  ``Requires-Dist`` and theirs, pinned and hashed from the project lock
+  (``requirements/lock.txt``) and installed with ``--require-hashes --no-deps``.
+  Dev, API and OpenAI extras are never installed, so an undeclared runtime import
+  fails the smoke; ``pip check`` then proves the closure complete;
+* every file in the wheel equals its blob under ``src/`` at the source commit,
+  and every tracked module of a packaged top-level package is in the wheel;
 * the installed distribution must record a ``direct_url.json`` wheel archive
   whose SHA-256 equals the wheel digest bound before installing, and no editable
   install marker may exist in the isolated environment;
@@ -51,17 +56,20 @@ the evidence carries no hidden information.
 from __future__ import annotations
 
 import argparse
+import email.parser
 import hashlib
+import importlib.metadata
 import json
 import os
 import re
 import subprocess
 import sys
 import tomllib
+import zipfile
 from pathlib import Path
 from typing import Any, NoReturn
 
-SCHEMA_VERSION = "packaging-smoke-1.0.0"
+SCHEMA_VERSION = "packaging-smoke-1.1.0"
 GENERATED_BY = "scripts/verify_packaging_smoke.py"
 
 PASS = "PASS"
@@ -386,6 +394,7 @@ def install_pinned_dependencies(
             "pip",
             "install",
             "--require-hashes",
+            "--no-deps",
             "--requirement",
             str(dependency_lock),
         ],
@@ -415,6 +424,167 @@ def install_wheel_from_artifact(interpreter: Path, wheel: Path, *, scratch_dir: 
     )
     if completed.returncode != 0:
         _fail("wheel_install_failed", f"exit={completed.returncode}")
+
+
+_LOCK_PIN = re.compile(r"^([A-Za-z0-9._-]+)(?:\[[^\]]*\])?==([^\s\\;]+)")
+
+
+def lock_blocks(lock_text: str) -> dict[str, tuple[str, str]]:
+    """Each pinned block of a pip-compile lock: name -> (version, block text)."""
+    blocks: dict[str, tuple[str, str]] = {}
+    name: str | None = None
+    version = ""
+    lines: list[str] = []
+    for line in [*lock_text.splitlines(), ""]:
+        if line.strip().startswith("--hash=") and name is not None:
+            lines.append(line)
+            continue
+        if not line or line.startswith("#") or line[0].isspace():
+            continue
+        if name is not None:
+            blocks[name] = (version, "\n".join(lines))
+        match = _LOCK_PIN.match(line)
+        if match is None:
+            _fail("dependency_lock_entry_not_pinned", line[:80])
+        name, version, lines = normalize_distribution_name(match.group(1)), match.group(2), [line]
+    if name is not None:
+        blocks[name] = (version, "\n".join(lines))
+    return blocks
+
+
+def wheel_runtime_requirements(wheel: Path) -> list[str]:
+    """The wheel's own Requires-Dist, read from the artifact itself."""
+    try:
+        with zipfile.ZipFile(wheel) as archive:
+            names = [Path(name) for name in archive.namelist()]
+            metadata = _only(
+                [name for name in names if name.match("*.dist-info/METADATA")],
+                code="wheel_metadata_not_unique",
+            )
+            text = archive.read(metadata.as_posix()).decode("utf-8")
+    except (OSError, zipfile.BadZipFile, KeyError, UnicodeDecodeError) as exc:
+        _fail("wheel_metadata_unreadable", str(exc))
+    return email.parser.Parser().parsestr(text).get_all("Requires-Dist") or []
+
+
+def runtime_dependency_closure(wheel: Path, dependency_lock: Path) -> list[tuple[str, str]]:
+    """The wheel's non-extra runtime closure, pinned by the lock.
+
+    Requirements are expanded from the lock-pinned distributions' own metadata
+    (the caller's environment was installed from the same lock; any version
+    difference is UNKNOWN, never guessed). Extras are followed only where a
+    requirement requests them.
+    """
+    try:
+        from packaging.requirements import InvalidRequirement, Requirement
+    except ImportError:
+        _unknown("packaging_library_unavailable")
+    if not dependency_lock.is_file():
+        _fail("dependency_lock_missing", dependency_lock.name)
+    blocks = lock_blocks(dependency_lock.read_text(encoding="utf-8"))
+    closure: dict[str, str] = {}
+    requested: dict[str, set[str]] = {}
+    try:
+        pending = [(Requirement(raw), {""}) for raw in wheel_runtime_requirements(wheel)]
+        while pending:
+            requirement, context = pending.pop()
+            if requirement.marker is not None and not any(
+                requirement.marker.evaluate({"extra": extra}) for extra in context
+            ):
+                continue
+            name = normalize_distribution_name(requirement.name)
+            extras = {""} | set(requirement.extras)
+            if name in closure and extras <= requested[name]:
+                continue
+            if name not in blocks:
+                _fail("runtime_dependency_not_in_lock", name)
+            version = blocks[name][0]
+            if requirement.specifier and not requirement.specifier.contains(
+                version, prereleases=True
+            ):
+                _fail("runtime_dependency_lock_pin_unsatisfying", f"{requirement} lock={version}")
+            try:
+                distribution = importlib.metadata.distribution(name)
+            except importlib.metadata.PackageNotFoundError:
+                _unknown("runtime_dependency_metadata_unavailable", name)
+            if distribution.version != version:
+                _unknown(
+                    "runtime_dependency_metadata_not_the_lock_pin",
+                    f"{name} lock={version} metadata={distribution.version}",
+                )
+            closure[name] = version
+            requested[name] = requested.get(name, set()) | extras
+            pending.extend(
+                (Requirement(raw), requested[name]) for raw in distribution.requires or []
+            )
+    except InvalidRequirement as exc:
+        _fail("runtime_requirement_unparseable", str(exc))
+    return sorted(closure.items())
+
+
+def write_runtime_lock(
+    closure: list[tuple[str, str]], dependency_lock: Path, destination: Path
+) -> Path:
+    blocks = lock_blocks(dependency_lock.read_text(encoding="utf-8"))
+    destination.write_text(
+        "\n".join(blocks[name][1] for name, _version in closure) + "\n", encoding="utf-8"
+    )
+    return destination
+
+
+def check_isolated_dependencies(interpreter: Path, *, scratch_dir: Path) -> None:
+    """pip's own consistency check: the installed closure satisfies every Requires-Dist."""
+    completed = _run(
+        [str(interpreter), "-m", "pip", "check"],
+        cwd=scratch_dir,
+        env=isolated_child_environment(),
+        timeout=DEFAULT_PROBE_TIMEOUT_SECONDS,
+    )
+    if completed.returncode != 0:
+        _fail("isolated_environment_dependency_check_failed", _diagnostic_tail(completed))
+
+
+def _git_blob_id(data: bytes) -> str:
+    return hashlib.sha1(b"blob %d\0" % len(data) + data, usedforsecurity=False).hexdigest()
+
+
+def verify_wheel_matches_source(wheel: Path, repo: Path, source_sha: str) -> dict[str, Any]:
+    """Every wheel file is the source blob at ``source_sha``; no tracked module is missing."""
+    listed = _git_text(repo, "ls-tree", "-r", "-z", source_sha, "--", "src")
+    if listed is None:
+        _unknown("source_tree_listing_unavailable")
+    source: dict[str, str] = {}
+    for entry in filter(None, listed.split("\0")):
+        meta, _, path = entry.partition("\t")
+        _mode, kind, blob = meta.split()
+        if kind == "blob" and path.startswith("src/"):
+            source[path.removeprefix("src/")] = blob
+    packaged: set[str] = set()
+    try:
+        with zipfile.ZipFile(wheel) as archive:
+            for info in archive.infolist():
+                top = info.filename.split("/", 1)[0]
+                if info.is_dir() or top.endswith((".dist-info", ".data")):
+                    continue
+                blob = _git_blob_id(archive.read(info))
+                if info.filename not in source:
+                    _fail("wheel_file_not_in_source", info.filename)
+                if source[info.filename] != blob:
+                    _fail("wheel_file_differs_from_source", info.filename)
+                packaged.add(info.filename)
+    except (OSError, zipfile.BadZipFile) as exc:
+        _fail("wheel_unreadable", str(exc))
+    packages = sorted({name.split("/", 1)[0] for name in packaged})
+    missing = sorted(
+        path
+        for path in source
+        if path.split("/", 1)[0] in packages and path.endswith(".py") and path not in packaged
+    )
+    if missing:
+        _fail("wheel_missing_source_module", ",".join(missing[:10]))
+    if not packaged:
+        _fail("wheel_carries_no_package_files")
+    return {"status": PASS, "files": len(packaged), "packages": packages, "source_sha": source_sha}
 
 
 def installed_distribution_version(
