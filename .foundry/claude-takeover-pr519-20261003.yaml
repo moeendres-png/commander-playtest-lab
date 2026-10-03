@@ -1,0 +1,44 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/work/takeover-pr519-20261003
+branch: hardening/b10-broad-secret-scan-20261003
+audit_base_sha: e827a981d204333fbbc7638a84836e7d1da52630
+audit_base_tree: 213c2f5539ee1cc13db854575113efb331596e3b
+state_written_against_head: e87f256ed63fdbec0b97c641258de2f4a0feece3
+validated_head: null
+objective: Close transferred CI479 B10 review gaps without changing rules or qualification
+  verdicts
+ownership: PRE-FREEZE-CAMPAIGN-SINGLE-COORDINATOR-20261003
+status: WAITING
+in_scope:
+- Transferred Lab PR519 implementation, tests, evidence, normal base merge and GitHub
+  integration
+out_of_scope:
+- Non-CI simulator work owned by Claude (506,511,441,255,Mage40)
+- Rules/evidence-policy/provider/freeze decisions
+- Deck/inventory/opponent changes
+- Paid services
+- Required-check promotion
+dependencies:
+- Direct user transfer of CI479; Lab255 comment5971360874 confirms ownership split
+- Fresh canonical source and exact-head review/CI
+hard_gates:
+- exact-head required CI and affected qualification PASS
+- no unresolved material P1/P2
+- normal merge only and target drift adjudication
+- no false PASS, narrowed denominator or fallback
+- single writer with preserved historical evidence
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+authority_gates:
+- Rules/evidence-policy/provider/freeze decisions remain reserved
+execution_profile: null
+technical_decisions:
+- User explicitly transfers Claude campaign after usage limit; earlier Claude-only
+  reservation superseded for named Lab surfaces. Direct Codex engineering is the requested
+  takeover, not an automatic OpenCode fallback.
+- Remote published source is reused. Unavailable Claude cloud edits are not assumed
+  present. Existing local D17 processes and uncommitted Forge work are preserved.
+exact_next_action: Read new exact-head CI and independent review. Verify artifact
+  bytes/source lock, adjudicate CI02 honestly, then merge only reviewed head.
+tests_run:
+- 191 affected tests PASS; full-path before/after controls retained in docs/ci479_root_config_pr519_20261003
