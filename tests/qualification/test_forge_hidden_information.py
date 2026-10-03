@@ -206,6 +206,10 @@ def test_a_fragment_only_in_a_comment_is_drift() -> None:
         ("bootstrap", 'if (entry.has("hidden_face")) { }'),
         ("bootstrap", 'final String order = optString(entry, "order", "");'),
         ("engine", 'caps.addProperty("replay_supported", true);'),
+        ("engine", 'caps.addProperty("replay_supported", Boolean.TRUE);'),
+        ("engine", 'caps.addProperty("event_log_supported", Boolean.TRUE);'),
+        ("projection", 'zones.add("library_top", libraryFor(player, observer));'),
+        ("projection", 'zones.add("revealed", revealedFor(player, observer));'),
         ("controller", "public void reveal(CardView card) { session.publish(card); }"),
         ("controller", "auditReveal(1, zone);"),
     ],
@@ -298,5 +302,18 @@ def test_the_committed_matrix_is_current(records) -> None:
         for fixture in sorted(knowledge_projection.ROWS)
     ]
     assert matrix["rows"] == fresh
+    channels = [
+        {
+            "channel": channel.name,
+            "status": channel.status,
+            "source": fh.SOURCES[channel.source],
+            "present_fragments": list(channel.present),
+            "absent_tokens": list(channel.absent),
+            "closed_bootstrap_fields": sorted(channel.fields),
+            "meaning": channel.meaning,
+        }
+        for channel in fh.CHANNELS
+    ]
+    assert matrix["channels"] == channels
     assert matrix["summary"]["pass"] == 0
     assert matrix["summary"]["af05_forge"] == "UNKNOWN"

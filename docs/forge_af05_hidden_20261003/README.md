@@ -55,10 +55,10 @@ row stays UNKNOWN.
 |---|---|---|
 | principal-scoped state | supported | `StateProjection.gameState(session, observerPlayerId)` |
 | face-down redaction | supported | a face-down card or stack source is named only when both `view.canBeShownTo(observerView)` and `view.canFaceDownBeShownTo(observerView)` hold; otherwise `"<face-down>"` |
-| library contents | absent | every library projects as `[]` with `library_size` only; no other `zones.add("library", ...)` exists |
-| event log | absent | `export_event_log` and `get_event_log` fail closed (`EVENT_LOG_UNSUPPORTED`; `event_log_supported = false`) |
-| reveal and look audience | absent | both `reveal` overrides only call `auditReveal`, whose whole body writes the bridge's internal audit (`session.audit("cards_revealed", ...)`); no other reveal path exists |
-| replay or transcript | absent | `export_replay` is unsupported and `replay_supported = false`. The bridge keeps an internal `SemanticReplay` and puts a `principal_observation_digest` in the state, but no replay or transcript is exported to a principal |
+| library contents | absent | every library projects as `[]` with `library_size` only; no other `library*` zone key exists |
+| event log | absent | `export_event_log` and `get_event_log` fail closed (`EVENT_LOG_UNSUPPORTED`; `event_log_supported = false`, its only occurrence) |
+| reveal and look audience | absent | both `reveal` overrides only call `auditReveal`, whose whole body writes the bridge's internal audit (`session.audit("cards_revealed", ...)`); the controller has no other reveal path, and the state projection carries no revealed or looked-at key (`reveal_look_projection`) |
+| replay or transcript | absent | `export_replay` is unsupported and `replay_supported = false` (its only occurrence). The bridge keeps an internal `SemanticReplay` and puts a `principal_observation_digest` in the state, but no replay or transcript is exported to a principal |
 | face-down construction | absent | `ScenarioBootstrap` has no face-down field |
 | library-order construction | absent | `ScenarioBootstrap` cannot place a library in a requested order |
 | knowledge construction | absent | `ScenarioBootstrap` has no knowledge or permission field |

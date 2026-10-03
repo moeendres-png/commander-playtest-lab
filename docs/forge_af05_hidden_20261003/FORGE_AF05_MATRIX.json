@@ -29,21 +29,23 @@
   },
   {
    "absent_tokens": [
-    "zones.add(\"library\",",
-    "add(\"library_contents\"",
-    "add(\"library_order\""
+    "zones.add(\"library",
+    "add(\"library"
    ],
    "channel": "library_contents",
    "closed_bootstrap_fields": [],
    "meaning": "every library projects as an empty list with library_size; no principal, entitled or not, can observe a library identity or its order",
    "present_fragments": [
-    "zones.add(\"library\", new JsonArray());"
+    "zones.add(\"library\", new JsonArray());",
+    "zones.add(\"library_size\","
    ],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
    "status": "ABSENT"
   },
   {
-   "absent_tokens": [],
+   "absent_tokens": [
+    "\"event_log_supported\""
+   ],
    "channel": "event_log",
    "closed_bootstrap_fields": [],
    "meaning": "export_event_log and get_event_log fail closed; no engine event can be observed, so permission timing cannot be tied to the real event",
@@ -72,7 +74,21 @@
   },
   {
    "absent_tokens": [
-    "caps.addProperty(\"replay_supported\", true)"
+    "\"revealed",
+    "\"looked",
+    "\"reveal",
+    "\"look_"
+   ],
+   "channel": "reveal_look_projection",
+   "closed_bootstrap_fields": [],
+   "meaning": "the state projection carries no revealed or looked-at zone; with the controller's audit-only reveal this is the whole reveal/look evidence",
+   "present_fragments": [],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
+   "status": "ABSENT"
+  },
+  {
+   "absent_tokens": [
+    "\"replay_supported\""
    ],
    "channel": "replay_transcript",
    "closed_bootstrap_fields": [],

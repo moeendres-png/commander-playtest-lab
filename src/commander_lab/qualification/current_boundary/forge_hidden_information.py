@@ -136,8 +136,8 @@ CHANNELS: tuple[Channel, ...] = (
         "library_contents",
         CHANNEL_ABSENT,
         "projection",
-        present=('zones.add("library", new JsonArray());',),
-        absent=('zones.add("library",', 'add("library_contents"', 'add("library_order"'),
+        present=('zones.add("library", new JsonArray());', 'zones.add("library_size",'),
+        absent=('zones.add("library', 'add("library'),
         meaning=(
             "every library projects as an empty list with library_size; no principal, "
             "entitled or not, can observe a library identity or its order"
@@ -151,6 +151,7 @@ CHANNELS: tuple[Channel, ...] = (
             "BridgeErrors.EVENT_LOG_UNSUPPORTED",
             'caps.addProperty("event_log_supported", false);',
         ),
+        absent=('"event_log_supported"',),
         meaning=(
             "export_event_log and get_event_log fail closed; no engine event can be "
             "observed, so permission timing cannot be tied to the real event"
@@ -181,6 +182,16 @@ CHANNELS: tuple[Channel, ...] = (
         ),
     ),
     Channel(
+        "reveal_look_projection",
+        CHANNEL_ABSENT,
+        "projection",
+        absent=('"revealed', '"looked', '"reveal', '"look_'),
+        meaning=(
+            "the state projection carries no revealed or looked-at zone; with the "
+            "controller's audit-only reveal this is the whole reveal/look evidence"
+        ),
+    ),
+    Channel(
         "replay_transcript",
         CHANNEL_ABSENT,
         "engine",
@@ -188,7 +199,7 @@ CHANNELS: tuple[Channel, ...] = (
             "export_replay is not supported: deterministic replay is not claimed",
             'caps.addProperty("replay_supported", false);',
         ),
-        absent=('caps.addProperty("replay_supported", true)',),
+        absent=('"replay_supported"',),
         meaning="no replay or transcript export exists to audit",
     ),
     Channel(
