@@ -1610,6 +1610,44 @@ class XmageMidgameCausalTest {
     }
 
     @Test
+    void theCausedPermanentsMustLandOnTheRecordsCheckpoint() {
+        // Wrong-reason control for the checkpoint comparison: after the Aura
+        // resolved, P1 passes once, so P2 holds priority. Attachment and
+        // control still match, but the record's checkpoint (P1 holding
+        // priority) no longer does, and the verifier must say so.
+        Lane lane = newLane();
+        JsonObject created = lane.ok("create_midgame_game",
+                elimControl3Request("caused-checkpoint", true));
+        JsonObject causalPlan = created.getAsJsonObject("causal_plan");
+        JsonObject frame = causalPlan.getAsJsonArray("frames_bottom_to_top")
+                .get(0).getAsJsonObject();
+        JsonObject placed = causalPlan.getAsJsonObject("placed_objects");
+        List<String> islands = new ArrayList<>();
+        for (int index = 0; index < 4; index++) {
+            islands.add(placed.get("obj:fuel-island-p2-" + index).getAsString());
+        }
+        lane.ok("start_midgame_game", null);
+        driveArrival(lane, "P1");
+        castFrameSource(lane, "checkpoint-cast", frame.get("native_source_id").getAsString());
+        answerTarget(lane, "checkpoint-target", placed.get("obj:p1-owned-controlled").getAsString());
+        answerManaFromSet(lane, "checkpoint-mana", islands);
+        passUntilStackEmpty(lane, "checkpoint-resolve");
+        JsonObject permanentsVerify = new JsonObject();
+        permanentsVerify.addProperty("mode", "permanents");
+        assertTrue(lane.ok("complete_causal_reconstruction", permanentsVerify)
+                .getAsJsonObject("verdict").get("causal_match").getAsBoolean());
+
+        JsonObject pending = pendingDecision(lane);
+        submitOption(lane, pending, optionWithType(pending, "pass_priority"));
+        JsonObject moved = lane.ok("complete_causal_reconstruction", permanentsVerify)
+                .getAsJsonObject("verdict");
+        assertFalse(moved.get("causal_match").getAsBoolean(), moved.toString());
+        String mismatches = moved.getAsJsonArray("mismatches").toString();
+        assertTrue(mismatches.contains("CAUSED_CHECKPOINT_MISMATCH"), mismatches);
+        assertFalse(mismatches.contains("CAUSED_PERMANENT_ATTACHMENT"), mismatches);
+    }
+
+    @Test
     void permanentsVerifierWithoutCausedPermanentsFailsClosed() {
         // Without its caused Aura the ELIM-CONTROL-3 record has nothing to cast,
         // so the composed entry refuses it outright.

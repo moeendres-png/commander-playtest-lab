@@ -360,8 +360,8 @@ final class XmageMidgameCausalBridge {
                         fixtureId + " " + semanticId);
             }
             String owner = requiredText(object, "owner");
-            String controller = requiredText(object, "controller");
-            if (!owner.equals(controller)) {
+            String controller = recordedControllers.get(semanticId);
+            if (controller == null || !owner.equals(controller)) {
                 throw new CausalException("CAUSED_PERMANENT_CONTROL_DIVERGENT",
                         fixtureId + " " + semanticId);
             }
