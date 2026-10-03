@@ -21,6 +21,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+import pytest
 import yaml
 
 WORKFLOWS_DIR = ".github/workflows"
@@ -92,7 +93,8 @@ def test_locked_install_in_every_ubuntu_lane(repo_root: Path) -> None:
         range_installs = [
             line.strip()
             for line in text.splitlines()
-            if re.search(r"pip install (-e |.*\[dev|.*\[api|.*\[openai|build$)", line)
+            if not line.lstrip().startswith("#")
+            and re.search(r"pip install (-e |.*\[dev|.*\[api|.*\[openai|build$)", line)
             and "--require-hashes" not in line
             and "wheel-verify" not in line
             and "release/" not in line
@@ -194,3 +196,28 @@ def test_environment_receipt_schema_and_identity(tmp_path: Path, repo_root: Path
     ).hexdigest()
     assert recomputed == identity
     assert "sk-" not in json.dumps(receipt)
+
+
+def test_locked_install_comment_is_not_a_command(tmp_path, monkeypatch):
+    workflow = tmp_path / "test.yml"
+    workflow.write_text(
+        "setup-python\n"
+        + "\n".join(LOCKED_INSTALL_MARKERS)
+        + "\n# `pip install -e .` reads package metadata.\n"
+    )
+    monkeypatch.setattr(
+        __import__(__name__, fromlist=["_workflow_files"]), "_workflow_files", lambda _: [workflow]
+    )
+    test_locked_install_in_every_ubuntu_lane(tmp_path)
+
+
+def test_actual_unlocked_install_is_still_rejected(tmp_path, monkeypatch):
+    workflow = tmp_path / "test.yml"
+    workflow.write_text(
+        "setup-python\n" + "\n".join(LOCKED_INSTALL_MARKERS) + "\npython -m pip install -e .\n"
+    )
+    monkeypatch.setattr(
+        __import__(__name__, fromlist=["_workflow_files"]), "_workflow_files", lambda _: [workflow]
+    )
+    with pytest.raises(AssertionError, match="keeps range installs"):
+        test_locked_install_in_every_ubuntu_lane(tmp_path)

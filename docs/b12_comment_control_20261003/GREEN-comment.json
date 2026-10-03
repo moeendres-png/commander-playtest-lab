@@ -1,0 +1,22 @@
+{
+  "head": "6b6bb44713d0e52d543f2ee1542dda9cb90e457e",
+  "tree": "40dc1b12632c508275bc4add5ce4ff56a37cdc94",
+  "working_diff_sha256": "d7c13311609face9e1f05bd2ae27bd8e7c4f4b6d24866647a7dfde03f1c8525a",
+  "source_hashes": {
+    "src/commander_lab/engine/rules/full_game.py": "7da6aeb75ab8af03537004dda39a287802bbbfa6421cc5652f13d85815dc3f3e",
+    "scripts/run_real_4p_full_game_smoke.py": "9d5cca9fec38c1a49e009a4180d742910d49a5e0bd9c8a4e40bdcb9e56997ce0",
+    ".github/workflows/xmage-real-4p-smoke.yml": "eb8847c60c20f4accba9ce3a474a849fa26b27f13f772dce8cddd391795377a9"
+  },
+  "command": [
+    "/home/moeen/work/takeover-runtime-20261003/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/test_ws223_environment_identity.py",
+    "tests/qualification/test_pb03_trigger_completeness.py",
+    "tests/unit/test_required_test_ownership.py",
+    "tests/unit/test_workflow_impact.py"
+  ],
+  "exit": 0,
+  "log_sha256": "a8d35425c962d8afff5595bad292d0ee6de45fe05ff4fa3a2be70eaacb8994ef"
+}

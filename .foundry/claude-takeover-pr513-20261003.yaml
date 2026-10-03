@@ -1,0 +1,45 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/work/takeover-pr513-20261003
+branch: hardening/b12-pb03-trigger-telemetry-20261003
+audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
+state_written_against_head: c3bf414247879d826926fb880f092c08c047b8e4
+validated_head: null
+objective: Close transferred CI479 B12 review gaps without changing rules or qualification
+  verdicts
+ownership: PRE-FREEZE-CAMPAIGN-SINGLE-COORDINATOR-20261003
+status: WAITING
+in_scope:
+- Transferred Lab PR513 implementation, tests, evidence, normal base merge and GitHub
+  integration
+out_of_scope:
+- Non-CI simulator work owned by Claude (506,511,441,255,Mage40)
+- Rules/evidence-policy/provider/freeze decisions
+- Deck/inventory/opponent changes
+- Paid services
+- Required-check promotion
+dependencies:
+- Direct user transfer of CI479; Lab255 comment5971360874 confirms ownership split
+- Fresh canonical source and exact-head review/CI
+hard_gates:
+- exact-head required CI and affected qualification PASS
+- no unresolved material P1/P2
+- normal merge only and target drift adjudication
+- no false PASS, narrowed denominator or fallback
+- single writer with preserved historical evidence
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+authority_gates:
+- Rules/evidence-policy/provider/freeze decisions remain reserved
+execution_profile: null
+technical_decisions:
+- Consumed canonical STOPPED handoff and Owner CI479 assignment. Existing historical
+  source lock and evidence retained.
+- Only full comment lines are excluded from executable install scanning; actual unhashed
+  pip install -e still fails. No install command, pin, gate exemption or existing
+  expectation relaxed.
+exact_next_action: Verify new exact-head required CI and PB03, independent review
+  and CI02 adjudication, then normal merge.
+tests_run:
+- 1348 qualification tests PASS;13 historical skips NOT_RUN after main50e8 normal
+  integration
