@@ -4,8 +4,8 @@ worktree: /home/moeen/work/takeover-pr513-20261003
 branch: hardening/b12-pb03-trigger-telemetry-20261003
 audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
 audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
-state_written_against_head: fe73b980fa91d5dc24c74f773584ce4f42876722
-validated_head: null
+state_written_against_head: 4bc3aa27242bdfca36326f1ae275161b9e51148b
+validated_head: 4bc3aa27242bdfca36326f1ae275161b9e51148b
 objective: Resume transferred Claude pre-Freeze campaign; review, repair, qualify
   and integrate existing PR surfaces without losing provenance
 ownership: CLAUDE-CAMPAIGN-TAKEOVER-20261003
@@ -42,10 +42,7 @@ technical_decisions:
   takeover, not an automatic OpenCode fallback.
 - Remote published source is reused. Unavailable Claude cloud edits are not assumed
   present. Existing local D17 processes and uncommitted Forge work are preserved.
-exact_next_action: Validate clean code commit, checkpoint the tested identity, push
-  once, then obtain exact-head CI and fresh independent review before ordinary merge.
+exact_next_action: Push checkpoint once; require fresh exact-head PB03, required CI
+  and independent review before merge. Earlier fe73b980 PB03 remains historical.
 tests_run:
-- 8 B12 trigger and duration tests PASS at published source
-- 45 B12, required-test ownership and workflow-impact tests PASS after normal main
-  merge
-- Ruff affected scripts/tests PASS; exact-head PB03 pending new head
+- 45 targeted B12, workflow-impact and ownership tests PASS on clean code commit 4bc3aa27242bdfca36326f1ae275161b9e51148b
