@@ -1,0 +1,35 @@
+# B10 (#491): broad secret scan configuration for the pinned gitleaks
+# (scripts/run_broad_secret_scan.py holds the version and the archive digest).
+#
+# The full upstream default rule set applies. Every exclusion below is scoped to
+# one rule, one exact file and one exact value (condition AND), and says why that
+# value is not a secret. A new exclusion needs the same; never a whole file, a
+# whole rule or a top-level [[allowlists]] entry (gitleaks applies a top-level
+# path allowlist to the whole file, whatever its condition).
+# tests/unit/test_broad_secret_scan.py enforces this shape, and the scan's red
+# controls prove each exclusion still finds its value elsewhere and other values
+# in the same file.
+
+title = "commander-playtest-lab broad secret scan"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = """\
+Fabricated redaction fixture: the test sets this value in the environment and \
+asserts that the runner identity receipt never contains it."""
+condition = "AND"
+paths = ['''^tests/qualification/test_current_boundary_environment_identity\.py$''']
+regexes = ['''^s3cr3t-sentinel-0d9f$''']
+
+[[rules.allowlists]]
+description = """\
+Fabricated redaction fixture: the test passes this value as FOUNDRY_SENTINEL_TOKEN \
+and asserts that safe_push never prints it."""
+condition = "AND"
+paths = ['''^tests/foundry/test_safe_push\.py$''']
+regexes = ['''^sentinel-abc-123$''']
