@@ -5,6 +5,14 @@ on:
     paths:
       - ".github/workflows/pb03-runtime-qualification.yml"
       - "config/rules_engines.json"
+      # B12: the effective contract, fixture manifests and install inputs the
+      # producer reads (tests/qualification/test_pb03_trigger_completeness.py).
+      - "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
+      - "qualification/pre-freeze-successor/**"
+      - "qualification/ws47/**"
+      - "qualification/manifests/**"
+      - "requirements/lock.txt"
+      - "pyproject.toml"
       - "engine-bridge/**"
       - "scripts/run_current_boundary_qualification.py"
       - "scripts/assemble_current_boundary_evidence.py"
@@ -34,6 +42,8 @@ concurrency:
 
 env:
   PYTHONHASHSEED: "0"
+  # B12: stream the runner's phase lines as they happen instead of at exit.
+  PYTHONUNBUFFERED: "1"
 
 jobs:
   pb03-runtime:

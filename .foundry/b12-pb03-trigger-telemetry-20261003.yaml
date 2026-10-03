@@ -1,0 +1,41 @@
+# B12 PB-03 trigger completeness and phase telemetry: resumable state (#512, parent #479).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: scratchpad/wtb12 (session-local git worktree of the canonical clone)
+branch: hardening/b12-pb03-trigger-telemetry-20261003
+audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
+state_written_against_head: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+workstream: B12-PB03-TRIGGER-TELEMETRY-20261003
+issue: 512
+parent: 479
+pull_request: null
+objective: >-
+  Every repository input of the PB-03 producer triggers PB-03 on a pull
+  request, and the runner reports each phase's duration as it runs.
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+status: ACTIVE
+ownership: B12-PB03-TRIGGER-TELEMETRY-20261003 (Claude, sole executor)
+in_scope:
+  - .github/workflows/pb03-runtime-qualification.yml (trigger paths, PYTHONUNBUFFERED)
+  - scripts/run_current_boundary_qualification.py (stdout phase lines only)
+  - tests/qualification/test_pb03_trigger_completeness.py
+out_of_scope:
+  - making PB-03 server-required (CI-02 governance, Owner authority)
+  - Priority E performance work
+  - any gate semantics
+hard_gates:
+  - no semantic gate removed or weakened
+  - timing never reaches an evidence artifact
+milestones:
+  - id: M1
+    result: >-
+      test_pb03_trigger_completeness measures the producer's inputs under an
+      open audit hook; it failed on the old trigger list (6 contract/manifest
+      files, pyproject.toml, requirements/lock.txt) and passes on the new one.
+open_items:
+  - Exact-head PB-03 must run and print the per-phase durations.
+exact_next_action: >-
+  Push, open the PR, confirm PB-03 runs on the exact head with phase lines and
+  the required contexts are green, fresh-context review, merge under the gates.
