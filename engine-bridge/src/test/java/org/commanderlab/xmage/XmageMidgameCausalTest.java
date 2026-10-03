@@ -1487,6 +1487,165 @@ class XmageMidgameCausalTest {
         assertTrue(error.get("message").getAsString().contains("MISSING_ELIMINATION_SPEC"));
     }
 
+    private static JsonObject elimControl3Request(String gameId, boolean withCaused) {
+        JsonArray fuel = new JsonArray();
+        fuel.add(fuelCard("obj:enabler-leyline-p2", "Leyline of Anticipation", "P2", "battlefield"));
+        for (int index = 0; index < 4; index++) {
+            fuel.add(fuelCard("obj:fuel-island-p2-" + index, "Island", "P2", "battlefield"));
+        }
+        JsonArray instruments = new JsonArray();
+        for (int index = 0; index < 14; index++) {
+            instruments.add(fuelCard("obj:elim-bolt-" + index, "Lightning Bolt", "P1", "hand"));
+            instruments.add(fuelCard("obj:elim-mountain-" + index, "Mountain", "P1",
+                    "battlefield"));
+        }
+        JsonObject request = causalStackCreate(gameId, "WS05-MP-ELIM-CONTROL-3", fuel);
+        request.addProperty("entry_mode", "causal_stack_elimination");
+        if (withCaused) {
+            JsonArray caused = new JsonArray();
+            caused.add("obj:leave-controlmagic");
+            request.add("caused_permanents", caused);
+        }
+        JsonObject spec = new JsonObject();
+        spec.addProperty("actor", "P1");
+        spec.addProperty("victim", "P2");
+        spec.add("instruments", instruments);
+        request.add("elimination", spec);
+        return request;
+    }
+
+    private static void passUntilStackEmpty(Lane lane, String tag) {
+        for (int step = 0; step < 30; step++) {
+            JsonObject pending = pendingDecision(lane);
+            assertNotNull(pending, tag + ": the engine must keep asking");
+            assertEquals("priority", pending.get("decision_class").getAsString(), tag);
+            if (pending.getAsJsonObject("pilot_state").getAsJsonArray("stack").isEmpty()) {
+                return;
+            }
+            submitOption(lane, pending, optionWithType(pending, "pass_priority"));
+        }
+        fail(tag + ": the stack never emptied");
+    }
+
+    @Test
+    void elimControl3CausesTheAuraThenEliminatesItsOwner() {
+        Lane lane = newLane();
+        JsonObject created = lane.ok("create_midgame_game",
+                elimControl3Request("causal-elim-control-caused", true));
+        JsonObject causalPlan = created.getAsJsonObject("causal_plan");
+        JsonObject frame = causalPlan.getAsJsonArray("frames_bottom_to_top")
+                .get(0).getAsJsonObject();
+        assertEquals("obj:leave-controlmagic", frame.get("semantic_id").getAsString());
+        assertEquals("P2", frame.get("controller").getAsString());
+        assertEquals("obj:p1-owned-controlled",
+                frame.getAsJsonArray("targets").get(0).getAsString());
+        JsonObject placed = causalPlan.getAsJsonObject("placed_objects");
+        List<String> islands = new ArrayList<>();
+        for (int index = 0; index < 4; index++) {
+            islands.add(placed.get("obj:fuel-island-p2-" + index).getAsString());
+        }
+        lane.ok("start_midgame_game", null);
+
+        driveArrival(lane, "P1");
+        JsonObject permanentsVerify = new JsonObject();
+        permanentsVerify.addProperty("mode", "permanents");
+        JsonObject early = lane.ok("complete_causal_reconstruction", permanentsVerify)
+                .getAsJsonObject("verdict");
+        assertFalse(early.get("causal_match").getAsBoolean(),
+                "before the cast the Aura is not on the battlefield: " + early);
+
+        // P2 casts Control Magic on P1's turn only because the declared
+        // Leyline of Anticipation gives it flash; the engine decides that.
+        castFrameSource(lane, "caused-cast", frame.get("native_source_id").getAsString());
+        answerTarget(lane, "caused-target", placed.get("obj:p1-owned-controlled").getAsString());
+        answerManaFromSet(lane, "caused-mana", islands);
+        JsonObject stackVerify = new JsonObject();
+        stackVerify.addProperty("mode", "stack");
+        assertTrue(lane.ok("complete_causal_reconstruction", stackVerify)
+                .getAsJsonObject("verdict").get("causal_match").getAsBoolean());
+        passUntilStackEmpty(lane, "caused-resolve");
+        JsonObject permanents = lane.ok("complete_causal_reconstruction", permanentsVerify)
+                .getAsJsonObject("verdict");
+        assertTrue(permanents.get("causal_match").getAsBoolean(),
+                "the Aura must be attached and P2 must control the Bears: "
+                        + permanents.getAsJsonArray("mismatches"));
+
+        List<String> boltIds = new ArrayList<>();
+        List<String> mountainIds = new ArrayList<>();
+        for (JsonElement element : created.getAsJsonObject("elimination_plan")
+                .getAsJsonArray("instruments")) {
+            JsonObject instrument = element.getAsJsonObject();
+            String nativeId = instrument.get("native_id").getAsString();
+            if ("Lightning Bolt".equals(instrument.get("card_identity").getAsString())) {
+                boltIds.add(nativeId);
+            } else {
+                mountainIds.add(nativeId);
+            }
+        }
+        int expectedLife = 40;
+        for (int bolt = 0; bolt < 14; bolt++) {
+            castFrameSource(lane, "caused-bolt-" + bolt, boltIds.get(bolt));
+            answerPlayerTarget(lane, "caused-bolt-target-" + bolt, seatLabel("P2"));
+            answerManaFromSet(lane, "caused-bolt-mana-" + bolt, mountainIds);
+            expectedLife -= 3;
+            resolveUntilLifeReaches(lane, "caused-bolt-resolve-" + bolt, "P2", expectedLife);
+        }
+        JsonObject eliminationVerify = new JsonObject();
+        eliminationVerify.addProperty("mode", "elimination");
+        JsonObject verdict = lane.ok("complete_causal_reconstruction", eliminationVerify)
+                .getAsJsonObject("verdict");
+        assertTrue(verdict.get("victim_lost").getAsBoolean() && verdict.get("victim_left").getAsBoolean(),
+                "P2 must lose and leave: " + verdict);
+        // The Aura left with P2 (CR 800.4a): the caused-permanent verifier no
+        // longer finds it, and P1 controls its Bears again.
+        JsonObject after = lane.ok("complete_causal_reconstruction", permanentsVerify)
+                .getAsJsonObject("verdict");
+        assertFalse(after.get("causal_match").getAsBoolean(), "the Aura must be gone: " + after);
+        assertTrue(after.getAsJsonArray("mismatches").toString().contains("CAUSED_PERMANENT_ABSENT"),
+                after.toString());
+    }
+
+    @Test
+    void permanentsVerifierWithoutCausedPermanentsFailsClosed() {
+        // Without its caused Aura the ELIM-CONTROL-3 record has nothing to cast,
+        // so the composed entry refuses it outright.
+        Lane refused = newLane();
+        JsonObject rejected = refused.rejected("create_midgame_game",
+                elimControl3Request("caused-none", false));
+        assertTrue(rejected.getAsJsonArray("errors").get(0).getAsJsonObject().get("message")
+                .getAsString().contains("EMPTY_STACK_STATE"), rejected.toString());
+        // A composed game that declares no caused permanents has no permanents
+        // verifier to answer.
+        Lane lane = newLane();
+        JsonArray fuel = new JsonArray();
+        fuel.add(fuelCard("obj:fuel-mountain-p2", "Mountain", "P2", "battlefield"));
+        JsonObject request = causalStackCreate("caused-none-stack", "WS05-MP-ELIM-STACK-3", fuel);
+        request.addProperty("entry_mode", "causal_stack_elimination");
+        JsonObject spec = new JsonObject();
+        spec.addProperty("actor", "P1");
+        spec.addProperty("victim", "P2");
+        spec.add("instruments", new JsonArray());
+        request.add("elimination", spec);
+        lane.ok("create_midgame_game", request);
+        JsonObject permanentsVerify = new JsonObject();
+        permanentsVerify.addProperty("mode", "permanents");
+        JsonObject response = lane.rejected("complete_causal_reconstruction", permanentsVerify);
+        assertEquals("no_caused_permanents", response.getAsJsonArray("errors").get(0)
+                .getAsJsonObject().get("code").getAsString());
+    }
+
+    @Test
+    void anUnattachedCausedPermanentFailsClosed() {
+        Lane lane = newLane();
+        JsonObject request = elimControl3Request("caused-unattached", false);
+        JsonArray caused = new JsonArray();
+        caused.add("obj:P1-bears");
+        request.add("caused_permanents", caused);
+        JsonObject response = lane.rejected("create_midgame_game", request);
+        assertTrue(response.getAsJsonArray("errors").get(0).getAsJsonObject().get("message")
+                .getAsString().contains("CAUSED_PERMANENT_NOT_ATTACHED"), response.toString());
+    }
+
     // ------------------------------------------------------------------
     // Lane drivers: every answer is an engine-offered option.
     // ------------------------------------------------------------------

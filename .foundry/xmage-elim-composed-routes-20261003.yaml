@@ -33,6 +33,8 @@ milestones:
     result: composed entry causal_stack_elimination; ELIM-STACK-3 verifies locally (probe and PB-03 producer)
   - id: M2
     result: ELIM-CONTROL-3 classified HARNESS_GAP (a declared flash enabler reaches the record as written; the lane has no causal-permanent entry), corrected after the fresh-context review
+  - id: M3
+    result: caused permanents (declared Aura cast, resolved, verified for attachment and control); ELIM-CONTROL-3 verifies locally (probe and PB-03 producer)
 open_items:
   - exact-head CI (PB-03) on the pushed head, fresh-context review, merge
 exact_next_action: >-
