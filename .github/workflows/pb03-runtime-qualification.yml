@@ -250,7 +250,7 @@ jobs:
           expected_engine = bridge_launcher.canonical_xmage_engine_pin()
 
           assert admission["rows_total"] == 30
-          assert admission["counts"] == {"admitted": 12, "blocked": 18}
+          assert admission["counts"] == {"admitted": 13, "blocked": 17}
           assert admission["classification"] == "TECHNICALLY_CONFORMANT"
           assert admission["manifest_source"].endswith("state_restoration_dimensions")
 
@@ -367,6 +367,24 @@ jobs:
                   for name, gate in sorted(gates.items())
               }
               gate_summary[candidate]["AF07_evidence"] = gates["AF07"].get("evidence")
+              # Every non-PASS FULL107 row with its state, execution mode and
+              # reason, and the rows each AF gate names as blocking, so a
+              # residual partition can be read from the log.
+              gate_summary[candidate]["blocking_row_ids"] = {
+                  name: sorted(gate.get("blocking_rows") or ())
+                  for name, gate in sorted(gates.items())
+                  if gate.get("blocking_rows")
+              }
+              gate_summary[candidate]["non_pass_rows"] = [
+                  {
+                      "fixture_id": row["fixture_id"],
+                      "exit_state": row["exit_state"],
+                      "execution_mode": row.get("execution_mode"),
+                      "reason": str(row.get("failure_reason") or row.get("reason") or "")[:240],
+                  }
+                  for row in full107["rows"]
+                  if row["exit_state"] != "PASS"
+              ]
 
           forge_af01 = json.loads((root / "AF01_FORGE.json").read_text())
           invariants = forge_af01["invariants"]

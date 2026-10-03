@@ -14,6 +14,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -1112,6 +1113,7 @@ class XmageMidgameCausalTest {
         boolean destroyed = false;
         boolean toGraveyard = false;
         int hiddenDraws = 0;
+        int sourceMoves = 0;
         for (JsonElement element : events) {
             JsonObject event = element.getAsJsonObject();
             String type = event.get("type").getAsString();
@@ -1121,16 +1123,31 @@ class XmageMidgameCausalTest {
             }
             if ("DESTROYED_PERMANENT".equals(type)
                     && "obj:cmd-zone-test".equals(text(event, "target_object"))) {
+                // The destroy has a source (Doom Blade); the tape says so even
+                // where it would withhold which object it is.
+                assertTrue(event.has("source_present") && event.get("source_present").getAsBoolean(),
+                        "a sourced event reports source_present: " + event);
                 destroyed = true;
             }
             if ("ZONE_CHANGE".equals(type) && "obj:cmd-zone-test".equals(text(event, "target_object"))
                     && "BATTLEFIELD".equals(text(event, "from")) && "GRAVEYARD".equals(text(event, "to"))) {
                 toGraveyard = true;
             }
+            if ("ZONE_CHANGE".equals(type) && "obj:cmd-zone-source".equals(text(event, "target_object"))) {
+                // CR 400.7: each public move of Doom Blade is a move between
+                // zones, and no zone-change counter (or anything derived from
+                // it) leaves the engine: it also counts hidden moves.
+                assertTrue(event.get("public_identity").getAsBoolean(), "a public move: " + event);
+                assertNotEquals(text(event, "from"), text(event, "to"), "a move between zones: " + event);
+                assertFalse(event.has("new_object"), "no counter-derived flag on the tape: " + event);
+                assertFalse(event.has("incarnation"), "no raw counter on the tape: " + event);
+                sourceMoves++;
+            }
             if ("ZONE_CHANGE".equals(type) && "LIBRARY".equals(text(event, "from"))
                     && "HAND".equals(text(event, "to"))) {
                 assertFalse(event.get("public_identity").getAsBoolean(), "a draw is hidden: " + event);
                 assertFalse(event.has("target_name") || event.has("target_object"), "a draw names nothing: " + event);
+                assertFalse(event.has("new_object") || event.has("incarnation"), "a hidden move reports no counter: " + event);
                 hiddenDraws++;
             }
         }
@@ -1138,6 +1155,7 @@ class XmageMidgameCausalTest {
         assertTrue(destroyed, "the commander's destruction is on the tape");
         assertTrue(toGraveyard, "the commander's move to the graveyard is on the tape");
         assertTrue(hiddenDraws >= 1, "the turn draw is on the tape, anonymously: " + hiddenDraws);
+        assertEquals(2, sourceMoves, "Doom Blade moved hand -> stack -> graveyard");
 
         JsonObject beyond = new JsonObject();
         beyond.addProperty("after_offset", events.size() + 1);

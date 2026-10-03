@@ -1,0 +1,130 @@
+# XMage AF06/AF08 residual closure: resumable workstream state (#456, parent #255).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: scratchpad/wt505 (session-local git worktree of the canonical clone)
+branch: hardening/xmage-af06-af08-residuals-20261003
+audit_base_sha: 01d70279dbb6eaf2b694ca27e6489ee582418d3d
+audit_base_tree: 0e520ae41518cb9195078cee0df4b245d3f7fa2f
+state_written_against_head: a3d3b923b6a02a2cf0fcc659dd3220d987278c6a
+workstream: XMAGE-AF06-AF08-RESIDUALS-20261003
+issue: 456
+parent: 255
+objective: >-
+  Close the remaining XMage AF06 GENERAL_RULES_CORRECTNESS and AF08
+  MULTIPLAYER_COMMANDER rows on the current production midgame/causal lane:
+  every residual row freshly PASS or terminally classified with an exact
+  blocker (DIRECT_EXISTING_LANE, CAUSAL_ROUTE_EXECUTABLE, SELECTOR_GAP,
+  FIXTURE_DEFECT, HARNESS_GAP, ENGINE_DEFECT, TERMINAL_UNSUPPORTED).
+candidates:
+  xmage: 37e4df6c914f1e189e24f0ef59fa91734c922436
+contract: commander-lab.full107/1.0.20-successor
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+status: ACTIVE
+ownership: XMAGE-AF06-AF08-RESIDUALS-20261003 (Claude, sole executor)
+in_scope:
+  - XMage AF06 and AF08 residual rows of the 107-row denominator
+  - .github/workflows/pb03-runtime-qualification.yml (residual visibility print)
+  - src/commander_lab/qualification/current_boundary/midgame_rows.py
+  - scripts/run_current_boundary_qualification.py
+  - scripts/assemble_current_boundary_evidence.py
+  - engine-bridge restoration/causal surfaces when a row needs them
+  - scripts/run_midgame_capability_probe.py (arrival declarations)
+  - qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_20.json
+  - qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_20_SUCCESSOR.json
+  - qualification/CURRENT_PRE_FREEZE_CONTRACT.json
+  - qualification/SHA256SUMS
+  - WS17_SHA256SUMS
+out_of_scope:
+  - AF05, AF07, AF09
+  - Forge lanes (#458, #459)
+  - provider ranking or selection, AF11, Architecture Freeze
+hard_gates:
+  - engine-authored decisions only; no first-option, random or default answers
+  - exact checkpoint equivalence for causal routes under R-4
+  - no manual outcome or state injection; no historical PASS transfer
+  - wrong-reason controls for every promotion mechanism; UNKNOWN != PASS
+baseline:
+  epoch: 4bc2ebe5206f-0e520ae41518 (PB-03 on #461 head 2f4975b7)
+  xmage_full107: {PASS: 51, FAIL: 0, UNKNOWN: 18, BLOCKED: 38}
+  xmage_af06: UNKNOWN (38 blocking rows)
+  xmage_af08: UNKNOWN (30 blocking rows)
+milestones:
+  - id: M1
+    rows: [all 38 BLOCKED and the WS05 UNKNOWN XMage rows]
+    result: partitioned into mechanism classes (local production-lane triage)
+    summary: >-
+      docs/af456_xmage_residuals_20261003/README.md lists every class, the rows
+      in it and the generic repair.
+  - id: M2
+    rows: [WS05-CMD-ZONE-* (8), MICRO_COMBAT, WS05-CMD-DMG-SAME-21, WS05-CMD-ELIM-4,
+           WS05-CMD-DMG-SPLIT, MICRO_ZONE_CHANGES, MICRO_STATE_BASED_ACTIONS,
+           MICRO_PRIORITY, MICRO_STACK, WS05-MP-PRIO-3, WS05-MP-PRIO-5, WS05-MP-TRIG-3,
+           WS05-MP-TRIG-5, MICRO_CONTINUOUS_EFFECTS, WS05-MP-BLOCK-4,
+           PILOT_DECLARE_BLOCKER, MICRO_REPLACEMENT, MICRO_PREVENTION]
+    result: 25 rows verified locally by the PB-03 producer (not credit until PB-03)
+    summary: >-
+      Generic repairs: yes/no family binding, causal-stack entry on the FULL107
+      route, requested-combat declarations (arrival and executor, verified
+      against the engine's declaration events), commander-damage readback,
+      CR 400.7 incarnation on public moves, event/frame order and block
+      partition checks. Contract 1.0.20 corrects ten fixture defects (one
+      obligation erratum, MICRO_CONTINUOUS_EFFECTS, on the CARD_16 precedent).
+  - id: M3
+    rows: [WS05-MP-ELIM-5, WS05-MP-ELIM-OWNED-3, WS05-MP-ELIM-PRIO-3, WS05-CMD-PARTNER-DMG,
+           MICRO_MANA_PAYMENT, MICRO_COPY, MICRO_RULES_RANDOMNESS]
+    result: verified locally; PB-03 on 14e43354 credited ELIM-5/OWNED-3/PRIO-3 and PARTNER-DMG
+    summary: >-
+      Causal elimination on the FULL107 route, the stack-object selector,
+      scripted payment steps, coin-flip and pending-extra-turn engine
+      evidence, copier and coin-call script errata.
+  - id: M4
+    rows: [MICRO_CONTROL, WS05-CMD-DMG-CONTROL, WS05-CMD-PARTNER-TAX]
+    result: verified locally
+    summary: >-
+      Caused-control scenario errata (Control Magic; Act of Treason on P3's
+      turn) and real partner casts whose tax is read from the engine's payment
+      frames. A WS05-CMD-PARTNER-ZONE script erratum was reverted: Forge
+      executes that record as written.
+  - id: M5
+    rows: [all]
+    result: >-
+      PB-03 on 14e43354: XMage AF06 38 -> 10 blocking, AF08 30 -> 10, AF05 PASS,
+      AF07 29/29 PASS. Local battery on 2f469997: engine-bridge 942/0/1, AF07
+      29/29, midgame rows 54/55 (ELIM-TURN-3 candidate engine defect), AF05
+      20/20.
+  - id: M6
+    rows: [all]
+    result: >-
+      Two fresh-context adversarial reviews resolved through a3d3b923. Local
+      evidence on a3d3b923 and its parent: Python 3511 passed; ruff, format
+      and mypy clean; engine-bridge 942 on feb44e05 with the touched classes
+      re-run on a3d3b923 (MidgameCausal 26, CommanderDamage 11, Tier2Stack 8);
+      AF07 campaign exit 0; midgame rows 57/58 and AF05 hidden 20/20 on
+      feb44e05; the live PB-03 producer verifies 57/58 midgame rows.
+    summary: >-
+      Review fixes: five RowSpecs restored; no zone-change-counter field (CR
+      400.7 evidence is the public ZONE_CHANGE between zones); turn, principal
+      and defender checks in answer_requested_combat; explicit object presence
+      (<role>_present), None and UNNAMED_OBJECT match semantics and
+      player_in_game in the bridge; last_power/last_toughness; the PB-03
+      admission guard reads dimension_admission.CURRENT_BOUNDARY_COUNTS (13
+      admitted / 17 blocked after the DMG-CONTROL erratum).
+  - id: M7
+    rows: [all]
+    result: ownership transferred to the continuation executor at a3d3b923 (handover 2026-10-03)
+    summary: >-
+      The previous Claude executor handed the campaign over with the PR head
+      unchanged; this commit records the review state and the merge gates.
+open_items:
+  - WS05-MP-ELIM-TURN-3 candidate XMage defect (GameImpl.playPriority asks a player who just left); for #255 adjudication
+  - WS05-MP-ELIM-STACK-3 and WS05-MP-ELIM-CONTROL-3 need composed causal routes (stack or control plus elimination)
+  - WS05-MP-TURN-3/5 extra-turn setup (Nexus of Fate graveyard conflict; full turns need discard and combat steps)
+  - WS05-CMD-MULL-2/4 natural-start lane with London mulligan bottom choice
+  - WS05-CMD-PARTNER-ZONE XMage emits no game-start command-zone event; record forbids static credit
+exact_next_action: >-
+  Confirm exact-head CI on this head (PB-03 above all, with the expected XMage
+  gates: AF05 PASS, AF07 29/29, AF06 blocking only ELIM-CONTROL-3,
+  ELIM-STACK-3, ELIM-TURN-3, TURN-3, TURN-5, AF08 adding MULL-2, MULL-4,
+  PARTNER-ZONE, AF09 1 RNG_RULES_TAPE), merge PR #505 under the project gates,
+  verify main, then post the #456 handoff and the #255 adjudication comment.

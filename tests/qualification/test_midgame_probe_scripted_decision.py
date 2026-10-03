@@ -187,3 +187,117 @@ def test_an_ordering_the_record_does_not_script_is_still_refused(probe: Any) -> 
     engine = ParkedEngine("trigger_order", "BEGINNING", "UPKEEP")
     with pytest.raises(probe.ml.MidgameLaneError, match="unrecognised decision class"):
         probe.drive_arrival(engine, _upkeep_record("choose_use"))
+
+
+class SequencedEngine:
+    """An engine that walks a fixed sequence of (decision, phase, step, priority)."""
+
+    def __init__(self, frames: list[tuple[str, str, str, str]]) -> None:
+        self.frames = frames
+        self.index = 0
+        self.engine_commit = "c" * 40
+        self.submitted: list[str] = []
+
+    def _current(self) -> tuple[str, str, str, str]:
+        return self.frames[self.index]
+
+    def pending_decision(self, *, attempts: int = 60) -> dict[str, Any] | None:
+        if self.index >= len(self.frames):
+            return None
+        decision_class = self._current()[0]
+        options = (
+            [{"option_id": f"pass-{self.index}", "option_type": "pass_priority"}]
+            if decision_class == "priority"
+            else []
+        )
+        return {"decision_class": decision_class, "seat": 0, "legal_options": options}
+
+    def complete_arrival(self) -> dict[str, Any]:
+        _, phase, step, priority = self._current()
+        return {
+            "construction_match": True,
+            "mismatches": [],
+            "observation": {"phase": phase, "step": step, "priority_player": priority},
+        }
+
+    def submit_options(self, decision: dict[str, Any], option_ids: list[str]) -> dict[str, Any]:
+        self.submitted.extend(option_ids)
+        self.index += 1
+        return {}
+
+
+def _combat_record(step: str, priority: str) -> dict[str, Any]:
+    return {
+        "fixture_id": "COMBAT",
+        "temporal_state": {
+            "phase": "combat",
+            "step": step,
+            "active_player": "P1",
+            "priority_player": priority,
+        },
+        "decision_script": [],
+    }
+
+
+def test_a_requested_declaration_before_the_checkpoint_is_answered_by_the_caller(
+    probe: Any,
+) -> None:
+    engine = SequencedEngine(
+        [
+            ("priority", "PRECOMBAT_MAIN", "PRECOMBAT_MAIN", "P1"),
+            ("declare_attacker", "COMBAT", "DECLARE_ATTACKERS", "P1"),
+            ("priority", "COMBAT", "DECLARE_ATTACKERS", "P1"),
+            ("priority", "COMBAT", "DECLARE_ATTACKERS", "P2"),
+        ]
+    )
+    declared: list[str] = []
+
+    def declare(decision: dict[str, Any], decision_class: str) -> bool:
+        declared.append(decision_class)
+        engine.index += 1
+        return True
+
+    verdict = probe.drive_arrival(engine, _combat_record("declare_attackers", "P2"), declare)
+    assert verdict is not None and verdict.construction_verdict == "EXACT"
+    # The declaration was the caller's; P1's priority was passed to reach P2's.
+    assert declared == ["declare_attacker"]
+    assert engine.submitted == ["pass-0", "pass-2"]
+
+
+def test_without_a_caller_answer_a_declaration_before_the_checkpoint_fails_closed(
+    probe: Any,
+) -> None:
+    frames = [("declare_attacker", "COMBAT", "DECLARE_ATTACKERS", "P1")]
+    with pytest.raises(probe.ml.MidgameLaneError, match="before the record's requested"):
+        probe.drive_arrival(SequencedEngine(frames), _combat_record("declare_blockers", "P2"))
+    # A caller that does not determine the declaration fails it closed too.
+    with pytest.raises(probe.ml.MidgameLaneError, match="before the record's requested"):
+        probe.drive_arrival(
+            SequencedEngine(frames),
+            _combat_record("declare_blockers", "P2"),
+            lambda decision, decision_class: False,
+        )
+
+
+def test_an_undetermined_declaration_at_the_checkpoint_step_is_the_checkpoint(
+    probe: Any,
+) -> None:
+    engine = SequencedEngine([("declare_blocker", "COMBAT", "DECLARE_BLOCKERS", "P2")])
+    verdict = probe.drive_arrival(
+        engine, _combat_record("declare_blockers", "P2"), lambda decision, cls: False
+    )
+    assert verdict is not None
+    assert engine.submitted == []
+
+
+def test_the_checkpoint_step_never_ends_before_the_requested_priority(probe: Any) -> None:
+    engine = SequencedEngine(
+        [
+            ("priority", "COMBAT", "DECLARE_ATTACKERS", "P1"),
+            ("priority", "COMBAT", "DECLARE_BLOCKERS", "P1"),
+        ]
+    )
+    with pytest.raises(probe.ml.MidgameLaneError, match="ended before P3 held priority"):
+        probe.drive_arrival(
+            engine, _combat_record("declare_attackers", "P3"), lambda decision, cls: True
+        )

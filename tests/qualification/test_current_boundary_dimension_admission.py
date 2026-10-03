@@ -24,6 +24,9 @@ EXPECTED_ADMITTED = {
     "WS05-MP-ELIM-OWNED-3",
     "WS05-MP-ELIM-PRIO-3",
     "WS05-MP-ELIM-TURN-3",
+    # 1.0.20 causes the control change with Act of Treason on P3's turn, so
+    # the record no longer declares owner != controller.
+    "WS05-CMD-DMG-CONTROL",
 }
 EXPECTED_BLOCKED = set(A.PB03_FIXTURE_IDS) - EXPECTED_ADMITTED
 
@@ -45,6 +48,10 @@ def manifest() -> dict:
             "life totals (pre-start assembly; state-based actions stay authoritative)",
             "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, "
             "declare blockers, combat damage, postcombat main",
+            # As the live manifest declares: a requested tapped permanent is
+            # set at the checkpoint (or caused, for a declared attacker) and
+            # verified engine-direct.
+            "tapped permanents set at the requested checkpoint and verified engine-direct",
         ],
         "unsupported_dimensions": [
             "stack spells (casting requires real costs/timing: executor scope)",
@@ -61,15 +68,35 @@ def test_pb03_scope_is_exactly_thirty_unique_rows() -> None:
     assert len(set(A.PB03_FIXTURE_IDS)) == 30
 
 
-def test_current_boundary_projection_is_exact_12_admitted_18_blocked(
+def test_current_boundary_projection_is_exact_13_admitted_17_blocked(
     materialization, manifest
 ) -> None:
     doc = A.admit_manifest(materialization.denominator_records(), manifest)
     assert doc["rows_total"] == 30
-    assert doc["counts"] == {"admitted": 12, "blocked": 18}
+    assert doc["counts"] == {"admitted": 13, "blocked": 17}
+    assert doc["counts"] == A.CURRENT_BOUNDARY_COUNTS
     assert set(doc["admitted"]) == EXPECTED_ADMITTED
     assert set(doc["blocked"]) == EXPECTED_BLOCKED
     assert "owner/controller" in doc["derivation"]
+
+
+def test_pb03_workflow_pins_the_current_admission_counts() -> None:
+    """The exact-head PB-03 assertion pins the same projection as the code.
+
+    The workflow keeps its own literal (a CI-definition change is a reviewed
+    change), so an adjudicated projection change must update both places; a
+    stale literal fails PB-03 only after the full runner has executed.
+    """
+    workflow = (
+        Path(__file__).resolve().parents[2] / ".github/workflows/pb03-runtime-qualification.yml"
+    ).read_text(encoding="utf-8")
+    counts = A.CURRENT_BOUNDARY_COUNTS
+    pinned = (
+        f'assert admission["counts"] == {{"admitted": {counts["admitted"]}, '
+        f'"blocked": {counts["blocked"]}}}'
+    )
+    assert workflow.count('assert admission["counts"] ==') == 1
+    assert pinned in workflow
 
 
 def test_declared_control_divergence_decides_admission(materialization, manifest) -> None:
@@ -79,11 +106,15 @@ def test_declared_control_divergence_decides_admission(materialization, manifest
     restoration seam rejects both rows, so admission must block them instead of
     admitting them and leaving the engine to reject at construction time.
     """
-    for fixture_id in ("WS05-MP-ELIM-CONTROL-3", "WS05-CMD-DMG-CONTROL"):
+    for fixture_id in ("WS05-MP-ELIM-CONTROL-3",):
         result = A.admit_record(materialization.record(fixture_id), manifest)
         assert result["verdict"] == A.BLOCKED_MISSING_DIMENSION, fixture_id
         assert "controller/owner divergence" in result["missing_tokens"], fixture_id
         assert "controller/owner divergence" in result["required_tokens"], fixture_id
+    # The 1.0.20 erratum causes WS05-CMD-DMG-CONTROL's control change through
+    # the engine, so its requested state declares no divergence any more.
+    caused = A.admit_record(materialization.record("WS05-CMD-DMG-CONTROL"), manifest)
+    assert "controller/owner divergence" not in caused["required_tokens"]
 
 
 def test_zero_life_preconditions_do_not_decide_admission(materialization, manifest) -> None:

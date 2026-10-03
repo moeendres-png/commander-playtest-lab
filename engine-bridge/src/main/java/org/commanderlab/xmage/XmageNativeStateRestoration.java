@@ -196,8 +196,34 @@ final class XmageNativeStateRestoration {
             String activePlayer,
             String priorityPlayer,
             Map<String, Map<String, Integer>> objectCounters,
-            Map<String, Boolean> controlledSinceTurnBegan
+            Map<String, Boolean> controlledSinceTurnBegan,
+            Set<String> declaredAttackers
     ) {
+        /**
+         * Backward-compatible constructor for plans whose requested combat
+         * declares no attacker.
+         */
+        Plan(
+                String planId,
+                int playerCount,
+                long seed,
+                List<RequestedPlayer> players,
+                List<RequestedCommander> commanders,
+                List<RequestedCommanderDamage> commanderDamage,
+                List<RequestedObject> objects,
+                int turnNumber,
+                TurnPhase phase,
+                PhaseStep step,
+                String activePlayer,
+                String priorityPlayer,
+                Map<String, Map<String, Integer>> objectCounters,
+                Map<String, Boolean> controlledSinceTurnBegan
+        ) {
+            this(planId, playerCount, seed, players, commanders, commanderDamage, objects,
+                    turnNumber, phase, step, activePlayer, priorityPlayer, objectCounters,
+                    controlledSinceTurnBegan, Set.of());
+        }
+
         /** Backward-compatible constructor for plans with no control-history request. */
         Plan(
                 String planId,
@@ -632,7 +658,24 @@ final class XmageNativeStateRestoration {
                 temporal.get("active_player").getAsString(),
                 temporal.get("priority_player").getAsString(),
                 Map.copyOf(objectCounters),
-                Map.copyOf(controlledSinceTurnBegan));
+                Map.copyOf(controlledSinceTurnBegan),
+                declaredAttackers(record));
+    }
+
+    /**
+     * The creatures the record's requested combat declares as attackers. Their
+     * requested tapped state is caused by that declaration (CR 508.1f), so it
+     * is verified at the checkpoint and never set.
+     */
+    static Set<String> declaredAttackers(JsonObject record) {
+        if (!record.has("combat_state") || !record.get("combat_state").isJsonObject()) {
+            return Set.of();
+        }
+        JsonObject combat = record.getAsJsonObject("combat_state");
+        if (!combat.has("attackers") || !combat.get("attackers").isJsonObject()) {
+            return Set.of();
+        }
+        return Set.copyOf(combat.getAsJsonObject("attackers").keySet());
     }
 
     /**
@@ -1218,7 +1261,7 @@ final class XmageNativeStateRestoration {
             if (permanent == null) {
                 throw new RestorationException("CHECKPOINT_PERMANENT_MISSING", object.semanticId());
             }
-            if (object.tapped()) {
+            if (object.tapped() && !plan.declaredAttackers().contains(object.semanticId())) {
                 permanent.setTapped(true);
             }
             for (Map.Entry<String, Integer> counter : counters.entrySet()) {
@@ -1451,6 +1494,19 @@ final class XmageNativeStateRestoration {
         root.addProperty("rules_seed", game.getRulesSeed());
         root.addProperty("rules_seed_explicit", game.isRulesSeedExplicit());
         root.addProperty("has_extra_turn", game.getState().getExtraTurnId() != null);
+        // The engine's own pending extra turns (CR 500.7), in the order it will
+        // take them: the most recently created first. Reported only when present.
+        JsonArray pendingExtraTurns = new JsonArray();
+        List<mage.game.turn.TurnMod> mods = new ArrayList<>(game.getState().getTurnMods());
+        Collections.reverse(mods);
+        for (mage.game.turn.TurnMod mod : mods) {
+            if (mod.isExtraTurn()) {
+                pendingExtraTurns.add(pidOf(mod.getPlayerId(), playersByPid));
+            }
+        }
+        if (pendingExtraTurns.size() > 0) {
+            root.add("pending_extra_turns", pendingExtraTurns);
+        }
         JsonArray seats = new JsonArray();
         List<String> orderedPids = new ArrayList<>(playersByPid.keySet());
         Collections.sort(orderedPids);
@@ -1486,6 +1542,24 @@ final class XmageNativeStateRestoration {
                 entry.addProperty("zone", String.valueOf(game.getState().getZone(commanderId)));
                 entry.addProperty("prior_casts",
                         watcher == null ? -1 : watcher.getPlaysCount(card.getId()));
+                // The engine's own live commander combat damage (CR 903.10a),
+                // read from this commander's CommanderInfoWatcher: damaged
+                // player -> total. Public state; reported only when present.
+                CommanderInfoWatcher damageWatcher =
+                        game.getState().getWatcher(CommanderInfoWatcher.class, commanderId);
+                if (damageWatcher != null) {
+                    JsonObject damage = new JsonObject();
+                    for (String damagedPid : orderedPids) {
+                        int amount = damageWatcher.getDamageToPlayer()
+                                .getOrDefault(playersByPid.get(damagedPid).getId(), 0);
+                        if (amount > 0) {
+                            damage.addProperty(damagedPid, amount);
+                        }
+                    }
+                    if (damage.size() > 0) {
+                        entry.add("combat_damage_to", damage);
+                    }
+                }
                 commanders.add(entry);
             }
             sortObjectsBy(commanders, "card_identity");
