@@ -1,0 +1,17 @@
+{
+  "parent_head": "ec789789995720ab26350c079c475c7a158b13d5",
+  "parent_tree": "5e090c8d40351ae0ab7ae09f417a261e504e12fb",
+  "patch_sha256": "e5f6b04e896a1c4b86c25fde1fb855873392b024c3724249c46322277758f1e8",
+  "passed": 190,
+  "reports": {
+    "B10-event-head-RED.xml": {
+      "gzip_sha256": "124a2d5c62ccd076865b683c5521e95ef94266bb02fbc78e2b4ebf40a2928e46",
+      "raw_sha256": "cc86194e5edf9bdf693ea0a0fcf6e2201c68c9fb94ecc11a85420a89d1502c7e"
+    },
+    "B10-event-head-GREEN.xml": {
+      "gzip_sha256": "066f631025134b9dca832e36a63455130dcdb4327ffcf785985d4841387c456d",
+      "raw_sha256": "4c794a3d9f96a17b8d78960bde2de275fb79a1669b028dbe1825450530eaa275"
+    }
+  },
+  "impact": "Security checkout binds the actual event head. Prior ec789 security artifact11281541482 belongs to a synthetic merge and is not exact-head scan evidence. No scanner semantics, audit category, timeout or required-context weakening."
+}

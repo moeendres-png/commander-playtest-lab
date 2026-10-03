@@ -1,0 +1,18 @@
+{
+  "parent_head": "d3a25a062368bede8501d00911ff1893c6a15ac9",
+  "parent_tree": "916b295cba37fceb2e2b3e980a439e209754745d",
+  "target_integrated": "50e8b6bfac3533f92ebd3670f09e9dd3ab9dbb69",
+  "patch_sha256": "bc159c9a199143bc11ed2591276c4d88a8fcb0f7fe26f4262f8f1200204d937c",
+  "reports": {
+    "B10-unavailable-config-RED.xml.gz": {
+      "sha256": "c3811f6eda35833647bdd638e23a6adfb9e975a516c258b5b4eeaf447265b0aa",
+      "raw_sha256": "ece7826a147d307cad7ba6ff2e3cacb873c56e4db73088c551c0c5285f0271cf"
+    },
+    "B10-unavailable-config-GREEN.xml.gz": {
+      "sha256": "59609a00060b18f1acd0dc23b94fb9df212748ba03987fbba502bf9d8c817438",
+      "raw_sha256": "dc6ae7ca354e0cdbb9b1a9d5c89323b6d68233f0e400973d1cb7c0a3f330686b"
+    }
+  },
+  "passing_tests": 67,
+  "scope": "Affected local controls; exact-head CI and independent review pending. No Rules qualification credit."
+}
