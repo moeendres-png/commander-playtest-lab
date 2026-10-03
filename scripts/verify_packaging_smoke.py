@@ -453,6 +453,15 @@ def lock_blocks(lock_text: str) -> dict[str, tuple[str, str]]:
     return blocks
 
 
+def wheel_payload_paths(wheel: Path) -> set[str]:
+    """Purelib-relative files the wheel itself installs, read from the artifact."""
+    try:
+        with zipfile.ZipFile(wheel) as archive:
+            return {name for name in archive.namelist() if not name.endswith("/")}
+    except (OSError, zipfile.BadZipFile) as exc:
+        _fail("wheel_payload_unreadable", str(exc))
+
+
 def wheel_runtime_requirements(wheel: Path) -> list[str]:
     """The wheel's own Requires-Dist, read from the artifact itself."""
     try:
@@ -926,6 +935,19 @@ REQUIRED_EVIDENCE_KEYS: tuple[str, ...] = (
 )
 
 
+# Recorded runtime observations that ``check`` re-observes. None carries a
+# path or a timing, so an honest record equals an independent re-run.
+RUNTIME_OBSERVATION_KEYS: tuple[str, ...] = (
+    "python_version",
+    "package_version",
+    "install",
+    "environment",
+    "installed_import",
+    "cli_entrypoints",
+    "cli_entrypoint_results",
+)
+
+
 def build_evidence(
     *,
     contract: PackageContract,
@@ -1118,6 +1140,12 @@ def _run_smoke_bound(args: argparse.Namespace) -> int:
             forbidden_roots=[repo, repo / "src"],
             scratch_dir=scratch_dir,
         )
+        # The import proof must be about this wheel: a module that resolves in
+        # the isolated purelib but was installed by a dependency (say "yaml")
+        # proves nothing about the project artifact.
+        imported_file = state["installed_import"]["module_file_relative_to_purelib"]
+        if imported_file not in wheel_payload_paths(wheel):
+            _fail("installed_import_module_not_from_project_wheel", str(imported_file))
         state["cli_entrypoints"] = probe_console_entrypoints(
             venv_dir, contract, scratch_dir=scratch_dir
         )
@@ -1439,11 +1467,20 @@ def check_evidence(args: argparse.Namespace) -> int:
                 expect_version=str(document["package_version"]),
             )
             result = run_smoke(probe_args)
+            observed = json.loads(fresh_output.read_text())
             if result != EXIT_CODES[PASS]:
-                observed = json.loads(fresh_output.read_text())
                 reasons.append(
                     "runtime_reverification_failed:"
                     + ",".join(observed.get("reasons", ["no_verdict"]))
+                )
+            else:
+                # A fresh PASS proves the artifact works, not that the recorded
+                # observations are true: every recorded runtime observation must
+                # equal what this independent run observed.
+                reasons.extend(
+                    f"runtime_observation_mismatch:{key}"
+                    for key in RUNTIME_OBSERVATION_KEYS
+                    if document.get(key) != observed.get(key)
                 )
 
     if reasons:

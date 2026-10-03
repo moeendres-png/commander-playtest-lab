@@ -952,6 +952,9 @@ def test_early_failure_overwrites_stale_pass(work_dir, tmp_path):
     assert document.get("reasons"), document
 
 
+_FIRST_SCRIPT = next(iter(CONTRACT.scripts))
+
+
 def test_every_forged_binding_is_rejected_independently(built_wheel, work_dir, tmp_path):
     import copy
 
@@ -978,6 +981,20 @@ def test_every_forged_binding_is_rejected_independently(built_wheel, work_dir, t
         (("package_contract",), {}),
         (("cli_entrypoints",), []),
         (("expected_bindings",), {"source_sha": "0" * 40}),
+        # Recorded runtime observations are re-observed, not just re-run.
+        (("installed_import", "module"), "yaml"),
+        (("python_version",), "2.7.18"),
+        (("installed_import", "python_version"), "2.7.18"),
+        (("installed_import", "dist_version"), "9.9.9"),
+        (
+            ("installed_import", "module_file_relative_to_purelib"),
+            "../src/commander_lab/__init__.py",
+        ),
+        (("installed_import", "runtime_requirements_satisfied"), []),
+        (("installed_import", "sys_path_entry_count"), 999),
+        (("cli_entrypoint_results", _FIRST_SCRIPT, "stdout_sha256"), "0" * 64),
+        (("cli_entrypoint_results", _FIRST_SCRIPT, "stdout_bytes"), 1),
+        (("cli_entrypoint_results", _FIRST_SCRIPT, "target"), "forged:app"),
     ]
     for keys, value in controls:
         forged = copy.deepcopy(valid)
@@ -1112,3 +1129,18 @@ def test_undeclared_dependency_is_not_supplied_by_tooling(tmp_path):
     )
     assert checked.returncode == EXIT_FAIL, checked.stdout + checked.stderr
     assert "runtime_reverification_failed" in checked.stderr
+
+
+def test_import_proof_must_come_from_the_project_wheel(built_wheel, work_dir, tmp_path):
+    """A dependency's module resolves in the isolated purelib but proves nothing."""
+    wheel, _ = built_wheel
+    wheel_dir = tmp_path / "dist"
+    wheel_dir.mkdir()
+    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
+    completed, document = _smoke(wheel_dir, work_dir, extra=("--import-module", "yaml"))
+    assert completed.returncode == EXIT_FAIL, completed.stdout + completed.stderr
+    assert document["overall_classification"] == "FAIL"
+    assert any(
+        reason.startswith("installed_import_module_not_from_project_wheel")
+        for reason in document["reasons"]
+    )
