@@ -592,6 +592,150 @@ def test_commander_damage_obligation_observed_and_missing():
 
 
 # ---------------------------------------------------------------------------
+# First-turn draw (WS05-CMD-START-3): engine counts across the draw step
+# ---------------------------------------------------------------------------
+_START = ["starting_player:P1", "first_turn_draw:true"]
+_CHOICE = {
+    "chooser": "p2",
+    "revision": 1,
+    "chosen_seat": "p1",
+    "offered_seats": ["p1", "p2", "p3"],
+    "policy": "fixture_decision_script",
+    "basis": fsl.STARTING_PLAYER_AUTHORIZED_BASIS,
+}
+# What the lane records when it picks the starter itself (no scripted response).
+_LAB_CHOICE = dict(_CHOICE, policy="requested_starting_seat", basis="LAB_SELECTED_ENGINE_OFFERED")
+
+
+def _snap(step: str, hands: dict, libraries: dict, *, active: str = "p1", turn: int = 1) -> dict:
+    return {
+        "turn_number": turn,
+        "active_player": active,
+        "phase": "beginning",
+        "step": step,
+        "priority_player": active,
+        "players": {
+            player: {"hand": hands[player], "library_size": libraries[player]} for player in hands
+        },
+    }
+
+
+def _draw_progression(p1_hand_after: int = 8, p1_library_after: int = 91, **extra) -> list:
+    before = _snap("upkeep", {"p1": 7, "p2": 7, "p3": 7}, {"p1": 92, "p2": 92, "p3": 92})
+    hands = {"p1": p1_hand_after, "p2": 7, "p3": 7, **extra.get("hands", {})}
+    libraries = {"p1": p1_library_after, "p2": 92, "p3": 92, **extra.get("libraries", {})}
+    after = _snap("draw", hands, libraries, active=extra.get("active", "p1"))
+    return [before, after]
+
+
+def test_first_turn_draw_obligation_is_mapped_from_the_record():
+    record = _record(required_events=list(_START))
+    assert fsl._obligation_kind(fsl.model_requested_state(record)) == (
+        "starting_player_first_turn_draw"
+    )
+    # A record naming only one of the two tokens has no such contract.
+    record = _record(required_events=["first_turn_draw:true"])
+    assert fsl._obligation_kind(fsl.model_requested_state(record)) is None
+
+
+def test_first_turn_draw_observed_from_the_draw_step_counts():
+    verdict = fsl.evaluate_first_turn_draw(list(_START), _draw_progression(), dict(_CHOICE))
+    assert verdict.observed is True
+    assert verdict.terminal_facts["starting_player_basis"] == fsl.STARTING_PLAYER_AUTHORIZED_BASIS
+    assert "scripted response" in verdict.reason
+    assert verdict.credit_eligible_observation is True
+    assert verdict.semantic_events == _START
+    assert verdict.terminal_facts["deltas"]["p1"] == {"hand": 1, "library": -1}
+
+
+@pytest.mark.parametrize(
+    ("required", "progression", "reason"),
+    [
+        # Final-state coincidence: the right hand size without a draw-step change.
+        (_START, _draw_progression(p1_hand_after=7, p1_library_after=92), "do not match"),
+        # The wrong value: the engine drew but the record says it must not.
+        (["starting_player:P1", "first_turn_draw:false"], _draw_progression(), "do not match"),
+        # The wrong starter: no recorded selection of P2.
+        (["starting_player:P2", "first_turn_draw:true"], _draw_progression(), "selection"),
+        # The engine started another seat's turn than the one selected.
+        (_START, _draw_progression(active="p2"), "starter"),
+        # The earlier snapshot is not in the beginning phase.
+        (_START, [dict(_draw_progression()[0], phase="main"), _draw_progression()[1]], "bracket"),
+        # The draw-step snapshot does not give the starter priority.
+        (
+            _START,
+            [_draw_progression()[0], dict(_draw_progression()[1], priority_player="p2")],
+            "bracket",
+        ),
+        # Another player's counts changed in the same window.
+        (_START, _draw_progression(hands={"p2": 8}, libraries={"p2": 91}), "do not match"),
+        # A hand change that did not come from the library (not a draw).
+        (_START, _draw_progression(p1_library_after=92), "do not match"),
+        # No snapshot before the draw step: nothing to compare against.
+        (_START, _draw_progression()[1:], "both sides"),
+        # The draw step of a later turn is not the first turn.
+        (_START, [dict(snap, turn_number=2) for snap in _draw_progression()], "both sides"),
+        # A malformed obligation names no single starter.
+        (["first_turn_draw:true"], _draw_progression(), "exactly one"),
+    ],
+)
+def test_first_turn_draw_wrong_reasons_fail_closed(required, progression, reason):
+    verdict = fsl.evaluate_first_turn_draw(list(required), progression, dict(_CHOICE))
+    assert verdict.observed is False
+    assert verdict.credit_eligible_observation is False
+    assert verdict.semantic_events == []
+    assert reason in verdict.reason
+
+
+def test_a_lab_selected_starter_earns_no_credit():
+    """Wrong-reason control (#511 P1): identical engine counts, but the starter was
+    chosen by the Lab from the requested state, not by a scripted response."""
+    verdict = fsl.evaluate_first_turn_draw(list(_START), _draw_progression(), dict(_LAB_CHOICE))
+    assert verdict.observed is False
+    assert verdict.credit_eligible_observation is False
+    assert "without contract authority" in verdict.reason
+
+
+def test_an_unscripted_starting_player_obligation_is_refused():
+    """The lane refuses the row up front: no record may let it pick the starter."""
+    record = _record(required_events=list(_START))
+    refused = {f.dimension for f in fsl.model_requested_state(record).hard_unsupported}
+    assert fsl.STARTING_PLAYER_UNSCRIPTED in refused
+    scripted = _record(required_events=list(_START))
+    scripted["decision_script"] = [
+        {
+            "decision_family": "starting_player",
+            "actor": "P2",
+            "selection": {"selector_kind": "seat"},
+        }
+    ]
+    refused = {f.dimension for f in fsl.model_requested_state(scripted).hard_unsupported}
+    assert fsl.STARTING_PLAYER_UNSCRIPTED not in refused
+
+
+def test_progression_snapshot_carries_counts_only():
+    state = {
+        "turn_number": 1,
+        "active_player_id": "P1",
+        "phase": "BEGINNING",
+        "step": "UPKEEP",
+        "priority_player_id": "p2",
+        "players": [
+            {"player_id": "p1", "zones": {"hand": ["Island", "Opt"], "library_size": 90}},
+            {"player_id": "p2", "zones": {"hand": ["<hidden>"], "library_size": 91}},
+        ],
+    }
+    snapshot = fsl.progression_snapshot(state)
+    assert snapshot["step"] == "upkeep"
+    assert snapshot["active_player"] == "p1"
+    assert snapshot["players"] == {
+        "p1": {"hand": 2, "library_size": 90},
+        "p2": {"hand": 1, "library_size": 91},
+    }
+    assert "Island" not in repr(snapshot)
+
+
+# ---------------------------------------------------------------------------
 # probe_row wrong-reason controls (fake bridge, no engine)
 # ---------------------------------------------------------------------------
 class _FakeProc:
@@ -903,13 +1047,10 @@ def test_fail_before_shared_runner_blocks_the_wave(monkeypatch):
     for fixture_id in wave:
         row = rows[fixture_id]
         assert row.outcome == "BLOCKED", f"{fixture_id} should be BLOCKED before the lane"
-        # The existing path either reports a missing scenario/injection seam or
-        # defers to a separate restoration harness; neither consumes this seam.
-        assert (
-            "injection seam" in row.reason
-            or "execution seam" in row.reason
-            or "restoration harness" in row.reason
-        ), row.reason
+        # The shared runner credits nothing here: since #459 the reason names the
+        # row's first missing Forge mechanism, and only a lane receipt promotes it.
+        assert "first missing mechanism" in row.reason, row.reason
+        assert "PASS" not in row.reason, row.reason
 
 
 def test_lane_classifies_the_wave_with_exact_blockers():
@@ -1079,8 +1220,11 @@ def test_selection_covers_eligible_rows_and_the_declared_wave():
         model = fsl.model_requested_state(record)
         if model.credit_eligible and fsl.temporal_reachable(model):
             assert fixture_id in selected
-    # The 9 structurally credit-eligible rows plus the 7 wave rows.
-    assert len(selected) == 16
+    # The structurally credit-eligible rows plus the 7 wave rows. WS05-CMD-START-2
+    # and START-3 are refused (#511 P1): their obligations name a starting player
+    # that no record scripts, so the lane may not choose one.
+    assert len(selected) == 14
+    assert not {"WS05-CMD-START-2", "WS05-CMD-START-3"} & selected
 
 
 def test_execute_and_persist_requires_bound_identity(tmp_path):
@@ -1211,3 +1355,18 @@ def test_execute_and_persist_writes_only_observed_receipts(monkeypatch, tmp_path
     receipt_mod.load_positive_fixture_receipt(
         tmp_path / f"{fsl.FORGE_SCENARIO_RECEIPT_PREFIX}OBSERVED.json"
     )
+
+
+@pytest.mark.parametrize(
+    "choice",
+    [
+        None,
+        dict(_CHOICE, chosen_seat="p2"),
+        dict(_CHOICE, offered_seats=["p2", "p3"]),
+    ],
+)
+def test_first_turn_draw_requires_the_recorded_starting_selection(choice):
+    """The starter is the Lab's engine-offered selection; without that record, no credit."""
+    verdict = fsl.evaluate_first_turn_draw(list(_START), _draw_progression(), choice)
+    assert verdict.observed is False
+    assert "selection" in verdict.reason
