@@ -31,6 +31,8 @@ SUCCESSOR_LOCK = (
     REPO / "qualification/forge-r1-candidate-authority-20260930/SUCCESSOR_SOURCE_LOCK.json"
 )
 
+REQUIRE_REFERENCE_ENV = "PB09_REQUIRE_FORGE_REFERENCE"
+
 # Historical path of the Forge reference checkout this file was written against.
 DEFAULT_FORGE_REFERENCE = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
 
@@ -66,14 +68,18 @@ def _require_forge_reference(*commits: str) -> Path:
     """
     raw = os.environ.get("FORGE_SOURCE_DIR", "").strip()
     forge = Path(raw) if raw else DEFAULT_FORGE_REFERENCE
+    # B6 (#487): the required infrastructure lane materializes the reference and
+    # sets PB09_REQUIRE_FORGE_REFERENCE=1, so there a missing checkout or commit
+    # fails instead of producing a skip-based green signal.
+    unavailable = pytest.fail if os.environ.get(REQUIRE_REFERENCE_ENV) == "1" else pytest.skip
     if not (forge / ".git").exists():
-        pytest.skip(
+        unavailable(
             f"no Forge checkout at {forge}: this test compares pinned commits, so it cannot run "
             "without one. Set FORGE_SOURCE_DIR to a checkout of moeendres-png/forge to enable it."
         )
     missing = [sha for sha in commits if not _git_has_commit(forge, sha)]
     if missing:
-        pytest.skip(
+        unavailable(
             f"the Forge checkout at {forge} does not contain {missing}. These tests compare "
             "specific pinned commits, so any other checkout cannot establish them -- a different "
             "condition from having no checkout at all."
@@ -446,3 +452,34 @@ def test_bridge_successor_lock_binds_the_live_bridge_without_moving_rules_core()
     assert qual["local_forge_bridge_suite"]["failures"] == 0
     assert set(lock["not_a"]) >= {"PRODUCTION_PROVIDER_SELECTION", "RULES_CORE_AUTHORITY_CHANGE"}
     assert lock["evidence_transfer"]["historical_receipts_relabelled"] is False
+
+
+def test_a_required_lane_fails_instead_of_skipping(monkeypatch, tmp_path) -> None:
+    """B6: with the requirement set, a missing reference is a failure, never a skip."""
+    monkeypatch.setenv(REQUIRE_REFERENCE_ENV, "1")
+    monkeypatch.setenv("FORGE_SOURCE_DIR", str(tmp_path / "absent"))
+    with pytest.raises(pytest.fail.Exception, match="no Forge checkout"):
+        _require_forge_reference(FORK)
+    monkeypatch.delenv(REQUIRE_REFERENCE_ENV)
+    with pytest.raises(pytest.skip.Exception, match="no Forge checkout"):
+        _require_forge_reference(FORK)
+
+
+def test_the_infrastructure_lane_materializes_the_reference() -> None:
+    """B6: the required lane provides the checkout and demands it."""
+    import yaml
+
+    workflow = yaml.safe_load(
+        (REPO / ".github/workflows/production-qualification.yml").read_text(encoding="utf-8")
+    )
+    steps = workflow["jobs"]["infrastructure"]["steps"]
+    names = [step.get("name") for step in steps]
+    materialize = names.index("Materialize the pinned Forge reference for PB09 identity tests")
+    qualification = names.index("Validate WS-17 qualification infrastructure")
+    assert materialize < qualification
+    env = steps[qualification].get("env") or {}
+    assert env.get(REQUIRE_REFERENCE_ENV) == "1"
+    assert env.get("FORGE_SOURCE_DIR")
+    script = steps[materialize]["run"]
+    for sha in (FORK, TIP, BRIDGE_HEAD):
+        assert sha in script, sha
