@@ -51,6 +51,10 @@ SCOPE_PREFIXES = ("MICRO_", "PILOT_", "WS05-")
 PROVIDER_ADAPTER_GAP = "PROVIDER_ADAPTER_GAP"
 LAB_EXECUTION_GAP = "LAB_EXECUTION_GAP"
 SCENARIO_LANE_EXECUTABLE = "SCENARIO_LANE_EXECUTABLE"
+# The record itself lacks the authority execution needs (e.g. a scripted
+# response for a discretionary decision). Neither Lab nor provider work closes
+# it; only a Coordinator-adjudicated contract erratum can.
+CONTRACT_AUTHORITY_GAP = "CONTRACT_AUTHORITY_GAP"
 
 READBACK = "READBACK"
 DECISION_FRAME = "DECISION_FRAME"
@@ -91,15 +95,15 @@ _CONSTRUCTION: dict[str, tuple[str, str]] = {
     ),
     "temporal_state.active_player": (
         LAB_EXECUTION_GAP,
-        "the lane model accepts only p1 as the turn-1 active player, although the engine's "
-        "starting-player frame offers every seat; another starter needs the lane to accept "
-        "it",
+        "the requested turn-1 active player is decided by the starting-player choice, which "
+        "the lane may make only on a scripted response; no record scripts it",
     ),
     "temporal_checkpoint.exact_hand_after_draw": (
         LAB_EXECUTION_GAP,
-        "the lane compares a requested hand by exact equality, but the engine's natural "
-        "draw adds a card before the checkpoint; the comparison needs presence semantics "
-        "plus the engine-observed draw count",
+        "the obligation requires the exact hand after the draw; the engine's natural draw "
+        "adds a card the lane can neither control nor prove, so exact equality cannot be "
+        "established; the open mechanism is controlling or proving the drawn card, and the "
+        "exact-equality obligation stays unchanged",
     ),
     "commander_state.prior_command_zone_cast_count": (
         LAB_EXECUTION_GAP,
@@ -374,6 +378,14 @@ class ForgeResidual:
 
 
 def _construction(dimension: str) -> tuple[str, str]:
+    if dimension == lane.STARTING_PLAYER_UNSCRIPTED:
+        return (
+            CONTRACT_AUTHORITY_GAP,
+            "the obligation names a starting player, but the effective record scripts no "
+            "starting-player response; choosing the starter from the requested state would "
+            "be requested-option selection, so the row needs a contract erratum that "
+            "scripts the decision",
+        )
     if dimension.startswith(_DECISION_PREFIX):
         family = dimension[len(_DECISION_PREFIX) :].split(".", 1)[0]
         mapped = _DECISION_FAMILIES.get(family)

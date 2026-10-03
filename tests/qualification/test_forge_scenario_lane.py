@@ -600,9 +600,11 @@ _CHOICE = {
     "revision": 1,
     "chosen_seat": "p1",
     "offered_seats": ["p1", "p2", "p3"],
-    "policy": "requested_starting_seat",
-    "basis": "LAB_SELECTED_ENGINE_OFFERED",
+    "policy": "fixture_decision_script",
+    "basis": fsl.STARTING_PLAYER_AUTHORIZED_BASIS,
 }
+# What the lane records when it picks the starter itself (no scripted response).
+_LAB_CHOICE = dict(_CHOICE, policy="requested_starting_seat", basis="LAB_SELECTED_ENGINE_OFFERED")
 
 
 def _snap(step: str, hands: dict, libraries: dict, *, active: str = "p1", turn: int = 1) -> dict:
@@ -639,8 +641,8 @@ def test_first_turn_draw_obligation_is_mapped_from_the_record():
 def test_first_turn_draw_observed_from_the_draw_step_counts():
     verdict = fsl.evaluate_first_turn_draw(list(_START), _draw_progression(), dict(_CHOICE))
     assert verdict.observed is True
-    assert verdict.terminal_facts["starting_player_basis"] == "LAB_SELECTED_ENGINE_OFFERED"
-    assert "LAB_SELECTED_ENGINE_OFFERED" in verdict.reason
+    assert verdict.terminal_facts["starting_player_basis"] == fsl.STARTING_PLAYER_AUTHORIZED_BASIS
+    assert "scripted response" in verdict.reason
     assert verdict.credit_eligible_observation is True
     assert verdict.semantic_events == _START
     assert verdict.terminal_facts["deltas"]["p1"] == {"hand": 1, "library": -1}
@@ -683,6 +685,32 @@ def test_first_turn_draw_wrong_reasons_fail_closed(required, progression, reason
     assert verdict.credit_eligible_observation is False
     assert verdict.semantic_events == []
     assert reason in verdict.reason
+
+
+def test_a_lab_selected_starter_earns_no_credit():
+    """Wrong-reason control (#511 P1): identical engine counts, but the starter was
+    chosen by the Lab from the requested state, not by a scripted response."""
+    verdict = fsl.evaluate_first_turn_draw(list(_START), _draw_progression(), dict(_LAB_CHOICE))
+    assert verdict.observed is False
+    assert verdict.credit_eligible_observation is False
+    assert "without contract authority" in verdict.reason
+
+
+def test_an_unscripted_starting_player_obligation_is_refused():
+    """The lane refuses the row up front: no record may let it pick the starter."""
+    record = _record(required_events=list(_START))
+    refused = {f.dimension for f in fsl.model_requested_state(record).hard_unsupported}
+    assert fsl.STARTING_PLAYER_UNSCRIPTED in refused
+    scripted = _record(required_events=list(_START))
+    scripted["decision_script"] = [
+        {
+            "decision_family": "starting_player",
+            "actor": "P2",
+            "selection": {"selector_kind": "seat"},
+        }
+    ]
+    refused = {f.dimension for f in fsl.model_requested_state(scripted).hard_unsupported}
+    assert fsl.STARTING_PLAYER_UNSCRIPTED not in refused
 
 
 def test_progression_snapshot_carries_counts_only():
@@ -1192,8 +1220,11 @@ def test_selection_covers_eligible_rows_and_the_declared_wave():
         model = fsl.model_requested_state(record)
         if model.credit_eligible and fsl.temporal_reachable(model):
             assert fixture_id in selected
-    # The 9 structurally credit-eligible rows plus the 7 wave rows.
-    assert len(selected) == 16
+    # The structurally credit-eligible rows plus the 7 wave rows. WS05-CMD-START-2
+    # and START-3 are refused (#511 P1): their obligations name a starting player
+    # that no record scripts, so the lane may not choose one.
+    assert len(selected) == 14
+    assert not {"WS05-CMD-START-2", "WS05-CMD-START-3"} & selected
 
 
 def test_execute_and_persist_requires_bound_identity(tmp_path):

@@ -37,6 +37,7 @@ def test_every_in_scope_row_is_classified(records, scope) -> None:
     for fixture in scope:
         row = fr.classify_row(records[fixture])
         assert row.classification in {
+            fr.CONTRACT_AUTHORITY_GAP,
             fr.LAB_EXECUTION_GAP,
             fr.PROVIDER_ADAPTER_GAP,
             fr.SCENARIO_LANE_EXECUTABLE,
@@ -107,12 +108,22 @@ def test_the_class_follows_the_record_not_the_row_id(records) -> None:
     assert fr.classify_row(record).first_missing["dimension"] != "combat_state"
 
 
-def test_a_lane_executable_row_is_never_called_a_pass(records) -> None:
+def test_an_unscripted_starting_player_is_a_contract_authority_gap(records) -> None:
+    """#511 P1: START-3 names a starter but scripts no starting-player response, so
+    the lane may not pick one; the row needs a contract erratum, not Lab work."""
     row = fr.classify_row(records["WS05-CMD-START-3"])
-    assert row.classification == fr.SCENARIO_LANE_EXECUTABLE
-    assert row.lane_obligation_kind == "starting_player_first_turn_draw"
-    assert "only through that lane's runner-bound receipt" in row.reason()
+    assert row.classification == fr.CONTRACT_AUTHORITY_GAP
+    assert row.first_missing["dimension"] == lane.STARTING_PLAYER_UNSCRIPTED
+    assert "requested-option selection" in row.first_missing["detail"]
     assert "PASS" not in row.reason()
+
+
+def test_exact_hand_after_draw_stays_exact(records) -> None:
+    """#511 P2: the residual reason must not weaken exact post-draw hand equality."""
+    gap_class, detail = fr._construction("temporal_checkpoint.exact_hand_after_draw")
+    assert gap_class == fr.LAB_EXECUTION_GAP
+    assert "presence" not in detail
+    assert "exact-equality obligation stays unchanged" in detail
 
 
 def test_lane_obligation_kinds_match_the_lane(records, scope) -> None:
