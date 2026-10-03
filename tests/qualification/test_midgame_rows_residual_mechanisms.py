@@ -394,6 +394,59 @@ def test_only_the_declared_composed_entry_routes_a_stack_then_elimination() -> N
     assert mr.causal_stack_elimination_entry("WS05-MP-PRIO-3") is None
 
 
+def test_the_control_row_causes_its_aura_through_a_declared_flash_enabler() -> None:
+    entry = mr.causal_stack_elimination_entry("WS05-MP-ELIM-CONTROL-3")
+    assert entry is not None
+    assert entry["caused_permanents"] == ["obj:leave-controlmagic"]
+    cards = {card["card_identity"] for card in entry["fuel"]}
+    assert "Leyline of Anticipation" in cards
+    assert all(card["owner"] == "P2" for card in entry["fuel"])
+    # The elimination row without caused permanents keeps its own entry shape.
+    assert not mr.causal_stack_elimination_entry("WS05-MP-ELIM-STACK-3").get("caused_permanents")
+
+
+class _ResolvingClient:
+    """A lane client whose engine offers the given decisions in turn."""
+
+    def __init__(self, decisions: list[dict[str, Any] | None]) -> None:
+        self.decisions = list(decisions)
+        self.submitted: list[list[str]] = []
+
+    def pending_decision(self) -> dict[str, Any] | None:
+        return self.decisions.pop(0) if self.decisions else None
+
+    def submit_options(self, decision: dict[str, Any], options: list[str]) -> None:
+        self.submitted.append(options)
+
+
+def _priority_decision(stack: list[str] | None) -> dict[str, Any]:
+    decision: dict[str, Any] = {
+        "decision_class": "priority",
+        "legal_options": [{"option_type": "pass_priority", "option_id": "pass"}],
+    }
+    if stack is not None:
+        decision["pilot_state"] = {"stack": stack}
+    return decision
+
+
+def test_resolving_the_stack_only_passes_priority_until_it_is_empty() -> None:
+    probe = mr.probe_module()
+    client = _ResolvingClient(
+        [_priority_decision(["aura"]), _priority_decision(["aura"]), _priority_decision([])]
+    )
+    probe.resolve_stack(client, "t")
+    assert client.submitted == [["pass"], ["pass"]]
+    # Any other decision, a frame without a stack, or the engine going
+    # terminal fails closed instead of being answered.
+    for decisions in (
+        [{"decision_class": "target", "legal_options": []}],
+        [_priority_decision(None)],
+        [None],
+    ):
+        with pytest.raises(probe.ml.MidgameLaneError):
+            probe.resolve_stack(_ResolvingClient(decisions), "t")
+
+
 def test_the_victims_own_cards_are_never_elimination_instruments() -> None:
     """Instruments are the plan's declared ones, never a placed object by its name."""
     plan = {
@@ -528,6 +581,7 @@ WORKSTREAM_ROWS = {
     "WS05-CMD-DMG-CONTROL",
     "WS05-CMD-PARTNER-TAX",
     "WS05-MP-ELIM-STACK-3",
+    "WS05-MP-ELIM-CONTROL-3",
 }
 
 
