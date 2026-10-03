@@ -61,24 +61,45 @@ def test_construction_gaps_are_the_lane_model_findings(records) -> None:
 
 
 def test_event_rows_name_the_absent_principal_channel(records) -> None:
+    # Every row's universal scan covers the event log and the transcript, both absent.
+    universal = {"replay_transcript", "event_log"}
     expected = {
-        "HIDDEN_07": {"reveal_look_audience", "reveal_look_projection", "event_log"},
-        "HIDDEN_08": {"reveal_look_audience", "reveal_look_projection", "event_log"},
-        "HIDDEN_10": {"library_contents", "event_log"},
-        "HIDDEN_11": {"library_contents", "event_log"},
-        "HIDDEN_18": {"replay_transcript", "event_log"},
+        "HIDDEN_07": {"reveal_look_audience", "reveal_look_projection"},
+        "HIDDEN_08": {"reveal_look_audience", "reveal_look_projection"},
+        "HIDDEN_10": {"library_contents"},
+        "HIDDEN_11": {"library_contents"},
+        "HIDDEN_18": set(),
+        "HIDDEN_01": set(),
     }
     for fixture, channels in expected.items():
-        assert set(fh.classify_row(records[fixture]).missing_channels) == channels, fixture
-    # A pure projection row needs only the principal-scoped state, which exists.
-    assert fh.classify_row(records["HIDDEN_01"]).missing_channels == []
+        row = fh.classify_row(records[fixture])
+        assert set(row.missing_channels) == channels | universal, fixture
+
+
+def test_every_row_needs_the_universal_principal_surface(records) -> None:
+    """The verifier scans every principal-facing surface for every row (P2, #506)."""
+    from commander_lab.qualification.current_boundary import knowledge_projection
+
+    for fixture in knowledge_projection.ROWS:
+        row = fh.classify_row(records[fixture])
+        required = fh.required_channels(row.obligation_kind)
+        assert required[: len(fh.UNIVERSAL_PRINCIPAL_SURFACE)] == fh.UNIVERSAL_PRINCIPAL_SURFACE
+        assert {"decision_frames", "message_surface", "transport_diagnostics"} <= set(
+            row.unaudited_channels
+        ), fixture
+        assert "lab_capture.transport_diagnostics" in {gap["dimension"] for gap in row.lab_gaps}, (
+            fixture
+        )
 
 
 def test_scripted_rows_record_the_lab_execution_gap(records) -> None:
     row = fh.classify_row(records["HIDDEN_13"])
     assert any(gap["dimension"] == "decision_execution.pile.pile_label" for gap in row.lab_gaps)
     assert "Lab Forge lane has no execution" in row.reason()
-    assert not fh.classify_row(records["HIDDEN_01"]).lab_gaps
+    assert not any(
+        gap["dimension"].startswith("decision_execution.")
+        for gap in fh.classify_row(records["HIDDEN_01"]).lab_gaps
+    )
 
 
 def test_the_classification_follows_the_record_not_the_row_id(records) -> None:
@@ -408,10 +429,6 @@ def test_stderr_is_a_lab_capture_gap_until_the_lab_retains_it(records) -> None:
         assert "lab_capture.transport_diagnostics" in gaps, fixture
         assert "discards" in gaps["lab_capture.transport_diagnostics"]
         assert "lab_capture.transport_diagnostics" in row.reason()
-    assert not any(
-        gap["dimension"].startswith("lab_capture.")
-        for gap in fh.classify_row(records["HIDDEN_01"]).lab_gaps
-    )
 
 
 @pytest.mark.parametrize(
@@ -435,7 +452,7 @@ def test_a_changed_lab_launcher_is_re_reviewed(edit) -> None:
 @pytest.mark.parametrize("fixture", ["HIDDEN_07", "HIDDEN_08"])
 def test_audience_projection_gap_is_independent_of_event_channels(records, monkeypatch, fixture):
     """A working audience/event transport still cannot substitute for its absent projection."""
-    for name in ("reveal_look_audience", "event_log"):
+    for name in ("reveal_look_audience", "event_log", "replay_transcript"):
         monkeypatch.setitem(
             fh.CHANNELS_BY_NAME, name, fh.Channel(name, fh.CHANNEL_SUPPORTED, "engine")
         )

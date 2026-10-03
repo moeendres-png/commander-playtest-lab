@@ -435,7 +435,22 @@ CHANNELS: tuple[Channel, ...] = (
 )
 CHANNELS_BY_NAME: dict[str, Channel] = {channel.name: channel for channel in CHANNELS}
 
-# The principal-facing channels each AF05 obligation needs, beyond construction.
+# Every row's verifier first scans everything the principal received
+# (knowledge_projection._scan_principal: prompt, context, options, source and
+# ability metadata, state, events, the transcript and the process log), so every
+# row needs the whole principal-facing surface before its obligation-specific
+# channels.
+UNIVERSAL_PRINCIPAL_SURFACE: tuple[str, ...] = (
+    "principal_scoped_state",
+    "decision_frames",
+    "message_surface",
+    "transport_diagnostics",
+    "event_log",
+    "replay_transcript",
+)
+
+# The principal-facing channels each AF05 obligation needs, beyond construction
+# and beyond UNIVERSAL_PRINCIPAL_SURFACE (required_channels joins the two).
 # Kinds are knowledge_projection.ROWS's, so both providers share one row set.
 OBSERVATION_REQUIREMENTS: dict[str, tuple[str, ...]] = {
     "opponent_hand": ("principal_scoped_state",),
@@ -598,6 +613,11 @@ class HiddenRowClassification:
         }
 
 
+def required_channels(kind: str) -> tuple[str, ...]:
+    """The universal principal surface, then the obligation's own channels."""
+    return tuple(dict.fromkeys((*UNIVERSAL_PRINCIPAL_SURFACE, *OBSERVATION_REQUIREMENTS[kind])))
+
+
 def classify_row(record: dict[str, Any]) -> HiddenRowClassification:
     """Classify one HIDDEN record by the Forge lane's model and the channel table."""
     fixture_id = str(record.get("fixture_id"))
@@ -621,7 +641,7 @@ def classify_row(record: dict[str, Any]) -> HiddenRowClassification:
             f"{[gap['dimension'] for gap in row.other_unsupported]}"
         )
     row.unobservable = [finding.to_document() for finding in model.unobservable]
-    required = OBSERVATION_REQUIREMENTS[kind]
+    required = required_channels(kind)
     row.missing_channels = [
         name for name in required if CHANNELS_BY_NAME[name].status == CHANNEL_ABSENT
     ]

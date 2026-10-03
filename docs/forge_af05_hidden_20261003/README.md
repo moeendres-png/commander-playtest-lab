@@ -87,27 +87,34 @@ All 20 rows request a face-down permanent and an exact library order, which the
 bootstrap cannot construct. Every row's readback also cannot prove the requested library
 and exile zones. The remaining columns name what else each row needs.
 
+Every row's verifier first scans everything the principal received (prompt, context,
+options, source and ability metadata, state, events, the transcript and the process
+log), so every row requires the universal principal surface
+(`UNIVERSAL_PRINCIPAL_SURFACE`) before its obligation-specific channels. That is why the
+event log and the transcript are absent, decision frames, message surface and transport
+diagnostics are unaudited, and stderr capture is a Lab gap on every row.
+
 | Row | Obligation | Other construction gaps | Absent principal channels | Unaudited principal channels | Lab execution gaps |
 |---|---|---|---|---|---|
-| HIDDEN_01 | opponent_hand | none | none | none | none |
-| HIDDEN_02 | opponent_library | none | none | none | none |
-| HIDDEN_03 | public_exile | knowledge | none | none | none |
-| HIDDEN_04 | face_down_controller | knowledge | none | none | none |
-| HIDDEN_05 | exile_permission_persists | cost state, knowledge | event log | none | cast, target player, choose object, target object |
-| HIDDEN_06 | exile_permission_invalidates | cost state, knowledge | event log | none | cast, target player, choose object |
-| HIDDEN_07 | reveal_audience | cost state, knowledge | reveal/look audience, reveal/look projection, event log | none | cast |
-| HIDDEN_08 | look_audience | cost state, knowledge | reveal/look audience, reveal/look projection, event log | none | cast, target player |
-| HIDDEN_09 | search_inspection | cost state, knowledge | library contents, event log | none | cast, target object |
-| HIDDEN_10 | scry_knowledge | cost state, knowledge | library contents, event log | none | cast, target player, target objects, choose object |
-| HIDDEN_11 | shuffle_invalidates_order | cost state, knowledge | library contents, event log | none | cast, target player |
-| HIDDEN_12 | controlled_player_authority | cost state, knowledge | event log | none | cast, target player |
-| HIDDEN_13 | pile_metadata | cost state, knowledge | library contents, event log | decision frames | cast, target player, choose objects, pile |
-| HIDDEN_14 | target_metadata | cost state | none | decision frames | cast, face-down target |
-| HIDDEN_15 | source_metadata | cost state | none | decision frames | cast, mode, face-down target, yes/no |
-| HIDDEN_16 | ability_metadata | cost state | none | decision frames | cast, mode, face-down target, yes/no |
-| HIDDEN_17 | copy_face_down | cost state | none | none | cast, yes/no, face-down choice |
-| HIDDEN_18 | transcript_privacy | cost state, knowledge | replay/transcript, event log | none | cast, target player |
-| HIDDEN_19 | no_omniscient_api | none | none | message surface, transport diagnostics | stderr capture |
+| HIDDEN_01 | opponent_hand | none | event log, replay/transcript | decision frames, message surface, transport diagnostics | stderr capture |
+| HIDDEN_02 | opponent_library | none | event log, replay/transcript | decision frames, message surface, transport diagnostics | stderr capture |
+| HIDDEN_03 | public_exile | knowledge | event log, replay/transcript | decision frames, message surface, transport diagnostics | stderr capture |
+| HIDDEN_04 | face_down_controller | knowledge | event log, replay/transcript | decision frames, message surface, transport diagnostics | stderr capture |
+| HIDDEN_05 | exile_permission_persists | cost state, knowledge | event log, replay/transcript | decision frames, message surface, transport diagnostics | cast, target player, choose object, target object, stderr capture |
+| HIDDEN_06 | exile_permission_invalidates | cost state, knowledge | event log, replay/transcript | decision frames, message surface, transport diagnostics | cast, target player, choose object, stderr capture |
+| HIDDEN_07 | reveal_audience | cost state, knowledge | event log, replay/transcript, reveal/look audience, reveal/look projection | decision frames, message surface, transport diagnostics | cast, stderr capture |
+| HIDDEN_08 | look_audience | cost state, knowledge | event log, replay/transcript, reveal/look audience, reveal/look projection | decision frames, message surface, transport diagnostics | cast, target player, stderr capture |
+| HIDDEN_09 | search_inspection | cost state, knowledge | event log, replay/transcript, library contents | decision frames, message surface, transport diagnostics | cast, target object, stderr capture |
+| HIDDEN_10 | scry_knowledge | cost state, knowledge | event log, replay/transcript, library contents | decision frames, message surface, transport diagnostics | cast, target player, target objects, choose object, stderr capture |
+| HIDDEN_11 | shuffle_invalidates_order | cost state, knowledge | event log, replay/transcript, library contents | decision frames, message surface, transport diagnostics | cast, target player, stderr capture |
+| HIDDEN_12 | controlled_player_authority | cost state, knowledge | event log, replay/transcript | decision frames, message surface, transport diagnostics | cast, target player, stderr capture |
+| HIDDEN_13 | pile_metadata | cost state, knowledge | event log, replay/transcript, library contents | decision frames, message surface, transport diagnostics | cast, target player, choose objects, pile, stderr capture |
+| HIDDEN_14 | target_metadata | cost state | event log, replay/transcript | decision frames, message surface, transport diagnostics | cast, face-down target, stderr capture |
+| HIDDEN_15 | source_metadata | cost state | event log, replay/transcript | decision frames, message surface, transport diagnostics | cast, mode, face-down target, yes/no, stderr capture |
+| HIDDEN_16 | ability_metadata | cost state | event log, replay/transcript | decision frames, message surface, transport diagnostics | cast, mode, face-down target, yes/no, stderr capture |
+| HIDDEN_17 | copy_face_down | cost state | event log, replay/transcript | decision frames, message surface, transport diagnostics | cast, yes/no, face-down choice, stderr capture |
+| HIDDEN_18 | transcript_privacy | cost state, knowledge | event log, replay/transcript | decision frames, message surface, transport diagnostics | cast, target player, stderr capture |
+| HIDDEN_19 | no_omniscient_api | none | event log, replay/transcript | decision frames, message surface, transport diagnostics | stderr capture |
 | HIDDEN_HONEYCARD_SENTINEL | honey_sentinel | none | event log, replay/transcript | decision frames, message surface, transport diagnostics | stderr capture |
 
 ## What would move Forge AF05
@@ -126,8 +133,9 @@ In dependency order, all outside this Lab workstream:
    (#459) for the scripted decision families.
 
 No row needs only one of these steps:
-- The pure projection rows (HIDDEN_01, 02 and 19) need steps 1 and 2. Step 2 is needed
-  for the library and exile readback.
+- The pure projection rows (HIDDEN_01, 02 and 19) need steps 1 to 3. Step 2 is needed
+  for the library and exile readback and the universal event log and transcript, and
+  step 3 for the universal scan, which also needs the Lab's stderr capture.
 - HIDDEN_03 and 04 need the same, with knowledge state in step 1.
 
 `PRODUCTION_PROVIDER = NOT_SELECTED` · `ARCHITECTURE_FREEZE = NOT_CLAIMED`
