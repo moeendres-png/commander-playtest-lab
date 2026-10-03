@@ -592,6 +592,102 @@ def test_commander_damage_obligation_observed_and_missing():
 
 
 # ---------------------------------------------------------------------------
+# First-turn draw (WS05-CMD-START-3): engine counts across the draw step
+# ---------------------------------------------------------------------------
+_START = ["starting_player:P1", "first_turn_draw:true"]
+
+
+def _snap(step: str, hands: dict, libraries: dict, *, active: str = "p1", turn: int = 1) -> dict:
+    return {
+        "turn_number": turn,
+        "active_player": active,
+        "phase": "beginning",
+        "step": step,
+        "priority_player": active,
+        "players": {
+            player: {"hand": hands[player], "library_size": libraries[player]} for player in hands
+        },
+    }
+
+
+def _draw_progression(p1_hand_after: int = 8, p1_library_after: int = 91, **extra) -> list:
+    before = _snap("upkeep", {"p1": 7, "p2": 7, "p3": 7}, {"p1": 92, "p2": 92, "p3": 92})
+    hands = {"p1": p1_hand_after, "p2": 7, "p3": 7, **extra.get("hands", {})}
+    libraries = {"p1": p1_library_after, "p2": 92, "p3": 92, **extra.get("libraries", {})}
+    after = _snap("draw", hands, libraries, active=extra.get("active", "p1"))
+    return [before, after]
+
+
+def test_first_turn_draw_obligation_is_mapped_from_the_record():
+    record = _record(required_events=list(_START))
+    assert fsl._obligation_kind(fsl.model_requested_state(record)) == (
+        "starting_player_first_turn_draw"
+    )
+    # A record naming only one of the two tokens has no such contract.
+    record = _record(required_events=["first_turn_draw:true"])
+    assert fsl._obligation_kind(fsl.model_requested_state(record)) is None
+
+
+def test_first_turn_draw_observed_from_the_draw_step_counts():
+    verdict = fsl.evaluate_first_turn_draw(list(_START), _draw_progression())
+    assert verdict.observed is True
+    assert verdict.credit_eligible_observation is True
+    assert verdict.semantic_events == _START
+    assert verdict.terminal_facts["deltas"]["p1"] == {"hand": 1, "library": -1}
+
+
+@pytest.mark.parametrize(
+    ("required", "progression", "reason"),
+    [
+        # Final-state coincidence: the right hand size without a draw-step change.
+        (_START, _draw_progression(p1_hand_after=7, p1_library_after=92), "do not match"),
+        # The wrong value: the engine drew but the record says it must not.
+        (["starting_player:P1", "first_turn_draw:false"], _draw_progression(), "do not match"),
+        # The wrong starter.
+        (["starting_player:P2", "first_turn_draw:true"], _draw_progression(), "starter"),
+        # Another player's counts changed in the same window.
+        (_START, _draw_progression(hands={"p2": 8}, libraries={"p2": 91}), "do not match"),
+        # A hand change that did not come from the library (not a draw).
+        (_START, _draw_progression(p1_library_after=92), "do not match"),
+        # No snapshot before the draw step: nothing to compare against.
+        (_START, _draw_progression()[1:], "both sides"),
+        # The draw step of a later turn is not the first turn.
+        (_START, [dict(snap, turn_number=2) for snap in _draw_progression()], "both sides"),
+        # A malformed obligation names no single starter.
+        (["first_turn_draw:true"], _draw_progression(), "exactly one"),
+    ],
+)
+def test_first_turn_draw_wrong_reasons_fail_closed(required, progression, reason):
+    verdict = fsl.evaluate_first_turn_draw(list(required), progression)
+    assert verdict.observed is False
+    assert verdict.credit_eligible_observation is False
+    assert verdict.semantic_events == []
+    assert reason in verdict.reason
+
+
+def test_progression_snapshot_carries_counts_only():
+    state = {
+        "turn_number": 1,
+        "active_player_id": "P1",
+        "phase": "BEGINNING",
+        "step": "UPKEEP",
+        "priority_player_id": "p2",
+        "players": [
+            {"player_id": "p1", "zones": {"hand": ["Island", "Opt"], "library_size": 90}},
+            {"player_id": "p2", "zones": {"hand": ["<hidden>"], "library_size": 91}},
+        ],
+    }
+    snapshot = fsl.progression_snapshot(state)
+    assert snapshot["step"] == "upkeep"
+    assert snapshot["active_player"] == "p1"
+    assert snapshot["players"] == {
+        "p1": {"hand": 2, "library_size": 90},
+        "p2": {"hand": 1, "library_size": 91},
+    }
+    assert "Island" not in repr(snapshot)
+
+
+# ---------------------------------------------------------------------------
 # probe_row wrong-reason controls (fake bridge, no engine)
 # ---------------------------------------------------------------------------
 class _FakeProc:
@@ -903,13 +999,10 @@ def test_fail_before_shared_runner_blocks_the_wave(monkeypatch):
     for fixture_id in wave:
         row = rows[fixture_id]
         assert row.outcome == "BLOCKED", f"{fixture_id} should be BLOCKED before the lane"
-        # The existing path either reports a missing scenario/injection seam or
-        # defers to a separate restoration harness; neither consumes this seam.
-        assert (
-            "injection seam" in row.reason
-            or "execution seam" in row.reason
-            or "restoration harness" in row.reason
-        ), row.reason
+        # The shared runner credits nothing here: since #459 the reason names the
+        # row's first missing Forge mechanism, and only a lane receipt promotes it.
+        assert "first missing mechanism" in row.reason, row.reason
+        assert "PASS" not in row.reason, row.reason
 
 
 def test_lane_classifies_the_wave_with_exact_blockers():

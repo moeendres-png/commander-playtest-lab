@@ -1,0 +1,449 @@
+"""Forge AF06/AF08 residuals: the first missing mechanism per row (#459).
+
+Forge is measured on the same micro-rules (``MICRO_*``), pilot-decision
+(``PILOT_*``) and multiplayer/Commander (``WS05-*``) rows as XMage. A row the
+Forge scenario lane does not execute to a receipt stays UNKNOWN or BLOCKED;
+this module names *why*, in pipeline order, so no row hides behind a generic
+"no execution seam".
+
+A row passes through three stages, and its class is the first stage that is
+missing a mechanism:
+
+1. **Construction** (``forge_scenario_lane.model_requested_state``, the lane's
+   own model; there is no second translation):
+
+   - a dimension the provider has no field or channel for, and that no engine
+     action can cause either, is a ``PROVIDER_ADAPTER_GAP``;
+   - a dimension the engine *can* cause on its own decision frames (a cast, a
+     payment, an attack, a turn reached by native progression) is a
+     ``LAB_EXECUTION_GAP``: the Forge lane implements no selector for that
+     frame family, although the bridge offers the frames;
+   - a requested field the generic readback cannot show (owner, attachment,
+     object identity in a public zone) is a ``PROVIDER_ADAPTER_GAP`` of
+     observation: checkpoint equivalence cannot be proven.
+
+2. **Execution**: the record's scripted decision families, each a
+   ``LAB_EXECUTION_GAP`` while the lane has no selector for it.
+
+3. **Observation**: each required obligation token is observable through the
+   state readback, through the engine's own decision frames (the decision
+   tape), or only through an engine event stream. The pinned bridge exports no
+   event log (``EVENT_LOG_UNSUPPORTED``), so an event-only token is a
+   ``PROVIDER_ADAPTER_GAP``. A readback or frame token whose observation
+   contract the lane does not implement is a ``LAB_EXECUTION_GAP``.
+
+Nothing here executes a row, writes a receipt or promotes credit, and no row's
+outcome changes: only its reason becomes exact. An unmapped dimension or token
+raises instead of defaulting to a class.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any
+
+from . import forge_scenario_lane as lane
+
+SCHEMA_VERSION = "commander-lab.forge-residuals/1.0.0"
+
+SCOPE_PREFIXES = ("MICRO_", "PILOT_", "WS05-")
+
+PROVIDER_ADAPTER_GAP = "PROVIDER_ADAPTER_GAP"
+LAB_EXECUTION_GAP = "LAB_EXECUTION_GAP"
+SCENARIO_LANE_EXECUTABLE = "SCENARIO_LANE_EXECUTABLE"
+
+READBACK = "READBACK"
+DECISION_FRAME = "DECISION_FRAME"
+EVENT_LOG = "EVENT_LOG"
+
+# Construction dimensions of the lane's model (``hard_unsupported``), by exact
+# dimension or by prefix (``decision_execution.<family>.<selector>``).
+_CONSTRUCTION: dict[str, tuple[str, str]] = {
+    "stack_state": (
+        LAB_EXECUTION_GAP,
+        "a stack object is caused by a cast on the engine's own frames (the bootstrap "
+        "rejects stack injection); the lane has no cast selector",
+    ),
+    "semantic_objects.zone:stack": (
+        LAB_EXECUTION_GAP,
+        "a requested stack object is caused by a cast on the engine's own frames; the "
+        "lane has no cast selector",
+    ),
+    "action_cost_state": (
+        LAB_EXECUTION_GAP,
+        "mid-cast cost state is caused by casting and paying on the engine's own frames "
+        "(the bootstrap has no cost field); the lane has no cast or payment selector",
+    ),
+    "combat_state": (
+        LAB_EXECUTION_GAP,
+        "combat is declared on the engine's own attack and block frames (the bootstrap "
+        "has no combat field); the lane has no attack or block selector",
+    ),
+    "temporal_state.combat_step": (
+        LAB_EXECUTION_GAP,
+        "the combat step is reached by declaring attackers on the engine's frames on a "
+        "turn the attackers can attack; the lane has no attack selector",
+    ),
+    "temporal_state.turn_number": (
+        LAB_EXECUTION_GAP,
+        "the requested turn is reached only by native progression through decisions "
+        "(mulligans, turns) the lane does not execute",
+    ),
+    "temporal_state.active_player": (
+        LAB_EXECUTION_GAP,
+        "another player's turn is reached only by native progression through turns the "
+        "lane does not drive",
+    ),
+    "temporal_checkpoint.exact_hand_after_draw": (
+        LAB_EXECUTION_GAP,
+        "the lane compares a requested hand by exact equality, but the engine's natural "
+        "draw adds a card before the checkpoint; the comparison needs presence semantics "
+        "plus the engine-observed draw count",
+    ),
+    "commander_state.prior_command_zone_cast_count": (
+        LAB_EXECUTION_GAP,
+        "prior command-zone casts are caused by casting the commander on the engine's "
+        "frames (the bootstrap has no cast-count field); the lane has no cast selector",
+    ),
+    "rules_randomness.predetermined_semantic_draws": (
+        PROVIDER_ADAPTER_GAP,
+        "predetermined draws have no bootstrap field and no engine action causes them",
+    ),
+    "semantic_objects.face_down": (
+        PROVIDER_ADAPTER_GAP,
+        "the bootstrap has no face-down field",
+    ),
+    "knowledge_state": (
+        PROVIDER_ADAPTER_GAP,
+        "the bootstrap has no knowledge or permission field",
+    ),
+}
+_DECISION_PREFIX = "decision_execution."
+
+# Requested fields the generic readback cannot show (``unobservable``).
+_UNOBSERVABLE: dict[str, tuple[str, str]] = {
+    "owner_controller_divergence": (
+        PROVIDER_ADAPTER_GAP,
+        "the readback exposes controller rows, not card owner",
+    ),
+    "semantic_objects.attached_to": (
+        PROVIDER_ADAPTER_GAP,
+        "the readback exposes no attachment relation",
+    ),
+    "semantic_objects.zone:graveyard": (
+        PROVIDER_ADAPTER_GAP,
+        "graveyard objects are names only, with no identity",
+    ),
+    "semantic_objects.zone:exile": (
+        PROVIDER_ADAPTER_GAP,
+        "exile objects are names only, with no identity",
+    ),
+    "semantic_objects.zone:library": (PROVIDER_ADAPTER_GAP, "library contents are never exposed"),
+    "semantic_objects.zone:revealed": (
+        PROVIDER_ADAPTER_GAP,
+        "revealed zones have no projection",
+    ),
+    "semantic_objects.controlled_since_turn_began": (
+        LAB_EXECUTION_GAP,
+        "bootstrap-placed creatures arrive after the turn began; continuous control is "
+        "caused by native progression to a later turn and shown by the engine's own attack "
+        "frame, neither of which the lane executes",
+    ),
+}
+
+# Required obligation tokens (the part before the first ``:``), by observation
+# basis. Every token family used by an in-scope row must be listed.
+OBSERVATION: dict[str, str] = {
+    # The engine's state readback (life, loss, zones, P/T, stack, command zone,
+    # commander damage and cast counts, turn position).
+    "both_creatures_die": READBACK,
+    "commander_combat_damage": READBACK,
+    "commander_damage_checked_per_commander": READBACK,
+    "commander_damage_total": READBACK,
+    "commander_zone_event": READBACK,
+    "continuous_pt": READBACK,
+    "continuous_pt_evaluated": READBACK,
+    "control_effect_applied": READBACK,
+    "copy_created_on_stack": READBACK,
+    "copy_spell": READBACK,
+    "create_Devil_token": READBACK,
+    "creature_enters": READBACK,
+    "damage": READBACK,
+    "first_turn_draw": READBACK,
+    "first_turn_draw_step_skipped": READBACK,
+    "free_mulligan": READBACK,
+    "game_start_command_zone": READBACK,
+    "move_to_graveyard": READBACK,
+    "multiplayer_cleanup": READBACK,
+    "next_turn": READBACK,
+    "object_leaves_game": READBACK,
+    "player_leaves": READBACK,
+    "player_loses": READBACK,
+    "resolve": READBACK,
+    "response_on_stack": READBACK,
+    "stack_push": READBACK,
+    "starting_player": READBACK,
+    "trigger": READBACK,
+    "zone_change": READBACK,
+    "APNAP_stack_order": READBACK,
+    "bottom_count": READBACK,
+    # The engine's own decision frames, answered by the Lab (the decision tape).
+    "ability_selected": DECISION_FRAME,
+    "amount_assignment": DECISION_FRAME,
+    "announce_x_frame": DECISION_FRAME,
+    "attacker_declared": DECISION_FRAME,
+    "blocker_declared": DECISION_FRAME,
+    "choice": DECISION_FRAME,
+    "choice_frame": DECISION_FRAME,
+    "choose_ability_frame": DECISION_FRAME,
+    "choose_mode_frame": DECISION_FRAME,
+    "choose_object_frame": DECISION_FRAME,
+    "choose_use_frame": DECISION_FRAME,
+    "commander_cast_from_command": DECISION_FRAME,
+    "commander_choice": DECISION_FRAME,
+    "commander_replacement_chosen": DECISION_FRAME,
+    "commander_tax": DECISION_FRAME,
+    "cost_determined": DECISION_FRAME,
+    "Counterspell_cast": DECISION_FRAME,
+    "declare_attacker_frame": DECISION_FRAME,
+    "declare_blocker_frame": DECISION_FRAME,
+    "keep": DECISION_FRAME,
+    "legal_blocker_partition": DECISION_FRAME,
+    "legal_targets_exposed": DECISION_FRAME,
+    "mana_abilities_activated": DECISION_FRAME,
+    "mana_paid": DECISION_FRAME,
+    "mana_payment_frame": DECISION_FRAME,
+    "mode_selected": DECISION_FRAME,
+    "mulligan": DECISION_FRAME,
+    "mulligan_once": DECISION_FRAME,
+    "multi_amount_frame": DECISION_FRAME,
+    "object_selected": DECISION_FRAME,
+    "partition_created": DECISION_FRAME,
+    "pile_frame": DECISION_FRAME,
+    "priority": DECISION_FRAME,
+    "priority_action_resets_pass_count": DECISION_FRAME,
+    "priority_decision_frame": DECISION_FRAME,
+    "priority_ring_live_order": DECISION_FRAME,
+    "replacement_effect_frame": DECISION_FRAME,
+    "scry_choice": DECISION_FRAME,
+    "simultaneous_triggers": DECISION_FRAME,
+    "spell_cast": DECISION_FRAME,
+    "target_amount_frame": DECISION_FRAME,
+    "target_decision_frame": DECISION_FRAME,
+    "target_selected": DECISION_FRAME,
+    "tax": DECISION_FRAME,
+    "trigger_order_frame": DECISION_FRAME,
+    "x_announced": DECISION_FRAME,
+    # Only an engine event stream shows these: a rules process with no lasting
+    # state and no decision of its own (a would-be amount, an applied
+    # replacement or prevention, a layer, a state-based-action pass, a
+    # simultaneity, a new object incarnation, a Rules RNG outcome, a queued
+    # extra turn).
+    "combat_damage": EVENT_LOG,
+    "combat_damage_prevented": EVENT_LOG,
+    "combat_damage_would_be": EVENT_LOG,
+    "damage_would_be": EVENT_LOG,
+    "extra_turn_created": EVENT_LOG,
+    "layer6_remove_abilities": EVENT_LOG,
+    "layer7b_set_pt": EVENT_LOG,
+    "layer7c_modify_pt": EVENT_LOG,
+    "new_object_incarnation": EVENT_LOG,
+    "prevention_applied": EVENT_LOG,
+    "replacement_effect": EVENT_LOG,
+    "rules_rng": EVENT_LOG,
+    "simultaneous_trigger_event": EVENT_LOG,
+    "state_based_actions": EVENT_LOG,
+}
+
+# Obligation kinds the lane already evaluates from engine facts.
+_LANE_OBLIGATION_KINDS = frozenset(
+    {
+        "commander_damage_checked_per_commander",
+        "game_start_command_zone",
+        "player_leaves_multiplayer_cleanup",
+        "starting_player_first_turn_draw",
+    }
+)
+
+
+def in_scope(fixture_id: str) -> bool:
+    return fixture_id.startswith(SCOPE_PREFIXES)
+
+
+def _token_family(token: Any) -> str:
+    return str(token).split(":", 1)[0]
+
+
+@dataclass
+class ForgeResidual:
+    fixture_id: str
+    mechanisms: list[dict[str, str]] = field(default_factory=list)
+    observation: dict[str, list[str]] = field(default_factory=dict)
+    lane_obligation_kind: str | None = None
+
+    @property
+    def first_missing(self) -> dict[str, str] | None:
+        return self.mechanisms[0] if self.mechanisms else None
+
+    @property
+    def classification(self) -> str:
+        first = self.first_missing
+        return SCENARIO_LANE_EXECUTABLE if first is None else first["class"]
+
+    @property
+    def needs_event_log(self) -> bool:
+        return bool(self.observation.get(EVENT_LOG))
+
+    def reason(self) -> str:
+        first = self.first_missing
+        if first is None:
+            return (
+                f"Forge {SCENARIO_LANE_EXECUTABLE}: the scenario lane constructs this row, "
+                f"executes it and evaluates its obligation ({self.lane_obligation_kind}); it "
+                "earns credit only through that lane's runner-bound receipt, and without one "
+                "it stays unestablished."
+            )
+        parts = [
+            f"Forge {self.classification}: first missing mechanism at "
+            f"{first['stage']} ({first['dimension']}): {first['detail']}"
+        ]
+        later = self.mechanisms[1:]
+        if later:
+            parts.append(
+                "then: "
+                + "; ".join(
+                    f"{item['stage']} {item['dimension']} ({item['class']})" for item in later
+                )
+            )
+        if self.needs_event_log:
+            parts.append(
+                "event-only obligation tokens with no Forge event log: "
+                + ", ".join(self.observation[EVENT_LOG])
+            )
+        parts.append("no receipt; the row stays unestablished")
+        return ". ".join(parts) + "."
+
+    def to_document(self) -> dict[str, Any]:
+        return {
+            "fixture_id": self.fixture_id,
+            "classification": self.classification,
+            "first_missing": self.first_missing,
+            "mechanisms": self.mechanisms,
+            "observation": self.observation,
+            "needs_event_log": self.needs_event_log,
+            "lane_obligation_kind": self.lane_obligation_kind,
+            "reason": self.reason(),
+        }
+
+
+def _construction(dimension: str) -> tuple[str, str]:
+    if dimension.startswith(_DECISION_PREFIX):
+        family = dimension[len(_DECISION_PREFIX) :].split(".", 1)[0]
+        return (
+            LAB_EXECUTION_GAP,
+            f"the record scripts a {family} decision; the bridge offers the engine's own "
+            f"{family} frames, but the lane has no selector for them",
+        )
+    if dimension in _CONSTRUCTION:
+        return _CONSTRUCTION[dimension]
+    for prefix in ("semantic_objects.face_down", "knowledge_state"):
+        if dimension.startswith(prefix):
+            return _CONSTRUCTION[prefix]
+    raise ValueError(f"unmapped Forge lane construction dimension {dimension!r}")
+
+
+def classify_row(record: dict[str, Any]) -> ForgeResidual:
+    """The first missing mechanism of one in-scope record, in pipeline order."""
+    fixture_id = str(record.get("fixture_id"))
+    if not in_scope(fixture_id):
+        raise ValueError(f"{fixture_id} is not a Forge AF06/AF08 residual row")
+    model = lane.model_requested_state(record)
+    row = ForgeResidual(fixture_id=fixture_id, lane_obligation_kind=lane._obligation_kind(model))
+
+    construction: list[dict[str, str]] = []
+    execution: list[dict[str, str]] = []
+    for finding in model.hard_unsupported:
+        gap_class, detail = _construction(finding.dimension)
+        entry = {"dimension": finding.dimension, "class": gap_class, "detail": detail}
+        if finding.dimension.startswith(_DECISION_PREFIX):
+            execution.append({**entry, "stage": "execution"})
+        else:
+            construction.append({**entry, "stage": "construction"})
+    # Provider construction gaps come first: no Lab work reaches past them.
+    construction.sort(key=lambda item: item["class"] != PROVIDER_ADAPTER_GAP)
+    readback = []
+    for finding in model.unobservable:
+        mapped = _UNOBSERVABLE.get(finding.dimension)
+        if mapped is None:
+            raise ValueError(f"unmapped Forge readback dimension {finding.dimension!r}")
+        gap_class, detail = mapped
+        readback.append(
+            {
+                "stage": "checkpoint_readback",
+                "dimension": finding.dimension,
+                "class": gap_class,
+                "detail": detail,
+            }
+        )
+
+    required = (record.get("expected_events") or {}).get("required_events") or []
+    observation: dict[str, list[str]] = {READBACK: [], DECISION_FRAME: [], EVENT_LOG: []}
+    for token in required:
+        family = _token_family(token)
+        basis = OBSERVATION.get(family)
+        if basis is None:
+            raise ValueError(f"{fixture_id}: unmapped obligation token family {family!r}")
+        observation[basis].append(str(token))
+    row.observation = {basis: tokens for basis, tokens in observation.items() if tokens}
+
+    observing: list[dict[str, str]] = []
+    if observation[EVENT_LOG]:
+        observing.append(
+            {
+                "stage": "observation",
+                "dimension": "event_log",
+                "class": PROVIDER_ADAPTER_GAP,
+                "detail": "the obligation needs engine events and the pinned bridge exports "
+                "no event log (EVENT_LOG_UNSUPPORTED)",
+            }
+        )
+    if row.lane_obligation_kind not in _LANE_OBLIGATION_KINDS:
+        observing.append(
+            {
+                "stage": "observation",
+                "dimension": "observation_contract",
+                "class": LAB_EXECUTION_GAP,
+                "detail": "the lane has no observation contract for this obligation's "
+                "readback and decision-frame tokens",
+            }
+        )
+
+    row.mechanisms = construction + readback + execution + observing
+    return row
+
+
+def row_reason(record: dict[str, Any]) -> str:
+    return classify_row(record).reason()
+
+
+def build_matrix(records: dict[str, dict[str, Any]], fixture_ids: list[str]) -> dict[str, Any]:
+    """The Forge residual matrix for the given in-scope rows."""
+    rows = [classify_row(records[fixture]).to_document() for fixture in sorted(fixture_ids)]
+    counts: dict[str, int] = {}
+    for row in rows:
+        counts[row["classification"]] = counts.get(row["classification"], 0) + 1
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "candidate": "forge",
+        "rows": rows,
+        "summary": {
+            "rows": len(rows),
+            "classifications": counts,
+            "needs_event_log": sum(1 for row in rows if row["needs_event_log"]),
+            "pass": 0,
+        },
+        "note": (
+            "classification only: no row was executed and no receipt exists. A row becomes "
+            "PASS only through a current source-bound execution receipt."
+        ),
+    }

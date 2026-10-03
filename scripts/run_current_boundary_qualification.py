@@ -68,6 +68,9 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     evidence_epoch as epoch_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
+    forge_residuals as forge_residuals_mod,
+)
+from commander_lab.qualification.current_boundary import (  # noqa: E402
     forge_scenario_lane as forge_scenario_lane_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
@@ -1744,6 +1747,17 @@ def classify_remaining(
                     runtime_identity=identity,
                 )
             )
+        # #459: a Forge micro-rules, pilot or WS05 row keeps the outcome above, and
+        # its reason names the first missing mechanism in pipeline order (the Forge
+        # scenario lane's own model, its decision families and the obligation's
+        # observation basis) instead of a generic seam statement.
+        if (
+            candidate == "forge"
+            and forge_residuals_mod.in_scope(fixture_id)
+            and rows
+            and rows[-1].fixture_id == fixture_id
+        ):
+            rows[-1].reason = erratum + forge_residuals_mod.row_reason(record)
     return rows
 
 

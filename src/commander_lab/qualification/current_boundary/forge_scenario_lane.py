@@ -1561,6 +1561,30 @@ def _temporal_matches(state: dict[str, Any], requested: dict[str, Any]) -> bool:
     return True
 
 
+def progression_snapshot(state: dict[str, Any]) -> dict[str, Any]:
+    """The engine's turn position and per-player hand and library counts.
+
+    Counts only: the observer's own hand names and every other principal's
+    hidden cards stay out of the snapshot.
+    """
+    players = {}
+    for player_id, row in sorted(_players_by_id(state).items()):
+        zones = row.get("zones") or {}
+        hand = zones.get("hand")
+        players[player_id] = {
+            "hand": len(hand) if isinstance(hand, list) else None,
+            "library_size": zones.get("library_size"),
+        }
+    return {
+        "turn_number": state.get("turn_number"),
+        "active_player": str(state.get("active_player_id") or "").lower() or None,
+        "phase": _normalize_phase(state.get("phase")),
+        "step": _normalize_step(state.get("step")),
+        "priority_player": str(state.get("priority_player_id") or "").lower() or None,
+        "players": players,
+    }
+
+
 def drive_scenario_game(
     proc: BridgeProcess,
     model: RequestedStateModel,
@@ -1795,6 +1819,10 @@ def drive_scenario_game(
                 if stop_at_requested_checkpoint and target:
                     checkpoint_response = observe_seat_state(proc, game_id, seats[0])
                     state = _state_view(checkpoint_response)
+                    snapshot = progression_snapshot(state)
+                    progression = result.terminal_facts.setdefault("progression", [])
+                    if not progression or progression[-1] != snapshot:
+                        progression.append(snapshot)
                     if _temporal_matches(state, target):
                         checkpoint_reached = True
                         result.checkpoint = "REQUESTED_TEMPORAL_STATE"
@@ -1884,13 +1912,105 @@ def _obligation_kind(model: RequestedStateModel) -> str | None:
         return "game_start_command_zone"
     if any(event.startswith("player_leaves:") for event in required):
         return "player_leaves_multiplayer_cleanup"
+    if any(event.startswith("first_turn_draw:") for event in required) and any(
+        event.startswith("starting_player:") for event in required
+    ):
+        return "starting_player_first_turn_draw"
     if "leave the game" in postconditions or "leaves the game" in postconditions:
         return "player_leaves_multiplayer_cleanup"
     return None
 
 
+def _required_token(required: list[Any], prefix: str) -> str | None:
+    values = [str(event)[len(prefix) :] for event in required if str(event).startswith(prefix)]
+    return values[0] if len(values) == 1 else None
+
+
+def evaluate_first_turn_draw(
+    required: list[Any], progression: list[dict[str, Any]]
+) -> ObligationVerdict:
+    """CR 103.8: the starting player's first draw step, from the engine's own counts.
+
+    The evidence is the engine-reported change across the starting player's
+    turn-1 draw step: the last snapshot of that turn before the draw step and
+    the first one in it. The starting player draws one card (hand +1, library
+    -1) exactly when ``first_turn_draw`` is true (CR 103.8a skips it only in a
+    two-player game); every other player's counts must not change. A missing
+    snapshot on either side fails closed.
+    """
+    starter_token = _required_token(required, "starting_player:")
+    draw_token = _required_token(required, "first_turn_draw:")
+    facts: dict[str, Any] = {"starting_player": starter_token, "first_turn_draw": draw_token}
+
+    def verdict(observed: bool, reason: str) -> ObligationVerdict:
+        return ObligationVerdict(
+            kind="starting_player_first_turn_draw",
+            observed=observed,
+            credit_eligible_observation=observed,
+            terminal_facts=facts,
+            semantic_events=(
+                [f"starting_player:{starter_token}", f"first_turn_draw:{draw_token}"]
+                if observed
+                else []
+            ),
+            reason=reason,
+        )
+
+    if starter_token is None or draw_token not in {"true", "false"}:
+        return verdict(False, "the record does not name exactly one starter and draw value")
+    starter = starter_token.lower()
+    turn_one = [snap for snap in progression if snap.get("turn_number") == 1]
+    draw_index = next(
+        (index for index, snap in enumerate(turn_one) if snap.get("step") == "draw"), None
+    )
+    if draw_index is None or draw_index == 0:
+        facts["turn_one_snapshots"] = turn_one
+        return verdict(False, "no engine snapshot on both sides of the turn-1 draw step")
+    before, after = turn_one[draw_index - 1], turn_one[draw_index]
+    facts["before_draw_step"] = before
+    facts["in_draw_step"] = after
+    if before.get("active_player") != starter or after.get("active_player") != starter:
+        return verdict(False, "the engine's turn-1 active player is not the requested starter")
+    if set(before.get("players") or {}) != set(after.get("players") or {}):
+        return verdict(False, "the player set changed across the draw step")
+    expected = 1 if draw_token == "true" else 0
+    deltas = {}
+    for player_id, counts in sorted((after.get("players") or {}).items()):
+        prior = before["players"][player_id]
+        if None in (
+            counts.get("hand"),
+            counts.get("library_size"),
+            prior.get("hand"),
+            prior.get("library_size"),
+        ):
+            return verdict(False, f"{player_id}'s hand or library count is not observable")
+        deltas[player_id] = {
+            "hand": counts["hand"] - prior["hand"],
+            "library": counts["library_size"] - prior["library_size"],
+        }
+    facts["deltas"] = deltas
+    wanted = {
+        player_id: (
+            {"hand": expected, "library": -expected}
+            if player_id == starter
+            else {"hand": 0, "library": 0}
+        )
+        for player_id in deltas
+    }
+    facts["expected_deltas"] = wanted
+    if deltas != wanted:
+        return verdict(False, "the engine's draw-step counts do not match the obligation")
+    return verdict(
+        True,
+        "the engine's counts across the starting player's turn-1 draw step match "
+        f"first_turn_draw:{draw_token} for starter {starter}, and no other player's counts changed",
+    )
+
+
 def evaluate_obligation(
-    model: RequestedStateModel, seat_observations: dict[str, dict[str, Any]]
+    model: RequestedStateModel,
+    seat_observations: dict[str, dict[str, Any]],
+    progression: list[dict[str, Any]] | None = None,
 ) -> ObligationVerdict:
     """Evaluate the fixture obligation from engine-reported facts only."""
     required = list((model.record.get("expected_events") or {}).get("required_events") or [])
@@ -1900,6 +2020,9 @@ def evaluate_obligation(
     players = _players_by_id(primary)
     terminal_outcomes = primary.get("terminal_outcomes") or []
     kind = _obligation_kind(model)
+
+    if kind == "starting_player_first_turn_draw":
+        return evaluate_first_turn_draw(required, progression or [])
 
     if kind == "commander_damage_checked_per_commander":
         facts: dict[str, Any] = {}
@@ -2366,7 +2489,9 @@ def probe_row(
         ],
     )
 
-    obligation = evaluate_obligation(model, observations)
+    obligation = evaluate_obligation(
+        model, observations, drive.terminal_facts.get("progression") or []
+    )
     evidence.set("semantic_events", obligation.semantic_events)
     evidence.set(
         "terminal_facts",

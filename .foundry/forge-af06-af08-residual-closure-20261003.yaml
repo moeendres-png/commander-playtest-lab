@@ -1,0 +1,63 @@
+# Forge AF06/AF08 residual closure: resumable workstream state (#459, parent #255).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: scratchpad/wt459 (session-local git worktree of the canonical clone)
+branch: hardening/forge-af06-af08-residual-closure-20261003
+audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
+state_written_against_head: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+workstream: FORGE-AF06-AF08-RESIDUAL-CLOSURE-20261003
+issue: 459
+parent: 255
+pull_request: null
+objective: >-
+  Close every Forge AF06 GENERAL_RULES_CORRECTNESS and AF08 MULTIPLAYER_COMMANDER
+  residual that is reachable without invented state or decisions; every residual
+  ends as a fresh direct PASS or with its exact first missing mechanism.
+candidates:
+  forge_rules_core: bb0a740d2bef725194798383c2452213ecdd0b37
+  forge_bridge: 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+status: ACTIVE
+ownership: FORGE-AF06-AF08-RESIDUAL-CLOSURE-20261003 (Claude, sole executor)
+in_scope:
+  - src/commander_lab/qualification/current_boundary/forge_residuals.py
+  - src/commander_lab/qualification/current_boundary/forge_scenario_lane.py (progression snapshots, first-turn-draw obligation)
+  - tests/qualification/test_forge_residuals.py
+  - tests/qualification/test_forge_scenario_lane.py
+  - scripts/run_forge_residual_census.py
+  - scripts/run_current_boundary_qualification.py (Forge in-scope row reason only)
+  - docs/forge_af06_af08_residuals_20261003/
+out_of_scope:
+  - Forge Rules Core and bridge (read only; an event log or new construction field needs its own authorized issue)
+  - AF05 (#458), AF07, AF09
+  - provider ranking or selection, AF11, Architecture Freeze
+hard_gates:
+  - no second Forge state-injection system; only the scenario lane's own model
+  - engine-offered decisions only; no first, random, default, internal-AI or GUI choice
+  - classification never promotes credit; only a runner-bound lane receipt does
+  - an unmapped dimension or obligation token raises
+milestones:
+  - id: M1
+    rows: [MICRO_*, PILOT_*, WS05-* (70 rows; 63 non-PASS at epoch 18f0097373e6)]
+    result: >-
+      70 rows classified: 58 LAB_EXECUTION_GAP, 5 PROVIDER_ADAPTER_GAP,
+      7 SCENARIO_LANE_EXECUTABLE; 11 rows need a Forge event log.
+      WS05-CMD-START-3 observed locally from the engine's draw-step counts.
+    summary: >-
+      forge_residuals names each row's first missing mechanism from the lane's
+      own model, its scripted decision families and its obligation tokens'
+      observation basis (readback, decision frame, event log). The runner keeps
+      each Forge row's outcome and gives it that reason. The scenario lane now
+      records progression snapshots (counts only) and evaluates the
+      starting_player / first_turn_draw obligation, with wrong-reason controls.
+open_items:
+  - Exact-head PB-03 must credit WS05-CMD-START-3 through the lane receipt.
+  - Merge main after #506 (runner import block) without rebasing.
+  - Next mechanism, a separate milestone: an engine-authored Forge selector surface (attack, block, cast, target, mode, payment) for the scenario lane.
+  - Event-only obligations need a separately authorized Forge bridge event-log issue.
+exact_next_action: >-
+  Push, open the draft PR, run exact-head PB-03 and confirm WS05-CMD-START-3 is
+  credited and no other row changed outcome; fresh-context review; merge under
+  the gates; post the #459 handoff.
