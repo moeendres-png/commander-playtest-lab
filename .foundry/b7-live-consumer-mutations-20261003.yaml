@@ -1,0 +1,41 @@
+# B7 meta replay mutation qualification through the live consumer: resumable state (#488, parent #479).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: scratchpad/wtb7 (session-local git worktree of the canonical clone)
+branch: hardening/b7-live-consumer-mutations-20261003
+audit_base_sha: 92ac2ef7d4876dd19a3f1b2ad85c8386a913df27
+audit_base_tree: 785f02937170c88576fba9e11b26844493532fc0
+state_written_against_head: 92ac2ef7d4876dd19a3f1b2ad85c8386a913df27
+workstream: B7-LIVE-CONSUMER-MUTATIONS-20261003
+issue: 488
+parent: 479
+pull_request: null
+objective: >-
+  Every real-tape replay mutation is killed through the live replay consumer
+  (consumer.replay_tape in a fresh engine process), not only the comparator.
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+status: ACTIVE
+ownership: B7-LIVE-CONSUMER-MUTATIONS-20261003 (Claude, sole executor)
+in_scope:
+  - src/commander_lab/meta_qualification.py (run_live_consumer_mutations)
+  - scripts/run_live_consumer_mutations.py
+  - tests/qualification/test_meta_live_consumer.py
+  - .github/workflows/meta-qualification.yml (bridge package, live run, assertions, paths)
+out_of_scope:
+  - the existing comparator-tier report and its schema (unchanged)
+  - consumer or comparator semantics
+hard_gates:
+  - a kill needs the expected class at the mutated step after a clean baseline
+  - a failing baseline leaves every mutation NOT_RUN
+milestones:
+  - id: M1
+    result: >-
+      Local run on the pinned engine 37e4df6c: fresh 4P tape (127 steps),
+      baseline PASS, 7/7 mutations killed by the live consumer at step 41 with
+      their expected classes, in 1 min 51 s.
+open_items:
+  - Exact-head Meta Qualification must show the live run and its assertions.
+exact_next_action: >-
+  Push, open the PR, confirm Meta Qualification on the exact head, fresh-context
+  review, merge under the gates.

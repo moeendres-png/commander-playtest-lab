@@ -10,10 +10,14 @@ actually executed the named detector on the same source head.
 from __future__ import annotations
 
 import copy
+import json
+from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from commander_lab.semantic_replay.comparator import compare_tapes
+from commander_lab.semantic_replay.divergence import DivergenceClass, ReplayDivergence
 
 CATALOG_VERSION = "commander-lab.rules-mutation-catalog/1.0.0"
 RESULT_SCHEMA_VERSION = "commander-lab.meta-verification-result/1.0.0"
@@ -43,6 +47,21 @@ RUNTIME_REQUIRED_MUTATIONS: tuple[MutationSpec, ...] = (
         "LIVE_XMAGE_BOUNDARY",
     ),
 )
+
+
+# B7 (#488): the divergence class the live replay consumer
+# (``semantic_replay.consumer.replay_tape``) must raise for each real-tape
+# mutation when a fresh engine process replays the mutated tape.
+LIVE_CONSUMER_DETECTORS: dict[str, DivergenceClass] = {
+    "MQ-LEGAL-001": DivergenceClass.LEGAL_SET_MISMATCH,
+    "MQ-DECISION-001": DivergenceClass.CHOSEN_OPTION_MISSING,
+    "MQ-RNG-001": DivergenceClass.RULES_RNG_CALL_DRIFT,
+    "MQ-EVENT-001": DivergenceClass.EVENT_DIGEST_MISMATCH,
+    "MQ-OBS-001": DivergenceClass.OBSERVATION_MISMATCH,
+    "MQ-STATE-001": DivergenceClass.STATE_DIGEST_MISMATCH,
+    "MQ-TERMINAL-001": DivergenceClass.TERMINAL_OUTCOME_MISMATCH,
+}
+LIVE_RESULT_SCHEMA_VERSION = "commander-lab.meta-verification-live-consumer/1.0.0"
 
 
 def _nonzero_digest(current: str) -> str:
@@ -159,11 +178,91 @@ def run_meta_verification(
     }
 
 
+def run_live_consumer_mutations(
+    tape: dict[str, Any],
+    *,
+    replay: Callable[[Path], dict[str, Any]],
+    workdir: Path,
+    source_tape: str,
+) -> dict[str, Any]:
+    """Replay every real-tape mutation through the live consumer (B7).
+
+    ``replay`` consumes one tape file in a fresh engine process and raises
+    ``ReplayDivergence`` on the first divergence (``consumer.replay_tape``).
+    The unmutated tape must replay cleanly first: a baseline that does not
+    replay leaves every mutation NOT_RUN, because a divergence would then prove
+    nothing about the mutation. A mutation is KILLED only when the consumer
+    raises exactly its expected class at the mutated step (the consumer names
+    the step as ``step N:``; a terminal mutation is checked at the end); a pass,
+    another class or another step is SURVIVED.
+    """
+    workdir.mkdir(parents=True, exist_ok=True)
+    baseline_path = workdir / "baseline.tape.json"
+    baseline_path.write_text(json.dumps(tape, sort_keys=True), encoding="utf-8")
+    baseline: dict[str, Any]
+    try:
+        verdict = replay(baseline_path)
+        baseline = {"status": "PASS", "steps_verified": verdict.get("steps_verified")}
+    except ReplayDivergence as exc:
+        baseline = {"status": "FAIL", "divergence": exc.divergence.value, "detail": exc.detail}
+
+    results: list[dict[str, Any]] = []
+    for spec in REAL_TAPE_MUTATIONS:
+        expected = LIVE_CONSUMER_DETECTORS[spec.mutation_id]
+        row: dict[str, Any] = {
+            "mutation_id": spec.mutation_id,
+            "execution_tier": "LIVE_REPLAY_CONSUMER",
+            "expected_divergence": expected.value,
+            "observed_divergence": None,
+            "detail": None,
+        }
+        if baseline["status"] != "PASS":
+            results.append({**row, "status": "NOT_RUN"})
+            continue
+        mutated, index = _mutate_real_tape(tape, spec.mutation_id)
+        assert index is not None
+        expected_step = index + 1 if index < len(tape["steps"]) else None
+        row["expected_step"] = expected_step
+        path = workdir / f"{spec.mutation_id}.tape.json"
+        path.write_text(json.dumps(mutated, sort_keys=True), encoding="utf-8")
+        try:
+            replay(path)
+            results.append({**row, "status": "SURVIVED"})
+        except ReplayDivergence as exc:
+            observed = exc.divergence.value
+            at_step = expected_step is None or exc.detail.startswith(f"step {expected_step}:")
+            results.append(
+                {
+                    **row,
+                    "status": "KILLED" if observed == expected.value and at_step else "SURVIVED",
+                    "observed_divergence": observed,
+                    "detail": exc.detail,
+                }
+            )
+
+    killed = sum(row["status"] == "KILLED" for row in results)
+    return {
+        "schema_version": LIVE_RESULT_SCHEMA_VERSION,
+        "catalog_version": CATALOG_VERSION,
+        "source_tape": source_tape,
+        "baseline": baseline,
+        "results": results,
+        "attempted": sum(row["status"] != "NOT_RUN" for row in results),
+        "killed": killed,
+        "survived": sum(row["status"] == "SURVIVED" for row in results),
+        "not_run": sum(row["status"] == "NOT_RUN" for row in results),
+        "complete": baseline["status"] == "PASS" and killed == len(results),
+    }
+
+
 __all__ = [
     "CATALOG_VERSION",
+    "LIVE_CONSUMER_DETECTORS",
+    "LIVE_RESULT_SCHEMA_VERSION",
     "REAL_TAPE_MUTATIONS",
     "RESULT_SCHEMA_VERSION",
     "RUNTIME_REQUIRED_MUTATIONS",
     "MutationSpec",
+    "run_live_consumer_mutations",
     "run_meta_verification",
 ]

@@ -1,0 +1,40 @@
+# B5 qualification test ownership: resumable state (#486, parent #479).
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: scratchpad/wtb5 (session-local git worktree of the canonical clone)
+branch: hardening/b5-qualification-test-ownership-20261003
+audit_base_sha: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+audit_base_tree: 8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c
+state_written_against_head: 286f78d0169766b7a9765bd6c50d41c06d4f8fa0
+workstream: B5-QUALIFICATION-TEST-OWNERSHIP-20261003
+issue: 486
+parent: 479
+pull_request: null
+objective: >-
+  Each test file has exactly one required-context CI owner; tests/qualification
+  stops running in both quality and infrastructure without losing coverage.
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+status: ACTIVE
+ownership: B5-QUALIFICATION-TEST-OWNERSHIP-20261003 (Claude, sole executor)
+in_scope:
+  - .github/workflows/ci.yml (quality test-suite step only)
+  - tests/unit/test_required_test_ownership.py
+out_of_scope:
+  - focused re-runs in non-required workflows (PB-03, meta, external, Windows)
+  - making CI-02 required; ruleset changes
+hard_gates:
+  - no test file loses its required owner
+  - the infrastructure qualification_tests category stays present
+milestones:
+  - id: M1
+    result: >-
+      test_required_test_ownership derives each required context's selection
+      from its workflow command; it failed before (58 tests/qualification files
+      run by both) and passes with quality ignoring tests/qualification.
+      The duplicate costs about 1 minute (1248 tests) of the quality job.
+open_items:
+  - Exact-head required contexts green; CI-02 shadow reports the expected definition change.
+exact_next_action: >-
+  Push, open the PR, confirm quality and infrastructure on the exact head,
+  fresh-context review, merge under the gates.
