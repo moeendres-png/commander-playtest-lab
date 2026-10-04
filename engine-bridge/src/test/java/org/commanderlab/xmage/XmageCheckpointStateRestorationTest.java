@@ -352,9 +352,23 @@ class XmageCheckpointStateRestorationTest {
         assertTrue(fused, "the fused cast is the whole card's own offer");
     }
 
+    /**
+     * Fail-before: loyalty was refused (UNSUPPORTED_COUNTERS), and set only at
+     * the checkpoint it would come too late: Jeska enters with no loyalty and
+     * the first state-based action check puts it into the graveyard (CR
+     * 704.5i, FIRST_TURN_PLACEMENT_MISSED). The requested loyalty is set as it
+     * enters and verified engine-direct at the checkpoint.
+     */
+    @Test
+    void aPlaneswalkerStandsAtItsRequestedLoyaltyAtTheCheckpoint() {
+        JsonObject arrival = arrive("PILOT_CHOOSE_ABILITY");
+        assertExact(arrival, "counters", 1);
+    }
+
     @Test
     void anUnrestoredCounterTypeStillFailsClosed() {
         assertEquals(mage.counters.CounterType.P1P1, XmageNativeStateRestoration.counterType("+1/+1"));
-        assertFalse(XmageNativeStateRestoration.counterType("loyalty") != null);
+        assertEquals(mage.counters.CounterType.LOYALTY, XmageNativeStateRestoration.counterType("loyalty"));
+        assertFalse(XmageNativeStateRestoration.counterType("charge") != null);
     }
 }

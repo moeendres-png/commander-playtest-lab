@@ -273,3 +273,124 @@ def test_another_answer_an_unscripted_or_unoffered_one_is_not_the_choice(frame: 
 
 def test_the_choice_row_runs_on_the_records_vocabulary() -> None:
     assert mr.ROWS["PILOT_CHOICE"] == mr.RowSpec()
+
+
+# --------------------------------------------------------------------------- #
+# PILOT_CHOOSE_ABILITY: the record's ability key, activated on the priority frame
+# --------------------------------------------------------------------------- #
+
+JESKA = "native-jeska"
+ZERO = "Jeska, Thrice Reborn — 0: Choose target creature. Until your next turn, ..."
+MINUS_X = "Jeska, Thrice Reborn — -X: {this} deals X damage to each of up to three targets."
+CHOOSE_ZERO = {
+    "actor": "P1",
+    "decision_family": "choose_ability",
+    "selection": {
+        "selector_kind": "semantic_ability_key",
+        "semantic_value": "loyalty_0_triple_damage",
+    },
+}
+
+
+def _activation(label: str, source: str = JESKA, ability_type: str = "activated") -> dict:
+    return {
+        "metadata": {
+            "option_type": "activated_ability",
+            "option_id": f"opt-{label[:12]}-{source}",
+            "label": label,
+            "xmage_option_metadata": {"source_object_id": source, "ability_type": ability_type},
+        }
+    }
+
+
+def _ability_answer(offers: list[dict]) -> dict:
+    spec = mr.ROWS["PILOT_CHOOSE_ABILITY"]
+    return mr._ability_choice_answer(
+        {"actions": offers},
+        "loyalty_0_triple_damage",
+        spec,
+        {
+            "obj:jeska": JESKA,
+        },
+    )
+
+
+def test_the_ability_key_activates_exactly_the_bound_ability_of_its_source() -> None:
+    assert mr._is_ability_choice(CHOOSE_ZERO)
+    assert mr._label_of(_ability_answer([_activation(MINUS_X), _activation(ZERO)])) == ZERO
+
+
+@pytest.mark.parametrize(
+    "offers",
+    [
+        [_activation(MINUS_X)],
+        # The same ability of another permanent is not the record's source.
+        [_activation(MINUS_X), _activation(ZERO, source="native-other")],
+        [_activation(ZERO), _activation(ZERO)],
+        # A cast is never an activation.
+        [_activation(ZERO, ability_type="spell")],
+    ],
+)
+def test_an_ability_the_engine_did_not_offer_once_for_the_source_fails_closed(
+    offers: list[dict],
+) -> None:
+    with pytest.raises(ml.MidgameLaneError):
+        _ability_answer(offers)
+
+
+def test_an_unbound_ability_key_fails_closed() -> None:
+    with pytest.raises(ml.MidgameLaneError):
+        mr._ability_choice_answer({"actions": [_activation(ZERO)]}, "loyalty_0", mr.RowSpec(), {})
+
+
+def _ability_frame(**overrides: Any) -> mr.Frame:
+    fields: dict[str, Any] = {
+        "selected_label": ZERO,
+        "scripted": True,
+        "selected_key": "ability:loyalty_0_triple_damage",
+    }
+    fields.update(overrides)
+    principal = fields.pop("principal", "P1")
+    decision_class = fields.pop("decision_class", "priority")
+    return mr.Frame(decision_class, principal, ["Pass priority", MINUS_X, ZERO], **fields)
+
+
+def test_the_ability_tokens_are_the_scripted_activation_on_the_priority_frame() -> None:
+    trace = [_ability_frame()]
+    assert mr.verify_token("choose_ability_frame:P1", [], trace, set()) is not None
+    assert mr.verify_token("ability_selected:loyalty_0_triple_damage", [], trace, set()) is not None
+
+
+@pytest.mark.parametrize(
+    "frame",
+    [
+        _ability_frame(scripted=False),
+        _ability_frame(selected_key="ability:other_key"),
+        _ability_frame(selected_label="Jeska — 0: something the engine did not offer"),
+        _ability_frame(decision_class="mode"),
+    ],
+)
+def test_another_unscripted_or_unoffered_activation_is_not_the_ability(frame: mr.Frame) -> None:
+    assert mr.verify_token("ability_selected:loyalty_0_triple_damage", [], [frame], set()) is None
+
+
+@pytest.mark.parametrize(
+    "frame",
+    [
+        _ability_frame(scripted=False),
+        _ability_frame(selected_label="Jeska — 0: something the engine did not offer"),
+        _ability_frame(decision_class="mode"),
+    ],
+)
+def test_an_unscripted_or_unoffered_activation_is_not_an_ability_frame(frame: mr.Frame) -> None:
+    assert mr.verify_token("choose_ability_frame:P1", [], [frame], set()) is None
+
+
+def test_the_ability_frame_is_the_named_players() -> None:
+    # A plain priority pass is not an ability choice, and P2's frame is not P1's.
+    assert (
+        mr.verify_token("choose_ability_frame:P1", [], [_ability_frame(principal="P2")], set())
+        is None
+    )
+    passed = _ability_frame(selected_key=None, selected_label="Pass priority")
+    assert mr.verify_token("choose_ability_frame:P1", [], [passed], set()) is None
