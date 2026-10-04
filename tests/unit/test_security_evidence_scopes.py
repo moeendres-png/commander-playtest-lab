@@ -147,3 +147,30 @@ def test_missing_step_is_not_run_and_not_pass(tmp_path, monkeypatch):
     assert len(index["artifacts"]) == 11
     for item in index["artifacts"]:
         assert item["sha256"] == evidence.packaging.sha256_file(tmp_path / item["path"])
+
+
+def test_failed_precondition_keeps_the_index_non_pass(tmp_path, monkeypatch):
+    """Review P3: a failed `pip check` precondition must not leave a PASS index."""
+    record = fixture(tmp_path)
+    record.update(schema=evidence.SCHEMA, status="PASS")
+    evidence.write(tmp_path / "SCOPES.json", record)
+    results = {name: {"outcome": "success"} for name in evidence.STEPS}
+    results["install-wheel-tooling"] = {"outcome": "failure"}
+    monkeypatch.setenv("B11_STEP_RESULTS", json.dumps(results))
+    args = argparse.Namespace(
+        out=tmp_path, repo=tmp_path, runtime=tmp_path / "runtime", wheel_dir=tmp_path / "wheel"
+    )
+    assert evidence.seal(args) == 1
+    index = json.loads((tmp_path / "SECURITY_EVIDENCE_INDEX.json").read_text())
+    assert index["status"] == "FAIL"
+    assert index["steps"]["install-wheel-tooling"] == "failure"
+
+
+def test_every_sealed_step_is_a_security_job_step():
+    """The seal's step list and the workflow's step ids cannot drift apart."""
+    workflow = (Path(__file__).resolve().parents[2] / ".github" / "workflows" / "ci.yml").read_text()
+    security = workflow.split("\n  security:\n", 1)[1].split("\n  infrastructure:\n", 1)[0]
+    for name in evidence.STEPS:
+        assert f"        id: {name}\n" in security, name
+    for precondition in ("install-tooling", "build-wheel", "install-wheel-tooling"):
+        assert precondition in evidence.STEPS

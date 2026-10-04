@@ -2,12 +2,13 @@
 
 Primary campaign: pre-Freeze coordination/execution, roadmap#479, child#492.
 Base: Lab d9d2eda2d30e0825616a690ce4278584d0fcfe5a /
-TREE8144004b1fadbffe19ecce9c8cbc2d91473382d1. Sole writer Codex.
+TREE 8144004b1fadbffe19ecce9c8cbc2d91473382d1, later merged with main eede8227 by ordinary merge.
+Writer: Codex until 2026-10-04 11:27Z, then Claude (Owner baton, #479).
 Owned branch: hardening/b11-scoped-security-evidence-20261004.
 
 The security job installs its full hash lock once and its actual built wheel; generator versions and every
 installed generator/transitive distribution must match that lock. A separate hash-pinned
-bootstrap pip26.2 is explicitly identified as CI infrastructure and is never treated
+bootstrap pip 26.2 is explicitly identified as CI infrastructure and is never treated
 as shipped runtime. Audit resolution uses --disable-pip with exact inventory
 pins. No unhashed audit-tool reinstall remains. The full CI inventory is still
 audited (except the source-bound private project, as the prior editable exclusion).
@@ -43,9 +44,16 @@ wheel too; it does not collapse ambiguous duplicate distributions. The retained
 before record documents the refusal at source42289b82. Local disposable tooling
 environment with system packages was also refused, never used as PASS evidence.
 
-The full live run at5a5acf36 produced both scopes but tooling audit found12
-vulnerability records for the local bootstrap pip25.1.1. Seal remainedFAIL.
-requirements/security-bootstrap.txt now binds pip26.2 to its exact PyPI wheel
+The full live run at 5a5acf36 produced both scopes but tooling audit found 12
+vulnerability records for the local bootstrap pip25.1.1. Seal remained FAIL.
+requirements/security-bootstrap.txt now binds pip 26.2 to its exact PyPI wheel
 digest; collector checks the installed version and source bytes. No advisory
 ignore or runtime blacklist is introduced. Available raw artifacts are hashed
 even when preparation/collection fails, so failure evidence is resumable too.
+
+Preconditions are sealed too: the hash-locked tool install with pip check
+(`install-tooling`), the source-bound wheel build (`build-wheel`) and the wheel
+install into the tooling scope (`install-wheel-tooling`). A failure in any of
+them keeps SECURITY_EVIDENCE_INDEX.json non-PASS, not only the job red. The local
+VALIDATION.json binds source 4d37273b; later source changes are covered by the
+exact-head hosted security run, not by that local record.

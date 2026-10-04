@@ -22,6 +22,12 @@ SCHEMA = "security-evidence-scopes/1"
 SCOPES = ("ci-tooling", "runtime-product")
 TOOLS = {"pip": "26.2", "pip-audit": "2.10.1", "cyclonedx-bom": "7.3.0", "pip-licenses": "5.5.5"}
 STEPS = (
+    # Preconditions: hash-locked tool install with pip check, the source-bound
+    # wheel build, and the wheel install into the tooling scope. A failure here
+    # must keep the index non-PASS, not only turn the job red.
+    "install-tooling",
+    "build-wheel",
+    "install-wheel-tooling",
     "prepare-scopes",
     "audit-tooling",
     "audit-product",

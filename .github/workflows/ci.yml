@@ -157,13 +157,16 @@ jobs:
           cache: pip
           cache-dependency-path: requirements/lock.txt
       - name: Install hash-locked audit tools
+        id: install-tooling
         run: |
           python -m pip install --require-hashes --only-binary=:all: -r requirements/security-bootstrap.txt
           python -m pip install --require-hashes -r requirements/lock.txt
           python -m pip check
       - name: Build source-bound product wheel for security evidence
+        id: build-wheel
         run: python -m pip wheel --no-deps --no-build-isolation --wheel-dir dist .
       - name: Install actual wheel in tooling scope
+        id: install-wheel-tooling
         run: |
           python -m pip install --no-deps --no-index dist/*.whl
           python -m pip check
