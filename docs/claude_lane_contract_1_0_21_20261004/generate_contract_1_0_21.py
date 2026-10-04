@@ -21,8 +21,8 @@ The decisions are recorded on #441 (comment 5984201192), decided by CR text.
   choice is scripted.
 * WS05-MP-TURN-3/5 (CR 614.6, CR 500.7, CR 508.1): a resolved Nexus of Fate is
   never in a graveyard, and an extra turn's creation is no state but an event;
-  both spells are cast through the causal stack, and every combat before the
-  observation point declares no attackers.
+  both spells are cast through the causal stack, every combat before the
+  observation point declares no attackers, and each cleanup discard is scripted.
 * WS05-CMD-MULL-2/4 (CR 103.5): each round-1 mulligan gets its round-2 keep and
   London bottom selection; the deck shape gets the library template.
 * RNG_RULES_TAPE (CR 701.24): the only P1 shuffle had no Rules consequence; P1
@@ -557,13 +557,23 @@ for fixture in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
     p3_islands = [f"obj:turn-p3-island-{i}" for i in range(7)]
     objects += [_card(island, "Island", "P1", "battlefield") for island in p1_islands]
     objects += [_card(island, "Island", "P3", "battlefield") for island in p3_islands]
-    decks = [_deck(p, 6 if p in ("P1", "P3") else 7) for p in players]
+    # The checkpoint hands are those the game deals: at P1's first precombat
+    # main P1 holds its opening seven plus its first draw (no player skips it
+    # in a multiplayer game, CR 103.8c) and every other player its opening
+    # seven, each besides the record's named spell (the SLOT-04 precedent).
+    decks = [_deck(p, 8 if p == "P1" else 7) for p in players]
+    # The checkpoint is P1's precombat main: a state at P1's postcombat main
+    # must already have passed P1's combat, whose attack declaration (P1's
+    # Bears can attack) is a discretionary choice the record never scripts.
+    temporal = copy.deepcopy(old["temporal_state"])
+    temporal["phase"] = "precombat_main"
     add(
         fixture,
         "CAUSAL_EXTRA_TURN_SCENARIO_ERRATUM",
         {
             "semantic_objects": objects,
             "extra_turn_creation": [],
+            "temporal_state": temporal,
             "deck_state": decks,
             "decision_script": [
                 _step(
@@ -596,12 +606,36 @@ for fixture in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
                     {"mana": ["U"] * 7, "sources": p3_islands},
                 ),
                 _step(
+                    "P1",
+                    "p1-combat",
+                    "declare_attacker",
+                    "attacker_assignment",
+                    {},
+                    notes="CR 508.1: the active player declares no attackers",
+                ),
+                _step(
+                    "P1",
+                    "p1-cleanup",
+                    "choose_object",
+                    "card_identity_multiset",
+                    {"Mountain": 1},
+                    notes="CR 514.1: P1 ends its turn with eight cards and discards one",
+                ),
+                _step(
                     "P3",
                     "p3-extra-turn-combat",
                     "declare_attacker",
                     "attacker_assignment",
                     {},
                     notes="CR 508.1: the active player declares no attackers",
+                ),
+                _step(
+                    "P3",
+                    "p3-extra-turn-cleanup",
+                    "choose_object",
+                    "card_identity_multiset",
+                    {"Mountain": 1},
+                    notes="CR 514.1: P3 ends its extra turn with eight cards and discards one",
                 ),
             ],
             "action_cost_state": [
@@ -633,14 +667,31 @@ for fixture in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
                         "P2's (CR 500.7)"
                     ),
                     "combat": (
-                        "the observation passes through P3's whole extra turn, whose attack "
-                        "declaration is P3's discretionary choice (CR 508.1); the script "
-                        "declares no attackers. P1's combat is already past at the checkpoint"
+                        "the observation passes through the rest of P1's turn and all of P3's "
+                        "extra turn; each attack declaration is the active player's "
+                        "discretionary choice (CR 508.1), so the script declares no attackers "
+                        "for P1 and then for P3. The checkpoint moves from P1's postcombat to "
+                        "its precombat main: a postcombat checkpoint has already passed P1's "
+                        "combat, an attack declaration the record never scripts (the XMage "
+                        "midgame lane refuses that arrival)"
                     ),
                     "cleanup": (
-                        "the checkpoint hands are complete and hold six template cards for P1 "
-                        "and P3 besides their spells, so no hand exceeds seven at a cleanup "
-                        "before the observation (CR 514.1) and no discard decision arises"
+                        "the checkpoint hands are the dealt hands, complete: P1 holds eight "
+                        "template cards (its opening seven and its first draw, CR 103.8c) "
+                        "and every other player seven, each besides the named spell. P1 ends "
+                        "its turn with eight cards and P3 its extra turn with eight (seven "
+                        "after Nexus of Fate and its draw), so each discards one at its "
+                        "cleanup (CR 514.1). That discard is the owner's choice and is "
+                        "scripted on the engine's object frame (the PILOT_CHOOSE_OBJECT "
+                        "discard family) as the card-identity multiset {Mountain: 1}"
+                    ),
+                    "cleanup_selector_equivalence": (
+                        "the selection is the multiset of card identities discarded; every "
+                        "offered card with that identity that is no named record object is "
+                        "the same semantic selection (identical template cards), so it "
+                        "matches once, never as several options. A frame that offers a "
+                        "named record object with that identity, or no card with it, fails "
+                        "closed (the WS05-CMD-MULL-2 London-bottom precedent)"
                     ),
                     "slot04_authority": SLOT04_AUTHORITY,
                 },
@@ -651,6 +702,7 @@ for fixture in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
                 "obj:mp-nexus": "graveyard",
                 "obj:mp-time-warp": "graveyard",
                 "extra_turn_creation": old["extra_turn_creation"],
+                "temporal_state.phase": "postcombat_main",
                 "decision_script": [],
             },
             "reason": (

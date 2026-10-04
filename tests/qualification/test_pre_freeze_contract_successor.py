@@ -2160,7 +2160,22 @@ def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
             for s in effective[fixture_id]["decision_script"]
             if s["decision_family"] == "declare_attacker"
         ]
-        assert [(s["actor"], s["selection"]["semantic_value"]) for s in combat] == [("P3", {})]
+        assert [(s["actor"], s["selection"]["semantic_value"]) for s in combat] == [
+            ("P1", {}),
+            ("P3", {}),
+        ]
+        assert effective[fixture_id]["temporal_state"]["phase"] == "precombat_main"
+        # The dealt hands (CR 103.8c) and the cleanup discards they cause (CR 514.1).
+        hands = {
+            d["player_id"]: d["checkpoint_hand"]["template_count"]
+            for d in effective[fixture_id]["deck_state"]
+        }
+        assert hands.pop("P1") == 8 and set(hands.values()) == {7}
+        assert [
+            (s["actor"], s["decision_family"], s["selection"]["semantic_value"])
+            for s in effective[fixture_id]["decision_script"]
+            if s["selection"]["selector_kind"] == "card_identity_multiset"
+        ] == [("P1", "choose_object", {"Mountain": 1}), ("P3", "choose_object", {"Mountain": 1})]
     # Every SLOT-04 library is complete: named objects on top, then 99 - hand templates.
     for fixture_id in ("PILOT_CHOOSE_USE", "NEGATIVE_DEFAULT_YES_NO", "PILOT_PILE"):
         decks = {d["player_id"]: d for d in effective[fixture_id]["deck_state"]}

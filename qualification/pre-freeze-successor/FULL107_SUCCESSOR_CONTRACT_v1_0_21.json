@@ -18596,8 +18596,9 @@
       "comprehensive_rules": "500.7, 508.1, 514.1, 608.2n, 614.1a, 614.6",
       "nexus_zone": "Nexus of Fate: 'If Nexus of Fate would be put into a graveyard from anywhere, reveal Nexus of Fate and shuffle it into its owner's library instead.' That replacement (CR 614.1a, 614.6) applies to the last step of its own resolution (CR 608.2n), so a resolved Nexus is never in a graveyard: the predecessor's request is unreachable",
       "extra_turn_cause": "the required events extra_turn_created:P2 and extra_turn_created:P3 are events, not state: a requested state that already contains both extra turns leaves nothing to observe. P1 casts Time Warp targeting P2 and, once it resolved, P3 casts Nexus of Fate on P1's turn (an instant), each through the engine-offered legal actions and paid from declared Islands; the engine then takes P3's extra turn before P2's (CR 500.7)",
-      "combat": "the observation passes through P3's whole extra turn, whose attack declaration is P3's discretionary choice (CR 508.1); the script declares no attackers. P1's combat is already past at the checkpoint",
-      "cleanup": "the checkpoint hands are complete and hold six template cards for P1 and P3 besides their spells, so no hand exceeds seven at a cleanup before the observation (CR 514.1) and no discard decision arises",
+      "combat": "the observation passes through the rest of P1's turn and all of P3's extra turn; each attack declaration is the active player's discretionary choice (CR 508.1), so the script declares no attackers for P1 and then for P3. The checkpoint moves from P1's postcombat to its precombat main: a postcombat checkpoint has already passed P1's combat, an attack declaration the record never scripts (the XMage midgame lane refuses that arrival)",
+      "cleanup": "the checkpoint hands are the dealt hands, complete: P1 holds eight template cards (its opening seven and its first draw, CR 103.8c) and every other player seven, each besides the named spell. P1 ends its turn with eight cards and P3 its extra turn with eight (seven after Nexus of Fate and its draw), so each discards one at its cleanup (CR 514.1). That discard is the owner's choice and is scripted on the engine's object frame (the PILOT_CHOOSE_OBJECT discard family) as the card-identity multiset {Mountain: 1}",
+      "cleanup_selector_equivalence": "the selection is the multiset of card identities discarded; every offered card with that identity that is no named record object is the same semantic selection (identical template cards), so it matches once, never as several options. A frame that offers a named record object with that identity, or no card with it, fails closed (the WS05-CMD-MULL-2 London-bottom precedent)",
       "slot04_authority": "#255 comment 5925956587 (SLOT-04): L7 lossless construction is binding; a partial library request fails closed; lossy fixtures are corrected and versioned"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
@@ -18640,6 +18641,7 @@
        "source": "obj:mp-nexus"
       }
      ],
+     "temporal_state.phase": "postcombat_main",
      "decision_script": []
     },
     "reason": "a resolved Nexus of Fate in a graveyard (CR 614.6) and extra turns created before the run, so their creation events cannot occur"
@@ -18872,12 +18874,20 @@
      }
     ],
     "extra_turn_creation": [],
+    "temporal_state": {
+     "active_player": "P1",
+     "extra_turn_queue": [],
+     "phase": "precombat_main",
+     "priority_player": "P1",
+     "step": "main",
+     "turn_number": 1
+    },
     "deck_state": [
      {
       "checkpoint_hand": {
        "completeness": "COMPLETE",
        "template_card_identity": "Mountain",
-       "template_count": 6
+       "template_count": 8
       },
       "commander_ids": [
        "cmd:P1-A"
@@ -18911,7 +18921,7 @@
       "checkpoint_hand": {
        "completeness": "COMPLETE",
        "template_card_identity": "Mountain",
-       "template_count": 6
+       "template_count": 7
       },
       "commander_ids": [
        "cmd:P3-A"
@@ -19078,6 +19088,52 @@
       }
      },
      {
+      "actor": "P1",
+      "causal_step_id": "p1-combat",
+      "decision_family": "declare_attacker",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "CR 508.1: the active player declares no attackers",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "attacker_assignment",
+       "semantic_value": {}
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "p1-cleanup",
+      "decision_family": "choose_object",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "CR 514.1: P1 ends its turn with eight cards and discards one",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "card_identity_multiset",
+       "semantic_value": {
+        "Mountain": 1
+       }
+      }
+     },
+     {
       "actor": "P3",
       "causal_step_id": "p3-extra-turn-combat",
       "decision_family": "declare_attacker",
@@ -19097,6 +19153,30 @@
        "on_zero_match": "FAIL_CLOSED",
        "selector_kind": "attacker_assignment",
        "semantic_value": {}
+      }
+     },
+     {
+      "actor": "P3",
+      "causal_step_id": "p3-extra-turn-cleanup",
+      "decision_family": "choose_object",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "CR 514.1: P3 ends its extra turn with eight cards and discards one",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "card_identity_multiset",
+       "semantic_value": {
+        "Mountain": 1
+       }
       }
      }
     ],
@@ -19137,7 +19217,7 @@
      }
     ]
    },
-   "successor_requested_state_digest": "d82d6de9307b0f0aeeb734feff67b3d120ec871dab11c0a2e76a93e6ddd38db2"
+   "successor_requested_state_digest": "5e1a846c57bd89331aa0d96bf64fb4faa845c9664a4d7dc9e1d4309a3223b3b4"
   },
   {
    "append_native_procedure": [
@@ -19151,8 +19231,9 @@
       "comprehensive_rules": "500.7, 508.1, 514.1, 608.2n, 614.1a, 614.6",
       "nexus_zone": "Nexus of Fate: 'If Nexus of Fate would be put into a graveyard from anywhere, reveal Nexus of Fate and shuffle it into its owner's library instead.' That replacement (CR 614.1a, 614.6) applies to the last step of its own resolution (CR 608.2n), so a resolved Nexus is never in a graveyard: the predecessor's request is unreachable",
       "extra_turn_cause": "the required events extra_turn_created:P2 and extra_turn_created:P3 are events, not state: a requested state that already contains both extra turns leaves nothing to observe. P1 casts Time Warp targeting P2 and, once it resolved, P3 casts Nexus of Fate on P1's turn (an instant), each through the engine-offered legal actions and paid from declared Islands; the engine then takes P3's extra turn before P2's (CR 500.7)",
-      "combat": "the observation passes through P3's whole extra turn, whose attack declaration is P3's discretionary choice (CR 508.1); the script declares no attackers. P1's combat is already past at the checkpoint",
-      "cleanup": "the checkpoint hands are complete and hold six template cards for P1 and P3 besides their spells, so no hand exceeds seven at a cleanup before the observation (CR 514.1) and no discard decision arises",
+      "combat": "the observation passes through the rest of P1's turn and all of P3's extra turn; each attack declaration is the active player's discretionary choice (CR 508.1), so the script declares no attackers for P1 and then for P3. The checkpoint moves from P1's postcombat to its precombat main: a postcombat checkpoint has already passed P1's combat, an attack declaration the record never scripts (the XMage midgame lane refuses that arrival)",
+      "cleanup": "the checkpoint hands are the dealt hands, complete: P1 holds eight template cards (its opening seven and its first draw, CR 103.8c) and every other player seven, each besides the named spell. P1 ends its turn with eight cards and P3 its extra turn with eight (seven after Nexus of Fate and its draw), so each discards one at its cleanup (CR 514.1). That discard is the owner's choice and is scripted on the engine's object frame (the PILOT_CHOOSE_OBJECT discard family) as the card-identity multiset {Mountain: 1}",
+      "cleanup_selector_equivalence": "the selection is the multiset of card identities discarded; every offered card with that identity that is no named record object is the same semantic selection (identical template cards), so it matches once, never as several options. A frame that offers a named record object with that identity, or no card with it, fails closed (the WS05-CMD-MULL-2 London-bottom precedent)",
       "slot04_authority": "#255 comment 5925956587 (SLOT-04): L7 lossless construction is binding; a partial library request fails closed; lossy fixtures are corrected and versioned"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
@@ -19195,6 +19276,7 @@
        "source": "obj:mp-nexus"
       }
      ],
+     "temporal_state.phase": "postcombat_main",
      "decision_script": []
     },
     "reason": "a resolved Nexus of Fate in a graveyard (CR 614.6) and extra turns created before the run, so their creation events cannot occur"
@@ -19473,12 +19555,20 @@
      }
     ],
     "extra_turn_creation": [],
+    "temporal_state": {
+     "active_player": "P1",
+     "extra_turn_queue": [],
+     "phase": "precombat_main",
+     "priority_player": "P1",
+     "step": "main",
+     "turn_number": 1
+    },
     "deck_state": [
      {
       "checkpoint_hand": {
        "completeness": "COMPLETE",
        "template_card_identity": "Mountain",
-       "template_count": 6
+       "template_count": 8
       },
       "commander_ids": [
        "cmd:P1-A"
@@ -19512,7 +19602,7 @@
       "checkpoint_hand": {
        "completeness": "COMPLETE",
        "template_card_identity": "Mountain",
-       "template_count": 6
+       "template_count": 7
       },
       "commander_ids": [
        "cmd:P3-A"
@@ -19713,6 +19803,52 @@
       }
      },
      {
+      "actor": "P1",
+      "causal_step_id": "p1-combat",
+      "decision_family": "declare_attacker",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "CR 508.1: the active player declares no attackers",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "attacker_assignment",
+       "semantic_value": {}
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "p1-cleanup",
+      "decision_family": "choose_object",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "CR 514.1: P1 ends its turn with eight cards and discards one",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "card_identity_multiset",
+       "semantic_value": {
+        "Mountain": 1
+       }
+      }
+     },
+     {
       "actor": "P3",
       "causal_step_id": "p3-extra-turn-combat",
       "decision_family": "declare_attacker",
@@ -19732,6 +19868,30 @@
        "on_zero_match": "FAIL_CLOSED",
        "selector_kind": "attacker_assignment",
        "semantic_value": {}
+      }
+     },
+     {
+      "actor": "P3",
+      "causal_step_id": "p3-extra-turn-cleanup",
+      "decision_family": "choose_object",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "CR 514.1: P3 ends its extra turn with eight cards and discards one",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "card_identity_multiset",
+       "semantic_value": {
+        "Mountain": 1
+       }
       }
      }
     ],
@@ -19772,7 +19932,7 @@
      }
     ]
    },
-   "successor_requested_state_digest": "88bc4e75b29204a010f27d8641179d1354a86b4a2d923fbdf02fe1553b76db0a"
+   "successor_requested_state_digest": "d2037dadfdfba76a5a5af79482f1186aa397c5a12a656dc6a718f4f0008f92d3"
   },
   {
    "append_native_procedure": [
