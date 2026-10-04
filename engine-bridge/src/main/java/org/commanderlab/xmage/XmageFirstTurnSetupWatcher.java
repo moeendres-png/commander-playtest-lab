@@ -8,8 +8,10 @@ import mage.cards.Card;
 import mage.cards.MeldCard;
 import mage.constants.WatcherScope;
 import mage.constants.Zone;
+import mage.counters.CounterType;
 import mage.game.Game;
 import mage.game.events.GameEvent;
+import mage.game.permanent.Permanent;
 import mage.game.permanent.PermanentCard;
 import mage.players.Player;
 import mage.util.CardUtil;
@@ -58,14 +60,27 @@ import java.util.UUID;
  * (an entering planeswalker's loyalty counters) is setup, exactly as it was when
  * placement preceded the tape. Only cards whose battlefield permanent is the
  * card itself are deferred: placing one registers no new watcher while the
- * engine iterates its watchers. The fields are plain ids and numbers, so the
+ * engine iterates its watchers.</p>
+ *
+ * <p>A requested loyalty is set on the entering planeswalker here, exactly, as
+ * part of the placement: a planeswalker with no loyalty is put into its
+ * owner's graveyard by the first state-based action check (CR 704.5i), so its
+ * checkpoint loyalty cannot wait for the checkpoint. No counter event is
+ * reported (the tape is muted) and the checkpoint verification compares the
+ * engine's count with the request.</p>
+ *
+ * <p>The fields are plain ids and numbers, so the
  * engine's state copies carry the watcher, and the engine's post-mulligan
  * watcher reset (base {@code reset()}) leaves them untouched.</p>
  */
 final class XmageFirstTurnSetupWatcher extends Watcher {
 
+    /** No loyalty was requested for the card at this index. */
+    static final int NO_LOYALTY = -1;
+
     private List<UUID> cardIds;
     private List<UUID> ownerIds;
+    private List<Integer> loyalties;
     private List<UUID> commanderIds;
     private List<UUID> commanderOwnerIds;
     private List<UUID> lifePlayerIds;
@@ -78,6 +93,7 @@ final class XmageFirstTurnSetupWatcher extends Watcher {
     XmageFirstTurnSetupWatcher(
             List<UUID> cardIds,
             List<UUID> ownerIds,
+            List<Integer> loyalties,
             List<UUID> commanderIds,
             List<UUID> commanderOwnerIds,
             List<UUID> lifePlayerIds,
@@ -85,6 +101,7 @@ final class XmageFirstTurnSetupWatcher extends Watcher {
         super(WatcherScope.GAME);
         this.cardIds = cardIds == null ? null : new ArrayList<>(cardIds);
         this.ownerIds = ownerIds == null ? null : new ArrayList<>(ownerIds);
+        this.loyalties = loyalties == null ? null : new ArrayList<>(loyalties);
         this.commanderIds = commanderIds == null ? null : new ArrayList<>(commanderIds);
         this.commanderOwnerIds = commanderOwnerIds == null ? null : new ArrayList<>(commanderOwnerIds);
         this.lifePlayerIds = lifePlayerIds == null ? null : new ArrayList<>(lifePlayerIds);
@@ -122,6 +139,7 @@ final class XmageFirstTurnSetupWatcher extends Watcher {
                     continue;
                 }
                 place(game, card, owner);
+                setLoyalty(game, card.getId(), loyalties.get(index));
                 placedIds.add(card.getId());
             }
             for (int index = 0; index < commanderIds.size(); index++) {
@@ -168,6 +186,21 @@ final class XmageFirstTurnSetupWatcher extends Watcher {
             if (ability.isPresent() && permanent.getId().equals(ability.get().getSourceId())) {
                 effect.init(ability.get(), game, owner.getId());
             }
+        }
+    }
+
+    private static void setLoyalty(Game game, UUID permanentId, int requested) {
+        Permanent permanent = game.getPermanent(permanentId);
+        if (requested == NO_LOYALTY || permanent == null) {
+            // A permanent that did not enter is left for the checkpoint
+            // verification, which fails closed.
+            return;
+        }
+        int entered = permanent.getCounters(game).getCount(CounterType.LOYALTY);
+        if (requested > entered) {
+            permanent.getCounters(game).addCounter(CounterType.LOYALTY.createInstance(requested - entered));
+        } else if (requested < entered) {
+            permanent.getCounters(game).removeCounter(CounterType.LOYALTY, entered - requested);
         }
     }
 

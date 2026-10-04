@@ -261,6 +261,11 @@ class RowSpec:
     # record's own postcondition prose ("the Devil-token mode"). The bound text
     # must occur in exactly one engine-offered mode label or the row fails closed.
     mode_bindings: tuple[tuple[str, str], ...] = ()
+    # A record's semantic ability key, bound to the activated ability it names:
+    # (key, (source semantic id, a fragment of the ability's rules text)). The
+    # source and fragment must match exactly one engine-offered activation or
+    # the row fails closed.
+    ability_bindings: tuple[tuple[str, tuple[str, str]], ...] = ()
     # The obligation is the game start itself (who takes the first turn, the
     # first turn's draw), which happens before the arrival checkpoint: the tape
     # is read from the engine's first event instead of from the arrival.
@@ -687,6 +692,18 @@ ROWS: dict[str, RowSpec] = {
     # known library top card, which the lane does not restore, and XMage asks
     # Opt's scry as a card selection, not as the yes/no frame the record names.)
     "NEGATIVE_INTERNAL_AI": RowSpec(),
+    # PILOT_CHOICE: P1's Utopia Sprawl (rebuilt on the stack through the declared
+    # causal route) resolves onto the Forest and the engine asks P1 its
+    # as-enters color on its own choice frame; the record's key names the
+    # offer, "choice:RED" is that answer.
+    "PILOT_CHOICE": RowSpec(),
+    # PILOT_CHOOSE_ABILITY: Jeska stands at its checkpoint loyalty (3) and P1
+    # chooses its 0 ability ("Choose target creature ... triple that damage"),
+    # which XMage offers, with Jeska's other loyalty ability, on P1's priority
+    # frame. The record's key names that ability.
+    "PILOT_CHOOSE_ABILITY": RowSpec(
+        ability_bindings=(("loyalty_0_triple_damage", ("obj:jeska", "0: Choose target creature")),),
+    ),
     # The commander zone choice (CR 903.9): the opponent's removal spell is
     # rebuilt on the stack through the declared causal route and resolves; the
     # engine then asks the commander's owner, on its own yes/no frame, whether
@@ -1629,6 +1646,30 @@ def verify_token(
             if e.get("from") == "STACK" and e.get("to") in {"BATTLEFIELD", "GRAVEYARD"}
         ]
         return {"events": [e["sequence"] for e in hits]} if hits else None
+    if match := re.fullmatch(r"choose_ability_frame:(P\d+)", token):
+        # XMage asks which activated ability to activate on the priority
+        # frame: the ability frame is the one the record's ability step
+        # answered there, for that player, with an offer the engine made.
+        frames = [
+            index
+            for index, frame in enumerate(trace)
+            if frame.decision_class == "priority"
+            and frame.principal == match.group(1)
+            and frame.scripted
+            and str(frame.selected_key or "").startswith(ABILITY_KEY_PREFIX)
+            and frame.selected_label in frame.offered_labels
+        ]
+        return {"decision_frames": frames} if frames else None
+    if match := re.fullmatch(r"ability_selected:([a-z0-9_]+)", token):
+        frames = [
+            index
+            for index, frame in enumerate(trace)
+            if frame.decision_class == "priority"
+            and frame.scripted
+            and frame.selected_key == f"{ABILITY_KEY_PREFIX}{match.group(1)}"
+            and frame.selected_label in frame.offered_labels
+        ]
+        return {"decision_frames": frames} if frames else None
     if match := re.fullmatch(r"([a-z_]+?)_(?:decision_)?frame:(P\d+)", token):
         family, principal = match.group(1), match.group(2)
         frames = [
@@ -1669,6 +1710,18 @@ def verify_token(
             if frames and proofs
             else None
         )
+    if match := re.fullmatch(r"choice:([A-Z0-9_]+)", token):
+        # The record's named choice is the key the scripted step submitted on
+        # the engine's own choice frame, for an offer the engine made.
+        frames = [
+            index
+            for index, frame in enumerate(trace)
+            if frame.decision_class == "choice"
+            and frame.scripted
+            and frame.selected_key == match.group(1)
+            and frame.selected_label in frame.offered_labels
+        ]
+        return {"decision_frames": frames} if frames else None
     if match := re.fullmatch(r"mode_selected:([a-z_]+)", token):
         frames = [
             index
@@ -2604,6 +2657,31 @@ def _scripted_activation(
     return offers[0]
 
 
+ABILITY_KEY_PREFIX = "ability:"
+
+
+def _is_ability_choice(step: dict[str, Any]) -> bool:
+    """A record step choosing one of a permanent's activated abilities by key."""
+    selection = step.get("selection") or {}
+    return (
+        step.get("decision_family") == "choose_ability"
+        and selection.get("selector_kind") == "semantic_ability_key"
+    )
+
+
+def _ability_choice_answer(
+    legal: dict[str, Any], key: str, spec: RowSpec, placed: dict[str, str]
+) -> dict[str, Any]:
+    """The engine's activation offer a record's ability key names, or fail closed."""
+    bound = dict(spec.ability_bindings).get(key)
+    if bound is None:
+        raise ml.MidgameLaneError(f"ability key {key!r} has no binding for this row")
+    source, fragment = bound
+    return _scripted_activation(
+        legal, {"action": "activate", "source": source, "ability": fragment}, placed
+    )
+
+
 def _pending_cost_choices(step: dict[str, Any]) -> list[tuple[str, str]]:
     """The cost choices a scripted priority action still owes the engine.
 
@@ -2738,6 +2816,19 @@ class ScriptedAnswer:
 
 def _option_type(action: dict[str, Any]) -> str:
     return str((action.get("metadata") or {}).get("option_type") or "")
+
+
+def _normal_choice_key(raw: Any) -> str | None:
+    """A choice key compared case- and spacing-insensitively, or None."""
+    if not isinstance(raw, str) or not raw.strip():
+        return None
+    return re.sub(r"\s+", "_", raw.strip()).upper()
+
+
+def _choice_key(action: dict[str, Any]) -> str | None:
+    """A choice offer's semantic key: its engine key, else its value text."""
+    engine = (action.get("metadata") or {}).get("xmage_option_metadata") or {}
+    return _normal_choice_key(engine.get("choice_key") or engine.get("choice"))
 
 
 def _option_id(action: dict[str, Any]) -> str:
@@ -3053,6 +3144,16 @@ def _scripted_answer(
             for a in actions
             if _option_type(a) == "mode" and bound.lower() in _label_of(a).lower()
         ]
+    elif kind == "semantic_choice_key":
+        # A named choice (a color, a creature type, a keyed menu entry): the
+        # engine's own choice offer whose key, or for a plain choice its value,
+        # is the record's key. Case and spacing are the only normalization,
+        # applied alike to both sides; a partial match never selects.
+        normal = _normal_choice_key(value)
+        if normal is None:
+            raise ml.MidgameLaneError(f"semantic_choice_key selector carries {value!r}")
+        key = normal
+        matches = [a for a in actions if _option_type(a) == "choice" and _choice_key(a) == key]
     elif kind == "boolean":
         # A yes/no frame: the engine's own boolean offer whose value is the
         # record's answer; the label is never read.
@@ -3999,6 +4100,18 @@ def execute_row(
                     pending_alternative = _pending_alternative_cost(step, action)
                     pending_costs = _pending_cost_choices(step)
                     pending_delve = _pending_delve(step, placed)
+                    position += 1
+                    continue
+                if scripted and step is not None and _is_ability_choice(step):
+                    # XMage enumerates a permanent's legal activated abilities
+                    # on the priority frame; choosing one is activating it.
+                    key = str((step.get("selection") or {}).get("semantic_value"))
+                    action = _ability_choice_answer(legal, key, spec, placed)
+                    frame.selected_label, frame.scripted = _label_of(action), True
+                    frame.selected_key = f"{ABILITY_KEY_PREFIX}{key}"
+                    frame.selected_source_object = _source_of(action)
+                    frame.selected_option_ids = _single_option_id(action)
+                    probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                     position += 1
                     continue
                 passed = probe.option_of_type(decision, "pass_priority")

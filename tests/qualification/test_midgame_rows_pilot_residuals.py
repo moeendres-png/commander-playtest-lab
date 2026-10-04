@@ -10,6 +10,9 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
+from commander_lab.qualification.current_boundary import midgame_lane as ml
 from commander_lab.qualification.current_boundary import midgame_rows as mr
 
 
@@ -183,3 +186,228 @@ def test_the_yes_no_refusal_has_no_spec_until_its_scenario_is_reachable() -> Non
     # Its record's known library top card is not restored by the lane, and
     # XMage asks scry as a card selection rather than a yes/no question.
     assert "NEGATIVE_DEFAULT_YES_NO" not in mr.ROWS
+
+
+# --------------------------------------------------------------------------- #
+# PILOT_CHOICE: the record's named choice on the engine's own choice frame
+# --------------------------------------------------------------------------- #
+
+COLORS = ("Black", "Blue", "Green", "Red", "White")
+CHOOSE_RED = {
+    "decision_family": "choice",
+    "selection": {"selector_kind": "semantic_choice_key", "semantic_value": "RED"},
+}
+
+
+def _choice_offer(text: str, *, key: str | None = None, option_type: str = "choice") -> dict:
+    engine: dict[str, Any] = {"choice": text}
+    if key is not None:
+        engine["choice_key"] = key
+    return {
+        "metadata": {
+            "option_type": option_type,
+            "option_id": f"choice-{key or text}",
+            "label": text,
+            "xmage_option_metadata": engine,
+        }
+    }
+
+
+def _answer(offers: list[dict], step: dict = CHOOSE_RED) -> mr.ScriptedAnswer:
+    return mr._scripted_answer({"actions": offers}, step, {}, mr.RowSpec())
+
+
+def test_the_choice_key_selects_exactly_the_engine_offer_it_names() -> None:
+    answer = _answer([_choice_offer(color) for color in COLORS])
+    assert mr._label_of(answer.action) == "Red"
+    assert answer.key == "RED"
+    # A keyed menu is matched by the engine's key, not by its display text.
+    keyed = _answer([_choice_offer("Pay life", key="red"), _choice_offer("Red", key="other")])
+    assert mr._label_of(keyed.action) == "Pay life"
+
+
+@pytest.mark.parametrize("requested", ["red", "Red", " RED ", "rEd"])
+def test_the_requested_key_is_normalized_like_the_offers(requested: str) -> None:
+    step = {**CHOOSE_RED, "selection": {**CHOOSE_RED["selection"], "semantic_value": requested}}
+    answer = _answer([_choice_offer(color) for color in COLORS], step)
+    assert mr._label_of(answer.action) == "Red"
+    assert answer.key == "RED"
+    spaced = {**CHOOSE_RED, "selection": {**CHOOSE_RED["selection"], "semantic_value": "Red Blue"}}
+    assert _answer([_choice_offer("red  blue"), _choice_offer("Red")], spaced).key == "RED_BLUE"
+
+
+@pytest.mark.parametrize("requested", [None, "", "  ", 7])
+def test_a_missing_requested_key_fails_closed(requested: Any) -> None:
+    step = {**CHOOSE_RED, "selection": {**CHOOSE_RED["selection"], "semantic_value": requested}}
+    with pytest.raises(ml.MidgameLaneError):
+        _answer([_choice_offer(color) for color in COLORS], step)
+
+
+@pytest.mark.parametrize(
+    "offers",
+    [
+        # Not offered: a partial or fuzzy match never selects.
+        [_choice_offer(color) for color in ("Black", "Blue", "Green", "White")],
+        [_choice_offer("Reddish"), _choice_offer("Infrared")],
+        # Offered twice: ambiguous.
+        [_choice_offer("Red"), _choice_offer("red")],
+        # The right text on another kind of offer is not a choice.
+        [_choice_offer("Red", option_type="target")],
+    ],
+)
+def test_a_choice_the_engine_did_not_offer_once_fails_closed(offers: list[dict]) -> None:
+    with pytest.raises(ml.MidgameLaneError):
+        _answer(offers)
+
+
+def _choice_frame(**overrides: Any) -> mr.Frame:
+    fields: dict[str, Any] = {
+        "selected_label": "Red",
+        "scripted": True,
+        "selected_key": "RED",
+    }
+    fields.update(overrides)
+    decision_class = fields.pop("decision_class", "choice")
+    return mr.Frame(decision_class, "P1", list(COLORS), **fields)
+
+
+def test_the_choice_token_is_the_scripted_answer_on_the_choice_frame() -> None:
+    assert mr.verify_token("choice:RED", [], [_choice_frame()], set()) is not None
+
+
+@pytest.mark.parametrize(
+    "frame",
+    [
+        _choice_frame(scripted=False),
+        _choice_frame(selected_key="GREEN", selected_label="Green"),
+        _choice_frame(selected_label="Crimson"),
+        _choice_frame(decision_class="mode"),
+    ],
+)
+def test_another_answer_an_unscripted_or_unoffered_one_is_not_the_choice(frame: mr.Frame) -> None:
+    assert mr.verify_token("choice:RED", [], [frame], set()) is None
+
+
+def test_the_choice_row_runs_on_the_records_vocabulary() -> None:
+    assert mr.ROWS["PILOT_CHOICE"] == mr.RowSpec()
+
+
+# --------------------------------------------------------------------------- #
+# PILOT_CHOOSE_ABILITY: the record's ability key, activated on the priority frame
+# --------------------------------------------------------------------------- #
+
+JESKA = "native-jeska"
+ZERO = "Jeska, Thrice Reborn — 0: Choose target creature. Until your next turn, ..."
+MINUS_X = "Jeska, Thrice Reborn — -X: {this} deals X damage to each of up to three targets."
+CHOOSE_ZERO = {
+    "actor": "P1",
+    "decision_family": "choose_ability",
+    "selection": {
+        "selector_kind": "semantic_ability_key",
+        "semantic_value": "loyalty_0_triple_damage",
+    },
+}
+
+
+def _activation(label: str, source: str = JESKA, ability_type: str = "activated") -> dict:
+    return {
+        "metadata": {
+            "option_type": "activated_ability",
+            "option_id": f"opt-{label[:12]}-{source}",
+            "label": label,
+            "xmage_option_metadata": {"source_object_id": source, "ability_type": ability_type},
+        }
+    }
+
+
+def _ability_answer(offers: list[dict]) -> dict:
+    spec = mr.ROWS["PILOT_CHOOSE_ABILITY"]
+    return mr._ability_choice_answer(
+        {"actions": offers},
+        "loyalty_0_triple_damage",
+        spec,
+        {
+            "obj:jeska": JESKA,
+        },
+    )
+
+
+def test_the_ability_key_activates_exactly_the_bound_ability_of_its_source() -> None:
+    assert mr._is_ability_choice(CHOOSE_ZERO)
+    assert mr._label_of(_ability_answer([_activation(MINUS_X), _activation(ZERO)])) == ZERO
+
+
+@pytest.mark.parametrize(
+    "offers",
+    [
+        [_activation(MINUS_X)],
+        # The same ability of another permanent is not the record's source.
+        [_activation(MINUS_X), _activation(ZERO, source="native-other")],
+        [_activation(ZERO), _activation(ZERO)],
+        # A cast is never an activation.
+        [_activation(ZERO, ability_type="spell")],
+    ],
+)
+def test_an_ability_the_engine_did_not_offer_once_for_the_source_fails_closed(
+    offers: list[dict],
+) -> None:
+    with pytest.raises(ml.MidgameLaneError):
+        _ability_answer(offers)
+
+
+def test_an_unbound_ability_key_fails_closed() -> None:
+    with pytest.raises(ml.MidgameLaneError):
+        mr._ability_choice_answer({"actions": [_activation(ZERO)]}, "loyalty_0", mr.RowSpec(), {})
+
+
+def _ability_frame(**overrides: Any) -> mr.Frame:
+    fields: dict[str, Any] = {
+        "selected_label": ZERO,
+        "scripted": True,
+        "selected_key": "ability:loyalty_0_triple_damage",
+    }
+    fields.update(overrides)
+    principal = fields.pop("principal", "P1")
+    decision_class = fields.pop("decision_class", "priority")
+    return mr.Frame(decision_class, principal, ["Pass priority", MINUS_X, ZERO], **fields)
+
+
+def test_the_ability_tokens_are_the_scripted_activation_on_the_priority_frame() -> None:
+    trace = [_ability_frame()]
+    assert mr.verify_token("choose_ability_frame:P1", [], trace, set()) is not None
+    assert mr.verify_token("ability_selected:loyalty_0_triple_damage", [], trace, set()) is not None
+
+
+@pytest.mark.parametrize(
+    "frame",
+    [
+        _ability_frame(scripted=False),
+        _ability_frame(selected_key="ability:other_key"),
+        _ability_frame(selected_label="Jeska — 0: something the engine did not offer"),
+        _ability_frame(decision_class="mode"),
+    ],
+)
+def test_another_unscripted_or_unoffered_activation_is_not_the_ability(frame: mr.Frame) -> None:
+    assert mr.verify_token("ability_selected:loyalty_0_triple_damage", [], [frame], set()) is None
+
+
+@pytest.mark.parametrize(
+    "frame",
+    [
+        _ability_frame(scripted=False),
+        _ability_frame(selected_label="Jeska — 0: something the engine did not offer"),
+        _ability_frame(decision_class="mode"),
+    ],
+)
+def test_an_unscripted_or_unoffered_activation_is_not_an_ability_frame(frame: mr.Frame) -> None:
+    assert mr.verify_token("choose_ability_frame:P1", [], [frame], set()) is None
+
+
+def test_the_ability_frame_is_the_named_players() -> None:
+    # A plain priority pass is not an ability choice, and P2's frame is not P1's.
+    assert (
+        mr.verify_token("choose_ability_frame:P1", [], [_ability_frame(principal="P2")], set())
+        is None
+    )
+    passed = _ability_frame(selected_key=None, selected_label="Pass priority")
+    assert mr.verify_token("choose_ability_frame:P1", [], [passed], set()) is None
