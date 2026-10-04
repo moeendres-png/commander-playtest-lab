@@ -558,12 +558,18 @@ for fixture in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
     objects += [_card(island, "Island", "P1", "battlefield") for island in p1_islands]
     objects += [_card(island, "Island", "P3", "battlefield") for island in p3_islands]
     decks = [_deck(p, 6 if p in ("P1", "P3") else 7) for p in players]
+    # The checkpoint is P1's precombat main: a state at P1's postcombat main
+    # must already have passed P1's combat, whose attack declaration (P1's
+    # Bears can attack) is a discretionary choice the record never scripts.
+    temporal = copy.deepcopy(old["temporal_state"])
+    temporal["phase"] = "precombat_main"
     add(
         fixture,
         "CAUSAL_EXTRA_TURN_SCENARIO_ERRATUM",
         {
             "semantic_objects": objects,
             "extra_turn_creation": [],
+            "temporal_state": temporal,
             "deck_state": decks,
             "decision_script": [
                 _step(
@@ -594,6 +600,14 @@ for fixture in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
                     "mana_payment",
                     "mana_payment",
                     {"mana": ["U"] * 7, "sources": p3_islands},
+                ),
+                _step(
+                    "P1",
+                    "p1-combat",
+                    "declare_attacker",
+                    "attacker_assignment",
+                    {},
+                    notes="CR 508.1: the active player declares no attackers",
                 ),
                 _step(
                     "P3",
@@ -633,9 +647,13 @@ for fixture in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
                         "P2's (CR 500.7)"
                     ),
                     "combat": (
-                        "the observation passes through P3's whole extra turn, whose attack "
-                        "declaration is P3's discretionary choice (CR 508.1); the script "
-                        "declares no attackers. P1's combat is already past at the checkpoint"
+                        "the observation passes through the rest of P1's turn and all of P3's "
+                        "extra turn; each attack declaration is the active player's "
+                        "discretionary choice (CR 508.1), so the script declares no attackers "
+                        "for P1 and then for P3. The checkpoint moves from P1's postcombat to "
+                        "its precombat main: a postcombat checkpoint has already passed P1's "
+                        "combat, an attack declaration the record never scripts (the XMage "
+                        "midgame lane refuses that arrival)"
                     ),
                     "cleanup": (
                         "the checkpoint hands are complete and hold six template cards for P1 "
@@ -651,6 +669,7 @@ for fixture in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
                 "obj:mp-nexus": "graveyard",
                 "obj:mp-time-warp": "graveyard",
                 "extra_turn_creation": old["extra_turn_creation"],
+                "temporal_state.phase": "postcombat_main",
                 "decision_script": [],
             },
             "reason": (

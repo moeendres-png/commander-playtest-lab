@@ -2160,7 +2160,11 @@ def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
             for s in effective[fixture_id]["decision_script"]
             if s["decision_family"] == "declare_attacker"
         ]
-        assert [(s["actor"], s["selection"]["semantic_value"]) for s in combat] == [("P3", {})]
+        assert [(s["actor"], s["selection"]["semantic_value"]) for s in combat] == [
+            ("P1", {}),
+            ("P3", {}),
+        ]
+        assert effective[fixture_id]["temporal_state"]["phase"] == "precombat_main"
     # Every SLOT-04 library is complete: named objects on top, then 99 - hand templates.
     for fixture_id in ("PILOT_CHOOSE_USE", "NEGATIVE_DEFAULT_YES_NO", "PILOT_PILE"):
         decks = {d["player_id"]: d for d in effective[fixture_id]["deck_state"]}

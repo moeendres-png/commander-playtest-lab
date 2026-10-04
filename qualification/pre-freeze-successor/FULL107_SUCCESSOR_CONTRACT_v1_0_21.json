@@ -18596,7 +18596,7 @@
       "comprehensive_rules": "500.7, 508.1, 514.1, 608.2n, 614.1a, 614.6",
       "nexus_zone": "Nexus of Fate: 'If Nexus of Fate would be put into a graveyard from anywhere, reveal Nexus of Fate and shuffle it into its owner's library instead.' That replacement (CR 614.1a, 614.6) applies to the last step of its own resolution (CR 608.2n), so a resolved Nexus is never in a graveyard: the predecessor's request is unreachable",
       "extra_turn_cause": "the required events extra_turn_created:P2 and extra_turn_created:P3 are events, not state: a requested state that already contains both extra turns leaves nothing to observe. P1 casts Time Warp targeting P2 and, once it resolved, P3 casts Nexus of Fate on P1's turn (an instant), each through the engine-offered legal actions and paid from declared Islands; the engine then takes P3's extra turn before P2's (CR 500.7)",
-      "combat": "the observation passes through P3's whole extra turn, whose attack declaration is P3's discretionary choice (CR 508.1); the script declares no attackers. P1's combat is already past at the checkpoint",
+      "combat": "the observation passes through the rest of P1's turn and all of P3's extra turn; each attack declaration is the active player's discretionary choice (CR 508.1), so the script declares no attackers for P1 and then for P3. The checkpoint moves from P1's postcombat to its precombat main: a postcombat checkpoint has already passed P1's combat, an attack declaration the record never scripts (the XMage midgame lane refuses that arrival)",
       "cleanup": "the checkpoint hands are complete and hold six template cards for P1 and P3 besides their spells, so no hand exceeds seven at a cleanup before the observation (CR 514.1) and no discard decision arises",
       "slot04_authority": "#255 comment 5925956587 (SLOT-04): L7 lossless construction is binding; a partial library request fails closed; lossy fixtures are corrected and versioned"
      },
@@ -18640,6 +18640,7 @@
        "source": "obj:mp-nexus"
       }
      ],
+     "temporal_state.phase": "postcombat_main",
      "decision_script": []
     },
     "reason": "a resolved Nexus of Fate in a graveyard (CR 614.6) and extra turns created before the run, so their creation events cannot occur"
@@ -18872,6 +18873,14 @@
      }
     ],
     "extra_turn_creation": [],
+    "temporal_state": {
+     "active_player": "P1",
+     "extra_turn_queue": [],
+     "phase": "precombat_main",
+     "priority_player": "P1",
+     "step": "main",
+     "turn_number": 1
+    },
     "deck_state": [
      {
       "checkpoint_hand": {
@@ -19078,6 +19087,28 @@
       }
      },
      {
+      "actor": "P1",
+      "causal_step_id": "p1-combat",
+      "decision_family": "declare_attacker",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "CR 508.1: the active player declares no attackers",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "attacker_assignment",
+       "semantic_value": {}
+      }
+     },
+     {
       "actor": "P3",
       "causal_step_id": "p3-extra-turn-combat",
       "decision_family": "declare_attacker",
@@ -19137,7 +19168,7 @@
      }
     ]
    },
-   "successor_requested_state_digest": "d82d6de9307b0f0aeeb734feff67b3d120ec871dab11c0a2e76a93e6ddd38db2"
+   "successor_requested_state_digest": "ddb596d89b17097d1b59b5f2220c51d0499aa6e70f09789456a2d76f71fb9bdf"
   },
   {
    "append_native_procedure": [
@@ -19151,7 +19182,7 @@
       "comprehensive_rules": "500.7, 508.1, 514.1, 608.2n, 614.1a, 614.6",
       "nexus_zone": "Nexus of Fate: 'If Nexus of Fate would be put into a graveyard from anywhere, reveal Nexus of Fate and shuffle it into its owner's library instead.' That replacement (CR 614.1a, 614.6) applies to the last step of its own resolution (CR 608.2n), so a resolved Nexus is never in a graveyard: the predecessor's request is unreachable",
       "extra_turn_cause": "the required events extra_turn_created:P2 and extra_turn_created:P3 are events, not state: a requested state that already contains both extra turns leaves nothing to observe. P1 casts Time Warp targeting P2 and, once it resolved, P3 casts Nexus of Fate on P1's turn (an instant), each through the engine-offered legal actions and paid from declared Islands; the engine then takes P3's extra turn before P2's (CR 500.7)",
-      "combat": "the observation passes through P3's whole extra turn, whose attack declaration is P3's discretionary choice (CR 508.1); the script declares no attackers. P1's combat is already past at the checkpoint",
+      "combat": "the observation passes through the rest of P1's turn and all of P3's extra turn; each attack declaration is the active player's discretionary choice (CR 508.1), so the script declares no attackers for P1 and then for P3. The checkpoint moves from P1's postcombat to its precombat main: a postcombat checkpoint has already passed P1's combat, an attack declaration the record never scripts (the XMage midgame lane refuses that arrival)",
       "cleanup": "the checkpoint hands are complete and hold six template cards for P1 and P3 besides their spells, so no hand exceeds seven at a cleanup before the observation (CR 514.1) and no discard decision arises",
       "slot04_authority": "#255 comment 5925956587 (SLOT-04): L7 lossless construction is binding; a partial library request fails closed; lossy fixtures are corrected and versioned"
      },
@@ -19195,6 +19226,7 @@
        "source": "obj:mp-nexus"
       }
      ],
+     "temporal_state.phase": "postcombat_main",
      "decision_script": []
     },
     "reason": "a resolved Nexus of Fate in a graveyard (CR 614.6) and extra turns created before the run, so their creation events cannot occur"
@@ -19473,6 +19505,14 @@
      }
     ],
     "extra_turn_creation": [],
+    "temporal_state": {
+     "active_player": "P1",
+     "extra_turn_queue": [],
+     "phase": "precombat_main",
+     "priority_player": "P1",
+     "step": "main",
+     "turn_number": 1
+    },
     "deck_state": [
      {
       "checkpoint_hand": {
@@ -19713,6 +19753,28 @@
       }
      },
      {
+      "actor": "P1",
+      "causal_step_id": "p1-combat",
+      "decision_family": "declare_attacker",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "CR 508.1: the active player declares no attackers",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "attacker_assignment",
+       "semantic_value": {}
+      }
+     },
+     {
       "actor": "P3",
       "causal_step_id": "p3-extra-turn-combat",
       "decision_family": "declare_attacker",
@@ -19772,7 +19834,7 @@
      }
     ]
    },
-   "successor_requested_state_digest": "88bc4e75b29204a010f27d8641179d1354a86b4a2d923fbdf02fe1553b76db0a"
+   "successor_requested_state_digest": "54d6920b8d72f0ad46e32a75b206b744a5aa864c3d2e2253a90396390e8cdda7"
   },
   {
    "append_native_procedure": [
