@@ -46,11 +46,13 @@ def _state(players: int = 4) -> dict:
     return {
         "schema": generic_construction.SCHEMA,
         "observation_scope": "orchestration_keyed_digests",
+        # As XMage emits it at the first mulligan decision (local real-producer
+        # run): no turn has begun, its native counter already names turn 1.
         "lifecycle": "started",
         "turn_number": 1,
-        "phase": "beginning",
-        "active_player": "P1",
-        "priority_player": "P1",
+        "phase": None,
+        "active_player": None,
+        "priority_player": None,
         "stack_size": 0,
         "players": [
             {
@@ -149,6 +151,13 @@ def _mutate(path: list, value) -> dict:
         ((["players", 0, "commanders", 0, "zone"], "battlefield"), "commander_state.P1.commanders"),
         ((["players", 1, "hand_size"], 6), "deck_state.P2.opening_hand_size"),
         ((["stack_size"], 1), "stack_state"),
+        # Codex P1 (#530): the commander's native owner is compared.
+        ((["players", 0, "commanders", 0, "owner"], "P4"), "commander_state.P1.commanders"),
+        # Codex P1 (#530): the emitted temporal fields decide the point.
+        ((["phase"], "ending"), "temporal_state.phase"),
+        ((["turn_number"], 999), "temporal_state.turn_number"),
+        ((["active_player"], "P1"), "temporal_state.phase"),
+        ((["priority_player"], "P2"), "temporal_state.phase"),
     ],
 )
 def test_one_changed_fact_is_a_named_mismatch(record, mutation, field) -> None:
@@ -401,3 +410,34 @@ def test_a_scripted_pregame_pass_gets_an_exact_direct_receipt() -> None:
         runner._direct_positive_receipt(
             unknown, mulligan, candidate_commit="c" * 40, runner_digest="r" * 64
         )
+
+
+@pytest.mark.parametrize("turn_number", [0, 1])
+def test_a_pre_first_turn_counter_of_either_convention_is_pregame(record, turn_number) -> None:
+    # Forge reports 0 before the first turn, XMage 1; with no phase, active or
+    # priority player both mean that no turn has begun.
+    proof = _proof(record, _mutate(["turn_number"], turn_number))
+    assert proof.established, proof.reason()
+
+
+@pytest.mark.parametrize(
+    ("clause", "value"),
+    [
+        ("forbidden_external_rules", ["legality_calculation", "teleportation"]),
+        ("on_mismatch", "WARN"),
+        ("construct_inside_rules_process", False),
+        ("an_unknown_requirement", True),
+    ],
+)
+def test_a_setup_clause_the_lane_cannot_establish_is_unsupported(record, clause, value) -> None:
+    # Codex P1 (#530): setup_validation is a projection key and is checked.
+    changed = copy.deepcopy(record)
+    changed["setup_validation"][clause] = value
+    proof = _proof(changed, _state())
+    assert proof.verdict == generic_construction.UNSUPPORTED
+    assert f"setup_validation.{clause}" in {c.field for c in proof.failures()}
+
+
+def test_every_setup_clause_of_the_record_is_checked(record) -> None:
+    fields = {c.field for c in _proof(record, _state()).checks}
+    assert {f"setup_validation.{key}" for key in record["setup_validation"]} <= fields

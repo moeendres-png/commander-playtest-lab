@@ -187,6 +187,63 @@ def _declared_steps_before_first_mulligan(record: dict[str, Any]) -> tuple[str, 
     return tuple(steps)
 
 
+# The record's setup_validation clauses this lane establishes, each by what it
+# does: it constructs only through the engine's own deck import and game
+# creation (inside the Rules process, the engine validating structure), reads
+# the engine's normalized constructed state, compares it field by field here,
+# and fails closed on any difference. Any other clause or value is unsupported.
+_SETUP_CLAUSES: dict[str, Any] = {
+    "compare_requested_vs_constructed": True,
+    "construct_inside_rules_process": True,
+    "expose_normalized_constructed_state": True,
+    "native_structural_validation_required": True,
+    "on_mismatch": "FAIL_CLOSED",
+    "requested_vs_normalized_native_constructed_state_equality_required": True,
+}
+# The external rules the lane never applies (it computes no legality, layers,
+# state-based actions or replacement outcomes, fabricates no option and never
+# corrects a setup); a clause naming any other rule is unsupported.
+_FORBIDDEN_EXTERNAL_RULES = frozenset(
+    {
+        "legality_calculation",
+        "layers",
+        "state_based_actions",
+        "replacement_outcomes",
+        "fabricated_legal_options",
+        "silent_setup_correction",
+    }
+)
+
+
+def _check_setup_validation(checks: _Checks, setup: Any) -> None:
+    if setup in (None, {}):
+        return
+    if not isinstance(setup, dict):
+        checks.unsupported("setup_validation", "the projection is not a mapping", setup)
+        return
+    for key, value in sorted(setup.items()):
+        name = f"setup_validation.{key}"
+        if key == "forbidden_external_rules":
+            if isinstance(value, list) and set(value) <= _FORBIDDEN_EXTERNAL_RULES:
+                checks.items.append(
+                    FieldCheck(
+                        name,
+                        "EQUAL",
+                        value,
+                        sorted(_FORBIDDEN_EXTERNAL_RULES),
+                        "the lane applies none of these rules",
+                    )
+                )
+            else:
+                checks.unsupported(name, "a forbidden rule this lane cannot attest", value)
+        elif key in _SETUP_CLAUSES and value == _SETUP_CLAUSES[key]:
+            checks.items.append(
+                FieldCheck(name, "EQUAL", value, value, "established by how this lane constructs")
+            )
+        else:
+            checks.unsupported(name, "a setup clause this lane does not establish", value)
+
+
 def compare(
     record: dict[str, Any],
     constructed: dict[str, Any] | None,
@@ -316,20 +373,25 @@ def compare(
             "commander damage cannot be constructed at a natural game start",
             commander_state.get("commander_damage_matrix"),
         )
-    requested_commanders: dict[str, list[tuple[str, str, int]]] = {}
+    requested_commanders: dict[str, list[tuple[str, str, str, int]]] = {}
     for commander in commander_state.get("commanders") or []:
         owner = _seat(commander.get("owner")) or ""
         requested_commanders.setdefault(owner, []).append(
             (
                 str(commander.get("card_identity")),
+                owner,
                 str(commander.get("zone")),
                 int(commander.get("prior_command_zone_cast_count") or 0),
             )
         )
     for pid, seen in players_by_id.items():
+        # Each commander as the provider reports it, its native owner included:
+        # a commander registered for this seat that the engine says another
+        # seat owns is a mismatch, never folded into the seat that lists it.
         observed = sorted(
             (
                 str(entry.get("card_identity")),
+                _seat(entry.get("owner")) or "",
                 str(entry.get("zone")),
                 _int(entry.get("prior_command_zone_cast_count")) or 0,
             )
@@ -394,13 +456,35 @@ def compare(
             )
 
     temporal = record.get("temporal_state") or {}
-    observed_point = _OBSERVED_POINT if capture == CAPTURE_POINT else {"capture": capture}
+    # The point is established from the provider's own emitted fields, never
+    # assumed from the capture label: no turn has begun when the engine reports
+    # no phase, no active and no priority player, and its native turn counter
+    # is still before the first turn (0, or 1 for an engine that counts the
+    # coming first turn). Anything else is the point the provider reports.
+    emitted = {
+        "turn_number": constructed.get("turn_number"),
+        "phase": constructed.get("phase"),
+        "active_player": constructed.get("active_player"),
+        "priority_player": constructed.get("priority_player"),
+    }
+    no_turn_begun = (
+        emitted["phase"] is None
+        and emitted["active_player"] is None
+        and emitted["priority_player"] is None
+        and _int(emitted["turn_number"]) in (0, 1)
+    )
+    if capture != CAPTURE_POINT:
+        observed_point: dict[str, Any] = {"capture": capture}
+    elif no_turn_begun:
+        observed_point = _OBSERVED_POINT
+    else:
+        observed_point = {"emitted": emitted}
     for key in ("phase", "turn_number"):
         checks.compare(
             f"temporal_state.{key}",
             temporal.get(key),
             observed_point.get(key),
-            f"the state was read at {capture!r}",
+            f"the state was read at {capture!r}; the provider emitted {emitted}",
         )
     requested_step = temporal.get("step")
     observed_step = observed_point.get("step")
@@ -453,6 +537,8 @@ def compare(
         checks.unsupported(
             "knowledge_state", "knowledge permissions are not constructed", knowledge
         )
+
+    _check_setup_validation(checks, record.get("setup_validation"))
 
     randomness = record.get("rules_randomness") or {}
     checks.compare(
