@@ -156,20 +156,65 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: requirements/lock.txt
-      - name: Install project and pinned audit tools
+      - name: Install project and hash-locked audit tools
         run: |
           python -m pip install --require-hashes -r requirements/lock.txt
           python -m pip install --no-deps --no-build-isolation -e .
-          python -m pip install pip-audit==2.10.1 cyclonedx-bom==7.3.0 pip-licenses==5.5.5
-      - name: Dependency audit
-        run: |
-          mkdir -p artifacts/security
-          python -m pip list --format=freeze --exclude-editable > artifacts/security/requirements-audit.txt
-          pip-audit --strict --no-deps -r artifacts/security/requirements-audit.txt
-      - name: CycloneDX SBOM
-        run: mkdir -p artifacts/security && cyclonedx-py environment --output-format JSON --output-file artifacts/security/sbom.cdx.json
-      - name: License report
-        run: pip-licenses --format=json --output-file=artifacts/security/licenses.json
+          python -m pip check
+      - name: Build source-bound product wheel for security evidence
+        run: python -m pip wheel --no-deps --no-build-isolation --wheel-dir dist .
+      - name: Prepare distinct security scopes
+        id: prepare-scopes
+        if: ${{ success() || failure() }}
+        run: >-
+          python scripts/security_evidence.py prepare --repo . --wheel-dir dist
+          --runtime "$RUNNER_TEMP/security-product-venv" --out artifacts/security
+      - name: CI and tooling dependency audit
+        id: audit-tooling
+        if: ${{ success() || failure() }}
+        run: >-
+          pip-audit --strict --no-deps --disable-pip
+          -r artifacts/security/ci-tooling/requirements.txt --format=json
+          --output artifacts/security/ci-tooling/dependency-audit.json
+      - name: Product runtime dependency audit
+        id: audit-product
+        if: ${{ success() || failure() }}
+        run: >-
+          pip-audit --strict --no-deps --disable-pip
+          -r artifacts/security/runtime-product/requirements.txt --format=json
+          --output artifacts/security/runtime-product/dependency-audit.json
+      - name: CI and tooling CycloneDX SBOM
+        id: sbom-tooling
+        if: ${{ success() || failure() }}
+        run: >-
+          cyclonedx-py environment --output-reproducible --output-format JSON
+          --output-file artifacts/security/ci-tooling/sbom.cdx.json
+      - name: Product runtime CycloneDX SBOM
+        id: sbom-product
+        if: ${{ success() || failure() }}
+        run: >-
+          cyclonedx-py environment "$RUNNER_TEMP/security-product-venv/bin/python"
+          --output-reproducible --output-format JSON
+          --output-file artifacts/security/runtime-product/sbom.cdx.json
+      - name: CI and tooling license report
+        id: licenses-tooling
+        if: ${{ success() || failure() }}
+        run: >-
+          pip-licenses --with-system --format=json
+          --output-file=artifacts/security/ci-tooling/licenses.json
+      - name: Product runtime license report
+        id: licenses-product
+        if: ${{ success() || failure() }}
+        run: >-
+          pip-licenses --with-system --python "$RUNNER_TEMP/security-product-venv/bin/python"
+          --format=json --output-file=artifacts/security/runtime-product/licenses.json
+      - name: Seal security scopes and failure evidence
+        if: always()
+        env:
+          B11_STEP_RESULTS: ${{ toJSON(steps) }}
+        run: >-
+          python scripts/security_evidence.py seal --repo . --wheel-dir dist
+          --runtime "$RUNNER_TEMP/security-product-venv" --out artifacts/security
       - name: Broad secret scan (pinned gitleaks)
         if: ${{ success() || failure() }}
         # B10 (#491): the full gitleaks rule set over exactly the tracked files,
