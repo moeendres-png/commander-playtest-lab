@@ -73,6 +73,7 @@ final class JsonlBridge {
             case "create_commander_game" -> createCommanderGame(requestId, request);
             case "start_game" -> startGame(requestId, request);
             case "get_game_state" -> getGameState(requestId, request);
+            case "get_constructed_state" -> getConstructedState(requestId, request);
             case "get_legal_actions" -> getLegalActions(requestId, request);
             case "resolve_mulligan" -> resolveMulligan(requestId, request);
             case "pass_priority" -> passPriority(requestId, request);
@@ -395,6 +396,28 @@ final class JsonlBridge {
                     exceptionMessage(exc),
                     false
             );
+        }
+    }
+
+    /**
+     * Harness-only normalized constructed state for the generic lane's
+     * construction proof (Commander-Lab #441 decision (c)). Not a principal
+     * observation: it carries no hidden order and no object identities.
+     */
+    private Result getConstructedState(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = optionalObjectPayload(request);
+            String gameId = requestGameId(request, payload);
+            String gameHandle = requireGameHandle(gameId);
+            JsonObject responsePayload = new JsonObject();
+            responsePayload.addProperty("game_id", gameId);
+            responsePayload.add("constructed_state", gameManager.constructedState(gameHandle));
+            return success(requestId, responsePayload, false, gameManager.latestEventOffset(gameHandle));
+        } catch (XmageGameManager.GameException exc) {
+            return error(requestId, "constructed_state_failed", exc.getMessage(), false);
+        } catch (Exception exc) {
+            return error(requestId, "invalid_constructed_state_payload",
+                    exc.getClass().getSimpleName(), false);
         }
     }
 

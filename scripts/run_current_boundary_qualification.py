@@ -1366,12 +1366,16 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         # ---- player cardinality 2P..5P (+ bounded 6P) --------------------
         cardinality: dict[str, Any] = {}
         for count in (2, 3, 4, 5, 6):
+            fixture = f"PLAYER_COUNT_{count}P"
             result = run_cardinality(
-                proc, candidate=candidate, player_count=count, runtime_identity=identity
+                proc,
+                candidate=candidate,
+                player_count=count,
+                runtime_identity=identity,
+                record=by_id.get(fixture),
             )
             document = result.to_document()
             cardinality[f"{count}P"] = document
-            fixture = f"PLAYER_COUNT_{count}P"
             if fixture in by_id:
                 rows.append(
                     cardinality_row(

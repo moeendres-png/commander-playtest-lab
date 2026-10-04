@@ -1008,6 +1008,113 @@ final class XmageGameManager {
         return gamesByHandle.size();
     }
 
+    /** Schema of {@link #constructedState(String)}. */
+    static final String CONSTRUCTED_STATE_SCHEMA = "commander-lab.generic-constructed-state/1";
+
+    /**
+     * The engine's normalized constructed state for the generic lane's
+     * construction proof (Commander-Lab #441, decision (c)).
+     *
+     * <p>Read from the native game objects inside the Rules process. Seats are
+     * named by their one-based seat number ({@code P1}..); zones contribute card
+     * names only: libraries and hands as name multisets (no order, no object
+     * identity), so nothing beyond deck composition is disclosed. This is
+     * harness evidence, never a principal-scoped observation.
+     */
+    JsonObject constructedState(String gameHandle) {
+        ManagedGame managed = requireManagedGame(gameHandle);
+        synchronized (managed) {
+            Game game = managed.game;
+            JsonObject root = new JsonObject();
+            root.addProperty("schema", CONSTRUCTED_STATE_SCHEMA);
+            root.addProperty("lifecycle", managed.lifecycle.name().toLowerCase());
+            root.addProperty("turn_number", game.getState().getTurnNum());
+            TurnPhase phase = game.getTurnPhaseType();
+            if (phase == null) {
+                root.add("phase", JsonNull.INSTANCE);
+            } else {
+                root.addProperty("phase", turnPhaseValue(phase));
+            }
+            root.add("active_player", seatName(managed, game.getActivePlayerId()));
+            root.add("priority_player", seatName(managed, game.getPriorityPlayerId()));
+            root.addProperty("stack_size", game.getStack().size());
+            JsonArray players = new JsonArray();
+            for (int seat = 0; seat < managed.players.size(); seat++) {
+                Player player = managed.players.get(seat);
+                JsonObject entry = new JsonObject();
+                entry.addProperty("player_id", "P" + (seat + 1));
+                entry.addProperty("seat", seat + 1);
+                entry.addProperty("life", player.getLife());
+                entry.addProperty("poison", player.getCountersCount(CounterType.POISON));
+                entry.addProperty("lost", player.hasLost());
+                entry.addProperty("left", player.hasLeft());
+                entry.addProperty("library_size", player.getLibrary().size());
+                entry.add("library_card_counts", nameCounts(player.getLibrary().getCards(game)));
+                entry.addProperty("hand_size", player.getHand().size());
+                entry.add("hand_card_counts", nameCounts(player.getHand().getCards(game)));
+                entry.add("graveyard_card_counts", nameCounts(player.getGraveyard().getCards(game)));
+                entry.add("exile_card_counts",
+                        nameCounts(game.getExile().getCardsOwned(game, player.getId())));
+                List<mage.cards.Card> battlefield = new ArrayList<>();
+                for (Permanent permanent : game.getBattlefield().getAllPermanents()) {
+                    if (player.getId().equals(permanent.getControllerId())) {
+                        battlefield.add(permanent);
+                    }
+                }
+                entry.add("battlefield_card_counts", nameCounts(battlefield));
+                mage.watchers.common.CommanderPlaysCountWatcher watcher = game.getState()
+                        .getWatcher(mage.watchers.common.CommanderPlaysCountWatcher.class);
+                JsonArray commanders = new JsonArray();
+                for (UUID commanderId : game.getCommandersIds(
+                        player, CommanderCardType.COMMANDER_OR_OATHBREAKER, false)) {
+                    mage.cards.Card card = game.getCard(commanderId);
+                    if (card == null) {
+                        continue;
+                    }
+                    JsonObject commander = new JsonObject();
+                    commander.addProperty("card_identity", card.getName());
+                    commander.addProperty("owner", seatName(managed, card.getOwnerId()).getAsString());
+                    commander.addProperty("zone",
+                            String.valueOf(game.getState().getZone(commanderId)).toLowerCase());
+                    if (watcher == null) {
+                        commander.add("prior_command_zone_cast_count", JsonNull.INSTANCE);
+                    } else {
+                        commander.addProperty("prior_command_zone_cast_count",
+                                watcher.getPlaysCount(commanderId));
+                    }
+                    commanders.add(commander);
+                }
+                entry.add("commanders", commanders);
+                players.add(entry);
+            }
+            root.add("players", players);
+            // No seed value: Rules seed control is acknowledged on game creation.
+            return root;
+        }
+    }
+
+    private static JsonElement seatName(ManagedGame managed, UUID playerId) {
+        if (playerId == null) {
+            return JsonNull.INSTANCE;
+        }
+        for (int seat = 0; seat < managed.players.size(); seat++) {
+            if (playerId.equals(managed.players.get(seat).getId())) {
+                return new com.google.gson.JsonPrimitive("P" + (seat + 1));
+            }
+        }
+        return new com.google.gson.JsonPrimitive("UNKNOWN_SEAT");
+    }
+
+    private static JsonObject nameCounts(Collection<? extends mage.cards.Card> cards) {
+        java.util.TreeMap<String, Integer> counts = new java.util.TreeMap<>();
+        for (mage.cards.Card card : cards) {
+            counts.merge(card.getName(), 1, Integer::sum);
+        }
+        JsonObject result = new JsonObject();
+        counts.forEach(result::addProperty);
+        return result;
+    }
+
     private ManagedGame requireManagedGame(String gameHandle) {
         String validatedHandle = requireText(gameHandle, "game_handle");
         ManagedGame managed = gamesByHandle.get(validatedHandle);

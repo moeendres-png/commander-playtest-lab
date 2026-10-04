@@ -155,6 +155,7 @@ final class XmageProvider {
         capabilities.addProperty("commander_tax_visible", false);
         capabilities.addProperty("starting_state_injection_supported", false);
         capabilities.addProperty("scenario_injection_supported", false);
+        capabilities.addProperty("constructed_state_supported", true);
         capabilities.addProperty("healthcheck_supported", true);
         capabilities.addProperty("target_selection_supported", false);
         capabilities.addProperty("mode_selection_supported", false);

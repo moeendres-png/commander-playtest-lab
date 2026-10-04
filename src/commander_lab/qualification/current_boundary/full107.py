@@ -29,7 +29,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
-from . import lifecycle
+from . import generic_construction, lifecycle
 from .bridge_launcher import BridgeProcess
 from .game_driver import (
     CommandedGameResult,
@@ -201,33 +201,84 @@ def run_cardinality(
     candidate: str,
     player_count: int,
     runtime_identity: dict[str, Any],
+    record: dict[str, Any] | None = None,
 ) -> CommandedGameResult:
-    """Run one real Commander lifecycle at one player count."""
+    """Run one real Commander lifecycle at one player count.
+
+    With the fixture's ``record`` the run imports the record's own decks and seed,
+    so the provider constructs the requested state and its construction proof can
+    be compared (#441 decision (c)). A record whose decks are not a 100-card
+    Commander deck per seat imports nothing of its own; the run then uses the
+    driver's decks and the record's construction stays unestablished.
+    """
+    decks = None
+    seed = 424242
+    if record is not None:
+        try:
+            decks = record_decks(record)
+        except ValueError:
+            decks = None
+        record_seed = (record.get("rules_randomness") or {}).get("rules_seed")
+        if isinstance(record_seed, int) and not isinstance(record_seed, bool):
+            seed = record_seed
     return drive_commander_game(
         proc,
         candidate=candidate,
         player_count=player_count,
-        seed=424242,
+        seed=seed,
         drive_to="priority",
         max_steps=80,
+        decks=decks,
     )
 
 
-def construction_credit_gap(record: dict[str, Any]) -> str | None:
+def construction_credit_gap(
+    record: dict[str, Any], proof: generic_construction.ConstructionProof | None = None
+) -> str | None:
     """Why the record's construction condition is unmet on the generic lane.
 
     A record whose ``construction_validation`` is required credits a row only when
-    the provider's normalized constructed state equals the requested state. The
-    generic Protocol-2 lane emits no constructed state, so for such a record it
-    can observe the obligation but never establish the credit condition (Owner
-    decision (a), Commander-Lab #441). ``None`` means the record imposes none.
+    the provider's normalized constructed state equals the requested state. Without
+    a construction proof the generic lane can observe the obligation but never
+    establish the credit condition (Owner decision (a), Commander-Lab #441); with
+    one, only an established equality lifts the gap (decision (c)). ``None`` means
+    the record imposes no construction condition or the proof establishes it.
     """
     construction = record.get("construction_validation") or {}
     if not construction.get("required"):
         return None
+    if proof is None:
+        return (
+            f"the record requires {construction.get('credit_condition')} and this lane "
+            "emits no normalized constructed state, so construction equality is unestablished"
+        )
+    if proof.established:
+        return None
     return (
-        f"the record requires {construction.get('credit_condition')} and this lane "
-        "emits no normalized constructed state, so construction equality is unestablished"
+        f"the record requires {construction.get('credit_condition')} and the provider's "
+        f"constructed state does not establish it, so construction equality is "
+        f"unestablished: {proof.reason()}"
+    )
+
+
+def generic_construction_proof(
+    record: dict[str, Any], result: CommandedGameResult
+) -> generic_construction.ConstructionProof | None:
+    """The generic-lane construction proof of one run, or None without a provider state.
+
+    A provider that does not declare ``constructed_state_supported`` emits nothing,
+    and there is then no proof at all (not a failed one).
+    """
+    if not result.terminal_facts.get("provider_constructed_state_supported"):
+        return None
+    binding = result.seed_binding
+    seed = binding.acknowledged_seed if binding is not None and binding.controlled else None
+    return generic_construction.compare(
+        record,
+        result.constructed_state,
+        acknowledged_seed=seed,
+        first_priority_seat=result.terminal_facts.get("first_priority_seat"),
+        capture=result.terminal_facts.get("constructed_state_capture"),
     )
 
 
@@ -317,7 +368,10 @@ def cardinality_row(
             "unestablished: " + "; ".join(assessment["reasons"]),
             evidence,
         )
-    gap = construction_credit_gap(record)
+    proof = generic_construction_proof(record, result)
+    if proof is not None:
+        evidence["construction_proof"] = proof.to_document()
+    gap = construction_credit_gap(record, proof)
     if gap is not None:
         return RowResult(
             fixture_id,
@@ -840,7 +894,10 @@ def scripted_pregame_row(
             f"Rules seed {seed}, so the record's seeded shuffles are not established",
             evidence,
         )
-    gap = construction_credit_gap(record)
+    proof = generic_construction_proof(record, game)
+    if proof is not None:
+        evidence["construction_proof"] = proof.to_document()
+    gap = construction_credit_gap(record, proof)
     if gap is not None:
         return RowResult(
             fixture_id,
