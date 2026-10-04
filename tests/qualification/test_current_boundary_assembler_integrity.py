@@ -472,6 +472,27 @@ def test_the_midgame_twin_stands_only_for_a_fully_verified_run(
         assert asm.midgame_replay_twin_document("xmage", _fresh_column(), "r" * 64) is None
 
 
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"clean_process_twin": "not-a-mapping"},
+        {"clean_process_twin": None},
+        {"clean_process_twin": {"candidate_build": "not-a-mapping"}},
+        {"rows": ["RNG_RULES_TAPE"]},
+        {"rows": {fixture: "verified" for fixture in REPLAY_ROWS}},
+        {"execution_mode": "OTHER", "clean_process_twin": ["x"]},
+    ],
+)
+def test_a_malformed_midgame_twin_document_is_rejected_not_raised(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, overrides: dict
+) -> None:
+    asm = _assembler_module()
+    monkeypatch.setattr(asm, "OUT", tmp_path)
+    document = _bound_twin_document(**overrides)
+    (tmp_path / "MIDGAME_REPLAY_TWIN_EXECUTIONS.json").write_text(json.dumps(document))
+    assert asm.midgame_replay_twin_document("xmage", _fresh_column(), "r" * 64) is None
+
+
 def test_replay_twin_receipts_credit_only_through_the_bound_document() -> None:
     source = _source(ASSEMBLER)
     helper = source[source.index("def native_bindings(") :]
