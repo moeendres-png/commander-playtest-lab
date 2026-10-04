@@ -678,7 +678,7 @@ def record_decks(record: dict[str, Any]) -> list[dict[str, Any]]:
     return payloads
 
 
-def scripted_london_bottoms(record: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+def scripted_london_bottoms(record: dict[str, Any]) -> list[tuple[str, Any]]:
     """The record's scripted London bottom selections as ``(seat, multiset)``."""
     return [
         (str(step.get("actor") or "").lower(), (step.get("selection") or {}).get("semantic_value"))
