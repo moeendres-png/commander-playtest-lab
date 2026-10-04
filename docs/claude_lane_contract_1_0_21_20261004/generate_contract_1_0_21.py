@@ -228,7 +228,10 @@ def add(
     for key, value in merged_replace.items():
         record[key] = copy.deepcopy(value)
     record["knowledge_state"]["channel_policy"] = CHANNEL_POLICY
-    appended = [*(copy.deepcopy(prior["append_native_procedure"]) if prior else []), *errata]
+    # A superseded patch's erratum steps are lineage, never active procedure:
+    # they stay under superseded_successor_patch, so no executor reads an
+    # instruction the successor replaces.
+    appended = list(errata)
     patch = {
         "append_native_procedure": appended,
         "authority_overlay": dict(OVERLAY),
@@ -250,7 +253,11 @@ def add(
                 resolver.canonical_json(prior).encode("utf-8")
             ).hexdigest(),
             "successor_requested_state_digest": prior["successor_requested_state_digest"],
-            "lineage": "its replace and its erratum steps are kept; this patch extends them",
+            "append_native_procedure": copy.deepcopy(prior["append_native_procedure"]),
+            "lineage": (
+                "its replace is kept and extended; its erratum steps are preserved here as "
+                "history and are not active procedure"
+            ),
         }
     # No obligation key changes in 1.0.21: every required event and terminal
     # postcondition is the predecessor's, so no historical obligation is restated.
@@ -375,6 +382,13 @@ add(
             copy.deepcopy(probe),
         ],
         "action_cost_state": [_cost("P1", "Centaur Courser", "obj:neg-courser", forests, 3)],
+        "negative_fallback_probe": {
+            **old["negative_fallback_probe"],
+            "production_reachable_trigger": (
+                "P1's Centaur Courser (power 3) enters under P1's control, so P1's Garruk's "
+                "Packleader triggers and asks 'you may draw a card': yes versus no."
+            ),
+        },
     },
     [
         _erratum_step(
@@ -455,6 +469,9 @@ add(
                 "semantic_action",
                 {"action": "cast", "object": "obj:fof"},
             ),
+            # Fact or Fiction's "an opponent separates": P1 chooses which
+            # opponent as it casts (CR 601.2c), as HIDDEN_13 scripts it.
+            _step("P1", "cast-fof", "target", "semantic_player", "P2"),
             _step(
                 "P1",
                 "cast-fof",
@@ -807,6 +824,16 @@ add(
                     "'rules-shuffle' is realized by this card cause, never by a harness shuffle"
                 ),
                 "no_player_choice": "the current Oracle text asks no 'may'; the put is mandatory",
+                "lossless_construction": {
+                    key: prior["append_native_procedure"][0]["details"][key]
+                    for key in (
+                        "complete_checkpoint_hands",
+                        "complete_checkpoint_libraries",
+                        "first_turn_draw",
+                        "scaffolding_template",
+                    )
+                },
+                "supersedes_erratum_step": prior["append_native_procedure"][0]["step_id"],
             },
         )
     ],

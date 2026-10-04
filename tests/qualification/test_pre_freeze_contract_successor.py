@@ -383,8 +383,11 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
                 == old["successor_requested_state_digest"]
             )
             assert new["replace"]["deck_state"] == old["replace"]["deck_state"]
+            # The superseded erratum steps are lineage, never active procedure.
             steps = old["append_native_procedure"]
-            assert new["append_native_procedure"][: len(steps)] == steps
+            assert new["superseded_successor_patch"]["append_native_procedure"] == steps
+            active = {step["step_id"] for step in new["append_native_procedure"]}
+            assert not active & {step["step_id"] for step in steps}
             assert (
                 new["predecessor_requested_state_digest"]
                 == old["predecessor_requested_state_digest"]
@@ -2183,8 +2186,27 @@ def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
     }
     assert families["WS05-CMD-MULL-2"] == ["mulligan"] * 3 + ["london_bottom"]
     assert families["WS05-CMD-MULL-4"] == ["mulligan"] * 5
-    # RNG_RULES_TAPE: a card-caused shuffle, and the 1.0.19 deck is kept.
+    # RNG_RULES_TAPE: a card-caused shuffle, and the 1.0.19 deck is kept; the
+    # superseded "no Rules cause" instruction is no longer active procedure.
     assert objects("RNG_RULES_TAPE")["obj:replay-warp"]["card_identity"] == "Chaos Warp"
+    active = effective["RNG_RULES_TAPE"]["native_procedure"]
+    assert not any(
+        (step.get("details") or {}).get("native_procedure_step_not_executed") for step in active
+    )
+    # PILOT_PILE: P1 chooses the opponent who separates (HIDDEN_13's route).
+    pile = effective["PILOT_PILE"]["decision_script"]
+    assert [(s["actor"], s["decision_family"]) for s in pile] == [
+        ("P1", "priority"),
+        ("P1", "target"),
+        ("P1", "mana_payment"),
+        ("P2", "pile"),
+        ("P1", "pile"),
+    ]
+    assert pile[1]["selection"]["semantic_value"] == "P2"
+    # NEGATIVE_DEFAULT_YES_NO: the probe metadata names the Packleader trigger.
+    probe = effective["NEGATIVE_DEFAULT_YES_NO"]["negative_fallback_probe"]
+    assert "Packleader" in probe["production_reachable_trigger"]
+    assert "scry" not in probe["production_reachable_trigger"]
     assert rng["superseded_successor_patch"]["correction_class"] == (
         "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04"
     )

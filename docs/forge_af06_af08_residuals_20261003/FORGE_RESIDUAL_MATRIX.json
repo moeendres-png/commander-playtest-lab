@@ -1,6 +1,6 @@
 {
  "candidate": "forge",
- "canonical_bundle_digest": "7752da269dd48a73b6ac34393588e8eed5dc16f92d1d89ff92541b060a7bf932",
+ "canonical_bundle_digest": "68d0924825cb940c033160dbc8b93445b5f763022151ae46d43603b1b86b070e",
  "contract_id": "commander-lab.full107/1.0.21-successor",
  "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
  "rows": [
@@ -1231,7 +1231,7 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a choose_use decision; the bridge carries it on its BOOLEAN frames, but the lane has no selector for them",
+     "detail": "the record scripts a choose_use decision; the bridge carries it on its CARD, CARD_LIST or GAME_ENTITY (scry 1 card selection (0..1 cards to the bottom)) frames, but the lane has no selector for them",
      "dimension": "decision_execution.choose_use.boolean",
      "stage": "execution"
     },
@@ -1549,6 +1549,12 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
+     "dimension": "decision_execution.target.semantic_player",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
      "dimension": "decision_execution.mana_payment.mana_payment",
      "stage": "execution"
@@ -1579,7 +1585,7 @@
      "partition_created:2/3"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:library): library contents are never exposed. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.pile.partition (LAB_EXECUTION_GAP); execution decision_execution.pile.pile_label (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:library): library contents are never exposed. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.pile.partition (LAB_EXECUTION_GAP); execution decision_execution.pile.pile_label (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
