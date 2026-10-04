@@ -156,13 +156,16 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: requirements/lock.txt
-      - name: Install project and hash-locked audit tools
+      - name: Install hash-locked audit tools
         run: |
           python -m pip install --require-hashes -r requirements/lock.txt
-          python -m pip install --no-deps --no-build-isolation -e .
           python -m pip check
       - name: Build source-bound product wheel for security evidence
         run: python -m pip wheel --no-deps --no-build-isolation --wheel-dir dist .
+      - name: Install actual wheel in tooling scope
+        run: |
+          python -m pip install --no-deps --no-index dist/*.whl
+          python -m pip check
       - name: Prepare distinct security scopes
         id: prepare-scopes
         if: ${{ success() || failure() }}

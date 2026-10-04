@@ -1,0 +1,28 @@
+{
+  "error": "ValueError: invalid/duplicate distribution",
+  "schema": "security-evidence-scopes/1",
+  "scopes": {},
+  "source": {
+    "extras": [],
+    "inputs": {
+      ".github/workflows/ci.yml": "d80af95353d2fc9021d2f544e50d540e839de0ae47e01c057d1f4a12107822f7",
+      "pyproject.toml": "b0b2654acfe6b55d91cf699b7c01171f43b56e03c7c1b97ac2a00e06a3f4be69",
+      "requirements/lock.txt": "acbfcca242278688f832181c75cfef71492e85054dbf2193856895387ab2d4cf",
+      "scripts/security_evidence.py": "558cbd28e2861bb87e68eda1513fa0b2c1a8d8ef8e199818923eb9854560a0d6",
+      "scripts/verify_packaging_smoke.py": "318a107ad0bad0781809597d1214e3d7ca9958c0d6997cddef2fd7f9a0031b10"
+    },
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "python": "3.14.4",
+    "run_attempt": null,
+    "run_id": null,
+    "sha": "42289b8206b096989d4f2e7167692a827e57aa7c",
+    "tree": "0abd327e02af02efe8a880fca74527ff6799d97d"
+  },
+  "status": "FAIL",
+  "steps": {},
+  "tools": {
+    "cyclonedx-bom": "7.3.0",
+    "pip-audit": "2.10.1",
+    "pip-licenses": "5.5.5"
+  }
+}

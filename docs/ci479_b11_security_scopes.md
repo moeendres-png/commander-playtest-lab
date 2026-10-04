@@ -5,7 +5,7 @@ Base: Lab d9d2eda2d30e0825616a690ce4278584d0fcfe5a /
 TREE8144004b1fadbffe19ecce9c8cbc2d91473382d1. Sole writer Codex.
 Owned branch: hardening/b11-scoped-security-evidence-20261004.
 
-The security job installs its full hash lock once; generator versions and every
+The security job installs its full hash lock once and its actual built wheel; generator versions and every
 installed generator/transitive distribution must match that lock. The existing
 bootstrap pip is explicitly identified as CI infrastructure and is never treated
 as shipped runtime. Audit resolution uses --disable-pip with exact inventory
@@ -36,3 +36,9 @@ build tools/no isolation; prepare, execute the seven named inline workflow steps
 seal with their actual outcomes. Exact-head hosted security evidence and independent
 review are required before merge and issue closure. This does not claim general
 adversarial CI containment or Rules qualification.
+
+The initial live probe rejected duplicate project metadata produced by editable
+installation (dist-info plus source egg-info). CI tooling now installs the actual
+wheel too; it does not collapse ambiguous duplicate distributions. The retained
+before record documents the refusal at source42289b82. Local disposable tooling
+environment with system packages was also refused, never used as PASS evidence.
