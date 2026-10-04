@@ -130,6 +130,8 @@ class XmageConstructedStateTest {
             assertEquals(0, player.get("battlefield_size").getAsInt());
             assertEquals(0, player.get("graveyard_size").getAsInt());
             assertEquals(0, player.get("exile_size").getAsInt());
+            assertTrue(player.get("library_shuffles").getAsInt() >= 1,
+                    "the Rules RNG shuffled this library before the opening draw (CR 103.3)");
             assertEquals(1, player.getAsJsonArray("commanders").size());
             JsonObject commander = player.getAsJsonArray("commanders").get(0).getAsJsonObject();
             assertEquals(ROGRAKH, commander.get("card_identity").getAsString());

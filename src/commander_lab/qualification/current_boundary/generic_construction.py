@@ -41,6 +41,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -547,6 +548,35 @@ def compare(
         acknowledged_seed,
         "the seed the engine acknowledged on game creation",
     )
+    # Every requested Rules-RNG channel (and every deck's own shuffle channel)
+    # must have been used: the engine reports, per seat, the Rules-RNG shuffles
+    # of that library so far. Equal decks and hands look the same shuffled or
+    # not, so the seed alone never establishes the shuffle (Codex P1, #530).
+    channels = list(randomness.get("channels") or [])
+    for deck in record.get("deck_state") or []:
+        channel = deck.get("shuffle_channel") if isinstance(deck, dict) else None
+        if channel and channel not in channels:
+            channels.append(channel)
+    for channel in channels:
+        name = f"rules_randomness.channel.{channel}"
+        shuffled = re.fullmatch(r"library_shuffle:(P[1-9])", str(channel))
+        if shuffled is None:
+            checks.unsupported(name, "only library-shuffle channels are constructed here", channel)
+            continue
+        seen = players_by_id.get(shuffled.group(1)) or {}
+        count = _int(seen.get("library_shuffles"))
+        if count is None:
+            checks.unsupported(name, "the provider reported no Rules-RNG shuffle of this library")
+            continue
+        checks.items.append(
+            FieldCheck(
+                name,
+                "EQUAL" if count >= 1 else "MISMATCH",
+                "at least one Rules-RNG shuffle",
+                {"library_shuffles": count},
+                "the engine's own taped shuffles of this seat's library before the capture",
+            )
+        )
     if randomness.get("predetermined_semantic_draws"):
         checks.unsupported(
             "rules_randomness.predetermined_semantic_draws",

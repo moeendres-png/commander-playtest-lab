@@ -1077,6 +1077,18 @@ final class XmageGameManager {
                     }
                 }
                 entry.addProperty("battlefield_size", battlefield);
+                // The Rules-RNG shuffles of this seat's library so far, from the
+                // engine's own taped results: each consumed the Rules RNG.
+                int seatIndex = XmageRulesRngResultTape.seatIndex(game, player.getId());
+                int shuffles = 0;
+                for (JsonElement result : XmageRulesRngResultTape.results(game)) {
+                    JsonObject taped = result.getAsJsonObject();
+                    if (taped.get("seat").getAsInt() == seatIndex
+                            && taped.get("after").getAsLong() > taped.get("before").getAsLong()) {
+                        shuffles++;
+                    }
+                }
+                entry.addProperty("library_shuffles", shuffles);
                 mage.watchers.common.CommanderPlaysCountWatcher watcher = game.getState()
                         .getWatcher(mage.watchers.common.CommanderPlaysCountWatcher.class);
                 JsonArray commanders = new JsonArray();

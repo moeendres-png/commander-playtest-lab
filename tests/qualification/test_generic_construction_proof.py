@@ -68,6 +68,7 @@ def _state(players: int = 4) -> dict:
                 "graveyard_size": 0,
                 "exile_size": 0,
                 "battlefield_size": 0,
+                "library_shuffles": 1,
                 "commanders": [
                     {
                         "card_identity": ROGRAKH,
@@ -151,6 +152,8 @@ def _mutate(path: list, value) -> dict:
         ((["players", 0, "commanders", 0, "zone"], "battlefield"), "commander_state.P1.commanders"),
         ((["players", 1, "hand_size"], 6), "deck_state.P2.opening_hand_size"),
         ((["stack_size"], 1), "stack_state"),
+        # Codex P1 (#530): a library the Rules RNG never shuffled.
+        ((["players", 2, "library_shuffles"], 0), "rules_randomness.channel.library_shuffle:P3"),
         # Codex P1 (#530): the commander's native owner is compared.
         ((["players", 0, "commanders", 0, "owner"], "P4"), "commander_state.P1.commanders"),
         # Codex P1 (#530): the emitted temporal fields decide the point.
@@ -441,3 +444,24 @@ def test_a_setup_clause_the_lane_cannot_establish_is_unsupported(record, clause,
 def test_every_setup_clause_of_the_record_is_checked(record) -> None:
     fields = {c.field for c in _proof(record, _state()).checks}
     assert {f"setup_validation.{key}" for key in record["setup_validation"]} <= fields
+
+
+def test_a_provider_without_shuffle_evidence_is_unsupported(record) -> None:
+    state = _state()
+    del state["players"][1]["library_shuffles"]
+    proof = _proof(record, state)
+    assert proof.verdict == generic_construction.UNSUPPORTED
+    assert "rules_randomness.channel.library_shuffle:P2" in {c.field for c in proof.failures()}
+
+
+def test_a_channel_other_than_a_library_shuffle_is_unsupported(record) -> None:
+    changed = copy.deepcopy(record)
+    changed["rules_randomness"]["channels"].append("coin_flip:P1")
+    proof = _proof(changed, _state())
+    assert proof.verdict == generic_construction.UNSUPPORTED
+
+
+def test_every_requested_channel_is_checked(record) -> None:
+    fields = {c.field for c in _proof(record, _state()).checks}
+    for channel in record["rules_randomness"]["channels"]:
+        assert f"rules_randomness.channel.{channel}" in fields
