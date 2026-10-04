@@ -1,0 +1,52 @@
+{
+  "source": {
+    "extras": [],
+    "inputs": {
+      ".github/workflows/ci.yml": "dfc69974ebf7ac06715728ba2b88ee0cb30f7f011e8780a0636cb85cb4196779",
+      "pyproject.toml": "b0b2654acfe6b55d91cf699b7c01171f43b56e03c7c1b97ac2a00e06a3f4be69",
+      "requirements/lock.txt": "acbfcca242278688f832181c75cfef71492e85054dbf2193856895387ab2d4cf",
+      "requirements/security-bootstrap.txt": "42a5b6211ee306332b98f7723a6de44ef1d83883ab337454db75e61b52773ae7",
+      "scripts/security_evidence.py": "1135f1accfc2cb22d41db19a44c2225bb1f3049052b6401e11469b0d7f4d1491",
+      "scripts/verify_packaging_smoke.py": "318a107ad0bad0781809597d1214e3d7ca9958c0d6997cddef2fd7f9a0031b10"
+    },
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "python": "3.14.4",
+    "run_attempt": null,
+    "run_id": null,
+    "sha": "4d37273bb76376fd6ec101f63b6b8a9d6ae6bf01",
+    "tree": "200792a50f31ef026b8eacf8b6ae77894bb22082"
+  },
+  "steps": {
+    "audit-product": "success",
+    "audit-tooling": "success",
+    "licenses-product": "success",
+    "licenses-tooling": "success",
+    "prepare-scopes": "success",
+    "sbom-product": "success",
+    "sbom-tooling": "success"
+  },
+  "status": "PASS",
+  "raw_observations_sha256": "28c2c41d5c8ed4a81631a8d404767235d072530cd50bed65d54e33bef3a0f625",
+  "inventory_counts": {
+    "ci-tooling": 109,
+    "runtime-product": 16
+  },
+  "tools": {
+    "cyclonedx-bom": "7.3.0",
+    "pip": "26.2",
+    "pip-audit": "2.10.1",
+    "pip-licenses": "5.5.5"
+  },
+  "wheel": {
+    "filename": "commander_playtest_lab-1.25.0-py3-none-any.whl",
+    "sha256": "1cd5f03b53c99cce99fbb3d0ef542d93fd9f78e4c375ad837733659dd0cc3aba",
+    "smoke_sha256": "472c224c964e9f50376b53acd3c1b9d63ae7caeac81180876243ae7805b514f0"
+  },
+  "affected_unit_tests": {
+    "passed": 138,
+    "failed": 0
+  },
+  "hosted_python312": "NOT_RUN",
+  "independent_review": "PENDING",
+  "classification": "DIRECTLY_VERIFIED local security collection; not Rules qualification"
+}
