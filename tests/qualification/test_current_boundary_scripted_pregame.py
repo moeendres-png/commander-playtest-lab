@@ -33,10 +33,18 @@ def _record() -> dict[str, Any]:
 class _FakeProcess:
     """A bridge that reports seats either at creation or through state envelopes."""
 
-    def __init__(self, *, roster_at_create: bool, hands: dict[str, int] | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        roster_at_create: bool,
+        hands: dict[str, int] | None = None,
+        seed_echo: int | None = None,
+    ) -> None:
         self.roster_at_create = roster_at_create
         self.hands = hands or {seat: 7 for seat in ENGINE_IDS}
+        self.seed_echo = seed_echo
         self.imports = 0
+        self.decks: list[dict[str, Any]] = []
         self.mulligans: list[tuple[str, bool]] = []
 
     def actor(self, seat: str) -> str:
@@ -52,14 +60,18 @@ class _FakeProcess:
     ) -> dict[str, Any]:
         del game_id, timeout_s
         if message_type == "get_capabilities":
-            return {"success": True, "payload": {"capabilities": {"seed_supported": False}}}
+            supported = self.seed_echo is not None
+            return {"success": True, "payload": {"capabilities": {"seed_supported": supported}}}
         if message_type in {"start_engine", "get_provider_version"}:
             return {"success": True, "payload": {}}
         if message_type == "import_deck":
             self.imports += 1
+            self.decks.append(payload["deck"])
             return {"success": True, "payload": {"deck_handle": {"handle_id": f"d{self.imports}"}}}
         if message_type == "create_commander_game":
             created: dict[str, Any] = {"player_count": 4}
+            if self.seed_echo is not None:
+                created["rules_seed"] = self.seed_echo
             if self.roster_at_create:
                 created["seats"] = [
                     {"seat": index, "player_id": seat} for index, seat in enumerate(ENGINE_IDS)
@@ -227,18 +239,65 @@ def _row(
     )
 
 
-def test_the_engine_observed_pregame_is_the_records_obligation(
+def test_the_records_own_decks_are_imported() -> None:
+    decks = full107.record_decks(_record())
+    assert [deck["commander_names"] for deck in decks] == [["Rograkh, Son of Rohgahh"]] * 4
+    assert all(deck["mainboard"] == ["Mountain"] * 99 for deck in decks)
+    broken = _record()
+    broken["deck_state"][0]["library_template"]["count"] = 98
+    with pytest.raises(ValueError):
+        full107.record_decks(broken)
+
+
+def test_the_observed_pregame_is_not_credited_without_construction_equality(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    row = _row(monkeypatch, _FakeProcess(roster_at_create=False), ASKED_IN_PLAN_ORDER)
-    assert row.outcome == "PASS", row.reason
-    assert row.execution_mode == full107.SCRIPTED_PREGAME_MODE
+    proc = _FakeProcess(roster_at_create=False, seed_echo=424242)
+    row = _row(monkeypatch, proc, ASKED_IN_PLAN_ORDER)
+    # The obligation is observed on the record's decks under the acknowledged
+    # seed; the record's construction_validation still withholds credit.
+    assert proc.decks == full107.record_decks(_record())
     assert row.evidence["unmet_required_events"] == []
+    assert row.outcome == "UNKNOWN"
+    assert "construction equality is unestablished" in row.reason
+
+
+def test_an_unacknowledged_seed_is_never_credited(monkeypatch: pytest.MonkeyPatch) -> None:
+    for proc in (
+        _FakeProcess(roster_at_create=False),
+        _FakeProcess(roster_at_create=False, seed_echo=7),
+    ):
+        row = _row(monkeypatch, proc, ASKED_IN_PLAN_ORDER)
+        assert row.outcome == "UNKNOWN"
+        assert "did not acknowledge the record's Rules seed" in row.reason
+
+
+def test_without_a_required_construction_check_the_observed_pregame_passes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # The PASS path exists only for a record that does not require construction
+    # equality; no current record is such a record.
+    record = _record()
+    record["construction_validation"] = {"required": False}
+    frames = iter(
+        [_frame("MULLIGAN", ENGINE_IDS[seat]) for seat in ASKED_IN_PLAN_ORDER]
+        + [_frame("PRIORITY", ENGINE_IDS["p1"])]
+    )
+    monkeypatch.setattr(game_driver, "poll_decision", lambda *a, **k: next(frames))
+    row = full107.scripted_pregame_row(
+        record,
+        _FakeProcess(roster_at_create=False, seed_echo=424242),  # type: ignore[arg-type]
+        candidate="xmage",
+        runtime_identity={},
+    )
+    assert row.outcome == "PASS", row.reason
 
 
 def test_a_bottomed_card_is_not_the_free_mulligan(monkeypatch: pytest.MonkeyPatch) -> None:
     # P1 kept six cards: one was bottomed, so "bottom_count:P1:0" is not shown.
-    proc = _FakeProcess(roster_at_create=False, hands={"p1": 6, "p2": 7, "p3": 7, "p4": 7})
+    proc = _FakeProcess(
+        roster_at_create=False, hands={"p1": 6, "p2": 7, "p3": 7, "p4": 7}, seed_echo=424242
+    )
     row = _row(monkeypatch, proc, ASKED_IN_PLAN_ORDER)
     assert row.outcome == "UNKNOWN"
     assert row.evidence["unmet_required_events"] == ["bottom_count:P1:0"]

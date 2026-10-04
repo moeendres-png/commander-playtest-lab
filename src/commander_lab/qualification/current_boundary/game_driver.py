@@ -640,6 +640,7 @@ def drive_commander_game(
     drive_to: Literal["priority", "full_turn", "first_turn_draw_skip"] = "priority",
     max_steps: int = 400,
     mulligan_plan: tuple[tuple[str, bool], ...] | None = None,
+    decks: list[dict[str, Any]] | None = None,
 ) -> CommandedGameResult:
     """Run a real Commander lifecycle for one candidate at one player count.
 
@@ -652,7 +653,12 @@ def drive_commander_game(
     the plan is exhausted, or a plan entry the engine never asked fails closed.
     With a plan, every seat's zone counts are read from the engine at the first
     priority after the pregame, before anything is passed.
+
+    ``decks`` replaces the driver's own test decks with one import payload per
+    seat (a record's requested decks); the engine still validates every card.
     """
+    if decks is not None and len(decks) != player_count:
+        raise ValueError(f"{len(decks)} decks were supplied for {player_count} players")
     if player_count < 2 or player_count > 6:
         raise ValueError(f"player_count must be within 2..6, got {player_count}")
 
@@ -672,9 +678,12 @@ def drive_commander_game(
         result.steps_completed.append("handshake")
 
         handles: list[str] = []
-        for deck_id in result.deck_identity:
+        payloads = decks if decks is not None else [build_deck(d) for d in result.deck_identity]
+        if decks is not None:
+            result.deck_identity = [str(deck["deck_id"]) for deck in decks]
+        for deck in payloads:
             payload = _require_ok(
-                proc.request("import_deck", {"deck": build_deck(deck_id)}),
+                proc.request("import_deck", {"deck": deck}),
                 "import_deck",
             )
             handle = payload.get("deck_handle")

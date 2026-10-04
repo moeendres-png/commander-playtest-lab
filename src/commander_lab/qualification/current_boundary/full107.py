@@ -21,6 +21,7 @@ PROTOCOL_FAILURE  the provider answered in a shape the current contract
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import time
@@ -584,6 +585,54 @@ def scripted_pregame_plan(record: dict[str, Any]) -> tuple[tuple[str, bool], ...
     return tuple(entries)
 
 
+def record_decks(record: dict[str, Any]) -> list[dict[str, Any]]:
+    """The record's requested Commander decks, one import payload per seat.
+
+    Each seat's deck is its commander(s) from ``commander_state`` plus its
+    ``library_template``; a deck that is not exactly 100 cards, or a seat the
+    deck state does not cover, is a record defect and nothing is imported.
+    """
+    commanders = {
+        str(entry.get("commander_id")): str(entry.get("card_identity"))
+        for entry in (record.get("commander_state") or {}).get("commanders") or ()
+    }
+    by_player = {
+        str(deck.get("player_id")): deck
+        for deck in record.get("deck_state") or ()
+        if isinstance(deck, dict)
+    }
+    payloads: list[dict[str, Any]] = []
+    for seat in record.get("players") or ():
+        player = str(seat.get("player_id"))
+        deck = by_player.get(player)
+        if deck is None:
+            raise ValueError(f"the record's deck state does not cover {player}")
+        names = [commanders.get(str(cid), "") for cid in deck.get("commander_ids") or ()]
+        template = deck.get("library_template") or {}
+        count = template.get("count")
+        if (
+            not names
+            or not all(names)
+            or not isinstance(count, int)
+            or not template.get("card_identity")
+            or len(names) + count != 100
+        ):
+            raise ValueError(f"the record's deck for {player} is not a 100-card Commander deck")
+        mainboard = [str(template["card_identity"])] * count
+        payloads.append(
+            {
+                "deck_id": f"{record['fixture_id']}-{player}",
+                "deck_hash": hashlib.sha256(
+                    "|".join([*names, *mainboard]).encode("utf-8")
+                ).hexdigest(),
+                "name": f"{record['fixture_id']} {player}",
+                "commander_names": names,
+                "mainboard": mainboard,
+            }
+        )
+    return payloads
+
+
 def _pregame_rounds(tape: list[tuple[str, bool]]) -> dict[str, list[bool]]:
     """Each seat's answers in the order the engine asked them (its rounds)."""
     rounds: dict[str, list[bool]] = {}
@@ -628,10 +677,14 @@ def scripted_pregame_row(
     }
     try:
         plan = scripted_pregame_plan(record)
+        decks = record_decks(record)
     except ValueError as exc:
         return RowResult(
             fixture_id, candidate, "UNKNOWN", SCRIPTED_PREGAME_MODE, str(exc), evidence
         )
+    evidence["requested_decks"] = [
+        {"deck_id": deck["deck_id"], "deck_hash": deck["deck_hash"]} for deck in decks
+    ]
     game = drive_commander_game(
         proc,
         candidate=candidate,
@@ -640,6 +693,7 @@ def scripted_pregame_row(
         drive_to="priority",
         max_steps=80,
         mulligan_plan=plan,
+        decks=decks,
     )
     asked = [
         (entry.actor, entry.chosen_option_id == "keep")
@@ -729,6 +783,34 @@ def scripted_pregame_row(
             "UNKNOWN",
             SCRIPTED_PREGAME_MODE,
             f"the engine-observed pregame does not establish {unmet}",
+            evidence,
+        )
+    # The record's own credit conditions, beyond the observed obligation: its
+    # seeded shuffles must run under the engine-acknowledged Rules seed, and its
+    # construction_validation requires the provider's normalized constructed
+    # state to equal the requested state. The generic lane emits no constructed
+    # state, so there the obligation is observed but the row is not credited.
+    if game.seed_binding is None or not game.seed_binding.controlled:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            SCRIPTED_PREGAME_MODE,
+            "the obligation was observed, but the engine did not acknowledge the record's "
+            f"Rules seed {seed}, so the record's seeded shuffles are not established",
+            evidence,
+        )
+    construction = record.get("construction_validation") or {}
+    if construction.get("required"):
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            SCRIPTED_PREGAME_MODE,
+            "the obligation was observed on the record's decks under the acknowledged "
+            f"Rules seed, but the record requires {construction.get('credit_condition')} "
+            "and this lane emits no normalized constructed state, so construction "
+            "equality is unestablished",
             evidence,
         )
     return RowResult(
