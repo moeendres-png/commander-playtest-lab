@@ -312,4 +312,88 @@ def test_a_pregame_that_did_not_complete_is_never_credited(
 
 
 def test_only_the_declared_scripted_pregame_rows_take_this_route() -> None:
-    assert full107.SCRIPTED_PREGAME_ROWS == ("PILOT_MULLIGAN",)
+    assert full107.SCRIPTED_PREGAME_ROWS == ("PILOT_MULLIGAN", "WS05-CMD-MULL-2", "WS05-CMD-MULL-4")
+
+
+def _mull_record(fixture_id: str) -> dict[str, Any]:
+    records = load_effective_materialization(REPO_ROOT).denominator_records()
+    return copy.deepcopy(next(r for r in records if r["fixture_id"] == fixture_id))
+
+
+def _mull_row(
+    monkeypatch: pytest.MonkeyPatch, proc: _FakeProcess, record: dict[str, Any]
+) -> full107.RowResult:
+    frames = iter(
+        [_frame("MULLIGAN", proc.actor(seat)) for seat in ASKED_IN_PLAN_ORDER]
+        + [_frame("PRIORITY", proc.actor("p1"))]
+    )
+    monkeypatch.setattr(game_driver, "poll_decision", lambda *a, **k: next(frames))
+    return full107.scripted_pregame_row(
+        record,
+        proc,  # type: ignore[arg-type]
+        candidate="xmage",
+        runtime_identity={},
+    )
+
+
+def test_mull_4_states_the_same_plan_and_its_tokens_are_engine_measured(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 1.0.21: MULL-4's script states its own pregame plan (P1 mulligans, all
+    # keep, P1 keeps again). mulligan_once:P1 is P1's one mulligan and keep;
+    # free_mulligan:true is P1's seven-card hand at turn 1 (CR 103.5c).
+    record = _mull_record("WS05-CMD-MULL-4")
+    assert full107.scripted_pregame_plan(record) == PLAN
+    assert record["expected_events"]["required_events"] == [
+        "mulligan_once:P1",
+        "free_mulligan:true",
+    ]
+    record["construction_validation"] = {"required": False}
+    proc = _FakeProcess(roster_at_create=False, seed_echo=424242)
+    row = _mull_row(monkeypatch, proc, record)
+    assert row.evidence["unmet_required_events"] == []
+    assert row.outcome == "PASS", row.reason
+
+
+def test_a_bottomed_card_is_no_free_mulligan_for_mull_4(monkeypatch: pytest.MonkeyPatch) -> None:
+    record = _mull_record("WS05-CMD-MULL-4")
+    record["construction_validation"] = {"required": False}
+    proc = _FakeProcess(
+        roster_at_create=False, hands={"p1": 6, "p2": 7, "p3": 7, "p4": 7}, seed_echo=424242
+    )
+    row = _mull_row(monkeypatch, proc, record)
+    assert row.outcome == "UNKNOWN"
+    assert row.evidence["unmet_required_events"] == ["free_mulligan:true"]
+
+
+def test_mull_4_is_not_credited_without_construction_equality(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proc = _FakeProcess(roster_at_create=False, seed_echo=424242)
+    row = _mull_row(monkeypatch, proc, _mull_record("WS05-CMD-MULL-4"))
+    assert row.evidence["unmet_required_events"] == []
+    assert row.outcome == "UNKNOWN"
+    assert "construction equality is unestablished" in row.reason
+
+
+def test_a_scripted_london_bottom_is_never_chosen_by_the_lab() -> None:
+    # MULL-2 owes one card after a non-free two-player mulligan. No lane offers
+    # an external bottom-card decision, so nothing is executed: the row is
+    # UNKNOWN before any request, never a Lab-chosen card.
+    record = _mull_record("WS05-CMD-MULL-2")
+    assert full107.scripted_london_bottoms(record) == [("p1", {"Mountain": 1})]
+    assert full107.scripted_pregame_plan(record) == (("p1", False), ("p2", True), ("p1", True))
+
+    class _Untouched:
+        def request(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+            raise AssertionError("nothing may be sent for an unanswerable bottom selection")
+
+    row = full107.scripted_pregame_row(
+        record,
+        _Untouched(),  # type: ignore[arg-type]
+        candidate="xmage",
+        runtime_identity={},
+    )
+    assert row.outcome == "UNKNOWN"
+    assert "London bottom selection" in row.reason
+    assert row.evidence["scripted_london_bottoms"] == [["p1", {"Mountain": 1}]]

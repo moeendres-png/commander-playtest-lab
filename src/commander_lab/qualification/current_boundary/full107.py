@@ -591,7 +591,7 @@ def start2_row(
 
 # Records whose whole obligation is a scripted pregame: every mulligan decision
 # of every seat is named, in the order the rules ask them (CR 103.5).
-SCRIPTED_PREGAME_ROWS = ("PILOT_MULLIGAN",)
+SCRIPTED_PREGAME_ROWS = ("PILOT_MULLIGAN", "WS05-CMD-MULL-2", "WS05-CMD-MULL-4")
 SCRIPTED_PREGAME_MODE = "PROTOCOL2_SCRIPTED_PREGAME"
 _PLAN_ANSWERS = {"MULLIGAN": ("mulligan", False), "KEEP": ("keep_opening_hand", True)}
 
@@ -605,6 +605,11 @@ def scripted_pregame_plan(record: dict[str, Any]) -> tuple[tuple[str, bool], ...
     """
     plan = record.get("pregame_decision_plan")
     script = record.get("decision_script")
+    if isinstance(script, list):
+        # A London bottom selection follows the keep it belongs to; it is no
+        # keep-or-mulligan answer, so the plan names it nowhere (see
+        # scripted_london_bottoms).
+        script = [step for step in script if step.get("decision_family") != "london_bottom"]
     if not isinstance(plan, list) or not isinstance(script, list) or len(plan) != len(script):
         raise ValueError("the pregame plan and the decision script do not have one entry each")
     entries: list[tuple[str, bool]] = []
@@ -673,6 +678,31 @@ def record_decks(record: dict[str, Any]) -> list[dict[str, Any]]:
     return payloads
 
 
+def scripted_london_bottoms(record: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    """The record's scripted London bottom selections as ``(seat, multiset)``."""
+    return [
+        (str(step.get("actor") or "").lower(), (step.get("selection") or {}).get("semantic_value"))
+        for step in record.get("decision_script") or ()
+        if isinstance(step, dict) and step.get("decision_family") == "london_bottom"
+    ]
+
+
+def _bottom_count(hands: dict[str, Any], hand_sizes: dict[str, Any], seat: str) -> int | None:
+    """Cards a seat put on the bottom, from its engine-reported hand at turn 1's start."""
+    seen = hands.get(seat) or {}
+    checkpoint = seen.get("checkpoint") or {}
+    size = hand_sizes.get(seat)
+    if (
+        not isinstance(size, int)
+        or not isinstance(seen.get("hand_count"), int)
+        or checkpoint.get("turn_number") != 1
+        or checkpoint.get("phase") != "beginning"
+        or checkpoint.get("step") not in ("untap", "upkeep")
+    ):
+        return None
+    return int(size - seen["hand_count"])
+
+
 def _pregame_rounds(tape: list[tuple[str, bool]]) -> dict[str, list[bool]]:
     """Each seat's answers in the order the engine asked them (its rounds)."""
     rounds: dict[str, list[bool]] = {}
@@ -721,6 +751,24 @@ def scripted_pregame_row(
     except ValueError as exc:
         return RowResult(
             fixture_id, candidate, "UNKNOWN", SCRIPTED_PREGAME_MODE, str(exc), evidence
+        )
+    bottoms = scripted_london_bottoms(record)
+    if bottoms:
+        # The bottom card is the player's own choice (CR 103.5), so the Lab
+        # never selects it and no default may answer it. This lane has no
+        # external London bottom surface: the XMage generic lane refuses the
+        # selection as UNSUPPORTED_COMPATIBILITY_DECISION and the pinned Forge
+        # bridge never answers an owed tuck. Nothing is executed.
+        evidence["scripted_london_bottoms"] = [[seat, value] for seat, value in bottoms]
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            SCRIPTED_PREGAME_MODE,
+            "the record scripts a London bottom selection "
+            f"({', '.join(seat.upper() for seat, _ in bottoms)}), and this lane offers no "
+            "external bottom-card decision; the Lab never chooses the card for the player",
+            evidence,
         )
     evidence["requested_decks"] = [
         {"deck_id": deck["deck_id"], "deck_hash": deck["deck_hash"]} for deck in decks
@@ -790,28 +838,37 @@ def scripted_pregame_row(
         )
     rounds = _pregame_rounds(asked)
     unmet: list[str] = []
+    # The seats that took exactly one mulligan and then kept: the subject of
+    # mulligan_once and free_mulligan (CR 103.5c makes that one free in a game
+    # of more than two players).
+    once = sorted(
+        seat
+        for seat, answers in rounds.items()
+        if answers.count(False) == 1 and answers and answers[-1] is True
+    )
     for token in required:
         decided = re.fullmatch(r"(mulligan|keep):(P[1-6]):round([1-9])", token)
         bottomed = re.fullmatch(r"bottom_count:(P[1-6]):([0-9]+)", token)
-        if decided:
+        mulligan_once = re.fullmatch(r"mulligan_once:(P[1-6])", token)
+        free = re.fullmatch(r"free_mulligan:(true|false)", token)
+        if mulligan_once:
+            if mulligan_once.group(1).lower() not in once:
+                unmet.append(token)
+        elif free:
+            # The one seat that mulliganed once, and the cards it bottomed: none
+            # for a free mulligan, one otherwise.
+            count = _bottom_count(hands, hand_sizes, once[0]) if len(once) == 1 else None
+            if count is None or count != (0 if free.group(1) == "true" else 1):
+                unmet.append(token)
+        elif decided:
             seat, round_number = decided.group(2).lower(), int(decided.group(3))
             answers = rounds.get(seat) or []
             wanted_keep = decided.group(1) == "keep"
             if round_number > len(answers) or answers[round_number - 1] != wanted_keep:
                 unmet.append(token)
         elif bottomed:
-            seat = bottomed.group(1).lower()
-            seen = hands.get(seat) or {}
-            checkpoint = seen.get("checkpoint") or {}
-            size = hand_sizes.get(seat)
-            if (
-                not isinstance(size, int)
-                or not isinstance(seen.get("hand_count"), int)
-                or checkpoint.get("turn_number") != 1
-                or checkpoint.get("phase") != "beginning"
-                or checkpoint.get("step") not in ("untap", "upkeep")
-                or size - seen["hand_count"] != int(bottomed.group(2))
-            ):
+            count = _bottom_count(hands, hand_sizes, bottomed.group(1).lower())
+            if count is None or count != int(bottomed.group(2)):
                 unmet.append(token)
         else:
             unmet.append(token)
