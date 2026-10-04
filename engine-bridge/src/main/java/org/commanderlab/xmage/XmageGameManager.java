@@ -1009,24 +1009,37 @@ final class XmageGameManager {
     }
 
     /** Schema of {@link #constructedState(String)}. */
-    static final String CONSTRUCTED_STATE_SCHEMA = "commander-lab.generic-constructed-state/1";
+    static final String CONSTRUCTED_STATE_SCHEMA = "commander-lab.generic-constructed-state/2";
 
     /**
      * The engine's normalized constructed state for the generic lane's
      * construction proof (Commander-Lab #441, decision (c)).
      *
-     * <p>Read from the native game objects inside the Rules process. Seats are
-     * named by their one-based seat number ({@code P1}..); zones contribute card
-     * names only: libraries and hands as name multisets (no order, no object
-     * identity), so nothing beyond deck composition is disclosed. This is
-     * harness evidence, never a principal-scoped observation.
+     * <p>An orchestration channel, not an observation (the AF09 precedent of
+     * {@link XmageRulesRngResultTape}): it exists only on a launch that carries
+     * an orchestration key, and is refused on every other launch. Read from the
+     * native game objects inside the Rules process. Seats are named by their
+     * one-based seat number ({@code P1}..). Public facts are plain: life,
+     * poison, loss, zone sizes, and each commander's identity, zone and
+     * command-zone cast count. Hidden content never leaves in the clear: each
+     * seat's library and hand together (its undrawn main deck plus its hand, a
+     * name multiset with no order) leave only as an HMAC under the launch key,
+     * so whoever does not hold the key can neither read a card out of it nor
+     * test a guess against it. Public zones other than the command zone leave
+     * as sizes only.</p>
      */
     JsonObject constructedState(String gameHandle) {
+        if (!XmageRulesRngResultTape.enabled()) {
+            String problem = XmageRulesRngResultTape.keyProblem();
+            throw new GameException("ORCHESTRATION_CHANNEL_NOT_ENABLED: "
+                    + (problem == null ? "this launch carries no orchestration key" : problem));
+        }
         ManagedGame managed = requireManagedGame(gameHandle);
         synchronized (managed) {
             Game game = managed.game;
             JsonObject root = new JsonObject();
             root.addProperty("schema", CONSTRUCTED_STATE_SCHEMA);
+            root.addProperty("observation_scope", "orchestration_keyed_digests");
             root.addProperty("lifecycle", managed.lifecycle.name().toLowerCase());
             root.addProperty("turn_number", game.getState().getTurnNum());
             TurnPhase phase = game.getTurnPhaseType();
@@ -1041,27 +1054,29 @@ final class XmageGameManager {
             JsonArray players = new JsonArray();
             for (int seat = 0; seat < managed.players.size(); seat++) {
                 Player player = managed.players.get(seat);
+                String seatId = "P" + (seat + 1);
                 JsonObject entry = new JsonObject();
-                entry.addProperty("player_id", "P" + (seat + 1));
+                entry.addProperty("player_id", seatId);
                 entry.addProperty("seat", seat + 1);
                 entry.addProperty("life", player.getLife());
                 entry.addProperty("poison", player.getCountersCount(CounterType.POISON));
                 entry.addProperty("lost", player.hasLost());
                 entry.addProperty("left", player.hasLeft());
                 entry.addProperty("library_size", player.getLibrary().size());
-                entry.add("library_card_counts", nameCounts(player.getLibrary().getCards(game)));
                 entry.addProperty("hand_size", player.getHand().size());
-                entry.add("hand_card_counts", nameCounts(player.getHand().getCards(game)));
-                entry.add("graveyard_card_counts", nameCounts(player.getGraveyard().getCards(game)));
-                entry.add("exile_card_counts",
-                        nameCounts(game.getExile().getCardsOwned(game, player.getId())));
-                List<mage.cards.Card> battlefield = new ArrayList<>();
+                List<mage.cards.Card> undrawnAndHand = new ArrayList<>(player.getLibrary().getCards(game));
+                undrawnAndHand.addAll(player.getHand().getCards(game));
+                entry.addProperty("library_and_hand_digest",
+                        constructedZoneDigest(seatId, "library_and_hand", undrawnAndHand));
+                entry.addProperty("graveyard_size", player.getGraveyard().size());
+                entry.addProperty("exile_size", game.getExile().getCardsOwned(game, player.getId()).size());
+                int battlefield = 0;
                 for (Permanent permanent : game.getBattlefield().getAllPermanents()) {
                     if (player.getId().equals(permanent.getControllerId())) {
-                        battlefield.add(permanent);
+                        battlefield++;
                     }
                 }
-                entry.add("battlefield_card_counts", nameCounts(battlefield));
+                entry.addProperty("battlefield_size", battlefield);
                 mage.watchers.common.CommanderPlaysCountWatcher watcher = game.getState()
                         .getWatcher(mage.watchers.common.CommanderPlaysCountWatcher.class);
                 JsonArray commanders = new JsonArray();
@@ -1073,7 +1088,7 @@ final class XmageGameManager {
                     }
                     JsonObject commander = new JsonObject();
                     commander.addProperty("card_identity", card.getName());
-                    commander.addProperty("owner", seatName(managed, card.getOwnerId()).getAsString());
+                    commander.add("owner", seatName(managed, card.getOwnerId()));
                     commander.addProperty("zone",
                             String.valueOf(game.getState().getZone(commanderId)).toLowerCase());
                     if (watcher == null) {
@@ -1093,6 +1108,26 @@ final class XmageGameManager {
         }
     }
 
+    /**
+     * HMAC under the launch's orchestration key over a seat's zone content as a
+     * name multiset: the schema, the zone label, the seat, then one
+     * {@code name<TAB>count} token per distinct name in {@link String} order.
+     * The Lab, which generated the key, computes the same digest from the
+     * record's requested deck and compares the two.
+     */
+    static String constructedZoneDigest(String seatId, String zone, Collection<? extends mage.cards.Card> cards) {
+        java.util.TreeMap<String, Integer> counts = new java.util.TreeMap<>();
+        for (mage.cards.Card card : cards) {
+            counts.merge(card.getName(), 1, Integer::sum);
+        }
+        List<String> tokens = new ArrayList<>();
+        tokens.add(CONSTRUCTED_STATE_SCHEMA);
+        tokens.add(zone);
+        tokens.add(seatId);
+        counts.forEach((name, count) -> tokens.add(name + "\t" + count));
+        return XmageRulesRngResultTape.digest(tokens);
+    }
+
     private static JsonElement seatName(ManagedGame managed, UUID playerId) {
         if (playerId == null) {
             return JsonNull.INSTANCE;
@@ -1103,16 +1138,6 @@ final class XmageGameManager {
             }
         }
         return new com.google.gson.JsonPrimitive("UNKNOWN_SEAT");
-    }
-
-    private static JsonObject nameCounts(Collection<? extends mage.cards.Card> cards) {
-        java.util.TreeMap<String, Integer> counts = new java.util.TreeMap<>();
-        for (mage.cards.Card card : cards) {
-            counts.merge(card.getName(), 1, Integer::sum);
-        }
-        JsonObject result = new JsonObject();
-        counts.forEach(result::addProperty);
-        return result;
     }
 
     private ManagedGame requireManagedGame(String gameHandle) {

@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 from . import receipts as seed_receipts
-from .bridge_launcher import BridgeLaunchError, BridgeProcess
+from .bridge_launcher import ORCHESTRATION_KEY_VARIABLE, BridgeLaunchError, BridgeProcess
 
 POLL_ATTEMPTS = 40
 POLL_INTERVAL_S = 1.0
@@ -78,6 +78,20 @@ def _declares_capability(proc: BridgeProcess, capability: str) -> bool:
         return False
     capabilities = _payload(response).get("capabilities")
     return isinstance(capabilities, dict) and capabilities.get(capability) is True
+
+
+def _launch_orchestration_key(proc: BridgeProcess) -> bytes | None:
+    """The orchestration key this launch carries, or None (every principal-facing launch)."""
+    plan = getattr(proc, "plan", None)
+    overrides = getattr(plan, "env_overrides", None) or {}
+    value = overrides.get(ORCHESTRATION_KEY_VARIABLE)
+    if not isinstance(value, str):
+        return None
+    try:
+        key = bytes.fromhex(value)
+    except ValueError:
+        return None
+    return key if len(key) >= 16 else None
 
 
 def _declares_seed_support(proc: BridgeProcess) -> bool:
@@ -196,10 +210,12 @@ class CommandedGameResult:
     failure: str | None = None
     failure_kind: str | None = None
     seed_binding: Any = None
-    # The provider's raw constructed state (#441 decision (c)). Kept off the
-    # persisted document: it lists each seat's hand at the mulligan. Only the
-    # derived construction proof, which merges library and hand, is persisted.
+    # The provider's constructed state (#441 decision (c)) and the launch's
+    # orchestration key its hidden-zone digests are keyed with. Both stay off the
+    # persisted document: the key never leaves this process, and only the
+    # derived construction proof is persisted.
     constructed_state: dict[str, Any] | None = None
+    orchestration_key: bytes | None = None
 
     def to_document(self) -> dict[str, Any]:
         return {
@@ -762,8 +778,16 @@ def drive_commander_game(
         # answered (the common pregame point of every provider). Only a provider
         # that declares the capability is asked; otherwise no proof exists and a
         # record requiring construction equality is not credited.
+        # The read is an orchestration channel: asked only on a launch that
+        # carries an orchestration key (never a principal-facing launch).
+        orchestration_key = _launch_orchestration_key(proc)
         constructed_supported = _declares_capability(proc, "constructed_state_supported")
         result.terminal_facts["provider_constructed_state_supported"] = constructed_supported
+        result.terminal_facts["constructed_state_channel"] = (
+            "orchestration_keyed_launch" if orchestration_key is not None else "no_launch_key"
+        )
+        constructed_supported = constructed_supported and orchestration_key is not None
+        result.orchestration_key = orchestration_key
 
         steps = 0
         draw_step_frames: list[dict[str, Any]] = []
@@ -816,12 +840,15 @@ def drive_commander_game(
                 and constructed_supported
                 and "constructed_state_capture" not in result.terminal_facts
             ):
-                constructed = _require_ok(
-                    proc.request("get_constructed_state", {}, game_id=game_id, timeout_s=120.0),
-                    "get_constructed_state",
+                response = proc.request(
+                    "get_constructed_state", {}, game_id=game_id, timeout_s=120.0
                 )
-                state = constructed.get("constructed_state")
-                result.constructed_state = state if isinstance(state, dict) else None
+                if _first_ok(response):
+                    state = _payload(response).get("constructed_state")
+                    result.constructed_state = state if isinstance(state, dict) else None
+                else:
+                    # A refusal is no state, so no proof can be established.
+                    result.terminal_facts["constructed_state_refused"] = _failure_detail(response)
                 result.terminal_facts["constructed_state_capture"] = (
                     "first_mulligan_decision_before_answer"
                 )

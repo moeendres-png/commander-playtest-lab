@@ -54,6 +54,7 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     mid_game_mechanisms,
     non_executed_row,
     observe_principal_state,
+    orchestration_plan,
     run_af01,
     run_af03,
     scripted_pregame_row,
@@ -94,6 +95,7 @@ from commander_lab.qualification.current_boundary import receipts as receipt_mod
 from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
     HIDDEN_SCENARIO_ROWS,
     NATIVE_MICRO_ROWS,
+    SCRIPTED_PREGAME_MODE,
     RowResult,
     run_cardinality,
     summarize,
@@ -1024,11 +1026,15 @@ def write(name: str, payload: Any) -> None:
 
 # R-4 direct FULL107 credit: only these runner routes validate an exact
 # denominator obligation directly. Native-suite execution remains supporting
-# evidence and is deliberately excluded from this list.
+# evidence and is deliberately excluded from this list. The scripted pregame
+# route is PROTOCOL2_LIFECYCLE's sibling on the same lane: every engine-asked
+# mulligan decision is the record's, the bottom counts are read from the engine,
+# and (#441 decision (c)) it is PASS only with an established construction proof.
 DIRECT_RECEIPT_MODES = frozenset(
     {
         "PROTOCOL2_LIFECYCLE",
         "PROTOCOL2_START2_V1_0_6",
+        SCRIPTED_PREGAME_MODE,
     }
 )
 DIRECT_RECEIPT_IDENTITY_PREFIX = "current-boundary-direct:"
@@ -1364,24 +1370,28 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         }
 
         # ---- player cardinality 2P..5P (+ bounded 6P) --------------------
+        # Each lifecycle runs on its own orchestration launch, so the provider's
+        # constructed state can be read (#441 decision (c)); that launch serves
+        # no principal-facing probe.
         cardinality: dict[str, Any] = {}
-        for count in (2, 3, 4, 5, 6):
-            fixture = f"PLAYER_COUNT_{count}P"
-            result = run_cardinality(
-                proc,
-                candidate=candidate,
-                player_count=count,
-                runtime_identity=identity,
-                record=by_id.get(fixture),
-            )
-            document = result.to_document()
-            cardinality[f"{count}P"] = document
-            if fixture in by_id:
-                rows.append(
-                    cardinality_row(
-                        by_id[fixture], result, candidate=candidate, runtime_identity=identity
-                    )
+        with launch(orchestration_plan(plan)) as keyed:
+            for count in (2, 3, 4, 5, 6):
+                fixture = f"PLAYER_COUNT_{count}P"
+                result = run_cardinality(
+                    keyed,
+                    candidate=candidate,
+                    player_count=count,
+                    runtime_identity=identity,
+                    record=by_id.get(fixture),
                 )
+                document = result.to_document()
+                cardinality[f"{count}P"] = document
+                if fixture in by_id:
+                    rows.append(
+                        cardinality_row(
+                            by_id[fixture], result, candidate=candidate, runtime_identity=identity
+                        )
+                    )
         probes["cardinality"] = cardinality
         write(
             f"PLAYER_CARDINALITY_{candidate.upper()}.json",
@@ -1404,13 +1414,15 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         )
 
         # ---- scripted pregame (every mulligan decision named) -------------
-        for fixture in SCRIPTED_PREGAME_ROWS:
-            if fixture in by_id:
-                rows.append(
-                    scripted_pregame_row(
-                        by_id[fixture], proc, candidate=candidate, runtime_identity=identity
+        # On an orchestration launch too, for the same construction proof.
+        with launch(orchestration_plan(plan)) as keyed:
+            for fixture in SCRIPTED_PREGAME_ROWS:
+                if fixture in by_id:
+                    rows.append(
+                        scripted_pregame_row(
+                            by_id[fixture], keyed, candidate=candidate, runtime_identity=identity
+                        )
                     )
-                )
 
         # ---- hidden-information principal probe ---------------------------
         hidden_game = drive_commander_game(

@@ -9,11 +9,18 @@ field-level correspondence under the record's own normalization
 
 The provider emits its constructed state from the native game objects inside the
 Rules process (``get_constructed_state``, schema
-``commander-lab.generic-constructed-state/1``), read once the natural game start
+``commander-lab.generic-constructed-state/2``), read once the natural game start
 has constructed the game and parked it at its first pregame decision, before any
 decision is answered. This module compares that state with every requested-state
 projection key the record carries. Anything it cannot compare fails closed:
 the proof is then ``CONSTRUCTION_UNSUPPORTED``, never equality.
+
+The read is an orchestration channel, not an observation (the AF09 precedent of
+the Rules-RNG tape): the provider serves it only on a launch carrying an
+orchestration key, which no principal-facing launch carries. Hidden content (a
+seat's library and hand together) leaves the engine only as an HMAC under that
+key; the Lab, which generated the key, computes the same digest from the
+record's requested deck. Public zones leave as sizes only.
 
 The state is read at the first mulligan decision of the game, before it is
 answered (libraries shuffled, opening hands drawn). A record that requests the
@@ -32,11 +39,12 @@ from the run instead, each stated in its own check:
 
 from __future__ import annotations
 
-from collections import Counter
+import hashlib
+import hmac
 from dataclasses import dataclass, field
 from typing import Any
 
-SCHEMA = "commander-lab.generic-constructed-state/1"
+SCHEMA = "commander-lab.generic-constructed-state/2"
 EQUAL = "CONSTRUCTION_EQUAL"
 MISMATCH = "CONSTRUCTION_MISMATCH"
 UNSUPPORTED = "CONSTRUCTION_UNSUPPORTED"
@@ -147,16 +155,22 @@ class _Checks:
         self.items.append(FieldCheck(name, "UNSUPPORTED", requested, None, detail))
 
 
-def _counts(value: Any) -> Counter[str] | None:
-    if not isinstance(value, dict):
-        return None
-    out: Counter[str] = Counter()
-    for name, count in value.items():
-        number = _int(count)
-        if not isinstance(name, str) or number is None or number < 0:
-            return None
-        out[name] += number
-    return out
+def zone_digest(key: bytes, seat: str, zone: str, card_counts: dict[str, int]) -> str:
+    """The provider's keyed zone digest, computed from requested card counts.
+
+    HMAC-SHA-256 under the launch's orchestration key over one token per line:
+    the schema, the zone label, the seat (``P1``..), then ``name<TAB>count`` per
+    distinct name in Java ``String`` order (UTF-16 code units).
+    """
+    tokens = [SCHEMA, zone, seat]
+    tokens += [
+        f"{name}\t{card_counts[name]}"
+        for name in sorted(card_counts, key=lambda name: name.encode("utf-16-be"))
+    ]
+    mac = hmac.new(key, digestmod=hashlib.sha256)
+    for token in tokens:
+        mac.update(token.encode("utf-8") + b"\n")
+    return mac.hexdigest()
 
 
 def _declared_steps_before_first_mulligan(record: dict[str, Any]) -> tuple[str, ...]:
@@ -180,6 +194,7 @@ def compare(
     acknowledged_seed: int | None,
     first_priority_seat: str | None,
     capture: str | None,
+    orchestration_key: bytes | None,
 ) -> ConstructionProof:
     """Compare the provider's constructed state with the record's requested state."""
     checks = _Checks()
@@ -191,6 +206,16 @@ def compare(
             "constructed_state.schema", f"unknown schema {constructed.get('schema')!r}"
         )
         return ConstructionProof(UNSUPPORTED, tuple(checks.items))
+    if constructed.get("observation_scope") != "orchestration_keyed_digests" or not (
+        isinstance(orchestration_key, bytes) and len(orchestration_key) >= 16
+    ):
+        checks.unsupported(
+            "constructed_state.observation_scope",
+            "hidden zones are compared only as digests under this run's orchestration key",
+            constructed.get("observation_scope"),
+        )
+        return ConstructionProof(UNSUPPORTED, tuple(checks.items))
+    digest_key: bytes = orchestration_key
 
     mode = record.get("execution_entry_mode")
     if mode != "NATURAL_GAME_START":
@@ -255,16 +280,21 @@ def compare(
                 f"deck_state.{pid}", "only a single-identity library template is compared", deck
             )
             continue
-        library = _counts(seen.get("library_card_counts"))
-        hand = _counts(seen.get("hand_card_counts"))
-        if library is None or hand is None:
-            checks.unsupported(f"deck_state.{pid}", "library or hand counts are malformed")
-            continue
-        checks.compare(
-            f"deck_state.{pid}.main_deck",
-            {template["card_identity"]: template["count"]},
-            dict(library + hand),
-            "library and hand together are the main deck before any card leaves them",
+        requested_deck = {template["card_identity"]: template["count"]}
+        expected = zone_digest(digest_key, pid, "library_and_hand", requested_deck)
+        observed_digest = seen.get("library_and_hand_digest")
+        checks.items.append(
+            FieldCheck(
+                f"deck_state.{pid}.main_deck",
+                "EQUAL"
+                if isinstance(observed_digest, str)
+                and hmac.compare_digest(expected, observed_digest)
+                else "MISMATCH",
+                {"card_counts": requested_deck, "keyed_digest": expected},
+                {"keyed_digest": observed_digest},
+                "library and hand together are the main deck before any card leaves them; "
+                "compared as digests under this run's orchestration key",
+            )
         )
         checks.compare(
             f"deck_state.{pid}.opening_hand_size",
@@ -356,11 +386,10 @@ def compare(
         )
     for pid, seen in players_by_id.items():
         for zone in ("battlefield", "graveyard", "exile"):
-            zone_counts = _counts(seen.get(f"{zone}_card_counts"))
             checks.compare(
                 f"zones.{pid}.{zone}",
-                {},
-                dict(zone_counts) if zone_counts is not None else None,
+                0,
+                _int(seen.get(f"{zone}_size")),
                 "the requested state places no object in this zone",
             )
 

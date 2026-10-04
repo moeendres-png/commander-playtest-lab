@@ -400,11 +400,17 @@ final class JsonlBridge {
     }
 
     /**
-     * Harness-only normalized constructed state for the generic lane's
-     * construction proof (Commander-Lab #441 decision (c)). Not a principal
-     * observation: it carries no hidden order and no object identities.
+     * Normalized constructed state for the generic lane's construction proof
+     * (Commander-Lab #441 decision (c)). An orchestration channel, not a
+     * principal observation: refused on every launch without an orchestration
+     * key, and hidden zone content leaves only as HMAC digests under that key.
      */
     private Result getConstructedState(String requestId, JsonObject request) {
+        if (!XmageRulesRngResultTape.enabled()) {
+            String problem = XmageRulesRngResultTape.keyProblem();
+            return error(requestId, "orchestration_channel_not_enabled",
+                    problem == null ? "this launch carries no orchestration key" : problem, false);
+        }
         try {
             JsonObject payload = optionalObjectPayload(request);
             String gameId = requestGameId(request, payload);

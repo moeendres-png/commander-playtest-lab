@@ -156,6 +156,9 @@ final class XmageProvider {
         capabilities.addProperty("starting_state_injection_supported", false);
         capabilities.addProperty("scenario_injection_supported", false);
         capabilities.addProperty("constructed_state_supported", true);
+        // An orchestration channel (#441 decision (c)), like AF09's Rules-RNG tape.
+        capabilities.addProperty("constructed_state_scope",
+                "orchestration_keyed_digests_refused_without_launch_key");
         capabilities.addProperty("healthcheck_supported", true);
         capabilities.addProperty("target_selection_supported", false);
         capabilities.addProperty("mode_selection_supported", false);

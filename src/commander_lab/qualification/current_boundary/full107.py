@@ -266,10 +266,13 @@ def generic_construction_proof(
 ) -> generic_construction.ConstructionProof | None:
     """The generic-lane construction proof of one run, or None without a provider state.
 
-    A provider that does not declare ``constructed_state_supported`` emits nothing,
-    and there is then no proof at all (not a failed one).
+    A provider that does not declare ``constructed_state_supported``, or a launch
+    without an orchestration key, emits nothing, and there is then no proof at all
+    (not a failed one).
     """
     if not result.terminal_facts.get("provider_constructed_state_supported"):
+        return None
+    if result.terminal_facts.get("constructed_state_channel") != "orchestration_keyed_launch":
         return None
     binding = result.seed_binding
     seed = binding.acknowledged_seed if binding is not None and binding.controlled else None
@@ -279,6 +282,7 @@ def generic_construction_proof(
         acknowledged_seed=seed,
         first_priority_seat=result.terminal_facts.get("first_priority_seat"),
         capture=result.terminal_facts.get("constructed_state_capture"),
+        orchestration_key=result.orchestration_key,
     )
 
 

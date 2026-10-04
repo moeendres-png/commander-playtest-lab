@@ -5,15 +5,24 @@ state field by field. Each control below changes exactly one fact and must stop
 the proof (wrong deck card, commander, owner, life, zone content, seed, starting
 seat, capture point, cast count, entry mode); a provider that emits nothing gives
 no proof at all, which keeps the decision (a) UNKNOWN.
+
+The state is an orchestration channel: hidden zones arrive only as digests under
+the launch's key, so a missing, short or foreign key never establishes equality.
 """
 
 from __future__ import annotations
 
 import copy
+from pathlib import Path
 
 import pytest
 
-from commander_lab.qualification.current_boundary import full107, generic_construction
+from commander_lab.qualification.current_boundary import (
+    bridge_launcher,
+    full107,
+    game_driver,
+    generic_construction,
+)
 from commander_lab.qualification.current_boundary.game_driver import CommandedGameResult
 from commander_lab.qualification.current_boundary.materialization import (
     load_effective_materialization,
@@ -21,6 +30,11 @@ from commander_lab.qualification.current_boundary.materialization import (
 from commander_lab.qualification.current_boundary.receipts import classify_seed_binding
 
 ROGRAKH = "Rograkh, Son of Rohgahh"
+KEY = bytes(range(32))
+
+
+def _deck_digest(seat: str, counts: dict[str, int], key: bytes = KEY) -> str:
+    return generic_construction.zone_digest(key, seat, "library_and_hand", counts)
 
 
 @pytest.fixture(scope="module")
@@ -31,6 +45,7 @@ def record() -> dict:
 def _state(players: int = 4) -> dict:
     return {
         "schema": generic_construction.SCHEMA,
+        "observation_scope": "orchestration_keyed_digests",
         "lifecycle": "started",
         "turn_number": 1,
         "phase": "beginning",
@@ -46,12 +61,11 @@ def _state(players: int = 4) -> dict:
                 "lost": False,
                 "left": False,
                 "library_size": 92,
-                "library_card_counts": {"Mountain": 92},
                 "hand_size": 7,
-                "hand_card_counts": {"Mountain": 7},
-                "graveyard_card_counts": {},
-                "exile_card_counts": {},
-                "battlefield_card_counts": {},
+                "library_and_hand_digest": _deck_digest(f"P{seat}", {"Mountain": 99}),
+                "graveyard_size": 0,
+                "exile_size": 0,
+                "battlefield_size": 0,
                 "commanders": [
                     {
                         "card_identity": ROGRAKH,
@@ -71,6 +85,7 @@ def _proof(record, state, **overrides):
         "acknowledged_seed": 424242,
         "first_priority_seat": "p1",
         "capture": generic_construction.CAPTURE_POINT,
+        "orchestration_key": KEY,
     }
     kwargs.update(overrides)
     return generic_construction.compare(record, state, **kwargs)
@@ -108,13 +123,21 @@ def _mutate(path: list, value) -> dict:
     ("mutation", "field"),
     [
         (
-            (["players", 1, "library_card_counts"], {"Mountain": 91, "Lightning Bolt": 1}),
+            (
+                ["players", 1, "library_and_hand_digest"],
+                _deck_digest("P2", {"Mountain": 98, "Lightning Bolt": 1}),
+            ),
+            "deck_state.P2.main_deck",
+        ),
+        (
+            (["players", 1, "library_and_hand_digest"], _deck_digest("P1", {"Mountain": 99})),
             "deck_state.P2.main_deck",
         ),
         ((["players", 2, "life"], 20), "players.P3.life"),
         ((["players", 0, "poison"], 1), "players.P1.poison"),
-        ((["players", 3, "battlefield_card_counts"], {"Mountain": 1}), "zones.P4.battlefield"),
-        ((["players", 0, "graveyard_card_counts"], {"Mountain": 1}), "zones.P1.graveyard"),
+        ((["players", 3, "battlefield_size"], 1), "zones.P4.battlefield"),
+        ((["players", 0, "graveyard_size"], 1), "zones.P1.graveyard"),
+        ((["players", 2, "exile_size"], None), "zones.P3.exile"),
         (
             (["players", 1, "commanders", 0, "card_identity"], "Isamaru, Hound of Konda"),
             "commander_state.P2.commanders",
@@ -144,12 +167,43 @@ def test_one_changed_fact_is_a_named_mismatch(record, mutation, field) -> None:
         ({"acknowledged_seed": 7}, "rules_randomness.rules_seed"),
         ({"first_priority_seat": "p2"}, "temporal_state.active_player"),
         ({"capture": "after_start_game"}, "temporal_state.phase"),
+        ({"orchestration_key": bytes(reversed(range(32)))}, "deck_state.P1.main_deck"),
     ],
 )
 def test_run_facts_are_checked_too(record, overrides, field) -> None:
     proof = _proof(record, _state(), **overrides)
     assert proof.verdict == generic_construction.MISMATCH
     assert field in {check.field for check in proof.failures()}
+
+
+@pytest.mark.parametrize("key", [None, b"", bytes(15), "00" * 32])
+def test_without_this_runs_orchestration_key_nothing_is_compared(record, key) -> None:
+    proof = _proof(record, _state(), orchestration_key=key)
+    assert proof.verdict == generic_construction.UNSUPPORTED
+    assert [check.field for check in proof.checks] == ["constructed_state.observation_scope"]
+
+
+def test_a_state_outside_the_orchestration_scope_is_unsupported(record) -> None:
+    state = _state()
+    state["observation_scope"] = "principal_scoped_observation"
+    assert _proof(record, state).verdict == generic_construction.UNSUPPORTED
+    state.pop("observation_scope")
+    assert _proof(record, state).verdict == generic_construction.UNSUPPORTED
+
+
+def test_the_digest_matches_the_providers_token_layout() -> None:
+    # The same HMAC the XMage bridge test computes independently in Java:
+    # schema, zone, seat, then name<TAB>count per name in String order.
+    import hashlib
+    import hmac
+
+    tokens = [generic_construction.SCHEMA, "library_and_hand", "P2", "Lightning Bolt\t1"]
+    tokens.append("Mountain\t98")
+    mac = hmac.new(KEY, b"".join(t.encode() + b"\n" for t in tokens), hashlib.sha256)
+    assert _deck_digest("P2", {"Mountain": 98, "Lightning Bolt": 1}) == mac.hexdigest()
+    assert _deck_digest("P2", {"Mountain": 98, "Lightning Bolt": 1}) != _deck_digest(
+        "P2", {"Mountain": 99}
+    )
 
 
 def test_the_mulligan_step_record_is_established_at_the_same_point() -> None:
@@ -213,6 +267,8 @@ def _run(state: dict | None, *, supported: bool = True) -> CommandedGameResult:
     )
     result.terminal_facts["created_player_count"] = 4
     result.terminal_facts["provider_constructed_state_supported"] = supported
+    result.terminal_facts["constructed_state_channel"] = "orchestration_keyed_launch"
+    result.orchestration_key = KEY
     if supported:
         result.constructed_state = state
         result.terminal_facts["constructed_state_capture"] = generic_construction.CAPTURE_POINT
@@ -236,7 +292,9 @@ def test_cardinality_passes_only_with_an_established_proof(record) -> None:
     assert row.outcome == "PASS", row.reason
     assert row.evidence["construction_proof"]["verdict"] == generic_construction.EQUAL
 
-    odd = _mutate(["players", 1, "library_card_counts"], {"Mountain": 91, "Plains": 1})
+    odd = _mutate(
+        ["players", 1, "library_and_hand_digest"], _deck_digest("P2", {"Mountain": 98, "Plains": 1})
+    )
     row = full107.cardinality_row(record, _run(odd), candidate="xmage", runtime_identity={})
     assert row.outcome == "UNKNOWN"
     assert "deck_state.P2.main_deck" in row.reason
@@ -249,8 +307,97 @@ def test_cardinality_passes_only_with_an_established_proof(record) -> None:
     assert "construction_proof" not in row.evidence
 
 
-def test_the_raw_constructed_state_is_never_persisted() -> None:
+@pytest.mark.usefixtures("complete_lifecycle")
+def test_a_principal_facing_launch_gives_no_proof(record) -> None:
+    run = _run(_state())
+    run.terminal_facts["constructed_state_channel"] = "no_launch_key"
+    row = full107.cardinality_row(record, run, candidate="xmage", runtime_identity={})
+    assert row.outcome == "UNKNOWN"
+    assert "emits no normalized constructed state" in row.reason
+
+
+def test_neither_the_state_nor_the_key_is_persisted() -> None:
     result = _run(_state())
-    document = result.to_document()
-    assert "hand_card_counts" not in str(document)
-    assert "library_card_counts" not in str(document)
+    document = str(result.to_document())
+    assert "library_and_hand_digest" not in document
+    assert KEY.hex() not in document
+    assert "'orchestration_key'" not in document
+    assert repr(KEY) not in document
+
+
+def _plan(**overrides: str) -> bridge_launcher.LaunchPlan:
+    return bridge_launcher.LaunchPlan(
+        candidate="xmage",
+        lane="compat",
+        argv=("java",),
+        cwd=Path("."),
+        env_overrides=dict(overrides),
+        expected_engine_commit="c" * 40,
+        build_identity={},
+        workspace=".",
+    )
+
+
+def test_an_orchestration_plan_carries_a_fresh_key_and_leaves_the_plan_alone() -> None:
+    plan = _plan(OTHER="1")
+    first = bridge_launcher.orchestration_plan(plan)
+    second = bridge_launcher.orchestration_plan(plan)
+    variable = bridge_launcher.ORCHESTRATION_KEY_VARIABLE
+    assert variable not in plan.env_overrides
+    assert len(bytes.fromhex(first.env_overrides[variable])) == 32
+    assert first.env_overrides[variable] != second.env_overrides[variable]
+    assert first.env_overrides["OTHER"] == "1"
+
+
+class _FakeProcess:
+    def __init__(self, plan: bridge_launcher.LaunchPlan) -> None:
+        self.plan = plan
+
+
+def test_only_an_orchestration_launch_has_a_key_for_the_driver() -> None:
+    assert game_driver._launch_orchestration_key(_FakeProcess(_plan())) is None
+    short = _plan(**{bridge_launcher.ORCHESTRATION_KEY_VARIABLE: "00" * 8})
+    assert game_driver._launch_orchestration_key(_FakeProcess(short)) is None
+    keyed = bridge_launcher.orchestration_plan(_plan())
+    key = game_driver._launch_orchestration_key(_FakeProcess(keyed))
+    assert (
+        key is not None
+        and key.hex() == keyed.env_overrides[bridge_launcher.ORCHESTRATION_KEY_VARIABLE]
+    )
+
+
+def _runner_module():
+    import importlib.util
+    import sys
+
+    path = Path(__file__).resolve().parents[2] / "scripts/run_current_boundary_qualification.py"
+    spec = importlib.util.spec_from_file_location("cb_runner_for_receipts", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_a_scripted_pregame_pass_gets_an_exact_direct_receipt() -> None:
+    runner = _runner_module()
+    assert full107.SCRIPTED_PREGAME_MODE in runner.DIRECT_RECEIPT_MODES
+    mulligan = load_effective_materialization().record("PILOT_MULLIGAN")
+    row = full107.RowResult(
+        "PILOT_MULLIGAN", "xmage", "PASS", full107.SCRIPTED_PREGAME_MODE, "observed", {}
+    )
+    receipt = runner._direct_positive_receipt(
+        row, mulligan, candidate_commit="c" * 40, runner_digest="r" * 64
+    )
+    assert receipt["test_identity"] == (
+        "current-boundary-direct:PROTOCOL2_SCRIPTED_PREGAME#PILOT_MULLIGAN"
+    )
+    assert receipt["obligation_exercised"]["obligation_digest"] == mulligan["obligation_digest"]
+    # An UNKNOWN row (no established construction proof) gets no receipt.
+    unknown = full107.RowResult(
+        "PILOT_MULLIGAN", "xmage", "UNKNOWN", full107.SCRIPTED_PREGAME_MODE, "gap", {}
+    )
+    with pytest.raises(ValueError):
+        runner._direct_positive_receipt(
+            unknown, mulligan, candidate_commit="c" * 40, runner_digest="r" * 64
+        )
