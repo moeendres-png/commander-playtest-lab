@@ -168,7 +168,9 @@ def test_failed_precondition_keeps_the_index_non_pass(tmp_path, monkeypatch):
 
 def test_every_sealed_step_is_a_security_job_step():
     """The seal's step list and the workflow's step ids cannot drift apart."""
-    workflow = (Path(__file__).resolve().parents[2] / ".github" / "workflows" / "ci.yml").read_text()
+    workflow = (
+        Path(__file__).resolve().parents[2] / ".github" / "workflows" / "ci.yml"
+    ).read_text()
     security = workflow.split("\n  security:\n", 1)[1].split("\n  infrastructure:\n", 1)[0]
     for name in evidence.STEPS:
         assert f"        id: {name}\n" in security, name
