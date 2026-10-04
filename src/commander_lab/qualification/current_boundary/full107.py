@@ -21,7 +21,9 @@ PROTOCOL_FAILURE  the provider answered in a shape the current contract
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -543,6 +545,283 @@ def start2_row(
         "upkeep and precombat-main principal views have identical hand/library "
         "counts, and no draw-step checkpoint, draw event or in-step priority was "
         "exposed between them",
+        evidence,
+    )
+
+
+# Records whose whole obligation is a scripted pregame: every mulligan decision
+# of every seat is named, in the order the rules ask them (CR 103.5).
+SCRIPTED_PREGAME_ROWS = ("PILOT_MULLIGAN",)
+SCRIPTED_PREGAME_MODE = "PROTOCOL2_SCRIPTED_PREGAME"
+_PLAN_ANSWERS = {"MULLIGAN": ("mulligan", False), "KEEP": ("keep_opening_hand", True)}
+
+
+def scripted_pregame_plan(record: dict[str, Any]) -> tuple[tuple[str, bool], ...]:
+    """The record's pregame plan as ``(seat, keep)`` entries, or ``ValueError``.
+
+    The plan and the decision script state the same decisions twice; they must
+    agree entry for entry (actor, family and answer), or the record does not
+    say what to do and nothing is executed.
+    """
+    plan = record.get("pregame_decision_plan")
+    script = record.get("decision_script")
+    if not isinstance(plan, list) or not isinstance(script, list) or len(plan) != len(script):
+        raise ValueError("the pregame plan and the decision script do not have one entry each")
+    entries: list[tuple[str, bool]] = []
+    for index, (planned, step) in enumerate(zip(plan, script, strict=True)):
+        answer = _PLAN_ANSWERS.get(str(planned.get("decision")))
+        player = str(planned.get("player_id") or "")
+        selection = step.get("selection") or {}
+        if (
+            answer is None
+            or not re.fullmatch(r"P[1-6]", player)
+            or step.get("actor") != player
+            or step.get("decision_family") != "mulligan"
+            or selection.get("selector_kind") != "semantic_action"
+            or selection.get("semantic_value") != answer[0]
+        ):
+            raise ValueError(f"pregame plan entry {index + 1} disagrees with the decision script")
+        entries.append((player.lower(), answer[1]))
+    return tuple(entries)
+
+
+def record_decks(record: dict[str, Any]) -> list[dict[str, Any]]:
+    """The record's requested Commander decks, one import payload per seat.
+
+    Each seat's deck is its commander(s) from ``commander_state`` plus its
+    ``library_template``; a deck that is not exactly 100 cards, or a seat the
+    deck state does not cover, is a record defect and nothing is imported.
+    """
+    commanders = {
+        str(entry.get("commander_id")): str(entry.get("card_identity"))
+        for entry in (record.get("commander_state") or {}).get("commanders") or ()
+    }
+    by_player = {
+        str(deck.get("player_id")): deck
+        for deck in record.get("deck_state") or ()
+        if isinstance(deck, dict)
+    }
+    payloads: list[dict[str, Any]] = []
+    for seat in record.get("players") or ():
+        player = str(seat.get("player_id"))
+        deck = by_player.get(player)
+        if deck is None:
+            raise ValueError(f"the record's deck state does not cover {player}")
+        names = [commanders.get(str(cid), "") for cid in deck.get("commander_ids") or ()]
+        template = deck.get("library_template") or {}
+        count = template.get("count")
+        if (
+            not names
+            or not all(names)
+            or not isinstance(count, int)
+            or not template.get("card_identity")
+            or len(names) + count != 100
+        ):
+            raise ValueError(f"the record's deck for {player} is not a 100-card Commander deck")
+        mainboard = [str(template["card_identity"])] * count
+        payloads.append(
+            {
+                "deck_id": f"{record['fixture_id']}-{player}",
+                "deck_hash": hashlib.sha256(
+                    "|".join([*names, *mainboard]).encode("utf-8")
+                ).hexdigest(),
+                "name": f"{record['fixture_id']} {player}",
+                "commander_names": names,
+                "mainboard": mainboard,
+            }
+        )
+    return payloads
+
+
+def _pregame_rounds(tape: list[tuple[str, bool]]) -> dict[str, list[bool]]:
+    """Each seat's answers in the order the engine asked them (its rounds)."""
+    rounds: dict[str, list[bool]] = {}
+    for seat, keep in tape:
+        rounds.setdefault(seat, []).append(keep)
+    return rounds
+
+
+def scripted_pregame_row(
+    record: dict[str, Any],
+    proc: BridgeProcess,
+    *,
+    candidate: str,
+    runtime_identity: dict[str, Any],
+) -> RowResult:
+    """Execute a scripted-pregame record on the candidate-neutral lifecycle lane.
+
+    Every mulligan frame the engine asks is answered from the record's plan, for
+    the seat the engine names as its actor, in the plan's order; an unscripted,
+    extra or missing frame fails closed. The obligation is then read from the
+    engine: the decisions it asked (``mulligan:Pn:roundK``/``keep:Pn:roundK``)
+    and each seat's hand at the first priority after the pregame
+    (``bottom_count:Pn:K`` is the opening hand size minus that hand).
+    """
+    fixture_id = record["fixture_id"]
+    required = list((record.get("expected_events") or {}).get("required_events") or ())
+    players = record.get("players")
+    player_count = len(players) if isinstance(players, list) else 0
+    hand_sizes = {
+        str(deck.get("player_id")).lower(): deck.get("opening_hand_size")
+        for deck in record.get("deck_state") or ()
+        if isinstance(deck, dict)
+    }
+    seed = int((record.get("rules_randomness") or {}).get("rules_seed") or 424242)
+    evidence: dict[str, Any] = {
+        "player_count": player_count,
+        "actual_cards": _actual_cards(),
+        "runtime_identity": runtime_identity,
+        "evidence_class": "FRESH_CURRENT_BOUNDARY_RUNTIME",
+        "principal_observation_scope": "engine-offered decision frames for the acting seat",
+        "fixture_required_events_are_obligation_statements_not_evidence": True,
+    }
+    try:
+        plan = scripted_pregame_plan(record)
+        decks = record_decks(record)
+    except ValueError as exc:
+        return RowResult(
+            fixture_id, candidate, "UNKNOWN", SCRIPTED_PREGAME_MODE, str(exc), evidence
+        )
+    evidence["requested_decks"] = [
+        {"deck_id": deck["deck_id"], "deck_hash": deck["deck_hash"]} for deck in decks
+    ]
+    game = drive_commander_game(
+        proc,
+        candidate=candidate,
+        player_count=player_count,
+        seed=seed,
+        drive_to="priority",
+        max_steps=80,
+        mulligan_plan=plan,
+        decks=decks,
+    )
+    asked = [
+        (entry.actor, entry.chosen_option_id == "keep")
+        for entry in game.decision_tape
+        if entry.step == "mulligan"
+    ]
+    hands = game.terminal_facts.get("post_pregame_zone_counts") or {}
+    evidence.update(
+        {
+            "decision_tape": [entry.__dict__ for entry in game.decision_tape],
+            "semantic_events": game.semantic_events,
+            "terminal_facts": game.terminal_facts,
+            "rules_rng_binding": (
+                game.seed_binding.to_document()
+                if game.seed_binding is not None
+                else {
+                    "control": "UNCONTROLLED_ENGINE_RNG",
+                    "detail": "the engine acknowledged no seed for this run",
+                }
+            ),
+            "scripted_pregame_plan": [list(entry) for entry in plan],
+            "observed_pregame_decisions": [list(entry) for entry in asked],
+        }
+    )
+    if game.failure:
+        # A lane or provider failure proves nothing about the obligation either
+        # way; it is recorded, not credited and not called a Rules failure.
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            SCRIPTED_PREGAME_MODE,
+            f"the scripted pregame did not complete: {game.failure}",
+            evidence,
+        )
+    if game.terminal_facts.get("created_player_count") != player_count:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "FAIL",
+            SCRIPTED_PREGAME_MODE,
+            f"engine created {game.terminal_facts.get('created_player_count')} players for a "
+            f"{player_count}P fixture",
+            evidence,
+        )
+    if asked != list(plan):
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            SCRIPTED_PREGAME_MODE,
+            f"the engine's pregame decisions {asked} are not the record's plan {list(plan)}",
+            evidence,
+        )
+    rounds = _pregame_rounds(asked)
+    unmet: list[str] = []
+    for token in required:
+        decided = re.fullmatch(r"(mulligan|keep):(P[1-6]):round([1-9])", token)
+        bottomed = re.fullmatch(r"bottom_count:(P[1-6]):([0-9]+)", token)
+        if decided:
+            seat, round_number = decided.group(2).lower(), int(decided.group(3))
+            answers = rounds.get(seat) or []
+            wanted_keep = decided.group(1) == "keep"
+            if round_number > len(answers) or answers[round_number - 1] != wanted_keep:
+                unmet.append(token)
+        elif bottomed:
+            seat = bottomed.group(1).lower()
+            seen = hands.get(seat) or {}
+            checkpoint = seen.get("checkpoint") or {}
+            size = hand_sizes.get(seat)
+            if (
+                not isinstance(size, int)
+                or not isinstance(seen.get("hand_count"), int)
+                or checkpoint.get("turn_number") != 1
+                or checkpoint.get("phase") != "beginning"
+                or checkpoint.get("step") not in ("untap", "upkeep")
+                or size - seen["hand_count"] != int(bottomed.group(2))
+            ):
+                unmet.append(token)
+        else:
+            unmet.append(token)
+    evidence["unmet_required_events"] = unmet
+    if unmet:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            SCRIPTED_PREGAME_MODE,
+            f"the engine-observed pregame does not establish {unmet}",
+            evidence,
+        )
+    # The record's own credit conditions, beyond the observed obligation: its
+    # seeded shuffles must run under the engine-acknowledged Rules seed, and its
+    # construction_validation requires the provider's normalized constructed
+    # state to equal the requested state. The generic lane emits no constructed
+    # state, so there the obligation is observed but the row is not credited.
+    if game.seed_binding is None or not game.seed_binding.controlled:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            SCRIPTED_PREGAME_MODE,
+            "the obligation was observed, but the engine did not acknowledge the record's "
+            f"Rules seed {seed}, so the record's seeded shuffles are not established",
+            evidence,
+        )
+    construction = record.get("construction_validation") or {}
+    if construction.get("required"):
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            SCRIPTED_PREGAME_MODE,
+            "the obligation was observed on the record's decks under the acknowledged "
+            f"Rules seed, but the record requires {construction.get('credit_condition')} "
+            "and this lane emits no normalized constructed state, so construction "
+            "equality is unestablished",
+            evidence,
+        )
+    return RowResult(
+        fixture_id,
+        candidate,
+        "PASS",
+        SCRIPTED_PREGAME_MODE,
+        f"real {player_count}P Commander pregame executed under Protocol "
+        f"{CURRENT_TRANSPORT_PROTOCOL}: the engine asked exactly the record's mulligan "
+        "decisions in order, each answered from the record's plan, and every seat's "
+        "engine-reported hand at the first priority states the bottom counts",
         evidence,
     )
 

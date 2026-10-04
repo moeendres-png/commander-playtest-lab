@@ -728,10 +728,14 @@ final class XmageNativeStateRestoration {
         return Collections.unmodifiableMap(keywords);
     }
 
+    /** The checkpoint counter a planeswalker carries; set as it enters. */
+    static final String LOYALTY = "loyalty";
+
     static mage.counters.CounterType counterType(String name) {
         return switch (name) {
             case "+1/+1" -> mage.counters.CounterType.P1P1;
             case "-1/-1" -> mage.counters.CounterType.M1M1;
+            case LOYALTY -> mage.counters.CounterType.LOYALTY;
             default -> null;
         };
     }
@@ -1013,6 +1017,7 @@ final class XmageNativeStateRestoration {
         Set<Card> consumed = new HashSet<>();
         List<UUID> deferredCardIds = new ArrayList<>();
         List<UUID> deferredOwnerIds = new ArrayList<>();
+        List<Integer> deferredLoyalties = new ArrayList<>();
         for (RequestedPlayer requested : plan.players()) {
             Player player = requirePlayer(playersByPid, requested.playerId());
             List<PutToBattlefieldInfo> battlefield = new ArrayList<>();
@@ -1035,12 +1040,22 @@ final class XmageNativeStateRestoration {
                         // (SLOT-04); a card whose battlefield side is another
                         // part or face would register new watchers while the
                         // engine iterates them, so it stays a setup placement.
+                        Integer loyalty = plan.objectCounters()
+                                .getOrDefault(object.semanticId(), Map.of()).get(LOYALTY);
                         if (!losslessHidden.declaresFaceDown(object.semanticId())
                                 && XmageFirstTurnSetupWatcher.deferrable(game, card)) {
                             deferred.add(card);
                             deferredCardIds.add(card.getId());
                             deferredOwnerIds.add(player.getId());
+                            deferredLoyalties.add(loyalty == null
+                                    ? XmageFirstTurnSetupWatcher.NO_LOYALTY : loyalty);
                             firstTurnPlacedSemanticIds.add(object.semanticId());
+                        } else if (loyalty != null) {
+                            // Loyalty must be in place when the permanent enters,
+                            // before the first state-based action check (CR
+                            // 704.5i); only the first-turn placement does that.
+                            throw new RestorationException(
+                                    "UNSUPPORTED_COUNTERS", object.semanticId() + " loyalty");
                         } else {
                             battlefield.add(new PutToBattlefieldInfo(card, false));
                         }
@@ -1104,8 +1119,8 @@ final class XmageNativeStateRestoration {
         }
         if (!deferredCardIds.isEmpty() || !commanderIds.isEmpty() || !lifePlayerIds.isEmpty()) {
             game.getState().addWatcher(new XmageFirstTurnSetupWatcher(
-                    deferredCardIds, deferredOwnerIds, commanderIds, commanderOwnerIds,
-                    lifePlayerIds, startingLives));
+                    deferredCardIds, deferredOwnerIds, deferredLoyalties, commanderIds,
+                    commanderOwnerIds, lifePlayerIds, startingLives));
         }
         game.getState().addWatcher(new CommanderPlaysCountWatcher());
         // After placement: the public event tape starts with the game, not the setup.
@@ -1265,6 +1280,10 @@ final class XmageNativeStateRestoration {
                 permanent.setTapped(true);
             }
             for (Map.Entry<String, Integer> counter : counters.entrySet()) {
+                if (LOYALTY.equals(counter.getKey())) {
+                    // Set when the permanent entered (XmageFirstTurnSetupWatcher).
+                    continue;
+                }
                 permanent.getCounters(game).addCounter(
                         counterType(counter.getKey()).createInstance(counter.getValue()));
             }
@@ -1895,6 +1914,9 @@ final class XmageNativeStateRestoration {
         supported.add("tapped permanents and +1/+1 or -1/-1 counters on requested battlefield "
                 + "permanents, set at the requested checkpoint through the game-load path and "
                 + "verified engine-direct");
+        supported.add("loyalty counters on a requested battlefield planeswalker, set exactly as "
+                + "it enters at the first-turn placement (before the first state-based action "
+                + "check, CR 704.5i) and verified engine-direct at the checkpoint");
         supported.addAll(XmageLosslessHiddenPlan.supportedDescriptor());
         payload.add("supported_dimensions", supported);
         JsonArray unsupported = new JsonArray();
@@ -1907,8 +1929,9 @@ final class XmageNativeStateRestoration {
                 + "(modal double-faced, transforming): refused before game start "
                 + "(UNSUPPORTED_COMMANDER_FACE)");
         unsupported.add("attachments (aura/equipment attachment relations)");
-        unsupported.add("counters other than +1/+1 and -1/-1, and counters on commanders or "
-                + "on objects off the battlefield");
+        unsupported.add("counters other than +1/+1, -1/-1 and loyalty, counters on commanders or "
+                + "on objects off the battlefield, and loyalty on a permanent that is not a "
+                + "first-turn placement");
         unsupported.add("commander relations other than validated Partner linkage");
         unsupported.add("poison counters");
         unsupported.add("temporal points outside the qualified RG-03 turn-1 checkpoint allow-list");
