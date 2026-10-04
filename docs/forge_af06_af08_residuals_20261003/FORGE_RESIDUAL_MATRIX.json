@@ -1,7 +1,7 @@
 {
  "candidate": "forge",
- "canonical_bundle_digest": "20327abcad15e58a3dab8b5255079681980e97e2f7203c5af31f69be4c1336a5",
- "contract_id": "commander-lab.full107/1.0.20-successor",
+ "canonical_bundle_digest": "7752da269dd48a73b6ac34393588e8eed5dc16f92d1d89ff92541b060a7bf932",
+ "contract_id": "commander-lab.full107/1.0.21-successor",
  "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
  "rows": [
   {
@@ -1516,8 +1516,8 @@
    "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
     "class": "PROVIDER_ADAPTER_GAP",
-    "detail": "revealed zones have no projection",
-    "dimension": "semantic_objects.zone:revealed",
+    "detail": "library contents are never exposed",
+    "dimension": "semantic_objects.zone:library",
     "stage": "checkpoint_readback"
    },
    "fixture_id": "PILOT_PILE",
@@ -1525,26 +1525,44 @@
    "mechanisms": [
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand",
-     "dimension": "stack_state",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand",
+     "dimension": "action_cost_state",
      "stage": "construction"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "a requested stack object is caused by a cast on the engine's own frames; the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand",
-     "dimension": "semantic_objects.zone:stack",
+     "detail": "the obligation requires the exact hand after the draw; the engine's natural draw adds a card the lane can neither control nor prove, so exact equality cannot be established; the open mechanism is controlling or proving the drawn card, and the exact-equality obligation stays unchanged",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
      "stage": "construction"
     },
     {
      "class": "PROVIDER_ADAPTER_GAP",
-     "detail": "revealed zones have no projection",
-     "dimension": "semantic_objects.zone:revealed",
+     "detail": "library contents are never exposed",
+     "dimension": "semantic_objects.zone:library",
      "stage": "checkpoint_readback"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
+     "dimension": "decision_execution.priority.semantic_action",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
+     "dimension": "decision_execution.mana_payment.mana_payment",
+     "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a pile decision; the bridge carries it on its CARD_LIST frames, but the lane has no selector for them",
      "dimension": "decision_execution.pile.partition",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a pile decision; the bridge carries it on its CARD_LIST frames, but the lane has no selector for them",
+     "dimension": "decision_execution.pile.pile_label",
      "stage": "execution"
     },
     {
@@ -1561,7 +1579,7 @@
      "partition_created:2/3"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:revealed): revealed zones have no projection. then: construction stack_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.pile.partition (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:library): library contents are never exposed. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.pile.partition (LAB_EXECUTION_GAP); execution decision_execution.pile.pile_label (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -1970,6 +1988,12 @@
      "stage": "execution"
     },
     {
+     "class": "PROVIDER_ADAPTER_GAP",
+     "detail": "the record scripts a london_bottom decision: the London mulligan's bottom selection is Forge's tuckCardsViaMulligan, which the pinned bridge never answers with a card ('London-tuck card selection is not externally represented')",
+     "dimension": "decision_execution.london_bottom.card_identity_multiset",
+     "stage": "execution"
+    },
+    {
      "class": "LAB_EXECUTION_GAP",
      "detail": "the lane has no observation contract for this obligation's readback and decision-frame tokens",
      "dimension": "observation_contract",
@@ -1985,7 +2009,7 @@
      "free_mulligan:false"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at execution (decision_execution.mulligan.semantic_action): the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented'). then: construction temporal_state.turn_number (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at execution (decision_execution.mulligan.semantic_action): the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented'). then: construction temporal_state.turn_number (LAB_EXECUTION_GAP); execution decision_execution.london_bottom.card_identity_multiset (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -2980,18 +3004,48 @@
    "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
     "class": "PROVIDER_ADAPTER_GAP",
-    "detail": "graveyard objects are names only, with no identity",
-    "dimension": "semantic_objects.zone:graveyard",
-    "stage": "checkpoint_readback"
+    "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
+    "dimension": "event_log",
+    "stage": "observation"
    },
    "fixture_id": "WS05-MP-TURN-3",
    "lane_obligation_kind": null,
    "mechanisms": [
     {
-     "class": "PROVIDER_ADAPTER_GAP",
-     "detail": "graveyard objects are names only, with no identity",
-     "dimension": "semantic_objects.zone:graveyard",
-     "stage": "checkpoint_readback"
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand",
+     "dimension": "action_cost_state",
+     "stage": "construction"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the obligation requires the exact hand after the draw; the engine's natural draw adds a card the lane can neither control nor prove, so exact equality cannot be established; the open mechanism is controlling or proving the drawn card, and the exact-equality obligation stays unchanged",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "stage": "construction"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
+     "dimension": "decision_execution.priority.semantic_action",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
+     "dimension": "decision_execution.target.semantic_player",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
+     "dimension": "decision_execution.mana_payment.mana_payment",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a declare_attacker decision; the bridge carries it on its ATTACK_DECLARATION frames, but the lane has no selector for them",
+     "dimension": "decision_execution.declare_attacker.attacker_assignment",
+     "stage": "execution"
     },
     {
      "class": "PROVIDER_ADAPTER_GAP",
@@ -3017,24 +3071,54 @@
      "next_turn:P2"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:graveyard): graveyard objects are names only, with no identity. then: observation event_log (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
     "class": "PROVIDER_ADAPTER_GAP",
-    "detail": "graveyard objects are names only, with no identity",
-    "dimension": "semantic_objects.zone:graveyard",
-    "stage": "checkpoint_readback"
+    "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
+    "dimension": "event_log",
+    "stage": "observation"
    },
    "fixture_id": "WS05-MP-TURN-5",
    "lane_obligation_kind": null,
    "mechanisms": [
     {
-     "class": "PROVIDER_ADAPTER_GAP",
-     "detail": "graveyard objects are names only, with no identity",
-     "dimension": "semantic_objects.zone:graveyard",
-     "stage": "checkpoint_readback"
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand",
+     "dimension": "action_cost_state",
+     "stage": "construction"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the obligation requires the exact hand after the draw; the engine's natural draw adds a card the lane can neither control nor prove, so exact equality cannot be established; the open mechanism is controlling or proving the drawn card, and the exact-equality obligation stays unchanged",
+     "dimension": "temporal_checkpoint.exact_hand_after_draw",
+     "stage": "construction"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
+     "dimension": "decision_execution.priority.semantic_action",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
+     "dimension": "decision_execution.target.semantic_player",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
+     "dimension": "decision_execution.mana_payment.mana_payment",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a declare_attacker decision; the bridge carries it on its ATTACK_DECLARATION frames, but the lane has no selector for them",
+     "dimension": "decision_execution.declare_attacker.attacker_assignment",
+     "stage": "execution"
     },
     {
      "class": "PROVIDER_ADAPTER_GAP",
@@ -3060,7 +3144,7 @@
      "next_turn:P2"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:graveyard): graveyard objects are names only, with no identity. then: observation event_log (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
   }
  ],
  "schema_version": "commander-lab.forge-residuals/1.0.0",

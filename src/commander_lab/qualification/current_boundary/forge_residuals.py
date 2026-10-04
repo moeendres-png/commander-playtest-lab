@@ -157,6 +157,12 @@ _DECISION_FAMILIES: dict[str, tuple[str, str]] = {
         "tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card "
         "selection is not externally represented')",
     ),
+    "london_bottom": (
+        PROVIDER_ADAPTER_GAP,
+        "the London mulligan's bottom selection is Forge's tuckCardsViaMulligan, which the "
+        "pinned bridge never answers with a card ('London-tuck card selection is not "
+        "externally represented')",
+    ),
 }
 
 # Requested fields the generic readback cannot show (``unobservable``).

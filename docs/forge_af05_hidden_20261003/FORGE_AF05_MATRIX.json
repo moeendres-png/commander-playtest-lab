@@ -1,7 +1,7 @@
 {
  "bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
  "candidate": "forge",
- "canonical_bundle_digest": "20327abcad15e58a3dab8b5255079681980e97e2f7203c5af31f69be4c1336a5",
+ "canonical_bundle_digest": "7752da269dd48a73b6ac34393588e8eed5dc16f92d1d89ff92541b060a7bf932",
  "channels": [
   {
    "absent_tokens": [],
@@ -432,7 +432,7 @@
    "status": "PRESENT_UNAUDITED"
   }
  ],
- "contract_id": "commander-lab.full107/1.0.20-successor",
+ "contract_id": "commander-lab.full107/1.0.21-successor",
  "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
  "rows": [
   {
