@@ -10,6 +10,9 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
+from commander_lab.qualification.current_boundary import midgame_lane as ml
 from commander_lab.qualification.current_boundary import midgame_rows as mr
 
 
@@ -183,3 +186,90 @@ def test_the_yes_no_refusal_has_no_spec_until_its_scenario_is_reachable() -> Non
     # Its record's known library top card is not restored by the lane, and
     # XMage asks scry as a card selection rather than a yes/no question.
     assert "NEGATIVE_DEFAULT_YES_NO" not in mr.ROWS
+
+
+# --------------------------------------------------------------------------- #
+# PILOT_CHOICE: the record's named choice on the engine's own choice frame
+# --------------------------------------------------------------------------- #
+
+COLORS = ("Black", "Blue", "Green", "Red", "White")
+CHOOSE_RED = {
+    "decision_family": "choice",
+    "selection": {"selector_kind": "semantic_choice_key", "semantic_value": "RED"},
+}
+
+
+def _choice_offer(text: str, *, key: str | None = None, option_type: str = "choice") -> dict:
+    engine: dict[str, Any] = {"choice": text}
+    if key is not None:
+        engine["choice_key"] = key
+    return {
+        "metadata": {
+            "option_type": option_type,
+            "option_id": f"choice-{key or text}",
+            "label": text,
+            "xmage_option_metadata": engine,
+        }
+    }
+
+
+def _answer(offers: list[dict], step: dict = CHOOSE_RED) -> mr.ScriptedAnswer:
+    return mr._scripted_answer({"actions": offers}, step, {}, mr.RowSpec())
+
+
+def test_the_choice_key_selects_exactly_the_engine_offer_it_names() -> None:
+    answer = _answer([_choice_offer(color) for color in COLORS])
+    assert mr._label_of(answer.action) == "Red"
+    assert answer.key == "RED"
+    # A keyed menu is matched by the engine's key, not by its display text.
+    keyed = _answer([_choice_offer("Pay life", key="red"), _choice_offer("Red", key="other")])
+    assert mr._label_of(keyed.action) == "Pay life"
+
+
+@pytest.mark.parametrize(
+    "offers",
+    [
+        # Not offered: a partial or fuzzy match never selects.
+        [_choice_offer(color) for color in ("Black", "Blue", "Green", "White")],
+        [_choice_offer("Reddish"), _choice_offer("Infrared")],
+        # Offered twice: ambiguous.
+        [_choice_offer("Red"), _choice_offer("red")],
+        # The right text on another kind of offer is not a choice.
+        [_choice_offer("Red", option_type="target")],
+    ],
+)
+def test_a_choice_the_engine_did_not_offer_once_fails_closed(offers: list[dict]) -> None:
+    with pytest.raises(ml.MidgameLaneError):
+        _answer(offers)
+
+
+def _choice_frame(**overrides: Any) -> mr.Frame:
+    fields: dict[str, Any] = {
+        "selected_label": "Red",
+        "scripted": True,
+        "selected_key": "RED",
+    }
+    fields.update(overrides)
+    decision_class = fields.pop("decision_class", "choice")
+    return mr.Frame(decision_class, "P1", list(COLORS), **fields)
+
+
+def test_the_choice_token_is_the_scripted_answer_on_the_choice_frame() -> None:
+    assert mr.verify_token("choice:RED", [], [_choice_frame()], set()) is not None
+
+
+@pytest.mark.parametrize(
+    "frame",
+    [
+        _choice_frame(scripted=False),
+        _choice_frame(selected_key="GREEN", selected_label="Green"),
+        _choice_frame(selected_label="Crimson"),
+        _choice_frame(decision_class="mode"),
+    ],
+)
+def test_another_answer_an_unscripted_or_unoffered_one_is_not_the_choice(frame: mr.Frame) -> None:
+    assert mr.verify_token("choice:RED", [], [frame], set()) is None
+
+
+def test_the_choice_row_runs_on_the_records_vocabulary() -> None:
+    assert mr.ROWS["PILOT_CHOICE"] == mr.RowSpec()

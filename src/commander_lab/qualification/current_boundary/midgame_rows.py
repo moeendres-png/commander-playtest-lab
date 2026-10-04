@@ -687,6 +687,11 @@ ROWS: dict[str, RowSpec] = {
     # known library top card, which the lane does not restore, and XMage asks
     # Opt's scry as a card selection, not as the yes/no frame the record names.)
     "NEGATIVE_INTERNAL_AI": RowSpec(),
+    # PILOT_CHOICE: P1's Utopia Sprawl (rebuilt on the stack through the declared
+    # causal route) resolves onto the Forest and the engine asks P1 its
+    # as-enters color on its own choice frame; the record's key names the
+    # offer, "choice:RED" is that answer.
+    "PILOT_CHOICE": RowSpec(),
     # The commander zone choice (CR 903.9): the opponent's removal spell is
     # rebuilt on the stack through the declared causal route and resolves; the
     # engine then asks the commander's owner, on its own yes/no frame, whether
@@ -1669,6 +1674,18 @@ def verify_token(
             if frames and proofs
             else None
         )
+    if match := re.fullmatch(r"choice:([A-Z0-9_]+)", token):
+        # The record's named choice is the key the scripted step submitted on
+        # the engine's own choice frame, for an offer the engine made.
+        frames = [
+            index
+            for index, frame in enumerate(trace)
+            if frame.decision_class == "choice"
+            and frame.scripted
+            and frame.selected_key == match.group(1)
+            and frame.selected_label in frame.offered_labels
+        ]
+        return {"decision_frames": frames} if frames else None
     if match := re.fullmatch(r"mode_selected:([a-z_]+)", token):
         frames = [
             index
@@ -2740,6 +2757,15 @@ def _option_type(action: dict[str, Any]) -> str:
     return str((action.get("metadata") or {}).get("option_type") or "")
 
 
+def _choice_key(action: dict[str, Any]) -> str | None:
+    """A choice offer's semantic key: its engine key, else its value text."""
+    engine = (action.get("metadata") or {}).get("xmage_option_metadata") or {}
+    raw = engine.get("choice_key") or engine.get("choice")
+    if not isinstance(raw, str) or not raw.strip():
+        return None
+    return re.sub(r"\s+", "_", raw.strip()).upper()
+
+
 def _option_id(action: dict[str, Any]) -> str:
     return str((action.get("metadata") or {}).get("option_id") or "")
 
@@ -3053,6 +3079,13 @@ def _scripted_answer(
             for a in actions
             if _option_type(a) == "mode" and bound.lower() in _label_of(a).lower()
         ]
+    elif kind == "semantic_choice_key":
+        # A named choice (a color, a creature type, a keyed menu entry): the
+        # engine's own choice offer whose key, or for a plain choice its value,
+        # is the record's key. Case and spacing are the only normalization; a
+        # partial match never selects.
+        key = str(value)
+        matches = [a for a in actions if _option_type(a) == "choice" and _choice_key(a) == key]
     elif kind == "boolean":
         # A yes/no frame: the engine's own boolean offer whose value is the
         # record's answer; the label is never read.
