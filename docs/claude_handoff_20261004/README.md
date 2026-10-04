@@ -76,20 +76,13 @@ These are the scripts behind the evidence above. Run them from a Lab checkout wi
   - **No PR.** The writer session `01XpopJ6` owns the same fix on `hardening/forge-free-mulligan-tuck-20261004`.
   - This branch is kept only as a reference, for example the 2P owed-card test. Delete it once the writer's fix merges.
 
-## Open decisions (not taken by this session)
+## Decisions (Owner, 2026-10-04, recorded on #441 "Owner decisions" by session `01XpopJ6`)
 
-1. **#441 comment 5979655574.** PLAYER_COUNT_2P–5P and WS05-CMD-START-2 are credited PASS on the generic lane without record decks or construction equality. Options: (a) downgrade, (b) keep and record the limitation, (c) build a generic-lane construction proof. Recommended: (a) + (c).
-2. **#441 comment 5979206791 (Coordinator errata).** These cover:
-   - E1: a known library top card without `deck_state` (PILOT_CHOOSE_USE, NEGATIVE_DEFAULT_YES_NO);
-   - E2: scry is a card selection in XMage, not `choose_use`;
-   - E3: PILOT_PILE `revealed` objects with Fact or Fiction still on the stack.
-3. **WS05-MP-TURN-3/5** (see `docs/af456_xmage_residuals_20261003/README.md`). Nexus of Fate is requested in the graveyard against its own text, and the extra turns contain combat the record never specifies.
-4. **WS05-CMD-MULL-2/4.** Only round 1 is scripted. The writer session also adds an observation on Forge's LondonMulligan order.
-5. **RNG_RULES_TAPE** (contract v1.0.20 erratum). **MICRO_LAYERS** needs semantic adjudication.
+1. Construction proof: **(a) + (c)** (see the continuation prompt, section 3).
+2. Errata E1–E3: contract authority delegated to Claude.
+3. Network: the artifact host `*.blob.core.windows.net` is open; artifact 11288863789 downloads (verified from this session too).
 
-## Blocker
-
-**Epoch sealing.** Artifact downloads go to `*.blob.core.windows.net`, which this environment's network policy denies. The Owner has to allow it. The newest Lab main (`5583d687`) needs its own PB-03 run and epoch.
+Still open: WS05-MP-TURN-3/5, WS05-CMD-MULL-2/4 (round 1 only; Forge LondonMulligan order), RNG_RULES_TAPE, MICRO_LAYERS.
 
 ## Final local-state census (session `01JMXgrP`)
 

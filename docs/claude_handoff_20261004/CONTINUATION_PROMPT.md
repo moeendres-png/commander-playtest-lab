@@ -68,35 +68,32 @@ Work autonomously and end to end. Escalate to the Owner only for real architectu
   - a superseded reference, `hardening/forge-bridge-free-mulligan-tuck-20261004`, which has a 2P owed-card test.
 
   Land **one** of them as a Forge PR into `claude/forge-unified-successor-20260929`. Gate it on its exact-head Forge CI (Java 17/21, iOS) plus the full local `forge.bridge` suite. Then re-pin the Lab `secondary_engine.bridge_source` and `engine_identity_pb09.bridge_source` only, never the Rules-Core `commit`. Follow Lab commit `9defd733`: a successor source lock, an impact adjudication, a pb09 identity test update and the SHA256SUMS. Delete the superseded branch afterwards.
-- **Blocker: epoch sealing.**
-  - GitHub artifact downloads (`*.blob.core.windows.net`) are denied by this environment's network policy. Read the environment documentation (`read_documentation`, `environment.network`) and ask the Owner to allow the host.
-  - Once it is allowed, seal the current-boundary epoch from the PB-03 run of the newest main into `qualification/current-boundary-epochs/<epoch>/`, using the a3bf338c pattern.
+- **Epoch sealing (unblocked, Owner 2026-10-04, #441 comment 5981569735).** The artifact host `*.blob.core.windows.net` is now reachable; artifact 11288863789 downloads (176 files).
+  - Seal the current-boundary epoch from the PB-03 run of the newest main into `qualification/current-boundary-epochs/<epoch>/`, using the a3bf338c pattern.
   - Inspect the replay-twin rejection ("not bound to this column and runner").
   - Build the **per-candidate AF00–AF11 matrix** and the **#255 eligibility packet**.
 
-## 3. Pending decisions (ask the Owner/Coordinator; do not decide yourself)
+## 3. Owner decisions already taken (2026-10-04, recorded on #441 "Owner decisions")
 
-1. **#441 comment 5979655574.** PLAYER_COUNT_2P–5P and WS05-CMD-START-2 are credited PASS on the generic lane without record decks or construction equality. Options: (a) downgrade, (b) keep as an adjudicated limitation, (c) build a generic-lane construction proof. Recommended: (a) now, then (c).
-2. **#441 comment 5979206791, errata:**
-   - E1: a known library top card without `deck_state`;
-   - E2: scry is a card selection, not `choose_use`;
-   - E3: PILOT_PILE `revealed` objects with Fact or Fiction still on the stack.
-3. **WS05-MP-TURN-3/5:** Nexus of Fate is requested in the graveyard against its own text, and the extra turns contain combat the record never specifies. See `docs/af456_xmage_residuals_20261003/README.md`.
-4. **WS05-CMD-MULL-2/4:** round 1 only; Forge's LondonMulligan decision order (#441 comment 5981490500). **RNG_RULES_TAPE:** contract v1.0.20 erratum. **MICRO_LAYERS:** semantic adjudication.
+1. **Construction proof: (a) + (c).** (a) PLAYER_COUNT_2P–5P and WS05-CMD-START-2 lose their generic-lane PASS now and become UNKNOWN (construction equality unestablished). (c) Build a real generic-lane construction proof on both providers (record decks imported; normalized constructed state against the requested-state digest spec), then restore credit on evidence only.
+2. **Errata E1–E3 (#441 comment 5979206791):** contract authority delegated to Claude. Each erratum is versioned, digest-bound and lineage-preserving; no historical PASS transfers.
+
+Still open for the Owner/Coordinator: WS05-MP-TURN-3/5 (Nexus of Fate graveyard vs. its own text; unspecified combat in the extra turns), WS05-CMD-MULL-2/4 (round 1 only; Forge LondonMulligan order, #441 comment 5981490500), RNG_RULES_TAPE (contract v1.0.20 erratum), MICRO_LAYERS (semantic adjudication).
 
 ## 4. Autonomous work queue, highest value first
 
 1. Finish the Forge free-mulligan fix, its PR and the Lab re-pin (section 2), and drive them to green and merged.
-2. Once the network is unblocked, do epoch sealing, then the per-candidate AF matrix, then the #255 packet. Post the packet on #255 as eligibility evidence only.
-3. **Forge ScenarioBootstrap capability program.** Batch it into Forge bridge PRs, each followed by one Lab re-pin. Local baseline: 20 rows attempted, 12 observed, 7 `UNSUPPORTED_DIMENSION`. In order of rows unlocked:
+2. Apply decision (a): downgrade PLAYER_COUNT_2P–5P and WS05-CMD-START-2 to UNKNOWN in `cardinality_row` / `start2_row` with the construction reason (mirror `scripted_pregame_row` in `full107.py`), update tests, PR, PB-03, merge.
+3. Epoch sealing, then the per-candidate AF matrix, then the #255 packet. Post the packet on #255 as eligibility evidence only.
+4. **Decision (c):** a generic-lane constructed-state proof on both providers (XMage `JsonlBridge`/`XmageGameManager` and the Forge bridge emit a normalized constructed state; compare against the record's requested-state digest projection). This restores PLAYER_COUNT/START-2 credit and lets PILOT_MULLIGAN pass. The record-deck half already exists (`full107.record_decks`, `drive_commander_game(decks=...)`).
+5. Errata E1–E3 under the delegated authority, then implement the affected rows (PILOT_CHOOSE_USE, NEGATIVE_DEFAULT_YES_NO, PILOT_PILE) with wrong-reason controls.
+6. **Forge ScenarioBootstrap capability program.** Batch it into Forge bridge PRs, each followed by one Lab re-pin. Local baseline: 20 rows attempted, 12 observed, 7 `UNSUPPORTED_DIMENSION`. In order of rows unlocked:
    - stack injection, or a declared causal-stack route like XMage's;
    - combat_state and combat-step temporal points;
    - mid-cast cost state;
    - adopting the shared mid-game selector surface. The selectors live in `midgame_rows.py`; do not build a second generic selector.
 
    Re-run `forge_scenario_lane.execute_and_persist` locally after each batch, and classify every residual with its first missing mechanism.
-4. **Option (c), only after the decision:** a generic-lane constructed-state proof on both providers. This restores PLAYER_COUNT/START-2 credit and lets PILOT_MULLIGAN pass.
-5. Apply adjudicated errata, then implement the affected rows (PILOT_CHOOSE_USE, NEGATIVE_DEFAULT_YES_NO, PILOT_PILE, MP-TURN-3/5, MULL-2/4) with wrong-reason controls.
 
 ## 5. How to work
 
