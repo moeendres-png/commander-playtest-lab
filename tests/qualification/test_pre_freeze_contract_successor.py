@@ -12,12 +12,15 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_20.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_21.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_20.json"
+)
+V120_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
+V119_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_19.json"
 )
-V119_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
 V118_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_18.json"
 )
@@ -132,6 +135,19 @@ RESIDUAL_ERRATA_IDS = [
     "WS05-CMD-PARTNER-TAX",
     "MICRO_CONTINUOUS_EFFECTS",
 ]
+# The #441 Claude-lane errata (1.0.21, Owner-delegated contract authority,
+# decided on #441 comment 5984201192). RNG_RULES_TAPE's 1.0.19 patch is
+# superseded in place and extended, so it is changed already and not new.
+CLAUDE_LANE_ERRATA_IDS = [
+    "PILOT_CHOOSE_USE",
+    "NEGATIVE_DEFAULT_YES_NO",
+    "PILOT_PILE",
+    "WS05-MP-TURN-3",
+    "WS05-MP-TURN-5",
+    "WS05-CMD-MULL-2",
+    "WS05-CMD-MULL-4",
+    "MICRO_LAYERS",
+]
 CHANGED_FIXTURE_IDS = [
     "WS05-CMD-START-2",
     "MICRO_MODES",
@@ -155,6 +171,7 @@ CHANGED_FIXTURE_IDS = [
     *CARD_CAUSAL_SCENARIO_ERRATA_IDS,
     *REPLAY_LIBRARY_ERRATA_IDS,
     *RESIDUAL_ERRATA_IDS,
+    *CLAUDE_LANE_ERRATA_IDS,
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
@@ -179,7 +196,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_20_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_21_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -247,7 +264,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_20.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_21.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -315,7 +332,7 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
 
     contract = _json(SUCCESSOR_PATH)
     predecessor = _json(PREDECESSOR_CONTRACT_PATH)
-    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_19.json")
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_20.json")
     assert (
         contract["predecessor"]["sha256"]
         == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
@@ -357,6 +374,22 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
             for key, value in old["predecessor_invalidity"].items():
                 assert new["predecessor_invalidity"][key] == value
             continue
+        if new["fixture_id"] == "RNG_RULES_TAPE":
+            # 1.0.21 supersedes its 1.0.19 SLOT-04 overlay in place and extends
+            # it: the deck, the erratum steps and the digest lineage are kept.
+            assert new["superseded_successor_patch"]["correction_class"] == old["correction_class"]
+            assert (
+                new["superseded_successor_patch"]["successor_requested_state_digest"]
+                == old["successor_requested_state_digest"]
+            )
+            assert new["replace"]["deck_state"] == old["replace"]["deck_state"]
+            steps = old["append_native_procedure"]
+            assert new["append_native_procedure"][: len(steps)] == steps
+            assert (
+                new["predecessor_requested_state_digest"]
+                == old["predecessor_requested_state_digest"]
+            )
+            continue
         # A lossless-library overlay now carried inside a decision-script erratum.
         assert new["fixture_id"] in CARRIED_LIBRARY_ERRATA_IDS
         assert old["correction_class"] == "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04"
@@ -386,8 +419,10 @@ def test_inside_cast_errata_reach_the_opening_cast_through_the_legal_action_doma
         for patch in contract["record_successors"]
         if patch.get("correction_class") == "FIXTURE_SCRIPT_CONTRACT_ERRATUM"
         # The 1.0.20 residual casts open a whole obligation, not an inside-cast
-        # decision; test_residual_errata_* covers them.
+        # decision; test_residual_errata_* covers them (and the 1.0.21
+        # Claude-lane errata are covered by their own test).
         and patch["fixture_id"] not in RESIDUAL_ERRATA_IDS
+        and patch["fixture_id"] not in CLAUDE_LANE_ERRATA_IDS
     }
     assert set(errata) == {
         "MICRO_MODES",
@@ -567,7 +602,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.20-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.21-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -579,9 +614,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.20-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.21-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.20-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.21-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -1120,6 +1155,7 @@ def test_card_library_errata_complete_the_library_and_keep_the_obligation() -> N
             or patch["fixture_id"] in CARRIED_LIBRARY_ERRATA_IDS
         )
         and patch["fixture_id"] not in REPLAY_LIBRARY_ERRATA_IDS
+        and patch["fixture_id"] not in CLAUDE_LANE_ERRATA_IDS
     }
     assert sorted(errata) == CARD_LIBRARY_ERRATA_IDS
     assert contract["change_accounting"]["unchanged_provider_denominator_rows"] == 107 - len(
@@ -1933,8 +1969,12 @@ def test_replay_library_errata_complete_the_zones_and_keep_the_obligation() -> N
             assert decks[seat]["checkpoint_hand"]["template_count"] == 7
             assert "checkpoint_library" not in decks[seat]
         record = effective[fixture_id]
-        # The obligation keys and every object are untouched.
+        # The obligation keys and every object are untouched (RNG_RULES_TAPE's
+        # patch is superseded and extended by 1.0.21, which keeps this deck).
         assert record["obligation_digest"] == old["obligation_digest"]
+        if fixture_id == "RNG_RULES_TAPE":
+            assert record["deck_state"] == patch["replace"]["deck_state"]
+            continue
         assert record["semantic_objects"] == old["semantic_objects"]
         assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
         assert record["requested_state_digest"] == resolver.requested_state_digest(record)
@@ -1946,8 +1986,8 @@ def test_residual_errata_correct_unreachable_requests_and_keep_the_obligation() 
     reaches, or adds the scripted action the record's own procedure and
     required events name. Only MICRO_CONTINUOUS_EFFECTS changes an obligation
     (its measured value, at the reachable hand), explicitly and versioned."""
-    contract = _json(SUCCESSOR_PATH)
-    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    contract = _json(V120_CONTRACT_PATH)
+    predecessor = _json(V119_CONTRACT_PATH)
     resolver = _resolver()
     base = {
         record["fixture_id"]: record
@@ -1962,7 +2002,7 @@ def test_residual_errata_correct_unreachable_requests_and_keep_the_obligation() 
     assert [patch["fixture_id"] for patch in added] == RESIDUAL_ERRATA_IDS
     assert (
         contract["predecessor"]["sha256"]
-        == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
+        == hashlib.sha256(V119_CONTRACT_PATH.read_bytes()).hexdigest()
     )
     effective = {
         record["fixture_id"]: record
@@ -2062,3 +2102,92 @@ def test_the_coin_call_is_scripted_and_the_flip_stays_the_rules_rng() -> None:
     assert step["actor"] == "P1"
     assert step["selection"]["selector_kind"] == "boolean"
     assert step["selection"]["semantic_value"] is True
+
+
+def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
+    """1.0.21 (#441, Owner-delegated contract authority, decided by CR text on
+    #441 comment 5984201192): eight records get one erratum each and
+    RNG_RULES_TAPE's 1.0.19 overlay is superseded in place and extended. No
+    obligation key changes; every changed row requalifies."""
+    contract = _json(SUCCESSOR_PATH)
+    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    resolver = _resolver()
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    added = contract["record_successors"][len(predecessor["record_successors"]) :]
+    assert [patch["fixture_id"] for patch in added] == CLAUDE_LANE_ERRATA_IDS
+    (rng,) = [p for p in contract["record_successors"] if p["fixture_id"] == "RNG_RULES_TAPE"]
+    effective = {
+        record["fixture_id"]: record
+        for record in resolver.load_effective_materialization()["records"]
+    }
+    for patch in [*added, rng]:
+        fixture_id = patch["fixture_id"]
+        old = base[fixture_id]
+        record = effective[fixture_id]
+        assert patch["evidence_survival"] == "REQUALIFICATION_REQUIRED"
+        assert record["obligation_digest"] == old["obligation_digest"], fixture_id
+        assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
+        assert record["requested_state_digest"] != old["requested_state_digest"]
+        for step in patch["append_native_procedure"]:
+            assert step["operation"] == "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
+            assert step["details"]["provider_semantics_used"] is False
+            assert step["details"]["obligation_changed"] is False
+        for step in record["decision_script"]:
+            selection = step["selection"]
+            assert selection["matches_only_provider_offered_legal_options"] is True
+            assert selection["on_multiple_match"] == selection["on_zero_match"] == "FAIL_CLOSED"
+
+    def objects(fixture_id: str) -> dict[str, dict]:
+        return {o["semantic_id"]: o for o in effective[fixture_id]["semantic_objects"]}
+
+    # No requested state holds an unreachable zone any more.
+    assert all(o["zone"] != "revealed" for o in objects("PILOT_PILE").values())
+    assert objects("PILOT_PILE")["obj:fof"]["zone"] == "hand"
+    assert effective["PILOT_PILE"]["stack_state"] == []
+    for fixture_id in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
+        assert objects(fixture_id)["obj:mp-nexus"]["zone"] == "hand"
+        assert effective[fixture_id]["extra_turn_creation"] == []
+        combat = [
+            s
+            for s in effective[fixture_id]["decision_script"]
+            if s["decision_family"] == "declare_attacker"
+        ]
+        assert [(s["actor"], s["selection"]["semantic_value"]) for s in combat] == [("P3", {})]
+    # Every SLOT-04 library is complete: named objects on top, then 99 - hand templates.
+    for fixture_id in ("PILOT_CHOOSE_USE", "NEGATIVE_DEFAULT_YES_NO", "PILOT_PILE"):
+        decks = {d["player_id"]: d for d in effective[fixture_id]["deck_state"]}
+        runs = decks["P1"]["checkpoint_library"]["runs"]
+        assert runs[-1] == {
+            "card_identity": "Mountain",
+            "count": 99 - decks["P1"]["checkpoint_hand"]["template_count"],
+        }
+        assert all("semantic_id" in run for run in runs[:-1])
+    # E2(b): a genuine optional trigger replaces Opt; the probe is unchanged.
+    assert "obj:neg-opt" not in objects("NEGATIVE_DEFAULT_YES_NO")
+    assert objects("NEGATIVE_DEFAULT_YES_NO")["obj:neg-packleader"]["card_identity"] == (
+        "Garruk's Packleader"
+    )
+    assert (
+        effective["NEGATIVE_DEFAULT_YES_NO"]["decision_script"][-1]
+        == (base["NEGATIVE_DEFAULT_YES_NO"]["decision_script"][0])
+    )
+    # MULL-2 owes one London bottom card; MULL-4's first mulligan is free.
+    families = {
+        fixture_id: [s["decision_family"] for s in effective[fixture_id]["decision_script"]]
+        for fixture_id in ("WS05-CMD-MULL-2", "WS05-CMD-MULL-4")
+    }
+    assert families["WS05-CMD-MULL-2"] == ["mulligan"] * 3 + ["london_bottom"]
+    assert families["WS05-CMD-MULL-4"] == ["mulligan"] * 5
+    # RNG_RULES_TAPE: a card-caused shuffle, and the 1.0.19 deck is kept.
+    assert objects("RNG_RULES_TAPE")["obj:replay-warp"]["card_identity"] == "Chaos Warp"
+    assert rng["superseded_successor_patch"]["correction_class"] == (
+        "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04"
+    )
+    # MICRO_LAYERS: a creature with printed abilities and P/T discriminates the layers.
+    assert objects("MICRO_LAYERS")["obj:p2-angel"]["card_identity"] == "Serra Angel"
+    assert "obj:p2-bears" not in objects("MICRO_LAYERS")
