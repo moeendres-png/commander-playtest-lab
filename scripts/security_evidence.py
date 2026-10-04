@@ -109,6 +109,18 @@ def prepare(args: argparse.Namespace) -> int:
     try:
         record["source"] = source(repo)
         blocks = packaging.lock_blocks((repo / "requirements/lock.txt").read_text())
+        bootstrap = packaging.lock_blocks(
+            (repo / "requirements/security-bootstrap.txt").read_text()
+        )
+        if (
+            set(bootstrap) != {"pip"}
+            or bootstrap["pip"][0] != TOOLS["pip"]
+            or "--hash=sha256:" not in bootstrap["pip"][1]
+        ):
+            raise ValueError("invalid security bootstrap lock")
+        if "pip" in blocks and blocks["pip"] != bootstrap["pip"]:
+            raise ValueError("conflicting bootstrap pin")
+        blocks.update(bootstrap)
         # All generator packages/transitives must match the installed hash lock.
         record["tools"] = {name: importlib.metadata.version(name) for name in TOOLS}
         if record["tools"] != TOOLS:
@@ -116,8 +128,8 @@ def prepare(args: argparse.Namespace) -> int:
         tooling = inventory(Path(sys.executable), out.parent)
         contract = packaging.read_package_contract(repo / "pyproject.toml")
         for name, version in tooling["packages"].items():
-            if name in {"pip", contract.normalized_name}:
-                continue  # bootstrap installer and explicitly source-bound project
+            if name == contract.normalized_name:
+                continue  # explicitly source-bound project; bootstrap is pinned above
             if name not in blocks or blocks[name][0] != version:
                 raise ValueError("tooling distribution is outside the hash lock: " + name)
         tooling["scope"] = "complete CI environment, includes bootstrap pip; not shipped product"
