@@ -30,6 +30,9 @@ POLL_INTERVAL_S = 1.0
 # Named pilot policies. Each states its semantic intent explicitly; none is a
 # fallback and none is applied when the engine offers no matching option.
 MULLIGAN_POLICY = "keep_all"  # Commander: keep the opening hand.
+# A record's own pregame plan: each mulligan frame is answered with the plan's
+# next (seat, keep) entry, and only for the seat the plan names next.
+SCRIPTED_MULLIGAN_POLICY = "fixture_scripted_mulligan"
 PRIORITY_POLICY = "pass_when_offered"  # Decline the optional priority action.
 STARTING_PLAYER_POLICY = "fixture_scripted_seat"
 COST_ORDER_POLICY = "native_declared_cost_part_order"
@@ -590,6 +593,43 @@ def _observe_principal_checkpoint(
     )
 
 
+def _engine_seat_roster(
+    proc: BridgeProcess,
+    *,
+    game_id: str,
+    player_count: int,
+    created_seats: list[Any] | None,
+) -> dict[str, str]:
+    """Map each engine player id to its seat, from the engine's own reports.
+
+    The create response's roster is used when the provider publishes one;
+    otherwise each seat's principal-scoped state envelope must bind exactly
+    that seat to one engine player id. Anything less fails closed.
+    """
+    if created_seats is not None:
+        if len(created_seats) != player_count or any(not seat for seat in created_seats):
+            raise GameDriveError(f"the engine's seat roster is incomplete: {created_seats!r}")
+        return {str(player_id): _SEATS[index] for index, player_id in enumerate(created_seats)}
+    roster: dict[str, str] = {}
+    for index, seat in enumerate(_SEATS[:player_count]):
+        payload = _payload(
+            proc.request(
+                "get_game_state", {"observer_player_id": seat}, game_id=game_id, timeout_s=60.0
+            )
+        )
+        engine_id = payload.get("observer_engine_player_id")
+        if (
+            payload.get("observer_player_id") != seat
+            or payload.get("observer_seat") != index
+            or not isinstance(engine_id, str)
+            or not engine_id
+            or engine_id in roster
+        ):
+            raise GameDriveError(f"the engine binds no unique player id to seat {seat}")
+        roster[engine_id] = seat
+    return roster
+
+
 def drive_commander_game(
     proc: BridgeProcess,
     *,
@@ -599,12 +639,26 @@ def drive_commander_game(
     scripted_starting_seat: str = "p1",
     drive_to: Literal["priority", "full_turn", "first_turn_draw_skip"] = "priority",
     max_steps: int = 400,
+    mulligan_plan: tuple[tuple[str, bool], ...] | None = None,
+    decks: list[dict[str, Any]] | None = None,
 ) -> CommandedGameResult:
     """Run a real Commander lifecycle for one candidate at one player count.
 
     The driver supplies only externally discretionary choices among
     engine-offered options and records each one. It never decides legality.
+
+    ``mulligan_plan`` replaces the keep-all policy with a record's own pregame
+    plan of ``(seat, keep)`` entries in the order the engine must ask them. A
+    mulligan frame for another seat than the plan's next entry, a frame after
+    the plan is exhausted, or a plan entry the engine never asked fails closed.
+    With a plan, every seat's zone counts are read from the engine at the first
+    priority after the pregame, before anything is passed.
+
+    ``decks`` replaces the driver's own test decks with one import payload per
+    seat (a record's requested decks); the engine still validates every card.
     """
+    if decks is not None and len(decks) != player_count:
+        raise ValueError(f"{len(decks)} decks were supplied for {player_count} players")
     if player_count < 2 or player_count > 6:
         raise ValueError(f"player_count must be within 2..6, got {player_count}")
 
@@ -624,9 +678,12 @@ def drive_commander_game(
         result.steps_completed.append("handshake")
 
         handles: list[str] = []
-        for deck_id in result.deck_identity:
+        payloads = decks if decks is not None else [build_deck(d) for d in result.deck_identity]
+        if decks is not None:
+            result.deck_identity = [str(deck["deck_id"]) for deck in decks]
+        for deck in payloads:
             payload = _require_ok(
-                proc.request("import_deck", {"deck": build_deck(deck_id)}),
+                proc.request("import_deck", {"deck": deck}),
                 "import_deck",
             )
             handle = payload.get("deck_handle")
@@ -674,6 +731,10 @@ def drive_commander_game(
                 f"create_commander_game reported {len(seat_ids)} seats for {player_count} players"
             )
         result.terminal_facts["created_player_count"] = created.get("player_count", len(handles))
+        # A provider may answer a parked decision to whichever seat asks, so
+        # the polled seat says nothing about whose decision it is: the frame's
+        # actor does, read against the engine's own seat roster.
+        seat_by_actor: dict[str, str] | None = None
         result.steps_completed.append("create_commander_game")
 
         started = _require_ok(
@@ -725,6 +786,60 @@ def drive_commander_game(
                         offered,
                         "a draw-step decision was exposed by the engine",
                     )
+                )
+                continue
+
+            if kind in {"MULLIGAN", "KEEP_OR_MULLIGAN"} and mulligan_plan is not None:
+                asked = sum(1 for entry in result.decision_tape if entry.step == "mulligan")
+                if asked >= len(mulligan_plan):
+                    raise DecisionUnsatisfied(
+                        f"the engine asked mulligan #{asked + 1}; the record's plan has "
+                        f"{len(mulligan_plan)}"
+                    )
+                planned_seat, planned_keep = mulligan_plan[asked]
+                if seat_by_actor is None:
+                    seat_by_actor = _engine_seat_roster(
+                        proc, game_id=game_id, player_count=player_count, created_seats=seat_ids
+                    )
+                acting_seat = seat_by_actor.get(actor)
+                if acting_seat is None:
+                    raise DecisionUnsatisfied(
+                        f"mulligan #{asked + 1}: the engine's actor {actor!r} is not a seat "
+                        "of the engine's own roster"
+                    )
+                if acting_seat != planned_seat:
+                    raise DecisionUnsatisfied(
+                        f"the engine asked mulligan #{asked + 1} of {acting_seat}; "
+                        f"the record's plan names {planned_seat}"
+                    )
+                answer = _require_ok(
+                    proc.request(
+                        "resolve_mulligan",
+                        {
+                            "player_id": actor,
+                            **decision_identity_params(candidate, frame),
+                            "keep": planned_keep,
+                            "bottom_card_ids": [],
+                        },
+                        game_id=game_id,
+                        timeout_s=120.0,
+                    ),
+                    "resolve_mulligan",
+                )
+                result.decision_tape.append(
+                    DecisionTapeEntry(
+                        "mulligan",
+                        kind,
+                        planned_seat,
+                        revision,
+                        SCRIPTED_MULLIGAN_POLICY,
+                        "keep" if planned_keep else "mulligan",
+                        offered,
+                        f"record plan entry {asked + 1}; no bottoming",
+                    )
+                )
+                result.observations.append(
+                    GameObservation("mulligan_keep" if planned_keep else "mulligan_taken", answer)
                 )
                 continue
 
@@ -837,6 +952,20 @@ def drive_commander_game(
                 continue
 
             if kind == "PRIORITY":
+                if mulligan_plan is not None and not priority_seen:
+                    asked = sum(1 for entry in result.decision_tape if entry.step == "mulligan")
+                    if asked != len(mulligan_plan):
+                        raise DecisionUnsatisfied(
+                            f"the pregame ended after {asked} mulligan decisions; the "
+                            f"record's plan has {len(mulligan_plan)}"
+                        )
+                    post_pregame: dict[str, Any] = {}
+                    for seat in _SEATS[:player_count]:
+                        counts, checkpoint = _observe_principal_checkpoint(
+                            proc, game_id=game_id, principal=seat, player_count=player_count
+                        )
+                        post_pregame[seat] = {**counts, "checkpoint": checkpoint}
+                    result.terminal_facts["post_pregame_zone_counts"] = post_pregame
                 priority_seen = True
 
                 # START-2 is a temporal/state-transition obligation. Observe the
