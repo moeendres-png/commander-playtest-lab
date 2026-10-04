@@ -71,10 +71,14 @@ alone closes such a row; otherwise it is the first Lab gap:
 An unmapped dimension or token raises instead of defaulting to a class.
 
 ## Result
+Updated for contract 1.0.21 (#441: the TURN-3/5, PILOT_PILE, PILOT_CHOOSE_USE,
+NEGATIVE_DEFAULT_YES_NO, MULL-2/4 and MICRO_LAYERS errata); the matrix is regenerated from
+the effective contract.
+
 | Class | Rows (of 70) |
 |---|---|
-| `LAB_EXECUTION_GAP` | 39 |
-| `PROVIDER_ADAPTER_GAP` | 17 |
+| `LAB_EXECUTION_GAP` | 40 |
+| `PROVIDER_ADAPTER_GAP` | 16 |
 | `SCENARIO_LANE_EXECUTABLE` | 12 (six already PASS in the baseline epoch, and the six causal commander zone rows) |
 | `CONTRACT_AUTHORITY_GAP` | 2 (WS05-CMD-START-2, WS05-CMD-START-3: unscripted starting player) |
 
@@ -84,12 +88,14 @@ for the same unscripted starting player. Whether the generic route's starter sel
 (`game_driver.STARTING_PLAYER_POLICY`, default seat `p1`) has contract authority is an
 open impact question for the #441 reassembly; see Findings.
 
-The 17 provider gaps break down as follows:
-- 11 rows need an event log;
-- three need a mulligan (PILOT_MULLIGAN, WS05-CMD-MULL-2 and WS05-CMD-MULL-4);
+The 16 provider gaps break down as follows:
+- 10 rows need an event log (MICRO_LAYERS no longer does: its layer tokens are
+  characteristic readbacks, CR 613);
+- three need a mulligan (PILOT_MULLIGAN, WS05-CMD-MULL-2 and WS05-CMD-MULL-4), and
+  WS05-CMD-MULL-2 also the London bottom selection;
 - one needs predetermined draws (MICRO_RULES_RANDOMNESS);
-- five need a readback of owner, attachment, a revealed zone, the library, or object
-  identity in a public zone.
+- three need a readback of the library (PILOT_CHOOSE_USE, PILOT_PILE) or of owner and
+  attachment (WS05-MP-ELIM-CONTROL-3).
 
 Some rows have more than one provider gap. Each row's matrix entry lists every
 mechanism.
@@ -109,7 +115,8 @@ and the cost-part order itself. The shared fail-closed selector (`scripted_selec
 answers, and the causal stack route uses it for the six commander zone rows above. Every
 other stack row still needs either a terminal the lane can judge, a mode or choice-key
 selector, or several spells on the stack; the 13 rows whose first gap is `stack_state` and
-the 14 whose first gap is `action_cost_state` are that next work.
+the 14 whose first gap is `action_cost_state` are that next work (counts as of
+contract 1.0.21).
 
 ## Per-row matrix
 `FORGE_RESIDUAL_MATRIX.json` is written by `scripts/run_forge_residual_census.py` and
@@ -123,7 +130,7 @@ every mechanism of every row; the table shows the first one.
 | MICRO_CONTROL | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_COPY | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | MICRO_COSTS | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
-| MICRO_LAYERS | PROVIDER_ADAPTER_GAP | observation: `event_log` | `layer6_remove_abilities`, `layer7b_set_pt:1/1`, `layer7c_modify_pt:+1/+1` |
+| MICRO_LAYERS | LAB_EXECUTION_GAP | observation: `observation_contract` | — |
 | MICRO_MANA_PAYMENT | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | MICRO_MODES | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_PREVENTION | PROVIDER_ADAPTER_GAP | observation: `event_log` | `combat_damage_would_be:P2:2`, `prevention_applied`, `combat_damage_prevented:P2:2` |
@@ -146,7 +153,7 @@ every mechanism of every row; the table shows the first one.
 | PILOT_MANA_PAYMENT | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | PILOT_MULLIGAN | PROVIDER_ADAPTER_GAP | execution: `decision_execution.mulligan.semantic_action` | — |
 | PILOT_MULTI_AMOUNT | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
-| PILOT_PILE | PROVIDER_ADAPTER_GAP | checkpoint_readback: `semantic_objects.zone:revealed` | — |
+| PILOT_PILE | PROVIDER_ADAPTER_GAP | checkpoint_readback: `semantic_objects.zone:library` | — |
 | PILOT_PRIORITY | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | PILOT_REPLACEMENT_EFFECT | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | PILOT_TARGET | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
@@ -186,8 +193,8 @@ every mechanism of every row; the table shows the first one.
 | WS05-MP-PRIO-5 | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | WS05-MP-TRIG-3 | PROVIDER_ADAPTER_GAP | observation: `event_log` | `simultaneous_trigger_event` |
 | WS05-MP-TRIG-5 | PROVIDER_ADAPTER_GAP | observation: `event_log` | `simultaneous_trigger_event` |
-| WS05-MP-TURN-3 | PROVIDER_ADAPTER_GAP | checkpoint_readback: `semantic_objects.zone:graveyard` | `extra_turn_created:P2`, `extra_turn_created:P3` |
-| WS05-MP-TURN-5 | PROVIDER_ADAPTER_GAP | checkpoint_readback: `semantic_objects.zone:graveyard` | `extra_turn_created:P2`, `extra_turn_created:P3` |
+| WS05-MP-TURN-3 | PROVIDER_ADAPTER_GAP | observation: `event_log` | `extra_turn_created:P2`, `extra_turn_created:P3` |
+| WS05-MP-TURN-5 | PROVIDER_ADAPTER_GAP | observation: `event_log` | `extra_turn_created:P2`, `extra_turn_created:P3` |
 
 ## WS05-CMD-START-3: first-turn draw from the engine's own counts
 After each priority pass the lane records the engine's turn position and each player's
@@ -240,7 +247,7 @@ check fails closed instead of guessing. WS05-CMD-START-2 passes on its own route
 3. **MICRO_CONTINUOUS_EFFECTS** stays construction-dependent. Forge's bootstrap gives P1
    six cards at the checkpoint, so the 1.0.20 obligation's 13/13 P/T is XMage's
    construction. This repeats flag 1 of the #456 comment on #255.
-4. **Event-only obligations**, 11 rows: layers, prevention, replacement, state-based
+4. **Event-only obligations**, 10 rows: prevention, replacement, state-based
    actions, simultaneous triggers, CR 400.7 new objects, coin flips and queued extra
    turns. They cannot be observed on Forge without an engine event stream. That needs a
    separately authorized Forge bridge issue.

@@ -231,22 +231,16 @@
    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_state.active_player (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_objects (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
-   "classification": "PROVIDER_ADAPTER_GAP",
+   "classification": "LAB_EXECUTION_GAP",
    "first_missing": {
-    "class": "PROVIDER_ADAPTER_GAP",
-    "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
-    "dimension": "event_log",
+    "class": "LAB_EXECUTION_GAP",
+    "detail": "the lane has no observation contract for this obligation's readback and decision-frame tokens",
+    "dimension": "observation_contract",
     "stage": "observation"
    },
    "fixture_id": "MICRO_LAYERS",
    "lane_obligation_kind": null,
    "mechanisms": [
-    {
-     "class": "PROVIDER_ADAPTER_GAP",
-     "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
-     "dimension": "event_log",
-     "stage": "observation"
-    },
     {
      "class": "LAB_EXECUTION_GAP",
      "detail": "the lane has no observation contract for this obligation's readback and decision-frame tokens",
@@ -254,15 +248,15 @@
      "stage": "observation"
     }
    ],
-   "needs_event_log": true,
+   "needs_event_log": false,
    "observation": {
-    "EVENT_LOG": [
+    "READBACK": [
      "layer6_remove_abilities",
      "layer7b_set_pt:1/1",
      "layer7c_modify_pt:+1/+1"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: layer6_remove_abilities, layer7b_set_pt:1/1, layer7c_modify_pt:+1/+1. no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at observation (observation_contract): the lane has no observation contract for this obligation's readback and decision-frame tokens. no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -3169,11 +3163,11 @@
  "summary": {
   "classifications": {
    "CONTRACT_AUTHORITY_GAP": 2,
-   "LAB_EXECUTION_GAP": 39,
-   "PROVIDER_ADAPTER_GAP": 17,
+   "LAB_EXECUTION_GAP": 40,
+   "PROVIDER_ADAPTER_GAP": 16,
    "SCENARIO_LANE_EXECUTABLE": 12
   },
-  "needs_event_log": 11,
+  "needs_event_log": 10,
   "pass": 0,
   "rows": 70
  }
