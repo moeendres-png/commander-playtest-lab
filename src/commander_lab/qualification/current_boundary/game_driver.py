@@ -1030,9 +1030,11 @@ def drive_commander_game(
                         )
                         post_pregame[seat] = {**counts, "checkpoint": checkpoint}
                     result.terminal_facts["post_pregame_zone_counts"] = post_pregame
-                if not priority_seen:
+                if not priority_seen and constructed_supported:
                     # Who holds the first priority of the game: the starting
                     # player (CR 103.1), read against the engine's own roster.
+                    # Needed only by the construction proof, so asked only on a
+                    # launch that can produce one.
                     if seat_by_actor is None:
                         seat_by_actor = _engine_seat_roster(
                             proc, game_id=game_id, player_count=player_count, created_seats=seat_ids
