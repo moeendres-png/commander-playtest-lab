@@ -19740,12 +19740,13 @@
       "provider_semantics_used": false,
       "erratum_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
       "comprehensive_rules": "103.5, 103.5c",
-      "reason": "CR 103.5 asks every player, in turn order, whether to mulligan, and repeats the question after each mulligan for those who took one. The predecessor scripts only P1's round-1 mulligan ('mulligan_once'), so the other seats' round-1 keeps and P1's round-2 keep are unscripted and every route fails closed there. The successor names every decision the rules ask, in the PILOT_MULLIGAN shape; the one card owed after a non-free two-player mulligan is a London bottom selection, named as a card multiset because the hand holds only identical template cards",
+      "reason": "CR 103.5 asks every player, in turn order, whether to mulligan, and repeats the question after each mulligan for those who took one. The predecessor scripts only P1's round-1 mulligan ('mulligan_once'), so the other seats' round-1 keeps and P1's round-2 keep are unscripted and every route fails closed there, although the record's own pregame_decision_plan names them. The successor's decision script states exactly that plan, entry for entry, in the PILOT_MULLIGAN shape; the one card owed after a non-free two-player mulligan is a London bottom selection, named as a card multiset because the hand holds only identical template cards",
       "deck_shape": "the predecessor's main_deck/exact_card_count shape predates the library template and is refused (INVALID_DECK_STATE); the successor uses the template shape of PILOT_MULLIGAN with the same 99 Mountains and commander",
       "decision_family_binding": {
        "record_family": "london_bottom",
        "provider_surface": "the London mulligan's bottom selection",
-       "selector": "card_identity_multiset"
+       "selector": "card_identity_multiset",
+       "equivalence": "the selection is the multiset of card identities put on the bottom; every subset of the hand with that multiset is the same semantic selection (the hand holds only identical template cards), so it matches once, never as several options. A hand in which no subset has the multiset fails closed"
       },
       "route": "PROTOCOL2_SCRIPTED_PREGAME (the PILOT_MULLIGAN precedent)"
      },
@@ -19933,7 +19934,7 @@
       "provider_semantics_used": false,
       "erratum_class": "FIXTURE_SCRIPT_CONTRACT_ERRATUM",
       "comprehensive_rules": "103.5, 103.5c",
-      "reason": "CR 103.5 asks every player, in turn order, whether to mulligan, and repeats the question after each mulligan for those who took one. The predecessor scripts only P1's round-1 mulligan ('mulligan_once'), so the other seats' round-1 keeps and P1's round-2 keep are unscripted and every route fails closed there. The successor names every decision the rules ask, in the PILOT_MULLIGAN shape",
+      "reason": "CR 103.5 asks every player, in turn order, whether to mulligan, and repeats the question after each mulligan for those who took one. The predecessor scripts only P1's round-1 mulligan ('mulligan_once'), so the other seats' round-1 keeps and P1's round-2 keep are unscripted and every route fails closed there, although the record's own pregame_decision_plan names them. The successor's decision script states exactly that plan, entry for entry, in the PILOT_MULLIGAN shape",
       "deck_shape": "the predecessor's main_deck/exact_card_count shape predates the library template and is refused (INVALID_DECK_STATE); the successor uses the template shape of PILOT_MULLIGAN with the same 99 Mountains and commander",
       "decision_family_binding": null,
       "route": "PROTOCOL2_SCRIPTED_PREGAME (the PILOT_MULLIGAN precedent)"

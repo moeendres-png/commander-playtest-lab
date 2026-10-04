@@ -652,6 +652,12 @@ for fixture, free in (("WS05-CMD-MULL-2", False), ("WS05-CMD-MULL-4", True)):
     (first,) = old["decision_script"]
     assert first["selection"]["semantic_value"] == "mulligan_once" and first["actor"] == "P1"
     assert all("main_deck" in deck for deck in old["deck_state"])
+    plan = old["pregame_decision_plan"]
+    assert [(e["player_id"], e["decision"]) for e in plan] == [
+        ("P1", "MULLIGAN"),
+        *((p, "KEEP") for p in players[1:]),
+        ("P1", "KEEP"),
+    ], plan
     script = [
         _step("P1", "mull-r1-P1", "mulligan", "semantic_action", "mulligan"),
         *(
@@ -687,8 +693,9 @@ for fixture, free in (("WS05-CMD-MULL-2", False), ("WS05-CMD-MULL-4", True)):
                         "repeats the question after each mulligan for those who took one. The "
                         "predecessor scripts only P1's round-1 mulligan ('mulligan_once'), so "
                         "the other seats' round-1 keeps and P1's round-2 keep are unscripted "
-                        "and every route fails closed there. The successor names every "
-                        "decision the rules ask, in the PILOT_MULLIGAN shape"
+                        "and every route fails closed there, although the record's own "
+                        "pregame_decision_plan names them. The successor's decision script "
+                        "states exactly that plan, entry for entry, in the PILOT_MULLIGAN shape"
                         + (
                             ""
                             if free
@@ -710,6 +717,14 @@ for fixture, free in (("WS05-CMD-MULL-2", False), ("WS05-CMD-MULL-4", True)):
                             "record_family": "london_bottom",
                             "provider_surface": "the London mulligan's bottom selection",
                             "selector": "card_identity_multiset",
+                            "equivalence": (
+                                "the selection is the multiset of card identities put on the "
+                                "bottom; every subset of the hand with that multiset is the "
+                                "same semantic selection (the hand holds only identical "
+                                "template cards), so it matches once, never as several "
+                                "options. A hand in which no subset has the multiset fails "
+                                "closed"
+                            ),
                         }
                     ),
                     "route": "PROTOCOL2_SCRIPTED_PREGAME (the PILOT_MULLIGAN precedent)",
