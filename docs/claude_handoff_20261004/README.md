@@ -90,3 +90,20 @@ These are the scripts behind the evidence above. Run them from a Lab checkout wi
 ## Blocker
 
 **Epoch sealing.** Artifact downloads go to `*.blob.core.windows.net`, which this environment's network policy denies. The Owner has to allow it. The newest Lab main (`5583d687`) needs its own PB-03 run and epoch.
+
+## Final local-state census (session `01JMXgrP`)
+
+- **Archived:** local-only commits from earlier PR takeovers. Their PRs were later merged through other heads, and `git cherry` shows these patches are *not* in `main`. They are pushed as `archive/` branches, kept for review only and never to be merged blindly:
+  - `archive/506-claude-local-cd65e39d-20261004`: a Forge AF05 principal-surface check and a renamed state file;
+  - `archive/513-claude-local-3603f678-20261004`: B12 PB-03 trigger on the package readme (Codex lane);
+  - `archive/518-claude-local-b8831e7b-20261004`: B8 turn→active-seat binding (Codex lane);
+  - `archive/519-claude-local-222fa772-20261004`: B10 report parsing and provenance (Codex lane);
+  - `archive/repin4-claude-local-119a49e9-20261004`: repin v4 lock notes, superseded by #522;
+  - `archive/b9-claude-local-repair-83714441-20261003` (earlier).
+- **Pushed:** Forge `hardening/forge-bridge-free-mulligan-tuck-20261004` @ `b31103f3`, superseded (see above).
+- **Persisted:** this branch holds every other local result.
+- **REPRODUCIBLE_AND_DOCUMENTED.** Everything else local can be rebuilt with the steps in "Reproduction":
+  - Maven repos (`m2-b479`, `m2-forge`), the Python venv;
+  - XMage/Forge build trees (`xmage-b479`, `forge-20e3`);
+  - engine runtime directories (`af456/`, `af07-runtime*`, `regress-*`, `probe-runtime*`).
+- **INTENTIONALLY_DISCARDED:** the older diagnostic runtime directories. Their conclusions are already on GitHub (#456 README, contract 1.0.20, #441 comments).
