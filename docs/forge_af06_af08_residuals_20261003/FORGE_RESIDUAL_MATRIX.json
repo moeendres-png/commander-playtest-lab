@@ -1,6 +1,6 @@
 {
  "candidate": "forge",
- "canonical_bundle_digest": "e797708fc4c12ccdd2c650398dc2bbd50d76c6d0fc9c3c5604b0741894ddcf35",
+ "canonical_bundle_digest": "30ca080681e35e2ae2a0c7616416f1dab5b9d94c09a361ae4946ea8f71bd8bd2",
  "contract_id": "commander-lab.full107/1.0.21-successor",
  "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
  "rows": [
@@ -3054,6 +3054,12 @@
      "stage": "execution"
     },
     {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a choose_object decision; the bridge carries it on its CARD, CARD_LIST or GAME_ENTITY frames, but the lane has no selector for them",
+     "dimension": "decision_execution.choose_object.card_identity_multiset",
+     "stage": "execution"
+    },
+    {
      "class": "PROVIDER_ADAPTER_GAP",
      "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
      "dimension": "event_log",
@@ -3077,7 +3083,7 @@
      "next_turn:P2"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); execution decision_execution.choose_object.card_identity_multiset (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -3127,6 +3133,12 @@
      "stage": "execution"
     },
     {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a choose_object decision; the bridge carries it on its CARD, CARD_LIST or GAME_ENTITY frames, but the lane has no selector for them",
+     "dimension": "decision_execution.choose_object.card_identity_multiset",
+     "stage": "execution"
+    },
+    {
      "class": "PROVIDER_ADAPTER_GAP",
      "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
      "dimension": "event_log",
@@ -3150,7 +3162,7 @@
      "next_turn:P2"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); execution decision_execution.choose_object.card_identity_multiset (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
   }
  ],
  "schema_version": "commander-lab.forge-residuals/1.0.0",
