@@ -38,6 +38,7 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     NEGATIVE_ROWS,
     PILOT_ROWS,
     REPLAY_ROWS,
+    SCRIPTED_PREGAME_ROWS,
     XMAGE_LAB_RUNTIME_AUTHORITY,
     boundary_receipt,
     build_deck,
@@ -55,6 +56,7 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     observe_principal_state,
     run_af01,
     run_af03,
+    scripted_pregame_row,
     start2_row,
     validate_principal_scoping,
 )
@@ -1396,6 +1398,15 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 by_id["WS05-CMD-START-2"], proc, candidate=candidate, runtime_identity=identity
             )
         )
+
+        # ---- scripted pregame (every mulligan decision named) -------------
+        for fixture in SCRIPTED_PREGAME_ROWS:
+            if fixture in by_id:
+                rows.append(
+                    scripted_pregame_row(
+                        by_id[fixture], proc, candidate=candidate, runtime_identity=identity
+                    )
+                )
 
         # ---- hidden-information principal probe ---------------------------
         hidden_game = drive_commander_game(

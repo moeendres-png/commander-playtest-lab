@@ -300,9 +300,15 @@ final class XmageGameManager {
         try {
             // Two-player tables use the engine's own two-player Commander type
             // so the engine applies CR 103.8a (see XmageCommanderGames).
+            // The first mulligan in a multiplayer game is free (CR 103.5c;
+            // multiplayer = more than two players, CR 102.1), exactly as the
+            // full-game session configures it: a London mulligan with no free
+            // mulligan here made a 3..6P player who mulliganed once bottom a
+            // card the rules do not require.
+            int freeMulligans = deckHandles.size() > 2 ? 1 : 0;
             GameCommanderImpl game = XmageCommanderGames.create(
                     deckHandles.size(),
-                    MulliganType.GAME_DEFAULT.getMulligan(0),
+                    MulliganType.LONDON.getMulligan(freeMulligans),
                     startingLife
             );
             if (rulesSeed != null) {
