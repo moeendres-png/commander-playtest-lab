@@ -20,7 +20,7 @@ except ModuleNotFoundError:
 
 SCHEMA = "security-evidence-scopes/1"
 SCOPES = ("ci-tooling", "runtime-product")
-TOOLS = {"pip-audit": "2.10.1", "cyclonedx-bom": "7.3.0", "pip-licenses": "5.5.5"}
+TOOLS = {"pip": "26.2", "pip-audit": "2.10.1", "cyclonedx-bom": "7.3.0", "pip-licenses": "5.5.5"}
 STEPS = (
     "prepare-scopes",
     "audit-tooling",
@@ -88,6 +88,7 @@ def source(repo: Path) -> dict[str, Any]:
     for name in (
         "pyproject.toml",
         "requirements/lock.txt",
+        "requirements/security-bootstrap.txt",
         "scripts/security_evidence.py",
         "scripts/verify_packaging_smoke.py",
         ".github/workflows/ci.yml",
@@ -271,6 +272,25 @@ def seal(args: argparse.Namespace) -> int:
     out = args.out.resolve()
     index: dict[str, Any] = {"schema": SCHEMA, "status": "NOT_RUN", "artifacts": [], "steps": {}}
     try:
+        # Bind available failure observations too; an early failed step must not
+        # erase the provenance of later independent collection results.
+        names = ["SCOPES.json", "RUNTIME_WHEEL_SMOKE.json"] + [
+            scope + "/" + name
+            for scope in SCOPES
+            for name in (
+                "inventory.json",
+                "requirements.txt",
+                "sbom.cdx.json",
+                "licenses.json",
+                "dependency-audit.json",
+            )
+        ]
+        for name in names:
+            path = out / name
+            if path.is_symlink():
+                raise ValueError("non-regular artifact: " + name)
+            if path.is_file():
+                index["artifacts"].append({"path": name, "sha256": packaging.sha256_file(path)})
         record = json.loads((out / "SCOPES.json").read_text())
         index["source"] = record.get("source")
         index["tools"] = record.get("tools")
@@ -301,7 +321,7 @@ def seal(args: argparse.Namespace) -> int:
         wheel = packaging.select_project_wheel(args.wheel_dir, contract)
         if packaging.sha256_file(wheel) != record["wheel"]["sha256"]:
             raise ValueError("wheel digest drift")
-        index["artifacts"] = validate_artifacts(out, record)
+        index["validated_scope_artifacts"] = validate_artifacts(out, record)
         index["scopes_sha256"] = packaging.sha256_file(out / "SCOPES.json")
         index["wheel"] = record["wheel"]
         index["status"] = "PASS"

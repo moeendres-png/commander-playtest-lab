@@ -144,4 +144,6 @@ def test_missing_step_is_not_run_and_not_pass(tmp_path, monkeypatch):
     index = json.loads((tmp_path / "SECURITY_EVIDENCE_INDEX.json").read_text())
     assert index["status"] == "FAIL"
     assert set(index["steps"].values()) == {"NOT_RUN"}
-    assert index["artifacts"] == []
+    assert len(index["artifacts"]) == 11
+    for item in index["artifacts"]:
+        assert item["sha256"] == evidence.packaging.sha256_file(tmp_path / item["path"])

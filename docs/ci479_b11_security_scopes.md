@@ -6,8 +6,8 @@ TREE8144004b1fadbffe19ecce9c8cbc2d91473382d1. Sole writer Codex.
 Owned branch: hardening/b11-scoped-security-evidence-20261004.
 
 The security job installs its full hash lock once and its actual built wheel; generator versions and every
-installed generator/transitive distribution must match that lock. The existing
-bootstrap pip is explicitly identified as CI infrastructure and is never treated
+installed generator/transitive distribution must match that lock. A separate hash-pinned
+bootstrap pip26.2 is explicitly identified as CI infrastructure and is never treated
 as shipped runtime. Audit resolution uses --disable-pip with exact inventory
 pins. No unhashed audit-tool reinstall remains. The full CI inventory is still
 audited (except the source-bound private project, as the prior editable exclusion).
@@ -42,3 +42,10 @@ installation (dist-info plus source egg-info). CI tooling now installs the actua
 wheel too; it does not collapse ambiguous duplicate distributions. The retained
 before record documents the refusal at source42289b82. Local disposable tooling
 environment with system packages was also refused, never used as PASS evidence.
+
+The full live run at5a5acf36 produced both scopes but tooling audit found12
+vulnerability records for the local bootstrap pip25.1.1. Seal remainedFAIL.
+requirements/security-bootstrap.txt now binds pip26.2 to its exact PyPI wheel
+digest; collector checks the installed version and source bytes. No advisory
+ignore or runtime blacklist is introduced. Available raw artifacts are hashed
+even when preparation/collection fails, so failure evidence is resumable too.

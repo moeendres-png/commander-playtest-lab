@@ -1,0 +1,13 @@
+{
+  "source": "5a5acf36e68164fe3fe3405492b803818226a112",
+  "tree": "bb9d927d2b112435942f5aa0631e1d84f1122141",
+  "python": "3.14.4",
+  "runtime_audit": "PASS",
+  "tooling_audit": "FAIL",
+  "seal": "FAIL",
+  "bootstrap_pip": "25.1.1",
+  "vulnerability_records": 12,
+  "raw_bundle_sha256": "b88e09284295fc4be3ba1c7d6e8df6aeea99084b6c4fb0877428d934736ba492",
+  "next_bootstrap_version": "26.2",
+  "advisories_ignored": false
+}
