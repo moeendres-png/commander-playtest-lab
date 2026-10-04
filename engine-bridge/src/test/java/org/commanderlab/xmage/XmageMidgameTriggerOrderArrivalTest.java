@@ -120,10 +120,24 @@ class XmageMidgameTriggerOrderArrivalTest {
                 counters("age", JsonParser.parseString("\"0\""))));
     }
 
+    /**
+     * Loyalty is restored only on a first-turn placement (it must be in place
+     * before the first state-based action check); an unrestored counter type on
+     * the same planeswalker is still refused before any game exists.
+     */
     @Test
-    void aPlacedLoyaltyCounterIsStillRejected() {
+    void anUnrestoredCounterOnAPlaneswalkerIsStillRejected() {
         Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
-        JsonObject response = lane.call("create_midgame_game", createRequest("PILOT_CHOOSE_ABILITY"));
+        JsonObject record = frozenRecord("PILOT_CHOOSE_ABILITY").deepCopy();
+        for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
+            JsonObject object = element.getAsJsonObject();
+            if ("obj:jeska".equals(object.get("semantic_id").getAsString())) {
+                object.getAsJsonObject("counters").addProperty("charge", 1);
+            }
+        }
+        JsonObject request = createRequest("PILOT_CHOOSE_ABILITY");
+        request.add("requested_starting_state", record);
+        JsonObject response = lane.call("create_midgame_game", request);
         assertFalse(response.get("success").getAsBoolean());
         String message = response.getAsJsonArray("errors").get(0).getAsJsonObject()
                 .get("message").getAsString();

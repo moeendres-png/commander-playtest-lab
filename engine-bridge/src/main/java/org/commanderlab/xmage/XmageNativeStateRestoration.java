@@ -1914,6 +1914,9 @@ final class XmageNativeStateRestoration {
         supported.add("tapped permanents and +1/+1 or -1/-1 counters on requested battlefield "
                 + "permanents, set at the requested checkpoint through the game-load path and "
                 + "verified engine-direct");
+        supported.add("loyalty counters on a requested battlefield planeswalker, set exactly as "
+                + "it enters at the first-turn placement (before the first state-based action "
+                + "check, CR 704.5i) and verified engine-direct at the checkpoint");
         supported.addAll(XmageLosslessHiddenPlan.supportedDescriptor());
         payload.add("supported_dimensions", supported);
         JsonArray unsupported = new JsonArray();
@@ -1926,8 +1929,9 @@ final class XmageNativeStateRestoration {
                 + "(modal double-faced, transforming): refused before game start "
                 + "(UNSUPPORTED_COMMANDER_FACE)");
         unsupported.add("attachments (aura/equipment attachment relations)");
-        unsupported.add("counters other than +1/+1 and -1/-1, and counters on commanders or "
-                + "on objects off the battlefield");
+        unsupported.add("counters other than +1/+1, -1/-1 and loyalty, counters on commanders or "
+                + "on objects off the battlefield, and loyalty on a permanent that is not a "
+                + "first-turn placement");
         unsupported.add("commander relations other than validated Partner linkage");
         unsupported.add("poison counters");
         unsupported.add("temporal points outside the qualified RG-03 turn-1 checkpoint allow-list");
