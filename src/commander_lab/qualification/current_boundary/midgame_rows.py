@@ -138,6 +138,10 @@ class TerminalCheck:
             )
         if self.kind == "keyword":
             return f"every {self.card_identity} on {self.principal}'s battlefield has {self.value}"
+        if self.kind == "keyword_absent":
+            return (
+                f"every {self.card_identity} on {self.principal}'s battlefield lacks {self.value}"
+            )
         if self.kind == "triggered_ability":
             trigger, effect = self.value
             return (
@@ -1036,6 +1040,57 @@ ROWS: dict[str, RowSpec] = {
     # power and toughness are a characteristic-defining ability (CR 604.3) the
     # engine evaluates from P1's hand size; at the reachable 13-card hand it
     # reads 13/13, and the Crawler triggers nothing in the obligation window.
+    # MICRO_LAYERS (contract 1.0.21, FIXTURE_OBSERVABILITY_ERRATUM, #441): the
+    # layer tokens are applications of continuous effects when characteristics
+    # are determined (CR 613), not events, so each is read from the engine's
+    # characteristics of a permanent that discriminates it. Humility (P1) makes
+    # every creature a 1/1 with no abilities (layers 6 and 7b); Glorious Anthem
+    # gives P1's creatures +1/+1 (layer 7c, applied after 7b: CR 613.4b-c).
+    # P2's Serra Angel (printed 4/4, flying, vigilance) proves layers 6 and 7b;
+    # P1's Bears (2/2) proves 7c on top of 7b, and P3's Bears (1/1, no Anthem)
+    # 7b without 7c. Humility ignored reads a 4/4 flier and 3/3 Bears; Anthem
+    # ignored reads 1/1 Bears.
+    "MICRO_LAYERS": RowSpec(
+        token_bindings=(
+            (
+                "layer6_remove_abilities",
+                (
+                    TerminalCheck(
+                        "keyword_absent",
+                        principal="P2",
+                        card_identity="Serra Angel",
+                        value="flying",
+                    ),
+                    TerminalCheck(
+                        "keyword_absent",
+                        principal="P2",
+                        card_identity="Serra Angel",
+                        value="vigilance",
+                    ),
+                ),
+            ),
+            (
+                "layer7b_set_pt:1/1",
+                (
+                    TerminalCheck(
+                        "power_toughness", principal="P2", card_identity="Serra Angel", value=(1, 1)
+                    ),
+                    TerminalCheck(
+                        "power_toughness",
+                        principal="P3",
+                        card_identity="Grizzly Bears",
+                        value=(1, 1),
+                    ),
+                ),
+            ),
+            (
+                "layer7c_modify_pt:+1/+1",
+                TerminalCheck(
+                    "power_toughness", principal="P1", card_identity="Grizzly Bears", value=(2, 2)
+                ),
+            ),
+        ),
+    ),
     "MICRO_CONTINUOUS_EFFECTS": RowSpec(
         token_bindings=(
             (
@@ -2423,6 +2478,12 @@ def check_terminal(
         )
     if check.kind == "keyword":
         return bool(cards) and all(check.value in (card.get("keywords") or ()) for card in cards)
+    if check.kind == "keyword_absent":
+        # The engine reports a permanent's evergreen keywords only when present,
+        # so absence is read from the same readback that reports presence.
+        return bool(cards) and all(
+            check.value not in (card.get("keywords") or ()) for card in cards
+        )
     if check.kind == "token_count":
         # Every permanent of the identity counts, and each must be an engine
         # token: a card of the same name can never stand in for one.
@@ -3583,6 +3644,7 @@ OBSERVATION_KINDS = frozenset(
         "power_toughness",
         "counters",
         "keyword",
+        "keyword_absent",
         "colors",
         "token_count",
         "triggered_ability",
