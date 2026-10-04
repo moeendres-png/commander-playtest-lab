@@ -222,3 +222,26 @@ def test_a_classification_error_keeps_the_outcome(monkeypatch) -> None:
         assert row.outcome == before[row.fixture_id]
         if fr.in_scope(row.fixture_id):
             assert "classification failed closed" in row.reason
+
+
+def test_a_bound_decision_family_names_the_bound_frame(records) -> None:
+    # 1.0.21 E2(a): PILOT_CHOOSE_USE's choose_use step is answered on scry 1's
+    # 0..1 card selection, so its Forge frame is the card-list frame, never a
+    # boolean (Codex P2, #533).
+    row = fr.classify_row(records["PILOT_CHOOSE_USE"])
+    details = [
+        m["detail"] for m in row.to_document()["mechanisms"] if "choose_use" in m["dimension"]
+    ]
+    assert details and all("CARD_LIST" in d and "BOOLEAN" not in d for d in details)
+    unbound = copy.deepcopy(records["PILOT_CHOOSE_USE"])
+    unbound["native_procedure"] = [
+        step
+        for step in unbound["native_procedure"]
+        if "decision_family_binding" not in (step.get("details") or {})
+    ]
+    plain = [
+        m["detail"]
+        for m in fr.classify_row(unbound).to_document()["mechanisms"]
+        if "choose_use" in m["dimension"]
+    ]
+    assert plain and all("BOOLEAN" in d for d in plain)

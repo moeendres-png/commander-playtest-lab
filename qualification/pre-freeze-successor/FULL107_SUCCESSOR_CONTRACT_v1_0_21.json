@@ -14373,33 +14373,6 @@
     {
      "actor": null,
      "details": {
-      "authority": "#255 comment 5925956587 (SLOT-04): L7 lossless construction is binding; a partial library request fails closed; lossy fixtures are corrected and versioned",
-      "complete_checkpoint_hands": {
-       "P1": "obj:replay-burn plus 8 template cards",
-       "P2": "7 template cards",
-       "P3": "7 template cards",
-       "P4": "7 template cards"
-      },
-      "complete_checkpoint_libraries": {
-       "P1": "obj:replay-lib-0, obj:replay-lib-1, obj:replay-lib-2, obj:replay-lib-3, obj:replay-lib-4, obj:replay-lib-5, obj:replay-lib-6 on top in that order, then the 91 remaining template cards"
-      },
-      "erratum_class": "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04",
-      "first_turn_draw": "P1 holds its opening 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
-      "obligation_changed": false,
-      "provider_semantics_used": false,
-      "rules_rng_procedure": "the record's native step 'rules-shuffle' (NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY) names a shuffle of the declared library after the cast resolves, but nothing in the scenario causes one, and a shuffle ordered by the harness would be state the Rules Core never caused, so the step is NOT executed. The record's required event rules_rng:library_shuffle:P1 is the engine's own start-of-game shuffle of P1's library (CR 103.2). That shuffle reorders identical scaffolding cards that the checkpoint's complete library then replaces, so its result has no Rules consequence: it is taped and replayed, but it is no Rules RNG evidence, and RNG_RULES_TAPE (whose own postcondition is the RNG tape's results) cannot be credited from this scenario. A scenario in which a Rules-caused shuffle of distinguishable cards occurs needs Coordinator adjudication",
-      "native_procedure_step_not_executed": {
-       "rules-shuffle": "NO_RULES_CAUSE_IN_SCENARIO"
-      },
-      "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention, as in the HIDDEN lossless errata of contract 1.0.8"
-     },
-     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
-     "source_object": null,
-     "step_id": "erratum-lossless-rng_rules_tape"
-    },
-    {
-     "actor": null,
-     "details": {
       "authority": "#441 comment 5984201192 (Owner-delegated contract authority, decided by CR text)",
       "obligation_changed": false,
       "provider_semantics_used": false,
@@ -14407,7 +14380,21 @@
       "comprehensive_rules": "701.24",
       "reason": "the 1.0.19 erratum found that nothing in the scenario causes a shuffle after construction: the only P1 shuffle is the start-of-game shuffle of identical scaffolding cards, which the complete library replaces, so its result has no Rules consequence (the replay twin's seed control confirms it: rng_result_has_state_consequence is false) and needs adjudication. Adjudicated: after Burn Down the House resolves, P1 casts Chaos Warp (current Oracle: 'The owner of target permanent shuffles it into their library, then reveals the top card of their library. If it's a permanent card, they put it onto the battlefield.') on its tapped Mountain, paid by three further declared Mountains. That shuffle is card-caused and orders P1's complete library, whose top seven are distinguishable, so its result decides the revealed card and the library order",
       "required_event_binding": "rules_rng:library_shuffle:P1 is the Chaos Warp shuffle; the start-of-game scaffolding shuffle never satisfies it. The record's native step 'rules-shuffle' is realized by this card cause, never by a harness shuffle",
-      "no_player_choice": "the current Oracle text asks no 'may'; the put is mandatory"
+      "no_player_choice": "the current Oracle text asks no 'may'; the put is mandatory",
+      "lossless_construction": {
+       "complete_checkpoint_hands": {
+        "P1": "obj:replay-burn plus 8 template cards",
+        "P2": "7 template cards",
+        "P3": "7 template cards",
+        "P4": "7 template cards"
+       },
+       "complete_checkpoint_libraries": {
+        "P1": "obj:replay-lib-0, obj:replay-lib-1, obj:replay-lib-2, obj:replay-lib-3, obj:replay-lib-4, obj:replay-lib-5, obj:replay-lib-6 on top in that order, then the 91 remaining template cards"
+       },
+       "first_turn_draw": "P1 holds its opening 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
+       "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention, as in the HIDDEN lossless errata of contract 1.0.8"
+      },
+      "supersedes_erratum_step": "erratum-lossless-rng_rules_tape"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
@@ -15005,7 +14992,36 @@
     "correction_class": "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04",
     "patch_sha256": "f088a9a069366f84e24097446fa9705fd2e2fd02c12d02e96e8c5cd9bd027c78",
     "successor_requested_state_digest": "9913c8ac73367925d7ce6ed43b38e420fec89f28d5ff1d953e0dc02421ae0b0c",
-    "lineage": "its replace and its erratum steps are kept; this patch extends them"
+    "append_native_procedure": [
+     {
+      "actor": null,
+      "details": {
+       "authority": "#255 comment 5925956587 (SLOT-04): L7 lossless construction is binding; a partial library request fails closed; lossy fixtures are corrected and versioned",
+       "complete_checkpoint_hands": {
+        "P1": "obj:replay-burn plus 8 template cards",
+        "P2": "7 template cards",
+        "P3": "7 template cards",
+        "P4": "7 template cards"
+       },
+       "complete_checkpoint_libraries": {
+        "P1": "obj:replay-lib-0, obj:replay-lib-1, obj:replay-lib-2, obj:replay-lib-3, obj:replay-lib-4, obj:replay-lib-5, obj:replay-lib-6 on top in that order, then the 91 remaining template cards"
+       },
+       "erratum_class": "LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04",
+       "first_turn_draw": "P1 holds its opening 7 plus the first-turn draw, which rule 103.8a skips only in a two-player game (this table has four players)",
+       "obligation_changed": false,
+       "provider_semantics_used": false,
+       "rules_rng_procedure": "the record's native step 'rules-shuffle' (NATIVE_RULES_RNG_SHUFFLE_DECLARED_LIBRARY) names a shuffle of the declared library after the cast resolves, but nothing in the scenario causes one, and a shuffle ordered by the harness would be state the Rules Core never caused, so the step is NOT executed. The record's required event rules_rng:library_shuffle:P1 is the engine's own start-of-game shuffle of P1's library (CR 103.2). That shuffle reorders identical scaffolding cards that the checkpoint's complete library then replaces, so its result has no Rules consequence: it is taped and replayed, but it is no Rules RNG evidence, and RNG_RULES_TAPE (whose own postcondition is the RNG tape's results) cannot be credited from this scenario. A scenario in which a Rules-caused shuffle of distinguishable cards occurs needs Coordinator adjudication",
+       "native_procedure_step_not_executed": {
+        "rules-shuffle": "NO_RULES_CAUSE_IN_SCENARIO"
+       },
+       "scaffolding_template": "99 Mountain, the base materialization's own deck_state convention, as in the HIDDEN lossless errata of contract 1.0.8"
+      },
+      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+      "source_object": null,
+      "step_id": "erratum-lossless-rng_rules_tape"
+     }
+    ],
+    "lineage": "its replace is kept and extended; its erratum steps are preserved here as history and are not active procedure"
    }
   },
   {
@@ -18037,7 +18053,13 @@
       "payable": true,
       "source_semantic_id": "obj:neg-courser"
      }
-    ]
+    ],
+    "negative_fallback_probe": {
+     "external_decision_handler": "INTENTIONALLY_UNSUPPORTED_FOR_PROBE",
+     "forbidden_mechanism": "default_yes_no",
+     "production_reachable_trigger": "P1's Centaur Courser (power 3) enters under P1's control, so P1's Garruk's Packleader triggers and asks 'you may draw a card': yes versus no.",
+     "required_provider_response": "UNSUPPORTED_DISCRETIONARY_DECISION / FAIL_CLOSED"
+    }
    },
    "successor_requested_state_digest": "c8a15f18aaf2904da136296730d05b50775504045f6b32c2aebc5ba3a46a20f3"
   },
@@ -18428,6 +18450,28 @@
         "action": "cast",
         "object": "obj:fof"
        }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "cast-fof",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_player",
+       "semantic_value": "P2"
       }
      },
      {

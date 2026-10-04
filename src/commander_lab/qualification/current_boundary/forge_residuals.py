@@ -390,7 +390,17 @@ class ForgeResidual:
         }
 
 
-def _construction(dimension: str) -> tuple[str, str]:
+def _family_binding(record: dict[str, Any] | None, family: str) -> str | None:
+    """The provider surface a contract erratum binds ``family`` to, or None."""
+    for step in (record or {}).get("native_procedure") or ():
+        binding = ((step or {}).get("details") or {}).get("decision_family_binding")
+        if isinstance(binding, dict) and binding.get("record_family") == family:
+            surface = binding.get("provider_surface")
+            return str(surface) if surface else None
+    return None
+
+
+def _construction(dimension: str, record: dict[str, Any] | None = None) -> tuple[str, str]:
     if dimension == lane.STARTING_PLAYER_UNSCRIPTED:
         return (
             CONTRACT_AUTHORITY_GAP,
@@ -405,6 +415,13 @@ def _construction(dimension: str) -> tuple[str, str]:
         if mapped is None:
             raise ValueError(f"unmapped Forge decision family {family!r}")
         gap_class, frames = mapped
+        # A contract erratum may bind the record's family to a different
+        # provider surface (PILOT_CHOOSE_USE: scry 1 is a 0..1 card selection,
+        # 1.0.21 E2a); the frame named is then that surface's, never the
+        # family's default.
+        binding = _family_binding(record, family)
+        if binding is not None and gap_class == LAB_EXECUTION_GAP:
+            frames = f"{_DECISION_FAMILIES['choose_object'][1]} ({binding})"
         if gap_class == PROVIDER_ADAPTER_GAP:
             return gap_class, f"the record scripts a {family} decision: {frames}"
         return (
@@ -431,7 +448,7 @@ def classify_row(record: dict[str, Any]) -> ForgeResidual:
     construction: list[dict[str, str]] = []
     execution: list[dict[str, str]] = []
     for finding in model.hard_unsupported:
-        gap_class, detail = _construction(finding.dimension)
+        gap_class, detail = _construction(finding.dimension, record)
         entry = {"dimension": finding.dimension, "class": gap_class, "detail": detail}
         if finding.dimension.startswith(_DECISION_PREFIX):
             execution.append({**entry, "stage": "execution"})
