@@ -682,6 +682,11 @@ ROWS: dict[str, RowSpec] = {
     "NEGATIVE_SILENT_SKIP": RowSpec(
         mana_sources=("obj:negative_silent_skip-mana-0",),
     ),
+    # The sibling refusal on the engine's own attack declaration frame. (The
+    # yes/no sibling NEGATIVE_DEFAULT_YES_NO has no spec: its record needs a
+    # known library top card, which the lane does not restore, and XMage asks
+    # Opt's scry as a card selection, not as the yes/no frame the record names.)
+    "NEGATIVE_INTERNAL_AI": RowSpec(),
     # The commander zone choice (CR 903.9): the opponent's removal spell is
     # rebuilt on the stack through the declared causal route and resolves; the
     # engine then asks the commander's owner, on its own yes/no frame, whether
@@ -694,6 +699,76 @@ ROWS: dict[str, RowSpec] = {
         for zone in ("GY", "EXILE", "HAND", "LIB")
         for answer in ("YES", "NO")
     },
+    # PILOT_CHOOSE_OBJECT: P2's Raven's Crime resolves (rebuilt on the stack
+    # through the declared causal route) and the engine asks P1, on its own
+    # object frame, which card to discard. "object_selected:obj:p1-hand-a" is
+    # what that answer does: the Mountain (hand-a) goes from P1's hand to the
+    # graveyard and the Island (hand-b) does not move.
+    "PILOT_CHOOSE_OBJECT": RowSpec(
+        token_bindings=(
+            (
+                "object_selected:obj:p1-hand-a",
+                (
+                    _event(
+                        "ZONE_CHANGE",
+                        ("target_object", "obj:p1-hand-a"),
+                        ("from", "HAND"),
+                        ("to", "GRAVEYARD"),
+                    ),
+                    _exactly(
+                        _event("ZONE_CHANGE", ("target_object", "obj:p1-hand-b"), ("from", "HAND")),
+                        0,
+                    ),
+                ),
+            ),
+        ),
+    ),
+    # PILOT_REPLACEMENT_EFFECT: the scenario of WS05-CMD-ZONE-HAND-YES (P2's
+    # Unsummon on P1's commander, CR 903.9b). The record names the owner's
+    # command-zone answer "commander_replacement_chosen:command"; it is the
+    # same engine-verified fact as the vocabulary's "commander_choice:command".
+    # XMage asks the replacement as one yes/no question on its choose_use
+    # surface ("Move ... to command zone instead of your hand?"), so
+    # "replacement_effect_frame:P1" is that question asked of P1, exactly once.
+    "PILOT_REPLACEMENT_EFFECT": RowSpec(
+        token_bindings=(
+            (
+                "replacement_effect_frame:P1",
+                TerminalCheck(
+                    "frame_count",
+                    principal="P1",
+                    value=(BOOLEAN_DECISION_CLASS, 1),
+                    label="to command zone instead of",
+                ),
+            ),
+            ("commander_replacement_chosen:command", VocabularyToken("commander_choice:command")),
+        ),
+    ),
+    # PILOT_MANA_PAYMENT: MICRO_MANA_PAYMENT's scenario. With P2's Bolt on the
+    # stack (rebuilt causally), P1 casts Counterspell on it (the record's
+    # stack:1) from its two declared Islands. "mana_paid:UU" is the engine
+    # charging exactly two mana, spending blue from the pool, for the one
+    # Counterspell cast; the engine itself refuses a non-blue payment of {U}{U}.
+    "PILOT_MANA_PAYMENT": RowSpec(
+        mana_sources=("obj:island-a", "obj:island-b"),
+        token_bindings=(
+            (
+                "mana_paid:UU",
+                (
+                    TerminalCheck("mana_charged", value=2),
+                    TerminalCheck("pool_spend", value="blue"),
+                    _exactly(
+                        _event(
+                            "SPELL_CAST",
+                            ("source_object", "obj:counterspell"),
+                            ("player_player", "P1"),
+                        ),
+                        1,
+                    ),
+                ),
+            ),
+        ),
+    ),
     # MICRO_COMBAT: the record's requested combat (P1's Bears attack P2 and
     # P2's Bears block it) is declared on the engine's own frames; the two 2/2s
     # deal combat damage to each other simultaneously and state-based actions

@@ -582,6 +582,11 @@ WORKSTREAM_ROWS = {
     "WS05-CMD-PARTNER-TAX",
     "WS05-MP-ELIM-STACK-3",
     "WS05-MP-ELIM-CONTROL-3",
+    # #441 residuals: rows whose scenario a reviewed sibling already executes.
+    "PILOT_CHOOSE_OBJECT",
+    "PILOT_REPLACEMENT_EFFECT",
+    "PILOT_MANA_PAYMENT",
+    "NEGATIVE_INTERNAL_AI",
 }
 
 
