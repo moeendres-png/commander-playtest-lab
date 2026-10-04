@@ -213,6 +213,24 @@ def run_cardinality(
     )
 
 
+def construction_credit_gap(record: dict[str, Any]) -> str | None:
+    """Why the record's construction condition is unmet on the generic lane.
+
+    A record whose ``construction_validation`` is required credits a row only when
+    the provider's normalized constructed state equals the requested state. The
+    generic Protocol-2 lane emits no constructed state, so for such a record it
+    can observe the obligation but never establish the credit condition (Owner
+    decision (a), Commander-Lab #441). ``None`` means the record imposes none.
+    """
+    construction = record.get("construction_validation") or {}
+    if not construction.get("required"):
+        return None
+    return (
+        f"the record requires {construction.get('credit_condition')} and this lane "
+        "emits no normalized constructed state, so construction equality is unestablished"
+    )
+
+
 def cardinality_row(
     record: dict[str, Any],
     result: CommandedGameResult,
@@ -297,6 +315,16 @@ def cardinality_row(
             "PROTOCOL2_LIFECYCLE",
             "the Commander lifecycle was not completed, so this fixture is "
             "unestablished: " + "; ".join(assessment["reasons"]),
+            evidence,
+        )
+    gap = construction_credit_gap(record)
+    if gap is not None:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_LIFECYCLE",
+            f"a real {wanted}P Commander lifecycle was observed, but {gap}",
             evidence,
         )
     return RowResult(
@@ -534,6 +562,18 @@ def start2_row(
             "PROTOCOL2_START2_V1_0_6",
             "the run did not reach an observable checkpoint after the skipped draw "
             "step, so the successor terminal postcondition could not be evaluated",
+            evidence,
+        )
+    gap = construction_credit_gap(record)
+    if gap is not None:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            "the CR 103.8a obligation was observed (identical turn-1 upkeep and "
+            "precombat-main hand/library counts, no draw-step checkpoint or draw "
+            f"event), but {gap}",
             evidence,
         )
     return RowResult(
@@ -800,17 +840,15 @@ def scripted_pregame_row(
             f"Rules seed {seed}, so the record's seeded shuffles are not established",
             evidence,
         )
-    construction = record.get("construction_validation") or {}
-    if construction.get("required"):
+    gap = construction_credit_gap(record)
+    if gap is not None:
         return RowResult(
             fixture_id,
             candidate,
             "UNKNOWN",
             SCRIPTED_PREGAME_MODE,
             "the obligation was observed on the record's decks under the acknowledged "
-            f"Rules seed, but the record requires {construction.get('credit_condition')} "
-            "and this lane emits no normalized constructed state, so construction "
-            "equality is unestablished",
+            f"Rules seed, but {gap}",
             evidence,
         )
     return RowResult(

@@ -694,23 +694,57 @@ def midgame_replay_twin_document(
         return None
     document = load(path)
     commit = str(data["results_runtime_identity"].get("engine_candidate_commit", ""))
-    twin = document.get("clean_process_twin") or {}
-    rows = document.get("rows") or {}
+    # Malformed parts are read as empty, so a stale or malformed document is
+    # rejected with its reasons below, never raises during assembly.
+    twin_value = document.get("clean_process_twin")
+    twin = twin_value if isinstance(twin_value, dict) else {}
+    rows_value = document.get("rows")
+    rows = (
+        {name: row for name, row in rows_value.items() if isinstance(row, dict)}
+        if isinstance(rows_value, dict)
+        else {}
+    )
+    build = twin.get("candidate_build")
     twin_digests = {str(row.get("twin_digest")) for row in rows.values() if row.get("verified")}
-    if (
-        document.get("execution_mode") != midgame_replay_twin_mod.EXECUTION_MODE
-        or document.get("candidate") != candidate
-        or not commit
-        or document.get("candidate_commit") != commit
-        or document.get("runner_digest") != runner_digest
-        or (twin.get("candidate_build") or {}).get("engine_commit") != commit
-        # The twin stands for the replay obligation only when every row's own
-        # twin verified in this run, and it is one of those twins.
-        or set(rows) != set(midgame_replay_twin_mod.ROWS)
-        or not all(row.get("verified") for row in rows.values())
-        or replay_twins_mod.sha256_json(twin) not in twin_digests
-    ):
-        print("midgame replay-twin document rejected: not bound to this column and runner")
+    # Each failed condition is named: a document can be correctly bound and still
+    # not stand for the replay obligation because one row's twin did not verify.
+    failed = [
+        reason
+        for reason, broken in (
+            (
+                "execution mode differs",
+                document.get("execution_mode") != midgame_replay_twin_mod.EXECUTION_MODE,
+            ),
+            ("candidate differs", document.get("candidate") != candidate),
+            ("column has no engine commit", not commit),
+            ("candidate commit differs", document.get("candidate_commit") != commit),
+            ("runner digest differs", document.get("runner_digest") != runner_digest),
+            (
+                "twin build commit differs",
+                (build.get("engine_commit") if isinstance(build, dict) else None) != commit,
+            ),
+            # The twin stands for the replay obligation only when every row's own
+            # twin verified in this run, and it is one of those twins.
+            (
+                "row set differs",
+                not isinstance(rows_value, dict)
+                or set(rows_value) != set(midgame_replay_twin_mod.ROWS)
+                or len(rows) != len(rows_value),
+            ),
+            (
+                "rows not verified: "
+                + ",".join(sorted(name for name, row in rows.items() if not row.get("verified"))),
+                not all(row.get("verified") for row in rows.values()),
+            ),
+            (
+                "twin is not one of the verified rows' twins",
+                not twin or replay_twins_mod.sha256_json(twin) not in twin_digests,
+            ),
+        )
+        if broken
+    ]
+    if failed:
+        print("midgame replay-twin document rejected: " + "; ".join(failed))
         return None
     return document
 
