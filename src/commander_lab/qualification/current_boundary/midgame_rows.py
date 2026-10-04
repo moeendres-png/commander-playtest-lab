@@ -2818,13 +2818,17 @@ def _option_type(action: dict[str, Any]) -> str:
     return str((action.get("metadata") or {}).get("option_type") or "")
 
 
-def _choice_key(action: dict[str, Any]) -> str | None:
-    """A choice offer's semantic key: its engine key, else its value text."""
-    engine = (action.get("metadata") or {}).get("xmage_option_metadata") or {}
-    raw = engine.get("choice_key") or engine.get("choice")
+def _normal_choice_key(raw: Any) -> str | None:
+    """A choice key compared case- and spacing-insensitively, or None."""
     if not isinstance(raw, str) or not raw.strip():
         return None
     return re.sub(r"\s+", "_", raw.strip()).upper()
+
+
+def _choice_key(action: dict[str, Any]) -> str | None:
+    """A choice offer's semantic key: its engine key, else its value text."""
+    engine = (action.get("metadata") or {}).get("xmage_option_metadata") or {}
+    return _normal_choice_key(engine.get("choice_key") or engine.get("choice"))
 
 
 def _option_id(action: dict[str, Any]) -> str:
@@ -3143,9 +3147,12 @@ def _scripted_answer(
     elif kind == "semantic_choice_key":
         # A named choice (a color, a creature type, a keyed menu entry): the
         # engine's own choice offer whose key, or for a plain choice its value,
-        # is the record's key. Case and spacing are the only normalization; a
-        # partial match never selects.
-        key = str(value)
+        # is the record's key. Case and spacing are the only normalization,
+        # applied alike to both sides; a partial match never selects.
+        normal = _normal_choice_key(value)
+        if normal is None:
+            raise ml.MidgameLaneError(f"semantic_choice_key selector carries {value!r}")
+        key = normal
         matches = [a for a in actions if _option_type(a) == "choice" and _choice_key(a) == key]
     elif kind == "boolean":
         # A yes/no frame: the engine's own boolean offer whose value is the

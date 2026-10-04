@@ -226,6 +226,23 @@ def test_the_choice_key_selects_exactly_the_engine_offer_it_names() -> None:
     assert mr._label_of(keyed.action) == "Pay life"
 
 
+@pytest.mark.parametrize("requested", ["red", "Red", " RED ", "rEd"])
+def test_the_requested_key_is_normalized_like_the_offers(requested: str) -> None:
+    step = {**CHOOSE_RED, "selection": {**CHOOSE_RED["selection"], "semantic_value": requested}}
+    answer = _answer([_choice_offer(color) for color in COLORS], step)
+    assert mr._label_of(answer.action) == "Red"
+    assert answer.key == "RED"
+    spaced = {**CHOOSE_RED, "selection": {**CHOOSE_RED["selection"], "semantic_value": "Red Blue"}}
+    assert _answer([_choice_offer("red  blue"), _choice_offer("Red")], spaced).key == "RED_BLUE"
+
+
+@pytest.mark.parametrize("requested", [None, "", "  ", 7])
+def test_a_missing_requested_key_fails_closed(requested: Any) -> None:
+    step = {**CHOOSE_RED, "selection": {**CHOOSE_RED["selection"], "semantic_value": requested}}
+    with pytest.raises(ml.MidgameLaneError):
+        _answer([_choice_offer(color) for color in COLORS], step)
+
+
 @pytest.mark.parametrize(
     "offers",
     [
