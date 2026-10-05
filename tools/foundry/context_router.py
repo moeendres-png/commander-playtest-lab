@@ -49,18 +49,10 @@ DOMAIN_REFS: dict[str, tuple[str, ...]] = {
         ".opencode/skills/evidence-seal/SKILL.md",
         ".opencode/skills/component-change-review/SKILL.md",
     ),
-    "failure": (
-        ".opencode/skills/failure-classification/SKILL.md",
-    ),
-    "engine_bridge": (
-        "engine-bridge/",
-    ),
-    "mage": (
-        ".foundry/repo-profiles/mage.json",
-    ),
-    "forge": (
-        ".foundry/repo-profiles/forge.json",
-    ),
+    "failure": (".opencode/skills/failure-classification/SKILL.md",),
+    "engine_bridge": ("engine-bridge/",),
+    "mage": (".foundry/repo-profiles/mage.json",),
+    "forge": (".foundry/repo-profiles/forge.json",),
 }
 
 PATH_SIGNALS: tuple[tuple[str, str], ...] = (
@@ -182,7 +174,9 @@ def _domains(state: dict, profile: str) -> tuple[list[str], list[str]]:
     return sorted(selected), sorted(set(reasons))
 
 
-def _needs_broad_context(state: dict, domains: list[str], paths: list[str]) -> tuple[bool, list[str]]:
+def _needs_broad_context(
+    state: dict, domains: list[str], paths: list[str]
+) -> tuple[bool, list[str]]:
     reasons: list[str] = []
     if not domains:
         reasons.append("no deterministic route matched")
@@ -227,9 +221,7 @@ def build_plan(
 
     tools: list[str] = []
     if changed_paths:
-        tools.append(
-            f"python3 tools/foundry/test_impact.py --base {state.get('audit_base_sha')}"
-        )
+        tools.append(f"python3 tools/foundry/test_impact.py --base {state.get('audit_base_sha')}")
     if "failure" in domains:
         tools.append("skill: failure-classification")
     if "evidence" in domains:
@@ -366,9 +358,7 @@ def build_repo_map(
             directories.append(path)
 
     root_files_raw = _git(["ls-tree", "--name-only", "HEAD"], workdir)
-    root_files = sorted(
-        line for line in root_files_raw.splitlines() if line and "/" not in line
-    )
+    root_files = sorted(line for line in root_files_raw.splitlines() if line and "/" not in line)
     porcelain = _git(["status", "--porcelain"], workdir)
     return {
         "_kind": MAP_KIND,
