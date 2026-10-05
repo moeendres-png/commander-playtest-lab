@@ -117,7 +117,13 @@ def _optional_number(
 def _validate_identity(value: object) -> dict[str, str]:
     if not isinstance(value, dict):
         raise BenchmarkError("identity must be an object")
-    required = ("case_id", "task_class", "source_sha", "fixture_digest")
+    required = (
+        "case_id",
+        "task_class",
+        "source_sha",
+        "fixture_digest",
+        "required_evidence_class",
+    )
     result = {key: _label(value.get(key), f"identity.{key}") for key in required}
     if len(result["source_sha"]) != 40 or any(
         char not in "0123456789abcdefABCDEF" for char in result["source_sha"]
@@ -127,6 +133,8 @@ def _validate_identity(value: object) -> dict[str, str]:
         char not in "0123456789abcdefABCDEF" for char in result["fixture_digest"]
     ):
         raise BenchmarkError("identity.fixture_digest must be a 64-hex digest")
+    if result["required_evidence_class"] not in EVIDENCE_CLASSES:
+        raise BenchmarkError("unsupported identity.required_evidence_class")
     return result
 
 
@@ -230,7 +238,9 @@ def _direct_tool_counts(session: dict) -> dict[str, int] | None:
     }
 
 
-def _quality_gate(quality: dict) -> tuple[str, list[str]]:
+def _quality_gate(
+    quality: dict, required_evidence_class: str
+) -> tuple[str, list[str]]:
     reasons: list[str] = []
     if quality["technical_outcome"] != "PASS":
         reasons.append("technical_outcome_not_pass")
@@ -246,6 +256,8 @@ def _quality_gate(quality: dict) -> tuple[str, list[str]]:
         reasons.append("unresolved_review_findings")
     if quality["scope_violations"] != 0:
         reasons.append("scope_violations")
+    if quality["evidence_class"] != required_evidence_class:
+        reasons.append("evidence_class_mismatch")
     if quality["evidence_class"] in {"UNKNOWN", "MODELED", "SYNTHETIC"}:
         reasons.append("insufficient_evidence_class")
     return ("PASS" if not reasons else "FAIL", reasons)
@@ -268,8 +280,13 @@ def compare(baseline_doc: dict, candidate_doc: dict) -> dict:
     if baseline["identity"] != candidate["identity"]:
         raise BenchmarkError("A/B arms are not identity-equivalent")
 
-    baseline_quality, baseline_reasons = _quality_gate(baseline["quality"])
-    candidate_quality, candidate_reasons = _quality_gate(candidate["quality"])
+    required_evidence_class = baseline["identity"]["required_evidence_class"]
+    baseline_quality, baseline_reasons = _quality_gate(
+        baseline["quality"], required_evidence_class
+    )
+    candidate_quality, candidate_reasons = _quality_gate(
+        candidate["quality"], required_evidence_class
+    )
 
     deltas: dict[str, dict] = {}
     for field in (*CORE_EFFICIENCY_FIELDS, *OPTIONAL_EFFICIENCY_FIELDS):
