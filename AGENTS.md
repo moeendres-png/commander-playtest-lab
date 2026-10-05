@@ -109,7 +109,8 @@ requalification.
 
 - GPT-5.6 Sol High (normal chat): Coordinator and adjudication tier — architecture, Source
   Truth, MTG Rules adjudication, GitHub research, difficult review, qualification design,
-  evidence promotion, cross-workstream integration, gate decisions, Architecture Freeze.
+  evidence promotion, cross-workstream integration and gate decisions. Owner-only
+  reservations are defined in §8.
 - OpenCode Foundry: primary execution tier for implementation, repository edits, builds,
   tests, debugging, CI, qualification execution, evidence generation, deterministic tooling
   and long autonomous workstreams. The committed/default and preferred executor is
@@ -166,8 +167,8 @@ Routing distinction:
 - Claude Opus 5.5: direct campaign executor when explicitly authorized by the session
   contract. It may own campaign-sized technical execution and continuous task selection
   inside declared ownership, but does not inherit Foundry-specific launcher permissions.
-- Sol High: Rules, evidence-policy, qualification-policy, shared-architecture,
-  cross-workstream authority, Provider Selection, Architecture Freeze.
+- Sol High: Rules, evidence-policy, qualification-policy, shared-architecture and
+  cross-workstream Coordinator authority. Owner-only reservations are defined below.
 
 The selected OpenCode Foundry executor owns autonomous technical execution inside the
 authorized workstream contract: inspect → reason → use tools → decide technically →
@@ -209,8 +210,10 @@ For in-scope technical ambiguity, the selected Foundry worker must:
 7. continue the workstream.
 
 Only a real Rules, Evidence-Policy, Architecture, Scope, Provider, or Freeze
-authority question becomes an `AUTHORITY_GATE` for Sol High. A technical decision
-is never an authority decision: reaching and persisting a root cause within policy
+authority question becomes an `AUTHORITY_GATE` for the governing authority tier. The
+Claude Opus 5.5 delegation below authorizes the explicitly launched Opus main session to
+resolve Coordinator-tier gates itself; Owner-only reservations remain gates. A technical
+decision is never an authority decision: reaching and persisting a root cause within policy
 is the job, not an escalation.
 
 
