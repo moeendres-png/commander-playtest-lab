@@ -569,16 +569,67 @@ def test_the_extra_turn_rows_bind_creation_to_the_cast_and_the_engine_queue() ->
             "next_turn:P3",
             "next_turn:P2",
         }
-        cast, created = bindings["extra_turn_created:P3"]
+        cast, cast_first, created = bindings["extra_turn_created:P3"]
         assert (cast.kind, cast.event_type) == ("events", "SPELL_CAST")
         assert ("source_object", "obj:mp-nexus") in cast.where
+        assert cast_first.kind == "events_precede"
         assert (created.kind, created.principal, created.value) == (
             "extra_turn_created",
             "P3",
             ("P3", "P2"),
         )
+        # Codex P1 (#536): the creation is ordered after the spell resolves.
+        assert created.after is not None and ("from", "STACK") in created.after.where
+        assert ("target_object", "obj:mp-nexus") in created.after.where
         assert mr._reads_extra_turns(bindings["extra_turn_created:P2"])
-        assert not mr._reads_extra_turns(bindings["next_turn:P2"])
+        assert mr._reads_extra_turns(bindings["next_turn:P2"])
+
+
+def _at(pending: tuple[str, ...] | None, sequence: int | None) -> mr.Frame:
+    return mr.Frame("priority", "P1", [], pending_extra_turns=pending, tape_sequence=sequence)
+
+
+_WARP_RESOLVED = mr.TerminalCheck(
+    "events", event_type="ZONE_CHANGE", where=(("target_object", "obj:w"), ("from", "STACK"))
+)
+_TAPE = [{"sequence": 5, "type": "ZONE_CHANGE", "target_object": "obj:w", "from": "STACK"}]
+
+
+def test_an_extra_turn_queued_before_its_spell_resolves_is_not_created_by_it() -> None:
+    """Codex P1 (#536): a queue entry read before the resolution is a broken mechanic."""
+    created = mr.TerminalCheck(
+        "extra_turn_created", principal="P2", value=("P2",), after=_WARP_RESOLVED
+    )
+    good = [_at((), None), _at((), 3), _at(None, 4), _at(("P2",), 6)]
+    assert mr._extra_turn_frames(created, good, _TAPE) == [3]
+    early = [_at((), None), _at(("P2",), 3), _at(("P2",), 6)]
+    assert mr._extra_turn_frames(created, early, _TAPE) == []
+    assert not mr.check_terminal(created, {}, _TAPE, early)
+    # The spell never resolved: no creation, whatever the queue reads.
+    assert mr._extra_turn_frames(created, good, []) == []
+
+
+def test_p2s_next_turn_is_its_extra_turn_only_if_the_engine_consumed_the_entry() -> None:
+    """Codex P1 (#536): P2's normal turn after P3's must not pass as its extra turn."""
+    p3 = mr.TerminalCheck("events", event_type="BEGIN_TURN", where=(("player_player", "P3"),))
+    p2 = mr.TerminalCheck("events", event_type="BEGIN_TURN", where=(("player_player", "P2"),))
+    held = mr.TerminalCheck("pending_extra_turns_between", value=("P2",), after=p3, before=p2)
+    consumed = mr.TerminalCheck("pending_extra_turns_between", value=(), after=p2)
+    tape = [
+        {"sequence": 10, "type": "BEGIN_TURN", "player_player": "P3"},
+        {"sequence": 20, "type": "BEGIN_TURN", "player_player": "P2"},
+    ]
+    correct = [_at(("P3", "P2"), 9), _at(("P2",), 12), _at((), 21)]
+    assert mr.check_terminal(held, {}, tape, correct)
+    assert mr.check_terminal(consumed, {}, tape, correct)
+    # The engine dropped P2's entry when P3's extra turn began.
+    dropped = [_at(("P3", "P2"), 9), _at((), 12), _at((), 21)]
+    assert not mr.check_terminal(held, {}, tape, dropped)
+    # P2 took its normal turn and left the entry queued.
+    ignored = [_at(("P3", "P2"), 9), _at(("P2",), 12), _at(("P2",), 21)]
+    assert not mr.check_terminal(consumed, {}, tape, ignored)
+    # The run never reached P2's turn.
+    assert not mr.check_terminal(held, {}, tape[:1], correct)
 
 
 def test_a_declared_library_channel_needs_the_players_own_shuffle() -> None:
@@ -709,6 +760,8 @@ WORKSTREAM_ROWS = {
     "PILOT_PILE",
     # #441 contract 1.0.21 E1: Path of Ancestry's scry 1 on XMage's card frame.
     "PILOT_CHOOSE_USE",
+    # #441 contract 1.0.21: the layer tokens as discriminating readbacks.
+    "MICRO_LAYERS",
 }
 
 
@@ -932,3 +985,57 @@ def test_a_scripted_key_needs_the_answered_frame() -> None:
         mr.Frame("target", "P1", ["Mountain"], scripted=False, selected_key="false"),
     ):
         assert not mr.check_terminal(check, {}, [], [other])
+
+
+def _layers_observation(angel: dict, p1_bears: tuple[int, int], p3_bears: tuple[int, int]) -> dict:
+    def bears(pt: tuple[int, int]) -> dict:
+        return {"card_identity": "Grizzly Bears", "power": pt[0], "toughness": pt[1]}
+
+    return {
+        "seats": [
+            {"player_id": "P1", "battlefield": [bears(p1_bears), bears(p1_bears)]},
+            {"player_id": "P2", "battlefield": [{"card_identity": "Serra Angel", **angel}]},
+            {"player_id": "P3", "battlefield": [bears(p3_bears)]},
+        ]
+    }
+
+
+def _layer_tokens_hold(observation: dict) -> dict[str, bool]:
+    spec = mr.ROWS["MICRO_LAYERS"]
+    result = {}
+    for token, binding in spec.token_bindings:
+        checks = binding if isinstance(binding, tuple) else (binding,)
+        result[token] = all(mr.check_terminal(check, observation, [], []) for check in checks)
+    return result
+
+
+def test_micro_layers_reads_each_layer_from_a_discriminating_permanent() -> None:
+    # Humility and Glorious Anthem as the engine applies them (CR 613.4b-c).
+    applied = _layers_observation({"power": 1, "toughness": 1}, (2, 2), (1, 1))
+    assert _layer_tokens_hold(applied) == {
+        "layer6_remove_abilities": True,
+        "layer7b_set_pt:1/1": True,
+        "layer7c_modify_pt:+1/+1": True,
+    }
+    # Humility ignored: a 4/4 flier with vigilance and 3/3 Bears.
+    no_humility = _layers_observation(
+        {"power": 4, "toughness": 4, "keywords": ["flying", "vigilance"]}, (3, 3), (2, 2)
+    )
+    assert not any(_layer_tokens_hold(no_humility).values())
+    # Anthem ignored: P1's Bears are 1/1, so only layer 7c fails.
+    no_anthem = _layers_observation({"power": 1, "toughness": 1}, (1, 1), (1, 1))
+    assert _layer_tokens_hold(no_anthem) == {
+        "layer6_remove_abilities": True,
+        "layer7b_set_pt:1/1": True,
+        "layer7c_modify_pt:+1/+1": False,
+    }
+
+
+def test_a_keyword_absent_check_needs_the_permanent() -> None:
+    check = mr.TerminalCheck(
+        "keyword_absent", principal="P2", card_identity="Serra Angel", value="flying"
+    )
+    assert mr.needs_observation(check)
+    assert not mr.check_terminal(
+        check, {"players": [{"player_id": "P2", "battlefield": []}]}, [], []
+    )
