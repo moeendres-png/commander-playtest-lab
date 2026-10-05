@@ -1122,8 +1122,11 @@ final class XmageGameManager {
                 knowledge.addProperty("visible_hidden_cards", lookedAt + revealed + topRevealed);
                 entry.add("knowledge", knowledge);
                 // Commander damage this seat has taken (CR 903.10a), from each
-                // commander's own damage watcher.
+                // commander's own damage watcher. Reported only when every
+                // commander has its watcher: a missing watcher is no measurement,
+                // and an absent readback is unsupported, never a measured 0.
                 int commanderDamage = 0;
+                boolean commanderDamageMeasured = true;
                 for (Player owner : managed.players) {
                     for (UUID commanderId : game.getCommandersIds(
                             owner, CommanderCardType.COMMANDER_OR_OATHBREAKER, false)) {
@@ -1131,10 +1134,14 @@ final class XmageGameManager {
                                 .getWatcher(mage.watchers.common.CommanderInfoWatcher.class, commanderId);
                         if (damage != null) {
                             commanderDamage += damage.getDamageToPlayer().getOrDefault(player.getId(), 0);
+                        } else {
+                            commanderDamageMeasured = false;
                         }
                     }
                 }
-                entry.addProperty("commander_damage_taken", commanderDamage);
+                if (commanderDamageMeasured) {
+                    entry.addProperty("commander_damage_taken", commanderDamage);
+                }
                 // The engine's own LIBRARY_SHUFFLED events for this seat's
                 // library so far; absent when the game has no shuffle watcher.
                 XmageLibraryShuffleWatcher shuffled =

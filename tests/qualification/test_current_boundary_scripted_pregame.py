@@ -440,8 +440,12 @@ def test_an_answered_mulligan_the_engine_never_performed_is_not_observed(
     row = _row(monkeypatch, proc, ASKED_IN_PLAN_ORDER)
     assert row.outcome == "UNKNOWN"
     assert row.evidence["engine_performed_mulligans"] == dict.fromkeys(ENGINE_IDS, 0)
-    # Every mulligan token needs the engine's own shuffle; keeps do not.
-    assert row.evidence["unmet_required_events"] == ["mulligan:P1:round1"]
+    # Every mulligan token needs the engine's own shuffle; keeps do not. The
+    # plan's mulligan itself is unbacked too (#553 Audit 1 B4).
+    assert row.evidence["unmet_required_events"] == [
+        "mulligan:P1:round1",
+        "cr103.5:engine_performed_mulligans",
+    ]
 
 
 def test_without_the_orchestration_channel_no_mulligan_is_observed(
@@ -451,7 +455,39 @@ def test_without_the_orchestration_channel_no_mulligan_is_observed(
     row = _row(monkeypatch, proc, ASKED_IN_PLAN_ORDER)
     assert row.outcome == "UNKNOWN"
     assert row.evidence["engine_performed_mulligans"] is None
-    assert row.evidence["unmet_required_events"] == ["mulligan:P1:round1"]
+    assert row.evidence["unmet_required_events"] == [
+        "mulligan:P1:round1",
+        "cr103.5:engine_performed_mulligans",
+    ]
+
+
+def test_a_plan_mulligan_needs_engine_evidence_whatever_the_tokens_name(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """#553 Audit 1 B4: the CR 103.5 gate follows the plan, not the token wording."""
+    record = _record()
+    record["expected_events"]["required_events"] = [
+        token
+        for token in record["expected_events"]["required_events"]
+        if not token.startswith(("mulligan:", "mulligan_once:", "free_mulligan:"))
+    ]
+    proc = _FakeProcess(roster_at_create=False, seed_echo=424242, shuffles_on_mulligan=False)
+    frames = iter(
+        [_frame("MULLIGAN", proc.actor(seat)) for seat in ASKED_IN_PLAN_ORDER]
+        + [_frame("PRIORITY", proc.actor("p1"))]
+    )
+    monkeypatch.setattr(game_driver, "poll_decision", lambda *a, **k: next(frames))
+    row = full107.scripted_pregame_row(
+        record,
+        proc,  # type: ignore[arg-type]
+        candidate="xmage",
+        runtime_identity={},
+    )
+    assert row.outcome == "UNKNOWN"
+    assert "cr103.5:engine_performed_mulligans" in row.evidence["unmet_required_events"]
+    assert not any(
+        token.startswith("mulligan") for token in record["expected_events"]["required_events"]
+    )
 
 
 def test_the_engine_performed_exactly_the_planned_mulligans(
@@ -476,4 +512,8 @@ def test_mull_4_needs_the_engine_to_have_performed_the_mulligan(
     proc = _FakeProcess(roster_at_create=False, seed_echo=424242, shuffles_on_mulligan=False)
     row = _mull_row(monkeypatch, proc, record)
     assert row.outcome == "UNKNOWN"
-    assert row.evidence["unmet_required_events"] == ["mulligan_once:P1", "free_mulligan:true"]
+    assert row.evidence["unmet_required_events"] == [
+        "mulligan_once:P1",
+        "free_mulligan:true",
+        "cr103.5:engine_performed_mulligans",
+    ]

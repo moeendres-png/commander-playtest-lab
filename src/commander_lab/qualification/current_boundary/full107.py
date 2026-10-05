@@ -421,6 +421,18 @@ def cardinality_row(
                 evidence,
             )
         evidence["scripted_pregame_plan"] = plan
+        if any(len(entry) > 1 and entry[1] is False for entry in plan):
+            # Only the scripted pregame lane checks the engine's own CR 103.5
+            # shuffles; a mulligan-bearing plan is never credited here (#553 Audit 1 B5).
+            return RowResult(
+                fixture_id,
+                candidate,
+                "UNKNOWN",
+                "PROTOCOL2_LIFECYCLE",
+                "a mulligan-bearing pregame plan needs the scripted pregame lane's CR 103.5 "
+                "shuffle evidence, which this lane does not read",
+                evidence,
+            )
         if evidence["observed_pregame_decisions"] != plan:
             return RowResult(
                 fixture_id,
@@ -844,12 +856,15 @@ def _performed_mulligans(game: Any) -> dict[str, int] | None:
     for player in before.get("players") or ():
         shuffles = player.get("library_shuffles") if isinstance(player, dict) else None
         seat = str(player.get("player_id") or "").lower() if isinstance(player, dict) else ""
-        if not seat or not isinstance(shuffles, int) or isinstance(shuffles, bool):
+        if not seat or seat in start or not isinstance(shuffles, int) or isinstance(shuffles, bool):
+            # A missing, malformed or duplicated seat row makes the delta unknowable.
             return None
         start[seat] = shuffles
     if set(start) != set(after):
         return None
-    return {seat: int(after[seat]) - start[seat] for seat in sorted(start)}
+    if any(not isinstance(value, int) or isinstance(value, bool) for value in after.values()):
+        return None
+    return {seat: after[seat] - start[seat] for seat in sorted(start)}
 
 
 def scripted_pregame_row(
@@ -989,6 +1004,10 @@ def scripted_pregame_row(
     mulligan_backed = performed is not None and all(
         performed.get(seat) == answers.count(False) for seat, answers in rounds.items()
     )
+    # The gate follows the plan, not the wording of the record's tokens: any
+    # mulligan the run answered must be backed by the engine's own shuffles,
+    # whatever the required events name (#553 Audit 1 B4).
+    plan_mulligans = any(not keep for answers in rounds.values() for keep in answers)
     # The seats that took exactly one mulligan and then kept: the subject of
     # mulligan_once and free_mulligan (CR 103.5c makes that one free in a game
     # of more than two players).
@@ -1027,6 +1046,8 @@ def scripted_pregame_row(
                 unmet.append(token)
         else:
             unmet.append(token)
+    if plan_mulligans and not mulligan_backed:
+        unmet.append("cr103.5:engine_performed_mulligans")
     evidence["unmet_required_events"] = unmet
     if unmet:
         return RowResult(
