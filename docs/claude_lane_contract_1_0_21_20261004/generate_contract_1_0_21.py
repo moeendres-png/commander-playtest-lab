@@ -469,15 +469,23 @@ add(
                 "semantic_action",
                 {"action": "cast", "object": "obj:fof"},
             ),
-            # Fact or Fiction's "an opponent separates": P1 chooses which
-            # opponent as it casts (CR 601.2c), as HIDDEN_13 scripts it.
-            _step("P1", "cast-fof", "target", "semantic_player", "P2"),
             _step(
                 "P1",
                 "cast-fof",
                 "mana_payment",
                 "mana_payment",
                 {"mana": ["U", "U", "U", "U"], "sources": islands},
+            ),
+            # Fact or Fiction does not target: "an opponent separates" is a
+            # choice P1 makes while the spell resolves (CR 608.2d), after it
+            # was cast and paid; the step names it as HIDDEN_13 does.
+            _step(
+                "P1",
+                "resolve-fof",
+                "target",
+                "semantic_player",
+                "P2",
+                notes="CR 608.2d: the opponent who separates is chosen on resolution",
             ),
             copy.deepcopy(partition),
             _step(
@@ -497,7 +505,7 @@ add(
             "causal-stack",
             {
                 "erratum_class": "CAUSAL_STACK_SCENARIO_ERRATUM",
-                "comprehensive_rules": "608.2c, 701.20",
+                "comprehensive_rules": "608.2c, 608.2d, 701.20",
                 "reason": (
                     "the predecessor holds Fact or Fiction on the stack and its five cards "
                     "already in a revealed zone: no game reaches that state, because the cards "
@@ -507,6 +515,11 @@ add(
                     "four declared Islands; the partition is then the engine's own frame for "
                     "P2, and P1's following pile choice is scripted (the obligation is the "
                     "partition, never the choice)"
+                ),
+                "opponent_choice": (
+                    "Fact or Fiction has no target; P1 chooses the opponent who separates while "
+                    "it resolves (CR 608.2d), so the choice follows the cast and the payment "
+                    "and precedes P2's partition"
                 ),
                 "partition_binding": (
                     "P2's partition is answered on the provider's own pile-separation frame; a "
@@ -574,6 +587,13 @@ for fixture in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
             "semantic_objects": objects,
             "extra_turn_creation": [],
             "temporal_state": temporal,
+            # Nexus of Fate's replacement shuffles it into P3's library, and P3
+            # draws from that library in its extra turn: a Rules-RNG operation
+            # of the causal route, bound to the record's seed.
+            "rules_randomness": {
+                **copy.deepcopy(old["rules_randomness"]),
+                "channels": ["library_shuffle:P3"],
+            },
             "deck_state": decks,
             "decision_script": [
                 _step(
@@ -649,7 +669,10 @@ for fixture in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
                 "causal-extra-turns",
                 {
                     "erratum_class": "CAUSAL_EXTRA_TURN_SCENARIO_ERRATUM",
-                    "comprehensive_rules": "500.7, 508.1, 514.1, 608.2n, 614.1a, 614.6",
+                    "comprehensive_rules": (
+                        "103.8c, 117.3b, 117.3d, 117.4, 500.2, 500.7, 508.1, 514.1, 608.1, "
+                        "608.2n, 614.1a, 614.6, 701.24"
+                    ),
                     "nexus_zone": (
                         "Nexus of Fate: 'If Nexus of Fate would be put into a graveyard from "
                         "anywhere, reveal Nexus of Fate and shuffle it into its owner's library "
@@ -665,6 +688,24 @@ for fixture in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
                         "instant), each through the engine-offered legal actions and paid "
                         "from declared Islands; the engine then takes P3's extra turn before "
                         "P2's (CR 500.7)"
+                    ),
+                    "priority_passes": (
+                        "the script names only the actions taken; every other priority the "
+                        "engine offers is answered with its own pass (the native procedure's "
+                        "NATIVE_COMPLETE_CURRENT_TURN_AND_ADVANCE_MULTIPLAYER_TURN_ORDER): with "
+                        "Time Warp on the stack every player passes in turn order and it resolves "
+                        "(CR 117.4, 608.1); on the then empty stack P1 receives priority and passes, "
+                        "P2 passes and P3, given priority, casts Nexus of Fate (the step's "
+                        "empty_stack timing, CR 117.3b, 117.3d); every player passes and it "
+                        "resolves; every later priority is passed, which ends each step and turn "
+                        "(CR 117.4, 500.2)"
+                    ),
+                    "nexus_shuffle": (
+                        "Nexus of Fate's replacement shuffles it into P3's library (CR 701.24) "
+                        "and P3 draws from that library in its extra turn, so the route uses the "
+                        "Rules-RNG channel library_shuffle:P3, bound to the record's rules seed; "
+                        "no obligation token depends on the drawn card, and P3's cleanup discard "
+                        "selects only template cards"
                     ),
                     "combat": (
                         "the observation passes through the rest of P1's turn and all of P3's "

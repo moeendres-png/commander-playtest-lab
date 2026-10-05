@@ -581,6 +581,16 @@ def test_the_extra_turn_rows_bind_creation_to_the_cast_and_the_engine_queue() ->
         assert not mr._reads_extra_turns(bindings["next_turn:P2"])
 
 
+def test_a_declared_library_channel_needs_the_players_own_shuffle() -> None:
+    record = {"rules_randomness": {"channels": ["library_shuffle:P3", "coin_flip:obj:x"]}}
+    shuffled = {"sequence": 11, "type": "LIBRARY_SHUFFLED", "player_player": "P3"}
+    assert mr.declared_shuffle_channels(record, [shuffled]) == {"library_shuffle:P3": True}
+    other = {**shuffled, "player_player": "P2"}
+    assert mr.declared_shuffle_channels(record, [other]) == {"library_shuffle:P3": False}
+    assert mr.declared_shuffle_channels(record, []) == {"library_shuffle:P3": False}
+    assert mr.declared_shuffle_channels({"rules_randomness": {"channels": []}}, []) == {}
+
+
 def _hand_offer(name: str, native: str) -> dict[str, Any]:
     return {
         "metadata": {
