@@ -174,7 +174,9 @@ You MUST complete each phase before proceeding to the next.
    - Automated test if possible
    - One-off test script if no framework
    - MUST have before fixing
-   - Use the `superpowers:test-driven-development` skill for writing proper failing tests
+   - Create the smallest project-native failing regression test or executable reproduction.
+     Use an available test-planning skill only when it adds value; do not make a missing
+     companion skill a blocker.
 
 2. **Implement Single Fix**
    - Address the root cause identified
@@ -186,7 +188,7 @@ You MUST complete each phase before proceeding to the next.
    - Test passes now?
    - No other tests broken?
    - Issue actually resolved?
-   - Use the `superpowers:verification-before-completion` skill before claiming success
+   - Use the imported `verification-before-completion` skill before claiming success
 
 4. **If Fix Doesn't Work**
    - STOP
@@ -207,7 +209,9 @@ You MUST complete each phase before proceeding to the next.
    - Are we "sticking with it through sheer inertia"?
    - Should we refactor architecture vs. continue fixing symptoms?
 
-   **Discuss with your human partner before attempting more fixes**
+   **Escalate to architecture/authority adjudication before attempting more fixes.**
+   Ask the user only when the next step is a genuine owner/authority gate; otherwise
+   persist the blocker and exact next action under the active workstream contract.
 
    This is NOT a failed hypothesis - this is a wrong architecture.
 
