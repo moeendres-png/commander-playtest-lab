@@ -17,7 +17,10 @@ round-trips.
 
 Fresh repository state outranks historical handoffs. Project-wide read access does not
 imply project-wide write authority. Respect active ownership, Rules/evidence/privacy
-boundaries, Git safety, protected branches and all Coordinator-only gates.
+boundaries, Git safety, protected branches and the Owner-only reservations in `AGENTS.md` §8.
+When `CLAUDE_OPUS_COORDINATOR_AUTHORITY = DELEGATED_BY_OWNER` applies, the Opus 5.5 main
+session resolves Coordinator-tier authority gates itself under `AGENTS.md` §8, records the
+decision with evidence and rationale, and continues without a routine Sol/Owner round-trip.
 
 Historical documents that state this repository had no `CLAUDE.md` remain provenance of
 their own earlier source locks; they are not current instruction surfaces.
