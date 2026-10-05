@@ -4,20 +4,16 @@ from __future__ import annotations
 
 import json
 import subprocess
-import sys
 from pathlib import Path
 
 import pytest
 import yaml
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
-from foundry import context_router as router  # noqa: E402
+from tools.foundry import context_router as router
 
 
 def git(args: list[str], cwd: Path) -> str:
-    proc = subprocess.run(
-        ["git", *args], cwd=cwd, capture_output=True, text=True, check=False
-    )
+    proc = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, check=False)
     assert proc.returncode == 0, proc.stderr
     return proc.stdout.strip()
 
@@ -84,9 +80,7 @@ def write_state(path: Path, scratch: dict, **overrides: object) -> Path:
     return path
 
 
-def test_foundry_path_routes_bounded_without_repeating_state(
-    scratch: dict, tmp_path: Path
-) -> None:
+def test_foundry_path_routes_bounded_without_repeating_state(scratch: dict, tmp_path: Path) -> None:
     state = write_state(tmp_path / "state.yaml", scratch)
     plan = router.derive_plan(
         str(state),
@@ -169,9 +163,7 @@ def test_profile_repository_mismatch_rejected(scratch: dict, tmp_path: Path) -> 
         router.derive_plan(str(state), str(scratch["root"]), "cpl", profiles)
 
 
-def test_branch_identity_reuses_capsule_fail_closed_gate(
-    scratch: dict, tmp_path: Path
-) -> None:
+def test_branch_identity_reuses_capsule_fail_closed_gate(scratch: dict, tmp_path: Path) -> None:
     state = write_state(tmp_path / "state.yaml", scratch, branch="wrong")
     with pytest.raises(router.RouterError, match="branch mismatch"):
         router.derive_plan(
@@ -221,9 +213,7 @@ def test_text_signals_use_word_boundaries(scratch: dict, tmp_path: Path) -> None
     assert "mage" not in plan["selected_domains"]
 
 
-def test_engine_profile_requests_map_only_on_demand(
-    scratch: dict, tmp_path: Path
-) -> None:
+def test_engine_profile_requests_map_only_on_demand(scratch: dict, tmp_path: Path) -> None:
     state = write_state(
         tmp_path / "state.yaml",
         scratch,
@@ -251,9 +241,7 @@ def test_engine_profile_requests_map_only_on_demand(
     ]
 
 
-def test_repo_map_is_bounded_to_committed_names(
-    scratch: dict, tmp_path: Path
-) -> None:
+def test_repo_map_is_bounded_to_committed_names(scratch: dict, tmp_path: Path) -> None:
     secret = scratch["root"] / "src" / "pkg" / "private.txt"
     secret.write_text("PRIVATE_SENTINEL\n", encoding="utf-8")
     result = router.build_repo_map(
@@ -280,9 +268,7 @@ def test_repo_map_prefix_and_depth_are_explicit(scratch: dict) -> None:
     assert result["prefixes"] == ["src"]
     assert all(path.startswith("src") for path in result["directories"])
     with pytest.raises(router.RouterError, match="max-depth"):
-        router.build_repo_map(
-            str(scratch["root"]), expected_slug="example/repo", max_depth=7
-        )
+        router.build_repo_map(str(scratch["root"]), expected_slug="example/repo", max_depth=7)
     with pytest.raises(router.RouterError, match="safe repository-relative"):
         router.build_repo_map(
             str(scratch["root"]),
