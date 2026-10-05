@@ -270,9 +270,7 @@ def test_text_signal_table_has_positive_controls(
     assert expected_domain in plan["selected_domains"]
 
 
-def test_provider_words_in_prose_do_not_grant_provider_route(
-    scratch: dict, tmp_path: Path
-) -> None:
+def test_provider_words_in_prose_do_not_grant_provider_route(scratch: dict, tmp_path: Path) -> None:
     state = write_state(
         tmp_path / "state.yaml",
         scratch,
@@ -636,9 +634,7 @@ def test_repo_map_does_not_use_recursive_ls_tree(
     assert all("-r" not in args for args in calls)
 
 
-def test_repo_map_output_caps_fail_closed(
-    scratch: dict, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_repo_map_output_caps_fail_closed(scratch: dict, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(router, "MAX_MAP_DIRECTORIES", 1)
     with pytest.raises(router.RouterError, match="directories"):
         router.build_repo_map(
