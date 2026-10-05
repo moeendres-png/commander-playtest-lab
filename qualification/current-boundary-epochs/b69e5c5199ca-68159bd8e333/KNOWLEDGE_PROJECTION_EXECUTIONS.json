@@ -1,0 +1,4986 @@
+{
+ "candidate": "xmage",
+ "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+ "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+ "rows": {
+  "HIDDEN_01": {
+   "channel_coverage": {
+    "ability_metadata": 72,
+    "context": 11,
+    "event": 7,
+    "log": 216,
+    "option_id": 52,
+    "option_label": 52,
+    "option_metadata": 52,
+    "pile_metadata": 0,
+    "prompt": 11,
+    "source_metadata": 11,
+    "state": 24,
+    "transcript": 106
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "P1's view of P2 carries no hand array and no private state",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "opponent_hand_hidden:P2"
+    },
+    {
+     "detail": "requested 8, P1 sees 8",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "opponent_hand_count_visible:P2"
+    },
+    {
+     "detail": "P1's view of P3 carries no hand array and no private state",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "opponent_hand_hidden:P3"
+    },
+    {
+     "detail": "requested 7, P1 sees 7",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "opponent_hand_count_visible:P3"
+    },
+    {
+     "detail": "P1's view of P4 carries no hand array and no private state",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "opponent_hand_hidden:P4"
+    },
+    {
+     "detail": "requested 7, P1 sees 7",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "opponent_hand_count_visible:P4"
+    },
+    {
+     "detail": "P2's own projection lists the requested hand object",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "owner_sees_own_hand_object:obj:hidden-hand"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_01",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "b541729ede29455d262e7d8dcee1284bf4469d340f392052554566f14a2552fe",
+   "receipt_digest": "ea34f23e9272914dddcc014e5b04742405860bd33be87a4aaf1bfd95fcf6bece",
+   "requested_state_digest": "e7952c7ebe74294bf190dc3873c6fb26d352ffa40fcba2bdd23fefb0703810ca",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_01:P1": [
+     {
+      "detail": "P1's view of P2 carries no hand array and no private state",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "opponent_hand_hidden:P2"
+     },
+     {
+      "detail": "requested 8, P1 sees 8",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "opponent_hand_count_visible:P2"
+     },
+     {
+      "detail": "P1's view of P3 carries no hand array and no private state",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "opponent_hand_hidden:P3"
+     },
+     {
+      "detail": "requested 7, P1 sees 7",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "opponent_hand_count_visible:P3"
+     },
+     {
+      "detail": "P1's view of P4 carries no hand array and no private state",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "opponent_hand_hidden:P4"
+     },
+     {
+      "detail": "requested 7, P1 sees 7",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "opponent_hand_count_visible:P4"
+     },
+     {
+      "detail": "P2's own projection lists the requested hand object",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "owner_sees_own_hand_object:obj:hidden-hand"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_02": {
+   "channel_coverage": {
+    "ability_metadata": 72,
+    "context": 11,
+    "event": 7,
+    "log": 216,
+    "option_id": 52,
+    "option_label": 52,
+    "option_metadata": 52,
+    "pile_metadata": 0,
+    "prompt": 11,
+    "source_metadata": 11,
+    "state": 24,
+    "transcript": 106
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "requested 93, P1 sees 93",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "library_count_visible:P2"
+    },
+    {
+     "detail": "P1's view of P2 carries no granted library and no revealed top",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "library_identities_and_order_absent:P2"
+    },
+    {
+     "detail": "0 library identity occurrences in P1's projection",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "library_object_unseen_by:P1"
+    },
+    {
+     "detail": "0 library identity occurrences in P2's projection",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "library_object_unseen_by:P2"
+    },
+    {
+     "detail": "0 library identity occurrences in P3's projection",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "library_object_unseen_by:P3"
+    },
+    {
+     "detail": "0 library identity occurrences in P4's projection",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "library_object_unseen_by:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_02",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "04b2a6d2b840a3d379c3bd12cb088915cb86b8e456b73d019274d00d46fc6078",
+   "receipt_digest": "71d3a27b5963621881abb530005e6ab627aac455d2456c11b9163d864a3357a1",
+   "requested_state_digest": "4f189f72a920c08d6ca212cf9c3fa7050796a8d04f33b47494e6d2f95aa603ce",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_02:P1": [
+     {
+      "detail": "requested 93, P1 sees 93",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "library_count_visible:P2"
+     },
+     {
+      "detail": "P1's view of P2 carries no granted library and no revealed top",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "library_identities_and_order_absent:P2"
+     },
+     {
+      "detail": "0 library identity occurrences in P1's projection",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "library_object_unseen_by:P1"
+     },
+     {
+      "detail": "0 library identity occurrences in P2's projection",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "library_object_unseen_by:P2"
+     },
+     {
+      "detail": "0 library identity occurrences in P3's projection",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "library_object_unseen_by:P3"
+     },
+     {
+      "detail": "0 library identity occurrences in P4's projection",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "library_object_unseen_by:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_03": {
+   "channel_coverage": {
+    "ability_metadata": 72,
+    "context": 11,
+    "event": 7,
+    "log": 216,
+    "option_id": 52,
+    "option_label": 52,
+    "option_metadata": 52,
+    "pile_metadata": 0,
+    "prompt": 11,
+    "source_metadata": 11,
+    "state": 24,
+    "transcript": 106
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "P1 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "public_exile_visible:obj:public-exile:P1"
+    },
+    {
+     "detail": "P2 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "public_exile_visible:obj:public-exile:P2"
+    },
+    {
+     "detail": "P3 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "public_exile_visible:obj:public-exile:P3"
+    },
+    {
+     "detail": "P4 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "public_exile_visible:obj:public-exile:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_03",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "6bd4eded24f24ac6858c4806cd7ffc0e940059dc0801b40f34c5b48cb292300d",
+   "receipt_digest": "8fb43eb2684d0af97ea70d3d744e3d5ca9288a7dea67e7bdaa930bbf5fcd201c",
+   "requested_state_digest": "36f766fedfd04cffa4f9596816f77712e00300a17644e2eec664a73e0d298710",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_03:P1": [
+     {
+      "detail": "P1 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "public_exile_visible:obj:public-exile:P1"
+     },
+     {
+      "detail": "P2 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "public_exile_visible:obj:public-exile:P2"
+     },
+     {
+      "detail": "P3 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "public_exile_visible:obj:public-exile:P3"
+     },
+     {
+      "detail": "P4 sees P2's exile ['Sol Ring'] (count 1, requested 1)",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "public_exile_visible:obj:public-exile:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_04": {
+   "channel_coverage": {
+    "ability_metadata": 72,
+    "context": 11,
+    "event": 7,
+    "log": 216,
+    "option_id": 52,
+    "option_label": 52,
+    "option_metadata": 52,
+    "pile_metadata": 0,
+    "prompt": 11,
+    "source_metadata": 11,
+    "state": 24,
+    "transcript": 106
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "P1 is entitled; private identity shown: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "face_down_identity_entitled:obj:facedown:P1"
+    },
+    {
+     "detail": "P2 is not entitled; the permanent shows no identity",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "face_down_identity_withheld:obj:facedown:P2"
+    },
+    {
+     "detail": "P3 is not entitled; the permanent shows no identity",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "face_down_identity_withheld:obj:facedown:P3"
+    },
+    {
+     "detail": "P4 is not entitled; the permanent shows no identity",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "face_down_identity_withheld:obj:facedown:P4"
+    },
+    {
+     "detail": "0 occurrences of ['Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P2"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P3"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_04",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "915063ad9ff0e31fea6f7ca6eba229f7e0d120879232cb086e701bb27fb43f77",
+   "receipt_digest": "c9c8c08ce262ec88e1c1dfc65efbc10785b0719b6627359ba8ebe3bbdac51c29",
+   "requested_state_digest": "f0d954a3c005f6ec64549c7e0f85c799631af8244b4eaded0d57652c9b6e2ec7",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_04:P1": [
+     {
+      "detail": "P1 is entitled; private identity shown: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "face_down_identity_entitled:obj:facedown:P1"
+     },
+     {
+      "detail": "P2 is not entitled; the permanent shows no identity",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "face_down_identity_withheld:obj:facedown:P2"
+     },
+     {
+      "detail": "P3 is not entitled; the permanent shows no identity",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "face_down_identity_withheld:obj:facedown:P3"
+     },
+     {
+      "detail": "P4 is not entitled; the permanent shows no identity",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "face_down_identity_withheld:obj:facedown:P4"
+     },
+     {
+      "detail": "0 occurrences of ['Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P2"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P3"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_05": {
+   "channel_coverage": {
+    "ability_metadata": 404,
+    "context": 58,
+    "event": 21,
+    "log": 216,
+    "option_id": 292,
+    "option_label": 292,
+    "option_metadata": 292,
+    "pile_metadata": 0,
+    "prompt": 58,
+    "source_metadata": 58,
+    "state": 71,
+    "transcript": 281
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 2, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 2, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Lightning Bolt', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-bolt']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "15 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "1 persistent look permissions for P1",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "persistent_exile_look_declared"
+    },
+    {
+     "detail": "1 unnamed moves from a hidden zone into exile",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "face_down_exile_on_public_tape"
+    },
+    {
+     "detail": "the exile's public source obj:hidden05-gonti left the battlefield 1 times after the exile",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "granting_source_left_before_measurement"
+    },
+    {
+     "detail": "P1's view of P2's exile shows the card face down: 1",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "face_down_exile_shown_to_viewer:obj:hidden-hand"
+    },
+    {
+     "detail": "P2's view of P2's exile lists 0 face-down cards",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "face_down_exile_withheld_from:obj:hidden-hand:P2"
+    },
+    {
+     "detail": "P3's view of P2's exile lists 0 face-down cards",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "face_down_exile_withheld_from:obj:hidden-hand:P3"
+    },
+    {
+     "detail": "P4's view of P2's exile lists 0 face-down cards",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "face_down_exile_withheld_from:obj:hidden-hand:P4"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Gonti, Lord of Luxury', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-gonti']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P2"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Gonti, Lord of Luxury', 'Grizzly Bears', 'Lightning Bolt', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-bolt', 'obj:hidden05-gonti']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P3"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Gonti, Lord of Luxury', 'Grizzly Bears', 'Lightning Bolt', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-bolt', 'obj:hidden05-gonti']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_05",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Lightning Bolt",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0",
+      "obj:hidden05-bolt"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "7ed78ac50c7b98cd6225f66bd986601fc6ecc2e9b413f38db114ee5643bcc01d",
+   "receipt_digest": "a1b380d31b52ab537c9d9200e5a91001aed984ab71a16ab9b1ecd14cf284c0ee",
+   "requested_state_digest": "5567336dd33d4fd848aaf52f1518a7c76d397d746efdab2bd2dd2e9c7ecd91c4",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_05:P1": [
+     {
+      "detail": "15 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "1 persistent look permissions for P1",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "persistent_exile_look_declared"
+     },
+     {
+      "detail": "1 unnamed moves from a hidden zone into exile",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "face_down_exile_on_public_tape"
+     },
+     {
+      "detail": "the exile's public source obj:hidden05-gonti left the battlefield 1 times after the exile",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "granting_source_left_before_measurement"
+     },
+     {
+      "detail": "P1's view of P2's exile shows the card face down: 1",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "face_down_exile_shown_to_viewer:obj:hidden-hand"
+     },
+     {
+      "detail": "P2's view of P2's exile lists 0 face-down cards",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "face_down_exile_withheld_from:obj:hidden-hand:P2"
+     },
+     {
+      "detail": "P3's view of P2's exile lists 0 face-down cards",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "face_down_exile_withheld_from:obj:hidden-hand:P3"
+     },
+     {
+      "detail": "P4's view of P2's exile lists 0 face-down cards",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "face_down_exile_withheld_from:obj:hidden-hand:P4"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Gonti, Lord of Luxury', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-gonti']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P2"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Gonti, Lord of Luxury', 'Grizzly Bears', 'Lightning Bolt', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-bolt', 'obj:hidden05-gonti']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P3"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Gonti, Lord of Luxury', 'Grizzly Bears', 'Lightning Bolt', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-bolt', 'obj:hidden05-gonti']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_06": {
+   "channel_coverage": {
+    "ability_metadata": 410,
+    "context": 58,
+    "event": 40,
+    "log": 216,
+    "option_id": 295,
+    "option_label": 295,
+    "option_metadata": 295,
+    "pile_metadata": 0,
+    "prompt": 58,
+    "source_metadata": 58,
+    "state": 74,
+    "transcript": 280
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 2, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 2, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "12 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "1 look permissions; invalidation=['object changes zone or becomes a new object']",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "invalidating_exile_look_declared"
+    },
+    {
+     "detail": "obj:hidden-hand",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "invalidated_object_declared"
+    },
+    {
+     "detail": "1 snapshots immediately before the exile object leaves",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "pre_zone_change_exile_snapshot_observed"
+    },
+    {
+     "detail": "1 matching face-down exile entries in P1's snapshot",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "permission_active_before_zone_change"
+    },
+    {
+     "detail": "0 face-down exile entries shown to P2",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "permission_not_shared_before_zone_change:P2"
+    },
+    {
+     "detail": "0 face-down exile entries shown to P3",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "permission_not_shared_before_zone_change:P3"
+    },
+    {
+     "detail": "0 face-down exile entries shown to P4",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "permission_not_shared_before_zone_change:P4"
+    },
+    {
+     "detail": "1 hidden-zone -> face-down exile moves before snapshot",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "native_face_down_exile_grant_precedes_snapshot"
+    },
+    {
+     "detail": "0 matching moves before snapshot; 1 after scripted event",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "native_exile_zone_change_observed_after_snapshot"
+    },
+    {
+     "detail": "0 stale face-down/private exile entries remain for P1",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_stale_face_down_exile_permission:P1"
+    },
+    {
+     "detail": "0 stale face-down/private exile entries remain for P2",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_stale_face_down_exile_permission:P2"
+    },
+    {
+     "detail": "0 stale face-down/private exile entries remain for P3",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_stale_face_down_exile_permission:P3"
+    },
+    {
+     "detail": "0 stale face-down/private exile entries remain for P4",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_stale_face_down_exile_permission:P4"
+    },
+    {
+     "detail": "0 occurrences of the exile handle before tape 115",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "face_down_handle_withheld_before_zone_change:P2"
+    },
+    {
+     "detail": "0 occurrences of the exile handle before tape 115",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "face_down_handle_withheld_before_zone_change:P3"
+    },
+    {
+     "detail": "0 occurrences of the exile handle before tape 115",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "face_down_handle_withheld_before_zone_change:P4"
+    },
+    {
+     "detail": "0 occurrences of ['Gonti, Lord of Luxury', 'Grizzly Bears', 'Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden06-gonti']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P2"
+    },
+    {
+     "detail": "0 occurrences of ['Gonti, Lord of Luxury', 'Grizzly Bears', 'Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden06-gonti']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P3"
+    },
+    {
+     "detail": "0 occurrences of ['Gonti, Lord of Luxury', 'Grizzly Bears', 'Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden06-gonti']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_06",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Memnite",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "b7c4ea2fa87375d391c3cd34e43adcb698913a280ddbc5ea5924099a3a6d5586",
+   "receipt_digest": "0e744018d1e78ac2b2c485d10bfccd41fe022f336e6c4d642a52c4f1d9989bdf",
+   "requested_state_digest": "6e76fe052384d35fde93725ac46e74b0f999e20d8fdfe5a19732a3d1d5225b00",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_06:P1": [
+     {
+      "detail": "12 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "1 look permissions; invalidation=['object changes zone or becomes a new object']",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "invalidating_exile_look_declared"
+     },
+     {
+      "detail": "obj:hidden-hand",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "invalidated_object_declared"
+     },
+     {
+      "detail": "1 snapshots immediately before the exile object leaves",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "pre_zone_change_exile_snapshot_observed"
+     },
+     {
+      "detail": "1 matching face-down exile entries in P1's snapshot",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "permission_active_before_zone_change"
+     },
+     {
+      "detail": "0 face-down exile entries shown to P2",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "permission_not_shared_before_zone_change:P2"
+     },
+     {
+      "detail": "0 face-down exile entries shown to P3",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "permission_not_shared_before_zone_change:P3"
+     },
+     {
+      "detail": "0 face-down exile entries shown to P4",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "permission_not_shared_before_zone_change:P4"
+     },
+     {
+      "detail": "1 hidden-zone -> face-down exile moves before snapshot",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "native_face_down_exile_grant_precedes_snapshot"
+     },
+     {
+      "detail": "0 matching moves before snapshot; 1 after scripted event",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "native_exile_zone_change_observed_after_snapshot"
+     },
+     {
+      "detail": "0 stale face-down/private exile entries remain for P1",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_stale_face_down_exile_permission:P1"
+     },
+     {
+      "detail": "0 stale face-down/private exile entries remain for P2",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_stale_face_down_exile_permission:P2"
+     },
+     {
+      "detail": "0 stale face-down/private exile entries remain for P3",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_stale_face_down_exile_permission:P3"
+     },
+     {
+      "detail": "0 stale face-down/private exile entries remain for P4",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_stale_face_down_exile_permission:P4"
+     },
+     {
+      "detail": "0 occurrences of the exile handle before tape 115",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "face_down_handle_withheld_before_zone_change:P2"
+     },
+     {
+      "detail": "0 occurrences of the exile handle before tape 115",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "face_down_handle_withheld_before_zone_change:P3"
+     },
+     {
+      "detail": "0 occurrences of the exile handle before tape 115",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "face_down_handle_withheld_before_zone_change:P4"
+     },
+     {
+      "detail": "0 occurrences of ['Gonti, Lord of Luxury', 'Grizzly Bears', 'Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden06-gonti']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P2"
+     },
+     {
+      "detail": "0 occurrences of ['Gonti, Lord of Luxury', 'Grizzly Bears', 'Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden06-gonti']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P3"
+     },
+     {
+      "detail": "0 occurrences of ['Gonti, Lord of Luxury', 'Grizzly Bears', 'Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden06-gonti']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_07": {
+   "channel_coverage": {
+    "ability_metadata": 200,
+    "context": 25,
+    "event": 10,
+    "log": 216,
+    "option_id": 133,
+    "option_label": 133,
+    "option_metadata": 133,
+    "pile_metadata": 0,
+    "prompt": 25,
+    "source_metadata": 25,
+    "state": 38,
+    "transcript": 155
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "3 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "1 declared",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "reveal_permission_declared"
+    },
+    {
+     "detail": "P1's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden-hand:P1"
+    },
+    {
+     "detail": "P2's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden-hand:P2"
+    },
+    {
+     "detail": "P3's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden-hand:P3"
+    },
+    {
+     "detail": "P4's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden-hand:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_07",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "a4dabc101ee73d602075a329aec703de414989933a85a1aaa0aac15fb6ebe6cc",
+   "receipt_digest": "c06ab265dc975599ed1484774b474aef20dd5d9b3e42771c6a5beeb11985cece",
+   "requested_state_digest": "54fc0512a7a368db7c1cbc8b6f95c1dfaf376ba7c38708ff40de3f737072d85a",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_07:P1": [
+     {
+      "detail": "3 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "1 declared",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "reveal_permission_declared"
+     },
+     {
+      "detail": "P1's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden-hand:P1"
+     },
+     {
+      "detail": "P2's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden-hand:P2"
+     },
+     {
+      "detail": "P3's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden-hand:P3"
+     },
+     {
+      "detail": "P4's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden-hand:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_08": {
+   "channel_coverage": {
+    "ability_metadata": 182,
+    "context": 22,
+    "event": 7,
+    "log": 216,
+    "option_id": 127,
+    "option_label": 127,
+    "option_metadata": 127,
+    "pile_metadata": 0,
+    "prompt": 22,
+    "source_metadata": 22,
+    "state": 35,
+    "transcript": 146
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "2 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "1 declared",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "look_permission_declared"
+    },
+    {
+     "detail": "P1's looked_at log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "look_reaches:obj:hidden-lib-0:P1"
+    },
+    {
+     "detail": "P2's looked_at log names the object: False",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "look_withheld_from:obj:hidden-lib-0:P2"
+    },
+    {
+     "detail": "0 occurrences of ['Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P2"
+    },
+    {
+     "detail": "P3's looked_at log names the object: False",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "look_withheld_from:obj:hidden-lib-0:P3"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P3"
+    },
+    {
+     "detail": "P4's looked_at log names the object: False",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "look_withheld_from:obj:hidden-lib-0:P4"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_08",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "11272afb470f6f05b1778a4791e08fa28c78d1006979e18a504bcf994d606320",
+   "receipt_digest": "e2221a889a76c585bb114baa2280b0e08365a941b92c6e143f28f341e7eb8268",
+   "requested_state_digest": "d3708d743e4791c9d55a6e1c14af9e9f0a6bbb683d48756493890ae481a88f68",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_08:P1": [
+     {
+      "detail": "2 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "1 declared",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "look_permission_declared"
+     },
+     {
+      "detail": "P1's looked_at log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "look_reaches:obj:hidden-lib-0:P1"
+     },
+     {
+      "detail": "P2's looked_at log names the object: False",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "look_withheld_from:obj:hidden-lib-0:P2"
+     },
+     {
+      "detail": "0 occurrences of ['Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P2"
+     },
+     {
+      "detail": "P3's looked_at log names the object: False",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "look_withheld_from:obj:hidden-lib-0:P3"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P3"
+     },
+     {
+      "detail": "P4's looked_at log names the object: False",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "look_withheld_from:obj:hidden-lib-0:P4"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_09": {
+   "channel_coverage": {
+    "ability_metadata": 162,
+    "context": 19,
+    "event": 9,
+    "log": 216,
+    "option_id": 105,
+    "option_label": 105,
+    "option_metadata": 105,
+    "pile_metadata": 0,
+    "prompt": 19,
+    "source_metadata": 19,
+    "state": 32,
+    "transcript": 179
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "14 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "1 declared",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "search_permission_declared"
+    },
+    {
+     "detail": "searcher P2, zone P2.library, checkpoint size 93",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "search_zone_is_searcher_library"
+    },
+    {
+     "detail": "45 frames after the event",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "searcher_frames_observed:P2"
+    },
+    {
+     "detail": "93 library offers of 93; requested identities offered: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "search_inspects_whole_zone:P2"
+    },
+    {
+     "detail": "0 library offers in 0 frames",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_search_offer_to:P1"
+    },
+    {
+     "detail": "0 library offers in 0 frames",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_search_offer_to:P3"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P3"
+    },
+    {
+     "detail": "0 library offers in 0 frames",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_search_offer_to:P4"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_09",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "2e219e163425473b4d6c7d3e8fda31f8fd8951e98446af81cea4bfbbea3a1fd2",
+   "receipt_digest": "1f851006bc531d278b9f97ca2447d5c2d1d84f3dde80cb82adcdc9d67ee8efb7",
+   "requested_state_digest": "a1c448459bf451659aedea427f812e91232840a33b31148f791d171612de7854",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_09:P1": [
+     {
+      "detail": "14 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "1 declared",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "search_permission_declared"
+     },
+     {
+      "detail": "searcher P2, zone P2.library, checkpoint size 93",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "search_zone_is_searcher_library"
+     },
+     {
+      "detail": "45 frames after the event",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "searcher_frames_observed:P2"
+     },
+     {
+      "detail": "93 library offers of 93; requested identities offered: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "search_inspects_whole_zone:P2"
+     },
+     {
+      "detail": "0 library offers in 0 frames",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_search_offer_to:P1"
+     },
+     {
+      "detail": "0 library offers in 0 frames",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_search_offer_to:P3"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P3"
+     },
+     {
+      "detail": "0 library offers in 0 frames",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_search_offer_to:P4"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_10": {
+   "channel_coverage": {
+    "ability_metadata": 246,
+    "context": 40,
+    "event": 14,
+    "log": 216,
+    "option_id": 192,
+    "option_label": 192,
+    "option_metadata": 192,
+    "pile_metadata": 0,
+    "prompt": 40,
+    "source_metadata": 40,
+    "state": 53,
+    "transcript": 199
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'library_order': 2, 'library_object': 3, 'hand_composition': 4, 'face_down': 1}; the engine reported {'library_order': 2, 'hand_composition': 4, 'library_object': 3, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "8 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "1 declared",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "known_range_declared"
+    },
+    {
+     "detail": "2 distinct requested objects for a range of 2",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "known_range_requested_exactly"
+    },
+    {
+     "detail": "29 frames after the event",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "knower_frames_observed:P1"
+    },
+    {
+     "detail": "library offers shown to P1: [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], [], [], []]",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "range_shown_exactly_to:P1"
+    },
+    {
+     "detail": "2 library-to-library moves of P1's cards",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "range_returned_to_library"
+    },
+    {
+     "detail": "0 library offers in 0 frames",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_range_offer_to:P2"
+    },
+    {
+     "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Grizzly Bears', 'Magma Jet', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0', 'obj:hidden10-jet', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P2"
+    },
+    {
+     "detail": "0 library offers in 0 frames",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_range_offer_to:P3"
+    },
+    {
+     "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Demonic Tutor', 'Grizzly Bears', 'Magma Jet', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden10-jet', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P3"
+    },
+    {
+     "detail": "0 library offers in 0 frames",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_range_offer_to:P4"
+    },
+    {
+     "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Demonic Tutor', 'Grizzly Bears', 'Magma Jet', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden10-jet', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_10",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Brainstorm",
+      "Counterspell",
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0",
+      "obj:hidden10-lib-0",
+      "obj:hidden10-lib-1"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "f4a129d9e73db063d95b9cd410e774c25b7addb796249a26f0a8ac32d5e7f245",
+   "receipt_digest": "4e7d42c39eef139b96dabeab50ceb2153c394f9bbb3aa1ac4e31c03f55b5dbf4",
+   "requested_state_digest": "8d5ebea042b8f4fdb4c612ae5a8cd63cb2e25a62c6c8bc133d6be273002e3808",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_10:P1": [
+     {
+      "detail": "8 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "1 declared",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "known_range_declared"
+     },
+     {
+      "detail": "2 distinct requested objects for a range of 2",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "known_range_requested_exactly"
+     },
+     {
+      "detail": "29 frames after the event",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "knower_frames_observed:P1"
+     },
+     {
+      "detail": "library offers shown to P1: [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], [], [], []]",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "range_shown_exactly_to:P1"
+     },
+     {
+      "detail": "2 library-to-library moves of P1's cards",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "range_returned_to_library"
+     },
+     {
+      "detail": "0 library offers in 0 frames",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_range_offer_to:P2"
+     },
+     {
+      "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Grizzly Bears', 'Magma Jet', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0', 'obj:hidden10-jet', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P2"
+     },
+     {
+      "detail": "0 library offers in 0 frames",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_range_offer_to:P3"
+     },
+     {
+      "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Demonic Tutor', 'Grizzly Bears', 'Magma Jet', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden10-jet', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P3"
+     },
+     {
+      "detail": "0 library offers in 0 frames",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_range_offer_to:P4"
+     },
+     {
+      "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Demonic Tutor', 'Grizzly Bears', 'Magma Jet', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden10-jet', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_11": {
+   "channel_coverage": {
+    "ability_metadata": 236,
+    "context": 28,
+    "event": 24,
+    "log": 216,
+    "option_id": 160,
+    "option_label": 160,
+    "option_metadata": 160,
+    "pile_metadata": 0,
+    "prompt": 28,
+    "source_metadata": 28,
+    "state": 43,
+    "transcript": 194
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 3, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 3, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "7 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "1 ordered pre-shuffle ranges declared for P1",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "one_pre_shuffle_known_range_declared"
+    },
+    {
+     "detail": "3 requested objects cover declared count 3",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "known_range_is_losslessly_materialized"
+    },
+    {
+     "detail": "1 snapshots captured immediately before the shuffle action",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "pre_shuffle_snapshot_observed"
+    },
+    {
+     "detail": "1 ordered observations exactly match ['Vampiric Tutor', 'Mystical Tutor', 'Enlightened Tutor']",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "pre_shuffle_ordered_snapshot_matches_engine_look"
+    },
+    {
+     "detail": "1 P2 shuffles before snapshot; 2 after scripted event",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "native_shuffle_observed_after_ordered_snapshot"
+    },
+    {
+     "detail": "1 look observations retain exactly ['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "remembered_identity_set_observed"
+    },
+    {
+     "detail": "order_invalidated_by_shuffle=True",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "shuffle_order_invalidated_explicitly"
+    },
+    {
+     "detail": "before=['Vampiric Tutor', 'Mystical Tutor', 'Enlightened Tutor']; after=['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "pre_shuffle_order_not_retained"
+    },
+    {
+     "detail": "after=['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']; canonical=['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "invalidated_memory_is_canonical_not_engine_order"
+    },
+    {
+     "detail": "0 active library grants remain",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_active_library_grant_survives_shuffle"
+    },
+    {
+     "detail": "P2 received []",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "remembered_identity_withheld_from:P2"
+    },
+    {
+     "detail": "0 occurrences of ['Enlightened Tutor', 'Grizzly Bears', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P2"
+    },
+    {
+     "detail": "P3 received []",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "remembered_identity_withheld_from:P3"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Enlightened Tutor', 'Grizzly Bears', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P3"
+    },
+    {
+     "detail": "P4 received []",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "remembered_identity_withheld_from:P4"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Enlightened Tutor', 'Grizzly Bears', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_11",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Enlightened Tutor",
+      "Mystical Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0",
+      "obj:hidden11-lib-1",
+      "obj:hidden11-lib-2"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "2336a10ea625ba95a36e819a57af57c205382e39fcd0bed0cf7a75cde360e44b",
+   "receipt_digest": "74cd43bb3e90f62f3f33b3646c663661ad6f498827e50b71c584936eacea0515",
+   "requested_state_digest": "b326e480861f33a9aabac35a2ce614725fed48bc7ac5e537fe2c19be0b0f2928",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_11:P1": [
+     {
+      "detail": "7 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "1 ordered pre-shuffle ranges declared for P1",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "one_pre_shuffle_known_range_declared"
+     },
+     {
+      "detail": "3 requested objects cover declared count 3",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "known_range_is_losslessly_materialized"
+     },
+     {
+      "detail": "1 snapshots captured immediately before the shuffle action",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "pre_shuffle_snapshot_observed"
+     },
+     {
+      "detail": "1 ordered observations exactly match ['Vampiric Tutor', 'Mystical Tutor', 'Enlightened Tutor']",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "pre_shuffle_ordered_snapshot_matches_engine_look"
+     },
+     {
+      "detail": "1 P2 shuffles before snapshot; 2 after scripted event",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "native_shuffle_observed_after_ordered_snapshot"
+     },
+     {
+      "detail": "1 look observations retain exactly ['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "remembered_identity_set_observed"
+     },
+     {
+      "detail": "order_invalidated_by_shuffle=True",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "shuffle_order_invalidated_explicitly"
+     },
+     {
+      "detail": "before=['Vampiric Tutor', 'Mystical Tutor', 'Enlightened Tutor']; after=['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "pre_shuffle_order_not_retained"
+     },
+     {
+      "detail": "after=['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']; canonical=['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "invalidated_memory_is_canonical_not_engine_order"
+     },
+     {
+      "detail": "0 active library grants remain",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_active_library_grant_survives_shuffle"
+     },
+     {
+      "detail": "P2 received []",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "remembered_identity_withheld_from:P2"
+     },
+     {
+      "detail": "0 occurrences of ['Enlightened Tutor', 'Grizzly Bears', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P2"
+     },
+     {
+      "detail": "P3 received []",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "remembered_identity_withheld_from:P3"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Enlightened Tutor', 'Grizzly Bears', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P3"
+     },
+     {
+      "detail": "P4 received []",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "remembered_identity_withheld_from:P4"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Enlightened Tutor', 'Grizzly Bears', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_12": {
+   "channel_coverage": {
+    "ability_metadata": 562,
+    "context": 66,
+    "event": 10,
+    "log": 216,
+    "option_id": 373,
+    "option_label": 373,
+    "option_metadata": 373,
+    "pile_metadata": 0,
+    "prompt": 66,
+    "source_metadata": 66,
+    "state": 80,
+    "transcript": 337
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1, 'tapped': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1, 'tapped': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Mind Stone', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden12-p3-hand']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "10 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "controller=P1; controlled=P2; viewer=P1",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "controlled_relationship_declared"
+    },
+    {
+     "detail": "actor=62c5b290-c344-460a-a521-509f40728032; seat=0; acting_for=1",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "engine_addresses_controlled_decision_to_controller"
+    },
+    {
+     "detail": "expected controlled hand identities ['Demonic Tutor']; saw ['Demonic Tutor', 'Mountain']",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "controller_receives_controlled_players_hand"
+    },
+    {
+     "detail": "0 forbidden library/unrelated-hand occurrences",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "controlled_decision_is_not_omniscient"
+    },
+    {
+     "detail": "decision=58bd582813c638d698e6202fec83ddebca603c85f6e087693f78b8b32407fe35; actor=62c5b290-c344-460a-a521-509f40728032; selected=312568b00ca97236e3a89f6a2a5737193a245427aecd558b610d64ccafc5ed62; offered=['312568b00ca97236e3a89f6a2a5737193a245427aecd558b610d64ccafc5ed62']",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "controlled_decision_submission_uses_exact_engine_identity"
+    },
+    {
+     "detail": "0 copies of the controlled decision reached P2",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "controlled_frame_withheld_from:P2"
+    },
+    {
+     "detail": "0 occurrences of the controlled decision id",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "controlled_decision_identity_withheld_from:P2"
+    },
+    {
+     "detail": "0 copies of the controlled decision reached P3",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "controlled_frame_withheld_from:P3"
+    },
+    {
+     "detail": "0 occurrences of the controlled decision id",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "controlled_decision_identity_withheld_from:P3"
+    },
+    {
+     "detail": "0 copies of the controlled decision reached P4",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "controlled_frame_withheld_from:P4"
+    },
+    {
+     "detail": "0 occurrences of the controlled decision id",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "controlled_decision_identity_withheld_from:P4"
+    },
+    {
+     "detail": "offset=52; stale replay -> external_pilot_decision_rejected; foreign actor -> external_pilot_decision_rejected; pending unchanged=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "controlled_decision_revision_and_actor_bound"
+    },
+    {
+     "detail": "0 occurrences of ['Grizzly Bears', 'Mind Stone', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0', 'obj:hidden12-p3-hand']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P2"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P3"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Mind Stone', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden12-p3-hand']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_12",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Mind Stone",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0",
+      "obj:hidden12-p3-hand"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "f45e90b5c125a2efe809457e8f2f742a5858c153efd41a720e98f2e14b7943a5",
+   "receipt_digest": "2538371b5e0c2f7a63fac91870af592f51e132115e23a202b2efa239e256f3ee",
+   "requested_state_digest": "f630608c9f3fa6f639c50ca6dafa371cc14a22e1a16125dc15536b1389161b89",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_12:P1": [
+     {
+      "detail": "10 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "controller=P1; controlled=P2; viewer=P1",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "controlled_relationship_declared"
+     },
+     {
+      "detail": "actor=62c5b290-c344-460a-a521-509f40728032; seat=0; acting_for=1",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "engine_addresses_controlled_decision_to_controller"
+     },
+     {
+      "detail": "expected controlled hand identities ['Demonic Tutor']; saw ['Demonic Tutor', 'Mountain']",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "controller_receives_controlled_players_hand"
+     },
+     {
+      "detail": "0 forbidden library/unrelated-hand occurrences",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "controlled_decision_is_not_omniscient"
+     },
+     {
+      "detail": "decision=58bd582813c638d698e6202fec83ddebca603c85f6e087693f78b8b32407fe35; actor=62c5b290-c344-460a-a521-509f40728032; selected=312568b00ca97236e3a89f6a2a5737193a245427aecd558b610d64ccafc5ed62; offered=['312568b00ca97236e3a89f6a2a5737193a245427aecd558b610d64ccafc5ed62']",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "controlled_decision_submission_uses_exact_engine_identity"
+     },
+     {
+      "detail": "0 copies of the controlled decision reached P2",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "controlled_frame_withheld_from:P2"
+     },
+     {
+      "detail": "0 occurrences of the controlled decision id",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "controlled_decision_identity_withheld_from:P2"
+     },
+     {
+      "detail": "0 copies of the controlled decision reached P3",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "controlled_frame_withheld_from:P3"
+     },
+     {
+      "detail": "0 occurrences of the controlled decision id",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "controlled_decision_identity_withheld_from:P3"
+     },
+     {
+      "detail": "0 copies of the controlled decision reached P4",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "controlled_frame_withheld_from:P4"
+     },
+     {
+      "detail": "0 occurrences of the controlled decision id",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "controlled_decision_identity_withheld_from:P4"
+     },
+     {
+      "detail": "offset=52; stale replay -> external_pilot_decision_rejected; foreign actor -> external_pilot_decision_rejected; pending unchanged=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "controlled_decision_revision_and_actor_bound"
+     },
+     {
+      "detail": "0 occurrences of ['Grizzly Bears', 'Mind Stone', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0', 'obj:hidden12-p3-hand']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P2"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P3"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Mind Stone', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden12-p3-hand']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_13": {
+   "channel_coverage": {
+    "ability_metadata": 358,
+    "context": 49,
+    "event": 15,
+    "log": 216,
+    "option_id": 254,
+    "option_label": 254,
+    "option_metadata": 254,
+    "pile_metadata": 0,
+    "prompt": 49,
+    "source_metadata": 49,
+    "state": 62,
+    "transcript": 230
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'library_order': 2, 'library_object': 6, 'hand_composition': 4, 'face_down': 1}; the engine reported {'library_order': 2, 'hand_composition': 4, 'library_object': 6, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Demonic Tutor', 'Opt', 'Ponder', 'Preordain', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden13-lib-0', 'obj:hidden13-lib-1', 'obj:hidden13-lib-2', 'obj:hidden13-lib-3', 'obj:hidden13-lib-4']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "12 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "5 declared",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "reveal_permission_declared"
+    },
+    {
+     "detail": "P1's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-0:P1"
+    },
+    {
+     "detail": "P2's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-0:P2"
+    },
+    {
+     "detail": "P3's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-0:P3"
+    },
+    {
+     "detail": "P4's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-0:P4"
+    },
+    {
+     "detail": "P1's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-1:P1"
+    },
+    {
+     "detail": "P2's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-1:P2"
+    },
+    {
+     "detail": "P3's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-1:P3"
+    },
+    {
+     "detail": "P4's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-1:P4"
+    },
+    {
+     "detail": "P1's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-2:P1"
+    },
+    {
+     "detail": "P2's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-2:P2"
+    },
+    {
+     "detail": "P3's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-2:P3"
+    },
+    {
+     "detail": "P4's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-2:P4"
+    },
+    {
+     "detail": "P1's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-3:P1"
+    },
+    {
+     "detail": "P2's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-3:P2"
+    },
+    {
+     "detail": "P3's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-3:P3"
+    },
+    {
+     "detail": "P4's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-3:P4"
+    },
+    {
+     "detail": "P1's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-4:P1"
+    },
+    {
+     "detail": "P2's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-4:P2"
+    },
+    {
+     "detail": "P3's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-4:P3"
+    },
+    {
+     "detail": "P4's revealed log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "reveal_reaches:obj:hidden13-lib-4:P4"
+    },
+    {
+     "detail": "3 pile frames, 0 forbidden occurrences",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "pile_frames_carry_only_entitled_identities:P1"
+    },
+    {
+     "detail": "3 pile frames, 0 forbidden occurrences",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "pile_frames_carry_only_entitled_identities:P2"
+    },
+    {
+     "detail": "0 pile frames, 0 forbidden occurrences",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "pile_frames_carry_only_entitled_identities:P3"
+    },
+    {
+     "detail": "0 pile frames, 0 forbidden occurrences",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "pile_frames_carry_only_entitled_identities:P4"
+    },
+    {
+     "detail": "6 pile frames across the table",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "pile_frames_observed"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_13",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Brainstorm",
+      "Counterspell",
+      "Demonic Tutor",
+      "Opt",
+      "Ponder",
+      "Preordain",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0",
+      "obj:hidden13-lib-0",
+      "obj:hidden13-lib-1",
+      "obj:hidden13-lib-2",
+      "obj:hidden13-lib-3",
+      "obj:hidden13-lib-4"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "722898b36d6b5ba00be6e1566290eb36cd730e021e2746324be08bd68f7e92d1",
+   "receipt_digest": "31a45dd3a15b8c0d868c3fee5604b685b1bbb1996b339915ffae36365eadf57e",
+   "requested_state_digest": "84de906078f71d8430dbff4584a5b4bda33bb467dcfbb732b5cfb15af5c82b6f",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_13:P1": [
+     {
+      "detail": "12 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "5 declared",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "reveal_permission_declared"
+     },
+     {
+      "detail": "P1's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-0:P1"
+     },
+     {
+      "detail": "P2's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-0:P2"
+     },
+     {
+      "detail": "P3's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-0:P3"
+     },
+     {
+      "detail": "P4's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-0:P4"
+     },
+     {
+      "detail": "P1's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-1:P1"
+     },
+     {
+      "detail": "P2's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-1:P2"
+     },
+     {
+      "detail": "P3's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-1:P3"
+     },
+     {
+      "detail": "P4's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-1:P4"
+     },
+     {
+      "detail": "P1's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-2:P1"
+     },
+     {
+      "detail": "P2's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-2:P2"
+     },
+     {
+      "detail": "P3's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-2:P3"
+     },
+     {
+      "detail": "P4's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-2:P4"
+     },
+     {
+      "detail": "P1's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-3:P1"
+     },
+     {
+      "detail": "P2's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-3:P2"
+     },
+     {
+      "detail": "P3's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-3:P3"
+     },
+     {
+      "detail": "P4's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-3:P4"
+     },
+     {
+      "detail": "P1's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-4:P1"
+     },
+     {
+      "detail": "P2's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-4:P2"
+     },
+     {
+      "detail": "P3's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-4:P3"
+     },
+     {
+      "detail": "P4's revealed log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "reveal_reaches:obj:hidden13-lib-4:P4"
+     },
+     {
+      "detail": "3 pile frames, 0 forbidden occurrences",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "pile_frames_carry_only_entitled_identities:P1"
+     },
+     {
+      "detail": "3 pile frames, 0 forbidden occurrences",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "pile_frames_carry_only_entitled_identities:P2"
+     },
+     {
+      "detail": "0 pile frames, 0 forbidden occurrences",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "pile_frames_carry_only_entitled_identities:P3"
+     },
+     {
+      "detail": "0 pile frames, 0 forbidden occurrences",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "pile_frames_carry_only_entitled_identities:P4"
+     },
+     {
+      "detail": "6 pile frames across the table",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "pile_frames_observed"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_14": {
+   "channel_coverage": {
+    "ability_metadata": 248,
+    "context": 28,
+    "event": 9,
+    "log": 216,
+    "option_id": 175,
+    "option_label": 175,
+    "option_metadata": 175,
+    "pile_metadata": 0,
+    "prompt": 28,
+    "source_metadata": 28,
+    "state": 42,
+    "transcript": 200
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "11 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "1 face-down permanents the viewer does not control; 3 target offers of them",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "hidden_target_offered:P1"
+    },
+    {
+     "detail": "label/name ['', '']; 0 denied tokens",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "hidden_target_option_carries_no_identity:2d1de3fc-0fd7-4864-99c2-0250d9747cbd"
+    },
+    {
+     "detail": "label/name ['', '']; 0 denied tokens",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "hidden_target_option_carries_no_identity:2d1de3fc-0fd7-4864-99c2-0250d9747cbd"
+    },
+    {
+     "detail": "label/name ['', '']; 0 denied tokens",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "hidden_target_option_carries_no_identity:2d1de3fc-0fd7-4864-99c2-0250d9747cbd"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_14",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "b244f91f40014c959855e7a9516958be0c6688714c502c87682b5e46f6250115",
+   "receipt_digest": "d785b37839dd1f007a2ae456a83fc712ad2fb4dfd87cd9224cfdb8f60f72fa79",
+   "requested_state_digest": "8cc8579087bded540d4e4d35ae55673790831fda7b7cb29ebeff766e1deffe76",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_14:P1": [
+     {
+      "detail": "11 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "1 face-down permanents the viewer does not control; 3 target offers of them",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "hidden_target_offered:P1"
+     },
+     {
+      "detail": "label/name ['', '']; 0 denied tokens",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "hidden_target_option_carries_no_identity:2d1de3fc-0fd7-4864-99c2-0250d9747cbd"
+     },
+     {
+      "detail": "label/name ['', '']; 0 denied tokens",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "hidden_target_option_carries_no_identity:2d1de3fc-0fd7-4864-99c2-0250d9747cbd"
+     },
+     {
+      "detail": "label/name ['', '']; 0 denied tokens",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "hidden_target_option_carries_no_identity:2d1de3fc-0fd7-4864-99c2-0250d9747cbd"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_15": {
+   "channel_coverage": {
+    "ability_metadata": 336,
+    "context": 31,
+    "event": 12,
+    "log": 216,
+    "option_id": 225,
+    "option_label": 225,
+    "option_metadata": 225,
+    "pile_metadata": 0,
+    "prompt": 31,
+    "source_metadata": 31,
+    "state": 45,
+    "transcript": 200
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "9 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "1 face-down permanents the viewer does not control; 3 frames whose source is one of them",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "hidden_source_frame_reached:P1"
+    },
+    {
+     "detail": "source name ''; 0 denied tokens",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "hidden_source_frame_carries_no_identity:ecce258cf2132ab43818e4d906c0d97b0c617b939849a428b6a41040886f131c"
+    },
+    {
+     "detail": "source name ''; 0 denied tokens",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "hidden_source_frame_carries_no_identity:ecce258cf2132ab43818e4d906c0d97b0c617b939849a428b6a41040886f131c"
+    },
+    {
+     "detail": "source name ''; 0 denied tokens",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "hidden_source_frame_carries_no_identity:ecce258cf2132ab43818e4d906c0d97b0c617b939849a428b6a41040886f131c"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P3"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_15",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "5ce09655dc485d51df2f3647d4096f01361c518f846739d9ef6aad19f1cecae5",
+   "receipt_digest": "9193fcba90b4d04b7130e4205ef529c4f1166816fcafab34e9eb6f44589e10c3",
+   "requested_state_digest": "39b977ecaa4bfdf76dc4aca877b964bc4b1f79e009a0c0752bede5217f10c73e",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_15:P1": [
+     {
+      "detail": "9 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "1 face-down permanents the viewer does not control; 3 frames whose source is one of them",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "hidden_source_frame_reached:P1"
+     },
+     {
+      "detail": "source name ''; 0 denied tokens",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "hidden_source_frame_carries_no_identity:ecce258cf2132ab43818e4d906c0d97b0c617b939849a428b6a41040886f131c"
+     },
+     {
+      "detail": "source name ''; 0 denied tokens",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "hidden_source_frame_carries_no_identity:ecce258cf2132ab43818e4d906c0d97b0c617b939849a428b6a41040886f131c"
+     },
+     {
+      "detail": "source name ''; 0 denied tokens",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "hidden_source_frame_carries_no_identity:ecce258cf2132ab43818e4d906c0d97b0c617b939849a428b6a41040886f131c"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P3"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_16": {
+   "channel_coverage": {
+    "ability_metadata": 336,
+    "context": 31,
+    "event": 12,
+    "log": 216,
+    "option_id": 225,
+    "option_label": 225,
+    "option_metadata": 225,
+    "pile_metadata": 0,
+    "prompt": 31,
+    "source_metadata": 31,
+    "state": 45,
+    "transcript": 200
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0', 'then shuffle and put that card on top']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "each declared rules-text fragment is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_ability_text_in_request"
+    },
+    {
+     "detail": "9 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "1 face-down permanents the viewer does not control; 3 pieces of ability metadata about them",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "hidden_ability_metadata_reached:P1"
+    },
+    {
+     "detail": "4 documents; 0 denied tokens (including 1 declared rules-text fragments)",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "hidden_ability_metadata_carries_nothing_hidden:P1"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'then shuffle and put that card on top']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P3"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'then shuffle and put that card on top']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_16",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0",
+      "then shuffle and put that card on top"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "2b2b90d928b634be3a3e78f4772b32718873325c67c72cc6cf37a186c2c050c2",
+   "receipt_digest": "3a6dff1d0084de1d2e43090de86cdcc71e69533660ec7fad6460f3bacff0ee3b",
+   "requested_state_digest": "0007f93ad698e06214086955556d7023fda45115d562c8b1e3ce3bbe87c7594d",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_16:P1": [
+     {
+      "detail": "9 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "1 face-down permanents the viewer does not control; 3 pieces of ability metadata about them",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "hidden_ability_metadata_reached:P1"
+     },
+     {
+      "detail": "4 documents; 0 denied tokens (including 1 declared rules-text fragments)",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "hidden_ability_metadata_carries_nothing_hidden:P1"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'then shuffle and put that card on top']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P3"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'then shuffle and put that card on top']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_17": {
+   "channel_coverage": {
+    "ability_metadata": 322,
+    "context": 43,
+    "event": 11,
+    "log": 216,
+    "option_id": 221,
+    "option_label": 221,
+    "option_metadata": 221,
+    "pile_metadata": 0,
+    "prompt": 43,
+    "source_metadata": 43,
+    "state": 57,
+    "transcript": 245
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "16 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "1 face-down permanents the viewer does not control; 3 target offers of them",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "hidden_target_offered:P1"
+    },
+    {
+     "detail": "label/name ['', '']; 0 denied tokens",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "hidden_target_option_carries_no_identity:5e0c2825-0037-437f-842e-eb7811275db8"
+    },
+    {
+     "detail": "label/name ['', '']; 0 denied tokens",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "hidden_target_option_carries_no_identity:5e0c2825-0037-437f-842e-eb7811275db8"
+    },
+    {
+     "detail": "label/name ['', '']; 0 denied tokens",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "hidden_target_option_carries_no_identity:5e0c2825-0037-437f-842e-eb7811275db8"
+    },
+    {
+     "detail": "1 nameless face-up copies; 1 with only 2/2 and no identity",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "copy_has_only_face_down_characteristics"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Phantasmal Image', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden17-image']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P3"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Phantasmal Image', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden17-image']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_17",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "155b2dc95a97442270578b6f0935a0e52f8639ea9c5464d31b85cc726de15c47",
+   "receipt_digest": "52462b03b073a5d90725eeadd776dd0b75360b443567706b0a52a27cf99df91f",
+   "requested_state_digest": "01af4a435035c014b702b7514fc4c07a6cbdcf3c19818d736644d8d338b67357",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_17:P1": [
+     {
+      "detail": "16 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "1 face-down permanents the viewer does not control; 3 target offers of them",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "hidden_target_offered:P1"
+     },
+     {
+      "detail": "label/name ['', '']; 0 denied tokens",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "hidden_target_option_carries_no_identity:5e0c2825-0037-437f-842e-eb7811275db8"
+     },
+     {
+      "detail": "label/name ['', '']; 0 denied tokens",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "hidden_target_option_carries_no_identity:5e0c2825-0037-437f-842e-eb7811275db8"
+     },
+     {
+      "detail": "label/name ['', '']; 0 denied tokens",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "hidden_target_option_carries_no_identity:5e0c2825-0037-437f-842e-eb7811275db8"
+     },
+     {
+      "detail": "1 nameless face-up copies; 1 with only 2/2 and no identity",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "copy_has_only_face_down_characteristics"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Phantasmal Image', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden17-image']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P3"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Phantasmal Image', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden17-image']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_18": {
+   "channel_coverage": {
+    "ability_metadata": 182,
+    "context": 22,
+    "event": 7,
+    "log": 216,
+    "option_id": 127,
+    "option_label": 127,
+    "option_metadata": 127,
+    "pile_metadata": 0,
+    "prompt": 22,
+    "source_metadata": 22,
+    "state": 35,
+    "transcript": 146
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "2 scripted answers, complete=True",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scripted_event_executed"
+    },
+    {
+     "detail": "1 private known identities of 1",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "private_knowledge_declared"
+    },
+    {
+     "detail": "P1's looked_at log names the object: True",
+     "holds": true,
+     "kind": "ENTITLEMENT",
+     "name": "private_knowledge_reaches:obj:hidden-lib-0:P1"
+    },
+    {
+     "detail": "103 public documents; 0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "public_transcript_omits_private_state"
+    },
+    {
+     "detail": "0 occurrences of ['Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P2"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P3"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P4"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_18",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "8ae92e9b2f4da6ecd44a87eabf980ad14d10ee9b76b35c51665cc6cb89606372",
+   "receipt_digest": "9b3684354745059507987b7ac8305783262ca666d730d92854e1fcc8eb43061a",
+   "requested_state_digest": "57ca0473eea85c7875853cd30a5b1214b87f7fc201163970a1c9931043bbc43b",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_18:P1": [
+     {
+      "detail": "2 scripted answers, complete=True",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scripted_event_executed"
+     },
+     {
+      "detail": "1 private known identities of 1",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "private_knowledge_declared"
+     },
+     {
+      "detail": "P1's looked_at log names the object: True",
+      "holds": true,
+      "kind": "ENTITLEMENT",
+      "name": "private_knowledge_reaches:obj:hidden-lib-0:P1"
+     },
+     {
+      "detail": "103 public documents; 0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "public_transcript_omits_private_state"
+     },
+     {
+      "detail": "0 occurrences of ['Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P2"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P3"
+     },
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P4"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_19": {
+   "channel_coverage": {
+    "ability_metadata": 72,
+    "context": 11,
+    "event": 7,
+    "log": 216,
+    "option_id": 52,
+    "option_label": 52,
+    "option_metadata": 52,
+    "pile_metadata": 0,
+    "prompt": 11,
+    "source_metadata": 11,
+    "state": 24,
+    "transcript": 106
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    },
+    {
+     "detail": "static declaration, recorded but never sufficient on its own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "declared_no_omniscient_surface"
+    },
+    {
+     "detail": "declared scopes: {'get_midgame_projection': 'principal_scoped_required_requester', 'get_midgame_state': 'principal_scoped_required_requester_counts_only', 'get_midgame_decision': 'acting_principal_frame', 'get_legal_actions': 'acting_principal_frame', 'get_midgame_events': 'public_semantic_event_tape', 'get_rules_rng_tape': 'orchestration_keyed_digests_refused_without_launch_key', 'complete_midgame_arrival': 'principal_scoped_or_principal_neutral_opponent_hands_counts_only'}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "every_observation_scoped"
+    },
+    {
+     "detail": "the lane refused",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "omniscience_not_served:get_midgame_projection:{}"
+    },
+    {
+     "detail": "refusal code midgame_projection_failed",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "omniscience_refusal_typed:get_midgame_projection:{}"
+    },
+    {
+     "detail": "the lane refused",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "omniscience_not_served:get_midgame_projection:{\"actor_id\": \"*\"}"
+    },
+    {
+     "detail": "refusal code midgame_projection_failed",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "omniscience_refusal_typed:get_midgame_projection:{\"actor_id\": \"*\"}"
+    },
+    {
+     "detail": "the lane refused",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "omniscience_not_served:get_midgame_projection:{\"actor_id\": \"ALL\"}"
+    },
+    {
+     "detail": "refusal code midgame_projection_failed",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "omniscience_refusal_typed:get_midgame_projection:{\"actor_id\": \"ALL\"}"
+    },
+    {
+     "detail": "the lane refused",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "omniscience_not_served:get_midgame_projection:{\"actor_id\": \"P9\"}"
+    },
+    {
+     "detail": "refusal code midgame_projection_failed",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "omniscience_refusal_typed:get_midgame_projection:{\"actor_id\": \"P9\"}"
+    },
+    {
+     "detail": "the lane refused",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "omniscience_not_served:get_midgame_state:{}"
+    },
+    {
+     "detail": "refusal code midgame_state_failed",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "omniscience_refusal_typed:get_midgame_state:{}"
+    },
+    {
+     "detail": "the lane refused",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "omniscience_not_served:complete_midgame_arrival:{\"actor_id\": \"P9\"}"
+    },
+    {
+     "detail": "refusal code midgame_arrival_failed",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "omniscience_refusal_typed:complete_midgame_arrival:{\"actor_id\": \"P9\"}"
+    },
+    {
+     "detail": "the lane refused",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "omniscience_not_served:get_full_game_state:{}"
+    },
+    {
+     "detail": "refusal code unsupported_message",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "omniscience_refusal_typed:get_full_game_state:{}"
+    },
+    {
+     "detail": "the lane refused",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "omniscience_not_served:get_omniscient_state:{}"
+    },
+    {
+     "detail": "refusal code unsupported_message",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "omniscience_refusal_typed:get_omniscient_state:{}"
+    },
+    {
+     "detail": "the lane refused",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "omniscience_not_served:dump_engine_state:{}"
+    },
+    {
+     "detail": "refusal code unsupported_message",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "omniscience_refusal_typed:dump_engine_state:{}"
+    },
+    {
+     "detail": "the lane refused",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "omniscience_not_served:get_raw_engine_object_graph:{}"
+    },
+    {
+     "detail": "refusal code unsupported_message",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "omniscience_refusal_typed:get_raw_engine_object_graph:{}"
+    },
+    {
+     "detail": "the lane refused",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "omniscience_not_served:get_rules_rng_tape:{}"
+    },
+    {
+     "detail": "refusal code rules_rng_tape_failed",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "omniscience_refusal_typed:get_rules_rng_tape:{}"
+    },
+    {
+     "detail": "refusal message 'IllegalStateException: ORCHESTRATION_CHANNEL_NOT_ENABLED: this launch carries no orchestration key'",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "orchestration_channel_disabled:get_rules_rng_tape:{}"
+    },
+    {
+     "detail": "11 of 11 attempts made",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "omniscience_attempts_made"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:d8dcb8d5859c26b8fda01b73c3e65d9d9d476a43587741dbaaa1e38a2a4d31cb"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:0d0c7b523a1061b7f0b798b35b4a7994983e6720bbb17678698e0618ab433332"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:dc2782a0965111c7fbdf7347c912a3ad7ee0fd1440b88f55884b7679429bd29e"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:a9a21b7a24347bbf3ddfc757814681f2366a6692ee1b4bba59acd22a85b01b87"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:1a050805327ad4196c8a05488097306fc7f7067f6adc830edf01f313b0056751"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:0acd458ed5ab85659fb6e1483d1f2987b9453ec42347848fa5d428cc8ff46afc"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:961131ec0369360da7b944fde94f75ef53bf579f8c0ec40cf9ac2a41e903ba86"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:899aa87fb95a23c40ec5a8916614e7531f1602d3bdeefe67d34790b6c9d53bf1"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:1a2d0d594547126fc5e9b8bdd54c20d37fd163ad1a309cf0d9915a4ca30101d0"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:c984eabbe2d49f17126c77d3bac2d6fc7bdb338b4f0189a7fc34c46a43c41cf7"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:41bef0cf22dbf2b6eb3540048675b8f52bb7466e07ee23aee2a1821d307eac44"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:480bdacad8da08e5ac12b582057e8344d95e82ccc2b6845051f9a9e546a82e25"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:334a8abdb5cd337dc6297035e9ca88f1b5fcfffe5a1fa0b35fc1575e0ac1deba"
+    },
+    {
+     "detail": "every occurrence embeds the acting principal's own view",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "frame_carries_only_its_actor:ef2042c845fc2773df31d0cefc63d3a8d74d9e43263e7260b6214f8f43a6fbdd"
+    },
+    {
+     "detail": "14 decision frames observed",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "frames_observed"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_19",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "3fd311012eb0430981c0b59206edf9c9fdc10afa690edd5f30b968a45ab6976d",
+   "receipt_digest": "5853d79f46522d0bc90ed4237843a387a187f57368f9c24f16f155661e199c3f",
+   "requested_state_digest": "defc3acfc46c6860d4732c05c3c1f09ab54ed19dfab84a91128d8abfc1a58f4f",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_19:P1": [
+     {
+      "detail": "static declaration, recorded but never sufficient on its own",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "declared_no_omniscient_surface"
+     },
+     {
+      "detail": "declared scopes: {'get_midgame_projection': 'principal_scoped_required_requester', 'get_midgame_state': 'principal_scoped_required_requester_counts_only', 'get_midgame_decision': 'acting_principal_frame', 'get_legal_actions': 'acting_principal_frame', 'get_midgame_events': 'public_semantic_event_tape', 'get_rules_rng_tape': 'orchestration_keyed_digests_refused_without_launch_key', 'complete_midgame_arrival': 'principal_scoped_or_principal_neutral_opponent_hands_counts_only'}",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "every_observation_scoped"
+     },
+     {
+      "detail": "the lane refused",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "omniscience_not_served:get_midgame_projection:{}"
+     },
+     {
+      "detail": "refusal code midgame_projection_failed",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "omniscience_refusal_typed:get_midgame_projection:{}"
+     },
+     {
+      "detail": "the lane refused",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "omniscience_not_served:get_midgame_projection:{\"actor_id\": \"*\"}"
+     },
+     {
+      "detail": "refusal code midgame_projection_failed",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "omniscience_refusal_typed:get_midgame_projection:{\"actor_id\": \"*\"}"
+     },
+     {
+      "detail": "the lane refused",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "omniscience_not_served:get_midgame_projection:{\"actor_id\": \"ALL\"}"
+     },
+     {
+      "detail": "refusal code midgame_projection_failed",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "omniscience_refusal_typed:get_midgame_projection:{\"actor_id\": \"ALL\"}"
+     },
+     {
+      "detail": "the lane refused",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "omniscience_not_served:get_midgame_projection:{\"actor_id\": \"P9\"}"
+     },
+     {
+      "detail": "refusal code midgame_projection_failed",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "omniscience_refusal_typed:get_midgame_projection:{\"actor_id\": \"P9\"}"
+     },
+     {
+      "detail": "the lane refused",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "omniscience_not_served:get_midgame_state:{}"
+     },
+     {
+      "detail": "refusal code midgame_state_failed",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "omniscience_refusal_typed:get_midgame_state:{}"
+     },
+     {
+      "detail": "the lane refused",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "omniscience_not_served:complete_midgame_arrival:{\"actor_id\": \"P9\"}"
+     },
+     {
+      "detail": "refusal code midgame_arrival_failed",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "omniscience_refusal_typed:complete_midgame_arrival:{\"actor_id\": \"P9\"}"
+     },
+     {
+      "detail": "the lane refused",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "omniscience_not_served:get_full_game_state:{}"
+     },
+     {
+      "detail": "refusal code unsupported_message",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "omniscience_refusal_typed:get_full_game_state:{}"
+     },
+     {
+      "detail": "the lane refused",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "omniscience_not_served:get_omniscient_state:{}"
+     },
+     {
+      "detail": "refusal code unsupported_message",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "omniscience_refusal_typed:get_omniscient_state:{}"
+     },
+     {
+      "detail": "the lane refused",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "omniscience_not_served:dump_engine_state:{}"
+     },
+     {
+      "detail": "refusal code unsupported_message",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "omniscience_refusal_typed:dump_engine_state:{}"
+     },
+     {
+      "detail": "the lane refused",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "omniscience_not_served:get_raw_engine_object_graph:{}"
+     },
+     {
+      "detail": "refusal code unsupported_message",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "omniscience_refusal_typed:get_raw_engine_object_graph:{}"
+     },
+     {
+      "detail": "the lane refused",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "omniscience_not_served:get_rules_rng_tape:{}"
+     },
+     {
+      "detail": "refusal code rules_rng_tape_failed",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "omniscience_refusal_typed:get_rules_rng_tape:{}"
+     },
+     {
+      "detail": "refusal message 'IllegalStateException: ORCHESTRATION_CHANNEL_NOT_ENABLED: this launch carries no orchestration key'",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "orchestration_channel_disabled:get_rules_rng_tape:{}"
+     },
+     {
+      "detail": "11 of 11 attempts made",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "omniscience_attempts_made"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:d8dcb8d5859c26b8fda01b73c3e65d9d9d476a43587741dbaaa1e38a2a4d31cb"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:0d0c7b523a1061b7f0b798b35b4a7994983e6720bbb17678698e0618ab433332"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:dc2782a0965111c7fbdf7347c912a3ad7ee0fd1440b88f55884b7679429bd29e"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:a9a21b7a24347bbf3ddfc757814681f2366a6692ee1b4bba59acd22a85b01b87"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:1a050805327ad4196c8a05488097306fc7f7067f6adc830edf01f313b0056751"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:0acd458ed5ab85659fb6e1483d1f2987b9453ec42347848fa5d428cc8ff46afc"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:961131ec0369360da7b944fde94f75ef53bf579f8c0ec40cf9ac2a41e903ba86"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:899aa87fb95a23c40ec5a8916614e7531f1602d3bdeefe67d34790b6c9d53bf1"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:1a2d0d594547126fc5e9b8bdd54c20d37fd163ad1a309cf0d9915a4ca30101d0"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:c984eabbe2d49f17126c77d3bac2d6fc7bdb338b4f0189a7fc34c46a43c41cf7"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:41bef0cf22dbf2b6eb3540048675b8f52bb7466e07ee23aee2a1821d307eac44"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:480bdacad8da08e5ac12b582057e8344d95e82ccc2b6845051f9a9e546a82e25"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:334a8abdb5cd337dc6297035e9ca88f1b5fcfffe5a1fa0b35fc1575e0ac1deba"
+     },
+     {
+      "detail": "every occurrence embeds the acting principal's own view",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "frame_carries_only_its_actor:ef2042c845fc2773df31d0cefc63d3a8d74d9e43263e7260b6214f8f43a6fbdd"
+     },
+     {
+      "detail": "14 decision frames observed",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "frames_observed"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  },
+  "HIDDEN_HONEYCARD_SENTINEL": {
+   "channel_coverage": {
+    "ability_metadata": 72,
+    "context": 11,
+    "event": 7,
+    "log": 216,
+    "option_id": 52,
+    "option_label": 52,
+    "option_metadata": 52,
+    "pile_metadata": 0,
+    "prompt": 11,
+    "source_metadata": 11,
+    "state": 24,
+    "transcript": 106
+   },
+   "checks": [
+    {
+     "detail": "arrival EXACT, construction_match True, mismatches []",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "construction_exact"
+    },
+    {
+     "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "lossless_checks_performed"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P1"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P2"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P3"
+    },
+    {
+     "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "projection_bound_to:P4"
+    },
+    {
+     "detail": "4 distinct principal ids for 4 seats",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "distinct_principals"
+    },
+    {
+     "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+     "holds": true,
+     "kind": "LEAK",
+     "name": "no_forbidden_token_in_channels_of:P1"
+    },
+    {
+     "detail": "every channel carried content",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scan_coverage"
+    },
+    {
+     "detail": "each honey sentinel is found in the harness's own create request",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_sentinel_in_request"
+    },
+    {
+     "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+     "holds": true,
+     "kind": "MEASURED",
+     "name": "scanner_detects_honey_identity_where_entitled"
+    }
+   ],
+   "classification": "VERIFIED",
+   "detail": "every check holds",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+   "forbidden_evidence": {
+    "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+     "ambiguous_tokens_not_scanned": {},
+     "occurrences": [],
+     "tokens_scanned": [
+      "Demonic Tutor",
+      "Vampiric Tutor",
+      "WS30_HONEY_P2_PRIVATE_7F3A",
+      "obj:hidden-hand",
+      "obj:hidden-lib-0"
+     ]
+    }
+   },
+   "log_chars": 216,
+   "obligation_digest": "b1f56da10218cb37d19f45db5770ada4f312a0d60e4d113365cef6ec51324669",
+   "receipt_digest": "5bfa8b40e12fb74b4383a7dfa6d841b3b0d4ff785bd476c48520d6feb207cb57",
+   "requested_state_digest": "4e62eace44ca69b764d8c45ab3dd3c7f0c9bbb17a11ce7e46d5faaa65e06945e",
+   "token_evidence": {
+    "knowledge_projection:HIDDEN_HONEYCARD_SENTINEL:P1": [
+     {
+      "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+      "holds": true,
+      "kind": "LEAK",
+      "name": "no_forbidden_token_in_channels_of:P1"
+     },
+     {
+      "detail": "every channel carried content",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scan_coverage"
+     },
+     {
+      "detail": "each honey sentinel is found in the harness's own create request",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scanner_detects_sentinel_in_request"
+     },
+     {
+      "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+      "holds": true,
+      "kind": "MEASURED",
+      "name": "scanner_detects_honey_identity_where_entitled"
+     }
+    ]
+   },
+   "verified": true,
+   "viewer": "P1"
+  }
+ },
+ "rows_declared": 20,
+ "rows_failed": [],
+ "rows_verified": 20,
+ "runner_digest": "b2a35d8d943e21b32e9f18d06431b330cc33d244b21959dbffa37dfd53479ee0",
+ "schema_version": "commander-lab.knowledge-projection-executions/1.0.0",
+ "viewer": "P1"
+}

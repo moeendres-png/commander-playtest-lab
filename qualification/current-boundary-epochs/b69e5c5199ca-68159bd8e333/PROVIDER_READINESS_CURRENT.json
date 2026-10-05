@@ -1,0 +1,2388 @@
+{
+ "af11": "DEFERRED_UNTIL_AFTER_PROVIDER_SELECTION",
+ "architecture_freeze": "NOT_CLAIMED",
+ "candidates": {
+  "forge": {
+   "af00_af10": [
+    {
+     "blocking_rows": [],
+     "bridge_identity_proof": {
+      "actual_bridge_module_tree": "3fac19bfd1b29718e29774935fd6bb1a3471b181",
+      "actual_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+      "bridge_module": "forge-protocol2-bridge",
+      "detail": "the executing checkout's forge-protocol2-bridge module tree is identical to the bound bridge/evidence commit's, so the bridge that executes is the bridge the evidence is about; the Rules Core is bound separately by tree equivalence",
+      "expected_bridge_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+      "expected_bridge_module_tree": "3fac19bfd1b29718e29774935fd6bb1a3471b181",
+      "expected_bridge_tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+      "identical": true,
+      "justification": "EXACT_BRIDGE_COMMIT",
+      "recorded_commit_tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e"
+     },
+     "build_provenance": {
+      "af00_credit": true,
+      "build_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+      "build_dirty": "false",
+      "build_source": "build:bridge.properties:git",
+      "build_tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+      "engine_commit_verified": true,
+      "expected_rules_core": null,
+      "expected_source_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+      "expected_tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+      "findings": [],
+      "pb05_credit": true,
+      "rule": "no verified build provenance means no AF00 or PB-05 credit; an unknown or dirty build source is never treated as clean"
+     },
+     "evidence": [
+      "provider/build source commit: ee37e4a52d99401ba57fba7ca516ac01f1981161",
+      "provider/build source tree: b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+      "provider reported commit: ee37e4a52d99401ba57fba7ca516ac01f1981161",
+      "provider build provenance verified: True",
+      "R-1 Rules-Core candidate commit: bb0a740d2bef725194798383c2452213ecdd0b37",
+      "R-1 Rules-Core candidate tree: 4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+      "Rules-Core equivalence: RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+      "bridge identity binding: EXACT_BRIDGE_COMMIT",
+      "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json"
+     ],
+     "gate": "AF00",
+     "name": "SOURCE_AND_BUILD_LOCK",
+     "nonblocking_limitations": [],
+     "rules_core_identity_proof": {
+      "actual_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+      "compared_module_roots": [
+       "forge-game",
+       "forge-core",
+       "forge-ai",
+       "forge-gui",
+       "forge-gui-desktop",
+       "adventure-editor"
+      ],
+      "detail": "the commits differ only outside the Forge Rules-Core main sources, so the Rules Core that executed is the Rules Core the evidence is about. The bridge module is deliberately excluded and is bound as a separate identity.",
+      "differing_modules": [],
+      "engine_equivalent": true,
+      "justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+      "modules": {
+       "adventure-editor": {
+        "actual_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7",
+        "identical": true,
+        "recorded_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7"
+       },
+       "forge-ai": {
+        "actual_tree": "3e500340675e9030cc56f38f5560e286f03defef",
+        "identical": true,
+        "recorded_tree": "3e500340675e9030cc56f38f5560e286f03defef"
+       },
+       "forge-core": {
+        "actual_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d",
+        "identical": true,
+        "recorded_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d"
+       },
+       "forge-game": {
+        "actual_tree": "3d31b13fbc8db6963998af551724ea3ff775f625",
+        "identical": true,
+        "recorded_tree": "3d31b13fbc8db6963998af551724ea3ff775f625"
+       },
+       "forge-gui": {
+        "actual_tree": "8e5f32179943df1d824597e219617f21627b1881",
+        "identical": true,
+        "recorded_tree": "8e5f32179943df1d824597e219617f21627b1881"
+       },
+       "forge-gui-desktop": {
+        "actual_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc",
+        "identical": true,
+        "recorded_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc"
+       }
+      },
+      "one_sided_modules": [],
+      "recorded_commit": "bb0a740d2bef725194798383c2452213ecdd0b37"
+     },
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "20 AF01 v2 invariants executed under Protocol 2.0.0 on the protocol2-jsonl lane",
+      "AF01_*_FORGE.json"
+     ],
+     "gate": "AF01",
+     "name": "PROTOCOL_HANDSHAKE",
+     "nonblocking_limitations": [],
+     "verdict": "PASS"
+    },
+    {
+     "all_or_nothing": true,
+     "blocking_rows": [],
+     "evidence": [
+      "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+      "counts with a complete lifecycle: [2, 3, 4, 5]",
+      "counts without one: []",
+      "bounded 6P lifecycle recorded: True"
+     ],
+     "gate": "AF02",
+     "lifecycle_assessment": {
+      "all_or_nothing": true,
+      "complete_counts": [
+       2,
+       3,
+       4,
+       5
+      ],
+      "detail": {
+       "2P": {
+        "bound_external_choices": 2,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       },
+       "3P": {
+        "bound_external_choices": 2,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       },
+       "4P": {
+        "bound_external_choices": 2,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       },
+       "5P": {
+        "bound_external_choices": 2,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       }
+      },
+      "incomplete_counts": [],
+      "reason": "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+      "required_counts": [
+       2,
+       3,
+       4,
+       5
+      ],
+      "verdict": "PASS"
+     },
+     "name": "PLAYER_CARDINALITY",
+     "nonblocking_limitations": [
+      "6P is bounded secondary evidence; 7P is not attempted on this boundary"
+     ],
+     "verdict": "PASS"
+    },
+    {
+     "authority": "ENGINE_ONLY",
+     "blocking_rows": [],
+     "evidence": [
+      "deck_import_rejects_unknown_card: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_non_commander: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_colour_identity_violation: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_wrong_deck_size: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_empty_mainboard: PASS (the engine refused the mutated deck at the import boundary)"
+     ],
+     "gate": "AF03",
+     "name": "RULES_AUTHORITY",
+     "nonblocking_limitations": [
+      "proves the engine refuses these specific illegality classes at the import boundary; it is not an exhaustive proof of deck legality"
+     ],
+     "observed_probe_count": 5,
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [],
+     "decision_boundary": {
+      "bounded_secondary_cardinalities_checked": [
+       "6P"
+      ],
+      "candidate": "forge",
+      "contradictions": [],
+      "externally_answered_decision_classes": [
+       "MULLIGAN",
+       "PRIORITY",
+       "STARTING_PLAYER"
+      ],
+      "frame_count": 30,
+      "frames": [
+       {
+        "actor": "p1",
+        "cardinality": "2P",
+        "chosen_option_id": "opt-6533769d-d22c-4e94-9546-036b7d2dc79f",
+        "detail": "STARTING_PLAYER answered by p1 at revision 1; 2 engine-offered option(s); chosen='opt-6533769d-d22c-4e94-9546-036b7d2dc79f'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "STARTING_PLAYER",
+        "offered_count": 2,
+        "revision": 1
+       },
+       {
+        "actor": "p1",
+        "cardinality": "2P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "p2",
+        "cardinality": "2P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "p1",
+        "cardinality": "2P",
+        "chosen_option_id": "opt-b4580efa-6fb0-44fe-b2c6-59364be887f0",
+        "detail": "PRIORITY answered by p1 at revision 4; 2 engine-offered option(s); chosen='opt-b4580efa-6fb0-44fe-b2c6-59364be887f0'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "PRIORITY",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "p2",
+        "cardinality": "3P",
+        "chosen_option_id": "opt-28d070b2-4081-43a2-b642-981e64d4f2b1",
+        "detail": "STARTING_PLAYER answered by p2 at revision 1; 3 engine-offered option(s); chosen='opt-28d070b2-4081-43a2-b642-981e64d4f2b1'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "STARTING_PLAYER",
+        "offered_count": 3,
+        "revision": 1
+       },
+       {
+        "actor": "p1",
+        "cardinality": "3P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "p2",
+        "cardinality": "3P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "p3",
+        "cardinality": "3P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "p1",
+        "cardinality": "3P",
+        "chosen_option_id": "opt-7ffeff7c-c99a-40cd-a856-a586674a5bb7",
+        "detail": "PRIORITY answered by p1 at revision 5; 2 engine-offered option(s); chosen='opt-7ffeff7c-c99a-40cd-a856-a586674a5bb7'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "PRIORITY",
+        "offered_count": 2,
+        "revision": 5
+       },
+       {
+        "actor": "p3",
+        "cardinality": "4P",
+        "chosen_option_id": "opt-aaf99226-c8fd-48cf-b9a9-cbf72bb7e4cf",
+        "detail": "STARTING_PLAYER answered by p3 at revision 1; 4 engine-offered option(s); chosen='opt-aaf99226-c8fd-48cf-b9a9-cbf72bb7e4cf'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "STARTING_PLAYER",
+        "offered_count": 4,
+        "revision": 1
+       },
+       {
+        "actor": "p1",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "p2",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "p3",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "p4",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 5
+       },
+       {
+        "actor": "p1",
+        "cardinality": "4P",
+        "chosen_option_id": "opt-8a977626-97bb-45e1-a15a-46964dc32e25",
+        "detail": "PRIORITY answered by p1 at revision 6; 2 engine-offered option(s); chosen='opt-8a977626-97bb-45e1-a15a-46964dc32e25'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "PRIORITY",
+        "offered_count": 2,
+        "revision": 6
+       },
+       {
+        "actor": "p3",
+        "cardinality": "5P",
+        "chosen_option_id": "opt-1fbb46f5-08aa-4e16-b7f5-920844567bf6",
+        "detail": "STARTING_PLAYER answered by p3 at revision 1; 5 engine-offered option(s); chosen='opt-1fbb46f5-08aa-4e16-b7f5-920844567bf6'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "STARTING_PLAYER",
+        "offered_count": 5,
+        "revision": 1
+       },
+       {
+        "actor": "p1",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "p2",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "p3",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "p4",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 5
+       },
+       {
+        "actor": "p5",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p5 at revision 6; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 6
+       },
+       {
+        "actor": "p1",
+        "cardinality": "5P",
+        "chosen_option_id": "opt-e6c4a301-89d2-4800-acbb-b7e71f868d46",
+        "detail": "PRIORITY answered by p1 at revision 7; 2 engine-offered option(s); chosen='opt-e6c4a301-89d2-4800-acbb-b7e71f868d46'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "PRIORITY",
+        "offered_count": 2,
+        "revision": 7
+       },
+       {
+        "actor": "p2",
+        "cardinality": "6P",
+        "chosen_option_id": "opt-e986f104-ca70-4eea-9a73-979f84beee1d",
+        "detail": "STARTING_PLAYER answered by p2 at revision 1; 6 engine-offered option(s); chosen='opt-e986f104-ca70-4eea-9a73-979f84beee1d'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "STARTING_PLAYER",
+        "offered_count": 6,
+        "revision": 1
+       },
+       {
+        "actor": "p1",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "p2",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "p3",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "p4",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 5
+       },
+       {
+        "actor": "p5",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p5 at revision 6; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 6
+       },
+       {
+        "actor": "p6",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by p6 at revision 7; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 7
+       },
+       {
+        "actor": "p1",
+        "cardinality": "6P",
+        "chosen_option_id": "opt-38511fbb-6a28-4426-b72a-08902ff9fa7a",
+        "detail": "PRIORITY answered by p1 at revision 8; 2 engine-offered option(s); chosen='opt-38511fbb-6a28-4426-b72a-08902ff9fa7a'; engine reported the decision executed",
+        "engine_accepted": true,
+        "engine_executed_option_id": null,
+        "kind": "PRIORITY",
+        "offered_count": 2,
+        "revision": 8
+       }
+      ],
+      "gaps": [],
+      "gate": "AF04",
+      "limitations": [
+       {
+        "actor": null,
+        "cardinality": "-",
+        "detail": "Forge responses carry no executed-actor field; the actor binding rests on the frame-supplied actor/revision plus the engine's stale-revision and wrong-actor rejection, not on a response-side identity",
+        "kind": "ACTOR_BINDING",
+        "severity": "NOTE"
+       }
+      ],
+      "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+      "required_cardinalities": [
+       "2P",
+       "3P",
+       "4P",
+       "5P"
+      ],
+      "required_frame_counts": {
+       "2P": 4,
+       "3P": 5,
+       "4P": 6,
+       "5P": 7
+      },
+      "schema_version": "commander-lab.af04-decision-boundary/1.0.0",
+      "statement": "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback",
+      "verdict": "PASS"
+     },
+     "evidence": [
+      "AF04 derived from this epoch's external decision frames (30 frame(s) across 2P, 3P, 4P, 5P); externally answered classes: MULLIGAN, PRIORITY, STARTING_PLAYER",
+      "decision identity provenance on the live AF01 frame (R-2): {'byte_matched': {'actor_id': True, 'revision': True}, 'identity_field': 'revision', 'pass_identity_offered': True, 'submitted_fields': ['actor_id', 'revision'], 'verified': True}",
+      "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback"
+     ],
+     "gate": "AF04",
+     "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+     "nonblocking_limitations": [
+      "every frame in this epoch's decision tape was answered from the engine-offered domain with a recorded engine acceptance; a decision class absent from the tape is not claimed as exercised"
+     ],
+     "owner_ruling": "R-2",
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [
+      "HIDDEN_01",
+      "HIDDEN_02",
+      "HIDDEN_03",
+      "HIDDEN_04",
+      "HIDDEN_05",
+      "HIDDEN_06",
+      "HIDDEN_07",
+      "HIDDEN_08",
+      "HIDDEN_09",
+      "HIDDEN_10",
+      "HIDDEN_11",
+      "HIDDEN_12",
+      "HIDDEN_13",
+      "HIDDEN_14",
+      "HIDDEN_15",
+      "HIDDEN_16",
+      "HIDDEN_17",
+      "HIDDEN_18",
+      "HIDDEN_19",
+      "HIDDEN_HONEYCARD_SENTINEL"
+     ],
+     "evidence": [
+      "0 of 20 HIDDEN_* rows PASS in this epoch",
+      "principal-scoping audit: NONE"
+     ],
+     "gate": "AF05",
+     "name": "HIDDEN_INFORMATION",
+     "nonblocking_limitations": [
+      "the mandatory per-scenario hidden channels remain unexecuted: HIDDEN_01: UNKNOWN, HIDDEN_02: UNKNOWN, HIDDEN_03: UNKNOWN, HIDDEN_04: UNKNOWN, HIDDEN_05: UNKNOWN, HIDDEN_06: UNKNOWN, HIDDEN_07: UNKNOWN, HIDDEN_08: UNKNOWN, HIDDEN_09: UNKNOWN, HIDDEN_10: UNKNOWN, HIDDEN_11: UNKNOWN, HIDDEN_12: UNKNOWN, HIDDEN_13: UNKNOWN, HIDDEN_14: UNKNOWN, HIDDEN_15: UNKNOWN, HIDDEN_16: UNKNOWN, HIDDEN_17: UNKNOWN, HIDDEN_18: UNKNOWN, HIDDEN_19: UNKNOWN, HIDDEN_HONEYCARD_SENTINEL: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "MICRO_COMBAT",
+      "MICRO_CONTINUOUS_EFFECTS",
+      "MICRO_CONTROL",
+      "MICRO_COPY",
+      "MICRO_COSTS",
+      "MICRO_MANA_PAYMENT",
+      "MICRO_MODES",
+      "MICRO_PREVENTION",
+      "MICRO_PRIORITY",
+      "MICRO_REPLACEMENT",
+      "MICRO_RULES_RANDOMNESS",
+      "MICRO_STACK",
+      "MICRO_STATE_BASED_ACTIONS",
+      "MICRO_TRIGGERS",
+      "MICRO_ZONE_CHANGES",
+      "PILOT_DECLARE_ATTACKER",
+      "PILOT_DECLARE_BLOCKER",
+      "WS05-CMD-DMG-CONTROL",
+      "WS05-CMD-DMG-SAME-21",
+      "WS05-CMD-ELIM-4",
+      "WS05-CMD-ZONE-LIB-NO",
+      "WS05-CMD-ZONE-LIB-YES",
+      "WS05-MP-BLOCK-4",
+      "WS05-MP-COMBAT-4",
+      "WS05-MP-COMBAT-5",
+      "WS05-MP-ELIM-CONTROL-3",
+      "WS05-MP-ELIM-STACK-3",
+      "WS05-MP-ELIM-TURN-3",
+      "WS05-MP-PRIO-3",
+      "WS05-MP-PRIO-5",
+      "WS05-MP-TRIG-3",
+      "WS05-MP-TRIG-5",
+      "WS05-MP-TURN-3",
+      "WS05-MP-TURN-5"
+     ],
+     "evidence": [
+      "17 of 107 rows PASS under the effective contract; 34 BLOCKED; 56 UNKNOWN"
+     ],
+     "gate": "AF06",
+     "name": "GENERAL_RULES_CORRECTNESS",
+     "nonblocking_limitations": [
+      "90 of 107 denominator obligations are not PASS on this boundary; every one of them is an unexecuted or unproven mechanism, not a PASS"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "CARD_02"
+     ],
+     "evidence": [
+      "0 of 29 frozen corpus identities have their own mandatory CARD_* row PASS in this epoch",
+      "no same-epoch actual-card campaign credit was supplied",
+      "the artifact's own summary reports 0 of 29 (written before the mid-game lane runs; the row states above are authoritative)"
+     ],
+     "gate": "AF07",
+     "name": "ACTUAL_CARD_BEHAVIOR",
+     "nonblocking_limitations": [
+      "the effective 29-card actual-card corpus is not fully executed on this boundary; import/construction is not behaviour proof",
+      "29 corpus identities are unexecuted: Basilisk Collar, Bolt Bend, Boseiju Reaches Skyward // Branch of Boseiju, Burn Down the House, Butcher of Malakir, Dig Through Time, Esior, Wardwing Familiar, Finale of Revelation, Find // Finality, Flare of Duplication and 19 more"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "WS05-CMD-DMG-CONTROL",
+      "WS05-CMD-DMG-SAME-21",
+      "WS05-CMD-ELIM-4",
+      "WS05-CMD-MULL-2",
+      "WS05-CMD-MULL-4",
+      "WS05-CMD-PARTNER-TAX",
+      "WS05-CMD-START-2",
+      "WS05-CMD-START-3",
+      "WS05-CMD-TAX-2",
+      "WS05-CMD-TAX-4",
+      "WS05-CMD-ZONE-LIB-NO",
+      "WS05-CMD-ZONE-LIB-YES",
+      "WS05-MP-BLOCK-4",
+      "WS05-MP-COMBAT-4",
+      "WS05-MP-COMBAT-5",
+      "WS05-MP-ELIM-CONTROL-3",
+      "WS05-MP-ELIM-STACK-3",
+      "WS05-MP-ELIM-TURN-3",
+      "WS05-MP-PRIO-3",
+      "WS05-MP-PRIO-5",
+      "WS05-MP-TRIG-3",
+      "WS05-MP-TRIG-5",
+      "WS05-MP-TURN-3",
+      "WS05-MP-TURN-5"
+     ],
+     "evidence": [
+      "12 of 36 WS05 multiplayer/Commander obligations PASS",
+      "cardinality lifecycle: PASS (every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0)"
+     ],
+     "gate": "AF08",
+     "name": "MULTIPLAYER_COMMANDER",
+     "nonblocking_limitations": [
+      "24 WS05 obligations are not PASS: WS05-CMD-DMG-CONTROL: BLOCKED, WS05-CMD-DMG-SAME-21: BLOCKED, WS05-CMD-ELIM-4: BLOCKED, WS05-CMD-MULL-2: UNKNOWN, WS05-CMD-MULL-4: UNKNOWN, WS05-CMD-PARTNER-TAX: UNKNOWN, WS05-CMD-START-2: UNKNOWN, WS05-CMD-START-3: UNKNOWN, WS05-CMD-TAX-2: UNKNOWN, WS05-CMD-TAX-4: UNKNOWN, WS05-CMD-ZONE-LIB-NO: BLOCKED, WS05-CMD-ZONE-LIB-YES: BLOCKED, WS05-MP-BLOCK-4: BLOCKED, WS05-MP-COMBAT-4: BLOCKED, WS05-MP-COMBAT-5: BLOCKED and 9 more"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "REPLAY_CLEAN_PROCESS",
+      "REPLAY_DECISION_TAPE",
+      "REPLAY_EVENT_TAPE",
+      "REPLAY_STATE_HASHES",
+      "RNG_RULES_TAPE"
+     ],
+     "evidence": [
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, never a demonstrated Rules RNG tape",
+      "replay export was refused by the engine (codes: unknown_message)",
+      "replay export attempted in a live game and refused by the engine (RNG_REPLAY_FORGE.json; refusal codes: unknown_message)",
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, not a demonstrated Rules RNG tape"
+     ],
+     "gate": "AF09",
+     "name": "RNG_REPLAY",
+     "nonblocking_limitations": [
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "deterministic setup alone (deck import, game creation, seed acknowledgement) is not semantic replay proof",
+      "the clean-process twin half of each replay obligation is not proven per fixture",
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "the clean-process semantic replay twin is not proven for this candidate: the artifact does not carry the required twin evidence (fixture_identity, process_identity, decisions, rules_rng, semantic_events, checkpoint_state_hashes, terminal_outcome)",
+      "5 replay/RNG obligations are not PASS: REPLAY_CLEAN_PROCESS: UNKNOWN, REPLAY_DECISION_TAPE: UNKNOWN, REPLAY_EVENT_TAPE: UNKNOWN, REPLAY_STATE_HASHES: UNKNOWN, RNG_RULES_TAPE: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "denominator accounting complete: 107 explicit outcomes for 107 rows",
+      "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
+      "native suites: 218 tests, all green"
+     ],
+     "gate": "AF10",
+     "name": "RUNTIME_EVIDENCE_RELIABILITY",
+     "nonblocking_limitations": [],
+     "verdict": "PASS"
+    }
+   ],
+   "af00_af10_non_pass": [
+    {
+     "blocking_rows": [
+      "HIDDEN_01",
+      "HIDDEN_02",
+      "HIDDEN_03",
+      "HIDDEN_04",
+      "HIDDEN_05",
+      "HIDDEN_06",
+      "HIDDEN_07",
+      "HIDDEN_08",
+      "HIDDEN_09",
+      "HIDDEN_10",
+      "HIDDEN_11",
+      "HIDDEN_12",
+      "HIDDEN_13",
+      "HIDDEN_14",
+      "HIDDEN_15",
+      "HIDDEN_16",
+      "HIDDEN_17",
+      "HIDDEN_18",
+      "HIDDEN_19",
+      "HIDDEN_HONEYCARD_SENTINEL"
+     ],
+     "evidence": [
+      "0 of 20 HIDDEN_* rows PASS in this epoch",
+      "principal-scoping audit: NONE"
+     ],
+     "gate": "AF05",
+     "name": "HIDDEN_INFORMATION",
+     "nonblocking_limitations": [
+      "the mandatory per-scenario hidden channels remain unexecuted: HIDDEN_01: UNKNOWN, HIDDEN_02: UNKNOWN, HIDDEN_03: UNKNOWN, HIDDEN_04: UNKNOWN, HIDDEN_05: UNKNOWN, HIDDEN_06: UNKNOWN, HIDDEN_07: UNKNOWN, HIDDEN_08: UNKNOWN, HIDDEN_09: UNKNOWN, HIDDEN_10: UNKNOWN, HIDDEN_11: UNKNOWN, HIDDEN_12: UNKNOWN, HIDDEN_13: UNKNOWN, HIDDEN_14: UNKNOWN, HIDDEN_15: UNKNOWN, HIDDEN_16: UNKNOWN, HIDDEN_17: UNKNOWN, HIDDEN_18: UNKNOWN, HIDDEN_19: UNKNOWN, HIDDEN_HONEYCARD_SENTINEL: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "MICRO_COMBAT",
+      "MICRO_CONTINUOUS_EFFECTS",
+      "MICRO_CONTROL",
+      "MICRO_COPY",
+      "MICRO_COSTS",
+      "MICRO_MANA_PAYMENT",
+      "MICRO_MODES",
+      "MICRO_PREVENTION",
+      "MICRO_PRIORITY",
+      "MICRO_REPLACEMENT",
+      "MICRO_RULES_RANDOMNESS",
+      "MICRO_STACK",
+      "MICRO_STATE_BASED_ACTIONS",
+      "MICRO_TRIGGERS",
+      "MICRO_ZONE_CHANGES",
+      "PILOT_DECLARE_ATTACKER",
+      "PILOT_DECLARE_BLOCKER",
+      "WS05-CMD-DMG-CONTROL",
+      "WS05-CMD-DMG-SAME-21",
+      "WS05-CMD-ELIM-4",
+      "WS05-CMD-ZONE-LIB-NO",
+      "WS05-CMD-ZONE-LIB-YES",
+      "WS05-MP-BLOCK-4",
+      "WS05-MP-COMBAT-4",
+      "WS05-MP-COMBAT-5",
+      "WS05-MP-ELIM-CONTROL-3",
+      "WS05-MP-ELIM-STACK-3",
+      "WS05-MP-ELIM-TURN-3",
+      "WS05-MP-PRIO-3",
+      "WS05-MP-PRIO-5",
+      "WS05-MP-TRIG-3",
+      "WS05-MP-TRIG-5",
+      "WS05-MP-TURN-3",
+      "WS05-MP-TURN-5"
+     ],
+     "evidence": [
+      "17 of 107 rows PASS under the effective contract; 34 BLOCKED; 56 UNKNOWN"
+     ],
+     "gate": "AF06",
+     "name": "GENERAL_RULES_CORRECTNESS",
+     "nonblocking_limitations": [
+      "90 of 107 denominator obligations are not PASS on this boundary; every one of them is an unexecuted or unproven mechanism, not a PASS"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "CARD_02"
+     ],
+     "evidence": [
+      "0 of 29 frozen corpus identities have their own mandatory CARD_* row PASS in this epoch",
+      "no same-epoch actual-card campaign credit was supplied",
+      "the artifact's own summary reports 0 of 29 (written before the mid-game lane runs; the row states above are authoritative)"
+     ],
+     "gate": "AF07",
+     "name": "ACTUAL_CARD_BEHAVIOR",
+     "nonblocking_limitations": [
+      "the effective 29-card actual-card corpus is not fully executed on this boundary; import/construction is not behaviour proof",
+      "29 corpus identities are unexecuted: Basilisk Collar, Bolt Bend, Boseiju Reaches Skyward // Branch of Boseiju, Burn Down the House, Butcher of Malakir, Dig Through Time, Esior, Wardwing Familiar, Finale of Revelation, Find // Finality, Flare of Duplication and 19 more"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "WS05-CMD-DMG-CONTROL",
+      "WS05-CMD-DMG-SAME-21",
+      "WS05-CMD-ELIM-4",
+      "WS05-CMD-MULL-2",
+      "WS05-CMD-MULL-4",
+      "WS05-CMD-PARTNER-TAX",
+      "WS05-CMD-START-2",
+      "WS05-CMD-START-3",
+      "WS05-CMD-TAX-2",
+      "WS05-CMD-TAX-4",
+      "WS05-CMD-ZONE-LIB-NO",
+      "WS05-CMD-ZONE-LIB-YES",
+      "WS05-MP-BLOCK-4",
+      "WS05-MP-COMBAT-4",
+      "WS05-MP-COMBAT-5",
+      "WS05-MP-ELIM-CONTROL-3",
+      "WS05-MP-ELIM-STACK-3",
+      "WS05-MP-ELIM-TURN-3",
+      "WS05-MP-PRIO-3",
+      "WS05-MP-PRIO-5",
+      "WS05-MP-TRIG-3",
+      "WS05-MP-TRIG-5",
+      "WS05-MP-TURN-3",
+      "WS05-MP-TURN-5"
+     ],
+     "evidence": [
+      "12 of 36 WS05 multiplayer/Commander obligations PASS",
+      "cardinality lifecycle: PASS (every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0)"
+     ],
+     "gate": "AF08",
+     "name": "MULTIPLAYER_COMMANDER",
+     "nonblocking_limitations": [
+      "24 WS05 obligations are not PASS: WS05-CMD-DMG-CONTROL: BLOCKED, WS05-CMD-DMG-SAME-21: BLOCKED, WS05-CMD-ELIM-4: BLOCKED, WS05-CMD-MULL-2: UNKNOWN, WS05-CMD-MULL-4: UNKNOWN, WS05-CMD-PARTNER-TAX: UNKNOWN, WS05-CMD-START-2: UNKNOWN, WS05-CMD-START-3: UNKNOWN, WS05-CMD-TAX-2: UNKNOWN, WS05-CMD-TAX-4: UNKNOWN, WS05-CMD-ZONE-LIB-NO: BLOCKED, WS05-CMD-ZONE-LIB-YES: BLOCKED, WS05-MP-BLOCK-4: BLOCKED, WS05-MP-COMBAT-4: BLOCKED, WS05-MP-COMBAT-5: BLOCKED and 9 more"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "REPLAY_CLEAN_PROCESS",
+      "REPLAY_DECISION_TAPE",
+      "REPLAY_EVENT_TAPE",
+      "REPLAY_STATE_HASHES",
+      "RNG_RULES_TAPE"
+     ],
+     "evidence": [
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, never a demonstrated Rules RNG tape",
+      "replay export was refused by the engine (codes: unknown_message)",
+      "replay export attempted in a live game and refused by the engine (RNG_REPLAY_FORGE.json; refusal codes: unknown_message)",
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, not a demonstrated Rules RNG tape"
+     ],
+     "gate": "AF09",
+     "name": "RNG_REPLAY",
+     "nonblocking_limitations": [
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "deterministic setup alone (deck import, game creation, seed acknowledgement) is not semantic replay proof",
+      "the clean-process twin half of each replay obligation is not proven per fixture",
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "the clean-process semantic replay twin is not proven for this candidate: the artifact does not carry the required twin evidence (fixture_identity, process_identity, decisions, rules_rng, semantic_events, checkpoint_state_hashes, terminal_outcome)",
+      "5 replay/RNG obligations are not PASS: REPLAY_CLEAN_PROCESS: UNKNOWN, REPLAY_DECISION_TAPE: UNKNOWN, REPLAY_EVENT_TAPE: UNKNOWN, REPLAY_STATE_HASHES: UNKNOWN, RNG_RULES_TAPE: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "column_provenance": {
+    "class": "FRESH_CURRENT_BOUNDARY_EXECUTION"
+   },
+   "full107_counts": {
+    "BLOCKED": 34,
+    "CRASH": 0,
+    "FAIL": 0,
+    "PASS": 17,
+    "PROTOCOL_FAILURE": 0,
+    "TIMEOUT": 0,
+    "UNKNOWN": 56
+   },
+   "full107_residual_count": 90,
+   "full107_residual_rows": [
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "CARD_02",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_01",
+     "reason": "this fixture was corrected by the current successor contract (LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04, supersedes c0960492e7fc); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (opponent_hand). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_02",
+     "reason": "this fixture was corrected by the current successor contract (LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04, supersedes 3ee2b2bb1445); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (opponent_library). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_03",
+     "reason": "this fixture was corrected by the current successor contract (LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04, supersedes 20a781e65cc3); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (public_exile). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_04",
+     "reason": "this fixture was corrected by the current successor contract (LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04, supersedes e05a98354ca5); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (face_down_controller). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_05",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 0af69c7277a0); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_06",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 5dbc36acd8b1); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_07",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes bbf19eb4b5e8); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_08",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 24871f046c9a); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_09",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 3a39083f8a9e); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_10",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 70c0be2eb077); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_11",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 0cc9a4716a60); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_12",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes e3f5a7db644b); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_13",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 941e38d73fec); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_14",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes ff1de1c50580); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_15",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes b21707062826); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_16",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 9ac0d58627d0); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_17",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 0e43532da77d); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_18",
+     "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 79feb8050e40); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_19",
+     "reason": "this fixture was corrected by the current successor contract (LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04, supersedes 502052b3b503); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+     "reason": "this fixture was corrected by the current successor contract (LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04, supersedes 903bca9e743d); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_COMBAT",
+     "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: combat_damage:attacker_to_blocker:2, combat_damage:blocker_to_attacker:2, state_based_actions. no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_OBLIGATION_ERRATUM_CR103_8A, supersedes c5528a9fa89e); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (temporal_checkpoint.exact_hand_after_draw): the obligation requires the exact hand after the draw; the engine's natural draw adds a card the lane can neither control nor prove, so exact equality cannot be established; the open mechanism is controlling or proving the drawn card, and the exact-equality obligation stays unchanged. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_CONTROL",
+     "reason": "this fixture was corrected by the current successor contract (ACTUAL_CARD_SCENARIO_ERRATUM, supersedes 4a80bb8e9f85); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_COPY",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes a3546f0ca825); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.choice.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_COSTS",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR307_1_CR302_6, supersedes d90d525a43d4); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_state.active_player (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_objects (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "MICRO_LAYERS",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_OBSERVABILITY_ERRATUM, supersedes ef6c4515a7e3); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (unprojected_readback:layer6_remove_abilities): the obligation reads a permanent's abilities and the pinned bridge's battlefield projection carries power and toughness but no abilities (no ability readback). then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_MANA_PAYMENT",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_stack_object (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_MODES",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 3fbfd0829ef1); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.choose_mode.semantic_mode_key (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_PREVENTION",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR302_6_CR508_1F, supersedes e6b2f3f876c4); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: combat_damage_would_be:P2:2, prevention_applied, combat_damage_prevented:P2:2. no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_PRIORITY",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR302_6, supersedes 7e8c87e0138f); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_REPLACEMENT",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR510_CR508_1F, supersedes 95233e6cd90a); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: damage_would_be:P2:3, replacement_effect:double. no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_RULES_RANDOMNESS",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 1c67c9c4d7ca); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at construction (rules_randomness.predetermined_semantic_draws): predetermined draws have no bootstrap field and no engine action causes them. then: construction stack_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.choice.boolean (LAB_EXECUTION_GAP); observation event_log (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: rules_rng:coin_flip:HEADS, extra_turn_created:P1. no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_STACK",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR302_6, supersedes 7e8c87e0138f); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+     "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: state_based_actions. no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "MICRO_TARGETS",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_TRIGGERS",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "MICRO_ZONE_CHANGES",
+     "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction stack_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: new_object_incarnation:line:micro-bolt. no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+     "reason": "this fixture was corrected by the current successor contract (ACTUAL_CARD_SCENARIO_ERRATUM, supersedes 191e46e266e9); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_FIRST_OPTION",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 2a113a9a791b); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_GUI_DEFAULT",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 8fb40cf8fcd2); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_INTERNAL_AI",
+     "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+     "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_RANDOM_OPTION",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 27e48a2a3629); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_SILENT_SKIP",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes dfdcea34210e); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_ANNOUNCE_X",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.announce_x.integer (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOICE",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.choice.semantic_choice_key (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOOSE_ABILITY",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at execution (decision_execution.choose_ability.semantic_ability_key): the record scripts a choose_ability decision; the bridge carries it on its SPELL_ABILITY frames, but the lane has no selector for them. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOOSE_MODE",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.choose_mode.semantic_mode_key (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOOSE_OBJECT",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_state.active_player (LAB_EXECUTION_GAP); execution decision_execution.choose_object.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_CHOOSE_USE",
+     "reason": "this fixture was corrected by the current successor contract (LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04, supersedes 9bc02f7e461b); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:library): library contents are never exposed. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.choose_use.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "PILOT_DECLARE_ATTACKER",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "PILOT_DECLARE_BLOCKER",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR508_1F, supersedes 429351a35cc1); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); execution decision_execution.declare_blocker.blocker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_MANA_PAYMENT",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_stack_object (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_MULTI_AMOUNT",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 8d8d91ab3366); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.multi_amount.amount_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_PILE",
+     "reason": "this fixture was corrected by the current successor contract (CAUSAL_STACK_SCENARIO_ERRATUM, supersedes 47cd6fcd2502); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:library): library contents are never exposed. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.pile.partition (LAB_EXECUTION_GAP); execution decision_execution.pile.pile_label (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_PRIORITY",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.replacement_effect.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_TARGET",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_TARGET_AMOUNT",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes ad1a4eafe505); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target_amount.amount_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "PILOT_TRIGGER_ORDER",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at execution (decision_execution.trigger_order.order): the record scripts a trigger_order decision; the bridge carries it on its ORDER frames, but the lane has no selector for them. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "REPLAY_CLEAN_PROCESS",
+     "reason": "this fixture was corrected by the current successor contract (LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04, supersedes b81d5a9e8424); its predecessor's evidence does not transfer. the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "REPLAY_DECISION_TAPE",
+     "reason": "this fixture was corrected by the current successor contract (LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04, supersedes b81d5a9e8424); its predecessor's evidence does not transfer. the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "REPLAY_EVENT_TAPE",
+     "reason": "this fixture was corrected by the current successor contract (LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04, supersedes b81d5a9e8424); its predecessor's evidence does not transfer. the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "REPLAY_STATE_HASHES",
+     "reason": "this fixture was corrected by the current successor contract (LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04, supersedes b81d5a9e8424); its predecessor's evidence does not transfer. the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "RNG_RULES_TAPE",
+     "reason": "this fixture was corrected by the current successor contract (CARD_CAUSED_RULES_RNG_SCENARIO_ERRATUM, supersedes b81d5a9e8424); its predecessor's evidence does not transfer. the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-DMG-CONTROL",
+     "reason": "this fixture was corrected by the current successor contract (ACTUAL_CARD_SCENARIO_ERRATUM, supersedes ff4239417bb8); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_state.active_player (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-DMG-SAME-21",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ELIM-4",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-MULL-2",
+     "reason": "the record scripts a London bottom selection (P1), and this lane offers no external bottom-card decision; the Lab never chooses the card for the player"
+    },
+    {
+     "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-MULL-4",
+     "reason": "the obligation was observed on the record's decks under the acknowledged Rules seed, but the record requires REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST and the provider's constructed state does not establish it, so construction equality is unestablished: CONSTRUCTION_UNSUPPORTED: rules_randomness.rules_seed mismatch: the seed the engine acknowledged on game creation; rules_randomness.channel.INITIAL_LIBRARY_SHUFFLE unsupported: only library-shuffle channels are constructed here"
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-PARTNER-TAX",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 4478c62dd315); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction commander_state.prior_command_zone_cast_count (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "PROTOCOL2_START2_V1_0_6",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-START-2",
+     "reason": "the CR 103.8a obligation was observed (identical turn-1 upkeep and precombat-main hand/library counts, no draw-step checkpoint or draw event), but the record requires REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST and this lane emits no normalized constructed state, so construction equality is unestablished"
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-START-3",
+     "reason": "Forge CONTRACT_AUTHORITY_GAP: first missing mechanism at execution (decision_execution.starting_player.unscripted): the obligation names a starting player, but the effective record scripts no starting-player response; choosing the starter from the requested state would be requested-option selection, so the row needs a contract erratum that scripts the decision. no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-TAX-2",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction commander_state.prior_command_zone_cast_count (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-TAX-4",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction commander_state.prior_command_zone_cast_count (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.replacement_effect.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.replacement_effect.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-BLOCK-4",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR508_1F_SCRIPT_CONTRACT, supersedes 1b8036905723); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); execution decision_execution.declare_blocker.blocker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-COMBAT-4",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-COMBAT-5",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+     "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (owner_controller_divergence): the readback exposes controller rows, not card owner. then: checkpoint_readback semantic_objects.attached_to (PROVIDER_ADAPTER_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-STACK-3",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-ELIM-TURN-3",
+     "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (temporal_state.active_player): the requested turn-1 active player is decided by the starting-player choice, which the lane may make only on a scripted response; no record scripts it. no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-PRIO-3",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 0cfcfffcdc65); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-PRIO-5",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 7f37d85378c5); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-TRIG-3",
+     "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: simultaneous_trigger_event. no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-TRIG-5",
+     "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes d41cf15eefa1); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: simultaneous_trigger_event. no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-TURN-3",
+     "reason": "this fixture was corrected by the current successor contract (CAUSAL_EXTRA_TURN_SCENARIO_ERRATUM, supersedes 7a7af4a16e29); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); execution decision_execution.choose_object.card_identity_multiset (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "BLOCKED",
+     "fixture_id": "WS05-MP-TURN-5",
+     "reason": "this fixture was corrected by the current successor contract (CAUSAL_EXTRA_TURN_SCENARIO_ERRATUM, supersedes de5106b375d6); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); execution decision_execution.choose_object.card_identity_multiset (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
+    }
+   ],
+   "native_suite_role": "SUPPORTING_EVIDENCE_ONLY_R4_NO_FULL107_CREDIT",
+   "runtime_identity": {
+    "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+    "adapter_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+    "adapter_tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+    "bridge_identity": {
+     "actual_bridge_module_tree": "3fac19bfd1b29718e29774935fd6bb1a3471b181",
+     "actual_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+     "bridge_module": "forge-protocol2-bridge",
+     "detail": "the executing checkout's forge-protocol2-bridge module tree is identical to the bound bridge/evidence commit's, so the bridge that executes is the bridge the evidence is about; the Rules Core is bound separately by tree equivalence",
+     "expected_bridge_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+     "expected_bridge_module_tree": "3fac19bfd1b29718e29774935fd6bb1a3471b181",
+     "expected_bridge_tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+     "identical": true,
+     "justification": "EXACT_BRIDGE_COMMIT",
+     "recorded_commit_tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e"
+    },
+    "bridge_source_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+    "bridge_source_tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+    "capabilities_provider_reported": {
+     "action_submission_supported": false,
+     "commander_damage_visible": true,
+     "commander_supported": true,
+     "commander_tax_visible": true,
+     "concede_supported": true,
+     "constructed_state_scope": "orchestration_keyed_digests_refused_without_launch_key",
+     "constructed_state_supported": true,
+     "deck_import_supported": true,
+     "engine_shutdown_supported": true,
+     "event_log_supported": false,
+     "game_shutdown_supported": true,
+     "headless_supported": true,
+     "healthcheck_supported": true,
+     "legal_actions_supported": false,
+     "max_players": 6,
+     "min_players": 2,
+     "mode_selection_supported": true,
+     "mulligan_supported": false,
+     "multiplayer_supported": true,
+     "notes": [
+      "WS202 executable surface: pre-floated pool mana payment with framed ambiguity, single-target selection, X/number, modes, trigger/replacement/static ordering, copy/entity/spell/zone/color selections, alternate costs, commander-move confirms, priority concession, and complete attack/block declarations (each whole declaration validated by CombatUtil.validateAttackers/validateBlocks, including multi-block; more than four candidate attackers or blockers fail closed); multi-target/divided, sacrifice/discard/exile costs and choice-mana outputs still fail closed; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+      "partner commanders import but pod-level partner lifecycle is not yet qualified",
+      "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+      "seeds are bound per session via native MyRandom; global scope requires single-flight seeded execution for twin determinism",
+      "scenario bootstrap establishes battlefield/hands/life only through native zone/lifecycle APIs inside the engine-owned start hook; outcomes, stack, decisions and continuous effects are never injected",
+      "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+      "replay is not offered: deterministic replay is not claimed"
+     ],
+     "partner_supported": false,
+     "priority_visible": true,
+     "replay_supported": false,
+     "runtime_kind": "external_rules_engine",
+     "scenario_injection_supported": true,
+     "seed_supported": true,
+     "stack_visible": true,
+     "starting_state_injection_supported": true,
+     "target_selection_supported": true,
+     "trigger_order_supported": true
+    },
+    "engine_candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+    "engine_candidate_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+    "evidence_epoch": {
+     "epoch_id": "b69e5c5199ca-68159bd8e333",
+     "epoch_root": "qualification/current-boundary-epochs/b69e5c5199ca-68159bd8e333",
+     "predecessor_epoch": "qualification/final-current-boundary-20260927",
+     "predecessor_is_read_only": true,
+     "writes_historical_epoch": false
+    },
+    "forge_workspace": "/home/runner/work/commander-playtest-lab/commander-playtest-lab/vendor/engine-source/forge",
+    "lane": "protocol2-jsonl",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "rules_core_identity": {
+     "actual_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+     "compared_module_roots": [
+      "forge-game",
+      "forge-core",
+      "forge-ai",
+      "forge-gui",
+      "forge-gui-desktop",
+      "adventure-editor"
+     ],
+     "detail": "the commits differ only outside the Forge Rules-Core main sources, so the Rules Core that executed is the Rules Core the evidence is about. The bridge module is deliberately excluded and is bound as a separate identity.",
+     "differing_modules": [],
+     "engine_equivalent": true,
+     "justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+     "modules": {
+      "adventure-editor": {
+       "actual_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7",
+       "identical": true,
+       "recorded_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7"
+      },
+      "forge-ai": {
+       "actual_tree": "3e500340675e9030cc56f38f5560e286f03defef",
+       "identical": true,
+       "recorded_tree": "3e500340675e9030cc56f38f5560e286f03defef"
+      },
+      "forge-core": {
+       "actual_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d",
+       "identical": true,
+       "recorded_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d"
+      },
+      "forge-game": {
+       "actual_tree": "3d31b13fbc8db6963998af551724ea3ff775f625",
+       "identical": true,
+       "recorded_tree": "3d31b13fbc8db6963998af551724ea3ff775f625"
+      },
+      "forge-gui": {
+       "actual_tree": "8e5f32179943df1d824597e219617f21627b1881",
+       "identical": true,
+       "recorded_tree": "8e5f32179943df1d824597e219617f21627b1881"
+      },
+      "forge-gui-desktop": {
+       "actual_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc",
+       "identical": true,
+       "recorded_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc"
+      }
+     },
+     "one_sided_modules": [],
+     "recorded_commit": "bb0a740d2bef725194798383c2452213ecdd0b37"
+    },
+    "runner_commit": "b69e5c5199caa009e9ff86e1d0c9d460f1d8e543",
+    "runner_tree": "68159bd8e3338f50259e3b12bc70dd90d678ae3b",
+    "scenario_injection_supported": true,
+    "seed_supported": true,
+    "starting_state_injection_supported": true
+   }
+  },
+  "xmage": {
+   "af00_af10": [
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "candidate commit reported by the provider at handshake: b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+      "commit the evidence is required to be about: b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+      "engine_commit provenance: file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json"
+     ],
+     "gate": "AF00",
+     "name": "SOURCE_AND_BUILD_LOCK",
+     "nonblocking_limitations": [],
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "20 AF01 v2 invariants executed under Protocol 2.0.0 on the compatibility lane",
+      "AF01_*_XMAGE.json"
+     ],
+     "gate": "AF01",
+     "name": "PROTOCOL_HANDSHAKE",
+     "nonblocking_limitations": [
+      "the generic compatibility lane reports seed_supported=True; the rules_randomness_core_owned invariant verdict is PASS, and any engine seed acknowledgement is recorded in the candidate's HIDDEN_INFO artifact"
+     ],
+     "verdict": "PASS"
+    },
+    {
+     "all_or_nothing": true,
+     "blocking_rows": [],
+     "evidence": [
+      "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+      "counts with a complete lifecycle: [2, 3, 4, 5]",
+      "counts without one: []",
+      "bounded 6P lifecycle recorded: True"
+     ],
+     "gate": "AF02",
+     "lifecycle_assessment": {
+      "all_or_nothing": true,
+      "complete_counts": [
+       2,
+       3,
+       4,
+       5
+      ],
+      "detail": {
+       "2P": {
+        "bound_external_choices": 1,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       },
+       "3P": {
+        "bound_external_choices": 1,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       },
+       "4P": {
+        "bound_external_choices": 1,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       },
+       "5P": {
+        "bound_external_choices": 1,
+        "complete": true,
+        "completed_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ],
+        "missing_steps": [],
+        "reasons": [],
+        "required_steps": [
+         "handshake",
+         "import_deck",
+         "create_commander_game",
+         "start_game",
+         "decision_drive"
+        ]
+       }
+      },
+      "incomplete_counts": [],
+      "reason": "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+      "required_counts": [
+       2,
+       3,
+       4,
+       5
+      ],
+      "verdict": "PASS"
+     },
+     "name": "PLAYER_CARDINALITY",
+     "nonblocking_limitations": [
+      "6P is bounded secondary evidence; 7P is not attempted on this boundary"
+     ],
+     "verdict": "PASS"
+    },
+    {
+     "authority": "ENGINE_ONLY",
+     "blocking_rows": [],
+     "evidence": [
+      "deck_import_rejects_unknown_card: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_non_commander: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_colour_identity_violation: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_wrong_deck_size: PASS (the engine refused the mutated deck at the import boundary)",
+      "deck_import_rejects_empty_mainboard: PASS (the engine refused the mutated deck at the import boundary)"
+     ],
+     "gate": "AF03",
+     "name": "RULES_AUTHORITY",
+     "nonblocking_limitations": [
+      "proves the engine refuses these specific illegality classes at the import boundary; it is not an exhaustive proof of deck legality"
+     ],
+     "observed_probe_count": 5,
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [],
+     "decision_boundary": {
+      "bounded_secondary_cardinalities_checked": [
+       "6P"
+      ],
+      "candidate": "xmage",
+      "contradictions": [],
+      "externally_answered_decision_classes": [
+       "MULLIGAN",
+       "PRIORITY"
+      ],
+      "frame_count": 25,
+      "frames": [
+       {
+        "actor": "10bed854-ed2e-4361-ad34-67d6b0e156c1",
+        "cardinality": "2P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 10bed854-ed2e-4361-ad34-67d6b0e156c1 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "1178cd1fedbc6003537eb19bf6eb9782f9375874ea6f5182d2ee97ba22a943d4",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 1
+       },
+       {
+        "actor": "a34c2e6d-e49d-41f6-ac91-e7ad705d2bec",
+        "cardinality": "2P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by a34c2e6d-e49d-41f6-ac91-e7ad705d2bec at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "33872957e86ada7adf9c7b86575b1f145873ca1fd7b2fdc6ffefef4edde4e7c3",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "10bed854-ed2e-4361-ad34-67d6b0e156c1",
+        "cardinality": "2P",
+        "chosen_option_id": "b01de89c80afccfcc0c560684692ee972c3bf3bbd068f1b55df7794d7a0a9815",
+        "detail": "PRIORITY answered by 10bed854-ed2e-4361-ad34-67d6b0e156c1 at revision 3; 1 engine-offered option(s); chosen='b01de89c80afccfcc0c560684692ee972c3bf3bbd068f1b55df7794d7a0a9815'; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "b01de89c80afccfcc0c560684692ee972c3bf3bbd068f1b55df7794d7a0a9815",
+        "kind": "PRIORITY",
+        "offered_count": 1,
+        "revision": 3
+       },
+       {
+        "actor": "92fe58ae-ace9-4160-9efd-79d9ca560941",
+        "cardinality": "3P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 92fe58ae-ace9-4160-9efd-79d9ca560941 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "680db79d0857175792df7706c312302b8fe1588deb2699024d7757da7b2f446c",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 1
+       },
+       {
+        "actor": "dec7a01b-39f9-4309-8db3-4ee6f9b7015e",
+        "cardinality": "3P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by dec7a01b-39f9-4309-8db3-4ee6f9b7015e at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "a6c03017ae76e28c6ac17111e1d575917acfe00ea5b6d87df0fdeacf652c835f",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "3576f997-be24-4a5e-bebc-39ea5852c736",
+        "cardinality": "3P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 3576f997-be24-4a5e-bebc-39ea5852c736 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "7848b9cff896eb153c21723dfe4baf3279e174f13ec169c6390fe3f5203d133f",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "92fe58ae-ace9-4160-9efd-79d9ca560941",
+        "cardinality": "3P",
+        "chosen_option_id": "4d62daaa7252c7c1b2efc2540485a5762dc07232ed83427df5ba90a85daedfaa",
+        "detail": "PRIORITY answered by 92fe58ae-ace9-4160-9efd-79d9ca560941 at revision 4; 1 engine-offered option(s); chosen='4d62daaa7252c7c1b2efc2540485a5762dc07232ed83427df5ba90a85daedfaa'; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "4d62daaa7252c7c1b2efc2540485a5762dc07232ed83427df5ba90a85daedfaa",
+        "kind": "PRIORITY",
+        "offered_count": 1,
+        "revision": 4
+       },
+       {
+        "actor": "cdd16728-6688-45de-b05c-47790673bb93",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by cdd16728-6688-45de-b05c-47790673bb93 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "d7eeb400655bfe14c208d9a7b59895d98d261d650690263a04d7923f81cc0848",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 1
+       },
+       {
+        "actor": "bf78dd7a-e3fc-48b9-b475-9d9410862fa4",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by bf78dd7a-e3fc-48b9-b475-9d9410862fa4 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "205c965ba803e4ff38714c624a0f97d8eacd9a91556d9416a2ab5eda2d32aae2",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "d0700e58-43c7-49ac-928d-e012dfa96c3e",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by d0700e58-43c7-49ac-928d-e012dfa96c3e at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "982ecd4d7fe23e7b977bd85e968e697a0c9e78dacfc0f853b6d93bf99da92791",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "50dfde54-0e94-46ad-a981-c93e73c48352",
+        "cardinality": "4P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 50dfde54-0e94-46ad-a981-c93e73c48352 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "7cd176c80c9e7e074d0efc63fa346781c626cf609a2f4fc11964e9baa66aa7fb",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "cdd16728-6688-45de-b05c-47790673bb93",
+        "cardinality": "4P",
+        "chosen_option_id": "d4ca62def367713915f5bda42b2b26d927ee54248f3e938ff20af9cfab4b9e35",
+        "detail": "PRIORITY answered by cdd16728-6688-45de-b05c-47790673bb93 at revision 5; 1 engine-offered option(s); chosen='d4ca62def367713915f5bda42b2b26d927ee54248f3e938ff20af9cfab4b9e35'; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "d4ca62def367713915f5bda42b2b26d927ee54248f3e938ff20af9cfab4b9e35",
+        "kind": "PRIORITY",
+        "offered_count": 1,
+        "revision": 5
+       },
+       {
+        "actor": "0e9863a5-d071-416d-b79e-4c609bdb9447",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 0e9863a5-d071-416d-b79e-4c609bdb9447 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "54c85902caf339f441e52e5f1a3fe9ae7d83f17482e5d3b60010eb17f3668dd1",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 1
+       },
+       {
+        "actor": "0d3a7bf9-45ed-4a00-b2e9-712328a7e372",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 0d3a7bf9-45ed-4a00-b2e9-712328a7e372 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "db7faa611a0c22ab4d4163e331608dbe7468431d8838aef3ebfbb74f2583e9ee",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "1df99f4a-a8ba-4dd0-a88e-eade87f49194",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 1df99f4a-a8ba-4dd0-a88e-eade87f49194 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "242d9d5a0b2bdc117686bf33432718c1bb49ec4f6edda2aafa1f90218ea42cd4",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "67c6efac-2b4a-41e9-aeff-0dd78fa11b74",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 67c6efac-2b4a-41e9-aeff-0dd78fa11b74 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "e9effb7c45fc9813aa91e33edbc855a119d620d22577db5f5bbe68d350b17274",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "f3141bce-d400-46cc-9e67-c5612ff5b54f",
+        "cardinality": "5P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by f3141bce-d400-46cc-9e67-c5612ff5b54f at revision 5; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "aa8e09dc69d984e7339fd25945094378e6891b139a30466a97159fc25cd3ffdf",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 5
+       },
+       {
+        "actor": "0e9863a5-d071-416d-b79e-4c609bdb9447",
+        "cardinality": "5P",
+        "chosen_option_id": "286e44bec206a8b00cf4106962843697a09a0f5c9f352141f185d6197b1413a6",
+        "detail": "PRIORITY answered by 0e9863a5-d071-416d-b79e-4c609bdb9447 at revision 6; 1 engine-offered option(s); chosen='286e44bec206a8b00cf4106962843697a09a0f5c9f352141f185d6197b1413a6'; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "286e44bec206a8b00cf4106962843697a09a0f5c9f352141f185d6197b1413a6",
+        "kind": "PRIORITY",
+        "offered_count": 1,
+        "revision": 6
+       },
+       {
+        "actor": "662d1533-385a-4b58-9a96-6783c55780dc",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 662d1533-385a-4b58-9a96-6783c55780dc at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "3cb8eb72bd3095e4afd2a4e7b4f046f7bc5f746c02d2d381b36a4e7c52e7e12c",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 1
+       },
+       {
+        "actor": "034e18c3-6a21-4a3e-9790-6a866b4ed146",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 034e18c3-6a21-4a3e-9790-6a866b4ed146 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "68a82e45aeea2e4a300af3dfa50cb7314ac48da180d85b28f0722a889d3dddc2",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 2
+       },
+       {
+        "actor": "67d50678-5885-4cd0-a18a-dd20a72daf2f",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 67d50678-5885-4cd0-a18a-dd20a72daf2f at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "d379e085161055cb4b30664814d6aae73af2c5b60e5ddd5218f2ae406ab60f1e",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 3
+       },
+       {
+        "actor": "c49b6dfd-df01-403f-bb3c-3307827e53dd",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by c49b6dfd-df01-403f-bb3c-3307827e53dd at revision 4; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "059b560dafe20bea362f67d5fc06386a61a4a3e7eb197a3ce84579338e8c62d9",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 4
+       },
+       {
+        "actor": "2b9cbb79-15b3-4633-90a6-4d76340045a4",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by 2b9cbb79-15b3-4633-90a6-4d76340045a4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "a6ab38012c3983f0bc5a2bf4eff16fbf5a72b5a9ab07b262c560bb947c5b9f88",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 5
+       },
+       {
+        "actor": "e3fe88fe-c944-46b2-b0cc-aa6e17d8dc28",
+        "cardinality": "6P",
+        "chosen_option_id": null,
+        "detail": "MULLIGAN answered by e3fe88fe-c944-46b2-b0cc-aa6e17d8dc28 at revision 6; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "ff863bb1867bb248817c4a324fc0c83d8d827ba9a4d664549a52a7c7cb890ae0",
+        "kind": "MULLIGAN",
+        "offered_count": 2,
+        "revision": 6
+       },
+       {
+        "actor": "662d1533-385a-4b58-9a96-6783c55780dc",
+        "cardinality": "6P",
+        "chosen_option_id": "113ed9fe3acce9ef19d4bad94f11cc40b7f5b64872ddc6aeec0767310b960280",
+        "detail": "PRIORITY answered by 662d1533-385a-4b58-9a96-6783c55780dc at revision 7; 1 engine-offered option(s); chosen='113ed9fe3acce9ef19d4bad94f11cc40b7f5b64872ddc6aeec0767310b960280'; engine reported the executed option identity",
+        "engine_accepted": true,
+        "engine_executed_option_id": "113ed9fe3acce9ef19d4bad94f11cc40b7f5b64872ddc6aeec0767310b960280",
+        "kind": "PRIORITY",
+        "offered_count": 1,
+        "revision": 7
+       }
+      ],
+      "gaps": [],
+      "gate": "AF04",
+      "limitations": [],
+      "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+      "required_cardinalities": [
+       "2P",
+       "3P",
+       "4P",
+       "5P"
+      ],
+      "required_frame_counts": {
+       "2P": 3,
+       "3P": 4,
+       "4P": 5,
+       "5P": 6
+      },
+      "schema_version": "commander-lab.af04-decision-boundary/1.0.0",
+      "statement": "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback",
+      "verdict": "PASS"
+     },
+     "evidence": [
+      "AF04 derived from this epoch's external decision frames (25 frame(s) across 2P, 3P, 4P, 5P); externally answered classes: MULLIGAN, PRIORITY",
+      "decision identity provenance on the live AF01 frame (R-2): {'byte_matched': {'action_id': True, 'actor_id': True, 'decision_id': True}, 'identity_field': 'decision_id', 'pass_identity_offered': True, 'submitted_fields': ['action_id', 'actor_id', 'decision_id'], 'verified': True}",
+      "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback"
+     ],
+     "gate": "AF04",
+     "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+     "nonblocking_limitations": [
+      "every frame in this epoch's decision tape was answered from the engine-offered domain with a recorded engine acceptance; a decision class absent from the tape is not claimed as exercised"
+     ],
+     "owner_ruling": "R-2",
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "20 of 20 HIDDEN_* rows PASS in this epoch",
+      "principal-scoping audit: NONE"
+     ],
+     "gate": "AF05",
+     "name": "HIDDEN_INFORMATION",
+     "nonblocking_limitations": [],
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "102 of 107 rows PASS under the effective contract; 0 BLOCKED; 5 UNKNOWN"
+     ],
+     "gate": "AF06",
+     "name": "GENERAL_RULES_CORRECTNESS",
+     "nonblocking_limitations": [
+      "5 of 107 denominator obligations are not PASS on this boundary; every one of them is an unexecuted or unproven mechanism, not a PASS"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "29 of 29 frozen corpus identities have their own mandatory CARD_* row PASS in this epoch",
+      "28 corpus fixtures outside the provider denominator are credited from same-epoch, runner-bound campaign receipts (CARD_01, CARD_03, CARD_04, CARD_05, CARD_06, CARD_07, CARD_08, CARD_09, CARD_10, CARD_11, CARD_12, CARD_13, CARD_14, CARD_15, CARD_16, CARD_17, CARD_18, CARD_19, CARD_20, CARD_21, CARD_22, CARD_23, CARD_24, CARD_25, CARD_26, CARD_27, CARD_28, CARD_29)",
+      "the artifact's own summary reports 0 of 29 (written before the mid-game lane runs; the row states above are authoritative)",
+      "every frozen corpus identity is covered by its own passing mandatory fixture row with a current-boundary execution"
+     ],
+     "gate": "AF07",
+     "name": "ACTUAL_CARD_BEHAVIOR",
+     "nonblocking_limitations": [],
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [
+      "WS05-CMD-MULL-2",
+      "WS05-CMD-MULL-4",
+      "WS05-CMD-PARTNER-ZONE",
+      "WS05-CMD-START-2"
+     ],
+     "evidence": [
+      "32 of 36 WS05 multiplayer/Commander obligations PASS",
+      "cardinality lifecycle: PASS (every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0)"
+     ],
+     "gate": "AF08",
+     "name": "MULTIPLAYER_COMMANDER",
+     "nonblocking_limitations": [
+      "4 WS05 obligations are not PASS: WS05-CMD-MULL-2: UNKNOWN, WS05-CMD-MULL-4: UNKNOWN, WS05-CMD-PARTNER-ZONE: UNKNOWN, WS05-CMD-START-2: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, never a demonstrated Rules RNG tape",
+      "replay export was refused by the engine (codes: unsupported_message)",
+      "replay export attempted in a live game and refused by the engine (RNG_REPLAY_XMAGE.json; refusal codes: unsupported_message)",
+      "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, not a demonstrated Rules RNG tape",
+      "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+      "deterministic setup alone (deck import, game creation, seed acknowledgement) is not semantic replay proof",
+      "clean-process twin taken from the production midgame lane (MIDGAME_REPLAY_TWIN_EXECUTIONS.json: 5/5 replay/RNG rows verified; record and replay in distinct fresh processes, the replay re-issuing only the taped external inputs)",
+      "the single-process replay export refusal stays recorded as an absent capability; it is not a satisfied obligation and this verdict does not rest on it, only on the proven clean-process twin"
+     ],
+     "gate": "AF09",
+     "name": "RNG_REPLAY",
+     "nonblocking_limitations": [],
+     "verdict": "PASS"
+    },
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "denominator accounting complete: 107 explicit outcomes for 107 rows",
+      "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
+      "native suites: 227 tests, all green"
+     ],
+     "gate": "AF10",
+     "name": "RUNTIME_EVIDENCE_RELIABILITY",
+     "nonblocking_limitations": [],
+     "verdict": "PASS"
+    }
+   ],
+   "af00_af10_non_pass": [
+    {
+     "blocking_rows": [],
+     "evidence": [
+      "102 of 107 rows PASS under the effective contract; 0 BLOCKED; 5 UNKNOWN"
+     ],
+     "gate": "AF06",
+     "name": "GENERAL_RULES_CORRECTNESS",
+     "nonblocking_limitations": [
+      "5 of 107 denominator obligations are not PASS on this boundary; every one of them is an unexecuted or unproven mechanism, not a PASS"
+     ],
+     "verdict": "UNKNOWN"
+    },
+    {
+     "blocking_rows": [
+      "WS05-CMD-MULL-2",
+      "WS05-CMD-MULL-4",
+      "WS05-CMD-PARTNER-ZONE",
+      "WS05-CMD-START-2"
+     ],
+     "evidence": [
+      "32 of 36 WS05 multiplayer/Commander obligations PASS",
+      "cardinality lifecycle: PASS (every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0)"
+     ],
+     "gate": "AF08",
+     "name": "MULTIPLAYER_COMMANDER",
+     "nonblocking_limitations": [
+      "4 WS05 obligations are not PASS: WS05-CMD-MULL-2: UNKNOWN, WS05-CMD-MULL-4: UNKNOWN, WS05-CMD-PARTNER-ZONE: UNKNOWN, WS05-CMD-START-2: UNKNOWN"
+     ],
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "column_provenance": {
+    "class": "FRESH_CURRENT_BOUNDARY_EXECUTION"
+   },
+   "full107_counts": {
+    "BLOCKED": 0,
+    "CRASH": 0,
+    "FAIL": 0,
+    "PASS": 102,
+    "PROTOCOL_FAILURE": 0,
+    "TIMEOUT": 0,
+    "UNKNOWN": 5
+   },
+   "full107_residual_count": 5,
+   "full107_residual_rows": [
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+     "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+    },
+    {
+     "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-MULL-2",
+     "reason": "the record scripts a London bottom selection (P1), and this lane offers no external bottom-card decision; the Lab never chooses the card for the player"
+    },
+    {
+     "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-MULL-4",
+     "reason": "the obligation was observed on the record's decks under the acknowledged Rules seed, but the record requires REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST and the provider's constructed state does not establish it, so construction equality is unestablished: CONSTRUCTION_UNSUPPORTED: rules_randomness.rules_seed mismatch: the seed the engine acknowledged on game creation; rules_randomness.channel.INITIAL_LIBRARY_SHUFFLE unsupported: only library-shuffle channels are constructed here"
+    },
+    {
+     "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-PARTNER-ZONE",
+     "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+    },
+    {
+     "execution_mode": "PROTOCOL2_START2_V1_0_6",
+     "exit_state": "UNKNOWN",
+     "fixture_id": "WS05-CMD-START-2",
+     "reason": "the CR 103.8a obligation was observed (identical turn-1 upkeep and precombat-main hand/library counts, no draw-step checkpoint or draw event), but the record requires REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST and this lane emits no normalized constructed state, so construction equality is unestablished"
+    }
+   ],
+   "native_suite_role": "SUPPORTING_EVIDENCE_ONLY_R4_NO_FULL107_CREDIT",
+   "runtime_identity": {
+    "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+    "adapter_commit": "b69e5c5199caa009e9ff86e1d0c9d460f1d8e543",
+    "capabilities_provider_reported": {
+     "action_submission_supported": false,
+     "commander_damage_visible": false,
+     "commander_supported": true,
+     "commander_tax_visible": false,
+     "concede_supported": false,
+     "constructed_state_scope": "orchestration_keyed_digests_refused_without_launch_key",
+     "constructed_state_supported": true,
+     "deck_import_supported": true,
+     "engine_shutdown_supported": true,
+     "event_log_supported": true,
+     "game_shutdown_supported": true,
+     "headless_supported": true,
+     "healthcheck_supported": true,
+     "legal_actions_supported": false,
+     "max_players": 5,
+     "mode_selection_supported": false,
+     "mulligan_supported": false,
+     "multiplayer_supported": true,
+     "notes": [
+      "B4-D real XMage bridge audit event log is externally exportable with monotonic sequence, action/decision identity and pre/post state hashes; it covers bridge lifecycle and externally controlled action boundaries and is not an exhaustive raw internal XMage GameEvent tap",
+      "B4-D explicit per-game XMage end/cleanup and deck-handle release are implemented for repeated games in one bridge process",
+      "B4-C bounded current-priority action control remains validated; global legal-action and action-submission completeness remain unavailable",
+      "An explicit create-game seed is bound to the native per-game Rules RNG (setRulesSeed + requireExplicitSeed before start) and acknowledged from engine readback; unseeded games report seed_controlled=false and the seed value never appears in principal-scoped state",
+      "NO_PROVIDER_READY remains in force"
+     ],
+     "partner_supported": true,
+     "priority_visible": true,
+     "replay_supported": false,
+     "runtime_kind": "external_rules_engine",
+     "scenario_injection_supported": false,
+     "seed_supported": true,
+     "stack_visible": true,
+     "starting_state_injection_supported": false,
+     "target_selection_supported": false,
+     "trigger_order_supported": false
+    },
+    "engine_candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+    "evidence_epoch": {
+     "epoch_id": "b69e5c5199ca-68159bd8e333",
+     "epoch_root": "qualification/current-boundary-epochs/b69e5c5199ca-68159bd8e333",
+     "predecessor_epoch": "qualification/final-current-boundary-20260927",
+     "predecessor_is_read_only": true,
+     "writes_historical_epoch": false
+    },
+    "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
+    "lane": "generic protocol-2 compatibility lane",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "runner_commit": "b69e5c5199caa009e9ff86e1d0c9d460f1d8e543",
+    "runner_tree": "68159bd8e3338f50259e3b12bc70dd90d678ae3b",
+    "scenario_injection_supported": false,
+    "seed_supported": true,
+    "starting_state_injection_supported": false
+   }
+  }
+ },
+ "coordinator_tracker": 255,
+ "evidence_epoch": {
+  "authority": "operational evidence identity, not a qualification verdict: it names which source produced the bytes in this epoch",
+  "created_utc": "2026-10-05T14:36:53+00:00",
+  "epoch_id": "b69e5c5199ca-68159bd8e333",
+  "epoch_root": "qualification/current-boundary-epochs/b69e5c5199ca-68159bd8e333",
+  "predecessor_epoch": "qualification/final-current-boundary-20260927",
+  "predecessor_is_read_only": true,
+  "producing_source": {
+   "branch": "main",
+   "commit": "b69e5c5199caa009e9ff86e1d0c9d460f1d8e543",
+   "repository": "https://github.com/moeendres-png/commander-playtest-lab",
+   "tree": "68159bd8e3338f50259e3b12bc70dd90d678ae3b"
+  },
+  "schema_version": "commander-lab.current-boundary-epoch-identity/1.0.0"
+ },
+ "issue": 425,
+ "owner_rulings": [
+  "R-1",
+  "R-2",
+  "R-3",
+  "R-4"
+ ],
+ "production_provider": "NOT_SELECTED",
+ "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+ "r4_credit_policy": "FULL107 PASS requires a current exact positive per-fixture receipt bound to candidate, runner, requested-state digest and obligation digest",
+ "ranking": "NONE",
+ "schema_version": "commander-lab.provider-readiness-current/1.0.0",
+ "selection": "COORDINATOR_OWNED_IN_ISSUE_255"
+}
