@@ -23,6 +23,7 @@ def arm(name: str, **overrides: object) -> dict:
             "task_class": "ci_gate_diagnosis",
             "source_sha": SHA,
             "fixture_digest": DIGEST,
+            "required_evidence_class": "DIRECTLY_VERIFIED",
         },
         "session": {
             "model": "opencode-go/deepseek-v4.1-flash",
@@ -121,6 +122,19 @@ def test_quality_loss_always_rejects_candidate(
     assert result["disposition"] == "CANDIDATE_REJECT_QUALITY"
     assert result["candidate_quality_gate"] == "FAIL"
     assert reason in result["candidate_quality_reasons"]
+
+
+def test_required_evidence_class_mismatch_rejects_candidate() -> None:
+    result = bench.compare(
+        arm("baseline"),
+        arm(
+            "candidate",
+            quality={"evidence_class": "TECHNICALLY_CONFORMANT"},
+        ),
+    )
+    assert result["disposition"] == "CANDIDATE_REJECT_QUALITY"
+    assert result["candidate_quality_gate"] == "FAIL"
+    assert "evidence_class_mismatch" in result["candidate_quality_reasons"]
 
 
 def test_missing_core_metrics_is_inconclusive_not_savings_claim() -> None:
