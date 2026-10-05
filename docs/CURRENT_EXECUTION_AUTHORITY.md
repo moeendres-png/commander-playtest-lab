@@ -59,7 +59,15 @@ Executor choice never changes Rules authority, evidence semantics, hidden-inform
 rules, fail-closed requirements, Source Truth, provider-selection authority or
 Architecture Freeze authority.
 
-Production Provider selection and Architecture Freeze remain separate Coordinator gates.
+Production Provider selection and Architecture Freeze remain separate Owner gates.
+
+## Claude Opus 5.5 delegation
+
+Effective 2026-10-05, by direct Owner instruction, an explicitly launched Claude Opus 5.5
+engineering session holds the Coordinator tier's decision authority. The scope, the
+Owner-only reservations and the non-relaxable invariants are defined in `AGENTS.md` §8,
+"Claude Opus 5.5 Coordinator authority". The OpenCode executor allowlist and native `max`
+pinning above are unchanged.
 
 `PRODUCTION_PROVIDER = NOT_SELECTED`
 

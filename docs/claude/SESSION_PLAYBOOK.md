@@ -64,10 +64,12 @@ engine forks (`moeendres-png/mage`, `moeendres-png/forge`). It is tooling guidan
     `--sandbox-user c12cand`, root-owned JDK and Maven first on `PATH`.
   - `--smoke-honest` runs CTRL-01 in minutes.
 - **Containment changes are security changes.**
-  - Get explicit Owner approval before loosening any denial. The auto-mode classifier enforces
-    this.
+  - An explicitly launched Claude Opus 5.5 session with the Owner delegation in `AGENTS.md` §8
+    may decide containment-rule changes itself, recording the justification and negative controls.
+    Without that delegation, a new direct Owner statement is required. The auto-mode classifier
+    remains a real boundary and is never evaded.
   - Prove every admission with negative probes that fail without the containment.
-  - Get a fresh-context adversarial review before pushing.
+  - Get a fresh-context adversarial review before the change is acted on.
 - **Unfinished security work is never pushed onto a PR branch.** Park it on a `handoff/*-wip-*`
   branch and say so in the lane issue.
 - **Agents and rate limits.** Subagents can be cut off by the session rate limit. Check their

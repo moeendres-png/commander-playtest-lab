@@ -116,10 +116,17 @@ def test_current_executor_authority_is_exactly_two_profiles():
     agents = (ROOT / "AGENTS.md").read_text()
     current = (ROOT / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text()
     routing = (ROOT / "docs/foundry-execution/ROUTING_AND_EFFORT.md").read_text()
+    routing_flat = " ".join(routing.split())
     assert "opencode-go/deepseek-v4.1-flash" in agents
     assert "opencode-go/space-bunny-free" in agents
     assert "No other OpenCode executor is selectable" in agents
     assert "No other OpenCode model/profile is currently authorized" in current
+    assert "CLAUDE_OPUS_COORDINATOR_AUTHORITY = DELEGATED_BY_OWNER" in agents
+    assert (
+        "Production Provider selection and Architecture Freeze remain separate Owner gates."
+        in current
+    )
+    assert "Coordinator tier's decision authority" in routing_flat
     assert "must not generate a" in routing
     assert "routing/governance issue by themselves" in routing
     index = (ROOT / "docs/foundry-execution/README.md").read_text()
