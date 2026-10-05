@@ -61,6 +61,15 @@ adjudication, prefer this sequence when applicable:
 6. `verification-before-completion` — always apply before claiming a fix, gate,
    PR, milestone or workstream complete.
 
+Security and review support:
+
+- `sharp-edges` — when designing or reviewing containment, qualification or policy
+  surfaces (for example SecurityManager admissions or fail-open defaults).
+- `fp-check` — before acting on a security or audit finding, settle whether it is a
+  true or false positive with code evidence.
+- `receiving-code-review` — when review threads arrive, verify each point against the
+  code before changing it or pushing back.
+
 The specialized skills are complementary, not interchangeable. A `commander-quality-gate`
 run may invoke several of them depending on impact. None of them turns advisory
 review into Rules qualification or overrides the active issue contract.
