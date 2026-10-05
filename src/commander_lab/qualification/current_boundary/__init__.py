@@ -37,6 +37,7 @@ from .bridge_launcher import (
     canonical_forge_rules_core_pin,
     canonical_xmage_engine_pin,
     launch,
+    orchestration_plan,
 )
 from .full107 import (
     NEGATIVE_ROWS,
@@ -117,6 +118,7 @@ __all__ = [
     "mid_game_mechanisms",
     "non_executed_row",
     "observe_principal_state",
+    "orchestration_plan",
     "requires_starting_state",
     "run_af01",
     "run_af03",

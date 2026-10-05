@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 from . import receipts as seed_receipts
-from .bridge_launcher import BridgeLaunchError, BridgeProcess
+from .bridge_launcher import ORCHESTRATION_KEY_VARIABLE, BridgeLaunchError, BridgeProcess
 
 POLL_ATTEMPTS = 40
 POLL_INTERVAL_S = 1.0
@@ -70,6 +70,30 @@ class GameObservation:
 # execution on the shared Protocol-2 surface. Recorded, not normalized away.
 #   XMage generic lane: decision_id (sha256 hex) + action_id (pass) / proposal
 #   Forge protocol2   : revision (monotonic long) + actor_id (pass) / proposal
+def _declares_capability(proc: BridgeProcess, capability: str) -> bool:
+    """Whether the provider declares ``capability`` true; absent or unreadable is False."""
+    try:
+        response = proc.request("get_capabilities", {}, timeout_s=60.0)
+    except Exception:
+        return False
+    capabilities = _payload(response).get("capabilities")
+    return isinstance(capabilities, dict) and capabilities.get(capability) is True
+
+
+def _launch_orchestration_key(proc: BridgeProcess) -> bytes | None:
+    """The orchestration key this launch carries, or None (every principal-facing launch)."""
+    plan = getattr(proc, "plan", None)
+    overrides = getattr(plan, "env_overrides", None) or {}
+    value = overrides.get(ORCHESTRATION_KEY_VARIABLE)
+    if not isinstance(value, str):
+        return None
+    try:
+        key = bytes.fromhex(value)
+    except ValueError:
+        return None
+    return key if len(key) >= 16 else None
+
+
 def _declares_seed_support(proc: BridgeProcess) -> bool:
     """Whether the provider declares that it accepts an authoritative seed.
 
@@ -186,6 +210,12 @@ class CommandedGameResult:
     failure: str | None = None
     failure_kind: str | None = None
     seed_binding: Any = None
+    # The provider's constructed state (#441 decision (c)) and the launch's
+    # orchestration key its hidden-zone digests are keyed with. Both stay off the
+    # persisted document: the key never leaves this process, and only the
+    # derived construction proof is persisted.
+    constructed_state: dict[str, Any] | None = None
+    orchestration_key: bytes | None = None
 
     def to_document(self) -> dict[str, Any]:
         return {
@@ -743,6 +773,22 @@ def drive_commander_game(
         result.terminal_facts["start_status"] = started.get("status")
         result.steps_completed.append("start_game")
 
+        # Construction proof (#441 decision (c)): the provider's own normalized
+        # constructed state, read at the first mulligan decision before it is
+        # answered (the common pregame point of every provider). Only a provider
+        # that declares the capability is asked; otherwise no proof exists and a
+        # record requiring construction equality is not credited.
+        # The read is an orchestration channel: asked only on a launch that
+        # carries an orchestration key (never a principal-facing launch).
+        orchestration_key = _launch_orchestration_key(proc)
+        constructed_supported = _declares_capability(proc, "constructed_state_supported")
+        result.terminal_facts["provider_constructed_state_supported"] = constructed_supported
+        result.terminal_facts["constructed_state_channel"] = (
+            "orchestration_keyed_launch" if orchestration_key is not None else "no_launch_key"
+        )
+        constructed_supported = constructed_supported and orchestration_key is not None
+        result.orchestration_key = orchestration_key
+
         steps = 0
         draw_step_frames: list[dict[str, Any]] = []
         priority_seen = False
@@ -788,6 +834,24 @@ def drive_commander_game(
                     )
                 )
                 continue
+
+            if (
+                kind in {"MULLIGAN", "KEEP_OR_MULLIGAN"}
+                and constructed_supported
+                and "constructed_state_capture" not in result.terminal_facts
+            ):
+                response = proc.request(
+                    "get_constructed_state", {}, game_id=game_id, timeout_s=120.0
+                )
+                if _first_ok(response):
+                    state = _payload(response).get("constructed_state")
+                    result.constructed_state = state if isinstance(state, dict) else None
+                else:
+                    # A refusal is no state, so no proof can be established.
+                    result.terminal_facts["constructed_state_refused"] = _failure_detail(response)
+                result.terminal_facts["constructed_state_capture"] = (
+                    "first_mulligan_decision_before_answer"
+                )
 
             if kind in {"MULLIGAN", "KEEP_OR_MULLIGAN"} and mulligan_plan is not None:
                 asked = sum(1 for entry in result.decision_tape if entry.step == "mulligan")
@@ -966,6 +1030,16 @@ def drive_commander_game(
                         )
                         post_pregame[seat] = {**counts, "checkpoint": checkpoint}
                     result.terminal_facts["post_pregame_zone_counts"] = post_pregame
+                if not priority_seen and constructed_supported:
+                    # Who holds the first priority of the game: the starting
+                    # player (CR 103.1), read against the engine's own roster.
+                    # Needed only by the construction proof, so asked only on a
+                    # launch that can produce one.
+                    if seat_by_actor is None:
+                        seat_by_actor = _engine_seat_roster(
+                            proc, game_id=game_id, player_count=player_count, created_seats=seat_ids
+                        )
+                    result.terminal_facts["first_priority_seat"] = seat_by_actor.get(actor)
                 priority_seen = True
 
                 # START-2 is a temporal/state-transition obligation. Observe the

@@ -52,11 +52,29 @@ def test_a_record_without_the_requirement_imposes_no_gap() -> None:
     assert full107.construction_credit_gap({"construction_validation": {"required": False}}) is None
 
 
+def _keeps(count: int) -> list[DecisionTapeEntry]:
+    """The record's scripted pregame as the driver tapes it: one keep per seat."""
+    return [
+        DecisionTapeEntry(
+            "mulligan",
+            "KEEP_OR_MULLIGAN",
+            f"p{seat}",
+            seat,
+            "record_plan",
+            "keep",
+            ["keep", "mulligan"],
+            "planned",
+        )
+        for seat in range(1, count + 1)
+    ]
+
+
 def _lifecycle(created: int) -> CommandedGameResult:
     result = CommandedGameResult(
         candidate="xmage", player_count=created, deck_identity=["d"] * created, game_id="g"
     )
     result.terminal_facts["created_player_count"] = created
+    result.decision_tape = _keeps(created)
     return result
 
 

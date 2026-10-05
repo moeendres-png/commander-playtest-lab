@@ -48,6 +48,9 @@ class EngineMessageType(StrEnum):
     ADD_PLAYER = "add_player"
     START_GAME = "start_game"
     GET_GAME_STATE = "get_game_state"
+    # Harness-only normalized constructed state for construction proofs
+    # (Commander-Lab #441 decision (c)); never a principal observation.
+    GET_CONSTRUCTED_STATE = "get_constructed_state"
     GET_LEGAL_ACTIONS = "get_legal_actions"
     SUBMIT_ACTION = "submit_action"
     PASS_PRIORITY = "pass_priority"
@@ -98,6 +101,9 @@ class EngineCapabilityHandshake(FrozenModel):
     commander_tax_visible: bool = False
     starting_state_injection_supported: bool = False
     scenario_injection_supported: bool = False
+    constructed_state_supported: bool = False
+    # Where the constructed state is served (an orchestration channel, #441 (c)).
+    constructed_state_scope: str | None = None
     healthcheck_supported: bool = True
     target_selection_supported: bool = False
     mode_selection_supported: bool = False
