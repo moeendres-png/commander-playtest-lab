@@ -2493,7 +2493,8 @@ def check_terminal(
                 )
         return False
     if check.kind == "pending_extra_turns":
-        return list(observation.get("pending_extra_turns") or ()) == list(check.value)
+        pending = _pending_extra_turns(observation)
+        return pending is not None and list(pending) == list(check.value)
     if check.kind == "extra_turn_created":
         return bool(_extra_turn_frames(check, trace, tape))
     if check.kind == "pending_extra_turns_between":
@@ -2910,6 +2911,22 @@ def _extra_turn_frames(
         if pending is not None and list(pending) == list(check.value):
             found.append(index)
     return found
+
+
+def _pending_extra_turns(readback: Any) -> tuple[str, ...] | None:
+    """The engine's pending extra-turn queue as read back, or None when unread.
+
+    The provider reports the queue on every readback, empty when it is empty. A
+    readback without the field, or with anything but a list of seat names, says
+    nothing about the queue, so it stays None and no check can be credited from
+    it: an absent field is never read as a drained queue.
+    """
+    if not isinstance(readback, dict):
+        return None
+    pending = readback.get("pending_extra_turns")
+    if not isinstance(pending, list) or not all(isinstance(seat, str) for seat in pending):
+        return None
+    return tuple(pending)
 
 
 def _pending_between_frames(
@@ -4563,7 +4580,7 @@ def execute_row(
                 # tape has grown: a skipped readback can only leave a creation
                 # unobserved (the row then fails closed), never invent one.
                 readback = client.complete_arrival().get("observation") or {}
-                frame.pending_extra_turns = tuple(readback.get("pending_extra_turns") or ())
+                frame.pending_extra_turns = _pending_extra_turns(readback)
                 read_at = frame.tape_sequence
             trace.append(frame)
             if unresolved_library:

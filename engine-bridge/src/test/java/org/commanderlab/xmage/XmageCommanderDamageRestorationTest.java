@@ -215,8 +215,10 @@ class XmageCommanderDamageRestorationTest {
         Arrived arrived = arrive(plan(
                 "rg02b-extra-turns", 3, commanders(3, "Rograkh, Son of Rohgahh"),
                 List.of(), List.of()), "rg02b-extra-turns");
-        assertFalse(XmageNativeStateRestoration.readback(arrived.game(), arrived.seats())
-                .has("pending_extra_turns"), "no extra turn, no field");
+        // No extra turn is an explicitly empty queue, never an absent field.
+        assertEquals("[]", XmageNativeStateRestoration
+                .readback(arrived.game(), arrived.seats()).getAsJsonArray("pending_extra_turns")
+                .toString());
         // Two extra turns created in order (P2's, then P3's): the engine takes
         // the most recent first (TurnMods.useNextExtraTurn).
         arrived.game().getState().getTurnMods().add(
@@ -230,6 +232,11 @@ class XmageCommanderDamageRestorationTest {
         assertEquals(arrived.seats().get("P3").getId(),
                 arrived.game().getState().getTurnMods().useNextExtraTurn().getPlayerId());
         assertEquals("[\"P2\"]", XmageNativeStateRestoration
+                .readback(arrived.game(), arrived.seats()).getAsJsonArray("pending_extra_turns")
+                .toString());
+        // Once the last entry is taken the engine reports the drained queue.
+        arrived.game().getState().getTurnMods().useNextExtraTurn();
+        assertEquals("[]", XmageNativeStateRestoration
                 .readback(arrived.game(), arrived.seats()).getAsJsonArray("pending_extra_turns")
                 .toString());
     }
