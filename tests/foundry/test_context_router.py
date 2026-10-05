@@ -165,6 +165,20 @@ def test_profile_repository_mismatch_rejected(scratch: dict, tmp_path: Path) -> 
         router.derive_plan(str(state), str(scratch["root"]), "cpl", profiles)
 
 
+def test_plan_rejects_wrong_workdir_remote_identity(
+    scratch: dict, tmp_path: Path
+) -> None:
+    state = write_state(tmp_path / "state.yaml", scratch)
+    git(["remote", "set-url", "origin", "https://github.com/example/other.git"], scratch["root"])
+    with pytest.raises(router.RouterError, match="selected canonical repository"):
+        router.derive_plan(
+            str(state),
+            str(scratch["root"]),
+            "cpl",
+            write_profiles(tmp_path),
+        )
+
+
 def test_branch_identity_reuses_capsule_fail_closed_gate(scratch: dict, tmp_path: Path) -> None:
     state = write_state(tmp_path / "state.yaml", scratch, branch="wrong")
     with pytest.raises(router.RouterError, match="branch mismatch"):
