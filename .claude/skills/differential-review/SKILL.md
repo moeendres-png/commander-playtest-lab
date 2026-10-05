@@ -93,13 +93,12 @@ Phase 3: Blast Radius → Phase 4: Deep Context → Phase 5: Adversarial → Pha
 
 ## Agents
 
-**`differential-review:adversarial-modeler`** — Models attacker perspectives and
-builds exploit scenarios for HIGH RISK code changes. Follows the 5-step
-adversarial methodology (attacker model, attack vectors, exploitability rating,
-exploit scenario, baseline cross-reference) and produces structured vulnerability
-reports. Delegate to this agent when Phase 5 analysis is needed on high-risk
-changes, passing that full namespaced name as `subagent_type` — a bare
-`adversarial-modeler` is unregistered and the dispatch fails at runtime.
+The upstream plugin can register a `differential-review:adversarial-modeler`
+subagent. This repository imports the prompt as
+`agents/adversarial-modeler.md`, but does not assume plugin registration.
+For HIGH RISK changes, read that bundled prompt and either delegate it through an
+available fresh reviewer or execute the same adversarial lens directly. Missing
+subagent registration is not permission to skip Phase 5.
 
 ---
 
@@ -119,13 +118,14 @@ Before delivering:
 
 ## Integration
 
-**audit-context-building skill:**
-- Pre-Analysis: Build baseline context
-- Phase 4: Deep context on HIGH RISK changes
+The upstream plugin references separate `audit-context-building` and
+`issue-writer` skills. They are **not dependencies in this repository**.
 
-**issue-writer skill:**
-- Transform findings into formal audit reports
-- Command: `issue-writer --input DIFFERENTIAL_REVIEW_REPORT.md --format audit-report`
+- For baseline/deep context, use fresh Git history, callers, tests and the existing
+  `prime-codebase` / project-native source-lock evidence as appropriate.
+- Persist findings as the required Markdown report; when a durable issue is needed,
+  use the repository's normal GitHub issue workflow.
+- Absence of either upstream companion skill is never a reason to weaken coverage.
 
 ---
 
@@ -156,8 +156,8 @@ Time: ~3-4 hours
 ### Deep Audit (Large, Critical Change)
 ```
 Input: 450 files, auth system rewrite
-Strategy: SURGICAL + audit-context-building
-1. Baseline context with audit-context-building
+Strategy: SURGICAL + fresh project-native baseline context
+1. Build baseline context from the locked base, Git history, callers, tests and invariants
 2. Deep analysis on auth changes only
 3. Blast radius analysis
 4. Adversarial modeling
