@@ -58,12 +58,14 @@ def _keeps(count: int) -> list[DecisionTapeEntry]:
         DecisionTapeEntry(
             "mulligan",
             "KEEP_OR_MULLIGAN",
-            f"p{seat}",
+            f"engine-{seat}",
             seat,
             "record_plan",
-            "keep",
-            ["keep", "mulligan"],
+            None,
+            ["opt-keep", "opt-mulligan"],
             "planned",
+            seat=f"p{seat}",
+            keep=True,
         )
         for seat in range(1, count + 1)
     ]

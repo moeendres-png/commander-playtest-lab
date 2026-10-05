@@ -345,9 +345,7 @@ def cardinality_row(
     planned = record.get("pregame_decision_plan") is not None
     if planned:
         evidence["observed_pregame_decisions"] = [
-            [entry.actor, entry.chosen_option_id == "keep"]
-            for entry in result.decision_tape
-            if entry.step == "mulligan"
+            [entry.seat, entry.keep] for entry in result.decision_tape if entry.step == "mulligan"
         ]
     if result.failure:
         if planned and result.failure.startswith(f"{DecisionUnsatisfied.__name__}:"):
@@ -927,7 +925,7 @@ def scripted_pregame_row(
         decks=decks,
     )
     asked = [
-        (entry.actor, entry.chosen_option_id == "keep")
+        (str(entry.seat), bool(entry.keep))
         for entry in game.decision_tape
         if entry.step == "mulligan"
     ]

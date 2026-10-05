@@ -58,6 +58,11 @@ class DecisionTapeEntry:
     chosen_option_id: str | None
     offered_option_ids: list[str]
     note: str
+    # A scripted pregame answer: the record's seat the engine's actor maps to
+    # and the keep/mulligan the plan submitted. The entry's actor and option
+    # fields stay exactly what the engine offered and executed.
+    seat: str | None = None
+    keep: bool | None = None
 
 
 @dataclass
@@ -237,6 +242,8 @@ class CommandedGameResult:
                     "chosen_option_id": entry.chosen_option_id,
                     "offered_option_ids": entry.offered_option_ids,
                     "note": entry.note,
+                    "seat": entry.seat,
+                    "keep": entry.keep,
                 }
                 for entry in self.decision_tape
             ],
@@ -904,16 +911,23 @@ def drive_commander_game(
                     ),
                     "resolve_mulligan",
                 )
+                # Recorded like every other mulligan frame (the engine's actor,
+                # no option id: keep/mulligan is a boolean answer, not an
+                # engine-offered option), with the plan's seat and answer beside.
                 result.decision_tape.append(
                     DecisionTapeEntry(
                         "mulligan",
                         kind,
-                        planned_seat,
+                        actor,
                         revision,
                         SCRIPTED_MULLIGAN_POLICY,
-                        "keep" if planned_keep else "mulligan",
+                        None,
                         offered,
-                        f"record plan entry {asked + 1}; no bottoming",
+                        f"record plan entry {asked + 1}: "
+                        f"{'keep' if planned_keep else 'mulligan'} for {planned_seat}; "
+                        "no bottoming",
+                        seat=planned_seat,
+                        keep=planned_keep,
                     )
                 )
                 result.observations.append(
