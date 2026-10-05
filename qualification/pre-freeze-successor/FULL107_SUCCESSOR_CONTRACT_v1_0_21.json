@@ -14383,7 +14383,7 @@
       "no_player_choice": "the current Oracle text asks no 'may'; the put is mandatory",
       "lossless_construction": {
        "complete_checkpoint_hands": {
-        "P1": "obj:replay-burn plus 8 template cards",
+        "P1": "obj:replay-burn and obj:replay-warp plus 8 template cards",
         "P2": "7 template cards",
         "P3": "7 template cards",
         "P4": "7 template cards"
