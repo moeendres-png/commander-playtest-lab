@@ -55,6 +55,24 @@ xvfb-run -a mvn -o -B test -pl forge-protocol2-bridge -am -Dcheckstyle.skip \
   -Dmaven.repo.local=$FORGE_M2_REPO -Dtest='forge.bridge.**' -Dsurefire.failIfNoSpecifiedTests=false
 ```
 
+### 6a. Forge suites in a cloud container (any Forge test change)
+
+- Desktop + bridge suite (about 3 minutes per JDK). `forge-gui-mobile` cannot build here
+  (jitpack.io is blocked), so never build the whole reactor:
+  `LANG=C.UTF-8 xvfb-run -a mvn -B -ntp -o -pl forge-gui-desktop,forge-protocol2-bridge -am test`
+- Targeted classes: add `-Dtest='CardDb*,DeckRecognizerTest' -Dsurefire.failIfNoSpecifiedTests=false`.
+- Known environmental failures. Record them as ENVIRONMENTAL with the proof, never as credit
+  and never as this change's failure:
+  - `NetworkPlayIntegrationTest.testServerStartAndStop`: port 55556 is held by the sandbox.
+    Prove it with a plain socket bind of 55556.
+  - `forge.PanelTest` "Cannot instantiate" on JDK 17: the container's JDK 17 is the headless
+    package (no `libawt_xawt.so`). JDK 21 there has full AWT.
+- `D24ExecutionGuardTest` pins the declared/enabled test denominators. Adding or enabling a
+  test method changes them on purpose; update them in the same commit.
+- D17 controls (`.github/qualification` in the Forge fork) need `D17_REQUIRE_TOOLCHAIN=1` and
+  the sandbox users. The mutation check runs longer than 30 minutes, so start it in the
+  background with a 2-hour timeout.
+
 ## 7. Real engines (when a row's behaviour can change)
 
 `lab-ops` `scripts/real_rows.py` re-runs only the affected rows against the real producers (LOCAL_OBSERVED,
