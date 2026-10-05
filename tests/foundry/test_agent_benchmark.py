@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import json
-import sys
+import os
 from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
-from foundry import agent_benchmark as bench  # noqa: E402
+from tools.foundry import agent_benchmark as bench
 
 
 SHA = "a" * 40
@@ -112,9 +111,7 @@ def test_measured_pair_preserves_quality_and_reports_deltas() -> None:
         ({"evidence_class": "UNKNOWN"}, "insufficient_evidence_class"),
     ],
 )
-def test_quality_loss_always_rejects_candidate(
-    quality_patch: dict, reason: str
-) -> None:
+def test_quality_loss_always_rejects_candidate(quality_patch: dict, reason: str) -> None:
     result = bench.compare(
         arm("baseline"),
         arm("candidate", quality=quality_patch),
@@ -183,9 +180,7 @@ def test_invalid_measurements_rejected(field: str, value: object) -> None:
         )
 
 
-def test_cli_rejects_duplicate_json_keys_without_echoing_content(
-    tmp_path: Path, capsys
-) -> None:
+def test_cli_rejects_duplicate_json_keys_without_echoing_content(tmp_path: Path, capsys) -> None:
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
     baseline.write_text(
@@ -213,9 +208,7 @@ def test_cli_rejects_duplicate_json_keys_without_echoing_content(
 
 
 @pytest.mark.parametrize("kind", ["same", "symlink", "hardlink"])
-def test_cli_output_cannot_alias_input(
-    tmp_path: Path, capsys, kind: str
-) -> None:
+def test_cli_output_cannot_alias_input(tmp_path: Path, capsys, kind: str) -> None:
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
     baseline.write_text(json.dumps(arm("baseline")), encoding="utf-8")
@@ -228,8 +221,6 @@ def test_cli_output_cannot_alias_input(
             if kind == "symlink":
                 output.symlink_to(baseline)
             else:
-                import os
-
                 os.link(baseline, output)
         except OSError:
             pytest.skip(f"{kind} creation unavailable")
