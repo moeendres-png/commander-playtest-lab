@@ -86,11 +86,7 @@ def _load(path: str) -> dict:
 
 
 def _label(value: object, field: str) -> str:
-    if (
-        not isinstance(value, str)
-        or not value.strip()
-        or any(ord(char) < 32 for char in value)
-    ):
+    if not isinstance(value, str) or not value.strip() or any(ord(char) < 32 for char in value):
         raise BenchmarkError(f"invalid {field}")
     return value
 
@@ -105,9 +101,7 @@ def _number(value: object, field: str, *, integer: bool = False) -> int | float:
     return int(value) if integer else value
 
 
-def _optional_number(
-    mapping: dict, field: str, *, integer: bool = False
-) -> int | float | None:
+def _optional_number(mapping: dict, field: str, *, integer: bool = False) -> int | float | None:
     value = mapping.get(field)
     if value is None:
         return None
@@ -142,15 +136,9 @@ def _validate_quality(value: object) -> dict:
     if not isinstance(value, dict):
         raise BenchmarkError("quality must be an object")
     result = {
-        "technical_outcome": _label(
-            value.get("technical_outcome"), "quality.technical_outcome"
-        ),
-        "final_validation": _label(
-            value.get("final_validation"), "quality.final_validation"
-        ),
-        "evidence_class": _label(
-            value.get("evidence_class"), "quality.evidence_class"
-        ),
+        "technical_outcome": _label(value.get("technical_outcome"), "quality.technical_outcome"),
+        "final_validation": _label(value.get("final_validation"), "quality.final_validation"),
+        "evidence_class": _label(value.get("evidence_class"), "quality.evidence_class"),
     }
     if result["technical_outcome"] not in OUTCOMES:
         raise BenchmarkError("unsupported quality.technical_outcome")
@@ -186,9 +174,7 @@ def _validate_session(value: object) -> dict:
         raise BenchmarkError("session must be a sanitized session_stats object")
     result: dict[str, object] = {}
     for field in (*CORE_EFFICIENCY_FIELDS, *OPTIONAL_EFFICIENCY_FIELDS):
-        number = _optional_number(
-            value, field, integer=field != "elapsed_seconds"
-        )
+        number = _optional_number(value, field, integer=field != "elapsed_seconds")
         if number is not None:
             result[field] = number
     by_tool = value.get("tool_calls_by_tool")
@@ -198,9 +184,7 @@ def _validate_session(value: object) -> dict:
         clean: dict[str, int] = {}
         for tool, count in by_tool.items():
             name = _label(tool, "tool name")
-            clean[name] = int(
-                _number(count, f"tool count for {name}", integer=True)
-            )
+            clean[name] = int(_number(count, f"tool count for {name}", integer=True))
         result["tool_calls_by_tool"] = dict(sorted(clean.items()))
     for field in ("model", "variant", "agent", "cli_version"):
         if value.get(field) is not None:
@@ -229,18 +213,12 @@ def _direct_tool_counts(session: dict) -> dict[str, int] | None:
     if not isinstance(by_tool, dict):
         return None
     return {
-        "direct_read_calls": sum(
-            int(by_tool.get(name, 0)) for name in READ_TOOLS
-        ),
-        "direct_search_calls": sum(
-            int(by_tool.get(name, 0)) for name in SEARCH_TOOLS
-        ),
+        "direct_read_calls": sum(int(by_tool.get(name, 0)) for name in READ_TOOLS),
+        "direct_search_calls": sum(int(by_tool.get(name, 0)) for name in SEARCH_TOOLS),
     }
 
 
-def _quality_gate(
-    quality: dict, required_evidence_class: str
-) -> tuple[str, list[str]]:
+def _quality_gate(quality: dict, required_evidence_class: str) -> tuple[str, list[str]]:
     reasons: list[str] = []
     if quality["technical_outcome"] != "PASS":
         reasons.append("technical_outcome_not_pass")
@@ -281,9 +259,7 @@ def compare(baseline_doc: dict, candidate_doc: dict) -> dict:
         raise BenchmarkError("A/B arms are not identity-equivalent")
 
     required_evidence_class = baseline["identity"]["required_evidence_class"]
-    baseline_quality, baseline_reasons = _quality_gate(
-        baseline["quality"], required_evidence_class
-    )
+    baseline_quality, baseline_reasons = _quality_gate(baseline["quality"], required_evidence_class)
     candidate_quality, candidate_reasons = _quality_gate(
         candidate["quality"], required_evidence_class
     )
@@ -299,14 +275,10 @@ def compare(baseline_doc: dict, candidate_doc: dict) -> dict:
     candidate_direct = _direct_tool_counts(candidate["session"])
     if baseline_direct is not None and candidate_direct is not None:
         for field in ("direct_read_calls", "direct_search_calls"):
-            deltas[field] = _delta(
-                baseline_direct[field], candidate_direct[field]
-            )
+            deltas[field] = _delta(baseline_direct[field], candidate_direct[field])
 
     for field in ("failed_attempts", "fix_waves", "checks_run"):
-        deltas[field] = _delta(
-            baseline["quality"][field], candidate["quality"][field]
-        )
+        deltas[field] = _delta(baseline["quality"][field], candidate["quality"][field])
     if (
         baseline["quality"]["context_reloads"] is not None
         and candidate["quality"]["context_reloads"] is not None
@@ -316,9 +288,7 @@ def compare(baseline_doc: dict, candidate_doc: dict) -> dict:
             candidate["quality"]["context_reloads"],
         )
 
-    comparable_core = [
-        field for field in CORE_EFFICIENCY_FIELDS if field in deltas
-    ]
+    comparable_core = [field for field in CORE_EFFICIENCY_FIELDS if field in deltas]
     quality_regression = candidate_quality != "PASS"
     if baseline_quality == "PASS":
         for field in (
@@ -351,9 +321,7 @@ def compare(baseline_doc: dict, candidate_doc: dict) -> dict:
         "efficiency_deltas": dict(sorted(deltas.items())),
         "core_efficiency_fields_compared": comparable_core,
         "tool_output_volume": None,
-        "tool_output_volume_status": (
-            "UNAVAILABLE_FROM_SANITIZED_SESSION_STATS"
-        ),
+        "tool_output_volume_status": ("UNAVAILABLE_FROM_SANITIZED_SESSION_STATS"),
         "default_promotion_authorized": False,
         "default_promotion_reason": (
             "single A/B pair is never sufficient for a default harness change"
@@ -402,9 +370,7 @@ def _output_aliases_input(output: str, *inputs: str) -> bool:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Compare one sanitized Commander agent A/B pair."
-    )
+    parser = argparse.ArgumentParser(description="Compare one sanitized Commander agent A/B pair.")
     parser.add_argument("--baseline", required=True)
     parser.add_argument("--candidate", required=True)
     parser.add_argument("--output")
