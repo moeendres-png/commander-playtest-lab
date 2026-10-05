@@ -52,7 +52,7 @@ CHANNEL_UNAUDITED = "PRESENT_UNAUDITED"
 
 # The bridge commit whose blobs this channel table was asserted against. A
 # moved canonical pin invalidates every channel status until it is re-asserted.
-ASSERTED_BRIDGE_COMMIT = "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c"
+ASSERTED_BRIDGE_COMMIT = "6f09dab0b9dfacaed1aeb84b1c7f3666d499e3f3"
 
 _BRIDGE_SOURCE = f"{lane.BRIDGE_MODULE}/src/main/java/forge/bridge"
 SOURCES: dict[str, str] = {
@@ -123,6 +123,7 @@ MESSAGE_CASES = frozenset(
         "BridgeProtocol.EXPORT_EVENT_LOG",
         "BridgeProtocol.EXPORT_REPLAY",
         "BridgeProtocol.GET_CAPABILITIES",
+        "BridgeProtocol.GET_CONSTRUCTED_STATE",
         "BridgeProtocol.GET_GAME_STATE",
         "BridgeProtocol.GET_LEGAL_ACTIONS",
         "BridgeProtocol.GET_PROVIDER_VERSION",
@@ -381,6 +382,25 @@ CHANNELS: tuple[Channel, ...] = (
             "is the observer-scoped projection. Whether every message refuses an "
             "omniscient read, and what its errors and diagnostics carry, is shown only by "
             "the row's runtime refusal probes and channel scan, which were not run"
+        ),
+    ),
+    Channel(
+        "orchestration_constructed_state",
+        CHANNEL_SUPPORTED,
+        "engine",
+        present=(
+            "case BridgeProtocol.GET_CONSTRUCTED_STATE: return getConstructedState(request);",
+            "if (!OrchestrationKey.enabled()) { final String problem = OrchestrationKey.problem(); "
+            "return BridgeProtocol.error(request.requestId, "
+            "BridgeErrors.ORCHESTRATION_CHANNEL_NOT_ENABLED,",
+        ),
+        meaning=(
+            "get_constructed_state (forge#25, the Lab's generic-lane construction proof, #441 "
+            "(c)) is an orchestration channel, not a principal observation: every launch "
+            "without COMMANDER_LAB_ORCHESTRATION_KEY refuses it with "
+            "orchestration_channel_not_enabled, and with a key each seat's library and hand "
+            "leave only as an HMAC-SHA-256 digest under that key (the AF09 precedent). No "
+            "principal-facing launch carries the key"
         ),
     ),
     Channel(

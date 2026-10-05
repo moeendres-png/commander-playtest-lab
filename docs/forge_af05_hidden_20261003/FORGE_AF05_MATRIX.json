@@ -1,5 +1,5 @@
 {
- "bridge_commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+ "bridge_commit": "6f09dab0b9dfacaed1aeb84b1c7f3666d499e3f3",
  "candidate": "forge",
  "canonical_bundle_digest": "20327abcad15e58a3dab8b5255079681980e97e2f7203c5af31f69be4c1336a5",
  "channels": [
@@ -277,6 +277,7 @@
     "BridgeProtocol.EXPORT_EVENT_LOG",
     "BridgeProtocol.EXPORT_REPLAY",
     "BridgeProtocol.GET_CAPABILITIES",
+    "BridgeProtocol.GET_CONSTRUCTED_STATE",
     "BridgeProtocol.GET_GAME_STATE",
     "BridgeProtocol.GET_LEGAL_ACTIONS",
     "BridgeProtocol.GET_PROVIDER_VERSION",
@@ -300,6 +301,22 @@
    ],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
    "status": "PRESENT_UNAUDITED"
+  },
+  {
+   "absent_tokens": [],
+   "channel": "orchestration_constructed_state",
+   "closed_bootstrap_fields": [],
+   "closed_frame_keys": [],
+   "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
+   "meaning": "get_constructed_state (forge#25, the Lab's generic-lane construction proof, #441 (c)) is an orchestration channel, not a principal observation: every launch without COMMANDER_LAB_ORCHESTRATION_KEY refuses it with orchestration_channel_not_enabled, and with a key each seat's library and hand leave only as an HMAC-SHA-256 digest under that key (the AF09 precedent). No principal-facing launch carries the key",
+   "present_fragments": [
+    "case BridgeProtocol.GET_CONSTRUCTED_STATE: return getConstructedState(request);",
+    "if (!OrchestrationKey.enabled()) { final String problem = OrchestrationKey.problem(); return BridgeProtocol.error(request.requestId, BridgeErrors.ORCHESTRATION_CHANNEL_NOT_ENABLED,"
+   ],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java",
+   "status": "SUPPORTED"
   },
   {
    "absent_tokens": [],
@@ -2506,11 +2523,11 @@
  ],
  "schema_version": "commander-lab.forge-hidden-information/1.0.0",
  "source_blobs": {
-  "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java": "4c207b4c3c75d3183d52886fb7045ad012e2db08",
+  "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java": "d4f048ec959023be08b544998aa2b62a6e1d6e0a",
   "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeMain.java": "b3fe9cfde4205d59d80fef53ef35954eadbaa2d0",
-  "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java": "1875902a3748e97b1b647a26d0f41b51db5e1257",
+  "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java": "d45bd01485ed711ced39e9ec51976b4aa2246845",
   "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java": "94ad4423b9c67d0e3242f5de9b59bce3d9eac7a4",
-  "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java": "ddd97cb0d1c5e7cf8da86bdf8ed89b5a0d8a085d"
+  "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java": "0b5386181190867b26c72ccb554ea44dade82b6f"
  },
  "sources": {
   "bootstrap": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",

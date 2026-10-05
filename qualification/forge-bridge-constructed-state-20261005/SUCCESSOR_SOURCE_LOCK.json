@@ -1,0 +1,86 @@
+{
+ "schema_version": "commander-lab.forge-bridge-successor-source-lock/1.0.0",
+ "workstream": "forge-bridge-constructed-state-20261005",
+ "classification": "SUCCESSOR_BRIDGE_MATERIALIZATION_SOURCE",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "DENOMINATOR_CHANGE",
+  "RULES_CORE_AUTHORITY_CHANGE",
+  "FORGE_MASTER_MERGE"
+ ],
+ "rules_core_authority": {
+  "repository": "https://github.com/moeendres-png/forge.git",
+  "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+  "role": "R-1 admitted Rules-Core qualification candidate (#11 incl. #12). UNCHANGED by this lock.",
+  "lock": "qualification/forge-r1-candidate-authority-20260930/SUCCESSOR_SOURCE_LOCK.json (Rules-Core fields unchanged)"
+ },
+ "prior_bridge_source": {
+  "commit": "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c",
+  "tree": "000066890decca5ed7b1b889be0ea46d77903aee",
+  "content": "#11 + AF01 #13 + no-default hardening #15 + structured cost order (forge#16)",
+  "role": "historical; successor lock qualification/forge-bridge-r5-integrated-20261001"
+ },
+ "new_bridge_source": {
+  "repository": "https://github.com/moeendres-png/forge.git",
+  "branch": "claude/forge-unified-successor-20260929",
+  "commit": "6f09dab0b9dfacaed1aeb84b1c7f3666d499e3f3",
+  "tree": "532202f3365ce9170cf8c66de381adddbe3cd923",
+  "pull_request": 25,
+  "integration": "forge#22 merged into the #11 qualification branch as 42963734 (2026-10-04), forge#25 as 6f09dab0 (2026-10-05); branch head == 6f09dab0",
+  "ancestry": "20e3e1f7 and bb0a740d are ancestors; 20e3e1f7..6f09dab0 is 7 commits and bb0a740d..6f09dab0 31 commits, all changing only forge-protocol2-bridge/ (0 Rules-Core, 0 card-data files)",
+  "content": "forge#22: the bridge answers the free multiplayer mulligan's zero-card London tuck (#441 PILOT_MULLIGAN); forge#25: get_constructed_state, an orchestration channel refused without COMMANDER_LAB_ORCHESTRATION_KEY that reports public seat facts, each seat's library and hand as one HMAC-SHA-256 digest under the launch key and each library's engine shuffle count (GameEventShuffle), for the Lab's generic-lane construction proof (#441 (c))"
+ },
+ "exact_head_qualification": {
+  "commit": "6f09dab0b9dfacaed1aeb84b1c7f3666d499e3f3",
+  "github_test_build": [
+   {
+    "run_id": 37250587908,
+    "event": "push",
+    "java17": "success",
+    "java21": "success"
+   }
+  ],
+  "github_ios_mobivm": [
+   {
+    "run_id": 37250587931,
+    "conclusion": "success"
+   }
+  ],
+  "pull_request_heads": [
+   {
+    "pull_request": 22,
+    "head_ci": "Java 17/21 and iOS green on its exact head before merge"
+   },
+   {
+    "pull_request": 25,
+    "commit": "f4b8cdfae625c88f767feda06253963c219479e1",
+    "github_test_build_run_ids": [
+     37240374839,
+     37240376596
+    ],
+    "java17": "success",
+    "java21": "success",
+    "ios": "success"
+   }
+  ],
+  "local_forge_bridge_suite": {
+   "command": "xvfb-run -a mvn -o -B test -pl forge-protocol2-bridge -am -Dcheckstyle.skip",
+   "commit": "f4b8cdfae625c88f767feda06253963c219479e1",
+   "tree_equal_to_new_bridge_source": true,
+   "run": 363,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  }
+ },
+ "lab_consumer": {
+  "hidden_information_channels": "src/commander_lab/qualification/current_boundary/forge_hidden_information.py re-asserted at 6f09dab0: the message surface gains BridgeProtocol.GET_CONSTRUCTED_STATE and the channel table records orchestration_constructed_state (SUPPORTED, refused without a launch key); no other asserted fragment, field, key or diagnostic drifted (census rerun, AF05 Forge classifications unchanged: 20 PROVIDER_ADAPTER_GAP)",
+  "construction_proof": "Commander-Lab #530 runs construction rows on a dedicated orchestration launch with a fresh key and compares digests and shuffle counts; a launch without the key stays UNKNOWN",
+  "current_boundary": "REQUALIFICATION_REQUIRED: the successor PB-03 epoch on the Lab main merge commit binds this bridge source; no historical Forge receipt is relabelled"
+ },
+ "evidence_transfer": {
+  "historical_receipts_relabelled": false
+ }
+}
