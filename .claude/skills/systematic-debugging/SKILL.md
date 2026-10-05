@@ -284,4 +284,8 @@ These techniques are part of systematic debugging and available in this director
 
 - **`root-cause-tracing.md`** - Trace bugs backward through call stack to find original trigger
 - **`defense-in-depth.md`** - Add validation at multiple layers after finding root cause
-- **`condition-based-waiting.md`** - Replace arbitrary timeouts with condition polling
+- **[`condition-based-waiting.md`](condition-based-waiting.md)** - Replace arbitrary timeouts with condition polling
+- **[`root-cause-tracing.md`](root-cause-tracing.md)** - Trace failures backward to the original trigger
+- **[`defense-in-depth.md`](defense-in-depth.md)** - Add layered guards after root cause is known
+- **[`find-polluter.sh`](find-polluter.sh)** - Optional helper for isolating a test that pollutes shared state
+- **[`condition-based-waiting-example.ts`](condition-based-waiting-example.ts)** - Example condition-based polling implementation
