@@ -55,6 +55,11 @@ so no mismatched or retired pair is reachable. There is no active-work native la
 `max`; the project-level `--effort` field describes task/authority routing only and never
 lowers either executor's native level.
 
+This native-`max` rule binds the OpenCode profiles only. A Claude Opus 5.5 campaign runs
+at `medium` or `high` effort, and any Claude subagent it starts runs on at least Sonnet
+at `high` effort. Those subagents are read-only helpers inside the campaign, not Foundry
+executors, and hold no write, adjudication or merge authority.
+
 Root `opencode.json` is DeepSeek MAX by default and exposes Space Bunny MAX as the only
 other whitelisted model. The GitHub OpenCode lane is also DeepSeek MAX. No executor
 fallback occurs on quota, auth, catalog or child failure.

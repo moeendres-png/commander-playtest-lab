@@ -29,7 +29,8 @@ Decision vocabulary:
 | piv-review-pr | IMPORT | Fresh-context PR review is directly valuable; Commander-specific evidence and merge gates remain authoritative. |
 | piv-run-full-loop | DEFER / ADAPT | Too generic as-is: it lacks Commander source locks, ownership checks, evidence vocabulary, fail-closed gates, PR review and semantic-completion requirements. |
 | piv-slice-epic | IMPORT | Excellent match for splitting large post-roadmap work into disjoint, testable, dependency-aware workstreams and parallelizable mutation surfaces. |
-| piv-validate | IMPORT | Useful validation shell, but actual commands and PASS semantics come from the active repo/workstream. Green CI alone is never Qualification PASS. |
+| piv-validate | IMPORT, TAILORED | The template's placeholder commands are replaced by this repository's real checks (ruff, mypy, qualification and unit tests, hash manifests, both bridge suites). PASS semantics still come from the active repo/workstream; green CI alone is never Qualification PASS. |
+| lab-ops | FIRST-PARTY | Compact PR/CI/thread status, job-failure extraction, PB-03 packet summary and real-engine row runners, written for this repository; read-only towards GitHub. |
 | plan-architecture | IMPORT | Especially valuable in **brownfield mode**: inspect existing Lab/engine seams first, compare approaches, preserve reuse-first and avoid accidental second Rules Engines. |
 | plan-create-prd | IMPORT | Valuable for the product-level intent of the eventual Commander Simulator Next or a genuinely new epic/product boundary. It must not overwrite current technical source truth or issue contracts. |
 | plan-create-stories | SKIP | Largely superseded here by `piv-slice-epic`, which handles architecture/dependencies/parallelism more explicitly. |
