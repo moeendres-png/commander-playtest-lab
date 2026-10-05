@@ -11,14 +11,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
+from collections import deque
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import context_capsule as capsule_mod
+import reference_roots as reference_mod
 import source_lock as source_lock_mod
 
 DEFAULT_PROFILES_DIR = Path(__file__).resolve().parents[2] / ".foundry" / "repo-profiles"
@@ -79,8 +82,6 @@ TEXT_SIGNALS: tuple[tuple[tuple[str, ...], str], ...] = (
     (("workflow", "github action", " ci ", "check gate"), "ci"),
     (("qualification", "receipt", "evidence seal", "current boundary"), "qualification"),
     (("evidence", "artifact", "sha256", "provenance"), "evidence"),
-    (("xmage", "mage", "maven"), "mage"),
-    (("forge", "gradle"), "forge"),
 )
 
 
@@ -130,7 +131,6 @@ def _routing_text(state: dict) -> str:
         "hard_gates",
         "failed_gates",
         "invalidated_gates",
-        "files_modified",
     ):
         pieces.extend(_strings(state.get(field)))
     return "\n".join(pieces).casefold()
@@ -164,7 +164,7 @@ def _domains(state: dict, profile: str) -> tuple[list[str], list[str]]:
     reasons: list[str] = []
     paths = _changed_paths(state)
     for path in paths:
-        normalized = path.replace("\\", "/").lstrip("./")
+        normalized = path
         for prefix, domain in PATH_SIGNALS:
             if normalized.startswith(prefix):
                 selected.add(domain)
@@ -198,14 +198,18 @@ def _domains(state: dict, profile: str) -> tuple[list[str], list[str]]:
 
 
 def _needs_broad_context(
-    state: dict, domains: list[str], paths: list[str]
+    state: dict,
+    facts: dict,
+    domains: list[str],
+    paths: list[str],
+    profile: str,
 ) -> tuple[bool, list[str]]:
     reasons: list[str] = []
     if not domains:
         reasons.append("no deterministic route matched")
     if len(paths) > MAX_CHANGED_PATHS:
         reasons.append(f"files_modified exceeds {MAX_CHANGED_PATHS}")
-    if "engine_bridge" in domains and not ({"mage", "forge"} & set(domains)):
+    if "engine_bridge" in domains and profile == "cpl":
         reasons.append("engine bridge provider ambiguous")
     if _strings(state.get("authority_gates")):
         reasons.append("authority gate present")
@@ -213,8 +217,13 @@ def _needs_broad_context(
         reasons.append("failure class UNKNOWN")
     if _strings(state.get("invalidated_gates")):
         reasons.append("invalidated gates present")
-    if str(state.get("status", "")) in {"STALE", "SUPERSEDED"}:
-        reasons.append("state status requires rebaseline")
+    if str(state.get("status", "")) != "ACTIVE":
+        reasons.append("state status is not ACTIVE")
+    recorded = state.get("state_written_against_head")
+    if recorded and str(recorded) != facts["head"]:
+        reasons.append("state HEAD drift")
+    if facts["dirty_entries"] != 0:
+        reasons.append("worktree is dirty")
     return bool(reasons), reasons
 
 
@@ -239,7 +248,13 @@ def build_plan(
 
     changed_paths = _changed_paths(state)
     domains, reasons = _domains(state, profile)
-    broad, broad_reasons = _needs_broad_context(state, domains, changed_paths)
+    broad, broad_reasons = _needs_broad_context(
+        state,
+        facts,
+        domains,
+        changed_paths,
+        profile,
+    )
 
     tools: list[str] = []
     if changed_paths:
@@ -252,18 +267,15 @@ def build_plan(
         tools.append("skill: component-change-review")
 
     repo_maps: list[dict[str, str]] = []
-    for engine_profile in ("mage", "forge"):
-        if engine_profile not in domains:
-            continue
+    if not broad and profile in {"mage", "forge"}:
         repo_maps.append(
             {
-                "profile": engine_profile,
+                "profile": profile,
                 "mode": "ON_DEMAND_ONLY",
                 "command": (
                     "python3 tools/foundry/context_router.py repo-map "
-                    f"--profile {engine_profile} "
-                    "--workdir <DECLARED_REFERENCE_ROOT> "
-                    "--expected-head <DECLARED_SOURCE_LOCK_SHA> --max-depth 3"
+                    f"--profile {profile} "
+                    "--workdir <DECLARED_REFERENCE_ROOT> --max-depth 3"
                 ),
             }
         )
@@ -276,6 +288,11 @@ def build_plan(
         "live_HEAD": facts["head"],
         "live_tree": facts["tree"],
         "tree_clean": facts["dirty_entries"] == 0,
+        "state_written_against_head": state.get("state_written_against_head"),
+        "head_drift": bool(
+            state.get("state_written_against_head")
+            and str(state.get("state_written_against_head")) != facts["head"]
+        ),
         "capsule_required": True,
         "policy_note": (
             "AGENTS.md remains privileged always-on policy; this plan only routes "
@@ -314,12 +331,26 @@ def derive_plan(
     if problems:
         raise RouterError(problems[0])
     profile_data = _load_profile(profile, profiles_dir)
+    expected_worktree = state.get("worktree")
+    if not isinstance(expected_worktree, str) or os.path.realpath(workdir) != os.path.realpath(
+        expected_worktree
+    ):
+        raise RouterError("workdir does not match the state worktree")
     try:
+        toplevel = os.path.realpath(_git(["rev-parse", "--show-toplevel"], workdir))
         remote = source_lock_mod.remote_identity(workdir)
-    except RuntimeError as exc:
-        raise RouterError("workdir remote identity unavailable or ambiguous") from exc
+        rewrites_clean = source_lock_mod._no_url_rewrites(
+            workdir,
+            dict(os.environ, GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never"),
+        )
+    except (RuntimeError, OSError, subprocess.TimeoutExpired) as exc:
+        raise RouterError("workdir identity unavailable or ambiguous") from exc
+    if toplevel != os.path.realpath(workdir):
+        raise RouterError("workdir must be the checkout toplevel")
     if not source_lock_mod.is_canonical_remote(remote, profile_data["repo_slug"]):
         raise RouterError("workdir does not match selected canonical repository")
+    if not rewrites_clean:
+        raise RouterError("workdir URL rewrite configuration present or unreadable")
     return build_plan(
         state,
         facts,
