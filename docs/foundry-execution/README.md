@@ -23,7 +23,8 @@ Single coherent entry point for the OpenCode Foundry execution system on
 | Tool tests | `tests/foundry/test_foundry_tools.py` | Deterministic behavior gates |
 | Compaction record | `docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md` | `COMPACTION_HOOK = DEFERRED` + reason |
 | Metrics | `docs/foundry-execution/METRICS.md` + `tools/foundry/metrics.py` | JSONL session records |
-| Benchmark design | `docs/foundry-execution/HIGH_XHIGH_BENCHMARK.md` | Historical harness design, superseded; no claimed results |
+| Agent-efficiency benchmark | `docs/foundry-execution/AGENT_EFFICIENCY_BENCHMARK.md` + `tools/foundry/agent_benchmark.py` | Active measurement-only A/B contract; quality-first, no default promotion from one pair |
+| Historical benchmark design | `docs/foundry-execution/HIGH_XHIGH_BENCHMARK.md` | Superseded design provenance; no claimed results |
 | Current workstream | Explicit user assignment + dedicated state/contract | Historical handoffs never select the next task |
 
 Historical research, dated reports, and superseded proposals stay where they are and
