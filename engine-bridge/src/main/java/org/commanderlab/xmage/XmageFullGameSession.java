@@ -817,11 +817,19 @@ final class XmageFullGameSession {
     }
 
     /**
-     * Bound for {@link #awaitSettled}: below the Lab transport's 120 s request
-     * timeout, so an honest bridge-side timeout is reported before the client
-     * gives up on the request.
+     * Bound for {@link #awaitSettled}. A submit can first spend up to 20 s on
+     * the decision advance and 20 s more on a legal-action wait, so 75 s keeps
+     * the whole request below the Lab transport's 120 s request timeout and an
+     * honest bridge-side timeout is reported before the client gives up.
      */
-    static final Duration SETTLE_TIMEOUT = Duration.ofSeconds(100);
+    static final Duration SETTLE_TIMEOUT = Duration.ofSeconds(75);
+
+    /**
+     * Test seam: runs on the engine thread right after the controller is marked
+     * terminal, i.e. inside the window {@link #awaitSettled} closes. A no-op in
+     * production.
+     */
+    static volatile Runnable afterTerminalMarked = () -> { };
 
     /**
      * Waits until the engine is parked on a decision or has ended, and only
@@ -881,6 +889,7 @@ final class XmageFullGameSession {
             );
         } finally {
             controller.markTerminal();
+            afterTerminalMarked.run();
         }
     }
 
