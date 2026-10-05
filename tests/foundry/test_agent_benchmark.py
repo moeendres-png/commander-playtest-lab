@@ -380,6 +380,25 @@ def test_invalid_measurements_rejected(field: str, value: object) -> None:
         )
 
 
+def test_extreme_json_integer_literal_rejected_without_traceback(
+    tmp_path: Path, capsys
+) -> None:
+    baseline = tmp_path / "base.json"
+    candidate = tmp_path / "candidate.json"
+    baseline.write_text(
+        '{"schema_version":"1.0","arm":"baseline","identity":{"case_id":'
+        + "9" * 5000
+        + "}}",
+        encoding="utf-8",
+    )
+    candidate.write_text(json.dumps(arm("candidate")), encoding="utf-8")
+    assert bench.main(["--baseline", str(baseline), "--candidate", str(candidate)]) == 2
+    captured = capsys.readouterr()
+    assert "AGENT_BENCHMARK_REJECT" in captured.out
+    assert "Traceback" not in captured.out
+    assert "9999999999" not in captured.out
+
+
 def test_huge_finite_integer_delta_rejected_cleanly(tmp_path: Path, capsys) -> None:
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
