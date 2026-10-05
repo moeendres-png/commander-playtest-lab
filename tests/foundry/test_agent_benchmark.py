@@ -384,9 +384,7 @@ def test_extreme_json_integer_literal_rejected_without_traceback(tmp_path: Path,
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
     baseline.write_text(
-        '{"schema_version":"1.0","arm":"baseline","identity":{"case_id":'
-        + "9" * 5000
-        + "}}",
+        '{"schema_version":"1.0","arm":"baseline","identity":{"case_id":' + "9" * 5000 + "}}",
         encoding="utf-8",
     )
     candidate.write_text(json.dumps(arm("candidate")), encoding="utf-8")
