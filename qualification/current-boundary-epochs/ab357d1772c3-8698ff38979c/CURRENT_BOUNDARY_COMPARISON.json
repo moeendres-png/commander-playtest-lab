@@ -1,0 +1,2656 @@
+{
+ "column_provenance": {
+  "forge": {
+   "class": "FRESH_CURRENT_BOUNDARY_EXECUTION"
+  },
+  "xmage": {
+   "class": "FRESH_CURRENT_BOUNDARY_EXECUTION"
+  }
+ },
+ "denominator": 107,
+ "dispositions": {
+  "NON_COMPARABLE": 107
+ },
+ "no_ranking": "this packet contains no score, no ranking and no preferred provider",
+ "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+ "rows": [
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "CARD_02",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#CARD_02): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_01",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04, supersedes c0960492e7fc); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (opponent_hand). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_01): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_02",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04, supersedes 3ee2b2bb1445); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (opponent_library). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_02): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_03",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04, supersedes 20a781e65cc3); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (public_exile). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_03): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_04",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04, supersedes e05a98354ca5); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (face_down_controller). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_04): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_05",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 0af69c7277a0); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_05): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_06",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 5dbc36acd8b1); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_06): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_07",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes bbf19eb4b5e8); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_07): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_08",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 24871f046c9a); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_08): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_09",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 3a39083f8a9e); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_09): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_10",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 70c0be2eb077); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_10): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_11",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 0cc9a4716a60); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_11): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_12",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes e3f5a7db644b); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_12): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_13",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 941e38d73fec); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_13): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_14",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes ff1de1c50580); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_14): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_15",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes b21707062826); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_15): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_16",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 9ac0d58627d0); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_16): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_17",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 0e43532da77d); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_17): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_18",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (HIDDEN_EVENT_SCENARIO_ERRATUM_SLOT04, supersedes 79feb8050e40); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_18): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_19",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04, supersedes 502052b3b503); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_19): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (LOSSLESS_HIDDEN_STATE_MATERIALIZATION_ERRATUM_SLOT04, supersedes 903bca9e743d); its predecessor's evidence does not transfer. Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak)."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+    "exit_state": "PASS",
+    "reason": "actor-entitled knowledge boundary executed on the production midgame lane (midgame-lane:knowledge-projection#HIDDEN_HONEYCARD_SENTINEL): the engine constructed the record's SLOT-04 lossless state exactly and reported every declared lossless check, every principal's projection was read from the live rules state, the record's viewer obligation held against the values the record requests, and no forbidden identity or honey sentinel appeared in any channel the viewer receives"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_COMBAT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: combat_damage:attacker_to_blocker:2, combat_damage:blocker_to_attacker:2, state_based_actions. no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_COMBAT): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_OBLIGATION_ERRATUM_CR103_8A, supersedes c5528a9fa89e); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (temporal_checkpoint.exact_hand_after_draw): the obligation requires the exact hand after the draw; the engine's natural draw adds a card the lane can neither control nor prove, so exact equality cannot be established; the open mechanism is controlling or proving the drawn card, and the exact-equality obligation stays unchanged. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_CONTINUOUS_EFFECTS): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_CONTROL",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (ACTUAL_CARD_SCENARIO_ERRATUM, supersedes 4a80bb8e9f85); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_CONTROL): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_COPY",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes a3546f0ca825); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.choice.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_COPY): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_COSTS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR307_1_CR302_6, supersedes d90d525a43d4); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_state.active_player (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_objects (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_COSTS): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_LAYERS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_OBSERVABILITY_ERRATUM, supersedes ef6c4515a7e3); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (unprojected_readback:layer6_remove_abilities): the obligation reads a permanent's abilities and the pinned bridge's battlefield projection carries power and toughness but no abilities (no ability readback). then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_LAYERS): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_MANA_PAYMENT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_stack_object (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_MANA_PAYMENT): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_MODES",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 3fbfd0829ef1); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.choose_mode.semantic_mode_key (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_MODES): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_PREVENTION",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR302_6_CR508_1F, supersedes e6b2f3f876c4); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: combat_damage_would_be:P2:2, prevention_applied, combat_damage_prevented:P2:2. no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_PREVENTION): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_PRIORITY",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR302_6, supersedes 7e8c87e0138f); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_PRIORITY): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_REPLACEMENT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR510_CR508_1F, supersedes 95233e6cd90a); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: damage_would_be:P2:3, replacement_effect:double. no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_REPLACEMENT): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 1c67c9c4d7ca); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at construction (rules_randomness.predetermined_semantic_draws): predetermined draws have no bootstrap field and no engine action causes them. then: construction stack_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.choice.boolean (LAB_EXECUTION_GAP); observation event_log (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: rules_rng:coin_flip:HEADS, extra_turn_created:P1. no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_RULES_RANDOMNESS): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_STACK",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR302_6, supersedes 7e8c87e0138f); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_STACK): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: state_based_actions. no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_STATE_BASED_ACTIONS): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_TARGETS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_TARGETS): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_TRIGGERS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_TRIGGERS): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction stack_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: new_object_incarnation:line:micro-bolt. no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#MICRO_ZONE_CHANGES): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (ACTUAL_CARD_SCENARIO_ERRATUM, supersedes 191e46e266e9); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_DEFAULT_YES_NO): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_FIRST_OPTION",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 2a113a9a791b); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_FIRST_OPTION): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_GUI_DEFAULT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 8fb40cf8fcd2); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_GUI_DEFAULT): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_INTERNAL_AI",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_INTERNAL_AI): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_RANDOM_OPTION",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 27e48a2a3629); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_RANDOM_OPTION): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "NEGATIVE_SILENT_SKIP",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes dfdcea34210e); its predecessor's evidence does not transfer. the effective obligation is a dedicated per-shortcut negative proving that one prohibited fallback cannot satisfy a production-reachable decision. The current-boundary runner has no such shortcut to exercise, so the negative is unproven; the general fail-closed behaviour exercised in AF01 is recorded separately and is not transferred to this fixture."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#NEGATIVE_SILENT_SKIP): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_ANNOUNCE_X",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.announce_x.integer (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_ANNOUNCE_X): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_CHOICE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.choice.semantic_choice_key (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_CHOICE): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_CHOOSE_ABILITY",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at execution (decision_execution.choose_ability.semantic_ability_key): the record scripts a choose_ability decision; the bridge carries it on its SPELL_ABILITY frames, but the lane has no selector for them. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_CHOOSE_ABILITY): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_CHOOSE_MODE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.choose_mode.semantic_mode_key (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_CHOOSE_MODE): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_CHOOSE_OBJECT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_state.active_player (LAB_EXECUTION_GAP); execution decision_execution.choose_object.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_CHOOSE_OBJECT): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_CHOOSE_USE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04, supersedes 9bc02f7e461b); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:library): library contents are never exposed. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.choose_use.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_CHOOSE_USE): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_DECLARE_ATTACKER",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_DECLARE_ATTACKER): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_DECLARE_BLOCKER",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR508_1F, supersedes 429351a35cc1); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); execution decision_execution.declare_blocker.blocker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_DECLARE_BLOCKER): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_MANA_PAYMENT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_stack_object (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_MANA_PAYMENT): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_MULLIGAN",
+   "forge": {
+    "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+    "exit_state": "PASS",
+    "reason": "real 4P Commander pregame executed under Protocol 2.0.0: the engine asked exactly the record's mulligan decisions in order, each answered from the record's plan, and every seat's engine-reported hand at the first priority states the bottom counts"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+    "exit_state": "PASS",
+    "reason": "real 4P Commander pregame executed under Protocol 2.0.0: the engine asked exactly the record's mulligan decisions in order, each answered from the record's plan, and every seat's engine-reported hand at the first priority states the bottom counts"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_MULTI_AMOUNT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 8d8d91ab3366); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.multi_amount.amount_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_MULTI_AMOUNT): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_PILE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (CAUSAL_STACK_SCENARIO_ERRATUM, supersedes 47cd6fcd2502); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:library): library contents are never exposed. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.pile.partition (LAB_EXECUTION_GAP); execution decision_execution.pile.pile_label (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_PILE): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_PRIORITY",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_PRIORITY): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.replacement_effect.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_REPLACEMENT_EFFECT): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_TARGET",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_TARGET): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_TARGET_AMOUNT",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes ad1a4eafe505); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target_amount.amount_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_TARGET_AMOUNT): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PILOT_TRIGGER_ORDER",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at execution (decision_execution.trigger_order.order): the record scripts a trigger_order decision; the bridge carries it on its ORDER frames, but the lane has no selector for them. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#PILOT_TRIGGER_ORDER): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PLAYER_COUNT_2P",
+   "forge": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 2P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 2P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PLAYER_COUNT_3P",
+   "forge": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 3P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 3P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PLAYER_COUNT_4P",
+   "forge": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 4P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 4P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "PLAYER_COUNT_5P",
+   "forge": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 5P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "PROTOCOL2_LIFECYCLE",
+    "exit_state": "PASS",
+    "reason": "real 5P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04, supersedes b81d5a9e8424); its predecessor's evidence does not transfer. the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "AF09_MIDGAME_CLEAN_PROCESS_REPLAY_TWIN",
+    "exit_state": "PASS",
+    "reason": "clean-process replay twin executed on the production midgame lane (af09-midgame-replay-twin#REPLAY_CLEAN_PROCESS): the record's scenario ran from its decision script with engine-offered options only, a fresh process replayed it from the taped external inputs alone, and the decision tape, canonical event tape, Rules RNG coordinates and results, public, actor and privileged checkpoint digests and each process's own terminal observation compared equal with every adversarial control detected; the row's own replay property held on those tapes"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04, supersedes b81d5a9e8424); its predecessor's evidence does not transfer. the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "AF09_MIDGAME_CLEAN_PROCESS_REPLAY_TWIN",
+    "exit_state": "PASS",
+    "reason": "clean-process replay twin executed on the production midgame lane (af09-midgame-replay-twin#REPLAY_DECISION_TAPE): the record's scenario ran from its decision script with engine-offered options only, a fresh process replayed it from the taped external inputs alone, and the decision tape, canonical event tape, Rules RNG coordinates and results, public, actor and privileged checkpoint digests and each process's own terminal observation compared equal with every adversarial control detected; the row's own replay property held on those tapes"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04, supersedes b81d5a9e8424); its predecessor's evidence does not transfer. the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "AF09_MIDGAME_CLEAN_PROCESS_REPLAY_TWIN",
+    "exit_state": "PASS",
+    "reason": "clean-process replay twin executed on the production midgame lane (af09-midgame-replay-twin#REPLAY_EVENT_TAPE): the record's scenario ran from its decision script with engine-offered options only, a fresh process replayed it from the taped external inputs alone, and the decision tape, canonical event tape, Rules RNG coordinates and results, public, actor and privileged checkpoint digests and each process's own terminal observation compared equal with every adversarial control detected; the row's own replay property held on those tapes"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (LOSSLESS_LIBRARY_MATERIALIZATION_ERRATUM_SLOT04, supersedes b81d5a9e8424); its predecessor's evidence does not transfer. the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "AF09_MIDGAME_CLEAN_PROCESS_REPLAY_TWIN",
+    "exit_state": "PASS",
+    "reason": "clean-process replay twin executed on the production midgame lane (af09-midgame-replay-twin#REPLAY_STATE_HASHES): the record's scenario ran from its decision script with engine-offered options only, a fresh process replayed it from the taped external inputs alone, and the decision tape, canonical event tape, Rules RNG coordinates and results, public, actor and privileged checkpoint digests and each process's own terminal observation compared equal with every adversarial control detected; the row's own replay property held on those tapes"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "RNG_RULES_TAPE",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (CARD_CAUSED_RULES_RNG_SCENARIO_ERRATUM, supersedes b81d5a9e8424); its predecessor's evidence does not transfer. the effective obligation is an N-scoped replay/RNG fixture requiring a clean-process twin of the same decisions and Rules RNG. A single-process replay export was executed, but the twin half of the obligation is not proven in this run."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "AF09_MIDGAME_CLEAN_PROCESS_REPLAY_TWIN",
+    "exit_state": "PASS",
+    "reason": "clean-process replay twin executed on the production midgame lane (af09-midgame-replay-twin#RNG_RULES_TAPE): the record's scenario ran from its decision script with engine-offered options only, a fresh process replayed it from the taped external inputs alone, and the decision tape, canonical event tape, Rules RNG coordinates and results, public, actor and privileged checkpoint digests and each process's own terminal observation compared equal with every adversarial control detected; the row's own replay property held on those tapes"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-DMG-CONTROL",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (ACTUAL_CARD_SCENARIO_ERRATUM, supersedes ff4239417bb8); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_state.active_player (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-DMG-CONTROL): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-DMG-SAME-21",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-DMG-SAME-21): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-DMG-SPLIT",
+   "forge": {
+    "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact obligation executed on the Forge ScenarioBootstrap lane (forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-DMG-SPLIT): the pinned bridge constructed the record's requested state through the native scenario seam, every answer was an engine-offered option, and the obligation was observed from engine-reported terminal facts and semantic events; the receipt records the checkpoint verdict, so a fixture-declared cause variance is never presented as exact"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-DMG-SPLIT): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ELIM-4",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-ELIM-4): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-MULL-2",
+   "forge": {
+    "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+    "exit_state": "UNKNOWN",
+    "reason": "the record scripts a London bottom selection (P1), and this lane offers no external bottom-card decision; the Lab never chooses the card for the player"
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+    "exit_state": "UNKNOWN",
+    "reason": "the record scripts a London bottom selection (P1), and this lane offers no external bottom-card decision; the Lab never chooses the card for the player"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-MULL-4",
+   "forge": {
+    "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+    "exit_state": "UNKNOWN",
+    "reason": "the obligation was observed on the record's decks under the acknowledged Rules seed, but the record requires REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST and the provider's constructed state does not establish it, so construction equality is unestablished: CONSTRUCTION_UNSUPPORTED: rules_randomness.rules_seed mismatch: the seed the engine acknowledged on game creation; rules_randomness.channel.INITIAL_LIBRARY_SHUFFLE unsupported: only library-shuffle channels are constructed here"
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+    "exit_state": "UNKNOWN",
+    "reason": "the obligation was observed on the record's decks under the acknowledged Rules seed, but the record requires REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST and the provider's constructed state does not establish it, so construction equality is unestablished: CONSTRUCTION_UNSUPPORTED: rules_randomness.rules_seed mismatch: the seed the engine acknowledged on game creation; rules_randomness.channel.INITIAL_LIBRARY_SHUFFLE unsupported: only library-shuffle channels are constructed here"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-PARTNER-DMG",
+   "forge": {
+    "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact obligation executed on the Forge ScenarioBootstrap lane (forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-PARTNER-DMG): the pinned bridge constructed the record's requested state through the native scenario seam, every answer was an engine-offered option, and the obligation was observed from engine-reported terminal facts and semantic events; the receipt records the checkpoint verdict, so a fixture-declared cause variance is never presented as exact"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-PARTNER-DMG): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-PARTNER-TAX",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 4478c62dd315); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction commander_state.prior_command_zone_cast_count (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-PARTNER-TAX): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-PARTNER-ZONE",
+   "forge": {
+    "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact obligation executed on the Forge ScenarioBootstrap lane (forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-PARTNER-ZONE): the pinned bridge constructed the record's requested state through the native scenario seam, every answer was an engine-offered option, and the obligation was observed from engine-reported terminal facts and semantic events; the receipt records the checkpoint verdict, so a fixture-declared cause variance is never presented as exact"
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "no current-boundary execution path for this obligation in this run; recorded explicitly rather than left unclassified or inherited."
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-START-2",
+   "forge": {
+    "execution_mode": "PROTOCOL2_START2_V1_0_6",
+    "exit_state": "UNKNOWN",
+    "reason": "the CR 103.8a obligation was observed (identical turn-1 upkeep and precombat-main hand/library counts, no draw-step checkpoint or draw event), but the record requires REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST and this lane emits no normalized constructed state, so construction equality is unestablished"
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "PROTOCOL2_START2_V1_0_6",
+    "exit_state": "UNKNOWN",
+    "reason": "the CR 103.8a obligation was observed (identical turn-1 upkeep and precombat-main hand/library counts, no draw-step checkpoint or draw event), but the record requires REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST and this lane emits no normalized constructed state, so construction equality is unestablished"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-START-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge CONTRACT_AUTHORITY_GAP: first missing mechanism at execution (decision_execution.starting_player.unscripted): the obligation names a starting player, but the effective record scripts no starting-player response; choosing the starter from the requested state would be requested-option selection, so the row needs a contract erratum that scripts the decision. no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-START-3): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-TAX-2",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction commander_state.prior_command_zone_cast_count (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-TAX-2): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-TAX-4",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "UNKNOWN",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction commander_state.prior_command_zone_cast_count (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "at least one side has no fixture-corresponding current-boundary evidence; this is an evidence gap, not a proven semantic difference",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-TAX-4): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+   "forge": {
+    "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact obligation executed on the Forge ScenarioBootstrap lane (forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-ZONE-EXILE-NO): the pinned bridge constructed the record's requested state through the native scenario seam, every answer was an engine-offered option, and the obligation was observed from engine-reported terminal facts and semantic events; the receipt records the checkpoint verdict, so a fixture-declared cause variance is never presented as exact"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-ZONE-EXILE-NO): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+   "forge": {
+    "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact obligation executed on the Forge ScenarioBootstrap lane (forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-ZONE-EXILE-YES): the pinned bridge constructed the record's requested state through the native scenario seam, every answer was an engine-offered option, and the obligation was observed from engine-reported terminal facts and semantic events; the receipt records the checkpoint verdict, so a fixture-declared cause variance is never presented as exact"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-ZONE-EXILE-YES): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-GY-NO",
+   "forge": {
+    "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact obligation executed on the Forge ScenarioBootstrap lane (forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-ZONE-GY-NO): the pinned bridge constructed the record's requested state through the native scenario seam, every answer was an engine-offered option, and the obligation was observed from engine-reported terminal facts and semantic events; the receipt records the checkpoint verdict, so a fixture-declared cause variance is never presented as exact"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-ZONE-GY-NO): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-GY-YES",
+   "forge": {
+    "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact obligation executed on the Forge ScenarioBootstrap lane (forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-ZONE-GY-YES): the pinned bridge constructed the record's requested state through the native scenario seam, every answer was an engine-offered option, and the obligation was observed from engine-reported terminal facts and semantic events; the receipt records the checkpoint verdict, so a fixture-declared cause variance is never presented as exact"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-ZONE-GY-YES): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+   "forge": {
+    "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact obligation executed on the Forge ScenarioBootstrap lane (forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-ZONE-HAND-NO): the pinned bridge constructed the record's requested state through the native scenario seam, every answer was an engine-offered option, and the obligation was observed from engine-reported terminal facts and semantic events; the receipt records the checkpoint verdict, so a fixture-declared cause variance is never presented as exact"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-ZONE-HAND-NO): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+   "forge": {
+    "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact obligation executed on the Forge ScenarioBootstrap lane (forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-ZONE-HAND-YES): the pinned bridge constructed the record's requested state through the native scenario seam, every answer was an engine-offered option, and the obligation was observed from engine-reported terminal facts and semantic events; the receipt records the checkpoint verdict, so a fixture-declared cause variance is never presented as exact"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-ZONE-HAND-YES): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.replacement_effect.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-ZONE-LIB-NO): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); execution decision_execution.replacement_effect.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-CMD-ZONE-LIB-YES): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-BLOCK-4",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_DEFECT_CORRECTION_CR508_1F_SCRIPT_CONTRACT, supersedes 1b8036905723); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); execution decision_execution.declare_blocker.blocker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-BLOCK-4): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-COMBAT-4",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-COMBAT-4): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-COMBAT-5",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-COMBAT-5): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-ELIM-5",
+   "forge": {
+    "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact obligation executed on the Forge ScenarioBootstrap lane (forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-MP-ELIM-5): the pinned bridge constructed the record's requested state through the native scenario seam, every answer was an engine-offered option, and the obligation was observed from engine-reported terminal facts and semantic events; the receipt records the checkpoint verdict, so a fixture-declared cause variance is never presented as exact"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-ELIM-5): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (owner_controller_divergence): the readback exposes controller rows, not card owner. then: checkpoint_readback semantic_objects.attached_to (PROVIDER_ADAPTER_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-ELIM-CONTROL-3): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-ELIM-OWNED-3",
+   "forge": {
+    "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact obligation executed on the Forge ScenarioBootstrap lane (forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-MP-ELIM-OWNED-3): the pinned bridge constructed the record's requested state through the native scenario seam, every answer was an engine-offered option, and the obligation was observed from engine-reported terminal facts and semantic events; the receipt records the checkpoint verdict, so a fixture-declared cause variance is never presented as exact"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-ELIM-OWNED-3): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-ELIM-PRIO-3",
+   "forge": {
+    "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact obligation executed on the Forge ScenarioBootstrap lane (forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-MP-ELIM-PRIO-3): the pinned bridge constructed the record's requested state through the native scenario seam, every answer was an engine-offered option, and the obligation was observed from engine-reported terminal facts and semantic events; the receipt records the checkpoint verdict, so a fixture-declared cause variance is never presented as exact"
+   },
+   "note": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+   "semantic_comparison": {
+    "disposition": "NON_COMPARABLE",
+    "equal": null,
+    "left": {
+     "present": false
+    },
+    "reason": "the left side recorded no semantic evidence, so PASS/PASS labels cannot establish semantic equality",
+    "right": {
+     "present": false
+    }
+   },
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-ELIM-PRIO-3): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-ELIM-STACK-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction semantic_objects.zone:stack (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-ELIM-STACK-3): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-ELIM-TURN-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (temporal_state.active_player): the requested turn-1 active player is decided by the starting-player choice, which the lane may make only on a scripted response; no record scripts it. no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-ELIM-TURN-3): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-PRIO-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 0cfcfffcdc65); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-PRIO-3): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-PRIO-5",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes 7f37d85378c5); its predecessor's evidence does not transfer. Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-PRIO-5): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-TRIG-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: simultaneous_trigger_event. no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-TRIG-3): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-TRIG-5",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (FIXTURE_SCRIPT_CONTRACT_ERRATUM, supersedes d41cf15eefa1); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: simultaneous_trigger_event. no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-TRIG-5): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-TURN-3",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (CAUSAL_EXTRA_TURN_SCENARIO_ERRATUM, supersedes 7a7af4a16e29); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); execution decision_execution.choose_object.card_identity_multiset (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-TURN-3): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  },
+  {
+   "disposition": "NON_COMPARABLE",
+   "engine_local_ids_excluded": [
+    "game_id",
+    "engine_game_id",
+    "player_id",
+    "decision_id",
+    "option_id",
+    "revision"
+   ],
+   "fixture_id": "WS05-MP-TURN-5",
+   "forge": {
+    "execution_mode": "NO_CURRENT_BOUNDARY_EXECUTION_SEAM",
+    "exit_state": "BLOCKED",
+    "reason": "this fixture was corrected by the current successor contract (CAUSAL_EXTRA_TURN_SCENARIO_ERRATUM, supersedes de5106b375d6); its predecessor's evidence does not transfer. Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); execution decision_execution.choose_object.card_identity_multiset (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
+   },
+   "note": "no current-boundary execution seam on at least one side; an absent seam is not a Rules difference and is not a capability claim",
+   "xmage": {
+    "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+    "exit_state": "PASS",
+    "reason": "exact placement obligation executed on the production midgame lane (midgame-lane:placement-obligation#WS05-MP-TURN-5): the engine constructed the record's state, every answer was an engine-offered option from the record's decision script, and every required event and terminal check was verified against the engine's public event tape and observation"
+   }
+  }
+ ],
+ "schema_version": "wsr22.current-boundary-comparison/1.0.0"
+}
