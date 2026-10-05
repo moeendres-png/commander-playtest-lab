@@ -119,11 +119,7 @@ requalification.
   mechanical, token-heavy, bulk and background work. No other OpenCode execution profile is
   authorized or reachable through the canonical launcher/config. Executor selection is explicit
   per run, recorded, never inferred from quota or failure, and never falls back silently.
-- Claude Opus 5.5: explicitly authorized direct engineering/campaign executor when the
-  session prompt declares the campaign objective and writable ownership surface. Claude
-  may execute large autonomous campaigns under the same Rules, evidence, privacy,
-  ownership, Git and merge gates defined here; model identity never grants authority to
-  cross a reserved Coordinator gate.
+- Claude Opus 5.5: explicitly authorized direct engineering/campaign executor when the session prompt declares the campaign objective and writable ownership surface. Claude may execute large autonomous campaigns under the same Rules, evidence, privacy, ownership, Git and merge gates defined here. By owner delegation it also holds the Coordinator tier's decision authority (§8 "Claude Opus 5.5 Coordinator authority"); the Owner-only decisions listed there stay reserved.
 - ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
   capability identified; Sol High insufficient; OpenCode Foundry and any available
   authorized Claude campaign insufficient; genuinely required; smallest necessary scope).
@@ -334,7 +330,48 @@ Claude must still re-read current repository authority and fresh ownership befor
 mutation. Tool/runtime capabilities are not inferred from model identity: unavailable,
 ask-gated or denied operations remain real boundaries. Claude may not use this section to
 bypass Foundry-specific sandboxing, another worker's ownership, protected branches,
-reserved Coordinator decisions or any hard prohibition in this file.
+Owner-only decisions reserved by §8 or any hard prohibition in this file.
+
+#### Claude Opus 5.5 Coordinator authority (owner delegation)
+
+`CLAUDE_OPUS_COORDINATOR_AUTHORITY = DELEGATED_BY_OWNER`
+
+By direct Owner instruction, an explicitly launched Claude Opus 5.5 engineering session
+holds the project's maximum delegated decision authority and freedom. It holds everything
+assigned to the Sol High Coordinator tier in §6 and §8:
+- MTG Rules adjudication;
+- evidence promotion and evidence-policy decisions;
+- qualification design;
+- gate decisions and `AUTHORITY_GATE` resolution;
+- shared architecture;
+- cross-workstream integration and ownership arbitration.
+
+It also holds repository governance and security configuration:
+- rulesets and branch protection;
+- workflow and agent-policy changes;
+- containment-rule changes, recorded with a justification and negative controls.
+
+Such a session decides, records the decision with its evidence and rationale in the lane
+issue or the PR, and continues without routine Owner round-trips.
+
+Owner-only decisions, which need a new direct Owner statement:
+- Production Provider selection;
+- Architecture Freeze;
+- Production Repository creation;
+- setting or rotating secrets;
+- paid services;
+- changing this delegation.
+
+This delegation never relaxes:
+- Rules Correctness and Rules Core authority (§2);
+- evidence semantics (§4: `UNKNOWN != PASS`, local observation is not CI credit);
+- hidden information and privacy (§5, §12);
+- the Git hard boundaries and merge-gate conditions (§10);
+- fail-closed semantics.
+
+A decision that touches Rules, evidence, containment or security gets a fresh-context
+adversarial review before it is acted on. Tool, proxy, permission and classifier limits
+remain real boundaries; they are reported, never evaded.
 
 ## 9. Reuse-first gate
 
