@@ -6,7 +6,7 @@ description: >
   introduced security failures. Use after a patch exists and before accepting, merging, or
   reporting it as fixed; also use when an AI-generated patch, remediation commit, pull request,
   or proposed upstream fix needs adversarial post-patch validation across any language.
-allowed-tools: Read Write Edit Grep Glob Bash Workflow
+allowed-tools: Read Write Edit Grep Glob Bash
 ---
 
 # Post-Patch Validation
@@ -222,30 +222,22 @@ The runner exits 0 for complete checks with no findings, 1 for complete checks w
 it can contain supported findings alongside gaps. Source or build evidence cannot establish
 runtime behavior. State the evidence level alongside any passing result.
 
-## Claude Dynamic Workflow
+## Commander project usage
 
-Claude Code exposes the bundled workflow as `/post-patch-validation:validate-patch`.
-To pass structured inputs through the `Workflow` tool, use the name without a leading slash:
+This repository imports the deterministic validation runner and evidence model, but
+does not import the upstream plugin workflow wrapper. Run the CLI flow from Quick
+Start directly, using immutable base/patched refs and a persisted plan/results
+directory.
 
-```javascript
-Workflow({
-  name: 'post-patch-validation:validate-patch',
-  args: {
-    finding: '<finding text or local path>',
-    baseRef: '<vulnerable-ref>',
-    patchRef: '<patched-ref>',
-    workdir: 'post-patch-validation',
-  },
-})
-```
+For Commander Simulator Next:
 
-Use `patchFile` instead of `patchRef` when appropriate. The workflow uses fixed coverage
-lenses to propose checks and a fixed executor to run this skill. Agents may author test
-artifacts. The Python runner records findings and gaps, and reviewers report coverage or evidence
-concerns separately. `NEEDS_REPAIR` returns supported failures even when other checks left gaps.
-`BLOCKED` means evidence is incomplete without a supported failure. Passing checks advance to
-`READY_FOR_HUMAN_REVIEW` only after both evidence reviews approve, otherwise `REVIEW_REQUIRED`.
-The workflow cannot ask questions after launch, so pass every input up front.
+- use this skill only inside the active workstream's authorized mutation/read surface;
+- treat its `source`, `build`, and `runtime` levels as additional evidence metadata,
+  not replacements for project evidence classifications;
+- persist material validation artifacts or exact reproduction commands in the durable
+  workstream handoff;
+- a complete PPV result still needs project-native differential/adversarial review and
+  exact-head CI before merge.
 
 ## Rationalizations to Reject
 
