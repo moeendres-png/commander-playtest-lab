@@ -2557,6 +2557,33 @@ def _selected_frames(check: TerminalCheck, trace: list[Frame]) -> list[int]:
     ]
 
 
+LIBRARY_SHUFFLE_CHANNEL = re.compile(r"library_shuffle:(P\d+)")
+
+
+def declared_shuffle_channels(
+    record: dict[str, Any], tape: list[dict[str, Any]]
+) -> dict[str, bool]:
+    """Each declared ``library_shuffle:Pn`` channel and whether the run used it.
+
+    A Rules-RNG library channel the record declares must show on the engine's
+    own tape after the arrival: a LIBRARY_SHUFFLED event of that player.
+    Otherwise the declared random transition never happened in this run and
+    the row stays unverified. Other channel kinds (a coin flip) are bound by
+    the row's own tokens.
+    """
+    channels = (record.get("rules_randomness") or {}).get("channels") or ()
+    used: dict[str, bool] = {}
+    for channel in channels:
+        match = LIBRARY_SHUFFLE_CHANNEL.fullmatch(str(channel))
+        if match is None:
+            continue
+        used[str(channel)] = any(
+            event.get("type") == "LIBRARY_SHUFFLED" and event.get("player_player") == match.group(1)
+            for event in tape
+        )
+    return used
+
+
 def _extra_turn_frames(check: TerminalCheck, trace: list[Frame]) -> list[int]:
     """The frames whose readback shows the extra turn ``check`` names created.
 
@@ -4478,6 +4505,8 @@ def execute_row(
             compare_attacks=not scripted_attacks,
         )
         terminal[REQUESTED_COMBAT_FACT] = bool(declared["holds"])
+    for channel, used in declared_shuffle_channels(record, tape).items():
+        terminal[f"rules_randomness channel {channel} used"] = used
     verified = (
         detail == "obligation observed"
         and position >= len(script)
