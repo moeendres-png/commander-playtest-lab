@@ -222,3 +222,62 @@ def test_a_classification_error_keeps_the_outcome(monkeypatch) -> None:
         assert row.outcome == before[row.fixture_id]
         if fr.in_scope(row.fixture_id):
             assert "classification failed closed" in row.reason
+
+
+def test_a_bound_decision_family_names_the_bound_frame(records) -> None:
+    # 1.0.21 E2(a): PILOT_CHOOSE_USE's choose_use step is answered on scry 1's
+    # 0..1 card selection, so its Forge frame is the card-list frame, never a
+    # boolean (Codex P2, #533).
+    row = fr.classify_row(records["PILOT_CHOOSE_USE"])
+    details = [
+        m["detail"] for m in row.to_document()["mechanisms"] if "choose_use" in m["dimension"]
+    ]
+    assert details and all("CARD_LIST" in d and "BOOLEAN" not in d for d in details)
+    unbound = copy.deepcopy(records["PILOT_CHOOSE_USE"])
+    unbound["native_procedure"] = [
+        step
+        for step in unbound["native_procedure"]
+        if "decision_family_binding" not in (step.get("details") or {})
+    ]
+    plain = [
+        m["detail"]
+        for m in fr.classify_row(unbound).to_document()["mechanisms"]
+        if "choose_use" in m["dimension"]
+    ]
+    assert plain and all("BOOLEAN" in d for d in plain)
+
+
+def test_layer_tokens_are_characteristic_readbacks(records) -> None:
+    """Contract 1.0.21 MICRO_LAYERS: P/T and abilities are read back, not events."""
+    for family in ("layer6_remove_abilities", "layer7b_set_pt", "layer7c_modify_pt"):
+        assert fr.OBSERVATION[family] == fr.READBACK
+    row = fr.classify_row(records["MICRO_LAYERS"])
+    assert not row.needs_event_log
+    assert set(row.observation) == {fr.READBACK}
+    # The P/T tokens are projected; the bridge projects no abilities, so the
+    # ability-removal token is still a provider gap, never a Lab-only one.
+    assert row.classification == fr.PROVIDER_ADAPTER_GAP
+    assert row.first_missing["dimension"] == "unprojected_readback:layer6_remove_abilities"
+    assert [
+        item["dimension"] for item in row.mechanisms if item["class"] == fr.PROVIDER_ADAPTER_GAP
+    ] == ["unprojected_readback:layer6_remove_abilities"]
+
+
+def test_the_readme_table_is_the_matrix(records) -> None:
+    """Every published per-row line names the matrix's class and first mechanism."""
+    readme = (MATRIX.parent / "README.md").read_text(encoding="utf-8")
+    table = {
+        cells[0].split(" (", 1)[0]: cells[1:]
+        for line in readme.splitlines()
+        if line.startswith("| ")
+        and len(cells := [c.strip() for c in line.strip("|").split("|")]) == 4
+        and cells[0] not in ("Row", "---")
+    }
+    matrix = json.loads(MATRIX.read_text(encoding="utf-8"))
+    assert set(table) == {row["fixture_id"] for row in matrix["rows"]}
+    for row in matrix["rows"]:
+        first = row["first_missing"]
+        expected_first = "—" if not first else f"{first['stage']}: `{first['dimension']}`"
+        events = row["observation"].get(fr.EVENT_LOG) or []
+        expected_events = ", ".join(f"`{token}`" for token in events) or "—"
+        assert table[row["fixture_id"]] == [row["classification"], expected_first, expected_events]
