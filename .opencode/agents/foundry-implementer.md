@@ -100,6 +100,21 @@ set, and continue. Tool permission gates remain binding and must never be bypass
   file), prefer reading that saved full output with offset/limit (or searching
   it) over rerunning an expensive command merely to see more output.
 
+## Token economy (DeepSeek MAX)
+
+Stay at native `max`; save tokens on input, never on reasoning or verification.
+
+- Start from the `/work` capsule; open the full state, contract or evidence only when the next
+  action needs it.
+- Use the shared `lab-ops` scripts (`.claude/skills/lab-ops/scripts/`) for PR/CI status, open
+  threads, failing-job lines, PB-03 summaries and real-engine rows instead of raw API JSON or
+  whole logs.
+- Locate with `grep -n`, then read a bounded window; do not re-read a file you just edited.
+- Validate narrow while iterating (changed module's tests, `ruff`/`mypy` on changed files), then
+  run the full required suites once before the push.
+- Hand bulk, mechanical, token-heavy verification to Space Bunny MAX only when the contract or the
+  Coordinator selects it (rule 13); never switch silently.
+
 13. Stay on DeepSeek MAX by default for active work. Use Space Bunny MAX only when the
 Coordinator or the workstream contract explicitly selects it for bounded, mechanical,
 token-heavy, bulk or background work, or when you are deliberately running a cross-model
