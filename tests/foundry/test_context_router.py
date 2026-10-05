@@ -308,7 +308,7 @@ def test_repo_map_prefix_and_depth_are_explicit(scratch: dict) -> None:
             expected_head=scratch["head"],
             max_depth=7,
         )
-    with pytest.raises(router.RouterError, match="safe repository-relative"):
+    with pytest.raises(router.RouterError, match="bounded repository-relative path"):
         router.build_repo_map(
             str(scratch["root"]),
             expected_slug="example/repo",
