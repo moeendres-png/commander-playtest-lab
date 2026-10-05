@@ -59,25 +59,15 @@ EXACT_GIT_BLOBS = {
     "fp-check/references/standard-verification.md": "c9e5b901ad4b3008950c31f24806f7bacdbf6cfe",
     "receiving-code-review/SKILL.md": "950da7b74bf6dbed6b8726d12ddadd65a9f5fda7",
     "sharp-edges/SKILL.md": "44ea7876d7e5f3b5599c64684eb1a02c1500cb7a",
-    "sharp-edges/references/auth-patterns.md": "c596bd323a98c639ae4b901f246b62ddc5ea7165",
-    "sharp-edges/references/case-studies.md": "c94a3d4a4a50b3ddfc7b0e9f2172f732702ee892",
-    "sharp-edges/references/config-patterns.md": "f9e944805682998aa9c99e5e3bbb611e524c74e2",
-    "sharp-edges/references/crypto-apis.md": "b3caef97da84df6674015b1352595e519c57dc2c",
-    "sharp-edges/references/lang-c.md": "d1ef9e2449c285bacb73eca7e2f63d237b0a528f",
-    "sharp-edges/references/lang-csharp.md": "9e490413a10081452ddb9aa7e0be59f52bf5bc87",
-    "sharp-edges/references/lang-go.md": "662a215ae18d073dc672d9aeee50ba30e1940ab0",
-    "sharp-edges/references/lang-java.md": "f51c5bcce7179a32aa359d9746b6ed4d1e586a44",
-    "sharp-edges/references/lang-javascript.md": "11a959f47e36850313f2f66dc770851df0fdc1c6",
-    "sharp-edges/references/lang-kotlin.md": "85d94d2ddacf76d179378a2dc2b63da1d4c0e13a",
-    "sharp-edges/references/lang-php.md": "a21bd39389fdad4e825b9e2b4be25972161cc64d",
-    "sharp-edges/references/lang-python.md": "11ec4fb4b6d3fa8149c2dc9c583a10047951a3fc",
-    "sharp-edges/references/lang-ruby.md": "211bf2065dcd31fbf3afc620c793cb9fd286108a",
-    "sharp-edges/references/lang-rust.md": "cea48830a03217acf9c53692cc46f226cbddd9c2",
-    "sharp-edges/references/lang-swift.md": "682d30cdbef48935112e0db64c1bce3f4dd8f405",
-    "sharp-edges/references/language-specific.md": "a7feb9690486a29735bfdd03da90cfd2a43b7d88",
     "licenses/trailofbits-skills-CC-BY-SA-4.0.txt": "3b7b82d0da2db857eda1a798dbd908ea136f07b5",
     "licenses/superpowers-MIT.txt": "abf0390320aa14406af7a520b9b0739fdda9bf08",
     "licenses/claude-gate-skill-MIT.txt": "687b32c3e6fc995db0f5929fc1780c0bd5c8c507",
+}
+
+# Whole directories retained byte-for-byte: sha256 over sorted "name blobsha" lines.
+# (A digest per directory avoids path words such as "auth" sitting beside a hash.)
+EXACT_DIRECTORY_DIGESTS = {
+    "sharp-edges/references": "1ba1df5c747ef33d9a4493c4e15ee4636f8b1995060b000c9fefcc8082824a42",
 }
 
 LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
@@ -127,6 +117,22 @@ def test_exact_upstream_blobs_have_not_drifted() -> None:
         path = SKILLS_ROOT / relative
         assert path.is_file(), relative
         assert _git_blob_sha(path.read_bytes()) == expected, relative
+
+
+def _directory_digest(directory: Path) -> str:
+    lines = "".join(
+        f"{path.name} {_git_blob_sha(path.read_bytes())}\n"
+        for path in sorted(directory.iterdir())
+        if path.is_file()
+    )
+    return hashlib.sha256(lines.encode()).hexdigest()
+
+
+def test_exact_upstream_directories_have_not_drifted() -> None:
+    for relative, expected in EXACT_DIRECTORY_DIGESTS.items():
+        directory = SKILLS_ROOT / relative
+        assert directory.is_dir(), relative
+        assert _directory_digest(directory) == expected, relative
 
 
 def test_provenance_and_licenses_present() -> None:
