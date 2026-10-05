@@ -381,73 +381,168 @@ def _clean_prefix(value: str) -> str:
     return _clean_repo_path(value, field="repo-map prefix")
 
 
+def _verify_declared_reference(
+    profile: str,
+    workdir: str,
+    profile_data: dict,
+    reference: dict,
+) -> dict:
+    if profile not in {"mage", "forge"}:
+        raise RouterError("repo-map is restricted to declared engine reference roots")
+    if reference.get("label") != profile:
+        raise RouterError("declared reference label does not match repo-map profile")
+    if reference.get("repo_slug") != profile_data.get("repo_slug"):
+        raise RouterError("declared reference repository does not match profile")
+    if os.path.realpath(str(reference.get("root", ""))) != os.path.realpath(workdir):
+        raise RouterError("repo-map workdir does not match declared reference root")
+    reasons = reference_mod.verify(reference)
+    if reasons:
+        raise RouterError("declared reference root verification failed")
+    try:
+        rewrites_clean = source_lock_mod._no_url_rewrites(
+            workdir,
+            dict(os.environ, GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never"),
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        rewrites_clean = False
+    if not rewrites_clean:
+        raise RouterError("repo-map URL rewrite configuration present or unreadable")
+    return reference
+
+
+def _load_declared_reference(
+    profile: str,
+    workdir: str,
+    profile_data: dict,
+) -> dict:
+    if os.environ.get("FOUNDRY_ROUTING_SUPPRESSED") == "1":
+        raise RouterError("repo-map unavailable while Foundry routing is suppressed")
+    raw = os.environ.get("FOUNDRY_REFERENCE_ROOTS")
+    if raw is None:
+        raise RouterError("repo-map requires FOUNDRY_REFERENCE_ROOTS")
+    try:
+        data = json.loads(raw)
+    except (json.JSONDecodeError, RecursionError) as exc:
+        raise RouterError("FOUNDRY_REFERENCE_ROOTS is not valid JSON") from exc
+    if not isinstance(data, list):
+        raise RouterError("FOUNDRY_REFERENCE_ROOTS must be a JSON list")
+    matches = [item for item in data if isinstance(item, dict) and item.get("label") == profile]
+    if len(matches) != 1:
+        raise RouterError("repo-map requires exactly one declared reference for the profile")
+    try:
+        reference = reference_mod.parse_spec(json.dumps(matches[0]))
+    except reference_mod.ReferenceError as exc:
+        raise RouterError("declared reference is malformed") from exc
+    return _verify_declared_reference(profile, workdir, profile_data, reference)
+
+
+def _safe_tree_names(raw: str) -> list[str]:
+    names: list[str] = []
+    for line in raw.splitlines():
+        name = line.strip()
+        if not name:
+            continue
+        if SAFE_PATH_SEGMENT.fullmatch(name) is None:
+            raise RouterError("repo-map encountered an unsupported repository path segment")
+        names.append(name)
+    return sorted(set(names))
+
+
+def _bounded_directories(
+    workdir: str,
+    *,
+    max_depth: int,
+    requested: list[str],
+) -> list[str]:
+    queue: deque[tuple[str, int]] = deque()
+    if requested:
+        for prefix in requested:
+            depth = len(Path(prefix).parts)
+            if depth > max_depth:
+                raise RouterError("repo-map prefix is deeper than max-depth")
+            if _git(["cat-file", "-t", f"HEAD:{prefix}"], workdir) != "tree":
+                raise RouterError("repo-map prefix must name a committed directory")
+            queue.append((prefix, depth))
+    else:
+        for name in _safe_tree_names(_git(["ls-tree", "-d", "--name-only", "HEAD"], workdir)):
+            queue.append((name, 1))
+
+    directories: list[str] = []
+    seen: set[str] = set()
+    while queue:
+        path, depth = queue.popleft()
+        if path in seen:
+            continue
+        seen.add(path)
+        directories.append(path)
+        if len(directories) > MAX_MAP_DIRECTORIES:
+            raise RouterError(f"repo-map exceeds {MAX_MAP_DIRECTORIES} directories")
+        if depth >= max_depth:
+            continue
+        children = _safe_tree_names(
+            _git(["ls-tree", "-d", "--name-only", f"HEAD:{path}"], workdir)
+        )
+        for child in children:
+            queue.append((f"{path}/{child}", depth + 1))
+    return sorted(directories)
+
+
 def build_repo_map(
     workdir: str,
     *,
-    expected_slug: str,
-    expected_head: str,
+    profile: str,
+    profile_data: dict,
+    reference: dict,
     max_depth: int = 3,
     prefixes: list[str] | None = None,
 ) -> dict:
-    """Return a bounded map of committed directories at exact canonical HEAD."""
+    """Return a bounded map for one verified launcher-declared engine reference."""
     if max_depth < 1 or max_depth > 6:
         raise RouterError("repo-map max-depth must be between 1 and 6")
-    try:
-        remote = source_lock_mod.remote_identity(workdir)
-    except RuntimeError as exc:
-        raise RouterError("repo-map remote identity unavailable or ambiguous") from exc
-    if not source_lock_mod.is_canonical_remote(remote, expected_slug):
-        raise RouterError("repo-map workdir does not match expected canonical repository")
-    if len(expected_head) != 40 or any(
-        char not in "0123456789abcdefABCDEF" for char in expected_head
-    ):
-        raise RouterError("repo-map expected-head must be a full 40-hex SHA")
+    verified = _verify_declared_reference(profile, workdir, profile_data, reference)
     branch = _git(["rev-parse", "--abbrev-ref", "HEAD"], workdir)
     head = _git(["rev-parse", "HEAD"], workdir)
-    if head.casefold() != expected_head.casefold():
-        raise RouterError("repo-map HEAD does not match declared source lock")
     tree = _git(["rev-parse", "HEAD^{tree}"], workdir)
+    if head != verified["commit"] or tree != verified["tree"]:
+        raise RouterError("repo-map live source no longer matches declared reference")
     if branch == "HEAD":
         branch = "(detached)"
 
     if len(prefixes or []) > MAX_MAP_PREFIXES:
         raise RouterError(f"repo-map accepts at most {MAX_MAP_PREFIXES} prefixes")
-    requested = [_clean_prefix(item) for item in (prefixes or [])]
-    args = ["ls-tree", "-d", "-r", "--name-only", "HEAD"]
+    requested = list(dict.fromkeys(_clean_prefix(item) for item in (prefixes or [])))
+    directories = _bounded_directories(
+        workdir,
+        max_depth=max_depth,
+        requested=requested,
+    )
+
+    root_args = ["ls-tree", "--name-only", "HEAD"]
     if requested:
-        args.extend(["--", *requested])
-    raw = _git(args, workdir)
-    directories = []
-    for line in raw.splitlines():
-        path = line.strip()
-        if not path:
-            continue
-        depth = len(Path(path).parts)
-        if depth <= max_depth:
-            directories.append(path)
-
-    directories = sorted(set(directories))
-    if len(directories) > MAX_MAP_DIRECTORIES:
-        raise RouterError(f"repo-map exceeds {MAX_MAP_DIRECTORIES} directories")
-
-    root_files_raw = _git(["ls-tree", "--name-only", "HEAD"], workdir)
-    root_files = sorted(line for line in root_files_raw.splitlines() if line and "/" not in line)
-    if len(root_files) > MAX_MAP_ROOT_ENTRIES:
+        root_args.extend(["--", *requested])
+    root_entries = sorted(
+        line.strip() for line in _git(root_args, workdir).splitlines() if line.strip()
+    )
+    if len(root_entries) > MAX_MAP_ROOT_ENTRIES:
         raise RouterError(f"repo-map exceeds {MAX_MAP_ROOT_ENTRIES} root entries")
-    porcelain = _git(["status", "--porcelain"], workdir)
+
     return {
         "_kind": MAP_KIND,
+        "profile": profile,
+        "expected_repo_slug": verified["repo_slug"],
+        "expected_HEAD": verified["commit"],
+        "expected_tree": verified["tree"],
         "branch": branch,
         "HEAD": head,
         "tree": tree,
-        "dirty_entries": len(porcelain.splitlines()) if porcelain else 0,
+        "dirty_entries": 0,
         "prefixes": requested,
         "max_depth": max_depth,
         "directories": directories,
-        "root_entries": root_files,
+        "root_entries": root_entries,
         "note": (
-            "Map is derived from committed HEAD only. Read source on demand; "
-            "directory presence is not evidence of behavior."
+            "Map is derived from a launcher-declared, re-verified read-only reference. "
+            "Directory presence is navigation data, not evidence of behavior."
         ),
     }
 
@@ -464,9 +559,8 @@ def main(argv: list[str] | None = None) -> int:
 
     repo_map = sub.add_parser("repo-map")
     repo_map.add_argument("--workdir", required=True)
-    repo_map.add_argument("--profile", required=True, choices=("cpl", "mage", "forge"))
+    repo_map.add_argument("--profile", required=True, choices=("mage", "forge"))
     repo_map.add_argument("--profiles-dir", default=str(DEFAULT_PROFILES_DIR))
-    repo_map.add_argument("--expected-head", required=True)
     repo_map.add_argument("--max-depth", type=int, default=3)
     repo_map.add_argument("--prefix", action="append", default=[])
 
@@ -482,10 +576,12 @@ def main(argv: list[str] | None = None) -> int:
             )
         else:
             profile_data = _load_profile(args.profile, Path(args.profiles_dir))
+            reference = _load_declared_reference(args.profile, args.workdir, profile_data)
             result = build_repo_map(
                 args.workdir,
-                expected_slug=profile_data["repo_slug"],
-                expected_head=args.expected_head,
+                profile=args.profile,
+                profile_data=profile_data,
+                reference=reference,
                 max_depth=args.max_depth,
                 prefixes=args.prefix,
             )
