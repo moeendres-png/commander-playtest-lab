@@ -52,7 +52,7 @@ CHANNEL_UNAUDITED = "PRESENT_UNAUDITED"
 
 # The bridge commit whose blobs this channel table was asserted against. A
 # moved canonical pin invalidates every channel status until it is re-asserted.
-ASSERTED_BRIDGE_COMMIT = "e746a14b65718c57e832f59a4d082e4a1ffe4180"
+ASSERTED_BRIDGE_COMMIT = "ee37e4a52d99401ba57fba7ca516ac01f1981161"
 
 _BRIDGE_SOURCE = f"{lane.BRIDGE_MODULE}/src/main/java/forge/bridge"
 SOURCES: dict[str, str] = {
@@ -205,13 +205,20 @@ CONSTRUCTED_STATE_KEYS = frozenset(
         "attachments",
         "battlefield_size",
         "card_identity",
+        "combat_attackers",
+        "combat_groups",
+        "commander_damage_taken",
         "commanders",
+        "continuous_effects",
         "controller",
         "counters",
         "exile_size",
+        "extra_turns",
         "face_down",
+        "format_rule_effects",
         "graveyard_size",
         "hand_size",
+        "knowledge",
         "left",
         "library_and_hand_digest",
         "library_shuffles",
@@ -221,17 +228,20 @@ CONSTRUCTED_STATE_KEYS = frozenset(
         "lost",
         "observation_scope",
         "owner",
+        "pending_triggers",
         "phase",
         "player_id",
         "players",
         "poison",
         "prior_command_zone_cast_count",
         "priority_player",
+        "rules_state",
         "schema",
         "seat",
         "stack_size",
         "tapped",
         "turn_number",
+        "visible_hidden_cards",
         "zone",
     }
 )
@@ -461,7 +471,7 @@ CHANNELS: tuple[Channel, ...] = (
         meaning=(
             "the keyed success path of get_constructed_state writes exactly the closed key set "
             "CONSTRUCTED_STATE_KEYS: public seat facts, sizes, shuffle counts and each "
-            "commander's public identity, owner, zone, cast count and native controller, counters, face-down, tapped and attachment state (schema /3). Each seat's library and "
+            "commander's public identity, owner, zone, cast count and native controller, counters, face-down, tapped and attachment state, the engine's rules state (combat, extra turns, pending triggers, continuous and format-rule effects) and each seat's knowledge and commander-damage counts (schema /4). Each seat's library and "
             "hand go only into zoneDigest, an HMAC under the launch key "
             "(OrchestrationKey.digest) over the name multiset, so no hidden card name leaves "
             "and nobody without the key can test a guess. A new key, or a lost digest "
