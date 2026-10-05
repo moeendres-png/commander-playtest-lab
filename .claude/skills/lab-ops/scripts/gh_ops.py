@@ -6,6 +6,9 @@
     gh_ops.py wait    [--repo O/R] PR...    block until no check on any head is pending, then status
     gh_ops.py run     [--repo O/R] RUN_ID   block until a workflow run completes; print its jobs
     gh_ops.py errors  [--repo O/R] JOB_ID   the failing lines of one job log (pytest/maven/actions)
+    gh_ops.py rerun-cancelled [--repo O/R] [--dry-run] PR...
+                                            re-run only jobs that died on infrastructure (runner
+                                            never acquired / operation canceled, no failed step)
 
 Uses `gh api` (REST, plus the CCR review-thread route; GraphQL is unavailable in
 Claude Code sessions). ``ci-definition-integrity-shadow`` is red by design (CI-02)
@@ -148,17 +151,86 @@ def cmd_errors(a: argparse.Namespace) -> None:
         print("\n".join(lines[-15:]))
 
 
+INFRA_CANCEL = re.compile(
+    r"not acquired by Runner|The operation was canceled|runner has received a shutdown signal"
+    r"|lost communication with the server"
+)
+
+
+def infra_cancelled(repo: str, run: dict[str, Any]) -> bool:
+    """True only for a job that died on infrastructure, never on a test or step failure."""
+    job = api(f"repos/{repo}/actions/jobs/{run['id']}")
+    if any(step.get("conclusion") == "failure" for step in job.get("steps") or []):
+        return False
+    notes = api(f"repos/{repo}/check-runs/{run['id']}/annotations") or []
+    return any(
+        n.get("annotation_level") == "failure" and INFRA_CANCEL.search(n.get("message", ""))
+        for n in notes
+    )
+
+
+def cmd_rerun_cancelled(a: argparse.Namespace) -> None:
+    for pr in a.prs:
+        sha = api(f"repos/{a.repo}/pulls/{pr}")["head"]["sha"]
+        every = api(f"repos/{a.repo}/commits/{sha}/check-runs?per_page=100")["check_runs"]
+        by_name: dict[str, list[dict[str, Any]]] = {}
+        for r in every:
+            by_name.setdefault(r["name"], []).append(r)
+        runs: dict[int, list[str]] = {}
+        for name, group in sorted(by_name.items()):
+            group.sort(key=lambda r: r["id"], reverse=True)
+            newest = group[0]
+            if name in BY_DESIGN_RED or newest["status"] != "completed":
+                continue
+            if any(r["conclusion"] in ("success", "skipped", "neutral") for r in group):
+                continue
+            if newest["conclusion"] not in ("cancelled", "failure"):
+                continue
+            if not infra_cancelled(a.repo, newest):
+                print(f"#{pr} {name}: {newest['conclusion']} is not an infrastructure abort; left")
+                continue
+            run_id = api(f"repos/{a.repo}/actions/jobs/{newest['id']}")["run_id"]
+            runs.setdefault(run_id, []).append(name)
+        for run_id, names in runs.items():
+            state = api(f"repos/{a.repo}/actions/runs/{run_id}")["status"]
+            if state != "completed":
+                print(f"#{pr} run {run_id} still {state}; skip ({','.join(names)})")
+                continue
+            if a.dry_run:
+                print(f"#{pr} would re-run run {run_id}: {','.join(names)}")
+                continue
+            out = subprocess.run(
+                [
+                    "gh",
+                    "api",
+                    "-X",
+                    "POST",
+                    f"repos/{a.repo}/actions/runs/{run_id}/rerun-failed-jobs",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            verdict = "re-run" if out.returncode == 0 else f"FAILED {out.stderr.strip()[:120]}"
+            print(f"#{pr} run {run_id} {verdict}: {','.join(names)}")
+        if not runs:
+            print(f"#{pr} {sha[:8]}: no infrastructure-aborted job")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("command", choices=["status", "threads", "wait", "run", "errors"])
+    parser.add_argument(
+        "command", choices=["status", "threads", "wait", "run", "errors", "rerun-cancelled"]
+    )
     parser.add_argument("prs", nargs="+", type=int, help="PR numbers, or a run/job id")
     parser.add_argument("--repo", default=DEFAULT_REPO)
     parser.add_argument("--interval", type=int, default=60)
     parser.add_argument("--timeout", type=int, default=7000)
     parser.add_argument("--context", type=int, default=2)
     parser.add_argument("--limit", type=int, default=25)
+    parser.add_argument("--dry-run", action="store_true")
     a = parser.parse_args()
     {
         "status": cmd_status,
@@ -166,6 +238,7 @@ def main() -> None:
         "wait": cmd_wait,
         "run": cmd_run,
         "errors": cmd_errors,
+        "rerun-cancelled": cmd_rerun_cancelled,
     }[a.command](a)
 
 

@@ -13,6 +13,7 @@ change GitHub state. Run them from the Lab worktree root.
 | PR head, merge state, red/pending checks, open threads | `scripts/gh_ops.py status 544 537` |
 | Unresolved review threads (comment id to reply to) | `scripts/gh_ops.py threads 544` |
 | Why a job is red (failure lines with context) | `scripts/gh_ops.py errors JOB_ID` |
+| Re-run only jobs that died on infrastructure (runner never acquired, operation canceled; no failed step) | `scripts/gh_ops.py rerun-cancelled [--dry-run] 559 552` |
 | Wait for CI on PRs / for one workflow run | `scripts/gh_ops.py wait 544` · `scripts/gh_ops.py run RUN_ID` (background) |
 | PB-03 packet: identity, sha256 check, AF00-AF11 per candidate | `scripts/pb03_packet.py RUN_ID OUT [--into .]` |
 | Seal an epoch (packet + manifests + the required secret scan, before any push) | `scripts/seal.py RUN_ID [--replace OLD_EPOCH]` on a fresh branch from main |
