@@ -212,3 +212,54 @@ def test_the_tape_replay_requires_an_explicit_bridge_command(
         gate_mod.run_semantic_tape_replay(
             XmageFullGameRunner(), scenario=_scenario(), decks=(), pilots=(), tape_dir=tmp_path
         )
+
+
+def test_a_consumer_divergence_keeps_its_detail_for_the_ci_line(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    # Conformance run 37253331855 printed only
+    # 'comparison=None replay=EARLY_TERMINATION'. EARLY_TERMINATION has several
+    # emit sites in the consumer (engine failure, game over before a step, no
+    # native decision, replay ended but game not terminal), so the class alone
+    # cannot say which one fired. The evidence must carry the detail.
+    _patch_tape_system(
+        monkeypatch,
+        replay_error=ReplayDivergence(
+            DivergenceClass.EARLY_TERMINATION, "replay ended but game is not terminal"
+        ),
+    )
+    evidence = gate_mod.run_semantic_tape_replay(
+        _runner(), scenario=_scenario(), decks=(), pilots=(), tape_dir=tmp_path
+    )
+    assert evidence.passed is False
+    assert evidence.replay_divergence_class == "EARLY_TERMINATION"
+    assert evidence.replay_divergence_detail == "replay ended but game is not terminal"
+
+
+def test_a_passing_replay_carries_no_divergence_detail(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _patch_tape_system(monkeypatch)
+    evidence = gate_mod.run_semantic_tape_replay(
+        _runner(), scenario=_scenario(), decks=(), pilots=(), tape_dir=tmp_path
+    )
+    assert evidence.passed is True
+    assert evidence.replay_divergence_detail is None
+    with pytest.raises(ValidationError, match="divergence detail"):
+        _tape(replay_divergence_detail="stray detail on a passing replay")
+
+
+def test_an_oversized_divergence_detail_is_bounded(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _patch_tape_system(
+        monkeypatch,
+        replay_error=ReplayDivergence(DivergenceClass.EARLY_TERMINATION, "x" * 5000),
+    )
+    evidence = gate_mod.run_semantic_tape_replay(
+        _runner(), scenario=_scenario(), decks=(), pilots=(), tape_dir=tmp_path
+    )
+    detail = evidence.replay_divergence_detail
+    assert detail is not None
+    assert len(detail) <= gate_mod.REPLAY_DIVERGENCE_DETAIL_LIMIT
+    assert detail.endswith("...")
