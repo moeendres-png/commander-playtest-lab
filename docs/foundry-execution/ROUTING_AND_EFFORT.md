@@ -23,7 +23,9 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
 3. Claude Opus 5.5 — explicitly authorized direct engineering/campaign executor when a
    session declares its campaign objective and writable ownership surface(s). It may own
    long autonomous campaigns and continuous in-objective task selection under the same
-   Rules/Evidence/Privacy/Git gates; it is not a Foundry launcher profile.
+   Rules/Evidence/Privacy/Git gates; it is not a Foundry launcher profile. By direct Owner
+   delegation, an explicitly launched Opus 5.5 main session also holds the Coordinator tier's
+   decision authority under `AGENTS.md` §8; the Owner-only reservations there remain reserved.
 4. ChatGPT Work / Astra — exceptional only, after `WORK_NECESSITY = PASS`.
 
 Executor choice is explicit and auditable. The launcher never changes model because of
@@ -91,12 +93,18 @@ Authoritative model:
   technical assumptions, take adjacent high-value work inside the same objective and
   continue selecting unowned milestones without routine user round-trips. A bounded
   integration campaign may span multiple disjoint explicitly owned surfaces; all other
-  surfaces remain read-only.
-- Sol High: final authority only for project-wide evidence-semantics or
-  qualification-policy changes, ambiguous MTG Rules interpretation, new shared
-  Rules/Decision architecture, cross-workstream authority conflicts, material scope
-  expansion, Source-Truth hierarchy changes, Rules-authority-boundary changes,
-  Production Provider selection, and Architecture Freeze.
+  surfaces remain read-only. By direct Owner delegation, an explicitly launched Opus 5.5
+  main session also holds the Coordinator tier's Rules, evidence-policy, qualification,
+  gate, shared-architecture, cross-workstream and ownership-arbitration authority defined
+  in `AGENTS.md` §8.
+- Sol High: Coordinator and adjudication tier for project-wide evidence semantics,
+  qualification policy, ambiguous MTG Rules interpretation, shared Rules/Decision
+  architecture, cross-workstream authority conflicts, material scope expansion,
+  Source-Truth hierarchy changes and Rules-authority-boundary changes. Under the Owner
+  delegation, an explicitly launched Claude Opus 5.5 main session holds the same delegated
+  Coordinator-tier authority. Production Provider selection, Architecture Freeze,
+  Production Repository creation, setting or rotating secrets, paid services and changing
+  the delegation remain Owner-only under `AGENTS.md` §8.
 
 Both OpenCode profiles and an explicitly authorized Claude Opus 5.5 campaign use the
 same Rules/Evidence/Privacy/Semantic-Completion policy. None is a lower-authority coding
@@ -105,7 +113,10 @@ causes, repair in-objective defects, test, validate, persist evidence and contin
 autonomously until COMPLETE or a genuine authority/permission/source gate.
 
 A technical decision is never an authority decision. Only genuine authority-policy
-questions become `AUTHORITY_GATE`. Executor changes are explicit handoffs, not silent escalation.
+questions become `AUTHORITY_GATE`. An explicitly launched Claude Opus 5.5 main session
+holding the Owner delegation resolves Coordinator-tier `AUTHORITY_GATE` questions itself
+under `AGENTS.md` §8; Owner-only reservations remain gates. Executor changes are explicit
+handoffs, not silent escalation.
 
 ## Work necessity gate
 
