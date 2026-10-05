@@ -246,6 +246,11 @@ class TerminalCheck:
             return f"{self.source_name} triggered exactly {self.value} time(s)"
         if self.kind == "commander_prior_casts":
             return f"{self.principal}'s commander cast count is {self.value}"
+        if self.kind == "game_start_command_zone":
+            return (
+                f"{self.card_identity} begins in {self.principal}'s command zone as exactly "
+                "one engine commander identity"
+            )
         if self.kind == "on_battlefield":
             return f"{self.card_identity} is on {self.principal}'s battlefield"
         if self.kind == "tapped":
@@ -1380,6 +1385,37 @@ ROWS: dict[str, RowSpec] = {
             (
                 "tax:cmd:P1-B:+0",
                 TerminalCheck("cast_cost", card_identity="cmd:P1-B", value="{1}{R}"),
+            ),
+        ),
+    ),
+    # WS05-CMD-PARTNER-ZONE: the record's game-start obligation is that both of
+    # P1's partner commanders begin in the command zone as separate engine
+    # identities (CR 903.4, 702.124). The evidence is the engine's own
+    # constructed-state readback at the arrival checkpoint: each required
+    # commander identity must be exactly one command-zone row of its owner's
+    # seat. The two identities are distinct engine rows by construction, and
+    # distinctness is read from those rows, never asserted from the record's
+    # declared ``multiple_commander_relations``. Every other requested commander
+    # (P2-A..P4-A) is covered by the construction verdict this executor already
+    # requires, exactly as the native partner execution test's readback compare.
+    "WS05-CMD-PARTNER-ZONE": RowSpec(
+        observe_from_game_start=True,
+        token_bindings=(
+            (
+                "game_start_command_zone:cmd:P1-A",
+                TerminalCheck(
+                    "game_start_command_zone",
+                    principal="P1",
+                    card_identity="Rograkh, Son of Rohgahh",
+                ),
+            ),
+            (
+                "game_start_command_zone:cmd:P1-B",
+                TerminalCheck(
+                    "game_start_command_zone",
+                    principal="P1",
+                    card_identity="Kediss, Emberclaw Familiar",
+                ),
             ),
         ),
     ),
@@ -2522,6 +2558,19 @@ def check_terminal(
     if check.kind == "commander_prior_casts":
         commanders = seat.get("commanders") or []
         return len(commanders) == 1 and commanders[0].get("prior_casts") == check.value
+    if check.kind == "game_start_command_zone":
+        # The engine's readback lists every genuine commander identity of the
+        # seat with its current zone (never only the command-zone ones). The
+        # obligation is that this identity is exactly one of the seat's
+        # command-zone rows: an identity on the battlefield, in another seat, or
+        # duplicated into two byte-identical rows is not the game-start fact.
+        entries = [
+            entry
+            for entry in seat.get("commanders") or ()
+            if entry.get("card_identity") == check.card_identity
+            and str(entry.get("zone") or "").upper() == "COMMAND"
+        ]
+        return len(entries) == 1
     if check.kind == "on_battlefield":
         return any(
             card.get("card_identity") == check.card_identity
@@ -4193,6 +4242,7 @@ OBSERVATION_KINDS = frozenset(
     {
         "life",
         "commander_prior_casts",
+        "game_start_command_zone",
         "on_battlefield",
         "tapped",
         "hand_count_min",

@@ -1806,6 +1806,28 @@ def classify_remaining(
                     runtime_identity=identity,
                 )
             )
+        elif candidate == "xmage" and fixture_id in midgame_rows_mod.ROWS:
+            # The row has a declared spec on the production mid-game lane. That
+            # lane executes it against the engine's own constructed-state
+            # readback and persists a runner-bound positive fixture receipt;
+            # this run did not execute it, so the row is receivable rather than
+            # pathless, and stays unestablished until that receipt exists.
+            reason = erratum + (
+                "the effective obligation has a declared row on the production mid-game "
+                "lane (the lane's row spec states the engine observation the obligation "
+                "needs) and earns credit only through that lane's runner-bound positive "
+                "fixture receipt (MIDGAME_ROW_EXECUTIONS.json). This run did not execute "
+                "it, so the row stays unestablished and uncredited."
+            )
+            rows.append(
+                non_executed_row(
+                    record,
+                    candidate=candidate,
+                    outcome="UNKNOWN",
+                    reason=reason,
+                    runtime_identity=identity,
+                )
+            )
         else:
             reason = erratum + (
                 "no current-boundary execution path for this obligation in this run; "
