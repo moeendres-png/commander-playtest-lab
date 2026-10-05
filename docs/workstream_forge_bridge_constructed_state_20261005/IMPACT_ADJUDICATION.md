@@ -44,7 +44,7 @@ No other asserted fragment, bootstrap field, frame key or stderr diagnostic drif
 |---|---|
 | Forge rows of earlier epochs bound to `20e3e1f7` or `e8b8aec6` | **HISTORICAL_ONLY**: not relabelled. |
 | PILOT_MULLIGAN and the multiplayer free-mulligan rows on Forge | **REQUIRES_REQUALIFICATION**: the tuck is now answered by the bridge. |
-| Generic-lane construction rows (PLAYER_COUNT_2P–5P, PILOT_MULLIGAN) on Forge | **REQUIRES_REQUALIFICATION** through #530's keyed orchestration launch, which compares schema `/3` native commander attributes. Without a key they stay UNKNOWN. |
+| Generic-lane construction rows (PLAYER_COUNT_2P–5P, PILOT_MULLIGAN) on Forge | **UNKNOWN, PENDING_DEPENDENCY** on Commander-Lab #530, the consumer, which is not in this tree. Until #530 is on main, `full107.construction_credit_gap` keeps every construction-required row UNKNOWN. Afterwards they **REQUIRE_REQUALIFICATION** through #530's keyed orchestration launch, which compares schema `/3` native commander attributes; without a key they stay UNKNOWN. |
 | Every other current-boundary Forge row | **REQUIRES_REQUALIFICATION** through the successor PB-03 epoch, like every row at a new source identity. |
 | WSR20/WSR22 Forge evidence (`ef958ee9` lineage) | **HISTORICAL_ONLY**, unchanged. |
 
