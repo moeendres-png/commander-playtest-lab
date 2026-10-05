@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import re
-import py_compile
 from pathlib import Path
 
 import yaml
@@ -118,4 +117,4 @@ def test_provenance_and_licenses_present() -> None:
 
 def test_post_patch_runner_is_valid_python() -> None:
     runner = SKILLS_ROOT / "post-patch-validation" / "scripts" / "post_patch_validation.py"
-    py_compile.compile(str(runner), doraise=True)
+    compile(runner.read_text(encoding="utf-8"), str(runner), "exec")
