@@ -12,7 +12,8 @@ tests, or sealed evidence.
 `tools/foundry/context_router.py plan`:
 
 1. validates the same state + live-Git identity through the existing capsule gate;
-2. verifies the selected CPL/Mage/Forge repository profile matches the state's canonical slug;
+2. verifies the selected CPL/Mage/Forge repository profile matches the state's canonical slug
+   **and** the worktree's single `remote.origin.url` matches that canonical GitHub repository;
 3. chooses only repository **read domains** from explicit changed paths and bounded state signals;
 4. emits references and deterministic helper commands, never conclusions;
 5. broadens to the full state when routing is unknown or a risk marker is present;
