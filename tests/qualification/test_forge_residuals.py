@@ -245,3 +245,39 @@ def test_a_bound_decision_family_names_the_bound_frame(records) -> None:
         if "choose_use" in m["dimension"]
     ]
     assert plain and all("BOOLEAN" in d for d in plain)
+
+
+def test_layer_tokens_are_characteristic_readbacks(records) -> None:
+    """Contract 1.0.21 MICRO_LAYERS: P/T and abilities are read back, not events."""
+    for family in ("layer6_remove_abilities", "layer7b_set_pt", "layer7c_modify_pt"):
+        assert fr.OBSERVATION[family] == fr.READBACK
+    row = fr.classify_row(records["MICRO_LAYERS"])
+    assert not row.needs_event_log
+    assert set(row.observation) == {fr.READBACK}
+    # The P/T tokens are projected; the bridge projects no abilities, so the
+    # ability-removal token is still a provider gap, never a Lab-only one.
+    assert row.classification == fr.PROVIDER_ADAPTER_GAP
+    assert row.first_missing["dimension"] == "unprojected_readback:layer6_remove_abilities"
+    assert [
+        item["dimension"] for item in row.mechanisms if item["class"] == fr.PROVIDER_ADAPTER_GAP
+    ] == ["unprojected_readback:layer6_remove_abilities"]
+
+
+def test_the_readme_table_is_the_matrix(records) -> None:
+    """Every published per-row line names the matrix's class and first mechanism."""
+    readme = (MATRIX.parent / "README.md").read_text(encoding="utf-8")
+    table = {
+        cells[0].split(" (", 1)[0]: cells[1:]
+        for line in readme.splitlines()
+        if line.startswith("| ")
+        and len(cells := [c.strip() for c in line.strip("|").split("|")]) == 4
+        and cells[0] not in ("Row", "---")
+    }
+    matrix = json.loads(MATRIX.read_text(encoding="utf-8"))
+    assert set(table) == {row["fixture_id"] for row in matrix["rows"]}
+    for row in matrix["rows"]:
+        first = row["first_missing"]
+        expected_first = "—" if not first else f"{first['stage']}: `{first['dimension']}`"
+        events = row["observation"].get(fr.EVENT_LOG) or []
+        expected_events = ", ".join(f"`{token}`" for token in events) or "—"
+        assert table[row["fixture_id"]] == [row["classification"], expected_first, expected_events]

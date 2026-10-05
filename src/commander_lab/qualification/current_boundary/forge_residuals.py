@@ -232,6 +232,12 @@ OBSERVATION: dict[str, str] = {
     "zone_change": READBACK,
     "APNAP_stack_order": READBACK,
     "bottom_count": READBACK,
+    # The layer tokens are characteristic readbacks (CR 613): the abilities and
+    # the power and toughness the layer system yields, never an event (the
+    # contract 1.0.21 MICRO_LAYERS erratum).
+    "layer6_remove_abilities": READBACK,
+    "layer7b_set_pt": READBACK,
+    "layer7c_modify_pt": READBACK,
     # The engine's own decision frames, answered by the Lab (the decision tape).
     "ability_selected": DECISION_FRAME,
     "amount_assignment": DECISION_FRAME,
@@ -281,7 +287,7 @@ OBSERVATION: dict[str, str] = {
     "x_announced": DECISION_FRAME,
     # Only an engine event stream shows these: a rules process with no lasting
     # state and no decision of its own (a would-be amount, an applied
-    # replacement or prevention, a layer, a state-based-action pass, a
+    # replacement or prevention, a state-based-action pass, a
     # simultaneity, a new object incarnation, a Rules RNG outcome, a queued
     # extra turn).
     "combat_damage": EVENT_LOG,
@@ -289,15 +295,22 @@ OBSERVATION: dict[str, str] = {
     "combat_damage_would_be": EVENT_LOG,
     "damage_would_be": EVENT_LOG,
     "extra_turn_created": EVENT_LOG,
-    "layer6_remove_abilities": EVENT_LOG,
-    "layer7b_set_pt": EVENT_LOG,
-    "layer7c_modify_pt": EVENT_LOG,
     "new_object_incarnation": EVENT_LOG,
     "prevention_applied": EVENT_LOG,
     "replacement_effect": EVENT_LOG,
     "rules_rng": EVENT_LOG,
     "simultaneous_trigger_event": EVENT_LOG,
     "state_based_actions": EVENT_LOG,
+}
+
+# Readback tokens whose characteristic the pinned bridge never projects: a
+# provider gap however the lane observes them. Forge's battlefield projection
+# carries each permanent's power and toughness but no abilities.
+UNPROJECTED_READBACK: dict[str, str] = {
+    "layer6_remove_abilities": (
+        "the obligation reads a permanent's abilities and the pinned bridge's battlefield "
+        "projection carries power and toughness but no abilities (no ability readback)"
+    ),
 }
 
 # Obligation kinds the lane already evaluates from engine facts.
@@ -480,6 +493,17 @@ def classify_row(record: dict[str, Any]) -> ForgeResidual:
     row.observation = {basis: tokens for basis, tokens in observation.items() if tokens}
 
     observing: list[dict[str, str]] = []
+    for token in observation[READBACK]:
+        unprojected = UNPROJECTED_READBACK.get(_token_family(token))
+        if unprojected is not None:
+            observing.append(
+                {
+                    "stage": "observation",
+                    "dimension": f"unprojected_readback:{_token_family(token)}",
+                    "class": PROVIDER_ADAPTER_GAP,
+                    "detail": unprojected,
+                }
+            )
     if observation[EVENT_LOG]:
         observing.append(
             {

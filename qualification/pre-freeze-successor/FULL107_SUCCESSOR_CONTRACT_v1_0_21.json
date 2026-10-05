@@ -18072,8 +18072,9 @@
       "obligation_changed": false,
       "provider_semantics_used": false,
       "erratum_class": "CAUSAL_STACK_SCENARIO_ERRATUM",
-      "comprehensive_rules": "608.2c, 701.20",
+      "comprehensive_rules": "608.2c, 608.2d, 701.20",
       "reason": "the predecessor holds Fact or Fiction on the stack and its five cards already in a revealed zone: no game reaches that state, because the cards are revealed only as Fact or Fiction resolves, and until then they are the top five of P1's library. The successor makes them library positions 0-4 of P1's complete library and P1 casts Fact or Fiction from hand, paid by four declared Islands; the partition is then the engine's own frame for P2, and P1's following pile choice is scripted (the obligation is the partition, never the choice)",
+      "opponent_choice": "Fact or Fiction has no target; P1 chooses the opponent who separates while it resolves (CR 608.2d), so the choice follows the cast and the payment and precedes P2's partition",
       "partition_binding": "P2's partition is answered on the provider's own pile-separation frame; a provider that asks it as a selection of the first pile receives pile_a",
       "complete_checkpoint_hands": {
        "P1": "obj:fof plus 8 template cards",
@@ -18455,28 +18456,6 @@
      {
       "actor": "P1",
       "causal_step_id": "cast-fof",
-      "decision_family": "target",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "semantic_player",
-       "semantic_value": "P2"
-      }
-     },
-     {
-      "actor": "P1",
-      "causal_step_id": "cast-fof",
       "decision_family": "mana_payment",
       "forbidden_fallbacks": [
        "first_option",
@@ -18507,6 +18486,28 @@
          "obj:fof-island-3"
         ]
        }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "resolve-fof",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "CR 608.2d: the opponent who separates is chosen on resolution",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_player",
+       "semantic_value": "P2"
       }
      },
      {
@@ -18593,9 +18594,11 @@
       "obligation_changed": false,
       "provider_semantics_used": false,
       "erratum_class": "CAUSAL_EXTRA_TURN_SCENARIO_ERRATUM",
-      "comprehensive_rules": "500.7, 508.1, 514.1, 608.2n, 614.1a, 614.6",
+      "comprehensive_rules": "103.8c, 117.3b, 117.3d, 117.4, 500.2, 500.7, 508.1, 514.1, 608.1, 608.2n, 614.1a, 614.6, 701.24",
       "nexus_zone": "Nexus of Fate: 'If Nexus of Fate would be put into a graveyard from anywhere, reveal Nexus of Fate and shuffle it into its owner's library instead.' That replacement (CR 614.1a, 614.6) applies to the last step of its own resolution (CR 608.2n), so a resolved Nexus is never in a graveyard: the predecessor's request is unreachable",
       "extra_turn_cause": "the required events extra_turn_created:P2 and extra_turn_created:P3 are events, not state: a requested state that already contains both extra turns leaves nothing to observe. P1 casts Time Warp targeting P2 and, once it resolved, P3 casts Nexus of Fate on P1's turn (an instant), each through the engine-offered legal actions and paid from declared Islands; the engine then takes P3's extra turn before P2's (CR 500.7)",
+      "priority_passes": "the script names only the actions taken; every other priority the engine offers is answered with its own pass (the native procedure's NATIVE_COMPLETE_CURRENT_TURN_AND_ADVANCE_MULTIPLAYER_TURN_ORDER): with Time Warp on the stack every player passes in turn order and it resolves (CR 117.4, 608.1); on the then empty stack P1 receives priority and passes, P2 passes and P3, given priority, casts Nexus of Fate (the step's empty_stack timing, CR 117.3b, 117.3d); every player passes and it resolves; every later priority is passed, which ends each step and turn (CR 117.4, 500.2)",
+      "nexus_shuffle": "Nexus of Fate's replacement shuffles it into P3's library (CR 701.24) and P3 draws from that library in its extra turn, so the route uses the Rules-RNG channel library_shuffle:P3, bound to the record's rules seed; no obligation token depends on the drawn card, and P3's cleanup discard selects only template cards",
       "combat": "the observation passes through the rest of P1's turn and all of P3's extra turn; each attack declaration is the active player's discretionary choice (CR 508.1), so the script declares no attackers for P1 and then for P3. The checkpoint moves from P1's postcombat to its precombat main: a postcombat checkpoint has already passed P1's combat, an attack declaration the record never scripts (the XMage midgame lane refuses that arrival)",
       "cleanup": "the checkpoint hands are the dealt hands, complete: P1 holds eight template cards (its opening seven and its first draw, CR 103.8c) and every other player seven, each besides the named spell. P1 ends its turn with eight cards and P3 its extra turn with eight (seven after Nexus of Fate and its draw), so each discards one at its cleanup (CR 514.1). That discard is the owner's choice and is scripted on the engine's object frame (the PILOT_CHOOSE_OBJECT discard family) as the card-identity multiset {Mountain: 1}",
       "cleanup_selector_equivalence": "the selection is the multiset of card identities discarded; every offered card with that identity that is no named record object is the same semantic selection (identical template cards), so it matches once, never as several options. A frame that offers a named record object with that identity, or no card with it, fails closed (the WS05-CMD-MULL-2 London-bottom precedent)",
@@ -18881,6 +18884,14 @@
      "priority_player": "P1",
      "step": "main",
      "turn_number": 1
+    },
+    "rules_randomness": {
+     "channels": [
+      "library_shuffle:P3"
+     ],
+     "pilot_randomness_prohibited": true,
+     "predetermined_semantic_draws": [],
+     "rules_seed": 424242
     },
     "deck_state": [
      {
@@ -19217,7 +19228,7 @@
      }
     ]
    },
-   "successor_requested_state_digest": "5e1a846c57bd89331aa0d96bf64fb4faa845c9664a4d7dc9e1d4309a3223b3b4"
+   "successor_requested_state_digest": "e47c27437421d2a19b4f0a192b1f837ab284f19d0d3602119d669c17a03d933d"
   },
   {
    "append_native_procedure": [
@@ -19228,9 +19239,11 @@
       "obligation_changed": false,
       "provider_semantics_used": false,
       "erratum_class": "CAUSAL_EXTRA_TURN_SCENARIO_ERRATUM",
-      "comprehensive_rules": "500.7, 508.1, 514.1, 608.2n, 614.1a, 614.6",
+      "comprehensive_rules": "103.8c, 117.3b, 117.3d, 117.4, 500.2, 500.7, 508.1, 514.1, 608.1, 608.2n, 614.1a, 614.6, 701.24",
       "nexus_zone": "Nexus of Fate: 'If Nexus of Fate would be put into a graveyard from anywhere, reveal Nexus of Fate and shuffle it into its owner's library instead.' That replacement (CR 614.1a, 614.6) applies to the last step of its own resolution (CR 608.2n), so a resolved Nexus is never in a graveyard: the predecessor's request is unreachable",
       "extra_turn_cause": "the required events extra_turn_created:P2 and extra_turn_created:P3 are events, not state: a requested state that already contains both extra turns leaves nothing to observe. P1 casts Time Warp targeting P2 and, once it resolved, P3 casts Nexus of Fate on P1's turn (an instant), each through the engine-offered legal actions and paid from declared Islands; the engine then takes P3's extra turn before P2's (CR 500.7)",
+      "priority_passes": "the script names only the actions taken; every other priority the engine offers is answered with its own pass (the native procedure's NATIVE_COMPLETE_CURRENT_TURN_AND_ADVANCE_MULTIPLAYER_TURN_ORDER): with Time Warp on the stack every player passes in turn order and it resolves (CR 117.4, 608.1); on the then empty stack P1 receives priority and passes, P2 passes and P3, given priority, casts Nexus of Fate (the step's empty_stack timing, CR 117.3b, 117.3d); every player passes and it resolves; every later priority is passed, which ends each step and turn (CR 117.4, 500.2)",
+      "nexus_shuffle": "Nexus of Fate's replacement shuffles it into P3's library (CR 701.24) and P3 draws from that library in its extra turn, so the route uses the Rules-RNG channel library_shuffle:P3, bound to the record's rules seed; no obligation token depends on the drawn card, and P3's cleanup discard selects only template cards",
       "combat": "the observation passes through the rest of P1's turn and all of P3's extra turn; each attack declaration is the active player's discretionary choice (CR 508.1), so the script declares no attackers for P1 and then for P3. The checkpoint moves from P1's postcombat to its precombat main: a postcombat checkpoint has already passed P1's combat, an attack declaration the record never scripts (the XMage midgame lane refuses that arrival)",
       "cleanup": "the checkpoint hands are the dealt hands, complete: P1 holds eight template cards (its opening seven and its first draw, CR 103.8c) and every other player seven, each besides the named spell. P1 ends its turn with eight cards and P3 its extra turn with eight (seven after Nexus of Fate and its draw), so each discards one at its cleanup (CR 514.1). That discard is the owner's choice and is scripted on the engine's object frame (the PILOT_CHOOSE_OBJECT discard family) as the card-identity multiset {Mountain: 1}",
       "cleanup_selector_equivalence": "the selection is the multiset of card identities discarded; every offered card with that identity that is no named record object is the same semantic selection (identical template cards), so it matches once, never as several options. A frame that offers a named record object with that identity, or no card with it, fails closed (the WS05-CMD-MULL-2 London-bottom precedent)",
@@ -19562,6 +19575,14 @@
      "priority_player": "P1",
      "step": "main",
      "turn_number": 1
+    },
+    "rules_randomness": {
+     "channels": [
+      "library_shuffle:P3"
+     ],
+     "pilot_randomness_prohibited": true,
+     "predetermined_semantic_draws": [],
+     "rules_seed": 424242
     },
     "deck_state": [
      {
@@ -19932,7 +19953,7 @@
      }
     ]
    },
-   "successor_requested_state_digest": "d2037dadfdfba76a5a5af79482f1186aa397c5a12a656dc6a718f4f0008f92d3"
+   "successor_requested_state_digest": "cf41ff5b38ad101a5adaf17997b76f35d1391c79532b5306f6c1ec32df58c5d1"
   },
   {
    "append_native_procedure": [
