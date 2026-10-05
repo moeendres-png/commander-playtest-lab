@@ -61,7 +61,19 @@ at `high` effort. Those subagents are read-only helpers inside the campaign, not
 executors, and hold no write, adjudication or merge authority.
 
 Root `opencode.json` is DeepSeek MAX by default and exposes Space Bunny MAX as the only
-other whitelisted model. The GitHub OpenCode lane is also DeepSeek MAX. No executor
+other whitelisted model. The GitHub OpenCode lane is also DeepSeek MAX by default (`/oc`,
+`/opencode`); an explicit `/bunny` comment from a trusted author starts the separate Space Bunny MAX
+job with the `bunny-verifier` agent. That is an explicit selection of the secondary profile, never a
+fallback: a failed DeepSeek run is not retried on Space Bunny.
+
+Profile postures (both at native `max`):
+- DeepSeek MAX spends reasoning freely but economises input: capsule first, the shared `lab-ops`
+  scripts for status and logs, bounded reads, narrow validation while iterating and the full
+  required suites once before a push.
+- Space Bunny MAX spends tokens on assurance: every reported claim is established by two
+  independent routes with a wrong-reason control, the complete affected validation runs, and a
+  fresh-context `bunny-auditor` reviews the diff. It saves wall-clock time by running long checks
+  first and independent checks in parallel subagents. No executor
 fallback occurs on quota, auth, catalog or child failure.
 
 ## Technical decision authority

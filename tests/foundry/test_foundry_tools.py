@@ -960,6 +960,7 @@ def test_skill_library_conformance() -> None:
         "continuation",
         "evidence-seal",
         "failure-classification",
+        "lab-ops",
         "rules-authority-escalation",
         "test-impact",
         "workstream-bootstrap",
