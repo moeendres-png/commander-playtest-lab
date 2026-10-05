@@ -156,13 +156,7 @@ def _load(path: str) -> dict:
             object_pairs_hook=_unique_object,
             parse_constant=_invalid_constant,
         )
-    except (
-        OSError,
-        UnicodeError,
-        json.JSONDecodeError,
-        BenchmarkError,
-        RecursionError,
-    ) as exc:
+    except (OSError, UnicodeError, ValueError, RecursionError) as exc:
         raise BenchmarkError("cannot read valid benchmark JSON") from exc
     if not isinstance(data, dict):
         raise BenchmarkError("benchmark arm must be a JSON object")
