@@ -582,6 +582,10 @@ final class XmageFullGameDecisionController {
         notifyAll();
     }
 
+    synchronized boolean terminalMarked() {
+        return terminal;
+    }
+
     synchronized DecisionException terminalFailure() {
         return terminalFailure;
     }
