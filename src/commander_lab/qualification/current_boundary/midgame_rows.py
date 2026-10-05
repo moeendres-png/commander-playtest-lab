@@ -3289,20 +3289,22 @@ def _scry_answer(
     if not isinstance(value, bool):
         raise ml.MidgameLaneError(f"the scry answer carries {value!r}")
     actions = list(legal.get("actions") or ())
-    if len(actions) != 1 or _semantic_offers(looked_at, actions, placed) != actions:
+    offers = _semantic_offers(looked_at, actions, placed)
+    if len(actions) != 1 or offers != actions:
         raise ml.MidgameLaneError(
             f"the scry frame must offer exactly the looked-at card {looked_at!r}"
         )
+    (looked_offer,) = offers
     if _engine_selection_bounds(legal) != (0, 1):
         raise ml.MidgameLaneError(
             f"the scry frame asks {_engine_selection_bounds(legal)}, not a 0..1 selection"
         )
     if not value:
         return ScriptedAnswer(None, key="false")
-    option_id = _option_id(actions[0])
+    option_id = _option_id(looked_offer)
     if not option_id:
         raise ml.MidgameLaneError("the looked-at card's offer carries no option id")
-    return ScriptedAnswer(actions[0], key="true", option_ids=(option_id,))
+    return ScriptedAnswer(looked_offer, key="true", option_ids=(option_id,))
 
 
 def _partition_first_pile(value: Any) -> Any:
