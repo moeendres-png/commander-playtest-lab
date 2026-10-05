@@ -58,10 +58,17 @@ If a previously exercised baseline has nonzero checks and the candidate runs zer
 candidate is rejected as a verification collapse. A candidate with missing core efficiency
 metrics is INCONCLUSIVE, never a measured saving.
 
-Every measured delta carries an explicit direction. Results distinguish improvement, mixed
-efficiency, regression and no-change; a slower/more expensive pair is never hidden behind a
-generic favorable disposition. Quality-rejected pairs return CLI exit code 3; malformed,
-incomparable or unsafe input/output returns 2.
+Every measured delta carries a neutral numeric `change` (increased/decreased/unchanged).
+Only metrics with a defined monotonic efficiency interpretation feed
+`efficiency_improved_fields` / `efficiency_regressed_fields`: core token/time/tool counts,
+cost, model turns, patch count, tool errors, direct read/search calls, failed attempts, fix waves
+and context reloads. Cache-token fields and `checks_run` remain observations rather than being
+mislabelled as automatically better when smaller. A zero-check candidate after a nonzero-check
+baseline is still a quality rejection.
+
+Results distinguish improvement, mixed efficiency, regression and no-change; a slower or
+more expensive pair is never hidden behind a generic favorable disposition. Quality-rejected
+pairs return CLI exit code 3; malformed, incomparable or unsafe input/output returns 2.
 
 Benchmark outputs are write-once. Publication uses an atomic no-clobber link from a completed
 temporary file, so an existing normal file, symlink or hard-link target is never overwritten.
