@@ -380,9 +380,7 @@ def test_invalid_measurements_rejected(field: str, value: object) -> None:
         )
 
 
-def test_extreme_json_integer_literal_rejected_without_traceback(
-    tmp_path: Path, capsys
-) -> None:
+def test_extreme_json_integer_literal_rejected_without_traceback(tmp_path: Path, capsys) -> None:
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
     baseline.write_text(
