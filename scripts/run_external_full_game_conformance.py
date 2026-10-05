@@ -164,6 +164,7 @@ def run_full_gate(player_count: int = FULL_GATE_PLAYER_COUNT) -> dict[str, Any]:
         raise SystemExit(
             "semantic replay tape diverged: "
             f"comparison={tape.first_divergence_kind} replay={tape.replay_divergence_class}"
+            f" detail={tape.replay_divergence_detail}"
         )
 
     accepted_classes = sorted(

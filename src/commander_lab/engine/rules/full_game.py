@@ -397,6 +397,10 @@ class FullGameSemanticTapeEvidence(_StrictModel):
     fresh_process_replay_pass: bool
     replay_steps_verified: int = Field(ge=0)
     replay_divergence_class: str | None = None
+    # The consumer's own message for the divergence. One class can come from
+    # several emit sites (EARLY_TERMINATION has five), so the class alone cannot
+    # say which check failed.
+    replay_divergence_detail: str | None = None
 
     @property
     def passed(self) -> bool:
@@ -408,6 +412,8 @@ class FullGameSemanticTapeEvidence(_StrictModel):
             raise ValueError("tape comparison match and first divergence disagree")
         if self.fresh_process_replay_pass != (self.replay_divergence_class is None):
             raise ValueError("fresh-process replay verdict and divergence class disagree")
+        if self.replay_divergence_detail is not None and self.replay_divergence_class is None:
+            raise ValueError("a replay divergence detail needs a divergence class")
         if self.fresh_process_replay_pass and self.replay_steps_verified != self.recorded_steps:
             raise ValueError("a passing replay must verify every recorded step")
         return self

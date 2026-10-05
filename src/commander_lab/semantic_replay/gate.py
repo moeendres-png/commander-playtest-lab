@@ -26,6 +26,14 @@ from commander_lab.models import RulesDeckInput
 from . import comparator, consumer, recorder
 from .divergence import ReplayDivergence
 
+REPLAY_DIVERGENCE_DETAIL_LIMIT = 500
+
+
+def _bounded_detail(detail: str) -> str:
+    if len(detail) <= REPLAY_DIVERGENCE_DETAIL_LIMIT:
+        return detail
+    return detail[: REPLAY_DIVERGENCE_DETAIL_LIMIT - 3] + "..."
+
 
 def run_semantic_tape_replay(
     runner: XmageFullGameRunner,
@@ -63,12 +71,15 @@ def run_semantic_tape_replay(
         json.loads(paths[0].read_text(encoding="utf-8")),
         json.loads(paths[1].read_text(encoding="utf-8")),
     )
-    replay_pass, steps_verified, divergence_class = True, len(tapes[0].steps), None
+    replay_pass, steps_verified = True, len(tapes[0].steps)
+    divergence_class: str | None = None
+    divergence_detail: str | None = None
     try:
         verdict = consumer.replay_tape(paths[0], command=command, cwd=runner.cwd)
         steps_verified = int(verdict["steps_verified"])
     except ReplayDivergence as exc:
         replay_pass, steps_verified, divergence_class = False, 0, exc.divergence.value
+        divergence_detail = _bounded_detail(exc.detail)
     return FullGameSemanticTapeEvidence(
         tape_schema_version=tapes[0].schema_version,
         first_tape_id=tapes[0].tape_id,
@@ -82,6 +93,7 @@ def run_semantic_tape_replay(
         fresh_process_replay_pass=replay_pass,
         replay_steps_verified=steps_verified,
         replay_divergence_class=divergence_class,
+        replay_divergence_detail=divergence_detail,
     )
 
 
