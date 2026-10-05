@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
+description: Investigates bugs, test failures, build failures, CI failures, integration defects, performance regressions, and unexpected behavior by finding root cause before proposing fixes. Triggers on "debug", "failing test", "CI failed", "build failed", "unexpected behavior", and repeated unsuccessful fix attempts.
 ---
 
 # Systematic Debugging
