@@ -8,7 +8,6 @@ from pathlib import Path
 import pytest
 from tools.foundry import agent_benchmark as bench
 
-
 SHA = "a" * 40
 DIGEST = "b" * 64
 
