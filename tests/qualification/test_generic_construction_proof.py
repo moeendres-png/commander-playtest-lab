@@ -23,7 +23,10 @@ from commander_lab.qualification.current_boundary import (
     game_driver,
     generic_construction,
 )
-from commander_lab.qualification.current_boundary.game_driver import CommandedGameResult
+from commander_lab.qualification.current_boundary.game_driver import (
+    CommandedGameResult,
+    DecisionTapeEntry,
+)
 from commander_lab.qualification.current_boundary.materialization import (
     load_effective_materialization,
 )
@@ -288,7 +291,14 @@ def _run(state: dict | None, *, supported: bool = True) -> CommandedGameResult:
     result.seed_binding = classify_seed_binding(
         requested_seed=424242, acknowledged_seed=424242, source="test"
     )
+    result.decision_tape = [_keep(seat) for seat in ("p1", "p2", "p3", "p4")]
     return result
+
+
+def _keep(seat: str) -> DecisionTapeEntry:
+    return DecisionTapeEntry(
+        "mulligan", "KEEP_OR_MULLIGAN", seat, 1, "record_plan", "keep", ["keep"], "planned"
+    )
 
 
 @pytest.fixture
@@ -465,3 +475,86 @@ def test_every_requested_channel_is_checked(record) -> None:
     fields = {c.field for c in _proof(record, _state()).checks}
     for channel in record["rules_randomness"]["channels"]:
         assert f"rules_randomness.channel.{channel}" in fields
+
+
+# --------------------------------------------------------------------------- #
+# Codex P1s on 3813140d: the record's scripted pregame and the persisted proof
+# --------------------------------------------------------------------------- #
+
+
+@pytest.mark.usefixtures("complete_lifecycle")
+def test_the_cardinality_row_needs_the_records_own_pregame(record) -> None:
+    run = _run(_state())
+    assert full107.cardinality_row(record, run, candidate="xmage", runtime_identity={}).outcome == (
+        "PASS"
+    )
+    for tape in (
+        [_keep(seat) for seat in ("p1", "p3", "p4")],  # a skipped seat
+        [_keep(seat) for seat in ("p1", "p2", "p2", "p3", "p4")],  # a repeated seat
+        [_keep(seat) for seat in ("p2", "p1", "p3", "p4")],  # another order
+        [],  # no pregame at all
+    ):
+        diverged = _run(_state())
+        diverged.decision_tape = tape
+        row = full107.cardinality_row(record, diverged, candidate="xmage", runtime_identity={})
+        assert row.outcome == "UNKNOWN", tape
+        assert "record's plan" in row.reason
+    mulligan = _run(_state())
+    mulligan.decision_tape = [
+        DecisionTapeEntry("mulligan", "KEEP_OR_MULLIGAN", "p1", 1, "x", "mulligan", [], ""),
+        *(_keep(seat) for seat in ("p2", "p3", "p4")),
+    ]
+    row = full107.cardinality_row(record, mulligan, candidate="xmage", runtime_identity={})
+    assert row.outcome == "UNKNOWN"
+
+
+@pytest.mark.usefixtures("complete_lifecycle")
+def test_a_plan_the_engine_did_not_follow_is_unknown_not_a_rules_failure(record) -> None:
+    run = _run(_state())
+    run.failure = "DecisionUnsatisfied: the engine asked mulligan #2 of p3; the plan names p2"
+    row = full107.cardinality_row(record, run, candidate="xmage", runtime_identity={})
+    assert row.outcome == "UNKNOWN"
+    assert "scripted pregame did not complete" in row.reason
+    run.failure = "BridgeError: the process died"
+    assert full107.cardinality_row(record, run, candidate="xmage", runtime_identity={}).outcome == (
+        "FAIL"
+    )
+
+
+def test_run_cardinality_drives_the_records_plan(record, monkeypatch: pytest.MonkeyPatch) -> None:
+    seen: dict = {}
+
+    def fake_drive(proc, **kwargs):
+        seen.update(kwargs)
+        return _run(_state())
+
+    monkeypatch.setattr(full107, "drive_commander_game", fake_drive)
+    full107.run_cardinality(
+        object(), candidate="xmage", player_count=4, runtime_identity={}, record=record
+    )
+    assert seen["mulligan_plan"] == (("p1", True), ("p2", True), ("p3", True), ("p4", True))
+    full107.run_cardinality(object(), candidate="xmage", player_count=4, runtime_identity={})
+    assert seen["mulligan_plan"] is None
+
+
+@pytest.mark.usefixtures("complete_lifecycle")
+def test_the_persisted_row_and_its_receipt_carry_the_proof(record) -> None:
+    row = full107.cardinality_row(record, _run(_state()), candidate="xmage", runtime_identity={})
+    assert row.outcome == "PASS"
+    document = row.to_document(record)
+    assert document["construction_proof"]["verdict"] == generic_construction.EQUAL
+    assert document["scripted_pregame_plan"] == document["observed_pregame_decisions"]
+    runner = _runner_module()
+    receipt = runner._direct_positive_receipt(
+        row, record, candidate_commit="c" * 40, runner_digest="r" * 64
+    )
+    tampered = copy.deepcopy(row)
+    tampered.evidence["construction_proof"]["verdict"] = generic_construction.MISMATCH
+    forged = runner._direct_positive_receipt(
+        tampered, record, candidate_commit="c" * 40, runner_digest="r" * 64
+    )
+    # The receipt's row digest binds the proof: another proof is another receipt.
+    assert (
+        receipt["observed_assertion"]["row_document_sha256"]
+        != forged["observed_assertion"]["row_document_sha256"]
+    )
