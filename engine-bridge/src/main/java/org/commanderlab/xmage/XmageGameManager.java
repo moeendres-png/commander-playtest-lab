@@ -534,6 +534,7 @@ final class XmageGameManager {
             options.stopAtStep = PhaseStep.UPKEEP;
 
             try {
+                managed.game.getState().addWatcher(new XmageLibraryShuffleWatcher());
                 managed.game.start(choosingPlayer.getId());
             } catch (RuntimeException | Error exc) {
                 managed.lifecycle = Lifecycle.FAILED;
@@ -630,6 +631,7 @@ final class XmageGameManager {
 
     private static void runExternalStart(ManagedGame managed, UUID startingPlayerId) {
         try {
+            managed.game.getState().addWatcher(new XmageLibraryShuffleWatcher());
             managed.game.start(startingPlayerId);
             if (managed.game.getTotalErrorsCount() != 0) {
                 throw new IllegalStateException(
@@ -1006,6 +1008,237 @@ final class XmageGameManager {
 
     int storedGameCount() {
         return gamesByHandle.size();
+    }
+
+    /** Schema of {@link #constructedState(String)}. */
+    static final String CONSTRUCTED_STATE_SCHEMA = "commander-lab.generic-constructed-state/4";
+
+    /**
+     * The engine's normalized constructed state for the generic lane's
+     * construction proof (Commander-Lab #441, decision (c)).
+     *
+     * <p>An orchestration channel, not an observation (the AF09 precedent of
+     * {@link XmageRulesRngResultTape}): it exists only on a launch that carries
+     * an orchestration key, and is refused on every other launch. Read from the
+     * native game objects inside the Rules process. Seats are named by their
+     * one-based seat number ({@code P1}..). Public facts are plain: life,
+     * poison, loss, zone sizes, and each commander's identity, zone and
+     * command-zone cast count. Hidden content never leaves in the clear: each
+     * seat's library and hand together (its undrawn main deck plus its hand, a
+     * name multiset with no order) leave only as an HMAC under the launch key,
+     * so whoever does not hold the key can neither read a card out of it nor
+     * test a guess against it. Public zones other than the command zone leave
+     * as sizes only.</p>
+     */
+    JsonObject constructedState(String gameHandle) {
+        if (!XmageRulesRngResultTape.enabled()) {
+            String problem = XmageRulesRngResultTape.keyProblem();
+            throw new GameException("ORCHESTRATION_CHANNEL_NOT_ENABLED: "
+                    + (problem == null ? "this launch carries no orchestration key" : problem));
+        }
+        ManagedGame managed = requireManagedGame(gameHandle);
+        synchronized (managed) {
+            Game game = managed.game;
+            JsonObject root = new JsonObject();
+            root.addProperty("schema", CONSTRUCTED_STATE_SCHEMA);
+            root.addProperty("observation_scope", "orchestration_keyed_digests");
+            root.addProperty("lifecycle", managed.lifecycle.name().toLowerCase());
+            root.addProperty("turn_number", game.getState().getTurnNum());
+            TurnPhase phase = game.getTurnPhaseType();
+            if (phase == null) {
+                root.add("phase", JsonNull.INSTANCE);
+            } else {
+                root.addProperty("phase", turnPhaseValue(phase));
+            }
+            root.add("active_player", seatName(managed, game.getActivePlayerId()));
+            root.add("priority_player", seatName(managed, game.getPriorityPlayerId()));
+            root.addProperty("stack_size", game.getStack().size());
+            // Native rules state (schema /4), read from the engine, never inferred
+            // by the Lab: the combat in progress, queued extra turns, triggered
+            // abilities waiting to be put on the stack, the layered continuous
+            // effects in force, and every revealed card.
+            JsonObject rulesState = new JsonObject();
+            rulesState.addProperty("combat_groups", game.getCombat().getGroups().size());
+            rulesState.addProperty("combat_attackers", game.getCombat().getAttackers().size());
+            int extraTurns = 0;
+            for (mage.game.turn.TurnMod mod : game.getState().getTurnMods()) {
+                if (mod.isExtraTurn()) {
+                    extraTurns++;
+                }
+            }
+            rulesState.addProperty("extra_turns", extraTurns);
+            int pendingTriggers = 0;
+            for (Player player : managed.players) {
+                pendingTriggers += game.getState().getTriggered(player.getId()).size();
+            }
+            rulesState.addProperty("pending_triggers", pendingTriggers);
+            rulesState.addProperty("continuous_effects",
+                    game.getContinuousEffects().getLayeredEffects(game).size());
+            int revealed = 0;
+            for (mage.cards.Cards cards : game.getState().getRevealed().values()) {
+                revealed += cards.size();
+            }
+            int topRevealed = 0;
+            for (Player player : managed.players) {
+                if (player.isTopCardRevealed()) {
+                    topRevealed++;
+                }
+            }
+            root.add("rules_state", rulesState);
+            JsonArray players = new JsonArray();
+            for (int seat = 0; seat < managed.players.size(); seat++) {
+                Player player = managed.players.get(seat);
+                String seatId = "P" + (seat + 1);
+                JsonObject entry = new JsonObject();
+                entry.addProperty("player_id", seatId);
+                entry.addProperty("seat", seat + 1);
+                entry.addProperty("life", player.getLife());
+                entry.addProperty("poison", player.getCountersCount(CounterType.POISON));
+                entry.addProperty("lost", player.hasLost());
+                entry.addProperty("left", player.hasLeft());
+                entry.addProperty("library_size", player.getLibrary().size());
+                entry.addProperty("hand_size", player.getHand().size());
+                List<mage.cards.Card> undrawnAndHand = new ArrayList<>(player.getLibrary().getCards(game));
+                undrawnAndHand.addAll(player.getHand().getCards(game));
+                entry.addProperty("library_and_hand_digest",
+                        constructedZoneDigest(seatId, "library_and_hand", undrawnAndHand));
+                entry.addProperty("graveyard_size", player.getGraveyard().size());
+                entry.addProperty("exile_size", game.getExile().getCardsOwned(game, player.getId()).size());
+                int battlefield = 0;
+                for (Permanent permanent : game.getBattlefield().getAllPermanents()) {
+                    if (player.getId().equals(permanent.getControllerId())) {
+                        battlefield++;
+                    }
+                }
+                entry.addProperty("battlefield_size", battlefield);
+                // Native knowledge (schema /4): hidden cards this seat may see
+                // beyond its own hand: cards it looked at, every revealed card,
+                // and each library whose top card is played revealed.
+                int lookedAt = 0;
+                for (mage.cards.Cards cards : game.getState().getLookedAt(player.getId()).values()) {
+                    lookedAt += cards.size();
+                }
+                JsonObject knowledge = new JsonObject();
+                knowledge.addProperty("visible_hidden_cards", lookedAt + revealed + topRevealed);
+                entry.add("knowledge", knowledge);
+                // Commander damage this seat has taken (CR 903.10a), from each
+                // commander's own damage watcher.
+                int commanderDamage = 0;
+                for (Player owner : managed.players) {
+                    for (UUID commanderId : game.getCommandersIds(
+                            owner, CommanderCardType.COMMANDER_OR_OATHBREAKER, false)) {
+                        mage.watchers.common.CommanderInfoWatcher damage = game.getState()
+                                .getWatcher(mage.watchers.common.CommanderInfoWatcher.class, commanderId);
+                        if (damage != null) {
+                            commanderDamage += damage.getDamageToPlayer().getOrDefault(player.getId(), 0);
+                        }
+                    }
+                }
+                entry.addProperty("commander_damage_taken", commanderDamage);
+                // The engine's own LIBRARY_SHUFFLED events for this seat's
+                // library so far; absent when the game has no shuffle watcher.
+                XmageLibraryShuffleWatcher shuffled =
+                        game.getState().getWatcher(XmageLibraryShuffleWatcher.class);
+                if (shuffled != null) {
+                    entry.addProperty("library_shuffles", shuffled.shuffles(player.getId()));
+                }
+                mage.watchers.common.CommanderPlaysCountWatcher watcher = game.getState()
+                        .getWatcher(mage.watchers.common.CommanderPlaysCountWatcher.class);
+                JsonArray commanders = new JsonArray();
+                for (UUID commanderId : game.getCommandersIds(
+                        player, CommanderCardType.COMMANDER_OR_OATHBREAKER, false)) {
+                    mage.cards.Card card = game.getCard(commanderId);
+                    if (card == null) {
+                        continue;
+                    }
+                    JsonObject commander = new JsonObject();
+                    commander.addProperty("card_identity", card.getName());
+                    commander.add("owner", seatName(managed, card.getOwnerId()));
+                    commander.addProperty("zone",
+                            String.valueOf(game.getState().getZone(commanderId)).toLowerCase());
+                    // Native object attributes (schema /3), read from the engine:
+                    // the controller of the commander's command object or of its
+                    // permanent (null when it is neither, CR 108.4a); counters and
+                    // face-down status of the card; tapped state and attachments
+                    // exist only for a permanent (CR 110.5, 301.5c), so a card
+                    // with no permanent is untapped and has none attached.
+                    Permanent permanent = game.getPermanent(commanderId);
+                    UUID controllerId = null;
+                    if (permanent != null) {
+                        controllerId = permanent.getControllerId();
+                    } else {
+                        for (mage.game.command.CommandObject object : game.getState().getCommand()) {
+                            if (object instanceof mage.game.command.Commander
+                                    && commanderId.equals(object.getSourceId())) {
+                                controllerId = object.getControllerId();
+                            }
+                        }
+                    }
+                    commander.add("controller", controllerId == null
+                            ? JsonNull.INSTANCE : seatName(managed, controllerId));
+                    JsonObject counters = new JsonObject();
+                    for (mage.counters.Counter counter : (permanent != null
+                            ? permanent.getCounters(game) : card.getCounters(game)).values()) {
+                        if (counter.getCount() > 0) {
+                            // The engine's own counter name, lower-cased as the
+                            // records and the Forge bridge name it ("+1/+1", "charge").
+                            counters.addProperty(counter.getName().toLowerCase(java.util.Locale.ROOT),
+                                    counter.getCount());
+                        }
+                    }
+                    commander.add("counters", counters);
+                    commander.addProperty("face_down",
+                            permanent != null ? permanent.isFaceDown(game) : card.isFaceDown(game));
+                    commander.addProperty("tapped", permanent != null && permanent.isTapped());
+                    commander.addProperty("attachments",
+                            permanent == null ? 0 : permanent.getAttachments().size());
+                    if (watcher == null) {
+                        commander.add("prior_command_zone_cast_count", JsonNull.INSTANCE);
+                    } else {
+                        commander.addProperty("prior_command_zone_cast_count",
+                                watcher.getPlaysCount(commanderId));
+                    }
+                    commanders.add(commander);
+                }
+                entry.add("commanders", commanders);
+                players.add(entry);
+            }
+            root.add("players", players);
+            // No seed value: Rules seed control is acknowledged on game creation.
+            return root;
+        }
+    }
+
+    /**
+     * HMAC under the launch's orchestration key over a seat's zone content as a
+     * name multiset: the schema, the zone label, the seat, then one
+     * {@code name<TAB>count} token per distinct name in {@link String} order.
+     * The Lab, which generated the key, computes the same digest from the
+     * record's requested deck and compares the two.
+     */
+    static String constructedZoneDigest(String seatId, String zone, Collection<? extends mage.cards.Card> cards) {
+        java.util.TreeMap<String, Integer> counts = new java.util.TreeMap<>();
+        for (mage.cards.Card card : cards) {
+            counts.merge(card.getName(), 1, Integer::sum);
+        }
+        List<String> tokens = new ArrayList<>();
+        tokens.add(CONSTRUCTED_STATE_SCHEMA);
+        tokens.add(zone);
+        tokens.add(seatId);
+        counts.forEach((name, count) -> tokens.add(name + "\t" + count));
+        return XmageRulesRngResultTape.digest(tokens);
+    }
+
+    private static JsonElement seatName(ManagedGame managed, UUID playerId) {
+        if (playerId == null) {
+            return JsonNull.INSTANCE;
+        }
+        for (int seat = 0; seat < managed.players.size(); seat++) {
+            if (playerId.equals(managed.players.get(seat).getId())) {
+                return new com.google.gson.JsonPrimitive("P" + (seat + 1));
+            }
+        }
+        return new com.google.gson.JsonPrimitive("UNKNOWN_SEAT");
     }
 
     private ManagedGame requireManagedGame(String gameHandle) {

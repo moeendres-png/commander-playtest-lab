@@ -29,10 +29,11 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
-from . import lifecycle
+from . import generic_construction, lifecycle
 from .bridge_launcher import BridgeProcess
 from .game_driver import (
     CommandedGameResult,
+    DecisionUnsatisfied,
     drive_commander_game,
     poll_decision,
 )
@@ -175,6 +176,13 @@ class RowResult:
             "failure_reason": None if self.outcome == "PASS" else self.reason,
             "reason": self.reason,
             "runtime_identity": self.evidence.get("runtime_identity", {}),
+            # What justified a construction-dependent outcome: the field-level
+            # construction proof and the record's scripted pregame against the
+            # engine's own decisions. Persisted with the row, so a receipt's
+            # row digest binds them.
+            "construction_proof": self.evidence.get("construction_proof"),
+            "scripted_pregame_plan": self.evidence.get("scripted_pregame_plan"),
+            "observed_pregame_decisions": self.evidence.get("observed_pregame_decisions"),
         }
 
 
@@ -201,33 +209,99 @@ def run_cardinality(
     candidate: str,
     player_count: int,
     runtime_identity: dict[str, Any],
+    record: dict[str, Any] | None = None,
 ) -> CommandedGameResult:
-    """Run one real Commander lifecycle at one player count."""
+    """Run one real Commander lifecycle at one player count.
+
+    With the fixture's ``record`` the run imports the record's own decks and seed,
+    so the provider constructs the requested state and its construction proof can
+    be compared (#441 decision (c)). A record whose decks are not a 100-card
+    Commander deck per seat imports nothing of its own; the run then uses the
+    driver's decks and the record's construction stays unestablished.
+    """
+    decks = None
+    seed = 424242
+    plan = None
+    if record is not None:
+        try:
+            decks = record_decks(record)
+        except ValueError:
+            decks = None
+        record_seed = (record.get("rules_randomness") or {}).get("rules_seed")
+        if isinstance(record_seed, int) and not isinstance(record_seed, bool):
+            seed = record_seed
+        if record.get("pregame_decision_plan") is not None:
+            # The record's own keeps, seat by seat in the order it names: the
+            # driver answers only those and fails closed on any other frame.
+            # An inconsistent plan runs nothing of its own and is never credited
+            # (cardinality_row re-derives it).
+            try:
+                plan = scripted_pregame_plan(record)
+            except ValueError:
+                plan = None
     return drive_commander_game(
         proc,
         candidate=candidate,
         player_count=player_count,
-        seed=424242,
+        seed=seed,
         drive_to="priority",
         max_steps=80,
+        mulligan_plan=plan,
+        decks=decks,
     )
 
 
-def construction_credit_gap(record: dict[str, Any]) -> str | None:
+def construction_credit_gap(
+    record: dict[str, Any], proof: generic_construction.ConstructionProof | None = None
+) -> str | None:
     """Why the record's construction condition is unmet on the generic lane.
 
     A record whose ``construction_validation`` is required credits a row only when
-    the provider's normalized constructed state equals the requested state. The
-    generic Protocol-2 lane emits no constructed state, so for such a record it
-    can observe the obligation but never establish the credit condition (Owner
-    decision (a), Commander-Lab #441). ``None`` means the record imposes none.
+    the provider's normalized constructed state equals the requested state. Without
+    a construction proof the generic lane can observe the obligation but never
+    establish the credit condition (Owner decision (a), Commander-Lab #441); with
+    one, only an established equality lifts the gap (decision (c)). ``None`` means
+    the record imposes no construction condition or the proof establishes it.
     """
     construction = record.get("construction_validation") or {}
     if not construction.get("required"):
         return None
+    if proof is None:
+        return (
+            f"the record requires {construction.get('credit_condition')} and this lane "
+            "emits no normalized constructed state, so construction equality is unestablished"
+        )
+    if proof.established:
+        return None
     return (
-        f"the record requires {construction.get('credit_condition')} and this lane "
-        "emits no normalized constructed state, so construction equality is unestablished"
+        f"the record requires {construction.get('credit_condition')} and the provider's "
+        f"constructed state does not establish it, so construction equality is "
+        f"unestablished: {proof.reason()}"
+    )
+
+
+def generic_construction_proof(
+    record: dict[str, Any], result: CommandedGameResult
+) -> generic_construction.ConstructionProof | None:
+    """The generic-lane construction proof of one run, or None without a provider state.
+
+    A provider that does not declare ``constructed_state_supported``, or a launch
+    without an orchestration key, emits nothing, and there is then no proof at all
+    (not a failed one).
+    """
+    if not result.terminal_facts.get("provider_constructed_state_supported"):
+        return None
+    if result.terminal_facts.get("constructed_state_channel") != "orchestration_keyed_launch":
+        return None
+    binding = result.seed_binding
+    seed = binding.acknowledged_seed if binding is not None and binding.controlled else None
+    return generic_construction.compare(
+        record,
+        result.constructed_state,
+        acknowledged_seed=seed,
+        first_priority_seat=result.terminal_facts.get("first_priority_seat"),
+        capture=result.terminal_facts.get("constructed_state_capture"),
+        orchestration_key=result.orchestration_key,
     )
 
 
@@ -268,7 +342,25 @@ def cardinality_row(
         ),
         "principal_observation_scope": "engine-offered decision frames for the acting seat",
     }
+    planned = record.get("pregame_decision_plan") is not None
+    if planned:
+        evidence["observed_pregame_decisions"] = [
+            [entry.actor, entry.chosen_option_id == "keep"]
+            for entry in result.decision_tape
+            if entry.step == "mulligan"
+        ]
     if result.failure:
+        if planned and result.failure.startswith(f"{DecisionUnsatisfied.__name__}:"):
+            # The engine asked a pregame the record's plan does not name: the
+            # record's decisions were not executed, which proves nothing either way.
+            return RowResult(
+                fixture_id,
+                candidate,
+                "UNKNOWN",
+                "PROTOCOL2_LIFECYCLE",
+                f"the record's scripted pregame did not complete: {result.failure}",
+                evidence,
+            )
         return RowResult(
             fixture_id,
             candidate,
@@ -317,7 +409,35 @@ def cardinality_row(
             "unestablished: " + "; ".join(assessment["reasons"]),
             evidence,
         )
-    gap = construction_credit_gap(record)
+    if planned:
+        try:
+            plan = [list(entry) for entry in scripted_pregame_plan(record)]
+        except ValueError as exc:
+            return RowResult(
+                fixture_id,
+                candidate,
+                "UNKNOWN",
+                "PROTOCOL2_LIFECYCLE",
+                f"a real {wanted}P Commander lifecycle was observed, but the record's "
+                f"pregame is not executable: {exc}",
+                evidence,
+            )
+        evidence["scripted_pregame_plan"] = plan
+        if evidence["observed_pregame_decisions"] != plan:
+            return RowResult(
+                fixture_id,
+                candidate,
+                "UNKNOWN",
+                "PROTOCOL2_LIFECYCLE",
+                f"a real {wanted}P Commander lifecycle was observed, but the engine's "
+                f"pregame decisions {evidence['observed_pregame_decisions']} are not the "
+                f"record's plan {plan}",
+                evidence,
+            )
+    proof = generic_construction_proof(record, result)
+    if proof is not None:
+        evidence["construction_proof"] = proof.to_document()
+    gap = construction_credit_gap(record, proof)
     if gap is not None:
         return RowResult(
             fixture_id,
@@ -897,7 +1017,10 @@ def scripted_pregame_row(
             f"Rules seed {seed}, so the record's seeded shuffles are not established",
             evidence,
         )
-    gap = construction_credit_gap(record)
+    proof = generic_construction_proof(record, game)
+    if proof is not None:
+        evidence["construction_proof"] = proof.to_document()
+    gap = construction_credit_gap(record, proof)
     if gap is not None:
         return RowResult(
             fixture_id,

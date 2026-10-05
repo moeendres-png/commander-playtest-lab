@@ -75,6 +75,10 @@ class TerminalCheck:
     where: tuple[tuple[str, Any], ...] = ()
     # Decision-frame checks: text the engine's own selected offer label contains.
     label: str | None = None
+    # Frame-window checks: the engine event patterns that open (``after``) and
+    # close (``before``) the window of frames the check reads, by tape position.
+    after: TerminalCheck | None = None
+    before: TerminalCheck | None = None
 
     def describe(self) -> str:
         if self.kind == "stack_empty_after":
@@ -196,6 +200,19 @@ class TerminalCheck:
             )
         if self.kind == "pending_extra_turns":
             return f"the engine's pending extra turns are {list(self.value)}, in the order taken"
+        if self.kind == "extra_turn_created":
+            return (
+                f"the engine had no pending extra turn for {self.principal} when it asked the "
+                f"run's first frame or any frame before the first {_window_name(self.after)}, "
+                f"and pending extra turns {list(self.value)}, in the order taken, when it asked "
+                "a frame after it"
+            )
+        if self.kind == "pending_extra_turns_between":
+            return (
+                f"the engine's pending extra turns read {list(self.value)} at a frame after the "
+                f"first {_window_name(self.after)}"
+                + (f" and before the first {_window_name(self.before)}" if self.before else "")
+            )
         if self.kind == "player_in_game":
             return f"the engine reports {self.principal} neither lost nor left"
         if self.kind == "player_left":
@@ -390,6 +407,74 @@ def _named(event_type: str, key: str, name: str, *where: tuple[str, Any]) -> Ter
 def _exactly(check: TerminalCheck, count: int) -> TerminalCheck:
     """The same event pattern, needing exactly ``count`` matching events."""
     return TerminalCheck("events", value=count, event_type=check.event_type, where=check.where)
+
+
+def _extra_turn_spec() -> RowSpec:
+    """WS05-MP-TURN-3/5: two extra turns, the later-created one taken first."""
+    time_warp = _event("SPELL_CAST", ("source_object", "obj:mp-time-warp"), ("player_player", "P1"))
+    nexus = _event("SPELL_CAST", ("source_object", "obj:mp-nexus"), ("player_player", "P3"))
+    # Each spell leaves the stack as it resolves (Time Warp to the graveyard;
+    # Nexus of Fate's replacement shuffles it into its owner's library): the
+    # extra turn exists only from then on (CR 608.2).
+    warp_resolved = _event("ZONE_CHANGE", ("target_object", "obj:mp-time-warp"), ("from", "STACK"))
+    nexus_resolved = _event("ZONE_CHANGE", ("target_object", "obj:mp-nexus"), ("from", "STACK"))
+    p3_turn = _event("BEGIN_TURN", ("player_player", "P3"))
+    p2_turn = _event("BEGIN_TURN", ("player_player", "P2"))
+    return RowSpec(
+        mana_sources=(
+            *(f"obj:turn-p1-island-{i}" for i in range(5)),
+            *(f"obj:turn-p3-island-{i}" for i in range(7)),
+        ),
+        # The obligation passes through the rest of P1's turn, all of P3's and
+        # into P2's, where the engine consumes P2's queued extra turn.
+        max_decisions=320,
+        token_bindings=(
+            # XMage creates an extra turn as a pending turn modification and
+            # announces nothing (its EXTRA_TURN event is only offered to
+            # replacement effects when the turn is taken); the engine's own
+            # pending queue is the observation, as for the coin-flip row's
+            # extra_turn_created:P1. Each creation is ordered after its spell's
+            # resolution: before it, no frame may read the new entry. Most
+            # recently created is taken first (CR 500.7).
+            (
+                "extra_turn_created:P2",
+                (
+                    time_warp,
+                    _before(time_warp, warp_resolved),
+                    TerminalCheck(
+                        "extra_turn_created", principal="P2", value=("P2",), after=warp_resolved
+                    ),
+                ),
+            ),
+            (
+                "extra_turn_created:P3",
+                (
+                    nexus,
+                    _before(nexus, nexus_resolved),
+                    TerminalCheck(
+                        "extra_turn_created",
+                        principal="P3",
+                        value=("P3", "P2"),
+                        after=nexus_resolved,
+                    ),
+                ),
+            ),
+            ("next_turn:P3", (_before(time_warp, p3_turn), _before(nexus, p3_turn))),
+            # P2's next turn is its queued extra turn, not its normal turn: the
+            # engine still holds P2's entry while P3's extra turn runs, P2's turn
+            # follows P3's, and once P2's turn has begun the entry is consumed.
+            (
+                "next_turn:P2",
+                (
+                    _before(p3_turn, p2_turn),
+                    TerminalCheck(
+                        "pending_extra_turns_between", value=("P2",), after=p3_turn, before=p2_turn
+                    ),
+                    TerminalCheck("pending_extra_turns_between", value=(), after=p2_turn),
+                ),
+            ),
+        ),
+    )
 
 
 def _response_spec(responder: str, response: str, spell: str, target: str, forest: str) -> RowSpec:
@@ -1036,10 +1121,15 @@ ROWS: dict[str, RowSpec] = {
             ),
         ),
     ),
-    # MICRO_CONTINUOUS_EFFECTS (1.0.20 obligation erratum): Psychosis Crawler's
-    # power and toughness are a characteristic-defining ability (CR 604.3) the
-    # engine evaluates from P1's hand size; at the reachable 13-card hand it
-    # reads 13/13, and the Crawler triggers nothing in the obligation window.
+    # WS05-MP-TURN-3/5 (contract 1.0.21, #441): P1 casts Time Warp on P2, then
+    # P3 casts Nexus of Fate on P1's turn; the most recently created extra turn
+    # is taken first (CR 500.7): P3's, then P2's. A creation is bound to its
+    # spell's cast and the engine's pending extra turns read back after it;
+    # the order taken to every turn's start (BEGIN_TURN). P1 and then P3
+    # declare no attackers and each discards one template card at its cleanup
+    # (scripted, CR 508.1, 514.1).
+    "WS05-MP-TURN-3": _extra_turn_spec(),
+    "WS05-MP-TURN-5": _extra_turn_spec(),
     # MICRO_LAYERS (contract 1.0.21, FIXTURE_OBSERVABILITY_ERRATUM, #441): the
     # layer tokens are applications of continuous effects when characteristics
     # are determined (CR 613), not events, so each is read from the engine's
@@ -1091,6 +1181,10 @@ ROWS: dict[str, RowSpec] = {
             ),
         ),
     ),
+    # MICRO_CONTINUOUS_EFFECTS (1.0.20 obligation erratum): Psychosis Crawler's
+    # power and toughness are a characteristic-defining ability (CR 604.3) the
+    # engine evaluates from P1's hand size; at the reachable 13-card hand it
+    # reads 13/13, and the Crawler triggers nothing in the obligation window.
     "MICRO_CONTINUOUS_EFFECTS": RowSpec(
         token_bindings=(
             (
@@ -1539,6 +1633,10 @@ class Frame:
     # How many objects the engine's own stack held when it asked this frame
     # (the frame's pilot_state), or None when the frame shows no stack.
     stack_size: int | None = None
+    # The engine's own pending extra turns (most recently created first), read
+    # back when it asked this frame; only on a row that verifies an extra
+    # turn's creation, and only on frames after which the tape had grown.
+    pending_extra_turns: tuple[str, ...] | None = None
 
 
 @dataclass
@@ -2272,6 +2370,10 @@ def check_terminal(
         return False
     if check.kind == "pending_extra_turns":
         return list(observation.get("pending_extra_turns") or ()) == list(check.value)
+    if check.kind == "extra_turn_created":
+        return bool(_extra_turn_frames(check, trace, tape))
+    if check.kind == "pending_extra_turns_between":
+        return bool(_pending_between_frames(check, trace, tape))
     if check.kind == "commander_damage":
         damaged, amount = check.value
         entries = [
@@ -2561,6 +2663,115 @@ def _selected_frames(check: TerminalCheck, trace: list[Frame]) -> list[int]:
     ]
 
 
+LIBRARY_SHUFFLE_CHANNEL = re.compile(r"library_shuffle:(P\d+)")
+
+
+def declared_shuffle_channels(
+    record: dict[str, Any], tape: list[dict[str, Any]]
+) -> dict[str, bool]:
+    """Each declared ``library_shuffle:Pn`` channel and whether the run used it.
+
+    A Rules-RNG library channel the record declares must show on the engine's
+    own tape after the arrival: a LIBRARY_SHUFFLED event of that player.
+    Otherwise the declared random transition never happened in this run and
+    the row stays unverified. Other channel kinds (a coin flip) are bound by
+    the row's own tokens.
+    """
+    channels = (record.get("rules_randomness") or {}).get("channels") or ()
+    used: dict[str, bool] = {}
+    for channel in channels:
+        match = LIBRARY_SHUFFLE_CHANNEL.fullmatch(str(channel))
+        if match is None:
+            continue
+        used[str(channel)] = any(
+            event.get("type") == "LIBRARY_SHUFFLED" and event.get("player_player") == match.group(1)
+            for event in tape
+        )
+    return used
+
+
+def _window_name(pattern: TerminalCheck | None) -> str:
+    if pattern is None:
+        return "frame"
+    constraints = ", ".join(f"{key}={value}" for key, value in pattern.where)
+    return f"{pattern.event_type} event with {constraints}"
+
+
+def _first_sequence(pattern: TerminalCheck | None, tape: list[dict[str, Any]]) -> int | None:
+    """The tape sequence of the first event matching ``pattern``, or None."""
+    if pattern is None:
+        return None
+    hits = matching_events(pattern, tape)
+    return int(hits[0]["sequence"]) if hits else None
+
+
+def _extra_turn_frames(
+    check: TerminalCheck, trace: list[Frame], tape: list[dict[str, Any]]
+) -> list[int]:
+    """The frames whose readback shows the extra turn ``check`` names created.
+
+    An extra turn is created by a resolving effect, not announced by any engine
+    event, so the engine's own pending queue, read at parked frames, observes
+    it. The creation is ordered against the creating spell: ``check.after`` is
+    that spell's resolution, and every frame the engine asked before it must
+    read back no pending extra turn for ``check.principal`` (the run's first
+    frame included); the frames returned are those asked after it whose
+    readback is exactly ``check.value``.
+    """
+    if not trace or trace[0].pending_extra_turns is None:
+        return []
+    if check.principal in trace[0].pending_extra_turns:
+        return []
+    opened = _first_sequence(check.after, tape)
+    if check.after is not None and opened is None:
+        return []
+    found = []
+    for index, frame in enumerate(trace):
+        pending = frame.pending_extra_turns
+        if opened is None:
+            asked_after = index > 0
+        else:
+            asked_after = frame.tape_sequence is not None and frame.tape_sequence >= opened
+        if index == 0:
+            continue
+        if not asked_after:
+            # A frame asked before the resolution that read the entry back is a
+            # creation the spell did not cause; an unread frame says nothing.
+            if pending is not None and check.principal in pending:
+                return []
+            continue
+        if pending is not None and list(pending) == list(check.value):
+            found.append(index)
+    return found
+
+
+def _pending_between_frames(
+    check: TerminalCheck, trace: list[Frame], tape: list[dict[str, Any]]
+) -> list[int]:
+    """Frames asked inside the check's event window reading its pending queue."""
+    opened = _first_sequence(check.after, tape)
+    if opened is None:
+        return []
+    closed = _first_sequence(check.before, tape) if check.before is not None else None
+    if check.before is not None and closed is None:
+        return []
+    return [
+        index
+        for index, frame in enumerate(trace)
+        if frame.tape_sequence is not None
+        and frame.tape_sequence >= opened
+        and (closed is None or frame.tape_sequence < closed)
+        and frame.pending_extra_turns is not None
+        and list(frame.pending_extra_turns) == list(check.value)
+    ]
+
+
+def _reads_extra_turns(check: Any) -> bool:
+    if isinstance(check, tuple):
+        return any(_reads_extra_turns(part) for part in check)
+    return getattr(check, "kind", None) in {"extra_turn_created", "pending_extra_turns_between"}
+
+
 def bound_token_evidence(
     check: TerminalCheck | tuple[TerminalCheck, ...],
     observation: dict[str, Any],
@@ -2585,6 +2796,10 @@ def bound_token_evidence(
         evidence["events"] = [event["sequence"] for event in matching_events(check, tape)]
     elif check.kind == "selected_frame":
         evidence["decision_frames"] = _selected_frames(check, trace)
+    elif check.kind == "extra_turn_created":
+        evidence["decision_frames"] = _extra_turn_frames(check, trace, tape)
+    elif check.kind == "pending_extra_turns_between":
+        evidence["decision_frames"] = _pending_between_frames(check, trace, tape)
     else:
         evidence["observation"] = "engine terminal observation"
     return evidence
@@ -3165,6 +3380,8 @@ def _scripted_answer(
                 f"{bounds_low}..{bounds_high}"
             )
         return ScriptedAnswer(selected[0], option_ids=tuple(requested_option_ids))
+    elif kind == "card_identity_multiset":
+        return _card_identity_answer(legal, step, placed)
     elif kind == "amount_assignment":
         # A divided-damage assignment frame: the engine asks for one target and
         # its share per call. The record's ordered legs name both; the share is
@@ -3279,6 +3496,68 @@ def _scripted_answer(
             f"the scripted {step.get('decision_family')} {value!r} matched {len(matches)} engine offers"
         )
     return ScriptedAnswer(matches[0], key=key, numeric=numeric)
+
+
+def _card_identity_answer(
+    legal: dict[str, Any], step: dict[str, Any], placed: dict[str, str]
+) -> ScriptedAnswer:
+    """A selection named by the multiset of card identities it selects.
+
+    The record names how many cards of each identity are chosen (a cleanup
+    discard of template cards, CR 514.1), not which object: every offered card
+    of that identity that is no named record object is the same semantic
+    selection, so the engine's own order among those identical cards decides
+    which is submitted, as among indistinguishable trigger instances. An offer
+    of that identity that is a named record object, fewer such cards than
+    requested, or a total the engine frame does not authorize fails closed.
+    """
+    value = (step.get("selection") or {}).get("semantic_value")
+    if (
+        not isinstance(value, dict)
+        or not value
+        or any(
+            not isinstance(name, str)
+            or not name
+            or not isinstance(count, int)
+            or isinstance(count, bool)
+            or count < 1
+            for name, count in value.items()
+        )
+    ):
+        raise ml.MidgameLaneError(f"card_identity_multiset carries {value!r}")
+    named = set(placed.values())
+    selected: list[dict[str, Any]] = []
+    for name, count in sorted(value.items()):
+        offers = [
+            action
+            for action in legal.get("actions") or ()
+            if ((action.get("metadata") or {}).get("xmage_option_metadata") or {}).get("name")
+            == name
+        ]
+        natives = [
+            str(((a.get("metadata") or {}).get("xmage_option_metadata") or {}).get("object_id"))
+            for a in offers
+        ]
+        if any(native in named for native in natives):
+            raise ml.MidgameLaneError(
+                f"the engine offers a named record object as {name!r}; the multiset selection "
+                "is defined only over identical template cards"
+            )
+        if len(offers) < count:
+            raise ml.MidgameLaneError(
+                f"the record selects {count} {name!r}, the engine offers {len(offers)}"
+            )
+        selected.extend(offers[:count])
+    option_ids = tuple(_option_id(action) for action in selected)
+    if any(not option_id for option_id in option_ids) or len(set(option_ids)) != len(option_ids):
+        raise ml.MidgameLaneError(f"the engine offers for {value!r} carry no distinct option ids")
+    bounds = _engine_selection_bounds(legal)
+    if bounds is None or not bounds[0] <= len(option_ids) <= bounds[1]:
+        raise ml.MidgameLaneError(
+            f"the record selects {len(option_ids)} cards, the engine frame asks {bounds}"
+        )
+    key = ",".join(f"{name}:{count}" for name, count in sorted(value.items()))
+    return ScriptedAnswer(selected[0], key=key, option_ids=option_ids)
 
 
 def stack_object_step(step: dict[str, Any], record: dict[str, Any]) -> dict[str, Any]:
@@ -3992,6 +4271,10 @@ def execute_row(
         )
         return all(token_evidence(t, tape, observation) is not None for t in required)
 
+    reads_extra_turns = any(_reads_extra_turns(check) for check in bindings.values()) or any(
+        _reads_extra_turns(check) for check in spec.terminal_checks
+    )
+    read_at: int | None = None
     detail = "bound reached"
     try:
         for _ in range(spec.max_decisions):
@@ -4025,6 +4308,13 @@ def execute_row(
                 frame.stack_size = len(pilot_stack)
             seen = client.events(baseline)["events"]
             frame.tape_sequence = int(seen[-1]["sequence"]) if seen else None
+            if reads_extra_turns and (not trace or frame.tape_sequence != read_at):
+                # A pure query of the parked engine, repeated only once the
+                # tape has grown: a skipped readback can only leave a creation
+                # unobserved (the row then fails closed), never invent one.
+                readback = client.complete_arrival().get("observation") or {}
+                frame.pending_extra_turns = tuple(readback.get("pending_extra_turns") or ())
+                read_at = frame.tape_sequence
             trace.append(frame)
             if unresolved_library:
                 bound = _bind_library_objects(legal, unresolved_library, tape)
@@ -4379,6 +4669,8 @@ def execute_row(
             compare_attacks=not scripted_attacks,
         )
         terminal[REQUESTED_COMBAT_FACT] = bool(declared["holds"])
+    for channel, used in declared_shuffle_channels(record, tape).items():
+        terminal[f"rules_randomness channel {channel} used"] = used
     verified = (
         detail == "obligation observed"
         and position >= len(script)
