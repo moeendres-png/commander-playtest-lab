@@ -239,7 +239,11 @@ def _check_setup_validation(checks: _Checks, setup: Any) -> None:
                 )
             else:
                 checks.unsupported(name, "a forbidden rule this lane cannot attest", value)
-        elif key in _SETUP_CLAUSES and value == _SETUP_CLAUSES[key]:
+        elif (
+            key in _SETUP_CLAUSES
+            and type(value) is type(_SETUP_CLAUSES[key])
+            and value == _SETUP_CLAUSES[key]
+        ):
             checks.items.append(
                 FieldCheck(name, "EQUAL", value, value, "established by how this lane constructs")
             )
@@ -412,11 +416,17 @@ def compare(
         )
         checks.compare(f"players.{pid}.poison", wanted.get("poison"), _int(seen.get("poison")))
         checks.compare(f"players.{pid}.lost", wanted.get("lost"), seen.get("lost"))
-        checks.compare(
-            f"players.{pid}.eliminated",
-            wanted.get("eliminated"),
-            bool(seen.get("lost")) or bool(seen.get("left")),
-        )
+        lost, left = seen.get("lost"), seen.get("left")
+        if not isinstance(lost, bool) or not isinstance(left, bool):
+            # An absent or malformed lost/left readback is not a reported
+            # "still in the game" (#553 Audit 1 A1).
+            checks.unsupported(
+                f"players.{pid}.eliminated",
+                "the provider reported no lost/left readback",
+                {"lost": lost, "left": left},
+            )
+        else:
+            checks.compare(f"players.{pid}.eliminated", wanted.get("eliminated"), lost or left)
 
     for deck in record.get("deck_state") or []:
         pid = _seat(deck.get("player_id")) or ""
@@ -504,6 +514,14 @@ def compare(
             )
         )
     for pid, seen in players_by_id.items():
+        if not isinstance(seen.get("commanders"), list):
+            # A missing or non-list readback is not "no commanders" (#553 Audit 1 A2).
+            checks.unsupported(
+                f"commander_state.{pid}",
+                "the provider reported no commander list",
+                seen.get("commanders"),
+            )
+            continue
         # Each commander as the provider reports it, its native owner included:
         # a commander registered for this seat that the engine says another
         # seat owns is a mismatch, never folded into the seat that lists it.
@@ -634,7 +652,8 @@ def compare(
         "priority_player": constructed.get("priority_player"),
     }
     no_turn_begun = (
-        emitted["phase"] is None
+        all(key in constructed for key in ("phase", "active_player", "priority_player"))
+        and emitted["phase"] is None
         and emitted["active_player"] is None
         and emitted["priority_player"] is None
         and _int(emitted["turn_number"]) in (0, 1)

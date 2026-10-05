@@ -321,6 +321,54 @@ def test_an_unreported_cast_count_is_unsupported_not_equal(record) -> None:
     assert proof.verdict == generic_construction.UNSUPPORTED
 
 
+def _verdict_of(proof, field: str) -> str:
+    return next(check.verdict for check in proof.checks if check.field == field)
+
+
+@pytest.mark.parametrize("dropped", ["lost", "left"])
+def test_an_unreported_lost_or_left_is_never_a_reported_survivor(record, dropped) -> None:
+    """#553 Audit 1 A1: an absent field must not read as "not eliminated"."""
+    state = _state()
+    del state["players"][0][dropped]
+    proof = _proof(record, state)
+    assert proof.verdict != generic_construction.EQUAL
+    assert _verdict_of(proof, "players.P1.eliminated") == "UNSUPPORTED"
+
+
+@pytest.mark.parametrize("value", [None, {"P1": "x"}, "Rograkh"])
+def test_a_missing_or_non_list_commander_readback_is_unsupported(record, value) -> None:
+    """#553 Audit 1 A2: no list is not "no commanders"."""
+    state = _state()
+    if value is None:
+        del state["players"][0]["commanders"]
+    else:
+        state["players"][0]["commanders"] = value
+    proof = _proof(record, state)
+    assert proof.verdict == generic_construction.UNSUPPORTED
+    assert _verdict_of(proof, "commander_state.P1") == "UNSUPPORTED"
+
+
+@pytest.mark.parametrize("dropped", ["phase", "active_player", "priority_player"])
+def test_an_absent_temporal_field_is_never_no_turn_begun(record, dropped) -> None:
+    """#553 Audit 1 A3: only explicitly emitted nulls establish the pregame point."""
+    state = _state()
+    del state[dropped]
+    proof = _proof(record, state)
+    assert proof.verdict != generic_construction.EQUAL
+    assert _verdict_of(proof, "temporal_state.phase") != "EQUAL"
+
+
+def test_a_setup_clause_is_compared_with_its_exact_type(record) -> None:
+    """#553 Audit 1 A4: 1 is not True for a boolean setup clause."""
+    clauses = record.get("setup_validation")
+    assert isinstance(clauses, dict) and clauses, "fixture must carry setup clauses"
+    key = next(k for k, v in clauses.items() if v is True)
+    mutated = copy.deepcopy(record)
+    mutated["setup_validation"][key] = 1
+    proof = _proof(mutated, _state())
+    assert proof.verdict != generic_construction.EQUAL
+
+
 def test_no_state_and_unknown_schema_are_unsupported(record) -> None:
     assert _proof(record, None).verdict == generic_construction.UNSUPPORTED
     assert _proof(record, {"schema": "other"}).verdict == generic_construction.UNSUPPORTED
@@ -399,6 +447,37 @@ def test_cardinality_passes_only_with_an_established_proof(record) -> None:
     assert row.outcome == "UNKNOWN"
     assert "emits no normalized constructed state" in row.reason
     assert "construction_proof" not in row.evidence
+
+
+@pytest.mark.usefixtures("complete_lifecycle")
+def test_cardinality_never_credits_a_mulligan_bearing_plan(record) -> None:
+    """#553 Audit 1 B5: only the scripted pregame lane reads the CR 103.5 shuffles."""
+    mulligan = copy.deepcopy(record)
+    mulligan["pregame_decision_plan"][0]["decision"] = "MULLIGAN"
+    mulligan["decision_script"][0]["selection"]["semantic_value"] = "mulligan"
+    row = full107.cardinality_row(mulligan, _run(_state()), candidate="xmage", runtime_identity={})
+    assert row.outcome == "UNKNOWN"
+    assert "CR 103.5" in row.reason
+    # The keep-only record still passes through the same lane.
+    row = full107.cardinality_row(record, _run(_state()), candidate="xmage", runtime_identity={})
+    assert row.outcome == "PASS", row.reason
+
+
+class _ShuffleRun:
+    def __init__(self, players: list, after: dict) -> None:
+        self.constructed_state = {"players": players}
+        self.terminal_facts = {"post_pregame_library_shuffles": after}
+
+
+def test_the_shuffle_delta_needs_one_typed_count_per_seat() -> None:
+    """#553 Audit 1 B5/B6: duplicate or untyped counts make the delta unknowable."""
+    good = [{"player_id": "P1", "library_shuffles": 1}, {"player_id": "P2", "library_shuffles": 1}]
+    assert full107._performed_mulligans(_ShuffleRun(good, {"p1": 2, "p2": 1})) == {"p1": 1, "p2": 0}
+    duplicated = [*good, {"player_id": "P1", "library_shuffles": 8}]
+    assert full107._performed_mulligans(_ShuffleRun(duplicated, {"p1": 2, "p2": 1})) is None
+    for untyped in ("2", 2.0, True, None):
+        after = {"p1": untyped, "p2": 1}
+        assert full107._performed_mulligans(_ShuffleRun(good, after)) is None
 
 
 @pytest.mark.usefixtures("complete_lifecycle")
