@@ -2,6 +2,7 @@
 """Compact GitHub views for agent sessions: one line per fact, never raw JSON dumps.
 
     gh_ops.py status  [--repo O/R] PR...    head, merge state, red/pending checks, open threads
+    gh_ops.py queue                         one status line per open PR in Lab, mage and forge
     gh_ops.py threads [--repo O/R] PR       every unresolved thread: comment id, path:line, excerpt
     gh_ops.py wait    [--repo O/R] PR...    block until no check on any head is pending, then status
     gh_ops.py run     [--repo O/R] RUN_ID   block until a workflow run completes; print its jobs
@@ -99,6 +100,22 @@ def status_line(repo: str, pr: int) -> tuple[str, bool]:
 def cmd_status(a: argparse.Namespace) -> None:
     for pr in a.prs:
         print(status_line(a.repo, pr)[0])
+
+
+QUEUE_REPOS = (
+    "moeendres-png/commander-playtest-lab",
+    "moeendres-png/mage",
+    "moeendres-png/forge",
+)
+
+
+def cmd_queue(a: argparse.Namespace) -> None:
+    """One status line per open PR across the Lab and both engine forks."""
+    for repo in QUEUE_REPOS:
+        for p in api(f"repos/{repo}/pulls?state=open&per_page=50"):
+            line = status_line(repo, p["number"])[0]
+            draft = " draft" if p.get("draft") else ""
+            print(f"{repo.split('/')[1]}{draft} {line} :: {p['title'][:60]}")
 
 
 def cmd_threads(a: argparse.Namespace) -> None:
@@ -222,9 +239,10 @@ def main() -> None:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
-        "command", choices=["status", "threads", "wait", "run", "errors", "rerun-cancelled"]
+        "command",
+        choices=["status", "queue", "threads", "wait", "run", "errors", "rerun-cancelled"],
     )
-    parser.add_argument("prs", nargs="+", type=int, help="PR numbers, or a run/job id")
+    parser.add_argument("prs", nargs="*", type=int, help="PR numbers, or a run/job id")
     parser.add_argument("--repo", default=DEFAULT_REPO)
     parser.add_argument("--interval", type=int, default=60)
     parser.add_argument("--timeout", type=int, default=7000)
@@ -232,8 +250,11 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=25)
     parser.add_argument("--dry-run", action="store_true")
     a = parser.parse_args()
+    if a.command != "queue" and not a.prs:
+        parser.error(f"{a.command} needs at least one PR, run or job id")
     {
         "status": cmd_status,
+        "queue": cmd_queue,
         "threads": cmd_threads,
         "wait": cmd_wait,
         "run": cmd_run,

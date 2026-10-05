@@ -11,6 +11,7 @@ change GitHub state. Run them from the Lab worktree root.
 | Need | Command |
 |---|---|
 | PR head, merge state, red/pending checks, open threads | `scripts/gh_ops.py status 544 537` |
+| Every open PR in Lab, mage and forge, one line each | `scripts/gh_ops.py queue` |
 | Unresolved review threads (comment id to reply to) | `scripts/gh_ops.py threads 544` |
 | Why a job is red (failure lines with context) | `scripts/gh_ops.py errors JOB_ID` |
 | Re-run only jobs that died on infrastructure (runner never acquired, operation canceled; no failed step) | `scripts/gh_ops.py rerun-cancelled [--dry-run] 559 552` |
@@ -22,7 +23,11 @@ change GitHub state. Run them from the Lab worktree root.
 `gh_ops.py` uses `gh api`: REST plus the CCR thread route
 `repos/{o}/{r}/pulls/{n}/ccr/review_threads`. GraphQL is not available in Claude
 Code sessions. The same CCR prefix also serves `…/ccr/comments/{id}/resolve` and
-`…/ccr/auto_merge`. `ci-definition-integrity-shadow` is reported as red by design (CI-02).
+`…/ccr/auto_merge`. `ci-definition-integrity-shadow` is reported as red by design (CI-02). Hosted runners are often
+never acquired for this account's jobs. Such a job shows `cancelled` with no steps and the annotation
+"not acquired by Runner". Use `rerun-cancelled` instead of diagnosing each job by hand. The repo-admin
+API (rulesets, branch protection) is not writable from a cloud session (proxy 403): hand the Owner the
+exact `gh api` command instead of retrying.
 `status`/`wait` report one verdict per check name. A cancelled duplicate run never hides
 a run of the same check that reached a result. A re-triggered workflow leaves such
 duplicates, and the raw check list then shows false red.
