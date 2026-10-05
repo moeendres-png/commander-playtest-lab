@@ -409,6 +409,23 @@ def test_huge_finite_integer_delta_rejected_cleanly(tmp_path: Path, capsys) -> N
     assert "Traceback" not in captured.out
 
 
+@pytest.mark.parametrize("field", ["cost_usd", "elapsed_seconds"])
+@pytest.mark.parametrize("huge_side", ["baseline", "candidate"])
+def test_huge_integer_on_a_float_field_is_rejected_cleanly(
+    tmp_path: Path, field: str, huge_side: str
+) -> None:
+    """A huge int against a float overflows in the subtraction: exit 2, never a traceback."""
+    baseline = tmp_path / "base.json"
+    candidate = tmp_path / "candidate.json"
+    sessions = {"baseline": {field: 1.5}, "candidate": {field: 2.5}}
+    sessions[huge_side] = {field: 10**400}
+    baseline.write_text(json.dumps(arm("baseline", session=sessions["baseline"])), encoding="utf-8")
+    candidate.write_text(
+        json.dumps(arm("candidate", session=sessions["candidate"])), encoding="utf-8"
+    )
+    assert bench.main(["--baseline", str(baseline), "--candidate", str(candidate)]) == 2
+
+
 def test_non_finite_delta_from_finite_inputs_rejected_cleanly() -> None:
     baseline = arm("baseline", session={"elapsed_seconds": 5e-324})
     candidate = arm("candidate", session={"elapsed_seconds": 1e308})

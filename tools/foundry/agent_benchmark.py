@@ -368,13 +368,14 @@ def _quality_gate(quality: dict, required_evidence_class: str) -> tuple[str, lis
 
 
 def _delta(baseline: int | float, candidate: int | float) -> dict:
-    absolute = candidate - baseline
-    if isinstance(absolute, float) and not math.isfinite(absolute):
-        raise BenchmarkError("delta outside supported numeric range")
     try:
+        # A huge int against a float overflows in the subtraction itself.
+        absolute = candidate - baseline
         percent = None if baseline == 0 else (absolute / baseline) * 100.0
     except ArithmeticError as exc:
         raise BenchmarkError("delta outside supported numeric range") from exc
+    if isinstance(absolute, float) and not math.isfinite(absolute):
+        raise BenchmarkError("delta outside supported numeric range")
     if isinstance(percent, float) and not math.isfinite(percent):
         raise BenchmarkError("delta outside supported numeric range")
     return {
