@@ -75,6 +75,10 @@ class TerminalCheck:
     where: tuple[tuple[str, Any], ...] = ()
     # Decision-frame checks: text the engine's own selected offer label contains.
     label: str | None = None
+    # Frame-window checks: the engine event patterns that open (``after``) and
+    # close (``before``) the window of frames the check reads, by tape position.
+    after: TerminalCheck | None = None
+    before: TerminalCheck | None = None
 
     def describe(self) -> str:
         if self.kind == "stack_empty_after":
@@ -199,8 +203,15 @@ class TerminalCheck:
         if self.kind == "extra_turn_created":
             return (
                 f"the engine had no pending extra turn for {self.principal} when it asked the "
-                f"run's first frame and pending extra turns {list(self.value)}, in the order "
-                "taken, when it asked a later frame"
+                f"run's first frame or any frame before the first {_window_name(self.after)}, "
+                f"and pending extra turns {list(self.value)}, in the order taken, when it asked "
+                "a frame after it"
+            )
+        if self.kind == "pending_extra_turns_between":
+            return (
+                f"the engine's pending extra turns read {list(self.value)} at a frame after the "
+                f"first {_window_name(self.after)}"
+                + (f" and before the first {_window_name(self.before)}" if self.before else "")
             )
         if self.kind == "player_in_game":
             return f"the engine reports {self.principal} neither lost nor left"
@@ -402,6 +413,11 @@ def _extra_turn_spec() -> RowSpec:
     """WS05-MP-TURN-3/5: two extra turns, the later-created one taken first."""
     time_warp = _event("SPELL_CAST", ("source_object", "obj:mp-time-warp"), ("player_player", "P1"))
     nexus = _event("SPELL_CAST", ("source_object", "obj:mp-nexus"), ("player_player", "P3"))
+    # Each spell leaves the stack as it resolves (Time Warp to the graveyard;
+    # Nexus of Fate's replacement shuffles it into its owner's library): the
+    # extra turn exists only from then on (CR 608.2).
+    warp_resolved = _event("ZONE_CHANGE", ("target_object", "obj:mp-time-warp"), ("from", "STACK"))
+    nexus_resolved = _event("ZONE_CHANGE", ("target_object", "obj:mp-nexus"), ("from", "STACK"))
     p3_turn = _event("BEGIN_TURN", ("player_player", "P3"))
     p2_turn = _event("BEGIN_TURN", ("player_player", "P2"))
     return RowSpec(
@@ -409,27 +425,54 @@ def _extra_turn_spec() -> RowSpec:
             *(f"obj:turn-p1-island-{i}" for i in range(5)),
             *(f"obj:turn-p3-island-{i}" for i in range(7)),
         ),
-        # The obligation passes through the rest of P1's turn and all of P3's.
-        max_decisions=240,
+        # The obligation passes through the rest of P1's turn, all of P3's and
+        # into P2's, where the engine consumes P2's queued extra turn.
+        max_decisions=320,
         token_bindings=(
             # XMage creates an extra turn as a pending turn modification and
             # announces nothing (its EXTRA_TURN event is only offered to
             # replacement effects when the turn is taken); the engine's own
             # pending queue is the observation, as for the coin-flip row's
-            # extra_turn_created:P1. Most recently created is taken first.
+            # extra_turn_created:P1. Each creation is ordered after its spell's
+            # resolution: before it, no frame may read the new entry. Most
+            # recently created is taken first (CR 500.7).
             (
                 "extra_turn_created:P2",
-                (time_warp, TerminalCheck("extra_turn_created", principal="P2", value=("P2",))),
+                (
+                    time_warp,
+                    _before(time_warp, warp_resolved),
+                    TerminalCheck(
+                        "extra_turn_created", principal="P2", value=("P2",), after=warp_resolved
+                    ),
+                ),
             ),
             (
                 "extra_turn_created:P3",
                 (
                     nexus,
-                    TerminalCheck("extra_turn_created", principal="P3", value=("P3", "P2")),
+                    _before(nexus, nexus_resolved),
+                    TerminalCheck(
+                        "extra_turn_created",
+                        principal="P3",
+                        value=("P3", "P2"),
+                        after=nexus_resolved,
+                    ),
                 ),
             ),
             ("next_turn:P3", (_before(time_warp, p3_turn), _before(nexus, p3_turn))),
-            ("next_turn:P2", (_exactly(p2_turn, 1), _before(p3_turn, p2_turn))),
+            # P2's next turn is its queued extra turn, not its normal turn: the
+            # engine still holds P2's entry while P3's extra turn runs, P2's turn
+            # follows P3's, and once P2's turn has begun the entry is consumed.
+            (
+                "next_turn:P2",
+                (
+                    _before(p3_turn, p2_turn),
+                    TerminalCheck(
+                        "pending_extra_turns_between", value=("P2",), after=p3_turn, before=p2_turn
+                    ),
+                    TerminalCheck("pending_extra_turns_between", value=(), after=p2_turn),
+                ),
+            ),
         ),
     )
 
@@ -2328,7 +2371,9 @@ def check_terminal(
     if check.kind == "pending_extra_turns":
         return list(observation.get("pending_extra_turns") or ()) == list(check.value)
     if check.kind == "extra_turn_created":
-        return bool(_extra_turn_frames(check, trace))
+        return bool(_extra_turn_frames(check, trace, tape))
+    if check.kind == "pending_extra_turns_between":
+        return bool(_pending_between_frames(check, trace, tape))
     if check.kind == "commander_damage":
         damaged, amount = check.value
         entries = [
@@ -2645,23 +2690,78 @@ def declared_shuffle_channels(
     return used
 
 
-def _extra_turn_frames(check: TerminalCheck, trace: list[Frame]) -> list[int]:
+def _window_name(pattern: TerminalCheck | None) -> str:
+    if pattern is None:
+        return "frame"
+    constraints = ", ".join(f"{key}={value}" for key, value in pattern.where)
+    return f"{pattern.event_type} event with {constraints}"
+
+
+def _first_sequence(pattern: TerminalCheck | None, tape: list[dict[str, Any]]) -> int | None:
+    """The tape sequence of the first event matching ``pattern``, or None."""
+    if pattern is None:
+        return None
+    hits = matching_events(pattern, tape)
+    return int(hits[0]["sequence"]) if hits else None
+
+
+def _extra_turn_frames(
+    check: TerminalCheck, trace: list[Frame], tape: list[dict[str, Any]]
+) -> list[int]:
     """The frames whose readback shows the extra turn ``check`` names created.
 
-    The run's first frame must have been read back without that player's extra
-    turn pending; the frames returned are the later ones whose readback is
-    exactly ``check.value``. An extra turn is created by a resolving effect,
-    not announced by any engine event, so the engine's own pending queue,
-    read at parked frames, is what observes it.
+    An extra turn is created by a resolving effect, not announced by any engine
+    event, so the engine's own pending queue, read at parked frames, observes
+    it. The creation is ordered against the creating spell: ``check.after`` is
+    that spell's resolution, and every frame the engine asked before it must
+    read back no pending extra turn for ``check.principal`` (the run's first
+    frame included); the frames returned are those asked after it whose
+    readback is exactly ``check.value``.
     """
     if not trace or trace[0].pending_extra_turns is None:
         return []
     if check.principal in trace[0].pending_extra_turns:
         return []
+    opened = _first_sequence(check.after, tape)
+    if check.after is not None and opened is None:
+        return []
+    found = []
+    for index, frame in enumerate(trace):
+        pending = frame.pending_extra_turns
+        if opened is None:
+            asked_after = index > 0
+        else:
+            asked_after = frame.tape_sequence is not None and frame.tape_sequence >= opened
+        if index == 0:
+            continue
+        if not asked_after:
+            # A frame asked before the resolution that read the entry back is a
+            # creation the spell did not cause; an unread frame says nothing.
+            if pending is not None and check.principal in pending:
+                return []
+            continue
+        if pending is not None and list(pending) == list(check.value):
+            found.append(index)
+    return found
+
+
+def _pending_between_frames(
+    check: TerminalCheck, trace: list[Frame], tape: list[dict[str, Any]]
+) -> list[int]:
+    """Frames asked inside the check's event window reading its pending queue."""
+    opened = _first_sequence(check.after, tape)
+    if opened is None:
+        return []
+    closed = _first_sequence(check.before, tape) if check.before is not None else None
+    if check.before is not None and closed is None:
+        return []
     return [
         index
-        for index, frame in enumerate(trace[1:], start=1)
-        if frame.pending_extra_turns is not None
+        for index, frame in enumerate(trace)
+        if frame.tape_sequence is not None
+        and frame.tape_sequence >= opened
+        and (closed is None or frame.tape_sequence < closed)
+        and frame.pending_extra_turns is not None
         and list(frame.pending_extra_turns) == list(check.value)
     ]
 
@@ -2669,7 +2769,7 @@ def _extra_turn_frames(check: TerminalCheck, trace: list[Frame]) -> list[int]:
 def _reads_extra_turns(check: Any) -> bool:
     if isinstance(check, tuple):
         return any(_reads_extra_turns(part) for part in check)
-    return getattr(check, "kind", None) == "extra_turn_created"
+    return getattr(check, "kind", None) in {"extra_turn_created", "pending_extra_turns_between"}
 
 
 def bound_token_evidence(
@@ -2697,7 +2797,9 @@ def bound_token_evidence(
     elif check.kind == "selected_frame":
         evidence["decision_frames"] = _selected_frames(check, trace)
     elif check.kind == "extra_turn_created":
-        evidence["decision_frames"] = _extra_turn_frames(check, trace)
+        evidence["decision_frames"] = _extra_turn_frames(check, trace, tape)
+    elif check.kind == "pending_extra_turns_between":
+        evidence["decision_frames"] = _pending_between_frames(check, trace, tape)
     else:
         evidence["observation"] = "engine terminal observation"
     return evidence
