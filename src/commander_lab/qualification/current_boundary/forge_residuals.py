@@ -61,9 +61,10 @@ DECISION_FRAME = "DECISION_FRAME"
 EVENT_LOG = "EVENT_LOG"
 
 _CAUSAL_ROUTE_SCOPE = (
-    "the lane casts only through its causal stack route (#520): one complete, modeless "
-    "spell with declared fuel, aimed at a commander, for a commander zone choice to the "
-    "graveyard, exile or hand"
+    "the lane casts only through its causal stack route (#520, #561): complete, modeless "
+    "spells with declared fuel, either one aimed at a commander for a commander zone "
+    "choice to the graveyard, exile or hand, or a stack the record's scripted priority "
+    "cast, targets and declared payment answer (scripted_decision_offered)"
 )
 
 # Construction dimensions of the lane's model (``hard_unsupported``), by exact
@@ -319,6 +320,7 @@ _LANE_OBLIGATION_KINDS = frozenset(
         "commander_damage_checked_per_commander",
         "commander_zone_choice",
         "game_start_command_zone",
+        "scripted_decision_offered",
         "player_leaves_multiplayer_cleanup",
         "starting_player_first_turn_draw",
     }
@@ -514,6 +516,26 @@ def classify_row(record: dict[str, Any]) -> ForgeResidual:
                 "no event log (EVENT_LOG_UNSUPPORTED)",
             }
         )
+    if row.lane_obligation_kind == "scripted_decision_offered":
+        # The scripted-decision contract observes token by token; a token it has
+        # no observer for is named, never assumed (UNKNOWN, not PASS).
+        for token in required:
+            if not lane.scripted_token_observable(str(token)):
+                family = _token_family(token)
+                observing.append(
+                    {
+                        "stage": "observation",
+                        "dimension": f"scripted_token:{token}",
+                        # A family the readback cannot show is a provider gap;
+                        # one the lane merely does not observe yet is the Lab's.
+                        "class": PROVIDER_ADAPTER_GAP
+                        if family in lane.SCRIPTED_TOKEN_UNOBSERVABLE
+                        else LAB_EXECUTION_GAP,
+                        "detail": lane.SCRIPTED_TOKEN_UNOBSERVABLE.get(
+                            family, f"the lane has no observer for {family!r} tokens"
+                        ),
+                    }
+                )
     if row.lane_obligation_kind not in _LANE_OBLIGATION_KINDS:
         observing.append(
             {

@@ -39,6 +39,24 @@ Most of those rows carried a generic reason ("no current-boundary execution seam
    `commander_choice` from the owner's own readback before the answer and after the stack
    settles. The library rows stay a gap: the readback never shows library contents.
 
+4. **A scripted cast on the caused stack (#561 B1).** The causal route now casts any number
+   of complete, modeless stack spells in the record's order, and every cast is complete only
+   when the engine returns priority to its caster with the source on top of a stack one
+   object taller (the XMage frame-complete predicate). A row whose declared terminal is
+   `scripted_decision_offered` is routed when its script opens with a priority cast and every
+   step is a cast, a player, object or stack-object target, or a mana payment. The scripted
+   cast pays only from the record's own `action_cost_state` sources; a target the bridge
+   assigns without a frame (one valid target set) is verified from the readback, never
+   answered. The lane's observer contract judges each required token from the route's tape
+   and readback; `resolve:` has no observer and stays unknown. Routing earns no credit:
+   MICRO_PRIORITY, MICRO_STACK, MICRO_MANA_PAYMENT and PILOT_MANA_PAYMENT still name
+   `action_cost_state` (batch D2) and `temporal_checkpoint.exact_hand_after_draw` (an
+   authority gate). The static matrix does not show two runtime blockers that the pinned
+   engine reports for MICRO_PRIORITY and MICRO_STACK. First, the pre-causal position stops at
+   P2's priority after the caster, P1, has passed, and the route refuses to let a full
+   pass ring end the main phase. Second, the Bolt's target `obj:micro-target` is one of two
+   P2 Grizzly Bears that no record attribute tells apart.
+
 ## How a row is classified
 A row passes through three stages. Every missing mechanism is recorded in pipeline order.
 The row's class is that of the first provider gap, if there is any, because no Lab work
@@ -77,8 +95,8 @@ the effective contract.
 
 | Class | Rows (of 70) |
 |---|---|
-| `LAB_EXECUTION_GAP` | 39 |
-| `PROVIDER_ADAPTER_GAP` | 17 |
+| `LAB_EXECUTION_GAP` | 37 |
+| `PROVIDER_ADAPTER_GAP` | 19 |
 | `SCENARIO_LANE_EXECUTABLE` | 12 (six already PASS in the baseline epoch, and the six causal commander zone rows) |
 | `CONTRACT_AUTHORITY_GAP` | 2 (WS05-CMD-START-2, WS05-CMD-START-3: unscripted starting player) |
 
@@ -88,7 +106,7 @@ for the same unscripted starting player. Whether the generic route's starter sel
 (`game_driver.STARTING_PLAYER_POLICY`, default seat `p1`) has contract authority is an
 open impact question for the #441 reassembly; see Findings.
 
-The 17 provider gaps break down as follows:
+The 19 provider gaps break down as follows:
 - 10 rows need an event log (MICRO_LAYERS no longer does: its layer tokens are
   characteristic readbacks, CR 613);
 - one needs an ability readback (MICRO_LAYERS: the bridge projects power and toughness
@@ -97,7 +115,10 @@ The 17 provider gaps break down as follows:
   WS05-CMD-MULL-2 also the London bottom selection;
 - one needs predetermined draws (MICRO_RULES_RANDOMNESS);
 - three need a readback of the library (PILOT_CHOOSE_USE, PILOT_PILE) or of owner and
-  attachment (WS05-MP-ELIM-CONTROL-3).
+  attachment (WS05-MP-ELIM-CONTROL-3);
+- two need a resolution readback (MICRO_PRIORITY, MICRO_STACK, #561 B1): the readback shows a
+  spell leaving the stack, not whether it resolved, was countered or was removed for
+  illegal targets (CR 608.2b), and the bridge projects no marked damage and no event log.
 
 Some rows have more than one provider gap. Each row's matrix entry lists every
 mechanism.
@@ -114,11 +135,11 @@ decision frames, among them:
 The Forge scenario lane answers priority passes, mulligans (keep), the starting player
 and the cost-part order itself. The shared fail-closed selector (`scripted_selection.py`,
 #459 phase 2) adds casts, player and object targets, declared mana sources and yes/no
-answers, and the causal stack route uses it for the six commander zone rows above. Every
-other stack row still needs either a terminal the lane can judge, a mode or choice-key
-selector, or several spells on the stack; the 13 rows whose first gap is `stack_state` and
-the 14 whose first gap is `action_cost_state` are that next work (counts as of
-contract 1.0.21).
+answers, and the causal stack route uses it for the six commander zone rows above and,
+since #561 B1, for a scripted cast on the caused stack (item 4). Every other stack row still
+needs either a terminal the lane can judge or a mode or choice-key selector; the 9 rows
+whose first gap is `stack_state` and the 16 whose first gap is `action_cost_state` are that
+next work (counts as of contract 1.0.21 and #561 B1).
 
 ## Per-row matrix
 `FORGE_RESIDUAL_MATRIX.json` is written by `scripts/run_forge_residual_census.py` and
@@ -133,13 +154,13 @@ every mechanism of every row; the table shows the first one.
 | MICRO_COPY | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | MICRO_COSTS | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_LAYERS | PROVIDER_ADAPTER_GAP | observation: `unprojected_readback:layer6_remove_abilities` | — |
-| MICRO_MANA_PAYMENT | LAB_EXECUTION_GAP | construction: `stack_state` | — |
+| MICRO_MANA_PAYMENT | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_MODES | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_PREVENTION | PROVIDER_ADAPTER_GAP | observation: `event_log` | `combat_damage_would_be:P2:2`, `prevention_applied`, `combat_damage_prevented:P2:2` |
-| MICRO_PRIORITY | LAB_EXECUTION_GAP | construction: `stack_state` | — |
+| MICRO_PRIORITY | PROVIDER_ADAPTER_GAP | observation: `scripted_token:resolve:Giant_Growth` | — |
 | MICRO_REPLACEMENT | PROVIDER_ADAPTER_GAP | observation: `event_log` | `damage_would_be:P2:3`, `replacement_effect:double` |
 | MICRO_RULES_RANDOMNESS | PROVIDER_ADAPTER_GAP | construction: `rules_randomness.predetermined_semantic_draws` | `rules_rng:coin_flip:HEADS`, `extra_turn_created:P1` |
-| MICRO_STACK | LAB_EXECUTION_GAP | construction: `stack_state` | — |
+| MICRO_STACK | PROVIDER_ADAPTER_GAP | observation: `scripted_token:resolve:Giant_Growth` | — |
 | MICRO_STATE_BASED_ACTIONS | PROVIDER_ADAPTER_GAP | observation: `event_log` | `state_based_actions` |
 | MICRO_TARGETS | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_TRIGGERS | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
@@ -152,7 +173,7 @@ every mechanism of every row; the table shows the first one.
 | PILOT_CHOOSE_USE | PROVIDER_ADAPTER_GAP | checkpoint_readback: `semantic_objects.zone:library` | — |
 | PILOT_DECLARE_ATTACKER | LAB_EXECUTION_GAP | construction: `combat_state` | — |
 | PILOT_DECLARE_BLOCKER | LAB_EXECUTION_GAP | construction: `combat_state` | — |
-| PILOT_MANA_PAYMENT | LAB_EXECUTION_GAP | construction: `stack_state` | — |
+| PILOT_MANA_PAYMENT | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | PILOT_MULLIGAN | PROVIDER_ADAPTER_GAP | execution: `decision_execution.mulligan.semantic_action` | — |
 | PILOT_MULTI_AMOUNT | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | PILOT_PILE | PROVIDER_ADAPTER_GAP | checkpoint_readback: `semantic_objects.zone:library` | — |
