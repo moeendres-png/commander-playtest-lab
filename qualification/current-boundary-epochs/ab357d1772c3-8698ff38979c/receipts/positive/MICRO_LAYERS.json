@@ -1,0 +1,70 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_LAYERS",
+  "obligation_exercised": {
+    "obligation_digest": "5313ffde7da2b16973731f5e6efbdb44ec1bbba7de90a9d404246c71503d7ec9",
+    "requested_state_digest": "dfcf2deb36c3b97c19505ed30be66fcdbcebfac24100766d527d4f578047ac9b",
+    "required_events": [
+      "layer6_remove_abilities",
+      "layer7b_set_pt:1/1",
+      "layer7c_modify_pt:+1/+1"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Grizzly Bears has no abilities and is 2/2 after Humility then Glorious Anthem are applied in layers."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "layer6_remove_abilities": {
+        "binding": [
+          "every Serra Angel on P2's battlefield lacks flying",
+          "every Serra Angel on P2's battlefield lacks vigilance"
+        ],
+        "parts": [
+          {
+            "binding": "every Serra Angel on P2's battlefield lacks flying",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "every Serra Angel on P2's battlefield lacks vigilance",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "layer7b_set_pt:1/1": {
+        "binding": [
+          "every Serra Angel on P2's battlefield is 1/1",
+          "every Grizzly Bears on P3's battlefield is 1/1"
+        ],
+        "parts": [
+          {
+            "binding": "every Serra Angel on P2's battlefield is 1/1",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "every Grizzly Bears on P3's battlefield is 1/1",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "layer7c_modify_pt:+1/+1": {
+        "binding": "every Grizzly Bears on P1's battlefield is 2/2",
+        "observation": "engine terminal observation"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "5df70b8e2491321bd6cf26eb703f24679053ffa311f89689c091bed0a7c02f1e",
+  "runner_digest": "63b063c7c08026a2a89960b1d4123673902edb56f355ffae1d629eff4453f0fb",
+  "runtime_receipt_digest": "5d77c1c32eea7308bfff0f7c35c64ec93c27a55fc95465d87be845fa5ff385da",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_LAYERS"
+}
