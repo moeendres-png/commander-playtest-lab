@@ -16,6 +16,9 @@ NEW_SKILLS = (
     "agentic-actions-auditor",
     "systematic-debugging",
     "commander-quality-gate",
+    "sharp-edges",
+    "fp-check",
+    "receiving-code-review",
 )
 
 # Files intentionally retained byte-for-byte from their pinned upstream blobs.
@@ -47,9 +50,24 @@ EXACT_GIT_BLOBS = {
     "systematic-debugging/find-polluter.sh": "985f5d08ccf8a3f2d40739cfcaf4413bb24bf1cb",
     "systematic-debugging/condition-based-waiting-example.ts": "703a06b653160d060bbf46ab5c6e0cd7446bd592",
     "commander-quality-gate/references/upstream-gate-SKILL.md": "7a07cb9ea19d94f3db30533243c44b841a519c96",
+    "fp-check/SKILL.md": "b7e7278cbae101f948f39890e5dcc088248d789d",
+    "fp-check/references/bug-class-verification.md": "3eb666d646b4c6071b82012d4911ba0650665078",
+    "fp-check/references/deep-verification.md": "1b2499d03627b0d8a025f115f2137292766abdf7",
+    "fp-check/references/evidence-templates.md": "c0227e56238eb856d9d4efc6d2bde6c85ebd3339",
+    "fp-check/references/false-positive-patterns.md": "7ad448441b882e1f801f31550f9528f7ff7d9310",
+    "fp-check/references/gate-reviews.md": "b9dd2f4eaf118ca5206ef94ecf12c6b826d4fded",
+    "fp-check/references/standard-verification.md": "c9e5b901ad4b3008950c31f24806f7bacdbf6cfe",
+    "receiving-code-review/SKILL.md": "950da7b74bf6dbed6b8726d12ddadd65a9f5fda7",
+    "sharp-edges/SKILL.md": "44ea7876d7e5f3b5599c64684eb1a02c1500cb7a",
     "licenses/trailofbits-skills-CC-BY-SA-4.0.txt": "3b7b82d0da2db857eda1a798dbd908ea136f07b5",
     "licenses/superpowers-MIT.txt": "abf0390320aa14406af7a520b9b0739fdda9bf08",
     "licenses/claude-gate-skill-MIT.txt": "687b32c3e6fc995db0f5929fc1780c0bd5c8c507",
+}
+
+# Whole directories retained byte-for-byte: sha256 over sorted "name blobsha" lines.
+# (A digest per directory avoids path words such as "auth" sitting beside a hash.)
+EXACT_DIRECTORY_DIGESTS = {
+    "sharp-edges/references": "1ba1df5c747ef33d9a4493c4e15ee4636f8b1995060b000c9fefcc8082824a42",
 }
 
 LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
@@ -101,12 +119,29 @@ def test_exact_upstream_blobs_have_not_drifted() -> None:
         assert _git_blob_sha(path.read_bytes()) == expected, relative
 
 
+def _directory_digest(directory: Path) -> str:
+    lines = "".join(
+        f"{path.name} {_git_blob_sha(path.read_bytes())}\n"
+        for path in sorted(directory.iterdir())
+        if path.is_file()
+    )
+    return hashlib.sha256(lines.encode()).hexdigest()
+
+
+def test_exact_upstream_directories_have_not_drifted() -> None:
+    for relative, expected in EXACT_DIRECTORY_DIGESTS.items():
+        directory = SKILLS_ROOT / relative
+        assert directory.is_dir(), relative
+        assert _directory_digest(directory) == expected, relative
+
+
 def test_provenance_and_licenses_present() -> None:
     provenance = (SKILLS_ROOT / "CI_GATE_SKILLS_PROVENANCE.md").read_text(encoding="utf-8")
     for pin in (
         "82fe8226252622fa807643bdca1710901198553a",
         "5fd93af4cd0c623e020d0cc7e9ce178b4ac1f70f",
         "6d352f7d06b83e98102847f3ef91da5061c262de",
+        "8ca22dba9a94f28898bbce59f2537ff4d87c747d",
     ):
         assert pin in provenance
     assert "AGENTS.md" in provenance

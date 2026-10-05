@@ -13,6 +13,7 @@ execution-authority document and the active workstream contract remain authorita
 | Trail of Bits `trailofbits/skills` | `82fe8226252622fa807643bdca1710901198553a` | `9cf630657892690adfb649b3125269253e549c3a` | CC BY-SA 4.0 |
 | Superpowers via `openai/plugins` | `5fd93af4cd0c623e020d0cc7e9ce178b4ac1f70f` | `36c126d32c3a612d7e75cef5a8513c3ad757bd76` | MIT, copyright Jesse Vincent |
 | `tphakala/claude-gate-skill` | `6d352f7d06b83e98102847f3ef91da5061c262de` | `15c6b2c5775e53e4ccf56e2b95b9b0857c90afb0` | MIT, copyright Tomi P. Hakala |
+| `obra/superpowers` (direct) | `8ca22dba9a94f28898bbce59f2537ff4d87c747d` | `a29cb0f1f5600c82888f61eb6832025b3d9d3677` | MIT, copyright Jesse Vincent (license text identical to `licenses/superpowers-MIT.txt`) |
 
 License texts are retained under `.claude/skills/licenses/`.
 
@@ -157,3 +158,36 @@ None of these skills may:
 - bypass protected-branch required checks.
 
 Where upstream guidance conflicts with project policy, project policy governs.
+
+## Security-review additions (2026-10-05)
+
+All three are byte-for-byte upstream copies, pinned in
+`tests/unit/test_claude_ci_gate_skills.py`. They are workflow guidance only and grant no
+authority beyond `AGENTS.md`.
+
+### `sharp-edges`
+
+- Source: Trail of Bits `plugins/sharp-edges/skills/sharp-edges/` at the pinned commit
+  above (CC BY-SA 4.0).
+- Imported: `SKILL.md` and all `references/`.
+- Not imported: `agents/openai.yaml` (OpenAI display metadata) and `assets/` (logo).
+- Fit: misuse-resistance review of containment, qualification and policy designs, for
+  example SecurityManager admissions and fail-open defaults. It uses only `Read`, `Grep`
+  and `Glob`, and never the network.
+
+### `fp-check`
+
+- Source: Trail of Bits `plugins/fp-check/skills/fp-check/` at the pinned commit above
+  (CC BY-SA 4.0).
+- Imported: `SKILL.md` and all `references/`.
+- Not imported: the plugin's Stop hooks, subagents, `agents/openai.yaml` and `assets/`.
+- Fit: gives a TRUE or FALSE POSITIVE verdict on a review or audit finding before code
+  changes. This complements `differential-review`, which finds issues but does not
+  refute them.
+
+### `receiving-code-review`
+
+- Source: `obra/superpowers` `skills/receiving-code-review/SKILL.md` at
+  `8ca22dba9a94f28898bbce59f2537ff4d87c747d` (MIT).
+- Fit: verify review feedback against the code before acting on it, and push back on
+  technically wrong feedback.
