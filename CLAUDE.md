@@ -24,6 +24,10 @@ their own earlier source locks; they are not current instruction surfaces.
 
 ## Efficient operation (Claude sessions)
 
+**New session:** start with `docs/claude/SESSION_PLAYBOOK.md` (environment, GitHub-from-session
+limits, sealing, engine-fork and security-change practice). The SessionStart hook
+(`.claude/hooks/session-start.sh`) builds the project venv in cloud sessions.
+
 Tooling only; it changes no policy, gate or evidence rule above.
 
 - **Skill `lab-ops`** (`.claude/skills/lab-ops/`): one-line PR/CI/thread status, failing-job lines, CI waiting, PB-03 packet + AF00–AF11 summary, real-engine row runs. Prefer it to raw MCP check/comment/log dumps; use MCP for writes (replies, resolves, merges, PRs).
