@@ -50,6 +50,9 @@ def selection(command: tuple[str, ...], test_files: list[str]) -> set[str]:
     for arg in args:
         if arg in {"-q", "-ra", "-rs"}:
             continue
+        # Reporting only: they never change which tests are collected.
+        if arg.startswith(("--durations=", "--junitxml=")):
+            continue
         if arg.startswith("--ignore="):
             ignored.append(arg.split("=", 1)[1].rstrip("/"))
         elif arg.startswith("-"):
@@ -101,6 +104,10 @@ def test_infrastructure_owns_the_qualification_tests() -> None:
         (("pytest", "-q"), {"tests/a/test_x.py", "tests/qualification/test_q.py"}),
         (("pytest", "-q", "--ignore=tests/qualification"), {"tests/a/test_x.py"}),
         (("pytest", "-q", "tests/qualification"), {"tests/qualification/test_q.py"}),
+        (
+            ("pytest", "-q", "--durations=50", "--junitxml=out.xml", "--ignore=tests/qualification"),
+            {"tests/a/test_x.py"},
+        ),
     ],
 )
 def test_the_selection_model(command, expected) -> None:
