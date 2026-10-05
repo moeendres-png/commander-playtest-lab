@@ -283,6 +283,8 @@ blanket Rules-correctness or Production-eligibility claim.
 
 ## Resources
 
-- [references/upstream-gate-SKILL.md](references/upstream-gate-SKILL.md) — read when
-  deeper upstream fan-out, fix-wave, coverage-accounting or escaped-defect rationale
-  is useful. It is reference material, not Commander project authority.
+- [references/upstream-gate-SKILL.md](references/upstream-gate-SKILL.md) — provenance
+  and comparison copy of the pinned upstream controller. Its separate upstream
+  scripts/reference corpus is intentionally not vendored here, so do not rely on
+  internal paths from that copy during execution. The active Commander gate above is
+  self-contained and remains subordinate to project authority.
