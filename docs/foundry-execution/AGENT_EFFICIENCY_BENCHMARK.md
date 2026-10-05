@@ -40,11 +40,15 @@ unavailable under the existing session exporter and is never inferred.
 
 ## Quality-first loss rule
 
-A candidate is rejected for the pair if it loses evidence, misses a defect, leaves an
-unresolved review finding, violates scope, lacks PASS final validation/technical outcome,
-or relies only on UNKNOWN/MODELED/SYNTHETIC evidence.
+The baseline must itself pass the benchmark quality gate; a broken or under-evidenced
+baseline is rejected rather than used to manufacture an apparent improvement. A candidate
+is rejected for the pair if it loses evidence, misses a defect, leaves an unresolved review
+finding, violates scope, lacks PASS final validation/technical outcome, or fails the
+case-bound required evidence class. UNKNOWN/MODELED/SYNTHETIC evidence cannot satisfy the gate.
 
 A candidate with missing core efficiency metrics is INCONCLUSIVE, never a measured saving.
+The result path must not alias either input file (including hard links or symlinks), so
+publishing a comparison cannot destroy its own evidence inputs.
 
 Even a `PAIR_MEASURED_QUALITY_PRESERVED` result does **not** authorize a default harness
 change. Default promotion needs representative repeated cases across at least:
