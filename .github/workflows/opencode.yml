@@ -178,6 +178,8 @@ jobs:
           SHARE: 'false'
           PROMPT: ''
           USE_GITHUB_TOKEN: 'false'
-          MENTIONS: ''
+          # `opencode github run` accepts a comment only when it mentions one of these
+          # phrases (default /opencode,/oc). This lane is started by /bunny.
+          MENTIONS: '/bunny'
           VARIANT: max
           OIDC_BASE_URL: ''
