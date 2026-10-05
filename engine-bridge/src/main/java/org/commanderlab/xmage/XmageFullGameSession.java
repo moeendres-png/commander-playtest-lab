@@ -233,7 +233,7 @@ final class XmageFullGameSession {
         );
         engineThread = gameThreadFactory.newThread(() -> runEngine(startingPlayer.getId()));
         engineThread.start();
-        controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
+        awaitSettled(controller, engineThread, SETTLE_TIMEOUT);
         return statusPayload();
     }
 
@@ -252,7 +252,7 @@ final class XmageFullGameSession {
 
     JsonObject pendingDecisionPayload() {
         ensureStarted();
-        controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
+        awaitSettled(controller, engineThread, SETTLE_TIMEOUT);
         JsonObject payload = statusPayload();
         JsonObject pending = controller.pendingDecision();
         payload.add("decision", pending == null ? JsonNull.INSTANCE : pending);
@@ -813,6 +813,54 @@ final class XmageFullGameSession {
                         exc
                 );
             }
+        }
+    }
+
+    /**
+     * Bound for {@link #awaitSettled}: below the Lab transport's 120 s request
+     * timeout, so an honest bridge-side timeout is reported before the client
+     * gives up on the request.
+     */
+    static final Duration SETTLE_TIMEOUT = Duration.ofSeconds(100);
+
+    /**
+     * Waits until the engine is parked on a decision or has ended, and only
+     * then lets a status be built. {@code markTerminal()} runs in
+     * {@code runEngine}'s finally block on the engine thread, just before that
+     * thread ends, while {@code terminal} in the status is derived from thread
+     * liveness. A controller already marked terminal is therefore joined
+     * (bounded) first; without that a finished game could be reported as
+     * running with no pending decision, which a replay consumer correctly
+     * refuses as an early termination. A wait that ends with neither a decision
+     * nor a game over is an explicit DECISION_ADVANCE_TIMEOUT, never a status
+     * that looks like a mid-step engine.
+     */
+    static void awaitSettled(
+            XmageFullGameDecisionController controller, Thread engineThread, Duration timeout) {
+        long deadline = System.nanoTime() + timeout.toNanos();
+        if (!controller.awaitPendingOrTerminal(timeout)) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "DECISION_ADVANCE_TIMEOUT: engine neither offered a decision nor ended within "
+                            + timeout.toSeconds() + "s"
+            );
+        }
+        if (controller.pendingDecision() != null || !controller.terminalMarked()
+                || engineThread == null) {
+            return;
+        }
+        try {
+            engineThread.join(Math.max(1L, (deadline - System.nanoTime()) / 1_000_000L));
+        } catch (InterruptedException exc) {
+            Thread.currentThread().interrupt();
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "DECISION_ADVANCE_TIMEOUT: interrupted while the ended engine thread finished",
+                    exc
+            );
+        }
+        if (engineThread.isAlive()) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "DECISION_ADVANCE_TIMEOUT: engine marked the game over but its thread did not end"
+            );
         }
     }
 
