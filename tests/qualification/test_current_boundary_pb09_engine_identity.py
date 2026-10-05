@@ -95,13 +95,19 @@ BRIDGE_HEAD = "e15f37d6b2b5c0ad682948f86f037e07b6aaded5"
 BRIDGE_TREE = "a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b"
 CURRENT_CANDIDATE = "bb0a740d2bef725194798383c2452213ecdd0b37"
 CURRENT_CANDIDATE_TREE = "4989b5bb35b8279e82f79c1ca99dc698d63d093a"
-CURRENT_BRIDGE = "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c"
-CURRENT_BRIDGE_TREE = "000066890decca5ed7b1b889be0ea46d77903aee"
+CURRENT_BRIDGE = "ee37e4a52d99401ba57fba7ca516ac01f1981161"
+CURRENT_BRIDGE_TREE = "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e"
 # The bridge source before forge#16 (#11 + #13), historical.
 R1_BRIDGE = "e8b8aec60720aee218338754224721597b8c6ec5"
 R1_BRIDGE_TREE = "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea"
-BRIDGE_SUCCESSOR_LOCK = (
+# forge#16, the bridge source before forge#22 and forge#25, historical.
+R5_BRIDGE = "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c"
+R5_BRIDGE_TREE = "000066890decca5ed7b1b889be0ea46d77903aee"
+R5_BRIDGE_LOCK = (
     REPO / "qualification/forge-bridge-r5-integrated-20261001/SUCCESSOR_SOURCE_LOCK.json"
+)
+BRIDGE_SUCCESSOR_LOCK = (
+    REPO / "qualification/forge-bridge-constructed-state-20261005/SUCCESSOR_SOURCE_LOCK.json"
 )
 
 
@@ -192,9 +198,10 @@ def test_r1_successor_source_lock_matches_live_authority_and_preserves_wsr22() -
     current = successor["current_forge_authority"]
     assert current["candidate_commit"] == secondary["commit"] == CURRENT_CANDIDATE
     assert current["candidate_tree"] == CURRENT_CANDIDATE_TREE
-    # #446 updated the R-1 lock to the forge#16 bridge source; Rules-Core is unchanged.
-    assert current["bridge_commit"] == secondary["bridge_source"]["commit"] == CURRENT_BRIDGE
-    assert current["bridge_tree"] == CURRENT_BRIDGE_TREE
+    # #446 updated the R-1 lock to the forge#16 bridge source; forge#22 + forge#25
+    # supersede it through their own lock, and Rules-Core is unchanged.
+    assert current["bridge_commit"] == R5_BRIDGE != secondary["bridge_source"]["commit"]
+    assert current["bridge_tree"] == R5_BRIDGE_TREE
     assert (
         current["bridge_rules_core_base_commit"]
         == secondary["bridge_source"]["rules_core_base_commit"]
@@ -441,7 +448,8 @@ def test_bridge_successor_lock_binds_the_live_bridge_without_moving_rules_core()
     assert lock["new_bridge_source"]["commit"] == secondary["bridge_source"]["commit"]
     assert lock["new_bridge_source"]["commit"] == CURRENT_BRIDGE
     assert lock["new_bridge_source"]["tree"] == CURRENT_BRIDGE_TREE
-    assert lock["prior_bridge_source"]["commit"] == R1_BRIDGE
+    assert lock["prior_bridge_source"]["commit"] == R5_BRIDGE
+    assert lock["prior_bridge_source"]["tree"] == R5_BRIDGE_TREE
     # Two roles, never mixed: Rules-Core authority stays the R-1 candidate.
     assert lock["rules_core_authority"]["commit"] == secondary["commit"] == CURRENT_CANDIDATE
     assert secondary["bridge_source"]["rules_core_base_commit"] == CURRENT_CANDIDATE
@@ -452,6 +460,17 @@ def test_bridge_successor_lock_binds_the_live_bridge_without_moving_rules_core()
     assert qual["local_forge_bridge_suite"]["failures"] == 0
     assert set(lock["not_a"]) >= {"PRODUCTION_PROVIDER_SELECTION", "RULES_CORE_AUTHORITY_CHANGE"}
     assert lock["evidence_transfer"]["historical_receipts_relabelled"] is False
+    # The PR head the local suite ran on has the merged source's tree.
+    assert qual["local_forge_bridge_suite"]["tree_equal_to_new_bridge_source"] is True
+
+
+def test_the_r5_bridge_lock_stays_historical() -> None:
+    """forge#16's lock keeps its own identity after forge#22 and forge#25 moved the pin."""
+    lock = json.loads(R5_BRIDGE_LOCK.read_text(encoding="utf-8"))
+    assert lock["new_bridge_source"]["commit"] == R5_BRIDGE
+    assert lock["new_bridge_source"]["tree"] == R5_BRIDGE_TREE
+    assert lock["prior_bridge_source"]["commit"] == R1_BRIDGE
+    assert _config()["secondary_engine"]["bridge_source"]["commit"] != R5_BRIDGE
 
 
 def test_a_required_lane_fails_instead_of_skipping(monkeypatch, tmp_path) -> None:

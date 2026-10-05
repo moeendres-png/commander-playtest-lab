@@ -52,7 +52,7 @@ CHANNEL_UNAUDITED = "PRESENT_UNAUDITED"
 
 # The bridge commit whose blobs this channel table was asserted against. A
 # moved canonical pin invalidates every channel status until it is re-asserted.
-ASSERTED_BRIDGE_COMMIT = "20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c"
+ASSERTED_BRIDGE_COMMIT = "ee37e4a52d99401ba57fba7ca516ac01f1981161"
 
 _BRIDGE_SOURCE = f"{lane.BRIDGE_MODULE}/src/main/java/forge/bridge"
 SOURCES: dict[str, str] = {
@@ -123,6 +123,7 @@ MESSAGE_CASES = frozenset(
         "BridgeProtocol.EXPORT_EVENT_LOG",
         "BridgeProtocol.EXPORT_REPLAY",
         "BridgeProtocol.GET_CAPABILITIES",
+        "BridgeProtocol.GET_CONSTRUCTED_STATE",
         "BridgeProtocol.GET_GAME_STATE",
         "BridgeProtocol.GET_LEGAL_ACTIONS",
         "BridgeProtocol.GET_PROVIDER_VERSION",
@@ -190,6 +191,57 @@ DECISION_FRAME_KEYS = frozenset(
         "status",
         "target_ids",
         "type",
+        "zone",
+    }
+)
+# Every JSON key get_constructed_state's keyed success path writes at the
+# asserted commit (StateProjection.constructedState and zoneDigest). Each seat's
+# library and hand leave only as library_and_hand_digest; the one name-valued
+# key is a commander's public card_identity. A new or lost key is drift: a key
+# that could carry a hidden card name is re-reviewed before it is certified.
+CONSTRUCTED_STATE_KEYS = frozenset(
+    {
+        "active_player",
+        "attachments",
+        "battlefield_size",
+        "card_identity",
+        "combat_attackers",
+        "combat_groups",
+        "commander_damage_taken",
+        "commanders",
+        "continuous_effects",
+        "controller",
+        "counters",
+        "exile_size",
+        "extra_turns",
+        "face_down",
+        "format_rule_effects",
+        "graveyard_size",
+        "hand_size",
+        "knowledge",
+        "left",
+        "library_and_hand_digest",
+        "library_shuffles",
+        "library_size",
+        "life",
+        "lifecycle",
+        "lost",
+        "observation_scope",
+        "owner",
+        "pending_triggers",
+        "phase",
+        "player_id",
+        "players",
+        "poison",
+        "prior_command_zone_cast_count",
+        "priority_player",
+        "rules_state",
+        "schema",
+        "seat",
+        "stack_size",
+        "tapped",
+        "turn_number",
+        "visible_hidden_cards",
         "zone",
     }
 )
@@ -381,6 +433,49 @@ CHANNELS: tuple[Channel, ...] = (
             "is the observer-scoped projection. Whether every message refuses an "
             "omniscient read, and what its errors and diagnostics carry, is shown only by "
             "the row's runtime refusal probes and channel scan, which were not run"
+        ),
+    ),
+    Channel(
+        "orchestration_constructed_state",
+        CHANNEL_SUPPORTED,
+        "engine",
+        present=(
+            "case BridgeProtocol.GET_CONSTRUCTED_STATE: return getConstructedState(request);",
+            "if (!OrchestrationKey.enabled()) { final String problem = OrchestrationKey.problem(); "
+            "return BridgeProtocol.error(request.requestId, "
+            "BridgeErrors.ORCHESTRATION_CHANNEL_NOT_ENABLED,",
+        ),
+        meaning=(
+            "get_constructed_state (forge#25, forge#28, the Lab's generic-lane construction proof, #441 "
+            "(c)) is an orchestration channel, not a principal observation: every launch "
+            "without COMMANDER_LAB_ORCHESTRATION_KEY refuses it with "
+            "orchestration_channel_not_enabled. No principal-facing launch carries the key; "
+            "the keyed success path is orchestration_constructed_state_payload"
+        ),
+    ),
+    Channel(
+        "orchestration_constructed_state_payload",
+        CHANNEL_SUPPORTED,
+        "projection",
+        present=(
+            'state.addProperty("observation_scope", "orchestration_keyed_digests");',
+            'entry.addProperty("library_and_hand_digest", '
+            'zoneDigest(seatId, "library_and_hand", libraryAndHand));',
+            "return OrchestrationKey.digest(tokens);",
+        ),
+        region=(
+            "public static JsonObject constructedState(BridgeSession session)",
+            "public static JsonObject bridgeMeta(BridgeSession session, String observerPlayerId)",
+        ),
+        keys=CONSTRUCTED_STATE_KEYS,
+        meaning=(
+            "the keyed success path of get_constructed_state writes exactly the closed key set "
+            "CONSTRUCTED_STATE_KEYS: public seat facts, sizes, shuffle counts and each "
+            "commander's public identity, owner, zone, cast count and native controller, counters, face-down, tapped and attachment state, the engine's rules state (combat, extra turns, pending triggers, continuous and format-rule effects) and each seat's knowledge and commander-damage counts (schema /4). Each seat's library and "
+            "hand go only into zoneDigest, an HMAC under the launch key "
+            "(OrchestrationKey.digest) over the name multiset, so no hidden card name leaves "
+            "and nobody without the key can test a guess. A new key, or a lost digest "
+            "construction, is drift"
         ),
     ),
     Channel(
@@ -715,9 +810,11 @@ def channel_document(channel: Channel) -> dict[str, Any]:
         "closed_bootstrap_fields": sorted(channel.fields),
         "closed_message_types": sorted(channel.cases),
         "closed_frame_keys": sorted(channel.keys),
+        # The honey-sentinel facets describe decision frames only; another
+        # closed key set (the keyed constructed-state payload) has none.
         "frame_key_facets": (
             {facet: list(keys) for facet, keys in DECISION_FRAME_FACETS.items()}
-            if channel.keys
+            if channel.keys == DECISION_FRAME_KEYS
             else {}
         ),
         "closed_stderr_prints": sorted(channel.prints),

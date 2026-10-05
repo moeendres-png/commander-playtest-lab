@@ -32,6 +32,9 @@ def _texts() -> dict[str, str]:
     start, end = fh.CHANNELS_BY_NAME["decision_frames"].region
     keys = "".join(f'x.addProperty("{key}", v);\n' for key in sorted(fh.DECISION_FRAME_KEYS))
     texts["projection"] = texts["projection"] + start + " {\n" + keys + "}\n" + end + " {}\n"
+    start, end = fh.CHANNELS_BY_NAME["orchestration_constructed_state_payload"].region
+    keys = "".join(f'x.addProperty("{key}", v);\n' for key in sorted(fh.CONSTRUCTED_STATE_KEYS))
+    texts["projection"] = texts["projection"] + start + " {\n" + keys + "}\n" + end + " {}\n"
     texts["main"] += "".join(f"System.err.println({text});\n" for text in sorted(fh.STDERR_PRINTS))
     return texts
 
@@ -346,6 +349,25 @@ def test_a_new_or_lost_message_type_is_drift() -> None:
         fh.assert_channels(texts)
 
 
+def test_the_keyed_constructed_state_cannot_grow_a_plaintext_key() -> None:
+    """#537 review: the orchestration channel is certified only with its digest path
+    and its closed key set; a raw hand or library key, or a lost HMAC, is drift."""
+    fh.assert_channels(_texts())
+    start, _ = fh.CHANNELS_BY_NAME["orchestration_constructed_state_payload"].region
+    leaking = _texts()
+    leaking["projection"] = leaking["projection"].replace(
+        start + " {\n", start + ' {\nentry.add("hand", names);\n', 1
+    )
+    with pytest.raises(fh.HiddenChannelDrift, match="new keys"):
+        fh.assert_channels(leaking)
+    unkeyed = _texts()
+    unkeyed["projection"] = unkeyed["projection"].replace(
+        "return OrchestrationKey.digest(tokens);", 'return String.join(",", tokens);'
+    )
+    with pytest.raises(fh.HiddenChannelDrift, match="missing"):
+        fh.assert_channels(unkeyed)
+
+
 def test_omniscience_and_sentinel_rows_name_their_unaudited_surfaces(records) -> None:
     """A source assertion never stands in for the row's refusal probes or sentinel scan."""
     omniscience = fh.classify_row(records["HIDDEN_19"])
@@ -411,6 +433,18 @@ def test_every_sentinel_facet_names_inventoried_frame_keys() -> None:
         "source",
     }
     assert {key for keys in facets.values() for key in keys} <= fh.DECISION_FRAME_KEYS
+
+
+def test_only_decision_frames_carry_sentinel_facets() -> None:
+    """The keyed constructed-state payload has a closed key set but no frame facets."""
+    for channel in fh.CHANNELS:
+        document = fh.channel_document(channel)
+        if channel.name == "decision_frames":
+            assert set(document["frame_key_facets"]) == set(fh.DECISION_FRAME_FACETS)
+        else:
+            assert document["frame_key_facets"] == {}, channel.name
+    payload = fh.channel_document(fh.CHANNELS_BY_NAME["orchestration_constructed_state_payload"])
+    assert payload["closed_frame_keys"] == sorted(fh.CONSTRUCTED_STATE_KEYS)
 
 
 def test_transport_diagnostics_are_unaudited_and_required(records) -> None:
