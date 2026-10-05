@@ -1,6 +1,6 @@
 {
  "candidate": "forge",
- "canonical_bundle_digest": "30ca080681e35e2ae2a0c7616416f1dab5b9d94c09a361ae4946ea8f71bd8bd2",
+ "canonical_bundle_digest": "e08279a32a55b1663a104c5887b057d2494677abf317cd5d026048f38208987d",
  "contract_id": "commander-lab.full107/1.0.21-successor",
  "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
  "rows": [
@@ -234,8 +234,8 @@
    "classification": "PROVIDER_ADAPTER_GAP",
    "first_missing": {
     "class": "PROVIDER_ADAPTER_GAP",
-    "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
-    "dimension": "event_log",
+    "detail": "the obligation reads a permanent's abilities and the pinned bridge's battlefield projection carries power and toughness but no abilities (no ability readback)",
+    "dimension": "unprojected_readback:layer6_remove_abilities",
     "stage": "observation"
    },
    "fixture_id": "MICRO_LAYERS",
@@ -243,8 +243,8 @@
    "mechanisms": [
     {
      "class": "PROVIDER_ADAPTER_GAP",
-     "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
-     "dimension": "event_log",
+     "detail": "the obligation reads a permanent's abilities and the pinned bridge's battlefield projection carries power and toughness but no abilities (no ability readback)",
+     "dimension": "unprojected_readback:layer6_remove_abilities",
      "stage": "observation"
     },
     {
@@ -254,15 +254,15 @@
      "stage": "observation"
     }
    ],
-   "needs_event_log": true,
+   "needs_event_log": false,
    "observation": {
-    "EVENT_LOG": [
+    "READBACK": [
      "layer6_remove_abilities",
      "layer7b_set_pt:1/1",
      "layer7c_modify_pt:+1/+1"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: layer6_remove_abilities, layer7b_set_pt:1/1, layer7c_modify_pt:+1/+1. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (unprojected_readback:layer6_remove_abilities): the obligation reads a permanent's abilities and the pinned bridge's battlefield projection carries power and toughness but no abilities (no ability readback). then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -1549,14 +1549,14 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
-     "dimension": "decision_execution.target.semantic_player",
+     "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
+     "dimension": "decision_execution.mana_payment.mana_payment",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
-     "dimension": "decision_execution.mana_payment.mana_payment",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
+     "dimension": "decision_execution.target.semantic_player",
      "stage": "execution"
     },
     {
@@ -1585,7 +1585,7 @@
      "partition_created:2/3"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:library): library contents are never exposed. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.pile.partition (LAB_EXECUTION_GAP); execution decision_execution.pile.pile_label (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:library): library contents are never exposed. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.pile.partition (LAB_EXECUTION_GAP); execution decision_execution.pile.pile_label (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -3173,7 +3173,7 @@
    "PROVIDER_ADAPTER_GAP": 17,
    "SCENARIO_LANE_EXECUTABLE": 12
   },
-  "needs_event_log": 11,
+  "needs_event_log": 10,
   "pass": 0,
   "rows": 70
  }
