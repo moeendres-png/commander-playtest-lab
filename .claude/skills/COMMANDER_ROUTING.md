@@ -18,7 +18,9 @@ existing engine repositories. For current work:
 4. `piv-investigate-issue` → `piv-implement-issue` for defect/RCA work.
 5. `piv-validate`, `piv-review-changes`, and preferably a fresh-context
    `piv-review-pr` before integration.
-6. `rules-check-drift` checks whether durable agent policy became stale; it is
+6. `lab-ops` for day-to-day operations: compact PR/CI status, open review threads, failing-job
+   lines, CI waiting, PB-03 packet summaries and real-engine row runs (token- and time-efficient).
+7. `rules-check-drift` checks whether durable agent policy became stale; it is
    advisory and must not rewrite `AGENTS.md` without explicit adjudication.
 
 ## PRD usage

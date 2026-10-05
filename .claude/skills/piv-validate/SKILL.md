@@ -1,90 +1,71 @@
 ---
 name: piv-validate
-description: Runs this project's full validation suite — tests, type checks, and linting across every part of the stack — then reports overall health. Use before committing, before opening a PR, or after finishing a chunk of work to confirm zero regressions.
+description: Runs the Commander Playtest Lab validation suite (ruff, ruff format, mypy, the qualification and unit tests, and the engine bridge test suites when Java changed) and reports one PASS/FAIL verdict. Use before committing, before pushing to a PR, or after finishing a chunk of work.
 ---
 
-# Validate
+# Validate (Commander Playtest Lab)
 
-Run every check this project has and report a single PASS/FAIL verdict.
+Run every check below from the repository root (or the worktree root). Keep going after a failure so the
+report covers everything; capture the output of any command that fails. Do not fix anything here.
 
-> ## ⚠️ Make this yours first
->
-> **This skill is a template. The command list below is a placeholder — replace it with the commands
-> *your* project actually uses.** That is the entire point of a custom checker: it is the one skill
-> that cannot be generic, because it wraps your stack's CLIs.
->
-> Find your real commands in `package.json` scripts, `pyproject.toml`, `Makefile`, `justfile`,
-> `docker-compose.yml`, your CI workflow, or the README — then delete these and paste yours in.
->
-> **Two things to get right, because they are the usual reason a checker silently lies:**
-> 1. **Working directory.** Many tools only discover their config from the current directory. If your
->    config lives in `backend/pyproject.toml`, the command is `cd backend && uv run pytest`, not
->    `uv run pytest` from the repo root.
-> 2. **Cross-platform.** Avoid POSIX-only idioms if anyone on the team is on Windows — `lsof`,
->    `python3`, and background-then-`kill` are the common offenders.
+Use a Python >= 3.12 virtualenv; delete `src/*.egg-info` after an editable install. Engine builds are
+offline against a local Maven repository (`-Dmaven.repo.local=…`, `LAB_M2_REPO` in `lab-ops`).
 
-Run the checks in order. Keep going after a failure so the report covers everything, and capture the
-output of any command that fails.
-
-## 1. Tests
+## 1. Lint and format
 
 ```bash
-# REPLACE: your test command, run from the right directory
-<your test command>
+ruff check src tests
+ruff format --check src tests
 ```
-
-**Expected:** all tests pass.
 
 ## 2. Type check
 
 ```bash
-# REPLACE: e.g. mypy, tsc --noEmit, go vet
-<your type-check command>
+mypy <every changed module under src/>
 ```
+`mypy src/` also reports long-standing errors in `agents/openai_workflow.py`, `api/tool_server.py` and
+`cli/app.py` (optional dependencies); judge only the modules the change touches.
 
-**Expected:** no type errors.
-
-## 3. Lint / format check
+## 3. Python tests
 
 ```bash
-# REPLACE: e.g. ruff check, biome check, eslint
-<your lint command>
+python -m pytest -q tests/qualification
+python -m pytest -q tests/unit -p no:cacheprovider --continue-on-collection-errors
 ```
+Commit (or WIP-commit) first: unit tests that hash the tracked tree fail on a dirty worktree
+("stale canonical inputs rejected"). Modules needing optional deps (e.g. fastapi) fail to collect locally;
+compare the failure set with main's instead of reading it as a regression.
 
-**Expected:** clean.
-
-## 4. Repeat per surface
-
-A full-stack project has more than one of each. Add a section per surface — backend tests, backend
-types, backend lint, frontend tests, frontend types, frontend lint — so a single command covers the
-whole repo.
-
-## 5. Optional — live smoke test
-
-Only when the change touches routing, middleware, or startup; skip it when your test suite already
-exercises the app in-process.
+## 4. Hash manifests (when anything under `qualification/` changed)
 
 ```bash
-# REPLACE: start your app, hit one endpoint, confirm the status code, stop it
-<your run command>
+python scripts/regenerate_hash_manifests.py   # then re-run tests/qualification/test_ws17_qualification.py
 ```
 
-Prefer starting the server in a second shell over backgrounding and killing it from inside this
-skill — the background-and-kill idiom is not portable.
+## 5. XMage engine bridge (when `engine-bridge/` changed)
 
-## 6. Summary report
+```bash
+cd engine-bridge && mvn -o -B test -Dmaven.repo.local=$LAB_M2_REPO
+```
 
-Report each check with a ✅ or ❌, then an overall verdict:
+## 6. Forge bridge (when working in the Forge repository's `forge-protocol2-bridge/`)
 
-- One line per check
-- **Overall: PASS or FAIL**
+```bash
+xvfb-run -a mvn -o -B test -pl forge-protocol2-bridge -am -Dcheckstyle.skip \
+  -Dmaven.repo.local=$FORGE_M2_REPO -Dtest='forge.bridge.**' -Dsurefire.failIfNoSpecifiedTests=false
+```
 
-For every ❌, include the failing command and the relevant output. Do not fix anything here —
-this skill reports; fixing is a separate step.
+## 7. Real engines (when a row's behaviour can change)
 
-## Notes
+`lab-ops` `scripts/real_rows.py` re-runs only the affected rows against the real producers (LOCAL_OBSERVED,
+never credit). Run the Java suites and long engine runs in the background.
 
-- Keep this skill fast. It runs before every commit; if a step gets slow, that is a signal to fix the
-  slow step, not to drop it from the checker.
-- A checker that cannot fail is worthless. Once your commands are wired in, break something on
-  purpose and confirm this skill reports ❌.
+## Summary
+
+One line per check with a ✅ or ❌, then **Overall: PASS or FAIL**. For every ❌, include the failing
+command and the relevant output.
+
+- `ci-definition-integrity-shadow` is red by design (CI-02); it is a CI check, not part of this local suite.
+- A green suite is not Qualification PASS: credit comes only from PB-03 on an exact head plus a sealed epoch.
+- A checker that cannot fail is worthless: when changing this list, break something on purpose once and
+  confirm it reports ❌.

@@ -1,0 +1,45 @@
+---
+name: lab-ops
+description: Token- and time-efficient operations for Commander Playtest Lab sessions — one-line PR/CI status and open review threads, failing-job log extraction, CI/workflow waiting, PB-03 packet download and AF00-AF11 summary, and real-engine row runs (mid-game, cardinality, scripted pregame, AF04) without ad-hoc scripts. Use whenever you check PRs or CI, wait on checks, diagnose a red job, read a PB-03 run, or validate rows against the real XMage/Forge engines.
+---
+
+# Lab ops
+
+Scripts in `scripts/`. They print compact lines, never raw API JSON, and they do not
+change GitHub state. Run them from the Lab worktree root.
+
+| Need | Command |
+|---|---|
+| PR head, merge state, red/pending checks, open threads | `scripts/gh_ops.py status 544 537` |
+| Unresolved review threads (comment id to reply to) | `scripts/gh_ops.py threads 544` |
+| Why a job is red (failure lines with context) | `scripts/gh_ops.py errors JOB_ID` |
+| Wait for CI on PRs / for one workflow run | `scripts/gh_ops.py wait 544` · `scripts/gh_ops.py run RUN_ID` (background) |
+| PB-03 packet: identity, sha256 check, AF00-AF11 per candidate | `scripts/pb03_packet.py RUN_ID OUT [--into .]` |
+| Real-engine rows | `scripts/real_rows.py build` then `midgame FIX…`, `cardinality CAND`, `pregame CAND`, `af04 CAND PKG` (Forge: `--forge PATH`, `xvfb-run -a`) |
+
+`gh_ops.py` uses `gh api`: REST plus the CCR thread route
+`repos/{o}/{r}/pulls/{n}/ccr/review_threads`. GraphQL is not available in Claude
+Code sessions. The same CCR prefix also serves `…/ccr/comments/{id}/resolve` and
+`…/ccr/auto_merge`. `ci-definition-integrity-shadow` is reported as red by design (CI-02).
+
+## Working efficiently without losing evidence quality
+
+The output of each command decides the next step, so read it all; just don't pull more into context than that decision needs.
+
+- **Status over dumps.** Prefer `gh_ops.py status` / `threads` / `errors` to the MCP `get_check_runs`, `get_review_comments` and `get_job_logs` calls. Those return 5–15k tokens where one line answers the question. Use MCP for writes: replies, resolves, merges, PRs.
+- **Wait in the background.** Run `gh_ops.py wait` / `run` or long suites with `run_in_background`, then continue other work. Never poll in the foreground and never use bare `sleep`.
+- **Test narrow first, then wide, once.**
+  - While iterating: the changed module's tests and `ruff`/`mypy` on the changed files.
+  - Before the push: the full `tests/qualification` suite once, and `tests/unit` when `src/` changed.
+  - Java bridge suites (XMage about 25 min, Forge about 27 min): once per Java change, in the background.
+- **Real engines only where the change reaches.** Re-run the affected rows with `real_rows.py`, not the whole 60-minute mid-game regression. A row change still needs its local real-producer run plus wrong-reason controls (AGENTS.md); `real_rows.py` makes that one command.
+- **Read narrowly.**
+  - `grep -n` the symbol, then read a `sed -n A,Bp` window. Do not re-read a file you just edited.
+  - Summarize big JSON with a short `python3 -c` filter instead of printing it.
+- **Batch independent calls in one message.** This covers status checks across PRs, replies plus resolves, and reads of unrelated files.
+- **Delegate mechanical sweeps.** A broad search over many files or logs goes to an `Explore` subagent with a smaller model (`model: "sonnet"` or `"haiku"`). It returns the conclusion, not the file dumps. Keep judgement, evidence adjudication and CR reasoning in the main session.
+- **Keep the stack moving.**
+  - After a base PR merges, retarget stacked PRs to `main` and merge `origin/main` into every open head in one loop.
+  - Regenerate hash manifests with `scripts/regenerate_hash_manifests.py`; never resolve `WS17_SHA256SUMS` by hand.
+  - Commit WIP before running `tests/unit`: tree-hashing tests fail on a dirty worktree.
+- **Never trade evidence for speed.** UNKNOWN ≠ PASS, LOCAL_OBSERVED is not credit, and no option or default is fabricated. A shortcut that skips a gate the policy requires is not an efficiency.
