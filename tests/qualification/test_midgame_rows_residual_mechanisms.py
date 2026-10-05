@@ -540,6 +540,168 @@ def test_pending_extra_turns_are_the_engine_order_exactly() -> None:
     assert not mr.check_terminal(check, {}, [], [])
 
 
+def _readback(pending: tuple[str, ...] | None) -> mr.Frame:
+    return mr.Frame("priority", "P1", [], pending_extra_turns=pending)
+
+
+def test_an_extra_turn_is_created_when_the_engine_queue_gains_it() -> None:
+    created = mr.TerminalCheck("extra_turn_created", principal="P3", value=("P3", "P2"))
+    assert not mr.needs_observation(created)
+    trace = [_readback(()), _readback(None), _readback(("P2",)), _readback(("P3", "P2"))]
+    assert mr.check_terminal(created, {}, [], trace)
+    assert mr.bound_token_evidence(created, {}, [], trace)["decision_frames"] == [3]
+    # Already pending when the run began: nothing was created in the run.
+    assert not mr.check_terminal(created, {}, [], [_readback(("P3",)), *trace[1:]])
+    # The run's first frame was never read back: no baseline, no creation.
+    assert not mr.check_terminal(created, {}, [], [_readback(None), *trace[1:]])
+    # The queue must be exactly the requested order, never a superset or a swap.
+    assert not mr.check_terminal(created, {}, [], [*trace[:3], _readback(("P2", "P3"))])
+    assert not mr.check_terminal(created, {}, [], [*trace[:3], _readback(("P3", "P2", "P1"))])
+    assert not mr.check_terminal(created, {}, [], [])
+
+
+def test_the_extra_turn_rows_bind_creation_to_the_cast_and_the_engine_queue() -> None:
+    for fixture in ("WS05-MP-TURN-3", "WS05-MP-TURN-5"):
+        bindings = dict(mr.ROWS[fixture].token_bindings)
+        assert set(bindings) == {
+            "extra_turn_created:P2",
+            "extra_turn_created:P3",
+            "next_turn:P3",
+            "next_turn:P2",
+        }
+        cast, cast_first, created = bindings["extra_turn_created:P3"]
+        assert (cast.kind, cast.event_type) == ("events", "SPELL_CAST")
+        assert ("source_object", "obj:mp-nexus") in cast.where
+        assert cast_first.kind == "events_precede"
+        assert (created.kind, created.principal, created.value) == (
+            "extra_turn_created",
+            "P3",
+            ("P3", "P2"),
+        )
+        # Codex P1 (#536): the creation is ordered after the spell resolves.
+        assert created.after is not None and ("from", "STACK") in created.after.where
+        assert ("target_object", "obj:mp-nexus") in created.after.where
+        assert mr._reads_extra_turns(bindings["extra_turn_created:P2"])
+        assert mr._reads_extra_turns(bindings["next_turn:P2"])
+
+
+def _at(pending: tuple[str, ...] | None, sequence: int | None) -> mr.Frame:
+    return mr.Frame("priority", "P1", [], pending_extra_turns=pending, tape_sequence=sequence)
+
+
+_WARP_RESOLVED = mr.TerminalCheck(
+    "events", event_type="ZONE_CHANGE", where=(("target_object", "obj:w"), ("from", "STACK"))
+)
+_TAPE = [{"sequence": 5, "type": "ZONE_CHANGE", "target_object": "obj:w", "from": "STACK"}]
+
+
+def test_an_extra_turn_queued_before_its_spell_resolves_is_not_created_by_it() -> None:
+    """Codex P1 (#536): a queue entry read before the resolution is a broken mechanic."""
+    created = mr.TerminalCheck(
+        "extra_turn_created", principal="P2", value=("P2",), after=_WARP_RESOLVED
+    )
+    good = [_at((), None), _at((), 3), _at(None, 4), _at(("P2",), 6)]
+    assert mr._extra_turn_frames(created, good, _TAPE) == [3]
+    early = [_at((), None), _at(("P2",), 3), _at(("P2",), 6)]
+    assert mr._extra_turn_frames(created, early, _TAPE) == []
+    assert not mr.check_terminal(created, {}, _TAPE, early)
+    # The spell never resolved: no creation, whatever the queue reads.
+    assert mr._extra_turn_frames(created, good, []) == []
+
+
+def test_p2s_next_turn_is_its_extra_turn_only_if_the_engine_consumed_the_entry() -> None:
+    """Codex P1 (#536): P2's normal turn after P3's must not pass as its extra turn."""
+    p3 = mr.TerminalCheck("events", event_type="BEGIN_TURN", where=(("player_player", "P3"),))
+    p2 = mr.TerminalCheck("events", event_type="BEGIN_TURN", where=(("player_player", "P2"),))
+    held = mr.TerminalCheck("pending_extra_turns_between", value=("P2",), after=p3, before=p2)
+    consumed = mr.TerminalCheck("pending_extra_turns_between", value=(), after=p2)
+    tape = [
+        {"sequence": 10, "type": "BEGIN_TURN", "player_player": "P3"},
+        {"sequence": 20, "type": "BEGIN_TURN", "player_player": "P2"},
+    ]
+    correct = [_at(("P3", "P2"), 9), _at(("P2",), 12), _at((), 21)]
+    assert mr.check_terminal(held, {}, tape, correct)
+    assert mr.check_terminal(consumed, {}, tape, correct)
+    # The engine dropped P2's entry when P3's extra turn began.
+    dropped = [_at(("P3", "P2"), 9), _at((), 12), _at((), 21)]
+    assert not mr.check_terminal(held, {}, tape, dropped)
+    # P2 took its normal turn and left the entry queued.
+    ignored = [_at(("P3", "P2"), 9), _at(("P2",), 12), _at(("P2",), 21)]
+    assert not mr.check_terminal(consumed, {}, tape, ignored)
+    # The run never reached P2's turn.
+    assert not mr.check_terminal(held, {}, tape[:1], correct)
+
+
+def test_a_declared_library_channel_needs_the_players_own_shuffle() -> None:
+    record = {"rules_randomness": {"channels": ["library_shuffle:P3", "coin_flip:obj:x"]}}
+    shuffled = {"sequence": 11, "type": "LIBRARY_SHUFFLED", "player_player": "P3"}
+    assert mr.declared_shuffle_channels(record, [shuffled]) == {"library_shuffle:P3": True}
+    other = {**shuffled, "player_player": "P2"}
+    assert mr.declared_shuffle_channels(record, [other]) == {"library_shuffle:P3": False}
+    assert mr.declared_shuffle_channels(record, []) == {"library_shuffle:P3": False}
+    assert mr.declared_shuffle_channels({"rules_randomness": {"channels": []}}, []) == {}
+
+
+def _hand_offer(name: str, native: str) -> dict[str, Any]:
+    return {
+        "metadata": {
+            "option_type": "object",
+            "option_id": f"opt-{native}",
+            "label": name,
+            "xmage_option_metadata": {"object_id": native, "name": name, "zone": "hand"},
+        }
+    }
+
+
+def _discard(value: Any, offers: list[dict[str, Any]], bounds: tuple[int, int] | None = (1, 1)):
+    legal: dict[str, Any] = {"actions": offers}
+    if bounds is not None:
+        legal["decision"] = {"minimum_selections": bounds[0], "maximum_selections": bounds[1]}
+    step = {
+        "decision_family": "choose_object",
+        "selection": {"selector_kind": "card_identity_multiset", "semantic_value": value},
+    }
+    return mr._scripted_answer(legal, step, {"obj:spell": "n-spell"}, mr.RowSpec())
+
+
+def test_a_card_identity_multiset_selects_identical_template_cards() -> None:
+    offers = [_hand_offer("Mountain", f"n-{index}") for index in range(8)]
+    answer = _discard({"Mountain": 1}, offers)
+    assert answer.option_ids == ("opt-n-0",)
+    assert answer.key == "Mountain:1"
+    two = _discard({"Mountain": 2}, offers, bounds=(2, 2))
+    assert two.option_ids == ("opt-n-0", "opt-n-1")
+
+
+@pytest.mark.parametrize(
+    ("value", "offers", "bounds"),
+    [
+        # A named record object of the requested identity is never a template card.
+        (
+            {"Mountain": 1},
+            [_hand_offer("Mountain", "n-0"), _hand_offer("Mountain", "n-spell")],
+            (1, 1),
+        ),
+        # Fewer cards of the identity than requested.
+        ({"Mountain": 2}, [_hand_offer("Mountain", "n-0"), _hand_offer("Island", "n-1")], (2, 2)),
+        ({"Mountain": 1}, [_hand_offer("Island", "n-1")], (1, 1)),
+        # A total the engine frame does not authorize, or no frame bounds.
+        ({"Mountain": 1}, [_hand_offer("Mountain", "n-0")], (2, 2)),
+        ({"Mountain": 1}, [_hand_offer("Mountain", "n-0")], None),
+        # Malformed multisets.
+        ({}, [_hand_offer("Mountain", "n-0")], (1, 1)),
+        ({"Mountain": 0}, [_hand_offer("Mountain", "n-0")], (1, 1)),
+        ({"Mountain": True}, [_hand_offer("Mountain", "n-0")], (1, 1)),
+        (["Mountain"], [_hand_offer("Mountain", "n-0")], (1, 1)),
+    ],
+)
+def test_a_card_identity_multiset_fails_closed(
+    value: Any, offers: list[dict[str, Any]], bounds: tuple[int, int] | None
+) -> None:
+    with pytest.raises(ml.MidgameLaneError):
+        _discard(value, offers, bounds)
+
+
 # --------------------------------------------------------------------------- #
 # Review fixes: row membership, absent sources, players in the game, blocks
 # --------------------------------------------------------------------------- #
@@ -589,6 +751,9 @@ WORKSTREAM_ROWS = {
     "NEGATIVE_INTERNAL_AI",
     "PILOT_CHOICE",
     "PILOT_CHOOSE_ABILITY",
+    # #441 contract 1.0.21: two causal extra turns.
+    "WS05-MP-TURN-3",
+    "WS05-MP-TURN-5",
     # #441 contract 1.0.21: the layer tokens as discriminating readbacks.
     "MICRO_LAYERS",
 }
