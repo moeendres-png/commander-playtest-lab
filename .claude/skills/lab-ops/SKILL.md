@@ -15,12 +15,31 @@ change GitHub state. Run them from the Lab worktree root.
 | Why a job is red (failure lines with context) | `scripts/gh_ops.py errors JOB_ID` |
 | Wait for CI on PRs / for one workflow run | `scripts/gh_ops.py wait 544` · `scripts/gh_ops.py run RUN_ID` (background) |
 | PB-03 packet: identity, sha256 check, AF00-AF11 per candidate | `scripts/pb03_packet.py RUN_ID OUT [--into .]` |
+| Seal an epoch (packet + manifests + the required secret scan, before any push) | `scripts/seal.py RUN_ID [--replace OLD_EPOCH]` on a fresh branch from main |
 | Real-engine rows | `scripts/real_rows.py build` then `midgame FIX…`, `cardinality CAND`, `pregame CAND`, `af04 CAND PKG` (Forge: `--forge PATH`, `xvfb-run -a`) |
 
 `gh_ops.py` uses `gh api`: REST plus the CCR thread route
 `repos/{o}/{r}/pulls/{n}/ccr/review_threads`. GraphQL is not available in Claude
 Code sessions. The same CCR prefix also serves `…/ccr/comments/{id}/resolve` and
 `…/ccr/auto_merge`. `ci-definition-integrity-shadow` is reported as red by design (CI-02).
+`status`/`wait` report one verdict per check name. A cancelled duplicate run never hides
+a run of the same check that reached a result. A re-triggered workflow leaves such
+duplicates, and the raw check list then shows false red.
+
+## Local test environment
+
+A fresh container has no project venv. Create one outside the worktree and point
+it at the worktree under test:
+
+```
+uv venv -q -p 3.12 "$SCRATCH/venv" && VIRTUAL_ENV="$SCRATCH/venv" uv pip install -q -e ".[dev]"
+rm -rf src/*.egg-info   # the editable install writes it into src/; PB-03 trigger tests then fail
+PYTHONPATH="$PWD/src" "$SCRATCH/venv/bin/python" -m pytest -q -p no:cacheprovider tests/qualification
+```
+
+`PYTHONPATH` keeps another worktree's editable install from shadowing this one. The
+broad secret scan writes `artifacts/security/`; delete it before committing
+(`seal.py` keeps its report in scratch).
 
 ## Working efficiently without losing evidence quality
 

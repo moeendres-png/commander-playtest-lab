@@ -1,0 +1,42 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "forge",
+  "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+  "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+  "obligation_exercised": {
+    "forbidden_events": [],
+    "obligation_digest": "8935ad928e36d0789756d890384c21489907036265103662f6e6e2689d85d11e",
+    "requested_state_digest": "4ef0d4b710d1471168799afc1c4f4b72ae5b615aae4912bfddd323bbee5c3441",
+    "required_events": [
+      "commander_zone_event:hand",
+      "commander_choice:command"
+    ],
+    "terminal_postconditions": [
+      "Commander is in command zone after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+    ]
+  },
+  "observed_assertion": {
+    "checkpoint_basis": "PRE_CAUSAL_POSITION_THEN_CAUSED_STACK",
+    "checkpoint_variance_source": null,
+    "checkpoint_verdict": "EXACT",
+    "engine_authored_decision_count": 27,
+    "external_decision_selection_sha256": "6fc9134bf25df3f138cb3491327445ccbf749ccc11be64fcf82b82035c1db24d",
+    "native_bootstrap_applied": true,
+    "obligation_kind": "commander_zone_choice",
+    "requested_checkpoint_verdict": "EXACT",
+    "row_document_sha256": "422ce1ec8abfea4b29bc7c06e7c51a2512bcd267d654e658f11c7abfa4680015",
+    "semantic_events": [
+      "commander_zone_event:hand",
+      "commander_choice:command"
+    ],
+    "terminal_facts_sha256": "fabd87a6f25782b697f74d46fc350d0ec31ce6ed54bac23e78d04295de3ec4e7"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "e3ca30610602cb0974ef040c87fbf37b95707585361990ed192643a5ee50b222",
+  "runner_digest": "63b063c7c08026a2a89960b1d4123673902edb56f355ffae1d629eff4453f0fb",
+  "runtime_receipt_digest": "422ce1ec8abfea4b29bc7c06e7c51a2512bcd267d654e658f11c7abfa4680015",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-ZONE-HAND-YES"
+}

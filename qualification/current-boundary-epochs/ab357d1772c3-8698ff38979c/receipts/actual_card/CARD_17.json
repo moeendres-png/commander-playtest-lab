@@ -1,0 +1,64 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_17",
+  "obligation_exercised": {
+    "obligation_digest": "8c1fc624e8ed86ef820c1ffc52e3f1f9142a080898b9a9de6aa0e013a97e8410",
+    "requested_state_digest": "7541eec769ad239cfebd2970b9c6079e4d0cb8dc422643aa593e6fcb38e747c0",
+    "required_events": [
+      "opponent_spell_cast",
+      "Kaervek_trigger",
+      "damage:P2:4"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "P2 is dealt 4 damage by Kaervek before the triggering spell resolves if no responses intervene."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "3e7e911846877cbc424e6b1209acde8ab6f0283a5f3d56b15637ef93517e9c63",
+      "size": 7107607
+    },
+    "postcondition_proofs": [
+      {
+        "held": true,
+        "kind": "event_token",
+        "postcondition": "P2 is dealt 4 damage by Kaervek before the triggering spell resolves if no responses intervene.",
+        "token": "damage:P2:4"
+      }
+    ],
+    "terminal_facts": {},
+    "token_evidence": {
+      "Kaervek_trigger": {
+        "events": [
+          9
+        ]
+      },
+      "damage:P2:4": {
+        "events": [
+          11
+        ]
+      },
+      "opponent_spell_cast": {
+        "binding": "at least one SPELL_CAST event(s) with player_player=P2",
+        "events": [
+          8
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "6d64c1b664e076397282c6d9174a0b978bd55a29c7acd0b8ffb8cfab6b238804",
+  "runner_digest": "63b063c7c08026a2a89960b1d4123673902edb56f355ffae1d629eff4453f0fb",
+  "runtime_receipt_digest": "238c106b750231f410714b7f64e3b220744ca59e1c726301b02cd573db0a89b3",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_17"
+}

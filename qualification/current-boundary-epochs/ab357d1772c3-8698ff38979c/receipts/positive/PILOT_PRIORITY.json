@@ -1,0 +1,43 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_PRIORITY",
+  "obligation_exercised": {
+    "obligation_digest": "1b97304e08f664c5c0100298d433e1eafc75ecd41fd671b855451e0bbc49c191",
+    "requested_state_digest": "6cde35b1ecea77ed5e4eef8447eb064173b88a95754224b0223720f364995f8d",
+    "required_events": [
+      "priority_decision_frame:P1",
+      "spell_cast:obj:pilot-bolt"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Selected cast action was among provider-offered legal options and no adapter legality was invented."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "priority_decision_frame:P1": {
+        "decision_frames": [
+          0
+        ]
+      },
+      "spell_cast:obj:pilot-bolt": {
+        "events": [
+          8
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "afbed9d5ea8ad5f7c04424f49e7de95f399ca2106681c6f7b2812a376f864b10",
+  "runner_digest": "63b063c7c08026a2a89960b1d4123673902edb56f355ffae1d629eff4453f0fb",
+  "runtime_receipt_digest": "faca3f2c5f8f24d3f30abf54f313b0d4da05dbbc2eb77cb69354c6cc216236aa",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_PRIORITY"
+}

@@ -1,0 +1,217 @@
+{
+  "assertion_class": "KNOWLEDGE_BOUNDARY_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+  "fixture_id": "HIDDEN_01",
+  "obligation_exercised": {
+    "forbidden_events": [
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+    ],
+    "obligation_digest": "b541729ede29455d262e7d8dcee1284bf4469d340f392052554566f14a2552fe",
+    "requested_state_digest": "e7952c7ebe74294bf190dc3873c6fb26d352ffa40fcba2bdd23fefb0703810ca",
+    "required_events": [
+      "knowledge_projection:HIDDEN_01:P1"
+    ],
+    "terminal_postconditions": [
+      "P1 observation exactly respects declared viewer state.",
+      "No prohibited metadata appears in any tested channel.",
+      "Knowledge invalidation/permission persistence follows the declared conditions."
+    ],
+    "viewer_obligation": "opponent hand identities absent while count remains visible"
+  },
+  "observed_assertion": {
+    "channel_coverage": {
+      "ability_metadata": 72,
+      "context": 11,
+      "event": 7,
+      "log": 216,
+      "option_id": 52,
+      "option_label": 52,
+      "option_metadata": 52,
+      "pile_metadata": 0,
+      "prompt": 11,
+      "source_metadata": 11,
+      "state": 24,
+      "transcript": 106
+    },
+    "checks": [
+      {
+        "detail": "arrival EXACT, construction_match True, mismatches []",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "construction_exact"
+      },
+      {
+        "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "lossless_checks_performed"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P1"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P2"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P3"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P4"
+      },
+      {
+        "detail": "4 distinct principal ids for 4 seats",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "distinct_principals"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P1"
+      },
+      {
+        "detail": "every channel carried content",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scan_coverage"
+      },
+      {
+        "detail": "each honey sentinel is found in the harness's own create request",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_sentinel_in_request"
+      },
+      {
+        "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_honey_identity_where_entitled"
+      },
+      {
+        "detail": "P1's view of P2 carries no hand array and no private state",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "opponent_hand_hidden:P2"
+      },
+      {
+        "detail": "requested 8, P1 sees 8",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "opponent_hand_count_visible:P2"
+      },
+      {
+        "detail": "P1's view of P3 carries no hand array and no private state",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "opponent_hand_hidden:P3"
+      },
+      {
+        "detail": "requested 7, P1 sees 7",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "opponent_hand_count_visible:P3"
+      },
+      {
+        "detail": "P1's view of P4 carries no hand array and no private state",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "opponent_hand_hidden:P4"
+      },
+      {
+        "detail": "requested 7, P1 sees 7",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "opponent_hand_count_visible:P4"
+      },
+      {
+        "detail": "P2's own projection lists the requested hand object",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "owner_sees_own_hand_object:obj:hidden-hand"
+      }
+    ],
+    "forbidden_evidence": {
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+        "ambiguous_tokens_not_scanned": {},
+        "occurrences": [],
+        "tokens_scanned": [
+          "Demonic Tutor",
+          "Vampiric Tutor",
+          "WS30_HONEY_P2_PRIVATE_7F3A",
+          "obj:hidden-hand",
+          "obj:hidden-lib-0"
+        ]
+      }
+    },
+    "token_evidence": {
+      "knowledge_projection:HIDDEN_01:P1": [
+        {
+          "detail": "P1's view of P2 carries no hand array and no private state",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "opponent_hand_hidden:P2"
+        },
+        {
+          "detail": "requested 8, P1 sees 8",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "opponent_hand_count_visible:P2"
+        },
+        {
+          "detail": "P1's view of P3 carries no hand array and no private state",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "opponent_hand_hidden:P3"
+        },
+        {
+          "detail": "requested 7, P1 sees 7",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "opponent_hand_count_visible:P3"
+        },
+        {
+          "detail": "P1's view of P4 carries no hand array and no private state",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "opponent_hand_hidden:P4"
+        },
+        {
+          "detail": "requested 7, P1 sees 7",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "opponent_hand_count_visible:P4"
+        },
+        {
+          "detail": "P2's own projection lists the requested hand object",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "owner_sees_own_hand_object:obj:hidden-hand"
+        }
+      ]
+    },
+    "viewer": "P1"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "5f62fd19bb52c9c7623f4a8f8052ddf95ebe728a05b80f317b7a4692056655ee",
+  "runner_digest": "63b063c7c08026a2a89960b1d4123673902edb56f355ffae1d629eff4453f0fb",
+  "runtime_receipt_digest": "539660923496bcbd51c76209bc48b7dd49070422d3cd74d1329de95ee1680257",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:knowledge-projection#HIDDEN_01"
+}

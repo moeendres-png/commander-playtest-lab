@@ -1,0 +1,42 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "forge",
+  "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+  "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+  "obligation_exercised": {
+    "forbidden_events": [],
+    "obligation_digest": "a834bbd008422140a7b17cd2a11df7ee26ffe4b503072101e14c71ae29d7e8d2",
+    "requested_state_digest": "e9ed2b5fb703d236aaf6a96886ac442f0cf46b5911a325ea7286664adabc14fe",
+    "required_events": [
+      "commander_zone_event:exile",
+      "commander_choice:exile"
+    ],
+    "terminal_postconditions": [
+      "Commander is in exile after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+    ]
+  },
+  "observed_assertion": {
+    "checkpoint_basis": "PRE_CAUSAL_POSITION_THEN_CAUSED_STACK",
+    "checkpoint_variance_source": null,
+    "checkpoint_verdict": "EXACT",
+    "engine_authored_decision_count": 27,
+    "external_decision_selection_sha256": "1bd03b37ef11e2358846eada2014265f484154a5b1f770c7e253f2a3b69ab9e8",
+    "native_bootstrap_applied": true,
+    "obligation_kind": "commander_zone_choice",
+    "requested_checkpoint_verdict": "EXACT",
+    "row_document_sha256": "eaed10f4bd5c9bbb34741c848989539399984dd547c9821a79d12e923ff45d3f",
+    "semantic_events": [
+      "commander_zone_event:exile",
+      "commander_choice:exile"
+    ],
+    "terminal_facts_sha256": "c0c2d16f8e8e1fbcd054288f6ad8a867e46bdba7c6bec5af299fb4f55d2b87dc"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "bba61f15fa73f3e997482e8cc669aa1b9349d976af7f8294cfa1bb3f1d6bcf90",
+  "runner_digest": "63b063c7c08026a2a89960b1d4123673902edb56f355ffae1d629eff4453f0fb",
+  "runtime_receipt_digest": "eaed10f4bd5c9bbb34741c848989539399984dd547c9821a79d12e923ff45d3f",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-ZONE-EXILE-NO"
+}

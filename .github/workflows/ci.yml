@@ -66,7 +66,9 @@ jobs:
         # B5 (#486): tests/qualification is owned by the required infrastructure
         # context (production-qualification.yml); every other test runs here.
         # tests/unit/test_required_test_ownership.py keeps each file to one owner.
-        run: pytest -q --ignore=tests/qualification
+        # Priority E1 (#479): per-test durations (log) and JUnit XML (ci-evidence
+        # artifact) are reporting only; they never change collection or outcome.
+        run: pytest -q --durations=50 --junitxml=artifacts/quality/pytest-junit.xml --ignore=tests/qualification
       - name: Compile
         if: ${{ success() || failure() }}
         run: python -m compileall -q src tests

@@ -38,7 +38,17 @@ def api(path: str, *, raw: bool = False) -> Any:
 
 
 def checks(repo: str, sha: str) -> tuple[list[str], list[str], list[str]]:
-    runs = api(f"repos/{repo}/commits/{sha}/check-runs?per_page=100")["check_runs"]
+    every = api(f"repos/{repo}/commits/{sha}/check-runs?per_page=100")["check_runs"]
+    # One verdict per check name: the newest run, except that a cancelled run (a
+    # superseded duplicate) never hides a newer-or-older run that reached a result.
+    by_name: dict[str, list[dict[str, Any]]] = {}
+    for r in every:
+        by_name.setdefault(r["name"], []).append(r)
+    runs = []
+    for group in by_name.values():
+        group.sort(key=lambda r: r["id"], reverse=True)
+        decided = [r for r in group if r["conclusion"] != "cancelled"]
+        runs.append(decided[0] if decided else group[0])
     pending = sorted(r["name"] for r in runs if r["status"] != "completed")
     red = sorted(
         r["name"]
