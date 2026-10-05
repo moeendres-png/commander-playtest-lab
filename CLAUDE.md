@@ -1,23 +1,29 @@
 # Commander Simulator Next — Claude entrypoint
 
-Before doing project work, read and follow the repository-root `AGENTS.md`.
+Before project work, read repository-root AGENTS.md. It is the canonical
+always-on policy router; do not preload every routed policy file. Load only the
+policy modules whose triggers match the active task, plus
+docs/CURRENT_EXECUTION_AUTHORITY.md and the active workstream/campaign contract
+for substantial execution.
 
-`AGENTS.md` is the canonical durable agent policy. This file is only the Claude-specific
-entrypoint and is **not an independent policy source**. If this file and `AGENTS.md`
-appear to disagree, `AGENTS.md` governs.
+For an explicitly authorized Claude Opus engineering campaign, use the campaign
+authority routed by AGENTS.md: fresh repository evidence, bounded write
+ownership, autonomous technical completion, protected-branch merge discipline,
+and Coordinator-only Provider/Freeze gates remain binding.
 
-Also read the current execution-authority document referenced by `AGENTS.md` and the
-active workstream/campaign contract or durable checkpoint for the session.
+## Context-efficient defaults
 
-For an explicitly authorized **Claude Opus 5.5** engineering campaign, apply the
-autonomous campaign authority defined in `AGENTS.md`: challenge technical assumptions,
-use fresh repository evidence, complete owned milestones end to end, and continue to the
-next high-value unowned task inside the same campaign objective without routine user
-round-trips.
+- For broad orientation, use repo-map before reading many files.
+- When Serena is available, prefer its read-only symbolic navigation for
+  definitions/references over repeated whole-file reads.
+- Use find-docs for current external library/API documentation.
+- Use bounded-context-pack only for bounded multi-file/cross-repo snapshots.
+- The project RTK hook is an efficiency layer. For commands whose exact,
+  unfiltered output will become authoritative evidence, prefix the command with
+  COMMANDER_RAW_EVIDENCE=1; the hook then passes it through unchanged.
+- Compression, repo maps, Serena, Context7 and Repomix never upgrade evidence.
+  Inspect authoritative raw source/output before a material PASS claim.
 
-Fresh repository state outranks historical handoffs. Project-wide read access does not
-imply project-wide write authority. Respect active ownership, Rules/evidence/privacy
-boundaries, Git safety, protected branches and all Coordinator-only gates.
-
-Historical documents that state this repository had no `CLAUDE.md` remain provenance of
-their own earlier source locks; they are not current instruction surfaces.
+Fresh repository state outranks historical handoffs. Historical documents that
+say this repository had no CLAUDE.md remain provenance of their earlier source
+locks, not current instruction surfaces.
