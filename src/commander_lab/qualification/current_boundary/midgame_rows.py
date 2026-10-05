@@ -99,6 +99,11 @@ class TerminalCheck:
             return f"{self.card_identity} is in {self.principal}'s graveyard"
         if self.kind == "selected_frame":
             return f"a scripted {self.value} frame selected an engine offer naming {self.label!r}"
+        if self.kind == "scripted_frame":
+            return (
+                f"the engine asked {self.principal} a {self.value} frame whose prompt names "
+                f"{self.label!r}, and the record's script answered it"
+            )
         if self.kind == "no_frame":
             who = f" of {self.principal}" if self.principal else ""
             about = f" about {self.label!r}" if self.label else ""
@@ -315,6 +320,13 @@ def engine_decision_class(family: str) -> str:
 BOOLEAN_DECISION_CLASS = "choose_use"
 BOOLEAN_QUESTION_FAMILIES = frozenset({"choice", "replacement_effect"})
 
+# A pile split (Fact or Fiction's "an opponent separates"): XMage asks the
+# separating player to select the cards of the first pile on its object frame
+# (HIDDEN_13's reviewed route), and the record's ``partition`` names that
+# first pile as ``pile_a`` (contract 1.0.21 PILOT_PILE partition_binding).
+# The pile the chooser then takes is XMage's own ``pile`` frame.
+PARTITION_DECISION_CLASS = "choose_object"
+
 
 def step_decision_class(step: dict[str, Any]) -> str:
     """The engine decision class a record's scripted step answers."""
@@ -322,6 +334,8 @@ def step_decision_class(step: dict[str, Any]) -> str:
     selector = str((step.get("selection") or {}).get("selector_kind") or "")
     if selector == "boolean" and family in BOOLEAN_QUESTION_FAMILIES:
         return BOOLEAN_DECISION_CLASS
+    if selector == "partition" and family == "pile":
+        return PARTITION_DECISION_CLASS
     return engine_decision_class(family)
 
 
@@ -731,6 +745,61 @@ ROWS: dict[str, RowSpec] = {
     ),
     # The sibling refusal on the engine's own attack declaration frame.
     "NEGATIVE_INTERNAL_AI": RowSpec(),
+    # PILOT_PILE (contract 1.0.21 E3): P1 casts Fact or Fiction from its
+    # declared Islands; on resolution P1 names P2 to separate, and XMage asks
+    # P2 to select the first pile on its object frame (the record's pile_a:
+    # two of the five revealed cards); P1 then takes "Pile 1". The partition
+    # is what the engine did with the five cards: the first pile's two go to
+    # P1's hand, the second pile's three (the record's pile_b) to the
+    # graveyard, after P1's scripted pile choice.
+    "PILOT_PILE": RowSpec(
+        mana_sources=tuple(f"obj:fof-island-{index}" for index in range(4)),
+        token_bindings=(
+            (
+                "pile_frame:P2",
+                TerminalCheck(
+                    "scripted_frame", principal="P2", value="choose_object", label="first pile"
+                ),
+            ),
+            (
+                "partition_created:2/3",
+                (
+                    *(
+                        _exactly(
+                            _event(
+                                "ZONE_CHANGE",
+                                ("target_object", obj),
+                                ("from", "LIBRARY"),
+                                ("to", "GRAVEYARD"),
+                                ("source_object", "obj:fof"),
+                            ),
+                            1,
+                        )
+                        for obj in ("obj:fof-2", "obj:fof-3", "obj:fof-4")
+                    ),
+                    _exactly(
+                        _event(
+                            "ZONE_CHANGE",
+                            ("from", "LIBRARY"),
+                            ("to", "GRAVEYARD"),
+                            ("source_object", "obj:fof"),
+                        ),
+                        3,
+                    ),
+                    _exactly(
+                        _event(
+                            "ZONE_CHANGE",
+                            ("from", "LIBRARY"),
+                            ("to", "HAND"),
+                            ("source_object", "obj:fof"),
+                        ),
+                        2,
+                    ),
+                    TerminalCheck("selected_frame", value="pile", label="Pile 1"),
+                ),
+            ),
+        ),
+    ),
     # The yes/no sibling (contract 1.0.21 E2b): P1 casts Centaur Courser from
     # its declared Forests; it enters, P1's Garruk's Packleader triggers and the
     # engine asks "you may draw a card" on its own yes/no frame, which the
@@ -2397,6 +2466,8 @@ def check_terminal(
         return check.card_identity in (seat.get("graveyard") or ())
     if check.kind == "selected_frame":
         return bool(_selected_frames(check, trace))
+    if check.kind == "scripted_frame":
+        return bool(_scripted_frames(check, trace))
     if check.kind == "no_frame":
         return not any(
             frame.decision_class == check.value
@@ -2561,6 +2632,19 @@ def _selected_frames(check: TerminalCheck, trace: list[Frame]) -> list[int]:
     ]
 
 
+def _scripted_frames(check: TerminalCheck, trace: list[Frame]) -> list[int]:
+    wanted = str(check.label or "").lower()
+    return [
+        index
+        for index, frame in enumerate(trace)
+        if frame.decision_class == check.value
+        and frame.principal == check.principal
+        and frame.scripted
+        and wanted
+        and wanted in frame.prompt.lower()
+    ]
+
+
 LIBRARY_SHUFFLE_CHANNEL = re.compile(r"library_shuffle:(P\d+)")
 
 
@@ -2639,6 +2723,8 @@ def bound_token_evidence(
         evidence["events"] = [event["sequence"] for event in matching_events(check, tape)]
     elif check.kind == "selected_frame":
         evidence["decision_frames"] = _selected_frames(check, trace)
+    elif check.kind == "scripted_frame":
+        evidence["decision_frames"] = _scripted_frames(check, trace)
     elif check.kind == "extra_turn_created":
         evidence["decision_frames"] = _extra_turn_frames(check, trace)
     else:
@@ -3089,6 +3175,22 @@ def _semantic_offers(
     return []
 
 
+def _partition_first_pile(value: Any) -> Any:
+    """The first pile of a record's partition, which the engine asks as a selection.
+
+    Both piles must be disjoint, non-empty lists, so the second pile is what
+    the selection leaves; anything else fails closed.
+    """
+    if not isinstance(value, dict) or set(value) != {"pile_a", "pile_b"}:
+        raise ml.MidgameLaneError(f"partition carries {value!r}")
+    first, second = value["pile_a"], value["pile_b"]
+    if not isinstance(first, list) or not isinstance(second, list) or not first or not second:
+        raise ml.MidgameLaneError(f"partition piles must be non-empty lists: {value!r}")
+    if set(map(str, first)) & set(map(str, second)):
+        raise ml.MidgameLaneError(f"partition piles overlap: {value!r}")
+    return first
+
+
 def _requested_objects(value: Any) -> list[str]:
     """The ordered semantic object identities a multi-select value names."""
     if not isinstance(value, list) or not value:
@@ -3188,11 +3290,14 @@ def _scripted_answer(
                 f"the record selects nothing, the engine frame requires {bounds}"
             )
         return ScriptedAnswer(None, key="none")
-    elif kind == "semantic_objects":
+    elif kind in ("semantic_objects", "partition"):
         # A multi-select target frame: the record names the complete requested
         # set; every identity must map to exactly one engine-offered target and
         # the set's cardinality must be authorized by the pending frame itself.
-        requested = _requested_objects(value)
+        # A partition is answered as the selection of its first pile.
+        requested = _requested_objects(
+            _partition_first_pile(value) if kind == "partition" else value
+        )
         selected = []
         for requested_key in requested:
             found = _semantic_offers(requested_key, actions, placed)
@@ -3273,6 +3378,13 @@ def _scripted_answer(
             raise ml.MidgameLaneError(f"semantic_choice_key selector carries {value!r}")
         key = normal
         matches = [a for a in actions if _option_type(a) == "choice" and _choice_key(a) == key]
+    elif kind == "pile_label":
+        # A pile frame offers its piles by label ("Pile 1", "Pile 2"); exactly
+        # one engine offer must carry the record's label (HIDDEN_13's route).
+        if not isinstance(value, str) or not value.strip():
+            raise ml.MidgameLaneError(f"pile_label selector carries {value!r}")
+        key = value.strip()
+        matches = [a for a in actions if _label_of(a).strip() == key]
     elif kind == "boolean":
         # A yes/no frame: the engine's own boolean offer whose value is the
         # record's answer; the label is never read.

@@ -705,6 +705,8 @@ WORKSTREAM_ROWS = {
     "WS05-MP-TURN-5",
     # #441 contract 1.0.21 E2b: the yes/no fail-closed sibling.
     "NEGATIVE_DEFAULT_YES_NO",
+    # #441 contract 1.0.21 E3: Fact or Fiction cast through the causal stack.
+    "PILOT_PILE",
 }
 
 
@@ -781,3 +783,75 @@ def test_a_probe_refuses_only_a_frame_of_its_own_decision_class() -> None:
     }
     assert mr.step_decision_class(probe) == "choose_use"
     assert mr.step_decision_class({**probe, "decision_family": "priority"}) == "priority"
+
+
+def test_a_partition_is_asked_as_its_first_pile_on_the_object_frame() -> None:
+    step = {
+        "decision_family": "pile",
+        "selection": {
+            "selector_kind": "partition",
+            "semantic_value": {"pile_a": ["obj:a", "obj:b"], "pile_b": ["obj:c"]},
+        },
+    }
+    assert mr.step_decision_class(step) == "choose_object"
+    label = {"decision_family": "pile", "selection": {"selector_kind": "pile_label"}}
+    assert mr.step_decision_class(label) == "pile"
+    assert mr._partition_first_pile(step["selection"]["semantic_value"]) == ["obj:a", "obj:b"]
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        None,
+        {"pile_a": ["obj:a"]},
+        {"pile_a": [], "pile_b": ["obj:c"]},
+        {"pile_a": ["obj:a"], "pile_b": []},
+        {"pile_a": ["obj:a"], "pile_b": ["obj:a"]},
+        {"pile_a": "obj:a", "pile_b": ["obj:c"]},
+    ],
+)
+def test_a_malformed_partition_fails_closed(value: Any) -> None:
+    with pytest.raises(ml.MidgameLaneError):
+        mr._partition_first_pile(value)
+
+
+def _pile_label_offer(label: str) -> dict[str, Any]:
+    return {"metadata": {"option_type": "pile", "option_id": f"pile-{label}", "label": label}}
+
+
+def test_a_pile_label_selects_exactly_the_named_pile() -> None:
+    step = {"decision_family": "pile", "selection": {"selector_kind": "pile_label"}}
+    offers = {"actions": [_pile_label_offer("Pile 1"), _pile_label_offer("Pile 2")]}
+    chosen = mr._scripted_answer(
+        offers,
+        {**step, "selection": {**step["selection"], "semantic_value": "Pile 1"}},
+        {},
+        mr.RowSpec(),
+    )
+    assert mr._label_of(chosen.action) == "Pile 1"
+    for bad in ("Pile 3", "", None):
+        with pytest.raises(ml.MidgameLaneError):
+            mr._scripted_answer(
+                offers,
+                {**step, "selection": {**step["selection"], "semantic_value": bad}},
+                {},
+                mr.RowSpec(),
+            )
+
+
+def test_a_scripted_frame_needs_the_principal_the_class_and_the_prompt() -> None:
+    check = mr.TerminalCheck(
+        "scripted_frame", principal="P2", value="choose_object", label="first pile"
+    )
+    asked = mr.Frame(
+        "choose_object", "P2", [], scripted=True, prompt="Select cards to put in the first pile"
+    )
+    assert mr.check_terminal(check, {}, [], [asked])
+    assert mr.bound_token_evidence(check, {}, [], [asked])["decision_frames"] == [0]
+    for other in (
+        mr.Frame("choose_object", "P3", [], scripted=True, prompt=asked.prompt),
+        mr.Frame("choose_object", "P2", [], scripted=False, prompt=asked.prompt),
+        mr.Frame("target", "P2", [], scripted=True, prompt=asked.prompt),
+        mr.Frame("choose_object", "P2", [], scripted=True, prompt="Select a card to discard"),
+    ):
+        assert not mr.check_terminal(check, {}, [], [other])

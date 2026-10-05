@@ -8,12 +8,18 @@ payment does not satisfy it.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import pytest
 
 from commander_lab.qualification.current_boundary import midgame_lane as ml
 from commander_lab.qualification.current_boundary import midgame_rows as mr
+from commander_lab.qualification.current_boundary.materialization import (
+    load_effective_materialization,
+)
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _binding(fixture_id: str, token: str) -> Any:
@@ -182,10 +188,19 @@ def test_the_attack_refusal_is_verified_by_the_records_vocabulary_alone() -> Non
     assert mr.ROWS["NEGATIVE_INTERNAL_AI"] == mr.RowSpec()
 
 
-def test_the_yes_no_refusal_has_no_spec_until_its_scenario_is_reachable() -> None:
-    # Its record's known library top card is not restored by the lane, and
-    # XMage asks scry as a card selection rather than a yes/no question.
-    assert "NEGATIVE_DEFAULT_YES_NO" not in mr.ROWS
+def test_the_yes_no_refusal_runs_only_on_its_reachable_scenario() -> None:
+    # Contract 1.0.21 E2b replaced the scry (a card selection on XMage) with
+    # Garruk's Packleader's optional draw, a genuine yes/no question caused by
+    # a scripted Centaur Courser cast; the spec pays only from the record's
+    # declared Forests, and the probe refuses the record's choose_use frame.
+    record = load_effective_materialization(REPO_ROOT).record("NEGATIVE_DEFAULT_YES_NO")
+    assert "Packleader" in record["negative_fallback_probe"]["production_reachable_trigger"]
+    (cost,) = record["action_cost_state"]
+    spec = mr.ROWS["NEGATIVE_DEFAULT_YES_NO"]
+    assert spec.mana_sources == tuple(cost["explicit_payment_sources"])
+    probe = record["decision_script"][-1]
+    assert probe["selection"]["selector_kind"] == "fail_closed_probe"
+    assert mr.step_decision_class(probe) == "choose_use"
 
 
 # --------------------------------------------------------------------------- #
