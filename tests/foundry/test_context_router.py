@@ -112,7 +112,9 @@ def test_no_route_broadens_to_full_state(scratch: dict, tmp_path: Path) -> None:
     )
     assert plan["route_mode"] == "BROAD_FALLBACK"
     assert plan["full_state_read_required"] is True
-    assert plan["read_next"] == [str(state)]
+    assert plan["full_state_reference"] == "$FOUNDRY_STATE_PATH"
+    assert plan["read_next"] == ["$FOUNDRY_STATE_PATH"]
+    assert str(state) not in json.dumps(plan)
     assert "PRIVATE_SENTINEL" not in json.dumps(plan)
 
 
@@ -166,6 +168,35 @@ def test_profile_repository_mismatch_rejected(scratch: dict, tmp_path: Path) -> 
 def test_branch_identity_reuses_capsule_fail_closed_gate(scratch: dict, tmp_path: Path) -> None:
     state = write_state(tmp_path / "state.yaml", scratch, branch="wrong")
     with pytest.raises(router.RouterError, match="branch mismatch"):
+        router.derive_plan(
+            str(state),
+            str(scratch["root"]),
+            "cpl",
+            write_profiles(tmp_path),
+        )
+
+
+@pytest.mark.parametrize(
+    "unsafe_path",
+    [
+        "/etc/passwd",
+        "../escape.py",
+        "src/../escape.py",
+        "C:\\secret\\file.py",
+        "src/*.py",
+        "src/:magic",
+        " src/file.py",
+    ],
+)
+def test_changed_paths_reject_unsafe_or_magic_paths(
+    scratch: dict, tmp_path: Path, unsafe_path: str
+) -> None:
+    state = write_state(
+        tmp_path / "state.yaml",
+        scratch,
+        files_modified=[unsafe_path],
+    )
+    with pytest.raises(router.RouterError, match="bounded repository-relative path"):
         router.derive_plan(
             str(state),
             str(scratch["root"]),
@@ -283,6 +314,33 @@ def test_repo_map_prefix_and_depth_are_explicit(scratch: dict) -> None:
             expected_slug="example/repo",
             expected_head=scratch["head"],
             prefixes=["../escape"],
+        )
+
+
+def test_repo_map_prefix_count_is_bounded(scratch: dict) -> None:
+    prefixes = [f"src/p{i}" for i in range(router.MAX_MAP_PREFIXES + 1)]
+    with pytest.raises(router.RouterError, match="at most"):
+        router.build_repo_map(
+            str(scratch["root"]),
+            expected_slug="example/repo",
+            expected_head=scratch["head"],
+            prefixes=prefixes,
+        )
+
+
+@pytest.mark.parametrize(
+    "unsafe_prefix",
+    ["/src", "../src", "src/*", ":(glob)src/**", "C:\\src"],
+)
+def test_repo_map_rejects_unsafe_prefixes(
+    scratch: dict, unsafe_prefix: str
+) -> None:
+    with pytest.raises(router.RouterError, match="bounded repository-relative path"):
+        router.build_repo_map(
+            str(scratch["root"]),
+            expected_slug="example/repo",
+            expected_head=scratch["head"],
+            prefixes=[unsafe_prefix],
         )
 
 
