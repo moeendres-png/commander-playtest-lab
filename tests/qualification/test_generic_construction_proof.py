@@ -348,7 +348,16 @@ def _run(state: dict | None, *, supported: bool = True) -> CommandedGameResult:
 
 def _keep(seat: str) -> DecisionTapeEntry:
     return DecisionTapeEntry(
-        "mulligan", "KEEP_OR_MULLIGAN", seat, 1, "record_plan", "keep", ["keep"], "planned"
+        "mulligan",
+        "KEEP_OR_MULLIGAN",
+        f"engine-{seat}",
+        1,
+        "record_plan",
+        None,
+        ["opt-keep"],
+        "planned",
+        seat=seat,
+        keep=True,
     )
 
 
@@ -552,7 +561,9 @@ def test_the_cardinality_row_needs_the_records_own_pregame(record) -> None:
         assert "record's plan" in row.reason
     mulligan = _run(_state())
     mulligan.decision_tape = [
-        DecisionTapeEntry("mulligan", "KEEP_OR_MULLIGAN", "p1", 1, "x", "mulligan", [], ""),
+        DecisionTapeEntry(
+            "mulligan", "KEEP_OR_MULLIGAN", "engine-p1", 1, "x", None, [], "", seat="p1", keep=False
+        ),
         *(_keep(seat) for seat in ("p2", "p3", "p4")),
     ]
     row = full107.cardinality_row(record, mulligan, candidate="xmage", runtime_identity={})

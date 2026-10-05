@@ -188,8 +188,16 @@ def test_every_mulligan_frame_is_answered_from_the_plan_for_its_actor(
     result = _drive(monkeypatch, proc, ASKED_IN_PLAN_ORDER)
     assert result.failure is None
     assert [keep for _, keep in proc.mulligans] == [keep for _, keep in PLAN]
-    tape = [(e.actor, e.chosen_option_id) for e in result.decision_tape if e.step == "mulligan"]
-    assert tape == [(seat, "keep" if keep else "mulligan") for seat, keep in PLAN]
+    tape = [(e.seat, e.keep) for e in result.decision_tape if e.step == "mulligan"]
+    assert tape == list(PLAN)
+    # PB-03 AF04: each frame is taped as the engine offered and executed it, the
+    # engine's own actor and no fabricated option id (a mulligan is a boolean
+    # answer, not an offered option), exactly as on the generic keep path.
+    for entry, (seat, _) in zip(
+        [e for e in result.decision_tape if e.step == "mulligan"], PLAN, strict=True
+    ):
+        assert entry.actor == proc.actor(seat)
+        assert entry.chosen_option_id is None
     assert all(
         e.policy == game_driver.SCRIPTED_MULLIGAN_POLICY
         for e in result.decision_tape
