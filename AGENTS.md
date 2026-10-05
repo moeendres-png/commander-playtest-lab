@@ -277,7 +277,8 @@ may autonomously take such work when it is high-value or necessary and does not:
 
 - cross an active ownership boundary;
 - introduce a genuinely new project objective;
-- alter reserved Rules/evidence/qualification policy;
+- alter reserved Rules/evidence/qualification policy unless the Claude Opus 5.5
+  Coordinator delegation below explicitly applies;
 - select a provider or claim Architecture Freeze;
 - weaken privacy, Rules authority, fail-closed semantics or evidence standards.
 
@@ -286,8 +287,9 @@ repairing CI needed to qualify the work, adding a missing regression harness, pe
 required impact adjudication, or resolving a newly exposed prerequisite.
 
 A genuinely new project objective, shared-architecture decision, Rules dispute,
-evidence-policy change, ownership conflict, Provider Selection or Architecture Freeze
-remains an authority gate.
+evidence-policy change or ownership conflict remains a Coordinator-tier authority gate
+unless the Claude Opus 5.5 delegation below applies. Provider Selection and Architecture
+Freeze remain Owner-only gates.
 
 #### Project-wide read, bounded write
 
