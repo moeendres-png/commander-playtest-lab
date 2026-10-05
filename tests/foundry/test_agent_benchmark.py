@@ -267,6 +267,36 @@ def test_dramatically_worse_candidate_is_not_labeled_favorable() -> None:
     assert "fix_waves" in result["efficiency_regressed_fields"]
 
 
+def test_cost_regression_is_machine_readable() -> None:
+    result = bench.compare(
+        arm("baseline"),
+        arm("candidate", session={"cost_usd": 5.0}),
+    )
+    assert result["disposition"] == "PAIR_MEASURED_EFFICIENCY_REGRESSION"
+    assert "cost_usd" in result["efficiency_regressed_fields"]
+    assert result["efficiency_deltas"]["cost_usd"]["change"] == "increased"
+
+
+def test_checks_run_delta_is_observation_not_efficiency_direction() -> None:
+    result = bench.compare(
+        arm("baseline"),
+        arm("candidate", quality={"checks_run": 4}),
+    )
+    assert "checks_run" not in result["efficiency_improved_fields"]
+    assert "checks_run" not in result["efficiency_regressed_fields"]
+    assert result["efficiency_deltas"]["checks_run"]["change"] == "decreased"
+
+
+def test_cache_read_delta_is_observation_not_efficiency_direction() -> None:
+    result = bench.compare(
+        arm("baseline"),
+        arm("candidate", session={"tokens_cache_read": 100}),
+    )
+    assert "tokens_cache_read" not in result["efficiency_improved_fields"]
+    assert "tokens_cache_read" not in result["efficiency_regressed_fields"]
+    assert result["efficiency_deltas"]["tokens_cache_read"]["change"] == "decreased"
+
+
 def test_mixed_efficiency_has_explicit_disposition() -> None:
     result = bench.compare(
         arm("baseline"),
