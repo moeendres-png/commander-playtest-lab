@@ -113,6 +113,18 @@ def _proof(record, state, **overrides):
     return generic_construction.compare(record, state, **kwargs)
 
 
+def test_recorded_deck_digests_are_named_for_what_they_are(record) -> None:
+    # Sealed epochs carry these documents, and the broad secret scan (gitleaks
+    # generic-api-key) reads a 64-hex value under a field name containing "key"
+    # as a credential. The values are HMAC-SHA-256 digests, never the key.
+    proof = _proof(record, _state())
+    check = next(c for c in proof.checks if c.field == "deck_state.P4.main_deck")
+    document = check.to_document()
+    assert set(document["observed"]) == {"hmac_sha256"}
+    assert set(document["requested"]) == {"card_counts", "hmac_sha256"}
+    assert document["observed"]["hmac_sha256"] == document["requested"]["hmac_sha256"]
+
+
 def test_the_requested_natural_game_start_is_established(record) -> None:
     proof = _proof(record, _state())
     assert proof.verdict == generic_construction.EQUAL, proof.reason()

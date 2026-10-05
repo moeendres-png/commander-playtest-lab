@@ -451,8 +451,8 @@ def compare(
                 if isinstance(observed_digest, str)
                 and hmac.compare_digest(expected, observed_digest)
                 else "MISMATCH",
-                {"card_counts": requested_deck, "keyed_digest": expected},
-                {"keyed_digest": observed_digest},
+                {"card_counts": requested_deck, "hmac_sha256": expected},
+                {"hmac_sha256": observed_digest},
                 "library and hand together are the main deck before any card leaves them; "
                 "compared as digests under this run's orchestration key",
             )
