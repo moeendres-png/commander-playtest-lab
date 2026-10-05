@@ -137,6 +137,16 @@ def test_required_evidence_class_mismatch_rejects_candidate() -> None:
     assert "evidence_class_mismatch" in result["candidate_quality_reasons"]
 
 
+def test_invalid_baseline_quality_cannot_authorize_measured_pair() -> None:
+    result = bench.compare(
+        arm("baseline", quality={"final_validation": "UNKNOWN"}),
+        arm("candidate"),
+    )
+    assert result["baseline_quality_gate"] == "FAIL"
+    assert result["disposition"] == "BASELINE_REJECT_QUALITY"
+    assert result["default_promotion_authorized"] is False
+
+
 def test_missing_core_metrics_is_inconclusive_not_savings_claim() -> None:
     baseline = arm("baseline")
     candidate = arm("candidate")
@@ -200,6 +210,46 @@ def test_cli_rejects_duplicate_json_keys_without_echoing_content(
     captured = capsys.readouterr()
     assert "AGENT_BENCHMARK_REJECT" in captured.out
     assert "PRIVATE_SENTINEL" not in captured.out
+
+
+@pytest.mark.parametrize("kind", ["same", "symlink", "hardlink"])
+def test_cli_output_cannot_alias_input(
+    tmp_path: Path, capsys, kind: str
+) -> None:
+    baseline = tmp_path / "base.json"
+    candidate = tmp_path / "candidate.json"
+    baseline.write_text(json.dumps(arm("baseline")), encoding="utf-8")
+    candidate.write_text(json.dumps(arm("candidate")), encoding="utf-8")
+    before = baseline.read_bytes()
+    output = baseline
+    if kind != "same":
+        output = tmp_path / "alias.json"
+        try:
+            if kind == "symlink":
+                output.symlink_to(baseline)
+            else:
+                import os
+
+                os.link(baseline, output)
+        except OSError:
+            pytest.skip(f"{kind} creation unavailable")
+
+    assert (
+        bench.main(
+            [
+                "--baseline",
+                str(baseline),
+                "--candidate",
+                str(candidate),
+                "--output",
+                str(output),
+            ]
+        )
+        == 2
+    )
+    assert baseline.read_bytes() == before
+    captured = capsys.readouterr()
+    assert "output aliases a benchmark input" in captured.out
 
 
 def test_cli_atomic_output(tmp_path: Path) -> None:
