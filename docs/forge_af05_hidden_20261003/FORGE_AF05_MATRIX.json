@@ -1,5 +1,5 @@
 {
- "bridge_commit": "4ed8992de4bd7bd120c3920c0362533c7c65d822",
+ "bridge_commit": "e746a14b65718c57e832f59a4d082e4a1ffe4180",
  "candidate": "forge",
  "canonical_bundle_digest": "0f6f1701b73cc60ec8422353c5127673b0b25f4a4fa1f5b9a8092621fdf71c49",
  "channels": [
@@ -2577,7 +2577,7 @@
   "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeMain.java": "b3fe9cfde4205d59d80fef53ef35954eadbaa2d0",
   "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java": "d45bd01485ed711ced39e9ec51976b4aa2246845",
   "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java": "94ad4423b9c67d0e3242f5de9b59bce3d9eac7a4",
-  "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java": "15271ab0d590df8cc95fb0f1f93eea447641323a"
+  "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java": "aa979afc8be2dd2d032332aba8e236e65a2e4bcb"
  },
  "sources": {
   "bootstrap": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
