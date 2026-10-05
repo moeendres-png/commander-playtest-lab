@@ -805,6 +805,9 @@ WORKSTREAM_ROWS = {
     "MICRO_CONTROL",
     "WS05-CMD-DMG-CONTROL",
     "WS05-CMD-PARTNER-TAX",
+    # #561: the game-start command-zone obligation, executed on XMage's own
+    # constructed-state readback (Forge already executes it as written).
+    "WS05-CMD-PARTNER-ZONE",
     "WS05-MP-ELIM-STACK-3",
     "WS05-MP-ELIM-CONTROL-3",
     # #441 residuals: rows whose scenario a reviewed sibling already executes.
@@ -831,8 +834,9 @@ WORKSTREAM_ROWS = {
 def test_every_workstream_row_is_produced() -> None:
     assert set(mr.ROWS) >= WORKSTREAM_ROWS
     assert len(mr.ROWS) == 22 + len(WORKSTREAM_ROWS)
-    # The partner-zone row is executed by Forge as written; XMage has no spec.
-    assert "WS05-CMD-PARTNER-ZONE" not in mr.ROWS
+    # The partner-zone row is executed by Forge as written and now has its own
+    # XMage spec (the game-start command-zone readback check).
+    assert "WS05-CMD-PARTNER-ZONE" in mr.ROWS
 
 
 def test_an_absent_source_means_no_source_of_any_kind() -> None:
