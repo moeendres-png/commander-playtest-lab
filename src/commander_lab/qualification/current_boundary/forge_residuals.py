@@ -157,6 +157,12 @@ _DECISION_FAMILIES: dict[str, tuple[str, str]] = {
         "tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card "
         "selection is not externally represented')",
     ),
+    "london_bottom": (
+        PROVIDER_ADAPTER_GAP,
+        "the London mulligan's bottom selection is Forge's tuckCardsViaMulligan, which the "
+        "pinned bridge never answers with a card ('London-tuck card selection is not "
+        "externally represented')",
+    ),
 }
 
 # Requested fields the generic readback cannot show (``unobservable``).
@@ -226,6 +232,12 @@ OBSERVATION: dict[str, str] = {
     "zone_change": READBACK,
     "APNAP_stack_order": READBACK,
     "bottom_count": READBACK,
+    # The layer tokens are characteristic readbacks (CR 613): the abilities and
+    # the power and toughness the layer system yields, never an event (the
+    # contract 1.0.21 MICRO_LAYERS erratum).
+    "layer6_remove_abilities": READBACK,
+    "layer7b_set_pt": READBACK,
+    "layer7c_modify_pt": READBACK,
     # The engine's own decision frames, answered by the Lab (the decision tape).
     "ability_selected": DECISION_FRAME,
     "amount_assignment": DECISION_FRAME,
@@ -275,7 +287,7 @@ OBSERVATION: dict[str, str] = {
     "x_announced": DECISION_FRAME,
     # Only an engine event stream shows these: a rules process with no lasting
     # state and no decision of its own (a would-be amount, an applied
-    # replacement or prevention, a layer, a state-based-action pass, a
+    # replacement or prevention, a state-based-action pass, a
     # simultaneity, a new object incarnation, a Rules RNG outcome, a queued
     # extra turn).
     "combat_damage": EVENT_LOG,
@@ -283,15 +295,22 @@ OBSERVATION: dict[str, str] = {
     "combat_damage_would_be": EVENT_LOG,
     "damage_would_be": EVENT_LOG,
     "extra_turn_created": EVENT_LOG,
-    "layer6_remove_abilities": EVENT_LOG,
-    "layer7b_set_pt": EVENT_LOG,
-    "layer7c_modify_pt": EVENT_LOG,
     "new_object_incarnation": EVENT_LOG,
     "prevention_applied": EVENT_LOG,
     "replacement_effect": EVENT_LOG,
     "rules_rng": EVENT_LOG,
     "simultaneous_trigger_event": EVENT_LOG,
     "state_based_actions": EVENT_LOG,
+}
+
+# Readback tokens whose characteristic the pinned bridge never projects: a
+# provider gap however the lane observes them. Forge's battlefield projection
+# carries each permanent's power and toughness but no abilities.
+UNPROJECTED_READBACK: dict[str, str] = {
+    "layer6_remove_abilities": (
+        "the obligation reads a permanent's abilities and the pinned bridge's battlefield "
+        "projection carries power and toughness but no abilities (no ability readback)"
+    ),
 }
 
 # Obligation kinds the lane already evaluates from engine facts.
@@ -384,7 +403,17 @@ class ForgeResidual:
         }
 
 
-def _construction(dimension: str) -> tuple[str, str]:
+def _family_binding(record: dict[str, Any] | None, family: str) -> str | None:
+    """The provider surface a contract erratum binds ``family`` to, or None."""
+    for step in (record or {}).get("native_procedure") or ():
+        binding = ((step or {}).get("details") or {}).get("decision_family_binding")
+        if isinstance(binding, dict) and binding.get("record_family") == family:
+            surface = binding.get("provider_surface")
+            return str(surface) if surface else None
+    return None
+
+
+def _construction(dimension: str, record: dict[str, Any] | None = None) -> tuple[str, str]:
     if dimension == lane.STARTING_PLAYER_UNSCRIPTED:
         return (
             CONTRACT_AUTHORITY_GAP,
@@ -399,6 +428,13 @@ def _construction(dimension: str) -> tuple[str, str]:
         if mapped is None:
             raise ValueError(f"unmapped Forge decision family {family!r}")
         gap_class, frames = mapped
+        # A contract erratum may bind the record's family to a different
+        # provider surface (PILOT_CHOOSE_USE: scry 1 is a 0..1 card selection,
+        # 1.0.21 E2a); the frame named is then that surface's, never the
+        # family's default.
+        binding = _family_binding(record, family)
+        if binding is not None and gap_class == LAB_EXECUTION_GAP:
+            frames = f"{_DECISION_FAMILIES['choose_object'][1]} ({binding})"
         if gap_class == PROVIDER_ADAPTER_GAP:
             return gap_class, f"the record scripts a {family} decision: {frames}"
         return (
@@ -425,7 +461,7 @@ def classify_row(record: dict[str, Any]) -> ForgeResidual:
     construction: list[dict[str, str]] = []
     execution: list[dict[str, str]] = []
     for finding in model.hard_unsupported:
-        gap_class, detail = _construction(finding.dimension)
+        gap_class, detail = _construction(finding.dimension, record)
         entry = {"dimension": finding.dimension, "class": gap_class, "detail": detail}
         if finding.dimension.startswith(_DECISION_PREFIX):
             execution.append({**entry, "stage": "execution"})
@@ -457,6 +493,17 @@ def classify_row(record: dict[str, Any]) -> ForgeResidual:
     row.observation = {basis: tokens for basis, tokens in observation.items() if tokens}
 
     observing: list[dict[str, str]] = []
+    for token in observation[READBACK]:
+        unprojected = UNPROJECTED_READBACK.get(_token_family(token))
+        if unprojected is not None:
+            observing.append(
+                {
+                    "stage": "observation",
+                    "dimension": f"unprojected_readback:{_token_family(token)}",
+                    "class": PROVIDER_ADAPTER_GAP,
+                    "detail": unprojected,
+                }
+            )
     if observation[EVENT_LOG]:
         observing.append(
             {
