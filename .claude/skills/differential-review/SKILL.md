@@ -217,6 +217,7 @@ These patterns require adversarial analysis even in quick triage.
 - **[adversarial.md](adversarial.md)** - Attacker modeling and exploit scenarios (Phase 5)
 - **[reporting.md](reporting.md)** - Report structure and formatting (Phase 6)
 - **[patterns.md](patterns.md)** - Common vulnerability patterns reference
+- **[agents/adversarial-modeler.md](agents/adversarial-modeler.md)** - Fresh adversarial-review lens when HIGH RISK analysis is needed
 
 ---
 
