@@ -155,6 +155,35 @@ class XmageConstructedStateTest {
     }
 
     @Test
+    void aCommandersCountersAreKeyedByTheirNativeNames() throws Exception {
+        XmageRulesRngResultTape.keyForTests(KEY);
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageGameManager manager = new XmageGameManager(importer);
+        String[] handle = new String[1];
+        startedAtFirstDecision(manager, importer, "constructed-counters", null, handle);
+        mage.game.Game game = manager.requireGame(handle[0]);
+        java.util.UUID p1 = game.getState().getPlayerList().get(0);
+        java.util.UUID commanderId = game.getCommandersIds(game.getPlayer(p1),
+                mage.constants.CommanderCardType.ANY, false).iterator().next();
+        mage.cards.Card card = game.getCard(commanderId);
+        card.getCounters(game).addCounter(mage.counters.CounterType.P1P1.createInstance(2));
+        card.getCounters(game).addCounter(mage.counters.CounterType.CHARGE.createInstance(3));
+        JsonObject state = manager.constructedState(handle[0]);
+        JsonObject counters = null;
+        for (JsonElement element : state.getAsJsonArray("players")) {
+            JsonObject seen = element.getAsJsonObject().getAsJsonArray("commanders").get(0)
+                    .getAsJsonObject().getAsJsonObject("counters");
+            if (seen.size() > 0) {
+                assertEquals(null, counters, "only one commander was given counters");
+                counters = seen;
+            }
+        }
+        assertEquals(2, counters.size(), String.valueOf(counters));
+        assertEquals(2, counters.get("+1/+1").getAsInt());
+        assertEquals(3, counters.get("charge").getAsInt());
+    }
+
+    @Test
     void aSubstituteCardChangesTheDigestAndAnotherKeyCannotTestAGuess() throws Exception {
         XmageRulesRngResultTape.keyForTests(KEY);
         XmageDeckImporter importer = new XmageDeckImporter();

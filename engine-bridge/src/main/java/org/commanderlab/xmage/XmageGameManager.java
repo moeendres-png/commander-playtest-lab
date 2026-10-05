@@ -1124,7 +1124,10 @@ final class XmageGameManager {
                     for (mage.counters.Counter counter : (permanent != null
                             ? permanent.getCounters(game) : card.getCounters(game)).values()) {
                         if (counter.getCount() > 0) {
-                            counters.addProperty(counter.getName(), counter.getCount());
+                            // The engine's own counter name, lower-cased as the
+                            // records and the Forge bridge name it ("+1/+1", "charge").
+                            counters.addProperty(counter.getName().toLowerCase(java.util.Locale.ROOT),
+                                    counter.getCount());
                         }
                     }
                     commander.add("counters", counters);
