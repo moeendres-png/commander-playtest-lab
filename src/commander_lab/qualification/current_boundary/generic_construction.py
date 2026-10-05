@@ -239,7 +239,11 @@ def _check_setup_validation(checks: _Checks, setup: Any) -> None:
                 )
             else:
                 checks.unsupported(name, "a forbidden rule this lane cannot attest", value)
-        elif key in _SETUP_CLAUSES and value == _SETUP_CLAUSES[key]:
+        elif (
+            key in _SETUP_CLAUSES
+            and type(value) is type(_SETUP_CLAUSES[key])
+            and value == _SETUP_CLAUSES[key]
+        ):
             checks.items.append(
                 FieldCheck(name, "EQUAL", value, value, "established by how this lane constructs")
             )
@@ -272,6 +276,19 @@ _KNOWN_CHANNEL_POLICIES = frozenset(
 
 def _is_count(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool) and value >= 0
+
+
+def _compare_reported_int(
+    checks: _Checks, name: str, requested: Any, observed: Any, meaning: str = ""
+) -> None:
+    """Compare with an integer the provider reported; no reported integer is no readback."""
+    value = _int(observed)
+    if value is None or isinstance(observed, bool):
+        checks.unsupported(name, "the provider reported no integer readback", observed)
+    elif meaning:
+        checks.compare(name, requested, value, meaning)
+    else:
+        checks.compare(name, requested, value)
 
 
 def _check_rules_state(checks: _Checks, rules_state: Any) -> None:
@@ -402,21 +419,35 @@ def compare(
         seen = players_by_id.get(pid)
         if seen is None:
             continue
-        checks.compare(f"players.{pid}.seat", wanted.get("seat"), _int(seen.get("seat")))
-        checks.compare(f"players.{pid}.life", wanted.get("life"), _int(seen.get("life")))
-        checks.compare(
+        _compare_reported_int(checks, f"players.{pid}.seat", wanted.get("seat"), seen.get("seat"))
+        _compare_reported_int(checks, f"players.{pid}.life", wanted.get("life"), seen.get("life"))
+        _compare_reported_int(
+            checks,
             f"players.{pid}.starting_life",
             wanted.get("starting_life"),
-            _int(seen.get("life")),
+            seen.get("life"),
             "at the natural game start life is the starting life",
         )
-        checks.compare(f"players.{pid}.poison", wanted.get("poison"), _int(seen.get("poison")))
-        checks.compare(f"players.{pid}.lost", wanted.get("lost"), seen.get("lost"))
-        checks.compare(
-            f"players.{pid}.eliminated",
-            wanted.get("eliminated"),
-            bool(seen.get("lost")) or bool(seen.get("left")),
+        _compare_reported_int(
+            checks, f"players.{pid}.poison", wanted.get("poison"), seen.get("poison")
         )
+        if isinstance(seen.get("lost"), bool):
+            checks.compare(f"players.{pid}.lost", wanted.get("lost"), seen.get("lost"))
+        else:
+            checks.unsupported(
+                f"players.{pid}.lost", "the provider reported no lost readback", seen.get("lost")
+            )
+        lost, left = seen.get("lost"), seen.get("left")
+        if not isinstance(lost, bool) or not isinstance(left, bool):
+            # An absent or malformed lost/left readback is not a reported
+            # "still in the game" (#553 Audit 1 A1).
+            checks.unsupported(
+                f"players.{pid}.eliminated",
+                "the provider reported no lost/left readback",
+                {"lost": lost, "left": left},
+            )
+        else:
+            checks.compare(f"players.{pid}.eliminated", wanted.get("eliminated"), lost or left)
 
     for deck in record.get("deck_state") or []:
         pid = _seat(deck.get("player_id")) or ""
@@ -457,10 +488,11 @@ def compare(
                 "compared as digests under this run's orchestration key",
             )
         )
-        checks.compare(
+        _compare_reported_int(
+            checks,
             f"deck_state.{pid}.opening_hand_size",
             deck.get("opening_hand_size"),
-            _int(seen.get("hand_size")),
+            seen.get("hand_size"),
             "read at the first mulligan decision, after the opening draw",
         )
 
@@ -504,6 +536,19 @@ def compare(
             )
         )
     for pid, seen in players_by_id.items():
+        if not isinstance(seen.get("commanders"), list):
+            # A missing or non-list readback is not "no commanders" (#553 Audit 1 A2).
+            checks.unsupported(
+                f"commander_state.{pid}",
+                "the provider reported no commander list",
+                seen.get("commanders"),
+            )
+            continue
+        if not all(isinstance(entry, dict) for entry in seen["commanders"]):
+            checks.unsupported(
+                f"commander_state.{pid}", "a malformed commander entry", seen["commanders"]
+            )
+            continue
         # Each commander as the provider reports it, its native owner included:
         # a commander registered for this seat that the engine says another
         # seat owns is a mismatch, never folded into the seat that lists it.
@@ -588,6 +633,18 @@ def compare(
             )
             continue
         observed_counters = entry.get("counters")
+        if (
+            not isinstance(entry.get("tapped"), bool)
+            or not isinstance(entry.get("face_down"), bool)
+            or not _is_count(entry.get("attachments"))
+            or not isinstance(observed_counters, dict)
+            or not all(_is_count(v) for v in observed_counters.values())
+        ):
+            # 0 is not False and True is not 1: a mistyped attribute is no readback.
+            checks.unsupported(
+                f"semantic_objects.{sid}", "the provider emitted a mistyped object attribute", entry
+            )
+            continue
         observed_object = {
             "card_identity": entry.get("card_identity"),
             "owner": _seat(entry.get("owner")) or "",
@@ -634,7 +691,8 @@ def compare(
         "priority_player": constructed.get("priority_player"),
     }
     no_turn_begun = (
-        emitted["phase"] is None
+        all(key in constructed for key in ("phase", "active_player", "priority_player"))
+        and emitted["phase"] is None
         and emitted["active_player"] is None
         and emitted["priority_player"] is None
         and _int(emitted["turn_number"]) in (0, 1)
