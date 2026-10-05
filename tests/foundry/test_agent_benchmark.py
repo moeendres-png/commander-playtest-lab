@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import concurrent.futures
 import json
 import os
 from pathlib import Path
@@ -224,15 +225,32 @@ def test_cli_version_mismatch_rejected() -> None:
         bench.compare(arm("baseline"), candidate)
 
 
-def test_tool_count_integrity_rejected() -> None:
+@pytest.mark.parametrize(
+    "tool_calls,by_tool",
+    [
+        (3, {"read": 400, "grep": 400, "bash": 5}),
+        (100, {"read": 4, "grep": 3, "glob": 1, "bash": 10, "edit": 2}),
+    ],
+)
+def test_tool_count_integrity_rejected(tool_calls: int, by_tool: dict[str, int]) -> None:
     candidate = arm(
         "candidate",
-        session={
-            "tool_calls": 3,
-            "tool_calls_by_tool": {"read": 400, "grep": 400, "bash": 5},
-        },
+        session={"tool_calls": tool_calls, "tool_calls_by_tool": by_tool},
     )
     with pytest.raises(bench.BenchmarkError, match="do not sum"):
+        bench.compare(arm("baseline"), candidate)
+
+
+def test_tool_errors_cannot_exceed_tool_calls() -> None:
+    candidate = arm("candidate", session={"tool_errors": 21})
+    with pytest.raises(bench.BenchmarkError, match="cannot exceed"):
+        bench.compare(arm("baseline"), candidate)
+
+
+@pytest.mark.parametrize("field", ["model_turns", "tool_errors", "patch_count"])
+def test_required_session_counters_cannot_be_null(field: str) -> None:
+    candidate = arm("candidate", session={field: None})
+    with pytest.raises(bench.BenchmarkError, match="is required"):
         bench.compare(arm("baseline"), candidate)
 
 
@@ -274,13 +292,35 @@ def test_cost_regression_is_machine_readable() -> None:
     assert result["efficiency_deltas"]["cost_usd"]["change"] == "increased"
 
 
-def test_checks_run_delta_is_observation_not_efficiency_direction() -> None:
+def test_reasoning_and_direct_read_regressions_are_machine_readable() -> None:
+    result = bench.compare(
+        arm("baseline"),
+        arm(
+            "candidate",
+            session={
+                "tokens_reasoning": 500,
+                "tool_calls_by_tool": {
+                    "read": 10,
+                    "grep": 3,
+                    "glob": 1,
+                    "bash": 4,
+                    "edit": 2,
+                },
+            },
+        ),
+    )
+    assert result["disposition"] == "PAIR_MEASURED_EFFICIENCY_REGRESSION"
+    assert "tokens_reasoning" in result["efficiency_regressed_fields"]
+    assert "direct_read_calls" in result["efficiency_regressed_fields"]
+
+
+def test_reduced_verification_checks_reject_candidate() -> None:
     result = bench.compare(
         arm("baseline"),
         arm("candidate", quality={"checks_run": 4}),
     )
-    assert "checks_run" not in result["efficiency_improved_fields"]
-    assert "checks_run" not in result["efficiency_regressed_fields"]
+    assert result["disposition"] == "CANDIDATE_REJECT_QUALITY"
+    assert "verification_checks_reduced" in result["candidate_quality_reasons"]
     assert result["efficiency_deltas"]["checks_run"]["change"] == "decreased"
 
 
@@ -320,7 +360,7 @@ def test_verification_check_collapse_rejects_candidate() -> None:
         arm("candidate", quality={"checks_run": 0}),
     )
     assert result["disposition"] == "CANDIDATE_REJECT_QUALITY"
-    assert "verification_checks_collapsed" in result["candidate_quality_reasons"]
+    assert "verification_checks_reduced" in result["candidate_quality_reasons"]
 
 
 @pytest.mark.parametrize(
@@ -341,11 +381,52 @@ def test_invalid_measurements_rejected(field: str, value: object) -> None:
         )
 
 
+def test_huge_finite_integer_delta_rejected_cleanly(tmp_path: Path, capsys) -> None:
+    baseline = tmp_path / "base.json"
+    candidate = tmp_path / "candidate.json"
+    baseline.write_text(json.dumps(arm("baseline")), encoding="utf-8")
+    candidate.write_text(
+        json.dumps(arm("candidate", session={"tokens_input": 10**400})),
+        encoding="utf-8",
+    )
+    assert bench.main(["--baseline", str(baseline), "--candidate", str(candidate)]) == 2
+    captured = capsys.readouterr()
+    assert "AGENT_BENCHMARK_REJECT" in captured.out
+    assert "Traceback" not in captured.out
+
+
 def test_non_finite_delta_from_finite_inputs_rejected_cleanly() -> None:
     baseline = arm("baseline", session={"elapsed_seconds": 5e-324})
     candidate = arm("candidate", session={"elapsed_seconds": 1e308})
     with pytest.raises(bench.BenchmarkError, match="numeric range"):
         bench.compare(baseline, candidate)
+
+
+def test_zero_baseline_percent_is_null_not_zero() -> None:
+    result = bench.compare(
+        arm("baseline", session={"cost_usd": 0.0}),
+        arm("candidate", session={"cost_usd": 1.0}),
+    )
+    delta = result["efficiency_deltas"]["cost_usd"]
+    assert delta["percent"] is None
+    assert delta["change"] == "increased"
+    assert result["disposition"] == "PAIR_MEASURED_EFFICIENCY_REGRESSION"
+
+
+def test_required_evidence_class_is_part_of_identity_equivalence() -> None:
+    baseline = arm("baseline")
+    candidate = arm(
+        "candidate",
+        identity={"required_evidence_class": "TECHNICALLY_CONFORMANT"},
+        quality={"evidence_class": "TECHNICALLY_CONFORMANT"},
+    )
+    with pytest.raises(bench.BenchmarkError, match="identity-equivalent"):
+        bench.compare(baseline, candidate)
+
+
+def test_arm_label_must_match_role() -> None:
+    with pytest.raises(bench.BenchmarkError, match="arm must be candidate"):
+        bench.compare(arm("baseline"), arm("baseline"))
 
 
 def test_non_null_compaction_count_rejected() -> None:
@@ -474,6 +555,26 @@ def test_existing_non_input_output_is_never_overwritten(tmp_path: Path, capsys) 
     assert "PRIVATE_SENTINEL" not in captured.out
 
 
+def test_atomic_write_once_survives_concurrent_publishers(tmp_path: Path) -> None:
+    output = tmp_path / "race.json"
+    payload = {"disposition": "PAIR_MEASURED_NO_EFFICIENCY_CHANGE"}
+
+    def publish() -> bool:
+        try:
+            bench._atomic_write_new(str(output), payload)
+        except bench.BenchmarkError:
+            return False
+        return True
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+        results = list(pool.map(lambda _: publish(), range(8)))
+
+    assert results.count(True) == 1
+    assert results.count(False) == 7
+    assert json.loads(output.read_text(encoding="utf-8")) == payload
+    assert not list(tmp_path.glob(".agent-benchmark-*"))
+
+
 def test_cli_atomic_write_once_output(tmp_path: Path) -> None:
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
@@ -499,6 +600,19 @@ def test_cli_atomic_write_once_output(tmp_path: Path) -> None:
     result = json.loads(output.read_text(encoding="utf-8"))
     assert result["disposition"] == "PAIR_MEASURED_EFFICIENCY_IMPROVEMENT"
     assert not list(tmp_path.glob(".agent-benchmark-*"))
+
+
+def test_inconclusive_cli_returns_distinct_nonzero(tmp_path: Path, capsys) -> None:
+    baseline_doc = arm("baseline")
+    candidate_doc = arm("candidate")
+    del candidate_doc["session"]["tokens_input"]
+    baseline = tmp_path / "base.json"
+    candidate = tmp_path / "candidate.json"
+    baseline.write_text(json.dumps(baseline_doc), encoding="utf-8")
+    candidate.write_text(json.dumps(candidate_doc), encoding="utf-8")
+    assert bench.main(["--baseline", str(baseline), "--candidate", str(candidate)]) == 4
+    result = json.loads(capsys.readouterr().out)
+    assert result["disposition"] == "INCONCLUSIVE_MISSING_CORE_METRICS"
 
 
 def test_quality_rejection_writes_artifact_but_returns_distinct_nonzero(
