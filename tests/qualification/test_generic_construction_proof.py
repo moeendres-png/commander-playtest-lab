@@ -369,6 +369,51 @@ def test_a_setup_clause_is_compared_with_its_exact_type(record) -> None:
     assert proof.verdict != generic_construction.EQUAL
 
 
+@pytest.mark.parametrize(
+    "attribute, value", [("tapped", 0), ("face_down", 0), ("attachments", False)]
+)
+def test_a_mistyped_commander_attribute_is_unsupported(record, attribute, value) -> None:
+    """Review P3: 0 is not False and False is not 0 for an engine object attribute."""
+    if not any(obj.get("commander_id") for obj in record.get("semantic_objects") or []):
+        pytest.skip("this fixture requests no commander object")
+    state = _state()
+    for player in state["players"]:
+        player["commanders"][0][attribute] = value
+    assert _proof(record, state).verdict != generic_construction.EQUAL
+
+
+def test_a_malformed_commander_entry_is_unsupported(record) -> None:
+    state = _state()
+    state["players"][0]["commanders"] = [None, *state["players"][0]["commanders"]]
+    proof = _proof(record, state)
+    assert _verdict_of(proof, "commander_state.P1") == "UNSUPPORTED"
+
+
+@pytest.mark.parametrize(
+    "dropped, field",
+    [
+        ("poison", "players.P1.poison"),
+        ("life", "players.P1.life"),
+        ("seat", "players.P1.seat"),
+        ("hand_size", "deck_state.P1.opening_hand_size"),
+    ],
+)
+def test_an_unreported_player_count_is_unsupported_even_if_unrequested(
+    record, dropped, field
+) -> None:
+    """Review P3: absence on both sides is not an equal readback."""
+    mutated = copy.deepcopy(record)
+    for player in mutated.get("players") or []:
+        player.pop(dropped, None)
+    for deck in mutated.get("deck_state") or []:
+        if dropped == "hand_size":
+            deck.pop("opening_hand_size", None)
+    state = _state()
+    for player in state["players"]:
+        del player[dropped]
+    assert _verdict_of(_proof(mutated, state), field) == "UNSUPPORTED"
+
+
 def test_no_state_and_unknown_schema_are_unsupported(record) -> None:
     assert _proof(record, None).verdict == generic_construction.UNSUPPORTED
     assert _proof(record, {"schema": "other"}).verdict == generic_construction.UNSUPPORTED
@@ -455,7 +500,16 @@ def test_cardinality_never_credits_a_mulligan_bearing_plan(record) -> None:
     mulligan = copy.deepcopy(record)
     mulligan["pregame_decision_plan"][0]["decision"] = "MULLIGAN"
     mulligan["decision_script"][0]["selection"]["semantic_value"] = "mulligan"
-    row = full107.cardinality_row(mulligan, _run(_state()), candidate="xmage", runtime_identity={})
+    mulligan["pregame_decision_plan"].append({"decision": "KEEP", "player_id": "P1", "round": 2})
+    keep_again = copy.deepcopy(record["decision_script"][0])
+    keep_again["causal_step_id"] = "keep-P1-round2"
+    mulligan["decision_script"].append(keep_again)
+    run = _run(_state())
+    # The engine asked exactly the planned decisions: P1 mulligans, then everyone keeps.
+    first = _keep("p1")
+    first.keep = False
+    run.decision_tape = [first, *(_keep(seat) for seat in ("p2", "p3", "p4")), _keep("p1")]
+    row = full107.cardinality_row(mulligan, run, candidate="xmage", runtime_identity={})
     assert row.outcome == "UNKNOWN"
     assert "CR 103.5" in row.reason
     # The keep-only record still passes through the same lane.

@@ -278,6 +278,19 @@ def _is_count(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool) and value >= 0
 
 
+def _compare_reported_int(
+    checks: _Checks, name: str, requested: Any, observed: Any, meaning: str = ""
+) -> None:
+    """Compare with an integer the provider reported; no reported integer is no readback."""
+    value = _int(observed)
+    if value is None or isinstance(observed, bool):
+        checks.unsupported(name, "the provider reported no integer readback", observed)
+    elif meaning:
+        checks.compare(name, requested, value, meaning)
+    else:
+        checks.compare(name, requested, value)
+
+
 def _check_rules_state(checks: _Checks, rules_state: Any) -> None:
     """Compare every must-be-empty projection with the engine's own readback."""
     if not isinstance(rules_state, dict):
@@ -406,16 +419,24 @@ def compare(
         seen = players_by_id.get(pid)
         if seen is None:
             continue
-        checks.compare(f"players.{pid}.seat", wanted.get("seat"), _int(seen.get("seat")))
-        checks.compare(f"players.{pid}.life", wanted.get("life"), _int(seen.get("life")))
-        checks.compare(
+        _compare_reported_int(checks, f"players.{pid}.seat", wanted.get("seat"), seen.get("seat"))
+        _compare_reported_int(checks, f"players.{pid}.life", wanted.get("life"), seen.get("life"))
+        _compare_reported_int(
+            checks,
             f"players.{pid}.starting_life",
             wanted.get("starting_life"),
-            _int(seen.get("life")),
+            seen.get("life"),
             "at the natural game start life is the starting life",
         )
-        checks.compare(f"players.{pid}.poison", wanted.get("poison"), _int(seen.get("poison")))
-        checks.compare(f"players.{pid}.lost", wanted.get("lost"), seen.get("lost"))
+        _compare_reported_int(
+            checks, f"players.{pid}.poison", wanted.get("poison"), seen.get("poison")
+        )
+        if isinstance(seen.get("lost"), bool):
+            checks.compare(f"players.{pid}.lost", wanted.get("lost"), seen.get("lost"))
+        else:
+            checks.unsupported(
+                f"players.{pid}.lost", "the provider reported no lost readback", seen.get("lost")
+            )
         lost, left = seen.get("lost"), seen.get("left")
         if not isinstance(lost, bool) or not isinstance(left, bool):
             # An absent or malformed lost/left readback is not a reported
@@ -467,10 +488,11 @@ def compare(
                 "compared as digests under this run's orchestration key",
             )
         )
-        checks.compare(
+        _compare_reported_int(
+            checks,
             f"deck_state.{pid}.opening_hand_size",
             deck.get("opening_hand_size"),
-            _int(seen.get("hand_size")),
+            seen.get("hand_size"),
             "read at the first mulligan decision, after the opening draw",
         )
 
@@ -520,6 +542,11 @@ def compare(
                 f"commander_state.{pid}",
                 "the provider reported no commander list",
                 seen.get("commanders"),
+            )
+            continue
+        if not all(isinstance(entry, dict) for entry in seen["commanders"]):
+            checks.unsupported(
+                f"commander_state.{pid}", "a malformed commander entry", seen["commanders"]
             )
             continue
         # Each commander as the provider reports it, its native owner included:
@@ -606,6 +633,18 @@ def compare(
             )
             continue
         observed_counters = entry.get("counters")
+        if (
+            not isinstance(entry.get("tapped"), bool)
+            or not isinstance(entry.get("face_down"), bool)
+            or not _is_count(entry.get("attachments"))
+            or not isinstance(observed_counters, dict)
+            or not all(_is_count(v) for v in observed_counters.values())
+        ):
+            # 0 is not False and True is not 1: a mistyped attribute is no readback.
+            checks.unsupported(
+                f"semantic_objects.{sid}", "the provider emitted a mistyped object attribute", entry
+            )
+            continue
         observed_object = {
             "card_identity": entry.get("card_identity"),
             "owner": _seat(entry.get("owner")) or "",
