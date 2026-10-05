@@ -61,10 +61,11 @@ metrics is INCONCLUSIVE, never a measured saving.
 Every measured delta carries a neutral numeric `change` (increased/decreased/unchanged).
 Only metrics with a defined monotonic efficiency interpretation feed
 `efficiency_improved_fields` / `efficiency_regressed_fields`: core token/time/tool counts,
-cost, model turns, patch count, tool errors, direct read/search calls, failed attempts, fix waves
-and context reloads. Cache-token fields and `checks_run` remain observations rather than being
-mislabelled as automatically better when smaller. A zero-check candidate after a nonzero-check
-baseline is still a quality rejection.
+reasoning tokens, cost, model turns, patch count, tool errors, direct read/search calls, failed
+attempts, fix waves and context reloads. Cache-token fields remain observations because their
+direction is not independently monotonic. `checks_run` is a verification-strength guard rather
+than an efficiency metric: any candidate reduction relative to a passing baseline rejects the
+candidate instead of being relabelled as a saving.
 
 Results distinguish improvement, mixed efficiency, regression and no-change; a slower or
 more expensive pair is never hidden behind a generic favorable disposition. Quality-rejected
@@ -96,8 +97,11 @@ from equivalent A/B runs are supplied.
 
 ## CLI result contract
 
-- exit 0: valid non-rejected comparison (including measured regression/mixed/no-change or INCONCLUSIVE);
+- exit 0: valid measured non-rejected comparison (improvement/mixed/regression/no-change);
 - exit 2: malformed/incomparable input or unsafe publication;
-- exit 3: baseline/candidate quality rejection. The JSON result is still emitted or published so the rejection remains auditable.
+- exit 3: baseline/candidate quality rejection. The JSON result is still emitted or published so the rejection remains auditable;
+- exit 4: valid but inconclusive comparison because one or more core metrics are unavailable.
 
 A single pair always emits `default_promotion_authorized = false`.
+
+Sanitized string identity/provenance fields are machine-token constrained (no whitespace or control-text pass-through). Required session counters such as model turns, tool calls, tool errors and patch count must be present and numeric; tool errors cannot exceed total tool calls.
