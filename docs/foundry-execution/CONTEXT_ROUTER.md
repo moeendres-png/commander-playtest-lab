@@ -20,15 +20,20 @@ tests, or sealed evidence.
 6. emits the symbolic `$FOUNDRY_STATE_PATH` reference rather than echoing the local state-file path.
 
 Broad fallback is mandatory when no deterministic route matches, more than 20 changed paths are
-declared, an authority gate exists, failure classification is UNKNOWN, validation credit was
-invalidated, or the state itself is STALE/SUPERSEDED.
+declared, an authority gate exists, failure or root-cause classification is UNKNOWN, validation
+credit was invalidated, the state is not ACTIVE, or the recorded state HEAD (schema 2.0
+`state_written_against_head`, schema 1.0 `current_head`) is missing or differs from live HEAD.
+
+Gate, invalidated-gate, scope and changed-path fields must be string lists. Any other entry (for
+example an unquoted YAML `gate: detail` that parses as a mapping, a null or a number) is refused,
+never dropped, so a malformed gate cannot turn a gated state into a bounded plan.
 
 The output intentionally does not repeat objective/failure prose. It names route reasons rather
 than echoing state content.
 
 ## On-demand engine repo maps
 
-`context_router.py repo-map` produces a bounded directory map from exact committed `HEAD`.
+`context_router.py repo-map` produces a bounded directory map from the verified committed tree of the declared reference.
 It does **not** read file contents and never runs automatically. Mage/Forge plans return the command
 as `ON_DEMAND_ONLY`; the caller supplies an already declared reference root. Before listing names,
 the command is restricted to Mage/Forge reference roots and loads the corresponding canonical

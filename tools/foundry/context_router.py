@@ -105,12 +105,20 @@ def _load_profile(profile: str, profiles_dir: Path) -> dict:
     return data
 
 
-def _strings(value: object) -> list[str]:
-    if isinstance(value, list):
-        return [item for item in value if isinstance(item, str)]
+def _strings(value: object, field: str) -> list[str]:
+    """Return a string-list state field, refusing any other shape.
+
+    A gate or path that is not a string (an unquoted YAML ``key: value`` entry,
+    a null, a number) is never silently dropped: dropping it could turn a gated
+    or out-of-bounds state into a bounded plan.
+    """
+    if value is None:
+        return []
     if isinstance(value, str):
         return [value]
-    return []
+    if isinstance(value, list) and all(isinstance(item, str) for item in value):
+        return list(value)
+    raise RouterError(f"state field {field!r} must be a string list")
 
 
 def _routing_text(state: dict) -> str:
@@ -132,7 +140,7 @@ def _routing_text(state: dict) -> str:
         "failed_gates",
         "invalidated_gates",
     ):
-        pieces.extend(_strings(state.get(field)))
+        pieces.extend(_strings(state.get(field), field))
     return "\n".join(pieces).casefold()
 
 
@@ -151,7 +159,7 @@ def _clean_repo_path(value: str, *, field: str) -> str:
 
 
 def _changed_paths(state: dict) -> list[str]:
-    values = _strings(state.get("files_modified"))
+    values = _strings(state.get("files_modified"), "files_modified")
     cleaned = [_clean_repo_path(value, field="files_modified entry") for value in values]
     return list(dict.fromkeys(cleaned))
 
@@ -208,20 +216,30 @@ def _needs_broad_context(
         reasons.append(f"files_modified exceeds {MAX_CHANGED_PATHS}")
     if "engine_bridge" in domains and profile == "cpl":
         reasons.append("engine bridge provider ambiguous")
-    if _strings(state.get("authority_gates")):
+    if _strings(state.get("authority_gates"), "authority_gates"):
         reasons.append("authority gate present")
     if str(state.get("failure_class", "NONE")) == "UNKNOWN":
         reasons.append("failure class UNKNOWN")
-    if _strings(state.get("invalidated_gates")):
+    if str(state.get("root_cause_class", "")) == "UNKNOWN":
+        reasons.append("root cause class UNKNOWN")
+    if _strings(state.get("invalidated_gates"), "invalidated_gates"):
         reasons.append("invalidated gates present")
     if str(state.get("status", "")) != "ACTIVE":
         reasons.append("state status is not ACTIVE")
-    recorded = state.get("state_written_against_head")
-    if recorded and str(recorded) != facts["head"]:
+    recorded = _recorded_head(state)
+    if recorded is None:
+        reasons.append("state HEAD unknown")
+    elif recorded != facts["head"]:
         reasons.append("state HEAD drift")
     if facts["dirty_entries"] != 0:
         reasons.append("worktree is dirty")
     return bool(reasons), reasons
+
+
+def _recorded_head(state: dict) -> str | None:
+    """HEAD the state was written against: schema 2.0 or the 1.0 field."""
+    recorded = state.get("state_written_against_head") or state.get("current_head")
+    return str(recorded) if recorded else None
 
 
 def _refs(domains: list[str], changed_paths: list[str]) -> list[str]:
@@ -285,11 +303,8 @@ def build_plan(
         "live_HEAD": facts["head"],
         "live_tree": facts["tree"],
         "tree_clean": facts["dirty_entries"] == 0,
-        "state_written_against_head": state.get("state_written_against_head"),
-        "head_drift": bool(
-            state.get("state_written_against_head")
-            and str(state.get("state_written_against_head")) != facts["head"]
-        ),
+        "state_written_against_head": _recorded_head(state),
+        "head_drift": _recorded_head(state) not in (None, facts["head"]),
         "capsule_required": True,
         "policy_note": (
             "AGENTS.md remains privileged always-on policy; this plan only routes "
@@ -444,6 +459,7 @@ def _safe_tree_names(raw: str) -> list[str]:
 def _bounded_directories(
     workdir: str,
     *,
+    tree: str,
     max_depth: int,
     requested: list[str],
 ) -> list[str]:
@@ -453,11 +469,11 @@ def _bounded_directories(
             depth = len(Path(prefix).parts)
             if depth > max_depth:
                 raise RouterError("repo-map prefix is deeper than max-depth")
-            if _git(["cat-file", "-t", f"HEAD:{prefix}"], workdir) != "tree":
+            if _git(["cat-file", "-t", f"{tree}:{prefix}"], workdir) != "tree":
                 raise RouterError("repo-map prefix must name a committed directory")
             queue.append((prefix, depth))
     else:
-        for name in _safe_tree_names(_git(["ls-tree", "-d", "--name-only", "HEAD"], workdir)):
+        for name in _safe_tree_names(_git(["ls-tree", "-d", "--name-only", tree], workdir)):
             queue.append((name, 1))
 
     directories: list[str] = []
@@ -472,7 +488,9 @@ def _bounded_directories(
             raise RouterError(f"repo-map exceeds {MAX_MAP_DIRECTORIES} directories")
         if depth >= max_depth:
             continue
-        children = _safe_tree_names(_git(["ls-tree", "-d", "--name-only", f"HEAD:{path}"], workdir))
+        children = _safe_tree_names(
+            _git(["ls-tree", "-d", "--name-only", f"{tree}:{path}"], workdir)
+        )
         for child in children:
             queue.append((f"{path}/{child}", depth + 1))
     return sorted(directories)
@@ -504,11 +522,12 @@ def build_repo_map(
     requested = list(dict.fromkeys(_clean_prefix(item) for item in (prefixes or [])))
     directories = _bounded_directories(
         workdir,
+        tree=verified["tree"],
         max_depth=max_depth,
         requested=requested,
     )
 
-    root_args = ["ls-tree", "--name-only", "HEAD"]
+    root_args = ["ls-tree", "--name-only", verified["tree"]]
     if requested:
         root_args.extend(["--", *requested])
     root_entries = sorted(

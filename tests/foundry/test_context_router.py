@@ -153,6 +153,7 @@ def test_no_route_broadens_without_leaking_state_path_or_prose(
     [
         ("authority_gates", ["needs coordinator"], "authority gate present"),
         ("failure_class", "UNKNOWN", "failure class UNKNOWN"),
+        ("root_cause_class", "UNKNOWN", "root cause class UNKNOWN"),
         ("invalidated_gates", ["old pass invalid"], "invalidated gates present"),
         ("status", "STALE", "state status is not ACTIVE"),
         ("status", "SUPERSEDED", "state status is not ACTIVE"),
@@ -191,6 +192,50 @@ def test_head_drift_forces_broad_context(scratch: dict, tmp_path: Path) -> None:
         "cpl",
         write_profiles(tmp_path),
     )
+    assert plan["head_drift"] is True
+    assert plan["route_mode"] == "BROAD_FALLBACK"
+    assert "state HEAD drift" in plan["broad_context_reasons"]
+
+
+@pytest.mark.parametrize("field", ["authority_gates", "invalidated_gates", "files_modified"])
+@pytest.mark.parametrize(
+    "entry",
+    [{"PB-03 credit": "Coordinator decision slot"}, None, 42],
+    ids=["unquoted-yaml-mapping", "null", "number"],
+)
+def test_non_string_gate_or_path_entry_is_refused_not_dropped(
+    scratch: dict, tmp_path: Path, field: str, entry: object
+) -> None:
+    # An unquoted "gate: detail" YAML entry parses as a mapping. Dropping it
+    # would turn a gated state into a bounded plan, so the router refuses it.
+    state = write_state(tmp_path / "state.yaml", scratch, **{field: [entry]})
+    with pytest.raises(router.RouterError, match=field):
+        router.derive_plan(
+            str(state),
+            str(scratch["root"]),
+            "cpl",
+            write_profiles(tmp_path),
+        )
+
+
+def test_head_drift_forces_broad_context_for_schema_1_0_state(
+    scratch: dict, tmp_path: Path
+) -> None:
+    state = write_state(tmp_path / "state.yaml", scratch)
+    doc = yaml.safe_load(state.read_text(encoding="utf-8"))
+    doc["schema_version"] = "1.0"
+    doc["current_head"] = doc.pop("state_written_against_head")
+    doc.pop("validated_head", None)
+    state.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+    profiles = write_profiles(tmp_path)
+    bounded = router.derive_plan(str(state), str(scratch["root"]), "cpl", profiles)
+    assert bounded["route_mode"] == "BOUNDED_ON_DEMAND", bounded["broad_context_reasons"]
+    assert bounded["head_drift"] is False
+
+    (scratch["root"] / "later.txt").write_text("later\n", encoding="utf-8")
+    git(["add", "later.txt"], scratch["root"])
+    git(["commit", "-m", "later"], scratch["root"])
+    plan = router.derive_plan(str(state), str(scratch["root"]), "cpl", profiles)
     assert plan["head_drift"] is True
     assert plan["route_mode"] == "BROAD_FALLBACK"
     assert "state HEAD drift" in plan["broad_context_reasons"]
