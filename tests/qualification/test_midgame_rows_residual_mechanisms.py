@@ -662,6 +662,39 @@ def test_an_absent_pending_queue_is_never_read_as_a_drained_one() -> None:
     )
 
 
+class _ArrivalClient:
+    def __init__(self, observation: Any) -> None:
+        self.observation = observation
+
+    def complete_arrival(self) -> dict[str, Any]:
+        return {"observation": self.observation}
+
+
+def test_a_frame_readback_without_the_queue_is_a_failed_read() -> None:
+    """The readback site itself: an arrival without the field is never ``()``."""
+    frame = mr.Frame("priority", "P1", [])
+    mr._read_pending_extra_turns(frame, _ArrivalClient({}))
+    assert frame.pending_extra_turns is None and frame.pending_read_failed
+    frame = mr.Frame("priority", "P1", [])
+    mr._read_pending_extra_turns(frame, _ArrivalClient({"pending_extra_turns": []}))
+    assert frame.pending_extra_turns == () and not frame.pending_read_failed
+    frame = mr.Frame("priority", "P1", [])
+    mr._read_pending_extra_turns(frame, _ArrivalClient(None))
+    assert frame.pending_extra_turns is None and frame.pending_read_failed
+
+
+def test_a_failed_read_before_the_resolution_leaves_the_creation_unverified() -> None:
+    created = mr.TerminalCheck(
+        "extra_turn_created", principal="P2", value=("P2",), after=_WARP_RESOLVED
+    )
+    failed = mr.Frame("priority", "P1", [], tape_sequence=3, pending_read_failed=True)
+    trace = [_at((), None), failed, _at(("P2",), 6)]
+    assert mr._extra_turn_frames(created, trace, _TAPE) == []
+    # A merely skipped readback in the same span still says nothing.
+    skipped = [_at((), None), _at(None, 3), _at(("P2",), 6)]
+    assert mr._extra_turn_frames(created, skipped, _TAPE) == [2]
+
+
 def test_a_declared_library_channel_needs_the_players_own_shuffle() -> None:
     record = {"rules_randomness": {"channels": ["library_shuffle:P3", "coin_flip:obj:x"]}}
     shuffled = {"sequence": 11, "type": "LIBRARY_SHUFFLED", "player_player": "P3"}

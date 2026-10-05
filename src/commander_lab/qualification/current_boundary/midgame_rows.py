@@ -1761,6 +1761,9 @@ class Frame:
     # back when it asked this frame; only on a row that verifies an extra
     # turn's creation, and only on frames after which the tape had grown.
     pending_extra_turns: tuple[str, ...] | None = None
+    # True when a readback was taken at this frame but carried no readable
+    # queue: unlike a skipped readback, it is a failed observation.
+    pending_read_failed: bool = False
 
 
 @dataclass
@@ -2904,7 +2907,10 @@ def _extra_turn_frames(
             continue
         if not asked_after:
             # A frame asked before the resolution that read the entry back is a
-            # creation the spell did not cause; an unread frame says nothing.
+            # creation the spell did not cause; a skipped readback says nothing,
+            # but a readback that failed leaves that span unverified.
+            if frame.pending_read_failed:
+                return []
             if pending is not None and check.principal in pending:
                 return []
             continue
@@ -2927,6 +2933,13 @@ def _pending_extra_turns(readback: Any) -> tuple[str, ...] | None:
     if not isinstance(pending, list) or not all(isinstance(seat, str) for seat in pending):
         return None
     return tuple(pending)
+
+
+def _read_pending_extra_turns(frame: Frame, client: Any) -> None:
+    """Read the parked engine's pending extra-turn queue into ``frame``."""
+    readback = client.complete_arrival().get("observation") or {}
+    frame.pending_extra_turns = _pending_extra_turns(readback)
+    frame.pending_read_failed = frame.pending_extra_turns is None
 
 
 def _pending_between_frames(
@@ -4579,8 +4592,7 @@ def execute_row(
                 # A pure query of the parked engine, repeated only once the
                 # tape has grown: a skipped readback can only leave a creation
                 # unobserved (the row then fails closed), never invent one.
-                readback = client.complete_arrival().get("observation") or {}
-                frame.pending_extra_turns = _pending_extra_turns(readback)
+                _read_pending_extra_turns(frame, client)
                 read_at = frame.tape_sequence
             trace.append(frame)
             if unresolved_library:
