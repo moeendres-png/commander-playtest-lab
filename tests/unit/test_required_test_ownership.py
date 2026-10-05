@@ -105,7 +105,13 @@ def test_infrastructure_owns_the_qualification_tests() -> None:
         (("pytest", "-q", "--ignore=tests/qualification"), {"tests/a/test_x.py"}),
         (("pytest", "-q", "tests/qualification"), {"tests/qualification/test_q.py"}),
         (
-            ("pytest", "-q", "--durations=50", "--junitxml=out.xml", "--ignore=tests/qualification"),
+            (
+                "pytest",
+                "-q",
+                "--durations=50",
+                "--junitxml=out.xml",
+                "--ignore=tests/qualification",
+            ),
             {"tests/a/test_x.py"},
         ),
     ],
