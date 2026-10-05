@@ -881,6 +881,24 @@ script += [
 ]
 costs = copy.deepcopy(old["action_cost_state"])
 costs.append(_cost("P1", "Chaos Warp", "obj:replay-warp", extra_mountains, 3, index=1))
+# The lossless construction facts are restated from the superseded patch, but
+# P1's complete hand is rebuilt from this record: its named hand objects (now
+# with Chaos Warp) plus the deck's own template count, never the old text.
+lossless = {
+    key: copy.deepcopy(prior["append_native_procedure"][0]["details"][key])
+    for key in (
+        "complete_checkpoint_hands",
+        "complete_checkpoint_libraries",
+        "first_turn_draw",
+        "scaffolding_template",
+    )
+}
+(p1_deck,) = [deck for deck in decks if deck["player_id"] == "P1"]
+p1_hand = [o["semantic_id"] for o in objects if o["owner"] == "P1" and o["zone"] == "hand"]
+assert p1_hand == ["obj:replay-burn", "obj:replay-warp"]
+lossless["complete_checkpoint_hands"]["P1"] = (
+    f"{' and '.join(p1_hand)} plus {p1_deck['checkpoint_hand']['template_count']} template cards"
+)
 add(
     "RNG_RULES_TAPE",
     "CARD_CAUSED_RULES_RNG_SCENARIO_ERRATUM",
@@ -917,15 +935,7 @@ add(
                     "'rules-shuffle' is realized by this card cause, never by a harness shuffle"
                 ),
                 "no_player_choice": "the current Oracle text asks no 'may'; the put is mandatory",
-                "lossless_construction": {
-                    key: prior["append_native_procedure"][0]["details"][key]
-                    for key in (
-                        "complete_checkpoint_hands",
-                        "complete_checkpoint_libraries",
-                        "first_turn_draw",
-                        "scaffolding_template",
-                    )
-                },
+                "lossless_construction": lossless,
                 "supersedes_erratum_step": prior["append_native_procedure"][0]["step_id"],
             },
         )

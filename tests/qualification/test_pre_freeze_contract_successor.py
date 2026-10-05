@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -2215,6 +2216,34 @@ def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
     assert not any(
         (step.get("details") or {}).get("native_procedure_step_not_executed") for step in active
     )
+    # Every active complete-hand description names exactly the record's hand
+    # objects and the deck's template count (RNG_RULES_TAPE now holds Chaos Warp).
+    described = 0
+    for fixture_id, record in effective.items():
+        decks = {d["player_id"]: d for d in record.get("deck_state") or ()}
+        for step in record.get("native_procedure") or ():
+            details = step.get("details") or {}
+            hands = details.get("complete_checkpoint_hands") or (
+                details.get("lossless_construction") or {}
+            ).get("complete_checkpoint_hands")
+            for player, text in (hands or {}).items():
+                named = sorted(re.findall(r"obj:[\w-]+", text))
+                expected = sorted(
+                    o["semantic_id"]
+                    for o in record["semantic_objects"]
+                    if o["owner"] == player and o["zone"] == "hand"
+                )
+                assert named == expected, (fixture_id, player, text)
+                count = int(re.search(r"(\d+) template cards", text).group(1))
+                assert count == decks[player]["checkpoint_hand"]["template_count"], (
+                    fixture_id,
+                    player,
+                    text,
+                )
+                described += 1
+    assert described >= 4
+    hands = active[-1]["details"]["lossless_construction"]["complete_checkpoint_hands"]
+    assert "obj:replay-warp" in hands["P1"]
     # PILOT_PILE: P1 chooses the opponent who separates while Fact or Fiction
     # resolves (CR 608.2d), after the cast and the payment.
     pile = effective["PILOT_PILE"]["decision_script"]
