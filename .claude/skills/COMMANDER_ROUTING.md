@@ -62,3 +62,18 @@ adjudication, prefer this sequence when applicable:
 The specialized skills are complementary, not interchangeable. A `commander-quality-gate`
 run may invoke several of them depending on impact. None of them turns advisory
 review into Rules qualification or overrides the active issue contract.
+
+
+## Context and navigation efficiency routing
+
+1. repo-map — first broad orientation with a 512–1024 token structural map.
+2. Serena/LSP — targeted symbol definitions, references and semantic navigation.
+   The committed Claude Serena project is read-only and memory-disabled.
+3. find-docs — current external library/API docs via Context7 only when material.
+4. bounded-context-pack — portable compressed snapshot only when a bounded
+   multi-file/cross-repo review genuinely needs one.
+5. context-engineering — when changing prompts, skills, routing, MCP/tool
+   configuration, or when context bloat/drift is observed.
+
+Efficiency views never promote evidence. Use raw authoritative source/output for
+material PASS/FAIL claims.
