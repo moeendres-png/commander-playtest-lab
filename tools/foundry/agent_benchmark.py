@@ -575,7 +575,7 @@ def main(argv: list[str] | None = None) -> int:
                     allow_nan=False,
                 )
             )
-    except (BenchmarkError, ValueError, ArithmeticError) as exc:
+    except (ValueError, ArithmeticError) as exc:
         message = str(exc) if isinstance(exc, BenchmarkError) else "cannot serialize result"
         print(f"AGENT_BENCHMARK_REJECT: {message}")
         return 2
