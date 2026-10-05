@@ -181,6 +181,45 @@ def test_branch_identity_reuses_capsule_fail_closed_gate(
         )
 
 
+def test_engine_bridge_without_provider_broadens_instead_of_guessing(
+    scratch: dict, tmp_path: Path
+) -> None:
+    state = write_state(
+        tmp_path / "state.yaml",
+        scratch,
+        objective="Repair a protocol bridge.",
+        files_modified=["engine-bridge/src/main/java/example/Bridge.java"],
+    )
+    plan = router.derive_plan(
+        str(state),
+        str(scratch["root"]),
+        "cpl",
+        write_profiles(tmp_path),
+    )
+    assert "engine_bridge" in plan["selected_domains"]
+    assert "mage" not in plan["selected_domains"]
+    assert "forge" not in plan["selected_domains"]
+    assert plan["route_mode"] == "BROAD_FALLBACK"
+    assert "engine bridge provider ambiguous" in plan["broad_context_reasons"]
+
+
+def test_text_signals_use_word_boundaries(scratch: dict, tmp_path: Path) -> None:
+    state = write_state(
+        tmp_path / "state.yaml",
+        scratch,
+        objective="Process image metadata.",
+        files_modified=[],
+        exact_next_action="Inspect image output.",
+    )
+    plan = router.derive_plan(
+        str(state),
+        str(scratch["root"]),
+        "cpl",
+        write_profiles(tmp_path),
+    )
+    assert "mage" not in plan["selected_domains"]
+
+
 def test_engine_profile_requests_map_only_on_demand(
     scratch: dict, tmp_path: Path
 ) -> None:
