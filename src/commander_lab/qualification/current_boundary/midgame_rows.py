@@ -1761,6 +1761,9 @@ class Frame:
     # back when it asked this frame; only on a row that verifies an extra
     # turn's creation, and only on frames after which the tape had grown.
     pending_extra_turns: tuple[str, ...] | None = None
+    # True when a readback was taken at this frame but carried no readable
+    # queue: unlike a skipped readback, it is a failed observation.
+    pending_read_failed: bool = False
 
 
 @dataclass
@@ -2493,7 +2496,8 @@ def check_terminal(
                 )
         return False
     if check.kind == "pending_extra_turns":
-        return list(observation.get("pending_extra_turns") or ()) == list(check.value)
+        pending = _pending_extra_turns(observation)
+        return pending is not None and list(pending) == list(check.value)
     if check.kind == "extra_turn_created":
         return bool(_extra_turn_frames(check, trace, tape))
     if check.kind == "pending_extra_turns_between":
@@ -2903,13 +2907,39 @@ def _extra_turn_frames(
             continue
         if not asked_after:
             # A frame asked before the resolution that read the entry back is a
-            # creation the spell did not cause; an unread frame says nothing.
+            # creation the spell did not cause; a skipped readback says nothing,
+            # but a readback that failed leaves that span unverified.
+            if frame.pending_read_failed:
+                return []
             if pending is not None and check.principal in pending:
                 return []
             continue
         if pending is not None and list(pending) == list(check.value):
             found.append(index)
     return found
+
+
+def _pending_extra_turns(readback: Any) -> tuple[str, ...] | None:
+    """The engine's pending extra-turn queue as read back, or None when unread.
+
+    The provider reports the queue on every readback, empty when it is empty. A
+    readback without the field, or with anything but a list of seat names, says
+    nothing about the queue, so it stays None and no check can be credited from
+    it: an absent field is never read as a drained queue.
+    """
+    if not isinstance(readback, dict):
+        return None
+    pending = readback.get("pending_extra_turns")
+    if not isinstance(pending, list) or not all(isinstance(seat, str) for seat in pending):
+        return None
+    return tuple(pending)
+
+
+def _read_pending_extra_turns(frame: Frame, client: Any) -> None:
+    """Read the parked engine's pending extra-turn queue into ``frame``."""
+    readback = client.complete_arrival().get("observation") or {}
+    frame.pending_extra_turns = _pending_extra_turns(readback)
+    frame.pending_read_failed = frame.pending_extra_turns is None
 
 
 def _pending_between_frames(
@@ -4562,8 +4592,7 @@ def execute_row(
                 # A pure query of the parked engine, repeated only once the
                 # tape has grown: a skipped readback can only leave a creation
                 # unobserved (the row then fails closed), never invent one.
-                readback = client.complete_arrival().get("observation") or {}
-                frame.pending_extra_turns = tuple(readback.get("pending_extra_turns") or ())
+                _read_pending_extra_turns(frame, client)
                 read_at = frame.tape_sequence
             trace.append(frame)
             if unresolved_library:
