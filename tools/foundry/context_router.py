@@ -25,7 +25,12 @@ DEFAULT_PROFILES_DIR = Path(__file__).resolve().parents[2] / ".foundry" / "repo-
 ROUTER_KIND = "DERIVED_RETRIEVAL_PLAN (shadow only; not Source Authority)"
 MAP_KIND = "DERIVED_ON_DEMAND_REPO_MAP (not Source Authority)"
 MAX_CHANGED_PATHS = 20
+MAX_MAP_PREFIXES = 16
+MAX_MAP_DIRECTORIES = 500
+MAX_MAP_ROOT_ENTRIES = 200
+MAX_REPO_PATH_LENGTH = 512
 GIT_TIMEOUT_SECONDS = 30
+SAFE_PATH_SEGMENT = re.compile(r"^[A-Za-z0-9._@+-]+$")
 
 DOMAIN_REFS: dict[str, tuple[str, ...]] = {
     "foundry": (
@@ -131,9 +136,27 @@ def _routing_text(state: dict) -> str:
     return "\n".join(pieces).casefold()
 
 
+def _clean_repo_path(value: str, *, field: str) -> str:
+    if not value or value != value.strip() or len(value) > MAX_REPO_PATH_LENGTH:
+        raise RouterError(f"{field} must be a bounded repository-relative path")
+    normalized = value.replace("\\", "/")
+    if normalized.startswith("/") or re.match(r"^[A-Za-z]:/", normalized):
+        raise RouterError(f"{field} must be a bounded repository-relative path")
+    parts = normalized.split("/")
+    if any(
+        not part
+        or part in {".", ".."}
+        or not SAFE_PATH_SEGMENT.fullmatch(part)
+        for part in parts
+    ):
+        raise RouterError(f"{field} must be a bounded repository-relative path")
+    return normalized
+
+
 def _changed_paths(state: dict) -> list[str]:
     values = _strings(state.get("files_modified"))
-    return list(dict.fromkeys(value.strip() for value in values if value.strip()))
+    cleaned = [_clean_repo_path(value, field="files_modified entry") for value in values]
+    return list(dict.fromkeys(cleaned))
 
 
 def _domains(state: dict, profile: str) -> tuple[list[str], list[str]]:
@@ -207,7 +230,6 @@ def build_plan(
     state: dict,
     facts: dict,
     *,
-    state_path: str,
     profile: str,
     profile_data: dict,
 ) -> dict:
@@ -264,8 +286,12 @@ def build_plan(
         "route_reasons": reasons,
         "broad_context_reasons": broad_reasons,
         "full_state_read_required": broad,
-        "full_state": state_path,
-        "read_next": _refs(domains, changed_paths) if not broad else [state_path],
+        "full_state_reference": "$FOUNDRY_STATE_PATH",
+        "read_next": (
+            _refs(domains, changed_paths)
+            if not broad
+            else ["$FOUNDRY_STATE_PATH"]
+        ),
         "recommended_deterministic_tools": tools,
         "repo_maps": repo_maps,
         "default_activation_authorized": False,
@@ -291,7 +317,6 @@ def derive_plan(
     return build_plan(
         state,
         facts,
-        state_path=state_path,
         profile=profile,
         profile_data=profile_data,
     )
@@ -316,10 +341,7 @@ def _git(args: list[str], workdir: str) -> str:
 
 
 def _clean_prefix(value: str) -> str:
-    path = value.replace("\\", "/").strip("/")
-    if not path or path == "." or ".." in path.split("/"):
-        raise RouterError("repo-map prefix must be a safe repository-relative path")
-    return path
+    return _clean_repo_path(value, field="repo-map prefix")
 
 
 def build_repo_map(
@@ -351,6 +373,8 @@ def build_repo_map(
     if branch == "HEAD":
         branch = "(detached)"
 
+    if len(prefixes or []) > MAX_MAP_PREFIXES:
+        raise RouterError(f"repo-map accepts at most {MAX_MAP_PREFIXES} prefixes")
     requested = [_clean_prefix(item) for item in (prefixes or [])]
     args = ["ls-tree", "-d", "-r", "--name-only", "HEAD"]
     if requested:
@@ -365,8 +389,14 @@ def build_repo_map(
         if depth <= max_depth:
             directories.append(path)
 
+    directories = sorted(set(directories))
+    if len(directories) > MAX_MAP_DIRECTORIES:
+        raise RouterError(f"repo-map exceeds {MAX_MAP_DIRECTORIES} directories")
+
     root_files_raw = _git(["ls-tree", "--name-only", "HEAD"], workdir)
     root_files = sorted(line for line in root_files_raw.splitlines() if line and "/" not in line)
+    if len(root_files) > MAX_MAP_ROOT_ENTRIES:
+        raise RouterError(f"repo-map exceeds {MAX_MAP_ROOT_ENTRIES} root entries")
     porcelain = _git(["status", "--porcelain"], workdir)
     return {
         "_kind": MAP_KIND,
@@ -376,7 +406,7 @@ def build_repo_map(
         "dirty_entries": len(porcelain.splitlines()) if porcelain else 0,
         "prefixes": requested,
         "max_depth": max_depth,
-        "directories": sorted(set(directories)),
+        "directories": directories,
         "root_entries": root_files,
         "note": (
             "Map is derived from committed HEAD only. Read source on demand; "
