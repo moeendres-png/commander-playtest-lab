@@ -4,6 +4,8 @@ description: "Performs security-focused differential review of code changes. Ada
 allowed-tools: Read Write Grep Glob Bash
 ---
 
+> Adapted locally from Trail of Bits `trailofbits/skills` under CC BY-SA 4.0; source lock and changes are recorded in `../CI_GATE_SKILLS_PROVENANCE.md`.
+
 # Differential Security Review
 
 Security-focused code review for PRs, commits, and diffs.
