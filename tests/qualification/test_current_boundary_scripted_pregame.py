@@ -10,6 +10,7 @@ engine-reported hand at the first priority after the pregame.
 from __future__ import annotations
 
 import copy
+import types
 from pathlib import Path
 from typing import Any
 
@@ -39,10 +40,19 @@ class _FakeProcess:
         roster_at_create: bool,
         hands: dict[str, int] | None = None,
         seed_echo: int | None = None,
+        shuffles_on_mulligan: bool | None = True,
     ) -> None:
         self.roster_at_create = roster_at_create
         self.hands = hands or {seat: 7 for seat in ENGINE_IDS}
         self.seed_echo = seed_echo
+        # None: a launch without the orchestration channel. True: every
+        # mulligan shuffles the hand back (CR 103.5), as the engines do. False:
+        # the engine accepts the answers but never performs a mulligan.
+        self.shuffles_on_mulligan = shuffles_on_mulligan
+        if shuffles_on_mulligan is not None:
+            self.plan = types.SimpleNamespace(
+                env_overrides={game_driver.ORCHESTRATION_KEY_VARIABLE: "11" * 32}
+            )
         self.imports = 0
         self.decks: list[dict[str, Any]] = []
         self.mulligans: list[tuple[str, bool]] = []
@@ -61,7 +71,22 @@ class _FakeProcess:
         del game_id, timeout_s
         if message_type == "get_capabilities":
             supported = self.seed_echo is not None
-            return {"success": True, "payload": {"capabilities": {"seed_supported": supported}}}
+            capabilities = {
+                "seed_supported": supported,
+                "constructed_state_supported": self.shuffles_on_mulligan is not None,
+            }
+            return {"success": True, "payload": {"capabilities": capabilities}}
+        if message_type == "get_constructed_state":
+            seats = {self.actor(seat): seat for seat in ENGINE_IDS}
+            taken = {seat: 0 for seat in ENGINE_IDS}
+            for actor, keep in self.mulligans:
+                if not keep and self.shuffles_on_mulligan:
+                    taken[seats.get(actor, actor)] += 1
+            players = [
+                {"player_id": seat.upper(), "library_shuffles": 1 + taken[seat]}
+                for seat in ENGINE_IDS
+            ]
+            return {"success": True, "payload": {"constructed_state": {"players": players}}}
         if message_type in {"start_engine", "get_provider_version"}:
             return {"success": True, "payload": {}}
         if message_type == "import_deck":
@@ -397,3 +422,50 @@ def test_a_scripted_london_bottom_is_never_chosen_by_the_lab() -> None:
     assert row.outcome == "UNKNOWN"
     assert "London bottom selection" in row.reason
     assert row.evidence["scripted_london_bottoms"] == [["p1", {"Mountain": 1}]]
+
+
+def test_an_answered_mulligan_the_engine_never_performed_is_not_observed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Codex P1 (#534): accepted answers and the final hand are not a mulligan."""
+    proc = _FakeProcess(roster_at_create=False, seed_echo=424242, shuffles_on_mulligan=False)
+    row = _row(monkeypatch, proc, ASKED_IN_PLAN_ORDER)
+    assert row.outcome == "UNKNOWN"
+    assert row.evidence["engine_performed_mulligans"] == dict.fromkeys(ENGINE_IDS, 0)
+    # Every mulligan token needs the engine's own shuffle; keeps do not.
+    assert row.evidence["unmet_required_events"] == ["mulligan:P1:round1"]
+
+
+def test_without_the_orchestration_channel_no_mulligan_is_observed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proc = _FakeProcess(roster_at_create=False, seed_echo=424242, shuffles_on_mulligan=None)
+    row = _row(monkeypatch, proc, ASKED_IN_PLAN_ORDER)
+    assert row.outcome == "UNKNOWN"
+    assert row.evidence["engine_performed_mulligans"] is None
+    assert row.evidence["unmet_required_events"] == ["mulligan:P1:round1"]
+
+
+def test_the_engine_performed_exactly_the_planned_mulligans(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proc = _FakeProcess(roster_at_create=False, seed_echo=424242)
+    row = _row(monkeypatch, proc, ASKED_IN_PLAN_ORDER)
+    assert row.evidence["engine_performed_mulligans"] == {"p1": 1, "p2": 0, "p3": 0, "p4": 0}
+    assert row.evidence["unmet_required_events"] == []
+
+
+def test_mull_4_needs_the_engine_to_have_performed_the_mulligan(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Codex P1 (#534): the fake that records resolve_mulligan without redrawing.
+
+    With the independent construction gate disabled, the accepted answers and
+    an unchanged seven-card hand used to clear mulligan_once and free_mulligan.
+    """
+    record = _mull_record("WS05-CMD-MULL-4")
+    record["construction_validation"] = {"required": False}
+    proc = _FakeProcess(roster_at_create=False, seed_echo=424242, shuffles_on_mulligan=False)
+    row = _mull_row(monkeypatch, proc, record)
+    assert row.outcome == "UNKNOWN"
+    assert row.evidence["unmet_required_events"] == ["mulligan_once:P1", "free_mulligan:true"]

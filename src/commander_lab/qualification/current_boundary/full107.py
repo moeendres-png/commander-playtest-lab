@@ -831,6 +831,29 @@ def _pregame_rounds(tape: list[tuple[str, bool]]) -> dict[str, list[bool]]:
     return rounds
 
 
+def _performed_mulligans(game: Any) -> dict[str, int] | None:
+    """Mulligans the engine performed per seat, from its own library shuffles.
+
+    The count at the first mulligan decision (the constructed state) against
+    the count at the first priority after the pregame; None when either read
+    is missing, so nothing the engine did not show is assumed.
+    """
+    before = getattr(game, "constructed_state", None)
+    after = (getattr(game, "terminal_facts", None) or {}).get("post_pregame_library_shuffles")
+    if not isinstance(before, dict) or not isinstance(after, dict):
+        return None
+    start: dict[str, int] = {}
+    for player in before.get("players") or ():
+        shuffles = player.get("library_shuffles") if isinstance(player, dict) else None
+        seat = str(player.get("player_id") or "").lower() if isinstance(player, dict) else ""
+        if not seat or not isinstance(shuffles, int) or isinstance(shuffles, bool):
+            return None
+        start[seat] = shuffles
+    if set(start) != set(after):
+        return None
+    return {seat: int(after[seat]) - start[seat] for seat in sorted(start)}
+
+
 def scripted_pregame_row(
     record: dict[str, Any],
     proc: BridgeProcess,
@@ -958,6 +981,16 @@ def scripted_pregame_row(
         )
     rounds = _pregame_rounds(asked)
     unmet: list[str] = []
+    # The engine's own evidence that each answered mulligan was performed: a
+    # London mulligan shuffles the hand back into the library (CR 103.5), so a
+    # seat's library-shuffle count rises by exactly its mulligans between the
+    # first mulligan decision and the first priority. Accepted answers alone
+    # (the decision tape) are not evidence that the engine redrew anything.
+    performed = _performed_mulligans(game)
+    evidence["engine_performed_mulligans"] = performed
+    mulligan_backed = performed is not None and all(
+        performed.get(seat) == answers.count(False) for seat, answers in rounds.items()
+    )
     # The seats that took exactly one mulligan and then kept: the subject of
     # mulligan_once and free_mulligan (CR 103.5c makes that one free in a game
     # of more than two players).
@@ -971,7 +1004,11 @@ def scripted_pregame_row(
         bottomed = re.fullmatch(r"bottom_count:(P[1-6]):([0-9]+)", token)
         mulligan_once = re.fullmatch(r"mulligan_once:(P[1-6])", token)
         free = re.fullmatch(r"free_mulligan:(true|false)", token)
-        if mulligan_once:
+        if (mulligan_once or free or (decided and decided.group(1) == "mulligan")) and not (
+            mulligan_backed
+        ):
+            unmet.append(token)
+        elif mulligan_once:
             if mulligan_once.group(1).lower() not in once:
                 unmet.append(token)
         elif free:

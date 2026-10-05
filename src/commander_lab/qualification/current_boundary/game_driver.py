@@ -623,6 +623,20 @@ def _observe_principal_checkpoint(
     )
 
 
+def _library_shuffles(state: dict[str, Any]) -> dict[str, int] | None:
+    """Each seat's engine library-shuffle count from a constructed state, or None."""
+    counts: dict[str, int] = {}
+    for player in state.get("players") or ():
+        if not isinstance(player, dict):
+            return None
+        seat = str(player.get("player_id") or "").lower()
+        shuffles = player.get("library_shuffles")
+        if not seat or not isinstance(shuffles, int) or isinstance(shuffles, bool):
+            return None
+        counts[seat] = shuffles
+    return counts or None
+
+
 def _engine_seat_roster(
     proc: BridgeProcess,
     *,
@@ -1030,6 +1044,23 @@ def drive_commander_game(
                         )
                         post_pregame[seat] = {**counts, "checkpoint": checkpoint}
                     result.terminal_facts["post_pregame_zone_counts"] = post_pregame
+                    if constructed_supported:
+                        # The engine's own library-shuffle count per seat once
+                        # the pregame is over: a London mulligan shuffles the
+                        # hand into the library (CR 103.5), so the count's rise
+                        # since the first mulligan decision is the number of
+                        # mulligans the engine actually performed.
+                        response = proc.request(
+                            "get_constructed_state", {}, game_id=game_id, timeout_s=120.0
+                        )
+                        after = (
+                            _payload(response).get("constructed_state")
+                            if _first_ok(response)
+                            else None
+                        )
+                        result.terminal_facts["post_pregame_library_shuffles"] = (
+                            _library_shuffles(after) if isinstance(after, dict) else None
+                        )
                 if not priority_seen and constructed_supported:
                     # Who holds the first priority of the game: the starting
                     # player (CR 103.1), read against the engine's own roster.
