@@ -25,27 +25,40 @@
  "new_bridge_source": {
   "repository": "https://github.com/moeendres-png/forge.git",
   "branch": "claude/forge-unified-successor-20260929",
-  "commit": "6f09dab0b9dfacaed1aeb84b1c7f3666d499e3f3",
-  "tree": "532202f3365ce9170cf8c66de381adddbe3cd923",
-  "pull_request": 25,
-  "integration": "forge#22 merged into the #11 qualification branch as 42963734 (2026-10-04), forge#25 as 6f09dab0 (2026-10-05); branch head == 6f09dab0",
-  "ancestry": "20e3e1f7 and bb0a740d are ancestors; 20e3e1f7..6f09dab0 is 7 commits and bb0a740d..6f09dab0 31 commits, all changing only forge-protocol2-bridge/ (0 Rules-Core, 0 card-data files)",
-  "content": "forge#22: the bridge answers the free multiplayer mulligan's zero-card London tuck (#441 PILOT_MULLIGAN); forge#25: get_constructed_state, an orchestration channel refused without COMMANDER_LAB_ORCHESTRATION_KEY that reports public seat facts, each seat's library and hand as one HMAC-SHA-256 digest under the launch key and each library's engine shuffle count (GameEventShuffle), for the Lab's generic-lane construction proof (#441 (c))"
+  "commit": "4ed8992de4bd7bd120c3920c0362533c7c65d822",
+  "tree": "31f70b510116bddfbf9e6a7fa7faa08cb54c9142",
+  "pull_request": 28,
+  "integration": "forge#22 merged into the #11 qualification branch as 42963734 (2026-10-04), forge#25 as 6f09dab0 (2026-10-05). forge#28 (head 4ed8992d) is one commit on 6f09dab0, so merging it into the branch keeps tree 31f70b51; the pin binds the forge#28 commit itself, never a later branch head",
+  "ancestry": "20e3e1f7, 6f09dab0 and bb0a740d are ancestors; 20e3e1f7..4ed8992d is 8 commits and bb0a740d..4ed8992d 32 commits, all changing only forge-protocol2-bridge/ (0 Rules-Core, 0 card-data files)",
+  "content": "forge#22: the bridge answers the free multiplayer mulligan's zero-card London tuck (#441 PILOT_MULLIGAN); forge#25: get_constructed_state, an orchestration channel refused without COMMANDER_LAB_ORCHESTRATION_KEY that reports public seat facts, each seat's library and hand as one HMAC-SHA-256 digest under the launch key and each library's engine shuffle count (GameEventShuffle), for the Lab's generic-lane construction proof (#441 (c)); forge#28: that read carries each commander's native controller, counters above zero, face-down status, tapped state and attachment count, schema commander-lab.generic-constructed-state/3 (Codex P1 on Commander-Lab #530)"
  },
  "exact_head_qualification": {
-  "commit": "6f09dab0b9dfacaed1aeb84b1c7f3666d499e3f3",
+  "commit": "4ed8992de4bd7bd120c3920c0362533c7c65d822",
   "github_test_build": [
    {
-    "run_id": 37250587908,
+    "run_id": 37286563067,
     "event": "push",
-    "java17": "success",
-    "java21": "success"
+    "java17": "PENDING",
+    "java21": "PENDING"
+   },
+   {
+    "run_id": 37286594611,
+    "event": "pull_request",
+    "pull_request": 28,
+    "java17": "PENDING",
+    "java21": "PENDING"
    }
   ],
   "github_ios_mobivm": [
    {
-    "run_id": 37250587931,
-    "conclusion": "success"
+    "run_id": 37286563013,
+    "event": "push",
+    "conclusion": "PENDING"
+   },
+   {
+    "run_id": 37286594621,
+    "event": "pull_request",
+    "conclusion": "PENDING"
    }
   ],
   "pull_request_heads": [
@@ -63,11 +76,16 @@
     "java17": "success",
     "java21": "success",
     "ios": "success"
+   },
+   {
+    "pull_request": 28,
+    "commit": "4ed8992de4bd7bd120c3920c0362533c7c65d822",
+    "head_ci": "the exact-head runs above"
    }
   ],
   "local_forge_bridge_suite": {
    "command": "xvfb-run -a mvn -o -B test -pl forge-protocol2-bridge -am -Dcheckstyle.skip",
-   "commit": "f4b8cdfae625c88f767feda06253963c219479e1",
+   "commit": "4ed8992de4bd7bd120c3920c0362533c7c65d822",
    "tree_equal_to_new_bridge_source": true,
    "run": 363,
    "failures": 0,
@@ -76,8 +94,8 @@
   }
  },
  "lab_consumer": {
-  "hidden_information_channels": "src/commander_lab/qualification/current_boundary/forge_hidden_information.py re-asserted at 6f09dab0: the message surface gains BridgeProtocol.GET_CONSTRUCTED_STATE and the channel table records orchestration_constructed_state (SUPPORTED, refused without a launch key) and orchestration_constructed_state_payload (its keyed success path: the HMAC zoneDigest construction and the closed key set CONSTRUCTED_STATE_KEYS, so a plaintext hand or library key is drift); no other asserted fragment, field, key or diagnostic drifted (census rerun, AF05 Forge classifications unchanged: 20 PROVIDER_ADAPTER_GAP)",
-  "construction_proof": "Commander-Lab #530 runs construction rows on a dedicated orchestration launch with a fresh key and compares digests and shuffle counts; a launch without the key stays UNKNOWN",
+  "hidden_information_channels": "src/commander_lab/qualification/current_boundary/forge_hidden_information.py re-asserted at 4ed8992d: the message surface gains BridgeProtocol.GET_CONSTRUCTED_STATE and the channel table records orchestration_constructed_state (SUPPORTED, refused without a launch key) and orchestration_constructed_state_payload (its keyed success path: the HMAC zoneDigest construction and the closed key set CONSTRUCTED_STATE_KEYS, so a plaintext hand or library key is drift; forge#28 adds the five native commander keys attachments, controller, counters, face_down and tapped, all public commander facts); no other asserted fragment, field, key or diagnostic drifted (census rerun, AF05 Forge classifications unchanged: 20 PROVIDER_ADAPTER_GAP)",
+  "construction_proof": "Commander-Lab #530 runs construction rows on a dedicated orchestration launch with a fresh key and compares digests, shuffle counts and each commander's native attributes (schema /3); a launch without the key, or a /2 state, stays UNKNOWN",
   "current_boundary": "REQUALIFICATION_REQUIRED: the successor PB-03 epoch on the Lab main merge commit binds this bridge source; no historical Forge receipt is relabelled"
  },
  "evidence_transfer": {

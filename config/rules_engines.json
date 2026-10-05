@@ -100,13 +100,13 @@
  "secondary_engine": {
   "bridge_source": {
    "repository": "https://github.com/moeendres-png/forge.git",
-   "commit": "6f09dab0b9dfacaed1aeb84b1c7f3666d499e3f3",
+   "commit": "4ed8992de4bd7bd120c3920c0362533c7c65d822",
    "rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
    "qualification_lineage_base_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-   "role": "Exact bridge/materialization source for the current R-1 candidate. The #11 qualification branch head after merging forge#22 (the free multiplayer mulligan's zero-card London tuck, #441 PILOT_MULLIGAN) and forge#25 (the orchestration-keyed get_constructed_state with library shuffle counts, #441 (c)) on the integrated R-5 bridge gate forge#16. Every change over the Rules-Core candidate is under forge-protocol2-bridge/. rules_core_base_commit binds it back to the admitted #11/#12 candidate. Prior bridge sources e8b8aec6 (#11 + #13) and 20e3e1f7 (forge#16, qualification/forge-bridge-r5-integrated-20261001) are historical; qualification/forge-bridge-constructed-state-20261005/SUCCESSOR_SOURCE_LOCK.json records the exact-head gate of this source."
+   "role": "Exact bridge/materialization source for the current R-1 candidate. The #11 qualification branch head after merging forge#22 (the free multiplayer mulligan's zero-card London tuck, #441 PILOT_MULLIGAN) forge#25 (the orchestration-keyed get_constructed_state with library shuffle counts, #441 (c)) and forge#28 (each commander's native controller, counters, face-down, tapped and attachment state in that read, schema /3) on the integrated R-5 bridge gate forge#16. Every change over the Rules-Core candidate is under forge-protocol2-bridge/. rules_core_base_commit binds it back to the admitted #11/#12 candidate. Prior bridge sources e8b8aec6 (#11 + #13) and 20e3e1f7 (forge#16, qualification/forge-bridge-r5-integrated-20261001) are historical; qualification/forge-bridge-constructed-state-20261005/SUCCESSOR_SOURCE_LOCK.json records the exact-head gate of this source."
   },
   "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
-  "commit_meaning": "CURRENT R-1 ADMITTED QUALIFICATION CANDIDATE SOURCE. Exact Commander-Lab-maintained Forge fork #11 head including accepted #12. The #11 branch head 6f09dab0 (forge#16 + #22 + #25) is bound separately as the bridge/materialization source and is not part of the Rules-Core candidate identity. Qualification authority only: not a Production Provider selection and no merge to forge/master is authorized.",
+  "commit_meaning": "CURRENT R-1 ADMITTED QUALIFICATION CANDIDATE SOURCE. Exact Commander-Lab-maintained Forge fork #11 head including accepted #12. The bridge source 4ed8992d (forge#16 + #22 + #25 + #28) is bound separately as the bridge/materialization source and is not part of the Rules-Core candidate identity. Qualification authority only: not a Production Provider selection and no merge to forge/master is authorized.",
   "engine_identity_pb09": {
    "pb09_status": "RESOLVED_BY_OWNER_R1_2026_09_30_FOR_CURRENT_QUALIFICATION_AUTHORITY",
    "current_candidate": {
@@ -125,12 +125,12 @@
     "is_current_candidate": false
    },
    "bridge_source": {
-    "role": "CURRENT BRIDGE/MATERIALIZATION ROLE. The #11 branch head after forge#22 and forge#25 on the integrated bridge gate #16; separately source-bound from the #11 Rules-Core candidate.",
+    "role": "CURRENT BRIDGE/MATERIALIZATION ROLE. The forge#28 head on the #11 branch after forge#22 and forge#25, on the integrated bridge gate #16; separately source-bound from the #11 Rules-Core candidate.",
     "repository": "https://github.com/moeendres-png/forge.git",
-    "commit": "6f09dab0b9dfacaed1aeb84b1c7f3666d499e3f3",
-    "tree": "532202f3365ce9170cf8c66de381adddbe3cd923",
+    "commit": "4ed8992de4bd7bd120c3920c0362533c7c65d822",
+    "tree": "31f70b510116bddfbf9e6a7fa7faa08cb54c9142",
     "rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
-    "pull_request": 25
+    "pull_request": 28
    },
    "upstream_baseline": {
     "role": "REFERENCE BASELINE / DONOR EVIDENCE ONLY. Not the current candidate and not the engine under current qualification.",

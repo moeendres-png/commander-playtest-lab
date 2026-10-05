@@ -52,7 +52,7 @@ CHANNEL_UNAUDITED = "PRESENT_UNAUDITED"
 
 # The bridge commit whose blobs this channel table was asserted against. A
 # moved canonical pin invalidates every channel status until it is re-asserted.
-ASSERTED_BRIDGE_COMMIT = "6f09dab0b9dfacaed1aeb84b1c7f3666d499e3f3"
+ASSERTED_BRIDGE_COMMIT = "4ed8992de4bd7bd120c3920c0362533c7c65d822"
 
 _BRIDGE_SOURCE = f"{lane.BRIDGE_MODULE}/src/main/java/forge/bridge"
 SOURCES: dict[str, str] = {
@@ -202,10 +202,14 @@ DECISION_FRAME_KEYS = frozenset(
 CONSTRUCTED_STATE_KEYS = frozenset(
     {
         "active_player",
+        "attachments",
         "battlefield_size",
         "card_identity",
         "commanders",
+        "controller",
+        "counters",
         "exile_size",
+        "face_down",
         "graveyard_size",
         "hand_size",
         "left",
@@ -226,6 +230,7 @@ CONSTRUCTED_STATE_KEYS = frozenset(
         "schema",
         "seat",
         "stack_size",
+        "tapped",
         "turn_number",
         "zone",
     }
@@ -431,7 +436,7 @@ CHANNELS: tuple[Channel, ...] = (
             "BridgeErrors.ORCHESTRATION_CHANNEL_NOT_ENABLED,",
         ),
         meaning=(
-            "get_constructed_state (forge#25, the Lab's generic-lane construction proof, #441 "
+            "get_constructed_state (forge#25, forge#28, the Lab's generic-lane construction proof, #441 "
             "(c)) is an orchestration channel, not a principal observation: every launch "
             "without COMMANDER_LAB_ORCHESTRATION_KEY refuses it with "
             "orchestration_channel_not_enabled. No principal-facing launch carries the key; "
@@ -456,7 +461,7 @@ CHANNELS: tuple[Channel, ...] = (
         meaning=(
             "the keyed success path of get_constructed_state writes exactly the closed key set "
             "CONSTRUCTED_STATE_KEYS: public seat facts, sizes, shuffle counts and each "
-            "commander's public identity, owner, zone and cast count. Each seat's library and "
+            "commander's public identity, owner, zone, cast count and native controller, counters, face-down, tapped and attachment state (schema /3). Each seat's library and "
             "hand go only into zoneDigest, an HMAC under the launch key "
             "(OrchestrationKey.digest) over the name multiset, so no hidden card name leaves "
             "and nobody without the key can test a guess. A new key, or a lost digest "
