@@ -353,41 +353,7 @@
    ],
    "closed_message_types": [],
    "closed_stderr_prints": [],
-   "frame_key_facets": {
-    "labels": [
-     "label"
-    ],
-    "metadata": [
-     "metadata",
-     "revision",
-     "decision_subtype",
-     "cost_order_indices",
-     "choices_schema",
-     "object_refs"
-    ],
-    "object_references": [
-     "card_id",
-     "name",
-     "zone",
-     "controller",
-     "player_id",
-     "hidden"
-    ],
-    "option_ids": [
-     "action_id",
-     "semantic_key",
-     "semantic_fingerprint"
-    ],
-    "prompt_and_context": [
-     "label",
-     "reason",
-     "kind",
-     "frame_kind"
-    ],
-    "source": [
-     "source_object_id"
-    ]
-   },
+   "frame_key_facets": {},
    "meaning": "the keyed success path of get_constructed_state writes exactly the closed key set CONSTRUCTED_STATE_KEYS: public seat facts, sizes, shuffle counts and each commander's public identity, owner, zone and cast count. Each seat's library and hand go only into zoneDigest, an HMAC under the launch key (OrchestrationKey.digest) over the name multiset, so no hidden card name leaves and nobody without the key can test a guess. A new key, or a lost digest construction, is drift",
    "present_fragments": [
     "state.addProperty(\"observation_scope\", \"orchestration_keyed_digests\");",

@@ -795,9 +795,11 @@ def channel_document(channel: Channel) -> dict[str, Any]:
         "closed_bootstrap_fields": sorted(channel.fields),
         "closed_message_types": sorted(channel.cases),
         "closed_frame_keys": sorted(channel.keys),
+        # The honey-sentinel facets describe decision frames only; another
+        # closed key set (the keyed constructed-state payload) has none.
         "frame_key_facets": (
             {facet: list(keys) for facet, keys in DECISION_FRAME_FACETS.items()}
-            if channel.keys
+            if channel.keys == DECISION_FRAME_KEYS
             else {}
         ),
         "closed_stderr_prints": sorted(channel.prints),

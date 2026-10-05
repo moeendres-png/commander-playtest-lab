@@ -435,6 +435,18 @@ def test_every_sentinel_facet_names_inventoried_frame_keys() -> None:
     assert {key for keys in facets.values() for key in keys} <= fh.DECISION_FRAME_KEYS
 
 
+def test_only_decision_frames_carry_sentinel_facets() -> None:
+    """The keyed constructed-state payload has a closed key set but no frame facets."""
+    for channel in fh.CHANNELS:
+        document = fh.channel_document(channel)
+        if channel.name == "decision_frames":
+            assert set(document["frame_key_facets"]) == set(fh.DECISION_FRAME_FACETS)
+        else:
+            assert document["frame_key_facets"] == {}, channel.name
+    payload = fh.channel_document(fh.CHANNELS_BY_NAME["orchestration_constructed_state_payload"])
+    assert payload["closed_frame_keys"] == sorted(fh.CONSTRUCTED_STATE_KEYS)
+
+
 def test_transport_diagnostics_are_unaudited_and_required(records) -> None:
     assert fh.CHANNELS_BY_NAME["transport_diagnostics"].status == fh.CHANNEL_UNAUDITED
     for fixture in ("HIDDEN_19", "HIDDEN_HONEYCARD_SENTINEL"):
