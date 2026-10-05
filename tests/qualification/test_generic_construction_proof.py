@@ -57,6 +57,14 @@ def _state(players: int = 4) -> dict:
         "active_player": None,
         "priority_player": None,
         "stack_size": 0,
+        # Native rules state (schema /4), as the engine reads it back.
+        "rules_state": {
+            "combat_groups": 0,
+            "combat_attackers": 0,
+            "extra_turns": 0,
+            "pending_triggers": 0,
+            "continuous_effects": 0,
+        },
         "players": [
             {
                 "player_id": f"P{seat}",
@@ -72,6 +80,8 @@ def _state(players: int = 4) -> dict:
                 "exile_size": 0,
                 "battlefield_size": 0,
                 "library_shuffles": 1,
+                "knowledge": {"visible_hidden_cards": 0},
+                "commander_damage_taken": 0,
                 "commanders": [
                     {
                         "card_identity": ROGRAKH,
@@ -117,7 +127,13 @@ def test_the_requested_natural_game_start_is_established(record) -> None:
         "temporal_state.active_player",
         "rules_randomness.rules_seed",
         "stack_state",
-        "knowledge_state",
+        "knowledge_state.P1",
+        "knowledge_state.channel_policy",
+        "rules_state.combat_groups",
+        "rules_state.extra_turns",
+        "rules_state.pending_triggers",
+        "rules_state.continuous_effects",
+        "commander_state.commander_damage_matrix.P3",
     ):
         assert required in fields, required
 
@@ -187,6 +203,18 @@ def _mutate(path: list, value) -> dict:
         ((["turn_number"], 999), "temporal_state.turn_number"),
         ((["active_player"], "P1"), "temporal_state.phase"),
         ((["priority_player"], "P2"), "temporal_state.phase"),
+        # Codex P1 (#530, third round): every must-be-empty projection is the
+        # engine's own readback, never inferred from the request.
+        ((["rules_state", "combat_groups"], 1), "rules_state.combat_groups"),
+        ((["rules_state", "combat_attackers"], 2), "rules_state.combat_attackers"),
+        ((["rules_state", "extra_turns"], 1), "rules_state.extra_turns"),
+        ((["rules_state", "pending_triggers"], 1), "rules_state.pending_triggers"),
+        ((["rules_state", "continuous_effects"], 3), "rules_state.continuous_effects"),
+        ((["players", 1, "knowledge", "visible_hidden_cards"], 1), "knowledge_state.P2"),
+        (
+            (["players", 2, "commander_damage_taken"], 7),
+            "commander_state.commander_damage_matrix.P3",
+        ),
     ],
 )
 def test_one_changed_fact_is_a_named_mismatch(record, mutation, field) -> None:
@@ -592,3 +620,49 @@ def test_a_provider_that_omits_a_native_attribute_is_unsupported(record, attribu
     proof = _proof(record, state)
     assert proof.verdict == generic_construction.UNSUPPORTED, proof.reason()
     assert not proof.established
+
+
+@pytest.mark.parametrize("extra", ["duplicate", "malformed"])
+def test_a_duplicate_or_malformed_roster_row_is_a_mismatch(record, extra) -> None:
+    """Codex P2 (#530): the raw roster is compared, never a collapsed mapping."""
+    state = _state()
+    row = copy.deepcopy(state["players"][0])
+    if extra == "malformed":
+        row["player_id"] = None
+    state["players"].append(row)
+    proof = _proof(record, state)
+    assert proof.verdict == generic_construction.MISMATCH, proof.reason()
+    assert "players.roster" in {check.field for check in proof.failures()}
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        ["rules_state"],
+        ["rules_state", "combat_groups"],
+        ["rules_state", "extra_turns"],
+        ["rules_state", "pending_triggers"],
+        ["rules_state", "continuous_effects"],
+        ["players", 0, "knowledge"],
+        ["players", 1, "commander_damage_taken"],
+    ],
+)
+def test_a_provider_that_omits_a_native_readback_is_unsupported(record, path) -> None:
+    """Codex P1 (#530): an empty projection is never inferred from the request."""
+    state = _state()
+    node = state
+    for key in path[:-1]:
+        node = node[key]
+    del node[path[-1]]
+    proof = _proof(record, state)
+    assert proof.verdict == generic_construction.UNSUPPORTED, proof.reason()
+    assert not proof.established
+
+
+def test_an_unknown_channel_policy_is_unsupported(record) -> None:
+    """Codex P1 (#530): the knowledge channel policy is examined, not ignored."""
+    changed = copy.deepcopy(record)
+    changed["knowledge_state"]["channel_policy"] = "observers may read every hand"
+    proof = _proof(changed, _state())
+    assert proof.verdict == generic_construction.UNSUPPORTED, proof.reason()
+    assert "knowledge_state.channel_policy" in {check.field for check in proof.checks}

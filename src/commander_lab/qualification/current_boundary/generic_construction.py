@@ -9,7 +9,7 @@ field-level correspondence under the record's own normalization
 
 The provider emits its constructed state from the native game objects inside the
 Rules process (``get_constructed_state``, schema
-``commander-lab.generic-constructed-state/3``), read once the natural game start
+``commander-lab.generic-constructed-state/4``), read once the natural game start
 has constructed the game and parked it at its first pregame decision, before any
 decision is answered. This module compares that state with every requested-state
 projection key the record carries. Anything it cannot compare fails closed:
@@ -27,14 +27,16 @@ answered (libraries shuffled, opening hands drawn). A record that requests the
 earlier ``game_start`` step is equal there only through the native seeded
 shuffle and opening draw its own ``native_procedure`` declares.
 
-Two requested facts cannot be read from a pregame engine state and are checked
-from the run instead, each stated in its own check:
+One requested fact cannot be read from a pregame engine state and is checked
+from the run instead, stated in its own check: ``temporal_state.active_player`` /
+``priority_player``, the seat that holds the game's first priority (CR 103.1: the
+starting player takes the first turn).
 
-* ``temporal_state.active_player`` / ``priority_player``: the seat that holds the
-  game's first priority (CR 103.1: the starting player takes the first turn);
-* an empty ``knowledge_state`` and an empty ``commander_damage_matrix``: at a
-  natural game start no spell or ability has resolved, so no knowledge
-  permission or commander damage can exist; a non-empty request is unsupported.
+Everything else the record requests empty is read back from the engine, never
+inferred (schema ``/4``): the combat in progress, queued extra turns, waiting
+triggered abilities and layered continuous effects (``rules_state``), each
+seat's hidden cards it may see beyond its own hand (``knowledge``) and the
+commander damage it has taken. A missing readback is unsupported.
 """
 
 from __future__ import annotations
@@ -45,7 +47,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-SCHEMA = "commander-lab.generic-constructed-state/3"
+SCHEMA = "commander-lab.generic-constructed-state/4"
 EQUAL = "CONSTRUCTION_EQUAL"
 MISMATCH = "CONSTRUCTION_MISMATCH"
 UNSUPPORTED = "CONSTRUCTION_UNSUPPORTED"
@@ -245,6 +247,99 @@ def _check_setup_validation(checks: _Checks, setup: Any) -> None:
             checks.unsupported(name, "a setup clause this lane does not establish", value)
 
 
+# The engine-native rules state every natural game start must read back empty
+# at the first pregame decision (schema /4). Each is the engine's own count.
+_RULES_STATE_READBACK = {
+    "combat_groups": "combat_state: no combat exists before the first turn",
+    "combat_attackers": "combat_state: no creature is attacking",
+    "extra_turns": "extra_turn_creation / temporal_state.extra_turn_queue: no extra turn",
+    "pending_triggers": "elimination_trigger / stack_state: no triggered ability waits",
+    "continuous_effects": "continuous_rules_effects: no layered continuous effect",
+}
+# The observation-channel policies the lane honours by construction: the
+# constructed state is an orchestration read (keyed digests, never a principal
+# observation), and every principal observation of the run goes through the
+# provider's actor-scoped projection. Any other policy is unsupported.
+_KNOWN_CHANNEL_POLICIES = frozenset(
+    {
+        "RSP actor-aware observation applies to prompts, context, options, source/ability "
+        "metadata, events, transcripts and logs.",
+        "Current candidate-neutral qualification-boundary actor-aware observation applies to "
+        "prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+    }
+)
+
+
+def _is_count(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value >= 0
+
+
+def _check_rules_state(checks: _Checks, rules_state: Any) -> None:
+    """Compare every must-be-empty projection with the engine's own readback."""
+    if not isinstance(rules_state, dict):
+        checks.unsupported("rules_state", "the provider emitted no native rules state")
+        return
+    for key, meaning in _RULES_STATE_READBACK.items():
+        value = rules_state.get(key)
+        if not _is_count(value):
+            checks.unsupported(f"rules_state.{key}", f"no native readback for {meaning}", value)
+        else:
+            checks.compare(f"rules_state.{key}", 0, value, meaning)
+
+
+def _check_knowledge(
+    checks: _Checks, knowledge: dict[str, Any], players_by_id: dict[str, dict[str, Any]]
+) -> None:
+    """Compare each viewer's requested knowledge with the engine's own readback."""
+    policy = knowledge.get("channel_policy")
+    if policy in (None, ""):
+        pass
+    elif policy in _KNOWN_CHANNEL_POLICIES:
+        checks.items.append(
+            FieldCheck(
+                "knowledge_state.channel_policy",
+                "EQUAL",
+                policy,
+                "orchestration-keyed constructed state; actor-scoped principal observation",
+                "established by how this lane observes",
+            )
+        )
+    else:
+        checks.unsupported(
+            "knowledge_state.channel_policy",
+            "an observation policy this lane cannot attest",
+            policy,
+        )
+    viewers = knowledge.get("viewer_states") or []
+    requested: dict[str, Any] = {}
+    for view in viewers:
+        if not isinstance(view, dict) or not _seat(view.get("viewer")):
+            checks.unsupported("knowledge_state.viewer_states", "a malformed viewer state", view)
+            return
+        requested[_seat(view.get("viewer")) or ""] = view
+    for pid in sorted(set(requested) | set(players_by_id)):
+        view = requested.get(pid, {})
+        permissions = {key: value for key, value in view.items() if key != "viewer" and value}
+        if permissions:
+            checks.unsupported(
+                f"knowledge_state.{pid}", "knowledge permissions are not constructed", permissions
+            )
+            continue
+        seen = (players_by_id.get(pid) or {}).get("knowledge")
+        visible = seen.get("visible_hidden_cards") if isinstance(seen, dict) else None
+        if not _is_count(visible):
+            checks.unsupported(
+                f"knowledge_state.{pid}", "the provider emitted no native knowledge readback"
+            )
+        else:
+            checks.compare(
+                f"knowledge_state.{pid}",
+                0,
+                visible,
+                "hidden cards this seat may see beyond its own hand, as the engine tracks them",
+            )
+
+
 def compare(
     record: dict[str, Any],
     constructed: dict[str, Any] | None,
@@ -283,16 +378,24 @@ def compare(
     for key in _MUST_BE_EMPTY:
         if record.get(key):
             checks.unsupported(key, "this lane constructs none of it", record.get(key))
+    _check_rules_state(checks, constructed.get("rules_state"))
 
+    raw_players = constructed.get("players")
     players_by_id: dict[str, dict[str, Any]] = {}
-    for player in constructed.get("players") or []:
-        if isinstance(player, dict) and _seat(player.get("player_id")):
-            players_by_id[_seat(player.get("player_id")) or ""] = player
+    observed_roster: list[str] = []
+    for player in raw_players if isinstance(raw_players, list) else []:
+        seat = _seat(player.get("player_id")) if isinstance(player, dict) else None
+        observed_roster.append(seat or "<malformed>")
+        if seat and isinstance(player, dict):
+            players_by_id.setdefault(seat, player)
     requested_players = record.get("players") or []
+    # The raw roster, not a mapping of it: a duplicate or malformed row is a
+    # mismatch, never silently collapsed into the requested set.
     checks.compare(
         "players.roster",
         sorted(_seat(p.get("player_id")) or "" for p in requested_players),
-        sorted(players_by_id),
+        sorted(observed_roster),
+        "exactly one well-formed row per requested player",
     )
     for wanted in requested_players:
         pid = _seat(wanted.get("player_id")) or ""
@@ -374,6 +477,21 @@ def compare(
             "commander damage cannot be constructed at a natural game start",
             commander_state.get("commander_damage_matrix"),
         )
+    else:
+        for pid, seen in sorted(players_by_id.items()):
+            taken = seen.get("commander_damage_taken")
+            if not isinstance(taken, int) or isinstance(taken, bool):
+                checks.unsupported(
+                    f"commander_state.commander_damage_matrix.{pid}",
+                    "the provider emitted no commander damage readback",
+                )
+            else:
+                checks.compare(
+                    f"commander_state.commander_damage_matrix.{pid}",
+                    0,
+                    taken,
+                    "the engine's commander damage this seat has taken (CR 903.10a)",
+                )
     requested_commanders: dict[str, list[tuple[str, str, str, int]]] = {}
     for commander in commander_state.get("commanders") or []:
         owner = _seat(commander.get("owner")) or ""
@@ -565,26 +683,7 @@ def compare(
             "the starting player holds the game's first priority (CR 103.1)",
         )
 
-    knowledge = record.get("knowledge_state") or {}
-    viewer_states = knowledge.get("viewer_states") or []
-    knowledge_empty = all(
-        isinstance(view, dict) and not any(value for key, value in view.items() if key != "viewer")
-        for view in viewer_states
-    )
-    if knowledge_empty:
-        checks.items.append(
-            FieldCheck(
-                "knowledge_state",
-                "EQUAL",
-                "no knowledge permissions",
-                "none can exist at a natural game start",
-                "no spell or ability has resolved before the first pregame decision",
-            )
-        )
-    else:
-        checks.unsupported(
-            "knowledge_state", "knowledge permissions are not constructed", knowledge
-        )
+    _check_knowledge(checks, record.get("knowledge_state") or {}, players_by_id)
 
     _check_setup_validation(checks, record.get("setup_validation"))
 

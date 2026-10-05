@@ -114,6 +114,13 @@ class XmageConstructedStateTest {
         assertEquals(XmageGameManager.CONSTRUCTED_STATE_SCHEMA, state.get("schema").getAsString());
         assertEquals("orchestration_keyed_digests", state.get("observation_scope").getAsString());
         assertEquals(0, state.get("stack_size").getAsInt());
+        // Native rules state (schema /4): nothing exists before the first turn.
+        JsonObject rules = state.getAsJsonObject("rules_state");
+        assertEquals(0, rules.get("combat_groups").getAsInt(), String.valueOf(rules));
+        assertEquals(0, rules.get("combat_attackers").getAsInt());
+        assertEquals(0, rules.get("extra_turns").getAsInt());
+        assertEquals(0, rules.get("pending_triggers").getAsInt());
+        assertEquals(0, rules.get("continuous_effects").getAsInt(), String.valueOf(rules));
         assertEquals(4, state.getAsJsonArray("players").size());
         for (int seat = 1; seat <= 4; seat++) {
             JsonObject player = player(state, "P" + seat);
@@ -130,6 +137,8 @@ class XmageConstructedStateTest {
             assertEquals(0, player.get("battlefield_size").getAsInt());
             assertEquals(0, player.get("graveyard_size").getAsInt());
             assertEquals(0, player.get("exile_size").getAsInt());
+            assertEquals(0, player.getAsJsonObject("knowledge").get("visible_hidden_cards").getAsInt());
+            assertEquals(0, player.get("commander_damage_taken").getAsInt());
             assertTrue(player.get("library_shuffles").getAsInt() >= 1,
                     "the Rules RNG shuffled this library before the opening draw (CR 103.3)");
             assertEquals(1, player.getAsJsonArray("commanders").size());
@@ -181,6 +190,30 @@ class XmageConstructedStateTest {
         assertEquals(2, counters.size(), String.valueOf(counters));
         assertEquals(2, counters.get("+1/+1").getAsInt());
         assertEquals(3, counters.get("charge").getAsInt());
+    }
+
+    /** The rules state and knowledge are the engine's own: a change in the engine shows. */
+    @Test
+    void theRulesStateAndKnowledgeAreReadFromTheEngine() {
+        XmageRulesRngResultTape.keyForTests(KEY);
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageGameManager manager = new XmageGameManager(importer);
+        String[] handle = new String[1];
+        startedAtFirstDecision(manager, importer, "constructed-rules", null, handle);
+        mage.game.Game game = manager.requireGame(handle[0]);
+        java.util.UUID p1 = game.getState().getPlayerList().get(0);
+        java.util.UUID p2 = game.getState().getPlayerList().get(1);
+        game.getState().getTurnMods().add(new mage.game.turn.TurnMod(p1).withExtraTurn());
+        mage.cards.Card top = game.getPlayer(p1).getLibrary().getFromTop(game);
+        game.getState().getLookedAt(p2).add("probe", top);
+        JsonObject state = manager.constructedState(handle[0]);
+        assertEquals(1, state.getAsJsonObject("rules_state").get("extra_turns").getAsInt());
+        int seen = 0;
+        for (JsonElement element : state.getAsJsonArray("players")) {
+            seen += element.getAsJsonObject().getAsJsonObject("knowledge")
+                    .get("visible_hidden_cards").getAsInt();
+        }
+        assertEquals(1, seen, "exactly one seat looked at exactly one hidden card");
     }
 
     @Test

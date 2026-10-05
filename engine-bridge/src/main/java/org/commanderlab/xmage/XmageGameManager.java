@@ -1011,7 +1011,7 @@ final class XmageGameManager {
     }
 
     /** Schema of {@link #constructedState(String)}. */
-    static final String CONSTRUCTED_STATE_SCHEMA = "commander-lab.generic-constructed-state/3";
+    static final String CONSTRUCTED_STATE_SCHEMA = "commander-lab.generic-constructed-state/4";
 
     /**
      * The engine's normalized constructed state for the generic lane's
@@ -1053,6 +1053,38 @@ final class XmageGameManager {
             root.add("active_player", seatName(managed, game.getActivePlayerId()));
             root.add("priority_player", seatName(managed, game.getPriorityPlayerId()));
             root.addProperty("stack_size", game.getStack().size());
+            // Native rules state (schema /4), read from the engine, never inferred
+            // by the Lab: the combat in progress, queued extra turns, triggered
+            // abilities waiting to be put on the stack, the layered continuous
+            // effects in force, and every revealed card.
+            JsonObject rulesState = new JsonObject();
+            rulesState.addProperty("combat_groups", game.getCombat().getGroups().size());
+            rulesState.addProperty("combat_attackers", game.getCombat().getAttackers().size());
+            int extraTurns = 0;
+            for (mage.game.turn.TurnMod mod : game.getState().getTurnMods()) {
+                if (mod.isExtraTurn()) {
+                    extraTurns++;
+                }
+            }
+            rulesState.addProperty("extra_turns", extraTurns);
+            int pendingTriggers = 0;
+            for (Player player : managed.players) {
+                pendingTriggers += game.getState().getTriggered(player.getId()).size();
+            }
+            rulesState.addProperty("pending_triggers", pendingTriggers);
+            rulesState.addProperty("continuous_effects",
+                    game.getContinuousEffects().getLayeredEffects(game).size());
+            int revealed = 0;
+            for (mage.cards.Cards cards : game.getState().getRevealed().values()) {
+                revealed += cards.size();
+            }
+            int topRevealed = 0;
+            for (Player player : managed.players) {
+                if (player.isTopCardRevealed()) {
+                    topRevealed++;
+                }
+            }
+            root.add("rules_state", rulesState);
             JsonArray players = new JsonArray();
             for (int seat = 0; seat < managed.players.size(); seat++) {
                 Player player = managed.players.get(seat);
@@ -1079,6 +1111,30 @@ final class XmageGameManager {
                     }
                 }
                 entry.addProperty("battlefield_size", battlefield);
+                // Native knowledge (schema /4): hidden cards this seat may see
+                // beyond its own hand: cards it looked at, every revealed card,
+                // and each library whose top card is played revealed.
+                int lookedAt = 0;
+                for (mage.cards.Cards cards : game.getState().getLookedAt(player.getId()).values()) {
+                    lookedAt += cards.size();
+                }
+                JsonObject knowledge = new JsonObject();
+                knowledge.addProperty("visible_hidden_cards", lookedAt + revealed + topRevealed);
+                entry.add("knowledge", knowledge);
+                // Commander damage this seat has taken (CR 903.10a), from each
+                // commander's own damage watcher.
+                int commanderDamage = 0;
+                for (Player owner : managed.players) {
+                    for (UUID commanderId : game.getCommandersIds(
+                            owner, CommanderCardType.COMMANDER_OR_OATHBREAKER, false)) {
+                        mage.watchers.common.CommanderInfoWatcher damage = game.getState()
+                                .getWatcher(mage.watchers.common.CommanderInfoWatcher.class, commanderId);
+                        if (damage != null) {
+                            commanderDamage += damage.getDamageToPlayer().getOrDefault(player.getId(), 0);
+                        }
+                    }
+                }
+                entry.addProperty("commander_damage_taken", commanderDamage);
                 // The engine's own LIBRARY_SHUFFLED events for this seat's
                 // library so far; absent when the game has no shuffle watcher.
                 XmageLibraryShuffleWatcher shuffled =
