@@ -19,6 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import context_capsule as capsule_mod
+import source_lock as source_lock_mod
 
 DEFAULT_PROFILES_DIR = Path(__file__).resolve().parents[2] / ".foundry" / "repo-profiles"
 ROUTER_KIND = "DERIVED_RETRIEVAL_PLAN (shadow only; not Source Authority)"
@@ -246,6 +247,7 @@ def build_plan(
                 "mode": "ON_DEMAND_ONLY",
                 "command": (
                     "python3 tools/foundry/context_router.py repo-map "
+                    f"--profile {engine_profile} "
                     "--workdir <DECLARED_REFERENCE_ROOT> --max-depth 3"
                 ),
             }
@@ -330,12 +332,19 @@ def _clean_prefix(value: str) -> str:
 def build_repo_map(
     workdir: str,
     *,
+    expected_slug: str,
     max_depth: int = 3,
     prefixes: list[str] | None = None,
 ) -> dict:
-    """Return a bounded map of committed directories at exact HEAD."""
+    """Return a bounded map of committed directories at exact canonical HEAD."""
     if max_depth < 1 or max_depth > 6:
         raise RouterError("repo-map max-depth must be between 1 and 6")
+    try:
+        remote = source_lock_mod.remote_identity(workdir)
+    except RuntimeError as exc:
+        raise RouterError("repo-map remote identity unavailable or ambiguous") from exc
+    if not source_lock_mod.is_canonical_remote(remote, expected_slug):
+        raise RouterError("repo-map workdir does not match expected canonical repository")
     branch = _git(["rev-parse", "--abbrev-ref", "HEAD"], workdir)
     head = _git(["rev-parse", "HEAD"], workdir)
     tree = _git(["rev-parse", "HEAD^{tree}"], workdir)
@@ -390,6 +399,8 @@ def main(argv: list[str] | None = None) -> int:
 
     repo_map = sub.add_parser("repo-map")
     repo_map.add_argument("--workdir", required=True)
+    repo_map.add_argument("--profile", required=True, choices=("cpl", "mage", "forge"))
+    repo_map.add_argument("--profiles-dir", default=str(DEFAULT_PROFILES_DIR))
     repo_map.add_argument("--max-depth", type=int, default=3)
     repo_map.add_argument("--prefix", action="append", default=[])
 
@@ -404,8 +415,10 @@ def main(argv: list[str] | None = None) -> int:
                 Path(args.profiles_dir),
             )
         else:
+            profile_data = _load_profile(args.profile, Path(args.profiles_dir))
             result = build_repo_map(
                 args.workdir,
+                expected_slug=profile_data["repo_slug"],
                 max_depth=args.max_depth,
                 prefixes=args.prefix,
             )
