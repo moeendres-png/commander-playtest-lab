@@ -9,7 +9,7 @@ field-level correspondence under the record's own normalization
 
 The provider emits its constructed state from the native game objects inside the
 Rules process (``get_constructed_state``, schema
-``commander-lab.generic-constructed-state/2``), read once the natural game start
+``commander-lab.generic-constructed-state/3``), read once the natural game start
 has constructed the game and parked it at its first pregame decision, before any
 decision is answered. This module compares that state with every requested-state
 projection key the record carries. Anything it cannot compare fails closed:
@@ -45,7 +45,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-SCHEMA = "commander-lab.generic-constructed-state/2"
+SCHEMA = "commander-lab.generic-constructed-state/3"
 EQUAL = "CONSTRUCTION_EQUAL"
 MISMATCH = "CONSTRUCTION_MISMATCH"
 UNSUPPORTED = "CONSTRUCTION_UNSUPPORTED"
@@ -422,29 +422,76 @@ def compare(
             )
             continue
         owner = _seat(obj.get("owner")) or ""
-        controller = _seat(obj.get("controller")) or ""
-        plain = (
-            controller == owner
-            and not obj.get("tapped")
-            and not obj.get("counters")
-            and not obj.get("face_down")
-            and not obj.get("attachments")
-        )
         seen = players_by_id.get(owner) or {}
-        present = any(
-            isinstance(entry, dict)
-            and entry.get("card_identity") == obj.get("card_identity")
-            and entry.get("zone") == "command"
+        # The provider's own commander object of this identity in its owner's
+        # command zone. Every attribute the record states is compared with the
+        # value the engine emits; none is inferred from the request.
+        native = [
+            entry
             for entry in seen.get("commanders") or []
-        )
+            if isinstance(entry, dict)
+            and entry.get("card_identity") == obj.get("card_identity")
+            and _seat(entry.get("owner")) == owner
+            and entry.get("zone") == "command"
+        ]
+        requested_object = {
+            "card_identity": obj.get("card_identity"),
+            "owner": owner,
+            "zone": zone,
+            "controller": _seat(obj.get("controller")) or "",
+            "tapped": bool(obj.get("tapped")),
+            "face_down": bool(obj.get("face_down")),
+            "counters": {k: v for k, v in (obj.get("counters") or {}).items() if v},
+            "attachments": len(obj.get("attachments") or ()),
+        }
+        if len(native) != 1:
+            checks.items.append(
+                FieldCheck(
+                    f"semantic_objects.{sid}",
+                    "MISMATCH",
+                    requested_object,
+                    {"matching_command_zone_commanders": len(native)},
+                    "exactly one engine commander object of this identity in its owner's "
+                    "command zone",
+                )
+            )
+            continue
+        entry = native[0]
+        missing = [
+            key
+            for key in ("controller", "tapped", "face_down", "counters", "attachments")
+            if key not in entry
+        ]
+        if missing:
+            checks.unsupported(
+                f"semantic_objects.{sid}",
+                f"the provider emitted no native {', '.join(missing)} for this object",
+                obj,
+            )
+            continue
+        observed_counters = entry.get("counters")
+        observed_object = {
+            "card_identity": entry.get("card_identity"),
+            "owner": _seat(entry.get("owner")) or "",
+            "zone": entry.get("zone"),
+            "controller": _seat(entry.get("controller")) or "",
+            "tapped": entry.get("tapped"),
+            "face_down": entry.get("face_down"),
+            "counters": (
+                {k: v for k, v in observed_counters.items() if v}
+                if isinstance(observed_counters, dict)
+                else observed_counters
+            ),
+            "attachments": entry.get("attachments"),
+        }
         checks.items.append(
             FieldCheck(
                 f"semantic_objects.{sid}",
-                "EQUAL" if plain and present else "MISMATCH" if plain else "UNSUPPORTED",
-                {"card_identity": obj.get("card_identity"), "owner": owner, "zone": zone},
-                {"present_in_owner_command_zone": present},
-                "a command-zone commander, owned and controlled by its owner, untapped, "
-                "with no counters, attachments or face-down status",
+                "EQUAL" if observed_object == requested_object else "MISMATCH",
+                requested_object,
+                observed_object,
+                "the engine's own commander object: owner, controller, tapped state, "
+                "face-down status, counters and attachments as the engine emits them",
             )
         )
     for pid, seen in players_by_id.items():

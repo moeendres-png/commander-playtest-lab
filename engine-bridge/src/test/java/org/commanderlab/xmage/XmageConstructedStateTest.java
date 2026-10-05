@@ -138,6 +138,14 @@ class XmageConstructedStateTest {
             assertEquals("P" + seat, commander.get("owner").getAsString());
             assertEquals("command", commander.get("zone").getAsString());
             assertEquals(0, commander.get("prior_command_zone_cast_count").getAsInt());
+            // Native attributes (schema /3): the command object's controller is
+            // its owner; a card in the command zone has no permanent, so it is
+            // untapped and has nothing attached; no counters; face up.
+            assertEquals("P" + seat, commander.get("controller").getAsString());
+            assertEquals(0, commander.getAsJsonObject("counters").size());
+            assertFalse(commander.get("face_down").getAsBoolean());
+            assertFalse(commander.get("tapped").getAsBoolean());
+            assertEquals(0, commander.get("attachments").getAsInt());
         }
         // No hidden card name, order or identity leaves the engine.
         String text = state.toString();

@@ -1011,7 +1011,7 @@ final class XmageGameManager {
     }
 
     /** Schema of {@link #constructedState(String)}. */
-    static final String CONSTRUCTED_STATE_SCHEMA = "commander-lab.generic-constructed-state/2";
+    static final String CONSTRUCTED_STATE_SCHEMA = "commander-lab.generic-constructed-state/3";
 
     /**
      * The engine's normalized constructed state for the generic lane's
@@ -1100,6 +1100,39 @@ final class XmageGameManager {
                     commander.add("owner", seatName(managed, card.getOwnerId()));
                     commander.addProperty("zone",
                             String.valueOf(game.getState().getZone(commanderId)).toLowerCase());
+                    // Native object attributes (schema /3), read from the engine:
+                    // the controller of the commander's command object or of its
+                    // permanent (null when it is neither, CR 108.4a); counters and
+                    // face-down status of the card; tapped state and attachments
+                    // exist only for a permanent (CR 110.5, 301.5c), so a card
+                    // with no permanent is untapped and has none attached.
+                    Permanent permanent = game.getPermanent(commanderId);
+                    UUID controllerId = null;
+                    if (permanent != null) {
+                        controllerId = permanent.getControllerId();
+                    } else {
+                        for (mage.game.command.CommandObject object : game.getState().getCommand()) {
+                            if (object instanceof mage.game.command.Commander
+                                    && commanderId.equals(object.getSourceId())) {
+                                controllerId = object.getControllerId();
+                            }
+                        }
+                    }
+                    commander.add("controller", controllerId == null
+                            ? JsonNull.INSTANCE : seatName(managed, controllerId));
+                    JsonObject counters = new JsonObject();
+                    for (mage.counters.Counter counter : (permanent != null
+                            ? permanent.getCounters(game) : card.getCounters(game)).values()) {
+                        if (counter.getCount() > 0) {
+                            counters.addProperty(counter.getName(), counter.getCount());
+                        }
+                    }
+                    commander.add("counters", counters);
+                    commander.addProperty("face_down",
+                            permanent != null ? permanent.isFaceDown(game) : card.isFaceDown(game));
+                    commander.addProperty("tapped", permanent != null && permanent.isTapped());
+                    commander.addProperty("attachments",
+                            permanent == null ? 0 : permanent.getAttachments().size());
                     if (watcher == null) {
                         commander.add("prior_command_zone_cast_count", JsonNull.INSTANCE);
                     } else {

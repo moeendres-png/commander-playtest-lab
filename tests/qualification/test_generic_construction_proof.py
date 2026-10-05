@@ -78,6 +78,12 @@ def _state(players: int = 4) -> dict:
                         "owner": f"P{seat}",
                         "zone": "command",
                         "prior_command_zone_cast_count": 0,
+                        # Native attributes (schema /3), as the engine emits them.
+                        "controller": f"P{seat}",
+                        "counters": {},
+                        "face_down": False,
+                        "tapped": False,
+                        "attachments": 0,
                     }
                 ],
             }
@@ -159,6 +165,23 @@ def _mutate(path: list, value) -> dict:
         ((["players", 2, "library_shuffles"], 0), "rules_randomness.channel.library_shuffle:P3"),
         # Codex P1 (#530): the commander's native owner is compared.
         ((["players", 0, "commanders", 0, "owner"], "P4"), "commander_state.P1.commanders"),
+        # Codex P1 (#530, second round): each native object attribute is the
+        # engine's own value, compared with the record's semantic object.
+        (
+            (["players", 0, "commanders", 0, "controller"], "P2"),
+            "semantic_objects.obj:P1-commander",
+        ),
+        ((["players", 1, "commanders", 0, "tapped"], True), "semantic_objects.obj:P2-commander"),
+        ((["players", 2, "commanders", 0, "face_down"], True), "semantic_objects.obj:P3-commander"),
+        (
+            (["players", 3, "commanders", 0, "counters"], {"charge": 1}),
+            "semantic_objects.obj:P4-commander",
+        ),
+        ((["players", 0, "commanders", 0, "attachments"], 1), "semantic_objects.obj:P1-commander"),
+        (
+            (["players", 0, "commanders", 0, "controller"], None),
+            "semantic_objects.obj:P1-commander",
+        ),
         # Codex P1 (#530): the emitted temporal fields decide the point.
         ((["phase"], "ending"), "temporal_state.phase"),
         ((["turn_number"], 999), "temporal_state.turn_number"),
@@ -558,3 +581,14 @@ def test_the_persisted_row_and_its_receipt_carry_the_proof(record) -> None:
         receipt["observed_assertion"]["row_document_sha256"]
         != forged["observed_assertion"]["row_document_sha256"]
     )
+
+
+@pytest.mark.parametrize(
+    "attribute", ["controller", "tapped", "face_down", "counters", "attachments"]
+)
+def test_a_provider_that_omits_a_native_attribute_is_unsupported(record, attribute) -> None:
+    state = _state()
+    del state["players"][0]["commanders"][0][attribute]
+    proof = _proof(record, state)
+    assert proof.verdict == generic_construction.UNSUPPORTED, proof.reason()
+    assert not proof.established
