@@ -15,6 +15,7 @@ import contextlib
 import json
 import math
 import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -112,6 +113,7 @@ OPTIONAL_EFFICIENCY_FIELDS = (
 )
 LOWER_IS_BETTER_FIELDS = (
     *CORE_EFFICIENCY_FIELDS,
+    "tokens_reasoning",
     "cost_usd",
     "model_turns",
     "patch_count",
@@ -126,6 +128,8 @@ LOWER_IS_BETTER_FIELDS = (
 READ_TOOLS = {"read", "list"}
 SEARCH_TOOLS = {"grep", "glob", "lsp"}
 REJECT_DISPOSITIONS = {"BASELINE_REJECT_QUALITY", "CANDIDATE_REJECT_QUALITY"}
+INCONCLUSIVE_DISPOSITIONS = {"INCONCLUSIVE_MISSING_CORE_METRICS"}
+SAFE_LABEL = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/@:+-]{0,255}$")
 
 
 class BenchmarkError(ValueError):
@@ -177,12 +181,7 @@ def _require_fields(mapping: dict, required: set[str], scope: str) -> None:
 
 
 def _label(value: object, field: str) -> str:
-    if (
-        not isinstance(value, str)
-        or not value.strip()
-        or len(value) > 256
-        or any(ord(char) < 32 for char in value)
-    ):
+    if not isinstance(value, str) or SAFE_LABEL.fullmatch(value) is None:
         raise BenchmarkError(f"invalid {field}")
     return value
 
@@ -301,11 +300,16 @@ def _validate_session(value: object) -> dict:
         clean[name] = int(_number(count, "tool count", integer=True))
     result["tool_calls_by_tool"] = dict(sorted(clean.items()))
 
-    tool_calls = result.get("tool_calls")
-    if tool_calls is None:
-        raise BenchmarkError("session.tool_calls is required")
+    for field in ("model_turns", "tool_calls", "tool_errors", "patch_count"):
+        if result.get(field) is None:
+            raise BenchmarkError(f"session.{field} is required")
+
+    tool_calls = int(result["tool_calls"])
+    tool_errors = int(result["tool_errors"])
     if sum(clean.values()) != tool_calls:
         raise BenchmarkError("session tool counts do not sum to tool_calls")
+    if tool_errors > tool_calls:
+        raise BenchmarkError("session.tool_errors cannot exceed tool_calls")
 
     for field in ("started_utc", "ended_utc"):
         label = _optional_label(value, field)
@@ -373,7 +377,10 @@ def _delta(baseline: int | float, candidate: int | float) -> dict:
     absolute = candidate - baseline
     if isinstance(absolute, float) and not math.isfinite(absolute):
         raise BenchmarkError("delta outside supported numeric range")
-    percent = None if baseline == 0 else (absolute / baseline) * 100.0
+    try:
+        percent = None if baseline == 0 else (absolute / baseline) * 100.0
+    except ArithmeticError as exc:
+        raise BenchmarkError("delta outside supported numeric range") from exc
     if isinstance(percent, float) and not math.isfinite(percent):
         raise BenchmarkError("delta outside supported numeric range")
     return {
@@ -453,9 +460,9 @@ def compare(baseline_doc: dict, candidate_doc: dict) -> dict:
             if candidate["quality"][field] > baseline["quality"][field]:
                 quality_regression = True
                 candidate_reasons.append(f"regressed_{field}")
-        if baseline["quality"]["checks_run"] > 0 and candidate["quality"]["checks_run"] == 0:
+        if candidate["quality"]["checks_run"] < baseline["quality"]["checks_run"]:
             quality_regression = True
-            candidate_reasons.append("verification_checks_collapsed")
+            candidate_reasons.append("verification_checks_reduced")
 
     improved, regressed, unchanged = _efficiency_direction(deltas)
     if baseline_quality != "PASS":
@@ -537,7 +544,11 @@ def _atomic_write_new(path: str, payload: dict) -> None:
 
 
 def _exit_code(result: dict) -> int:
-    return 3 if result["disposition"] in REJECT_DISPOSITIONS else 0
+    if result["disposition"] in REJECT_DISPOSITIONS:
+        return 3
+    if result["disposition"] in INCONCLUSIVE_DISPOSITIONS:
+        return 4
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -564,7 +575,7 @@ def main(argv: list[str] | None = None) -> int:
                     allow_nan=False,
                 )
             )
-    except (BenchmarkError, ValueError) as exc:
+    except (BenchmarkError, ValueError, ArithmeticError) as exc:
         message = str(exc) if isinstance(exc, BenchmarkError) else "cannot serialize result"
         print(f"AGENT_BENCHMARK_REJECT: {message}")
         return 2
