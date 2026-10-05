@@ -127,14 +127,28 @@ class XmageFullGameSettledStatusTest {
             concede.addProperty("proposal_id", "settled-status-concede");
             concede.addProperty("actor_id", actor);
             concede.addProperty("player_id", actor);
-            session.submitConcede(concede);
-            assertTrue(marked.await(30, java.util.concurrent.TimeUnit.SECONDS),
-                    "the game must end by the concession");
-            releaseLater(release);
-            JsonObject settled = session.pendingDecisionPayload();
+            // The engine thread is held in the window for a second after the
+            // game is marked over; the concession's own decision request is
+            // answered inside that window.
+            Thread opener = new Thread(() -> {
+                try {
+                    if (marked.await(30, java.util.concurrent.TimeUnit.SECONDS)) {
+                        Thread.sleep(1_000L);
+                    }
+                } catch (InterruptedException exc) {
+                    Thread.currentThread().interrupt();
+                }
+                release.countDown();
+            });
+            opener.setDaemon(true);
+            opener.start();
+            JsonObject settled = session.submitConcede(concede);
+            assertTrue(marked.getCount() == 0, "the game must end by the concession");
             assertTrue(settled.get("decision").isJsonNull(), settled.toString());
             assertTrue(settled.get("terminal").getAsBoolean(), settled.toString());
             assertFalse(settled.get("engine_thread_alive").getAsBoolean(), settled.toString());
+            JsonObject again = session.pendingDecisionPayload();
+            assertTrue(again.get("terminal").getAsBoolean(), again.toString());
         } finally {
             release.countDown();
             XmageFullGameSession.afterTerminalMarked = () -> { };
