@@ -1,0 +1,13 @@
+project_name: commander-playtest-lab
+language_servers:
+  - python
+  - java
+read_only: true
+default_modes:
+  - no-memories
+ignored_paths:
+  - ".git/**"
+  - ".venv/**"
+  - "artifacts/**"
+  - "dist/**"
+  - "build/**"
