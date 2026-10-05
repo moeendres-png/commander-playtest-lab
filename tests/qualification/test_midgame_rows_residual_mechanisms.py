@@ -707,6 +707,8 @@ WORKSTREAM_ROWS = {
     "NEGATIVE_DEFAULT_YES_NO",
     # #441 contract 1.0.21 E3: Fact or Fiction cast through the causal stack.
     "PILOT_PILE",
+    # #441 contract 1.0.21 E1: Path of Ancestry's scry 1 on XMage's card frame.
+    "PILOT_CHOOSE_USE",
 }
 
 
@@ -853,5 +855,80 @@ def test_a_scripted_frame_needs_the_principal_the_class_and_the_prompt() -> None
         mr.Frame("choose_object", "P2", [], scripted=False, prompt=asked.prompt),
         mr.Frame("target", "P2", [], scripted=True, prompt=asked.prompt),
         mr.Frame("choose_object", "P2", [], scripted=True, prompt="Select a card to discard"),
+    ):
+        assert not mr.check_terminal(check, {}, [], [other])
+
+
+SCRY_SPEC = mr.RowSpec(scry_binding="obj:top-known")
+SCRY_PLACED = {"obj:top-known": "native-top"}
+
+
+def _scry_step(value: Any, family: str = "choose_use") -> dict[str, Any]:
+    return {
+        "decision_family": family,
+        "selection": {"selector_kind": "boolean", "semantic_value": value},
+    }
+
+
+def _scry_legal(natives: list[str], bounds: tuple[int, int] | None = (0, 1)) -> dict[str, Any]:
+    legal: dict[str, Any] = {
+        "actions": [
+            {
+                "metadata": {
+                    "option_type": "object",
+                    "option_id": f"opt-{native}",
+                    "label": "Mountain",
+                    "xmage_option_metadata": {"object_id": native, "name": "Mountain"},
+                }
+            }
+            for native in natives
+        ]
+    }
+    if bounds is not None:
+        legal["decision"] = {"minimum_selections": bounds[0], "maximum_selections": bounds[1]}
+    return legal
+
+
+def test_a_bound_scry_is_answered_on_the_card_frame(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        mr,
+        "_semantic_offers",
+        lambda key, actions, placed: [
+            a
+            for a in actions
+            if a["metadata"]["xmage_option_metadata"]["object_id"] == placed.get(key)
+        ],
+    )
+    assert mr.answers_frame(_scry_step(False), "target", SCRY_SPEC)
+    assert not mr.answers_frame(_scry_step(False), "choose_use", SCRY_SPEC)
+    # Without the row's binding the yes/no step keeps XMage's yes/no class.
+    assert mr.answers_frame(_scry_step(False), "choose_use", mr.RowSpec())
+    keep = mr._scripted_answer(
+        _scry_legal(["native-top"]), _scry_step(False), SCRY_PLACED, SCRY_SPEC
+    )
+    assert keep.action is None and keep.key == "false"
+    bottom = mr._scripted_answer(
+        _scry_legal(["native-top"]), _scry_step(True), SCRY_PLACED, SCRY_SPEC
+    )
+    assert bottom.option_ids == ("opt-native-top",) and bottom.key == "true"
+    for legal, value in (
+        (_scry_legal(["native-other"]), False),
+        (_scry_legal(["native-top", "native-other"]), False),
+        (_scry_legal(["native-top"], bounds=(1, 1)), False),
+        (_scry_legal(["native-top"], bounds=None), False),
+        (_scry_legal(["native-top"]), "false"),
+    ):
+        with pytest.raises(ml.MidgameLaneError):
+            mr._scripted_answer(legal, _scry_step(value), SCRY_PLACED, SCRY_SPEC)
+
+
+def test_a_scripted_key_needs_the_answered_frame() -> None:
+    check = mr.TerminalCheck("scripted_key", principal="P1", value=("target", "false"))
+    kept = mr.Frame("target", "P1", ["Mountain"], scripted=True, selected_key="false")
+    assert mr.bound_token_evidence(check, {}, [], [kept])["decision_frames"] == [0]
+    for other in (
+        mr.Frame("target", "P1", ["Mountain"], scripted=True, selected_key="true"),
+        mr.Frame("target", "P2", ["Mountain"], scripted=True, selected_key="false"),
+        mr.Frame("target", "P1", ["Mountain"], scripted=False, selected_key="false"),
     ):
         assert not mr.check_terminal(check, {}, [], [other])

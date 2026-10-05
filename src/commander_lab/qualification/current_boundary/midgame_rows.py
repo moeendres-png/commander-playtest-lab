@@ -99,6 +99,12 @@ class TerminalCheck:
             return f"{self.card_identity} is in {self.principal}'s graveyard"
         if self.kind == "selected_frame":
             return f"a scripted {self.value} frame selected an engine offer naming {self.label!r}"
+        if self.kind == "scripted_key":
+            decision_class, key = self.value
+            return (
+                f"the record's script answered {self.principal}'s {decision_class} frame "
+                f"with {key!r}"
+            )
         if self.kind == "scripted_frame":
             return (
                 f"the engine asked {self.principal} a {self.value} frame whose prompt names "
@@ -295,6 +301,11 @@ class RowSpec:
     token_bindings: tuple[
         tuple[str, TerminalCheck | tuple[TerminalCheck, ...] | VocabularyToken], ...
     ] = ()
+    # A record's scry 1 named as a yes/no ``choose_use`` step, bound by the
+    # record's own decision_family_binding (CR 701.22a): XMage asks it as a
+    # 0..1 card selection on its target frame. The value is the looked-at
+    # library object; false is the empty selection, true that one card.
+    scry_binding: str | None = None
 
 
 # The record's decision family and the engine's decision class name the same
@@ -745,6 +756,28 @@ ROWS: dict[str, RowSpec] = {
     ),
     # The sibling refusal on the engine's own attack declaration frame.
     "NEGATIVE_INTERNAL_AI": RowSpec(),
+    # PILOT_CHOOSE_USE (contract 1.0.21 E1): P1 casts Keldon Marauders with
+    # Path of Ancestry's mana; it shares a creature type with P1's commander,
+    # so Path scries 1, and P1 keeps the known top card (the record's
+    # choose_use false, bound by its decision_family_binding to XMage's 0..1
+    # card frame as the empty selection).
+    "PILOT_CHOOSE_USE": RowSpec(
+        mana_sources=("obj:path", "obj:path-mountain"),
+        scry_binding="obj:top-known",
+        token_bindings=(
+            (
+                "choose_use_frame:P1",
+                TerminalCheck("scripted_frame", principal="P1", value="target", label="(scry)"),
+            ),
+            (
+                "scry_choice:keep_top",
+                (
+                    TerminalCheck("scripted_key", principal="P1", value=("target", "false")),
+                    _exactly(_event("ZONE_CHANGE", ("target_object", "obj:top-known")), 0),
+                ),
+            ),
+        ),
+    ),
     # PILOT_PILE (contract 1.0.21 E3): P1 casts Fact or Fiction from its
     # declared Islands; on resolution P1 names P2 to separate, and XMage asks
     # P2 to select the first pile on its object frame (the record's pile_a:
@@ -2468,6 +2501,8 @@ def check_terminal(
         return bool(_selected_frames(check, trace))
     if check.kind == "scripted_frame":
         return bool(_scripted_frames(check, trace))
+    if check.kind == "scripted_key":
+        return bool(_scripted_keys(check, trace))
     if check.kind == "no_frame":
         return not any(
             frame.decision_class == check.value
@@ -2645,6 +2680,18 @@ def _scripted_frames(check: TerminalCheck, trace: list[Frame]) -> list[int]:
     ]
 
 
+def _scripted_keys(check: TerminalCheck, trace: list[Frame]) -> list[int]:
+    decision_class, key = check.value
+    return [
+        index
+        for index, frame in enumerate(trace)
+        if frame.decision_class == decision_class
+        and frame.principal == check.principal
+        and frame.scripted
+        and frame.selected_key == key
+    ]
+
+
 LIBRARY_SHUFFLE_CHANNEL = re.compile(r"library_shuffle:(P\d+)")
 
 
@@ -2725,6 +2772,8 @@ def bound_token_evidence(
         evidence["decision_frames"] = _selected_frames(check, trace)
     elif check.kind == "scripted_frame":
         evidence["decision_frames"] = _scripted_frames(check, trace)
+    elif check.kind == "scripted_key":
+        evidence["decision_frames"] = _scripted_keys(check, trace)
     elif check.kind == "extra_turn_created":
         evidence["decision_frames"] = _extra_turn_frames(check, trace)
     else:
@@ -3175,6 +3224,53 @@ def _semantic_offers(
     return []
 
 
+SCRY_DECISION_CLASS = "target"
+
+
+def _is_bound_scry(step: dict[str, Any], spec: RowSpec) -> bool:
+    selection = step.get("selection") or {}
+    return (
+        spec.scry_binding is not None
+        and step.get("decision_family") == "choose_use"
+        and selection.get("selector_kind") == "boolean"
+    )
+
+
+def answers_frame(step: dict[str, Any], decision_class: str, spec: RowSpec) -> bool:
+    """Whether a scripted step answers a pending frame of ``decision_class``."""
+    if _is_bound_scry(step, spec):
+        return decision_class == SCRY_DECISION_CLASS
+    return step_decision_class(step) == decision_class
+
+
+def _scry_answer(
+    legal: dict[str, Any], value: Any, placed: dict[str, str], looked_at: str
+) -> ScriptedAnswer:
+    """A scry 1 answered on XMage's 0..1 card frame (CR 701.22a).
+
+    The frame must offer exactly the one looked-at card and allow selecting
+    none or it; false (keep on top) is the empty selection, true (bottom) is
+    that card. Any other frame shape fails closed.
+    """
+    if not isinstance(value, bool):
+        raise ml.MidgameLaneError(f"the scry answer carries {value!r}")
+    actions = list(legal.get("actions") or ())
+    if len(actions) != 1 or _semantic_offers(looked_at, actions, placed) != actions:
+        raise ml.MidgameLaneError(
+            f"the scry frame must offer exactly the looked-at card {looked_at!r}"
+        )
+    if _engine_selection_bounds(legal) != (0, 1):
+        raise ml.MidgameLaneError(
+            f"the scry frame asks {_engine_selection_bounds(legal)}, not a 0..1 selection"
+        )
+    if not value:
+        return ScriptedAnswer(None, key="false")
+    option_id = _option_id(actions[0])
+    if not option_id:
+        raise ml.MidgameLaneError("the looked-at card's offer carries no option id")
+    return ScriptedAnswer(actions[0], key="true", option_ids=(option_id,))
+
+
 def _partition_first_pile(value: Any) -> Any:
     """The first pile of a record's partition, which the engine asks as a selection.
 
@@ -3279,6 +3375,8 @@ def _scripted_answer(
     actions = list(legal.get("actions") or ())
     key: str | None = None
     numeric: int | None = None
+    if _is_bound_scry(step, spec):
+        return _scry_answer(legal, value, placed, str(spec.scry_binding))
     if kind in ("semantic_player", "semantic_object"):
         matches = _semantic_offers(str(value), actions, placed)
     elif kind == "semantic_objects" and value == []:
@@ -4507,7 +4605,7 @@ def execute_row(
                     if frame.selected_option_type == "mana_pool":
                         spent_colors.append(_spent_color(frame.selected_label))
                 continue
-            if scripted and step is not None and step_decision_class(step) == decision_class:
+            if scripted and step is not None and answers_frame(step, decision_class, spec):
                 answer = _scripted_answer(
                     legal, stack_object_step(step, record), placed, spec, ordinal
                 )
