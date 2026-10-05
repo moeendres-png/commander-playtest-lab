@@ -25,17 +25,21 @@ def arm(name: str, **overrides: object) -> dict:
             "required_evidence_class": "DIRECTLY_VERIFIED",
         },
         "session": {
+            "session_id": f"session-{name}",
+            "agent": "foundry-implementer",
             "model": "opencode-go/deepseek-v4.1-flash",
+            "provider": "opencode-go",
             "variant": "max",
+            "cli_version": "1.18.30",
             "tokens_input": 1000,
             "tokens_output": 200,
             "tokens_reasoning": 50,
             "tokens_cache_read": 300,
             "tokens_cache_write": 0,
+            "cost_usd": 0.5,
             "elapsed_seconds": 120.0,
-            "tool_calls": 20,
             "model_turns": 6,
-            "patch_count": 2,
+            "tool_calls": 20,
             "tool_calls_by_tool": {
                 "read": 4,
                 "grep": 3,
@@ -43,6 +47,11 @@ def arm(name: str, **overrides: object) -> dict:
                 "bash": 10,
                 "edit": 2,
             },
+            "tool_errors": 0,
+            "patch_count": 2,
+            "started_utc": "2026-10-05T12:00:00+00:00",
+            "ended_utc": "2026-10-05T12:02:00+00:00",
+            "compaction_count": None,
         },
         "quality": {
             "technical_outcome": "PASS",
@@ -71,11 +80,12 @@ def arm(name: str, **overrides: object) -> dict:
     return doc
 
 
-def test_measured_pair_preserves_quality_and_reports_deltas() -> None:
+def test_measured_improvement_preserves_quality_and_provenance() -> None:
     baseline = arm("baseline")
     candidate = arm(
         "candidate",
         session={
+            "model": "opencode-go/space-bunny-free",
             "tokens_input": 800,
             "tokens_output": 180,
             "elapsed_seconds": 90.0,
@@ -90,13 +100,19 @@ def test_measured_pair_preserves_quality_and_reports_deltas() -> None:
         quality={"failed_attempts": 0},
     )
     result = bench.compare(baseline, candidate)
-    assert result["disposition"] == "PAIR_MEASURED_QUALITY_PRESERVED"
+    assert result["disposition"] == "PAIR_MEASURED_EFFICIENCY_IMPROVEMENT"
     assert result["candidate_quality_gate"] == "PASS"
+    assert result["baseline_session"]["model"] == "opencode-go/deepseek-v4.1-flash"
+    assert result["candidate_session"]["model"] == "opencode-go/space-bunny-free"
+    assert result["candidate_session"]["cli_version"] == "1.18.30"
     assert result["efficiency_deltas"]["tokens_input"]["percent"] == -20.0
     assert result["efficiency_deltas"]["elapsed_seconds"]["absolute"] == -30.0
     assert result["efficiency_deltas"]["direct_read_calls"]["candidate"] == 2
     assert result["efficiency_deltas"]["direct_search_calls"]["candidate"] == 2
+    assert "tokens_input" in result["efficiency_improved_fields"]
+    assert not result["efficiency_regressed_fields"]
     assert result["tool_output_volume"] is None
+    assert result["tool_output_volume_status"] == "UNAVAILABLE_FROM_SANITIZED_SESSION_STATS"
     assert result["default_promotion_authorized"] is False
 
 
@@ -108,10 +124,12 @@ def test_measured_pair_preserves_quality_and_reports_deltas() -> None:
         ({"unresolved_review_findings": 1}, "unresolved_review_findings"),
         ({"scope_violations": 1}, "scope_violations"),
         ({"final_validation": "UNKNOWN"}, "final_validation_not_pass"),
-        ({"evidence_class": "UNKNOWN"}, "insufficient_evidence_class"),
+        ({"evidence_class": "UNKNOWN"}, "evidence_class_mismatch"),
     ],
 )
-def test_quality_loss_always_rejects_candidate(quality_patch: dict, reason: str) -> None:
+def test_quality_loss_always_rejects_candidate(
+    quality_patch: dict, reason: str
+) -> None:
     result = bench.compare(
         arm("baseline"),
         arm("candidate", quality=quality_patch),
@@ -134,6 +152,14 @@ def test_required_evidence_class_mismatch_rejects_candidate() -> None:
     assert "evidence_class_mismatch" in result["candidate_quality_reasons"]
 
 
+def test_weak_required_evidence_class_rejected_before_comparison() -> None:
+    with pytest.raises(bench.BenchmarkError, match="too weak"):
+        bench.compare(
+            arm("baseline", identity={"required_evidence_class": "CODE_DERIVED"}),
+            arm("candidate", identity={"required_evidence_class": "CODE_DERIVED"}),
+        )
+
+
 def test_invalid_baseline_quality_cannot_authorize_measured_pair() -> None:
     result = bench.compare(
         arm("baseline", quality={"final_validation": "UNKNOWN"}),
@@ -144,11 +170,16 @@ def test_invalid_baseline_quality_cannot_authorize_measured_pair() -> None:
     assert result["default_promotion_authorized"] is False
 
 
-def test_missing_core_metrics_is_inconclusive_not_savings_claim() -> None:
+@pytest.mark.parametrize("missing_from", ["both", "baseline", "candidate"])
+def test_missing_core_metrics_is_inconclusive_not_savings_claim(
+    missing_from: str,
+) -> None:
     baseline = arm("baseline")
     candidate = arm("candidate")
-    del baseline["session"]["tokens_input"]
-    del candidate["session"]["tokens_input"]
+    if missing_from in {"both", "baseline"}:
+        del baseline["session"]["tokens_input"]
+    if missing_from in {"both", "candidate"}:
+        del candidate["session"]["tokens_input"]
     result = bench.compare(baseline, candidate)
     assert result["disposition"] == "INCONCLUSIVE_MISSING_CORE_METRICS"
     assert "tokens_input" not in result["core_efficiency_fields_compared"]
@@ -163,6 +194,108 @@ def test_identity_mismatch_rejected() -> None:
         )
 
 
+def test_unknown_identity_field_rejected_instead_of_dropped() -> None:
+    candidate = arm("candidate")
+    candidate["identity"]["case_seed"] = "seed-A"
+    with pytest.raises(bench.BenchmarkError, match="unsupported fields"):
+        bench.compare(arm("baseline"), candidate)
+
+
+@pytest.mark.parametrize(
+    "scope,patch",
+    [
+        ("benchmark arm", {"extra": "value"}),
+        ("quality", {"quality": {"extra": 1}}),
+        ("session", {"session": {"extra": 1}}),
+    ],
+)
+def test_unknown_fields_fail_closed(scope: str, patch: dict) -> None:
+    candidate = arm("candidate", **patch)
+    with pytest.raises(bench.BenchmarkError, match=scope):
+        bench.compare(arm("baseline"), candidate)
+
+
+def test_same_session_cannot_be_compared_to_itself() -> None:
+    candidate = arm("candidate", session={"session_id": "session-baseline"})
+    with pytest.raises(bench.BenchmarkError, match="distinct sessions"):
+        bench.compare(arm("baseline"), candidate)
+
+
+def test_cli_version_mismatch_rejected() -> None:
+    candidate = arm("candidate", session={"cli_version": "1.18.31"})
+    with pytest.raises(bench.BenchmarkError, match="same CLI version"):
+        bench.compare(arm("baseline"), candidate)
+
+
+def test_tool_count_integrity_rejected() -> None:
+    candidate = arm(
+        "candidate",
+        session={
+            "tool_calls": 3,
+            "tool_calls_by_tool": {"read": 400, "grep": 400, "bash": 5},
+        },
+    )
+    with pytest.raises(bench.BenchmarkError, match="do not sum"):
+        bench.compare(arm("baseline"), candidate)
+
+
+def test_tool_error_regression_is_machine_readable() -> None:
+    result = bench.compare(
+        arm("baseline"),
+        arm("candidate", session={"tool_errors": 2}),
+    )
+    assert result["disposition"] == "PAIR_MEASURED_EFFICIENCY_REGRESSION"
+    assert "tool_errors" in result["efficiency_regressed_fields"]
+
+
+def test_dramatically_worse_candidate_is_not_labeled_favorable() -> None:
+    result = bench.compare(
+        arm("baseline"),
+        arm(
+            "candidate",
+            session={
+                "tokens_input": 9_001_000,
+                "elapsed_seconds": 100_119.0,
+            },
+            quality={"failed_attempts": 77, "fix_waves": 40},
+        ),
+    )
+    assert result["disposition"] == "PAIR_MEASURED_EFFICIENCY_REGRESSION"
+    assert "tokens_input" in result["efficiency_regressed_fields"]
+    assert "elapsed_seconds" in result["efficiency_regressed_fields"]
+    assert "failed_attempts" in result["efficiency_regressed_fields"]
+    assert "fix_waves" in result["efficiency_regressed_fields"]
+
+
+def test_mixed_efficiency_has_explicit_disposition() -> None:
+    result = bench.compare(
+        arm("baseline"),
+        arm(
+            "candidate",
+            session={"tokens_input": 800, "elapsed_seconds": 180.0},
+        ),
+    )
+    assert result["disposition"] == "PAIR_MEASURED_MIXED_EFFICIENCY"
+    assert "tokens_input" in result["efficiency_improved_fields"]
+    assert "elapsed_seconds" in result["efficiency_regressed_fields"]
+
+
+def test_no_efficiency_change_is_explicit() -> None:
+    result = bench.compare(arm("baseline"), arm("candidate"))
+    assert result["disposition"] == "PAIR_MEASURED_NO_EFFICIENCY_CHANGE"
+    assert not result["efficiency_improved_fields"]
+    assert not result["efficiency_regressed_fields"]
+
+
+def test_verification_check_collapse_rejects_candidate() -> None:
+    result = bench.compare(
+        arm("baseline"),
+        arm("candidate", quality={"checks_run": 0}),
+    )
+    assert result["disposition"] == "CANDIDATE_REJECT_QUALITY"
+    assert "verification_checks_collapsed" in result["candidate_quality_reasons"]
+
+
 @pytest.mark.parametrize(
     "field,value",
     [
@@ -170,6 +303,7 @@ def test_identity_mismatch_rejected() -> None:
         ("tokens_input", -1),
         ("tool_calls", 1.5),
         ("elapsed_seconds", float("inf")),
+        ("cost_usd", -0.1),
     ],
 )
 def test_invalid_measurements_rejected(field: str, value: object) -> None:
@@ -180,7 +314,22 @@ def test_invalid_measurements_rejected(field: str, value: object) -> None:
         )
 
 
-def test_cli_rejects_duplicate_json_keys_without_echoing_content(tmp_path: Path, capsys) -> None:
+def test_non_finite_delta_from_finite_inputs_rejected_cleanly() -> None:
+    baseline = arm("baseline", session={"elapsed_seconds": 5e-324})
+    candidate = arm("candidate", session={"elapsed_seconds": 1e308})
+    with pytest.raises(bench.BenchmarkError, match="numeric range"):
+        bench.compare(baseline, candidate)
+
+
+def test_non_null_compaction_count_rejected() -> None:
+    candidate = arm("candidate", session={"compaction_count": 1})
+    with pytest.raises(bench.BenchmarkError, match="must remain unavailable"):
+        bench.compare(arm("baseline"), candidate)
+
+
+def test_cli_rejects_duplicate_json_keys_without_echoing_content(
+    tmp_path: Path, capsys
+) -> None:
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
     baseline.write_text(
@@ -207,8 +356,42 @@ def test_cli_rejects_duplicate_json_keys_without_echoing_content(tmp_path: Path,
     assert "PRIVATE_SENTINEL" not in captured.out
 
 
+def test_invalid_tool_count_does_not_echo_tool_name(tmp_path: Path, capsys) -> None:
+    baseline = tmp_path / "base.json"
+    candidate = tmp_path / "candidate.json"
+    bad = arm(
+        "candidate",
+        session={
+            "tool_calls_by_tool": {
+                "read_PRIVATE_SENTINEL": -1,
+                "grep": 3,
+                "glob": 1,
+                "bash": 10,
+                "edit": 2,
+            }
+        },
+    )
+    baseline.write_text(json.dumps(arm("baseline")), encoding="utf-8")
+    candidate.write_text(json.dumps(bad), encoding="utf-8")
+    assert (
+        bench.main(
+            [
+                "--baseline",
+                str(baseline),
+                "--candidate",
+                str(candidate),
+            ]
+        )
+        == 2
+    )
+    captured = capsys.readouterr()
+    assert "PRIVATE_SENTINEL" not in captured.out
+
+
 @pytest.mark.parametrize("kind", ["same", "symlink", "hardlink"])
-def test_cli_output_cannot_alias_input(tmp_path: Path, capsys, kind: str) -> None:
+def test_cli_output_cannot_alias_input(
+    tmp_path: Path, capsys, kind: str
+) -> None:
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
     baseline.write_text(json.dumps(arm("baseline")), encoding="utf-8")
@@ -240,19 +423,43 @@ def test_cli_output_cannot_alias_input(tmp_path: Path, capsys, kind: str) -> Non
     )
     assert baseline.read_bytes() == before
     captured = capsys.readouterr()
-    assert "output aliases a benchmark input" in captured.out
+    assert "write-once" in captured.out
 
 
-def test_cli_atomic_output(tmp_path: Path) -> None:
+def test_existing_non_input_output_is_never_overwritten(
+    tmp_path: Path, capsys
+) -> None:
+    baseline = tmp_path / "base.json"
+    candidate = tmp_path / "candidate.json"
+    output = tmp_path / "existing.json"
+    baseline.write_text(json.dumps(arm("baseline")), encoding="utf-8")
+    candidate.write_text(json.dumps(arm("candidate")), encoding="utf-8")
+    output.write_text("PRIVATE_SENTINEL\n", encoding="utf-8")
+    assert (
+        bench.main(
+            [
+                "--baseline",
+                str(baseline),
+                "--candidate",
+                str(candidate),
+                "--output",
+                str(output),
+            ]
+        )
+        == 2
+    )
+    assert output.read_text(encoding="utf-8") == "PRIVATE_SENTINEL\n"
+    captured = capsys.readouterr()
+    assert "PRIVATE_SENTINEL" not in captured.out
+
+
+def test_cli_atomic_write_once_output(tmp_path: Path) -> None:
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
     output = tmp_path / "result.json"
-    baseline.write_text(
-        json.dumps(arm("baseline")),
-        encoding="utf-8",
-    )
+    baseline.write_text(json.dumps(arm("baseline")), encoding="utf-8")
     candidate.write_text(
-        json.dumps(arm("candidate")),
+        json.dumps(arm("candidate", session={"tokens_input": 800})),
         encoding="utf-8",
     )
     assert (
@@ -269,5 +476,63 @@ def test_cli_atomic_output(tmp_path: Path) -> None:
         == 0
     )
     result = json.loads(output.read_text(encoding="utf-8"))
-    assert result["disposition"] == "PAIR_MEASURED_QUALITY_PRESERVED"
+    assert result["disposition"] == "PAIR_MEASURED_EFFICIENCY_IMPROVEMENT"
     assert not list(tmp_path.glob(".agent-benchmark-*"))
+
+
+def test_quality_rejection_writes_artifact_but_returns_distinct_nonzero(
+    tmp_path: Path,
+) -> None:
+    baseline = tmp_path / "base.json"
+    candidate = tmp_path / "candidate.json"
+    output = tmp_path / "reject.json"
+    baseline.write_text(json.dumps(arm("baseline")), encoding="utf-8")
+    candidate.write_text(
+        json.dumps(
+            arm(
+                "candidate",
+                quality={"evidence_loss": True},
+            )
+        ),
+        encoding="utf-8",
+    )
+    assert (
+        bench.main(
+            [
+                "--baseline",
+                str(baseline),
+                "--candidate",
+                str(candidate),
+                "--output",
+                str(output),
+            ]
+        )
+        == 3
+    )
+    result = json.loads(output.read_text(encoding="utf-8"))
+    assert result["disposition"] == "CANDIDATE_REJECT_QUALITY"
+
+
+def test_quality_rejection_stdout_returns_distinct_nonzero(
+    tmp_path: Path, capsys
+) -> None:
+    baseline = tmp_path / "base.json"
+    candidate = tmp_path / "candidate.json"
+    baseline.write_text(
+        json.dumps(arm("baseline", quality={"final_validation": "UNKNOWN"})),
+        encoding="utf-8",
+    )
+    candidate.write_text(json.dumps(arm("candidate")), encoding="utf-8")
+    assert (
+        bench.main(
+            [
+                "--baseline",
+                str(baseline),
+                "--candidate",
+                str(candidate),
+            ]
+        )
+        == 3
+    )
+    result = json.loads(capsys.readouterr().out)
+    assert result["disposition"] == "BASELINE_REJECT_QUALITY"
