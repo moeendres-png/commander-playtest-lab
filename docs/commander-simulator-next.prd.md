@@ -132,7 +132,12 @@ particular subsystem already consumed the most engineering effort.
 > workflow because the simulator's evidence is too slow, opaque, or untrustworthy.
 
 **Timeframe:** the first qualified end-to-end real-deck decision cycle after the MVP
-acceptance slice is available. A calendar-duration target is **TBD — needs validation**.
+acceptance slice is available. For practical value, the initial performance target is an
+**overnight-scale decision study**: at least 1,000 complete 4-player games for one frozen
+comparison should be feasible within roughly 8–12 wall-clock hours on a single modern
+consumer workstation, while preserving the same Rules/evidence semantics as a smaller
+run. This is a provisional product target to validate, not permission to trade correctness
+for throughput.
 
 ---
 
@@ -171,7 +176,11 @@ The initial primary user is the project owner. Broader market demand is not yet 
 Potential future users include advanced Commander deck tuners, matchup analysts, and
 developers evaluating pilot policies.
 
-**Status:** assumption only — demand outside the primary user is **TBD — needs validation**.
+The intended distribution direction is **public/open-source code** so other people can
+inspect, run, modify and reuse the simulator. Broader product demand is still an
+assumption; public availability does not itself prove adoption.
+
+**Status:** demand outside the primary user is **TBD — needs validation**.
 
 ### Explicit non-users
 
@@ -202,6 +211,21 @@ The thinnest useful end-to-end slice is:
    and exactly what was or was not supported;
 7. demonstrate that the primary user can act on that result without separately
    reconstructing the relevant rules by hand.
+
+### First value experiment
+
+The first product-value experiment is a **RogShai one-card variant decision**:
+
+- the current authorized RogShai deck is the baseline;
+- one legal one-card challenger variant is frozen before the comparison;
+- RogShai is played against one frozen three-deck real opponent pod;
+- baseline and challenger use the same comparison protocol, pilot family, pod, seat
+  treatment and controlled randomness/replay policy;
+- the experiment asks whether the challenger produces a decision-grade improvement worth
+  changing the real deck, not merely whether its raw win rate is numerically higher.
+
+The exact challenger card and opponent identities are selected from current authorized deck
+truth at experiment time; this PRD does not freeze stale deck bytes.
 
 ### MVP acceptance
 
@@ -236,8 +260,9 @@ establish production readiness.
 | **Hidden-information integrity** | 0 known cross-principal information leaks in the admitted MVP decision workflow | Adversarial hidden-information qualification and replay inspection |
 | **Player-count readiness** | Explicit technical conformance at 2P, 3P, 4P, and 5P before product-ready status | Source-bound conformance evidence per player count; 4P evidence cannot substitute for another count |
 | **Unsupported-path honesty** | 0 unsupported production-reachable paths silently converted into legal actions, default choices, fabricated outcomes, or PASS evidence | Negative controls, qualification findings, and runtime refusal evidence |
-| **Decision-study practicality** | **TBD — needs validation** | Measure wall-clock time, compute cost, operator effort, and useful comparisons per decision study once the MVP loop is real |
-| **Repeat-use value** | **TBD — needs validation** | Track whether the primary user voluntarily uses the simulator for subsequent real deck/pilot decisions rather than returning to the prior workaround |
+| **Decision-study practicality** | Provisional target: >=1,000 complete 4P games for one frozen comparison within ~8–12 hours on one modern consumer workstation, without changing Rules/evidence semantics | Measure wall-clock time, CPU/RAM use, failures/retries, and useful comparable games per study; revise only from measured MVP evidence |
+| **Pilot decision quality** | Pilots make legal-option selections that are strategically coherent for their deck and board state; no known systematic deck-identity or game-plan blindness in the MVP pod | Deck-aware adversarial scenarios, trajectory review, mirror/baseline comparisons, and repeated failure classification; Rules legality remains engine-owned |
+| **Repeat-use value** | Primary user voluntarily uses the simulator for subsequent real deck/pilot decisions once the first decision study is complete | Record follow-on real decisions initiated through the simulator rather than the prior workaround |
 
 The first seven metrics determine whether the system is trustworthy enough to test the
 product thesis. The final two determine whether it is useful enough to become a product
@@ -271,48 +296,62 @@ Commander Simulator Next is **not** intended to:
 
 ## 9. Open Questions
 
-### Value / user questions
+### Resolved product calls
 
-- [ ] **Primary decision order:** Which user decision should be the first product-value
-  demonstration: card swap, matchup plan, mulligan policy, pilot policy, or another real
-  decision?
-- [ ] **Switch threshold:** What level of evidence makes the primary user actually prefer
-  this workflow over manual games/goldfishing for that decision?
-- [ ] **Repeat-use threshold:** How many useful decision studies are needed before we
-  consider the product valuable rather than a one-off research success?
-- [ ] **Broader demand:** Do other advanced Commander players/deckbuilders have the same
-  problem strongly enough to use the product? **TBD — needs validation.**
+- [x] **First value decision:** a RogShai one-card baseline-vs-challenger comparison.
+- [x] **Comparison standard:** the product is judged against whether it can produce
+  trustworthy deck decisions, not against the user's volume of manual games.
+- [x] **Initial practicality target:** overnight-scale batches, provisionally >=1,000
+  complete 4P games in ~8–12 hours on one modern consumer workstation, with correctness
+  never traded for throughput.
+- [x] **Pilot expectation:** pilots should make strategically sensible, deck-aware choices
+  and understand their deck/game plan; legality remains exclusively Rules-Core-owned.
+- [x] **MVP pod:** RogShai plus any three frozen real opponent decks that are currently
+  authorized and collectively exercise a useful range of Commander interactions.
+- [x] **Player count direction:** architecture must not hard-code 4P; 2–5P conformance is
+  required and 6P is a desired stretch capability when it does not materially increase
+  complexity or reduce correctness.
+- [x] **Distribution direction:** public/open-source code intended for reuse by others.
 
-### Practicality questions
+### Decision classes required by the product
 
-- [ ] What wall-clock time per full game or per decision study remains useful?
-  **TBD — needs validation.**
-- [ ] What compute/operating cost per useful decision study is acceptable?
-  **TBD — needs validation.**
-- [ ] How much setup effort can the primary user tolerate when importing or updating real
-  decks and matchup assumptions? **TBD — needs validation.**
-- [ ] What level of pilot strength is "good enough" for decision usefulness without
-  confusing pilot weakness with Rules correctness? **TBD — needs validation.**
+A **decision class** is a kind of discretionary choice a player must make *after* the Rules
+Core has generated the legal domain. v1 should support the generic classes needed by real
+Commander decks rather than card-name-specific handlers, including:
 
-### Product-scope questions
+- priority/action choice (pass, cast, activate, special action where legal);
+- target/player/object selection;
+- mode and option selection;
+- amounts / X / multi-count allocation;
+- cost and mana-payment choices where multiple legal payments exist;
+- optional yes/no / “may” choices;
+- ordering choices such as simultaneous triggers or player-controlled replacement ordering;
+- mulligan/keep decisions;
+- combat attacker, blocker and assignment choices;
+- card/object selection from an engine-defined domain (hand, graveyard, revealed/looked set,
+  pile, library subset, etc.);
+- opponent/player selection;
+- pile/partition/distribution choices.
 
-- [ ] What frozen real-deck pod should serve as the first MVP acceptance set?
-  **TBD — must use current authorized deck truth, not historical snapshots.**
-- [ ] Which classes of deckbuilding decisions must be supported in v1 beyond the first MVP
-  experiment?
-- [ ] Which matchup/meta inputs are required for useful conclusions, and how current must
-  they be?
-- [ ] Is 6+ player support valuable enough for v1, or should it remain a post-readiness
-  capability unless it falls out naturally from a variable-player design?
-- [ ] What product-facing explanation of uncertainty and evidence is sufficient for the
-  primary user to understand the limits of a recommendation?
+The exact representation of these classes is an architecture decision. The product
+requirement is that the Rules Core owns the legal domain and the pilot chooses only within
+that domain.
 
-### Viability / distribution questions
+### Remaining open questions
 
-- [ ] Is the intended product private/personal, shared with a small group, or eventually
-  distributable to a wider audience? **TBD — needs validation.**
-- [ ] What licensing, data, and intellectual-property constraints would apply to that
-  intended distribution model? **TBD — requires separate legal/viability review.**
+- [ ] **Evidence presentation:** what concise user-facing format best communicates result,
+  uncertainty, unsupported surfaces, replayability and qualification standing?
+- [ ] **Broader demand:** do other advanced Commander players/deckbuilders use the public
+  code enough to justify product work beyond the primary user's needs?
+- [ ] **Operating-cost ceiling:** what compute cost per 1,000-game decision study is
+  acceptable once real throughput is measured?
+- [ ] **Pilot-quality threshold:** which quantitative/benchmark criteria best distinguish
+  “strategically useful” from merely legal play without turning pilot strength into Rules
+  authority?
+- [ ] **Public distribution/legal:** which license should the original production code use,
+  and what exact redistribution obligations follow from the selected Rules provider,
+  bundled data and other third-party components?
+
 
 ### Hand-off to architecture
 
