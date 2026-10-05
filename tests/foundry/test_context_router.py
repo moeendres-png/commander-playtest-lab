@@ -29,6 +29,7 @@ def scratch(tmp_path: Path) -> dict:
     git(["init", "-b", "work"], repo)
     git(["config", "user.email", "router@example.invalid"], repo)
     git(["config", "user.name", "router"], repo)
+    git(["remote", "add", "origin", "https://github.com/example/repo.git"], repo)
     (repo / "tools").mkdir()
     (repo / "tools" / "foundry").mkdir()
     (repo / "tools" / "foundry" / "x.py").write_text("x = 1\n", encoding="utf-8")
@@ -244,7 +245,7 @@ def test_engine_profile_requests_map_only_on_demand(
             "mode": "ON_DEMAND_ONLY",
             "command": (
                 "python3 tools/foundry/context_router.py repo-map "
-                "--workdir <DECLARED_REFERENCE_ROOT> --max-depth 3"
+                "--profile mage --workdir <DECLARED_REFERENCE_ROOT> --max-depth 3"
             ),
         }
     ]
@@ -255,7 +256,11 @@ def test_repo_map_is_bounded_to_committed_names(
 ) -> None:
     secret = scratch["root"] / "src" / "pkg" / "private.txt"
     secret.write_text("PRIVATE_SENTINEL\n", encoding="utf-8")
-    result = router.build_repo_map(str(scratch["root"]), max_depth=2)
+    result = router.build_repo_map(
+        str(scratch["root"]),
+        expected_slug="example/repo",
+        max_depth=2,
+    )
     dumped = json.dumps(result)
     assert result["_kind"].startswith("DERIVED_ON_DEMAND")
     assert result["HEAD"] == scratch["head"]
@@ -268,15 +273,30 @@ def test_repo_map_is_bounded_to_committed_names(
 def test_repo_map_prefix_and_depth_are_explicit(scratch: dict) -> None:
     result = router.build_repo_map(
         str(scratch["root"]),
+        expected_slug="example/repo",
         max_depth=2,
         prefixes=["src"],
     )
     assert result["prefixes"] == ["src"]
     assert all(path.startswith("src") for path in result["directories"])
     with pytest.raises(router.RouterError, match="max-depth"):
-        router.build_repo_map(str(scratch["root"]), max_depth=7)
+        router.build_repo_map(
+            str(scratch["root"]), expected_slug="example/repo", max_depth=7
+        )
     with pytest.raises(router.RouterError, match="safe repository-relative"):
-        router.build_repo_map(str(scratch["root"]), prefixes=["../escape"])
+        router.build_repo_map(
+            str(scratch["root"]),
+            expected_slug="example/repo",
+            prefixes=["../escape"],
+        )
+
+
+def test_repo_map_rejects_wrong_canonical_repository(scratch: dict) -> None:
+    with pytest.raises(router.RouterError, match="canonical repository"):
+        router.build_repo_map(
+            str(scratch["root"]),
+            expected_slug="example/other",
+        )
 
 
 def test_plan_is_deterministic(scratch: dict, tmp_path: Path) -> None:
