@@ -693,6 +693,8 @@ WORKSTREAM_ROWS = {
     # #441 contract 1.0.21: two causal extra turns.
     "WS05-MP-TURN-3",
     "WS05-MP-TURN-5",
+    # #441 contract 1.0.21 E2b: the yes/no fail-closed sibling.
+    "NEGATIVE_DEFAULT_YES_NO",
 }
 
 
@@ -757,3 +759,15 @@ def test_requested_blocks_are_checked_even_when_the_script_attacks() -> None:
     assert not mr.combat_matches_request(unblocked, [], compare_attacks=False)["holds"]
     attacked = [_declared("ATTACKER_DECLARED", "obj:a", "P2")]
     assert mr.combat_matches_request(unblocked, attacked, compare_attacks=False)["holds"]
+
+
+def test_a_probe_refuses_only_a_frame_of_its_own_decision_class() -> None:
+    """NEGATIVE_DEFAULT_YES_NO: P1's priority after the cast is not the probed
+    yes/no frame; the probe's class decides which frame is refused."""
+    probe = {
+        "actor": "P1",
+        "decision_family": "choose_use",
+        "selection": {"selector_kind": "fail_closed_probe", "semantic_value": None},
+    }
+    assert mr.step_decision_class(probe) == "choose_use"
+    assert mr.step_decision_class({**probe, "decision_family": "priority"}) == "priority"

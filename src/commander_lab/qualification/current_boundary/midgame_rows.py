@@ -729,11 +729,15 @@ ROWS: dict[str, RowSpec] = {
     "NEGATIVE_SILENT_SKIP": RowSpec(
         mana_sources=("obj:negative_silent_skip-mana-0",),
     ),
-    # The sibling refusal on the engine's own attack declaration frame. (The
-    # yes/no sibling NEGATIVE_DEFAULT_YES_NO has no spec: its record needs a
-    # known library top card, which the lane does not restore, and XMage asks
-    # Opt's scry as a card selection, not as the yes/no frame the record names.)
+    # The sibling refusal on the engine's own attack declaration frame.
     "NEGATIVE_INTERNAL_AI": RowSpec(),
+    # The yes/no sibling (contract 1.0.21 E2b): P1 casts Centaur Courser from
+    # its declared Forests; it enters, P1's Garruk's Packleader triggers and the
+    # engine asks "you may draw a card" on its own yes/no frame, which the
+    # probe refuses explicitly.
+    "NEGATIVE_DEFAULT_YES_NO": RowSpec(
+        mana_sources=tuple(f"obj:neg-forest-{index}" for index in range(3)),
+    ),
     # PILOT_CHOICE: P1's Utopia Sprawl (rebuilt on the stack through the declared
     # causal route) resolves onto the Forest and the engine asks P1 its
     # as-enters color on its own choice frame; the record's key names the
@@ -4176,11 +4180,14 @@ def execute_row(
                 scripted
                 and step is not None
                 and str((step.get("selection") or {}).get("selector_kind")) == "fail_closed_probe"
+                and step_decision_class(step) == decision_class
             ):
                 # The record's obligation is the explicit typed refusal of a
                 # decision class the handler does not support. Nothing is
                 # selected, nothing is submitted and the engine state cannot
-                # change; a malformed refusal fails the row closed.
+                # change; a malformed refusal fails the row closed. Only a
+                # frame of the probe's own decision class is refused: the
+                # actor's priority before that frame is not the probed decision.
                 try:
                     typed = refusal_mod.refuse_pending_decision(client, decision, legal=legal)
                 except refusal_mod.RefusalError as exc:
