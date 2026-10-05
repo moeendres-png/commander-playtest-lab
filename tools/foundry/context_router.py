@@ -240,7 +240,8 @@ def build_plan(
                 "command": (
                     "python3 tools/foundry/context_router.py repo-map "
                     f"--profile {engine_profile} "
-                    "--workdir <DECLARED_REFERENCE_ROOT> --max-depth 3"
+                    "--workdir <DECLARED_REFERENCE_ROOT> "
+                    "--expected-head <DECLARED_SOURCE_LOCK_SHA> --max-depth 3"
                 ),
             }
         )
@@ -325,6 +326,7 @@ def build_repo_map(
     workdir: str,
     *,
     expected_slug: str,
+    expected_head: str,
     max_depth: int = 3,
     prefixes: list[str] | None = None,
 ) -> dict:
@@ -337,8 +339,14 @@ def build_repo_map(
         raise RouterError("repo-map remote identity unavailable or ambiguous") from exc
     if not source_lock_mod.is_canonical_remote(remote, expected_slug):
         raise RouterError("repo-map workdir does not match expected canonical repository")
+    if len(expected_head) != 40 or any(
+        char not in "0123456789abcdefABCDEF" for char in expected_head
+    ):
+        raise RouterError("repo-map expected-head must be a full 40-hex SHA")
     branch = _git(["rev-parse", "--abbrev-ref", "HEAD"], workdir)
     head = _git(["rev-parse", "HEAD"], workdir)
+    if head.casefold() != expected_head.casefold():
+        raise RouterError("repo-map HEAD does not match declared source lock")
     tree = _git(["rev-parse", "HEAD^{tree}"], workdir)
     if branch == "HEAD":
         branch = "(detached)"
@@ -391,6 +399,7 @@ def main(argv: list[str] | None = None) -> int:
     repo_map.add_argument("--workdir", required=True)
     repo_map.add_argument("--profile", required=True, choices=("cpl", "mage", "forge"))
     repo_map.add_argument("--profiles-dir", default=str(DEFAULT_PROFILES_DIR))
+    repo_map.add_argument("--expected-head", required=True)
     repo_map.add_argument("--max-depth", type=int, default=3)
     repo_map.add_argument("--prefix", action="append", default=[])
 
@@ -409,6 +418,7 @@ def main(argv: list[str] | None = None) -> int:
             result = build_repo_map(
                 args.workdir,
                 expected_slug=profile_data["repo_slug"],
+                expected_head=args.expected_head,
                 max_depth=args.max_depth,
                 prefixes=args.prefix,
             )
