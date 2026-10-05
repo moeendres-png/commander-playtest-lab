@@ -112,9 +112,14 @@ OPTIONAL_EFFICIENCY_FIELDS = (
 )
 LOWER_IS_BETTER_FIELDS = (
     *CORE_EFFICIENCY_FIELDS,
+    "cost_usd",
+    "model_turns",
+    "patch_count",
+    "tool_errors",
+    "direct_read_calls",
+    "direct_search_calls",
     "failed_attempts",
     "fix_waves",
-    "tool_errors",
     "context_reloads",
 )
 
@@ -382,7 +387,7 @@ def _delta(baseline: int | float, candidate: int | float) -> dict:
         "candidate": candidate,
         "absolute": absolute,
         "percent": None if percent is None else round(percent, 3),
-        "direction": "improved" if absolute < 0 else "regressed" if absolute > 0 else "unchanged",
+        "change": "decreased" if absolute < 0 else "increased" if absolute > 0 else "unchanged",
     }
 
 
@@ -394,10 +399,10 @@ def _efficiency_direction(deltas: dict[str, dict]) -> tuple[list[str], list[str]
         delta = deltas.get(field)
         if delta is None:
             continue
-        direction = delta["direction"]
-        if direction == "improved":
+        change = delta["change"]
+        if change == "decreased":
             improved.append(field)
-        elif direction == "regressed":
+        elif change == "increased":
             regressed.append(field)
         else:
             unchanged.append(field)
