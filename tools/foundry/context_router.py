@@ -314,6 +314,12 @@ def derive_plan(
     if problems:
         raise RouterError(problems[0])
     profile_data = _load_profile(profile, profiles_dir)
+    try:
+        remote = source_lock_mod.remote_identity(workdir)
+    except RuntimeError as exc:
+        raise RouterError("workdir remote identity unavailable or ambiguous") from exc
+    if not source_lock_mod.is_canonical_remote(remote, profile_data["repo_slug"]):
+        raise RouterError("workdir does not match selected canonical repository")
     return build_plan(
         state,
         facts,
