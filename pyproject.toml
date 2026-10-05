@@ -62,6 +62,10 @@ markers = [
 target-version = "py312"
 line-length = 100
 src = ["src", "tests"]
+# Vendored upstream skill text (Markdown only) is pinned byte-for-byte by
+# tests/unit/test_claude_ci_gate_skills.py; formatting its embedded code
+# examples would break the pin.
+extend-exclude = [".claude/skills/sharp-edges"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
