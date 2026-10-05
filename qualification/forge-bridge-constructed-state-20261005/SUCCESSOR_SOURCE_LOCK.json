@@ -38,15 +38,15 @@
    {
     "run_id": 37302534392,
     "event": "push",
-    "java17": "PENDING",
-    "java21": "PENDING"
+    "java17": "success",
+    "java21": "success"
    },
    {
     "run_id": 37302539535,
     "event": "pull_request",
     "pull_request": 28,
-    "java17": "PENDING",
-    "java21": "PENDING"
+    "java17": "success",
+    "java21": "success"
    }
   ],
   "github_ios_mobivm": [
