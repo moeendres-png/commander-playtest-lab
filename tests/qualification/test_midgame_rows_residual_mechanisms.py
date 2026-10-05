@@ -589,6 +589,8 @@ WORKSTREAM_ROWS = {
     "NEGATIVE_INTERNAL_AI",
     "PILOT_CHOICE",
     "PILOT_CHOOSE_ABILITY",
+    # #441 contract 1.0.21: the layer tokens as discriminating readbacks.
+    "MICRO_LAYERS",
 }
 
 
@@ -653,3 +655,57 @@ def test_requested_blocks_are_checked_even_when_the_script_attacks() -> None:
     assert not mr.combat_matches_request(unblocked, [], compare_attacks=False)["holds"]
     attacked = [_declared("ATTACKER_DECLARED", "obj:a", "P2")]
     assert mr.combat_matches_request(unblocked, attacked, compare_attacks=False)["holds"]
+
+
+def _layers_observation(angel: dict, p1_bears: tuple[int, int], p3_bears: tuple[int, int]) -> dict:
+    def bears(pt: tuple[int, int]) -> dict:
+        return {"card_identity": "Grizzly Bears", "power": pt[0], "toughness": pt[1]}
+
+    return {
+        "seats": [
+            {"player_id": "P1", "battlefield": [bears(p1_bears), bears(p1_bears)]},
+            {"player_id": "P2", "battlefield": [{"card_identity": "Serra Angel", **angel}]},
+            {"player_id": "P3", "battlefield": [bears(p3_bears)]},
+        ]
+    }
+
+
+def _layer_tokens_hold(observation: dict) -> dict[str, bool]:
+    spec = mr.ROWS["MICRO_LAYERS"]
+    result = {}
+    for token, binding in spec.token_bindings:
+        checks = binding if isinstance(binding, tuple) else (binding,)
+        result[token] = all(mr.check_terminal(check, observation, [], []) for check in checks)
+    return result
+
+
+def test_micro_layers_reads_each_layer_from_a_discriminating_permanent() -> None:
+    # Humility and Glorious Anthem as the engine applies them (CR 613.4b-c).
+    applied = _layers_observation({"power": 1, "toughness": 1}, (2, 2), (1, 1))
+    assert _layer_tokens_hold(applied) == {
+        "layer6_remove_abilities": True,
+        "layer7b_set_pt:1/1": True,
+        "layer7c_modify_pt:+1/+1": True,
+    }
+    # Humility ignored: a 4/4 flier with vigilance and 3/3 Bears.
+    no_humility = _layers_observation(
+        {"power": 4, "toughness": 4, "keywords": ["flying", "vigilance"]}, (3, 3), (2, 2)
+    )
+    assert not any(_layer_tokens_hold(no_humility).values())
+    # Anthem ignored: P1's Bears are 1/1, so only layer 7c fails.
+    no_anthem = _layers_observation({"power": 1, "toughness": 1}, (1, 1), (1, 1))
+    assert _layer_tokens_hold(no_anthem) == {
+        "layer6_remove_abilities": True,
+        "layer7b_set_pt:1/1": True,
+        "layer7c_modify_pt:+1/+1": False,
+    }
+
+
+def test_a_keyword_absent_check_needs_the_permanent() -> None:
+    check = mr.TerminalCheck(
+        "keyword_absent", principal="P2", card_identity="Serra Angel", value="flying"
+    )
+    assert mr.needs_observation(check)
+    assert not mr.check_terminal(
+        check, {"players": [{"player_id": "P2", "battlefield": []}]}, [], []
+    )
