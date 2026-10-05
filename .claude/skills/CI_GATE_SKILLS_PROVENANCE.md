@@ -29,7 +29,17 @@ Imported:
 - `scripts/post_patch_validation.py`
 - `scripts/pyproject.toml`
 
-Import state: **byte-identical to the pinned upstream blobs**.
+Adaptation state: `references/evidence-model.md` and the runner files remain
+byte-identical to the pinned upstream blobs; `SKILL.md` is a marked local adaptation.
+
+Local adaptations:
+- removes the plugin-only `Workflow` dependency from `allowed-tools`;
+- replaces the unavailable bundled dynamic workflow wrapper with direct runner usage;
+- adds Commander-specific evidence/ownership guidance without weakening the upstream
+  baseline/variant contract.
+
+Because the Trail of Bits source is CC BY-SA 4.0, this adapted `SKILL.md` remains
+subject to the applicable attribution/share-alike terms.
 
 Purpose: reproducible vulnerable-base vs patched-head validation with independent
 controls, exploit reproduction, root-cause variants, behavior preservation,
@@ -84,7 +94,8 @@ AI-output execution, dangerous sandboxes and wildcard allowlists.
 Source:
 `plugins/superpowers/skills/verification-before-completion/SKILL.md`
 
-Import state: **byte-identical to the pinned upstream blob**.
+Adaptation state: body is upstream-derived; frontmatter trigger wording is locally
+adapted to the repository's skill-description standard and literal trigger phrases.
 
 Purpose: forbids success/completion claims without fresh verification evidence
 matching the exact claim.
@@ -105,12 +116,15 @@ Adaptation state: supporting files remain byte-identical; `SKILL.md` is a marked
 local adaptation.
 
 Local adaptations:
+- rewrites the frontmatter trigger to the repository's third-person/literal-trigger
+  standard;
 - removes the missing hard dependency on `superpowers:test-driven-development`;
 - points completion verification to the locally imported
   `verification-before-completion`;
 - converts the upstream “ask the human after three failed fixes” wording into the
   project's authority-gate rule: ask only at a genuine owner/authority gate,
-  otherwise persist blocker + exact next action.
+  otherwise persist blocker + exact next action;
+- explicitly wires the bundled debugging references/helpers from `SKILL.md`.
 
 ### `commander-quality-gate` — adapted from upstream `gate`
 
