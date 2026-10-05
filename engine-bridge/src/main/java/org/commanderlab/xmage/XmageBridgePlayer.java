@@ -53,8 +53,7 @@ import java.util.UUID;
  * is not gameplay evidence.
  * GUI/out-of-scope lifecycle methods remain bounded compatibility behavior.</p>
  *
- * <p>Library shuffling is never replaced (the override below only records the
- * engine's own result around it): it is Rules randomness owned by
+ * <p>Library shuffling is never overridden: it is Rules randomness owned by
  * XMage ({@code PlayerImpl.shuffleLibrary}: SHUFFLE_LIBRARY replacement,
  * the per-game Rules RNG, LIBRARY_SHUFFLED event). A bridge-side no-op would
  * silently skip CR 103.3 and every later shuffle, leave each library in
@@ -375,28 +374,6 @@ final class XmageBridgePlayer extends PlayerImpl {
             return false;
         }
         return externalDecisionController.requestMulligan(this, game);
-    }
-
-    /**
-     * The engine's own shuffle, unchanged; only on a launch that carries an
-     * orchestration key, its Rules-RNG result is taped around it (AF09's
-     * {@link XmageRulesRngResultTape}, as the full-game player does), so the
-     * generic lane's constructed state can state which libraries the Rules RNG
-     * shuffled (Commander-Lab #441 decision (c)). Without a key nothing is
-     * recorded.
-     */
-    @Override
-    public void shuffleLibrary(Ability source, Game game) {
-        boolean taped = game != null && !game.isSimulation() && XmageRulesRngResultTape.enabled();
-        long callsBefore = taped ? game.getRulesRandomCalls() : 0L;
-        if (taped) {
-            XmageRulesRngResultTape.beforeShuffle(game, getId(), getLibrary().getCardList());
-        }
-        super.shuffleLibrary(source, game);
-        if (taped) {
-            XmageRulesRngResultTape.afterShuffle(game, getId(), callsBefore,
-                    game.getRulesRandomCalls(), getLibrary().getCardList());
-        }
     }
 
     @Override

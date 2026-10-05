@@ -534,6 +534,7 @@ final class XmageGameManager {
             options.stopAtStep = PhaseStep.UPKEEP;
 
             try {
+                managed.game.getState().addWatcher(new XmageLibraryShuffleWatcher());
                 managed.game.start(choosingPlayer.getId());
             } catch (RuntimeException | Error exc) {
                 managed.lifecycle = Lifecycle.FAILED;
@@ -630,6 +631,7 @@ final class XmageGameManager {
 
     private static void runExternalStart(ManagedGame managed, UUID startingPlayerId) {
         try {
+            managed.game.getState().addWatcher(new XmageLibraryShuffleWatcher());
             managed.game.start(startingPlayerId);
             if (managed.game.getTotalErrorsCount() != 0) {
                 throw new IllegalStateException(
@@ -1077,18 +1079,13 @@ final class XmageGameManager {
                     }
                 }
                 entry.addProperty("battlefield_size", battlefield);
-                // The Rules-RNG shuffles of this seat's library so far, from the
-                // engine's own taped results: each consumed the Rules RNG.
-                int seatIndex = XmageRulesRngResultTape.seatIndex(game, player.getId());
-                int shuffles = 0;
-                for (JsonElement result : XmageRulesRngResultTape.results(game)) {
-                    JsonObject taped = result.getAsJsonObject();
-                    if (taped.get("seat").getAsInt() == seatIndex
-                            && taped.get("after").getAsLong() > taped.get("before").getAsLong()) {
-                        shuffles++;
-                    }
+                // The engine's own LIBRARY_SHUFFLED events for this seat's
+                // library so far; absent when the game has no shuffle watcher.
+                XmageLibraryShuffleWatcher shuffled =
+                        game.getState().getWatcher(XmageLibraryShuffleWatcher.class);
+                if (shuffled != null) {
+                    entry.addProperty("library_shuffles", shuffled.shuffles(player.getId()));
                 }
-                entry.addProperty("library_shuffles", shuffles);
                 mage.watchers.common.CommanderPlaysCountWatcher watcher = game.getState()
                         .getWatcher(mage.watchers.common.CommanderPlaysCountWatcher.class);
                 JsonArray commanders = new JsonArray();
