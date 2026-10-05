@@ -15,7 +15,8 @@ tests, or sealed evidence.
 2. verifies the selected CPL/Mage/Forge repository profile matches the state's canonical slug;
 3. chooses only repository **read domains** from explicit changed paths and bounded state signals;
 4. emits references and deterministic helper commands, never conclusions;
-5. broadens to the full state when routing is unknown or a risk marker is present.
+5. broadens to the full state when routing is unknown or a risk marker is present;
+6. emits the symbolic `$FOUNDRY_STATE_PATH` reference rather than echoing the local state-file path.
 
 Broad fallback is mandatory when no deterministic route matches, more than 20 changed paths are
 declared, an authority gate exists, failure classification is UNKNOWN, validation credit was
@@ -35,8 +36,11 @@ the command loads the canonical CPL/Mage/Forge repo profile, verifies the checko
 credential-bearing, wrong-repository, malformed-lock, or drifted-HEAD identities fail closed
 without echoing the remote value.
 
-The map records HEAD/tree/dirty-count and directory names up to an explicit maximum depth. Directory
-presence is navigation data only, never evidence that a mechanic or API behaves as expected.
+The map records HEAD/tree/dirty-count and directory names up to an explicit maximum depth.
+Repository-relative prefixes are syntax-bounded (no absolute paths, traversal, wildcard/pathspec
+magic or whitespace-surrounded values), at most 16 prefixes are accepted, and output fails closed
+above 500 directories or 200 root entries. Directory presence is navigation data only, never
+evidence that a mechanic or API behaves as expected.
 
 ## Authority and promotion boundary
 
