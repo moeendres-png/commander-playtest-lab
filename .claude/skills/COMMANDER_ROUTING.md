@@ -36,3 +36,29 @@ should normally start from the existing mission/epic/issue plus `plan-architectu
 - Human/agent review language in upstream skills does not weaken project-specific
   evidence, Rules, security, merge, Provider Selection, or Freeze gates.
 - Any conflict resolves in favor of `AGENTS.md` and the newest active contract.
+
+
+## CI / gate / remediation routing
+
+For material engineering changes, CI/check work, remediation, or pre-merge
+adjudication, prefer this sequence when applicable:
+
+1. `systematic-debugging` — use on a failing test/build/workflow or unexpected
+   runtime result before proposing fixes. Establish root cause and defect layer.
+2. `post-patch-validation` — use after a defect/gate blind spot has a patch and a
+   meaningful vulnerable baseline. Demand baseline reproduction plus an independent
+   root-cause variant, preserved behavior, regression/security checks and suite evidence.
+3. `differential-review` — use for material source/workflow/qualification/test diffs
+   to inspect history, blast radius, coverage, regressions and adversarial scenarios.
+4. `agentic-actions-auditor` — additionally use whenever AI-agent GitHub Actions,
+   prompts, permissions, sandbox/tool access, reusable workflows or untrusted event
+   data are touched.
+5. `commander-quality-gate` — use as the Commander-specific integration controller:
+   source lock, project-native mechanical floor, required evidence lenses, bounded
+   repair, exact-head CI, drift adjudication and protected merge.
+6. `verification-before-completion` — always apply before claiming a fix, gate,
+   PR, milestone or workstream complete.
+
+The specialized skills are complementary, not interchangeable. A `commander-quality-gate`
+run may invoke several of them depending on impact. None of them turns advisory
+review into Rules qualification or overrides the active issue contract.
