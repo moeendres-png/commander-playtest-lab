@@ -383,6 +383,22 @@ def declared_payment_sources(
             raise CausalRouteError(
                 f"declared payment source {semantic_id!r} is not a battlefield object of {actor}"
             )
+        # The route binds an engine tap to a declared source only by name, so a
+        # declared source the record itself shows unable to pay (tapped, face
+        # down with no abilities per CR 708.2, or phased out) would let an
+        # undeclared untapped same-name source be credited under the declared
+        # id. Refuse it before the engine; an unstated tapped flag is refused too.
+        obj = raw.get(source.semantic_id) or {}
+        if (
+            obj.get("tapped") is not False
+            or obj.get("face_down") is True
+            or obj.get("phased_out") is True
+        ):
+            raise CausalRouteError(
+                f"declared payment source {semantic_id!r} cannot pay per the record "
+                f"(tapped={obj.get('tapped')!r}, face_down={obj.get('face_down')!r}, "
+                f"phased_out={obj.get('phased_out')!r})"
+            )
         sources.append(source)
     if len({source.semantic_id for source in sources}) != len(sources):
         raise CausalRouteError(f"duplicate declared payment sources for {source_semantic_id}")
@@ -723,7 +739,10 @@ def run_causal_route(
                         "source_semantic_id": source_id,
                         "card": cast_object.name,
                         "cast_label": chosen.label,
-                        "targets": [
+                        # Copied from the record's own steps: what was declared, not
+                        # what the engine showed. The observed target evidence is the
+                        # tape and ``engine_assigned_targets``.
+                        "declared_targets": [
                             (s.get("selection") or {}).get("semantic_value") for s in targets
                         ],
                         "declared_mana": None if declared_mana is None else list(declared_mana),

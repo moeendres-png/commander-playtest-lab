@@ -314,6 +314,19 @@ UNPROJECTED_READBACK: dict[str, str] = {
     ),
 }
 
+# ``resolve:<card>`` tokens whose resolution leaves a characteristic the pinned
+# bridge does project. Giant Growth's +3/+3 shows in the battlefield
+# power/toughness readback, so its missing observer is the Lab's gap; a card
+# whose effect is marked damage (Lightning Bolt) is not projected and stays a
+# provider gap. Declared per card, never inferred from card text; the class
+# names who owns the gap and never credits the row.
+PROJECTED_RESOLUTION: dict[str, str] = {
+    "Giant Growth": (
+        "the resolution's +3/+3 is visible in the pinned bridge's battlefield "
+        "power/toughness projection; the lane implements no resolve observer for it yet"
+    ),
+}
+
 # Obligation kinds the lane already evaluates from engine facts.
 _LANE_OBLIGATION_KINDS = frozenset(
     {
@@ -522,16 +535,20 @@ def classify_row(record: dict[str, Any]) -> ForgeResidual:
         for token in required:
             if not lane.scripted_token_observable(str(token)):
                 family = _token_family(token)
+                card = str(token).split(":", 1)[1].replace("_", " ") if ":" in str(token) else ""
+                projected = PROJECTED_RESOLUTION.get(card) if family == "resolve" else None
                 observing.append(
                     {
                         "stage": "observation",
                         "dimension": f"scripted_token:{token}",
                         # A family the readback cannot show is a provider gap;
-                        # one the lane merely does not observe yet is the Lab's.
-                        "class": PROVIDER_ADAPTER_GAP
-                        if family in lane.SCRIPTED_TOKEN_UNOBSERVABLE
-                        else LAB_EXECUTION_GAP,
-                        "detail": lane.SCRIPTED_TOKEN_UNOBSERVABLE.get(
+                        # one the lane merely does not observe yet is the Lab's,
+                        # as is a resolution whose effect the readback projects.
+                        "class": LAB_EXECUTION_GAP
+                        if projected is not None or family not in lane.SCRIPTED_TOKEN_UNOBSERVABLE
+                        else PROVIDER_ADAPTER_GAP,
+                        "detail": projected
+                        or lane.SCRIPTED_TOKEN_UNOBSERVABLE.get(
                             family, f"the lane has no observer for {family!r} tokens"
                         ),
                     }

@@ -119,6 +119,9 @@ The 19 provider gaps break down as follows:
 - two need a resolution readback (MICRO_PRIORITY, MICRO_STACK, #561 B1): the readback shows a
   spell leaving the stack, not whether it resolved, was countered or was removed for
   illegal targets (CR 608.2b), and the bridge projects no marked damage and no event log.
+  This is classified per card: `resolve:Lightning_Bolt` (marked damage, not projected)
+  is the provider gap, while `resolve:Giant_Growth` is a Lab gap, since its +3/+3 is
+  visible in the projected power/toughness and only the observer is missing.
 
 Some rows have more than one provider gap. Each row's matrix entry lists every
 mechanism.
@@ -157,10 +160,10 @@ every mechanism of every row; the table shows the first one.
 | MICRO_MANA_PAYMENT | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_MODES | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_PREVENTION | PROVIDER_ADAPTER_GAP | observation: `event_log` | `combat_damage_would_be:P2:2`, `prevention_applied`, `combat_damage_prevented:P2:2` |
-| MICRO_PRIORITY | PROVIDER_ADAPTER_GAP | observation: `scripted_token:resolve:Giant_Growth` | — |
+| MICRO_PRIORITY | PROVIDER_ADAPTER_GAP | observation: `scripted_token:resolve:Lightning_Bolt` | — |
 | MICRO_REPLACEMENT | PROVIDER_ADAPTER_GAP | observation: `event_log` | `damage_would_be:P2:3`, `replacement_effect:double` |
 | MICRO_RULES_RANDOMNESS | PROVIDER_ADAPTER_GAP | construction: `rules_randomness.predetermined_semantic_draws` | `rules_rng:coin_flip:HEADS`, `extra_turn_created:P1` |
-| MICRO_STACK | PROVIDER_ADAPTER_GAP | observation: `scripted_token:resolve:Giant_Growth` | — |
+| MICRO_STACK | PROVIDER_ADAPTER_GAP | observation: `scripted_token:resolve:Lightning_Bolt` | — |
 | MICRO_STATE_BASED_ACTIONS | PROVIDER_ADAPTER_GAP | observation: `event_log` | `state_based_actions` |
 | MICRO_TARGETS | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_TRIGGERS | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |

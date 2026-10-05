@@ -150,24 +150,24 @@ BOLT = "Lightning Bolt (411) - Lightning Bolt (411) deals 3 damage to forge-p2."
 COUNTER = "Counterspell (410) - Counter Lightning Bolt (411)."
 
 
-def _players(tapped_islands: int = 0) -> list[dict]:
+def _players(tapped_islands: int = 0, land: str = "Island") -> list[dict]:
     details = [
-        {"name": "Island", "tapped": index < tapped_islands, "counters": {}} for index in range(2)
+        {"name": land, "tapped": index < tapped_islands, "counters": {}} for index in range(2)
     ]
     return [
         {
             "player_id": "p1",
             "mana_pool": {"W": 0, "U": 0, "B": 0, "R": 0, "G": 0, "C": 0},
-            "zones": {"battlefield": ["Island", "Island"], "battlefield_details": details},
+            "zones": {"battlefield": [land, land], "battlefield_details": details},
         },
         {"player_id": "p2", "zones": {}},
     ]
 
 
-def _state(stack: list[str], priority: str, tapped_islands: int = 0) -> dict:
+def _state(stack: list[str], priority: str, tapped_islands: int = 0, land: str = "Island") -> dict:
     return {
         "stack": stack,
-        "players": _players(tapped_islands),
+        "players": _players(tapped_islands, land),
         "turn_number": 1,
         "phase": "precombat_main",
         "step": "MAIN1",
@@ -720,7 +720,229 @@ def test_the_effective_target_rows_stay_blocked_with_exact_reasons() -> None:
         row = fr.classify_row(records[fixture])
         assert row.classification != fr.SCENARIO_LANE_EXECUTABLE
         if fixture != "MICRO_MANA_PAYMENT":
-            assert {
-                "scripted_token:resolve:Giant_Growth",
-                "scripted_token:resolve:Lightning_Bolt",
-            } <= {item["dimension"] for item in row.mechanisms}
+            classes = {item["dimension"]: item["class"] for item in row.mechanisms}
+            # Per card: Giant Growth's +3/+3 is projected (the Lab's observer is
+            # missing); Lightning Bolt's marked damage is not (a provider gap).
+            assert classes["scripted_token:resolve:Giant_Growth"] == fr.LAB_EXECUTION_GAP
+            assert classes["scripted_token:resolve:Lightning_Bolt"] == fr.PROVIDER_ADAPTER_GAP
+            assert row.classification == fr.PROVIDER_ADAPTER_GAP
+
+
+# ---------------------------------------------------------------------------
+# Wrong-reason reds: each check of the cast predicate and the observer contract
+# ---------------------------------------------------------------------------
+def _with_snapshot(run: fcr.CausalRun, at: str, state: dict[str, Any] | None) -> fcr.CausalRun:
+    """A copy of the run whose ``at`` snapshot is replaced (or dropped for None)."""
+    tampered = copy.deepcopy(run)
+    tampered.snapshots = [
+        snapshot if snapshot["at"] != at else {"at": at, "state": state}
+        for snapshot in tampered.snapshots
+        if snapshot["at"] != at or state is not None
+    ]
+    return tampered
+
+
+def _verdict(
+    monkeypatch: pytest.MonkeyPatch,
+    required: list[str],
+    run: fcr.CausalRun | None = None,
+    record: dict[str, Any] | None = None,
+) -> fsl.ObligationVerdict:
+    record = record or _record()
+    record["expected_events"]["required_events"] = required
+    model = _model(record, monkeypatch)
+    if run is None:
+        _, run = _run(monkeypatch, record=record)
+    return fsl.evaluate_scripted_decision_offered(model, run)
+
+
+def test_priority_returned_to_another_seat_does_not_complete_the_cast(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    frames = _frames()
+    frames[10] = _priority("p2")  # Counterspell is on top, but p2 holds priority
+    _, run = _run(monkeypatch, frames=frames)
+    assert run.failure and "did not complete" in run.failure
+    assert "p2 holds priority" in run.failure
+
+
+def test_a_frame_asked_of_another_actor_during_a_cast_is_refused(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    frames = _frames()
+    frames.insert(
+        8,
+        _frame("MANA_PAYMENT", "p2", _action("i0", "tap_mana_source", ISLAND, "Island"), DECLINE),
+    )
+    states = {key + (key >= 8): value for key, value in STATES.items()}
+    bridge, run = _run(monkeypatch, frames=frames, states=states)
+    assert run.failure and "MANA_PAYMENT of p2 during p1's cast" in run.failure
+    assert "i0" not in bridge.submitted()
+
+
+def test_the_requested_checkpoint_must_be_exact(monkeypatch: pytest.MonkeyPatch) -> None:
+    _, run = _run(monkeypatch)
+    assert _verdict(monkeypatch, ["Counterspell_cast"], run).observed
+    tampered = _with_snapshot(
+        run, "requested_checkpoint", {**_state([BOLT], "p1"), "turn_number": 2}
+    )
+    verdict = _verdict(monkeypatch, ["Counterspell_cast"], tampered)
+    assert not verdict.observed and not verdict.credit_eligible_observation
+    assert "requested_checkpoint" in verdict.reason
+
+
+def test_the_caused_stack_must_be_cast_by_its_declared_controller(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _, run = _run(monkeypatch)
+    tampered = copy.deepcopy(run)
+    cast = next(f for f in tampered.frames if f.reason == "causal cast obj:bolt")
+    cast.actor = "p3"
+    verdict = _verdict(monkeypatch, ["Counterspell_cast"], tampered)
+    assert not verdict.observed and "cast_by_declared_controllers" in verdict.reason
+
+
+def test_a_stack_push_needs_the_stack_to_grow_with_the_spell_on_top(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _, run = _run(monkeypatch)
+    assert _verdict(monkeypatch, ["stack_push:Counterspell"], run).observed
+    tampered = _with_snapshot(run, "cast_complete:obj:counterspell", _state([BOLT], "p1", 2))
+    verdict = _verdict(monkeypatch, ["stack_push:Counterspell"], tampered)
+    assert not verdict.observed and "stack_push:Counterspell" in verdict.reason
+
+
+def test_priority_is_observed_only_over_the_caused_stack(monkeypatch: pytest.MonkeyPatch) -> None:
+    _, run = _run(monkeypatch)
+    assert _verdict(monkeypatch, ["priority:P1"], run).observed
+    assert not _verdict(monkeypatch, ["priority:P3"], run).observed
+    tampered = _with_snapshot(run, "before_scripted_0", _state([], "p1"))
+    verdict = _verdict(monkeypatch, ["priority:P1"], tampered)
+    assert not verdict.observed and "priority:P1" in verdict.reason
+
+
+def test_a_spell_cast_needs_its_cast_completed_in_the_readback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _, run = _run(monkeypatch)
+    tampered = _with_snapshot(run, "cast_complete:obj:counterspell", None)
+    verdict = _verdict(monkeypatch, ["Counterspell_cast"], tampered)
+    assert not verdict.observed and "Counterspell_cast" in verdict.reason
+
+
+def test_floating_mana_after_the_cast_is_not_the_declared_payment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _, run = _run(monkeypatch)
+    floating = _state([COUNTER, BOLT], "p1", tapped_islands=2)
+    floating["players"][0]["mana_pool"] = {**floating["players"][0]["mana_pool"], "U": 1}
+    tampered = _with_snapshot(run, "cast_complete:obj:counterspell", floating)
+    verdict = _verdict(monkeypatch, ["mana_paid:UU"], tampered)
+    assert not verdict.observed and "no_floating_mana" in verdict.reason
+
+
+def test_the_engine_cast_cost_must_be_the_declared_mana(monkeypatch: pytest.MonkeyPatch) -> None:
+    _, run = _run(monkeypatch)
+    tampered = copy.deepcopy(run)
+    cast = next(f for f in tampered.frames if f.reason == "scripted step")
+    label = "Counterspell [cast_spell] ({1}{U})"
+    cast.offered[cast.offered_option_ids.index(cast.chosen_option_id)] = label
+    cast.chosen = label
+    verdict = _verdict(monkeypatch, ["mana_paid:UU"], tampered)
+    assert not verdict.observed and "engine_cast_cost" in verdict.reason
+
+
+def test_an_unchanged_tapped_count_is_not_a_payment(monkeypatch: pytest.MonkeyPatch) -> None:
+    states = {**STATES, 10: _state([COUNTER, BOLT], "p1", tapped_islands=0)}
+    _, run = _run(monkeypatch, states=states)
+    assert run.failure is None, run.failure
+    for token in ("mana_paid:UU", "mana_abilities_activated:2"):
+        verdict = _verdict(monkeypatch, [token], run)
+        assert not verdict.observed and "the readback shows 0 -> 0 tapped Island" in verdict.reason
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("forbidden_events", ["Counterspell_countered"]),
+        ("ordering_constraints", [["mana_paid:UU", "Counterspell_cast"]]),
+        ("partial_order_constraints", [["mana_paid:UU", "Counterspell_cast"]]),
+        ("terminal_postconditions", ["Lightning Bolt is countered."]),
+    ],
+)
+def test_an_unevaluated_obligation_field_keeps_the_row_unknown(
+    monkeypatch: pytest.MonkeyPatch, field: str, value: list[Any]
+) -> None:
+    record = _record()
+    if field == "terminal_postconditions":
+        record[field] = value
+    else:
+        record["expected_events"][field] = value
+    model = _model(record, monkeypatch)
+    _, run = _run(monkeypatch, record=record)
+    assert run.failure is None, run.failure
+    verdict = fsl.evaluate_scripted_decision_offered(model, run)
+    assert not verdict.observed and not verdict.credit_eligible_observation
+    assert "no_unevaluated_obligation_fields" in verdict.reason
+    assert verdict.terminal_facts["unevaluated_obligation_fields"] == [field]
+    with pytest.raises(fsl.ScenarioLaneError, match="were not evaluated"):
+        fsl._obligation_exercised(record, "scripted_decision_offered", "s", "o")
+
+
+def test_a_scripted_receipt_names_only_the_evaluated_fields() -> None:
+    exercised = fsl._obligation_exercised(_record(), "scripted_decision_offered", "s", "o")
+    assert set(exercised) == {"requested_state_digest", "obligation_digest", "required_events"}
+
+
+def test_a_tapped_declared_source_is_refused_not_credited_from_another(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A {R} spell, declared [mountain-a, tapped], an undeclared untapped Mountain."""
+    record = _record(sources=("obj:mountain-a",))
+    tapped = _object("obj:mountain-a", "Mountain", "P1", "battlefield")
+    tapped["tapped"] = True
+    record["semantic_objects"] = [
+        o for o in record["semantic_objects"] if not o["semantic_id"].startswith("obj:island")
+    ] + [
+        tapped,
+        _object("obj:mountain-b", "Mountain", "P1", "battlefield"),
+        _object("obj:rite", "Rite of Flame", "P1", "hand"),
+    ]
+    record["action_cost_state"][0]["source_semantic_id"] = "obj:rite"
+    record["decision_script"] = [
+        _step("priority", "semantic_action", {"action": "cast", "object": "obj:rite"}),
+        _step("mana_payment", "mana_payment", {"mana": ["R"]}),
+    ]
+    record["expected_events"]["required_events"] = ["mana_paid:R", "Rite_of_Flame_cast"]
+    rite = "Rite of Flame (420) - Add {R}{R}."
+    frames = [
+        *_frames()[:7],
+        _priority(
+            "p1", _action("rite", "cast_spell", "Rite of Flame [cast_spell] ({R})", "Rite of Flame")
+        ),
+        _frame(
+            "MANA_PAYMENT",
+            "p1",
+            _action("m-b", "tap_mana_source", "Tap Mountain for mana", "Mountain"),
+            DECLINE,
+        ),
+        _priority("p1"),
+        _priority("p2"),
+        _priority("p3"),
+        _priority("p4"),
+        _priority("p1"),
+    ]
+    # The record shows mountain-a tapped; the readback starts with one Mountain tapped.
+    states = {
+        0: _state([], "p1", 1, "Mountain"),
+        4: _state([BOLT], "p2", 1, "Mountain"),
+        7: _state([BOLT], "p1", 1, "Mountain"),
+        9: _state([rite, BOLT], "p1", 2, "Mountain"),
+        13: _state([], "p1", 2, "Mountain"),
+    }
+    bridge, run = _run(monkeypatch, frames=frames, states=states, record=record)
+    assert run.failure and "'obj:mountain-a' cannot pay per the record" in run.failure
+    assert "rite" not in bridge.submitted() and "m-b" not in bridge.submitted()
+    model = _model(record, monkeypatch)
+    verdict = fsl.evaluate_scripted_decision_offered(model, run)
+    assert not verdict.observed and not verdict.credit_eligible_observation

@@ -426,7 +426,7 @@
    "first_missing": {
     "class": "PROVIDER_ADAPTER_GAP",
     "detail": "the readback shows a spell leaving the stack, not whether it resolved, was countered or was removed for illegal targets (CR 608.2b); the pinned bridge projects no marked damage and exports no event log",
-    "dimension": "scripted_token:resolve:Giant_Growth",
+    "dimension": "scripted_token:resolve:Lightning_Bolt",
     "stage": "observation"
    },
    "fixture_id": "MICRO_PRIORITY",
@@ -451,8 +451,8 @@
      "stage": "checkpoint_readback"
     },
     {
-     "class": "PROVIDER_ADAPTER_GAP",
-     "detail": "the readback shows a spell leaving the stack, not whether it resolved, was countered or was removed for illegal targets (CR 608.2b); the pinned bridge projects no marked damage and exports no event log",
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the resolution's +3/+3 is visible in the pinned bridge's battlefield power/toughness projection; the lane implements no resolve observer for it yet",
      "dimension": "scripted_token:resolve:Giant_Growth",
      "stage": "observation"
     },
@@ -475,7 +475,7 @@
      "resolve:Lightning_Bolt"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (scripted_token:resolve:Giant_Growth): the readback shows a spell leaving the stack, not whether it resolved, was countered or was removed for illegal targets (CR 608.2b); the pinned bridge projects no marked damage and exports no event log. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); observation scripted_token:resolve:Lightning_Bolt (PROVIDER_ADAPTER_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (scripted_token:resolve:Lightning_Bolt): the readback shows a spell leaving the stack, not whether it resolved, was countered or was removed for illegal targets (CR 608.2b); the pinned bridge projects no marked damage and exports no event log. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); observation scripted_token:resolve:Giant_Growth (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -593,7 +593,7 @@
    "first_missing": {
     "class": "PROVIDER_ADAPTER_GAP",
     "detail": "the readback shows a spell leaving the stack, not whether it resolved, was countered or was removed for illegal targets (CR 608.2b); the pinned bridge projects no marked damage and exports no event log",
-    "dimension": "scripted_token:resolve:Giant_Growth",
+    "dimension": "scripted_token:resolve:Lightning_Bolt",
     "stage": "observation"
    },
    "fixture_id": "MICRO_STACK",
@@ -618,8 +618,8 @@
      "stage": "checkpoint_readback"
     },
     {
-     "class": "PROVIDER_ADAPTER_GAP",
-     "detail": "the readback shows a spell leaving the stack, not whether it resolved, was countered or was removed for illegal targets (CR 608.2b); the pinned bridge projects no marked damage and exports no event log",
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the resolution's +3/+3 is visible in the pinned bridge's battlefield power/toughness projection; the lane implements no resolve observer for it yet",
      "dimension": "scripted_token:resolve:Giant_Growth",
      "stage": "observation"
     },
@@ -642,7 +642,7 @@
      "resolve:Lightning_Bolt"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (scripted_token:resolve:Giant_Growth): the readback shows a spell leaving the stack, not whether it resolved, was countered or was removed for illegal targets (CR 608.2b); the pinned bridge projects no marked damage and exports no event log. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); observation scripted_token:resolve:Lightning_Bolt (PROVIDER_ADAPTER_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (scripted_token:resolve:Lightning_Bolt): the readback shows a spell leaving the stack, not whether it resolved, was countered or was removed for illegal targets (CR 608.2b); the pinned bridge projects no marked damage and exports no event log. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); observation scripted_token:resolve:Giant_Growth (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",

@@ -2871,6 +2871,29 @@ def _route_checkpoint(model: RequestedStateModel, run: fcr.CausalRun) -> dict[st
     }
 
 
+# The obligation fields the scripted-decision contract has no evaluator for. A
+# record that states any of them non-empty stays unobserved (UNKNOWN), and its
+# receipt never lists them as exercised.
+SCRIPTED_UNEVALUATED_FIELDS = (
+    "forbidden_events",
+    "ordering_constraints",
+    "partial_order_constraints",
+    "terminal_postconditions",
+)
+
+
+def scripted_unevaluated_fields(record: dict[str, Any]) -> list[str]:
+    """The record's non-empty obligation fields the scripted contract cannot judge."""
+    expected = record.get("expected_events") or {}
+    values = {
+        "forbidden_events": expected.get("forbidden_events"),
+        "ordering_constraints": expected.get("ordering_constraints"),
+        "partial_order_constraints": expected.get("partial_order_constraints"),
+        "terminal_postconditions": record.get("terminal_postconditions"),
+    }
+    return [name for name in SCRIPTED_UNEVALUATED_FIELDS if values[name]]
+
+
 def evaluate_scripted_decision_offered(
     model: RequestedStateModel, run: fcr.CausalRun
 ) -> ObligationVerdict:
@@ -2881,7 +2904,9 @@ def evaluate_scripted_decision_offered(
     must equal the snapshot taken with that stack, every tape choice must be an
     option the engine offered on its frame, and every required token needs its
     own observer. A token without one (``SCRIPTED_TOKEN_UNOBSERVABLE``) leaves
-    the obligation unobserved: UNKNOWN, never PASS.
+    the obligation unobserved: UNKNOWN, never PASS. So does any non-empty
+    obligation field the contract does not evaluate
+    (``SCRIPTED_UNEVALUATED_FIELDS``).
     """
     kind = "scripted_decision_offered"
     plan = model.causal_plan
@@ -2916,6 +2941,9 @@ def evaluate_scripted_decision_offered(
         "scripted_casts_recorded": bool(casts) and len(casts) == len(run.scripted_casts),
         "requested_checkpoint": checkpoint["verdict"] == CHECKPOINT_EXACT,
     }
+    unevaluated = scripted_unevaluated_fields(model.record)
+    facts["unevaluated_obligation_fields"] = unevaluated
+    checks["no_unevaluated_obligation_fields"] = not unevaluated
     tokens: dict[str, dict[str, Any]] = {}
     for token in required:
         family, argument = _scripted_token(token)
@@ -3517,6 +3545,33 @@ def _receipt_observed_assertion(evidence: RowEvidence) -> dict[str, Any]:
     }
 
 
+def _obligation_exercised(
+    record: dict[str, Any], obligation_kind: Any, state_digest: Any, obligation_digest: Any
+) -> dict[str, Any]:
+    """The obligation fields a receipt names as exercised: only those evaluated.
+
+    The scripted-decision contract judges ``required_events`` only; the fields it
+    does not evaluate are never listed (a record stating any of them is not
+    observed, so it never reaches a receipt).
+    """
+    expected = record.get("expected_events") or {}
+    exercised: dict[str, Any] = {
+        "requested_state_digest": state_digest,
+        "obligation_digest": obligation_digest,
+        "required_events": list(expected.get("required_events") or ()),
+    }
+    if obligation_kind == "scripted_decision_offered":
+        unevaluated = scripted_unevaluated_fields(record)
+        if unevaluated:
+            raise ScenarioLaneError(
+                f"{record.get('fixture_id')}: {unevaluated} were not evaluated; no receipt"
+            )
+        return exercised
+    exercised["forbidden_events"] = list(expected.get("forbidden_events") or ())
+    exercised["terminal_postconditions"] = list(record.get("terminal_postconditions") or ())
+    return exercised
+
+
 def positive_receipt(
     evidence: RowEvidence,
     record: dict[str, Any],
@@ -3562,17 +3617,9 @@ def positive_receipt(
             f"#{evidence.fixture_id}"
         ),
         "execution_mode": FORGE_SCENARIO_EXECUTION_MODE,
-        "obligation_exercised": {
-            "requested_state_digest": state_digest,
-            "obligation_digest": obligation_digest,
-            "required_events": list(
-                (record.get("expected_events") or {}).get("required_events") or ()
-            ),
-            "forbidden_events": list(
-                (record.get("expected_events") or {}).get("forbidden_events") or ()
-            ),
-            "terminal_postconditions": list(record.get("terminal_postconditions") or ()),
-        },
+        "obligation_exercised": _obligation_exercised(
+            record, classification.get("obligation_kind"), state_digest, obligation_digest
+        ),
         "observed_assertion": assertion,
         # A fixture-declared native player-loss cause is recorded as such, never
         # relabelled EXACT: the checkpoint verdict travels with the receipt.
