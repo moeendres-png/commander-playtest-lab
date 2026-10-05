@@ -197,9 +197,7 @@ def _number(value: object, field: str, *, integer: bool = False) -> int | float:
     return int(value) if integer else value
 
 
-def _optional_number(
-    mapping: dict, field: str, *, integer: bool = False
-) -> int | float | None:
+def _optional_number(mapping: dict, field: str, *, integer: bool = False) -> int | float | None:
     value = mapping.get(field)
     if value is None:
         return None
@@ -238,12 +236,8 @@ def _validate_quality(value: object) -> dict:
     _reject_unknown_keys(value, QUALITY_FIELDS, "quality")
     _require_fields(value, QUALITY_FIELDS, "quality")
     result = {
-        "technical_outcome": _label(
-            value.get("technical_outcome"), "quality.technical_outcome"
-        ),
-        "final_validation": _label(
-            value.get("final_validation"), "quality.final_validation"
-        ),
+        "technical_outcome": _label(value.get("technical_outcome"), "quality.technical_outcome"),
+        "final_validation": _label(value.get("final_validation"), "quality.final_validation"),
         "evidence_class": _label(value.get("evidence_class"), "quality.evidence_class"),
     }
     if result["technical_outcome"] not in OUTCOMES:
@@ -420,9 +414,7 @@ def compare(baseline_doc: dict, candidate_doc: dict) -> dict:
         raise BenchmarkError("A/B arms must use the same CLI version")
 
     required_evidence_class = baseline["identity"]["required_evidence_class"]
-    baseline_quality, baseline_reasons = _quality_gate(
-        baseline["quality"], required_evidence_class
-    )
+    baseline_quality, baseline_reasons = _quality_gate(baseline["quality"], required_evidence_class)
     candidate_quality, candidate_reasons = _quality_gate(
         candidate["quality"], required_evidence_class
     )
@@ -440,9 +432,7 @@ def compare(baseline_doc: dict, candidate_doc: dict) -> dict:
         deltas[field] = _delta(baseline_direct[field], candidate_direct[field])
 
     for field in ("failed_attempts", "fix_waves", "checks_run"):
-        deltas[field] = _delta(
-            baseline["quality"][field], candidate["quality"][field]
-        )
+        deltas[field] = _delta(baseline["quality"][field], candidate["quality"][field])
     if (
         baseline["quality"]["context_reloads"] is not None
         and candidate["quality"]["context_reloads"] is not None
@@ -452,9 +442,7 @@ def compare(baseline_doc: dict, candidate_doc: dict) -> dict:
             candidate["quality"]["context_reloads"],
         )
 
-    comparable_core = [
-        field for field in CORE_EFFICIENCY_FIELDS if field in deltas
-    ]
+    comparable_core = [field for field in CORE_EFFICIENCY_FIELDS if field in deltas]
     quality_regression = candidate_quality != "PASS"
     if baseline_quality == "PASS":
         for field in (
@@ -465,10 +453,7 @@ def compare(baseline_doc: dict, candidate_doc: dict) -> dict:
             if candidate["quality"][field] > baseline["quality"][field]:
                 quality_regression = True
                 candidate_reasons.append(f"regressed_{field}")
-        if (
-            baseline["quality"]["checks_run"] > 0
-            and candidate["quality"]["checks_run"] == 0
-        ):
+        if baseline["quality"]["checks_run"] > 0 and candidate["quality"]["checks_run"] == 0:
             quality_regression = True
             candidate_reasons.append("verification_checks_collapsed")
 
@@ -556,9 +541,7 @@ def _exit_code(result: dict) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Compare one sanitized Commander agent A/B pair."
-    )
+    parser = argparse.ArgumentParser(description="Compare one sanitized Commander agent A/B pair.")
     parser.add_argument("--baseline", required=True)
     parser.add_argument("--candidate", required=True)
     parser.add_argument("--output")
