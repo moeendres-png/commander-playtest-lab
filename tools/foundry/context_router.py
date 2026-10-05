@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -50,6 +51,9 @@ DOMAIN_REFS: dict[str, tuple[str, ...]] = {
     "failure": (
         ".opencode/skills/failure-classification/SKILL.md",
     ),
+    "engine_bridge": (
+        "engine-bridge/",
+    ),
     "mage": (
         ".foundry/repo-profiles/mage.json",
     ),
@@ -68,7 +72,7 @@ PATH_SIGNALS: tuple[tuple[str, str], ...] = (
     ("qualification/", "qualification"),
     ("tests/qualification/", "qualification"),
     ("docs/qualification/", "qualification"),
-    ("engine-bridge/", "mage"),
+    ("engine-bridge/", "engine_bridge"),
 )
 
 TEXT_SIGNALS: tuple[tuple[tuple[str, ...], str], ...] = (
@@ -152,7 +156,13 @@ def _domains(state: dict, profile: str) -> tuple[list[str], list[str]]:
 
     text = _routing_text(state)
     for needles, domain in TEXT_SIGNALS:
-        if any(needle in text for needle in needles):
+        if any(
+            re.search(
+                rf"(?<![a-z0-9]){re.escape(needle.strip())}(?![a-z0-9])",
+                text,
+            )
+            for needle in needles
+        ):
             selected.add(domain)
             reasons.append(f"state-signal:{domain}")
 
@@ -177,6 +187,8 @@ def _needs_broad_context(state: dict, domains: list[str], paths: list[str]) -> t
         reasons.append("no deterministic route matched")
     if len(paths) > MAX_CHANGED_PATHS:
         reasons.append(f"files_modified exceeds {MAX_CHANGED_PATHS}")
+    if "engine_bridge" in domains and not ({"mage", "forge"} & set(domains)):
+        reasons.append("engine bridge provider ambiguous")
     if _strings(state.get("authority_gates")):
         reasons.append("authority gate present")
     if str(state.get("failure_class", "NONE")) == "UNKNOWN":
