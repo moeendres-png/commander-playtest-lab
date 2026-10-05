@@ -395,6 +395,8 @@ def test_agents_md_encodes_technical_autonomy() -> None:
     assert "no other opencode execution profile is authorized" in flat
     assert "autonomous tool use" in flat
     assert "authority_gate" in flat
+    assert "claude_opus_coordinator_authority = delegated_by_owner" in flat
+    assert "owner-only decisions" in flat
 
 
 def test_reviewer_remains_high_and_read_only() -> None:
@@ -1014,6 +1016,8 @@ def test_claude_entrypoint_delegates_to_canonical_policy() -> None:
     assert "canonical durable agent policy" in flat
     assert "not an independent policy source" in flat
     assert "claude opus 5.5" in flat
+    assert "claude_opus_coordinator_authority = delegated_by_owner" in flat
+    assert "owner-only reservations" in flat
 
 
 def test_current_routing_is_executor_neutral_and_bunny_preferred() -> None:
@@ -1030,3 +1034,5 @@ def test_current_routing_is_executor_neutral_and_bunny_preferred() -> None:
         "can perform it" in flat
     )
     assert "docs/current_execution_authority.md" in flat
+    assert "coordinator tier's decision authority" in flat
+    assert "owner-only reservations" in flat
