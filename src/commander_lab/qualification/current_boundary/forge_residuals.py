@@ -303,6 +303,16 @@ OBSERVATION: dict[str, str] = {
     "state_based_actions": EVENT_LOG,
 }
 
+# Readback tokens whose characteristic the pinned bridge never projects: a
+# provider gap however the lane observes them. Forge's battlefield projection
+# carries each permanent's power and toughness but no abilities.
+UNPROJECTED_READBACK: dict[str, str] = {
+    "layer6_remove_abilities": (
+        "the obligation reads a permanent's abilities and the pinned bridge's battlefield "
+        "projection carries power and toughness but no abilities (no ability readback)"
+    ),
+}
+
 # Obligation kinds the lane already evaluates from engine facts.
 _LANE_OBLIGATION_KINDS = frozenset(
     {
@@ -483,6 +493,17 @@ def classify_row(record: dict[str, Any]) -> ForgeResidual:
     row.observation = {basis: tokens for basis, tokens in observation.items() if tokens}
 
     observing: list[dict[str, str]] = []
+    for token in observation[READBACK]:
+        unprojected = UNPROJECTED_READBACK.get(_token_family(token))
+        if unprojected is not None:
+            observing.append(
+                {
+                    "stage": "observation",
+                    "dimension": f"unprojected_readback:{_token_family(token)}",
+                    "class": PROVIDER_ADAPTER_GAP,
+                    "detail": unprojected,
+                }
+            )
     if observation[EVENT_LOG]:
         observing.append(
             {

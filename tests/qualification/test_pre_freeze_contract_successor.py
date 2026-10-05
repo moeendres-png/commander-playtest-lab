@@ -2176,6 +2176,13 @@ def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
             for s in effective[fixture_id]["decision_script"]
             if s["selection"]["selector_kind"] == "card_identity_multiset"
         ] == [("P1", "choose_object", {"Mountain": 1}), ("P3", "choose_object", {"Mountain": 1})]
+        # Nexus of Fate's shuffle is a declared Rules-RNG channel bound to the seed.
+        randomness = effective[fixture_id]["rules_randomness"]
+        assert randomness["channels"] == ["library_shuffle:P3"]
+        assert randomness["rules_seed"] == base[fixture_id]["rules_randomness"]["rules_seed"]
+        # The passes are declared by the erratum's native procedure, never left implicit.
+        erratum = effective[fixture_id]["native_procedure"][-1]["details"]
+        assert "priority_passes" in erratum and "nexus_shuffle" in erratum
     # Every SLOT-04 library is complete: named objects on top, then 99 - hand templates.
     for fixture_id in ("PILOT_CHOOSE_USE", "NEGATIVE_DEFAULT_YES_NO", "PILOT_PILE"):
         decks = {d["player_id"]: d for d in effective[fixture_id]["deck_state"]}
@@ -2208,16 +2215,17 @@ def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
     assert not any(
         (step.get("details") or {}).get("native_procedure_step_not_executed") for step in active
     )
-    # PILOT_PILE: P1 chooses the opponent who separates (HIDDEN_13's route).
+    # PILOT_PILE: P1 chooses the opponent who separates while Fact or Fiction
+    # resolves (CR 608.2d), after the cast and the payment.
     pile = effective["PILOT_PILE"]["decision_script"]
     assert [(s["actor"], s["decision_family"]) for s in pile] == [
         ("P1", "priority"),
-        ("P1", "target"),
         ("P1", "mana_payment"),
+        ("P1", "target"),
         ("P2", "pile"),
         ("P1", "pile"),
     ]
-    assert pile[1]["selection"]["semantic_value"] == "P2"
+    assert pile[2]["selection"]["semantic_value"] == "P2"
     # NEGATIVE_DEFAULT_YES_NO: the probe metadata names the Packleader trigger.
     probe = effective["NEGATIVE_DEFAULT_YES_NO"]["negative_fallback_probe"]
     assert "Packleader" in probe["production_reachable_trigger"]

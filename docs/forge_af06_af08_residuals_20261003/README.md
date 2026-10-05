@@ -77,8 +77,8 @@ the effective contract.
 
 | Class | Rows (of 70) |
 |---|---|
-| `LAB_EXECUTION_GAP` | 40 |
-| `PROVIDER_ADAPTER_GAP` | 16 |
+| `LAB_EXECUTION_GAP` | 39 |
+| `PROVIDER_ADAPTER_GAP` | 17 |
 | `SCENARIO_LANE_EXECUTABLE` | 12 (six already PASS in the baseline epoch, and the six causal commander zone rows) |
 | `CONTRACT_AUTHORITY_GAP` | 2 (WS05-CMD-START-2, WS05-CMD-START-3: unscripted starting player) |
 
@@ -88,9 +88,11 @@ for the same unscripted starting player. Whether the generic route's starter sel
 (`game_driver.STARTING_PLAYER_POLICY`, default seat `p1`) has contract authority is an
 open impact question for the #441 reassembly; see Findings.
 
-The 16 provider gaps break down as follows:
+The 17 provider gaps break down as follows:
 - 10 rows need an event log (MICRO_LAYERS no longer does: its layer tokens are
   characteristic readbacks, CR 613);
+- one needs an ability readback (MICRO_LAYERS: the bridge projects power and toughness
+  but no abilities, so `layer6_remove_abilities` cannot be read);
 - three need a mulligan (PILOT_MULLIGAN, WS05-CMD-MULL-2 and WS05-CMD-MULL-4), and
   WS05-CMD-MULL-2 also the London bottom selection;
 - one needs predetermined draws (MICRO_RULES_RANDOMNESS);
@@ -130,7 +132,7 @@ every mechanism of every row; the table shows the first one.
 | MICRO_CONTROL | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_COPY | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | MICRO_COSTS | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
-| MICRO_LAYERS | LAB_EXECUTION_GAP | observation: `observation_contract` | — |
+| MICRO_LAYERS | PROVIDER_ADAPTER_GAP | observation: `unprojected_readback:layer6_remove_abilities` | — |
 | MICRO_MANA_PAYMENT | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | MICRO_MODES | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | MICRO_PREVENTION | PROVIDER_ADAPTER_GAP | observation: `event_log` | `combat_damage_would_be:P2:2`, `prevention_applied`, `combat_damage_prevented:P2:2` |

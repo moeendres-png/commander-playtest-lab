@@ -254,6 +254,13 @@ def test_layer_tokens_are_characteristic_readbacks(records) -> None:
     row = fr.classify_row(records["MICRO_LAYERS"])
     assert not row.needs_event_log
     assert set(row.observation) == {fr.READBACK}
+    # The P/T tokens are projected; the bridge projects no abilities, so the
+    # ability-removal token is still a provider gap, never a Lab-only one.
+    assert row.classification == fr.PROVIDER_ADAPTER_GAP
+    assert row.first_missing["dimension"] == "unprojected_readback:layer6_remove_abilities"
+    assert [
+        item["dimension"] for item in row.mechanisms if item["class"] == fr.PROVIDER_ADAPTER_GAP
+    ] == ["unprojected_readback:layer6_remove_abilities"]
 
 
 def test_the_readme_table_is_the_matrix(records) -> None:
