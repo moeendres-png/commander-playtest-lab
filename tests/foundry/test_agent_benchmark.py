@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 
 import pytest
-
 from tools.foundry import agent_benchmark as bench
 
 
@@ -127,9 +126,7 @@ def test_measured_improvement_preserves_quality_and_provenance() -> None:
         ({"evidence_class": "UNKNOWN"}, "evidence_class_mismatch"),
     ],
 )
-def test_quality_loss_always_rejects_candidate(
-    quality_patch: dict, reason: str
-) -> None:
+def test_quality_loss_always_rejects_candidate(quality_patch: dict, reason: str) -> None:
     result = bench.compare(
         arm("baseline"),
         arm("candidate", quality=quality_patch),
@@ -357,9 +354,7 @@ def test_non_null_compaction_count_rejected() -> None:
         bench.compare(arm("baseline"), candidate)
 
 
-def test_cli_rejects_duplicate_json_keys_without_echoing_content(
-    tmp_path: Path, capsys
-) -> None:
+def test_cli_rejects_duplicate_json_keys_without_echoing_content(tmp_path: Path, capsys) -> None:
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
     baseline.write_text(
@@ -419,9 +414,7 @@ def test_invalid_tool_count_does_not_echo_tool_name(tmp_path: Path, capsys) -> N
 
 
 @pytest.mark.parametrize("kind", ["same", "symlink", "hardlink"])
-def test_cli_output_cannot_alias_input(
-    tmp_path: Path, capsys, kind: str
-) -> None:
+def test_cli_output_cannot_alias_input(tmp_path: Path, capsys, kind: str) -> None:
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
     baseline.write_text(json.dumps(arm("baseline")), encoding="utf-8")
@@ -456,9 +449,7 @@ def test_cli_output_cannot_alias_input(
     assert "write-once" in captured.out
 
 
-def test_existing_non_input_output_is_never_overwritten(
-    tmp_path: Path, capsys
-) -> None:
+def test_existing_non_input_output_is_never_overwritten(tmp_path: Path, capsys) -> None:
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
     output = tmp_path / "existing.json"
@@ -543,9 +534,7 @@ def test_quality_rejection_writes_artifact_but_returns_distinct_nonzero(
     assert result["disposition"] == "CANDIDATE_REJECT_QUALITY"
 
 
-def test_quality_rejection_stdout_returns_distinct_nonzero(
-    tmp_path: Path, capsys
-) -> None:
+def test_quality_rejection_stdout_returns_distinct_nonzero(tmp_path: Path, capsys) -> None:
     baseline = tmp_path / "base.json"
     candidate = tmp_path / "candidate.json"
     baseline.write_text(
