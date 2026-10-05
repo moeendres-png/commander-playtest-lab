@@ -49,6 +49,26 @@ class XmageSeatingTest {
         assertEquals(expected, bySeat);
     }
 
+    @Test
+    void theRulesRngTapeSeatDoesNotMoveWithTheTurnPointer() {
+        // The ring iterates from its current position; a seat read by
+        // iteration changed once the pointer moved (a card-caused shuffle in
+        // a later window was taped under another seat). The tape's seat is
+        // the stable F-41 seat wherever the pointer stands.
+        XmageActualCardCorpusTest.Started started =
+                XmageActualCardCorpusTest.start("seating-rng-tape", 4, List.of());
+        Game game = started.session().restorationGame();
+        CircularList<UUID> ring = game.getState().getPlayerList();
+        for (int pointer = 1; pointer <= 4; pointer++) {
+            ring.setCurrent(started.seats().get("P" + pointer).getId());
+            for (int seat = 1; seat <= 4; seat++) {
+                assertEquals(seat - 1,
+                        XmageRulesRngResultTape.seatIndex(game, started.seats().get("P" + seat).getId()),
+                        "P" + seat + "'s tape seat with the pointer at P" + pointer);
+            }
+        }
+    }
+
     /** One round of the engine's own turn-order ring, starting at {@code first}, by player name. */
     static List<String> engineTurnOrder(Game game, UUID first) {
         CircularList<UUID> ring = game.getState().getPlayerList().copy();

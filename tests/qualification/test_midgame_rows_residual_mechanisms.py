@@ -754,6 +754,12 @@ WORKSTREAM_ROWS = {
     # #441 contract 1.0.21: two causal extra turns.
     "WS05-MP-TURN-3",
     "WS05-MP-TURN-5",
+    # #441 contract 1.0.21 E2b: the yes/no fail-closed sibling.
+    "NEGATIVE_DEFAULT_YES_NO",
+    # #441 contract 1.0.21 E3: Fact or Fiction cast through the causal stack.
+    "PILOT_PILE",
+    # #441 contract 1.0.21 E1: Path of Ancestry's scry 1 on XMage's card frame.
+    "PILOT_CHOOSE_USE",
     # #441 contract 1.0.21: the layer tokens as discriminating readbacks.
     "MICRO_LAYERS",
 }
@@ -820,6 +826,165 @@ def test_requested_blocks_are_checked_even_when_the_script_attacks() -> None:
     assert not mr.combat_matches_request(unblocked, [], compare_attacks=False)["holds"]
     attacked = [_declared("ATTACKER_DECLARED", "obj:a", "P2")]
     assert mr.combat_matches_request(unblocked, attacked, compare_attacks=False)["holds"]
+
+
+def test_a_probe_refuses_only_a_frame_of_its_own_decision_class() -> None:
+    """NEGATIVE_DEFAULT_YES_NO: P1's priority after the cast is not the probed
+    yes/no frame; the probe's class decides which frame is refused."""
+    probe = {
+        "actor": "P1",
+        "decision_family": "choose_use",
+        "selection": {"selector_kind": "fail_closed_probe", "semantic_value": None},
+    }
+    assert mr.step_decision_class(probe) == "choose_use"
+    assert mr.step_decision_class({**probe, "decision_family": "priority"}) == "priority"
+
+
+def test_a_partition_is_asked_as_its_first_pile_on_the_object_frame() -> None:
+    step = {
+        "decision_family": "pile",
+        "selection": {
+            "selector_kind": "partition",
+            "semantic_value": {"pile_a": ["obj:a", "obj:b"], "pile_b": ["obj:c"]},
+        },
+    }
+    assert mr.step_decision_class(step) == "choose_object"
+    label = {"decision_family": "pile", "selection": {"selector_kind": "pile_label"}}
+    assert mr.step_decision_class(label) == "pile"
+    assert mr._partition_first_pile(step["selection"]["semantic_value"]) == ["obj:a", "obj:b"]
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        None,
+        {"pile_a": ["obj:a"]},
+        {"pile_a": [], "pile_b": ["obj:c"]},
+        {"pile_a": ["obj:a"], "pile_b": []},
+        {"pile_a": ["obj:a"], "pile_b": ["obj:a"]},
+        {"pile_a": "obj:a", "pile_b": ["obj:c"]},
+    ],
+)
+def test_a_malformed_partition_fails_closed(value: Any) -> None:
+    with pytest.raises(ml.MidgameLaneError):
+        mr._partition_first_pile(value)
+
+
+def _pile_label_offer(label: str) -> dict[str, Any]:
+    return {"metadata": {"option_type": "pile", "option_id": f"pile-{label}", "label": label}}
+
+
+def test_a_pile_label_selects_exactly_the_named_pile() -> None:
+    step = {"decision_family": "pile", "selection": {"selector_kind": "pile_label"}}
+    offers = {"actions": [_pile_label_offer("Pile 1"), _pile_label_offer("Pile 2")]}
+    chosen = mr._scripted_answer(
+        offers,
+        {**step, "selection": {**step["selection"], "semantic_value": "Pile 1"}},
+        {},
+        mr.RowSpec(),
+    )
+    assert mr._label_of(chosen.action) == "Pile 1"
+    for bad in ("Pile 3", "", None):
+        with pytest.raises(ml.MidgameLaneError):
+            mr._scripted_answer(
+                offers,
+                {**step, "selection": {**step["selection"], "semantic_value": bad}},
+                {},
+                mr.RowSpec(),
+            )
+
+
+def test_a_scripted_frame_needs_the_principal_the_class_and_the_prompt() -> None:
+    check = mr.TerminalCheck(
+        "scripted_frame", principal="P2", value="choose_object", label="first pile"
+    )
+    asked = mr.Frame(
+        "choose_object", "P2", [], scripted=True, prompt="Select cards to put in the first pile"
+    )
+    assert mr.check_terminal(check, {}, [], [asked])
+    assert mr.bound_token_evidence(check, {}, [], [asked])["decision_frames"] == [0]
+    for other in (
+        mr.Frame("choose_object", "P3", [], scripted=True, prompt=asked.prompt),
+        mr.Frame("choose_object", "P2", [], scripted=False, prompt=asked.prompt),
+        mr.Frame("target", "P2", [], scripted=True, prompt=asked.prompt),
+        mr.Frame("choose_object", "P2", [], scripted=True, prompt="Select a card to discard"),
+    ):
+        assert not mr.check_terminal(check, {}, [], [other])
+
+
+SCRY_SPEC = mr.RowSpec(scry_binding="obj:top-known")
+SCRY_PLACED = {"obj:top-known": "native-top"}
+
+
+def _scry_step(value: Any, family: str = "choose_use") -> dict[str, Any]:
+    return {
+        "decision_family": family,
+        "selection": {"selector_kind": "boolean", "semantic_value": value},
+    }
+
+
+def _scry_legal(natives: list[str], bounds: tuple[int, int] | None = (0, 1)) -> dict[str, Any]:
+    legal: dict[str, Any] = {
+        "actions": [
+            {
+                "metadata": {
+                    "option_type": "object",
+                    "option_id": f"opt-{native}",
+                    "label": "Mountain",
+                    "xmage_option_metadata": {"object_id": native, "name": "Mountain"},
+                }
+            }
+            for native in natives
+        ]
+    }
+    if bounds is not None:
+        legal["decision"] = {"minimum_selections": bounds[0], "maximum_selections": bounds[1]}
+    return legal
+
+
+def test_a_bound_scry_is_answered_on_the_card_frame(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        mr,
+        "_semantic_offers",
+        lambda key, actions, placed: [
+            a
+            for a in actions
+            if a["metadata"]["xmage_option_metadata"]["object_id"] == placed.get(key)
+        ],
+    )
+    assert mr.answers_frame(_scry_step(False), "target", SCRY_SPEC)
+    assert not mr.answers_frame(_scry_step(False), "choose_use", SCRY_SPEC)
+    # Without the row's binding the yes/no step keeps XMage's yes/no class.
+    assert mr.answers_frame(_scry_step(False), "choose_use", mr.RowSpec())
+    keep = mr._scripted_answer(
+        _scry_legal(["native-top"]), _scry_step(False), SCRY_PLACED, SCRY_SPEC
+    )
+    assert keep.action is None and keep.key == "false"
+    bottom = mr._scripted_answer(
+        _scry_legal(["native-top"]), _scry_step(True), SCRY_PLACED, SCRY_SPEC
+    )
+    assert bottom.option_ids == ("opt-native-top",) and bottom.key == "true"
+    for legal, value in (
+        (_scry_legal(["native-other"]), False),
+        (_scry_legal(["native-top", "native-other"]), False),
+        (_scry_legal(["native-top"], bounds=(1, 1)), False),
+        (_scry_legal(["native-top"], bounds=None), False),
+        (_scry_legal(["native-top"]), "false"),
+    ):
+        with pytest.raises(ml.MidgameLaneError):
+            mr._scripted_answer(legal, _scry_step(value), SCRY_PLACED, SCRY_SPEC)
+
+
+def test_a_scripted_key_needs_the_answered_frame() -> None:
+    check = mr.TerminalCheck("scripted_key", principal="P1", value=("target", "false"))
+    kept = mr.Frame("target", "P1", ["Mountain"], scripted=True, selected_key="false")
+    assert mr.bound_token_evidence(check, {}, [], [kept])["decision_frames"] == [0]
+    for other in (
+        mr.Frame("target", "P1", ["Mountain"], scripted=True, selected_key="true"),
+        mr.Frame("target", "P2", ["Mountain"], scripted=True, selected_key="false"),
+        mr.Frame("target", "P1", ["Mountain"], scripted=False, selected_key="false"),
+    ):
+        assert not mr.check_terminal(check, {}, [], [other])
 
 
 def _layers_observation(angel: dict, p1_bears: tuple[int, int], p3_bears: tuple[int, int]) -> dict:

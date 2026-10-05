@@ -91,6 +91,14 @@ class TerminalCheck:
             constraints = ", ".join(f"{key}={value}" for key, value in self.where)
             amount = "at least one" if self.value is None else f"exactly {self.value}"
             return f"{amount} {self.event_type} event(s) with {constraints or 'any fields'}"
+        if self.kind == "events_follow":
+            earlier_type, earlier_where = self.value
+            constraints = ", ".join(f"{key}={value}" for key, value in self.where)
+            earlier = ", ".join(f"{key}={value}" for key, value in earlier_where)
+            return (
+                f"a {self.event_type} event with {constraints} follows the first "
+                f"{earlier_type} event with {earlier}"
+            )
         if self.kind == "events_precede":
             later_type, later_where = self.value
             later = ", ".join(f"{key}={value}" for key, value in later_where)
@@ -103,6 +111,17 @@ class TerminalCheck:
             return f"{self.card_identity} is in {self.principal}'s graveyard"
         if self.kind == "selected_frame":
             return f"a scripted {self.value} frame selected an engine offer naming {self.label!r}"
+        if self.kind == "scripted_key":
+            decision_class, key = self.value
+            return (
+                f"the record's script answered {self.principal}'s {decision_class} frame "
+                f"with {key!r}"
+            )
+        if self.kind == "scripted_frame":
+            return (
+                f"the engine asked {self.principal} a {self.value} frame whose prompt names "
+                f"{self.label!r}, and the record's script answered it"
+            )
         if self.kind == "no_frame":
             who = f" of {self.principal}" if self.principal else ""
             about = f" about {self.label!r}" if self.label else ""
@@ -305,6 +324,11 @@ class RowSpec:
     token_bindings: tuple[
         tuple[str, TerminalCheck | tuple[TerminalCheck, ...] | VocabularyToken], ...
     ] = ()
+    # A record's scry 1 named as a yes/no ``choose_use`` step, bound by the
+    # record's own decision_family_binding (CR 701.22a): XMage asks it as a
+    # 0..1 card selection on its target frame. The value is the looked-at
+    # library object; false is the empty selection, true that one card.
+    scry_binding: str | None = None
 
 
 # The record's decision family and the engine's decision class name the same
@@ -330,6 +354,13 @@ def engine_decision_class(family: str) -> str:
 BOOLEAN_DECISION_CLASS = "choose_use"
 BOOLEAN_QUESTION_FAMILIES = frozenset({"choice", "replacement_effect"})
 
+# A pile split (Fact or Fiction's "an opponent separates"): XMage asks the
+# separating player to select the cards of the first pile on its object frame
+# (HIDDEN_13's reviewed route), and the record's ``partition`` names that
+# first pile as ``pile_a`` (contract 1.0.21 PILOT_PILE partition_binding).
+# The pile the chooser then takes is XMage's own ``pile`` frame.
+PARTITION_DECISION_CLASS = "choose_object"
+
 
 def step_decision_class(step: dict[str, Any]) -> str:
     """The engine decision class a record's scripted step answers."""
@@ -337,6 +368,8 @@ def step_decision_class(step: dict[str, Any]) -> str:
     selector = str((step.get("selection") or {}).get("selector_kind") or "")
     if selector == "boolean" and family in BOOLEAN_QUESTION_FAMILIES:
         return BOOLEAN_DECISION_CLASS
+    if selector == "partition" and family == "pile":
+        return PARTITION_DECISION_CLASS
     return engine_decision_class(family)
 
 
@@ -350,6 +383,16 @@ def _event(event_type: str, *where: tuple[str, Any], count: int | None = None) -
     ``count=None`` needs at least one; an integer needs exactly that many.
     """
     return TerminalCheck("events", value=count, event_type=event_type, where=tuple(where))
+
+
+def _after(later: TerminalCheck, earlier: TerminalCheck) -> TerminalCheck:
+    """Some event of ``later``'s pattern follows the first of ``earlier``'s."""
+    return TerminalCheck(
+        "events_follow",
+        event_type=later.event_type,
+        where=later.where,
+        value=(earlier.event_type, earlier.where),
+    )
 
 
 def _before(earlier: TerminalCheck, later: TerminalCheck) -> TerminalCheck:
@@ -776,11 +819,92 @@ ROWS: dict[str, RowSpec] = {
     "NEGATIVE_SILENT_SKIP": RowSpec(
         mana_sources=("obj:negative_silent_skip-mana-0",),
     ),
-    # The sibling refusal on the engine's own attack declaration frame. (The
-    # yes/no sibling NEGATIVE_DEFAULT_YES_NO has no spec: its record needs a
-    # known library top card, which the lane does not restore, and XMage asks
-    # Opt's scry as a card selection, not as the yes/no frame the record names.)
+    # The sibling refusal on the engine's own attack declaration frame.
     "NEGATIVE_INTERNAL_AI": RowSpec(),
+    # PILOT_CHOOSE_USE (contract 1.0.21 E1): P1 casts Keldon Marauders with
+    # Path of Ancestry's mana; it shares a creature type with P1's commander,
+    # so Path scries 1, and P1 keeps the known top card (the record's
+    # choose_use false, bound by its decision_family_binding to XMage's 0..1
+    # card frame as the empty selection).
+    "PILOT_CHOOSE_USE": RowSpec(
+        mana_sources=("obj:path", "obj:path-mountain"),
+        scry_binding="obj:top-known",
+        token_bindings=(
+            (
+                "choose_use_frame:P1",
+                TerminalCheck("scripted_frame", principal="P1", value="target", label="(scry)"),
+            ),
+            (
+                "scry_choice:keep_top",
+                (
+                    TerminalCheck("scripted_key", principal="P1", value=("target", "false")),
+                    _exactly(_event("ZONE_CHANGE", ("target_object", "obj:top-known")), 0),
+                ),
+            ),
+        ),
+    ),
+    # PILOT_PILE (contract 1.0.21 E3): P1 casts Fact or Fiction from its
+    # declared Islands; on resolution P1 names P2 to separate, and XMage asks
+    # P2 to select the first pile on its object frame (the record's pile_a:
+    # two of the five revealed cards); P1 then takes "Pile 1". The partition
+    # is what the engine did with the five cards: the first pile's two go to
+    # P1's hand, the second pile's three (the record's pile_b) to the
+    # graveyard, after P1's scripted pile choice.
+    "PILOT_PILE": RowSpec(
+        mana_sources=tuple(f"obj:fof-island-{index}" for index in range(4)),
+        token_bindings=(
+            (
+                "pile_frame:P2",
+                TerminalCheck(
+                    "scripted_frame", principal="P2", value="choose_object", label="first pile"
+                ),
+            ),
+            (
+                "partition_created:2/3",
+                (
+                    *(
+                        _exactly(
+                            _event(
+                                "ZONE_CHANGE",
+                                ("target_object", obj),
+                                ("from", "LIBRARY"),
+                                ("to", "GRAVEYARD"),
+                                ("source_object", "obj:fof"),
+                            ),
+                            1,
+                        )
+                        for obj in ("obj:fof-2", "obj:fof-3", "obj:fof-4")
+                    ),
+                    _exactly(
+                        _event(
+                            "ZONE_CHANGE",
+                            ("from", "LIBRARY"),
+                            ("to", "GRAVEYARD"),
+                            ("source_object", "obj:fof"),
+                        ),
+                        3,
+                    ),
+                    _exactly(
+                        _event(
+                            "ZONE_CHANGE",
+                            ("from", "LIBRARY"),
+                            ("to", "HAND"),
+                            ("source_object", "obj:fof"),
+                        ),
+                        2,
+                    ),
+                    TerminalCheck("selected_frame", value="pile", label="Pile 1"),
+                ),
+            ),
+        ),
+    ),
+    # The yes/no sibling (contract 1.0.21 E2b): P1 casts Centaur Courser from
+    # its declared Forests; it enters, P1's Garruk's Packleader triggers and the
+    # engine asks "you may draw a card" on its own yes/no frame, which the
+    # probe refuses explicitly.
+    "NEGATIVE_DEFAULT_YES_NO": RowSpec(
+        mana_sources=tuple(f"obj:neg-forest-{index}" for index in range(3)),
+    ),
     # PILOT_CHOICE: P1's Utopia Sprawl (rebuilt on the stack through the declared
     # causal route) resolves onto the Forest and the engine asks P1 its
     # as-enters color on its own choice frame; the record's key names the
@@ -2478,6 +2602,8 @@ def check_terminal(
     if check.kind == "events":
         hits = matching_events(check, tape)
         return bool(hits) if check.value is None else len(hits) == check.value
+    if check.kind == "events_follow":
+        return bool(_following_events(check, tape))
     if check.kind == "events_precede":
         later_type, later_where = check.value
         earlier = matching_events(check, tape)
@@ -2493,6 +2619,10 @@ def check_terminal(
         return check.card_identity in (seat.get("graveyard") or ())
     if check.kind == "selected_frame":
         return bool(_selected_frames(check, trace))
+    if check.kind == "scripted_frame":
+        return bool(_scripted_frames(check, trace))
+    if check.kind == "scripted_key":
+        return bool(_scripted_keys(check, trace))
     if check.kind == "no_frame":
         return not any(
             frame.decision_class == check.value
@@ -2612,6 +2742,18 @@ def check_terminal(
     return False
 
 
+def _following_events(check: TerminalCheck, tape: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The events of ``check``'s pattern after the first event of its anchor."""
+    earlier_type, earlier_where = check.value
+    anchors = matching_events(
+        TerminalCheck("events", event_type=earlier_type, where=tuple(earlier_where)), tape
+    )
+    if not anchors:
+        return []
+    first = min(int(event["sequence"]) for event in anchors)
+    return [event for event in matching_events(check, tape) if int(event["sequence"]) > first]
+
+
 def matching_events(check: TerminalCheck, tape: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """The engine events an ``events`` check's pattern matches, in tape order."""
     hits = []
@@ -2660,6 +2802,31 @@ def _selected_frames(check: TerminalCheck, trace: list[Frame]) -> list[int]:
         and frame.selected_label in frame.offered_labels
         and wanted
         and wanted in frame.selected_label.lower()
+    ]
+
+
+def _scripted_frames(check: TerminalCheck, trace: list[Frame]) -> list[int]:
+    wanted = str(check.label or "").lower()
+    return [
+        index
+        for index, frame in enumerate(trace)
+        if frame.decision_class == check.value
+        and frame.principal == check.principal
+        and frame.scripted
+        and wanted
+        and wanted in frame.prompt.lower()
+    ]
+
+
+def _scripted_keys(check: TerminalCheck, trace: list[Frame]) -> list[int]:
+    decision_class, key = check.value
+    return [
+        index
+        for index, frame in enumerate(trace)
+        if frame.decision_class == decision_class
+        and frame.principal == check.principal
+        and frame.scripted
+        and frame.selected_key == key
     ]
 
 
@@ -2794,8 +2961,14 @@ def bound_token_evidence(
     evidence: dict[str, Any] = {"binding": check.describe()}
     if check.kind == "events":
         evidence["events"] = [event["sequence"] for event in matching_events(check, tape)]
+    elif check.kind == "events_follow":
+        evidence["events"] = [event["sequence"] for event in _following_events(check, tape)]
     elif check.kind == "selected_frame":
         evidence["decision_frames"] = _selected_frames(check, trace)
+    elif check.kind == "scripted_frame":
+        evidence["decision_frames"] = _scripted_frames(check, trace)
+    elif check.kind == "scripted_key":
+        evidence["decision_frames"] = _scripted_keys(check, trace)
     elif check.kind == "extra_turn_created":
         evidence["decision_frames"] = _extra_turn_frames(check, trace, tape)
     elif check.kind == "pending_extra_turns_between":
@@ -3248,6 +3421,71 @@ def _semantic_offers(
     return []
 
 
+SCRY_DECISION_CLASS = "target"
+
+
+def _is_bound_scry(step: dict[str, Any], spec: RowSpec) -> bool:
+    selection = step.get("selection") or {}
+    return (
+        spec.scry_binding is not None
+        and step.get("decision_family") == "choose_use"
+        and selection.get("selector_kind") == "boolean"
+    )
+
+
+def answers_frame(step: dict[str, Any], decision_class: str, spec: RowSpec) -> bool:
+    """Whether a scripted step answers a pending frame of ``decision_class``."""
+    if _is_bound_scry(step, spec):
+        return decision_class == SCRY_DECISION_CLASS
+    return step_decision_class(step) == decision_class
+
+
+def _scry_answer(
+    legal: dict[str, Any], value: Any, placed: dict[str, str], looked_at: str
+) -> ScriptedAnswer:
+    """A scry 1 answered on XMage's 0..1 card frame (CR 701.22a).
+
+    The frame must offer exactly the one looked-at card and allow selecting
+    none or it; false (keep on top) is the empty selection, true (bottom) is
+    that card. Any other frame shape fails closed.
+    """
+    if not isinstance(value, bool):
+        raise ml.MidgameLaneError(f"the scry answer carries {value!r}")
+    actions = list(legal.get("actions") or ())
+    offers = _semantic_offers(looked_at, actions, placed)
+    if len(actions) != 1 or offers != actions:
+        raise ml.MidgameLaneError(
+            f"the scry frame must offer exactly the looked-at card {looked_at!r}"
+        )
+    (looked_offer,) = offers
+    if _engine_selection_bounds(legal) != (0, 1):
+        raise ml.MidgameLaneError(
+            f"the scry frame asks {_engine_selection_bounds(legal)}, not a 0..1 selection"
+        )
+    if not value:
+        return ScriptedAnswer(None, key="false")
+    option_id = _option_id(looked_offer)
+    if not option_id:
+        raise ml.MidgameLaneError("the looked-at card's offer carries no option id")
+    return ScriptedAnswer(looked_offer, key="true", option_ids=(option_id,))
+
+
+def _partition_first_pile(value: Any) -> Any:
+    """The first pile of a record's partition, which the engine asks as a selection.
+
+    Both piles must be disjoint, non-empty lists, so the second pile is what
+    the selection leaves; anything else fails closed.
+    """
+    if not isinstance(value, dict) or set(value) != {"pile_a", "pile_b"}:
+        raise ml.MidgameLaneError(f"partition carries {value!r}")
+    first, second = value["pile_a"], value["pile_b"]
+    if not isinstance(first, list) or not isinstance(second, list) or not first or not second:
+        raise ml.MidgameLaneError(f"partition piles must be non-empty lists: {value!r}")
+    if set(map(str, first)) & set(map(str, second)):
+        raise ml.MidgameLaneError(f"partition piles overlap: {value!r}")
+    return first
+
+
 def _requested_objects(value: Any) -> list[str]:
     """The ordered semantic object identities a multi-select value names."""
     if not isinstance(value, list) or not value:
@@ -3336,6 +3574,8 @@ def _scripted_answer(
     actions = list(legal.get("actions") or ())
     key: str | None = None
     numeric: int | None = None
+    if _is_bound_scry(step, spec):
+        return _scry_answer(legal, value, placed, str(spec.scry_binding))
     if kind in ("semantic_player", "semantic_object"):
         matches = _semantic_offers(str(value), actions, placed)
     elif kind == "semantic_objects" and value == []:
@@ -3347,11 +3587,14 @@ def _scripted_answer(
                 f"the record selects nothing, the engine frame requires {bounds}"
             )
         return ScriptedAnswer(None, key="none")
-    elif kind == "semantic_objects":
+    elif kind in ("semantic_objects", "partition"):
         # A multi-select target frame: the record names the complete requested
         # set; every identity must map to exactly one engine-offered target and
         # the set's cardinality must be authorized by the pending frame itself.
-        requested = _requested_objects(value)
+        # A partition is answered as the selection of its first pile.
+        requested = _requested_objects(
+            _partition_first_pile(value) if kind == "partition" else value
+        )
         selected = []
         for requested_key in requested:
             found = _semantic_offers(requested_key, actions, placed)
@@ -3432,6 +3675,13 @@ def _scripted_answer(
             raise ml.MidgameLaneError(f"semantic_choice_key selector carries {value!r}")
         key = normal
         matches = [a for a in actions if _option_type(a) == "choice" and _choice_key(a) == key]
+    elif kind == "pile_label":
+        # A pile frame offers its piles by label ("Pile 1", "Pile 2"); exactly
+        # one engine offer must carry the record's label (HIDDEN_13's route).
+        if not isinstance(value, str) or not value.strip():
+            raise ml.MidgameLaneError(f"pile_label selector carries {value!r}")
+        key = value.strip()
+        matches = [a for a in actions if _label_of(a).strip() == key]
     elif kind == "boolean":
         # A yes/no frame: the engine's own boolean offer whose value is the
         # record's answer; the label is never read.
@@ -4367,11 +4617,14 @@ def execute_row(
                 scripted
                 and step is not None
                 and str((step.get("selection") or {}).get("selector_kind")) == "fail_closed_probe"
+                and step_decision_class(step) == decision_class
             ):
                 # The record's obligation is the explicit typed refusal of a
                 # decision class the handler does not support. Nothing is
                 # selected, nothing is submitted and the engine state cannot
-                # change; a malformed refusal fails the row closed.
+                # change; a malformed refusal fails the row closed. Only a
+                # frame of the probe's own decision class is refused: the
+                # actor's priority before that frame is not the probed decision.
                 try:
                     typed = refusal_mod.refuse_pending_decision(client, decision, legal=legal)
                 except refusal_mod.RefusalError as exc:
@@ -4552,7 +4805,7 @@ def execute_row(
                     if frame.selected_option_type == "mana_pool":
                         spent_colors.append(_spent_color(frame.selected_label))
                 continue
-            if scripted and step is not None and step_decision_class(step) == decision_class:
+            if scripted and step is not None and answers_frame(step, decision_class, spec):
                 answer = _scripted_answer(
                     legal, stack_object_step(step, record), placed, spec, ordinal
                 )

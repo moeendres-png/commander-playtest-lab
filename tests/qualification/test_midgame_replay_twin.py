@@ -251,10 +251,21 @@ def _twin(role: str, **overrides: Any) -> twins.TwinRun:
                     "library_size": 99,
                     "result_digest": "r" * 64,
                 },
+                # ... the card-caused shuffle of the scenario (1.0.21: Chaos
+                # Warp shuffles P1's Mountain into P1's library) ...
+                {
+                    "operation": "LIBRARY_SHUFFLE",
+                    "sequence": 1,
+                    "seat": 0,
+                    "before": 99,
+                    "after": 198,
+                    "library_size": 99,
+                    "result_digest": "w" * 64,
+                },
                 # ... and the randomness each answer let the engine consume.
-                {"sequence": 0, "before": 99, "after": 99},
+                {"sequence": 0, "before": 198, "after": 198},
             ],
-            "rules_random_calls_total": 99,
+            "rules_random_calls_total": 198,
         },
         "decisions": [
             {
@@ -356,6 +367,18 @@ def test_p1s_own_shuffle_result_is_required() -> None:
     assert properties["p1_library_shuffle_result_taped"] is False
 
 
+def test_only_the_opening_shuffle_is_no_card_caused_rules_rng() -> None:
+    """1.0.21: the opening shuffle alone (no Chaos Warp shuffle) fails the row."""
+    record, replay = _runs()
+    coordinates = record.twin.rules_rng["rng_call_coordinates"]
+    record.twin.rules_rng["rng_call_coordinates"] = [
+        entry for entry in coordinates if entry.get("sequence") != 1 or "operation" not in entry
+    ]
+    record.twin.rules_rng["rules_random_calls_total"] = 99
+    properties = mrt.row_properties("RNG_RULES_TAPE", record, replay, True, seed_control=DETECTED)
+    assert properties["p1_card_caused_shuffle_taped"] is False
+
+
 def test_the_state_hash_row_needs_the_privileged_hashes() -> None:
     record, replay = _runs()
     record.twin.checkpoint_state_hashes[0]["privileged_state_digest"] = None
@@ -378,6 +401,36 @@ def test_first_shuffle_digest_reads_the_seats_first_shuffle() -> None:
     ]
     assert mrt.first_shuffle_digest(results, 0) == "first"
     assert mrt.first_shuffle_digest(results, 3) is None
+
+
+def test_last_shuffle_digest_reads_the_seats_card_caused_shuffle() -> None:
+    results = [
+        {"operation": "LIBRARY_SHUFFLE", "seat": 0, "result_digest": "opening"},
+        {"operation": "LIBRARY_SHUFFLE", "seat": 1, "result_digest": "x"},
+        {"operation": "LIBRARY_SHUFFLE", "seat": 0, "result_digest": "warp"},
+    ]
+    assert mrt.last_shuffle_digest(results, 0) == "warp"
+    assert mrt.last_shuffle_digest(results, 3) is None
+
+
+def test_the_rng_row_binds_the_card_caused_shuffle() -> None:
+    """1.0.21: the token is a P1 shuffle after Chaos Warp's cast, never the opening one."""
+    spec = mrt.row_spec("RNG_RULES_TAPE")
+    cast, shuffle = dict(spec.token_bindings)["rules_rng:library_shuffle:P1"]
+    assert cast.event_type == "SPELL_CAST" and ("source_object", "obj:replay-warp") in cast.where
+    opening = {"sequence": 1, "type": "LIBRARY_SHUFFLED", "player_player": "P1"}
+    warp = {
+        "sequence": 5,
+        "type": "SPELL_CAST",
+        "source_object": "obj:replay-warp",
+        "player_player": "P1",
+    }
+    later = {"sequence": 7, "type": "LIBRARY_SHUFFLED", "player_player": "P1"}
+    assert not midgame_rows_mod.check_terminal(shuffle, {}, [opening, warp], [])
+    assert midgame_rows_mod.check_terminal(shuffle, {}, [opening, warp, later], [])
+    assert "obj:replay-mountain-8" in spec.mana_sources
+    # The other replay rows keep their Burn-only scenario and opening shuffle.
+    assert "obj:replay-mountain-6" not in mrt.row_spec("REPLAY_CLEAN_PROCESS").mana_sources
 
 
 def test_p1_seat_follows_the_records_seat_order() -> None:
@@ -680,21 +733,35 @@ class FakeEngine(mrt.TapingLaneClient):
                 state_seed = 0
             terminal = "diverged" if (self.diverge_terminal and self.stage >= 2) else ""
             engine_state = "FAILED" if (self.crash_before_mode and self.stage == 1) else "PARKED"
+            shuffles = [
+                {
+                    "operation": "LIBRARY_SHUFFLE",
+                    "sequence": 0,
+                    "seat": 0,
+                    "before": 0,
+                    "after": 99,
+                    "library_size": 99,
+                    "result_digest": _sha("shuffle", seed_part),
+                }
+            ]
+            if self.stage >= 2:
+                # The scenario's card-caused shuffle of P1's library.
+                shuffles.append(
+                    {
+                        "operation": "LIBRARY_SHUFFLE",
+                        "sequence": 1,
+                        "seat": 0,
+                        "before": 99,
+                        "after": 198,
+                        "library_size": 99,
+                        "result_digest": _sha("warp-shuffle", seed_part),
+                    }
+                )
             result = {
                 "success": True,
                 "payload": {
-                    "rules_random_calls": 99,
-                    "rules_rng_results": [
-                        {
-                            "operation": "LIBRARY_SHUFFLE",
-                            "sequence": 0,
-                            "seat": 0,
-                            "before": 0,
-                            "after": 99,
-                            "library_size": 99,
-                            "result_digest": _sha("shuffle", seed_part),
-                        }
-                    ],
+                    "rules_random_calls": 99 * len(shuffles),
+                    "rules_rng_results": shuffles,
                     "engine_state": engine_state,
                     "privileged_state_digest": _sha("state", self.stage, terminal, state_seed),
                 },
