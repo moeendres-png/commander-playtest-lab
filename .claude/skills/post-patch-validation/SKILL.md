@@ -9,6 +9,8 @@ description: >
 allowed-tools: Read Write Edit Grep Glob Bash
 ---
 
+> Adapted locally from Trail of Bits `trailofbits/skills` under CC BY-SA 4.0; source lock and changes are recorded in `../CI_GATE_SKILLS_PROVENANCE.md`.
+
 # Post-Patch Validation
 
 Validate a security patch against the reported bug and the surrounding code it affects. Give the
