@@ -21,7 +21,8 @@
 
 `forge_hidden_information.py` is re-asserted against `6f09dab0` by rerunning the census with the Forge source at that commit:
 - the closed message set gains `BridgeProtocol.GET_CONSTRUCTED_STATE`;
-- the table records `orchestration_constructed_state` as SUPPORTED, with its key-refusal guard as a required fragment.
+- the table records `orchestration_constructed_state` as SUPPORTED, with its key-refusal guard as a required fragment;
+- the keyed success path is its own entry, `orchestration_constructed_state_payload`. It requires the HMAC `zoneDigest` construction (`OrchestrationKey.digest`) and pins the closed set of keys the payload writes (`CONSTRUCTED_STATE_KEYS`). A new key that could carry a hidden card name, or a lost digest, is drift.
 
 No other asserted fragment, bootstrap field, frame key or stderr diagnostic drifted. The AF05 Forge classifications are unchanged (20 PROVIDER_ADAPTER_GAP); only the matrix's bridge binding moves.
 

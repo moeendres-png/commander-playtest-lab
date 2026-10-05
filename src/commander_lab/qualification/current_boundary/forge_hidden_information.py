@@ -194,6 +194,42 @@ DECISION_FRAME_KEYS = frozenset(
         "zone",
     }
 )
+# Every JSON key get_constructed_state's keyed success path writes at the
+# asserted commit (StateProjection.constructedState and zoneDigest). Each seat's
+# library and hand leave only as library_and_hand_digest; the one name-valued
+# key is a commander's public card_identity. A new or lost key is drift: a key
+# that could carry a hidden card name is re-reviewed before it is certified.
+CONSTRUCTED_STATE_KEYS = frozenset(
+    {
+        "active_player",
+        "battlefield_size",
+        "card_identity",
+        "commanders",
+        "exile_size",
+        "graveyard_size",
+        "hand_size",
+        "left",
+        "library_and_hand_digest",
+        "library_shuffles",
+        "library_size",
+        "life",
+        "lifecycle",
+        "lost",
+        "observation_scope",
+        "owner",
+        "phase",
+        "player_id",
+        "players",
+        "poison",
+        "prior_command_zone_cast_count",
+        "priority_player",
+        "schema",
+        "seat",
+        "stack_size",
+        "turn_number",
+        "zone",
+    }
+)
 # The honey-sentinel obligation's frame facets, each with the frame keys that
 # carry it. Forge has no separate prompt or context field: the option label and
 # the frame reason are the text a pilot reads. Every facet is PRESENT_UNAUDITED.
@@ -398,9 +434,33 @@ CHANNELS: tuple[Channel, ...] = (
             "get_constructed_state (forge#25, the Lab's generic-lane construction proof, #441 "
             "(c)) is an orchestration channel, not a principal observation: every launch "
             "without COMMANDER_LAB_ORCHESTRATION_KEY refuses it with "
-            "orchestration_channel_not_enabled, and with a key each seat's library and hand "
-            "leave only as an HMAC-SHA-256 digest under that key (the AF09 precedent). No "
-            "principal-facing launch carries the key"
+            "orchestration_channel_not_enabled. No principal-facing launch carries the key; "
+            "the keyed success path is orchestration_constructed_state_payload"
+        ),
+    ),
+    Channel(
+        "orchestration_constructed_state_payload",
+        CHANNEL_SUPPORTED,
+        "projection",
+        present=(
+            'state.addProperty("observation_scope", "orchestration_keyed_digests");',
+            'entry.addProperty("library_and_hand_digest", '
+            'zoneDigest(seatId, "library_and_hand", libraryAndHand));',
+            "return OrchestrationKey.digest(tokens);",
+        ),
+        region=(
+            "public static JsonObject constructedState(BridgeSession session)",
+            "public static JsonObject bridgeMeta(BridgeSession session, String observerPlayerId)",
+        ),
+        keys=CONSTRUCTED_STATE_KEYS,
+        meaning=(
+            "the keyed success path of get_constructed_state writes exactly the closed key set "
+            "CONSTRUCTED_STATE_KEYS: public seat facts, sizes, shuffle counts and each "
+            "commander's public identity, owner, zone and cast count. Each seat's library and "
+            "hand go only into zoneDigest, an HMAC under the launch key "
+            "(OrchestrationKey.digest) over the name multiset, so no hidden card name leaves "
+            "and nobody without the key can test a guess. A new key, or a lost digest "
+            "construction, is drift"
         ),
     ),
     Channel(

@@ -32,6 +32,9 @@ def _texts() -> dict[str, str]:
     start, end = fh.CHANNELS_BY_NAME["decision_frames"].region
     keys = "".join(f'x.addProperty("{key}", v);\n' for key in sorted(fh.DECISION_FRAME_KEYS))
     texts["projection"] = texts["projection"] + start + " {\n" + keys + "}\n" + end + " {}\n"
+    start, end = fh.CHANNELS_BY_NAME["orchestration_constructed_state_payload"].region
+    keys = "".join(f'x.addProperty("{key}", v);\n' for key in sorted(fh.CONSTRUCTED_STATE_KEYS))
+    texts["projection"] = texts["projection"] + start + " {\n" + keys + "}\n" + end + " {}\n"
     texts["main"] += "".join(f"System.err.println({text});\n" for text in sorted(fh.STDERR_PRINTS))
     return texts
 
@@ -344,6 +347,25 @@ def test_a_new_or_lost_message_type_is_drift() -> None:
     texts["engine"] = texts["engine"].replace('case "shutdown": break;\n', "")
     with pytest.raises(fh.HiddenChannelDrift, match="lost messages"):
         fh.assert_channels(texts)
+
+
+def test_the_keyed_constructed_state_cannot_grow_a_plaintext_key() -> None:
+    """#537 review: the orchestration channel is certified only with its digest path
+    and its closed key set; a raw hand or library key, or a lost HMAC, is drift."""
+    fh.assert_channels(_texts())
+    start, _ = fh.CHANNELS_BY_NAME["orchestration_constructed_state_payload"].region
+    leaking = _texts()
+    leaking["projection"] = leaking["projection"].replace(
+        start + " {\n", start + ' {\nentry.add("hand", names);\n', 1
+    )
+    with pytest.raises(fh.HiddenChannelDrift, match="new keys"):
+        fh.assert_channels(leaking)
+    unkeyed = _texts()
+    unkeyed["projection"] = unkeyed["projection"].replace(
+        "return OrchestrationKey.digest(tokens);", 'return String.join(",", tokens);'
+    )
+    with pytest.raises(fh.HiddenChannelDrift, match="missing"):
+        fh.assert_channels(unkeyed)
 
 
 def test_omniscience_and_sentinel_rows_name_their_unaudited_surfaces(records) -> None:
