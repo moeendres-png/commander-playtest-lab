@@ -31,17 +31,21 @@ than echoing state content.
 `context_router.py repo-map` produces a bounded directory map from exact committed `HEAD`.
 It does **not** read file contents and never runs automatically. Mage/Forge plans return the command
 as `ON_DEMAND_ONLY`; the caller supplies an already declared reference root. Before listing names,
-the command loads the canonical CPL/Mage/Forge repo profile, verifies the checkout's single
-`remote.origin.url` against that exact expected GitHub slug, and requires an explicit
-`--expected-head` matching the already declared 40-hex source-lock SHA. Missing, ambiguous,
-credential-bearing, wrong-repository, malformed-lock, or drifted-HEAD identities fail closed
-without echoing the remote value.
+the command is restricted to Mage/Forge reference roots and loads the corresponding canonical
+repo profile. It then requires the exact launcher-provided `FOUNDRY_REFERENCE_ROOTS`
+declaration for that profile and re-verifies its root, canonical slug, exact HEAD, exact tree,
+cleanliness and read-only intent. The checkout must be the declared Git toplevel, and any
+`url.*.insteadOf` rewrite or `FOUNDRY_ROUTING_SUPPRESSED=1` fails closed. The caller cannot
+self-assert a replacement HEAD.
 
-The map records HEAD/tree/dirty-count and directory names up to an explicit maximum depth.
+The map records declared/live HEAD and tree identity plus directory names up to an explicit
+maximum depth. Traversal is breadth-first with non-recursive `git ls-tree` calls and stops at
+the requested depth; it never performs a whole-tree recursive walk and then post-filters.
 Repository-relative prefixes are syntax-bounded (no absolute paths, traversal, wildcard/pathspec
-magic or whitespace-surrounded values), at most 16 prefixes are accepted, and output fails closed
-above 500 directories or 200 root entries. Directory presence is navigation data only, never
-evidence that a mechanic or API behaves as expected.
+magic or whitespace-surrounded values), at most 16 prefixes are accepted, prefix scoping applies
+to both directories and root entries, and output fails closed above 500 directories or 200 root
+entries. Directory presence is navigation data only, never evidence that a mechanic or API
+behaves as expected.
 
 ## Authority and promotion boundary
 
@@ -60,3 +64,14 @@ harness with no evidence/review/defect loss. Until that exists,
 
 This implements the architecture direction “less always-on context → better routing → on-demand
 retrieval” as a testable shadow component, without claiming any token or time saving.
+
+## Provider and fallback boundary
+
+Provider identity is never inferred from free-text mentions of XMage, Mage or Forge. The selected
+repository profile is the only provider-routing authority. A CPL engine-bridge task therefore
+broadens until a provider-specific workstream/profile exists. `BROAD_FALLBACK` emits no
+provider-specific repo-map commands.
+
+Changed repository paths are routed only through the explicit path table; they are not recycled
+into free-text signal matching. Dot-directories such as `.github/`, `.opencode/` and
+`.foundry/` retain their leading dot and have positive regression controls.
