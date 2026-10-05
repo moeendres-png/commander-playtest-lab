@@ -235,7 +235,8 @@ def test_engine_profile_requests_map_only_on_demand(scratch: dict, tmp_path: Pat
             "mode": "ON_DEMAND_ONLY",
             "command": (
                 "python3 tools/foundry/context_router.py repo-map "
-                "--profile mage --workdir <DECLARED_REFERENCE_ROOT> --max-depth 3"
+                "--profile mage --workdir <DECLARED_REFERENCE_ROOT> "
+                "--expected-head <DECLARED_SOURCE_LOCK_SHA> --max-depth 3"
             ),
         }
     ]
@@ -247,6 +248,7 @@ def test_repo_map_is_bounded_to_committed_names(scratch: dict, tmp_path: Path) -
     result = router.build_repo_map(
         str(scratch["root"]),
         expected_slug="example/repo",
+        expected_head=scratch["head"],
         max_depth=2,
     )
     dumped = json.dumps(result)
@@ -262,17 +264,24 @@ def test_repo_map_prefix_and_depth_are_explicit(scratch: dict) -> None:
     result = router.build_repo_map(
         str(scratch["root"]),
         expected_slug="example/repo",
+        expected_head=scratch["head"],
         max_depth=2,
         prefixes=["src"],
     )
     assert result["prefixes"] == ["src"]
     assert all(path.startswith("src") for path in result["directories"])
     with pytest.raises(router.RouterError, match="max-depth"):
-        router.build_repo_map(str(scratch["root"]), expected_slug="example/repo", max_depth=7)
+        router.build_repo_map(
+            str(scratch["root"]),
+            expected_slug="example/repo",
+            expected_head=scratch["head"],
+            max_depth=7,
+        )
     with pytest.raises(router.RouterError, match="safe repository-relative"):
         router.build_repo_map(
             str(scratch["root"]),
             expected_slug="example/repo",
+            expected_head=scratch["head"],
             prefixes=["../escape"],
         )
 
@@ -282,6 +291,25 @@ def test_repo_map_rejects_wrong_canonical_repository(scratch: dict) -> None:
         router.build_repo_map(
             str(scratch["root"]),
             expected_slug="example/other",
+            expected_head=scratch["head"],
+        )
+
+
+def test_repo_map_rejects_source_lock_drift(scratch: dict) -> None:
+    with pytest.raises(router.RouterError, match="declared source lock"):
+        router.build_repo_map(
+            str(scratch["root"]),
+            expected_slug="example/repo",
+            expected_head="f" * 40,
+        )
+
+
+def test_repo_map_rejects_malformed_expected_head(scratch: dict) -> None:
+    with pytest.raises(router.RouterError, match="full 40-hex SHA"):
+        router.build_repo_map(
+            str(scratch["root"]),
+            expected_slug="example/repo",
+            expected_head="not-a-sha",
         )
 
 
