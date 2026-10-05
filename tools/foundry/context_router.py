@@ -144,10 +144,7 @@ def _clean_repo_path(value: str, *, field: str) -> str:
         raise RouterError(f"{field} must be a bounded repository-relative path")
     parts = normalized.split("/")
     if any(
-        not part
-        or part in {".", ".."}
-        or not SAFE_PATH_SEGMENT.fullmatch(part)
-        for part in parts
+        not part or part in {".", ".."} or not SAFE_PATH_SEGMENT.fullmatch(part) for part in parts
     ):
         raise RouterError(f"{field} must be a bounded repository-relative path")
     return normalized
@@ -304,11 +301,7 @@ def build_plan(
         "broad_context_reasons": broad_reasons,
         "full_state_read_required": broad,
         "full_state_reference": "$FOUNDRY_STATE_PATH",
-        "read_next": (
-            _refs(domains, changed_paths)
-            if not broad
-            else ["$FOUNDRY_STATE_PATH"]
-        ),
+        "read_next": (_refs(domains, changed_paths) if not broad else ["$FOUNDRY_STATE_PATH"]),
         "recommended_deterministic_tools": tools,
         "repo_maps": repo_maps,
         "default_activation_authorized": False,
@@ -479,9 +472,7 @@ def _bounded_directories(
             raise RouterError(f"repo-map exceeds {MAX_MAP_DIRECTORIES} directories")
         if depth >= max_depth:
             continue
-        children = _safe_tree_names(
-            _git(["ls-tree", "-d", "--name-only", f"HEAD:{path}"], workdir)
-        )
+        children = _safe_tree_names(_git(["ls-tree", "-d", "--name-only", f"HEAD:{path}"], workdir))
         for child in children:
             queue.append((f"{path}/{child}", depth + 1))
     return sorted(directories)
