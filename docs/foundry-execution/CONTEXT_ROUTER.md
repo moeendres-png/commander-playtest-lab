@@ -29,9 +29,11 @@ than echoing state content.
 `context_router.py repo-map` produces a bounded directory map from exact committed `HEAD`.
 It does **not** read file contents and never runs automatically. Mage/Forge plans return the command
 as `ON_DEMAND_ONLY`; the caller supplies an already declared reference root. Before listing names,
-the command loads the canonical CPL/Mage/Forge repo profile and verifies the checkout's single
-`remote.origin.url` against that exact expected GitHub slug. Missing, ambiguous, credential-bearing,
-or wrong-repository identities fail closed without echoing the remote value.
+the command loads the canonical CPL/Mage/Forge repo profile, verifies the checkout's single
+`remote.origin.url` against that exact expected GitHub slug, and requires an explicit
+`--expected-head` matching the already declared 40-hex source-lock SHA. Missing, ambiguous,
+credential-bearing, wrong-repository, malformed-lock, or drifted-HEAD identities fail closed
+without echoing the remote value.
 
 The map records HEAD/tree/dirty-count and directory names up to an explicit maximum depth. Directory
 presence is navigation data only, never evidence that a mechanic or API behaves as expected.
