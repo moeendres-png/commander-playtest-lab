@@ -1407,11 +1407,15 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         )
 
         # ---- START-2 under the v1.0.6 successor --------------------------
-        rows.append(
-            start2_row(
-                by_id["WS05-CMD-START-2"], proc, candidate=candidate, runtime_identity=identity
+        # On its own orchestration launch, so the provider's constructed state
+        # is read and the record's construction proof can be compared (#441
+        # decision (c)); that launch serves no principal-facing probe.
+        with launch(orchestration_plan(plan)) as keyed:
+            rows.append(
+                start2_row(
+                    by_id["WS05-CMD-START-2"], keyed, candidate=candidate, runtime_identity=identity
+                )
             )
-        )
 
         # ---- scripted pregame (every mulligan decision named) -------------
         # On an orchestration launch too, for the same construction proof.

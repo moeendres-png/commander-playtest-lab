@@ -682,7 +682,13 @@ def start2_row(
             "step, so the successor terminal postcondition could not be evaluated",
             evidence,
         )
-    gap = construction_credit_gap(record)
+    # The construction proof of this run: only a keyed launch carries the
+    # provider's constructed state, and only an established equality lifts the
+    # gap (#441 decision (c)). Without a proof the gap stays.
+    proof = generic_construction_proof(record, game)
+    if proof is not None:
+        evidence["construction_proof"] = proof.to_document()
+    gap = construction_credit_gap(record, proof)
     if gap is not None:
         return RowResult(
             fixture_id,
