@@ -285,7 +285,11 @@ def _validate_session(value: object) -> dict:
         "cli_version": _label(value.get("cli_version"), "session.cli_version"),
     }
     for field in (*CORE_EFFICIENCY_FIELDS, *OPTIONAL_EFFICIENCY_FIELDS):
-        number = _optional_number(value, field, integer=field != "elapsed_seconds" and field != "cost_usd")
+        number = _optional_number(
+            value,
+            field,
+            integer=field != "elapsed_seconds" and field != "cost_usd",
+        )
         if number is not None:
             result[field] = number
 
