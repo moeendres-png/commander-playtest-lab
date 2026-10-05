@@ -14,6 +14,7 @@
             "add_player",
             "start_game",
             "get_game_state",
+            "get_constructed_state",
             "get_legal_actions",
             "submit_action",
             "pass_priority",

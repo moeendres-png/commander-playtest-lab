@@ -8,9 +8,11 @@ internals, never computes legality, and never fabricates a response.
 from __future__ import annotations
 
 import contextlib
+import dataclasses
 import json
 import os
 import re
+import secrets
 import subprocess
 import threading
 import uuid
@@ -27,9 +29,10 @@ CandidateId = Literal["xmage", "forge"]
 
 DEFAULT_TIMEOUT_S = 180.0
 
-#: The AF09 orchestration key variable. It enables the bridge's
-#: ``get_rules_rng_tape`` channel and is never inherited by a launch: only the
-#: replay twin's own launch sets it, through its explicit overrides.
+#: The orchestration key variable. It enables the bridge's orchestration
+#: channels (AF09's ``get_rules_rng_tape``, #441's ``get_constructed_state``) and
+#: is never inherited by a launch: only an orchestration launch sets it, through
+#: its explicit overrides (the replay twin's, or :func:`orchestration_plan`'s).
 ORCHESTRATION_KEY_VARIABLE = "COMMANDER_LAB_ORCHESTRATION_KEY"
 
 _SHA40 = re.compile(r"[0-9a-f]{40}")
@@ -444,6 +447,18 @@ def build_launch_plan(
         )
 
     raise BridgeLaunchError(f"unknown candidate: {candidate!r}")
+
+
+def orchestration_plan(plan: LaunchPlan) -> LaunchPlan:
+    """``plan`` as an orchestration launch carrying a fresh 256-bit key.
+
+    The key enables the bridge's orchestration channels for this launch only and
+    lives in this process; it is not persisted. A principal-facing launch never
+    carries one, so its rows never run on an orchestration launch.
+    """
+    overrides = dict(plan.env_overrides)
+    overrides[ORCHESTRATION_KEY_VARIABLE] = secrets.token_hex(32)
+    return dataclasses.replace(plan, env_overrides=overrides)
 
 
 def launch(plan: LaunchPlan, *, timeout_s: float = 60.0) -> BridgeProcess:
