@@ -330,7 +330,9 @@ def compare(baseline_doc: dict, candidate_doc: dict) -> dict:
                 quality_regression = True
                 candidate_reasons.append(f"regressed_{field}")
 
-    if quality_regression:
+    if baseline_quality != "PASS":
+        disposition = "BASELINE_REJECT_QUALITY"
+    elif quality_regression:
         disposition = "CANDIDATE_REJECT_QUALITY"
     elif len(comparable_core) < len(CORE_EFFICIENCY_FIELDS):
         disposition = "INCONCLUSIVE_MISSING_CORE_METRICS"
@@ -389,6 +391,16 @@ def _atomic_write(path: str, payload: dict) -> None:
                 Path(temporary).unlink(missing_ok=True)
 
 
+def _output_aliases_input(output: str, *inputs: str) -> bool:
+    target = Path(output)
+    if not target.exists():
+        return False
+    try:
+        return any(target.samefile(Path(source)) for source in inputs)
+    except OSError as exc:
+        raise BenchmarkError("cannot validate benchmark output identity") from exc
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Compare one sanitized Commander agent A/B pair."
@@ -404,7 +416,12 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     if args.output:
         try:
+            if _output_aliases_input(args.output, args.baseline, args.candidate):
+                raise BenchmarkError("output aliases a benchmark input")
             _atomic_write(args.output, result)
+        except BenchmarkError as exc:
+            print(f"AGENT_BENCHMARK_REJECT: {exc}")
+            return 2
         except OSError:
             print("AGENT_BENCHMARK_REJECT: cannot publish output")
             return 2
