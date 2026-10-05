@@ -549,11 +549,9 @@ final class XmageFullGameSession {
         mage.game.turn.Step step = game.getStep();
         lines.add("turn:" + game.getTurnNum() + " step:" + (step == null ? "none" : step.getType())
                 + " active:" + XmageRulesRngResultTape.seatIndex(game, game.getActivePlayerId()));
-        for (UUID playerId : game.getState().getPlayerList()) {
-            Player player = game.getPlayer(playerId);
-            if (player == null) {
-                continue;
-            }
+        // Seat order, not the PlayerList's iteration from its moving pointer.
+        for (Player player : XmageSeating.playersInSeatOrder(game)) {
+            UUID playerId = player.getId();
             lines.add("seat:" + XmageRulesRngResultTape.seatIndex(game, playerId)
                     + " life:" + player.getLife() + " in_game:" + player.isInGame());
             lines.add("library:" + String.join(",", tokens(player.getLibrary().getCardList(), false)));

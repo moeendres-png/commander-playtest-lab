@@ -136,15 +136,15 @@ final class XmageRulesRngResultTape {
         return array;
     }
 
+    /**
+     * The player's stable seat (F-41: turn order counted from the first seat).
+     * Iterating the engine's PlayerList is no seat: that circular list iterates
+     * from its moving current position, so the same player would get another
+     * index once the turn pointer moved (a card-caused shuffle in a later
+     * priority window was taped under the wrong seat).
+     */
     static int seatIndex(Game game, UUID playerId) {
-        int index = 0;
-        for (UUID id : game.getState().getPlayerList()) {
-            if (id.equals(playerId)) {
-                return index;
-            }
-            index++;
-        }
-        return -1;
+        return XmageSeating.seat(game, playerId);
     }
 
     /** HMAC-SHA-256 under the orchestration key; refuses without one. */

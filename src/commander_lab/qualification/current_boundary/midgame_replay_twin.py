@@ -129,16 +129,29 @@ def row_spec(fixture_id: str) -> midgame_rows_mod.RowSpec:
         raise ReplayTwinRowError(f"{fixture_id} is not a replay/RNG row")
     check = midgame_rows_mod.TerminalCheck
     devils = check("tokens_created", card_identity="Devil", value=3)
+    p1_shuffle = check("events", event_type="LIBRARY_SHUFFLED", where=(("player_player", "P1"),))
+    mountains = 5
+    shuffle_binding: Any = p1_shuffle
+    if fixture_id == "RNG_RULES_TAPE":
+        # Contract 1.0.21: after Burn Down the House, P1 casts Chaos Warp on
+        # its own Mountain (paid from Mountains 6-8); its owner shuffles it
+        # into a library of distinguishable cards and reveals the top card
+        # (CR 701.24). The Rules RNG token is that card-caused shuffle, never
+        # the start-of-game shuffle of the scaffolding.
+        mountains = 8
+        warp = check(
+            "events",
+            event_type="SPELL_CAST",
+            where=(("source_object", "obj:replay-warp"), ("player_player", "P1")),
+        )
+        shuffle_binding = (warp, midgame_rows_mod._after(p1_shuffle, warp))
     return midgame_rows_mod.RowSpec(
-        mana_sources=tuple(f"obj:replay-mountain-{index}" for index in range(1, 6)),
+        mana_sources=tuple(f"obj:replay-mountain-{index}" for index in range(1, mountains + 1)),
         mode_bindings=(("create_devils", "Devil creature tokens"),),
         terminal_checks=(devils,),
         observe_from_game_start=True,
         token_bindings=(
-            (
-                "rules_rng:library_shuffle:P1",
-                check("events", event_type="LIBRARY_SHUFFLED", where=(("player_player", "P1"),)),
-            ),
+            ("rules_rng:library_shuffle:P1", shuffle_binding),
             (
                 "decision:choose_mode:create_devils",
                 # The engine's own class for a modal spell's mode frame is "mode".
@@ -816,6 +829,20 @@ def _shuffle_results(run: ProcessRun) -> list[dict[str, Any]]:
     ]
 
 
+def last_shuffle_digest(results: Sequence[Mapping[str, Any]], seat: int) -> str | None:
+    """The result digest of the latest library shuffle of ``seat``, if any.
+
+    Contract 1.0.21: RNG_RULES_TAPE's Rules RNG operation is the card-caused
+    shuffle (Chaos Warp, after the start-of-game shuffle), so the seed control
+    compares that result, never only the opening shuffle every seed changes.
+    """
+    for entry in reversed(results):
+        if entry.get("operation") == "LIBRARY_SHUFFLE" and entry.get("seat") == seat:
+            digest = entry.get("result_digest")
+            return str(digest) if digest else None
+    return None
+
+
 def first_shuffle_digest(results: Sequence[Mapping[str, Any]], seat: int) -> str | None:
     """The result digest of the first library shuffle of ``seat``, if any."""
     for entry in results:
@@ -906,6 +933,9 @@ def row_properties(
                 and entry.get("result_digest")
                 for entry in shuffles
             ),
+            # The opening shuffle and the card-caused one (Chaos Warp) are
+            # both taped for P1 under its stable seat.
+            "p1_card_caused_shuffle_taped": len(p1) >= 2,
             "p1_library_shuffle_result_taped": bool(p1)
             and any(
                 event.get("type") == "LIBRARY_SHUFFLED" and event.get("player_player") == "P1"
@@ -1002,7 +1032,7 @@ def seed_control(
 
     A third fresh process replays the record's own taped inputs under
     ``seed + 1`` (the same consumer as the replay twin). ``detected``: P1's
-    first shuffle result differs. ``state_changed``: the different seed had a
+    latest shuffle result (the record's card-caused shuffle) differs. ``state_changed``: the different seed had a
     Rules consequence, seen after the restoration and the whole scenario, where
     any Rules-caused shuffle of the obligation shows: either the engine offered
     a different frame for the recorded inputs, or the replay reached a
@@ -1022,8 +1052,8 @@ def seed_control(
     acknowledged = bool(control.twin.rules_rng.get("controlled"))
     build_matches = control.twin.candidate_build == recorded.twin.candidate_build
     valid = acknowledged and build_matches
-    recorded_digest = first_shuffle_digest(_shuffle_results(recorded), seat)
-    control_digest = first_shuffle_digest(_shuffle_results(control), seat)
+    recorded_digest = last_shuffle_digest(_shuffle_results(recorded), seat)
+    control_digest = last_shuffle_digest(_shuffle_results(control), seat)
     recorded_end = recorded.twin.terminal.get("privileged_state_digest")
     control_end = (
         control.twin.terminal.get("privileged_state_digest")

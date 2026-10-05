@@ -87,6 +87,14 @@ class TerminalCheck:
             constraints = ", ".join(f"{key}={value}" for key, value in self.where)
             amount = "at least one" if self.value is None else f"exactly {self.value}"
             return f"{amount} {self.event_type} event(s) with {constraints or 'any fields'}"
+        if self.kind == "events_follow":
+            earlier_type, earlier_where = self.value
+            constraints = ", ".join(f"{key}={value}" for key, value in self.where)
+            earlier = ", ".join(f"{key}={value}" for key, value in earlier_where)
+            return (
+                f"a {self.event_type} event with {constraints} follows the first "
+                f"{earlier_type} event with {earlier}"
+            )
         if self.kind == "events_precede":
             later_type, later_where = self.value
             later = ", ".join(f"{key}={value}" for key, value in later_where)
@@ -360,6 +368,16 @@ def _event(event_type: str, *where: tuple[str, Any], count: int | None = None) -
     ``count=None`` needs at least one; an integer needs exactly that many.
     """
     return TerminalCheck("events", value=count, event_type=event_type, where=tuple(where))
+
+
+def _after(later: TerminalCheck, earlier: TerminalCheck) -> TerminalCheck:
+    """Some event of ``later``'s pattern follows the first of ``earlier``'s."""
+    return TerminalCheck(
+        "events_follow",
+        event_type=later.event_type,
+        where=later.where,
+        value=(earlier.event_type, earlier.where),
+    )
 
 
 def _before(earlier: TerminalCheck, later: TerminalCheck) -> TerminalCheck:
@@ -2484,6 +2502,8 @@ def check_terminal(
     if check.kind == "events":
         hits = matching_events(check, tape)
         return bool(hits) if check.value is None else len(hits) == check.value
+    if check.kind == "events_follow":
+        return bool(_following_events(check, tape))
     if check.kind == "events_precede":
         later_type, later_where = check.value
         earlier = matching_events(check, tape)
@@ -2614,6 +2634,18 @@ def check_terminal(
             sorted(card.get("colors") or ()) == sorted(check.value) for card in cards
         )
     return False
+
+
+def _following_events(check: TerminalCheck, tape: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The events of ``check``'s pattern after the first event of its anchor."""
+    earlier_type, earlier_where = check.value
+    anchors = matching_events(
+        TerminalCheck("events", event_type=earlier_type, where=tuple(earlier_where)), tape
+    )
+    if not anchors:
+        return []
+    first = min(int(event["sequence"]) for event in anchors)
+    return [event for event in matching_events(check, tape) if int(event["sequence"]) > first]
 
 
 def matching_events(check: TerminalCheck, tape: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -2768,6 +2800,8 @@ def bound_token_evidence(
     evidence: dict[str, Any] = {"binding": check.describe()}
     if check.kind == "events":
         evidence["events"] = [event["sequence"] for event in matching_events(check, tape)]
+    elif check.kind == "events_follow":
+        evidence["events"] = [event["sequence"] for event in _following_events(check, tape)]
     elif check.kind == "selected_frame":
         evidence["decision_frames"] = _selected_frames(check, trace)
     elif check.kind == "scripted_frame":
