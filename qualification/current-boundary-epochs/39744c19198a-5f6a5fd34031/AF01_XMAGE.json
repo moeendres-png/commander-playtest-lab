@@ -1,0 +1,435 @@
+{
+ "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+ "candidate": "xmage",
+ "capabilities_provider_reported": {
+  "action_submission_supported": false,
+  "commander_damage_visible": false,
+  "commander_supported": true,
+  "commander_tax_visible": false,
+  "concede_supported": false,
+  "constructed_state_scope": "orchestration_keyed_digests_refused_without_launch_key",
+  "constructed_state_supported": true,
+  "deck_import_supported": true,
+  "engine_shutdown_supported": true,
+  "event_log_supported": true,
+  "game_shutdown_supported": true,
+  "headless_supported": true,
+  "healthcheck_supported": true,
+  "legal_actions_supported": false,
+  "max_players": 5,
+  "mode_selection_supported": false,
+  "mulligan_supported": false,
+  "multiplayer_supported": true,
+  "notes": [
+   "B4-D real XMage bridge audit event log is externally exportable with monotonic sequence, action/decision identity and pre/post state hashes; it covers bridge lifecycle and externally controlled action boundaries and is not an exhaustive raw internal XMage GameEvent tap",
+   "B4-D explicit per-game XMage end/cleanup and deck-handle release are implemented for repeated games in one bridge process",
+   "B4-C bounded current-priority action control remains validated; global legal-action and action-submission completeness remain unavailable",
+   "An explicit create-game seed is bound to the native per-game Rules RNG (setRulesSeed + requireExplicitSeed before start) and acknowledged from engine readback; unseeded games report seed_controlled=false and the seed value never appears in principal-scoped state",
+   "NO_PROVIDER_READY remains in force"
+  ],
+  "partner_supported": true,
+  "priority_visible": true,
+  "replay_supported": false,
+  "runtime_kind": "external_rules_engine",
+  "scenario_injection_supported": false,
+  "seed_supported": true,
+  "stack_visible": true,
+  "starting_state_injection_supported": false,
+  "target_selection_supported": false,
+  "trigger_order_supported": false
+ },
+ "decision_identity_provenance": {
+  "byte_matched": {
+   "action_id": true,
+   "actor_id": true,
+   "decision_id": true
+  },
+  "identity_field": "decision_id",
+  "pass_identity_offered": true,
+  "submitted_fields": [
+   "action_id",
+   "actor_id",
+   "decision_id"
+  ],
+  "verified": true
+ },
+ "decision_probe_game": {
+  "binding": "LIVE_GAME_REQUIRED_FOR_DECISION_TIME_INVARIANTS",
+  "decisions_observed": 3,
+  "game_id": "wsr22-xmage-2p-261b5bad",
+  "player_count": 2,
+  "steps_completed": [
+   "handshake",
+   "import_deck",
+   "create_commander_game",
+   "start_game",
+   "decision_drive"
+  ]
+ },
+ "engine_commit_provenance": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+ "engine_commit_reported": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+ "engine_identity": {
+  "engine_commit_source": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+  "get_provider_version_payload": {
+   "engine": "xmage",
+   "engine_artifact_kind": "file",
+   "engine_artifact_path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+   "engine_artifact_sha256": "3a602e798bb1b7f86bc703973a1ff078e2e0e97e0c94570e773b2c667806f643",
+   "engine_artifact_size": 7107607,
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "engine_version": "1.4.61",
+   "protocol_version": "2.0.0",
+   "xmage_code_source": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar"
+  },
+  "reported_engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "reported_engine_version": "1.4.61",
+  "reported_protocol_version": "2.0.0",
+  "reported_provider": "xmage",
+  "start_engine_payload": {
+   "engine": "xmage",
+   "phase": "B4D_EVENT_LOG_LIFECYCLE",
+   "started": true
+  }
+ },
+ "invariant_count": 20,
+ "invariants": [
+  {
+   "af01_v2_clause": "required_handshake.messages[0]=start_engine",
+   "detail": "start_engine succeeded under protocol 2.0.0",
+   "evidence": {
+    "status": "ok"
+   },
+   "invariant": "canonical_handshake_start_engine",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.messages[1]=get_provider_version",
+   "detail": "get_provider_version succeeded under protocol 2.0.0",
+   "evidence": {
+    "status": "ok"
+   },
+   "invariant": "canonical_handshake_get_provider_version",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.messages[2]=get_capabilities",
+   "detail": "get_capabilities succeeded under protocol 2.0.0",
+   "evidence": {
+    "status": "ok"
+   },
+   "invariant": "canonical_handshake_get_capabilities",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.matching_request_id",
+   "detail": "every response echoed the exact request_id",
+   "evidence": {
+    "request_ids": {
+     "get_capabilities": "88a1e2da-170b-4d99-858b-2bc858f735bb",
+     "get_provider_version": "bd2f813e-cee9-4877-9e08-deb8feda542e",
+     "start_engine": "3a39e1e8-db5f-4158-bd58-d7d07a6aaeda"
+    }
+   },
+   "invariant": "request_id_matches",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.exact_request_response_protocol_version",
+   "detail": "every response reported protocol_version=2.0.0",
+   "evidence": {
+    "observed": {
+     "get_capabilities": "2.0.0",
+     "get_provider_version": "2.0.0",
+     "start_engine": "2.0.0"
+    }
+   },
+   "invariant": "protocol_version_exact",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.exact_provider_identity",
+   "detail": "provider reported as 'xmage'",
+   "evidence": {
+    "reported": "xmage"
+   },
+   "invariant": "provider_identity_exact",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.exact_engine_version_or_commit_identity",
+   "detail": "provider reported the exact candidate commit b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "evidence": {
+    "reported": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339"
+   },
+   "invariant": "engine_version_or_commit_exact",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.explicit_capability_payload",
+   "detail": "provider reported 29 capability fields",
+   "evidence": {
+    "capability_keys": [
+     "action_submission_supported",
+     "commander_damage_visible",
+     "commander_supported",
+     "commander_tax_visible",
+     "concede_supported",
+     "constructed_state_scope",
+     "constructed_state_supported",
+     "deck_import_supported",
+     "engine_shutdown_supported",
+     "event_log_supported",
+     "game_shutdown_supported",
+     "headless_supported",
+     "healthcheck_supported",
+     "legal_actions_supported",
+     "max_players",
+     "mode_selection_supported",
+     "mulligan_supported",
+     "multiplayer_supported",
+     "notes",
+     "partner_supported",
+     "priority_visible",
+     "replay_supported",
+     "runtime_kind",
+     "scenario_injection_supported",
+     "seed_supported",
+     "stack_visible",
+     "starting_state_injection_supported",
+     "target_selection_supported",
+     "trigger_order_supported"
+    ]
+   },
+   "invariant": "capabilities_explicitly_reported",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "truthful_capability_requirements.capability_values_must_be_provider_reported",
+   "detail": "every capability value was read from the provider get_capabilities payload; no value was derived from the provider name",
+   "evidence": {
+    "sampled": {
+     "action_submission_supported": false,
+     "commander_supported": true,
+     "deck_import_supported": true,
+     "event_log_supported": true,
+     "headless_supported": true,
+     "legal_actions_supported": false,
+     "multiplayer_supported": true,
+     "seed_supported": true
+    }
+   },
+   "invariant": "capabilities_provider_reported_not_inferred",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.runtime_kind_external_rules_engine",
+   "detail": "provider reported runtime_kind",
+   "evidence": {
+    "runtime_kind": "external_rules_engine"
+   },
+   "invariant": "runtime_kind_external_rules_engine",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "transport.legacy_alias_only_handshake_satisfies_af01=false",
+   "detail": "the legacy alias handshake was probed and its response recorded, and the credit-bearing payload set contains only the canonical protocol-2 responses",
+   "evidence": {
+    "credit_bearing_messages": [
+     "get_capabilities",
+     "get_provider_version",
+     "start_engine"
+    ],
+    "engine_hello": {
+     "engine_event_offset": 0,
+     "errors": [
+      {
+       "code": "unsupported_message",
+       "message": "Current XMage bridge does not support message type: engine_hello",
+       "retryable": false
+      }
+     ],
+     "protocol_version": "2.0.0",
+     "request_id": "6a9fef57-9b59-4469-a8eb-20b15fdd1e25",
+     "status": "error",
+     "success": false
+    },
+    "legacy_alias_in_credit_set": false,
+    "legacy_alias_responded": false
+   },
+   "invariant": "legacy_alias_handshake_not_accepted",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.protocol_mismatch",
+   "detail": "provider rejected a wrong protocol_version without success",
+   "evidence": {
+    "engine_event_offset": 0,
+    "errors": [
+     {
+      "code": "protocol_version_mismatch",
+      "message": "Expected protocol 2.0.0 but received 1.1.0",
+      "retryable": false
+     }
+    ],
+    "protocol_version": "2.0.0",
+    "request_id": "7b743687-e21e-4b0a-af0f-490b891e8e1c",
+    "status": "error",
+    "success": false
+   },
+   "invariant": "fail_closed_protocol_mismatch",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.unknown_message",
+   "detail": "provider rejected an unknown message type",
+   "evidence": {
+    "engine_event_offset": 0,
+    "errors": [
+     {
+      "code": "unsupported_message",
+      "message": "Current XMage bridge does not support message type: wsr22_definitely_not_a_message",
+      "retryable": false
+     }
+    ],
+    "protocol_version": "2.0.0",
+    "request_id": "ae1a6ef6-4a3b-4617-a4c1-6a4e2f9f8298",
+    "status": "error",
+    "success": false
+   },
+   "invariant": "fail_closed_unknown_message",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.illegal_action",
+   "detail": "provider rejected an unrecognised legal_action_id for a live game, no mutation",
+   "evidence": {
+    "decision_unchanged": true,
+    "game_id": "wsr22-xmage-2p-261b5bad",
+    "response": {
+     "engine_event_offset": 0,
+     "errors": [
+      {
+       "code": "external_action_rejected",
+       "message": "STALE_OR_UNKNOWN_EXTERNAL_ACTION: action is not in the current decision",
+       "retryable": false
+      }
+     ],
+     "protocol_version": "2.0.0",
+     "request_id": "2836630a-42a0-4171-945d-7f16584b2a89",
+     "status": "error",
+     "success": false
+    }
+   },
+   "invariant": "fail_closed_illegal_action",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.stale_or_unknown_decision",
+   "detail": "provider rejected a real option under an unknown decision identity for a live game, no mutation",
+   "evidence": {
+    "decision_unchanged": true,
+    "game_id": "wsr22-xmage-2p-261b5bad",
+    "response": {
+     "engine_event_offset": 0,
+     "errors": [
+      {
+       "code": "external_action_rejected",
+       "message": "STALE_EXTERNAL_DECISION: expected current decision 6be4d8f6acfdb72cc182baa38915db3e98ac66e68f05ad5bdf0ab2a7134f1a1a",
+       "retryable": false
+      }
+     ],
+     "protocol_version": "2.0.0",
+     "request_id": "3d4086f4-ce0f-402a-a569-ff42e4c54b6f",
+     "status": "error",
+     "success": false
+    }
+   },
+   "invariant": "fail_closed_stale_or_unknown_decision",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.unsupported_production_reachable_decision",
+   "detail": "provider rejected a request for an unsupported decision class for a live game, no mutation",
+   "evidence": {
+    "decision_unchanged": true,
+    "game_id": "wsr22-xmage-2p-261b5bad",
+    "response": {
+     "engine_event_offset": 0,
+     "errors": [
+      {
+       "code": "unsupported_decision_class",
+       "message": "decision class wsr22_unsupported_decision_class is not the pending decision (priority); no default options are offered",
+       "retryable": false
+      }
+     ],
+     "protocol_version": "2.0.0",
+     "request_id": "0a8ec278-3687-48d7-b3bd-6f2f022dd836",
+     "status": "error",
+     "success": false
+    }
+   },
+   "invariant": "fail_closed_unsupported_decision",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "rules_authority_invariants.rules_core_sole_legality_authority",
+   "detail": "an out-of-scope submission produced no fabricated legal option",
+   "evidence": {
+    "fabricated_options": 0
+   },
+   "invariant": "rules_core_sole_legality_authority",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "rules_authority_invariants.adapter_or_pilot_legality_reconstruction_forbidden",
+   "detail": "a scan of 30 bound runner source files found no legality-reconstruction pattern. This is absence of a second legality source, which is weaker than positive demonstration, and it does not extend to code outside the scanned path",
+   "evidence": {
+    "runner_commit": "39744c19198a33b722e03b150a827edb10287c30",
+    "runner_tree": "5f6a5fd340318ee0417a6f372319df9550f04e2a",
+    "scan": {
+     "complete": true,
+     "hits": [],
+     "scanned_files": 30
+    }
+   },
+   "invariant": "no_adapter_legality_reconstruction",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "rules_authority_invariants.fabricated_legal_options_forbidden",
+   "detail": "the same bound-source scan is the evidence; option sets are only ever read from provider payloads, and the live illegal-action probe returned no options",
+   "evidence": {
+    "fabricated_options": 0,
+    "scan": {
+     "complete": true,
+     "hits": [],
+     "scanned_files": 30
+    }
+   },
+   "invariant": "no_fabricated_legal_options",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "rules_authority_invariants.rules_randomness_core_owned",
+   "detail": "provider reports seed_supported and any RNG binding stays inside the engine",
+   "evidence": {
+    "rules_seed_binding": null,
+    "seed_supported": true
+   },
+   "invariant": "rules_randomness_core_owned",
+   "verdict": "PASS"
+  }
+ ],
+ "lane": "compatibility",
+ "nonclaims": [
+  "AF01 PASS does not imply AF04 decision completeness",
+  "AF01 PASS does not imply provider release eligibility",
+  "AF01 PASS does not select a provider or claim Architecture Freeze"
+ ],
+ "protocol_transcript_digest": "c45864080e188a86ea4eda0d5ba9249caa2557d45fe29ff19f7263d28ca7cf3a",
+ "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+ "schema_version": "wsr22.af01-current-boundary/1.0.0",
+ "superseded_rules_service_boundary": "commander-lab.rules-service/1.1.0",
+ "transport_protocol": "2.0.0",
+ "verdict": "PASS"
+}
