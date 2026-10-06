@@ -47,11 +47,19 @@ Space Bunny MAX is the explicit secondary executor:
 ```
 
 The authorized Space Bunny identity is `opencode-go/space-bunny` with main model, small model
-and reachable agents at native `max`. An authenticated bounded smoke under the exact
-launcher-injected secondary bundle resolved `providerID=opencode-go modelID=space-bunny-free` with
-exit 0 on 2026-09-29. Use it for bounded, mechanical, token-heavy, bulk and background work, or
-where a workstream contract explicitly selects it. There is no silent fallback between DeepSeek MAX
-and Space Bunny MAX in either direction.
+and reachable agents at native `max`. After the catalog-ID rebind landed in PR #576, a fresh
+authenticated trusted `/bunny` smoke on 2026-10-06 ran the pinned OpenCode CLI with
+`MODEL=opencode-go/space-bunny` and `VARIANT=max`, the DeepSeek lane was skipped, and the Bunny
+job completed successfully. The agent result reported `providerID=opencode-go modelID=space-bunny`;
+that resolved identity is agent self-report (`CODE_DERIVED`) unless an authoritative runtime log is
+bound, while the configured pins, job outcome and provider policy are `DIRECTLY_VERIFIED`. The
+immutable receipt is `.foundry/space-bunny-rebind-runtime-activation-20261006.json`.
+
+The 2026-09-29 authenticated smoke resolved the then-current
+`opencode-go/space-bunny-free` identity. That receipt remains historical provenance only and is
+not activation evidence for the rebound model ID. Use Space Bunny for bounded, mechanical,
+token-heavy, bulk and background work, or where a workstream contract explicitly selects it.
+There is no silent fallback between DeepSeek MAX and Space Bunny MAX in either direction.
 
 ## Non-authorized executors
 
