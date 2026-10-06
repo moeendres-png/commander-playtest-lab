@@ -9,6 +9,8 @@ ACTIVE_ROUTING = (
     ROOT / "CLAUDE.md",
     ROOT / "docs" / "claude" / "SESSION_PLAYBOOK.md",
     ROOT / ".claude" / "skills" / "COMMANDER_ROUTING.md",
+    ROOT / ".claude" / "skills" / "lab-ops" / "SKILL.md",
+    ROOT / "docs" / "foundry-execution" / "ROUTING_AND_EFFORT.md",
     ROOT / ".claude" / "agents" / "log-scanner.md",
     ROOT / ".claude" / "agents" / "ci-triage.md",
     ROOT / ".claude" / "agents" / "evidence-reviewer.md",
@@ -95,3 +97,17 @@ def test_claude_policy_forbids_general_purpose_implementation_and_duplicate_read
     assert "Do not automatically re-read" in text
     assert "DeepSeek V4.1 Flash at native `max`" in text
     assert "Space Bunny at native `max` is an explicit secondary profile only" in text
+
+
+def test_helper_effort_policy_is_per_agent_not_a_blanket_high_rule():
+    """The retired blanket rule must not return to any active routing surface."""
+    for path in ACTIVE_ROUTING:
+        flat = " ".join(read(path).split())
+        assert "at least Sonnet at `high`" not in flat, path.name
+    for rel in (
+        ".claude/skills/lab-ops/SKILL.md",
+        "docs/foundry-execution/ROUTING_AND_EFFORT.md",
+    ):
+        flat = " ".join(read(ROOT / rel).split())
+        assert "Sonnet `low`" in flat and "Sonnet `medium`" in flat, rel
+        assert "never Haiku" in flat, rel

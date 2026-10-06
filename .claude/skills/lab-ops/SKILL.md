@@ -71,7 +71,7 @@ The output of each command decides the next step, so read it all; just don't pul
   - `grep -n` the symbol, then read a `sed -n A,Bp` window. Do not re-read a file you just edited.
   - Summarize big JSON with a short `python3 -c` filter instead of printing it.
 - **Batch independent calls in one message.** This covers status checks across PRs, replies plus resolves, and reads of unrelated files.
-- **Delegate mechanical sweeps.** A broad search over many files or logs goes to a subagent that returns the conclusion, not the file dumps: `log-scanner` for logs and evidence JSON, `ci-triage` for a red check, `Explore` for code location. Every subagent runs on at least Sonnet at `high` effort; never Haiku. Judgement, evidence adjudication and CR reasoning stay in the main session.
+- **Delegate mechanical sweeps.** A broad search over many files or logs goes to a subagent that returns the conclusion, not the file dumps: `log-scanner` for logs and evidence JSON, `ci-triage` for a red check, `Explore` for code location. Helper effort is pinned per agent frontmatter (`log-scanner` Sonnet `low`, `ci-triage` Sonnet `medium`, `evidence-reviewer` Opus `high`); never Haiku. Judgement, evidence adjudication and CR reasoning stay in the main session.
 - **Keep the stack moving.**
   - After a base PR merges, retarget stacked PRs to `main` and merge `origin/main` into every open head in one loop.
   - Regenerate hash manifests with `scripts/regenerate_hash_manifests.py`; never resolve `WS17_SHA256SUMS` by hand.
