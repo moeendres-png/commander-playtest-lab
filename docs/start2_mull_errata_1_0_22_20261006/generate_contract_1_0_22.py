@@ -13,8 +13,10 @@ historical PASS transfers (every changed row is REQUALIFICATION_REQUIRED).
   filler. The successor is a natural game start: per-seat Rograkh plus a
   99-Mountain library template, seeded per-seat library shuffles, pregame
   mulligan checkpoint at turn 0 with P1 active and holding priority, the two
-  command-zone commanders only. expected_events and terminal_postconditions are
-  the 1.0.21 values, unchanged; the 1.0.6 skip-proof step stays active.
+  command-zone commanders only. The starting player (P1) and both round-1 keeps
+  are scripted decisions (the Lab never chooses for a player). expected_events
+  and terminal_postconditions are the 1.0.21 values, unchanged; the 1.0.6
+  skip-proof step stays active.
 * WS05-CMD-MULL-2 / MULL-4, rules-randomness erratum (obligation unchanged).
   Their rules_randomness names the channel INITIAL_LIBRARY_SHUFFLE and the
   seed binding SCENARIO_SEED but no rules_seed, so the construction proof
@@ -113,6 +115,37 @@ def _pregame_deck(player: str) -> dict:
         "opening_hand_size": 7,
         "player_id": player,
         "shuffle_channel": f"library_shuffle:{player}",
+    }
+
+
+FORBIDDEN = [
+    "first_option",
+    "random_option",
+    "default_yes_no",
+    "internal_ai",
+    "gui_default",
+    "silent_skip",
+    "parent_class_fallback",
+]
+
+
+def _step(
+    actor: str, step_id: str, family: str, selector: str, value: object, notes: str = ""
+) -> dict:
+    """One decision-script entry in the shape every successor record uses."""
+    return {
+        "actor": actor,
+        "causal_step_id": step_id,
+        "decision_family": family,
+        "forbidden_fallbacks": list(FORBIDDEN),
+        "notes": notes,
+        "selection": {
+            "matches_only_provider_offered_legal_options": True,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
+            "selector_kind": selector,
+            "semantic_value": value,
+        },
     }
 
 
@@ -228,7 +261,37 @@ natural_procedure = [
         "operation": "NATIVE_OPENING_HAND_DRAW",
         "step_id": "draw",
     },
+    *(
+        {
+            "actor": p,
+            "details": {"round": 1},
+            "operation": "NATIVE_MULLIGAN_PROMPT",
+            "step_id": f"mull-r1-{p}",
+        }
+        for p in players
+    ),
 ]
+# The Lab never chooses for a player (#441, Coordinator extension of 6007651998):
+# the starter and every keep are the record's own scripted decisions.
+assert old["decision_script"] == [] and old.get("pregame_decision_plan") is None
+start2_script = [
+    _step(
+        "P1",
+        "start-P1",
+        "starting_player",
+        "semantic_player",
+        "P1",
+        notes=(
+            "CR 103.1: the starting player is a player's choice; P1 is the record's "
+            "starting player (temporal_state.active_player), scripted, never a lane default"
+        ),
+    ),
+    *(
+        _step(p, f"mull-r1-{p}", "mulligan", "semantic_action", "keep_opening_hand")
+        for p in players
+    ),
+]
+start2_plan = [{"decision": "KEEP", "player_id": p, "round": 1} for p in players]
 supersede(
     FIXTURE,
     "NATURAL_START_SCENARIO_ERRATUM",
@@ -246,6 +309,8 @@ supersede(
         },
         "rules_randomness": _randomness(players),
         "native_procedure": natural_procedure,
+        "decision_script": start2_script,
+        "pregame_decision_plan": start2_plan,
     },
     [skip_proof],
     [
@@ -294,6 +359,11 @@ supersede(
                     "decision tape"
                 ),
                 "skip_proof_step": "start2-cr1038a-skip-proof stays active procedure",
+                "scripted_decisions": (
+                    "the starting player (P1, decision family starting_player) and both "
+                    "round-1 keeps (the PILOT_MULLIGAN plan shape) are the record's own "
+                    "decisions; the Lab chooses neither, and a record without them is refused"
+                ),
                 "route": "PROTOCOL2_START2 on an orchestration-keyed launch with the record's decks",
             },
         )
@@ -312,6 +382,7 @@ supersede(
             "temporal_state": prior_record["temporal_state"],
             "rules_randomness": prior_record["rules_randomness"],
             "dropped_semantic_objects": [o["semantic_id"] for o in dropped],
+            "decision_script": prior_record["decision_script"],
             "native_procedure_operations": [
                 step["operation"] for step in old.get("native_procedure") or ()
             ],

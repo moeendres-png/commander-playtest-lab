@@ -221,8 +221,9 @@ def test_the_acting_principal_comes_from_the_lab_seat_not_the_engine_actor() -> 
 
 
 def _record() -> dict:
-    """A natural-start START-2 record (seat roster, decks, seed) whose construction
-    is not required, so these tests isolate the observed CR 103.8a verdict."""
+    """A natural-start START-2 record (seats, decks, seed, scripted starter and
+    keeps) whose construction is not required, so these tests isolate the
+    observed CR 103.8a verdict."""
     seats = ("P1", "P2")
     return {
         "fixture_id": "WS05-CMD-START-2",
@@ -244,6 +245,29 @@ def _record() -> dict:
         ],
         "rules_randomness": {"rules_seed": 424242},
         "temporal_state": {"active_player": "P1", "priority_player": "P1"},
+        # The starter and the keeps are the record's own decisions.
+        "decision_script": [
+            _scripted("P1", "starting_player", "semantic_player", "P1"),
+            *(
+                _scripted(seat, "mulligan", "semantic_action", "keep_opening_hand")
+                for seat in seats
+            ),
+        ],
+        "pregame_decision_plan": [
+            {"decision": "KEEP", "player_id": seat, "round": 1} for seat in seats
+        ],
+    }
+
+
+def _scripted(actor: str, family: str, selector: str, value: str) -> dict:
+    return {
+        "actor": actor,
+        "decision_family": family,
+        "selection": {
+            "matches_only_provider_offered_legal_options": True,
+            "selector_kind": selector,
+            "semantic_value": value,
+        },
     }
 
 

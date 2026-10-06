@@ -77,6 +77,41 @@ def write(name: str, payload: Any) -> None:
     print("wrote", name)
 
 
+CURRENT_AUTHORITY_PATH = REPO / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
+CARRIED_VERDICT_NOT_TRANSFERRED = "CARRIED_FORWARD_HISTORICAL_VERDICT_NOT_TRANSFERRED"
+
+
+def refuse_changed_fixture_carried_passes(
+    rows: dict[str, dict[str, Any]], evidence_survival: dict[str, Any]
+) -> list[str]:
+    """A carried-forward PASS on a fixture the current contract changed is no PASS.
+
+    A carried column is matched to the current denominator by fixture id only,
+    and a historical row names no requested-state or obligation digest, so it
+    cannot show it ran the current record. When the current authority states
+    that a fixture's evidence needs requalification, its historical PASS does
+    not transfer (changed fixture bytes are a new evidence identity): the row
+    becomes UNKNOWN and keeps the carried verdict as history. Returns the
+    refused fixture ids.
+    """
+    refused: list[str] = []
+    for fixture, row in rows.items():
+        survival = str(evidence_survival.get(fixture) or "")
+        if row.get("exit_state") != "PASS" or not survival.startswith("REQUALIFICATION_REQUIRED"):
+            continue
+        row["carried_exit_state"] = "PASS"
+        row["carried_reason"] = row.get("reason")
+        row["exit_state"] = "UNKNOWN"
+        row["failure_reason"] = (
+            f"the carried-forward PASS ran a predecessor of this fixture; the current "
+            f"contract changed it ({survival}), so the historical verdict does not transfer"
+        )
+        row["reason"] = row["failure_reason"]
+        row["evidence_class"] = CARRIED_VERDICT_NOT_TRANSFERRED
+        refused.append(fixture)
+    return refused
+
+
 def live_runner_digest() -> str:
     """Digest of the Lab-side qualification code executing this assembly.
 
@@ -804,6 +839,12 @@ def assemble() -> None:
         results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
         rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
         carried_forward = bool(results.get("carried_forward"))
+        if carried_forward:
+            results["carried_forward_refused_changed_fixture_passes"] = (
+                refuse_changed_fixture_carried_passes(
+                    rows, load(CURRENT_AUTHORITY_PATH)["full107"]["evidence_survival"]
+                )
+            )
         promoted = 0
         demoted_without_receipt = 0
         receipt_backed_existing_pass = 0

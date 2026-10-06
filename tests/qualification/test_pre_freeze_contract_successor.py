@@ -2410,12 +2410,27 @@ def test_start2_mull_errata_supersede_their_overlays_in_place() -> None:
         "CREATE_COMMANDER_GAME",
         "NATIVE_SEEDED_INITIAL_SHUFFLE",
         "NATIVE_OPENING_HAND_DRAW",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
         "NATIVE_ADVANCE_THROUGH_FIRST_BEGINNING_AND_VERIFY_DRAW_STEP_SKIPPED",
         "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
     ]
+    # The Lab never chooses for a player: the starter and both keeps are scripted.
+    assert [
+        (step["actor"], step["decision_family"], step["selection"]["semantic_value"])
+        for step in start2["decision_script"]
+    ] == [
+        ("P1", "starting_player", "P1"),
+        ("P1", "mulligan", "keep_opening_hand"),
+        ("P2", "mulligan", "keep_opening_hand"),
+    ]
+    assert start2["decision_script"][0]["selection"]["selector_kind"] == "semantic_player"
+    assert start2["pregame_decision_plan"] == [
+        {"decision": "KEEP", "player_id": seat, "round": 1} for seat in ("P1", "P2")
+    ]
     # The 1.0.6 skip-proof step stays active, byte for byte.
     skip_proof = _json(V106_CONTRACT_PATH)["record_successors"][0]["append_native_procedure"][0]
-    assert start2["native_procedure"][3] == skip_proof
+    assert start2["native_procedure"][5] == skip_proof
     invalidity = patches["WS05-CMD-START-2"]["predecessor_invalidity"]
     assert "construct-then-advance" in invalidity["reason"]
     assert invalidity["predecessor_values"]["execution_entry_mode"] == "NATIVE_STATE_LOAD"

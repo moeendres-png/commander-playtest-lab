@@ -203,6 +203,15 @@ def _actual_cards() -> list[str]:
     ]
 
 
+# A record-less bounded lifecycle probe (the 6P secondary count has no fixture
+# and no row) runs on this seed of its own; a record always supplies its own
+# seed or is refused. It is never a default for a record.
+LIFECYCLE_PROBE_SEED = 424242
+# A run the record itself refuses (it does not state what to run): nothing was
+# driven, so the row is UNKNOWN, never a lifecycle FAIL.
+RECORD_REFUSED = "RECORD_REFUSED"
+
+
 def run_cardinality(
     proc: BridgeProcess,
     *,
@@ -218,18 +227,32 @@ def run_cardinality(
     be compared (#441 decision (c)). A record whose decks are not a 100-card
     Commander deck per seat imports nothing of its own; the run then uses the
     driver's decks and the record's construction stays unestablished.
+
+    A record that states no integer ``rules_seed`` is refused: nothing is
+    driven, and the result carries ``failure_kind`` RECORD_REFUSED, which
+    ``cardinality_row`` classifies UNKNOWN. Only a record-less bounded lifecycle
+    probe (no fixture, no row) runs on the probe's own LIFECYCLE_PROBE_SEED.
     """
     decks = None
-    seed = 424242
+    seed = LIFECYCLE_PROBE_SEED
     plan = None
     if record is not None:
+        record_seed = record_rules_seed(record)
+        if record_seed is None:
+            refused = CommandedGameResult(
+                candidate=candidate,
+                player_count=player_count,
+                deck_identity=[],
+                game_id="not-run",
+            )
+            refused.failure = f"RecordRefused: {MISSING_SEED_REASON}"
+            refused.failure_kind = RECORD_REFUSED
+            return refused
+        seed = record_seed
         try:
             decks = record_decks(record)
         except ValueError:
             decks = None
-        record_seed = (record.get("rules_randomness") or {}).get("rules_seed")
-        if isinstance(record_seed, int) and not isinstance(record_seed, bool):
-            seed = record_seed
         if record.get("pregame_decision_plan") is not None:
             # The record's own keeps, seat by seat in the order it names: the
             # driver answers only those and fails closed on any other frame.
@@ -347,6 +370,15 @@ def cardinality_row(
         evidence["observed_pregame_decisions"] = [
             [entry.seat, entry.keep] for entry in result.decision_tape if entry.step == "mulligan"
         ]
+    if result.failure_kind == RECORD_REFUSED:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_LIFECYCLE",
+            f"the record was refused and nothing was executed: {result.failure}",
+            evidence,
+        )
     if result.failure:
         if planned and result.failure.startswith(f"{DecisionUnsatisfied.__name__}:"):
             # The engine asked a pregame the record's plan does not name: the
@@ -517,6 +549,32 @@ def start2_row(
             f"the record's decks cannot be imported, so nothing is executed: {exc}",
             refused,
         )
+    # The Lab never chooses for a player: the starting player and every
+    # mulligan keep are the record's scripted decisions, never a lane or bridge
+    # default (#441, the Coordinator's extension of 6007651998, P1/P2).
+    try:
+        record_starter = record_starting_seat(record)
+    except ValueError as exc:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            f"the record's starting player is not executable, so nothing is executed: {exc}",
+            refused,
+        )
+    try:
+        plan = scripted_pregame_plan(record)
+    except ValueError as exc:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            "the record scripts no executable pregame plan, so its mulligan keeps would be "
+            f"a lane default and nothing is executed: {exc}",
+            refused,
+        )
     game = drive_commander_game(
         proc,
         candidate=candidate,
@@ -524,7 +582,9 @@ def start2_row(
         seed=seed,
         drive_to="first_turn_draw_skip",
         max_steps=60,
+        mulligan_plan=plan,
         decks=decks,
+        record_starting_seat=record_starter,
     )
     kinds = [entry.kind for entry in game.decision_tape]
     draw_frames = game.terminal_facts.get("draw_step_decision_frames", [])
@@ -558,7 +618,7 @@ def start2_row(
         if isinstance(raw_first_priority, str) and raw_first_priority
         else None
     )
-    requested_starting = (record.get("temporal_state") or {}).get("active_player")
+    requested_starting = record_starter.upper()
     game.terminal_facts["observed_decision_kinds"] = kinds
     game.terminal_facts["observed_draw_semantic_events"] = observed_draw_events
     game.terminal_facts["observed_starting_actor"] = observed_starting_actor
@@ -593,6 +653,8 @@ def start2_row(
         "observed_starting_actor": observed_starting_actor,
         "observed_starting_actor_is_starting_player_evidence": False,
         "observed_starting_seat": starting_seat,
+        "record_starting_seat": requested_starting,
+        "scripted_pregame_plan": [list(entry) for entry in plan],
         "requested_decks": [
             {"deck_id": deck["deck_id"], "deck_hash": deck["deck_hash"]} for deck in decks
         ],
@@ -605,6 +667,31 @@ def start2_row(
             "FAIL",
             "PROTOCOL2_START2_V1_0_6",
             f"START-2 lifecycle failure: {game.failure}",
+            evidence,
+        )
+    # Which game was run comes first: a game the record's starting player did
+    # not start is not the requested game, so nothing it shows is a CR 103.8a
+    # verdict either way (UNKNOWN, never FAIL).
+    if starting_seat is None:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            "the engine reported no first priority seat, so which seat was the starting "
+            "player could not be established from the run (the decision tape's first "
+            "actor is never that evidence)",
+            evidence,
+        )
+    if starting_seat != requested_starting:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            f"the engine gave the first priority to {starting_seat}, but the record's "
+            f"scripted starting player is {requested_starting}, so the requested game was "
+            "not the one run",
             evidence,
         )
     if draw_frames:
@@ -725,28 +812,6 @@ def start2_row(
             "observed and the row is not credited",
             evidence,
         )
-    if starting_seat is None:
-        return RowResult(
-            fixture_id,
-            candidate,
-            "UNKNOWN",
-            "PROTOCOL2_START2_V1_0_6",
-            "the engine reported no first priority seat, so which seat was the starting "
-            "player could not be established from the run (the decision tape's first "
-            "actor is never that evidence)",
-            evidence,
-        )
-    if not isinstance(requested_starting, str) or starting_seat != requested_starting.upper():
-        return RowResult(
-            fixture_id,
-            candidate,
-            "UNKNOWN",
-            "PROTOCOL2_START2_V1_0_6",
-            f"the engine gave the first priority to {starting_seat}, but the record's "
-            f"starting player is {requested_starting!r}, so the requested game was not "
-            "the one run",
-            evidence,
-        )
     if not game.terminal_facts.get("priority_reached"):
         return RowResult(
             fixture_id,
@@ -808,7 +873,13 @@ def scripted_pregame_plan(record: dict[str, Any]) -> tuple[tuple[str, bool], ...
         # A London bottom selection follows the keep it belongs to; it is no
         # keep-or-mulligan answer, so the plan names it nowhere (see
         # scripted_london_bottoms).
-        script = [step for step in script if step.get("decision_family") != "london_bottom"]
+        # The starting player's choice (CR 103.1) precedes the pregame and is
+        # no keep-or-mulligan answer either (see record_starting_seat).
+        script = [
+            step
+            for step in script
+            if step.get("decision_family") not in ("london_bottom", "starting_player")
+        ]
     if not isinstance(plan, list) or not isinstance(script, list) or len(plan) != len(script):
         raise ValueError("the pregame plan and the decision script do not have one entry each")
     entries: list[tuple[str, bool]] = []
@@ -846,6 +917,42 @@ def record_rules_seed(record: dict[str, Any]) -> int | None:
     if isinstance(seed, bool) or not isinstance(seed, int):
         return None
     return seed
+
+
+def record_starting_seat(record: dict[str, Any]) -> str:
+    """The record's scripted starting player as a lane seat (``p1``..), or ``ValueError``.
+
+    The starting player is a player's choice (CR 103.1), so the Lab never makes
+    it: exactly one ``starting_player`` decision-script entry must name the
+    seat, and it must be the record's own requested starting player
+    (``temporal_state.active_player``). Otherwise the record does not say who
+    starts and nothing is executed.
+    """
+    steps = [
+        step
+        for step in record.get("decision_script") or ()
+        if isinstance(step, dict) and step.get("decision_family") == "starting_player"
+    ]
+    if len(steps) != 1:
+        raise ValueError(
+            f"the record scripts {len(steps)} starting-player decisions; exactly one is required"
+        )
+    selection = steps[0].get("selection") or {}
+    seat = selection.get("semantic_value")
+    seats = [str(player.get("player_id")) for player in record.get("players") or ()]
+    if (
+        selection.get("selector_kind") != "semantic_player"
+        or not isinstance(seat, str)
+        or seat not in seats
+        or selection.get("matches_only_provider_offered_legal_options") is not True
+    ):
+        raise ValueError(f"the scripted starting player {seat!r} is not one of {seats}")
+    active = (record.get("temporal_state") or {}).get("active_player")
+    if active != seat:
+        raise ValueError(
+            f"the scripted starting player {seat} is not the requested active player {active!r}"
+        )
+    return seat.lower()
 
 
 def record_decks(record: dict[str, Any]) -> list[dict[str, Any]]:

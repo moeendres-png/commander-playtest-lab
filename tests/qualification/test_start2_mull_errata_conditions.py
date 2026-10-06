@@ -319,3 +319,199 @@ def test_the_first_priority_seat_credits_without_any_tape_actor(start2, monkeypa
     row, _ = _start2(start2, monkeypatch, game)
     assert row.outcome == "PASS", row.reason
     assert row.evidence["observed_starting_seat"] == "P1"
+
+
+# --- The Lab never chooses for a player (Coordinator extension, P1/P2/P3) ------ #
+
+
+def _without_family(record: dict[str, Any], family: str) -> dict[str, Any]:
+    record["decision_script"] = [
+        step for step in record["decision_script"] if step["decision_family"] != family
+    ]
+    return record
+
+
+def test_start2_scripts_its_starter_and_keeps(start2) -> None:
+    assert full107.record_starting_seat(start2) == "p1"
+    assert full107.scripted_pregame_plan(start2) == (("p1", True), ("p2", True))
+    families = [step["decision_family"] for step in start2["decision_script"]]
+    assert families == ["starting_player", "mulligan", "mulligan"]
+
+
+def test_start2_drives_the_records_starter_and_keeps(start2, monkeypatch) -> None:
+    _, calls = _start2(start2, monkeypatch, _observed(state=_state()))
+    (call,) = calls
+    assert call["record_starting_seat"] == "p1"
+    assert call["mulligan_plan"] == (("p1", True), ("p2", True))
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        pytest.param(lambda r: _without_family(r, "starting_player"), id="no-starter"),
+        pytest.param(
+            lambda r: r["decision_script"][0]["selection"].update(semantic_value="P2"),
+            id="starter-not-the-requested-active-player",
+        ),
+        pytest.param(
+            lambda r: r["decision_script"].append(copy.deepcopy(r["decision_script"][0])),
+            id="two-starters",
+        ),
+    ],
+)
+def test_start2_without_one_scripted_starter_is_never_driven(start2, monkeypatch, mutate) -> None:
+    mutate(start2)
+    row, calls = _start2(start2, monkeypatch, _observed(state=_state()))
+    assert calls == []
+    assert row.outcome == "UNKNOWN"
+    assert "starting player is not executable" in row.reason
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        pytest.param(lambda r: r.pop("pregame_decision_plan"), id="no-plan"),
+        pytest.param(lambda r: _without_family(r, "mulligan"), id="no-scripted-keeps"),
+    ],
+)
+def test_start2_without_scripted_keeps_is_never_driven(start2, monkeypatch, mutate) -> None:
+    mutate(start2)
+    row, calls = _start2(start2, monkeypatch, _observed(state=_state()))
+    assert calls == []
+    assert row.outcome == "UNKNOWN"
+    assert "no executable pregame plan" in row.reason
+
+
+@pytest.mark.parametrize(
+    "game",
+    [
+        pytest.param(lambda g: g.terminal_facts.update(draw_step_decision_frames=[{}]), id="frame"),
+        pytest.param(lambda g: g.semantic_events.append("draw:P2:turn1"), id="draw-event"),
+        pytest.param(
+            lambda g: g.terminal_facts.update(
+                start2_post_zone_counts=[{"hand_count": 8, "library_count": 91}]
+            ),
+            id="counts",
+        ),
+    ],
+)
+def test_a_game_the_wrong_seat_started_is_unknown_never_fail(start2, monkeypatch, game) -> None:
+    observed = _observed(state=_state(), first_priority="p2")
+    game(observed)
+    row, _ = _start2(start2, monkeypatch, observed)
+    assert row.outcome == "UNKNOWN"
+    assert "first priority to P2" in row.reason
+
+
+def test_the_records_seat_still_fails_on_a_rules_visible_draw(start2, monkeypatch) -> None:
+    observed = _observed(state=_state())
+    observed.semantic_events.append("draw:P1:turn1")
+    row, _ = _start2(start2, monkeypatch, observed)
+    assert row.outcome == "FAIL"
+
+
+class _CreateOnly:
+    """A bridge that records the create request and stops the run at start_game."""
+
+    def __init__(self) -> None:
+        self.created: dict[str, Any] | None = None
+
+    def request(self, message_type: str, payload: dict[str, Any], **_: Any) -> dict[str, Any]:
+        if message_type == "get_capabilities":
+            return {"success": True, "payload": {"capabilities": {"seed_supported": True}}}
+        if message_type == "import_deck":
+            return {"success": True, "payload": {"deck_handle": {"handle_id": "d"}}}
+        if message_type == "create_commander_game":
+            self.created = payload["request"]
+            return {"success": True, "payload": {"player_count": 2, "rules_seed": 424242}}
+        if message_type == "start_game":
+            from commander_lab.qualification.current_boundary.game_driver import GameDriveError
+
+            raise GameDriveError("stop after creation")
+        return {"success": True, "payload": {}}
+
+
+@pytest.mark.parametrize(
+    ("candidate", "seat", "sent"),
+    [("xmage", "p1", 0), ("xmage", "p2", 1), ("forge", "p1", None), ("xmage", None, None)],
+)
+def test_the_records_starter_reaches_the_create_request(candidate, seat, sent) -> None:
+    from commander_lab.qualification.current_boundary import game_driver
+
+    proc = _CreateOnly()
+    result = game_driver.drive_commander_game(
+        proc,  # type: ignore[arg-type]
+        candidate=candidate,
+        player_count=2,
+        seed=424242,
+        record_starting_seat=seat,
+    )
+    assert proc.created is not None
+    assert proc.created.get("starting_player_seat") == sent
+    assert result.terminal_facts["starting_seat_channel"] == (
+        "provider_default"
+        if seat is None
+        else ("create_request" if candidate == "xmage" else "decision_frame")
+    )
+
+
+# --- run_cardinality: a record without its seed is refused ----------------------- #
+
+
+def test_run_cardinality_refuses_a_record_without_a_seed(materialization, monkeypatch) -> None:
+    record = copy.deepcopy(materialization.record("PLAYER_COUNT_4P"))
+    del record["rules_randomness"]["rules_seed"]
+    calls: list[Any] = []
+    monkeypatch.setattr(full107, "drive_commander_game", lambda *a, **k: calls.append(k))
+    result = full107.run_cardinality(
+        object(),  # type: ignore[arg-type]
+        candidate="xmage",
+        player_count=4,
+        runtime_identity={},
+        record=record,
+    )
+    assert calls == []
+    assert result.failure_kind == full107.RECORD_REFUSED
+    row = full107.cardinality_row(record, result, candidate="xmage", runtime_identity={})
+    assert row.outcome == "UNKNOWN"
+    assert full107.MISSING_SEED_REASON in row.reason
+
+
+# --- the assembler never carries a historical START-2 PASS forward -------------- #
+
+
+def test_a_carried_start2_pass_is_not_transferred_under_1_0_22() -> None:
+    import importlib.util
+    import json
+    from pathlib import Path
+
+    repo = Path(__file__).resolve().parents[2]
+    spec = importlib.util.spec_from_file_location(
+        "assembler_under_test", repo / "scripts/assemble_current_boundary_evidence.py"
+    )
+    assert spec is not None and spec.loader is not None
+    assembler = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(assembler)
+    historical = json.loads(
+        (
+            repo / "qualification/final-current-boundary-20260927/FULL107_FORGE_RESULTS.json"
+        ).read_text(encoding="utf-8")
+    )
+    rows = {row["fixture_id"]: dict(row) for row in historical["rows"]}
+    assert rows["WS05-CMD-START-2"]["exit_state"] == "PASS"
+    survival = json.loads(
+        (repo / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json").read_text(encoding="utf-8")
+    )["full107"]["evidence_survival"]
+    unchanged_passes = {fixture for fixture, row in rows.items() if row["exit_state"] == "PASS"} - {
+        "WS05-CMD-START-2"
+    }
+    refused = assembler.refuse_changed_fixture_carried_passes(rows, survival)
+    assert refused == ["WS05-CMD-START-2"]
+    start2 = rows["WS05-CMD-START-2"]
+    assert start2["exit_state"] == "UNKNOWN"
+    assert start2["carried_exit_state"] == "PASS"
+    assert start2["evidence_class"] == assembler.CARRIED_VERDICT_NOT_TRANSFERRED
+    # A carried PASS on an unchanged fixture stays the historical comparison record.
+    assert all(rows[fixture]["exit_state"] == "PASS" for fixture in unchanged_passes)
+    source = (repo / "scripts/assemble_current_boundary_evidence.py").read_text(encoding="utf-8")
+    assert "refuse_changed_fixture_carried_passes(\n                    rows," in source

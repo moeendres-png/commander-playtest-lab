@@ -116,8 +116,20 @@ def _declares_seed_support(proc: BridgeProcess) -> bool:
     return capabilities.get("seed_supported") is True
 
 
+# Providers whose create request carries the starting player (the XMage
+# Protocol-2 bridge seats the chooser at ``starting_player_seat`` and has it
+# choose itself; without the field it falls back to seat index 0). Forge rejects
+# the field at creation and asks the choice as a STARTING_PLAYER frame instead,
+# which the driver answers from the same scripted seat.
+CREATION_STARTING_SEAT_CANDIDATES = frozenset({"xmage"})
+
+
 def _create_request(
-    game_id: str, handles: list[str], seed: int, seed_supported: bool
+    game_id: str,
+    handles: list[str],
+    seed: int,
+    seed_supported: bool,
+    starting_player_seat: int | None = None,
 ) -> dict[str, Any]:
     """The authoritative create-game request, with the seed only when supported.
 
@@ -136,6 +148,8 @@ def _create_request(
         request["seed"] = seed
         request["rules_seed"] = seed
         request["options"] = {"seed": seed, "rules_seed": seed}
+    if starting_player_seat is not None:
+        request["starting_player_seat"] = starting_player_seat
     return {"request": request}
 
 
@@ -692,6 +706,7 @@ def drive_commander_game(
     max_steps: int = 400,
     mulligan_plan: tuple[tuple[str, bool], ...] | None = None,
     decks: list[dict[str, Any]] | None = None,
+    record_starting_seat: str | None = None,
 ) -> CommandedGameResult:
     """Run a real Commander lifecycle for one candidate at one player count.
 
@@ -707,11 +722,26 @@ def drive_commander_game(
 
     ``decks`` replaces the driver's own test decks with one import payload per
     seat (a record's requested decks); the engine still validates every card.
+
+    ``record_starting_seat`` is a record's scripted starting player (CR 103.1).
+    It replaces the driver's default seat everywhere: in the create request of a
+    provider that takes the starter at creation, and as the answer to a
+    STARTING_PLAYER frame of one that asks it. Without it the provider's own
+    default decides, which earns no starting-player credit.
     """
     if decks is not None and len(decks) != player_count:
         raise ValueError(f"{len(decks)} decks were supplied for {player_count} players")
     if player_count < 2 or player_count > 6:
         raise ValueError(f"player_count must be within 2..6, got {player_count}")
+    creation_starting_seat: int | None = None
+    if record_starting_seat is not None:
+        scripted_starting_seat = str(record_starting_seat).lower()
+        if scripted_starting_seat not in _SEATS[:player_count]:
+            raise ValueError(
+                f"record starting seat {record_starting_seat!r} is not one of {player_count} seats"
+            )
+        if candidate in CREATION_STARTING_SEAT_CANDIDATES:
+            creation_starting_seat = _SEATS.index(scripted_starting_seat)
 
     result = CommandedGameResult(
         candidate=candidate,
@@ -755,11 +785,19 @@ def drive_commander_game(
         seed_supported = _declares_seed_support(proc)
         result.terminal_facts["provider_seed_supported"] = seed_supported
         result.terminal_facts["seed_sent_to_provider"] = bool(seed_supported)
+        result.terminal_facts["record_starting_seat"] = (
+            scripted_starting_seat if record_starting_seat is not None else None
+        )
+        result.terminal_facts["starting_seat_channel"] = (
+            "create_request"
+            if creation_starting_seat is not None
+            else ("decision_frame" if record_starting_seat is not None else "provider_default")
+        )
 
         created = _require_ok(
             proc.request(
                 "create_commander_game",
-                _create_request(game_id, handles, seed, seed_supported),
+                _create_request(game_id, handles, seed, seed_supported, creation_starting_seat),
                 game_id=game_id,
                 timeout_s=300.0,
             ),

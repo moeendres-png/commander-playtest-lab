@@ -148,6 +148,10 @@ _DECISION_FAMILIES: dict[str, tuple[str, str]] = {
     "pile": (LAB_EXECUTION_GAP, "CARD_LIST"),
     "priority": (LAB_EXECUTION_GAP, "PRIORITY (cast and activate actions)"),
     "replacement_effect": (LAB_EXECUTION_GAP, "REPLACEMENT_EFFECT"),
+    # Contract 1.0.22 scripts WS05-CMD-START-2's starter (#441): the scenario
+    # lane answers a STARTING_PLAYER frame only from the requested state, never
+    # from a record's scripted decision, so the scripted family is a lane gap.
+    "starting_player": (LAB_EXECUTION_GAP, "STARTING_PLAYER"),
     "target": (LAB_EXECUTION_GAP, "TARGETING"),
     "target_amount": (LAB_EXECUTION_GAP, "DIVIDED_TARGET"),
     "trigger_order": (LAB_EXECUTION_GAP, "ORDER"),
