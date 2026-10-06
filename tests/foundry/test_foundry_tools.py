@@ -1016,7 +1016,9 @@ def test_claude_entrypoint_delegates_to_canonical_policy() -> None:
     assert "canonical durable agent policy" in flat
     assert "not an independent policy source" in flat
     assert "claude opus 5.5" in flat
-    assert "claude_opus_coordinator_authority = delegated_by_owner" in flat
+    assert "when the owner delegation applies" in flat
+    assert "docs/current_execution_authority.md" in flat
+    assert "claude_opus_coordinator_authority = delegated_by_owner" not in flat
     assert "owner-only reservations" in flat
 
 

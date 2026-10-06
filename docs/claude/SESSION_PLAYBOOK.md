@@ -30,8 +30,7 @@ engine forks (`moeendres-png/mage`, `moeendres-png/forge`). It is tooling guidan
 - **Secrets cannot be set from a session.** The Actions secrets API returns 403 through the
   proxy. Ask the Owner to set them in the repository settings, and never echo a secret into a
   file, commit or comment.
-- **Merging your own PR may be refused by the auto-mode classifier.** Ask the Owner to merge or
-  to enable auto-merge, and don't route around the refusal.
+- **Merging your own PR may be refused by the auto-mode classifier.** If the auto-mode classifier refuses the merge, ask the Owner to merge or to enable auto-merge, and don't route around the refusal.
 - **Duplicate check runs.** A re-triggered or cancelled run leaves a duplicate of the same check.
   `gh_ops.py status` reports one decisive verdict per check name; a raw check list can show
   false red.

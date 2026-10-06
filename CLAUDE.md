@@ -18,9 +18,7 @@ round-trips.
 Fresh repository state outranks historical handoffs. Project-wide read access does not
 imply project-wide write authority. Respect active ownership, Rules/evidence/privacy
 boundaries, Git safety, protected branches and the Owner-only reservations in `AGENTS.md` §8.
-When `CLAUDE_OPUS_COORDINATOR_AUTHORITY = DELEGATED_BY_OWNER` applies, the Opus 5.5 main
-session resolves Coordinator-tier authority gates itself under `AGENTS.md` §8, records the
-decision with evidence and rationale, and continues without a routine Sol/Owner round-trip.
+When the Owner delegation applies, follow `AGENTS.md` §8 'Claude Opus 5.5 Coordinator authority' and `docs/CURRENT_EXECUTION_AUTHORITY.md`.
 
 Historical documents that state this repository had no `CLAUDE.md` remain provenance of
 their own earlier source locks; they are not current instruction surfaces.
@@ -33,8 +31,9 @@ limits, sealing, engine-fork and security-change practice). The SessionStart hoo
 
 Tooling only; it changes no policy, gate or evidence rule above.
 
-- **Skill `lab-ops`** (`.claude/skills/lab-ops/`): one-line PR/CI/thread status, failing-job lines, CI waiting, PB-03 packet + AF00–AF11 summary, real-engine row runs. Prefer it to raw MCP check/comment/log dumps; use MCP for writes (replies, resolves, merges, PRs).
+- **Skill `lab-ops`** (`.claude/skills/lab-ops/`): one-line PR/CI/thread status, failing-job lines, CI waiting, open-PR queue (`gh_ops.py queue`), re-run of infrastructure-cancelled jobs (`rerun-cancelled`), PB-03 packet + AF00–AF11 summary, real-engine row runs. Prefer it to raw MCP check/comment/log dumps; use MCP for writes (replies, resolves, merges, PRs).
 - **Skill `piv-validate`**: this repository's real validation commands.
+- Other skills route via `.claude/skills/COMMANDER_ROUTING.md`.
 - **Subagents** (`.claude/agents/`): every subagent runs on at least Sonnet at `high` effort; judgement stays on the main model.
   - `log-scanner` (Sonnet, high) digests large logs and evidence JSON.
   - `ci-triage` (Sonnet, high) classifies a red check.

@@ -1,6 +1,6 @@
 # Commander Simulator Next — Repository Agent Policy
 
-Durable instructions for every OpenCode Foundry session on `moeendres-png/commander-playtest-lab`.
+Durable instructions for every OpenCode Foundry session and every explicitly authorized Claude Opus 5.5 session on `moeendres-png/commander-playtest-lab`.
 Stable rules only. Never place volatile data here: no SHAs, run IDs, PASS counts, failure
 diagnoses, pricing, or rate limits. Session-specific facts live in the Workstream Contract
 and the workstream's explicit dedicated state file (the exact `--state` path supplied
@@ -356,6 +356,8 @@ It also holds repository governance and security configuration:
 - workflow and agent-policy changes;
 - containment-rule changes, recorded with a justification and negative controls.
 
+Configuring rulesets and branch protection is governance; bypassing a protection to merge remains forbidden (§10).
+
 Such a session decides, records the decision with its evidence and rationale in the lane
 issue or the PR, and continues without routine Owner round-trips.
 
@@ -452,7 +454,7 @@ technical and in-scope, or stop on a genuine authority/ownership/source blocker.
 
 Do not modify another active workstream's branch or worktree. Do not modify `main`
 directly. Local commits for resumability are encouraged. Project-scoped Git/GitHub
-operations are pre-authorized for the selected OpenCode executor when they are
+operations are pre-authorized for the selected executor when they are
 evidence-backed and within the active campaign/workstream, and follow the delegated
 authority above: create/switch owned branches, create isolated worktrees, push owned
 branches, create/update/merge/close PRs, maintain issues, and bounded cherry-pick or
@@ -461,7 +463,7 @@ deletion and history rewriting remain forbidden as specified in section 10. Pres
 evidence/provenance branches and unique unintegrated work; do not force a result
 toward PASS. Remote repository creation, paid services, raw-secret exposure,
 account/org security changes, Production Provider selection, and Architecture Freeze
-remain outside ordinary executor authority. Before material work, verify branch,
+remain outside ordinary executor authority, except as delegated and reserved in §8. Before material work, verify branch,
 HEAD, tree, `git status`, contract/state or durable campaign checkpoint, and resume
 from the newest verified state without redoing valid evidence.
 
@@ -502,7 +504,7 @@ disabled.
 Do not stop at a remediable in-scope failure (failed test, lint, config syntax, broken
 helper, incompatible design). Inspect → classify → repair → retest → continue. Stop only
 for: scope COMPLETE; irreconcilable Source Lock violation; another active owner's
-mutation surface; Sol/Human authority requirement (`AUTHORITY_GATE`, see §8);
+mutation surface; an `AUTHORITY_GATE` that §8 reserves to Sol or the Owner;
 destructive/external consent
 requirement; genuinely unobtainable upstream information; or proceeding would weaken
 Rules/Evidence/Privacy invariants. Blocked means fail closed.
