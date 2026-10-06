@@ -1,0 +1,93 @@
+{
+ "engine": "pinned-xmage-b1e4",
+ "evidence_class": "LOCAL_OBSERVED",
+ "runs": {
+  "cardinality_2p_declared": {
+   "construction_proof_verdict": "CONSTRUCTION_EQUAL",
+   "declared_starting_seat": "p1",
+   "evidence_class": "FRESH_CURRENT_BOUNDARY_RUNTIME",
+   "failure": null,
+   "failure_kind": null,
+   "outcome": "PASS",
+   "provider_acknowledged_seat": 0,
+   "reason": "real 2P Commander lifecycle executed under Protocol 2.0.0 with engine-owned legality and external discretionary choices bound to engine-offered options",
+   "starting_player_channel": "PROVIDER_CREATE_DECLARATION_ACKNOWLEDGED",
+   "starting_player_choice": null,
+   "starting_player_declaration": {
+    "seat": "p1",
+    "source": "RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER"
+   },
+   "starting_player_frame_answered": null,
+   "temporal_checks": [
+    {
+     "field": "temporal_state.phase",
+     "observed": "pregame",
+     "requested": "pregame",
+     "verdict": "EQUAL"
+    },
+    {
+     "field": "temporal_state.turn_number",
+     "observed": 0,
+     "requested": 0,
+     "verdict": "EQUAL"
+    },
+    {
+     "field": "temporal_state.step",
+     "observed": {
+      "declared_native_steps": [
+       "NATIVE_SEEDED_INITIAL_SHUFFLE",
+       "NATIVE_OPENING_HAND_DRAW"
+      ],
+      "read_at": "mulligan"
+     },
+     "requested": "game_start",
+     "verdict": "EQUAL"
+    },
+    {
+     "field": "temporal_state.active_player",
+     "observed": "P1",
+     "requested": "P1",
+     "verdict": "EQUAL"
+    },
+    {
+     "field": "temporal_state.priority_player",
+     "observed": "P1",
+     "requested": "P1",
+     "verdict": "EQUAL"
+    }
+   ]
+  },
+  "cardinality_2p_undeclared": {
+   "construction_proof_verdict": null,
+   "declared_starting_seat": null,
+   "evidence_class": "FRESH_CURRENT_BOUNDARY_RUNTIME",
+   "failure": "DecisionUnsatisfied: the record declares no starting seat and the XMage create channel requires an explicit starting_player_seat; the Lab never supplies a p1/seat-0 default",
+   "failure_kind": "FAIL_CLOSED_UNSATISFIED",
+   "outcome": "UNKNOWN",
+   "provider_acknowledged_seat": null,
+   "reason": "the run refused a decision the record does not authorize: DecisionUnsatisfied: the record declares no starting seat and the XMage create channel requires an explicit starting_player_seat; the Lab never supplies a p1/seat-0 default",
+   "starting_player_channel": null,
+   "starting_player_choice": null,
+   "starting_player_declaration": null,
+   "starting_player_frame_answered": null,
+   "temporal_checks": []
+  },
+  "pilot_mulligan_declared": {
+   "construction_proof_verdict": "CONSTRUCTION_EQUAL",
+   "declared_starting_seat": "p1",
+   "evidence_class": "FRESH_CURRENT_BOUNDARY_RUNTIME",
+   "outcome": "PASS",
+   "provider_acknowledged_seat": 0,
+   "reason": "real 4P Commander pregame executed under Protocol 2.0.0: the engine asked exactly the record's mulligan decisions in order, each answered from the record's plan, and every seat's engine-reported hand at the first priority states the bottom counts",
+   "starting_player_channel": "PROVIDER_CREATE_DECLARATION_ACKNOWLEDGED"
+  },
+  "start2_1_0_21": {
+   "declared_starting_seat": null,
+   "evidence_class": "FRESH_CURRENT_BOUNDARY_RUNTIME",
+   "failure": null,
+   "outcome": "UNKNOWN",
+   "reason": "the run refused a decision the record does not authorize, so the CR 103.8a obligation is not established: DecisionUnsatisfied: the record declares no starting seat and the XMage create channel requires an explicit starting_player_seat; the Lab never supplies a p1/seat-0 default",
+   "starting_player_channel": null
+  }
+ }
+}
