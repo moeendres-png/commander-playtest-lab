@@ -4,9 +4,9 @@ worktree: /home/runner/work/commander-playtest-lab/commander-playtest-lab
 branch: opencode/issue578-20261006204641
 audit_base_sha: 5a062a5bd1836e08514c78085f97071e8f533970
 audit_base_tree: ba3ce0870c305d28845c9f174a93496181bfc074
-state_written_against_head: a2773c3034d4a51384fa6cc595d3477eafb2eacd
-validated_head: a2773c3034d4a51384fa6cc595d3477eafb2eacd
-validated_tree: 1fb34f7e1aca680606d0a708666ed52385305f43
+state_written_against_head: ab02ba3359e3433b2dcf69ba48af39a1ee7df8a4
+validated_head: ab02ba3359e3433b2dcf69ba48af39a1ee7df8a4
+validated_tree: aba282afa63ab67f5c9bb1bd70a1ce5c973e5ffc
 objective: 'Implement issue #578 durably: DeepSeek MAX remains the default/primary
   implementation executor; Space Bunny MAX is the mandatory independent fresh-context
   READ-ONLY cross-executor reviewer for MATERIAL implementation workstreams, resolved
@@ -54,10 +54,8 @@ forbidden_shortcuts:
 - no rewriting historical Bunny provenance to look current
 - no direct main mutation, force push, rebase, reset --hard or history rewrite
 validated_gates:
-- 'pytest tests/foundry/: 893 passed, 2 skipped (mage checkout absent, bubblewrap
-  absent)'
-- 'pytest focused unit policy set (routing/security/ci/handoff/ws78/ws223/oc_dispatch/gh_ops):
-  all passed'
+- 'pytest tests/foundry/ plus focused unit policy set on implementation tree aba282af:
+  1154 passed, 2 skipped (mage checkout absent, bubblewrap absent)'
 - 'ruff check + ruff format --check on changed tools/tests: clean'
 - 'live pinned CLI catalog inspection: opencode models opencode-go lists canonical
   deepseek + space-bunny'
@@ -94,35 +92,29 @@ files_modified:
 - tools/foundry/safe_push.py
 - tools/foundry/state.py
 tests_run:
-- python3 -m pytest tests/foundry/ -q -> 893 passed, 2 skipped
-- python3 -m pytest tests/foundry/test_executor_resolution.py tests/foundry/test_review_gate.py
-  tests/foundry/test_remote_checkpoint.py tests/foundry/test_materiality.py -q ->
-  64 passed (pre-format)
-- python3 -m pytest tests/unit/test_ws78_token_economy.py tests/unit/test_claude_routing_policy.py
-  tests/unit/test_workflow_security.py tests/unit/test_ci_definition_integrity.py
-  tests/unit/test_required_test_ownership.py tests/unit/test_ws223_environment_identity.py
-  tests/unit/test_workflow_jobs_mapping.py tests/unit/test_ws_arclose_d1_authority_drift.py
-  tests/unit/test_claude_handoff.py tests/unit/test_oc_dispatch.py tests/unit/test_gh_ops_brief.py
-  -q -> all passed
-- python3 -m ruff check <changed files> -> All checks passed
-- python3 -m ruff format --check <changed files> -> already formatted
-- python3 -m py_compile <changed tools modules> -> OK
+- python3 -m pytest tests/foundry/ + focused unit policy set -q -> 1154 passed, 2
+  skipped on implementation tree aba282af
+- python3 -m ruff check tools/foundry/ tests/foundry/ tests/unit/test_ws78_token_economy.py
+  tests/unit/test_claude_routing_policy.py -> All checks passed
+- python3 -m ruff format --check tools/foundry/ tests/foundry/ tests/unit/test_ws78_token_economy.py
+  tests/unit/test_claude_routing_policy.py -> already formatted
+- python3 tools/foundry/state.py --check-validated -> clean ancestry and tree
 - opencode models opencode-go -> opencode-go/deepseek-v4.1-flash, opencode-go/space-bunny
 evidence:
-- 'DIRECTLY_VERIFIED: implementation commit a2773c3034d4a51384fa6cc595d3477eafb2eacd
-  tree 1fb34f7e1aca680606d0a708666ed52385305f43'
-- 'DIRECTLY_VERIFIED: 1152 passed, 2 skipped across tests/foundry plus the focused
+- 'DIRECTLY_VERIFIED: implementation commits a2773c30 and ab02ba33; final implementation
+  tree aba282afa63ab67f5c9bb1bd70a1ce5c973e5ffc'
+- 'DIRECTLY_VERIFIED: 1154 passed, 2 skipped across tests/foundry plus the focused
   unit policy set'
 - 'DIRECTLY_VERIFIED: live pinned CLI catalog listing includes canonical opencode-go/space-bunny'
 - 'CODE_DERIVED: alias/admission policy enforced by registry validation, resolver,
   launcher bundle whitelist and opencode.json'
 - 'CODE_DERIVED: review gate requires exact reviewed_sha/tree == validated_head/tree
-  and Space Bunny read-only review_agent'
+  and Space Bunny read-only review_agent; a MATERIAL mirror cannot self-exempt via
+  required=false'
 - 'UNKNOWN: independent Space Bunny exact-SHA/TREE review (not yet dispatched; cannot
   be self-claimed)'
-- 'ABSENT: remote checkpoint verification (push is performed by the GitHub opencode
-  infrastructure after this session; no writer-lock-holding launcher path is available
-  in this runner)'
+- 'ABSENT: remote checkpoint verification (push performed by the GitHub opencode infrastructure
+  after this session; no writer-lock-holding launcher path is available in this runner)'
 artifacts: []
 remaining_scope:
 - independent fresh-context read-only Space Bunny review of a2773c30 / 1fb34f7e
@@ -157,6 +149,8 @@ technical_decisions:
 - Actual branch is the infrastructure-created opencode/issue578-20261006204641; the
   requested tooling/... branch name was not available in this runner and is recorded
   honestly.
+- A MATERIAL workstream cannot self-exempt by setting cross_executor_review.required=false;
+  the gate refuses it explicitly (review_gate fix ab02ba33).
 authority_gates: []
 first_failing_boundary: independent Space Bunny review dispatch (external reviewer
   required; not a self-satisfiable gate)
@@ -164,7 +158,7 @@ root_cause_class: NONE
 next_action: dispatch read-only Space Bunny review of a2773c30/1fb34f7e
 exact_next_action: Dispatch the fresh-context READ-ONLY Space Bunny review (`/bunny-review`
   on the PR, or foundry-reviewer via the Foundry launcher) against implementation
-  SHA a2773c3034d4a51384fa6cc595d3477eafb2eacd / tree 1fb34f7e1aca680606d0a708666ed52385305f43;
+  SHA ab02ba3359e3433b2dcf69ba48af39a1ee7df8a4 / tree aba282afa63ab67f5c9bb1bd70a1ce5c973e5ffc;
   write the canonical record to .foundry/reviews/oc-foundry-cross-executor-policy-20261006.json;
   then update cross_executor_review to PASS with those exact identities and record
   the remote checkpoint after the infrastructure push. Do not claim the gate satisfied
