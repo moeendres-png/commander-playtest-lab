@@ -4,18 +4,26 @@
 from PB-03 on an exact head plus a sealed epoch. Nothing here selects a provider
 or claims Architecture Freeze.
 
-Source lock at capture: branch `opencode/oc572-starting-player-20261006`,
-base `5849d187a0adf0ce323991ea0bf0c8a7fd931a88` (tree
-`e839522778c050567cbf5f4f542c96881ad7dc61`), plus the three local commits listed
-in the PR. Pinned XMage candidate: `b479fe74fd1eaf899ff16c6a9203e74a91c0f339`
-(a built local artifact was installed for this run; the engine reports its own
-commit at handshake).
+Source lock at capture: branch `opencode/oc572-starting-player-20261006`, head
+`e94647c9fb6d76737cf5ec4724c46f366144d8e3` (tree
+`ce44364f244e6e6dea6c0f2ede044b2bc0ae580b`), i.e. after the review repair
+`8c572e79` (P2/P3 + R3-C1..C5) and the normal merge of `main` `84c17f9d` (the
+separated Space Bunny rebind PR #576). Pinned XMage candidate:
+`b479fe74fd1eaf899ff16c6a9203e74a91c0f339` (a built local artifact was
+installed for this run; the engine reports its own commit at handshake).
 
-Raw document:
+This document supersedes the pre-P3-3 capture taken at `976429e3`
+(sha256 `ac5c127fddc85c48e8e3eaef9d7fc9f083912eba05c3124fac81e088bed9b1aa`):
+the P3-3 repair made the CR 103.2 prompt chooser/chosen identities a required
+part of the confirmed channel, so that capture no longer exercises the current
+credit rule. It remains historical provenance only.
+
+Raw document (re-captured):
 `LOCAL_OBSERVED_STARTING_PLAYER_EVIDENCE.json`
-sha256 `ac5c127fddc85c48e8e3eaef9d7fc9f083912eba05c3124fac81e088bed9b1aa`.
+sha256 `6a29c3da15f79e882dcb5e423c2f18cc591d11445dc5464baa24c3898bda44d4`.
 The reproducible capture harness is committed beside it:
-`capture_starting_player_evidence.py`.
+`capture_starting_player_evidence.py` (records
+`provider_prompt_answer_recorded` from the driver's terminal facts).
 
 ## Commands
 
@@ -38,6 +46,10 @@ pinned XMage: PASS.
 - `starting_player_provider_confirmed_seat = p1` — the engine's own start_game
   readback, resolved through the engine's seat roster; this is the independent
   confirmation the channel rests on
+- `provider_prompt_answer_recorded = true` — the bridge published the chooser
+  and chosen identities of the CR 103.2 prompt it actually answered, and all
+  three identities resolved to the declared seat (R3-C1/R3-C3); a first-player
+  fallback in a pod of 3+ can no longer be mistaken for an answer
 - `starting_player_channel = PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT`
 - construction proof `CONSTRUCTION_EQUAL`, with
   `temporal_state.active_player` and `temporal_state.priority_player` EQUAL
@@ -46,7 +58,7 @@ pinned XMage: PASS.
 `PILOT_MULLIGAN` (keyed launch), real pinned XMage: PASS.
 
 - same declaration source and channel, provider acknowledgement `0`, engine
-  readback `p1`, `CONSTRUCTION_EQUAL`.
+  readback `p1`, `provider_prompt_answer_recorded = true`, `CONSTRUCTION_EQUAL`.
 
 The JSON document carries all five runs with their engine-returned fields; the
 `real_rows.py` console output independently printed PASS for the same rows.

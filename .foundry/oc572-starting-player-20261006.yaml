@@ -4,8 +4,8 @@ worktree: /home/moeen/work/worktrees/oc572-starting-player-20261006
 branch: opencode/oc572-starting-player-20261006
 audit_base_sha: 5849d187a0adf0ce323991ea0bf0c8a7fd931a88
 audit_base_tree: e839522778c050567cbf5f4f542c96881ad7dc61
-state_written_against_head: b6029d6f3b53199d64691eeda73c51da0d64ef04
-validated_head: b6029d6f3b53199d64691eeda73c51da0d64ef04
+state_written_against_head: e94647c9fb6d76737cf5ec4724c46f366144d8e3
+validated_head: e94647c9fb6d76737cf5ec4724c46f366144d8e3
 objective: '#572 / #441 / #255 starting-player authority. Eliminate every production-reachable
   or qualification-credit path where the Lab or its provider bridge chooses the starting
   player by an implicit p1/seat-0 default; then close the impacted XMage AF08 starting-player
@@ -85,9 +85,9 @@ current_failure: 'None. The review repair at 8c572e79 is committed and validated
   PR #576 landed on main as 84c17f9d (normal merge; exact head 09a6bf9c; required
   checks quality/security/infrastructure PASS) and main was merged into this branch
   as b6029d6f, so 5f2468fe is a no-op against main and the PR diff no longer carries
-  opencode.json/.opencode. Remaining: fresh-context adversarial review of the merged
-  head, exact-head CI incl. PB-03 re-run on the merged head, LOCAL_OBSERVED re-capture
-  (the pre-P3-3 capture is invalidated), and the protected merge decision.'
+  opencode.json/.opencode. Remaining: fresh-context adversarial review of the final
+  head, exact-head CI incl. the PB-03 re-run and sealed epoch, and the protected
+  merge decision.'
 failure_class: HARNESS_DEFECT
 current_hypothesis: 'Not a hypothesis: the starting-player default defect is proven
   and repaired; the remaining work is validation/persistence of the review-driven
@@ -177,6 +177,14 @@ authority_gates:
   do not force-push.
 status: ACTIVE
 validated_gates:
+- 'LOCAL_OBSERVED re-capture at e94647c9 (real pinned XMage b479fe74, engine-bridge
+  rebuilt locally with the P3-3 Java bytes): PLAYER_COUNT_2P/3P/4P/5P and PILOT_MULLIGAN
+  all PASS with starting_player_channel PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT,
+  provider_confirmed_seat=p1, provider_prompt_answer_recorded=true and CONSTRUCTION_EQUAL;
+  2P-undeclared UNKNOWN/FAIL_CLOSED_UNSATISFIED; START-2 1.0.21 UNKNOWN. JSON sha256
+  6a29c3da15f79e882dcb5e423c2f18cc591d11445dc5464baa24c3898bda44d4. This supersedes
+  the pre-P3-3 capture and re-validates that the P3-3 identity requirement does not
+  break legitimate credit on a real engine.'
 - 'OpenCode resume + tooling disposition (2026-10-06 21:2x local): fresh fetch;
   remote branch head f62ed68a verified; flock probe on this worktree free (prior
   holder pid dead); #576 exact head 09a6bf9c required checks quality/security/infrastructure
@@ -240,11 +248,9 @@ invalidated_gates:
 - Every historical construction proof that compared temporal_state.active_player/
   priority_player without a verified channel (prerequisite for requalifying the 5
   impacted rows per engine column).
-- 'The pre-P3-3 LOCAL_OBSERVED capture (LOCAL_OBSERVED_STARTING_PLAYER_EVIDENCE.json
-  at 976429e3, sha256 ac5c127f...): the P3-3 repair added the required CR 103.2
-  prompt chooser/chosen identities, so that capture no longer exercises the current
-  credit rule. Re-capture required for b6029d6f; until then treat its PROVIDER_ENGINE_CONFIRMED
-  rows as historical, not current-head evidence.'
+- 'The pre-P3-3 LOCAL_OBSERVED capture (sha256 ac5c127f... at 976429e3): superseded
+  by the e94647c9 re-capture (sha256 6a29c3da...) after the P3-3 identity requirement;
+  retained as historical provenance only, never current-head evidence.'
 - 'CI results on 6e757afc/f62ed68a are superseded by the b6029d6f merge; only b6029d6f
   exact-head runs count for the final merge decision.'
 - 'The f62ed68a PB-03 epoch artifact (9bd13f04) is provenance, not credit for the
@@ -306,6 +312,10 @@ files_modified:
 - opencode.json and .opencode/agents/bunny-{auditor,verifier}.md (commit 5f2468fe;
   session tooling, blocker above)
 tests_run:
+- 'PYTHONPATH=$PWD/src python3 docs/oc572_starting_player_20261006/capture_starting_player_evidence.py
+  at e94647c9 after `real_rows.py build`: exit 0; 5 declared runs PASS, undeclared
+  and START-2 fail closed (console /tmp/opencode/oc572/capture_run_b6029d6f.log;
+  JSON sha256 6a29c3da...).'
 - 'PYTHONPATH=$PWD/src python3 -m pytest -q -p no:cacheprovider tests/foundry tests/unit/test_ws78_token_economy.py
   at b6029d6f: 848 passed in 44.28s.'
 - 'PYTHONPATH=$PWD/src python3 -m pytest -q -p no:cacheprovider <7 qualification files
@@ -339,8 +349,10 @@ remaining_scope:
   PR #576 -> main 84c17f9d, then a normal main merge; no history rewrite, no force
   push. tests/foundry green again (848 with tests/unit).'
 - 'R5a: fresh-context adversarial review of the exact merged head b6029d6f.'
-- 'R5b: LOCAL_OBSERVED re-capture on b6029d6f (the pre-P3-3 capture is invalidated).'
-- 'R5c: exact-head CI on b6029d6f including PB-03 runtime re-run and sealed epoch.'
+- 'R5b (done at e94647c9): LOCAL_OBSERVED re-capture on the merged head; all declared
+  rows PASS with the P3-3 prompt-answer identity recorded.'
+- 'R5c: exact-head CI on the final head including PB-03 runtime re-run and sealed
+  epoch.'
 - 'R5d: update state + GitHub handoff, then the protected merge decision if every
   gate is satisfied.'
 - 'R4 (successor workstream, NOT this branch): the decided contract 1.0.22 START-2
@@ -350,18 +362,18 @@ first_failing_boundary: 'Historical: engine-bridge JSONL bridges defaulted start
   to 0 (fixed), and tests/foundry failed on the canonical Space Bunny model ID after
   commit 5f2468fe (resolved at b6029d6f via #576 + normal main merge).'
 root_cause_class: HARNESS_DEFECT
-next_action: 'Merged head b6029d6f carries the validated starting-player repair,
-  the absorbed tooling disposition, and green foundry/targeted suites. Next: fresh-context
-  adversarial review of b6029d6f, LOCAL_OBSERVED re-capture, exact-head CI including
-  PB-03 on b6029d6f, then state + GitHub handoff and the protected merge decision.
-  Contract 1.0.22 stays a separate successor workstream.'
-exact_next_action: '1) Push the state commit for b6029d6f and post the checkpoint
-  on PR #574. 2) Run the fresh-context adversarial review against b6029d6f (foundry-reviewer,
-  read-only) and the LOCAL_OBSERVED re-capture (docs/oc572_starting_player_20261006/capture_starting_player_evidence.py;
-  the pre-P3-3 capture is invalidated). 3) Consume exact-head CI incl. PB-03 runtime
-  run on b6029d6f. 4) Repair only evidenced blocking findings, rerunning only invalidated
-  validation. 5) Update state + GitHub handoff, then merge #574 only if every gate
-  is satisfied (normal merge only).'
+next_action: 'The merged head carries the validated starting-player repair, the
+  absorbed tooling disposition, green foundry/targeted suites, and the P3-3 re-captured
+  real-engine evidence. Next: fresh-context adversarial review of the final head,
+  exact-head CI including PB-03, state + GitHub handoff, then the protected merge
+  decision. Contract 1.0.22 stays a separate successor workstream.'
+exact_next_action: '1) Push the re-captured evidence commit and verify remote HEAD.
+  2) Run the fresh-context adversarial review against the exact final head (foundry-reviewer,
+  read-only; focus on the 8c572e79 repair, R3-C1..C5, mutation controls, merged tooling
+  absorption, evidence integrity). 3) Consume exact-head CI incl. the PB-03 runtime
+  re-run. 4) Repair only evidenced blocking findings, rerunning only invalidated validation.
+  5) Update state + GitHub handoff, then merge #574 only if every gate is satisfied
+  (normal merge only, no force, no rewrite).'
 executor_handoff_from: opencode-go/deepseek-v4.1-flash
 executor_handoff_reason: Owner instruction to pause implementation and convert the
   workstream into a durable GitHub handoff for Claude; implementation was mid-repair
