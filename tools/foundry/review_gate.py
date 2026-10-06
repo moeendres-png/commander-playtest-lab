@@ -303,6 +303,15 @@ def evaluate_review_gate(
             ),
             materiality=report.to_dict() if report else None,
         )
+    if isinstance(mirror, dict) and mirror.get("required") is not True:
+        return ReviewGateResult(
+            status="UNSATISFIED",
+            reasons=(
+                "REVIEW_REQUIREMENT_MISMATCH: MATERIAL workstream mirror declares "
+                "required != true; a material workstream cannot self-exempt",
+            ),
+            materiality=report.to_dict() if report else None,
+        )
 
     path = review_record_path or (
         str(mirror.get("review_record_path"))

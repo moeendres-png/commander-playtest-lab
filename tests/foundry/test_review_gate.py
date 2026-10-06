@@ -373,6 +373,26 @@ def test_mirror_mismatch_is_unsatisfied(repo: dict) -> None:
     assert any("REVIEW_MIRROR_MISMATCH" in reason for reason in result.reasons)
 
 
+def test_material_state_cannot_self_exempt_via_mirror_required_false(repo: dict) -> None:
+    record = _record(repo)
+    path = _write_record(repo, record)
+    mirror = _mirror_passed(repo, record, path)
+    mirror["required"] = False
+    doc = _state_doc(
+        repo["base"],
+        repo["impl"],
+        repo["root"],
+        repo["state"],
+        cross_executor_review=mirror,
+        validated_tree=_tree(repo["root"], repo["impl"]),
+    )
+    result = review_mod.evaluate_review_gate(
+        doc, workdir=str(repo["root"]), review_record_path=str(path)
+    )
+    assert result.status == "UNSATISFIED"
+    assert any("REVIEW_REQUIREMENT_MISMATCH" in reason for reason in result.reasons)
+
+
 def test_non_material_underclaim_fails_closed(repo: dict) -> None:
     doc = _state_doc(
         repo["base"],
