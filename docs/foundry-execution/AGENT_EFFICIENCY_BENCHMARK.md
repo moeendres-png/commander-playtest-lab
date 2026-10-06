@@ -105,3 +105,24 @@ from equivalent A/B runs are supplied.
 A single pair always emits `default_promotion_authorized = false`.
 
 Sanitized string identity/provenance fields are machine-token constrained (no whitespace or control-text pass-through). Required session counters such as model turns, tool calls, tool errors and patch count must be present and numeric; tool errors cannot exceed total tool calls.
+## Claude/OpenCode routing campaign
+
+The same comparator is the measurement surface for quota-routing experiments; do not create a
+second benchmark harness. Representative campaigns may compare identity-equivalent arms such as:
+
+- Claude main direct execution versus Claude coordinator → DeepSeek MAX;
+- Claude main raw-log analysis versus `log-scanner` (Sonnet low);
+- Claude main CI analysis versus `ci-triage` (Sonnet medium);
+- DeepSeek MAX primary execution versus an explicitly justified Space Bunny MAX secondary audit.
+
+Each pair still binds the same case/task class/source SHA/fixture digest/evidence requirement and
+must pass the existing quality gate. Claude-derived metrics may enter the JSON arm only from a
+sanitized aggregate with the same semantic fields; raw Claude transcripts, hidden reasoning and
+raw OpenCode exports are not benchmark evidence and must not be committed.
+
+Until a trustworthy sanitized aggregate is available for a Claude arm, that arm is `NOT_RUN` /
+`UNKNOWN`, never an inferred saving. A routing default is not promoted from one pair: require
+repeated representative cases covering CI/gate triage, qualification work, Forge/Mage navigation,
+bounded bugfixes and cross-file review. Lower token/time cost never compensates for fewer checks,
+missed defects, weaker evidence, unresolved review findings or scope violations.
+
