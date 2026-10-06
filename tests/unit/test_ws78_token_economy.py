@@ -327,8 +327,8 @@ def test_model_provider_and_v2_instruction_source_intact(repo_root: Path):
     assert config["model"] == "opencode-go/deepseek-v4.1-flash"
     assert config["enabled_providers"] == ["opencode-go"]
     provider = config["provider"]["opencode-go"]
-    assert provider["whitelist"] == ["deepseek-v4.1-flash", "space-bunny-free"]
-    assert set(provider["models"]) == {"deepseek-v4.1-flash", "space-bunny-free"}
+    assert provider["whitelist"] == ["deepseek-v4.1-flash", "space-bunny"]
+    assert set(provider["models"]) == {"deepseek-v4.1-flash", "space-bunny"}
     assert config["default_agent"] == "foundry-implementer"
     assert "instructions" not in config, (
         "OpenCode V2 accepts config.instructions but does not resolve its entries; "
@@ -402,13 +402,13 @@ def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path
         "enabled_providers": ["opencode-go"],
         "provider": {
             "opencode-go": {
-                "whitelist": ["deepseek-v4.1-flash", "space-bunny-free"],
+                "whitelist": ["deepseek-v4.1-flash", "space-bunny"],
                 "models": {
                     "deepseek-v4.1-flash": {
                         "options": {"reasoningEffort": "max"},
                         "variants": {"max": {}},
                     },
-                    "space-bunny-free": {
+                    "space-bunny": {
                         "options": {"reasoningEffort": "max"},
                         "variants": {"max": {}},
                     },
