@@ -4,8 +4,8 @@ worktree: /home/moeen/work/worktrees/oc572-starting-player-20261006
 branch: opencode/oc572-starting-player-20261006
 audit_base_sha: 5849d187a0adf0ce323991ea0bf0c8a7fd931a88
 audit_base_tree: e839522778c050567cbf5f4f542c96881ad7dc61
-state_written_against_head: 28d99a3d864a43394d0fcc7d45e09004774a54ef
-validated_head: 28d99a3d864a43394d0fcc7d45e09004774a54ef
+state_written_against_head: d15ea7e131da6fb62580c627703dd340da8e2bb8
+validated_head: d15ea7e131da6fb62580c627703dd340da8e2bb8
 objective: >-
   #572 / #441 / #255 starting-player authority. Eliminate every production-reachable
   or qualification-credit path where the Lab or its provider bridge chooses the
@@ -138,9 +138,12 @@ authority_gates:
   is not.'
 status: ACTIVE
 validated_gates:
-- 'python targeted + full qualification suite GREEN on the milestone-1 tree (before commit)'
-- 'ruff check + ruff format --check GREEN'
-- 'mypy GREEN on the 10 changed modules plus starting_player.py'
+- 'python qualification suite (deselecting the two local egg-info trigger tests): 1791 passed, 21 skipped at d15ea7e1'
+- 'non-qualification suite failure set byte-identical to origin/main in a clean detached worktree (10 test_packaging_smoke failures from ambient rich 13.9.4 vs lock 15.0.0)'
+- 'engine-bridge mvn test: 966 run, 0 failures, 1 skipped'
+- 'ruff check + ruff format --check GREEN across src, tests and the evidence script'
+- 'mypy GREEN on the changed modules; src/commander_lab only the 8 pre-existing optional-dependency errors'
+- 'fresh-context foundry-reviewer at 36d7dc12: NO BLOCKING FINDINGS; P3 follow-ups repaired in d15ea7e1'
 failed_gates: []
 invalidated_gates:
 - 'every historical construction proof that compared temporal_state.active_player/priority_player without a channel; prerequisite for requalification of the 5 impacted rows per engine column'
