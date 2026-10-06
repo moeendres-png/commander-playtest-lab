@@ -69,7 +69,7 @@ from .bridge_launcher import BridgeLaunchError, build_launch_plan, launch
 from .game_driver import (
     _SEATS,
     STARTING_PLAYER_CHANNEL_ENGINE_FRAME,
-    STARTING_PLAYER_CHANNEL_PROVIDER_ACK,
+    STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED,
     DecisionUnsatisfied,
     GameDriveError,
     _acknowledged_seed,
@@ -1675,12 +1675,18 @@ def gather_generic_lane_process(
                 and policy == "fixture_scripted_seat"
                 and scripted_starting_seat is not None
             ):
-                # The engine published the choice frame and executed the declared
-                # seat; that is the verified starting-player channel (#572).
-                # True for a replay too: the engine accepted the resolved
-                # fingerprint, which is the same declaration the record made. A
-                # direct replay call with no declaration never reports a channel.
-                starting_player_frame_answered = True
+                # The channel requires the engine-executed option itself to name
+                # the declared seat. The tape's policy string alone is data and
+                # could be forged, so it is never sufficient (#572 review P2).
+                executed_seat = str(chosen.get("source_object_id", "")).strip().lower()
+                if executed_seat and executed_seat != scripted_starting_seat:
+                    raise TwinReplayDivergence(
+                        f"decision {steps}: the {kind} submission executed seat "
+                        f"{executed_seat!r}, not the declared seat "
+                        f"{scripted_starting_seat!r}"
+                    )
+                if executed_seat == scripted_starting_seat:
+                    starting_player_frame_answered = True
             state = answer.get("state")
             state = state if isinstance(state, dict) else None
             checkpoint_after = _state_checkpoint(state)
@@ -1777,7 +1783,7 @@ def gather_generic_lane_process(
         if starting_player_frame_answered:
             starting_player_channel: str | None = STARTING_PLAYER_CHANNEL_ENGINE_FRAME
         elif provider_acknowledged_starting_seat is not None:
-            starting_player_channel = STARTING_PLAYER_CHANNEL_PROVIDER_ACK
+            starting_player_channel = STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
         else:
             starting_player_channel = None
         fixture_identity = {

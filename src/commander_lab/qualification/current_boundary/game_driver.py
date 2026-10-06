@@ -45,9 +45,13 @@ STARTING_PLAYER_FRAME_KINDS = frozenset({"STARTING_PLAYER", "CHOOSE_STARTING_PLA
 # active_player/priority_player only on one of these. Anything else is
 # UNSUPPORTED, never equality (#572).
 STARTING_PLAYER_CHANNEL_ENGINE_FRAME = "ENGINE_FRAME_FROM_RECORD_DECLARATION"
-STARTING_PLAYER_CHANNEL_PROVIDER_ACK = "PROVIDER_CREATE_DECLARATION_ACKNOWLEDGED"
+# The provider confirmed the established starter: its start response named the
+# starting player and that identity resolved, through the engine's own seat
+# roster, to the declared seat. A create-response echo alone is NOT this
+# channel: the echo repeats the request, this is the engine's own readback.
+STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED = "PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT"
 VERIFIED_STARTING_PLAYER_CHANNELS = frozenset(
-    {STARTING_PLAYER_CHANNEL_ENGINE_FRAME, STARTING_PLAYER_CHANNEL_PROVIDER_ACK}
+    {STARTING_PLAYER_CHANNEL_ENGINE_FRAME, STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED}
 )
 
 
@@ -835,10 +839,10 @@ def drive_commander_game(
             ),
             "create_commander_game",
         )
-        # A declared seat must be the seat the provider itself created. The
-        # echoed field is the provider's own acknowledgement, never a Lab
-        # assumption; a mismatching echo fails the run.
-        provider_acknowledged_seat: int | None = None
+        # The create echo is only a request acknowledgement: it repeats the
+        # declared value and cannot by itself establish who started. It is
+        # recorded as a weaker fact; the verified channel comes from the
+        # engine's own start readback below.
         if declared_starting_seat is not None:
             result.terminal_facts["starting_player_declaration"] = {
                 "seat": declared_starting_seat,
@@ -854,7 +858,6 @@ def drive_commander_game(
                     f"{echoed}, not the declared seat {declared_starting_seat!r}"
                 )
             else:
-                provider_acknowledged_seat = echoed
                 result.terminal_facts["starting_player_provider_acknowledged_seat"] = echoed
         # Seed control is derived from what the engine acknowledged, never from
         # the fact that the caller asked. An engine that echoes nothing is
@@ -884,6 +887,37 @@ def drive_commander_game(
         )
         result.terminal_facts["start_status"] = started.get("status")
         result.steps_completed.append("start_game")
+
+        # The engine's own established starting player, when it publishes one.
+        # This is the independent fact the create echo cannot be: the echo
+        # repeats the declaration, this is the engine's readback of who started,
+        # resolved through the engine's own seat roster. A present id that maps
+        # to another seat contradicts the declaration and fails the run; an
+        # absent or unmappable id leaves the channel unverified, so no temporal
+        # credit can rest on it (#572).
+        provider_confirmed_seat: str | None = None
+        if declared_starting_seat is not None and candidate == "xmage":
+            started_player_id = started.get("starting_player_id")
+            if isinstance(started_player_id, str) and started_player_id:
+                if seat_by_actor is None:
+                    seat_by_actor = _engine_seat_roster(
+                        proc,
+                        game_id=game_id,
+                        player_count=player_count,
+                        created_seats=seat_ids,
+                    )
+                confirmed = seat_by_actor.get(started_player_id)
+                if confirmed is None:
+                    raise GameDriveError(
+                        "the engine reported a starting_player_id outside its own seat roster"
+                    )
+                if confirmed != declared_starting_seat:
+                    raise GameDriveError(
+                        f"the engine established starting player {confirmed!r}, not the "
+                        f"declared seat {declared_starting_seat!r}"
+                    )
+                provider_confirmed_seat = confirmed
+                result.terminal_facts["starting_player_provider_confirmed_seat"] = confirmed
 
         # Construction proof (#441 decision (c)): the provider's own normalized
         # constructed state, read at the first mulligan decision before it is
@@ -1346,8 +1380,10 @@ def drive_commander_game(
         # a verified channel; an unverified one keeps them UNSUPPORTED (#572).
         if result.terminal_facts.get("starting_player_frame_answered"):
             result.terminal_facts["starting_player_channel"] = STARTING_PLAYER_CHANNEL_ENGINE_FRAME
-        elif declared_starting_seat is not None and provider_acknowledged_seat is not None:
-            result.terminal_facts["starting_player_channel"] = STARTING_PLAYER_CHANNEL_PROVIDER_ACK
+        elif provider_confirmed_seat is not None:
+            result.terminal_facts["starting_player_channel"] = (
+                STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
+            )
         else:
             result.terminal_facts["starting_player_channel"] = None
         result.terminal_facts["declared_starting_seat"] = declared_starting_seat

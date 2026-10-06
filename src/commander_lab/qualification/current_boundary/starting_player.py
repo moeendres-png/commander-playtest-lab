@@ -1,11 +1,11 @@
 """Authoritative starting-seat declarations, shared by every record-bearing lane.
 
-The Lab never chooses the starting player (#572). A lane may answer an
-engine-authored STARTING_PLAYER decision only when the authoritative record (or
-lane contract) explicitly declares the seat, and the declaration is always
-recorded with its source. This module is the single parser of record-level
-declarations so the generic lane, the scripted-pregame lane and the Forge
-scenario lane cannot drift.
+The Lab never supplies a default starting seat and never silently chooses the
+starting player (#572). A lane may answer an engine-authored STARTING_PLAYER
+decision only when the authoritative record (or lane contract) explicitly
+declares the seat, and the declaration is always recorded with its source. This
+module is the single parser of record-level declarations so the generic lane,
+the scripted-pregame lane and the Forge scenario lane cannot drift.
 
 A declaration exists only in one of exactly three shapes:
 

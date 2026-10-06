@@ -110,7 +110,7 @@ def _proof(record, state, **overrides):
         "orchestration_key": KEY,
         # The run this state represents reported a verified starting-player
         # channel; the dedicated tests below remove or forge it.
-        "starting_player_channel": game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_ACK,
+        "starting_player_channel": game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED,
     }
     kwargs.update(overrides)
     return generic_construction.compare(record, state, **kwargs)
@@ -290,7 +290,10 @@ def test_a_foreign_or_misspelled_starter_channel_never_verifies(record, channel)
 
 def test_the_proof_document_records_the_starting_player_channel(record) -> None:
     document = _proof(record, _state()).to_document()
-    assert document["starting_player_channel"] == game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_ACK
+    assert (
+        document["starting_player_channel"]
+        == game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
+    )
     without = _proof(record, _state(), starting_player_channel=None).to_document()
     assert without["starting_player_channel"] is None
 
@@ -488,7 +491,7 @@ def _run(state: dict | None, *, supported: bool = True) -> CommandedGameResult:
     # A real current-boundary run reports the verified starting-player channel
     # it used; without it the temporal facts stay UNSUPPORTED (#572).
     result.terminal_facts["starting_player_channel"] = (
-        game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_ACK
+        game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
     )
     result.terminal_facts["starting_player_declaration"] = {
         "seat": "p1",

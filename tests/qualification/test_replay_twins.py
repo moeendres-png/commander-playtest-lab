@@ -785,6 +785,20 @@ def test_generic_lane_refuses_a_declaration_the_engine_does_not_offer(
     assert "exactly one required" in run.failure
 
 
+def test_generic_lane_replay_refuses_a_tape_that_executed_another_seat(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """#572 review: the channel binds the executed option, not the tape's policy string."""
+    _fake_identity(monkeypatch)
+    record = _gather(FakeForgeBridge(), role="RECORD", tape=None, scripted_starting_seat="p2")
+    assert record.failure is None, record.failure
+    replay = _gather(
+        FakeForgeBridge(), role="REPLAY", tape=record.decisions, scripted_starting_seat="p1"
+    )
+    assert replay.failure is not None
+    assert "not the declared seat" in replay.failure
+
+
 def test_generic_lane_records_the_declared_starting_seat_and_channel(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

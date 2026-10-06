@@ -321,9 +321,11 @@ final class XmageMidgameJsonlBridge {
             String planTag = stringValue(payload, "plan_id").isBlank()
                     ? gameId
                     : stringValue(payload, "plan_id");
-            // The bridge never chooses the starting/choosing player (#572). The
-            // record-derived seat is an explicit caller declaration; absent or
-            // null refuses rather than falling back to seat 0.
+            // The bridge never defaults the starting/choosing seat (#572): the
+            // record-derived seat is an explicit caller declaration, and absent
+            // or null refuses rather than falling back to seat 0. The declared
+            // seat is the engine's choosing player; the engine's own CR 103.2
+            // choice is offered to it as a decision frame.
             if (!payload.has("starting_player_seat")
                     || payload.get("starting_player_seat").isJsonNull()) {
                 return error(

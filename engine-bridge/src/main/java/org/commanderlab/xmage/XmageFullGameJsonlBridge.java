@@ -177,8 +177,11 @@ final class XmageFullGameJsonlBridge {
                 );
             }
             long seed = requiredLong(payload, "seed");
-            // The bridge never chooses the starting/choosing player (#572). The
-            // seat is an explicit caller declaration; absent or null refuses.
+            // The bridge never defaults the starting/choosing seat (#572): the
+            // caller must declare it explicitly, and absent or null refuses.
+            // The declared seat is the engine's choosing player; the engine's
+            // own CR 103.2 choice is then offered to that player as a decision
+            // frame, so the starter is not selected here.
             if (!payload.has("starting_player_seat")
                     || payload.get("starting_player_seat").isJsonNull()) {
                 return error(

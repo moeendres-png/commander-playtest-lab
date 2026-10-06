@@ -64,6 +64,9 @@ def run_cardinality(record: dict, player_count: int) -> dict:
         "provider_acknowledged_seat": result.terminal_facts.get(
             "starting_player_provider_acknowledged_seat"
         ),
+        "provider_confirmed_seat": result.terminal_facts.get(
+            "starting_player_provider_confirmed_seat"
+        ),
         "starting_player_frame_answered": result.terminal_facts.get(
             "starting_player_frame_answered"
         ),
@@ -123,6 +126,7 @@ evidence["runs"]["pilot_mulligan_declared"] = {
     "declared_starting_seat": mulligan_facts.get("declared_starting_seat"),
     "starting_player_channel": mulligan_facts.get("starting_player_channel"),
     "provider_acknowledged_seat": mulligan_facts.get("starting_player_provider_acknowledged_seat"),
+    "provider_confirmed_seat": mulligan_facts.get("starting_player_provider_confirmed_seat"),
     "construction_proof_verdict": (mulligan_result.evidence.get("construction_proof") or {}).get(
         "verdict"
     ),

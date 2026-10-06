@@ -214,9 +214,12 @@ final class JsonlBridge {
             }
 
             List<String> deckHandles = requiredStringArray(gameRequest, "deck_handles");
-            // The bridge never chooses the starting player (#572). The seat is a
-            // declaration the caller must make explicitly; absent or null is a
-            // fail-closed refusal, not a seat-0 default.
+            // The bridge never defaults the starting/choosing seat (#572): the
+            // caller must declare it explicitly, and absent or null is a
+            // fail-closed refusal rather than a seat-0 default. On this
+            // compatibility lane the declared seat is the engine's CR 103.2
+            // choosing player, whose narrow init exception selects itself; the
+            // start response reports the established player for readback.
             if (!gameRequest.has("starting_player_seat")
                     || gameRequest.get("starting_player_seat").isJsonNull()) {
                 return error(

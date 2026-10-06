@@ -20,7 +20,7 @@ import pytest
 from commander_lab.qualification.current_boundary import game_driver
 from commander_lab.qualification.current_boundary.game_driver import (
     STARTING_PLAYER_CHANNEL_ENGINE_FRAME,
-    STARTING_PLAYER_CHANNEL_PROVIDER_ACK,
+    STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED,
 )
 from commander_lab.qualification.current_boundary.starting_player import (
     STARTER_DECLARATION_FIELD,
@@ -40,12 +40,16 @@ class _StartingFrameProcess:
         offered_seats: list[str | None] | None = None,
         create_echo: int | None = None,
         create_echo_present: bool = True,
+        start_player_id: str | None = "engine-p1",
+        start_player_id_present: bool = True,
         submit_error: dict[str, Any] | None = None,
     ) -> None:
         self.candidate = candidate
         self.offered_seats = offered_seats
         self.create_echo = create_echo
         self.create_echo_present = create_echo_present
+        self.start_player_id = start_player_id
+        self.start_player_id_present = start_player_id_present
         self.submit_error = submit_error
         self.create_requests: list[dict[str, Any]] = []
         self.submissions: list[dict[str, Any]] = []
@@ -75,7 +79,33 @@ class _StartingFrameProcess:
                 created["starting_player_seat"] = self.create_echo
             return {"success": True, "payload": created}
         if message_type == "start_game":
-            return {"success": True, "payload": {"status": "started"}}
+            started: dict[str, Any] = {"status": "started"}
+            if self.start_player_id_present:
+                started["starting_player_id"] = self.start_player_id
+            return {"success": True, "payload": started}
+        if message_type == "get_game_state":
+            # The engine's own seat roster: principal envelope + live engine id
+            # per seat, as the compatibility lane publishes it.
+            observer = str(payload["observer_player_id"])
+            index = 0 if observer == "p1" else 1
+            engine_id = "engine-p1" if index == 0 else "engine-p2"
+            rows = [
+                {
+                    "player_id": "engine-p1" if position == 0 else "engine-p2",
+                    "seat": position,
+                    "zones": {"hand": [None] * 7, "library_size": 92},
+                }
+                for position in range(2)
+            ]
+            return {
+                "success": True,
+                "payload": {
+                    "observer_player_id": observer,
+                    "observer_seat": index,
+                    "observer_engine_player_id": engine_id,
+                    "state": {"players": rows},
+                },
+            }
         if message_type == "submit_action":
             self.submissions.append(payload)
             if self.submit_error is not None:
@@ -238,13 +268,15 @@ def test_a_refused_starting_player_submission_is_never_retried(
     assert result.terminal_facts["starting_player_channel"] is None
 
 
-def test_xmage_create_declares_the_seat_and_requires_the_engine_acknowledgement(
+def test_xmage_the_channel_needs_the_engines_own_start_readback(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """#572 review: a create echo repeats the request; only start_game confirms it."""
     proc = _StartingFrameProcess(
         candidate="xmage",
         offered_seats=None,
         create_echo=1,  # p2 -> index 1
+        start_player_id="engine-p2",
     )
     result = _drive(
         monkeypatch,
@@ -257,9 +289,56 @@ def test_xmage_create_declares_the_seat_and_requires_the_engine_acknowledgement(
     assert result.failure is None, result.failure
     assert proc.create_requests[0]["starting_player_seat"] == 1
     assert result.terminal_facts["starting_player_provider_acknowledged_seat"] == 1
+    assert result.terminal_facts["starting_player_provider_confirmed_seat"] == "p2"
     assert result.terminal_facts["starting_player_channel"] == (
-        STARTING_PLAYER_CHANNEL_PROVIDER_ACK
+        STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
     )
+
+
+def test_xmage_without_the_engines_start_readback_the_channel_is_unverified(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A create echo alone never establishes the starter."""
+    proc = _StartingFrameProcess(
+        candidate="xmage",
+        create_echo=1,
+        start_player_id_present=False,
+    )
+    result = _drive(
+        monkeypatch,
+        proc,
+        [_priority_frame()],
+        candidate="xmage",
+        starting_seat="p2",
+        source="TEST_DECLARATION",
+    )
+    assert result.failure is None, result.failure
+    assert result.terminal_facts["starting_player_provider_acknowledged_seat"] == 1
+    assert result.terminal_facts.get("starting_player_provider_confirmed_seat") is None
+    assert result.terminal_facts["starting_player_channel"] is None
+
+
+def test_xmage_an_engine_starter_that_is_not_the_declared_seat_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The engine's own readback contradicts the declaration: fail closed."""
+    proc = _StartingFrameProcess(
+        candidate="xmage",
+        create_echo=1,
+        start_player_id="engine-p1",
+    )
+    result = _drive(
+        monkeypatch,
+        proc,
+        [_priority_frame()],
+        candidate="xmage",
+        starting_seat="p2",
+        source="TEST_DECLARATION",
+    )
+    assert result.failure_kind == "ENGINE_RUNTIME_ERROR"
+    assert result.failure is not None
+    assert "established starting player 'p1'" in result.failure
+    assert result.terminal_facts["starting_player_channel"] is None
 
 
 def test_xmage_without_a_declaration_refuses_before_any_game_traffic(
@@ -301,10 +380,12 @@ def test_xmage_create_acknowledging_another_seat_fails_the_run(
     assert "acknowledged starting_player_seat 0" in result.failure
 
 
-def test_xmage_create_without_the_echo_is_an_unverified_channel(
+def test_xmage_create_without_the_echo_still_needs_the_start_readback(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    proc = _StartingFrameProcess(candidate="xmage", create_echo_present=False)
+    proc = _StartingFrameProcess(
+        candidate="xmage", create_echo_present=False, start_player_id="engine-p1"
+    )
     result = _drive(
         monkeypatch,
         proc,
@@ -315,7 +396,12 @@ def test_xmage_create_without_the_echo_is_an_unverified_channel(
     )
     assert result.failure is None, result.failure
     assert proc.create_requests[0]["starting_player_seat"] == 0
-    assert result.terminal_facts["starting_player_channel"] is None
+    # The echo is absent but the engine's own start readback confirms p1.
+    assert result.terminal_facts["starting_player_provider_acknowledged_seat"] is None
+    assert result.terminal_facts["starting_player_provider_confirmed_seat"] == "p1"
+    assert result.terminal_facts["starting_player_channel"] == (
+        STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
+    )
 
 
 def test_a_declaration_outside_the_pod_is_row_scoped_fail_closed() -> None:

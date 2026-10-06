@@ -13,7 +13,7 @@ commit at handshake).
 
 Raw document:
 `LOCAL_OBSERVED_STARTING_PLAYER_EVIDENCE.json`
-sha256 `540027b993be829ea853f22fd7d588542852df2139cb40e1357aa815ece18262`.
+sha256 `ac5c127fddc85c48e8e3eaef9d7fc9f083912eba05c3124fac81e088bed9b1aa`.
 The reproducible capture harness is committed beside it:
 `capture_starting_player_evidence.py`.
 
@@ -33,16 +33,20 @@ pinned XMage: PASS.
 
 - `declared_starting_seat = p1`,
   `starting_player_declaration.source = RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER`
-- `starting_player_provider_acknowledged_seat = 0` (the engine's own echo)
-- `starting_player_channel = PROVIDER_CREATE_DECLARATION_ACKNOWLEDGED`
+- `starting_player_provider_acknowledged_seat = 0` (the create request echo; a
+  weak fact only)
+- `starting_player_provider_confirmed_seat = p1` — the engine's own start_game
+  readback, resolved through the engine's seat roster; this is the independent
+  confirmation the channel rests on
+- `starting_player_channel = PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT`
 - construction proof `CONSTRUCTION_EQUAL`, with
   `temporal_state.active_player` and `temporal_state.priority_player` EQUAL
   (`requested=P1`, `observed=P1`) under that verified channel.
 
 `PILOT_MULLIGAN` (keyed launch), real pinned XMage: PASS.
 
-- same declaration source and channel, provider acknowledgement `0`,
-  `CONSTRUCTION_EQUAL`.
+- same declaration source and channel, provider acknowledgement `0`, engine
+  readback `p1`, `CONSTRUCTION_EQUAL`.
 
 The JSON document carries all five runs with their engine-returned fields; the
 `real_rows.py` console output independently printed PASS for the same rows.
