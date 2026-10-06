@@ -1,0 +1,42 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "execution_mode": "AF09_MIDGAME_CLEAN_PROCESS_REPLAY_TWIN",
+  "fixture_id": "RNG_RULES_TAPE",
+  "obligation_exercised": {
+    "obligation_digest": "5917283067aadc5f6e68f3ecc5d58701f3c36b6c5b3c4b5a04831657325afd12",
+    "requested_state_digest": "39ba50d3bdf0277c7acf388c67988e652249df63b8ae7861e18eadf77d4c85ad",
+    "required_events": [
+      "rules_rng:library_shuffle:P1",
+      "decision:choose_mode:create_devils",
+      "create_Devil_token:3"
+    ],
+    "terminal_postconditions": [
+      "Three Devil tokens exist under P1 after resolution.",
+      "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+      "RulesRngTape records semantic random operations and results separate from pilot decisions."
+    ]
+  },
+  "observed_assertion": {
+    "comparison_verdict": "PASS",
+    "row_properties": {
+      "clean_replay_equal_checkpoints": true,
+      "p1_card_caused_shuffle_taped": true,
+      "p1_library_shuffle_result_taped": true,
+      "rng_operations_account_for_all_calls": true,
+      "rng_result_depends_on_seed": true,
+      "rng_result_has_state_consequence": true,
+      "rules_rng_results_recorded": true,
+      "scenario_obligation_observed": true
+    },
+    "twin_digest": "61ab7390411cca827305866e869d858990fec74a060c406e4ea6ee8112908a22"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "aef489dd2308e17ead76ca5d97b99ea006f9315845c54de84367684f66f12b1d",
+  "runner_digest": "885abdc6946a72e3155aebfac6eea9b1fc9bcd207e5cb53a417111495b0f3371",
+  "runtime_receipt_digest": "61ab7390411cca827305866e869d858990fec74a060c406e4ea6ee8112908a22",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af09-midgame-replay-twin#RNG_RULES_TAPE"
+}
