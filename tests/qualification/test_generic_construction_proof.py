@@ -420,7 +420,10 @@ def test_no_state_and_unknown_schema_are_unsupported(record) -> None:
 
 
 def test_a_native_state_load_record_is_never_constructed_here() -> None:
-    start2 = load_effective_materialization().record("WS05-CMD-START-2")
+    # START-2 is a natural-start record since 1.0.22; one that keeps (or regains)
+    # a native state load is never constructed by this lane.
+    start2 = copy.deepcopy(load_effective_materialization().record("WS05-CMD-START-2"))
+    start2["execution_entry_mode"] = "NATIVE_STATE_LOAD"
     proof = _proof(start2, _state(players=2))
     assert proof.verdict == generic_construction.UNSUPPORTED
     assert "execution_entry_mode" in {check.field for check in proof.failures()}

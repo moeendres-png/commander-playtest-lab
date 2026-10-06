@@ -486,13 +486,45 @@ def start2_row(
     fixture_id = record["fixture_id"]
     required = list(record["expected_events"]["required_events"])
     forbidden = list(record["expected_events"]["forbidden_events"])
+    # The record's own decks and seed (#441 comment 6007651998, C-E1): the
+    # construction proof compares the provider's state with the record, so the
+    # run must be the record's game, never the lane's default decks or seed. A
+    # record that does not state them is refused and nothing is executed.
+    refused: dict[str, Any] = {
+        "player_count": 2,
+        "runtime_identity": runtime_identity,
+        "evidence_class": "FRESH_CURRENT_BOUNDARY_RUNTIME",
+        "fixture_required_events_are_obligation_statements_not_evidence": True,
+    }
+    seed = record_rules_seed(record)
+    if seed is None:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            MISSING_SEED_REASON,
+            refused,
+        )
+    try:
+        decks = record_decks(record)
+    except ValueError as exc:
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            f"the record's decks cannot be imported, so nothing is executed: {exc}",
+            refused,
+        )
     game = drive_commander_game(
         proc,
         candidate=candidate,
         player_count=2,
-        seed=424242,
+        seed=seed,
         drive_to="first_turn_draw_skip",
         max_steps=60,
+        decks=decks,
     )
     kinds = [entry.kind for entry in game.decision_tape]
     draw_frames = game.terminal_facts.get("draw_step_decision_frames", [])
@@ -507,6 +539,11 @@ def start2_row(
     baseline_checkpoint = game.terminal_facts.get("start2_baseline_checkpoint")
     post_checkpoint = game.terminal_facts.get("start2_post_checkpoint")
     observed_draw_events = [event for event in game.semantic_events if "draw" in str(event).lower()]
+    # The first actor on the decision tape is recorded for audit only; it is
+    # never the starting-player evidence (a mulligan or any other frame can come
+    # first). The starting player is the seat the engine gave the game's first
+    # priority, the same first_priority_seat the construction proof compares
+    # with the record (CR 103.1; #441 comment 6007651998, C-E3).
     observed_starting_actor = next(
         (
             entry.actor
@@ -515,9 +552,18 @@ def start2_row(
         ),
         None,
     )
+    raw_first_priority = game.terminal_facts.get("first_priority_seat")
+    starting_seat = (
+        raw_first_priority.upper()
+        if isinstance(raw_first_priority, str) and raw_first_priority
+        else None
+    )
+    requested_starting = (record.get("temporal_state") or {}).get("active_player")
     game.terminal_facts["observed_decision_kinds"] = kinds
     game.terminal_facts["observed_draw_semantic_events"] = observed_draw_events
     game.terminal_facts["observed_starting_actor"] = observed_starting_actor
+    game.terminal_facts["observed_starting_seat"] = starting_seat
+    game.terminal_facts["observed_starting_seat_source"] = "first_priority_seat"
     evidence = {
         "player_count": 2,
         "actual_cards": _actual_cards(),
@@ -545,6 +591,11 @@ def start2_row(
         "observed_draw_semantic_events": observed_draw_events,
         "observed_actor_zone_counts": zone_counts,
         "observed_starting_actor": observed_starting_actor,
+        "observed_starting_actor_is_starting_player_evidence": False,
+        "observed_starting_seat": starting_seat,
+        "requested_decks": [
+            {"deck_id": deck["deck_id"], "deck_hash": deck["deck_hash"]} for deck in decks
+        ],
         "fixture_required_events_are_obligation_statements_not_evidence": True,
     }
     if game.failure:
@@ -674,14 +725,26 @@ def start2_row(
             "observed and the row is not credited",
             evidence,
         )
-    if observed_starting_actor is None:
+    if starting_seat is None:
         return RowResult(
             fixture_id,
             candidate,
             "UNKNOWN",
             "PROTOCOL2_START2_V1_0_6",
-            "no acting principal was observed, so which seat was the starting "
-            "player could not be established from the run",
+            "the engine reported no first priority seat, so which seat was the starting "
+            "player could not be established from the run (the decision tape's first "
+            "actor is never that evidence)",
+            evidence,
+        )
+    if not isinstance(requested_starting, str) or starting_seat != requested_starting.upper():
+        return RowResult(
+            fixture_id,
+            candidate,
+            "UNKNOWN",
+            "PROTOCOL2_START2_V1_0_6",
+            f"the engine gave the first priority to {starting_seat}, but the record's "
+            f"starting player is {requested_starting!r}, so the requested game was not "
+            "the one run",
             evidence,
         )
     if not game.terminal_facts.get("priority_reached"):
@@ -764,6 +827,25 @@ def scripted_pregame_plan(record: dict[str, Any]) -> tuple[tuple[str, bool], ...
             raise ValueError(f"pregame plan entry {index + 1} disagrees with the decision script")
         entries.append((player.lower(), answer[1]))
     return tuple(entries)
+
+
+MISSING_SEED_REASON = (
+    "the record states no integer rules_randomness.rules_seed, so its seeded Rules "
+    "randomness is undefined; the lane supplies no default seed and nothing is executed"
+)
+
+
+def record_rules_seed(record: dict[str, Any]) -> int | None:
+    """The record's own Rules seed, or None when it states no integer seed.
+
+    A lane never substitutes a default: a record without its seed does not say
+    which seeded game to run, so the row is refused rather than run on a value
+    the record does not hold.
+    """
+    seed = (record.get("rules_randomness") or {}).get("rules_seed")
+    if isinstance(seed, bool) or not isinstance(seed, int):
+        return None
+    return seed
 
 
 def record_decks(record: dict[str, Any]) -> list[dict[str, Any]]:
@@ -898,7 +980,6 @@ def scripted_pregame_row(
         for deck in record.get("deck_state") or ()
         if isinstance(deck, dict)
     }
-    seed = int((record.get("rules_randomness") or {}).get("rules_seed") or 424242)
     evidence: dict[str, Any] = {
         "player_count": player_count,
         "actual_cards": _actual_cards(),
@@ -907,6 +988,13 @@ def scripted_pregame_row(
         "principal_observation_scope": "engine-offered decision frames for the acting seat",
         "fixture_required_events_are_obligation_statements_not_evidence": True,
     }
+    # The seed is a record value; a record that states none is refused, never
+    # run under a lane default (#441 comment 6007651998, C-E2).
+    seed = record_rules_seed(record)
+    if seed is None:
+        return RowResult(
+            fixture_id, candidate, "UNKNOWN", SCRIPTED_PREGAME_MODE, MISSING_SEED_REASON, evidence
+        )
     try:
         plan = scripted_pregame_plan(record)
         decks = record_decks(record)

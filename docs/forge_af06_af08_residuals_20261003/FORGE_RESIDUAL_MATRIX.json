@@ -1,7 +1,7 @@
 {
  "candidate": "forge",
- "canonical_bundle_digest": "0f6f1701b73cc60ec8422353c5127673b0b25f4a4fa1f5b9a8092621fdf71c49",
- "contract_id": "commander-lab.full107/1.0.21-successor",
+ "canonical_bundle_digest": "fa4e40f92d90d210ebb9a6bcfc9f7f6ca54bc62a51185c3c4321bd1734091a23",
+ "contract_id": "commander-lab.full107/1.0.22-successor",
  "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
  "rows": [
   {
@@ -2129,16 +2129,22 @@
    "reason": "Forge SCENARIO_LANE_EXECUTABLE: the scenario lane constructs this row, executes it and evaluates its obligation (game_start_command_zone); it earns credit only through that lane's runner-bound receipt, and without one it stays unestablished."
   },
   {
-   "classification": "CONTRACT_AUTHORITY_GAP",
+   "classification": "LAB_EXECUTION_GAP",
    "first_missing": {
-    "class": "CONTRACT_AUTHORITY_GAP",
-    "detail": "the obligation names a starting player, but the effective record scripts no starting-player response; choosing the starter from the requested state would be requested-option selection, so the row needs a contract erratum that scripts the decision",
-    "dimension": "decision_execution.starting_player.unscripted",
-    "stage": "execution"
+    "class": "LAB_EXECUTION_GAP",
+    "detail": "the requested turn is reached only by native progression through turns the lane does not drive",
+    "dimension": "temporal_state.turn_number",
+    "stage": "construction"
    },
    "fixture_id": "WS05-CMD-START-2",
    "lane_obligation_kind": null,
    "mechanisms": [
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the requested turn is reached only by native progression through turns the lane does not drive",
+     "dimension": "temporal_state.turn_number",
+     "stage": "construction"
+    },
     {
      "class": "CONTRACT_AUTHORITY_GAP",
      "detail": "the obligation names a starting player, but the effective record scripts no starting-player response; choosing the starter from the requested state would be requested-option selection, so the row needs a contract erratum that scripts the decision",
@@ -2159,7 +2165,7 @@
      "first_turn_draw_step_skipped:true"
     ]
    },
-   "reason": "Forge CONTRACT_AUTHORITY_GAP: first missing mechanism at execution (decision_execution.starting_player.unscripted): the obligation names a starting player, but the effective record scripts no starting-player response; choosing the starter from the requested state would be requested-option selection, so the row needs a contract erratum that scripts the decision. then: observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (temporal_state.turn_number): the requested turn is reached only by native progression through turns the lane does not drive. then: execution decision_execution.starting_player.unscripted (CONTRACT_AUTHORITY_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "CONTRACT_AUTHORITY_GAP",
@@ -3168,8 +3174,8 @@
  "schema_version": "commander-lab.forge-residuals/1.0.0",
  "summary": {
   "classifications": {
-   "CONTRACT_AUTHORITY_GAP": 2,
-   "LAB_EXECUTION_GAP": 39,
+   "CONTRACT_AUTHORITY_GAP": 1,
+   "LAB_EXECUTION_GAP": 40,
    "PROVIDER_ADAPTER_GAP": 17,
    "SCENARIO_LANE_EXECUTABLE": 12
   },

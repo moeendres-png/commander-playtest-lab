@@ -51,6 +51,7 @@ def _observed(*, keyed: bool) -> CommandedGameResult:
             "start2_post_checkpoint": {"turn_number": 1, "phase": "precombat_main", "step": "main"},
             "draw_step_decision_frames": [],
             "priority_reached": True,
+            "first_priority_seat": "p1",
         }
     )
     if keyed:
@@ -131,30 +132,23 @@ def test_changed_counts_still_fail_with_an_equal_proof(record, monkeypatch) -> N
     assert row.outcome == "FAIL"
 
 
-def test_the_effective_record_is_not_a_natural_game_start(record) -> None:
-    """The real comparison names why the generic lane cannot construct this record.
+def test_the_effective_record_is_a_natural_game_start(record) -> None:
+    """Contract 1.0.22 (#441 comment 6007651998) made START-2 a natural-start record.
 
-    The record requests a native state load at turn-1 precombat main with
-    non-commander battlefield objects and no deck state; the generic lane builds
-    only a natural game start read at the first mulligan, so the proof is never
-    EQUAL for it and the row stays UNKNOWN with that reason.
+    The 1.0.21 record requested a native state load at turn-1 precombat main
+    with non-commander battlefield objects and no deck state, which the generic
+    lane could never construct. The successor requests what the lane builds: a
+    natural game start read at the first mulligan, with the record's own decks
+    and seed (test_start2_mull_errata_conditions proves the proof and the row).
     """
-    proof = generic_construction.compare(
-        record,
-        {
-            "schema": generic_construction.SCHEMA,
-            "observation_scope": "orchestration_keyed_digests",
-        },
-        acknowledged_seed=424242,
-        first_priority_seat="P1",
-        capture=generic_construction.CAPTURE_POINT,
-        orchestration_key=b"k" * 32,
+    assert record["execution_entry_mode"] == "NATURAL_GAME_START"
+    assert (record["temporal_state"]["phase"], record["temporal_state"]["turn_number"]) == (
+        "pregame",
+        0,
     )
-    assert not proof.established
-    failed = {check.field: check.verdict for check in proof.failures()}
-    assert failed["execution_entry_mode"] == "UNSUPPORTED"
-    assert failed["semantic_objects.obj:P1-bears"] == "UNSUPPORTED"
-    assert failed["temporal_state.phase"] == "MISMATCH"
+    assert {o["zone"] for o in record["semantic_objects"]} == {"command"}
+    assert full107.record_rules_seed(record) == 424242
+    assert len(full107.record_decks(record)) == 2
 
 
 def test_the_runner_runs_start2_on_a_keyed_launch() -> None:

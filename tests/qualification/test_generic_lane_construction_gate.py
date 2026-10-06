@@ -136,6 +136,7 @@ def _start2_observed() -> CommandedGameResult:
             "start2_post_checkpoint": {"turn_number": 1, "phase": "precombat_main", "step": "main"},
             "draw_step_decision_frames": [],
             "priority_reached": True,
+            "first_priority_seat": "p1",
         }
     )
     result.decision_tape = [
