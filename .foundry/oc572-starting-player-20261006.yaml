@@ -4,19 +4,18 @@ worktree: /home/moeen/work/worktrees/oc572-starting-player-20261006
 branch: opencode/oc572-starting-player-20261006
 audit_base_sha: 5849d187a0adf0ce323991ea0bf0c8a7fd931a88
 audit_base_tree: e839522778c050567cbf5f4f542c96881ad7dc61
-state_written_against_head: 6e757afc4a509e3ce0e8afa803d3004da583ab27
+state_written_against_head: 976429e340c4af91e901e5fba15aab2088f22fd9
 validated_head: d15ea7e131da6fb62580c627703dd340da8e2bb8
-objective: >-
-  #572 / #441 / #255 starting-player authority. Eliminate every production-reachable
-  or qualification-credit path where the Lab or its provider bridge chooses the
-  starting player by an implicit p1/seat-0 default; then close the impacted XMage
-  AF08 starting-player obligations as far as current authoritative contracts permit.
-  Owner binding decision: the starting seat must be explicitly declared by the
-  authoritative record/contract and submitted only through the engine-authored legal
-  decision frame, or the path must fail closed. No p1, seat 0, first element, random,
-  GUI, engine-AI, implicit or provider-side default. A construction proof may credit
-  active_player / priority_player / first_priority_seat only when the starting-player
-  channel for that execution has been explicitly verified.
+objective: '#572 / #441 / #255 starting-player authority. Eliminate every production-reachable
+  or qualification-credit path where the Lab or its provider bridge chooses the starting
+  player by an implicit p1/seat-0 default; then close the impacted XMage AF08 starting-player
+  obligations as far as current authoritative contracts permit. Owner binding decision:
+  the starting seat must be explicitly declared by the authoritative record/contract
+  and submitted only through the engine-authored legal decision frame, or the path
+  must fail closed. No p1, seat 0, first element, random, GUI, engine-AI, implicit
+  or provider-side default. A construction proof may credit active_player / priority_player
+  / first_priority_seat only when the starting-player channel for that execution has
+  been explicitly verified.'
 in_scope:
 - src/commander_lab/qualification/current_boundary/game_driver.py
 - src/commander_lab/qualification/current_boundary/generic_construction.py
@@ -40,29 +39,30 @@ in_scope:
 - tests/qualification and tests/foundry for the touched surfaces
 - docs/oc572_starting_player_20261006/
 - .foundry/oc572-starting-player-20261006.yaml
-- .opencode/agents/bunny-*.md and opencode.json (session tooling commit 5f2468fe; see blocker)
+- .opencode/agents/bunny-*.md and opencode.json (session tooling commit 5f2468fe;
+  see blocker)
 out_of_scope:
 - Production Provider selection; Architecture Freeze; Production Repository creation.
-- New START-2/MULL Rules policy not already decided in #441/#572/current authority.
+- New START-2/MULL Rules policy not already decided in
 - Forge reference repository mutation (read-only pinned input).
 - XMage candidate repository mutation (read-only pinned input).
 - Structural/optimization modeled simulators beyond the explicit RulesGameRequest
   default removal.
 - Denominator changes, expectation weakening, test weakening, history rewrite.
-ownership: >-
-  OPENCODE_WRITER = RELEASED (handoff checkpoint). CLAUDE_NEXT_WRITER =
-  AUTHORIZED_BY_OWNER via the newest Owner instruction that OpenCode hand the
-  workstream to Claude. Branch opencode/oc572-starting-player-20261006 is owned by
-  this workstream; origin/main is untouched.
+ownership: OPENCODE_WRITER = RELEASED (handoff checkpoint). CLAUDE_NEXT_WRITER = AUTHORIZED_BY_OWNER
+  via the newest Owner instruction that OpenCode hand the workstream to Claude. Branch
+  opencode/oc572-starting-player-20261006 is owned by this workstream; origin/main
+  is untouched.
 dependencies:
 - Owner instruction 2026-10-06 authorizing OpenCode takeover, then the pause-and-
   persist instruction handing the workstream to Claude.
-- Issue #572 binding technical decision (starting player must never be a Lab default).
-- Issue #441 Coordinator ruling 2026-10-06 (START-2 / MULL-2 / MULL-4 errata, 1.0.22).
-- Issue #255 final pre-Freeze critical path.
-- PR #574 on branch opencode/oc572-starting-player-20261006 (OPEN, not merge-ready).
+- Issue
+- Issue
+- Issue
+- PR
 hard_gates:
-- Rules Core alone owns legality and state transitions; no pilot/harness fallback legality.
+- Rules Core alone owns legality and state transitions; no pilot/harness fallback
+  legality.
 - No first/default/random/GUI/engine-AI/silent-skip choice anywhere.
 - Hidden information stays principal-scoped; no secret/token exposure.
 - Historical PASS never transfers across changed fixture/pin/contract/harness identity.
@@ -79,31 +79,28 @@ forbidden_shortcuts:
 - parent_class_fallback
 - requested_option_filtering_that_reconstructs_legality
 - implicit_p1_or_seat_0_starting_player
-current_failure: >-
-  WIP handoff. The starting-player authority repair is implemented and locally
-  validated at d15ea7e1, but the branch HEAD 6e757afc (plus the uncommitted
-  P1-repair batch) is not merge-ready: (1) the session-tooling commit 5f2468fe
-  rebinds the Space Bunny profiles/whitelist from opencode-go/space-bunny-free to
-  opencode-go/space-bunny, which diverges from the canonical launcher profile and
-  fails 67 tests in tests/foundry at a clean detached 6e757afc (e.g.
-  test_foundry_tools.py:280/303 expect whitelist ["deepseek-v4.1-flash",
-  "space-bunny-free"]; test_project_integrity.py:26 KeyError 'space-bunny-free');
-  (2) a fresh-context Space Bunny cross-model audit found a P1 in the first
-  provider-acknowledgement design (the create echo repeats the request and is not
-  independent engine confirmation) plus P2s (replay channel bindable from a tape
-  string; Java comments claiming the bridge never chooses the starter). The P1/P2
-  repair is implemented but UNCOMMITTED at handoff time: the channel is now
-  PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT, backed by the engine's own start_game
-  starting_player_id resolved through the engine's seat roster; the replay channel
-  binds the executed option's source_object_id; RulesGameRequest.starting_player_seat
-  no longer defaults to 0. Targeted qualification tests pass (182 + 1794 full
-  qualification), but the repair has not been committed, re-reviewed, or run
-  through engine-bridge/PB-03 CI on the new bytes.
+current_failure: 'WIP handoff. The starting-player authority repair is implemented
+  and locally validated at d15ea7e1, but the branch HEAD 6e757afc (plus the uncommitted
+  P1-repair batch) is not merge-ready: (1) the session-tooling commit 5f2468fe rebinds
+  the Space Bunny profiles/whitelist from opencode-go/space-bunny-free to opencode-go/space-bunny,
+  which diverges from the canonical launcher profile and fails 67 tests in tests/foundry
+  at a clean detached 6e757afc (e.g. test_foundry_tools.py:280/303 expect whitelist
+  ["deepseek-v4.1-flash", "space-bunny-free"]; test_project_integrity.py:26 KeyError
+  ''space-bunny-free''); (2) a fresh-context Space Bunny cross-model audit found a
+  P1 in the first provider-acknowledgement design (the create echo repeats the request
+  and is not independent engine confirmation) plus P2s (replay channel bindable from
+  a tape string; Java comments claiming the bridge never chooses the starter). The
+  P1/P2 repair is implemented but UNCOMMITTED at handoff time: the channel is now
+  PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT, backed by the engine''s own start_game
+  starting_player_id resolved through the engine''s seat roster; the replay channel
+  binds the executed option''s source_object_id; RulesGameRequest.starting_player_seat
+  no longer defaults to 0. Targeted qualification tests pass (182 + 1794 full qualification),
+  but the repair has not been committed, re-reviewed, or run through engine-bridge/PB-03
+  CI on the new bytes.'
 failure_class: HARNESS_DEFECT
-current_hypothesis: >-
-  Not a hypothesis: the starting-player default defect is proven and repaired; the
-  remaining work is validation/persistence of the review-driven channel repair and
-  the disposition of the out-of-scope config commit.
+current_hypothesis: 'Not a hypothesis: the starting-player default defect is proven
+  and repaired; the remaining work is validation/persistence of the review-driven
+  channel repair and the disposition of the out-of-scope config commit.'
 evidence:
 - qualification/current-boundary-epochs/39744c19198a-5f6a5fd34031/FULL107_XMAGE_RESULTS.json
 - qualification/current-boundary-epochs/39744c19198a-5f6a5fd34031/PLAYER_CARDINALITY_XMAGE.json
@@ -118,62 +115,59 @@ artifacts:
 - docs/oc572_starting_player_20261006/LOCAL_OBSERVED_STARTING_PLAYER_EVIDENCE.json
 - docs/oc572_starting_player_20261006/capture_starting_player_evidence.py
 - census: see technical_decisions entries SP-CENSUS-*
-- PR #574 (open, WIP handoff; must not be merged)
-- GitHub handoff comment on #572 (posted by this session)
+- PR
+- GitHub handoff comment on
 technical_decisions:
-- 'SP-CENSUS-1 (generic lane): game_driver._create_request never sent
-  starting_player_seat; XMage JsonlBridge defaulted 0. drive_commander_game defaulted
-  scripted_starting_seat="p1" and answered every STARTING_PLAYER frame with it.
-  Callers: full107.run_cardinality (PLAYER_COUNT_*), full107.start2_row
-  (WS05-CMD-START-2), full107.scripted_pregame_row (PILOT_MULLIGAN, WS05-CMD-MULL-2/4),
-  runner af01_live and hidden_game probes.'
-- 'SP-CENSUS-2 (Forge scenario lane): drive_scenario_game used
-  model.temporal_state.get("active_player") or "p1" and recorded basis
-  LAB_SELECTED_ENGINE_OFFERED; evaluate_first_turn_draw requires
-  FIXTURE_DECISION_SCRIPT so unscripted starter obligations are refused up front.'
-- 'SP-CENSUS-3 (AF09 twins): replay_twins.gather_generic_lane_process defaulted
-  scripted_starting_seat="p1" and persisted starting_seat_policy
-  "fixture_scripted_seat:p1".'
-- 'SP-CENSUS-4 (provider bridges): JsonlBridge, XmageFullGameJsonlBridge and
-  XmageMidgameJsonlBridge used optionalInt(starting_player_seat, 0); the B4
-  compatibility XmageBridgePlayer answers the engine CR 103.2 init choose with the
-  declared chooser itself (documented narrow init exception).'
+- 'SP-CENSUS-1 (generic lane): game_driver._create_request never sent starting_player_seat;
+  XMage JsonlBridge defaulted 0. drive_commander_game defaulted scripted_starting_seat="p1"
+  and answered every STARTING_PLAYER frame with it. Callers: full107.run_cardinality
+  (PLAYER_COUNT_*), full107.start2_row (WS05-CMD-START-2), full107.scripted_pregame_row
+  (PILOT_MULLIGAN, WS05-CMD-MULL-2/4), runner af01_live and hidden_game probes.'
+- 'SP-CENSUS-2 (Forge scenario lane): drive_scenario_game used model.temporal_state.get("active_player")
+  or "p1" and recorded basis LAB_SELECTED_ENGINE_OFFERED; evaluate_first_turn_draw
+  requires FIXTURE_DECISION_SCRIPT so unscripted starter obligations are refused up
+  front.'
+- 'SP-CENSUS-3 (AF09 twins): replay_twins.gather_generic_lane_process defaulted scripted_starting_seat="p1"
+  and persisted starting_seat_policy "fixture_scripted_seat:p1".'
+- 'SP-CENSUS-4 (provider bridges): JsonlBridge, XmageFullGameJsonlBridge and XmageMidgameJsonlBridge
+  used optionalInt(starting_player_seat, 0); the B4 compatibility XmageBridgePlayer
+  answers the engine CR 103.2 init choose with the declared chooser itself (documented
+  narrow init exception).'
 - 'SP-CENSUS-5 (midgame/full-game call sites): create_midgame_game requests omitted
   starting_player_seat (midgame_rows, actual_card_campaign, knowledge_projection,
-  run_midgame_capability_probe); create_full_game callers (semantic_replay
-  recorder/consumer, engine/rules/full_game) send an explicit seed-derived seat.'
-- 'SP-CENSUS-6 (modeled lanes): StructuralMatchConfig callers (mulligan/lab.py,
-  whole_deck/campaign.py, optimizer_v2_diagnostics.py) and the in-process tactical
-  simulator are MODELED; the RulesGameRequest default 0 was removed because all
-  seven non-test callers already passed it explicitly.'
+  run_midgame_capability_probe); create_full_game callers (semantic_replay recorder/consumer,
+  engine/rules/full_game) send an explicit seed-derived seat.'
+- 'SP-CENSUS-6 (modeled lanes): StructuralMatchConfig callers (mulligan/lab.py, whole_deck/campaign.py,
+  optimizer_v2_diagnostics.py) and the in-process tactical simulator are MODELED;
+  the RulesGameRequest default 0 was removed because all seven non-test callers already
+  passed it explicitly.'
 - 'SP-CENSUS-7 (construction proof): generic_construction.compare used to compare
   temporal_state.active_player/priority_player against first_priority_seat with no
   channel gate (#572).'
 - 'SP-DECISION-1 (declaration sources): record_starting_seat (starting_player.py)
-  accepts exactly three shapes: a decision_script starting_player step with its
-  fail-closed selection contract, an explicit starting_player field, or
-  temporal_state.active_player at turn 0. The expected-event token starting_player:Pn
-  is never a declaration.'
+  accepts exactly three shapes: a decision_script starting_player step with its fail-closed
+  selection contract, an explicit starting_player field, or temporal_state.active_player
+  at turn 0. The expected-event token starting_player:Pn is never a declaration.'
 - 'SP-DECISION-2 (verified channels): the construction proof credits temporal facts
-  only on ENGINE_FRAME_FROM_RECORD_DECLARATION (engine published the frame and
-  accepted the declared seat) or PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT (the engine
-  start readback named a player that resolves, through the engine seat roster, to the
-  declared seat). A create-response echo alone is NOT a channel.'
+  only on ENGINE_FRAME_FROM_RECORD_DECLARATION (engine published the frame and accepted
+  the declared seat) or PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT (the engine start
+  readback named a player that resolves, through the engine seat roster, to the declared
+  seat). A create-response echo alone is NOT a channel.'
 - 'SP-DECISION-3 (review dispositions): fresh-context foundry-reviewer at 36d7dc12
   returned NO BLOCKING FINDINGS with P3 notes; Space Bunny MAX cross-model audit at
-  6e757afc returned EVIDENCE INTEGRITY VIOLATED with one P1 (create echo is not
-  engine confirmation) and P2s (replay channel, Java comments). The P1/P2 repairs are
-  implemented in the working tree and are the reason this handoff is a WIP checkpoint.'
-- 'SP-DECISION-4 (1.0.22): implementing the already-adjudicated contract 1.0.22
-  START-2/MULL-2/MULL-4 erratum is a separate contract-successor milestone; it is
-  NOT in this branch and is the exact next qualification action after merge.'
+  6e757afc returned EVIDENCE INTEGRITY VIOLATED with one P1 (create echo is not engine
+  confirmation) and P2s (replay channel, Java comments). The P1/P2 repairs are implemented
+  in the working tree and are the reason this handoff is a WIP checkpoint.'
+- 'SP-DECISION-4 (1.0.22): implementing the already-adjudicated contract 1.0.22 START-2/MULL-2/MULL-4
+  erratum is a separate contract-successor milestone; it is NOT in this branch and
+  is the exact next qualification action after merge.'
 hypotheses_rejected:
 - 'Rejected: "the construction proof issufficiently strong on its own even when the
   starter came from a default." The 39744c19198a epoch shows temporal EQUAL P1/P1
-  while the starter came from the driver default p1 (Forge) or the bridge seat-0
-  default (XMage), so the comparison was circular.'
-- 'Rejected: "the XMage create-response echo is engine confirmation." The echo
-  repeats the request; only start_game starting_player_id is the engine readback.'
+  while the starter came from the driver default p1 (Forge) or the bridge seat-0 default
+  (XMage), so the comparison was circular.'
+- 'Rejected: "the XMage create-response echo is engine confirmation." The echo repeats
+  the request; only start_game starting_player_id is the engine readback.'
 - 'Rejected: "the AF09 twin tape policy string proves the executed starting seat."
   The channel now binds the executed option source_object_id.'
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
@@ -182,52 +176,51 @@ execution_profile: deepseek
 executor_model: opencode-go/deepseek-v4.1-flash
 native_variant: max
 authority_gates:
-- 'PRODUCTION_PROVIDER = NOT SELECTED (Owner-only; unchanged)'
-- 'ARCHITECTURE_FREEZE = NOT CLAIMED (Owner-only; unchanged)'
-- 'Contract 1.0.22 START-2/MULL-2/MULL-4 erratum policy already decided in #441
-  comment 6007651998; implementation of the decided erratum is permitted, new policy
-  is not.'
-- 'The Space Bunny model-ID rebinding is a direct user instruction; the canonical
-  launcher profile still names opencode-go/space-bunny-free. Claude must choose
-  between aligning the canonical config/tests and dropping commit 5f2468fe from the
-  integration line; do not force-push.'
+- PRODUCTION_PROVIDER = NOT SELECTED (Owner-only; unchanged)
+- ARCHITECTURE_FREEZE = NOT CLAIMED (Owner-only; unchanged)
+- 'Contract 1.0.22 START-2/MULL-2/MULL-4 erratum policy already decided in #441 comment
+  6007651998; implementation of the decided erratum is permitted, new policy is not.'
+- The Space Bunny model-ID rebinding is a direct user instruction; the canonical launcher
+  profile still names opencode-go/space-bunny-free. Claude must choose between aligning
+  the canonical config/tests and dropping commit 5f2468fe from the integration line;
+  do not force-push.
 status: WAITING
 validated_gates:
 - 'Qualification suite at 28d99a3d/d15ea7e1 (pre-P1-repair): 1791 passed, 21 skipped
   (two local egg-info trigger tests deselected).'
-- 'Qualification suite after the P1 repair (working tree, 2026-10-06 17:2x):
-  1794 passed, 21 skipped, 2 deselected.'
+- 'Qualification suite after the P1 repair (working tree, 2026-10-06 17:2x): 1794
+  passed, 21 skipped, 2 deselected.'
 - 'Targeted new controls after the P1 repair: test_starting_player_authority.py +
-  test_replay_twins.py + test_generic_construction_proof.py +
-  test_current_boundary_seed_capability.py: 182 passed.'
-- 'engine-bridge full suite at a304f1b6 with checkstyle: 966 run, 0 failures, 1
-  skipped. Java changes afterwards are comments only in the three bridges.'
+  test_replay_twins.py + test_generic_construction_proof.py + test_current_boundary_seed_capability.py:
+  182 passed.'
+- 'engine-bridge full suite at a304f1b6 with checkstyle: 966 run, 0 failures, 1 skipped.
+  Java changes afterwards are comments only in the three bridges.'
 - 'ruff check/format: clean across src, tests, docs evidence script.'
-- 'mypy: changed modules clean; src/commander_lab only the 8 pre-existing
-  optional-dependency errors in untouched modules.'
+- 'mypy: changed modules clean; src/commander_lab only the 8 pre-existing optional-dependency
+  errors in untouched modules.'
 - 'Real pinned XMage keyed launches (LOCAL_OBSERVED): PLAYER_COUNT_2P/3P/4P/5P and
-  PILOT_MULLIGAN PASS with PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT and
-  CONSTRUCTION_EQUAL; declaration removed -> UNKNOWN/FAIL_CLOSED_UNSATISFIED;
-  START-2 1.0.21 -> UNKNOWN missing authority.'
+  PILOT_MULLIGAN PASS with PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT and CONSTRUCTION_EQUAL;
+  declaration removed -> UNKNOWN/FAIL_CLOSED_UNSATISFIED; START-2 1.0.21 -> UNKNOWN
+  missing authority.'
 failed_gates:
-- 'tests/foundry at 6e757afc: 67 failed / 759 passed, caused by commit 5f2468fe
-  rebinding the Space Bunny profile away from the canonical launcher expectation
-  (whitelist ["deepseek-v4.1-flash","space-bunny-free"], KeyError space-bunny-free).
-  At origin/main the same suite passes; a clean detached 6e757afc reproduces the 67.'
-- 'Non-qualification suite at d15ea7e1 (clean tree): identical failure set to
-  origin/main (10 test_packaging_smoke rich-version environmental failures). Not
-  rerun after the P1 repair; the repair touches qualification modules and models/rules.'
+- 'tests/foundry at 6e757afc: 67 failed / 759 passed, caused by commit 5f2468fe rebinding
+  the Space Bunny profile away from the canonical launcher expectation (whitelist
+  ["deepseek-v4.1-flash","space-bunny-free"], KeyError space-bunny-free). At origin/main
+  the same suite passes; a clean detached 6e757afc reproduces the 67.'
+- 'Non-qualification suite at d15ea7e1 (clean tree): identical failure set to origin/main
+  (10 test_packaging_smoke rich-version environmental failures). Not rerun after the
+  P1 repair; the repair touches qualification modules and models/rules.'
 - 'PB-03 / sealed epoch: NOT RUN on any branch head; the pushed CI at 6e757afc was
   in progress at handoff and is superseded by the uncommitted repair.'
 invalidated_gates:
-- 'Every historical construction proof that compared temporal_state.active_player/
+- Every historical construction proof that compared temporal_state.active_player/
   priority_player without a verified channel (prerequisite for requalifying the 5
-  impacted rows per engine column).'
-- 'CI results on 6e757afc are invalidated by the uncommitted P1-repair batch; do not
-  treat them as evidence for the checkpoint bytes.'
+  impacted rows per engine column).
+- CI results on 6e757afc are invalidated by the uncommitted P1-repair batch; do not
+  treat them as evidence for the checkpoint bytes.
 do_not_rerun:
-- 'engine-bridge full mvn test at a304f1b6 (966/0/1): valid for the Java
-  required-field change; the only Java edits after it are comments.'
+- 'engine-bridge full mvn test at a304f1b6 (966/0/1): valid for the Java required-field
+  change; the only Java edits after it are comments.'
 - 'The 39744c19198a sealed-epoch reconstruction: read it as provenance; do not rerun
   to reinterpret historical rows.'
 - 'The 10 test_packaging_smoke failures: environmental (ambient rich 13.9.4 vs lock
@@ -278,60 +271,51 @@ files_modified:
 tests_run:
 - 'python3 -m pytest -q tests/qualification --deselect <two egg-info trigger tests>:
   1794 passed, 21 skipped at the working tree (P1 repair).'
-- 'python3 -m pytest -q tests/qualification/test_starting_player_authority.py
-  tests/qualification/test_replay_twins.py
-  tests/qualification/test_generic_construction_proof.py
-  tests/qualification/test_current_boundary_seed_capability.py: 182 passed.'
-- 'python3 -m pytest -q --ignore=tests/qualification: 10 failures at d15ea7e1,
-  byte-identical to origin/main; not rerun after the P1 repair.'
-- 'python3 -m pytest -q tests/foundry: 67 failed / 759 passed at clean 6e757afc
-  (config-commit regression); passes at origin/main.'
-- 'mvn -o -B -ntp test -Dmaven.repo.local=~/.m2/repository (engine-bridge):
-  966 run, 0 failures, 1 skipped at a304f1b6.'
-- 'Real pinned XMage keyed launches via
-  docs/oc572_starting_player_20261006/capture_starting_player_evidence.py: five
-  declared runs PASS, undeclared and START-2 fail closed.'
+- 'python3 -m pytest -q tests/qualification/test_starting_player_authority.py tests/qualification/test_replay_twins.py
+  tests/qualification/test_generic_construction_proof.py tests/qualification/test_current_boundary_seed_capability.py:
+  182 passed.'
+- 'python3 -m pytest -q --ignore=tests/qualification: 10 failures at d15ea7e1, byte-identical
+  to origin/main; not rerun after the P1 repair.'
+- 'python3 -m pytest -q tests/foundry: 67 failed / 759 passed at clean 6e757afc (config-commit
+  regression); passes at origin/main.'
+- 'mvn -o -B -ntp test -Dmaven.repo.local=~/.m2/repository (engine-bridge): 966 run,
+  0 failures, 1 skipped at a304f1b6.'
+- 'Real pinned XMage keyed launches via docs/oc572_starting_player_20261006/capture_starting_player_evidence.py:
+  five declared runs PASS, undeclared and START-2 fail closed.'
 remaining_scope:
-- 'R1 (Claude): commit the uncommitted P1/P2 repair batch and re-run targeted +
-  engine-bridge + qualification validation on the new bytes.'
+- 'R1 (Claude): commit the uncommitted P1/P2 repair batch and re-run targeted + engine-bridge
+  + qualification validation on the new bytes.'
 - 'R2 (Claude): dispose of commit 5f2468fe (align canonical config/tests or exclude
   the commit on the integration line) so tests/foundry returns to green.'
-- >-
-  R3 (Claude): decide whether PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT satisfies the
+- 'R3 (Claude): decide whether PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT satisfies the
   Owner rule "submitted only through the engine-authored legal decision frame" for
-  the XMage compatibility lane, or downgrade it to UNSUPPORTED (which would make
-  PLAYER_COUNT_2P..5P and PILOT_MULLIGAN UNKNOWN on XMage). Evidence for the
-  decision: the engine start readback confirms the established starter; the
-  compatibility lane exposes no external CR 103.2 frame.
+  the XMage compatibility lane, or downgrade it to UNSUPPORTED (which would make PLAYER_COUNT_2P..5P
+  and PILOT_MULLIGAN UNKNOWN on XMage). Evidence for the decision: the engine start
+  readback confirms the established starter; the compatibility lane exposes no external
+  CR 103.2 frame.'
 - 'R4 (Claude): implementation of the decided contract 1.0.22 START-2 natural-start
   erratum (with MULL-2/MULL-4 rules_randomness and C-E1/C-E2) to close XMage AF08
   WS05-CMD-START-2.'
 - 'R5: fresh-context review of the P1 repair, PB-03 on the exact final head, sealed
   epoch, then the protected merge decision.'
-first_failing_boundary: >-
-  engine-bridge/src/test/java + tests/foundry: the three JSONL bridges used to
-  default starting_player_seat to 0 (fixed), and tests/foundry currently fails on
-  the canonical Space Bunny model ID after commit 5f2468fe.
+first_failing_boundary: 'engine-bridge/src/test/java + tests/foundry: the three JSONL
+  bridges used to default starting_player_seat to 0 (fixed), and tests/foundry currently
+  fails on the canonical Space Bunny model ID after commit 5f2468fe.'
 root_cause_class: HARNESS_DEFECT
-next_action: >-
-  Claude resumes from this checkpoint: commit the P1/P2 repair batch (do not lose
-  it), re-run the targeted qualification tests plus engine-bridge and foundry
-  suites, resolve the Space Bunny config commit, then decide the XMage
-  compatibility-channel evidence question (R3) before any PB-03/requalification.
-exact_next_action: >-
-  From a fresh clone/worktree of branch opencode/oc572-starting-player-20261006 at
-  the checkpoint commit: run `git status` and commit the uncommitted P1/P2 repair
-  batch with a WIP message, then run:
-  `ruff check src tests && ruff format --check src tests`,
-  `python3 -m pytest -q tests/qualification/test_starting_player_authority.py
-  tests/qualification/test_replay_twins.py
-  tests/qualification/test_generic_construction_proof.py
-  tests/qualification/test_current_boundary_seed_capability.py`,
-  `cd engine-bridge && mvn -o -B -ntp test -Dmaven.repo.local=~/.m2/repository`,
-  and resolve the 5f2468fe tests/foundry disposition. Then adjudicate R3 and
-  requalify only the impacted rows.
+next_action: 'Claude resumes from this checkpoint: commit the P1/P2 repair batch (do
+  not lose it), re-run the targeted qualification tests plus engine-bridge and foundry
+  suites, resolve the Space Bunny config commit, then decide the XMage compatibility-channel
+  evidence question (R3) before any PB-03/requalification.'
+exact_next_action: 'From a fresh clone/worktree of branch opencode/oc572-starting-player-20261006
+  at the checkpoint commit: run `git status` and commit the uncommitted P1/P2 repair
+  batch with a WIP message, then run: `ruff check src tests && ruff format --check
+  src tests`, `python3 -m pytest -q tests/qualification/test_starting_player_authority.py
+  tests/qualification/test_replay_twins.py tests/qualification/test_generic_construction_proof.py
+  tests/qualification/test_current_boundary_seed_capability.py`, `cd engine-bridge
+  && mvn -o -B -ntp test -Dmaven.repo.local=~/.m2/repository`, and resolve the 5f2468fe
+  tests/foundry disposition. Then adjudicate R3 and requalify only the impacted rows.'
 executor_handoff_from: opencode-go/deepseek-v4.1-flash
-executor_handoff_reason: >-
-  Owner instruction to pause implementation and convert the workstream into a
-  durable GitHub handoff for Claude; implementation was mid-repair of a P1 found by
-  the Space Bunny cross-model audit, so the checkpoint is intentionally WIP.
+executor_handoff_reason: Owner instruction to pause implementation and convert the
+  workstream into a durable GitHub handoff for Claude; implementation was mid-repair
+  of a P1 found by the Space Bunny cross-model audit, so the checkpoint is intentionally
+  WIP.
