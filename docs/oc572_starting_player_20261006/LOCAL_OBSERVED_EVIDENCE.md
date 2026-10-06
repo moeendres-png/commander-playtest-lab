@@ -13,7 +13,9 @@ commit at handshake).
 
 Raw document:
 `LOCAL_OBSERVED_STARTING_PLAYER_EVIDENCE.json`
-sha256 `4d89ba45e4b5ac9ea70badfa9604e7ef19c940454d2a18001ad4e163f32120b4`.
+sha256 `540027b993be829ea853f22fd7d588542852df2139cb40e1357aa815ece18262`.
+The reproducible capture harness is committed beside it:
+`capture_starting_player_evidence.py`.
 
 ## Commands
 
@@ -21,12 +23,13 @@ sha256 `4d89ba45e4b5ac9ea70badfa9604e7ef19c940454d2a18001ad4e163f32120b4`.
 PYTHONPATH=src python3 .claude/skills/lab-ops/scripts/real_rows.py build
 PYTHONPATH=src python3 .claude/skills/lab-ops/scripts/real_rows.py cardinality xmage
 PYTHONPATH=src python3 .claude/skills/lab-ops/scripts/real_rows.py pregame xmage
-python3 /tmp/opencode/oc572_capture.py   # capture harness, same modules as the runner
+python3 docs/oc572_starting_player_20261006/capture_starting_player_evidence.py
 ```
 
 ## Fix-after: the record's own declaration reaches the engine
 
-`PLAYER_COUNT_2P` (keyed launch), real pinned XMage: PASS.
+`PLAYER_COUNT_2P`, `3P`, `4P` and `5P` (each on its own keyed launch), real
+pinned XMage: PASS.
 
 - `declared_starting_seat = p1`,
   `starting_player_declaration.source = RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER`
@@ -41,9 +44,8 @@ python3 /tmp/opencode/oc572_capture.py   # capture harness, same modules as the 
 - same declaration source and channel, provider acknowledgement `0`,
   `CONSTRUCTION_EQUAL`.
 
-`real_rows.py cardinality xmage` printed PASS on the keyed launch for
-`PLAYER_COUNT_2P..5P`; `pregame xmage` printed PASS for the keyed
-`PILOT_MULLIGAN`.
+The JSON document carries all five runs with their engine-returned fields; the
+`real_rows.py` console output independently printed PASS for the same rows.
 
 ## Fail-before / fail-closed controls
 

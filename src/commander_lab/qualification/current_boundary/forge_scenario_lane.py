@@ -1778,8 +1778,10 @@ def drive_scenario_game(
     Decision policy (mirrors the current-boundary driver, never a default):
 
     * MULLIGAN -> keep (declared policy; engine-offered option)
-    * STARTING_PLAYER -> the requested starting seat when one is declared,
-      otherwise p1
+    * STARTING_PLAYER -> the record's explicit declaration (scripted
+      starting-player step, explicit field, or the requested state's own active
+      player as setup) submitted through the engine-offered frame; a record
+      without one fails closed, never p1 (#572)
     * PRIORITY -> pass (the requested checkpoint is reached by native progression)
     * ORDER_CHOICE -> the provider-published native CostPart order
     * any other decision class -> record the offered domain and stop fail closed

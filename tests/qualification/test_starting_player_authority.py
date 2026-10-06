@@ -318,20 +318,21 @@ def test_xmage_create_without_the_echo_is_an_unverified_channel(
     assert result.terminal_facts["starting_player_channel"] is None
 
 
-def test_a_declaration_outside_the_pod_is_refused() -> None:
+def test_a_declaration_outside_the_pod_is_row_scoped_fail_closed() -> None:
     class _Never:
         def request(self, *a: object, **k: object) -> dict[str, Any]:
             raise AssertionError("no request may be sent for an invalid declaration")
 
-    with pytest.raises(ValueError, match="outside"):
-        game_driver.drive_commander_game(
-            _Never(),  # type: ignore[arg-type]
-            candidate="forge",
-            player_count=2,
-            seed=1,
-            scripted_starting_seat="p4",
-            starting_seat_source="TEST_DECLARATION",
-        )
+    result = game_driver.drive_commander_game(
+        _Never(),  # type: ignore[arg-type]
+        candidate="forge",
+        player_count=2,
+        seed=1,
+        scripted_starting_seat="p4",
+        starting_seat_source="TEST_DECLARATION",
+    )
+    assert result.failure_kind == "FAIL_CLOSED_UNSATISFIED"
+    assert result.failure is not None and "outside the 2-player pod" in result.failure
     with pytest.raises(ValueError, match="declared together"):
         game_driver.drive_commander_game(
             _Never(),  # type: ignore[arg-type]

@@ -1673,11 +1673,13 @@ def gather_generic_lane_process(
             if (
                 kind in {"STARTING_PLAYER", "CHOOSE_STARTING_PLAYER"}
                 and policy == "fixture_scripted_seat"
+                and scripted_starting_seat is not None
             ):
                 # The engine published the choice frame and executed the declared
                 # seat; that is the verified starting-player channel (#572).
                 # True for a replay too: the engine accepted the resolved
-                # fingerprint, which is the same declaration the record made.
+                # fingerprint, which is the same declaration the record made. A
+                # direct replay call with no declaration never reports a channel.
                 starting_player_frame_answered = True
             state = answer.get("state")
             state = state if isinstance(state, dict) else None

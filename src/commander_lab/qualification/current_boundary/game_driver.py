@@ -746,14 +746,7 @@ def drive_commander_game(
         raise ValueError(f"{len(decks)} decks were supplied for {player_count} players")
     if player_count < 2 or player_count > 6:
         raise ValueError(f"player_count must be within 2..6, got {player_count}")
-    declared_starting_seat: str | None = None
-    if scripted_starting_seat is not None:
-        if scripted_starting_seat not in _SEATS[:player_count]:
-            raise ValueError(
-                f"declared starting seat {scripted_starting_seat!r} is outside "
-                f"the {player_count}-player pod"
-            )
-        declared_starting_seat = scripted_starting_seat
+    declared_starting_seat: str | None = scripted_starting_seat
     if (declared_starting_seat is None) != (starting_seat_source is None):
         raise ValueError("the starting seat and its source are declared together")
 
@@ -770,6 +763,17 @@ def drive_commander_game(
     result.terminal_facts["declared_starting_seat"] = declared_starting_seat
 
     try:
+        # A record-derived seat outside this pod is a fixture defect, not an API
+        # misuse: refuse row-scoped so the caller records UNKNOWN instead of the
+        # candidate run aborting.
+        if (
+            declared_starting_seat is not None
+            and declared_starting_seat not in _SEATS[:player_count]
+        ):
+            raise DecisionUnsatisfied(
+                f"the record declares starting seat {declared_starting_seat!r}, which is "
+                f"outside the {player_count}-player pod"
+            )
         # XMage's create channel requires whoever creates the game to declare the
         # starting/choosing seat; it publishes no starting-player decision frame
         # on the compatibility lane. Without a record declaration there is no
