@@ -13,7 +13,8 @@ jobs:
     # A comment's text is its prompt, so an unrestricted trigger would let any
     # GitHub account spend the key and steer the agent.
     if: |
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) && (
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
         contains(github.event.comment.body, ' /oc') ||
         startsWith(github.event.comment.body, '/oc') ||
         contains(github.event.comment.body, ' /opencode') ||
@@ -26,6 +27,22 @@ jobs:
       pull-requests: read
       issues: read
     steps:
+      # The agent reads the target issue/PR text and, on a PR, its head. Only a
+      # trusted author's issue/PR in this repository may be the target: a fork
+      # PR could carry its own agent config, and stranger-authored text could
+      # steer an agent that holds OPENCODE_API_KEY (indirect prompt injection).
+      - name: Refuse fork pull requests as agent targets
+        if: github.event.issue.pull_request || github.event.pull_request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          head_repo="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.repo.full_name')"
+          if [ "$head_repo" != "$GITHUB_REPOSITORY" ]; then
+            echo "Refusing: PR head repository '${head_repo}' is not ${GITHUB_REPOSITORY}." >&2
+            exit 1
+          fi
       - name: Checkout repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
@@ -103,7 +120,8 @@ jobs:
     # A comment's text is its prompt, so an unrestricted trigger would let any
     # GitHub account spend the key and steer the agent.
     if: |
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) && (
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
         contains(github.event.comment.body, ' /bunny') ||
         startsWith(github.event.comment.body, '/bunny')
       )
@@ -114,6 +132,22 @@ jobs:
       pull-requests: read
       issues: read
     steps:
+      # The agent reads the target issue/PR text and, on a PR, its head. Only a
+      # trusted author's issue/PR in this repository may be the target: a fork
+      # PR could carry its own agent config, and stranger-authored text could
+      # steer an agent that holds OPENCODE_API_KEY (indirect prompt injection).
+      - name: Refuse fork pull requests as agent targets
+        if: github.event.issue.pull_request || github.event.pull_request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          head_repo="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.repo.full_name')"
+          if [ "$head_repo" != "$GITHUB_REPOSITORY" ]; then
+            echo "Refusing: PR head repository '${head_repo}' is not ${GITHUB_REPOSITORY}." >&2
+            exit 1
+          fi
       - name: Checkout repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
