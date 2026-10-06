@@ -67,6 +67,12 @@ def run_cardinality(record: dict, player_count: int) -> dict:
         "provider_confirmed_seat": result.terminal_facts.get(
             "starting_player_provider_confirmed_seat"
         ),
+        # P3-3: true only when the bridge reported the CR 103.2 prompt
+        # chooser/chosen identities, which the credit rule requires in
+        # addition to the engine starting_player_id readback (#572).
+        "provider_prompt_answer_recorded": result.terminal_facts.get(
+            "starting_player_prompt_answer_recorded"
+        ),
         "starting_player_frame_answered": result.terminal_facts.get(
             "starting_player_frame_answered"
         ),
@@ -127,6 +133,7 @@ evidence["runs"]["pilot_mulligan_declared"] = {
     "starting_player_channel": mulligan_facts.get("starting_player_channel"),
     "provider_acknowledged_seat": mulligan_facts.get("starting_player_provider_acknowledged_seat"),
     "provider_confirmed_seat": mulligan_facts.get("starting_player_provider_confirmed_seat"),
+    "provider_prompt_answer_recorded": mulligan_facts.get("starting_player_prompt_answer_recorded"),
     "construction_proof_verdict": (mulligan_result.evidence.get("construction_proof") or {}).get(
         "verdict"
     ),
