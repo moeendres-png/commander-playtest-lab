@@ -56,8 +56,8 @@ technical_decisions:
   the check is not required by the main ruleset).'
 - 'docs/claude/state/HANDOFF.md is a documented generated snapshot (regenerate after merges); its staleness
   is accepted by design, not treated as a blocking defect.'
-next_action: NONE — COMPLETE
 - 'Final closure: Owner direct instruction to continue and fully complete superseded the earlier READY_FOR_OWNER_REVIEW procedural stop; the normal merge gate was re-read and PR575 merged as 53493f6c10a9d48b280a5aca352ddfbd81178161.'
+next_action: NONE — COMPLETE
 exact_next_action: NONE — PR575 quota-efficiency workstream is complete; reopen only after a relevant code, policy, harness, or executor-contract change invalidates this checkpoint.
 tests_run:
 - 'cc5fff59: ruff check + ruff format --check on the changed Python PASS'
