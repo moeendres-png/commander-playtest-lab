@@ -2784,7 +2784,7 @@ def _observe_mana_paid(
         "declared_mana_is_the_token": "".join(declared) == argument,
         "engine_cast_cost": str(cast.frame.chosen or "").endswith(cost),
         "one_tap_per_declared_symbol": len(cast.payments) == len(declared),
-        "taps_bound_to_declared_sources": bound,
+        "taps_matched_to_declared_source_names": bound,
         "no_floating_mana": isinstance(pool, dict)
         and bool(pool)
         and all(value == 0 for value in pool.values()),

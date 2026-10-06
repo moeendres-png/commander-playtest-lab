@@ -259,13 +259,17 @@ def select_mana_source(
     declared source not yet used; declining to pay is never chosen.
 
     Several offers for one card name are ambiguous and fail closed, with one
-    exception the caller must opt into: declared *fuel* (lands the causal route
-    itself placed, never record objects) of one card name, offered as identical
-    options (same label, same source, no references) and no more of them than
-    unused declared fuel of that name. Those are indistinguishable instances,
-    so their order is not a choice the record could make (the XMage lane's
-    ``_interchangeable`` rule); the returned source is the next unused one of
-    that name in declaration order.
+    exception the caller must opt into (``interchangeable_fuel``): offers for
+    one card name that are identical options (same label, same source, no
+    references), no more of them than the unused declared sources of that name.
+    Those are indistinguishable instances, so their order is not a choice the
+    record could make (the XMage lane's ``_interchangeable`` rule); the returned
+    source is the next unused one of that name in declaration order. The causal
+    route opts in for its own declared fuel, and for a record's declared payment
+    sources only when every same-name source is identical in every record
+    attribute (``declared_payment_sources``); it then sets
+    ``require_all_sources``, so every declared source must pay and no instance
+    choice survives the payment.
     """
     remaining = [source for source in declared if source.semantic_id not in used]
     for source in remaining:

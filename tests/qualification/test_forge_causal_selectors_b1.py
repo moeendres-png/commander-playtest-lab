@@ -780,15 +780,355 @@ def test_a_frame_asked_of_another_actor_during_a_cast_is_refused(
     assert "i0" not in bridge.submitted()
 
 
-def test_the_requested_checkpoint_must_be_exact(monkeypatch: pytest.MonkeyPatch) -> None:
+def _failures(verdict: fsl.ObligationVerdict) -> tuple[list[str], list[str]]:
+    """The verdict's failed contract checks and its unobserved tokens, by name."""
+    facts = verdict.terminal_facts
+    failed = [name for name, ok in (facts.get("checks") or {}).items() if not ok]
+    unobserved = [
+        token for token, entry in (facts.get("tokens") or {}).items() if not entry["observed"]
+    ]
+    return failed, unobserved
+
+
+def _assert_unknown(
+    verdict: fsl.ObligationVerdict, checks: list[str], tokens: list[str] | None = None
+) -> None:
+    """The row stays UNKNOWN for exactly these named checks and tokens."""
+    tokens = tokens or []
+    assert not verdict.observed and not verdict.credit_eligible_observation
+    assert not verdict.semantic_events
+    assert _failures(verdict) == (checks, tokens), verdict.reason
+    for name in [*checks, *tokens]:
+        assert name in verdict.reason
+
+
+# Each field of the requested checkpoint, tampered alone in the snapshot the
+# route took with the caused stack (``stack_targets_bound`` on the tape's
+# causal target instead: the snapshot shows the stack, the tape the target).
+CHECKPOINT_TAMPERS: dict[str, dict[str, Any]] = {
+    "turn_number": {"turn_number": 2},
+    # Same engine card id (411), so the target binding still holds.
+    "stack_cards": {"stack": ["Shock (411) - Shock (411) deals 2 damage to forge-p2."]},
+    "active_player": {"active_player_id": "p2"},
+    "priority_player": {"priority_player_id": "p2"},
+    "phase": {"phase": "combat"},
+    "step": {"step": "UPKEEP"},
+    "stack_targets_bound": {},
+}
+
+
+@pytest.mark.parametrize("field", sorted(CHECKPOINT_TAMPERS))
+def test_the_requested_checkpoint_must_be_exact(
+    monkeypatch: pytest.MonkeyPatch, field: str
+) -> None:
+    _, run = _run(monkeypatch)
+    verdict = _verdict(monkeypatch, ["Counterspell_cast"], run)
+    assert verdict.observed
+    assert verdict.terminal_facts["requested_checkpoint"]["mismatched"] == []
+    tampered = _with_snapshot(
+        run, "requested_checkpoint", {**_state([BOLT], "p1"), **CHECKPOINT_TAMPERS[field]}
+    )
+    if field == "stack_targets_bound":
+        target = next(f for f in tampered.frames if f.reason == "causal target")
+        target.refs = [{"kind": "player", "player_id": "p3"}]
+    verdict = _verdict(monkeypatch, ["Counterspell_cast"], tampered)
+    _assert_unknown(verdict, ["requested_checkpoint"])
+    checkpoint = verdict.terminal_facts["requested_checkpoint"]
+    assert checkpoint["verdict"] == fsl.CHECKPOINT_MISMATCH
+    assert checkpoint["mismatched"] == [field]
+
+
+# ---------------------------------------------------------------------------
+# Mutation-killing reds: each contract check fails alone, by name
+# ---------------------------------------------------------------------------
+def test_a_caused_stack_unlike_the_record_keeps_the_row_unknown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _, run = _run(monkeypatch)
+    tampered = copy.deepcopy(run)
+    tampered.stack_after_cast = ["Shock (411) - Shock (411) deals 2 damage to forge-p2."]
+    _assert_unknown(_verdict(monkeypatch, ["Counterspell_cast"], tampered), ["stack_caused"])
+    tampered.stack_after_cast = None
+    _assert_unknown(_verdict(monkeypatch, ["Counterspell_cast"], tampered), ["stack_caused"])
+
+
+def test_scripted_casts_missing_from_the_run_keep_the_row_unknown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """No cast document for the scripted frame: no token observer can pass either.
+
+    Every observer needs a scripted cast, so the check is named alongside the
+    token it starves; the verdict outcome alone cannot tell it apart.
+    """
+    _, run = _run(monkeypatch)
+    tampered = copy.deepcopy(run)
+    tampered.scripted_casts = []
+    verdict = _verdict(monkeypatch, ["Counterspell_cast"], tampered)
+    _assert_unknown(verdict, ["scripted_casts_recorded"], ["Counterspell_cast"])
+
+
+def test_a_stack_push_needs_its_spell_on_top(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The stack grew by one, but the new object is under the old top."""
+    _, run = _run(monkeypatch)
+    tampered = _with_snapshot(
+        run, "cast_complete:obj:counterspell", _state([BOLT, COUNTER], "p1", 2)
+    )
+    verdict = _verdict(monkeypatch, ["stack_push:Counterspell"], tampered)
+    _assert_unknown(verdict, [], ["stack_push:Counterspell"])
+
+
+@pytest.mark.parametrize("pool", [{}, None], ids=["empty_pool", "missing_pool"])
+def test_an_unread_mana_pool_is_not_an_empty_one(
+    monkeypatch: pytest.MonkeyPatch, pool: dict[str, int] | None
+) -> None:
+    _, run = _run(monkeypatch)
+    state = _state([COUNTER, BOLT], "p1", tapped_islands=2)
+    if pool is None:
+        del state["players"][0]["mana_pool"]
+    else:
+        state["players"][0]["mana_pool"] = pool
+    tampered = _with_snapshot(run, "cast_complete:obj:counterspell", state)
+    verdict = _verdict(monkeypatch, ["mana_paid:UU"], tampered)
+    _assert_unknown(verdict, [], ["mana_paid:UU"])
+    assert "no_floating_mana" in verdict.reason
+    assert "engine_cast_cost" not in verdict.reason
+
+
+def _relabel_cast(run: fcr.CausalRun, label: str) -> None:
+    """Rewrite the scripted cast's offered and chosen label alike (tape stays offered)."""
+    cast = next(f for f in run.frames if f.reason == "scripted step")
+    cast.offered[cast.offered_option_ids.index(cast.chosen_option_id)] = label
+    cast.chosen = label
+
+
+def test_two_taps_for_one_declared_symbol_are_not_the_payment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Declared {U}, cost {U}, both declared Islands tapped: one tap per symbol fails."""
+    _, run = _run(monkeypatch)
+    tampered = copy.deepcopy(run)
+    _relabel_cast(tampered, "Counterspell [cast_spell] ({U})")
+    tampered.scripted_casts[0]["declared_mana"] = ["U"]
+    verdict = _verdict(monkeypatch, ["mana_paid:U"], tampered)
+    _assert_unknown(verdict, [], ["mana_paid:U"])
+    assert "one_tap_per_declared_symbol" in verdict.reason
+    for check in ("declared_mana_is_the_token", "engine_cast_cost", "no_floating_mana"):
+        assert check not in verdict.reason
+
+
+@pytest.mark.parametrize("token", ["mana_abilities_activated:2", "mana_paid:UU"])
+def test_a_payment_that_is_not_a_tap_is_not_bound(
+    monkeypatch: pytest.MonkeyPatch, token: str
+) -> None:
+    _, run = _run(monkeypatch)
+    tampered = copy.deepcopy(run)
+    payment = next(f for f in tampered.frames if f.reason.startswith("declared payment "))
+    payment.chosen_kind = "activate_ability"
+    verdict = _verdict(monkeypatch, [token], tampered)
+    _assert_unknown(verdict, [], [token])
+    assert "not a tap of a declared payment source" in verdict.reason
+    if token.startswith("mana_paid:"):
+        assert "['taps_matched_to_declared_source_names']" in verdict.reason
+
+
+def test_the_paid_sources_must_be_exactly_the_declared_ones(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Both taps are declared sources, but a third declared source went unpaid."""
+    _, run = _run(monkeypatch)
+    tampered = copy.deepcopy(run)
+    tampered.scripted_casts[0]["declared_payment_sources"].append("obj:island-c")
+    verdict = _verdict(monkeypatch, ["mana_abilities_activated:2"], tampered)
+    _assert_unknown(verdict, [], ["mana_abilities_activated:2"])
+    assert "paid from ['obj:island-a', 'obj:island-b']" in verdict.reason
+
+
+def test_one_declared_source_cannot_pay_twice(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The same source bound to both taps; the declaration lists it twice too."""
+    _, run = _run(monkeypatch)
+    tampered = copy.deepcopy(run)
+    for frame in tampered.frames:
+        if frame.reason.startswith("declared payment "):
+            frame.payment_source = "obj:island-a"
+    tampered.scripted_casts[0]["declared_payment_sources"] = ["obj:island-a", "obj:island-a"]
+    verdict = _verdict(monkeypatch, ["mana_abilities_activated:2"], tampered)
+    _assert_unknown(verdict, [], ["mana_abilities_activated:2"])
+    assert "paid from ['obj:island-a', 'obj:island-a']" in verdict.reason
+
+
+@pytest.mark.parametrize(
+    ("attribute", "value"),
+    [("chosen_kind", "activate_ability"), ("chosen_source", "Opt")],
+)
+def test_a_spell_cast_needs_the_engine_cast_of_that_card(
+    monkeypatch: pytest.MonkeyPatch, attribute: str, value: str
+) -> None:
     _, run = _run(monkeypatch)
     assert _verdict(monkeypatch, ["Counterspell_cast"], run).observed
-    tampered = _with_snapshot(
-        run, "requested_checkpoint", {**_state([BOLT], "p1"), "turn_number": 2}
-    )
+    tampered = copy.deepcopy(run)
+    cast = next(f for f in tampered.frames if f.reason == "scripted step")
+    setattr(cast, attribute, value)
     verdict = _verdict(monkeypatch, ["Counterspell_cast"], tampered)
-    assert not verdict.observed and not verdict.credit_eligible_observation
-    assert "requested_checkpoint" in verdict.reason
+    _assert_unknown(verdict, [], ["Counterspell_cast"])
+
+
+def test_a_spell_cast_needs_its_chosen_option_offered(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The run-wide tape check fails too; the cast observer must still refuse."""
+    _, run = _run(monkeypatch)
+    tampered = copy.deepcopy(run)
+    cast = next(f for f in tampered.frames if f.reason == "scripted step")
+    cast.chosen_option_id = "never-offered"
+    verdict = _verdict(monkeypatch, ["Counterspell_cast"], tampered)
+    _assert_unknown(verdict, ["tape_choices_offered"], ["Counterspell_cast"])
+    casts = fsl._scripted_casts(tampered)
+    model = _model(_record(), monkeypatch)
+    assert not fsl._observe_spell_cast(model, tampered, casts, "Counterspell")[0]
+
+
+def test_the_activated_count_must_equal_the_taps(monkeypatch: pytest.MonkeyPatch) -> None:
+    _, run = _run(monkeypatch)
+    for token in ("mana_abilities_activated:1", "mana_abilities_activated:3"):
+        _assert_unknown(_verdict(monkeypatch, [token], run), [], [token])
+    assert _verdict(monkeypatch, ["mana_abilities_activated:2"], run).observed
+
+
+@pytest.mark.parametrize(("attribute", "value"), [("kind", "CHOICE"), ("actor", "p2")])
+def test_a_payment_frame_must_be_the_casters_mana_payment(
+    monkeypatch: pytest.MonkeyPatch, attribute: str, value: str
+) -> None:
+    _, run = _run(monkeypatch)
+    assert _verdict(monkeypatch, ["mana_payment_frame:P1"], run).observed
+    tampered = copy.deepcopy(run)
+    payment = next(f for f in tampered.frames if f.reason.startswith("declared payment "))
+    setattr(payment, attribute, value)
+    verdict = _verdict(monkeypatch, ["mana_payment_frame:P1"], tampered)
+    _assert_unknown(verdict, [], ["mana_payment_frame:P1"])
+
+
+@pytest.mark.parametrize("expected", [{"required_events": []}, {}, None])
+def test_a_scripted_route_needs_declared_obligation_tokens(
+    monkeypatch: pytest.MonkeyPatch, expected: dict[str, Any] | None
+) -> None:
+    monkeypatch.setattr(fcr, "declared_causal_entry", lambda _fixture_id: ENTRY)
+    assert fsl.lane_causal_plan(_record()) is not None
+    record = _record()
+    record["expected_events"] = expected
+    assert fsl.lane_causal_plan(record) is None
+    model = fsl.model_requested_state(record)
+    assert model.causal_plan is None and fsl.causal_terminal(model) is None
+
+
+# ---------------------------------------------------------------------------
+# Route refusals before the engine is answered
+# ---------------------------------------------------------------------------
+def test_a_caused_stack_out_of_record_order_is_refused(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Each cast completes with its spell on top, yet the object under it is not the Bolt."""
+    record = _record()
+    record["semantic_objects"].append(_object("obj:shock", "Shock", "P2", "stack"))
+    record["stack_state"].append(
+        {
+            "cast_complete": True,
+            "controller": "P2",
+            "costs_paid": True,
+            "modes": [],
+            "source_semantic_id": "obj:shock",
+            "targets": ["P3"],
+        }
+    )
+    record["decision_script"] = []
+    record["expected_events"] = {"required_events": []}
+    entry = {
+        **ENTRY,
+        "fuel": [
+            {"semantic_id": "obj:fuel-a", "card_identity": "Mountain", "owner": "P2"},
+            {"semantic_id": "obj:fuel-b", "card_identity": "Mountain", "owner": "P2"},
+        ],
+    }
+    targets = [
+        _action(
+            f"t-{seat}",
+            "target",
+            f"Target [player {seat};]",
+            refs=[{"kind": "player", "player_id": seat}],
+        )
+        for seat in ("p2", "p3")
+    ]
+    tap = _action("tap", "tap_mana_source", "Tap Mountain for mana", "Mountain")
+    shock = "Shock (412) - Shock (412) deals 2 damage to forge-p3."
+    frames = [
+        _priority("p1"),
+        _priority(
+            "p2",
+            _action("bolt", "cast_spell", "Lightning Bolt [cast_spell] ({R})", "Lightning Bolt"),
+        ),
+        _frame("TARGET_SELECTION", "p2", *targets),
+        _frame("MANA_PAYMENT", "p2", tap),
+        _priority("p2", _action("shock", "cast_spell", "Shock [cast_spell] ({R})", "Shock")),
+        _frame("TARGET_SELECTION", "p2", *targets),
+        _frame("MANA_PAYMENT", "p2", tap),
+        _priority("p2"),
+        _priority("p3"),
+    ]
+    opt = "Opt (411) - Scry 1. Draw a card."
+    states = {0: _state([], "p1"), 4: _state([BOLT], "p2"), 7: _state([shock, opt], "p2")}
+    bridge = FakeBridge(frames, states)
+    monkeypatch.setattr(fcr, "poll_decision", bridge.poll)
+    monkeypatch.setattr(fcr, "decision_identity_params", lambda _c, _f: {})
+    run = fcr.run_causal_route(
+        bridge,  # type: ignore[arg-type]
+        "g",
+        record,
+        _plan(record, entry),
+        seat_count=4,
+        observe=bridge.observe,
+        answer_frame_kinds=frozenset(),
+        checkpoint_priority=None,
+        max_frames=len(frames) - 1,
+    )
+    assert run.failure and "is not the record's stack" in run.failure
+    assert "['Shock', 'Lightning Bolt'] (top first)" in run.failure
+    assert bridge.submitted() == ["bolt", "t-p2", "tap", "shock", "t-p3", "tap"]
+
+
+def test_two_payment_steps_for_one_cast_are_refused(monkeypatch: pytest.MonkeyPatch) -> None:
+    record = _record()
+    record["decision_script"].append(_step("mana_payment", "mana_payment", {"mana": ["U"]}))
+    bridge, run = _run(monkeypatch, record=record)
+    assert run.failure and "2 payment steps for obj:counterspell" in run.failure
+    assert "cs" not in bridge.submitted()
+    assert not run.scripted_casts
+
+
+@pytest.mark.parametrize(
+    ("attribute", "value", "shown"),
+    [
+        ("face_down", True, "face_down=True"),
+        ("phased_out", True, "phased_out=True"),
+        ("tapped", None, "tapped=None"),
+        ("tapped", "absent", "tapped=None"),
+    ],
+    ids=["face_down", "phased_out", "tapped_null", "tapped_unstated"],
+)
+def test_a_declared_source_the_record_shows_unable_to_pay_is_refused(
+    monkeypatch: pytest.MonkeyPatch, attribute: str, value: Any, shown: str
+) -> None:
+    sources, interchangeable = fcr.declared_payment_sources(_record(), "obj:counterspell", "p1")
+    assert [s.semantic_id for s in sources] == ["obj:island-a", "obj:island-b"]
+    assert interchangeable
+    record = _record()
+    island = next(o for o in record["semantic_objects"] if o["semantic_id"] == "obj:island-a")
+    if value == "absent":
+        del island[attribute]
+    else:
+        island[attribute] = value
+    with pytest.raises(fcr.CausalRouteError, match="'obj:island-a' cannot pay per the record"):
+        fcr.declared_payment_sources(record, "obj:counterspell", "p1")
+    with pytest.raises(fcr.CausalRouteError) as refused:
+        fcr.declared_payment_sources(record, "obj:counterspell", "p1")
+    assert shown in str(refused.value)
+    bridge, run = _run(monkeypatch, record=record)
+    assert run.failure and "'obj:island-a' cannot pay per the record" in run.failure
+    assert "cs" not in bridge.submitted()
 
 
 def test_the_caused_stack_must_be_cast_by_its_declared_controller(
