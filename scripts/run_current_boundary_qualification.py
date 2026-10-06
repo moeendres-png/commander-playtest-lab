@@ -113,6 +113,15 @@ EVIDENCE_EPOCH_RELATIVE = epoch_mod.relative_epoch_root(REPO_ROOT)
 # only what is persisted here, so an unexecuted suite can never be credited.
 RECEIPT_DIR = OUT_DIR / "receipts"
 
+# Synthetic lane probes (AF01 decision-time invariants, AF05 hidden-information
+# scoping) have no fixture record. Their lane protocol declares the starting
+# seat explicitly and this declaration is persisted with the probe; it is never
+# a default, never inferred, and these games earn no starting-player credit.
+# A run without an explicit declaration fails closed on the engine's frame
+# (#572).
+LANE_PROBE_STARTING_SEAT = "p1"
+LANE_PROBE_STARTING_SEAT_SOURCE = "LANE_PROBE_DECLARATION"
+
 
 class RunnerGitError(SystemExit):
     """A Git fact required for evidence could not be established (fail closed)."""
@@ -1291,6 +1300,8 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             candidate=candidate,
             player_count=2,
             seed=int(identity.get("af01_probe_seed", 20260927)),
+            scripted_starting_seat=LANE_PROBE_STARTING_SEAT,
+            starting_seat_source=LANE_PROBE_STARTING_SEAT_SOURCE,
             drive_to="priority",
         )
         af01_game_id = af01_live.game_id
@@ -1300,6 +1311,10 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             "steps_completed": list(af01_live.steps_completed),
             "decisions_observed": len(af01_live.decision_tape),
             "failure": af01_live.failure,
+            "starting_player_declaration": {
+                "seat": LANE_PROBE_STARTING_SEAT,
+                "source": LANE_PROBE_STARTING_SEAT_SOURCE,
+            },
         }
         if af01_live.failure is not None or not af01_live.steps_completed:
             raise SystemExit(
@@ -1441,6 +1456,8 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             candidate=candidate,
             player_count=4,
             seed=424242,
+            scripted_starting_seat=LANE_PROBE_STARTING_SEAT,
+            starting_seat_source=LANE_PROBE_STARTING_SEAT_SOURCE,
             drive_to="priority",
             max_steps=60,
         )

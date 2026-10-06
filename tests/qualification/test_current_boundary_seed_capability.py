@@ -33,7 +33,9 @@ class _Proc:
 
 
 def test_seed_is_sent_when_the_provider_declares_support() -> None:
-    request = _create_request("g1", ["h1", "h2"], 424242, True)["request"]
+    request = _create_request(
+        "g1", ["h1", "h2"], 424242, True, candidate="xmage", starting_seat=None
+    )["request"]
     assert request["game_id"] == "g1"
     assert request["seed"] == 424242
     assert request["rules_seed"] == 424242
@@ -42,7 +44,9 @@ def test_seed_is_sent_when_the_provider_declares_support() -> None:
 
 def test_seed_is_omitted_when_the_provider_declares_no_support() -> None:
     """The exact B4-D failure, prevented."""
-    request = _create_request("g1", ["h1", "h2"], 424242, False)["request"]
+    request = _create_request(
+        "g1", ["h1", "h2"], 424242, False, candidate="xmage", starting_seat=None
+    )["request"]
     assert "seed" not in request
     assert "rules_seed" not in request
     assert "options" not in request
@@ -54,9 +58,27 @@ def test_seed_is_omitted_when_the_provider_declares_no_support() -> None:
 
 def test_create_request_is_not_double_nested() -> None:
     """A regression: wrapping twice dropped request.game_id entirely."""
-    payload = _create_request("g7", ["h"], 1, False)
+    payload = _create_request("g7", ["h"], 1, False, candidate="xmage", starting_seat=None)
     assert list(payload) == ["request"]
     assert "request" not in payload["request"]
+
+
+def test_xmage_create_declares_only_an_explicit_starting_seat() -> None:
+    """#572: the create request never carries a seat the record did not declare."""
+    without = _create_request("g1", ["h1", "h2"], 7, False, candidate="xmage", starting_seat=None)[
+        "request"
+    ]
+    assert "starting_player_seat" not in without
+    with_seat = _create_request(
+        "g1", ["h1", "h2"], 7, False, candidate="xmage", starting_seat="p2"
+    )["request"]
+    assert with_seat["starting_player_seat"] == 1
+    # Forge publishes the choice as its own frame; its create request never
+    # carries the XMage-only seat parameter.
+    forge = _create_request("g1", ["h1", "h2"], 7, True, candidate="forge", starting_seat="p1")[
+        "request"
+    ]
+    assert "starting_player_seat" not in forge
 
 
 def test_declared_support_is_read_from_capabilities() -> None:

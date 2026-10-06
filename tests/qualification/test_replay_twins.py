@@ -727,6 +727,7 @@ def _gather(
     tape: list[dict[str, Any]] | None,
     max_decisions: int = 20,
     concede_after_decisions: int | None = None,
+    scripted_starting_seat: str | None = "p1",
 ) -> rt.TwinRun:
     return rt.gather_generic_lane_process(
         bridge,
@@ -742,6 +743,10 @@ def _gather(
         lab_source=LAB_SOURCE,
         decision_tape=tape,
         max_decisions=max_decisions,
+        scripted_starting_seat=scripted_starting_seat,
+        starting_seat_source=(
+            "TEST_DECLARED_STARTING_SEAT" if scripted_starting_seat is not None else None
+        ),
         concede_after_decisions=concede_after_decisions,
     )
 
@@ -757,6 +762,42 @@ def test_generic_lane_record_and_replay_twin_passes(monkeypatch: pytest.MonkeyPa
     assert len(record.decisions) == 7
     assert record.terminal["complete"] is True
     assert replay.decisions == record.decisions
+
+
+def test_generic_lane_refuses_a_starting_player_frame_without_a_declaration(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """#572: no twin run may answer the engine's starting-player frame by default."""
+    _fake_identity(monkeypatch)
+    run = _gather(FakeForgeBridge(), role="RECORD", tape=None, scripted_starting_seat=None)
+    assert run.failure is not None
+    assert "STARTING_PLAYER" in run.failure
+    assert "declares no starting seat" in run.failure
+
+
+def test_generic_lane_refuses_a_declaration_the_engine_does_not_offer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A declared seat that is not one engine-offered option is an ambiguity, not a pass."""
+    _fake_identity(monkeypatch)
+    run = _gather(FakeForgeBridge(), role="RECORD", tape=None, scripted_starting_seat="p4")
+    assert run.failure is not None
+    assert "exactly one required" in run.failure
+
+
+def test_generic_lane_records_the_declared_starting_seat_and_channel(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _fake_identity(monkeypatch)
+    run = _gather(FakeForgeBridge(), role="RECORD", tape=None, scripted_starting_seat="p1")
+    assert run.failure is None, run.failure
+    identity = run.fixture_identity
+    assert identity["starting_seat_policy"] == "declared:p1:TEST_DECLARED_STARTING_SEAT"
+    assert identity["starting_player_declaration"] == {
+        "seat": "p1",
+        "source": "TEST_DECLARED_STARTING_SEAT",
+    }
+    assert identity["starting_player_channel"] == ("ENGINE_FRAME_FROM_RECORD_DECLARATION")
 
 
 def test_generic_lane_replay_fails_closed_on_missing_fingerprints(

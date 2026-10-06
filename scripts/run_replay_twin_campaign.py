@@ -65,6 +65,16 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--forge-max-decisions", type=int, default=6000)
     parser.add_argument(
+        "--forge-starting-seat",
+        default=None,
+        choices=("p1", "p2", "p3", "p4", "p5", "p6"),
+        help=(
+            "the explicit starting-seat declaration for the Forge twin lane; the "
+            "twin has no fixture record, so there is no default and the lane fails "
+            "closed without one (#572)"
+        ),
+    )
+    parser.add_argument(
         "--forge-concede-after",
         type=int,
         default=120,
@@ -241,6 +251,20 @@ def run_forge(args: argparse.Namespace, work_dir: Path) -> dict[str, Any]:
     document["forge_workspace"] = str(forge_workspace)
     document["forge_deck_profile"] = args.forge_deck_profile
     document["forge_concede_after"] = args.forge_concede_after
+    if args.forge_starting_seat is None:
+        # The twin lane has no fixture record; without an explicit declaration
+        # the engine's starting-player frame would have to be answered by a
+        # Lab default, which is forbidden (#572).
+        document["verdict"] = "UNKNOWN"
+        document["missing_capability"] = {
+            "channel": "starting_seat_declaration",
+            "detail": (
+                "no --forge-starting-seat was named; the twin lane has no fixture "
+                "record and the Lab never chooses the starting player"
+            ),
+            "evidence_channel": "--forge-starting-seat",
+        }
+        return document
     try:
         deck_payloads = _forge_deck_payloads(args.forge_deck_profile, args.player_count)
         record, replay, comparison = twins.run_generic_lane_twin(
@@ -249,6 +273,8 @@ def run_forge(args: argparse.Namespace, work_dir: Path) -> dict[str, Any]:
             seed=args.seed,
             forge_workspace=forge_workspace,
             max_decisions=args.forge_max_decisions,
+            scripted_starting_seat=args.forge_starting_seat,
+            starting_seat_source="AF09_TWIN_CAMPAIGN_DECLARATION",
             deck_payloads=deck_payloads,
             concede_after_decisions=(
                 args.forge_concede_after if args.forge_concede_after > 0 else None

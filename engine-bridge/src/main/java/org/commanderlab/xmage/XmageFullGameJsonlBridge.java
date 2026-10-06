@@ -177,7 +177,19 @@ final class XmageFullGameJsonlBridge {
                 );
             }
             long seed = requiredLong(payload, "seed");
-            int startingPlayerSeat = optionalInt(payload, "starting_player_seat", 0);
+            // The bridge never chooses the starting/choosing player (#572). The
+            // seat is an explicit caller declaration; absent or null refuses.
+            if (!payload.has("starting_player_seat")
+                    || payload.get("starting_player_seat").isJsonNull()) {
+                return error(
+                        requestId,
+                        "missing_starting_player_seat",
+                        "CREATE_FULL_GAME requires an explicit starting_player_seat; "
+                                + "the bridge never defaults to seat 0",
+                        false
+                );
+            }
+            int startingPlayerSeat = requiredInt(payload, "starting_player_seat");
             int startingLife = optionalInt(payload, "starting_life", 40);
 
             session = new XmageFullGameSession(
@@ -609,6 +621,15 @@ final class XmageFullGameJsonlBridge {
         if (!object.has(property) || object.get(property).isJsonNull()) {
             return defaultValue;
         }
+        long value = requiredLong(object, property);
+        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(property + " outside integer range");
+        }
+        return (int) value;
+    }
+
+    /** A required integer property; absence is a refusal, never a default. */
+    private static int requiredInt(JsonObject object, String property) {
         long value = requiredLong(object, property);
         if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
             throw new IllegalArgumentException(property + " outside integer range");

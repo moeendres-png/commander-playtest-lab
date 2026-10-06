@@ -34,6 +34,9 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 from commander_lab.qualification.current_boundary import bridge_launcher  # noqa: E402
 from commander_lab.qualification.current_boundary import midgame_lane as ml  # noqa: E402
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
+from commander_lab.qualification.current_boundary.starting_player import (  # noqa: E402
+    requested_active_seat_index as seat_index_of_active_player,
+)
 
 MATERIALIZATION = (
     REPO_ROOT / "qualification" / "ws47" / "SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json"
@@ -765,6 +768,12 @@ def probe_row(workspace: Path, fixture_id: str) -> dict[str, Any]:
         "seed": SEED,
         "requested_starting_state": record,
     }
+    # The record's own active player is the create-time choosing seat; without
+    # one the bridge refuses the creation instead of defaulting to seat 0
+    # (#572).
+    starting_seat_index = seat_index_of_active_player(record)
+    if starting_seat_index is not None:
+        request["starting_player_seat"] = starting_seat_index
     started = time.time()
     with open_client(workspace) as client:
         client.request("get_provider_version", None)
@@ -1671,6 +1680,12 @@ def probe_causal_row(
             "entry_mode": entry_mode,
             "requested_starting_state": record,
         }
+        # The record's own active player is the create-time choosing seat; a
+        # record without one omits the field and the bridge refuses creation
+        # instead of defaulting to seat 0 (#572).
+        starting_seat_index = seat_index_of_active_player(record)
+        if starting_seat_index is not None:
+            request["starting_player_seat"] = starting_seat_index
         if entry_mode in ("causal_stack", CAUSAL_STACK_ELIMINATION):
             request["fuel"] = list(spec.get("fuel") or [])
         if entry_mode in ("causal_elimination", CAUSAL_STACK_ELIMINATION):

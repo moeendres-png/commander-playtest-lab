@@ -1,0 +1,187 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/work/worktrees/oc572-starting-player-20261006
+branch: opencode/oc572-starting-player-20261006
+audit_base_sha: 5849d187a0adf0ce323991ea0bf0c8a7fd931a88
+audit_base_tree: e839522778c050567cbf5f4f542c96881ad7dc61
+state_written_against_head: 5849d187a0adf0ce323991ea0bf0c8a7fd931a88
+validated_head: null
+objective: >-
+  #572 / #441 / #255 starting-player authority. Eliminate every production-reachable
+  or qualification-credit path where the Lab or its provider bridge chooses the
+  starting player by an implicit p1/seat-0 default; then close the impacted XMage
+  AF08 starting-player obligations as far as current authoritative contracts permit.
+  Owner binding decision: the starting seat must be explicitly declared by the
+  authoritative record/contract and submitted only through the engine-authored legal
+  decision frame, or the path must fail closed. No p1, seat 0, first element, random,
+  GUI, engine-AI, implicit or provider-side default. A construction proof may credit
+  active_player / priority_player / first_priority_seat only when the starting-player
+  channel for that execution has been explicitly verified.
+in_scope:
+- src/commander_lab/qualification/current_boundary/game_driver.py
+- src/commander_lab/qualification/current_boundary/generic_construction.py
+- src/commander_lab/qualification/current_boundary/full107.py
+- src/commander_lab/qualification/current_boundary/replay_twins.py
+- src/commander_lab/qualification/current_boundary/forge_scenario_lane.py
+- src/commander_lab/qualification/current_boundary/midgame_rows.py
+- src/commander_lab/qualification/current_boundary/actual_card_campaign.py
+- src/commander_lab/qualification/current_boundary/knowledge_projection.py
+- scripts/run_current_boundary_qualification.py
+- scripts/run_midgame_capability_probe.py
+- engine-bridge/src/main/java/org/commanderlab/xmage/JsonlBridge.java
+- engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java
+- engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameJsonlBridge.java
+- engine-bridge/src/test/java/org/commanderlab/xmage (tests that omit starting_player_seat)
+- tests/qualification and tests/unit for the touched modules
+- .foundry/oc572-starting-player-20261006.yaml
+out_of_scope:
+- Production Provider selection; Architecture Freeze; Production Repository creation.
+- New START-2/MULL rules policy not already decided in #441/#572/current authority.
+- Forge reference repository mutation (read-only pinned input).
+- XMage candidate repository mutation (read-only pinned input).
+- Structural/optimization modeled simulators (explicit MODELED, not Rules Core).
+- Denominator changes, expectation weakening, test weakening.
+ownership: oc572-starting-player-20261006 (sole active writer; Claude holds no baton; no open PRs on origin/main)
+dependencies:
+- owner instruction 2026-10-06 authorizing OpenCode takeover of the Claude-held starting-player surface
+- Issue #572 binding technical decision (starting player must never be a Lab default)
+- Issue #441 Coordinator ruling 2026-10-06 (START-2 / MULL-2 / MULL-4 errata, contract 1.0.22)
+- Issue #255 final pre-Freeze critical path
+- engine-bridge XMage compatibility/full-game/mid-game JSONL lanes
+hard_gates:
+- Rules Core alone owns legality and state transitions; no pilot/harness fallback legality.
+- No first/default/random/GUI/engine-AI/silent-skip choice anywhere.
+- Hidden information stays principal-scoped; no secret/token exposure.
+- Historical PASS never transfers across changed fixture/pin/contract/harness identity.
+- UNKNOWN != PASS, PARTIAL != FULL, NOT_RUN != PASS, CODE_DERIVED != RUNTIME_VERIFIED.
+- No history rewrite, force push, direct main mutation, protection bypass.
+forbidden_shortcuts:
+- first_option
+- random_option
+- default_yes_no
+- internal_ai
+- gui_default
+- silent_skip
+- parent_class_fallback
+- requested_option_filtering_that_reconstructs_legality
+- implicit_p1_or_seat_0_starting_player
+current_failure: >-
+  #572 item 1. Multiple current paths choose the starting player by default:
+  game_driver.drive_commander_game(scripted_starting_seat="p1");
+  replay_twins.gather_generic_lane_process(scripted_starting_seat="p1") with a
+  persisted fixture_scripted_seat:p1 policy; forge_scenario_lane.drive_scenario_game
+  (temporal_state.active_player or "p1"); JsonlBridge / XmageFullGameJsonlBridge /
+  XmageMidgameJsonlBridge optionalInt(starting_player_seat, 0); the generic
+  construction proof compares temporal_state.active_player/priority_player against
+  first_priority_seat, which can be EQUAL even when the starter came from the default.
+  The latest sealed XMage epoch 39744c19198a-5f6a5fd34031 shows
+  PLAYER_COUNT_2P/3P/4P/5P and PILOT_MULLIGAN construction proofs with
+  temporal_state.active_player EQUAL P1/P1 where the starter was in fact the driver's
+  default p1 (Forge) or the bridge's seat-0 default (XMage). AF08 XMage is UNKNOWN,
+  blocked by WS05-CMD-MULL-2, WS05-CMD-MULL-4 and WS05-CMD-START-2.
+failure_class: HARNESS_DEFECT
+current_hypothesis: >-
+  The defect is proven in source and in the sealed 39744c19198a epoch evidence, not
+  suspected. Repair: remove every default; derive the declaration from the
+  authoritative record; submit it through the engine-authored frame (or the
+  provider's declared create channel with engine acknowledgement); mark construction
+  temporal checks UNSUPPORTED unless the starter channel was verified; add
+  mutation-killing negative controls; requalify only impacted rows.
+evidence:
+- qualification/current-boundary-epochs/39744c19198a-5f6a5fd34031/FULL107_XMAGE_RESULTS.json
+- qualification/current-boundary-epochs/39744c19198a-5f6a5fd34031/PLAYER_CARDINALITY_XMAGE.json
+- qualification/current-boundary-epochs/39744c19198a-5f6a5fd34031/AF00_AF11_XMAGE.json
+- qualification/final-current-boundary-20260927/PLAYER_CARDINALITY_FORGE.json
+- docs/forge_af06_af08_residuals_20261003/README.md
+- .foundry/oc572-starting-player-20261006.yaml
+artifacts:
+- census: see technical_decisions entries SP-CENSUS-*
+technical_decisions:
+- 'SP-CENSUS-1 (generic lane): game_driver._create_request never sends
+  starting_player_seat; XMage JsonlBridge defaults 0. drive_commander_game defaults
+  scripted_starting_seat="p1" and answers every STARTING_PLAYER frame with it.
+  Callers: full107.run_cardinality (PLAYER_COUNT_*), full107.start2_row
+  (WS05-CMD-START-2), full107.scripted_pregame_row (PILOT_MULLIGAN, WS05-CMD-MULL-2/4),
+  runner af01_live and hidden_game probes.'
+- 'SP-CENSUS-2 (Forge scenario lane): drive_scenario_game uses
+  model.temporal_state.get("active_player") or "p1" and records basis
+  LAB_SELECTED_ENGINE_OFFERED; evaluate_first_turn_draw requires
+  FIXTURE_DECISION_SCRIPT so unscripted starter obligations are refused up front.'
+- 'SP-CENSUS-3 (AF09 twins): replay_twins.gather_generic_lane_process defaults
+  scripted_starting_seat="p1" and persists starting_seat_policy
+  "fixture_scripted_seat:p1".'
+- 'SP-CENSUS-4 (provider bridges): JsonlBridge:217, XmageFullGameJsonlBridge:180 and
+  XmageMidgameJsonlBridge:324 all optionalInt(starting_player_seat, 0); the B4
+  compatibility XmageBridgePlayer answers the engine CR 103.2 init choose with the
+  declared chooser itself.'
+- 'SP-CENSUS-5 (midgame/full-game call sites): create_midgame_game requests omit
+  starting_player_seat (midgame_rows, actual_card_campaign, knowledge_projection,
+  run_midgame_capability_probe); create_full_game callers (semantic_replay
+  recorder/consumer) send seed %% N explicitly.'
+- 'SP-CENSUS-6 (modeled lanes, out of Rules scope): StructuralMatchConfig callers
+  (mulligan/lab.py, whole_deck/campaign.py, optimizer_v2_diagnostics.py), in-process
+  tactical simulator (engine/rules/tactical.py) and RulesGameRequest default 0.
+  Classified MODELED; no engine STARTING_PLAYER decision frame is reached there.'
+- 'SP-CENSUS-7 (construction proof): generic_construction.compare always compares
+  temporal_state.active_player/priority_player against first_priority_seat, with no
+  channel-verification gate (issue #572).'
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: max
+execution_profile: deepseek
+executor_model: opencode-go/deepseek-v4.1-flash
+native_variant: max
+authority_gates:
+- 'PRODUCTION_PROVIDER = NOT SELECTED (Owner-only; unchanged)'
+- 'ARCHITECTURE_FREEZE = NOT CLAIMED (Owner-only; unchanged)'
+- 'Contract 1.0.22 START-2/MULL-2/MULL-4 erratum policy already decided in #441
+  comment 6007651998; implementation of the decided erratum is permitted, new policy
+  is not.'
+status: ACTIVE
+validated_gates:
+- 'python targeted + full qualification suite GREEN on the milestone-1 tree (before commit)'
+- 'ruff check + ruff format --check GREEN'
+- 'mypy GREEN on the 10 changed modules plus starting_player.py'
+failed_gates: []
+invalidated_gates:
+- 'every historical construction proof that compared temporal_state.active_player/priority_player without a channel; prerequisite for requalification of the 5 impacted rows per engine column'
+files_modified:
+- src/commander_lab/qualification/current_boundary/starting_player.py (new)
+- src/commander_lab/qualification/current_boundary/game_driver.py
+- src/commander_lab/qualification/current_boundary/generic_construction.py
+- src/commander_lab/qualification/current_boundary/full107.py
+- src/commander_lab/qualification/current_boundary/replay_twins.py
+- src/commander_lab/qualification/current_boundary/forge_scenario_lane.py
+- src/commander_lab/qualification/current_boundary/midgame_rows.py
+- src/commander_lab/qualification/current_boundary/midgame_replay_twin.py
+- src/commander_lab/qualification/current_boundary/actual_card_campaign.py
+- src/commander_lab/qualification/current_boundary/knowledge_projection.py
+- scripts/run_current_boundary_qualification.py
+- scripts/run_midgame_capability_probe.py
+- scripts/run_replay_twin_campaign.py
+- engine-bridge/src/main/java/org/commanderlab/xmage/JsonlBridge.java
+- engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java
+- engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameJsonlBridge.java
+- tests/qualification/test_starting_player_authority.py (new)
+- tests/qualification/test_generic_construction_proof.py
+- tests/qualification/test_replay_twins.py
+- tests/qualification/test_forge_scenario_lane.py
+- tests/qualification/test_current_boundary_seed_capability.py
+- tests/qualification/test_current_boundary_start2_observed_state.py
+tests_run:
+- 'python3 -m pytest -q tests/qualification (1777 passed at milestone 1 before the final added controls)'
+- 'python3 -m pytest -q tests/qualification/test_starting_player_authority.py (13 passed)'
+remaining_scope:
+- 'Milestone 1: starting-player authority repair (defaults removed, channel verified,
+  negative controls, targeted validation, local commit).'
+- 'Milestone 2: requalify impacted rows only (X1: cardinality + PILOT_MULLIGAN
+  construction temporal checks; X2: START-2 evidence).'
+- 'Milestone 3: decide/implement the already-adjudicated 1.0.22 START-2/MULL-2/MULL-4
+  erratum if it is required to close XMage AF08 START-2 and does not need new policy.'
+- 'Milestone 4: fresh-context review at exact head, PR, exact-head CI, merge through
+  the protected path if every gate holds.'
+exact_next_action: >-
+  Implement milestone 1: remove the implicit p1/seat-0 defaults in game_driver,
+  require an explicit record-derived starting-seat declaration submitted through the
+  engine frame or the provider create channel with acknowledgement, gate the generic
+  construction temporal checks on the verified channel, add mutation-killing negative
+  controls, then run targeted tests.

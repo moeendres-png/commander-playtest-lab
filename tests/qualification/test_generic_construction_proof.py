@@ -108,6 +108,9 @@ def _proof(record, state, **overrides):
         "first_priority_seat": "p1",
         "capture": generic_construction.CAPTURE_POINT,
         "orchestration_key": KEY,
+        # The run this state represents reported a verified starting-player
+        # channel; the dedicated tests below remove or forge it.
+        "starting_player_channel": game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_ACK,
     }
     kwargs.update(overrides)
     return generic_construction.compare(record, state, **kwargs)
@@ -252,6 +255,44 @@ def test_run_facts_are_checked_too(record, overrides, field) -> None:
     proof = _proof(record, _state(), **overrides)
     assert proof.verdict == generic_construction.MISMATCH
     assert field in {check.field for check in proof.failures()}
+
+
+def test_temporal_active_player_needs_a_verified_starter_channel(record) -> None:
+    """#572: without a verified starter channel the temporal facts are UNSUPPORTED.
+
+    The same state and run facts that establish equality above must not
+    establish it when the run cannot show where its starting seat came from; a
+    recorded position the Lab may itself have chosen is not a proof.
+    """
+    proof = _proof(record, _state(), starting_player_channel=None)
+    assert proof.verdict == generic_construction.UNSUPPORTED
+    assert _verdict_of(proof, "temporal_state.active_player") == "UNSUPPORTED"
+    assert _verdict_of(proof, "temporal_state.priority_player") == "UNSUPPORTED"
+    assert proof.starting_player_channel is None
+    assert proof.established is False
+    assert full107.construction_credit_gap(record, proof) is not None
+
+
+@pytest.mark.parametrize(
+    "channel",
+    [
+        "fixture_scripted_seat:p1",
+        "ENGINE_DEFAULT",
+        "",
+        "PROVIDER_CREATE_DECLARATION",
+    ],
+)
+def test_a_foreign_or_misspelled_starter_channel_never_verifies(record, channel) -> None:
+    proof = _proof(record, _state(), starting_player_channel=channel)
+    assert _verdict_of(proof, "temporal_state.active_player") == "UNSUPPORTED"
+    assert proof.established is False
+
+
+def test_the_proof_document_records_the_starting_player_channel(record) -> None:
+    document = _proof(record, _state()).to_document()
+    assert document["starting_player_channel"] == game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_ACK
+    without = _proof(record, _state(), starting_player_channel=None).to_document()
+    assert without["starting_player_channel"] is None
 
 
 @pytest.mark.parametrize("key", [None, b"", bytes(15), "00" * 32])
@@ -444,6 +485,15 @@ def _run(state: dict | None, *, supported: bool = True) -> CommandedGameResult:
         result.constructed_state = state
         result.terminal_facts["constructed_state_capture"] = generic_construction.CAPTURE_POINT
     result.terminal_facts["first_priority_seat"] = "p1"
+    # A real current-boundary run reports the verified starting-player channel
+    # it used; without it the temporal facts stay UNSUPPORTED (#572).
+    result.terminal_facts["starting_player_channel"] = (
+        game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_ACK
+    )
+    result.terminal_facts["starting_player_declaration"] = {
+        "seat": "p1",
+        "source": "RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER",
+    }
     result.seed_binding = classify_seed_binding(
         requested_seed=424242, acknowledged_seed=424242, source="test"
     )

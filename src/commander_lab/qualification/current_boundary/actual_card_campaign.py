@@ -75,6 +75,7 @@ from . import midgame_lane as ml
 from . import midgame_rows as midgame_rows_mod
 from . import receipts as receipt_mod
 from .source_lock import repo_root
+from .starting_player import requested_active_seat_index
 
 EXECUTION_MODE = "AF07_ACTUAL_CARD_CURRENT_BOUNDARY"
 TEST_IDENTITY_PREFIX = "af07-actual-card-campaign#"
@@ -2158,6 +2159,13 @@ def measure_row(
         "seed": seed,
         "requested_starting_state": record,
     }
+    # The record's own active player is the create-time choosing seat, answered
+    # on the engine's own CR 103.2 frame by the arrival pilot from the same
+    # record field. A record without one omits the field and the bridge refuses
+    # the creation; the Lab never supplies seat 0 (#572).
+    starting_seat_index = requested_active_seat_index(record)
+    if starting_seat_index is not None:
+        request["starting_player_seat"] = starting_seat_index
     # A row whose record places spells on the stack enters through the
     # production probe's declared causal-stack route (its fuel is declared there
     # and published); the engine casts the frames and verifies the position.

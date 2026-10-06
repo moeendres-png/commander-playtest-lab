@@ -32,6 +32,13 @@ from the run instead, stated in its own check: ``temporal_state.active_player`` 
 ``priority_player``, the seat that holds the game's first priority (CR 103.1: the
 starting player takes the first turn).
 
+That check is credited only when the run reports a verified starting-player
+channel (the engine published the choice frame and accepted the record-declared
+seat, or the provider acknowledged the record-declared create-time seat). A run
+whose starter came from a Lab or bridge default, or whose declaration the engine
+never acknowledged, cannot establish temporal equality: both checks are recorded
+``UNSUPPORTED`` with the exact channel (#572).
+
 Everything else the record requests empty is read back from the engine, never
 inferred (schema ``/4``): the combat in progress, queued extra turns, waiting
 triggered abilities and layered continuous effects (``rules_state``), each
@@ -46,6 +53,8 @@ import hmac
 import re
 from dataclasses import dataclass, field
 from typing import Any
+
+from .game_driver import VERIFIED_STARTING_PLAYER_CHANNELS
 
 SCHEMA = "commander-lab.generic-constructed-state/4"
 EQUAL = "CONSTRUCTION_EQUAL"
@@ -111,6 +120,9 @@ class FieldCheck:
 class ConstructionProof:
     verdict: str
     checks: tuple[FieldCheck, ...] = field(default_factory=tuple)
+    # The starting-player channel this proof was allowed to compare temporal
+    # facts on, or None when no channel was verified (#572).
+    starting_player_channel: str | None = None
 
     @property
     def established(self) -> bool:
@@ -134,6 +146,7 @@ class ConstructionProof:
             "schema": "commander-lab.generic-construction-proof/1",
             "verdict": self.verdict,
             "standard": "field-level correspondence under the record's normalization",
+            "starting_player_channel": self.starting_player_channel,
             "checks": [check.to_document() for check in self.checks],
         }
 
@@ -365,17 +378,28 @@ def compare(
     first_priority_seat: str | None,
     capture: str | None,
     orchestration_key: bytes | None,
+    starting_player_channel: str | None = None,
 ) -> ConstructionProof:
-    """Compare the provider's constructed state with the record's requested state."""
+    """Compare the provider's constructed state with the record's requested state.
+
+    ``starting_player_channel`` is the run's verified starting-player channel,
+    recorded by the driver. Without one, the temporal active/priority checks are
+    UNSUPPORTED rather than compared to a value the Lab may itself have chosen
+    (#572).
+    """
     checks = _Checks()
     if not isinstance(constructed, dict):
         checks.unsupported("constructed_state", "the provider emitted no constructed state")
-        return ConstructionProof(UNSUPPORTED, tuple(checks.items))
+        return ConstructionProof(
+            UNSUPPORTED, tuple(checks.items), starting_player_channel=starting_player_channel
+        )
     if constructed.get("schema") != SCHEMA:
         checks.unsupported(
             "constructed_state.schema", f"unknown schema {constructed.get('schema')!r}"
         )
-        return ConstructionProof(UNSUPPORTED, tuple(checks.items))
+        return ConstructionProof(
+            UNSUPPORTED, tuple(checks.items), starting_player_channel=starting_player_channel
+        )
     if constructed.get("observation_scope") != "orchestration_keyed_digests" or not (
         isinstance(orchestration_key, bytes) and len(orchestration_key) >= 16
     ):
@@ -384,7 +408,9 @@ def compare(
             "hidden zones are compared only as digests under this run's orchestration key",
             constructed.get("observation_scope"),
         )
-        return ConstructionProof(UNSUPPORTED, tuple(checks.items))
+        return ConstructionProof(
+            UNSUPPORTED, tuple(checks.items), starting_player_channel=starting_player_channel
+        )
     digest_key: bytes = orchestration_key
 
     mode = record.get("execution_entry_mode")
@@ -733,12 +759,28 @@ def compare(
         )
     if temporal.get("extra_turn_queue"):
         checks.unsupported("temporal_state.extra_turn_queue", "no extra turn exists at game start")
+    starter_channel_verified = starting_player_channel in VERIFIED_STARTING_PLAYER_CHANNELS
     for key in ("active_player", "priority_player"):
+        if not starter_channel_verified:
+            # The observed first-priority seat is real, but the run did not
+            # establish that the engine was given the record's starter through
+            # an authoritative channel. Comparing anyway would credit a fact
+            # the Lab may have chosen itself (#572); the fact is unestablished,
+            # not contradicted, so it is UNSUPPORTED.
+            checks.unsupported(
+                f"temporal_state.{key}",
+                "the run reports no verified starting-player channel "
+                f"(channel={starting_player_channel!r}); the starting seat for this "
+                "execution is not established",
+            )
+            continue
         checks.compare(
             f"temporal_state.{key}",
             _seat(temporal.get(key)),
             _seat(first_priority_seat),
-            "the starting player holds the game's first priority (CR 103.1)",
+            "the starting player holds the game's first priority (CR 103.1); the "
+            f"starter was declared by the record and the engine confirmed it "
+            f"(channel={starting_player_channel})",
         )
 
     _check_knowledge(checks, record.get("knowledge_state") or {}, players_by_id)
@@ -801,4 +843,6 @@ def compare(
         verdict = MISMATCH
     else:
         verdict = EQUAL
-    return ConstructionProof(verdict, tuple(checks.items))
+    return ConstructionProof(
+        verdict, tuple(checks.items), starting_player_channel=starting_player_channel
+    )

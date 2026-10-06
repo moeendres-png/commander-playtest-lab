@@ -214,7 +214,20 @@ final class JsonlBridge {
             }
 
             List<String> deckHandles = requiredStringArray(gameRequest, "deck_handles");
-            int startingPlayerSeat = optionalInt(gameRequest, "starting_player_seat", 0);
+            // The bridge never chooses the starting player (#572). The seat is a
+            // declaration the caller must make explicitly; absent or null is a
+            // fail-closed refusal, not a seat-0 default.
+            if (!gameRequest.has("starting_player_seat")
+                    || gameRequest.get("starting_player_seat").isJsonNull()) {
+                return error(
+                        requestId,
+                        "missing_starting_player_seat",
+                        "CREATE_COMMANDER_GAME requires an explicit starting_player_seat; "
+                                + "the bridge never defaults to seat 0",
+                        false
+                );
+            }
+            int startingPlayerSeat = requiredInt(gameRequest, "starting_player_seat");
             int startingLife = optionalInt(gameRequest, "starting_life", 40);
             boolean externalControl = optionalBoolean(
                     gameRequest,
@@ -941,6 +954,18 @@ final class JsonlBridge {
 
     private static int optionalInt(JsonObject object, String property, int defaultValue) {
         long value = optionalLong(object, property, defaultValue);
+        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(property + " is outside integer range");
+        }
+        return (int) value;
+    }
+
+    /** A required integer property; absence is a refusal, never a default. */
+    private static int requiredInt(JsonObject object, String property) {
+        if (!object.has(property) || object.get(property).isJsonNull()) {
+            throw new IllegalArgumentException("missing required integer: " + property);
+        }
+        long value = optionalLong(object, property, 0);
         if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
             throw new IllegalArgumentException(property + " is outside integer range");
         }

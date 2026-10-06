@@ -207,9 +207,9 @@ def test_the_acting_principal_comes_from_the_lab_seat_not_the_engine_actor() -> 
     """
     source = DRIVER.read_text(encoding="utf-8")
 
-    # The START-2 observer is pinned to the fixture-scripted Lab principal,
+    # The START-2 observer is pinned to the record-declared Lab principal,
     # never to a live engine actor id.
-    assert "principal=scripted_starting_seat" in source
+    assert "principal=declared_starting_seat" in source
     assert "seat_index = _SEATS.index(principal)" in source
     assert '"observer_player_id": principal' in source
     assert "principal = str(stated)" not in source
