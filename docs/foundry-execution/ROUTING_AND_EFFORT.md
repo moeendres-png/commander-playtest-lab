@@ -17,7 +17,7 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
    - committed/default and preferred: `deepseek` =
      `opencode-go/deepseek-v4.1-flash` at native `max`;
    - explicit secondary only: `space-bunny` =
-     `opencode-go/space-bunny-free` at native `max`, for bounded, mechanical,
+     `opencode-go/space-bunny` at native `max`, for bounded, mechanical,
      token-heavy, bulk and background work.
    No other OpenCode executor is selectable under current authority.
 3. Claude Opus 5.5 — explicitly authorized direct engineering/campaign executor when a
@@ -48,7 +48,7 @@ Active OpenCode Foundry work has exactly two supported launcher execution identi
 - `deepseek` → `opencode-go/deepseek-v4.1-flash` → native `max`.
   This is the default and preferred executor for implementation, debugging,
   qualification, integration, CI remediation, evidence generation and long campaigns.
-- `space-bunny` → `opencode-go/space-bunny-free` → native `max`.
+- `space-bunny` → `opencode-go/space-bunny` → native `max`.
   This is the explicit secondary for bounded, mechanical, token-heavy, bulk and
   background work, and for deliberately authorized cross-model checks.
 
@@ -58,9 +58,10 @@ so no mismatched or retired pair is reachable. There is no active-work native la
 lowers either executor's native level.
 
 This native-`max` rule binds the OpenCode profiles only. A Claude Opus 5.5 campaign runs
-at `medium` or `high` effort, and any Claude subagent it starts runs on at least Sonnet
-at `high` effort. Those subagents are read-only helpers inside the campaign, not Foundry
-executors, and hold no write, adjudication or merge authority.
+at `medium` or `high` effort, and its read-only helpers use the effort pinned in their own
+frontmatter (`log-scanner` Sonnet `low`, `ci-triage` Sonnet `medium`, `evidence-reviewer`
+Opus `high`); never Haiku. Those subagents are read-only helpers inside the campaign, not
+Foundry executors, and hold no write, adjudication or merge authority.
 
 Root `opencode.json` is DeepSeek MAX by default and exposes Space Bunny MAX as the only
 other whitelisted model. The GitHub OpenCode lane is also DeepSeek MAX by default (`/oc`,
