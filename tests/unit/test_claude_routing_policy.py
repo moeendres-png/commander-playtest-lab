@@ -95,4 +95,3 @@ def test_claude_policy_forbids_general_purpose_implementation_and_duplicate_read
     assert "Do not automatically re-read" in text
     assert "DeepSeek V4.1 Flash at native `max`" in text
     assert "Space Bunny at native `max` is an explicit secondary profile only" in text
-
