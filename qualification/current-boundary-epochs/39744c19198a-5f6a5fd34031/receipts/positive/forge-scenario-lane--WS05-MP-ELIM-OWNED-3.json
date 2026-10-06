@@ -1,0 +1,41 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED_FIXTURE_DECLARED_CAUSE_VARIANCE",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "forge",
+  "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+  "fixture_id": "WS05-MP-ELIM-OWNED-3",
+  "obligation_exercised": {
+    "forbidden_events": [],
+    "obligation_digest": "f0f10842a314d162000246cd8b149e32039f5f20a027157e9e90aeee12a61d95",
+    "requested_state_digest": "3a61678e0529798ec3755c1c434be9ac8bccdc0d546b6eb020f25eddf2648c19",
+    "required_events": [
+      "player_leaves:P2",
+      "multiplayer_cleanup:CR800.4"
+    ],
+    "terminal_postconditions": [
+      "All objects owned by P2 leave the game, including obj:leave-owned."
+    ]
+  },
+  "observed_assertion": {
+    "checkpoint_basis": "BOOTSTRAP_CHECKPOINT",
+    "checkpoint_variance_source": "fixture.native_procedure NATIVE_CAUSE_DECLARED_PLAYER_LOSS + declared terminal_postconditions; the cause transition is declared by the frozen fixture, not invented by this lane",
+    "checkpoint_verdict": "ALLOWED_VARIANCE",
+    "engine_authored_decision_count": 8,
+    "external_decision_selection_sha256": "268442b2ae4db1e05863f8373806463865820f6392011193d0fa71042ee6c9d4",
+    "native_bootstrap_applied": true,
+    "obligation_kind": "player_leaves_multiplayer_cleanup",
+    "requested_checkpoint_verdict": null,
+    "row_document_sha256": "486c9cee18ce99247e0952c38ed8d3e672c3e8631a6cac23efd7e8ab208bb8a0",
+    "semantic_events": [
+      "player_leaves:p2"
+    ],
+    "terminal_facts_sha256": "ab0a249bbc77791de276909de91bc976aeff42316a9f9030a79e590dd25fcc34"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "cc96dc45b4d0523a184773ddb27be9a135f2223db8b5da1c0d34ed81f096ebab",
+  "runner_digest": "885abdc6946a72e3155aebfac6eea9b1fc9bcd207e5cb53a417111495b0f3371",
+  "runtime_receipt_digest": "486c9cee18ce99247e0952c38ed8d3e672c3e8631a6cac23efd7e8ab208bb8a0",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-MP-ELIM-OWNED-3"
+}

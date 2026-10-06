@@ -227,3 +227,48 @@ def test_every_workflow_declares_token_permissions(path: Path) -> None:
         return
     for name, job in workflow["jobs"].items():
         assert "permissions" in job, f"{path.name}:{name} runs with the default token permissions"
+
+
+def test_opencode_agent_refuses_untrusted_targets() -> None:
+    """An agent run holding OPENCODE_API_KEY never targets untrusted content.
+
+    The comment author's association is not enough: the agent reads the target
+    issue/PR text and, on a PR, its head. Both jobs must also require a trusted
+    target author and refuse fork pull requests before anything is checked out.
+    """
+    doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
+    jobs = doc["jobs"]
+    assert jobs, "opencode.yml has no jobs"
+    for name, job in jobs.items():
+        condition = job["if"]
+        assert "github.event.comment.author_association" in condition, name
+        assert (
+            '&&\ncontains(fromJSON(\'["OWNER", "MEMBER", "COLLABORATOR"]\'), '
+            "github.event.issue.author_association || "
+            "github.event.pull_request.author_association) &&"
+            in "\n".join(line.strip() for line in condition.splitlines())
+        ), name
+        first = job["steps"][0]
+        assert first["name"] == "Refuse fork pull requests as agent targets", name
+        assert first["if"] == "github.event.issue.pull_request || github.event.pull_request", name
+        assert first["env"]["PR_NUMBER"] == (
+            "${{ github.event.issue.number || github.event.pull_request.number }}"
+        ), name
+        assert "--jq '.head.repo.full_name'" in first["run"], name
+        assert '"$head_repo" != "$GITHUB_REPOSITORY"' in first["run"], name
+        assert "exit 1" in first["run"], name
+
+
+def test_pull_request_target_checkouts_never_persist_credentials() -> None:
+    checked = 0
+    for path in WORKFLOWS:
+        doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+        triggers = doc.get(True) or doc.get("on") or {}
+        if "pull_request_target" not in (triggers if isinstance(triggers, dict) else [triggers]):
+            continue
+        for job in doc["jobs"].values():
+            for step in job.get("steps", []):
+                if str(step.get("uses", "")).startswith("actions/checkout@"):
+                    assert (step.get("with") or {}).get("persist-credentials") is False, path.name
+                    checked += 1
+    assert checked >= 1, "no pull_request_target checkout found: the check is vacuous"

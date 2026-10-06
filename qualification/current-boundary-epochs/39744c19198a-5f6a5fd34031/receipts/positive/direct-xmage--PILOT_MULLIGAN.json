@@ -1,0 +1,37 @@
+{
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+  "fixture_id": "PILOT_MULLIGAN",
+  "obligation_exercised": {
+    "fixture_family": "pilot_boundary",
+    "forbidden_events": [],
+    "obligation_digest": "eec2239008f3bf5d7b74f1647a01607f1450be37a0edb80cf4aaa0276889219d",
+    "requested_state_digest": "66415c7efbc9094d2f63e5bd1137e4b8c47deb9b8fd8049ecaa57a7fa52d8990",
+    "required_events": [
+      "mulligan:P1:round1",
+      "keep:P2:round1",
+      "keep:P3:round1",
+      "keep:P4:round1",
+      "keep:P1:round2",
+      "bottom_count:P1:0"
+    ],
+    "terminal_postconditions": [
+      "In this 4P Commander fixture the first mulligan is the multiplayer free mulligan, so it does not increase the bottom-card count.",
+      "P1 keeps a legal seven-card opening hand after exactly one free mulligan and bottoms zero cards."
+    ]
+  },
+  "observed_assertion": {
+    "principal_observation_scope": "engine-offered decision frames for the acting seat",
+    "row_document_sha256": "9c7d779683889839713751a539e066ba8f1aa5b07452a2d4a0c4b31d3aeecb30",
+    "semantic_events_sha256": "7361157e560b2f3fbd15c1d33c5ded035735c0f55412f3166340adf92bb0a865",
+    "terminal_facts_sha256": "4573d7b2f97704239d7ebc554bc6f252cc5dd12a85d6efee6f69c77d5dcab14b"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "dbe2e6d5cc25193af2848e33d77bf4758b9f87fff4f8798a61d0421d086c5b16",
+  "runner_digest": "885abdc6946a72e3155aebfac6eea9b1fc9bcd207e5cb53a417111495b0f3371",
+  "runtime_receipt_digest": "9c7d779683889839713751a539e066ba8f1aa5b07452a2d4a0c4b31d3aeecb30",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "current-boundary-direct:PROTOCOL2_SCRIPTED_PREGAME#PILOT_MULLIGAN"
+}

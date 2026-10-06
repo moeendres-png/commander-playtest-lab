@@ -1,0 +1,96 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_28",
+  "obligation_exercised": {
+    "obligation_digest": "b4a6af8d2df4cd939b16da3c0ec34df0e4273468516d9c9e3bc8e395bd20a75d",
+    "requested_state_digest": "1abad8b60dc2112e3e248eef6aba247dc0bbbfddf49628b59217420fdff7849a",
+    "required_events": [
+      "cast_split_half:Finality",
+      "put_+1/+1_counters:2",
+      "continuous_-4/-4_all_creatures",
+      "state_based_actions"
+    ],
+    "terminal_checks": [
+      "every Grizzly Bears on P1's battlefield is 1/1",
+      "exactly 0 DAMAGED_PERMANENT event(s) with target_object=obj:card28-p2-creature",
+      "exactly 0 DESTROYED_PERMANENT event(s) with target_object=obj:card28-p2-creature",
+      "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card28-p2-creature, from=BATTLEFIELD, to=GRAVEYARD",
+      "no Hill Giant is on P2's battlefield"
+    ],
+    "terminal_postconditions": [
+      "P1 creature is 1/1 for remainder of turn absent other effects.",
+      "P2 4/4 becomes 0/0 and is put into graveyard as SBA."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "3a602e798bb1b7f86bc703973a1ff078e2e0e97e0c94570e773b2c667806f643",
+      "size": 7107607
+    },
+    "postcondition_proofs": [
+      {
+        "check": "every Grizzly Bears on P1's battlefield is 1/1",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P1 creature is 1/1 for remainder of turn absent other effects."
+      },
+      {
+        "also": [
+          "exactly 0 DESTROYED_PERMANENT event(s) with target_object=obj:card28-p2-creature",
+          "exactly 0 DAMAGED_PERMANENT event(s) with target_object=obj:card28-p2-creature",
+          "no Hill Giant is on P2's battlefield"
+        ],
+        "check": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card28-p2-creature, from=BATTLEFIELD, to=GRAVEYARD",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P2 4/4 becomes 0/0 and is put into graveyard as SBA."
+      }
+    ],
+    "terminal_facts": {
+      "every Grizzly Bears on P1's battlefield is 1/1": true,
+      "exactly 0 DAMAGED_PERMANENT event(s) with target_object=obj:card28-p2-creature": true,
+      "exactly 0 DESTROYED_PERMANENT event(s) with target_object=obj:card28-p2-creature": true,
+      "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card28-p2-creature, from=BATTLEFIELD, to=GRAVEYARD": true,
+      "no Hill Giant is on P2's battlefield": true
+    },
+    "token_evidence": {
+      "cast_split_half:Finality": {
+        "binding": "a scripted priority frame selected an engine offer naming 'Cast Finality'",
+        "decision_frames": [
+          0
+        ]
+      },
+      "continuous_-4/-4_all_creatures": {
+        "binding": "every Grizzly Bears on P1's battlefield is 1/1",
+        "observation": "engine terminal observation"
+      },
+      "put_+1/+1_counters:2": {
+        "binding": "exactly 2 COUNTER_ADDED event(s) with target_object=obj:card28-p1-creature, data=+1/+1",
+        "events": [
+          9,
+          10
+        ]
+      },
+      "state_based_actions": {
+        "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:card28-p2-creature, from=BATTLEFIELD, to=GRAVEYARD",
+        "events": [
+          12
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "85f3c4cc1d6da1684c6d68f15f34ceb2be52d3f4dc46a8ff80e461f731f3e3de",
+  "runner_digest": "885abdc6946a72e3155aebfac6eea9b1fc9bcd207e5cb53a417111495b0f3371",
+  "runtime_receipt_digest": "610c5f5845b87a4de897923605754a067aeaf47fc17be0d861b8b1f0711247d1",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_28"
+}
