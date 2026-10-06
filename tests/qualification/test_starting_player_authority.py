@@ -262,9 +262,10 @@ def test_xmage_create_declares_the_seat_and_requires_the_engine_acknowledgement(
     )
 
 
-def test_xmage_create_without_a_declaration_carries_no_seat(
+def test_xmage_without_a_declaration_refuses_before_any_game_traffic(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """#572: no declaration means no XMage game at all, not a seat-0 game."""
     proc = _StartingFrameProcess(candidate="xmage", create_echo_present=False)
     result = _drive(
         monkeypatch,
@@ -274,8 +275,12 @@ def test_xmage_create_without_a_declaration_carries_no_seat(
         starting_seat=None,
         source=None,
     )
-    assert result.failure is None, result.failure
-    assert "starting_player_seat" not in proc.create_requests[0]
+    assert result.failure_kind == "FAIL_CLOSED_UNSATISFIED"
+    assert (
+        result.failure is not None and "requires an explicit starting_player_seat" in result.failure
+    )
+    assert proc.create_requests == []
+    assert proc.handles == 0
     assert result.terminal_facts["starting_player_channel"] is None
 
 

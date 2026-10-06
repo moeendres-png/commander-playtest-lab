@@ -770,6 +770,17 @@ def drive_commander_game(
     result.terminal_facts["declared_starting_seat"] = declared_starting_seat
 
     try:
+        # XMage's create channel requires whoever creates the game to declare the
+        # starting/choosing seat; it publishes no starting-player decision frame
+        # on the compatibility lane. Without a record declaration there is no
+        # honest value to send, so the run refuses before any game traffic rather
+        # than letting the provider's old seat-0 default apply (#572).
+        if candidate == "xmage" and declared_starting_seat is None:
+            raise DecisionUnsatisfied(
+                "the record declares no starting seat and the XMage create channel "
+                "requires an explicit starting_player_seat; the Lab never supplies "
+                "a p1/seat-0 default"
+            )
         # Canonical Protocol-2 handshake before any game traffic. No legacy
         # alias is used and no capability is inferred.
         for message in ("start_engine", "get_provider_version", "get_capabilities"):

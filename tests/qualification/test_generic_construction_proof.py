@@ -769,9 +769,11 @@ def test_the_cardinality_row_needs_the_records_own_pregame(record) -> None:
 def test_a_plan_the_engine_did_not_follow_is_unknown_not_a_rules_failure(record) -> None:
     run = _run(_state())
     run.failure = "DecisionUnsatisfied: the engine asked mulligan #2 of p3; the plan names p2"
+    run.failure_kind = "FAIL_CLOSED_UNSATISFIED"
     row = full107.cardinality_row(record, run, candidate="xmage", runtime_identity={})
     assert row.outcome == "UNKNOWN"
-    assert "scripted pregame did not complete" in row.reason
+    assert "refused a decision the record does not authorize" in row.reason
+    run.failure_kind = "ENGINE_RUNTIME_ERROR"
     run.failure = "BridgeError: the process died"
     assert full107.cardinality_row(record, run, candidate="xmage", runtime_identity={}).outcome == (
         "FAIL"
@@ -790,8 +792,14 @@ def test_run_cardinality_drives_the_records_plan(record, monkeypatch: pytest.Mon
         object(), candidate="xmage", player_count=4, runtime_identity={}, record=record
     )
     assert seen["mulligan_plan"] == (("p1", True), ("p2", True), ("p3", True), ("p4", True))
+    # #572: the record's own declaration is passed through with its source; the
+    # driver never substitutes a default.
+    assert seen["scripted_starting_seat"] == "p1"
+    assert seen["starting_seat_source"] == ("RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER")
     full107.run_cardinality(object(), candidate="xmage", player_count=4, runtime_identity={})
     assert seen["mulligan_plan"] is None
+    assert seen["scripted_starting_seat"] is None
+    assert seen["starting_seat_source"] is None
 
 
 @pytest.mark.usefixtures("complete_lifecycle")

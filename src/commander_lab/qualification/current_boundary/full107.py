@@ -33,7 +33,6 @@ from . import generic_construction, lifecycle
 from .bridge_launcher import BridgeProcess
 from .game_driver import (
     CommandedGameResult,
-    DecisionUnsatisfied,
     drive_commander_game,
     poll_decision,
 )
@@ -359,15 +358,17 @@ def cardinality_row(
             [entry.seat, entry.keep] for entry in result.decision_tape if entry.step == "mulligan"
         ]
     if result.failure:
-        if planned and result.failure.startswith(f"{DecisionUnsatisfied.__name__}:"):
-            # The engine asked a pregame the record's plan does not name: the
-            # record's decisions were not executed, which proves nothing either way.
+        if result.failure_kind == "FAIL_CLOSED_UNSATISFIED":
+            # The engine asked a decision the record does not authorize (a
+            # pregame the plan does not name, or a starting-player frame with no
+            # declared seat): the record's decisions were not executed, which
+            # proves nothing either way and is never a Rules failure.
             return RowResult(
                 fixture_id,
                 candidate,
                 "UNKNOWN",
                 "PROTOCOL2_LIFECYCLE",
-                f"the record's scripted pregame did not complete: {result.failure}",
+                f"the run refused a decision the record does not authorize: {result.failure}",
                 evidence,
             )
         return RowResult(

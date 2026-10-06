@@ -1494,6 +1494,14 @@ def gather_generic_lane_process(
     rules_rng: dict[str, Any] = {}
 
     try:
+        if candidate == "xmage" and scripted_starting_seat is None:
+            # Same refusal as the generic driver: XMage's create channel needs
+            # the declaration and publishes no starting-player frame here.
+            raise DecisionUnsatisfied(
+                "the twin declares no starting seat and the XMage create channel "
+                "requires an explicit starting_player_seat; the Lab never supplies "
+                "a p1/seat-0 default"
+            )
         for message in ("start_engine", "get_provider_version", "get_capabilities"):
             response = proc.request(message, {}, timeout_s=60.0)
             payload = _require_ok(response, message)
