@@ -21,6 +21,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import json
 import os
 import re
@@ -28,6 +29,8 @@ import shutil
 import subprocess
 import sys
 import time
+from collections.abc import Callable
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -880,6 +883,37 @@ def run_native_suite(
     return document
 
 
+# #479 Priority E item 2: the shadow experiment's opt-in overlap. Only the exact
+# value "1" enables it; the credited path never reads this variable.
+PB03_SHADOW_PARALLEL_FORGE_NATIVE_ENV = "PB03_SHADOW_PARALLEL_FORGE_NATIVE"
+
+
+def shadow_parallel_forge_native_enabled() -> bool:
+    """Whether the opt-in Forge/XMage native-suite overlap is requested.
+
+    The overlap is a shadow experiment only (``.github/workflows/pb03-shadow-parallel.yml``):
+    anything but the exact value ``1`` keeps the serial, credited behaviour.
+    """
+    return os.environ.get(PB03_SHADOW_PARALLEL_FORGE_NATIVE_ENV) == "1"
+
+
+def run_native_suites_for_candidate(
+    runner: receipt_mod.RunnerIdentity, candidate: str
+) -> list[dict[str, Any]]:
+    """Execute every bound native suite group for one candidate, in order."""
+    receipts: list[dict[str, Any]] = []
+    for group in NATIVE_SUITE_BINDING[candidate]["classes"]:
+        started = time.monotonic()
+        receipts.append(run_native_suite(candidate, group, runner=runner))
+        # Telemetry only (#479 Priority E): per-group wall time, so any
+        # later parallelism experiment starts from measured bottlenecks.
+        print(
+            f"[pb03 native] {candidate}/{group}: {time.monotonic() - started:.1f}s",
+            flush=True,
+        )
+    return receipts
+
+
 def run_all_native_suites(
     runner: receipt_mod.RunnerIdentity,
     candidates: tuple[str, ...] = ("xmage", "forge"),
@@ -893,16 +927,56 @@ def run_all_native_suites(
     """
     receipts: list[dict[str, Any]] = []
     for candidate in candidates:
-        for group in NATIVE_SUITE_BINDING[candidate]["classes"]:
-            started = time.monotonic()
-            receipts.append(run_native_suite(candidate, group, runner=runner))
-            # Telemetry only (#479 Priority E): per-group wall time, so any
-            # later parallelism experiment starts from measured bottlenecks.
-            print(
-                f"[pb03 native] {candidate}/{group}: {time.monotonic() - started:.1f}s",
-                flush=True,
-            )
+        receipts.extend(run_native_suites_for_candidate(runner, candidate))
     return receipts
+
+
+def run_native_suites_with_shadow_overlap(
+    runner: receipt_mod.RunnerIdentity,
+    candidates: tuple[str, ...],
+    *,
+    xmage_phases: Callable[[], None] | None = None,
+) -> list[dict[str, Any]]:
+    """Run the native suites, optionally overlapping the Forge groups (#479 E2).
+
+    The credited path is serial: ``run_all_native_suites`` runs every candidate
+    in the calling thread and then ``xmage_phases`` (when given) runs, exactly
+    as before.
+
+    Only with the explicit ``PB03_SHADOW_PARALLEL_FORGE_NATIVE=1`` opt-in and a
+    Forge candidate does the experiment start the Forge groups on a one-worker
+    ``ThreadPoolExecutor`` while the calling thread runs the remaining
+    candidates' groups and the XMage phases. The Forge future is joined before
+    this function returns, so no caller can consume a Forge native receipt
+    before it exists and a Forge-thread failure is re-raised rather than being
+    dropped at pool shutdown.
+
+    The returned receipts are in candidate order (for the PB-03 candidate set:
+    the XMage groups, then the Forge groups), identical to the serial path.
+    """
+    if not (shadow_parallel_forge_native_enabled() and "forge" in candidates):
+        native_receipts = run_all_native_suites(runner, candidates)
+        if xmage_phases is not None:
+            xmage_phases()
+        return native_receipts
+    print("[pb03 shadow] overlap enabled", flush=True)
+    receipts_by_candidate: dict[str, list[dict[str, Any]]] = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as forge_pool:
+        forge_future = forge_pool.submit(run_native_suites_for_candidate, runner, "forge")
+        try:
+            for candidate in candidates:
+                if candidate == "forge":
+                    continue
+                receipts_by_candidate[candidate] = run_native_suites_for_candidate(
+                    runner, candidate
+                )
+            if xmage_phases is not None:
+                xmage_phases()
+        finally:
+            # Join before returning: a Forge receipt must exist before anything
+            # consumes it, and a worker failure must propagate to the run.
+            receipts_by_candidate["forge"] = forge_future.result()
+    return [receipt for candidate in candidates for receipt in receipts_by_candidate[candidate]]
 
 
 def bootstrap_evidence_epoch() -> dict[str, Any]:
@@ -1871,6 +1945,111 @@ def classify_remaining(
     return rows
 
 
+def execute_xmage_native_phases(
+    runner: receipt_mod.RunnerIdentity,
+    materialization: Any,
+    xmage_provider_identity: dict[str, Any] | None,
+) -> None:
+    """Execute the XMage-only PB-03 phases after the XMage native suites.
+
+    These phases use only ``engine-bridge`` and the XMage engine and never read
+    a Forge native receipt. In the #479 Priority E shadow experiment they run on
+    the main thread while the Forge native groups execute in the background, so
+    the wall-clock here is exactly the interval the Forge overlap can hide.
+    """
+    pb03_runtime = pb03_runtime_mod.build_runtime_execution_matrix(
+        REPO_ROOT / "engine-bridge" / "target" / "surefire-reports"
+    )
+    pb03_runtime["runner_commit"] = runner.commit
+    pb03_runtime["runner_tree"] = runner.tree
+    pb03_runtime["runner_digest"] = runner.digest()
+    pb03_runtime["candidate_commit"] = canonical_xmage_engine_pin()
+    if xmage_provider_identity is None:
+        raise SystemExit(
+            "PB-03 provider identity missing; refusing to seal a runtime ledger "
+            "that cannot name the loaded engine artifact"
+        )
+    # The loaded engine artifact identity is the provider's own report from
+    # the admission handshake of this same run. The declared commit constant
+    # alone cannot prove which bytes executed.
+    pb03_runtime["engine_artifact_kind"] = xmage_provider_identity["engine_artifact_kind"]
+    pb03_runtime["engine_artifact_sha256"] = xmage_provider_identity["engine_artifact_sha256"]
+    pb03_runtime["engine_artifact_path"] = xmage_provider_identity["engine_artifact_path"]
+    pb03_runtime["engine_artifact_size"] = xmage_provider_identity["engine_artifact_size"]
+    # Seal the identity block: the assembler rejects any ledger whose content
+    # digest, runner digest, candidate commit or engine artifact digest does
+    # not match the assembling head, so a stale ledger can never be credited.
+    pb03_runtime["receipt_digest"] = receipt_mod.document_digest(pb03_runtime)
+    write("PB03_RUNTIME_EXECUTION.json", pb03_runtime)
+    # The PB-03 chain's last links: exact placement obligations executed on
+    # the production midgame lane, each verified row persisted as a
+    # runner-bound positive fixture receipt the assembler may credit.
+    phase("XMage mid-game rows")
+    write(
+        "MIDGAME_ROW_EXECUTIONS.json",
+        midgame_rows_mod.execute_and_persist(
+            workspace=REPO_ROOT / "engine-bridge",
+            records={
+                record["fixture_id"]: record for record in materialization.denominator_records()
+            },
+            candidate_commit=canonical_xmage_engine_pin(),
+            runner_digest=runner.digest(),
+            out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
+        ),
+    )
+    # AF05: the construct-and-project HIDDEN rows on the same production
+    # lane, each verified knowledge boundary persisted as a runner-bound
+    # positive receipt; a demonstrated leak is recorded as FAIL.
+    phase("XMage knowledge projection")
+    write(
+        "KNOWLEDGE_PROJECTION_EXECUTIONS.json",
+        knowledge_projection_mod.execute_and_persist(
+            workspace=REPO_ROOT / "engine-bridge",
+            records={
+                record["fixture_id"]: record for record in materialization.denominator_records()
+            },
+            candidate_commit=canonical_xmage_engine_pin(),
+            runner_digest=runner.digest(),
+            out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
+        ),
+    )
+    # AF09: the replay/RNG rows as clean-process twins on the same
+    # production lane. Each row records the scenario in one fresh process
+    # and replays it from the taped external inputs alone in another; only
+    # a verified twin whose row property held earns a runner-bound
+    # positive receipt.
+    phase("XMage replay twins")
+    write(
+        "MIDGAME_REPLAY_TWIN_EXECUTIONS.json",
+        midgame_replay_twin_mod.execute_and_persist(
+            workspace=REPO_ROOT / "engine-bridge",
+            records={
+                record["fixture_id"]: record for record in materialization.denominator_records()
+            },
+            candidate_commit=canonical_xmage_engine_pin(),
+            runner_digest=runner.digest(),
+            out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
+            lab_root=REPO_ROOT,
+        ),
+    )
+    # AF07: the frozen 29-card actual-card corpus on the same production
+    # lane and the same runner identity. Each directly proven identity is
+    # persisted as a runner-bound receipt in the campaign's own receipt
+    # subdirectory, which never earns FULL107 credit; the assembler derives
+    # AF07 from those receipts plus CARD_02's own denominator row.
+    phase("XMage actual-card campaign")
+    write(
+        "ACTUAL_CARD_CAMPAIGN_XMAGE.json",
+        actual_card_campaign_mod.execute_and_persist(
+            workspace=REPO_ROOT / "engine-bridge",
+            candidate_commit=canonical_xmage_engine_pin(),
+            runner_digest=runner.digest(),
+            receipts_dir=RECEIPT_DIR / actual_card_campaign_mod.RECEIPT_SUBDIR,
+            root=REPO_ROOT,
+        ),
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate", default="all", choices=["all", "xmage", "forge"])
@@ -2037,99 +2216,20 @@ def main() -> int:
             REPO_ROOT / "engine-bridge" / "target" / "surefire-reports", ignore_errors=True
         )
     phase("native suites")
-    native_receipts = run_all_native_suites(runner, tuple(candidates))
-    if "xmage" in candidates:
-        pb03_runtime = pb03_runtime_mod.build_runtime_execution_matrix(
-            REPO_ROOT / "engine-bridge" / "target" / "surefire-reports"
-        )
-        pb03_runtime["runner_commit"] = runner.commit
-        pb03_runtime["runner_tree"] = runner.tree
-        pb03_runtime["runner_digest"] = runner.digest()
-        pb03_runtime["candidate_commit"] = canonical_xmage_engine_pin()
-        if xmage_provider_identity is None:
-            raise SystemExit(
-                "PB-03 provider identity missing; refusing to seal a runtime ledger "
-                "that cannot name the loaded engine artifact"
+    native_receipts = run_native_suites_with_shadow_overlap(
+        runner,
+        tuple(candidates),
+        xmage_phases=(
+            partial(
+                execute_xmage_native_phases,
+                runner,
+                materialization,
+                xmage_provider_identity,
             )
-        # The loaded engine artifact identity is the provider's own report from
-        # the admission handshake of this same run. The declared commit constant
-        # alone cannot prove which bytes executed.
-        pb03_runtime["engine_artifact_kind"] = xmage_provider_identity["engine_artifact_kind"]
-        pb03_runtime["engine_artifact_sha256"] = xmage_provider_identity["engine_artifact_sha256"]
-        pb03_runtime["engine_artifact_path"] = xmage_provider_identity["engine_artifact_path"]
-        pb03_runtime["engine_artifact_size"] = xmage_provider_identity["engine_artifact_size"]
-        # Seal the identity block: the assembler rejects any ledger whose content
-        # digest, runner digest, candidate commit or engine artifact digest does
-        # not match the assembling head, so a stale ledger can never be credited.
-        pb03_runtime["receipt_digest"] = receipt_mod.document_digest(pb03_runtime)
-        write("PB03_RUNTIME_EXECUTION.json", pb03_runtime)
-        # The PB-03 chain's last links: exact placement obligations executed on
-        # the production midgame lane, each verified row persisted as a
-        # runner-bound positive fixture receipt the assembler may credit.
-        phase("XMage mid-game rows")
-        write(
-            "MIDGAME_ROW_EXECUTIONS.json",
-            midgame_rows_mod.execute_and_persist(
-                workspace=REPO_ROOT / "engine-bridge",
-                records={
-                    record["fixture_id"]: record for record in materialization.denominator_records()
-                },
-                candidate_commit=canonical_xmage_engine_pin(),
-                runner_digest=runner.digest(),
-                out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
-            ),
-        )
-        # AF05: the construct-and-project HIDDEN rows on the same production
-        # lane, each verified knowledge boundary persisted as a runner-bound
-        # positive receipt; a demonstrated leak is recorded as FAIL.
-        phase("XMage knowledge projection")
-        write(
-            "KNOWLEDGE_PROJECTION_EXECUTIONS.json",
-            knowledge_projection_mod.execute_and_persist(
-                workspace=REPO_ROOT / "engine-bridge",
-                records={
-                    record["fixture_id"]: record for record in materialization.denominator_records()
-                },
-                candidate_commit=canonical_xmage_engine_pin(),
-                runner_digest=runner.digest(),
-                out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
-            ),
-        )
-        # AF09: the replay/RNG rows as clean-process twins on the same
-        # production lane. Each row records the scenario in one fresh process
-        # and replays it from the taped external inputs alone in another; only
-        # a verified twin whose row property held earns a runner-bound
-        # positive receipt.
-        phase("XMage replay twins")
-        write(
-            "MIDGAME_REPLAY_TWIN_EXECUTIONS.json",
-            midgame_replay_twin_mod.execute_and_persist(
-                workspace=REPO_ROOT / "engine-bridge",
-                records={
-                    record["fixture_id"]: record for record in materialization.denominator_records()
-                },
-                candidate_commit=canonical_xmage_engine_pin(),
-                runner_digest=runner.digest(),
-                out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
-                lab_root=REPO_ROOT,
-            ),
-        )
-        # AF07: the frozen 29-card actual-card corpus on the same production
-        # lane and the same runner identity. Each directly proven identity is
-        # persisted as a runner-bound receipt in the campaign's own receipt
-        # subdirectory, which never earns FULL107 credit; the assembler derives
-        # AF07 from those receipts plus CARD_02's own denominator row.
-        phase("XMage actual-card campaign")
-        write(
-            "ACTUAL_CARD_CAMPAIGN_XMAGE.json",
-            actual_card_campaign_mod.execute_and_persist(
-                workspace=REPO_ROOT / "engine-bridge",
-                candidate_commit=canonical_xmage_engine_pin(),
-                runner_digest=runner.digest(),
-                receipts_dir=RECEIPT_DIR / actual_card_campaign_mod.RECEIPT_SUBDIR,
-                root=REPO_ROOT,
-            ),
-        )
+            if "xmage" in candidates
+            else None
+        ),
+    )
     write(
         "NATIVE_SUITE_RECEIPTS.json",
         {
