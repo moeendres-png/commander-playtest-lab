@@ -57,6 +57,17 @@
       "space_bunny_authenticated_smoke": "RUNTIME_VERIFIED: bounded `opencode run --model opencode-go/space-bunny-free` under the exact launcher-injected secondary bundle resolved providerID=opencode-go modelID=space-bunny-free agent=foundry-implementer, exit 0.",
       "native_variant_pin": "CODE_DERIVED + RUNTIME_VERIFIED: the injected bundle enables only the `max` variant with reasoningEffort=max for both profiles, and the launcher refuses any caller --variant/--model child flag, so no other native level is selectable.",
       "no_fallback": "DIRECTLY_VERIFIED: the launcher pins exactly one child --model per run and performs no retry, provider switch, or profile change on quota, auth, catalog, tool, or child failure."
+    },
+    "activation_evidence_2026_10_06": {
+      "current_model_identity": "opencode-go/space-bunny",
+      "evidence_classification": {
+        "configured_pins_job_outcome_and_provider_policy": "DIRECTLY_VERIFIED",
+        "resolved_runtime_model_identity": "CODE_DERIVED"
+      },
+      "space_bunny_authenticated_smoke": "Authenticated trusted `/bunny` issue-comment job on main after PR #576 completed successfully with MODEL=opencode-go/space-bunny and VARIANT=max pinned and the primary DeepSeek opencode job skipped. The agent result comment reported providerID=opencode-go modelID=space-bunny; that resolved identity is agent self-report (CODE_DERIVED) because no runtime log/artifact is independently bound.",
+      "evidence_receipt": ".foundry/space-bunny-rebind-runtime-activation-20261006.json",
+      "historical_scope": "activation_evidence_2026_09_29 remains provenance for opencode-go/space-bunny-free only and does not establish the rebound model identity.",
+      "runtime_status": "ACTIVE"
     }
   }
 }

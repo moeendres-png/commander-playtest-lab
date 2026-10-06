@@ -1,0 +1,89 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/work/worktrees/claude-quota-efficiency-20261006
+branch: tooling/claude-quota-efficiency-20261006
+audit_base_sha: e793f7f5285f95a2b2cadade3584447d697d868f
+audit_base_tree: 4420b76f5ba9d583c20db1d065a3884f09368d9c
+state_written_against_head: da97443ebac8cbc4d0829a2e8f84bcd8371b025d
+validated_head: 0915077654de5a44efde00e02b8ae421366e3134
+objective: Adversarially review and finalize PR575 (quota-efficient Claude routing tooling)
+  under OpenCode ownership transferred by the Owner; repair only genuine blocking defects.
+ownership: PR575-OPENCODE-REVIEW-FINALIZE-20261006 (Owner-transferred from the Claude session)
+status: COMPLETE
+in_scope:
+- Review PR575 against its stated objective (tooling and routing docs only)
+- Inspect unresolved review threads, checks and shadow classification
+- Repair genuine blocking defects with focused, validated commits on the same branch
+- Merge current origin/main into the owned branch and adjudicate drift
+- Push the owned branch, verify remote HEAD, and checkpoint on PR575
+out_of_scope:
+- New implementation or feature work beyond the review repair
+- Qualification semantics, provider evidence, Rules Core, engine pins, AGENTS.md
+- The /bunny space-bunny profile rebind owned by ci/space-bunny-profile-rebind-20261006
+- PRODUCTION_PROVIDER selection, ARCHITECTURE_FREEZE, Production Repository
+- Autonomous merge; merge stays at the normal repository gate
+dependencies:
+- Owner transfer of PR575 review/finalization from Claude to OpenCode
+- origin/main 84c17f9d (PR576 rebind) merged into the branch
+hard_gates:
+- exact-head required CI (quality, security, infrastructure) PASS on the pushed checkpoint
+- no unresolved material P1/P2 review finding
+- no weakened assertion, denominator, evidence rule or fail-closed semantic
+- normal merge only; no force-push, history rewrite or direct main mutation
+forbidden_shortcuts:
+- Weakening or deleting a failing assertion to obtain green
+- Treating the shadow ci-definition-integrity red as a PR defect or disabling it
+- Duplicating the /bunny model-binding repair owned by another workstream
+- Naming a production provider or claiming Architecture Freeze
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+authority_gates:
+- PRODUCTION_PROVIDER selection and ARCHITECTURE_FREEZE remain Owner-only
+execution_profile: deepseek
+executor_model: opencode-go/deepseek-v4.1-flash
+native_variant: max
+variant_resolution: native_max
+technical_decisions:
+- 'Blocking defect: commit b5641e3d left one trailing blank line in tests/unit/test_claude_routing_policy.py,
+  so required quality failed on 1 file would be reformatted; the concurrent writer pushed the identical
+  one-line fix as 91011333 before this review mutated anything.'
+- 'Blocking defect: the PR retires the blanket Claude-subagent high-effort rule but .claude/skills/lab-ops/SKILL.md
+  and docs/foundry-execution/ROUTING_AND_EFFORT.md still mandated it; both reconciled at cc5fff59 with a
+  wrong-reason guard in the routing-policy test.'
+- 'Target drift adjudicated: main 84c17f9d (PR576 rebind) merged normally into the branch; only the
+  space-bunny model id changed, AGENTS.md authority text unchanged, no conflict.'
+- 'ci-definition-integrity-shadow red is BY_DESIGN CI-02 (quality_test_definition_changed for additive
+  tests/unit files; all validator invariants PASS, exit 2 GATE_DEFINITION_CHANGED_REVIEW_REQUIRED;
+  the check is not required by the main ruleset).'
+- 'docs/claude/state/HANDOFF.md is a documented generated snapshot (regenerate after merges); its staleness
+  is accepted by design, not treated as a blocking defect.'
+- 'Final closure: Owner direct instruction to continue and fully complete superseded the earlier READY_FOR_OWNER_REVIEW procedural stop; the normal merge gate was re-read and PR575 merged as 53493f6c10a9d48b280a5aca352ddfbd81178161.'
+next_action: NONE — COMPLETE
+exact_next_action: NONE — PR575 quota-efficiency workstream is complete; reopen only after a relevant code, policy, harness, or executor-contract change invalidates this checkpoint.
+tests_run:
+- 'cc5fff59: ruff check + ruff format --check on the changed Python PASS'
+- 'cc5fff59: pytest tests/unit/test_claude_routing_policy.py test_ws78_token_economy.py test_ws_arclose_d1_authority_drift.py
+  test_gh_ops_brief.py test_oc_dispatch.py test_claude_handoff.py test_run_manifest_integrity.py -> 105 passed, 1 skipped'
+- '91011333 hosted CI (consumed): quality/security/infrastructure/repository-tree-integrity/windows-runtime PASS;
+  ci-definition-integrity-shadow failure by design'
+- 'foundry-reviewer fresh-context adversarial review at 91011333: NO BLOCKING FINDINGS'
+- 'bunny-auditor could not run: space-bunny-free model binding failure owned by PR576 (now merged upstream); not duplicated'
+- '09150776 exact-head GitHub Actions: CI, Production Qualification, External XMage Integration, XMage Full Game Conformance, XMage Real 4P Technical Smoke, H4 Docker Materialization and Windows Runtime Hygiene all PASS; the informational ci-definition-integrity-shadow checks failed BY_DESIGN (exit 2 GATE_DEFINITION_CHANGED_REVIEW_REQUIRED, not in the required ruleset) and receive no credit'
+evidence:
+- 'PR575: https://github.com/moeendres-png/commander-playtest-lab/pull/575'
+- 'CI artifact CI_DEFINITION_INTEGRITY.json at e793f7f5: overall GATE_DEFINITION_CHANGED_REVIEW_REQUIRED; all invariants PASS'
+- 'Roots ruleset 23547579 requires only quality, security, infrastructure; shadow is informational'
+- 'PR575 merged through the normal GitHub PR path as main merge commit 53493f6c10a9d48b280a5aca352ddfbd81178161 from exact validated head 0915077654de5a44efde00e02b8ae421366e3134; no force, rebase or bypass'
+files_modified:
+- docs/foundry-execution/ROUTING_AND_EFFORT.md
+- tests/unit/test_claude_routing_policy.py
+- .claude/skills/lab-ops/SKILL.md
+validated_gates:
+- 'PR575 exact head 0915077654de5a44efde00e02b8ae421366e3134: all required PR workflows PASS; the informational ci-definition-integrity-shadow checks failed BY_DESIGN (exit 2 GATE_DEFINITION_CHANGED_REVIEW_REQUIRED), are not in the required ruleset, and receive no credit'
+- 'Final merge gate: mergeable, base main 84c17f9d0fb768812e00ecaef5cb2dcd4db57676 unchanged, zero unresolved review threads'
+- 'Fresh-context foundry-reviewer: NO BLOCKING FINDINGS'
+failed_gates: []
+invalidated_gates:
+- 'exact-head required CI at e793f7f5 and b5641e3d superseded by later branch heads'
+do_not_rerun:
+- 'Do not rerun PR575 exact-head validation at 0915077654de5a44efde00e02b8ae421366e3134 unless a relevant code, policy, harness or executor-contract change invalidates it.'
+remaining_scope: []

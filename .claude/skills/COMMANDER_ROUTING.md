@@ -4,6 +4,29 @@ This directory is an on-demand Claude workflow layer. It supplements, and never
 replaces, `AGENTS.md`, the current execution-authority document, or active
 workstream contracts.
 
+## Quota-aware execution routing
+
+This is routing guidance only; `AGENTS.md` remains authority. For each task choose the cheapest
+lane that preserves required correctness and evidence:
+
+1. deterministic script/tool when judgement is unnecessary;
+2. DeepSeek V4.1 Flash native `max` as the default OpenCode executor for implementation,
+   debugging, tests, qualification execution, evidence production and long engineering work;
+3. Space Bunny native `max` only as an explicitly justified secondary/cross-model lane — never
+   an automatic failure/quota fallback. The `/bunny` GitHub command is specifically a read-only
+   audit workflow, not a claim that every authorized Space Bunny workstream is read-only;
+4. bounded Claude read-only helpers: `log-scanner` = Sonnet `low`, `ci-triage` = Sonnet
+   `medium`, built-in `Explore` only for a scoped lookup after deterministic search is
+   insufficient;
+5. Opus 5.5 `medium` for normal coordination/dispatch/source-state management and `high` for
+   Rules, evidence/qualification, architecture, security/containment and other high-risk
+   adjudication. `evidence-reviewer` is Opus `high`.
+
+Do not spawn general-purpose Claude subagents for implementation/debug/test-fix work; send that
+work to Foundry. Keep Claude helper topology flat and do not create agent teams. After delegation,
+consume the compact handoff before reopening raw material, and reopen it only when authority or
+independent verification requires it.
+
 ## Current project mode
 
 The overall end product is greenfield, but the current engineering environment is
