@@ -1,0 +1,45 @@
+== MICRO_COPY: UNSUPPORTED_DIMENSION -> UNSUPPORTED_DIMENSION | checkpoint None -> None | frames 17 -> 17 same_seq=True | since-readback added Counter({'False': 2, 'True': 1}) (before 0)
+== MICRO_COSTS: UNSUPPORTED_DIMENSION -> UNSUPPORTED_DIMENSION | checkpoint None -> None | frames 0 -> 0 same_seq=True | since-readback added Counter() (before 0)
+    MICRO_COSTS.checkpoint_equivalence.unobservable_dimensions[len] | 1 -> 0
+    MICRO_COSTS.requested_state_identity.dimensions[len] | 5 -> 4
+    MICRO_COSTS.requested_state_identity.dimensions[3].detail | "no bootstrap field; attack eligibility is engine-derived" -> "the bootstrap hook establishes the starting player's first turn; a different active player cannot be constructed"
+    MICRO_COSTS.requested_state_identity.dimensions[3].dimension | "semantic_objects.controlled_since_turn_began" -> "temporal_state.active_player"
+    MICRO_COSTS.requested_state_identity.dimensions[3].requested | "obj:P1-commander" -> "p2"
+    MICRO_COSTS.requested_state_identity.dimensions[3].status | "UNOBSERVABLE" -> "UNSUPPORTED"
+== MICRO_LAYERS: OBLIGATION_NOT_OBSERVABLE -> OBLIGATION_NOT_OBSERVABLE | checkpoint None -> None | frames 17 -> 17 same_seq=True | since-readback added Counter({'True': 4, 'False': 2}) (before 0)
+== MICRO_MODES: UNSUPPORTED_DIMENSION -> UNSUPPORTED_DIMENSION | checkpoint None -> None | frames 17 -> 17 same_seq=True | since-readback added Counter({'True': 6, 'False': 2}) (before 0)
+== MICRO_REPLACEMENT: UNSUPPORTED_DIMENSION -> UNSUPPORTED_DIMENSION | checkpoint None -> None | frames 0 -> 0 same_seq=True | since-readback added Counter() (before 0)
+    MICRO_REPLACEMENT.checkpoint_equivalence.unobservable_dimensions[len] | 1 -> 0
+    MICRO_REPLACEMENT.classification.reasons[1] | "temporal_state.combat_step: the requested combat step is unreachable from the bootstrap checkpoint: there is no combat-state field and bootstrap-plac -> "temporal_state.combat_step: the requested combat step is not established by the bootstrap: there is no combat-state field and the lane executes no co
+    MICRO_REPLACEMENT.requested_state_identity.dimensions[len] | 3 -> 2
+    MICRO_REPLACEMENT.requested_state_identity.dimensions[1].detail | "no bootstrap field; attack eligibility is engine-derived" -> "the requested combat step is not established by the bootstrap: there is no combat-state field and the lane executes no combat declaration; the combat
+    MICRO_REPLACEMENT.requested_state_identity.dimensions[1].dimension | "semantic_objects.controlled_since_turn_began" -> "temporal_state.combat_step"
+    MICRO_REPLACEMENT.requested_state_identity.dimensions[1].requested | "obj:micro-3power" -> {"phase": "combat", "step": "declare_blockers"}
+    MICRO_REPLACEMENT.requested_state_identity.dimensions[1].status | "UNOBSERVABLE" -> "UNSUPPORTED"
+    MICRO_REPLACEMENT.scenario_parse.hard_unsupported_dimensions[1].detail | "the requested combat step is unreachable from the bootstrap checkpoint: there is no combat-state field and bootstrap-placed attackers are summoning-s -> "the requested combat step is not established by the bootstrap: there is no combat-state field and the lane executes no combat declaration; the combat
+== MICRO_ZONE_CHANGES: UNSUPPORTED_DIMENSION -> UNSUPPORTED_DIMENSION | checkpoint None -> None | frames 17 -> 17 same_seq=True | since-readback added Counter({'False': 2, 'True': 1}) (before 0)
+== WS05-CMD-DMG-SPLIT: EXECUTED_OBLIGATION_OBSERVED -> EXECUTED_OBLIGATION_OBSERVED | checkpoint EXACT -> EXACT | frames 17 -> 17 same_seq=True | since-readback added Counter({'False': 3, 'True': 1}) (before 0)
+== WS05-CMD-PARTNER-DMG: EXECUTED_OBLIGATION_OBSERVED -> EXECUTED_OBLIGATION_OBSERVED | checkpoint EXACT -> EXACT | frames 17 -> 17 same_seq=True | since-readback added Counter({'False': 3, 'True': 1}) (before 0)
+== WS05-CMD-PARTNER-ZONE: EXECUTED_OBLIGATION_OBSERVED -> EXECUTED_OBLIGATION_OBSERVED | checkpoint EXACT -> EXACT | frames 17 -> 17 same_seq=True | since-readback added Counter({'False': 3, 'True': 1}) (before 0)
+== WS05-CMD-ZONE-EXILE-NO: EXECUTED_OBLIGATION_OBSERVED -> EXECUTED_OBLIGATION_OBSERVED | checkpoint EXACT -> EXACT | frames 27 -> 27 same_seq=True | since-readback added Counter({'False': 20, 'True': 8}) (before 0)
+== WS05-CMD-ZONE-EXILE-YES: EXECUTED_OBLIGATION_OBSERVED -> EXECUTED_OBLIGATION_OBSERVED | checkpoint EXACT -> EXACT | frames 27 -> 27 same_seq=True | since-readback added Counter({'False': 20, 'True': 8}) (before 0)
+== WS05-CMD-ZONE-GY-NO: EXECUTED_OBLIGATION_OBSERVED -> EXECUTED_OBLIGATION_OBSERVED | checkpoint EXACT -> EXACT | frames 28 -> 28 same_seq=True | since-readback added Counter({'False': 25, 'True': 8}) (before 0)
+== WS05-CMD-ZONE-GY-YES: EXECUTED_OBLIGATION_OBSERVED -> EXECUTED_OBLIGATION_OBSERVED | checkpoint EXACT -> EXACT | frames 28 -> 28 same_seq=True | since-readback added Counter({'False': 25, 'True': 8}) (before 0)
+== WS05-CMD-ZONE-HAND-NO: EXECUTED_OBLIGATION_OBSERVED -> EXECUTED_OBLIGATION_OBSERVED | checkpoint EXACT -> EXACT | frames 27 -> 27 same_seq=True | since-readback added Counter({'False': 20, 'True': 9}) (before 0)
+== WS05-CMD-ZONE-HAND-YES: EXECUTED_OBLIGATION_OBSERVED -> EXECUTED_OBLIGATION_OBSERVED | checkpoint EXACT -> EXACT | frames 27 -> 27 same_seq=True | since-readback added Counter({'False': 20, 'True': 9}) (before 0)
+== WS05-MP-BLOCK-4: UNSUPPORTED_DIMENSION -> UNSUPPORTED_DIMENSION | checkpoint None -> None | frames 0 -> 0 same_seq=True | since-readback added Counter() (before 0)
+    WS05-MP-BLOCK-4.classification.reasons[2] | "temporal_state.combat_step: the requested combat step is unreachable from the bootstrap checkpoint: there is no combat-state field and bootstrap-plac -> "temporal_state.combat_step: the requested combat step is not established by the bootstrap: there is no combat-state field and the lane executes no co
+    WS05-MP-BLOCK-4.requested_state_identity.dimensions[2].detail | "the requested combat step is unreachable from the bootstrap checkpoint: there is no combat-state field and bootstrap-placed attackers are summoning-s -> "the requested combat step is not established by the bootstrap: there is no combat-state field and the lane executes no combat declaration; the combat
+    WS05-MP-BLOCK-4.scenario_parse.hard_unsupported_dimensions[2].detail | "the requested combat step is unreachable from the bootstrap checkpoint: there is no combat-state field and bootstrap-placed attackers are summoning-s -> "the requested combat step is not established by the bootstrap: there is no combat-state field and the lane executes no combat declaration; the combat
+== WS05-MP-COMBAT-4: UNSUPPORTED_DIMENSION -> UNSUPPORTED_DIMENSION | checkpoint None -> None | frames 0 -> 0 same_seq=True | since-readback added Counter() (before 0)
+    WS05-MP-COMBAT-4.checkpoint_equivalence.unobservable_dimensions[len] | 1 -> 0
+    WS05-MP-COMBAT-4.classification.reasons[2] | "temporal_state.combat_step: the requested combat step is unreachable from the bootstrap checkpoint: there is no combat-state field and bootstrap-plac -> "temporal_state.combat_step: the requested combat step is not established by the bootstrap: there is no combat-state field and the lane executes no co
+    WS05-MP-COMBAT-4.requested_state_identity.dimensions[len] | 4 -> 3
+    WS05-MP-COMBAT-4.requested_state_identity.dimensions[2].detail | "no bootstrap field; attack eligibility is engine-derived" -> "the requested combat step is not established by the bootstrap: there is no combat-state field and the lane executes no combat declaration; the combat
+    WS05-MP-COMBAT-4.requested_state_identity.dimensions[2].dimension | "semantic_objects.controlled_since_turn_began" -> "temporal_state.combat_step"
+    WS05-MP-COMBAT-4.requested_state_identity.dimensions[2].requested | "obj:mp-attacker-0" -> {"phase": "combat", "step": "declare_attackers"}
+    WS05-MP-COMBAT-4.requested_state_identity.dimensions[2].status | "UNOBSERVABLE" -> "UNSUPPORTED"
+    WS05-MP-COMBAT-4.scenario_parse.hard_unsupported_dimensions[2].detail | "the requested combat step is unreachable from the bootstrap checkpoint: there is no combat-state field and bootstrap-placed attackers are summoning-s -> "the requested combat step is not established by the bootstrap: there is no combat-state field and the lane executes no combat declaration; the combat
+== WS05-MP-ELIM-5: EXECUTED_OBLIGATION_OBSERVED -> EXECUTED_OBLIGATION_OBSERVED | checkpoint ALLOWED_VARIANCE -> ALLOWED_VARIANCE | frames 18 -> 18 same_seq=True | since-readback added Counter({'False': 3, 'True': 1}) (before 0)
+== WS05-MP-ELIM-OWNED-3: EXECUTED_OBLIGATION_OBSERVED -> EXECUTED_OBLIGATION_OBSERVED | checkpoint ALLOWED_VARIANCE -> ALLOWED_VARIANCE | frames 8 -> 8 same_seq=True | since-readback added Counter({'True': 1, 'False': 1}) (before 0)
+== WS05-MP-ELIM-PRIO-3: EXECUTED_OBLIGATION_OBSERVED -> EXECUTED_OBLIGATION_OBSERVED | checkpoint ALLOWED_VARIANCE -> ALLOWED_VARIANCE | frames 8 -> 8 same_seq=True | since-readback added Counter({'True': 1, 'False': 1}) (before 0)
