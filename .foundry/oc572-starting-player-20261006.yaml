@@ -4,8 +4,8 @@ worktree: /home/moeen/work/worktrees/oc572-starting-player-20261006
 branch: opencode/oc572-starting-player-20261006
 audit_base_sha: 5849d187a0adf0ce323991ea0bf0c8a7fd931a88
 audit_base_tree: e839522778c050567cbf5f4f542c96881ad7dc61
-state_written_against_head: 976429e340c4af91e901e5fba15aab2088f22fd9
-validated_head: d15ea7e131da6fb62580c627703dd340da8e2bb8
+state_written_against_head: 8c572e7970356d8b6bfe44e45951a3b70288ee5e
+validated_head: 8c572e7970356d8b6bfe44e45951a3b70288ee5e
 objective: '#572 / #441 / #255 starting-player authority. Eliminate every production-reachable
   or qualification-credit path where the Lab or its provider bridge chooses the starting
   player by an implicit p1/seat-0 default; then close the impacted XMage AF08 starting-player
@@ -79,24 +79,10 @@ forbidden_shortcuts:
 - parent_class_fallback
 - requested_option_filtering_that_reconstructs_legality
 - implicit_p1_or_seat_0_starting_player
-current_failure: 'WIP handoff. The starting-player authority repair is implemented
-  and locally validated at d15ea7e1, but the branch HEAD 6e757afc (plus the uncommitted
-  P1-repair batch) is not merge-ready: (1) the session-tooling commit 5f2468fe rebinds
-  the Space Bunny profiles/whitelist from opencode-go/space-bunny-free to opencode-go/space-bunny,
-  which diverges from the canonical launcher profile and fails 67 tests in tests/foundry
-  at a clean detached 6e757afc (e.g. test_foundry_tools.py:280/303 expect whitelist
-  ["deepseek-v4.1-flash", "space-bunny-free"]; test_project_integrity.py:26 KeyError
-  ''space-bunny-free''); (2) a fresh-context Space Bunny cross-model audit found a
-  P1 in the first provider-acknowledgement design (the create echo repeats the request
-  and is not independent engine confirmation) plus P2s (replay channel bindable from
-  a tape string; Java comments claiming the bridge never chooses the starter). The
-  P1/P2 repair is implemented but UNCOMMITTED at handoff time: the channel is now
-  PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT, backed by the engine''s own start_game
-  starting_player_id resolved through the engine''s seat roster; the replay channel
-  binds the executed option''s source_object_id; RulesGameRequest.starting_player_seat
-  no longer defaults to 0. Targeted qualification tests pass (182 + 1794 full qualification),
-  but the repair has not been committed, re-reviewed, or run through engine-bridge/PB-03
-  CI on the new bytes.'
+current_failure: 'None for the review repair at 8c572e79. The branch still carries
+  the out-of-scope session-tooling commit 5f2468fe (Space Bunny model-ID rebind)
+  whose tests/foundry failures must be resolved on the separate tooling PR; this
+  is unchanged by the review repair.'
 failure_class: HARNESS_DEFECT
 current_hypothesis: 'Not a hypothesis: the starting-player default defect is proven
   and repaired; the remaining work is validation/persistence of the review-driven
@@ -186,6 +172,19 @@ authority_gates:
   do not force-push.
 status: WAITING
 validated_gates:
+- 'Review repair at 8c572e79 (Claude-directed /oc fix of the 8b28ce8b review findings):
+  tests/qualification 1804 passed / 23 skipped with 0 deselections; the 291 touched
+  qualification + integration tests passed; ruff check and ruff format --check clean
+  across src/tests; mypy on the changed modules and mypy src/commander_lab (296 files)
+  clean; engine-bridge full suite 967 run / 0 failures / 0 errors / 1 skipped.'
+- 'Mutation controls at 8c572e79: M5 (replay channel granted from the tape policy
+  string) killed by test_generic_lane_replay_requires_the_executed_seat_identity; M10
+  (ENGINE_FRAME channel granted from the declared seat without an answered frame) killed
+  by the two new P2-2 controls; new N1 (channel labelled PROVIDER_ENGINE_CONFIRMED from
+  the create echo alone) killed by the two XMage twin echo controls; new N2 (starting-seat
+  mismatch raised as ENGINE_RUNTIME_ERROR) killed by the P3-2 controls incl. full107
+  UNKNOWN; new N3 (Python ignored the prompt chooser/chosen ids) killed by four P3-3
+  controls.'
 - 'Qualification suite at 28d99a3d/d15ea7e1 (pre-P1-repair): 1791 passed, 21 skipped
   (two local egg-info trigger tests deselected).'
 - 'Qualification suite after the P1 repair (working tree, 2026-10-06 17:2x): 1794
@@ -269,6 +268,13 @@ files_modified:
 - opencode.json and .opencode/agents/bunny-{auditor,verifier}.md (commit 5f2468fe;
   session tooling, blocker above)
 tests_run:
+- 'PYTHONPATH=$PWD/src pytest -q -p no:cacheprovider tests/qualification at 8c572e79:
+  1804 passed, 23 skipped.'
+- 'The 291 touched qualification + integration tests at 8c572e79: 291 passed.'
+- 'engine-bridge mvn -B -ntp test at 8c572e79: 967 run, 0 failures, 0 errors, 1 skipped;
+  focused JsonlBridgeTest/XmageGameManagerTest/XmageBridgePlayerFailClosedTest: 29 passed.'
+- 'ruff check src tests / ruff format --check src tests at 8c572e79: clean.'
+- 'mypy changed modules and mypy src/commander_lab at 8c572e79: clean (296 files).'
 - 'python3 -m pytest -q tests/qualification --deselect <two egg-info trigger tests>:
   1794 passed, 21 skipped at the working tree (P1 repair).'
 - 'python3 -m pytest -q tests/qualification/test_starting_player_authority.py tests/qualification/test_replay_twins.py
@@ -283,37 +289,35 @@ tests_run:
 - 'Real pinned XMage keyed launches via docs/oc572_starting_player_20261006/capture_starting_player_evidence.py:
   five declared runs PASS, undeclared and START-2 fail closed.'
 remaining_scope:
-- 'R1 (Claude): commit the uncommitted P1/P2 repair batch and re-run targeted + engine-bridge
-  + qualification validation on the new bytes.'
+- 'R1 (done at 8c572e79): the 8b28ce8b review P2/P3 repair (P2-1 echo-only channel,
+  P2-2 M10 control, P3-1 M5 control, P3-2 UNKNOWN classification, P3-3 CR 103.2 prompt
+  identities in the XMage bridges) is committed and locally validated.'
+- 'R3 (adjudicated + implemented): the Coordinator accepted PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT
+  with conditions R3-C1..R3-C5; the prompt-identity readback (R3-C1), mismatch refusal
+  (R3-C2), readback requirement (R3-C3), distinct echo-only label (R3-C4) and mutation
+  controls (R3-C5) are implemented and tested at 8c572e79.'
 - 'R2 (Claude): dispose of commit 5f2468fe (align canonical config/tests or exclude
   the commit on the integration line) so tests/foundry returns to green.'
-- 'R3 (Claude): decide whether PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT satisfies the
-  Owner rule "submitted only through the engine-authored legal decision frame" for
-  the XMage compatibility lane, or downgrade it to UNSUPPORTED (which would make PLAYER_COUNT_2P..5P
-  and PILOT_MULLIGAN UNKNOWN on XMage). Evidence for the decision: the engine start
-  readback confirms the established starter; the compatibility lane exposes no external
-  CR 103.2 frame.'
 - 'R4 (Claude): implementation of the decided contract 1.0.22 START-2 natural-start
   erratum (with MULL-2/MULL-4 rules_randomness and C-E1/C-E2) to close XMage AF08
   WS05-CMD-START-2.'
-- 'R5: fresh-context review of the P1 repair, PB-03 on the exact final head, sealed
-  epoch, then the protected merge decision.'
+- 'R5: fresh-context review of 8c572e79, PB-03 on the exact final head, sealed epoch,
+  then the protected merge decision.'
 first_failing_boundary: 'engine-bridge/src/test/java + tests/foundry: the three JSONL
   bridges used to default starting_player_seat to 0 (fixed), and tests/foundry currently
   fails on the canonical Space Bunny model ID after commit 5f2468fe.'
 root_cause_class: HARNESS_DEFECT
-next_action: 'Claude resumes from this checkpoint: commit the P1/P2 repair batch (do
-  not lose it), re-run the targeted qualification tests plus engine-bridge and foundry
-  suites, resolve the Space Bunny config commit, then decide the XMage compatibility-channel
-  evidence question (R3) before any PB-03/requalification.'
+next_action: 'The 8b28ce8b review P2/P3 repair is committed and validated at 8c572e79
+  (see tests_run/validated_gates). Next: a fresh-context review of 8c572e79, resolve
+  the 5f2468fe tooling-commit disposition, then PB-03 on the exact reviewed head and
+  the sealed epoch; the contract 1.0.22 START-2 erratum stays a separate successor
+  milestone.'
 exact_next_action: 'From a fresh clone/worktree of branch opencode/oc572-starting-player-20261006
-  at the checkpoint commit: run `git status` and commit the uncommitted P1/P2 repair
-  batch with a WIP message, then run: `ruff check src tests && ruff format --check
-  src tests`, `python3 -m pytest -q tests/qualification/test_starting_player_authority.py
-  tests/qualification/test_replay_twins.py tests/qualification/test_generic_construction_proof.py
-  tests/qualification/test_current_boundary_seed_capability.py`, `cd engine-bridge
-  && mvn -o -B -ntp test -Dmaven.repo.local=~/.m2/repository`, and resolve the 5f2468fe
-  tests/foundry disposition. Then adjudicate R3 and requalify only the impacted rows.'
+  at 8c572e79: run a fresh-context review of the review repair (channel/readback and
+  mutation controls), then `git -C engine-bridge mvn -B -ntp test` (already green at
+  this head: 967/0/1) as needed and PB-03 on the exact head. Do not rerun the already
+  green qualification/ruff/mypy commands above without an invalidating change. Then
+  dispose of 5f2468fe and decide the merge path.'
 executor_handoff_from: opencode-go/deepseek-v4.1-flash
 executor_handoff_reason: Owner instruction to pause implementation and convert the
   workstream into a durable GitHub handoff for Claude; implementation was mid-repair
