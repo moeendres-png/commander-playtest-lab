@@ -185,7 +185,7 @@
     "opencode-go": {
       "whitelist": [
         "deepseek-v4.1-flash",
-        "space-bunny-free"
+        "space-bunny"
       ],
       "models": {
         "deepseek-v4.1-flash": {
@@ -217,7 +217,7 @@
             "max": {}
           }
         },
-        "space-bunny-free": {
+        "space-bunny": {
           "options": {
             "reasoningEffort": "max"
           },

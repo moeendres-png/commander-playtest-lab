@@ -94,7 +94,7 @@ DEFAULT_EXECUTION_PROFILE = PRIMARY_EXECUTION_PROFILE
 # here plus one whitelist row in opencode.json.
 PROFILE_MODELS = {
     "deepseek": "opencode-go/deepseek-v4.1-flash",
-    "space-bunny": "opencode-go/space-bunny-free",
+    "space-bunny": "opencode-go/space-bunny",
 }
 DEEPSEEK_MODEL = PROFILE_MODELS[PRIMARY_EXECUTION_PROFILE]
 SPACE_BUNNY_MODEL = PROFILE_MODELS[SECONDARY_EXECUTION_PROFILE]
@@ -102,7 +102,7 @@ CANONICAL_MODEL = PROFILE_MODELS[PRIMARY_EXECUTION_PROFILE]
 ALTERNATE_MODEL = PROFILE_MODELS[SECONDARY_EXECUTION_PROFILE]
 AUTHORIZED_NATIVE_VARIANT = {
     "deepseek-v4.1-flash": "max",
-    "space-bunny-free": "max",
+    "space-bunny": "max",
 }
 ALLOWED_EFFORTS = ("high", "xhigh")
 BELOW_HIGH = ("medium", "low", "minimal", "none", "off")
@@ -1409,7 +1409,7 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help=(
             "Explicit OpenCode Go executor profile. Omitted selects the DeepSeek MAX "
-            "primary; 'space-bunny' explicitly selects the Space Bunny Free MAX "
+            "primary; 'space-bunny' explicitly selects the Space Bunny MAX "
             "secondary. Any other execution profile is unauthorized and rejected."
         ),
     )

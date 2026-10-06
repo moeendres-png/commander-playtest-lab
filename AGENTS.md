@@ -116,7 +116,7 @@ requalification.
   and long autonomous workstreams. The committed/default and preferred executor is
   `deepseek`: `opencode-go/deepseek-v4.1-flash` at native `max` for the main model,
   small model, primary implementer, and reachable project agents. Space Bunny is an
-  explicit secondary only: `opencode-go/space-bunny-free` at native `max`, for bounded,
+  explicit secondary only: `opencode-go/space-bunny` at native `max`, for bounded,
   mechanical, token-heavy, bulk and background work. No other OpenCode execution profile is
   authorized or reachable through the canonical launcher/config. Executor selection is explicit
   per run, recorded, never inferred from quota or failure, and never falls back silently.

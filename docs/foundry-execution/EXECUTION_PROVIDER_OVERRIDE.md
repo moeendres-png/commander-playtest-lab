@@ -1,7 +1,7 @@
 # Explicit execution profile and provider overrides
 
 The committed/default and preferred executor is `opencode-go/deepseek-v4.1-flash` at native `max`.
-The explicitly selectable secondary executor is `opencode-go/space-bunny-free` at native `max`.
+The explicitly selectable secondary executor is `opencode-go/space-bunny` at native `max`.
 
 ## DeepSeek Max profile
 
@@ -46,7 +46,7 @@ Space Bunny MAX is the explicit secondary executor:
 --execution-profile space-bunny --effort high
 ```
 
-The authorized Space Bunny identity is `opencode-go/space-bunny-free` with main model, small model
+The authorized Space Bunny identity is `opencode-go/space-bunny` with main model, small model
 and reachable agents at native `max`. An authenticated bounded smoke under the exact
 launcher-injected secondary bundle resolved `providerID=opencode-go modelID=space-bunny-free` with
 exit 0 on 2026-09-29. Use it for bounded, mechanical, token-heavy, bulk and background work, or
