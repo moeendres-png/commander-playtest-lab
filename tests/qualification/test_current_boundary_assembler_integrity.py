@@ -142,6 +142,96 @@ def test_carried_column_gates_are_annotated_as_historical() -> None:
         assert "historical record carried forward" in joined
         assert "not a fresh execution" in joined
         assert carried["source_epoch"] in joined
+        # #572: a carried PASS is never a current PASS; it is kept apart.
+        assert gate["verdict"] == "UNKNOWN"
+        assert gate["historical_verdict"] == "PASS"
+
+
+def test_carried_column_keeps_a_non_pass_gate_verdict() -> None:
+    asm = _assembler_module()
+    gates = [{"gate": "AF05", "verdict": "FAIL"}, {"gate": "AF06", "verdict": "UNKNOWN"}]
+    asm._annotate_carried_gates(gates, {"class": "CARRIED_FORWARD_FROM_HISTORICAL_EPOCH"})
+    assert [g["verdict"] for g in gates] == ["FAIL", "UNKNOWN"]
+    assert all("historical_verdict" not in g for g in gates)
+
+
+def test_carried_pass_rows_are_demoted_and_kept_apart() -> None:
+    """#572: automatic_carry_forward is false, so a carried PASS counts as UNKNOWN."""
+    asm = _assembler_module()
+    rows = {
+        "A": {
+            "fixture_id": "A",
+            "exit_state": "PASS",
+            "reason": "old pass",
+            "execution_mode": "M",
+            "positive_receipt_identities": ["r1"],
+            "terminal_facts": {"positive_receipts": ["r1"], "turn": 3},
+        },
+        "B": {"fixture_id": "B", "exit_state": "BLOCKED", "reason": "no seam"},
+        "C": {"fixture_id": "C", "exit_state": "PASS", "reason": "old pass"},
+    }
+    historical = asm._demote_carried_rows(rows)
+    assert historical == {"PASS": 2, "BLOCKED": 1}
+    assert [rows[k]["exit_state"] for k in "ABC"] == ["UNKNOWN", "BLOCKED", "UNKNOWN"]
+    assert rows["A"]["historical_exit_state"] == "PASS"
+    assert rows["A"]["historical_reason"] == "old pass"
+    assert "provenance only" in rows["A"]["reason"]
+    # Every carried row is marked historical, PASS or not.
+    assert rows["B"]["historical_exit_state"] == "BLOCKED"
+    assert rows["B"]["reason"] == "no seam"
+    # A demoted row carries no receipt field a consumer could read as credit.
+    assert "positive_receipt_identities" not in rows["A"]
+    assert "positive_receipts" not in rows["A"]["terminal_facts"]
+    assert rows["A"]["historical_positive_receipt_identities"] == ["r1"]
+    assert rows["A"]["historical_positive_receipts"] == ["r1"]
+
+
+def test_carried_demotion_is_idempotent_across_reassembly() -> None:
+    """A second assembly of the same epoch still reports the original history."""
+    asm = _assembler_module()
+    rows = {
+        "A": {"fixture_id": "A", "exit_state": "PASS", "reason": "old pass"},
+        "B": {"fixture_id": "B", "exit_state": "UNKNOWN", "reason": "gap"},
+    }
+    first = asm._demote_carried_rows(rows)
+    second = asm._demote_carried_rows(rows)
+    assert first == second == {"PASS": 1, "UNKNOWN": 1}
+    assert rows["A"]["historical_reason"] == "old pass"
+
+
+def _assemble_source() -> str:
+    tree = ast.parse(ASSEMBLER.read_text(encoding="utf-8"))
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef) and node.name == "assemble":
+            return ast.unparse(node)
+    raise AssertionError("assemble() not found")
+
+
+def test_a_carried_column_is_demoted_before_any_count_or_gate() -> None:
+    """The demotion runs where the column is loaded, before counts are taken."""
+    source = _assemble_source()
+    load = source.index("carried_forward = bool(results.get(")
+    demote = source.index("_demote_carried_rows(rows) if carried_forward else None")
+    counts = source.index("counts[row['exit_state']] = counts.get(")
+    assert load < demote < counts
+    assert "results['historical_counts_not_credit'] = historical_counts" in source
+
+
+def test_carried_gates_are_demoted_before_the_matrix_and_readiness_are_written() -> None:
+    """Unit tests of the helper cannot see a deleted or moved call; this can."""
+    source = _assemble_source()
+    annotate = source.index("_annotate_carried_gates(matrix, data['column_provenance'])")
+    matrix_write = source.index("f'AF00_AF11_{candidate.upper()}.json'")
+    readiness = source.index("'PROVIDER_READINESS_CURRENT.json'")
+    assert annotate < matrix_write < readiness
+
+
+def test_a_carried_side_is_never_compared() -> None:
+    source = _assemble_source()
+    carried = source.index("if 'historical_exit_state' in xr or 'historical_exit_state' in fr:")
+    semantic = source.index("semantic_mod.compare_semantics(xr, fr)")
+    current_failure = source.index("a current-boundary failure requires")
+    assert carried < semantic < current_failure
 
 
 def test_carried_column_rows_are_never_promoted() -> None:
