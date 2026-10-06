@@ -1,0 +1,189 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/runner/work/commander-playtest-lab/commander-playtest-lab
+branch: opencode/issue578-20261006204641
+audit_base_sha: 5a062a5bd1836e08514c78085f97071e8f533970
+audit_base_tree: ba3ce0870c305d28845c9f174a93496181bfc074
+state_written_against_head: a2773c3034d4a51384fa6cc595d3477eafb2eacd
+validated_head: a2773c3034d4a51384fa6cc595d3477eafb2eacd
+validated_tree: 1fb34f7e1aca680606d0a708666ed52385305f43
+objective: 'Implement issue #578 durably: DeepSeek MAX remains the default/primary
+  implementation executor; Space Bunny MAX is the mandatory independent fresh-context
+  READ-ONLY cross-executor reviewer for MATERIAL implementation workstreams, resolved
+  only after live pinned-CLI catalog inspection (canonical opencode-go/space-bunny,
+  else admitted LEGACY_ALIAS opencode-go/space-bunny-free, else fail closed), with
+  exact-SHA/TREE review gating, staleness rules, materiality classification and remote
+  checkpoint verification. No merge in this run.'
+in_scope:
+- tools/foundry/executor_profiles.py + launcher/opencode.json registry alias resolution
+- tools/foundry/review_gate.py canonical structure/validator and completion claim
+  gate
+- tools/foundry/materiality.py fail-safe MATERIAL/NON_MATERIAL classification
+- tools/foundry/remote_checkpoint.py + safe_push.py post-push remote HEAD equality
+- state schema/validator policy fields (validated_tree, materiality, cross_executor_review,
+  remote_checkpoint)
+- read-only foundry-reviewer bound to Space Bunny + /bunny-review workflow lane
+- 'wrong-reason/regression tests and restored #577 P3 activation-evidence guards'
+out_of_scope:
+- Magic Rules semantics, qualification denominators/credit, engine/provider evidence
+  semantics
+- hidden-information semantics, production provider selection, Architecture Freeze
+- production repository creation, Mage/Forge Rules Core changes
+- '#574 surfaces, main-branch mutation, merge of this PR'
+ownership: oc-foundry-cross-executor-policy-20261006
+dependencies:
+- '#577 merged as 5a062a5bd1836e08514c78085f97071e8f533970 (consumed, not undone)'
+- '#575 gh_ops/oc_dispatch/HANDOFF tooling reused for checkpoints'
+- '#576/#577 canonical executor identity and evidence semantics reused'
+hard_gates:
+- exactly two logical executor profiles; no third executor
+- DeepSeek remains default; both logical profiles native max
+- Space Bunny resolution requires live catalog inspection; canonical before legacy
+  alias; else fail closed
+- no automatic cross-family fallback; post-selection failure is BLOCKED, never re-resolution
+- MATERIAL PR_READY/COMPLETE requires fresh-context READ-ONLY Space Bunny PASS on
+  exact validated SHA and TREE
+- DeepSeek review, writable verifier, unknown/blocked/partial/fail/stale review never
+  satisfies the gate
+- material delta after review or P1/P2 repair requires exact new-SHA/TREE re-review
+- historical pre-policy states remain parseable and are not retroactively failed
+- UNKNOWN/BLOCKED/NOT_RUN/PARTIAL != PASS
+forbidden_shortcuts:
+- no silent Longcat/other-model substitution or first-available catalog row
+- no weakening tests/contracts/CI to obtain green results
+- no rewriting historical Bunny provenance to look current
+- no direct main mutation, force push, rebase, reset --hard or history rewrite
+validated_gates:
+- 'pytest tests/foundry/: 893 passed, 2 skipped (mage checkout absent, bubblewrap
+  absent)'
+- 'pytest focused unit policy set (routing/security/ci/handoff/ws78/ws223/oc_dispatch/gh_ops):
+  all passed'
+- 'ruff check + ruff format --check on changed tools/tests: clean'
+- 'live pinned CLI catalog inspection: opencode models opencode-go lists canonical
+  deepseek + space-bunny'
+failed_gates: []
+invalidated_gates: []
+do_not_rerun: []
+current_failure: none (independent Space Bunny review not yet dispatched; review gate
+  UNKNOWN by design)
+failure_class: NONE
+files_modified:
+- .foundry/WORKSTREAM_STATE.schema.json
+- .foundry/executor-profiles.json
+- .github/workflows/opencode.yml
+- .opencode/agents/foundry-reviewer.md
+- docs/CURRENT_EXECUTION_AUTHORITY.md
+- docs/foundry-execution/ROUTING_AND_EFFORT.md
+- opencode.json
+- tests/foundry/test_executor_profiles.py
+- tests/foundry/test_executor_resolution.py
+- tests/foundry/test_foundry_tools.py
+- tests/foundry/test_launcher.py
+- tests/foundry/test_materiality.py
+- tests/foundry/test_remote_checkpoint.py
+- tests/foundry/test_review_gate.py
+- tests/unit/test_claude_routing_policy.py
+- tests/unit/test_ws78_token_economy.py
+- tools/foundry/bootstrap.py
+- tools/foundry/executor_profiles.py
+- tools/foundry/launcher.py
+- tools/foundry/materiality.py
+- tools/foundry/metrics.py
+- tools/foundry/remote_checkpoint.py
+- tools/foundry/review_gate.py
+- tools/foundry/safe_push.py
+- tools/foundry/state.py
+tests_run:
+- python3 -m pytest tests/foundry/ -q -> 893 passed, 2 skipped
+- python3 -m pytest tests/foundry/test_executor_resolution.py tests/foundry/test_review_gate.py
+  tests/foundry/test_remote_checkpoint.py tests/foundry/test_materiality.py -q ->
+  64 passed (pre-format)
+- python3 -m pytest tests/unit/test_ws78_token_economy.py tests/unit/test_claude_routing_policy.py
+  tests/unit/test_workflow_security.py tests/unit/test_ci_definition_integrity.py
+  tests/unit/test_required_test_ownership.py tests/unit/test_ws223_environment_identity.py
+  tests/unit/test_workflow_jobs_mapping.py tests/unit/test_ws_arclose_d1_authority_drift.py
+  tests/unit/test_claude_handoff.py tests/unit/test_oc_dispatch.py tests/unit/test_gh_ops_brief.py
+  -q -> all passed
+- python3 -m ruff check <changed files> -> All checks passed
+- python3 -m ruff format --check <changed files> -> already formatted
+- python3 -m py_compile <changed tools modules> -> OK
+- opencode models opencode-go -> opencode-go/deepseek-v4.1-flash, opencode-go/space-bunny
+evidence:
+- 'DIRECTLY_VERIFIED: implementation commit a2773c3034d4a51384fa6cc595d3477eafb2eacd
+  tree 1fb34f7e1aca680606d0a708666ed52385305f43'
+- 'DIRECTLY_VERIFIED: 1152 passed, 2 skipped across tests/foundry plus the focused
+  unit policy set'
+- 'DIRECTLY_VERIFIED: live pinned CLI catalog listing includes canonical opencode-go/space-bunny'
+- 'CODE_DERIVED: alias/admission policy enforced by registry validation, resolver,
+  launcher bundle whitelist and opencode.json'
+- 'CODE_DERIVED: review gate requires exact reviewed_sha/tree == validated_head/tree
+  and Space Bunny read-only review_agent'
+- 'UNKNOWN: independent Space Bunny exact-SHA/TREE review (not yet dispatched; cannot
+  be self-claimed)'
+- 'ABSENT: remote checkpoint verification (push is performed by the GitHub opencode
+  infrastructure after this session; no writer-lock-holding launcher path is available
+  in this runner)'
+artifacts: []
+remaining_scope:
+- independent fresh-context read-only Space Bunny review of a2773c30 / 1fb34f7e
+- canonical review record under .foundry/reviews/ and state mirror update to PASS
+- remote checkpoint recording + remote HEAD equality verification after the infrastructure
+  push
+- normal PR review/merge path (explicitly not performed in this run)
+status: ACTIVE
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: max
+hypotheses_rejected:
+- Guessing the legacy alias from history instead of inspecting the live pinned CLI
+  catalog
+- Treating the legacy alias as a third logical executor instead of a runtime identity
+  of space-bunny
+- Letting DeepSeek or a writable verifier satisfy the cross-executor gate
+- Treating a pushed WIP as qualification PASS
+- Enforcing the new policy retroactively on historical COMPLETE states
+technical_decisions:
+- 'Materiality is fail-safe: unknown paths, tools/, tests/, schemas, CI and evidence
+  semantics are MATERIAL; only generated-state (.foundry/**/*.yaml, .foundry/reviews/**)
+  and docs-only closeout are NON_MATERIAL, and NON_MATERIAL is verified against the
+  Git change set.'
+- Review records live at .foundry/reviews/<workstream>.json; the state mirrors the
+  verdict and exact reviewed identities and fails closed on any mirror/record mismatch.
+- A generated-state-only checkpoint commit preserves the reviewed validated implementation
+  identity (reviewed_sha == validated_head) without pretending the later state commit
+  was reviewed.
+- The legacy runtime id opencode-go/space-bunny-free is admitted only as a runtime
+  identity (LEGACY_ALIAS) of the same logical space-bunny profile; canonical wins
+  when both are present.
+- Actual branch is the infrastructure-created opencode/issue578-20261006204641; the
+  requested tooling/... branch name was not available in this runner and is recorded
+  honestly.
+authority_gates: []
+first_failing_boundary: independent Space Bunny review dispatch (external reviewer
+  required; not a self-satisfiable gate)
+root_cause_class: NONE
+next_action: dispatch read-only Space Bunny review of a2773c30/1fb34f7e
+exact_next_action: Dispatch the fresh-context READ-ONLY Space Bunny review (`/bunny-review`
+  on the PR, or foundry-reviewer via the Foundry launcher) against implementation
+  SHA a2773c3034d4a51384fa6cc595d3477eafb2eacd / tree 1fb34f7e1aca680606d0a708666ed52385305f43;
+  write the canonical record to .foundry/reviews/oc-foundry-cross-executor-policy-20261006.json;
+  then update cross_executor_review to PASS with those exact identities and record
+  the remote checkpoint after the infrastructure push. Do not claim the gate satisfied
+  before that review.
+execution_profile: deepseek
+executor_model: opencode-go/deepseek-v4.1-flash
+logical_executor_profile: deepseek
+resolved_provider: opencode-go
+resolved_model_id: opencode-go/deepseek-v4.1-flash
+model_alias_class: CANONICAL
+native_variant: max
+variant_resolution: workflow_pinned_max
+materiality: MATERIAL
+cross_executor_review:
+  required: true
+  logical_profile: space-bunny
+  implementation_executor: deepseek
+  review_executor: space-bunny
+  reviewed_sha: null
+  reviewed_tree: null
+  verdict: UNKNOWN
+  review_record_path: null
