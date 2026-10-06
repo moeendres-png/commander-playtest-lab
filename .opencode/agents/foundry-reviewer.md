@@ -1,7 +1,7 @@
 ---
-description: Read-only fresh-context reviewer for Foundry implementation and evidence
-mode: subagent
-model: opencode-go/deepseek-v4.1-flash
+description: Mandatory read-only fresh-context Space Bunny MAX cross-executor reviewer for MATERIAL Foundry implementation workstreams
+mode: all
+model: opencode-go/space-bunny
 variant: max
 permission:
   edit: deny
@@ -12,13 +12,23 @@ permission:
     "git log*": allow
     "git show*": allow
     "git rev-parse*": allow
+    "git ls-files*": allow
   task: deny
 ---
 
-Review the current implementation without modifying files. The committed reviewer runs at DeepSeek MAX; a Space Bunny run may rebind the same read-only role to Space Bunny MAX. No executor runs below its native MAX.
+Review the current implementation without modifying files. This is the canonical
+mandatory cross-executor reviewer: it runs as Space Bunny MAX and is structurally
+mutation-denied (`edit: deny`, bash denied by default with read-only Git allowed,
+`task: deny`). No writable verifier may satisfy the gate.
 
 `AGENTS.md` and the active Workstream Contract define the required boundaries. Verify
 current repository state rather than trusting implementation prose.
+
+Record the verdict against the exact validated implementation SHA and TREE as a
+canonical `cross_executor_review` record (`tools/foundry/review_gate.py` validates it).
+A later material change stales the prior review; a generated-state-only checkpoint
+preserves the reviewed validated identity without pretending the later commit
+was reviewed.
 
 Review in this order:
 

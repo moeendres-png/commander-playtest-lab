@@ -103,6 +103,20 @@ def test_activation_evidence_records_authenticated_runtime_verification() -> Non
     assert "space-bunny-free" in historical["space_bunny_authenticated_smoke"]
     assert "provenance" in current["historical_scope"].lower()
 
+    # Restored #577 P3 guards: the 2026-09-29 activation evidence keys keep
+    # their meaning while profile resolution is refactored for the alias
+    # classes. Live catalog identity, native max pinning, and the no-fallback
+    # claim must not silently lose their assertions.
+    assert "opencode-go/deepseek-v4.1-flash" in historical["live_catalog_identity"]
+    assert "opencode-go/space-bunny-free" in historical["live_catalog_identity"]
+    assert "no model identity was substituted" in historical["live_catalog_identity"].lower()
+    assert "max" in historical["native_variant_pin"]
+    assert "no other native level is selectable" in historical["native_variant_pin"]
+    no_fallback = historical["no_fallback"]
+    assert "no retry" in no_fallback.lower()
+    assert "provider switch" in no_fallback.lower()
+    assert "profile change" in no_fallback.lower()
+
     active = doc["profiles"]["space-bunny"]
     assert active["model"] == "opencode-go/space-bunny"
     assert active["runtime_status"] == "ACTIVE"
@@ -128,6 +142,50 @@ def test_activation_evidence_records_authenticated_runtime_verification() -> Non
     assert receipt["execution"]["primary_deepseek_job_conclusion"] == "skipped"
     assert receipt["observation"]["workflow_job_conclusion"] == "success"
     assert receipt["observation"]["opencode_step_conclusion"] == "success"
+
+
+def test_runtime_identity_admits_one_canonical_and_one_legacy_bunny_alias() -> None:
+    """The legacy runtime id is an alias of the SAME logical profile only."""
+    doc = _registry()
+    identity = doc["runtime_identity"]
+    assert identity["opencode-go/deepseek-v4.1-flash"] == {
+        "logical_profile": "deepseek",
+        "alias_class": "CANONICAL",
+    }
+    assert identity["opencode-go/space-bunny"] == {
+        "logical_profile": "space-bunny",
+        "alias_class": "CANONICAL",
+    }
+    assert identity["opencode-go/space-bunny-free"] == {
+        "logical_profile": "space-bunny",
+        "alias_class": "LEGACY_ALIAS",
+    }
+    logical_profiles = {entry["logical_profile"] for entry in identity.values()}
+    assert logical_profiles == {"deepseek", "space-bunny"}
+    policy = doc["resolution_policy"]
+    assert policy["logical_profiles"] == ["deepseek", "space-bunny"]
+    assert policy["space_bunny_preference"] == [
+        "opencode-go/space-bunny",
+        "opencode-go/space-bunny-free",
+    ]
+    assert policy["automatic_fallback"] is False
+    assert policy["post_selection_failure"] == "FAIL_CLOSED_NO_RE_RESOLUTION"
+
+
+def test_cross_executor_review_policy_is_declared_and_strict() -> None:
+    """Durable registry declares the mandatory read-only cross-executor gate."""
+    policy = _registry()["cross_executor_review_policy"]
+    assert policy["required_for_material"] is True
+    assert policy["implementation_executor"] == "deepseek"
+    assert policy["review_executor"] == "space-bunny"
+    assert policy["review_mode"] == "READ_ONLY_FRESH_CONTEXT"
+    assert set(policy["review_agents"]) == {"bunny-auditor", "foundry-reviewer"}
+    assert policy["pass_verdict"] == "PASS"
+    assert "MATERIAL_DELTA_AFTER_REVIEW" in policy["re_review_on"]
+    assert "P1_REPAIR" in policy["re_review_on"]
+    assert "P2_REPAIR" in policy["re_review_on"]
+    assert policy["unsatisfied_executors"] == ["deepseek"]
+    assert policy["remote_resumability"] == "REQUIRES_REMOTE_CHECKPOINT_EQUALITY"
 
 
 def test_activation_receipt_classification_cannot_pass_for_wrong_reason() -> None:
@@ -204,6 +262,52 @@ def test_state_schema_can_persist_cross_model_execution_provenance() -> None:
         "executor_handoff_reason",
     ):
         assert key in props
+    # Exact runtime identity provenance for the two-profile + alias policy.
+    assert set(props["logical_executor_profile"]["enum"]) == {"deepseek", "space-bunny", None}
+    assert set(props["model_alias_class"]["enum"]) == {"CANONICAL", "LEGACY_ALIAS", None}
+    assert "resolved_provider" in props
+    assert "resolved_model_id" in props
+
+
+def test_state_schema_can_persist_cross_executor_review_policy() -> None:
+    """The durable schema carries the materiality/review/checkpoint contract."""
+    schema = json.loads(
+        (ROOT / ".foundry" / "WORKSTREAM_STATE.schema.json").read_text(encoding="utf-8")
+    )
+    props = schema["properties"]
+    assert "validated_tree" in props
+    assert set(props["materiality"]["enum"]) == {"MATERIAL", "NON_MATERIAL", None}
+    mirror = props["cross_executor_review"]
+    assert mirror["additionalProperties"] is False
+    for key in (
+        "required",
+        "logical_profile",
+        "resolved_model_id",
+        "model_alias_class",
+        "implementation_executor",
+        "review_executor",
+        "reviewed_sha",
+        "reviewed_tree",
+        "verdict",
+        "review_record_path",
+    ):
+        assert key in mirror["properties"], key
+    assert set(mirror["properties"]["verdict"]["enum"]) == {
+        "PASS",
+        "FAIL",
+        "PARTIAL",
+        "UNKNOWN",
+        "BLOCKED",
+        "STALE",
+    }
+    checkpoint = props["remote_checkpoint"]
+    assert checkpoint["additionalProperties"] is False
+    assert checkpoint["required"] == ["remote", "branch", "sha", "tree"]
+    # Historical state compatibility: every new field is optional.
+    assert "materiality" not in schema["required"]
+    assert "cross_executor_review" not in schema["required"]
+    assert "remote_checkpoint" not in schema["required"]
+    assert "validated_tree" not in schema["required"]
 
 
 def test_engine_repo_profiles_use_canonical_lab_injection() -> None:

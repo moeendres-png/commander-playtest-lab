@@ -19,6 +19,12 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
    - explicit secondary only: `space-bunny` =
      `opencode-go/space-bunny` at native `max`, for bounded, mechanical,
      token-heavy, bulk and background work.
+   Logical `space-bunny` resolves only after live pinned-CLI catalog inspection
+   (`opencode models opencode-go`): canonical `opencode-go/space-bunny` first, else the
+   admitted legacy runtime alias `opencode-go/space-bunny-free` (`LEGACY_ALIAS`, the
+   SAME logical profile), else fail closed. No Longcat, DeepSeek or other
+   provider/model may substitute, and there is no third logical executor. A runtime,
+   auth, quota or catalog failure after selection is a blocked run, never a re-resolution.
    No other OpenCode executor is selectable under current authority.
 3. Claude Opus 5.5 — explicitly authorized direct engineering/campaign executor when a
    session declares its campaign objective and writable ownership surface(s). It may own
@@ -78,6 +84,33 @@ Profile postures (both at native `max`):
   fresh-context `bunny-auditor` reviews the diff. It saves wall-clock time by running long checks
   first and independent checks in parallel subagents. No executor
 fallback occurs on quota, auth, catalog or child failure.
+
+## Cross-executor review gate (MATERIAL workstreams)
+
+DeepSeek MAX remains the default implementation executor. For every MATERIAL
+implementation workstream, a fresh-context READ-ONLY Space Bunny MAX reviewer must review
+the exact validated implementation SHA **and** TREE before the workstream may claim
+`PR_READY` or `COMPLETE`.
+
+- Canonical structure and validator: `tools/foundry/review_gate.py`; canonical review
+  records live under `.foundry/reviews/`.
+- The reviewer must resolve to an admitted Space Bunny runtime id (canonical or the
+  legacy alias) and run read-only: `foundry-reviewer` (Space Bunny MAX, `edit: deny`,
+  bash default-deny, `task: deny`) or the read-only `bunny-auditor`. A DeepSeek review,
+  a writable verifier, a self-review, or an unknown/blocked/partial/fail/stale verdict
+  never satisfies the gate.
+- Any MATERIAL change after the review (including an evidenced P1/P2 repair) makes the
+  prior review STALE and requires exact new-SHA/TREE re-review. A generated-state-only
+  receipt/checkpoint commit is NON_MATERIAL and preserves the reviewed validated
+  implementation identity without claiming the later state commit was reviewed.
+- Materiality is fail-safe: implementation, executable tooling, schemas/contracts, CI,
+  tests that alter acceptance semantics, and evidence/qualification semantics are always
+  MATERIAL; only generated-state or documentation-only closeout may be NON_MATERIAL, and
+  a NON_MATERIAL claim is verified against the Git change set.
+- Remote milestone persistence reuses the Foundry state file, `tools/foundry/safe_push.py`
+  and `tools/foundry/remote_checkpoint.py`: state update -> focused commit -> safe push
+  -> remote HEAD equality verification. A pushed WIP is never qualification PASS, and a
+  remote HEAD mismatch blocks remote resumability.
 
 ## Technical decision authority
 

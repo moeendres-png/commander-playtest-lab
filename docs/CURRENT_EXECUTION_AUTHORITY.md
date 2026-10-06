@@ -23,8 +23,23 @@ Exactly two OpenCode execution profiles are authorized:
    - model: `opencode-go/space-bunny`
    - native variant: `max`
    - explicit secondary executor.
+   - resolves only after live pinned-CLI catalog inspection; if the canonical id is
+     absent, the admitted legacy runtime alias `opencode-go/space-bunny-free`
+     (`LEGACY_ALIAS`, the same logical `space-bunny` profile) may be selected. Neither
+     present => fail closed. The alias is a runtime identity, never a third executor.
 
 No other OpenCode model/profile is currently authorized or a planned migration target.
+
+## Cross-executor review gate
+
+For MATERIAL implementation workstreams, a fresh-context READ-ONLY Space Bunny MAX
+reviewer must PASS the exact validated implementation SHA and TREE before `PR_READY` or
+`COMPLETE` may be claimed. DeepSeek implementation plus DeepSeek review does not satisfy
+the gate; a missing, blocked, unknown, partial, failed or stale review blocks completion,
+and any MATERIAL change after the review requires exact new-SHA/TREE re-review. The
+canonical structure and validator live in `tools/foundry/review_gate.py`; remote
+milestone checkpoints are verified through `tools/foundry/safe_push.py` and
+`tools/foundry/remote_checkpoint.py`. A pushed WIP is never qualification PASS.
 
 ## Routing
 

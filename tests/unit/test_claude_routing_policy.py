@@ -67,9 +67,17 @@ def test_active_claude_routing_has_only_current_executor_policy():
     assert "DeepSeek V4.1 Flash" in joined
     assert "Space Bunny" in joined
     assert "no automatic fallback" in joined.lower()
-    assert "space-bunny-free" not in joined.lower()
     assert "muse-spark" not in joined.lower()
     assert "glm-5.3" not in joined.lower()
+    # Durable cross-executor policy admits exactly one legacy runtime alias for the
+    # SAME logical space-bunny profile. It may appear only where explicitly labeled
+    # as a legacy alias, never as a selectable executor or a second profile.
+    for path in ACTIVE_ROUTING:
+        text = read(path).lower()
+        if "space-bunny-free" in text:
+            assert "legacy_alias" in text or "legacy runtime alias" in text, path.name
+            assert "same logical profile" in text or "same profile" in text, path.name
+    assert "third logical executor" in joined.lower()
 
 
 def test_dispatch_templates_carry_the_workstream_delta_contract():

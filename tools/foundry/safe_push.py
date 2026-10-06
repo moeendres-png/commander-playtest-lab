@@ -598,10 +598,36 @@ def _decide_push(
     fatal = [
         n
         for n in ancestry
-        if n.startswith("VALIDATED_OUTSIDE_LOCK") or n.startswith("VALIDATED_REWRITTEN")
+        if n.startswith("VALIDATED_OUTSIDE_LOCK")
+        or n.startswith("VALIDATED_REWRITTEN")
+        or n.startswith("VALIDATED_TREE_MISMATCH")
     ]
     if fatal:
         raise _PushReject(fatal[0])
+    # 7.5 policy-enabled COMPLETE claim: fail closed unless the cross-executor
+    # review gate and remote checkpoint are satisfied. Pre-policy historical
+    # states (no materiality/review/checkpoint fields) stay pushable.
+    if str(data.get("status", "")) == "COMPLETE" and any(
+        key in data for key in ("materiality", "cross_executor_review", "remote_checkpoint")
+    ):
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import remote_checkpoint as remote_checkpoint_mod
+        import review_gate as review_gate_mod
+
+        remote_result = remote_checkpoint_mod.verify_remote_checkpoint(
+            data,
+            workdir=canonical,
+            state_paths=(state_path,),
+        )
+        gate = review_gate_mod.evaluate_completion_claim(
+            data,
+            claim="COMPLETE",
+            workdir=canonical,
+            state_path=state_path,
+            remote_verdict=remote_result.status,
+        )
+        if not gate.ok:
+            raise _PushReject(f"COMPLETION_GATE_BLOCKED: {gate.reasons[0]}")
 
     # 8. clean tree.
     try:
@@ -707,6 +733,21 @@ def _decide_push(
         raise _PushReject(
             f"git push refused (exit {proc.returncode}; remote output withheld "
             "to avoid URL/credential disclosure)"
+        )
+    # 12. post-push remote-HEAD equality: a checkpoint is not durable until the
+    # remote tip is read back as the exact intended commit. No force/rebase path
+    # exists; a mismatch is a failed checkpoint, never a retry with new flags.
+    try:
+        verify = _run(["git", "ls-remote", remote, f"refs/heads/{expected_branch}"], canonical)
+    except RuntimeError as exc:
+        raise _PushReject(
+            "POST_PUSH_VERIFY_FAILED: remote HEAD unreadable after push (remote output withheld)"
+        ) from exc
+    verified_fields = verify.split() if verify else []
+    if len(verified_fields) != 2 or verified_fields[0] != live_head:
+        raise _PushReject(
+            "POST_PUSH_VERIFY_FAILED: remote HEAD does not equal the intended "
+            "checkpoint after push (no resumability credit)"
         )
     return f"PUSHED {expected_branch}@{live_head[:12]}"
 

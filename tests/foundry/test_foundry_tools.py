@@ -28,6 +28,7 @@ from foundry import (  # noqa: E402
     permission_battery,
     worktree_inventory,
 )
+from foundry import executor_profiles as executor_mod  # noqa: E402
 from foundry import source_lock as lock_mod  # noqa: E402
 from foundry import state as state_mod  # noqa: E402
 
@@ -264,11 +265,14 @@ def test_repo_root_state_absent_schema_kept() -> None:
 
 
 def test_opencode_config_schema_conformance() -> None:
-    """Exactly two authorized executors, each pinned to one native variant.
+    """Exactly two logical executors; admitted runtime ids pinned to one variant.
 
-    Operator authority (2026-09-29): only DeepSeek MAX and Space Bunny MAX are
-    reachable. This pins the shape and the pinning, not just the presence of a
-    model field, so a retired effort level cannot quietly reopen.
+    Operator authority (2026-09-29) plus durable policy (2026-10-06): only
+    DeepSeek MAX and Space Bunny MAX are reachable logically. Space Bunny admits
+    the canonical runtime id and one legacy alias runtime id for the SAME
+    logical profile; there is no third executor. This pins the shape and the
+    pinning, not just the presence of a model field, so a retired effort level
+    cannot quietly reopen.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     assert config["model"] == "opencode-go/deepseek-v4.1-flash"
@@ -276,11 +280,21 @@ def test_opencode_config_schema_conformance() -> None:
     assert config["share"] == "disabled"
     assert config["enabled_providers"] == ["opencode-go"]
     provider = config["provider"]["opencode-go"]
-    # No silent fallback: primary first, documented secondary still selectable.
-    assert provider["whitelist"] == ["deepseek-v4.1-flash", "space-bunny"]
+    registry = executor_mod.load_registry()
+    # No silent fallback: primary first, canonical Space Bunny second, and the
+    # legacy Space Bunny alias last as a runtime identity of the same profile.
+    assert provider["whitelist"] == list(
+        model.split("/", 1)[1] for model in registry.runtime_identity
+    )
+    assert provider["whitelist"] == [
+        "deepseek-v4.1-flash",
+        "space-bunny",
+        "space-bunny-free",
+    ]
     authorized = {
         "deepseek-v4.1-flash": ("max", {"reasoningEffort": "max"}),
         "space-bunny": ("max", {"reasoningEffort": "max"}),
+        "space-bunny-free": ("max", {"reasoningEffort": "max"}),
     }
     assert set(provider["models"]) == set(authorized)
     for short, (variant, options) in authorized.items():
@@ -297,11 +311,25 @@ def test_opencode_config_schema_conformance() -> None:
 
 
 def test_only_authorized_executors_present_in_canonical_config() -> None:
-    """The canonical config exposes exactly the two currently authorized models."""
+    """The canonical config exposes exactly the admitted runtime identities.
+
+    Exactly two LOGICAL executors exist; the only extra row is the legacy
+    Space Bunny alias bound to the same logical profile. No third executor,
+    and no other provider/model, may appear.
+    """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     provider = config["provider"]["opencode-go"]
-    assert provider["whitelist"] == ["deepseek-v4.1-flash", "space-bunny"]
-    assert set(provider["models"]) == {"deepseek-v4.1-flash", "space-bunny"}
+    registry = executor_mod.load_registry()
+    admitted = list(registry.runtime_identity)
+    assert provider["whitelist"] == [model.split("/", 1)[1] for model in admitted]
+    assert set(provider["models"]) == {model.split("/", 1)[1] for model in admitted}
+    assert set(registry.runtime_identity) == {
+        "opencode-go/deepseek-v4.1-flash",
+        "opencode-go/space-bunny",
+        "opencode-go/space-bunny-free",
+    }
+    profiles_for_aliases = {spec.logical_profile for spec in registry.runtime_identity.values()}
+    assert profiles_for_aliases == {"deepseek", "space-bunny"}
 
 
 def _agent_frontmatter(name: str) -> dict:
@@ -320,12 +348,14 @@ def test_high_default_retained() -> None:
     models = config["provider"]["opencode-go"]["models"]
     assert models["deepseek-v4.1-flash"]["options"] == {"reasoningEffort": "max"}
     assert models["space-bunny"]["options"] == {"reasoningEffort": "max"}
-    # The on-disk agent snapshot is the DeepSeek primary; the launcher pins the
-    # explicitly selected profile inline for every run.
+    # The on-disk agent snapshot carries the DeepSeek primary for implementation
+    # agents; the mandatory cross-executor reviewer is rebound to Space Bunny
+    # (read-only) and the launcher pins the explicitly selected profile inline
+    # for every run.
     expected = {
         "foundry-implementer.md": ("opencode-go/deepseek-v4.1-flash", "max"),
         "foundry-adjudicator.md": ("opencode-go/deepseek-v4.1-flash", "max"),
-        "foundry-reviewer.md": ("opencode-go/deepseek-v4.1-flash", "max"),
+        "foundry-reviewer.md": ("opencode-go/space-bunny", "max"),
     }
     for name, (model, variant) in expected.items():
         front = _agent_frontmatter(name)
@@ -400,12 +430,19 @@ def test_agents_md_encodes_technical_autonomy() -> None:
 
 
 def test_reviewer_remains_high_and_read_only() -> None:
-    """Reviewer runs at an authorized level and stays structurally read-only."""
+    """The mandatory reviewer is Space Bunny MAX and structurally read-only.
+
+    Mode ``all`` lets the same read-only definition serve as a standalone
+    fresh-context reviewer session and as an invocable subagent; permissions
+    keep every write surface denied either way.
+    """
     reviewer = _agent_frontmatter("foundry-reviewer.md")
-    assert reviewer["mode"] == "subagent"
-    assert reviewer["model"] == "opencode-go/deepseek-v4.1-flash"
+    assert reviewer["mode"] == "all"
+    assert reviewer["model"] == "opencode-go/space-bunny"
     assert reviewer["variant"] == "max"
     assert reviewer["permission"]["edit"] == "deny"
+    assert reviewer["permission"]["bash"]["*"] == "deny"
+    assert reviewer["permission"]["task"] == "deny"
 
 
 def _root_permission() -> dict:

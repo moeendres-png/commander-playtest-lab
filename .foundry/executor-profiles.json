@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "status": "ACTIVE",
-  "authority_date": "2026-10-02",
+  "authority_date": "2026-10-06",
   "provider": "opencode-go",
   "policy": {
     "highest_supported_effort_only": true,
@@ -31,6 +31,65 @@
     "secondary": "space-bunny",
     "automatic_fallback": false,
     "selection_authority": "Coordinator or workstream contract selects the secondary explicitly; otherwise the primary is the default. The repository does not classify tasks automatically."
+  },
+  "runtime_identity": {
+    "opencode-go/deepseek-v4.1-flash": {
+      "logical_profile": "deepseek",
+      "alias_class": "CANONICAL"
+    },
+    "opencode-go/space-bunny": {
+      "logical_profile": "space-bunny",
+      "alias_class": "CANONICAL"
+    },
+    "opencode-go/space-bunny-free": {
+      "logical_profile": "space-bunny",
+      "alias_class": "LEGACY_ALIAS"
+    }
+  },
+  "resolution_policy": {
+    "note": "Exactly two logical executor profiles. All runtime model IDs below map to one of them; there is no third logical executor and no non-Bunny or cross-family substitute. Space Bunny resolves only after live pinned-CLI catalog inspection: canonical first, then the single admitted legacy alias, otherwise fail closed.",
+    "catalog_mechanism": "opencode models opencode-go",
+    "logical_profiles": [
+      "deepseek",
+      "space-bunny"
+    ],
+    "space_bunny_preference": [
+      "opencode-go/space-bunny",
+      "opencode-go/space-bunny-free"
+    ],
+    "post_selection_failure": "FAIL_CLOSED_NO_RE_RESOLUTION",
+    "automatic_fallback": false
+  },
+  "cross_executor_review_policy": {
+    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY Space Bunny MAX review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed.",
+    "required_for_material": true,
+    "implementation_executor": "deepseek",
+    "review_executor": "space-bunny",
+    "review_mode": "READ_ONLY_FRESH_CONTEXT",
+    "review_agents": [
+      "bunny-auditor",
+      "foundry-reviewer"
+    ],
+    "verdict_vocabulary": [
+      "PASS",
+      "FAIL",
+      "PARTIAL",
+      "UNKNOWN",
+      "BLOCKED",
+      "STALE"
+    ],
+    "pass_verdict": "PASS",
+    "re_review_on": [
+      "MATERIAL_DELTA_AFTER_REVIEW",
+      "P1_REPAIR",
+      "P2_REPAIR",
+      "REVIEWED_IDENTITY_MISMATCH"
+    ],
+    "unsatisfied_executors": [
+      "deepseek"
+    ],
+    "non_material_closeout": "GENERATED_STATE_ONLY",
+    "remote_resumability": "REQUIRES_REMOTE_CHECKPOINT_EQUALITY"
   },
   "activation_gate": {
     "required_surfaces": [

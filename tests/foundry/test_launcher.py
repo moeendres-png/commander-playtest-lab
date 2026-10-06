@@ -49,6 +49,10 @@ def _hermetic_opencode_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
         "if sys.argv[1:] == ['--version']:\n"
         f"    print({version_mod.QUALIFIED_OPENCODE_VERSION!r})\n"
         "    sys.exit(0)\n"
+        "if sys.argv[1:] == ['models', 'opencode-go']:\n"
+        "    print('opencode-go/deepseek-v4.1-flash')\n"
+        "    print('opencode-go/space-bunny')\n"
+        "    sys.exit(0)\n"
         "print('STUB: unexpected exec', sys.argv[1:])\n"
         "sys.exit(7)\n",
         encoding="utf-8",
@@ -1131,15 +1135,21 @@ def test_space_bunny_profile_pins_go_model_and_native_max(target, canon):
     plan = _plan(target, canon, execution_profile="space-bunny")
     assert plan["verdict"] == "LAUNCH_READY", plan
     execution = plan["execution"]
-    assert execution == {
-        "profile": "space-bunny",
-        "override": "space-bunny",
-        "provider": "opencode-go",
-        "model": "opencode-go/space-bunny",
-        "requested_effort": "high",
-        "variant_resolution": "native_max",
-        "native_variant": "max",
-    }
+    assert execution["profile"] == "space-bunny"
+    assert execution["override"] == "space-bunny"
+    assert execution["provider"] == "opencode-go"
+    assert execution["model"] == "opencode-go/space-bunny"
+    assert execution["requested_effort"] == "high"
+    assert execution["variant_resolution"] == "native_max"
+    assert execution["native_variant"] == "max"
+    # Exact runtime provenance (policy): logical profile, resolved provider and
+    # model id, alias class, and the catalog inspection that selected them.
+    assert execution["logical_executor_profile"] == "space-bunny"
+    assert execution["resolved_provider"] == "opencode-go"
+    assert execution["resolved_model_id"] == "opencode-go/space-bunny"
+    assert execution["model_alias_class"] == "CANONICAL"
+    assert execution["catalog_checked"] is True
+    assert execution["catalog_source"] == "cli:opencode-go"
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
     assert bundle["model"] == "opencode-go/space-bunny"
     assert bundle["small_model"] == "opencode-go/space-bunny"
@@ -1201,6 +1211,48 @@ def test_space_bunny_launch_uses_explicit_model_and_no_fallback(target, canon, m
     assert {record["execution_profile"] for record in records} == {"space-bunny"}
     assert {record["native_variant"] for record in records} == {"max"}
     assert {record["variant_resolution"] for record in records} == {"native_max"}
+    # Exact runtime identity persists in telemetry, not merely the logical label.
+    assert {record["logical_executor_profile"] for record in records} == {"space-bunny"}
+    assert {record["resolved_provider"] for record in records} == {"opencode-go"}
+    assert {record["resolved_model_id"] for record in records} == {"opencode-go/space-bunny"}
+    assert {record["model_alias_class"] for record in records} == {"CANONICAL"}
+
+
+def test_space_bunny_legacy_alias_catalog_resolves_and_records_alias_class(target, canon):
+    """Canonical absent + admitted legacy alias present selects the alias only."""
+    plan = _plan(
+        target,
+        canon,
+        execution_profile="space-bunny",
+        model_catalog=["opencode-go/deepseek-v4.1-flash", "opencode-go/space-bunny-free"],
+    )
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    execution = plan["execution"]
+    assert execution["model"] == "opencode-go/space-bunny-free"
+    assert execution["resolved_model_id"] == "opencode-go/space-bunny-free"
+    assert execution["model_alias_class"] == "LEGACY_ALIAS"
+    assert execution["logical_executor_profile"] == "space-bunny"
+    assert execution["native_variant"] == "max"
+    assert plan["_env"]["FOUNDRY_EXECUTOR_MODEL"] == "opencode-go/space-bunny-free"
+    assert plan["_env"]["FOUNDRY_MODEL_ALIAS_CLASS"] == "LEGACY_ALIAS"
+    bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
+    assert bundle["model"] == "opencode-go/space-bunny-free"
+    assert bundle["provider"]["opencode-go"]["whitelist"] == ["space-bunny-free"]
+    context = json.loads(Path(plan["context_path"]).read_text())
+    assert context["execution"]["resolved_model_id"] == "opencode-go/space-bunny-free"
+    assert context["execution"]["model_alias_class"] == "LEGACY_ALIAS"
+
+
+def test_space_bunny_catalog_without_bunny_refuses_without_fallback(target, canon):
+    plan = _plan(
+        target,
+        canon,
+        execution_profile="space-bunny",
+        model_catalog=["longcat/longcat-flash", "opencode-go/deepseek-v4.1-flash"],
+    )
+    assert plan["verdict"] == "LAUNCH_REFUSED", plan
+    assert "no admitted space-bunny runtime id" in plan["error"]
+    assert "fail closed" in plan["error"]
 
 
 @pytest.mark.parametrize("effort", ["high", "xhigh"])
@@ -1329,6 +1381,10 @@ def test_telemetry_and_state_record_the_actual_selected_executor(target, canon, 
         ]
         assert {r["execution_profile"] for r in records} == {profile}
         assert {r["model"] for r in records} == {model}
+        assert {r["resolved_model_id"] for r in records} == {model}
+        assert {r["logical_executor_profile"] for r in records} == {profile}
+        assert {r["resolved_provider"] for r in records} == {"opencode-go"}
+        assert {r["model_alias_class"] for r in records} == {"CANONICAL"}
         assert {r["native_variant"] for r in records} == {"max"}
     monkeypatch.undo()
 
