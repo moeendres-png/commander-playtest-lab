@@ -26,14 +26,14 @@
  "new_bridge_source": {
   "repository": "https://github.com/moeendres-png/forge.git",
   "branch": "hardening/forge-g1r1-turnbegan-subscriber-pin-20261006",
-  "commit": "04892c8749b6684246c81edf58b248f54a7869e1",
-  "tree": "9946e89432278fa938d346c229ecfd136203bd2b",
+  "commit": "67da6f07e99e57b4dce2153b242e172ab70c2b12",
+  "tree": "8973bc76aaef87be85e9e720351800e42761fccd",
   "pull_request": null,
-  "ancestry": "two commits on ee37e4a5 (510697fa implementation, 04892c87 test driver); bb0a740d..04892c87 changes only forge-protocol2-bridge/ (0 Rules-Core, 0 card-data files)",
-  "content": "Coordinator decision G1 R1 with conditions C1-C6 (#561): scenario permanents placed untapped by a GameEventTurnBegan(turn 1) subscriber before the readiness loop; one-shot latch and subscriber error capture; retained startGameHook fails closed unless the placement ran exactly once without error, applies tapped state silently after untap, verifies controlled_since_turn_began against !isFirstTurnControlled(); battlefield_details readback gains controlled_since_turn_began."
+  "ancestry": "three commits on ee37e4a5 (510697fa implementation, 04892c87 WS216 test driver, 67da6f07 review follow-ups); bb0a740d..67da6f07 changes only forge-protocol2-bridge/ (0 Rules-Core, 0 card-data files)",
+  "content": "Coordinator decision G1 R1 with conditions C1-C6 (#561): scenario permanents placed untapped by a GameEventTurnBegan(turn 1) subscriber before the readiness loop; one-shot latch and subscriber error capture; retained startGameHook fails closed unless the placement ran exactly once without error, applies tapped state silently after untap, verifies controlled_since_turn_began against !isFirstTurnControlled(); battlefield_details readback gains controlled_since_turn_began. Review follow-ups (67da6f07): a bootstrap error recorded after the hook completed fails a RUNNING session closed; WS216 declines only the starter's turn-1 attack frame; incremental-attack and phasing controls."
  },
  "exact_head_qualification": {
-  "commit": "04892c8749b6684246c81edf58b248f54a7869e1",
+  "commit": "67da6f07e99e57b4dce2153b242e172ab70c2b12",
   "github_test_build": [
    {
     "run_id": null,
@@ -52,18 +52,18 @@
   ],
   "local_forge_bridge_suite": {
    "command": "LANG=C.UTF-8 xvfb-run -a mvn -B -ntp -o -pl forge-protocol2-bridge -am test -Dtest='forge.bridge.**' -Dsurefire.failIfNoSpecifiedTests=false",
-   "commit": "04892c8749b6684246c81edf58b248f54a7869e1",
+   "commit": "67da6f07e99e57b4dce2153b242e172ab70c2b12",
    "tree_equal_to_new_bridge_source": true,
-   "run": 371,
-   "failures": 0,
-   "errors": 0,
-   "skipped": 0,
+   "run": "PENDING",
+   "failures": "PENDING",
+   "errors": "PENDING",
+   "skipped": "PENDING",
    "evidence_class": "LOCAL_OBSERVED"
   }
  },
  "lab_consumer": {
   "scenario_lane": "forge_scenario_lane.py: controlled_since_turn_began checkpoint-verified; _HOOK_ASSERTIONS re-derived; _SCENARIO_HOOK_ASSERTIONS added",
-  "hidden_information_channels": "forge_hidden_information.py re-asserted at 04892c87: BOOTSTRAP_FIELDS gains controlled_since_turn_began (boolean, no card name); no other drift; AF05 Forge unchanged (20 PROVIDER_ADAPTER_GAP)",
+  "hidden_information_channels": "forge_hidden_information.py re-asserted at 67da6f07: BOOTSTRAP_FIELDS gains controlled_since_turn_began (boolean, no card name); no other drift; AF05 Forge unchanged (20 PROVIDER_ADAPTER_GAP)",
   "impact_adjudication": "docs/forge_g1r1_turnbegan_20261006/IMPACT_ADJUDICATION.md"
  },
  "evidence_transfer": {

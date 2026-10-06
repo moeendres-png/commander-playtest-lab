@@ -95,8 +95,8 @@ BRIDGE_HEAD = "e15f37d6b2b5c0ad682948f86f037e07b6aaded5"
 BRIDGE_TREE = "a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b"
 CURRENT_CANDIDATE = "bb0a740d2bef725194798383c2452213ecdd0b37"
 CURRENT_CANDIDATE_TREE = "4989b5bb35b8279e82f79c1ca99dc698d63d093a"
-CURRENT_BRIDGE = "04892c8749b6684246c81edf58b248f54a7869e1"
-CURRENT_BRIDGE_TREE = "9946e89432278fa938d346c229ecfd136203bd2b"
+CURRENT_BRIDGE = "67da6f07e99e57b4dce2153b242e172ab70c2b12"
+CURRENT_BRIDGE_TREE = "8973bc76aaef87be85e9e720351800e42761fccd"
 # The bridge source before forge#16 (#11 + #13), historical.
 R1_BRIDGE = "e8b8aec60720aee218338754224721597b8c6ec5"
 R1_BRIDGE_TREE = "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea"
@@ -517,3 +517,13 @@ def test_the_schema4_bridge_lock_stays_historical() -> None:
     assert lock["new_bridge_source"]["tree"] == S4_BRIDGE_TREE
     assert lock["prior_bridge_source"]["commit"] == R5_BRIDGE
     assert _config()["secondary_engine"]["bridge_source"]["commit"] != S4_BRIDGE
+
+
+def test_pb09_bridge_role_pull_request_matches_the_lock() -> None:
+    """Review P2-1: the PB-09 bridge role names the live source's pull request
+    (none yet for the local G1 R1 head), never a superseded one (forge#28)."""
+    lock = json.loads(BRIDGE_SUCCESSOR_LOCK.read_text(encoding="utf-8"))
+    bridge = _config()["secondary_engine"]["engine_identity_pb09"]["bridge_source"]
+    assert bridge["pull_request"] == lock["new_bridge_source"]["pull_request"]
+    assert bridge["commit"] == lock["new_bridge_source"]["commit"]
+    assert "forge#28 head on the #11 branch" not in bridge["role"].split(" on ee37e4a5")[0]
