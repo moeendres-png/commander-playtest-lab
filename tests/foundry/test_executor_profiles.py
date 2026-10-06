@@ -12,6 +12,14 @@ def _registry() -> dict:
     return json.loads((ROOT / ".foundry" / "executor-profiles.json").read_text(encoding="utf-8"))
 
 
+def _runtime_activation_receipt() -> dict:
+    return json.loads(
+        (
+            ROOT / ".foundry" / "space-bunny-rebind-runtime-activation-20261006.json"
+        ).read_text(encoding="utf-8")
+    )
+
+
 def test_selected_profiles_and_highest_native_efforts_are_exact() -> None:
     doc = _registry()
     expected = {
@@ -85,19 +93,37 @@ def test_routing_policy_is_stable_and_fallback_free() -> None:
 
 
 def test_activation_evidence_records_authenticated_runtime_verification() -> None:
-    """runtime_status=ACTIVE must be backed by real runtime evidence, not config parsing."""
-    evidence = _registry()["activation_gate"]["activation_evidence_2026_09_29"]
-    for key in (
-        "live_catalog_identity",
-        "deepseek_authenticated_smoke",
-        "space_bunny_authenticated_smoke",
-        "native_variant_pin",
-        "no_fallback",
-    ):
-        assert key in evidence, key
-    assert "deepseek-v4.1-flash" in evidence["live_catalog_identity"]
-    assert "RUNTIME_VERIFIED" in evidence["deepseek_authenticated_smoke"]
-    assert "RUNTIME_VERIFIED" in evidence["space_bunny_authenticated_smoke"]
+    """The rebound model identity needs its own authenticated runtime evidence."""
+    doc = _registry()
+    historical = doc["activation_gate"]["activation_evidence_2026_09_29"]
+    current = doc["activation_gate"]["activation_evidence_2026_10_06"]
+    receipt = _runtime_activation_receipt()
+
+    assert "RUNTIME_VERIFIED" in historical["deepseek_authenticated_smoke"]
+    assert "space-bunny-free" in historical["space_bunny_authenticated_smoke"]
+    assert "provenance" in current["historical_scope"].lower()
+
+    active = doc["profiles"]["space-bunny"]
+    assert active["model"] == "opencode-go/space-bunny"
+    assert active["runtime_status"] == "ACTIVE"
+    assert current["current_model_identity"] == active["model"]
+    assert current["runtime_status"] == active["runtime_status"]
+    assert current["evidence_classification"] == "DIRECTLY_VERIFIED"
+    assert current["evidence_receipt"] == (
+        ".foundry/space-bunny-rebind-runtime-activation-20261006.json"
+    )
+
+    assert receipt["evidence_classification"] == "DIRECTLY_VERIFIED"
+    assert receipt["status"] == "PASS"
+    assert receipt["source_lock"]["main_sha"] == "84c17f9d0fb768812e00ecaef5cb2dcd4db57676"
+    assert receipt["trigger"]["workflow_run_id"] == 37522166205
+    assert receipt["trigger"]["job_id"] == 112470057434
+    assert receipt["execution"]["resolved_model"] == active["model"]
+    assert receipt["execution"]["configured_variant"] == active["native_variant"]
+    assert receipt["execution"]["primary_deepseek_job_conclusion"] == "skipped"
+    assert receipt["observation"]["workflow_job_conclusion"] == "success"
+    assert receipt["observation"]["opencode_step_conclusion"] == "success"
+    assert receipt["observation"]["result_marker"] == "SPACE_BUNNY_REBIND_SMOKE_OK"
 
 
 def test_activation_gate_requires_atomic_launcher_and_config_change() -> None:
