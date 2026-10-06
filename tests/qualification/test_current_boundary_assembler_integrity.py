@@ -142,6 +142,44 @@ def test_carried_column_gates_are_annotated_as_historical() -> None:
         assert "historical record carried forward" in joined
         assert "not a fresh execution" in joined
         assert carried["source_epoch"] in joined
+        # #572: a carried PASS is never a current PASS; it is kept apart.
+        assert gate["verdict"] == "UNKNOWN"
+        assert gate["historical_verdict"] == "PASS"
+
+
+def test_carried_column_keeps_a_non_pass_gate_verdict() -> None:
+    asm = _assembler_module()
+    gates = [{"gate": "AF05", "verdict": "FAIL"}, {"gate": "AF06", "verdict": "UNKNOWN"}]
+    asm._annotate_carried_gates(gates, {"class": "CARRIED_FORWARD_FROM_HISTORICAL_EPOCH"})
+    assert [g["verdict"] for g in gates] == ["FAIL", "UNKNOWN"]
+    assert all("historical_verdict" not in g for g in gates)
+
+
+def test_carried_pass_rows_are_demoted_and_kept_apart() -> None:
+    """#572: automatic_carry_forward is false, so a carried PASS counts as UNKNOWN."""
+    asm = _assembler_module()
+    rows = {
+        "A": {"fixture_id": "A", "exit_state": "PASS", "reason": "old pass"},
+        "B": {"fixture_id": "B", "exit_state": "BLOCKED", "reason": "no seam"},
+        "C": {"fixture_id": "C", "exit_state": "PASS", "reason": "old pass"},
+    }
+    historical = asm._demote_carried_rows(rows)
+    assert historical == {"PASS": 2, "BLOCKED": 1}
+    assert [rows[k]["exit_state"] for k in "ABC"] == ["UNKNOWN", "BLOCKED", "UNKNOWN"]
+    assert rows["A"]["historical_exit_state"] == "PASS"
+    assert rows["A"]["historical_reason"] == "old pass"
+    assert "provenance only" in rows["A"]["reason"]
+    assert "historical_exit_state" not in rows["B"]
+
+
+def test_a_carried_column_is_demoted_before_any_count_or_gate() -> None:
+    """The demotion runs where the column is loaded, before counts are taken."""
+    source = ASSEMBLER.read_text(encoding="utf-8")
+    load = source.index("carried_forward = bool(results.get")
+    demote = source.index("_demote_carried_rows(rows) if carried_forward else None")
+    counts = source.index("counts[row[\"exit_state\"]] = counts.get(")
+    assert load < demote < counts
+    assert '"historical_counts_not_credit"' in source
 
 
 def test_carried_column_rows_are_never_promoted() -> None:

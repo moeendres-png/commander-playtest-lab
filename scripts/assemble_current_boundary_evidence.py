@@ -242,6 +242,38 @@ def _annotate_carried_gates(
     )
     for gate in matrix:
         gate["nonblocking_limitations"] = [*gate.get("nonblocking_limitations", []), note]
+        # #572: historical results are provenance only (automatic_carry_forward:
+        # false). A carried PASS keeps its verdict in its own field, which is
+        # never credit; its current verdict is UNKNOWN. Non-PASS verdicts stay.
+        if gate.get("verdict") == "PASS":
+            gate["historical_verdict"] = "PASS"
+            gate["verdict"] = "UNKNOWN"
+
+
+def _demote_carried_rows(rows: dict[str, dict[str, Any]]) -> dict[str, int]:
+    """Make every carried-forward PASS row UNKNOWN; return the historical counts.
+
+    The current authority's evidence migration sets ``automatic_carry_forward:
+    false``: a historical result is provenance pending a current-boundary
+    execution, never a current PASS (#572). The historical exit state stays on
+    the row in ``historical_exit_state`` and in the returned counts, a separate
+    record that no count, gate or comparison reads as credit.
+    """
+    historical: dict[str, int] = {}
+    for row in rows.values():
+        state = str(row["exit_state"])
+        historical[state] = historical.get(state, 0) + 1
+        if state != "PASS":
+            continue
+        row["historical_exit_state"] = state
+        row["historical_reason"] = row.get("reason")
+        row["exit_state"] = "UNKNOWN"
+        row["failure_reason"] = (
+            "historical result carried forward from an earlier epoch: provenance only, "
+            "pending a current-boundary execution (automatic_carry_forward: false)"
+        )
+        row["reason"] = row["failure_reason"]
+    return historical
 
 
 def _load_fullgame_lane_auxiliary(candidate: str) -> dict[str, Any] | None:
@@ -804,6 +836,7 @@ def assemble() -> None:
         results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
         rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
         carried_forward = bool(results.get("carried_forward"))
+        historical_counts = _demote_carried_rows(rows) if carried_forward else None
         promoted = 0
         demoted_without_receipt = 0
         receipt_backed_existing_pass = 0
@@ -989,6 +1022,8 @@ def assemble() -> None:
         assert sum(counts.values()) == 107, counts
         results["rows"] = [rows[row["fixture_id"]] for row in results["rows"]]
         results["counts"] = counts
+        if historical_counts is not None:
+            results["historical_counts_not_credit"] = historical_counts
         # Kept as a backwards-compatible field only: R-4 forbids native-suite
         # execution from promoting FULL107 rows, so it is now always zero.
         results["native_promotions"] = 0
