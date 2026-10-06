@@ -54,10 +54,10 @@
    "command": "LANG=C.UTF-8 xvfb-run -a mvn -B -ntp -o -pl forge-protocol2-bridge -am test -Dtest='forge.bridge.**' -Dsurefire.failIfNoSpecifiedTests=false",
    "commit": "67da6f07e99e57b4dce2153b242e172ab70c2b12",
    "tree_equal_to_new_bridge_source": true,
-   "run": "PENDING",
-   "failures": "PENDING",
-   "errors": "PENDING",
-   "skipped": "PENDING",
+   "run": 374,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
    "evidence_class": "LOCAL_OBSERVED"
   }
  },

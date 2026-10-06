@@ -3,8 +3,9 @@
 - **Decision implemented:** Coordinator decision G1 on #561 (comment 6005365186), R1 approved with
   conditions C1-C6; R2 denied. The six combat-step rows are out of scope (separate ruling).
 - **Bridge source:** `ee37e4a52d99401ba57fba7ca516ac01f1981161` (tree `b26c5936`) ->
-  `04892c8749b6684246c81edf58b248f54a7869e1` (tree `9946e894`). Two local commits on `ee37e4a5`:
-  `510697fa` (implementation and tests) and `04892c87` (WS216 test driver). `bb0a740d..04892c87`
+  `67da6f07e99e57b4dce2153b242e172ab70c2b12` (tree `8973bc76`). Three local commits on `ee37e4a5`:
+  `510697fa` (implementation and tests), `04892c87` (WS216 test driver) and `67da6f07` (review
+  follow-ups P3-2..P3-5). `bb0a740d..67da6f07`
   touches only `forge-protocol2-bridge/`. **The Forge commits are not pushed**; the successor lock
   (`qualification/forge-bridge-g1r1-turnbegan-20261006/`) holds Test build and iOS as PENDING.
 - **Rules-Core authority:** unchanged, `bb0a740d`.
@@ -115,12 +116,23 @@ Raw documents stay in session scratch, with these sha256 digests:
      engine asks p1 for an attack declaration that it did not ask for before.
    - Adjudication: **intended engine-visible consequence of R1**. CR 302.6 / CR 508.1a: the active
      player controlled them continuously since the turn began.
-   - Fix (test driver only, `04892c87`): the pilot explicitly declines a combat declaration that is
-     not the frame kind it drives to ("No attacks"/"No blocks" by label, reachability only, no
-     behavioural credit).
+   - Fix (test driver only, `04892c87`, narrowed in `67da6f07` after review P3-4): the pilot
+     declines only an attack declaration on turn 1 for the starting seat p1 that is not the frame
+     kind it drives to ("No attacks" by label, reachability only, no behavioural credit). Every other
+     own-seat combat frame still raises the unexpected-frame AssertionError.
    - No production code changed for it.
    - No row in the 17 reaches p1's turn-1 declare-attackers step, so no requalified row shows this
      frame (identical frame sequences above).
+
+7. **Review rerun at `67da6f07` with the P3-1 lane (`C5_DIFF_BEFORE_REVIEW_HEAD.txt`).**
+   - The same producer and lifecycle runs were repeated at the review head with Lab `9585fda`
+     (raw digests: scenario `e3c366cb…`, lifecycle `ca6f1131…`).
+   - The 12 scenario PASS rows and the 5 lifecycle/pregame PASS rows are again unchanged in
+     classification, checkpoint verdicts, frames, offered options and terminal facts.
+   - The only further difference is on non-PASS rows (MICRO_LAYERS, MICRO_MODES): the checkpoint
+     field's `observed` now lists every same-name detail (for example `[false, false]`) instead of
+     the first one.
+   - Adjudication: **intended (P3-1)**. The verdicts and the classifications are unchanged.
 
 Not re-baselined silently: nothing was re-baselined. The historical epoch evidence stays bound to
 `ee37e4a5`.
@@ -142,6 +154,18 @@ Not re-baselined silently: nothing was re-baselined. The historical epoch eviden
   - The bootstrap deliberately does not mark its placements `startsGameInPlay`, so the active seat's
     placements become ready under CR 302.6.
   - This is recorded in the `ScenarioBootstrap` class documentation.
+- **Phasing at the turn-1 untap step (recorded, review P3-2):**
+  - CR 502.1 / CR 702.26: phasing happens at the start of the untap step. Since R1 places permanents
+    at TurnBegan, before that step, a phasing permanent placed for the starting seat phases out on
+    turn 1.
+  - XMage's BEGIN_TURN placement behaves the same: phasing is the engine's own untap-step action on a
+    permanent that exists then.
+  - The phased-out permanent is absent from the battlefield readback (`getCardsIn` filters phased-out
+    cards). A record that requests it on the battlefield at the checkpoint can only be a MISMATCH,
+    never a PASS.
+  - Control: `G1R1TurnBeganBootstrapTest.testPhasingPlacementPhasesOutAndIsAbsentFromReadback`
+    (Breezekeeper phases out, Grizzly Bears is the present control).
+  - None of the 17 PASS rows places a phasing permanent.
 - **Event-less mid-turn change (recorded):**
   - The silent post-untap `setTapped(true)` fires no `GameEventCardTapped`. It is a state change with
     no event. It is accepted only within the XMage precedent's setup exception: setup is muted on the
@@ -169,19 +193,35 @@ Java (`G1R1TurnBeganBootstrapTest`, real engine, 6 tests; `MUTATION_JAVA.txt`):
 | J10b laundered with verification off | killed by the C4(a) readback |
 | J11 placement back in the hook | killed |
 | J11b old placement point with verification off | killed, including C4(b) |
-| J12 bridge enumerates sick attackers | **survived (equivalent)**: the engine's own `validateAttackers` revalidation still excludes the turn-1 cast creature, so the offered options do not change. C4(c) holds through engine authority, not through the bridge enumeration. |
+| J12 bridge enumerates sick attackers | **survived (equivalent)** on the complete-declaration path: the engine's own `validateAttackers` revalidation still excludes the turn-1 cast creature, so the offered options do not change. |
+| J13 late bootstrap error does not fail the session | killed (`testLateBootstrapErrorFailsRunningSessionClosed`) |
+| J14 abort turns FAILED into CLOSED | killed (same test) |
+| J15 bridge enumerates sick attackers (incremental path) | killed (`testIncrementalAttackDeclarationOmitsTurnOneCastCreature`: "(1/6)"). On the incremental path (more than four candidates), the bridge enumeration is the only guard, and this control covers it (review P3-5). |
 
-Python (`test_forge_scenario_lane.py`, `MUTATION_PYTHON.txt`): P1–P7 all killed (checkpoint verdict
+Python (`test_forge_scenario_lane.py`, `MUTATION_PYTHON.txt`): P1–P7 all killed. Review P3-1
+added these mutants:
+
+- P8, matching only the matched detail instead of the group multiset: killed by the MICRO_COSTS
+  nine-Swamp test and the ambiguity test.
+- P10, ambiguity reported as EXACT: killed.
+- P11, `bool()` coercion of the request: killed by `test_control_history_request_is_never_coerced[1, "true"]`.
+- P9, `in (True, False)` instead of `is`: survived as an equivalent mutant. The JSON-typed multiset
+  comparison still separates `1` from `true`.
+
+Earlier list: (checkpoint verdict
 dropped, truthy readback accepted, dimension back to UNOBSERVABLE, request not forwarded, hook
 assertion reverted, latch fragment dropped, non-battlefield request accepted).
 
 ## UNKNOWN / open
 
-- Exact-head CI for `04892c87`: **NOT_RUN** (not pushed). The lock test is intentionally red until it
+- Exact-head CI for `67da6f07`: **NOT_RUN** (not pushed). The lock test is intentionally red until it
   exists.
-- PB-03 epoch at the new pin: **NOT_RUN**. Current Forge standing at `04892c87` stays UNKNOWN until it
+- PB-03 epoch at the new pin: **NOT_RUN**. Current Forge standing at `67da6f07` stays UNKNOWN until it
   exists.
-- C4(c) has no bridge-level mutant that kills it (J12 is equivalent). It is an engine-behaviour
-  control.
+- C4(c), complete-declaration path: no bridge-level mutant kills it (J12 is equivalent). It is
+  guarded by engine revalidation. The incremental path is covered (J15 killed).
+- Review P3-1: same-name, same-controller battlefield objects are now matched as a multiset. EXACT
+  requires every matching detail to agree; an ambiguous attribution is UNKNOWN (never credited).
+  None of the 12 scenario PASS rows changes (see the review rerun below).
 
 `PRODUCTION_PROVIDER = NOT_SELECTED` · `ARCHITECTURE_FREEZE = NOT_CLAIMED`
