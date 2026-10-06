@@ -104,6 +104,11 @@ jobs:
           ref: ${{ env.FORGE_BRIDGE_COMMIT }}
           path: vendor/engine-source/forge
           fetch-depth: 0
+          # Partial clone: the full commit graph and every tree (what the
+          # dual-source binding below verifies: ancestry and the Rules-Core path
+          # diff), with file contents only for the checked-out commit. Measured
+          # 38 s instead of 5.7 min; the verification commands are unchanged.
+          filter: blob:none
 
       - name: Bind external candidate workspaces without polluting Lab identity
         run: |
