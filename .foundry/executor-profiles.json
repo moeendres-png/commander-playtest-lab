@@ -57,6 +57,14 @@
       "space_bunny_authenticated_smoke": "RUNTIME_VERIFIED: bounded `opencode run --model opencode-go/space-bunny-free` under the exact launcher-injected secondary bundle resolved providerID=opencode-go modelID=space-bunny-free agent=foundry-implementer, exit 0.",
       "native_variant_pin": "CODE_DERIVED + RUNTIME_VERIFIED: the injected bundle enables only the `max` variant with reasoningEffort=max for both profiles, and the launcher refuses any caller --variant/--model child flag, so no other native level is selectable.",
       "no_fallback": "DIRECTLY_VERIFIED: the launcher pins exactly one child --model per run and performs no retry, provider switch, or profile change on quota, auth, catalog, tool, or child failure."
+    },
+    "activation_evidence_2026_10_06": {
+      "current_model_identity": "opencode-go/space-bunny",
+      "evidence_classification": "DIRECTLY_VERIFIED",
+      "space_bunny_authenticated_smoke": "Authenticated trusted `/bunny` issue-comment run on main after PR #576 resolved providerID=opencode-go modelID=space-bunny at native max and completed successfully.",
+      "evidence_receipt": ".foundry/space-bunny-rebind-runtime-activation-20261006.json",
+      "historical_scope": "activation_evidence_2026_09_29 remains provenance for opencode-go/space-bunny-free only and does not establish the rebound model identity.",
+      "runtime_status": "ACTIVE"
     }
   }
 }
