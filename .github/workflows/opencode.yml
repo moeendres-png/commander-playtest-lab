@@ -27,10 +27,11 @@ jobs:
       pull-requests: read
       issues: read
     steps:
-      # The agent reads the target issue/PR text and, on a PR, its head. Only a
-      # trusted author's issue/PR in this repository may be the target: a fork
-      # PR could carry its own agent config, and stranger-authored text could
-      # steer an agent that holds OPENCODE_API_KEY (indirect prompt injection).
+      # The agent reads the target issue/PR text and, on a PR, its head. The
+      # target's author must be trusted (job `if:`) and a PR head must live in
+      # this repository: a fork PR could carry its own agent config. Comments by
+      # others on a trusted thread are NOT filtered here (tracked separately);
+      # only invoke the agent on threads whose comments you trust.
       - name: Refuse fork pull requests as agent targets
         if: github.event.issue.pull_request || github.event.pull_request
         env:
@@ -132,10 +133,11 @@ jobs:
       pull-requests: read
       issues: read
     steps:
-      # The agent reads the target issue/PR text and, on a PR, its head. Only a
-      # trusted author's issue/PR in this repository may be the target: a fork
-      # PR could carry its own agent config, and stranger-authored text could
-      # steer an agent that holds OPENCODE_API_KEY (indirect prompt injection).
+      # The agent reads the target issue/PR text and, on a PR, its head. The
+      # target's author must be trusted (job `if:`) and a PR head must live in
+      # this repository: a fork PR could carry its own agent config. Comments by
+      # others on a trusted thread are NOT filtered here (tracked separately);
+      # only invoke the agent on threads whose comments you trust.
       - name: Refuse fork pull requests as agent targets
         if: github.event.issue.pull_request || github.event.pull_request
         env:
