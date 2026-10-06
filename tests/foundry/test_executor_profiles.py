@@ -108,26 +108,73 @@ def test_activation_evidence_records_authenticated_runtime_verification() -> Non
     assert active["runtime_status"] == "ACTIVE"
     assert current["current_model_identity"] == active["model"]
     assert current["runtime_status"] == active["runtime_status"]
-    assert current["evidence_classification"] == "DIRECTLY_VERIFIED"
+    assert (
+        current["evidence_classification"]["configured_pins_job_outcome_and_provider_policy"]
+        == "DIRECTLY_VERIFIED"
+    )
+    assert current["evidence_classification"]["resolved_runtime_model_identity"] == "CODE_DERIVED"
     assert (
         current["evidence_receipt"]
         == ".foundry/space-bunny-rebind-runtime-activation-20261006.json"
     )
 
-    assert receipt["evidence_classification"] == "DIRECTLY_VERIFIED"
+    assert receipt["evidence_classification"] == current["evidence_classification"]
     assert receipt["status"] == "PASS"
-    assert (
-        receipt["source_lock"]["main_sha"]
-        == "84c17f9d0fb768812e00ecaef5cb2dcd4db57676"
-    )
+    assert receipt["source_lock"]["main_sha"] == "84c17f9d0fb768812e00ecaef5cb2dcd4db57676"
     assert receipt["trigger"]["workflow_run_id"] == 37522166205
     assert receipt["trigger"]["job_id"] == 112470057434
-    assert receipt["execution"]["resolved_model"] == active["model"]
+    assert receipt["execution"]["reported_resolved_model"] == active["model"]
     assert receipt["execution"]["configured_variant"] == active["native_variant"]
     assert receipt["execution"]["primary_deepseek_job_conclusion"] == "skipped"
     assert receipt["observation"]["workflow_job_conclusion"] == "success"
     assert receipt["observation"]["opencode_step_conclusion"] == "success"
-    assert receipt["observation"]["result_marker"] == "SPACE_BUNNY_REBIND_SMOKE_OK"
+
+
+def test_activation_receipt_classification_cannot_pass_for_wrong_reason() -> None:
+    """Controls for the corrected receipt provenance and classification."""
+    receipt = _runtime_activation_receipt()
+
+    # The resolved provider/model identity is only as strong as its cited
+    # source: the agent's own result comment, not an independently fetched
+    # runtime log or artifact.
+    assert (
+        receipt["execution"]["resolved_identity_source"] == "BUNNY_AGENT_RESULT_COMMENT_6024263751"
+    )
+    assert receipt["execution"]["resolved_identity_classification"] == "CODE_DERIVED"
+    assert receipt["execution"]["reported_provider_id"] == "opencode-go"
+    assert receipt["execution"]["reported_model_id"] == "space-bunny"
+
+    # The trigger comment instructed the exact result marker, so a marker echo
+    # carries no evidential value and must not survive as runtime proof.
+    assert "result_marker" not in receipt["observation"]
+    assert "SPACE_BUNNY_REBIND_SMOKE_OK" not in json.dumps(receipt)
+
+    # The classification repair must not downgrade away the direct evidence:
+    # configured pins, job outcome, skipped primary lane and provider policy
+    # stay DIRECTLY_VERIFIED and are cited.
+    assert (
+        receipt["evidence_classification"]["configured_pins_job_outcome_and_provider_policy"]
+        == "DIRECTLY_VERIFIED"
+    )
+    direct = " ".join(receipt["classification_basis"]["directly_verified"])
+    assert "112470057434" in direct
+    assert "MODEL=opencode-go/space-bunny" in direct
+    assert "VARIANT=max" in direct
+    assert "skipped" in direct
+    assert "provider policy" in direct.lower()
+    code_derived = " ".join(receipt["classification_basis"]["code_derived"])
+    assert "6024263751" in code_derived
+    assert "no independently fetched runtime log" in code_derived
+
+
+def test_activation_receipt_is_not_a_workstream_state_record() -> None:
+    """The receipt must stay shaped as evidence, not as workstream state."""
+    receipt = _runtime_activation_receipt()
+    assert receipt["record_type"] == "runtime_activation_evidence_receipt"
+    # Content markers the state-conformance sweep detects; adding either would
+    # masquerade the receipt as a workstream state file.
+    assert "objective" not in receipt
+    assert "workstream" not in receipt
 
 
 def test_activation_gate_requires_atomic_launcher_and_config_change() -> None:

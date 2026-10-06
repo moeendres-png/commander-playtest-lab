@@ -1,9 +1,13 @@
 {
   "schema_version": "1.0",
+  "record_type": "runtime_activation_evidence_receipt",
   "repository": "moeendres-png/commander-playtest-lab",
-  "evidence_classification": "DIRECTLY_VERIFIED",
   "status": "PASS",
-  "objective": "Bind the rebound Space Bunny catalog identity to an authenticated post-merge OpenCode runtime observation without rewriting historical activation evidence.",
+  "purpose": "Bind the rebound Space Bunny catalog identity to an authenticated post-merge OpenCode runtime observation without rewriting historical activation evidence.",
+  "evidence_classification": {
+    "configured_pins_job_outcome_and_provider_policy": "DIRECTLY_VERIFIED",
+    "resolved_runtime_model_identity": "CODE_DERIVED"
+  },
   "source_lock": {
     "main_sha": "84c17f9d0fb768812e00ecaef5cb2dcd4db57676",
     "rebind_pr": 576,
@@ -21,19 +25,32 @@
   "execution": {
     "configured_model": "opencode-go/space-bunny",
     "configured_variant": "max",
-    "provider_id": "opencode-go",
-    "model_id": "space-bunny",
-    "resolved_model": "opencode-go/space-bunny",
+    "reported_provider_id": "opencode-go",
+    "reported_model_id": "space-bunny",
+    "reported_resolved_model": "opencode-go/space-bunny",
+    "resolved_identity_source": "BUNNY_AGENT_RESULT_COMMENT_6024263751",
+    "resolved_identity_classification": "CODE_DERIVED",
     "primary_deepseek_job_conclusion": "skipped"
   },
   "observation": {
     "workflow_job_conclusion": "success",
     "opencode_step_conclusion": "success",
-    "result_marker": "SPACE_BUNNY_REBIND_SMOKE_OK",
     "result_comment_id": 6024263751
+  },
+  "classification_basis": {
+    "directly_verified": [
+      "workflow run 37522166205 job 112470057434 (opencode-bunny) completed successfully",
+      "the /bunny-only job pinned MODEL=opencode-go/space-bunny and VARIANT=max at source_lock.main_sha",
+      "the primary DeepSeek opencode job was skipped, evidencing explicit secondary selection rather than fallback",
+      "provider policy at source_lock.main_sha admits only opencode-go/deepseek-v4.1-flash and opencode-go/space-bunny and denies other providers"
+    ],
+    "code_derived": [
+      "the reported providerID=opencode-go and modelID=space-bunny come from the bunny agent result comment 6024263751; no independently fetched runtime log line, line reference, or log artifact is bound to this receipt"
+    ]
   },
   "adjudication": {
     "current_space_bunny_runtime_activation": "PASS",
+    "current_space_bunny_runtime_activation_basis": "DIRECTLY_VERIFIED configured pins, job outcome and provider policy plus CODE_DERIVED resolved identity self-report",
     "explicit_secondary_selection_observed": true,
     "historical_2026_09_29_space_bunny_free_smoke_role": "PROVENANCE_ONLY_FOR_OLD_MODEL_ID",
     "no_automatic_fallback_claim_source": "UNCHANGED_CODE_AND_POLICY_EVIDENCE_NOT_THIS_SMOKE"

@@ -105,6 +105,26 @@ def test_state_files_are_discovered() -> None:
     assert len(names) >= 8, f"expected the known state files, found {sorted(names)}"
 
 
+def test_evidence_receipt_is_not_discovered_as_workstream_state() -> None:
+    """The runtime receipt is evidence; it must not masquerade as state.
+
+    Detection is content-based, so the receipt staying out of this sweep means
+    it declares no ``objective``/``workstream`` key. Registering it in
+    EXEMPTIONS or padding it with schema-2.0 workstream fields would instead
+    dress an evidence record as workstream state.
+    """
+    names = {_rel(p) for p in _state_files()}
+    receipt = ".foundry/space-bunny-rebind-runtime-activation-20261006.json"
+    assert receipt not in names, (
+        "the evidence receipt is being swept as a workstream state file; keep its "
+        "fields distinct from workstream-state keys instead of exempting it"
+    )
+    # Wrong-reason control: content detection must still sweep .json state
+    # files, or the assertion above would pass merely because JSON is skipped
+    # wholesale rather than because the receipt is shaped as evidence.
+    assert any(name.endswith(".json") for name in names), sorted(names)
+
+
 @pytest.mark.parametrize("path", _state_files(), ids=_rel)
 def test_state_file_is_conformant_or_registered(path: Path) -> None:
     data = yaml.safe_load(path.read_text(encoding="utf-8"))

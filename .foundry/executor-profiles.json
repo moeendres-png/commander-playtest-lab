@@ -60,8 +60,11 @@
     },
     "activation_evidence_2026_10_06": {
       "current_model_identity": "opencode-go/space-bunny",
-      "evidence_classification": "DIRECTLY_VERIFIED",
-      "space_bunny_authenticated_smoke": "Authenticated trusted `/bunny` issue-comment run on main after PR #576 resolved providerID=opencode-go modelID=space-bunny at native max and completed successfully.",
+      "evidence_classification": {
+        "configured_pins_job_outcome_and_provider_policy": "DIRECTLY_VERIFIED",
+        "resolved_runtime_model_identity": "CODE_DERIVED"
+      },
+      "space_bunny_authenticated_smoke": "Authenticated trusted `/bunny` issue-comment job on main after PR #576 completed successfully with MODEL=opencode-go/space-bunny and VARIANT=max pinned and the primary DeepSeek opencode job skipped. The agent result comment reported providerID=opencode-go modelID=space-bunny; that resolved identity is agent self-report (CODE_DERIVED) because no runtime log/artifact is independently bound.",
       "evidence_receipt": ".foundry/space-bunny-rebind-runtime-activation-20261006.json",
       "historical_scope": "activation_evidence_2026_09_29 remains provenance for opencode-go/space-bunny-free only and does not establish the rebound model identity.",
       "runtime_status": "ACTIVE"

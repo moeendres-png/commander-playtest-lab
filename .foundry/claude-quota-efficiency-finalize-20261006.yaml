@@ -67,7 +67,7 @@ tests_run:
   ci-definition-integrity-shadow failure by design'
 - 'foundry-reviewer fresh-context adversarial review at 91011333: NO BLOCKING FINDINGS'
 - 'bunny-auditor could not run: space-bunny-free model binding failure owned by PR576 (now merged upstream); not duplicated'
-- '09150776 exact-head GitHub Actions: CI, Production Qualification, External XMage Integration, XMage Full Game Conformance, XMage Real 4P Technical Smoke, H4 Docker Materialization and Windows Runtime Hygiene all PASS'
+- '09150776 exact-head GitHub Actions: CI, Production Qualification, External XMage Integration, XMage Full Game Conformance, XMage Real 4P Technical Smoke, H4 Docker Materialization and Windows Runtime Hygiene all PASS; the informational ci-definition-integrity-shadow checks failed BY_DESIGN (exit 2 GATE_DEFINITION_CHANGED_REVIEW_REQUIRED, not in the required ruleset) and receive no credit'
 evidence:
 - 'PR575: https://github.com/moeendres-png/commander-playtest-lab/pull/575'
 - 'CI artifact CI_DEFINITION_INTEGRITY.json at e793f7f5: overall GATE_DEFINITION_CHANGED_REVIEW_REQUIRED; all invariants PASS'
@@ -78,7 +78,7 @@ files_modified:
 - tests/unit/test_claude_routing_policy.py
 - .claude/skills/lab-ops/SKILL.md
 validated_gates:
-- 'PR575 exact head 0915077654de5a44efde00e02b8ae421366e3134: all required and observed PR workflows PASS'
+- 'PR575 exact head 0915077654de5a44efde00e02b8ae421366e3134: all required PR workflows PASS; the informational ci-definition-integrity-shadow checks failed BY_DESIGN (exit 2 GATE_DEFINITION_CHANGED_REVIEW_REQUIRED), are not in the required ruleset, and receive no credit'
 - 'Final merge gate: mergeable, base main 84c17f9d0fb768812e00ecaef5cb2dcd4db57676 unchanged, zero unresolved review threads'
 - 'Fresh-context foundry-reviewer: NO BLOCKING FINDINGS'
 failed_gates: []

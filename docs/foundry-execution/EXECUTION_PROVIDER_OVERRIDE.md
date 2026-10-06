@@ -49,8 +49,10 @@ Space Bunny MAX is the explicit secondary executor:
 The authorized Space Bunny identity is `opencode-go/space-bunny` with main model, small model
 and reachable agents at native `max`. After the catalog-ID rebind landed in PR #576, a fresh
 authenticated trusted `/bunny` smoke on 2026-10-06 ran the pinned OpenCode CLI with
-`MODEL=opencode-go/space-bunny` and `VARIANT=max`; runtime logs resolved
-`providerID=opencode-go modelID=space-bunny`, and the Bunny job completed successfully. The
+`MODEL=opencode-go/space-bunny` and `VARIANT=max`, the DeepSeek lane was skipped, and the Bunny
+job completed successfully. The agent result reported `providerID=opencode-go modelID=space-bunny`;
+that resolved identity is agent self-report (`CODE_DERIVED`) unless an authoritative runtime log is
+bound, while the configured pins, job outcome and provider policy are `DIRECTLY_VERIFIED`. The
 immutable receipt is `.foundry/space-bunny-rebind-runtime-activation-20261006.json`.
 
 The 2026-09-29 authenticated smoke resolved the then-current
