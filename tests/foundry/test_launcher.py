@@ -947,7 +947,7 @@ def test_bootstrap_cli_rejects_malformed_worktree_state(target: dict) -> None:
             None,
             "space-bunny",
             "opencode-go",
-            "opencode-go/space-bunny-free",
+            "opencode-go/space-bunny",
             "space-bunny",
             "max",
         ),
@@ -1135,21 +1135,21 @@ def test_space_bunny_profile_pins_go_model_and_native_max(target, canon):
         "profile": "space-bunny",
         "override": "space-bunny",
         "provider": "opencode-go",
-        "model": "opencode-go/space-bunny-free",
+        "model": "opencode-go/space-bunny",
         "requested_effort": "high",
         "variant_resolution": "native_max",
         "native_variant": "max",
     }
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    assert bundle["model"] == "opencode-go/space-bunny-free"
-    assert bundle["small_model"] == "opencode-go/space-bunny-free"
+    assert bundle["model"] == "opencode-go/space-bunny"
+    assert bundle["small_model"] == "opencode-go/space-bunny"
     assert bundle["enabled_providers"] == ["opencode-go"]
-    assert bundle["provider"]["opencode-go"]["whitelist"] == ["space-bunny-free"]
-    model = bundle["provider"]["opencode-go"]["models"]["space-bunny-free"]
+    assert bundle["provider"]["opencode-go"]["whitelist"] == ["space-bunny"]
+    model = bundle["provider"]["opencode-go"]["models"]["space-bunny"]
     assert model["options"] == {"reasoningEffort": "max"}
     assert model["variants"] == {"max": {}}
     assert all(
-        agent == {"model": "opencode-go/space-bunny-free", "variant": "max"}
+        agent == {"model": "opencode-go/space-bunny", "variant": "max"}
         for agent in bundle["agent"].values()
     )
     assert plan["_env"]["FOUNDRY_EXECUTION_PROFILE"] == "space-bunny"
@@ -1258,7 +1258,7 @@ def test_deepseek_primary_failure_never_falls_back_to_space_bunny(target, canon,
     # Exactly one child, pinned to DeepSeek. No retry, no switch to Space Bunny.
     assert len(calls) == 1
     assert calls[0][3:5] == ["--model", "opencode-go/deepseek-v4.1-flash"]
-    assert "opencode-go/space-bunny-free" not in " ".join(calls[0])
+    assert "opencode-go/space-bunny" not in " ".join(calls[0])
     records = [
         json.loads(s) for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
     ]
@@ -1283,13 +1283,13 @@ def test_space_bunny_failure_never_invokes_another_executor(target, canon, monke
     monkeypatch.setattr(launcher_mod.subprocess, "run", child)
     assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == 7
     assert len(calls) == 1
-    assert calls[0][3:5] == ["--model", "opencode-go/space-bunny-free"]
+    assert calls[0][3:5] == ["--model", "opencode-go/space-bunny"]
     assert "deepseek" not in " ".join(calls[0])
     records = [
         json.loads(s) for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
     ]
     assert {r["execution_profile"] for r in records} == {"space-bunny"}
-    assert {r["model"] for r in records} == {"opencode-go/space-bunny-free"}
+    assert {r["model"] for r in records} == {"opencode-go/space-bunny"}
 
 
 def test_telemetry_and_state_record_the_actual_selected_executor(target, canon, monkeypatch):

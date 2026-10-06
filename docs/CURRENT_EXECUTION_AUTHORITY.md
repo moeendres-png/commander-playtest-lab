@@ -20,7 +20,7 @@ Exactly two OpenCode execution profiles are authorized:
 
 2. **Space Bunny MAX**
    - profile: `space-bunny`
-   - model: `opencode-go/space-bunny-free`
+   - model: `opencode-go/space-bunny`
    - native variant: `max`
    - explicit secondary executor.
 
