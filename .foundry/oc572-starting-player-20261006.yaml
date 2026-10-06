@@ -4,8 +4,8 @@ worktree: /home/moeen/work/worktrees/oc572-starting-player-20261006
 branch: opencode/oc572-starting-player-20261006
 audit_base_sha: 5849d187a0adf0ce323991ea0bf0c8a7fd931a88
 audit_base_tree: e839522778c050567cbf5f4f542c96881ad7dc61
-state_written_against_head: e94647c9fb6d76737cf5ec4724c46f366144d8e3
-validated_head: e94647c9fb6d76737cf5ec4724c46f366144d8e3
+state_written_against_head: 0d1c3908dc19f116b48291a99d2af4aaa937acbd
+validated_head: 0d1c3908dc19f116b48291a99d2af4aaa937acbd
 objective: '#572 / #441 / #255 starting-player authority. Eliminate every production-reachable
   or qualification-credit path where the Lab or its provider bridge chooses the starting
   player by an implicit p1/seat-0 default; then close the impacted XMage AF08 starting-player
@@ -152,6 +152,16 @@ technical_decisions:
 - 'SP-DECISION-4 (1.0.22): implementing the already-adjudicated contract 1.0.22 START-2/MULL-2/MULL-4
   erratum is a separate contract-successor milestone; it is NOT in this branch and
   is the exact next qualification action after merge.'
+- 'SP-DECISION-5 (Owner cross-executor review gate, 2026-10-06): before PR-ready/qualification-ready/COMPLETE,
+  an independent fresh-context read-only review by Space Bunny MAX is mandatory; the
+  DeepSeek/foundry-reviewer result is not a substitute. Dispatch is the canonical
+  /bunny comment lane (opencode.yml opencode-bunny job, opencode-go/space-bunny at
+  native max, pinned CLI v1.18.30); the review must receive the exact SHA/TREE, not
+  trust implementer prose, and must have no edit/write authority (the dispatch binds
+  it read-only and routes the adversarial pass through the read-only bunny-auditor
+  subagent). Every evidenced P1/P2 it finds must be repaired and, if code/evidence
+  semantics change, a new review runs against the new SHA/TREE. Space Bunny MAX is
+  an engineering cross-check only, never Rules authority or qualification credit.'
 hypotheses_rejected:
 - 'Rejected: "the construction proof issufficiently strong on its own even when the
   starter came from a default." The 39744c19198a epoch shows temporal EQUAL P1/P1
@@ -201,8 +211,15 @@ validated_gates:
   test_phase8_tactical_adapter): 291 passed in 4.02s.'
 - 'PB-03 exact-head runtime qualification on f62ed68a (pre-merge): GitHub Actions
   run 37505278709 SUCCESS (1h1m6s), sealed artifact current-boundary-two-candidate-9bd13f04273797a7fcd72913e64b19cd98a5af68
-  (935304 bytes, not expired). Superseded as exact-head evidence by the b6029d6f
-  re-run; recorded so the earlier state line "PB-03 NOT RUN" is corrected.'
+  (935304 bytes, not expired). It will be superseded by the required exact-head
+  re-run on the final head; recorded so the earlier state line "PB-03 NOT RUN" is
+  corrected.'
+- 'DeepSeek fresh-context review (foundry-reviewer subagent, read-only) of 0d1c3908
+  returned NO BLOCKING FINDINGS: P2-1/P2-2/P3-1/P3-2/P3-3 all SATISFIED with revert-catching
+  controls; no hidden default/fallback, no weakened assertions, no unrelated API
+  change; P3 notes only (state-head hygiene, PB-03 wording, LOCAL_OBSERVED identity
+  header, start2_row defense-in-depth, generic-lane executed flag, expected event
+  token).'
 - 'Review repair at 8c572e79 (Claude-directed /oc fix of the 8b28ce8b review findings):
   tests/qualification 1804 passed / 23 skipped with 0 deselections; the 291 touched
   qualification + integration tests passed; ruff check and ruff format --check clean
@@ -348,13 +365,22 @@ remaining_scope:
 - 'R2 (done at b6029d6f): commit 5f2468fe dispositioned via the separated tooling
   PR #576 -> main 84c17f9d, then a normal main merge; no history rewrite, no force
   push. tests/foundry green again (848 with tests/unit).'
-- 'R5a: fresh-context adversarial review of the exact merged head b6029d6f.'
+- 'R5a (DeepSeek half done): fresh-context adversarial review of 0d1c3908 by foundry-reviewer
+  = NO BLOCKING FINDINGS (P3 notes only).'
+- 'R5a2 (mandatory cross-executor gate): Space Bunny MAX independent read-only review
+  of the exact final head via the /bunny lane; P1/P2 repairs required if evidenced.'
 - 'R5b (done at e94647c9): LOCAL_OBSERVED re-capture on the merged head; all declared
   rows PASS with the P3-3 prompt-answer identity recorded.'
 - 'R5c: exact-head CI on the final head including PB-03 runtime re-run and sealed
   epoch.'
 - 'R5d: update state + GitHub handoff, then the protected merge decision if every
   gate is satisfied.'
+- 'P3 dispositions (DeepSeek review, non-blocking): state-head fields corrected in
+  this update; PB-03 wording corrected; LOCAL_OBSERVED identity header accepted as
+  a known limitation (LOCAL_OBSERVED is not the credit path and PB-03 records provider
+  identity); start2_row channel-gating and the generic-lane executed flag are handed
+  to the Space Bunny review for independent classification; the expected-event token
+  is intentionally never a declaration.'
 - 'R4 (successor workstream, NOT this branch): the decided contract 1.0.22 START-2
   natural-start erratum (with MULL-2/MULL-4 rules_randomness and C-E1/C-E2); implementing
   it here is explicitly out of scope per the Owner instruction.'
@@ -367,13 +393,14 @@ next_action: 'The merged head carries the validated starting-player repair, the
   real-engine evidence. Next: fresh-context adversarial review of the final head,
   exact-head CI including PB-03, state + GitHub handoff, then the protected merge
   decision. Contract 1.0.22 stays a separate successor workstream.'
-exact_next_action: '1) Push the re-captured evidence commit and verify remote HEAD.
-  2) Run the fresh-context adversarial review against the exact final head (foundry-reviewer,
-  read-only; focus on the 8c572e79 repair, R3-C1..C5, mutation controls, merged tooling
-  absorption, evidence integrity). 3) Consume exact-head CI incl. the PB-03 runtime
-  re-run. 4) Repair only evidenced blocking findings, rerunning only invalidated validation.
-  5) Update state + GitHub handoff, then merge #574 only if every gate is satisfied
-  (normal merge only, no force, no rewrite).'
+exact_next_action: '1) Commit+push this state update and verify remote HEAD. 2) Dispatch
+  the mandatory cross-executor Space Bunny MAX review via the /bunny comment lane on
+  PR #574 with the exact SHA/TREE, read-only, routed through the read-only bunny-auditor;
+  it must not trust this state or prior prose. 3) Consume the Space Bunny findings;
+  repair every evidenced P1/P2 and re-run the review against the new SHA/TREE if semantics
+  change. 4) Consume exact-head CI incl. the PB-03 runtime re-run. 5) Update state
+  + GitHub handoff, then merge #574 only if every gate is satisfied (normal merge
+  only, no force, no rewrite).'
 executor_handoff_from: opencode-go/deepseek-v4.1-flash
 executor_handoff_reason: Owner instruction to pause implementation and convert the
   workstream into a durable GitHub handoff for Claude; implementation was mid-repair
