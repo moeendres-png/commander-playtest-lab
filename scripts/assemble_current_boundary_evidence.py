@@ -251,22 +251,29 @@ def _annotate_carried_gates(
 
 
 def _demote_carried_rows(rows: dict[str, dict[str, Any]]) -> dict[str, int]:
-    """Make every carried-forward PASS row UNKNOWN; return the historical counts.
+    """Mark every carried-forward row historical; return the historical counts.
 
     The current authority's evidence migration sets ``automatic_carry_forward:
     false``: a historical result is provenance pending a current-boundary
-    execution, never a current PASS (#572). The historical exit state stays on
-    the row in ``historical_exit_state`` and in the returned counts, a separate
-    record that no count, gate or comparison reads as credit.
+    execution, never a current PASS (#572). Every row keeps its historical state
+    in ``historical_exit_state``; a PASS becomes UNKNOWN and loses its receipt
+    fields, while non-PASS states stay (they earn nothing). The returned counts
+    are a separate record that no count, gate or comparison reads as credit.
+    Idempotent: a re-assembly of the same epoch counts the original states.
     """
     historical: dict[str, int] = {}
     for row in rows.values():
-        state = str(row["exit_state"])
+        state = str(row.get("historical_exit_state", row["exit_state"]))
         historical[state] = historical.get(state, 0) + 1
+        row.setdefault("historical_exit_state", state)
         if state != "PASS":
             continue
-        row["historical_exit_state"] = state
-        row["historical_reason"] = row.get("reason")
+        row.setdefault("historical_reason", row.get("reason"))
+        if "positive_receipt_identities" in row:
+            row["historical_positive_receipt_identities"] = row.pop("positive_receipt_identities")
+        facts = row.get("terminal_facts")
+        if isinstance(facts, dict) and "positive_receipts" in facts:
+            row["historical_positive_receipts"] = facts.pop("positive_receipts")
         row["exit_state"] = "UNKNOWN"
         row["failure_reason"] = (
             "historical result carried forward from an earlier epoch: provenance only, "
@@ -1439,7 +1446,15 @@ def assemble() -> None:
     comparison: list[dict[str, Any]] = []
     for fixture in sorted(x):
         xr, fr = x[fixture], f[fixture]
-        if xr["exit_state"] == fr["exit_state"] == "PASS":
+        if "historical_exit_state" in xr or "historical_exit_state" in fr:
+            # #572: a carried-forward side is provenance only, so nothing on it
+            # is compared, adjudicated or listed as a current failure.
+            disposition = "NON_COMPARABLE"
+            note = (
+                "at least one side is the historical record carried forward into this "
+                "epoch; it is provenance only and is not compared"
+            )
+        elif xr["exit_state"] == fr["exit_state"] == "PASS":
             # PASS/PASS is not a semantic comparison. Compare the normalized
             # Rules-visible observations the two sides actually recorded, so two
             # engines that disagree about a turn number or a library count are
