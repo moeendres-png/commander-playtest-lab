@@ -81,22 +81,52 @@ engine forks (`moeendres-png/mage`, `moeendres-png/forge`). It is tooling guidan
 
 ## Working efficiently without losing quality
 
-- **Executor routing (quota defaults).** Implementation, mechanical fixes and CI repairs →
-  `/oc` (DeepSeek V4.1 Flash, native max) through `oc_dispatch.py post` with a task skeleton
-  from `.claude/skills/lab-ops/oc_tasks/`; read-only audits → `/bunny`; log, CI and diff
-  digests or comparisons → Sonnet `high` subagents. The Opus main session keeps adjudication,
-  final evidence review, merge decisions and dispatch. Opus subagents only for an
-  `evidence-reviewer` pass before a qualification push.
-- **Report budgets.** Every agent report ≤40 lines; every user status message ≤8 lines. A
-  dispatch comment is the task file plus the fixed footer — not an essay.
-- Long jobs (Java suites, PB-03, CI waits, selftests) run in the background.
-  `oc_dispatch.py watch` is the background-friendly way to wait for a dispatched run. Keep
-  working meanwhile; never poll in the foreground and never use bare `sleep`.
+Use this decision order for each new unit of work:
+
+1. **Deterministic first.** Prefer `lab-ops`, focused grep/git queries, packet readers and exact
+   test commands when they can answer the question without model judgement.
+2. **Execution → DeepSeek MAX.** Implementation, bugfixes, debugging, CI repair, test/fix loops,
+   qualification execution, evidence production, deterministic tooling, multi-file refactors and
+   long Forge/Mage/Lab campaigns go to `/oc` (DeepSeek V4.1 Flash, native `max`) by default.
+3. **Independent secondary → Space Bunny MAX.** Select Space Bunny only for a documented
+   cross-model/adversarial/bounded-secondary reason. Never fall back automatically because
+   DeepSeek failed or quota changed. `/bunny` is the current read-only GitHub audit lane; a
+   separately contracted `space-bunny` Foundry profile is governed by its own workstream.
+4. **Read-only helper.** Use `log-scanner` (Sonnet `low`) for mechanical extraction and
+   `ci-triage` (Sonnet `medium`) for one red-check classification. Use built-in `Explore` only
+   for a scoped read-only lookup when deterministic search is insufficient. Never use
+   `general-purpose` or another Claude subagent for implementation, debugging or test/fix work.
+5. **Opus judgement.** Keep normal coordination, dispatch and source-state management at Opus
+   5.5 `medium`. Use `high` for Rules/CR, evidence/qualification promotion, architecture,
+   security/containment, difficult cross-WS arbitration and final high-risk integration review.
+   `evidence-reviewer` is the dedicated Opus `high` fresh-context helper for qualification-,
+   evidence-, Rules- or security-sensitive diffs.
+
+Claude helper topology stays flat: the project helpers are read-only and have no `Agent` tool.
+Do not create agent teams or nested subagent trees for routine work.
+
+**Consume delegation, do not duplicate it.** Read the compact worker report first. Re-open raw
+logs/diffs/evidence only when the report is contradictory or insufficient, an authority decision
+depends on the raw material, an unusual security/qualification claim needs checking, or the
+contract explicitly requires independent verification.
+
+**Dispatch packets are deltas.** Fill the task skeleton with source lock, ownership/scope,
+dependencies/hard gates, required evidence, stop conditions, expected handoff and exact next
+action. Global policy already injected by Foundry is not copied into an essay. Once dispatched,
+let Foundry run to Semantic Completion; intervene only for a real authority/ownership gate,
+canonical-state change, incomplete packet or unrecoverable/non-resumable termination.
+
+- Every agent report ≤40 lines; every routine user status message ≤8 lines.
+- Long jobs (Java suites, PB-03, CI waits, selftests) run in the background. Use
+  `oc_dispatch.py watch`; never foreground-poll with bare `sleep`.
 - Test narrow while iterating, then run the full required suite once before the push.
-- Use read-only subagents (`log-scanner`, `ci-triage`, `Explore`) for broad sweeps. Every
-  subagent runs on at least Sonnet at `high` effort. Judgement, Rules reasoning and merge
-  decisions stay in the main session.
-- One worktree per branch. Commit WIP before switching. No force push, no history rewrite, no
-  push to `main`/`master`.
-- End every session with a checkpoint comment on the lane issue: the state of each item, exact
-  heads, the next step, and any parked WIP branch.
+- When a lane/workstream changes materially, persist/checkpoint, regenerate HANDOFF and prefer a
+  fresh Claude session rather than compacting unrelated completed work into a giant context.
+- One worktree per branch. Commit WIP before switching. No force push, history rewrite or push
+  to `main`/`master`.
+- End every material session with a lane checkpoint: exact heads, item state, blockers and exact
+  next action.
+
+`omitClaudeMd: true` is deliberately limited to the mechanical `log-scanner` and bounded
+`ci-triage` helpers; the evidence reviewer retains project context. Do not set an explicit
+subagent cache TTL until a representative benchmark shows a benefit.

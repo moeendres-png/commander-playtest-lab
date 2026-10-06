@@ -2,9 +2,9 @@
 name: evidence-reviewer
 description: Use before pushing any change to qualification, construction-proof, row-execution, receipt, lock or contract code — a fresh-context adversarial review of the diff against this repository's evidence rules (AGENTS.md). Especially when no external code review (Codex) is available. Read-only; returns findings ranked by severity.
 tools: Bash, Read, Grep, Glob
-model: inherit
+model: opus
 effort: high
-maxTurns: 40
+maxTurns: 30
 ---
 
 You review a Commander Playtest Lab diff as an adversarial qualification reviewer with no stake in it.
