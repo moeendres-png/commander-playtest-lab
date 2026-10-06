@@ -35,6 +35,11 @@ DEFAULT_TIMEOUT_S = 180.0
 #: its explicit overrides (the replay twin's, or :func:`orchestration_plan`'s).
 ORCHESTRATION_KEY_VARIABLE = "COMMANDER_LAB_ORCHESTRATION_KEY"
 
+#: Upper bound on the stderr a bridge process retains in memory (E-B0, #561).
+#: Past it the drain keeps reading, so the child never stalls on a full pipe, but
+#: discards and marks the capture truncated: a truncated capture is not scannable.
+STDERR_RETAIN_LIMIT_CHARS = 32 * 1024 * 1024
+
 _SHA40 = re.compile(r"[0-9a-f]{40}")
 
 
@@ -188,13 +193,92 @@ class LaunchPlan:
     mutates_reference_repository: bool = False
 
 
+@dataclass(frozen=True)
+class StderrCapture:
+    """The bridge's retained stderr (transport diagnostics), as far as it was read.
+
+    ``complete`` is true only once the drain reached end of stream, and
+    ``truncated`` once the retention cap was exceeded. Only a ``scannable``
+    capture (complete and not truncated) can support a channel scan; anything
+    else must leave the scan's verdict UNKNOWN, never PASS.
+    """
+
+    text: str
+    complete: bool
+    truncated: bool
+
+    @property
+    def scannable(self) -> bool:
+        return self.complete and not self.truncated
+
+
 @dataclass
 class BridgeProcess:
-    """A live external candidate bridge speaking Protocol 2.0.0."""
+    """A live external candidate bridge speaking Protocol 2.0.0.
+
+    The bridge's stderr is drained from launch to end of stream on a daemon
+    thread and retained in memory (``stderr_capture``), so a row's channel scan
+    can read the transport diagnostics and a chatty child never stalls on a full
+    pipe. The capture is never added to ``transcript`` and never persisted here:
+    it may carry engine text a principal must not see.
+    """
 
     plan: LaunchPlan
     popen: subprocess.Popen[str]
     transcript: list[dict[str, Any]] = field(default_factory=list)
+    _stderr_chunks: list[str] = field(default_factory=list, init=False, repr=False)
+    _stderr_size: int = field(default=0, init=False, repr=False)
+    _stderr_truncated: bool = field(default=False, init=False, repr=False)
+    _stderr_complete: bool = field(default=False, init=False, repr=False)
+    _stderr_lock: threading.Lock = field(
+        default_factory=threading.Lock, init=False, repr=False, compare=False
+    )
+    _stderr_thread: threading.Thread | None = field(
+        default=None, init=False, repr=False, compare=False
+    )
+
+    def __post_init__(self) -> None:
+        if self.popen.stderr is None:
+            # Nothing piped, nothing retained: the capture stays incomplete.
+            return
+        self._stderr_thread = threading.Thread(
+            target=self._drain_stderr, name="bridge-stderr", daemon=True
+        )
+        self._stderr_thread.start()
+
+    def _drain_stderr(self) -> None:
+        stream = self.popen.stderr
+        assert stream is not None
+        try:
+            for line in iter(stream.readline, ""):
+                with self._stderr_lock:
+                    if self._stderr_size + len(line) > STDERR_RETAIN_LIMIT_CHARS:
+                        self._stderr_truncated = True
+                        continue
+                    self._stderr_chunks.append(line)
+                    self._stderr_size += len(line)
+        except (OSError, ValueError):
+            # The stream was closed under the drain: what was read is kept, but
+            # the end of stream was never seen, so the capture stays incomplete.
+            return
+        with self._stderr_lock:
+            self._stderr_complete = True
+
+    def _join_stderr(self, timeout_s: float) -> None:
+        if self._stderr_thread is not None:
+            self._stderr_thread.join(timeout_s)
+
+    def _stderr_draining(self) -> bool:
+        return self._stderr_thread is not None and self._stderr_thread.is_alive()
+
+    def stderr_capture(self) -> StderrCapture:
+        """What has been read from the bridge's stderr so far."""
+        with self._stderr_lock:
+            return StderrCapture(
+                text="".join(self._stderr_chunks),
+                complete=self._stderr_complete,
+                truncated=self._stderr_truncated,
+            )
 
     def request(
         self,
@@ -237,9 +321,11 @@ class BridgeProcess:
             raise BridgeLaunchError(f"bridge stdin unavailable: {exc}") from exc
         raw = self._read_line_with_deadline(timeout_s, message_type, rid)
         if not raw:
-            stderr = ""
-            if self.popen.stderr is not None:
-                stderr = self.popen.stderr.read()[-2000:]
+            # stdout closed: let the drain reach the end of stderr, then report its tail.
+            with contextlib.suppress(OSError, ValueError, subprocess.TimeoutExpired):
+                self.popen.wait(timeout=5)
+            self._join_stderr(5.0)
+            stderr = self.stderr_capture().text[-2000:]
             raise BridgeLaunchError(
                 f"bridge closed stdout for {message_type} (stderr tail: {stderr})"
             )
@@ -328,7 +414,17 @@ class BridgeProcess:
         except subprocess.TimeoutExpired:
             self.popen.kill()
         finally:
+            # The process is gone (or killed): let the drain reach end of stream
+            # before the stream is closed under it.
+            with contextlib.suppress(OSError, ValueError, subprocess.TimeoutExpired):
+                self.popen.wait(timeout=5)
+            self._join_stderr(5.0)
             for stream in (self.popen.stdout, self.popen.stderr):
+                if stream is self.popen.stderr and self._stderr_draining():
+                    # A descendant still holds the pipe open; closing it under the
+                    # blocked drain would wait on the drain's read. The daemon drain
+                    # ends with the pipe, and the capture stays incomplete.
+                    continue
                 if stream is not None:
                     with contextlib.suppress(OSError):
                         stream.close()
