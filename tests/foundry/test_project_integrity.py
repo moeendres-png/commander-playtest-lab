@@ -123,7 +123,8 @@ def test_current_executor_authority_is_exactly_two_profiles():
     assert "No other OpenCode model/profile is currently authorized" in current
     assert "CLAUDE_OPUS_COORDINATOR_AUTHORITY = DELEGATED_BY_OWNER" in agents
     assert (
-        "Production Provider selection and Architecture Freeze remain separate Owner gates."
+        "Production Provider selection and Architecture Freeze remain separate Owner gates, "
+        "with the other Owner-only items in `AGENTS.md` §8."
         in current
     )
     assert "Coordinator tier's decision authority" in routing_flat
