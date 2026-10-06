@@ -142,6 +142,8 @@ class XmageMidgameLaneTest {
         request.addProperty("plan_id", gameId);
         request.addProperty("seed", seed);
         request.add("requested_starting_state", frozenRecord(fixtureId));
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         return request;
     }
 
@@ -160,6 +162,20 @@ class XmageMidgameLaneTest {
      * to read. This is asserted against the live pre-lane payload, not a
      * recorded string.</p>
      */
+
+    /**
+     * The record's own active player, as the explicit create-time choosing seat.
+     *
+     * <p>#572: the bridge never defaults {@code starting_player_seat}; every
+     * create request must declare it. The lane's arrival pilot still answers the
+     * engine's own CR 103.2 starting-player choice from the record's requested
+     * state, so this value names who is asked, not who starts.</p>
+     */
+    private static int startingSeatFor(JsonObject record) {
+        String seat = record.getAsJsonObject("temporal_state").get("active_player").getAsString();
+        return Integer.parseInt(seat.substring(1)) - 1;
+    }
+
     @Test
     void preLaneBaselineHasNoReachableManifest() {
         JsonObject preLane = XmageProvider.capabilitiesPayload()
@@ -245,11 +261,27 @@ class XmageMidgameLaneTest {
     }
 
     @Test
+    void creationWithoutExplicitStartingPlayerSeatFailsClosed() {
+        Lane lane = newLane();
+        JsonObject request = new JsonObject();
+        request.addProperty("game_id", "midgame-no-seat");
+        request.addProperty("plan_id", "midgame-no-seat");
+        request.addProperty("seed", SEED);
+        request.add("requested_starting_state", frozenRecord("WS05-MP-COMBAT-4"));
+        JsonObject response = lane.rejected("create_midgame_game", request);
+        assertEquals("missing_starting_player_seat",
+                response.getAsJsonArray("errors").get(0).getAsJsonObject()
+                        .get("code").getAsString());
+    }
+
+    @Test
     void creationWithoutExplicitSeedFailsClosed() {
         Lane lane = newLane();
         JsonObject request = new JsonObject();
         request.addProperty("game_id", "midgame-no-seed");
         request.add("requested_starting_state", frozenRecord("WS05-MP-COMBAT-4"));
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         JsonObject response = lane.rejected("create_midgame_game", request);
         assertEquals("seed_required",
                 response.getAsJsonArray("errors").get(0).getAsJsonObject()
@@ -280,6 +312,8 @@ class XmageMidgameLaneTest {
         request.addProperty("game_id", "midgame-charge");
         request.addProperty("seed", SEED);
         request.add("requested_starting_state", record);
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         JsonObject response = lane.rejected("create_midgame_game", request);
         assertEquals("midgame_starting_state_rejected",
                 response.getAsJsonArray("errors").get(0).getAsJsonObject()
@@ -498,6 +532,8 @@ class XmageMidgameLaneTest {
             request.addProperty("plan_id", "census-" + row);
             request.addProperty("seed", SEED);
             request.add("requested_starting_state", frozenRecord(row));
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
             JsonObject response = lane.call("create_midgame_game", request);
             if (response.get("success").getAsBoolean()) {
                 JsonObject created = response.getAsJsonObject("payload");

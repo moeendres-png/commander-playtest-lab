@@ -251,6 +251,46 @@ class JsonlBridgeTest {
         assertTrue(result.shutdown());
     }
     @Test
+    void createWithoutAnExplicitStartingPlayerSeatFailsClosed() {
+        JsonObject request = JsonParser.parseString(
+                createGameRequest("r-no-seat", "no-seat", List.of("unused"), 0, 40)
+        ).getAsJsonObject();
+        request.getAsJsonObject("payload").getAsJsonObject("request")
+                .remove("starting_player_seat");
+
+        JsonObject response = JsonParser.parseString(
+                bridge.handle(request.toString()).json()
+        ).getAsJsonObject();
+
+        assertFalse(response.get("success").getAsBoolean(), response.toString());
+        assertEquals(
+                "missing_starting_player_seat",
+                response.getAsJsonArray("errors").get(0).getAsJsonObject()
+                        .get("code").getAsString()
+        );
+    }
+
+    @Test
+    void aNullStartingPlayerSeatIsNotASeat() {
+        JsonObject request = JsonParser.parseString(
+                createGameRequest("r-null-seat", "null-seat", List.of("unused"), 0, 40)
+        ).getAsJsonObject();
+        request.getAsJsonObject("payload").getAsJsonObject("request")
+                .add("starting_player_seat", com.google.gson.JsonNull.INSTANCE);
+
+        JsonObject response = JsonParser.parseString(
+                bridge.handle(request.toString()).json()
+        ).getAsJsonObject();
+
+        assertFalse(response.get("success").getAsBoolean(), response.toString());
+        assertEquals(
+                "missing_starting_player_seat",
+                response.getAsJsonArray("errors").get(0).getAsJsonObject()
+                        .get("code").getAsString()
+        );
+    }
+
+    @Test
     void b3CreatesAndStartsRealFourPlayerCommanderGameThroughJsonl()
             throws Exception {
 

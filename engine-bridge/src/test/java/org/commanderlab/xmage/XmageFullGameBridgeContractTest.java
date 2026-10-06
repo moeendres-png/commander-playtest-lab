@@ -77,6 +77,26 @@ class XmageFullGameBridgeContractTest {
     }
 
     @Test
+    void rejectsAFullGameWithoutAnExplicitStartingPlayerSeat() {
+        XmageFullGameJsonlBridge bridge = new XmageFullGameJsonlBridge();
+        JsonObject payload = new JsonObject();
+        payload.addProperty("game_id", "negative-no-seat");
+        payload.addProperty("seed", 17);
+        JsonArray handles = new JsonArray();
+        handles.add("not-resolved-1");
+        handles.add("not-resolved-2");
+        payload.add("deck_handles", handles);
+
+        JsonObject response = response(bridge.handle(request("create_full_game", payload)).json());
+        assertFalse(response.get("success").getAsBoolean(), response.toString());
+        JsonArray errors = response.getAsJsonArray("errors");
+        assertEquals(
+                "missing_starting_player_seat",
+                errors.get(0).getAsJsonObject().get("code").getAsString()
+        );
+    }
+
+    @Test
     void rejectsSevenPlayerFullGameBeforeDeckResolution() {
         XmageFullGameJsonlBridge bridge = new XmageFullGameJsonlBridge();
         JsonObject payload = new JsonObject();
