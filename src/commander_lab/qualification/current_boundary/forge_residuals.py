@@ -417,7 +417,15 @@ def _family_binding(record: dict[str, Any] | None, family: str) -> str | None:
     return None
 
 
-def _construction(dimension: str, record: dict[str, Any] | None = None) -> tuple[str, str]:
+# A scripted keep is answered on the bridge's own keep-or-mulligan frame; only
+# taking a mulligan (and its London tuck) reaches the bridge's rejected
+# tuckCardsViaMulligan. So a keep is a Lab selector gap, a mulligan a provider gap.
+_KEEP_VALUES = frozenset({"keep_opening_hand"})
+
+
+def _construction(
+    dimension: str, record: dict[str, Any] | None = None, value: Any = None
+) -> tuple[str, str]:
     if dimension == lane.STARTING_PLAYER_UNSCRIPTED:
         return (
             CONTRACT_AUTHORITY_GAP,
@@ -432,6 +440,12 @@ def _construction(dimension: str, record: dict[str, Any] | None = None) -> tuple
         if mapped is None:
             raise ValueError(f"unmapped Forge decision family {family!r}")
         gap_class, frames = mapped
+        if family == "mulligan" and value in _KEEP_VALUES:
+            return (
+                LAB_EXECUTION_GAP,
+                "the record scripts a keep: the bridge frames keep or mulligan and a keep "
+                "needs no tuck, but the lane has no selector for the scripted answer",
+            )
         # A contract erratum may bind the record's family to a different
         # provider surface (PILOT_CHOOSE_USE: scry 1 is a 0..1 card selection,
         # 1.0.21 E2a); the frame named is then that surface's, never the
@@ -454,6 +468,12 @@ def _construction(dimension: str, record: dict[str, Any] | None = None) -> tuple
     raise ValueError(f"unmapped Forge lane construction dimension {dimension!r}")
 
 
+def _requested_value(finding: Any) -> Any:
+    """The scripted semantic value a decision finding names, if it names one."""
+    requested = getattr(finding, "requested", None)
+    return requested.get("semantic_value") if isinstance(requested, dict) else None
+
+
 def classify_row(record: dict[str, Any]) -> ForgeResidual:
     """The first missing mechanism of one in-scope record, in pipeline order."""
     fixture_id = str(record.get("fixture_id"))
@@ -465,7 +485,11 @@ def classify_row(record: dict[str, Any]) -> ForgeResidual:
     construction: list[dict[str, str]] = []
     execution: list[dict[str, str]] = []
     for finding in model.hard_unsupported:
-        gap_class, detail = _construction(finding.dimension, record)
+        gap_class, detail = _construction(
+            finding.dimension,
+            record,
+            _requested_value(finding),
+        )
         entry = {"dimension": finding.dimension, "class": gap_class, "detail": detail}
         if finding.dimension.startswith(_DECISION_PREFIX):
             execution.append({**entry, "stage": "execution"})

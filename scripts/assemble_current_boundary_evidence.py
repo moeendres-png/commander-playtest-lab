@@ -82,7 +82,7 @@ CARRIED_VERDICT_NOT_TRANSFERRED = "CARRIED_FORWARD_HISTORICAL_VERDICT_NOT_TRANSF
 
 
 def refuse_changed_fixture_carried_passes(
-    rows: dict[str, dict[str, Any]], evidence_survival: dict[str, Any]
+    rows: dict[str, dict[str, Any]], full107_authority: dict[str, Any]
 ) -> list[str]:
     """A carried-forward PASS on a fixture the current contract changed is no PASS.
 
@@ -91,20 +91,32 @@ def refuse_changed_fixture_carried_passes(
     cannot show it ran the current record. When the current authority states
     that a fixture's evidence needs requalification, its historical PASS does
     not transfer (changed fixture bytes are a new evidence identity): the row
-    becomes UNKNOWN and keeps the carried verdict as history. Returns the
-    refused fixture ids.
+    becomes UNKNOWN and keeps the carried verdict as history. A fixture in the
+    authority's ``changed_fixture_ids`` is refused whatever its survival entry
+    says, and every changed id must have a survival entry, or nothing is
+    assembled. Returns the refused fixture ids.
     """
+    changed = set(full107_authority.get("changed_fixture_ids") or ())
+    evidence_survival = full107_authority.get("evidence_survival") or {}
+    missing = sorted(changed - set(evidence_survival))
+    if missing:
+        raise RuntimeError(
+            f"the current authority lists changed fixtures with no evidence_survival: {missing}"
+        )
     refused: list[str] = []
     for fixture, row in rows.items():
         survival = str(evidence_survival.get(fixture) or "")
-        if row.get("exit_state") != "PASS" or not survival.startswith("REQUALIFICATION_REQUIRED"):
+        if row.get("exit_state") != "PASS" or not (
+            fixture in changed or survival.startswith("REQUALIFICATION_REQUIRED")
+        ):
             continue
         row["carried_exit_state"] = "PASS"
         row["carried_reason"] = row.get("reason")
         row["exit_state"] = "UNKNOWN"
         row["failure_reason"] = (
-            f"the carried-forward PASS ran a predecessor of this fixture; the current "
-            f"contract changed it ({survival}), so the historical verdict does not transfer"
+            "the carried-forward PASS ran a predecessor of this fixture; the current "
+            f"contract changed it ({survival or 'changed_fixture_ids'}), so the historical "
+            "verdict does not transfer"
         )
         row["reason"] = row["failure_reason"]
         row["evidence_class"] = CARRIED_VERDICT_NOT_TRANSFERRED
@@ -841,9 +853,7 @@ def assemble() -> None:
         carried_forward = bool(results.get("carried_forward"))
         if carried_forward:
             results["carried_forward_refused_changed_fixture_passes"] = (
-                refuse_changed_fixture_carried_passes(
-                    rows, load(CURRENT_AUTHORITY_PATH)["full107"]["evidence_survival"]
-                )
+                refuse_changed_fixture_carried_passes(rows, load(CURRENT_AUTHORITY_PATH)["full107"])
             )
         promoted = 0
         demoted_without_receipt = 0

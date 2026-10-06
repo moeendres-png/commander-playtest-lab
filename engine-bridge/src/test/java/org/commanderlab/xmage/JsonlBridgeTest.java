@@ -319,6 +319,13 @@ class JsonlBridgeTest {
                         .getAsInt()
         );
 
+        // The applied seat is the requested one, and the bridge says so.
+        assertEquals(
+                "REQUEST",
+                created.get("starting_player_seat_source")
+                        .getAsString()
+        );
+
         JsonlBridge.Result startResult =
                 bridge.handle(
                         startGameRequest(

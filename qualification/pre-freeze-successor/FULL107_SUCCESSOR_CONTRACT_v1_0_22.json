@@ -20237,6 +20237,7 @@
       "reason": "The predecessor's rules_randomness names the channel INITIAL_LIBRARY_SHUFFLE and the seed binding SCENARIO_SEED but no rules_seed. The construction proof therefore compares no record seed (rules_seed MISMATCH: None against the acknowledged seed) and cannot construct the channel (UNSUPPORTED), and the lane supplied the missing seed from its own default, which is not a record value. The successor states the seed SCENARIO_SEED meant (424242, the manifest value) and one library-shuffle channel per seat, in the PILOT_MULLIGAN shape",
       "native_procedure_binding": "the native 'initial-shuffle' step (INITIAL_LIBRARY_SHUFFLE) is the per-seat Rules-RNG library shuffles these channels name; the step itself is unchanged",
       "obligation_scope": "the pregame decisions, decks and script are the 1.0.21 values",
+      "scripted_starter": "the starting player (P1, decision family starting_player) is scripted ahead of the 1.0.21 pregame script, so no lane or bridge default decides who starts; the obligation keys are untouched",
       "route": "PROTOCOL2_SCRIPTED_PREGAME (the PILOT_MULLIGAN precedent)"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
@@ -20256,7 +20257,7 @@
     "obligation_digest": "UNCHANGED_FROM_THE_1_0_21_SUCCESSOR_OBLIGATION_KEYS_UNTOUCHED",
     "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
     "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests",
-    "reason": "Only the Rules randomness changes."
+    "reason": "The Rules randomness changes and the starter is scripted."
    },
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "fixture_id": "WS05-CMD-MULL-2",
@@ -20302,6 +20303,28 @@
      }
     ],
     "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "start-P1",
+      "decision_family": "starting_player",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "CR 103.1: the starting player is a player's choice; P1 is the record's starting player (temporal_state.active_player)",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_player",
+       "semantic_value": "P1"
+      }
+     },
      {
       "actor": "P1",
       "causal_step_id": "mull-r1-P1",
@@ -20465,6 +20488,7 @@
       "reason": "The predecessor's rules_randomness names the channel INITIAL_LIBRARY_SHUFFLE and the seed binding SCENARIO_SEED but no rules_seed. The construction proof therefore compares no record seed (rules_seed MISMATCH: None against the acknowledged seed) and cannot construct the channel (UNSUPPORTED), and the lane supplied the missing seed from its own default, which is not a record value. The successor states the seed SCENARIO_SEED meant (424242, the manifest value) and one library-shuffle channel per seat, in the PILOT_MULLIGAN shape",
       "native_procedure_binding": "the native 'initial-shuffle' step (INITIAL_LIBRARY_SHUFFLE) is the per-seat Rules-RNG library shuffles these channels name; the step itself is unchanged",
       "obligation_scope": "the pregame decisions, decks and script are the 1.0.21 values",
+      "scripted_starter": "the starting player (P1, decision family starting_player) is scripted ahead of the 1.0.21 pregame script, so no lane or bridge default decides who starts; the obligation keys are untouched",
       "route": "PROTOCOL2_SCRIPTED_PREGAME (the PILOT_MULLIGAN precedent)"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
@@ -20484,7 +20508,7 @@
     "obligation_digest": "UNCHANGED_FROM_THE_1_0_21_SUCCESSOR_OBLIGATION_KEYS_UNTOUCHED",
     "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
     "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests",
-    "reason": "Only the Rules randomness changes."
+    "reason": "The Rules randomness changes and the starter is scripted."
    },
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "fixture_id": "WS05-CMD-MULL-4",
@@ -20554,6 +20578,28 @@
      }
     ],
     "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "start-P1",
+      "decision_family": "starting_player",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "CR 103.1: the starting player is a player's choice; P1 is the record's starting player (temporal_state.active_player)",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_player",
+       "semantic_value": "P1"
+      }
+     },
      {
       "actor": "P1",
       "causal_step_id": "mull-r1-P1",

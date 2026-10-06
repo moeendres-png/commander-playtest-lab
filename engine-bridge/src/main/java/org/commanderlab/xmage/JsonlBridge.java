@@ -215,6 +215,12 @@ final class JsonlBridge {
 
             List<String> deckHandles = requiredStringArray(gameRequest, "deck_handles");
             int startingPlayerSeat = optionalInt(gameRequest, "starting_player_seat", 0);
+            // Whether the applied starting seat is the requested one or this
+            // bridge's own default: the Lab credits a starter only from REQUEST.
+            String startingPlayerSeatSource = gameRequest.has("starting_player_seat")
+                    && !gameRequest.get("starting_player_seat").isJsonNull()
+                    ? "REQUEST"
+                    : "BRIDGE_DEFAULT";
             int startingLife = optionalInt(gameRequest, "starting_life", 40);
             boolean externalControl = optionalBoolean(
                     gameRequest,
@@ -247,6 +253,7 @@ final class JsonlBridge {
             responsePayload.addProperty("engine_game_id", created.engineGameId());
             responsePayload.addProperty("player_count", created.playerCount());
             responsePayload.addProperty("starting_player_seat", created.startingPlayerSeat());
+            responsePayload.addProperty("starting_player_seat_source", startingPlayerSeatSource);
             responsePayload.addProperty("external_control", created.externalControl());
             addSeedAcknowledgement(responsePayload, created.rulesSeedBinding());
             return success(

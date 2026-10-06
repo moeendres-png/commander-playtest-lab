@@ -403,6 +403,10 @@ for fixture, count in (("WS05-CMD-MULL-2", 2), ("WS05-CMD-MULL-4", 4)):
     prior_record = _apply(old, prior)
     players = _players(old)
     assert len(players) == count and players == [f"P{i}" for i in range(1, count + 1)], players
+    assert prior_record["temporal_state"]["active_player"] == "P1", fixture
+    assert not any(
+        step["decision_family"] == "starting_player" for step in prior_record["decision_script"]
+    ), fixture
     assert prior_record["rules_randomness"] == {
         "channels": ["INITIAL_LIBRARY_SHUFFLE"],
         "pilot_randomness_prohibited": True,
@@ -414,7 +418,26 @@ for fixture, count in (("WS05-CMD-MULL-2", 2), ("WS05-CMD-MULL-4", 4)):
     supersede(
         fixture,
         "FIXTURE_SCRIPT_CONTRACT_AND_RULES_RANDOMNESS_ERRATUM",
-        {"rules_randomness": _randomness(players)},
+        {
+            "rules_randomness": _randomness(players),
+            # The starter is the record's decision too (#441, the Coordinator's
+            # second-review ruling): P1, the requested active player, ahead of
+            # the 1.0.21 pregame script, which is kept entry for entry.
+            "decision_script": [
+                _step(
+                    "P1",
+                    "start-P1",
+                    "starting_player",
+                    "semantic_player",
+                    "P1",
+                    notes=(
+                        "CR 103.1: the starting player is a player's choice; P1 is the "
+                        "record's starting player (temporal_state.active_player)"
+                    ),
+                ),
+                *copy.deepcopy(prior["replace"]["decision_script"]),
+            ],
+        },
         prior["append_native_procedure"],
         [
             _erratum_step(
@@ -439,6 +462,11 @@ for fixture, count in (("WS05-CMD-MULL-2", 2), ("WS05-CMD-MULL-4", 4)):
                         "itself is unchanged"
                     ),
                     "obligation_scope": "the pregame decisions, decks and script are the 1.0.21 values",
+                    "scripted_starter": (
+                        "the starting player (P1, decision family starting_player) is "
+                        "scripted ahead of the 1.0.21 pregame script, so no lane or bridge "
+                        "default decides who starts; the obligation keys are untouched"
+                    ),
                     "route": "PROTOCOL2_SCRIPTED_PREGAME (the PILOT_MULLIGAN precedent)",
                 },
             )
@@ -449,7 +477,7 @@ for fixture, count in (("WS05-CMD-MULL-2", 2), ("WS05-CMD-MULL-4", 4)):
                 "no rules_seed and a channel no provider constructs; a lane default filled the seed"
             ),
         },
-        "Only the Rules randomness changes.",
+        "The Rules randomness changes and the starter is scripted.",
         OVERLAY,
     )
 

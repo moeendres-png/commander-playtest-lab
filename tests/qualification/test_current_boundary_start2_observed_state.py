@@ -307,6 +307,8 @@ def _result(
     result.terminal_facts["draw_step_decision_frames"] = []
     result.terminal_facts["priority_reached"] = True
     result.terminal_facts["first_priority_seat"] = "p1"
+    # The record's starter verifiably executed (a create response echoing it).
+    result.terminal_facts["starting_seat_channel"] = "create_request_echo_verified"
     result.decision_tape = []
     return result
 

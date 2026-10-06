@@ -1,6 +1,6 @@
 {
  "candidate": "forge",
- "canonical_bundle_digest": "e01d410deddae690cf8cd9aa1be48ace354e789e2bec2d8fd7f704e488bb9e18",
+ "canonical_bundle_digest": "e49152321476978e26e3107cade65d9e09c5679cc4e4eaa9bae0316b49ea10d7",
  "contract_id": "commander-lab.full107/1.0.22-successor",
  "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
  "rows": [
@@ -1988,6 +1988,12 @@
      "stage": "construction"
     },
     {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a starting_player decision; the bridge carries it on its STARTING_PLAYER frames, but the lane has no selector for them",
+     "dimension": "decision_execution.starting_player.semantic_player",
+     "stage": "execution"
+    },
+    {
      "class": "PROVIDER_ADAPTER_GAP",
      "detail": "the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented')",
      "dimension": "decision_execution.mulligan.semantic_action",
@@ -2015,7 +2021,7 @@
      "free_mulligan:false"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at execution (decision_execution.mulligan.semantic_action): the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented'). then: construction temporal_state.turn_number (LAB_EXECUTION_GAP); execution decision_execution.london_bottom.card_identity_multiset (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at execution (decision_execution.mulligan.semantic_action): the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented'). then: construction temporal_state.turn_number (LAB_EXECUTION_GAP); execution decision_execution.starting_player.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.london_bottom.card_identity_multiset (PROVIDER_ADAPTER_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -2033,6 +2039,12 @@
      "detail": "the requested turn is reached only by native progression through turns the lane does not drive",
      "dimension": "temporal_state.turn_number",
      "stage": "construction"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a starting_player decision; the bridge carries it on its STARTING_PLAYER frames, but the lane has no selector for them",
+     "dimension": "decision_execution.starting_player.semantic_player",
+     "stage": "execution"
     },
     {
      "class": "PROVIDER_ADAPTER_GAP",
@@ -2056,7 +2068,7 @@
      "free_mulligan:true"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at execution (decision_execution.mulligan.semantic_action): the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented'). then: construction temporal_state.turn_number (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at execution (decision_execution.mulligan.semantic_action): the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented'). then: construction temporal_state.turn_number (LAB_EXECUTION_GAP); execution decision_execution.starting_player.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "SCENARIO_LANE_EXECUTABLE",
@@ -2129,12 +2141,12 @@
    "reason": "Forge SCENARIO_LANE_EXECUTABLE: the scenario lane constructs this row, executes it and evaluates its obligation (game_start_command_zone); it earns credit only through that lane's runner-bound receipt, and without one it stays unestablished."
   },
   {
-   "classification": "PROVIDER_ADAPTER_GAP",
+   "classification": "LAB_EXECUTION_GAP",
    "first_missing": {
-    "class": "PROVIDER_ADAPTER_GAP",
-    "detail": "the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented')",
-    "dimension": "decision_execution.mulligan.semantic_action",
-    "stage": "execution"
+    "class": "LAB_EXECUTION_GAP",
+    "detail": "the requested turn is reached only by native progression through turns the lane does not drive",
+    "dimension": "temporal_state.turn_number",
+    "stage": "construction"
    },
    "fixture_id": "WS05-CMD-START-2",
    "lane_obligation_kind": null,
@@ -2152,8 +2164,8 @@
      "stage": "execution"
     },
     {
-     "class": "PROVIDER_ADAPTER_GAP",
-     "detail": "the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented')",
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a keep: the bridge frames keep or mulligan and a keep needs no tuck, but the lane has no selector for the scripted answer",
      "dimension": "decision_execution.mulligan.semantic_action",
      "stage": "execution"
     },
@@ -2171,7 +2183,7 @@
      "first_turn_draw_step_skipped:true"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at execution (decision_execution.mulligan.semantic_action): the record scripts a mulligan decision: the bridge frames keep or mulligan, but taking a mulligan calls tuckCardsViaMulligan, which the pinned bridge always rejects ('London-tuck card selection is not externally represented'). then: construction temporal_state.turn_number (LAB_EXECUTION_GAP); execution decision_execution.starting_player.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (temporal_state.turn_number): the requested turn is reached only by native progression through turns the lane does not drive. then: execution decision_execution.starting_player.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mulligan.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "CONTRACT_AUTHORITY_GAP",
@@ -3181,8 +3193,8 @@
  "summary": {
   "classifications": {
    "CONTRACT_AUTHORITY_GAP": 1,
-   "LAB_EXECUTION_GAP": 39,
-   "PROVIDER_ADAPTER_GAP": 18,
+   "LAB_EXECUTION_GAP": 40,
+   "PROVIDER_ADAPTER_GAP": 17,
    "SCENARIO_LANE_EXECUTABLE": 12
   },
   "needs_event_log": 10,

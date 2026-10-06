@@ -2229,8 +2229,9 @@ def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
         fixture_id: [s["decision_family"] for s in effective[fixture_id]["decision_script"]]
         for fixture_id in ("WS05-CMD-MULL-2", "WS05-CMD-MULL-4")
     }
-    assert families["WS05-CMD-MULL-2"] == ["mulligan"] * 3 + ["london_bottom"]
-    assert families["WS05-CMD-MULL-4"] == ["mulligan"] * 5
+    # (1.0.22 scripts the starter ahead of the 1.0.21 pregame script.)
+    assert families["WS05-CMD-MULL-2"] == ["starting_player"] + ["mulligan"] * 3 + ["london_bottom"]
+    assert families["WS05-CMD-MULL-4"] == ["starting_player"] + ["mulligan"] * 5
     # RNG_RULES_TAPE: a card-caused shuffle, and the 1.0.19 deck is kept; the
     # superseded "no Rules cause" instruction is no longer active procedure.
     assert objects("RNG_RULES_TAPE")["obj:replay-warp"]["card_identity"] == "Chaos Warp"
@@ -2445,11 +2446,17 @@ def test_start2_mull_errata_supersede_their_overlays_in_place() -> None:
             "channels": [f"library_shuffle:P{i}" for i in range(1, seats + 1)],
         }
         assert "seed_binding" not in record["rules_randomness"]
-        # Only the Rules randomness changed; the 1.0.21 script and decks are kept.
+        # The Rules randomness changed and the starter is scripted ahead of the
+        # 1.0.21 script, which is kept entry for entry with the decks.
         before = prior[fixture_id]
+        starter, *script = record["decision_script"]
+        assert (starter["actor"], starter["decision_family"]) == ("P1", "starting_player")
+        assert starter["selection"]["semantic_value"] == "P1"
         assert patches[fixture_id]["replace"] == {
             **before["replace"],
             "rules_randomness": record["rules_randomness"],
+            "decision_script": [starter, *before["replace"]["decision_script"]],
         }
+        assert script == before["replace"]["decision_script"]
         active = patches[fixture_id]["append_native_procedure"]
         assert active[: len(before["append_native_procedure"])] == before["append_native_procedure"]

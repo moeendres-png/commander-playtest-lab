@@ -35,6 +35,16 @@ MULLIGAN_POLICY = "keep_all"  # Commander: keep the opening hand.
 SCRIPTED_MULLIGAN_POLICY = "fixture_scripted_mulligan"
 PRIORITY_POLICY = "pass_when_offered"  # Decline the optional priority action.
 STARTING_PLAYER_POLICY = "fixture_scripted_seat"
+# The policy recorded when no record scripts the starter: the driver's own
+# default seat answers the frame. It is a lane default, never a record decision.
+LANE_DEFAULT_STARTING_PLAYER_POLICY = "lane_default_seat_not_a_record_decision"
+# What the run verifiably executed for the starting player (CR 103.1).
+STARTING_SEAT_UNSCRIPTED = "LANE_OR_PROVIDER_DEFAULT_NOT_A_RECORD_DECISION"
+STARTING_SEAT_CREATE_VERIFIED = "create_request_echo_verified"
+STARTING_SEAT_FRAME_VERIFIED = "decision_frame_verified"
+STARTING_SEAT_UNVERIFIED = "record_starting_seat_unverified"
+# A create response that applied the requested starter names it as the source.
+STARTING_SEAT_SOURCE_REQUEST = "REQUEST"
 COST_ORDER_POLICY = "native_declared_cost_part_order"
 
 _SEATS = ("p1", "p2", "p3", "p4", "p5", "p6")
@@ -707,6 +717,7 @@ def drive_commander_game(
     mulligan_plan: tuple[tuple[str, bool], ...] | None = None,
     decks: list[dict[str, Any]] | None = None,
     record_starting_seat: str | None = None,
+    record_starting_chooser: str | None = None,
 ) -> CommandedGameResult:
     """Run a real Commander lifecycle for one candidate at one player count.
 
@@ -723,11 +734,17 @@ def drive_commander_game(
     ``decks`` replaces the driver's own test decks with one import payload per
     seat (a record's requested decks); the engine still validates every card.
 
-    ``record_starting_seat`` is a record's scripted starting player (CR 103.1).
-    It replaces the driver's default seat everywhere: in the create request of a
-    provider that takes the starter at creation, and as the answer to a
-    STARTING_PLAYER frame of one that asks it. Without it the provider's own
-    default decides, which earns no starting-player credit.
+    ``record_starting_seat`` is a record's scripted starting player (CR 103.1)
+    and ``record_starting_chooser`` the seat whose choice it is. The seat goes
+    in the create request of a provider that takes the starter at creation, and
+    answers a STARTING_PLAYER frame of one that asks it; a frame for another
+    chooser, or with no single matching option, fails closed. Whether the
+    record's starter was verifiably executed is ``starting_seat_channel`` (a
+    create response that echoes the applied seat and its REQUEST source, or
+    exactly one answered frame resolving to the seat). Without a record seat
+    the starter is a lane or provider default (``STARTING_SEAT_UNSCRIPTED``):
+    this driver does not refuse such a run, and the caller must not credit it
+    as a starting-player decision.
     """
     if decks is not None and len(decks) != player_count:
         raise ValueError(f"{len(decks)} decks were supplied for {player_count} players")
@@ -788,10 +805,9 @@ def drive_commander_game(
         result.terminal_facts["record_starting_seat"] = (
             scripted_starting_seat if record_starting_seat is not None else None
         )
+        # Only what is verified below may name a channel; until then nothing is.
         result.terminal_facts["starting_seat_channel"] = (
-            "create_request"
-            if creation_starting_seat is not None
-            else ("decision_frame" if record_starting_seat is not None else "provider_default")
+            STARTING_SEAT_UNSCRIPTED if record_starting_seat is None else STARTING_SEAT_UNVERIFIED
         )
 
         created = _require_ok(
@@ -820,6 +836,12 @@ def drive_commander_game(
                 f"create_commander_game reported {len(seat_ids)} seats for {player_count} players"
             )
         result.terminal_facts["created_player_count"] = created.get("player_count", len(handles))
+        if creation_starting_seat is not None:
+            result.terminal_facts["starting_seat_echo"] = {
+                "requested": creation_starting_seat,
+                "applied": created.get("starting_player_seat"),
+                "source": created.get("starting_player_seat_source"),
+            }
         # A provider may answer a parked decision to whichever seat asks, so
         # the polled seat says nothing about whose decision it is: the frame's
         # actor does, read against the engine's own seat roster.
@@ -1005,11 +1027,25 @@ def drive_commander_game(
 
             if kind in {"STARTING_PLAYER", "CHOOSE_STARTING_PLAYER"}:
                 options = _structural_options(actions, decision)
+                if record_starting_chooser is not None:
+                    # The choice is the scripted chooser's (CR 103.1); a frame
+                    # asking another seat is not the record's decision.
+                    if seat_by_actor is None:
+                        seat_by_actor = _engine_seat_roster(
+                            proc, game_id=game_id, player_count=player_count, created_seats=seat_ids
+                        )
+                    chooser = seat_by_actor.get(actor)
+                    if chooser != str(record_starting_chooser).lower():
+                        raise DecisionUnsatisfied(
+                            f"the engine asked the starting-player choice of {chooser!r}; the "
+                            f"record scripts it for {record_starting_chooser!r}"
+                        )
                 match = [a for a in options if a.get("source_object_id") == scripted_starting_seat]
-                if not match:
+                if len(match) != 1:
                     raise DecisionUnsatisfied(
-                        f"fixture script requires starting seat {scripted_starting_seat!r}; "
-                        f"engine offered {[a.get('source_object_id') for a in options]}"
+                        f"the starting seat {scripted_starting_seat!r} matches {len(match)} "
+                        f"offered options; exactly one is required: "
+                        f"{[a.get('source_object_id') for a in options]}"
                     )
                 chosen = str(match[0]["action_id"])
                 identity = decision_identity_params(candidate, frame)
@@ -1036,11 +1072,22 @@ def drive_commander_game(
                         kind,
                         actor,
                         revision,
-                        STARTING_PLAYER_POLICY,
+                        (
+                            STARTING_PLAYER_POLICY
+                            if record_starting_seat is not None
+                            else LANE_DEFAULT_STARTING_PLAYER_POLICY
+                        ),
                         chosen,
                         offered,
-                        f"fixture-scripted seat {scripted_starting_seat}",
+                        (
+                            f"record-scripted seat {scripted_starting_seat}"
+                            if record_starting_seat is not None
+                            else f"lane default seat {scripted_starting_seat}; no record decision"
+                        ),
                     )
+                )
+                result.terminal_facts.setdefault("starting_player_choices", []).append(
+                    {"chosen_seat": match[0].get("source_object_id"), "chooser_actor": actor}
                 )
                 result.observations.append(GameObservation("starting_player", answer))
                 continue
@@ -1276,7 +1323,41 @@ def drive_commander_game(
             if isinstance(exc, DecisionUnsatisfied)
             else "ENGINE_RUNTIME_ERROR"
         )
+    if record_starting_seat is not None:
+        result.terminal_facts["starting_seat_channel"] = verified_starting_seat_channel(
+            result.terminal_facts, scripted_starting_seat, creation_starting_seat
+        )
     return result
+
+
+def verified_starting_seat_channel(
+    facts: dict[str, Any], seat: str, creation_index: int | None
+) -> str:
+    """The channel through which the record's starter was verifiably executed.
+
+    A creation-time starter counts only when the provider's create response
+    echoes the applied seat, equal to the requested one, with source REQUEST
+    (a bridge that ignored the field and fell back to its own default cannot
+    echo that). A frame-time starter counts only when exactly one
+    starting-player choice was answered and it resolves to the record's seat.
+    Anything else is STARTING_SEAT_UNVERIFIED.
+    """
+    choices = facts.get("starting_player_choices") or []
+    if creation_index is not None:
+        echo = facts.get("starting_seat_echo") or {}
+        applied = echo.get("applied")
+        if (
+            not choices
+            and isinstance(applied, int)
+            and not isinstance(applied, bool)
+            and applied == creation_index
+            and echo.get("source") == STARTING_SEAT_SOURCE_REQUEST
+        ):
+            return STARTING_SEAT_CREATE_VERIFIED
+        return STARTING_SEAT_UNVERIFIED
+    if len(choices) == 1 and choices[0].get("chosen_seat") == seat:
+        return STARTING_SEAT_FRAME_VERIFIED
+    return STARTING_SEAT_UNVERIFIED
 
 
 def self_choice_pass(actions: list[dict[str, Any]], actor: str, revision: Any) -> str | None:

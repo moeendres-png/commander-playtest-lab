@@ -178,6 +178,12 @@ final class XmageFullGameJsonlBridge {
             }
             long seed = requiredLong(payload, "seed");
             int startingPlayerSeat = optionalInt(payload, "starting_player_seat", 0);
+            // Whether the applied starting seat is the requested one or this
+            // bridge's own default: the Lab credits a starter only from REQUEST.
+            String startingPlayerSeatSource = payload.has("starting_player_seat")
+                    && !payload.get("starting_player_seat").isJsonNull()
+                    ? "REQUEST"
+                    : "BRIDGE_DEFAULT";
             int startingLife = optionalInt(payload, "starting_life", 40);
 
             session = new XmageFullGameSession(
@@ -193,6 +199,7 @@ final class XmageFullGameJsonlBridge {
             responsePayload.addProperty("game_id", gameId);
             responsePayload.addProperty("player_count", session.playerCount());
             responsePayload.addProperty("starting_player_seat", startingPlayerSeat);
+            responsePayload.addProperty("starting_player_seat_source", startingPlayerSeatSource);
             responsePayload.addProperty("starting_life", startingLife);
             responsePayload.addProperty("seed", seed);
             responsePayload.addProperty("seed_controlled", true);

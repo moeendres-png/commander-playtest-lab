@@ -77,8 +77,8 @@ the effective contract.
 
 | Class | Rows (of 70) |
 |---|---|
-| `LAB_EXECUTION_GAP` | 39 |
-| `PROVIDER_ADAPTER_GAP` | 18 |
+| `LAB_EXECUTION_GAP` | 40 |
+| `PROVIDER_ADAPTER_GAP` | 17 |
 | `SCENARIO_LANE_EXECUTABLE` | 12 (six already PASS in the baseline epoch, and the six causal commander zone rows) |
 | `CONTRACT_AUTHORITY_GAP` | 1 (WS05-CMD-START-3: unscripted starting player) |
 
@@ -86,20 +86,18 @@ The matrix describes the scenario lane only. WS05-CMD-START-2 passed in the base
 the generic lane's own route; contract 1.0.22 (#441 comment 6007651998) made it a
 natural-start record read at turn 0 whose starting player and keeps are scripted
 decisions, so its starting player is no longer a contract gap. In the scenario lane its
-first missing mechanism is now the scripted mulligan family (`PROVIDER_ADAPTER_GAP`, the
-census's generic mulligan mapping), then the native progression to turn 1 and the
-scripted starting-player selector (both `LAB_EXECUTION_GAP`). Whether the generic route's starter selection
-(`game_driver.STARTING_PLAYER_POLICY`, default seat `p1`) has contract authority is an
-open impact question for the #441 reassembly; see Findings.
+first missing mechanism is now the native progression to turn 1, then the scripted
+starting-player and keep selectors (all `LAB_EXECUTION_GAP`; a scripted keep needs no
+tuck). The generic route now runs START-2's starter and keeps from the record and
+credits the starter only when it is verifiably executed (#441).
 
-The 18 provider gaps break down as follows:
+The 17 provider gaps break down as follows:
 - 10 rows need an event log (MICRO_LAYERS no longer does: its layer tokens are
   characteristic readbacks, CR 613);
 - one needs an ability readback (MICRO_LAYERS: the bridge projects power and toughness
   but no abilities, so `layer6_remove_abilities` cannot be read);
 - three need a mulligan (PILOT_MULLIGAN, WS05-CMD-MULL-2 and WS05-CMD-MULL-4), and
-  WS05-CMD-MULL-2 also the London bottom selection; WS05-CMD-START-2 scripts only keeps
-  but the census maps every scripted mulligan-family decision to this gap;
+  WS05-CMD-MULL-2 also the London bottom selection;
 - one needs predetermined draws (MICRO_RULES_RANDOMNESS);
 - three need a readback of the library (PILOT_CHOOSE_USE, PILOT_PILE) or of owner and
   attachment (WS05-MP-ELIM-CONTROL-3).
@@ -175,7 +173,7 @@ every mechanism of every row; the table shows the first one.
 | WS05-CMD-PARTNER-DMG (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
 | WS05-CMD-PARTNER-TAX | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | WS05-CMD-PARTNER-ZONE (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
-| WS05-CMD-START-2 (historical PASS in epoch `18f0097373e6` on the superseded 1.0.21 record; requalification required) | PROVIDER_ADAPTER_GAP | execution: `decision_execution.mulligan.semantic_action` | — |
+| WS05-CMD-START-2 (historical PASS in epoch `18f0097373e6` on the superseded 1.0.21 record; requalification required) | LAB_EXECUTION_GAP | construction: `temporal_state.turn_number` | — |
 | WS05-CMD-START-3 | CONTRACT_AUTHORITY_GAP | execution: `decision_execution.starting_player.unscripted` | — |
 | WS05-CMD-TAX-2 | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | WS05-CMD-TAX-4 | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
@@ -248,9 +246,9 @@ check fails closed instead of guessing. WS05-CMD-START-2 passes on its own route
    (requested cards present, extra natural cards allowed). Any XMage credit that rests
    on that weakened comparison must be impact-adjudicated before reuse.
 2. **Starting player (adjudicated).** A starting-player obligation without a scripted
-   response is a `CONTRACT_AUTHORITY_GAP`. **Impact flag for #441:** WS05-CMD-START-2's
-   baseline PASS on the generic route must be re-checked for the authority of its starter
-   selection (`fixture_scripted_seat`, default `p1`).
+   response is a `CONTRACT_AUTHORITY_GAP`. Resolved for WS05-CMD-START-2 by contract
+   1.0.22 (#441): its baseline PASS is historical, and the record now scripts the
+   starter and keeps.
 3. **MICRO_CONTINUOUS_EFFECTS** stays construction-dependent. Forge's bootstrap gives P1
    six cards at the checkpoint, so the 1.0.20 obligation's 13/13 P/T is XMage's
    construction. This repeats flag 1 of the #456 comment on #255.

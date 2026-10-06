@@ -137,6 +137,7 @@ def _start2_observed() -> CommandedGameResult:
             "draw_step_decision_frames": [],
             "priority_reached": True,
             "first_priority_seat": "p1",
+            "starting_seat_channel": "create_request_echo_verified",
         }
     )
     result.decision_tape = [

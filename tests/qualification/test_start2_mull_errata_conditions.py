@@ -24,7 +24,11 @@ from typing import Any
 
 import pytest
 
-from commander_lab.qualification.current_boundary import full107, generic_construction
+from commander_lab.qualification.current_boundary import (
+    full107,
+    game_driver,
+    generic_construction,
+)
 from commander_lab.qualification.current_boundary.game_driver import (
     CommandedGameResult,
     DecisionTapeEntry,
@@ -129,6 +133,8 @@ def _observed(
     )
     if first_priority is not None:
         result.terminal_facts["first_priority_seat"] = first_priority
+    # The record's starter verifiably executed (a create response echoing it).
+    result.terminal_facts["starting_seat_channel"] = "create_request_echo_verified"
     if keyed:
         result.terminal_facts.update(
             {
@@ -332,7 +338,7 @@ def _without_family(record: dict[str, Any], family: str) -> dict[str, Any]:
 
 
 def test_start2_scripts_its_starter_and_keeps(start2) -> None:
-    assert full107.record_starting_seat(start2) == "p1"
+    assert full107.record_starting_seat(start2) == ("p1", "p1")
     assert full107.scripted_pregame_plan(start2) == (("p1", True), ("p2", True))
     families = [step["decision_family"] for step in start2["decision_script"]]
     assert families == ["starting_player", "mulligan", "mulligan"]
@@ -342,6 +348,7 @@ def test_start2_drives_the_records_starter_and_keeps(start2, monkeypatch) -> Non
     _, calls = _start2(start2, monkeypatch, _observed(state=_state()))
     (call,) = calls
     assert call["record_starting_seat"] == "p1"
+    assert call["record_starting_chooser"] == "p1"
     assert call["mulligan_plan"] == (("p1", True), ("p2", True))
 
 
@@ -413,8 +420,9 @@ def test_the_records_seat_still_fails_on_a_rules_visible_draw(start2, monkeypatc
 class _CreateOnly:
     """A bridge that records the create request and stops the run at start_game."""
 
-    def __init__(self) -> None:
+    def __init__(self, echo: dict[str, Any] | None = None) -> None:
         self.created: dict[str, Any] | None = None
+        self.echo = echo or {}
 
     def request(self, message_type: str, payload: dict[str, Any], **_: Any) -> dict[str, Any]:
         if message_type == "get_capabilities":
@@ -423,7 +431,10 @@ class _CreateOnly:
             return {"success": True, "payload": {"deck_handle": {"handle_id": "d"}}}
         if message_type == "create_commander_game":
             self.created = payload["request"]
-            return {"success": True, "payload": {"player_count": 2, "rules_seed": 424242}}
+            return {
+                "success": True,
+                "payload": {"player_count": 2, "rules_seed": 424242, **self.echo},
+            }
         if message_type == "start_game":
             from commander_lab.qualification.current_boundary.game_driver import GameDriveError
 
@@ -448,11 +459,181 @@ def test_the_records_starter_reaches_the_create_request(candidate, seat, sent) -
     )
     assert proc.created is not None
     assert proc.created.get("starting_player_seat") == sent
+    # Sent is not executed: nothing echoed the seat and no frame was answered.
     assert result.terminal_facts["starting_seat_channel"] == (
-        "provider_default"
+        "LANE_OR_PROVIDER_DEFAULT_NOT_A_RECORD_DECISION"
         if seat is None
-        else ("create_request" if candidate == "xmage" else "decision_frame")
+        else "record_starting_seat_unverified"
     )
+
+
+@pytest.mark.parametrize(
+    ("echo", "channel"),
+    [
+        (
+            {"starting_player_seat": 0, "starting_player_seat_source": "REQUEST"},
+            "create_request_echo_verified",
+        ),
+        ({}, "record_starting_seat_unverified"),
+        ({"starting_player_seat": 0}, "record_starting_seat_unverified"),
+        (
+            {"starting_player_seat": 0, "starting_player_seat_source": "BRIDGE_DEFAULT"},
+            "record_starting_seat_unverified",
+        ),
+        (
+            {"starting_player_seat": 1, "starting_player_seat_source": "REQUEST"},
+            "record_starting_seat_unverified",
+        ),
+    ],
+    ids=["echoed", "no-echo", "no-source", "bridge-default", "mismatched"],
+)
+def test_an_xmage_starter_counts_only_when_echoed_as_applied(echo, channel) -> None:
+    proc = _CreateOnly(echo)
+    result = game_driver.drive_commander_game(
+        proc,  # type: ignore[arg-type]
+        candidate="xmage",
+        player_count=2,
+        seed=424242,
+        record_starting_seat="p1",
+    )
+    assert result.terminal_facts["starting_seat_channel"] == channel
+
+
+@pytest.mark.parametrize(
+    ("choices", "channel"),
+    [
+        ([], "record_starting_seat_unverified"),
+        ([{"chosen_seat": "p1"}], "decision_frame_verified"),
+        ([{"chosen_seat": "p2"}], "record_starting_seat_unverified"),
+        ([{"chosen_seat": "p1"}, {"chosen_seat": "p1"}], "record_starting_seat_unverified"),
+    ],
+    ids=["forge-no-frame", "one-frame", "other-seat", "two-frames"],
+)
+def test_a_frame_starter_counts_only_when_one_choice_resolves_to_it(choices, channel) -> None:
+    # The channel names are the persisted contract, so they are spelled out here.
+    facts = {"starting_player_choices": choices}
+    assert game_driver.verified_starting_seat_channel(facts, "p1", None) == channel
+
+
+@pytest.mark.parametrize(
+    "channel", ["record_starting_seat_unverified", None, "create_request", "decision_frame"]
+)
+def test_start2_is_unknown_unless_the_starter_was_verifiably_executed(
+    start2, monkeypatch, channel
+) -> None:
+    game = _observed(state=_state())
+    game.terminal_facts["starting_seat_channel"] = channel
+    row, _ = _start2(start2, monkeypatch, game)
+    assert row.outcome == "UNKNOWN"
+    assert "not verifiably executed" in row.reason
+
+
+def _starter_frame(actor: str, seats: list[str]) -> dict[str, Any]:
+    return {
+        "seat": "p1",
+        "decision": {
+            "kind": "STARTING_PLAYER",
+            "actor": actor,
+            "revision": 1,
+            "status": "SUPPORTED",
+        },
+        "actions": [
+            {"action_id": f"a{i}", "action_type": "structural_decision", "source_object_id": seat}
+            for i, seat in enumerate(seats)
+        ],
+        "raw": {},
+    }
+
+
+class _Roster(_CreateOnly):
+    """A bridge that publishes its seat roster and starts the game."""
+
+    def request(self, message_type: str, payload: dict[str, Any], **kw: Any) -> dict[str, Any]:
+        if message_type == "create_commander_game":
+            self.created = payload["request"]
+            return {
+                "success": True,
+                "payload": {
+                    "player_count": 2,
+                    "rules_seed": 424242,
+                    "seats": [{"player_id": "E1"}, {"player_id": "E2"}],
+                },
+            }
+        if message_type == "start_game":
+            return {"success": True, "payload": {"status": "started"}}
+        return super().request(message_type, payload, **kw)
+
+
+@pytest.mark.parametrize(
+    ("actor", "seats", "fragment"),
+    [
+        ("E2", ["p1", "p2"], "starting-player choice of 'p2'"),
+        ("E1", ["p1", "p1", "p2"], "matches 2 offered options"),
+        ("E1", ["p2"], "matches 0 offered options"),
+    ],
+    ids=["other-chooser", "two-matches", "no-match"],
+)
+def test_the_starter_frame_fails_closed(monkeypatch, actor, seats, fragment) -> None:
+    frames = iter([_starter_frame(actor, seats)])
+    monkeypatch.setattr(game_driver, "poll_decision", lambda *a, **k: next(frames))
+    result = game_driver.drive_commander_game(
+        _Roster(),  # type: ignore[arg-type]
+        candidate="forge",
+        player_count=2,
+        seed=424242,
+        record_starting_seat="p1",
+        record_starting_chooser="p1",
+    )
+    assert result.failure_kind == "FAIL_CLOSED_UNSATISFIED"
+    assert fragment in (result.failure or "")
+    assert result.terminal_facts["starting_seat_channel"] == "record_starting_seat_unverified"
+
+
+def test_an_unscripted_starter_is_labelled_a_lane_default(monkeypatch) -> None:
+    frames = iter([_starter_frame("E1", ["p1", "p2"])])
+
+    def poll(*a: Any, **k: Any) -> dict[str, Any]:
+        try:
+            return next(frames)
+        except StopIteration:
+            raise game_driver.GameDriveError("stop") from None
+
+    monkeypatch.setattr(game_driver, "poll_decision", poll)
+    result = game_driver.drive_commander_game(
+        _Roster(),  # type: ignore[arg-type]
+        candidate="forge",
+        player_count=2,
+        seed=424242,
+    )
+    (entry,) = [e for e in result.decision_tape if e.step == "starting_player"]
+    assert entry.policy == "lane_default_seat_not_a_record_decision"
+    assert "no record decision" in entry.note
+    assert (
+        result.terminal_facts["starting_seat_channel"]
+        == "LANE_OR_PROVIDER_DEFAULT_NOT_A_RECORD_DECISION"
+    )
+
+
+@pytest.mark.parametrize("fixture_id", ["WS05-CMD-MULL-2", "WS05-CMD-MULL-4"])
+def test_the_mull_records_script_their_starter(materialization, fixture_id) -> None:
+    record = materialization.record(fixture_id)
+    assert full107.record_starting_seat(record) == ("p1", "p1")
+    assert record["decision_script"][0]["decision_family"] == "starting_player"
+
+
+def test_scripted_pregame_passes_and_verifies_the_records_starter(
+    materialization, monkeypatch
+) -> None:
+    record = copy.deepcopy(materialization.record("WS05-CMD-MULL-4"))
+    calls: list[dict[str, Any]] = []
+    game = _observed(state=_state(4))
+    game.terminal_facts["starting_seat_channel"] = "record_starting_seat_unverified"
+    monkeypatch.setattr(full107, "drive_commander_game", lambda *a, **k: calls.append(k) or game)
+    row = full107.scripted_pregame_row(record, object(), candidate="xmage", runtime_identity={})
+    assert calls[0]["record_starting_seat"] == "p1"
+    assert calls[0]["record_starting_chooser"] == "p1"
+    assert row.outcome == "UNKNOWN"
+    assert "not verifiably executed" in row.reason
 
 
 # --- run_cardinality: a record without its seed is refused ----------------------- #
@@ -499,13 +680,13 @@ def test_a_carried_start2_pass_is_not_transferred_under_1_0_22() -> None:
     )
     rows = {row["fixture_id"]: dict(row) for row in historical["rows"]}
     assert rows["WS05-CMD-START-2"]["exit_state"] == "PASS"
-    survival = json.loads(
-        (repo / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json").read_text(encoding="utf-8")
-    )["full107"]["evidence_survival"]
     unchanged_passes = {fixture for fixture, row in rows.items() if row["exit_state"] == "PASS"} - {
         "WS05-CMD-START-2"
     }
-    refused = assembler.refuse_changed_fixture_carried_passes(rows, survival)
+    authority = json.loads(
+        (repo / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json").read_text(encoding="utf-8")
+    )["full107"]
+    refused = assembler.refuse_changed_fixture_carried_passes(rows, authority)
     assert refused == ["WS05-CMD-START-2"]
     start2 = rows["WS05-CMD-START-2"]
     assert start2["exit_state"] == "UNKNOWN"
@@ -514,4 +695,43 @@ def test_a_carried_start2_pass_is_not_transferred_under_1_0_22() -> None:
     # A carried PASS on an unchanged fixture stays the historical comparison record.
     assert all(rows[fixture]["exit_state"] == "PASS" for fixture in unchanged_passes)
     source = (repo / "scripts/assemble_current_boundary_evidence.py").read_text(encoding="utf-8")
-    assert "refuse_changed_fixture_carried_passes(\n                    rows," in source
+    assert (
+        'refuse_changed_fixture_carried_passes(rows, load(CURRENT_AUTHORITY_PATH)["full107"])'
+        in source
+    )
+
+
+def _assembler() -> Any:
+    import importlib.util
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[2] / "scripts/assemble_current_boundary_evidence.py"
+    spec = importlib.util.spec_from_file_location("assembler_changed_ids", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_a_carried_pass_on_a_changed_id_is_refused_whatever_its_survival() -> None:
+    rows = {"X": {"exit_state": "PASS"}, "Y": {"exit_state": "PASS"}}
+    authority = {"changed_fixture_ids": ["X"], "evidence_survival": {"X": "SOMETHING_ELSE"}}
+    assert _assembler().refuse_changed_fixture_carried_passes(rows, authority) == ["X"]
+    assert rows["X"]["exit_state"] == "UNKNOWN"
+    assert rows["Y"]["exit_state"] == "PASS"
+
+
+def test_a_changed_id_without_a_survival_entry_fails_closed() -> None:
+    rows = {"X": {"exit_state": "PASS"}}
+    authority = {"changed_fixture_ids": ["X"], "evidence_survival": {}}
+    with pytest.raises(RuntimeError, match="no evidence_survival"):
+        _assembler().refuse_changed_fixture_carried_passes(rows, authority)
+
+
+def test_the_channel_names_are_the_drivers() -> None:
+    assert game_driver.STARTING_SEAT_CREATE_VERIFIED == "create_request_echo_verified"
+    assert game_driver.STARTING_SEAT_FRAME_VERIFIED == "decision_frame_verified"
+    assert game_driver.STARTING_SEAT_UNVERIFIED == "record_starting_seat_unverified"
+    assert game_driver.STARTING_SEAT_UNSCRIPTED == (
+        "LANE_OR_PROVIDER_DEFAULT_NOT_A_RECORD_DECISION"
+    )
