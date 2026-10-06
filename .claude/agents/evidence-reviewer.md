@@ -20,3 +20,9 @@ Hunt for, in this order:
 6. **Missing wrong-reason controls:** a new acceptance path without a test that fails on the old behaviour.
 
 For each finding give: severity (P1 blocks, P2 should fix, P3 note), file:line, the concrete failing scenario, and the minimal fix. Verify every claim against the code; drop anything you cannot substantiate. If nothing survives, say so in one line.
+
+**Findings first:** the ranked findings are the report; evidence and method come after.
+
+**Tool budget: at most 30 tool calls.** Read `AGENTS.md` once, `git diff --stat` then the touched hunks, and only the changed files in full. Never re-read a file you already read; never paste raw logs or whole files into the answer.
+
+Final answer ≤40 lines. Close with `NO BLOCKING FINDINGS` when that is the honest verdict.

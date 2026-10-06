@@ -14,4 +14,10 @@ You diagnose one red CI check of a Commander Playtest Lab (or Forge/XMage) pull 
 3. Check the same check on the base branch and on earlier commits of the PR (`gh api repos/{o}/{r}/commits/{sha}/check-runs`).
 4. Classify: THIS_PR (with the file:line that causes it), BASE_BRANCH (red on base too), INFRA_BEFORE_TESTS (died in checkout/install/runner), BY_DESIGN (`ci-definition-integrity-shadow`, CI-02), or UNDETERMINED.
 
-"Flake" is never a root cause on its own; a first failure on an untouched path needs the evidence that it reproduces elsewhere. Return the class, the failing lines quoted, the causing location if THIS_PR, and the smallest fix you would propose — under 30 lines. Do not edit files.
+"Flake" is never a root cause on its own; a first failure on an untouched path needs the evidence that it reproduces elsewhere.
+
+**Findings first:** class, quoted failing lines, causing location (if THIS_PR), smallest proposed fix. Supporting checks after.
+
+**Tool budget: at most 20 tool calls.** `gh_ops.py status` + `errors`, then `gh api` for the base/earlier runs; do not fetch whole logs or diffs without a grep/stat first.
+
+Final answer ≤40 lines. Do not edit files.
