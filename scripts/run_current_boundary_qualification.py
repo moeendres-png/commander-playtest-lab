@@ -962,14 +962,13 @@ def run_native_suites_with_shadow_overlap(
     print("[pb03 shadow] overlap enabled", flush=True)
     receipts_by_candidate: dict[str, list[dict[str, Any]]] = {}
     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as forge_pool:
-        forge_future = forge_pool.submit(run_native_suites_for_candidate, runner, "forge")
+        # Exactly the Forge groups of run_all_native_suites, on the pool.
+        forge_future = forge_pool.submit(run_all_native_suites, runner, ("forge",))
         try:
             for candidate in candidates:
                 if candidate == "forge":
                     continue
-                receipts_by_candidate[candidate] = run_native_suites_for_candidate(
-                    runner, candidate
-                )
+                receipts_by_candidate[candidate] = run_all_native_suites(runner, (candidate,))
             if xmage_phases is not None:
                 xmage_phases()
         finally:
