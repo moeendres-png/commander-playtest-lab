@@ -1047,7 +1047,9 @@ def drive_commander_game(
                         f"offered options; exactly one is required: "
                         f"{[a.get('source_object_id') for a in options]}"
                     )
-                chosen = str(match[0]["action_id"])
+                # Exactly one offered option names the seat (checked above).
+                [chosen_option] = match
+                chosen = str(chosen_option["action_id"])
                 identity = decision_identity_params(candidate, frame)
                 answer = _require_ok(
                     proc.request(
@@ -1087,7 +1089,7 @@ def drive_commander_game(
                     )
                 )
                 result.terminal_facts.setdefault("starting_player_choices", []).append(
-                    {"chosen_seat": match[0].get("source_object_id"), "chooser_actor": actor}
+                    {"chosen_seat": chosen_option.get("source_object_id"), "chooser_actor": actor}
                 )
                 result.observations.append(GameObservation("starting_player", answer))
                 continue
@@ -1355,8 +1357,10 @@ def verified_starting_seat_channel(
         ):
             return STARTING_SEAT_CREATE_VERIFIED
         return STARTING_SEAT_UNVERIFIED
-    if len(choices) == 1 and choices[0].get("chosen_seat") == seat:
-        return STARTING_SEAT_FRAME_VERIFIED
+    if len(choices) == 1:
+        [only] = choices
+        if only.get("chosen_seat") == seat:
+            return STARTING_SEAT_FRAME_VERIFIED
     return STARTING_SEAT_UNVERIFIED
 
 
