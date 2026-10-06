@@ -136,19 +136,20 @@ def lane_lines(repo_dir: Path, states: list[dict[str, Any]]) -> list[str]:
     for number in LANE_ISSUES:
         issue = api(f"repos/{LAB}/issues/{number}")
         comments = api(f"repos/{LAB}/issues/{number}/comments?per_page=100") or []
-        baton = next(
-            (c for c in reversed(comments) if BATON_MARKER.search(c.get("body") or "")), None
-        )
-        owner = baton["user"]["login"] if baton else "?"
-        next_action = ""
-        if baton:
-            body = baton.get("body") or ""
-            own = OWNER_LINE.search(body)
+        markers = [c for c in comments if BATON_MARKER.search(c.get("body") or "")]
+        owner, next_action = "?", ""
+        for comment in reversed(markers):
+            own = OWNER_LINE.search(comment.get("body") or "")
             if own:
                 owner = clip(own.group(1).lstrip("* "), 36)
-            nxt = NEXT_LINE.search(body)
+                break
+        if owner == "?":
+            owner = markers[-1]["user"]["login"] if markers else "?"
+        for comment in reversed(markers):
+            nxt = NEXT_LINE.search(comment.get("body") or "")
             if nxt:
                 next_action = clip(nxt.group(1).lstrip("* "), 80)
+                break
         if not next_action:
             candidates = [
                 s for s in states if s.get("issue") == number or s.get("parent") == number
