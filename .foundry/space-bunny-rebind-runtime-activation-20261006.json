@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "evidence_classification": "DIRECTLY_VERIFIED",
+  "status": "PASS",
+  "objective": "Bind the rebound Space Bunny catalog identity to an authenticated post-merge OpenCode runtime observation without rewriting historical activation evidence.",
+  "source_lock": {
+    "main_sha": "84c17f9d0fb768812e00ecaef5cb2dcd4db57676",
+    "rebind_pr": 576,
+    "rebind_merge_sha": "84c17f9d0fb768812e00ecaef5cb2dcd4db57676"
+  },
+  "trigger": {
+    "issue": 479,
+    "trigger_comment_id": 6024256327,
+    "workflow_run_id": 37522166205,
+    "workflow_name": "opencode",
+    "event": "issue_comment",
+    "job_id": 112470057434,
+    "job_name": "opencode-bunny"
+  },
+  "execution": {
+    "configured_model": "opencode-go/space-bunny",
+    "configured_variant": "max",
+    "provider_id": "opencode-go",
+    "model_id": "space-bunny",
+    "resolved_model": "opencode-go/space-bunny",
+    "primary_deepseek_job_conclusion": "skipped"
+  },
+  "observation": {
+    "workflow_job_conclusion": "success",
+    "opencode_step_conclusion": "success",
+    "result_marker": "SPACE_BUNNY_REBIND_SMOKE_OK",
+    "result_comment_id": 6024263751
+  },
+  "adjudication": {
+    "current_space_bunny_runtime_activation": "PASS",
+    "explicit_secondary_selection_observed": true,
+    "historical_2026_09_29_space_bunny_free_smoke_role": "PROVENANCE_ONLY_FOR_OLD_MODEL_ID",
+    "no_automatic_fallback_claim_source": "UNCHANGED_CODE_AND_POLICY_EVIDENCE_NOT_THIS_SMOKE"
+  },
+  "non_claims": [
+    "This smoke does not change Rules authority, qualification credit, Production Provider selection, or Architecture Freeze.",
+    "The 2026-09-29 space-bunny-free runtime receipt is not relabelled as evidence for the current model ID."
+  ]
+}
