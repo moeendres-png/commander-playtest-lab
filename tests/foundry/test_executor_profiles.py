@@ -16,7 +16,7 @@ def test_selected_profiles_and_highest_native_efforts_are_exact() -> None:
     doc = _registry()
     expected = {
         "deepseek": ("opencode-go/deepseek-v4.1-flash", "max"),
-        "space-bunny": ("opencode-go/space-bunny-free", "max"),
+        "space-bunny": ("opencode-go/space-bunny", "max"),
     }
     actual = {
         name: (spec["model"], spec["native_variant"]) for name, spec in doc["profiles"].items()

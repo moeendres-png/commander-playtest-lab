@@ -20,7 +20,7 @@
       "runtime_status": "ACTIVE"
     },
     "space-bunny": {
-      "model": "opencode-go/space-bunny-free",
+      "model": "opencode-go/space-bunny",
       "native_variant": "max",
       "runtime_status": "ACTIVE"
     }
