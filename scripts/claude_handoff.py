@@ -151,18 +151,19 @@ def lane_lines(repo_dir: Path, states: list[dict[str, Any]]) -> list[str]:
                 next_action = clip(nxt.group(1).lstrip("* "), 80)
                 break
         if not next_action:
-            candidates = [
+            lane_states = [
                 s for s in states if s.get("issue") == number or s.get("parent") == number
             ]
-            candidates.sort(
-                key=lambda s: (
-                    s.get("status") not in ("ACTIVE", "WAITING", "BLOCKED"),
-                    -_state_recency(repo_dir, s),
-                    s["_path"],
+            if lane_states:
+                best = min(
+                    lane_states,
+                    key=lambda s: (
+                        s.get("status") not in ("ACTIVE", "WAITING", "BLOCKED"),
+                        -_state_recency(repo_dir, s),
+                        s["_path"],
+                    ),
                 )
-            )
-            if candidates:
-                next_action = clip(candidates[0].get("exact_next_action") or "", 80)
+                next_action = clip(best.get("exact_next_action") or "", 80)
         lines.append(
             f"#{number} {clip(issue.get('title', ''), 44)} [{issue.get('state')}] "
             f"owner={owner} next={next_action or '-'}"
