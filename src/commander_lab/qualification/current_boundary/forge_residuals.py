@@ -190,9 +190,9 @@ _UNOBSERVABLE: dict[str, tuple[str, str]] = {
     ),
     "semantic_objects.controlled_since_turn_began": (
         LAB_EXECUTION_GAP,
-        "bootstrap-placed creatures arrive after the turn began; continuous control is "
-        "caused by native progression to a later turn and shown by the engine's own attack "
-        "frame, neither of which the lane executes",
+        "since G1 R1 a boolean request on a battlefield object is checkpoint-verified "
+        "against the engine's !isFirstTurnControlled() readback; only a non-boolean "
+        "request or one on a non-battlefield object still reaches this mechanism",
     ),
 }
 

@@ -52,7 +52,7 @@ CHANNEL_UNAUDITED = "PRESENT_UNAUDITED"
 
 # The bridge commit whose blobs this channel table was asserted against. A
 # moved canonical pin invalidates every channel status until it is re-asserted.
-ASSERTED_BRIDGE_COMMIT = "ee37e4a52d99401ba57fba7ca516ac01f1981161"
+ASSERTED_BRIDGE_COMMIT = "04892c8749b6684246c81edf58b248f54a7869e1"
 
 _BRIDGE_SOURCE = f"{lane.BRIDGE_MODULE}/src/main/java/forge/bridge"
 SOURCES: dict[str, str] = {
@@ -96,6 +96,9 @@ BOOTSTRAP_FIELDS = frozenset(
         "card",
         "commander_damage_taken",
         "continuous_effects_present",
+        # G1 R1 (#561): a boolean control-history request, verified against the
+        # engine and never set; it carries no card name.
+        "controlled_since_turn_began",
         "controller",
         "counters",
         "decision_script",

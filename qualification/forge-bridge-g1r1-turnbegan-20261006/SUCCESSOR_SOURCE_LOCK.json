@@ -1,0 +1,71 @@
+{
+ "schema_version": "commander-lab.forge-bridge-successor-source-lock/1.0.0",
+ "workstream": "forge-bridge-g1r1-turnbegan-20261006",
+ "classification": "SUCCESSOR_BRIDGE_MATERIALIZATION_SOURCE",
+ "status": "WIP_PENDING_PUSH_AND_EXACT_HEAD_CI",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "DENOMINATOR_CHANGE",
+  "RULES_CORE_AUTHORITY_CHANGE",
+  "FORGE_MASTER_MERGE"
+ ],
+ "rules_core_authority": {
+  "repository": "https://github.com/moeendres-png/forge.git",
+  "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+  "role": "R-1 admitted Rules-Core qualification candidate (#11 incl. #12). UNCHANGED by this lock.",
+  "lock": "qualification/forge-r1-candidate-authority-20260930/SUCCESSOR_SOURCE_LOCK.json (Rules-Core fields unchanged)"
+ },
+ "prior_bridge_source": {
+  "commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+  "tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+  "content": "forge#16 + #22 + #25 + #28 (schema /4)",
+  "role": "historical; successor lock qualification/forge-bridge-constructed-state-20261005"
+ },
+ "new_bridge_source": {
+  "repository": "https://github.com/moeendres-png/forge.git",
+  "branch": "hardening/forge-g1r1-turnbegan-subscriber-pin-20261006",
+  "commit": "04892c8749b6684246c81edf58b248f54a7869e1",
+  "tree": "9946e89432278fa938d346c229ecfd136203bd2b",
+  "pull_request": null,
+  "ancestry": "two commits on ee37e4a5 (510697fa implementation, 04892c87 test driver); bb0a740d..04892c87 changes only forge-protocol2-bridge/ (0 Rules-Core, 0 card-data files)",
+  "content": "Coordinator decision G1 R1 with conditions C1-C6 (#561): scenario permanents placed untapped by a GameEventTurnBegan(turn 1) subscriber before the readiness loop; one-shot latch and subscriber error capture; retained startGameHook fails closed unless the placement ran exactly once without error, applies tapped state silently after untap, verifies controlled_since_turn_began against !isFirstTurnControlled(); battlefield_details readback gains controlled_since_turn_began."
+ },
+ "exact_head_qualification": {
+  "commit": "04892c8749b6684246c81edf58b248f54a7869e1",
+  "github_test_build": [
+   {
+    "run_id": null,
+    "event": "push",
+    "java17": "PENDING",
+    "java21": "PENDING",
+    "note": "NOT_RUN: the commit is local only (not pushed) at lock time"
+   }
+  ],
+  "github_ios_mobivm": [
+   {
+    "run_id": null,
+    "event": "push",
+    "conclusion": "PENDING"
+   }
+  ],
+  "local_forge_bridge_suite": {
+   "command": "LANG=C.UTF-8 xvfb-run -a mvn -B -ntp -o -pl forge-protocol2-bridge -am test -Dtest='forge.bridge.**' -Dsurefire.failIfNoSpecifiedTests=false",
+   "commit": "04892c8749b6684246c81edf58b248f54a7869e1",
+   "tree_equal_to_new_bridge_source": true,
+   "run": "PENDING",
+   "failures": "PENDING",
+   "errors": "PENDING",
+   "skipped": "PENDING"
+  }
+ },
+ "lab_consumer": {
+  "scenario_lane": "forge_scenario_lane.py: controlled_since_turn_began checkpoint-verified; _HOOK_ASSERTIONS re-derived; _SCENARIO_HOOK_ASSERTIONS added",
+  "hidden_information_channels": "forge_hidden_information.py re-asserted at 04892c87: BOOTSTRAP_FIELDS gains controlled_since_turn_began (boolean, no card name); no other drift; AF05 Forge unchanged (20 PROVIDER_ADAPTER_GAP)",
+  "impact_adjudication": "docs/forge_g1r1_turnbegan_20261006/IMPACT_ADJUDICATION.md"
+ },
+ "evidence_transfer": {
+  "historical_receipts_relabelled": false
+ }
+}

@@ -199,12 +199,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
@@ -228,7 +222,7 @@
      "cost_determined:base_plus_3_generic"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_state.active_player (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_objects (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_state.active_player (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_objects (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -424,12 +418,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
@@ -455,7 +443,7 @@
      "combat_damage_prevented:P2:2"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: combat_damage_would_be:P2:2, prevention_applied, combat_damage_prevented:P2:2. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: combat_damage_would_be:P2:2, prevention_applied, combat_damage_prevented:P2:2. no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -494,12 +482,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
@@ -529,7 +511,7 @@
      "resolve:Lightning_Bolt"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -555,12 +537,6 @@
      "stage": "construction"
     },
     {
-     "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
      "class": "PROVIDER_ADAPTER_GAP",
      "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
      "dimension": "event_log",
@@ -583,7 +559,7 @@
      "damage:P2:6"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: damage_would_be:P2:3, replacement_effect:double. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: damage_would_be:P2:3, replacement_effect:double. no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -679,12 +655,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
@@ -714,7 +684,7 @@
      "resolve:Lightning_Bolt"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (stack_state): a stack object is caused by a cast on the engine's own frames (the bootstrap rejects stack injection); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction action_cost_state (LAB_EXECUTION_GAP); construction semantic_objects.zone:stack (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_object (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -738,12 +708,6 @@
      "detail": "the obligation requires the exact hand after the draw; the engine's natural draw adds a card the lane can neither control nor prove, so exact equality cannot be established; the open mechanism is controlling or proving the drawn card, and the exact-equality obligation stays unchanged",
      "dimension": "temporal_checkpoint.exact_hand_after_draw",
      "stage": "construction"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
     },
     {
      "class": "LAB_EXECUTION_GAP",
@@ -774,7 +738,7 @@
      "move_to_graveyard:obj:micro-zero"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: state_based_actions. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: state_based_actions. no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -798,12 +762,6 @@
      "detail": "the obligation requires the exact hand after the draw; the engine's natural draw adds a card the lane can neither control nor prove, so exact equality cannot be established; the open mechanism is controlling or proving the drawn card, and the exact-equality obligation stays unchanged",
      "dimension": "temporal_checkpoint.exact_hand_after_draw",
      "stage": "construction"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
     },
     {
      "class": "LAB_EXECUTION_GAP",
@@ -831,7 +789,7 @@
      "target_selected:P2"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -855,12 +813,6 @@
      "detail": "the obligation requires the exact hand after the draw; the engine's natural draw adds a card the lane can neither control nor prove, so exact equality cannot be established; the open mechanism is controlling or proving the drawn card, and the exact-equality obligation stays unchanged",
      "dimension": "temporal_checkpoint.exact_hand_after_draw",
      "stage": "construction"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
     },
     {
      "class": "LAB_EXECUTION_GAP",
@@ -889,7 +841,7 @@
      "damage:P2:2"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -964,12 +916,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
@@ -994,7 +940,7 @@
      "x_announced:3"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.announce_x.integer (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.announce_x.integer (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -1099,12 +1045,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
@@ -1129,7 +1069,7 @@
      "mode_selected:create_devils"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.choose_mode.semantic_mode_key (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.choose_mode.semantic_mode_key (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -1213,12 +1153,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
@@ -1249,7 +1183,7 @@
      "scry_choice:keep_top"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:library): library contents are never exposed. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.choose_use.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at checkpoint_readback (semantic_objects.zone:library): library contents are never exposed. then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.choose_use.boolean (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -1276,12 +1210,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a declare_attacker decision; the bridge carries it on its ATTACK_DECLARATION frames, but the lane has no selector for them",
      "dimension": "decision_execution.declare_attacker.attacker_assignment",
      "stage": "execution"
@@ -1300,7 +1228,7 @@
      "attacker_declared:obj:p1-bears->P2"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -1612,12 +1540,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
@@ -1642,7 +1564,7 @@
      "spell_cast:obj:pilot-bolt"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -1714,12 +1636,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
@@ -1744,7 +1660,7 @@
      "target_selected:P2"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520): one complete, modeless spell with declared fuel, aimed at a commander, for a commander zone choice to the graveyard, exile or hand. then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -2546,12 +2462,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a declare_attacker decision; the bridge carries it on its ATTACK_DECLARATION frames, but the lane has no selector for them",
      "dimension": "decision_execution.declare_attacker.attacker_assignment",
      "stage": "execution"
@@ -2570,7 +2480,7 @@
      "attacker_declared:obj:mp-attacker-1->P3"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -2597,12 +2507,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a declare_attacker decision; the bridge carries it on its ATTACK_DECLARATION frames, but the lane has no selector for them",
      "dimension": "decision_execution.declare_attacker.attacker_assignment",
      "stage": "execution"
@@ -2622,7 +2526,7 @@
      "attacker_declared:obj:mp-attacker-2->P4"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "SCENARIO_LANE_EXECUTABLE",
@@ -2919,12 +2823,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "bootstrap-placed creatures arrive after the turn began; continuous control is caused by native progression to a later turn and shown by the engine's own attack frame, neither of which the lane executes",
-     "dimension": "semantic_objects.controlled_since_turn_began",
-     "stage": "checkpoint_readback"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
@@ -2951,7 +2849,7 @@
      "APNAP_stack_order"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); checkpoint_readback semantic_objects.controlled_since_turn_began (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: simultaneous_trigger_event. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: simultaneous_trigger_event. no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
