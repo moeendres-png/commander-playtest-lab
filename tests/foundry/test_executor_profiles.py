@@ -109,17 +109,13 @@ def test_activation_evidence_records_authenticated_runtime_verification() -> Non
     assert current["current_model_identity"] == active["model"]
     assert current["runtime_status"] == active["runtime_status"]
     assert current["evidence_classification"] == "DIRECTLY_VERIFIED"
-    assert (
-        current["evidence_receipt"]
-        == ".foundry/space-bunny-rebind-runtime-activation-20261006.json"
+    assert current["evidence_receipt"] == (
+        ".foundry/space-bunny-rebind-runtime-activation-20261006.json"
     )
 
     assert receipt["evidence_classification"] == "DIRECTLY_VERIFIED"
     assert receipt["status"] == "PASS"
-    assert (
-        receipt["source_lock"]["main_sha"]
-        == "84c17f9d0fb768812e00ecaef5cb2dcd4db57676"
-    )
+    assert receipt["source_lock"]["main_sha"] == ("84c17f9d0fb768812e00ecaef5cb2dcd4db57676")
     assert receipt["trigger"]["workflow_run_id"] == 37522166205
     assert receipt["trigger"]["job_id"] == 112470057434
     assert receipt["execution"]["resolved_model"] == active["model"]
