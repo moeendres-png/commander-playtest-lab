@@ -82,6 +82,9 @@ CHECKPOINT_ALLOWED_VARIANCE = "ALLOWED_VARIANCE"
 CHECKPOINT_MISMATCH = "MISMATCH"
 CHECKPOINT_UNSUPPORTED_DIMENSION = "UNSUPPORTED_DIMENSION"
 CHECKPOINT_TRANSPORT_FAILURE = "TRANSPORT_FAILURE"
+# A field whose readback cannot be attributed to one requested object (same
+# name, same controller, differing values): never EXACT, never credited.
+CHECKPOINT_UNKNOWN = "UNKNOWN"
 
 DIMENSION_SUPPORTED = "SUPPORTED"
 DIMENSION_UNSUPPORTED = "UNSUPPORTED"
@@ -1320,6 +1323,30 @@ def _canonical_counters(counters: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _group_field_verdict(requested: list[Any], observed: list[Any]) -> str:
+    """Verdict for one field over same-name, same-controller objects (P3-1).
+
+    The readback names objects only by card name, so ``n`` requested objects
+    and the ``m`` matching details are compared as multisets. ``requested``
+    holds one value per requested object (``None`` = unconstrained). EXACT
+    only when every matching detail agrees with every constrained request;
+    MISMATCH when the observed multiset cannot hold the requests; UNKNOWN
+    when it can but the readback cannot say which object holds which value.
+    """
+    constrained = [value for value in requested if value is not None]
+    if not constrained:
+        return CHECKPOINT_EXACT
+    if len(observed) < len(requested):
+        return CHECKPOINT_MISMATCH
+    keys_observed = Counter(json.dumps(value, sort_keys=True) for value in observed)
+    keys_requested = Counter(json.dumps(value, sort_keys=True) for value in constrained)
+    if any(keys_observed[key] < count for key, count in keys_requested.items()):
+        return CHECKPOINT_MISMATCH
+    if len(keys_observed) == 1:
+        return CHECKPOINT_EXACT
+    return CHECKPOINT_UNKNOWN
+
+
 def _state_view(response: dict[str, Any]) -> dict[str, Any]:
     state = _payload(response).get("state")
     return state if isinstance(state, dict) else {}
@@ -1557,6 +1584,13 @@ def compare_checkpoint(
             )
 
     # battlefield placement / tapped / counters
+    # P3-1: requested objects that share a name and a controller are matched
+    # against every detail of that name as a multiset, never against the first.
+    group_members: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for placement in model.battlefield:
+        group_members.setdefault((placement["controller"], str(placement["card"])), []).append(
+            placement
+        )
     for placement in model.battlefield:
         controller = placement["controller"]
         row = players.get(controller)
@@ -1565,14 +1599,14 @@ def compare_checkpoint(
         details = zones.get("battlefield_details") if isinstance(zones, dict) else []
         battlefield = battlefield if isinstance(battlefield, list) else []
         details = details if isinstance(details, list) else []
-        detail = next(
-            (
-                item
-                for item in details
-                if isinstance(item, dict) and item.get("name") == placement["card"]
-            ),
-            None,
-        )
+        matching = [
+            item
+            for item in details
+            if isinstance(item, dict) and item.get("name") == placement["card"]
+        ]
+        group = group_members[(controller, str(placement["card"]))]
+        position = next(index for index, member in enumerate(group) if member is placement)
+        detail = matching[position] if position < len(matching) else None
         present = placement["card"] in battlefield and detail is not None
         cause_declared = _declared_player_loss_cause(model)
         losing_controller = (
@@ -1615,54 +1649,65 @@ def compare_checkpoint(
             )
         )
         if detail is not None:
-            observed_tapped = bool(detail.get("tapped"))
+            observed_tapped = [bool(item.get("tapped")) for item in matching]
             verdicts.append(
                 FieldVerdict(
                     field=f"battlefield.{placement.get('semantic_id')}.tapped",
-                    verdict=(
-                        CHECKPOINT_EXACT
-                        if observed_tapped == bool(placement.get("tapped"))
-                        else CHECKPOINT_MISMATCH
+                    verdict=_group_field_verdict(
+                        [bool(member.get("tapped")) for member in group], observed_tapped
                     ),
                     requested=bool(placement.get("tapped")),
-                    observed=observed_tapped,
+                    observed=observed_tapped[0] if len(observed_tapped) == 1 else observed_tapped,
                 )
             )
             # G1 R1 (C3): checkpoint-verified control history. The readback is
-            # the engine's own !isFirstTurnControlled(); an absent or non-boolean
-            # readback cannot prove equivalence and is a mismatch.
+            # the engine's own !isFirstTurnControlled(). The request is compared
+            # as the literal True/False it is (no coercion); an absent or
+            # non-boolean readback cannot prove equivalence and is a mismatch.
             requested_since = placement.get("controlled_since_turn_began")
             if requested_since is not None:
-                observed_since = detail.get("controlled_since_turn_began")
+                observed_since = [item.get("controlled_since_turn_began") for item in matching]
+                strict_request = requested_since is True or requested_since is False
+                strict_readback = all(value is True or value is False for value in observed_since)
+                if not (strict_request and strict_readback):
+                    since_verdict = CHECKPOINT_MISMATCH
+                else:
+                    since_verdict = _group_field_verdict(
+                        [member.get("controlled_since_turn_began") for member in group],
+                        observed_since,
+                    )
                 verdicts.append(
                     FieldVerdict(
                         field=(
                             f"battlefield.{placement.get('semantic_id')}"
                             ".controlled_since_turn_began"
                         ),
-                        verdict=(
-                            CHECKPOINT_EXACT
-                            if isinstance(observed_since, bool)
-                            and observed_since == bool(requested_since)
-                            else CHECKPOINT_MISMATCH
-                        ),
-                        requested=bool(requested_since),
-                        observed=observed_since,
+                        verdict=since_verdict,
+                        requested=requested_since,
+                        observed=observed_since[0] if len(observed_since) == 1 else observed_since,
                     )
                 )
             counter_requested = Counter(_canonical_counters(placement.get("counters") or {}))
-            counter_observed = Counter(_canonical_counters(detail.get("counters") or {}))
-            if counter_requested or counter_observed:
+            counters_observed = [
+                dict(Counter(_canonical_counters(item.get("counters") or {}))) for item in matching
+            ]
+            if counter_requested or any(counters_observed):
                 verdicts.append(
                     FieldVerdict(
                         field=f"battlefield.{placement.get('semantic_id')}.counters",
-                        verdict=(
-                            CHECKPOINT_EXACT
-                            if counter_requested == counter_observed
-                            else CHECKPOINT_MISMATCH
+                        verdict=_group_field_verdict(
+                            [
+                                dict(Counter(_canonical_counters(member.get("counters") or {})))
+                                for member in group
+                            ],
+                            counters_observed,
                         ),
                         requested=dict(counter_requested),
-                        observed=dict(counter_observed),
+                        observed=(
+                            counters_observed[0]
+                            if len(counters_observed) == 1
+                            else counters_observed
+                        ),
                     )
                 )
 
@@ -1691,12 +1736,15 @@ def compare_checkpoint(
     unsupported = [item.dimension for item in model.hard_unsupported]
     unobservable = [item.dimension for item in model.unobservable]
     mismatches = [item for item in verdicts if item.verdict == CHECKPOINT_MISMATCH]
+    unknown_fields = [item for item in verdicts if item.verdict == CHECKPOINT_UNKNOWN]
     cause_advances = [item for item in verdicts if item.verdict == "CAUSE_ADVANCE"]
     variance_source: str | None = None
     if unsupported:
         verdict = CHECKPOINT_UNSUPPORTED_DIMENSION
     elif mismatches:
         verdict = CHECKPOINT_MISMATCH
+    elif unknown_fields:
+        verdict = CHECKPOINT_UNKNOWN
     elif unobservable:
         verdict = CHECKPOINT_UNSUPPORTED_DIMENSION
     elif cause_advances:

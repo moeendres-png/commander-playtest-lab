@@ -1565,3 +1565,109 @@ def test_control_history_unverifiable_requests_are_unsupported():
         item.dimension for item in model.hard_unsupported
     }
     assert model.credit_eligible is False
+
+
+# ---------------------------------------------------------------------------
+# Review P3-1: same-name, same-controller objects are matched as a multiset
+# ---------------------------------------------------------------------------
+def _swamp_record(requests: list) -> dict:
+    objects = [
+        _object("obj:P1-commander", "Rograkh, Son of Rohgahh", "command", "P1"),
+        _object("obj:P2-commander", "Rograkh, Son of Rohgahh", "command", "P2"),
+    ]
+    for index, since in enumerate(requests):
+        objects.append(
+            _object(
+                f"obj:p2-swamp-{index}",
+                "Swamp",
+                "battlefield",
+                "P2",
+                controlled_since_turn_began=since,
+            )
+        )
+    return _record(semantic_objects=objects)
+
+
+def _swamp_observations(observed: list, *, tapped: list | None = None) -> dict[str, dict]:
+    details = []
+    for index, since in enumerate(observed):
+        detail = {
+            "name": "Swamp",
+            "tapped": bool(tapped[index]) if tapped else False,
+            "counters": {},
+        }
+        if since is not None:
+            detail["controlled_since_turn_began"] = since
+        details.append(detail)
+    rows = [
+        _zone_row("p1", command=["Rograkh, Son of Rohgahh"]),
+        _zone_row(
+            "p2",
+            battlefield=["Swamp"] * len(observed),
+            battlefield_details=details,
+            command=["Rograkh, Son of Rohgahh"],
+        ),
+    ]
+    return {"p1": _observation(rows)}
+
+
+def _swamp_verdicts(equivalence, suffix: str) -> set[str]:
+    return {
+        item.verdict
+        for item in equivalence.fields
+        if item.field.startswith("battlefield.obj:p2-swamp-") and item.field.endswith(suffix)
+    }
+
+
+def test_micro_costs_shape_one_disagreeing_swamp_is_a_mismatch():
+    """Nine P2 Swamps requested True; the eighth readback says False. Matching
+    only the first detail used to call all nine EXACT."""
+    model = fsl.model_requested_state(_swamp_record([True] * 9))
+    observed = [True] * 9
+    observed[7] = False
+    equivalence = fsl.compare_checkpoint(model, _swamp_observations(observed))
+    assert _swamp_verdicts(equivalence, ".controlled_since_turn_began") == {fsl.CHECKPOINT_MISMATCH}
+    assert equivalence.verdict == fsl.CHECKPOINT_MISMATCH
+    assert equivalence.credit_eligible is False
+
+
+def test_micro_costs_shape_every_swamp_agreeing_is_exact():
+    model = fsl.model_requested_state(_swamp_record([True] * 9))
+    equivalence = fsl.compare_checkpoint(model, _swamp_observations([True] * 9))
+    assert _swamp_verdicts(equivalence, ".controlled_since_turn_began") == {fsl.CHECKPOINT_EXACT}
+    assert equivalence.verdict == fsl.CHECKPOINT_EXACT
+
+
+def test_ambiguous_same_name_readback_is_unknown_not_exact():
+    """Mixed requests that the readback can hold but cannot attribute."""
+    model = fsl.model_requested_state(_swamp_record([True, False]))
+    equivalence = fsl.compare_checkpoint(model, _swamp_observations([False, True]))
+    assert _swamp_verdicts(equivalence, ".controlled_since_turn_began") == {fsl.CHECKPOINT_UNKNOWN}
+    assert equivalence.verdict == fsl.CHECKPOINT_UNKNOWN
+    assert equivalence.credit_eligible is False
+
+
+def test_fewer_details_than_requested_objects_is_a_mismatch():
+    model = fsl.model_requested_state(_swamp_record([True] * 3))
+    equivalence = fsl.compare_checkpoint(model, _swamp_observations([True] * 2))
+    assert equivalence.verdict == fsl.CHECKPOINT_MISMATCH
+
+
+def test_tapped_is_matched_as_a_multiset_too():
+    model = fsl.model_requested_state(_swamp_record([True] * 3))
+    equivalence = fsl.compare_checkpoint(
+        model, _swamp_observations([True] * 3, tapped=[False, False, True])
+    )
+    assert _swamp_verdicts(equivalence, ".tapped") == {fsl.CHECKPOINT_MISMATCH}
+    assert equivalence.verdict == fsl.CHECKPOINT_MISMATCH
+
+
+@pytest.mark.parametrize("coerced", [1, "true", 0])
+def test_control_history_request_is_never_coerced(coerced):
+    model = fsl.model_requested_state(_control_history_record(True, False))
+    model.battlefield[0]["controlled_since_turn_began"] = coerced
+    equivalence = fsl.compare_checkpoint(model, _control_history_observations(True, False))
+    fields = {item.field: item for item in equivalence.fields}
+    assert fields["battlefield.obj:p1-bears.controlled_since_turn_began"].verdict == (
+        fsl.CHECKPOINT_MISMATCH
+    )
