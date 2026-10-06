@@ -68,12 +68,18 @@ final class XmageBridgePlayer extends PlayerImpl {
             ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     private final ExternalDecisionController externalDecisionController;
+    /*
+     * The CR 103.2 prompt this bridge actually answered, or null on paths that
+     * record none. Shared with the game manager so the start response can
+     * publish the chooser and chosen identities (#572).
+     */
+    private final XmageStartingPlayerPrompt startingPlayerPrompt;
 
     XmageBridgePlayer(
             String name,
             RangeOfInfluence range
     ) {
-        this(name, range, null);
+        this(name, range, null, null);
     }
 
     XmageBridgePlayer(
@@ -81,8 +87,18 @@ final class XmageBridgePlayer extends PlayerImpl {
             RangeOfInfluence range,
             ExternalDecisionController externalDecisionController
     ) {
+        this(name, range, externalDecisionController, null);
+    }
+
+    XmageBridgePlayer(
+            String name,
+            RangeOfInfluence range,
+            ExternalDecisionController externalDecisionController,
+            XmageStartingPlayerPrompt startingPlayerPrompt
+    ) {
         super(name, range);
         this.externalDecisionController = externalDecisionController;
+        this.startingPlayerPrompt = startingPlayerPrompt;
         setUserData(
                 UserData.getDefaultUserDataView()
         );
@@ -93,6 +109,7 @@ final class XmageBridgePlayer extends PlayerImpl {
     ) {
         super(player);
         this.externalDecisionController = player.externalDecisionController;
+        this.startingPlayerPrompt = player.startingPlayerPrompt;
     }
 
     @Override
@@ -204,8 +221,8 @@ final class XmageBridgePlayer extends PlayerImpl {
             Ability source,
             Game game
     ) {
-        if (externalDecisionController != null
-                && !isStartingPlayerInitChoice(target, source, game)) {
+        boolean startingPlayerInitChoice = isStartingPlayerInitChoice(target, source, game);
+        if (externalDecisionController != null && !startingPlayerInitChoice) {
             failIfExternallyControlled("choose(Target)");
         }
         if (target instanceof TargetPlayer) {
@@ -218,6 +235,18 @@ final class XmageBridgePlayer extends PlayerImpl {
                         )
                         && !target.contains(getId())) {
 
+                    if (startingPlayerInitChoice && startingPlayerPrompt != null) {
+                        /*
+                         * The bridge answers the engine's own prompt with the
+                         * choosing player itself. Recording before the target
+                         * mutation keeps a double-answer failure side-effect
+                         * free (#572).
+                         */
+                        startingPlayerPrompt.recordAnswer(
+                                getId().toString(),
+                                getId().toString()
+                        );
+                    }
                     target.add(
                             player.getId(),
                             game

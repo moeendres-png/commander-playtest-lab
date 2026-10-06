@@ -16,6 +16,7 @@ import copy
 from pathlib import Path
 
 import pytest
+from _protocol2_starting_frames import StartingFrameProcess
 
 from commander_lab.qualification.current_boundary import (
     bridge_launcher,
@@ -271,6 +272,47 @@ def test_temporal_active_player_needs_a_verified_starter_channel(record) -> None
     assert proof.starting_player_channel is None
     assert proof.established is False
     assert full107.construction_credit_gap(record, proof) is not None
+
+
+def test_a_declared_seat_without_an_answered_frame_keeps_temporal_unsupported(
+    record, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """#572 review P2-2 (mutant M10): the real driver's channel gate, end to end.
+
+    Forge declares p1 but the run answers no STARTING_PLAYER frame; the driver
+    must report no channel, and the construction proof must leave the temporal
+    active/priority facts UNSUPPORTED rather than comparing them.
+    """
+    proc = StartingFrameProcess(candidate="forge", offered_seats=None)
+    priority = {
+        "seat": "p1",
+        "decision": {
+            "kind": "PRIORITY",
+            "actor": "p1",
+            "revision": 4,
+            "decision_id": "e" * 64,
+            "status": "SUPPORTED",
+        },
+        "actions": [{"action_id": "pass", "action_type": "pass_priority", "metadata": {}}],
+        "raw": {},
+    }
+    monkeypatch.setattr(game_driver, "poll_decision", lambda *a, **k: priority)
+    result = game_driver.drive_commander_game(
+        proc,  # type: ignore[arg-type]
+        candidate="forge",
+        player_count=4,
+        seed=7,
+        scripted_starting_seat="p1",
+        starting_seat_source="TEST_DECLARATION",
+    )
+    assert result.failure is None, result.failure
+    assert result.terminal_facts["starting_player_channel"] is None
+    proof = _proof(
+        record, _state(), starting_player_channel=result.terminal_facts["starting_player_channel"]
+    )
+    assert _verdict_of(proof, "temporal_state.active_player") == "UNSUPPORTED"
+    assert _verdict_of(proof, "temporal_state.priority_player") == "UNSUPPORTED"
+    assert proof.established is False
 
 
 @pytest.mark.parametrize(

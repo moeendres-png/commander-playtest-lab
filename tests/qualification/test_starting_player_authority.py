@@ -16,8 +16,9 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+from _protocol2_starting_frames import StartingFrameProcess as _StartingFrameProcess
 
-from commander_lab.qualification.current_boundary import game_driver
+from commander_lab.qualification.current_boundary import full107, game_driver
 from commander_lab.qualification.current_boundary.game_driver import (
     STARTING_PLAYER_CHANNEL_ENGINE_FRAME,
     STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED,
@@ -28,93 +29,6 @@ from commander_lab.qualification.current_boundary.starting_player import (
     STARTER_DECLARATION_SCRIPT,
     record_starting_seat,
 )
-
-
-class _StartingFrameProcess:
-    """A Protocol-2 surface that records every create request and submission."""
-
-    def __init__(
-        self,
-        *,
-        candidate: str,
-        offered_seats: list[str | None] | None = None,
-        create_echo: int | None = None,
-        create_echo_present: bool = True,
-        start_player_id: str | None = "engine-p1",
-        start_player_id_present: bool = True,
-        submit_error: dict[str, Any] | None = None,
-    ) -> None:
-        self.candidate = candidate
-        self.offered_seats = offered_seats
-        self.create_echo = create_echo
-        self.create_echo_present = create_echo_present
-        self.start_player_id = start_player_id
-        self.start_player_id_present = start_player_id_present
-        self.submit_error = submit_error
-        self.create_requests: list[dict[str, Any]] = []
-        self.submissions: list[dict[str, Any]] = []
-        self.passes = 0
-        self.handles = 0
-
-    def request(
-        self,
-        message_type: str,
-        payload: dict[str, Any],
-        *,
-        game_id: str | None = None,
-        timeout_s: float = 0,
-    ) -> dict[str, Any]:
-        del game_id, timeout_s
-        if message_type in {"start_engine", "get_provider_version"}:
-            return {"success": True, "payload": {}}
-        if message_type == "get_capabilities":
-            return {"success": True, "payload": {"capabilities": {"seed_supported": False}}}
-        if message_type == "import_deck":
-            self.handles += 1
-            return {"success": True, "payload": {"deck_handle": {"handle_id": f"d{self.handles}"}}}
-        if message_type == "create_commander_game":
-            self.create_requests.append(payload["request"])
-            created: dict[str, Any] = {"player_count": 2}
-            if self.create_echo_present:
-                created["starting_player_seat"] = self.create_echo
-            return {"success": True, "payload": created}
-        if message_type == "start_game":
-            started: dict[str, Any] = {"status": "started"}
-            if self.start_player_id_present:
-                started["starting_player_id"] = self.start_player_id
-            return {"success": True, "payload": started}
-        if message_type == "get_game_state":
-            # The engine's own seat roster: principal envelope + live engine id
-            # per seat, as the compatibility lane publishes it.
-            observer = str(payload["observer_player_id"])
-            index = 0 if observer == "p1" else 1
-            engine_id = "engine-p1" if index == 0 else "engine-p2"
-            rows = [
-                {
-                    "player_id": "engine-p1" if position == 0 else "engine-p2",
-                    "seat": position,
-                    "zones": {"hand": [None] * 7, "library_size": 92},
-                }
-                for position in range(2)
-            ]
-            return {
-                "success": True,
-                "payload": {
-                    "observer_player_id": observer,
-                    "observer_seat": index,
-                    "observer_engine_player_id": engine_id,
-                    "state": {"players": rows},
-                },
-            }
-        if message_type == "submit_action":
-            self.submissions.append(payload)
-            if self.submit_error is not None:
-                return self.submit_error
-            return {"success": True, "payload": {"decision": {"executed": True}}}
-        if message_type == "pass_priority":
-            self.passes += 1
-            return {"success": True, "payload": {}}
-        raise AssertionError(f"unexpected request {message_type}")
 
 
 def _starting_frame(offered: list[str | None], *, actor: str = "p1") -> dict[str, Any]:
@@ -218,6 +132,34 @@ def test_a_declared_seat_is_taken_from_the_engine_offered_frame(
     }
 
 
+def test_a_declared_seat_without_an_answered_engine_frame_is_never_a_channel(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """#572 review P2-2 (mutant M10): the channel needs an answered frame.
+
+    Forge declared p1 but published no STARTING_PLAYER frame in this run: the
+    declaration alone must not be labelled ENGINE_FRAME_FROM_RECORD_DECLARATION.
+    The construction proof then keeps the temporal active/priority checks
+    UNSUPPORTED for this channel (proved end to end in
+    ``test_generic_construction_proof``).
+    """
+    proc = _StartingFrameProcess(candidate="forge", offered_seats=None)
+    result = _drive(
+        monkeypatch,
+        proc,
+        [_priority_frame()],
+        candidate="forge",
+        starting_seat="p1",
+        source="TEST_DECLARATION",
+    )
+    assert result.failure is None, result.failure
+    assert result.terminal_facts.get("starting_player_frame_answered") is None
+    assert proc.submissions == []
+    channel = result.terminal_facts["starting_player_channel"]
+    assert channel is None
+    assert channel not in game_driver.VERIFIED_STARTING_PLAYER_CHANNELS
+
+
 @pytest.mark.parametrize(
     "offered",
     [
@@ -290,6 +232,7 @@ def test_xmage_the_channel_needs_the_engines_own_start_readback(
     assert proc.create_requests[0]["starting_player_seat"] == 1
     assert result.terminal_facts["starting_player_provider_acknowledged_seat"] == 1
     assert result.terminal_facts["starting_player_provider_confirmed_seat"] == "p2"
+    assert result.terminal_facts["starting_player_prompt_answer_recorded"] is True
     assert result.terminal_facts["starting_player_channel"] == (
         STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
     )
@@ -315,13 +258,74 @@ def test_xmage_without_the_engines_start_readback_the_channel_is_unverified(
     assert result.failure is None, result.failure
     assert result.terminal_facts["starting_player_provider_acknowledged_seat"] == 1
     assert result.terminal_facts.get("starting_player_provider_confirmed_seat") is None
+    assert result.terminal_facts["starting_player_prompt_answer_recorded"] is False
     assert result.terminal_facts["starting_player_channel"] is None
 
 
-def test_xmage_an_engine_starter_that_is_not_the_declared_seat_fails(
+def test_xmage_a_matching_readback_without_an_answered_prompt_is_not_confirmed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The engine's own readback contradicts the declaration: fail closed."""
+    """#572 review P3-3: in a pod of 3+ the readback alone cannot tell a real
+    CR 103.2 answer from GameImpl.init's first-player fallback. Without the
+    chooser/chosen identities the channel is unverified, never credit."""
+    proc = _StartingFrameProcess(
+        candidate="xmage",
+        create_echo=1,
+        start_player_id="engine-p2",
+        start_chooser_id_present=False,
+        start_chosen_id_present=False,
+    )
+    result = _drive(
+        monkeypatch,
+        proc,
+        [_priority_frame()],
+        candidate="xmage",
+        starting_seat="p2",
+        source="TEST_DECLARATION",
+    )
+    assert result.failure is None, result.failure
+    # The engine's readback names the declared seat, but no prompt answer was
+    # recorded, so there is no engine-confirmed channel.
+    assert result.terminal_facts.get("starting_player_provider_confirmed_seat") is None
+    assert result.terminal_facts["starting_player_prompt_answer_recorded"] is False
+    assert result.terminal_facts["starting_player_channel"] is None
+
+
+@pytest.mark.parametrize(
+    "prompt_ids",
+    [
+        {"start_chooser_id": "engine-p1"},  # the engine asked another chooser
+        {"start_chosen_id": "engine-p1"},  # the engine chose another player
+    ],
+)
+def test_xmage_prompt_identities_that_are_not_the_declared_seat_are_never_credit(
+    monkeypatch: pytest.MonkeyPatch, prompt_ids: dict[str, str]
+) -> None:
+    """R3-C2: a prompt identity naming another seat refuses; no fallback seat."""
+    proc = _StartingFrameProcess(
+        candidate="xmage",
+        create_echo=1,
+        start_player_id="engine-p2",
+        **prompt_ids,
+    )
+    result = _drive(
+        monkeypatch,
+        proc,
+        [_priority_frame()],
+        candidate="xmage",
+        starting_seat="p2",
+        source="TEST_DECLARATION",
+    )
+    assert result.failure_kind == "FAIL_CLOSED_UNSATISFIED"
+    assert result.failure is not None
+    assert "not the declared seat 'p2'" in result.failure
+    assert result.terminal_facts["starting_player_channel"] is None
+
+
+def test_xmage_an_engine_starter_that_is_not_the_declared_seat_is_unknown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The engine's own readback contradicts the declaration: UNKNOWN, not FAIL."""
     proc = _StartingFrameProcess(
         candidate="xmage",
         create_echo=1,
@@ -335,10 +339,38 @@ def test_xmage_an_engine_starter_that_is_not_the_declared_seat_fails(
         starting_seat="p2",
         source="TEST_DECLARATION",
     )
-    assert result.failure_kind == "ENGINE_RUNTIME_ERROR"
+    # #572 review P3-2 / R3-C2: the record's decision was not executed, which
+    # proves nothing and is never a Rules failure.
+    assert result.failure_kind == "FAIL_CLOSED_UNSATISFIED"
     assert result.failure is not None
-    assert "established starting player 'p1'" in result.failure
+    assert "starting_player_id as 'p1'" in result.failure
     assert result.terminal_facts["starting_player_channel"] is None
+
+
+def test_a_starting_seat_mismatch_is_unknown_never_a_rules_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """#572 review P3-2: full107 maps the mismatch to UNKNOWN, never FAIL."""
+    proc = _StartingFrameProcess(
+        candidate="xmage",
+        create_echo=1,
+        start_player_id="engine-p1",
+    )
+    result = _drive(
+        monkeypatch,
+        proc,
+        [_priority_frame()],
+        candidate="xmage",
+        starting_seat="p2",
+        source="TEST_DECLARATION",
+    )
+    record = {
+        "fixture_id": "WSR22_PLAYER_COUNT_2P",
+        "players": [{"player_id": "P1"}, {"player_id": "P2"}],
+    }
+    row = full107.cardinality_row(record, result, candidate="xmage", runtime_identity={})
+    assert row.outcome == "UNKNOWN"
+    assert "does not authorize" in row.reason
 
 
 def test_xmage_without_a_declaration_refuses_before_any_game_traffic(
@@ -363,7 +395,7 @@ def test_xmage_without_a_declaration_refuses_before_any_game_traffic(
     assert result.terminal_facts["starting_player_channel"] is None
 
 
-def test_xmage_create_acknowledging_another_seat_fails_the_run(
+def test_xmage_create_acknowledging_another_seat_is_unknown(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     proc = _StartingFrameProcess(candidate="xmage", create_echo=0)
@@ -375,7 +407,9 @@ def test_xmage_create_acknowledging_another_seat_fails_the_run(
         starting_seat="p2",
         source="TEST_DECLARATION",
     )
-    assert result.failure_kind == "ENGINE_RUNTIME_ERROR"
+    # #572 review P3-2 / R3-C2: an acknowledgement of another seat means the
+    # record's decision was not executed; UNKNOWN, never a Rules FAIL.
+    assert result.failure_kind == "FAIL_CLOSED_UNSATISFIED"
     assert result.failure is not None
     assert "acknowledged starting_player_seat 0" in result.failure
 

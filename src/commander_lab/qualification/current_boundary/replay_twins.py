@@ -68,6 +68,7 @@ from . import receipts as receipt_mod
 from .bridge_launcher import BridgeLaunchError, build_launch_plan, launch
 from .game_driver import (
     _SEATS,
+    STARTING_PLAYER_CHANNEL_CREATE_ECHO_ONLY,
     STARTING_PLAYER_CHANNEL_ENGINE_FRAME,
     STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED,
     DecisionUnsatisfied,
@@ -75,6 +76,8 @@ from .game_driver import (
     _acknowledged_seed,
     _create_request,
     _declares_seed_support,
+    _engine_seat_roster,
+    _evaluate_starting_player_readback,
     _payload,
     _require_ok,
     build_deck,
@@ -1487,6 +1490,7 @@ def gather_generic_lane_process(
     start_status: Any = None
     starting_player_frame_answered = False
     provider_acknowledged_starting_seat: int | None = None
+    provider_readback_seen = False
     deck_identity: list[str] = []
     deck_hashes: list[str] = []
     fixture_identity: dict[str, Any] = {}
@@ -1552,7 +1556,10 @@ def gather_generic_lane_process(
             echoed = created.get("starting_player_seat")
             if isinstance(echoed, int) and not isinstance(echoed, bool):
                 if echoed != _SEATS.index(scripted_starting_seat):
-                    raise GameDriveError(
+                    # A provider acknowledgement of another seat means the
+                    # declared decision was not executed: UNKNOWN, never a
+                    # rules failure (#572 review P3-2, R3-C2).
+                    raise DecisionUnsatisfied(
                         "the provider acknowledged starting_player_seat "
                         f"{echoed}, not the declared seat {scripted_starting_seat!r}"
                     )
@@ -1568,6 +1575,24 @@ def gather_generic_lane_process(
             proc.request("start_game", {}, game_id=game_id, timeout_s=300.0), "start_game"
         )
         start_status = started.get("status")
+        # The create echo repeats the request and is never engine confirmation
+        # (#572 review P2-1). The confirmed channel requires the engine's own
+        # start readback *and* the identities of the CR 103.2 prompt the bridge
+        # actually answered, all resolved through the engine's own seat roster
+        # to the declared seat; anything less stays unverified.
+        provider_confirmed_seat: str | None = None
+        if scripted_starting_seat is not None and candidate == "xmage":
+            started_player_id = started.get("starting_player_id")
+            if isinstance(started_player_id, str) and started_player_id:
+                provider_readback_seen = True
+                roster = _engine_seat_roster(
+                    proc, game_id=game_id, player_count=player_count, created_seats=None
+                )
+                provider_confirmed_seat, refusal = _evaluate_starting_player_readback(
+                    started, roster, scripted_starting_seat
+                )
+                if refusal is not None:
+                    raise DecisionUnsatisfied(refusal)
 
         steps = 0
         frame: dict[str, Any] | None = None
@@ -1782,9 +1807,19 @@ def gather_generic_lane_process(
                 }
         if starting_player_frame_answered:
             starting_player_channel: str | None = STARTING_PLAYER_CHANNEL_ENGINE_FRAME
-        elif provider_acknowledged_starting_seat is not None:
+        elif provider_confirmed_seat is not None:
             starting_player_channel = STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
+        elif provider_acknowledged_starting_seat is not None and not provider_readback_seen:
+            # The create response echoed the declared seat and no engine
+            # starting-player readback followed at all. The label is auditable,
+            # deliberately distinct, and never a verified channel: an echo
+            # repeats the request and carries no temporal credit (#572 review
+            # P2-1, R3-C3/C4).
+            starting_player_channel = STARTING_PLAYER_CHANNEL_CREATE_ECHO_ONLY
         else:
+            # No answered frame, no confirmed readback. A readback that exists
+            # but cannot be confirmed (missing prompt identities) is explicitly
+            # not a channel either.
             starting_player_channel = None
         fixture_identity = {
             "fixture_id": fixture_id,
@@ -1808,6 +1843,8 @@ def gather_generic_lane_process(
                 else None
             ),
             "starting_player_channel": starting_player_channel,
+            "starting_player_provider_confirmed_seat": provider_confirmed_seat,
+            "starting_player_provider_acknowledged_seat": (provider_acknowledged_starting_seat),
         }
         candidate_build = {
             "candidate": candidate,

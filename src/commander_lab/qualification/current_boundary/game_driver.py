@@ -45,11 +45,18 @@ STARTING_PLAYER_FRAME_KINDS = frozenset({"STARTING_PLAYER", "CHOOSE_STARTING_PLA
 # active_player/priority_player only on one of these. Anything else is
 # UNSUPPORTED, never equality (#572).
 STARTING_PLAYER_CHANNEL_ENGINE_FRAME = "ENGINE_FRAME_FROM_RECORD_DECLARATION"
-# The provider confirmed the established starter: its start response named the
-# starting player and that identity resolved, through the engine's own seat
-# roster, to the declared seat. A create-response echo alone is NOT this
-# channel: the echo repeats the request, this is the engine's own readback.
+# The engine confirmed the established starter: its start response named the
+# starting player and the identities of the CR 103.2 prompt the bridge answered,
+# and all of them resolved, through the engine's own seat roster, to the
+# declared seat. A create-response echo alone is NOT this channel: the echo
+# repeats the request, this is the engine's own readback.
 STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED = "PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT"
+# The create response echoed the declared seat, but no engine starting-player
+# readback confirmed it. The label is auditable and deliberately distinct from
+# the confirmed channel; it is never a member of
+# VERIFIED_STARTING_PLAYER_CHANNELS, so it can never carry temporal credit
+# (#572 review P2-1).
+STARTING_PLAYER_CHANNEL_CREATE_ECHO_ONLY = "PROVIDER_CREATE_ECHO_ONLY"
 VERIFIED_STARTING_PLAYER_CHANNELS = frozenset(
     {STARTING_PLAYER_CHANNEL_ENGINE_FRAME, STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED}
 )
@@ -710,6 +717,57 @@ def _engine_seat_roster(
     return roster
 
 
+def _evaluate_starting_player_readback(
+    started: dict[str, Any],
+    roster: dict[str, str],
+    declared_seat: str,
+) -> tuple[str | None, str | None]:
+    """The declared seat the engine's XMage start readback confirms, or why not.
+
+    On the XMage compatibility lane the bridge answers the engine's own CR 103.2
+    prompt internally. In a pod of 3+ ``GameImpl.init`` falls back to the first
+    player when that answer is refused, so the established ``starting_player_id``
+    alone cannot tell a real answer from the fallback (#572 review P3-3). The
+    bridge therefore also reports the chooser and chosen identities of the
+    prompt it actually answered, and all three must resolve, through the
+    engine's own seat roster, to the declared seat.
+
+    Returns ``(declared_seat, None)`` only when that holds. A published identity
+    that resolves to another seat refuses (``(None, reason)``): the run is
+    UNKNOWN, never a Rules failure. Any absent identity returns ``(None, None)``:
+    the channel stays unverified, which is never credit either.
+    """
+
+    def resolve(field_name: str, value: Any) -> tuple[str | None, str | None]:
+        if not isinstance(value, str) or not value:
+            return None, None
+        confirmed = roster.get(value)
+        if confirmed is None:
+            return None, f"the engine reported a {field_name} outside its own seat roster"
+        if confirmed != declared_seat:
+            return None, (
+                f"the engine reported {field_name} as {confirmed!r}, not the "
+                f"declared seat {declared_seat!r}"
+            )
+        return confirmed, None
+
+    starter, refusal = resolve("starting_player_id", started.get("starting_player_id"))
+    if refusal is not None:
+        return None, refusal
+    if starter is None:
+        return None, None
+    for field_name in ("starting_player_chooser_id", "starting_player_chosen_id"):
+        confirmed, refusal = resolve(field_name, started.get(field_name))
+        if refusal is not None:
+            return None, refusal
+        if confirmed is None:
+            # The bridge recorded no answer to the engine's own CR 103.2
+            # prompt, so a first-player fallback cannot be told apart from a
+            # real answer and the channel is unverified.
+            return None, None
+    return declared_seat, None
+
+
 def drive_commander_game(
     proc: BridgeProcess,
     *,
@@ -853,7 +911,11 @@ def drive_commander_game(
             if isinstance(echoed, bool) or not isinstance(echoed, int):
                 result.terminal_facts["starting_player_provider_acknowledged_seat"] = None
             elif echoed != _SEATS.index(declared_starting_seat):
-                raise GameDriveError(
+                # The provider acknowledged another seat than the record
+                # declares: the record's decisions were not executed as
+                # declared, which proves nothing either way and is UNKNOWN,
+                # never a Rules failure (#572 review P3-2, R3-C2).
+                raise DecisionUnsatisfied(
                     "the provider acknowledged starting_player_seat "
                     f"{echoed}, not the declared seat {declared_starting_seat!r}"
                 )
@@ -891,10 +953,13 @@ def drive_commander_game(
         # The engine's own established starting player, when it publishes one.
         # This is the independent fact the create echo cannot be: the echo
         # repeats the declaration, this is the engine's readback of who started,
-        # resolved through the engine's own seat roster. A present id that maps
-        # to another seat contradicts the declaration and fails the run; an
-        # absent or unmappable id leaves the channel unverified, so no temporal
-        # credit can rest on it (#572).
+        # resolved through the engine's own seat roster. The bridge also reports
+        # the identities of the CR 103.2 prompt it actually answered, because
+        # GameImpl.init's first-player fallback in a pod of 3+ is otherwise
+        # indistinguishable from a real answer (#572 review P3-3). A present
+        # identity that maps to another seat contradicts the declaration and
+        # fails closed as UNKNOWN; an absent one leaves the channel unverified,
+        # so no temporal credit can rest on it (#572).
         provider_confirmed_seat: str | None = None
         if declared_starting_seat is not None and candidate == "xmage":
             started_player_id = started.get("starting_player_id")
@@ -906,18 +971,19 @@ def drive_commander_game(
                         player_count=player_count,
                         created_seats=seat_ids,
                     )
-                confirmed = seat_by_actor.get(started_player_id)
-                if confirmed is None:
-                    raise GameDriveError(
-                        "the engine reported a starting_player_id outside its own seat roster"
+                provider_confirmed_seat, refusal = _evaluate_starting_player_readback(
+                    started, seat_by_actor, declared_starting_seat
+                )
+                if refusal is not None:
+                    raise DecisionUnsatisfied(refusal)
+                if provider_confirmed_seat is not None:
+                    result.terminal_facts["starting_player_provider_confirmed_seat"] = (
+                        provider_confirmed_seat
                     )
-                if confirmed != declared_starting_seat:
-                    raise GameDriveError(
-                        f"the engine established starting player {confirmed!r}, not the "
-                        f"declared seat {declared_starting_seat!r}"
-                    )
-                provider_confirmed_seat = confirmed
-                result.terminal_facts["starting_player_provider_confirmed_seat"] = confirmed
+            result.terminal_facts["starting_player_prompt_answer_recorded"] = all(
+                isinstance(started.get(field_name), str) and bool(started.get(field_name))
+                for field_name in ("starting_player_chooser_id", "starting_player_chosen_id")
+            )
 
         # Construction proof (#441 decision (c)): the provider's own normalized
         # constructed state, read at the first mulligan decision before it is
@@ -1375,9 +1441,13 @@ def drive_commander_game(
                 "ENGINE_REPORTED_PRINCIPAL_SCOPED" if start2_post_counts is not None else None
             )
 
-        # The starting-player channel this run actually used, or none. The
-        # construction proof may compare temporal active/priority facts only on
-        # a verified channel; an unverified one keeps them UNSUPPORTED (#572).
+        # The starting-player channel this run actually used, or none. Only an
+        # engine frame this run answered (ENGINE_FRAME) or an engine start
+        # readback resolved to the declared seat (PROVIDER_CONFIRMED) is a
+        # channel: a declared seat that was never submitted, or a create-time
+        # echo, is not. The construction proof may compare temporal
+        # active/priority facts only on a verified channel; anything else keeps
+        # them UNSUPPORTED (#572).
         if result.terminal_facts.get("starting_player_frame_answered"):
             result.terminal_facts["starting_player_channel"] = STARTING_PLAYER_CHANNEL_ENGINE_FRAME
         elif provider_confirmed_seat is not None:

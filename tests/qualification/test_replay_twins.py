@@ -697,6 +697,106 @@ class FakeForgeBridge:
         }
 
 
+class FakeXmageEchoBridge(FakeForgeBridge):
+    """The XMage generic lane's create/start shape.
+
+    The create response echoes the declared seat; the start response carries the
+    engine's own established starter and the identities of the CR 103.2 prompt
+    the bridge actually answered. Any of those can be removed or mismatched per
+    test (#572 review P2-1/P3-3). One engine priority frame reaches the bounded
+    horizon.
+    """
+
+    def __init__(
+        self,
+        *,
+        echo_seat: int | None,
+        starting_player_id: str | None = None,
+        chooser_id: str | None = None,
+        chosen_id: str | None = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(**kwargs)
+        self.echo_seat = echo_seat
+        self.starting_player_id = starting_player_id
+        self.chooser_id = chooser_id
+        self.chosen_id = chosen_id
+
+    @staticmethod
+    def _legal_actions_payload() -> dict[str, Any]:
+        """The XMage lane's top-level legal-action shape (not the Forge one)."""
+        return {
+            "game_id": "test-record",
+            "engine_game_id": "engine-game",
+            "decision_offset": 1,
+            "decision_id": "d" * 64,
+            "actor_id": "p1",
+            "decision_kind": "PRIORITY",
+            "complete": True,
+            "actions": [
+                {
+                    "action_id": "pass-1",
+                    "action_type": "pass_priority",
+                    "semantic_fingerprint": "fp-xmage-pass-1",
+                    "metadata": {},
+                }
+            ],
+        }
+
+    def request(
+        self,
+        message: str,
+        params: dict[str, Any] | None = None,
+        *,
+        game_id: str | None = None,
+        timeout_s: float = 0.0,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
+        if message == "create_commander_game":
+            created = (params or {}).get("request") or {}
+            payload: dict[str, Any] = {"seed": created.get("seed"), "player_count": 4}
+            if self.echo_seat is not None:
+                payload["starting_player_seat"] = self.echo_seat
+            return {"success": True, "payload": payload}
+        if message == "start_game":
+            started: dict[str, Any] = {"status": "started"}
+            if self.starting_player_id is not None:
+                started["starting_player_id"] = self.starting_player_id
+                if self.chooser_id is not None:
+                    started["starting_player_chooser_id"] = self.chooser_id
+                if self.chosen_id is not None:
+                    started["starting_player_chosen_id"] = self.chosen_id
+            return {"success": True, "payload": started}
+        if message == "get_legal_actions":
+            actor = (params or {}).get("actor_id")
+            if actor != "p1":
+                return {"success": False, "status": "WRONG_ACTOR", "errors": []}
+            return {"success": True, "payload": self._legal_actions_payload()}
+        if message == "get_game_state":
+            observer = str((params or {}).get("observer_player_id") or "")
+            index = {"p1": 0, "p2": 1, "p3": 2, "p4": 3}.get(observer)
+            if index is None:
+                return {"success": False, "status": "unknown_seat", "errors": []}
+            rows = [
+                {
+                    "player_id": f"engine-p{position + 1}",
+                    "seat": position,
+                    "zones": {"hand": [None] * 7, "library_size": 92},
+                }
+                for position in range(4)
+            ]
+            return {
+                "success": True,
+                "payload": {
+                    "observer_player_id": observer,
+                    "observer_seat": index,
+                    "observer_engine_player_id": f"engine-{observer}",
+                    "state": {"players": rows},
+                },
+            }
+        return super().request(message, params, game_id=game_id, timeout_s=timeout_s, **kwargs)
+
+
 def _fake_identity(monkeypatch: pytest.MonkeyPatch) -> None:
     counters = {"pid": 8000}
 
@@ -728,17 +828,18 @@ def _gather(
     max_decisions: int = 20,
     concede_after_decisions: int | None = None,
     scripted_starting_seat: str | None = "p1",
+    candidate: str = "forge",
 ) -> rt.TwinRun:
     return rt.gather_generic_lane_process(
         bridge,
         role=role,
-        candidate="forge",
+        candidate=candidate,
         player_count=4,
         seed=424242,
-        fixture_id="AF09-GENERIC-forge-4P-v1",
+        fixture_id=f"AF09-GENERIC-{candidate}-4P-v1",
         game_id=f"test-{role.lower()}",
         plan_command=("java", "-cp", "bridge", "forge.bridge.BridgeMain"),
-        build_identity={"module": "forge-protocol2-bridge"},
+        build_identity={"module": f"{candidate}-protocol2-bridge"},
         expected_engine_commit="e" * 40,
         lab_source=LAB_SOURCE,
         decision_tape=tape,
@@ -812,6 +913,96 @@ def test_generic_lane_records_the_declared_starting_seat_and_channel(
         "source": "TEST_DECLARED_STARTING_SEAT",
     }
     assert identity["starting_player_channel"] == ("ENGINE_FRAME_FROM_RECORD_DECLARATION")
+
+
+def test_generic_lane_replay_requires_the_executed_seat_identity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """#572 review P3-1 (mutant M5): the tape's ``fixture_scripted_seat`` policy
+    string names the intent; only the executed option's ``source_object_id``
+    proves which seat the engine ran. An empty identity grants no channel."""
+    _fake_identity(monkeypatch)
+    record = _gather(FakeForgeBridge(), role="RECORD", tape=None)
+    assert record.failure is None, record.failure
+    replay_bridge = FakeForgeBridge()
+    for action in replay_bridge.frames[0]["actions"]:
+        action["source_object_id"] = ""
+    replay = _gather(replay_bridge, role="REPLAY", tape=record.decisions)
+    assert replay.failure is None, replay.failure
+    channel = replay.fixture_identity["starting_player_channel"]
+    assert channel is None
+    assert channel not in (
+        rt.STARTING_PLAYER_CHANNEL_ENGINE_FRAME,
+        rt.STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED,
+    )
+
+
+def test_xmage_twin_create_echo_alone_is_never_engine_confirmed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """#572 review P2-1: the echo repeats the request; with no engine readback
+    the channel is the distinct, non-creditable PROVIDER_CREATE_ECHO_ONLY."""
+    _fake_identity(monkeypatch)
+    run = _gather(
+        FakeXmageEchoBridge(echo_seat=1),
+        role="RECORD",
+        tape=None,
+        scripted_starting_seat="p2",
+        candidate="xmage",
+        max_decisions=1,
+    )
+    assert run.failure is None, run.failure
+    identity = run.fixture_identity
+    assert identity["starting_player_provider_acknowledged_seat"] == 1
+    assert identity["starting_player_provider_confirmed_seat"] is None
+    assert identity["starting_player_channel"] == (rt.STARTING_PLAYER_CHANNEL_CREATE_ECHO_ONLY)
+    assert identity["starting_player_channel"] not in (
+        rt.STARTING_PLAYER_CHANNEL_ENGINE_FRAME,
+        rt.STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED,
+    )
+
+
+def test_xmage_twin_readback_and_answered_prompt_confirm_the_declared_seat(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _fake_identity(monkeypatch)
+    run = _gather(
+        FakeXmageEchoBridge(
+            echo_seat=1,
+            starting_player_id="engine-p2",
+            chooser_id="engine-p2",
+            chosen_id="engine-p2",
+        ),
+        role="RECORD",
+        tape=None,
+        scripted_starting_seat="p2",
+        candidate="xmage",
+        max_decisions=1,
+    )
+    assert run.failure is None, run.failure
+    identity = run.fixture_identity
+    assert identity["starting_player_provider_confirmed_seat"] == "p2"
+    assert identity["starting_player_channel"] == (rt.STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED)
+
+
+def test_xmage_twin_readback_without_the_answered_prompt_ids_is_unverified(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """#572 review P3-3: in a 3+ pod the readback alone cannot tell a real
+    CR 103.2 answer from GameImpl.init's first-player fallback."""
+    _fake_identity(monkeypatch)
+    run = _gather(
+        FakeXmageEchoBridge(echo_seat=1, starting_player_id="engine-p2"),
+        role="RECORD",
+        tape=None,
+        scripted_starting_seat="p2",
+        candidate="xmage",
+        max_decisions=1,
+    )
+    assert run.failure is None, run.failure
+    identity = run.fixture_identity
+    assert identity["starting_player_provider_confirmed_seat"] is None
+    assert identity["starting_player_channel"] is None
 
 
 def test_generic_lane_replay_fails_closed_on_missing_fingerprints(

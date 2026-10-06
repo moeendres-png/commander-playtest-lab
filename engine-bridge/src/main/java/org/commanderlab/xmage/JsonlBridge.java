@@ -393,6 +393,24 @@ final class JsonlBridge {
             responsePayload.addProperty("engine_game_id", started.engineGameId());
             responsePayload.addProperty("player_count", started.playerCount());
             responsePayload.addProperty("starting_player_id", started.startingPlayerId());
+            /*
+             * The identities of the CR 103.2 prompt the bridge actually
+             * answered. Absent when no answer was recorded, so the caller can
+             * tell a real answer from GameImpl.init's first-player fallback
+             * (#572).
+             */
+            if (started.startingPlayerChooserId() != null) {
+                responsePayload.addProperty(
+                        "starting_player_chooser_id",
+                        started.startingPlayerChooserId()
+                );
+            }
+            if (started.startingPlayerChosenId() != null) {
+                responsePayload.addProperty(
+                        "starting_player_chosen_id",
+                        started.startingPlayerChosenId()
+                );
+            }
             responsePayload.addProperty("turn_number", started.turnNumber());
             responsePayload.addProperty("paused", started.paused());
             responsePayload.addProperty("external_control", started.externalControl());
