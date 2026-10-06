@@ -894,7 +894,14 @@ def run_all_native_suites(
     receipts: list[dict[str, Any]] = []
     for candidate in candidates:
         for group in NATIVE_SUITE_BINDING[candidate]["classes"]:
+            started = time.monotonic()
             receipts.append(run_native_suite(candidate, group, runner=runner))
+            # Telemetry only (#479 Priority E): per-group wall time, so any
+            # later parallelism experiment starts from measured bottlenecks.
+            print(
+                f"[pb03 native] {candidate}/{group}: {time.monotonic() - started:.1f}s",
+                flush=True,
+            )
     return receipts
 
 
