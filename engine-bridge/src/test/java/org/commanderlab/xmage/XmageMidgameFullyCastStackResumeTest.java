@@ -359,6 +359,9 @@ class XmageMidgameFullyCastStackResumeTest {
         JsonObject response = lane.rejected("create_midgame_game",
                 createRequest("unpaid-resume", record));
         String errors = response.getAsJsonArray("errors").toString();
-        assertTrue(errors.contains("RESUME_STACK_COSTS_UNPAID"), errors);
+        // A declaration the bridge cannot honor never becomes a resume: the
+        // stack object stays refused by the zone placement, fail closed.
+        assertTrue(errors.contains("UNSUPPORTED_ZONE"), errors);
+        assertTrue(errors.contains("obj:negative-syphon"), errors);
     }
 }

@@ -752,9 +752,10 @@ final class XmageNativeStateRestoration {
      * stack object qualifies; the step's {@code source_object} must bind 1:1 to
      * a {@code stack} semantic object and to a {@code stack_state} entry that
      * declares {@code cast_complete true}, {@code costs_paid true}, a
-     * controller equal to the object's, and no targets or modes. A declaration
-     * that does not hold fails closed rather than being silently ignored: the
-     * record asked for a construction mode the bridge cannot honor.</p>
+     * controller equal to the object's, and no targets or modes. Any
+     * declaration that does not hold returns null here, and the requested stack
+     * object is then refused by the zone placement exactly as before; the
+     * bridge never guesses at a partially declared construction.</p>
      */
     static RequestedStackSpell declaredResumeStackSpell(JsonObject record, String fixtureId) {
         String entryMode = record.has("execution_entry_mode")
@@ -783,13 +784,13 @@ final class XmageNativeStateRestoration {
             return null;
         }
         if (!"NATIVE_STATE_LOAD".equals(entryMode)) {
-            throw new RestorationException(
-                    "RESUME_STACK_SPELL_WITHOUT_NATIVE_STATE_LOAD",
-                    fixtureId + " declares " + resumeSource + " under entry mode " + entryMode);
+            // The declaration belongs to another construction route (the causal
+            // pre-stack record is rewritten and holds no stack state); it is
+            // not this route's to honor.
+            return null;
         }
         if (!record.has("stack_state") || !record.get("stack_state").isJsonArray()) {
-            throw new RestorationException(
-                    "RESUME_STACK_STATE_MISSING", fixtureId + " " + resumeSource);
+            return null;
         }
         JsonObject requested = null;
         for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
@@ -801,8 +802,7 @@ final class XmageNativeStateRestoration {
             }
         }
         if (requested == null || !"stack".equals(requested.get("zone").getAsString())) {
-            throw new RestorationException(
-                    "RESUME_STACK_OBJECT_MISSING", fixtureId + " " + resumeSource);
+            return null;
         }
         JsonObject declared = null;
         for (JsonElement element : record.getAsJsonArray("stack_state")) {
@@ -814,34 +814,31 @@ final class XmageNativeStateRestoration {
             }
         }
         if (declared == null) {
-            throw new RestorationException(
-                    "RESUME_STACK_STATE_MISSING", fixtureId + " " + resumeSource);
+            return null;
         }
         if (!declared.has("cast_complete") || declared.get("cast_complete").isJsonNull()
                 || !declared.get("cast_complete").getAsBoolean()) {
-            throw new RestorationException(
-                    "RESUME_STACK_NOT_CAST_COMPLETE", fixtureId + " " + resumeSource);
+            return null;
         }
         if (!declared.has("costs_paid") || declared.get("costs_paid").isJsonNull()
                 || !declared.get("costs_paid").getAsBoolean()) {
-            throw new RestorationException(
-                    "RESUME_STACK_COSTS_UNPAID", fixtureId + " " + resumeSource);
+            return null;
         }
         if (declared.has("targets") && !declared.get("targets").isJsonNull()
                 && !declared.getAsJsonArray("targets").isEmpty()) {
-            throw new RestorationException(
-                    "RESUME_STACK_TARGETS_UNSUPPORTED", fixtureId + " " + resumeSource);
+            // A targeted stack spell needs its declared targets restored; this
+            // route supports only the no-target declaration and the stack
+            // object stays refused by the zone placement below.
+            return null;
         }
         if (declared.has("modes") && !declared.get("modes").isJsonNull()
                 && !declared.getAsJsonArray("modes").isEmpty()) {
-            throw new RestorationException(
-                    "RESUME_STACK_MODES_UNSUPPORTED", fixtureId + " " + resumeSource);
+            return null;
         }
         String controller = requested.get("controller").getAsString();
         if (!declared.has("controller") || declared.get("controller").isJsonNull()
                 || !controller.equals(declared.get("controller").getAsString())) {
-            throw new RestorationException(
-                    "RESUME_STACK_CONTROLLER_CONFLICT", fixtureId + " " + resumeSource);
+            return null;
         }
         return new RequestedStackSpell(
                 resumeSource,
