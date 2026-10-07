@@ -80,7 +80,11 @@ forbidden_shortcuts:
 - parent_class_fallback
 - requested_option_filtering_that_reconstructs_legality
 - implicit_p1_or_seat_0_starting_player
-current_failure: 'None. The review repair at 8c572e79 is committed and validated.
+current_failure: 'None blocking. The Space Bunny cross-executor review found no P0/P1/P2;
+  its three P3s are repaired and the repaired tree is locally green (Java 967/0/0/1;
+  qualification 1806/21). Remaining: bounded confirmation review on the repair head,
+  exact-head CI including PB-03 re-run, then the merge decision. Context: the review
+  repair at 8c572e79 is committed and validated.
   The out-of-scope tooling commit 5f2468fe is dispositioned: the separated tooling
   PR #576 landed on main as 84c17f9d (normal merge; exact head 09a6bf9c; required
   checks quality/security/infrastructure PASS) and main was merged into this branch
@@ -188,6 +192,26 @@ authority_gates:
   do not force-push.
 status: ACTIVE
 validated_gates:
+- 'Cross-executor review gate (Owner-mandated, 2026-10-07): Space Bunny MAX independent
+  bounded read-only review of e6ed1233 (comment 6027900877, Actions run 37550421681)
+  returned NO BLOCKING FINDINGS: no P0/P1/P2; P2-1/P2-2/P3-1/P3-2/P3-3 and R3-C1..C5
+  all SATISFIED by direct code/test inspection; source lock/head/tree/sha256/tooling-absorption
+  independently verified. Three P3 residuals found (Java record-before-accept ordering;
+  stale generic_construction docstring; lane-probe label ambiguity). Note for provenance:
+  the first two /bunny dispatches (runs 37524340585 non-final, 37535805302 final head)
+  did not complete within ~2-3h and were cancelled; the bounded static-first re-dispatch
+  completed in minutes. Space Bunny is an engineering cross-check only, not qualification
+  credit.'
+- 'P3 repairs after the cross-executor review (repairs committed on top of e6ed1233):
+  P3-1 XmageBridgePlayer records the CR 103.2 prompt answer only after the accepted
+  target mutation, so a recorded answer can no longer describe an unaccepted prompt;
+  P3-2 generic_construction docstring no longer describes a create acknowledgement
+  as a channel; P3-3 lane-probe seat source renamed LANE_PROBE_LAB_SELECTED with an
+  explicit no-credit note persisted on the hidden-game probe. Validation on the repaired
+  tree: engine-bridge mvn -o -B -ntp test 967 run / 0 failures / 0 errors / 1 skipped;
+  full tests/qualification 1806 passed / 21 skipped (after moving the untracked local
+  egg-info aside; it is the known environmental trigger); ruff check + format clean
+  on the changed files.'
 - 'Target drift adjudicated (2026-10-06 21:3xZ): origin/main advanced 84c17f9d ->
   5a062a5b (PR #575 tooling + PR #577 Space Bunny runtime activation evidence); zero
   file overlap with this branch; resolved by normal merge as 982b03b0 (no rebase,
@@ -282,9 +306,9 @@ invalidated_gates:
 - 'The f62ed68a PB-03 epoch artifact (9bd13f04) is provenance, not credit for the
   merged head.'
 - 'CI checks on 88ed0b91 and the PB-03 packet e00ab9f0/ba18e007 are superseded by
-  the 5a062a5b base advance; the /bunny run 37524340585 targets 88ed0b91 and is
-  therefore not the mandatory review of the final head (a fresh /bunny review is
-  dispatched on 982b03b0).'
+  the 5a062a5b base advance. The e6ed1233 CI/PB-03 (packet af1eeebe/8e6288c4) and
+  the bounded /bunny review of e6ed1233 are superseded by the P3 repair push; all
+  exact-head gates must run again on the repair head.'
 do_not_rerun:
 - 'engine-bridge full mvn test at 8c572e79 (967 run / 0 fail / 0 err / 1 skip): covers
   the P3-3 Java bytes; the b6029d6f merge changes no engine-bridge file. (Supersedes
@@ -319,6 +343,10 @@ files_modified:
 - engine-bridge/src/main/java/org/commanderlab/xmage/JsonlBridge.java
 - engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java
 - engine-bridge/src/main/java/org/commanderlab/xmage/XmageMidgameJsonlBridge.java
+- engine-bridge/src/main/java/org/commanderlab/xmage/XmageBridgePlayer.java (P3-1 repair)
+- engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java (P3-3 repair)
+- engine-bridge/src/main/java/org/commanderlab/xmage/XmageStartingPlayerPrompt.java (new, P3-3)
+- tests/qualification/_protocol2_starting_frames.py (new)
 - engine-bridge/src/test/java/org/commanderlab/xmage/JsonlBridgeTest.java
 - engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameBridgeContractTest.java
 - engine-bridge/src/test/java/org/commanderlab/xmage/XmageMidgameLaneTest.java
@@ -381,9 +409,10 @@ remaining_scope:
 - 'R5a (DeepSeek half done): fresh-context adversarial review of 0d1c3908 by foundry-reviewer
   = NO BLOCKING FINDINGS (P3 notes only).'
 - 'R5a2 (mandatory cross-executor gate): Space Bunny MAX independent read-only review
-  of the exact final head via the /bunny lane; P1/P2 repairs required if evidenced.
-  Status: first dispatch (run 37524340585) reviewed 88ed0b91 and is non-final after
-  the drift merge; a fresh dispatch targets 982b03b0.'
+  of the exact final head via the /bunny lane. Status: bounded review of e6ed1233
+  returned NO BLOCKING FINDINGS; its three P3s are repaired, so a confirmation review
+  must run against the repair head (gate rule: semantics-relevant repairs require
+  a new review on the new SHA/TREE).'
 - 'R5b (done at e94647c9): LOCAL_OBSERVED re-capture on the merged head; all declared
   rows PASS with the P3-3 prompt-answer identity recorded.'
 - 'R5c: exact-head CI on the final head including PB-03 runtime re-run and sealed
@@ -408,15 +437,13 @@ next_action: 'The merged head carries the validated starting-player repair, the
   real-engine evidence. Next: fresh-context adversarial review of the final head,
   exact-head CI including PB-03, state + GitHub handoff, then the protected merge
   decision. Contract 1.0.22 stays a separate successor workstream.'
-exact_next_action: '1) Commit+push this state update on top of the drift merge 982b03b0
-  and verify remote HEAD. 2) Dispatch the mandatory cross-executor Space Bunny MAX
-  review via the /bunny comment lane on PR #574 against the exact 982b03b0 SHA/TREE,
-  read-only, routed through the read-only bunny-auditor; it must not trust this state
-  or prior prose. 3) Consume the Space Bunny findings; repair every evidenced P1/P2
-  and re-run the review against the new SHA/TREE if semantics change. 4) Consume exact-head
-  CI incl. the PB-03 runtime re-run on 982b03b0. 5) Update state + GitHub handoff,
-  then merge #574 only if every gate is satisfied (normal merge only, no force, no
-  rewrite).'
+exact_next_action: '1) Commit+push the P3 repair batch + this state update and verify
+  remote HEAD. 2) Dispatch the bounded Space Bunny MAX confirmation review via the
+  /bunny lane against the repair head SHA/TREE (static-first, read-only; e6ed1233
+  review already returned NO BLOCKING FINDINGS). 3) Consume exact-head CI incl. the
+  PB-03 runtime re-run and sealed epoch on the repair head. 4) Repair only evidenced
+  P1/P2 if the confirmation review finds any; otherwise update state + GitHub handoff.
+  5) Merge #574 only if every gate is satisfied (normal merge only, no force, no rewrite).'
 executor_handoff_from: opencode-go/deepseek-v4.1-flash
 executor_handoff_reason: Owner instruction to pause implementation and convert the
   workstream into a durable GitHub handoff for Claude; implementation was mid-repair

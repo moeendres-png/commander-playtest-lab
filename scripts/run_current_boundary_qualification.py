@@ -115,12 +115,14 @@ RECEIPT_DIR = OUT_DIR / "receipts"
 
 # Synthetic lane probes (AF01 decision-time invariants, AF05 hidden-information
 # scoping) have no fixture record. Their lane protocol declares the starting
-# seat explicitly and this declaration is persisted with the probe; it is never
-# a default, never inferred, and these games earn no starting-player credit.
-# A run without an explicit declaration fails closed on the engine's frame
-# (#572).
+# seat explicitly for probe gameplay only and this declaration is persisted
+# with the probe; it is never a default, never inferred, and these games earn no
+# starting-player or construction credit. The source label marks it as a Lab
+# selection so it can never be mistaken for a record declaration (#572 review
+# P3-3). A run without an explicit declaration fails closed on the engine's
+# frame (#572).
 LANE_PROBE_STARTING_SEAT = "p1"
-LANE_PROBE_STARTING_SEAT_SOURCE = "LANE_PROBE_DECLARATION"
+LANE_PROBE_STARTING_SEAT_SOURCE = "LANE_PROBE_LAB_SELECTED"
 
 
 class RunnerGitError(SystemExit):
@@ -1475,6 +1477,15 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         probes["hidden_game_seed_binding"] = hidden_game.seed_binding
         probes["hidden_observations"] = observations
         probes["hidden_scoping"] = scoping
+        # The starter is a Lab selection for probe gameplay only. Its
+        # starting-player channel label is Lab-answered, never record-derived,
+        # and carries no starting-player or construction credit (#572 review
+        # P3-3).
+        probes["hidden_game_starting_player_credit"] = (
+            "NONE: starter is Lab-selected for probe gameplay only "
+            "(LANE_PROBE_LAB_SELECTED); no starting-player or construction credit "
+            "is derived from this probe"
+        )
         if not scoping["credible_as_principal_scoped_evidence"]:
             # Do not write the observations as hidden-information evidence.
             # The unscoped responses are still recorded, labelled as not scoped.

@@ -33,8 +33,11 @@ from the run instead, stated in its own check: ``temporal_state.active_player`` 
 starting player takes the first turn).
 
 That check is credited only when the run reports a verified starting-player
-channel (the engine published the choice frame and accepted the record-declared
-seat, or the provider acknowledged the record-declared create-time seat). A run
+channel (the engine published the choice frame and the run actually answered it
+with the record-declared seat, or the provider's own start readback resolved,
+through the engine seat roster, to the declared seat together with the identities
+of the CR 103.2 prompt the bridge answered). A create-time acknowledgement or
+request echo is never a channel. A run
 whose starter came from a Lab or bridge default, or whose declaration the engine
 never acknowledged, cannot establish temporal equality: both checks are recorded
 ``UNSUPPORTED`` with the exact channel (#572).

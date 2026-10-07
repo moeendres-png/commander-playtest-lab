@@ -235,22 +235,23 @@ final class XmageBridgePlayer extends PlayerImpl {
                         )
                         && !target.contains(getId())) {
 
+                    target.add(
+                            player.getId(),
+                            game
+                    );
                     if (startingPlayerInitChoice && startingPlayerPrompt != null) {
                         /*
                          * The bridge answers the engine's own prompt with the
-                         * choosing player itself. Recording before the target
-                         * mutation keeps a double-answer failure side-effect
-                         * free (#572).
+                         * choosing player itself. Recording only after the
+                         * accepted target mutation means a recorded answer can
+                         * never describe a prompt the engine did not accept
+                         * (#572 review P3-1).
                          */
                         startingPlayerPrompt.recordAnswer(
                                 getId().toString(),
                                 getId().toString()
                         );
                     }
-                    target.add(
-                            player.getId(),
-                            game
-                    );
 
                     return true;
                 }
