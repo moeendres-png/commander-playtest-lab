@@ -54,12 +54,14 @@ def test_start2_verdict_requires_the_observation_not_just_the_fixture() -> None:
     start2 = start2[: start2.index("\ndef non_executed_row(")]
     for marker in (
         "if not zone_counts:",
-        "if observed_starting_actor is None:",
+        "if starting_seat is None:",
         "if observed_draw_events:",
     ):
         assert marker in start2, marker
+    # The first tape actor is recorded, never the starting-player evidence.
+    assert "if observed_starting_actor is None:" not in start2
     # Each guard must produce an UNKNOWN or FAIL, never a PASS.
-    for marker in ("if not zone_counts:", "if observed_starting_actor is None:"):
+    for marker in ("if not zone_counts:", "if starting_seat is None:"):
         tail = start2.split(marker, 1)[1]
         match = re.search(r'return RowResult\(\s*\w+,\s*\w+,\s*"(\w+)"', tail)
         assert match, f"no RowResult verdict after {marker}"
@@ -146,6 +148,7 @@ def test_start2_guard_observations_are_persisted_for_audit() -> None:
         'terminal_facts["observed_decision_kinds"]',
         'terminal_facts["observed_draw_semantic_events"]',
         'terminal_facts["observed_starting_actor"]',
+        'terminal_facts["observed_starting_seat"]',
     ):
         assert marker in start2, marker
 
@@ -218,9 +221,55 @@ def test_the_acting_principal_comes_from_the_lab_seat_not_the_engine_actor() -> 
 
 
 def _record() -> dict:
+    """A natural-start START-2 record (seats, decks, seed, scripted starter and
+    keeps) whose construction is not required, so these tests isolate the
+    observed CR 103.8a verdict."""
+    seats = ("P1", "P2")
     return {
         "fixture_id": "WS05-CMD-START-2",
         "expected_events": {"required_events": [], "forbidden_events": []},
+        "players": [{"player_id": seat} for seat in seats],
+        "commander_state": {
+            "commanders": [
+                {"commander_id": f"cmd:{seat}-A", "card_identity": "Rograkh, Son of Rohgahh"}
+                for seat in seats
+            ]
+        },
+        "deck_state": [
+            {
+                "player_id": seat,
+                "commander_ids": [f"cmd:{seat}-A"],
+                "library_template": {"card_identity": "Mountain", "count": 99},
+            }
+            for seat in seats
+        ],
+        "rules_randomness": {"rules_seed": 424242},
+        "temporal_state": {"active_player": "P1", "priority_player": "P1"},
+        # The starter and the keeps are the record's own decisions.
+        "decision_script": [
+            _scripted("P1", "starting_player", "seat", "P1"),
+            *(
+                _scripted(seat, "mulligan", "semantic_action", "keep_opening_hand")
+                for seat in seats
+            ),
+        ],
+        "pregame_decision_plan": [
+            {"decision": "KEEP", "player_id": seat, "round": 1} for seat in seats
+        ],
+    }
+
+
+def _scripted(actor: str, family: str, selector: str, value: str) -> dict:
+    return {
+        "actor": actor,
+        "decision_family": family,
+        "selection": {
+            "matches_only_provider_offered_legal_options": True,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
+            "selector_kind": selector,
+            "semantic_value": value,
+        },
     }
 
 
@@ -259,6 +308,11 @@ def _result(
         }
     result.terminal_facts["draw_step_decision_frames"] = []
     result.terminal_facts["priority_reached"] = True
+    result.terminal_facts["first_priority_seat"] = "p1"
+    # The record's starter verifiably executed (#574): the engine's own start
+    # readback resolved to the declared seat. A create-request echo is never a
+    # channel and would leave this unverified.
+    result.terminal_facts["starting_player_channel"] = "PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT"
     result.decision_tape = []
     return result
 

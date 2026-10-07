@@ -77,6 +77,57 @@ def write(name: str, payload: Any) -> None:
     print("wrote", name)
 
 
+CURRENT_AUTHORITY_PATH = REPO / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
+CARRIED_VERDICT_NOT_TRANSFERRED = "CARRIED_FORWARD_HISTORICAL_VERDICT_NOT_TRANSFERRED"
+
+
+def refuse_changed_fixture_carried_passes(
+    rows: dict[str, dict[str, Any]], full107_authority: dict[str, Any]
+) -> list[str]:
+    """A carried-forward PASS on a fixture the current contract changed is no PASS.
+
+    A carried column is matched to the current denominator by fixture id only,
+    and a historical row names no requested-state or obligation digest, so it
+    cannot show it ran the current record. When the current authority states
+    that a fixture's evidence needs requalification, its historical PASS does
+    not transfer (changed fixture bytes are a new evidence identity): the row
+    becomes UNKNOWN and keeps the carried verdict as history. A fixture in the
+    authority's ``changed_fixture_ids`` is refused whatever its survival entry
+    says, and every changed id must have a survival entry, or nothing is
+    assembled. Returns the refused fixture ids.
+    """
+    changed = set(full107_authority.get("changed_fixture_ids") or ())
+    evidence_survival = full107_authority.get("evidence_survival") or {}
+    missing = sorted(changed - set(evidence_survival))
+    if missing:
+        raise RuntimeError(
+            f"the current authority lists changed fixtures with no evidence_survival: {missing}"
+        )
+    refused: list[str] = []
+    for fixture, row in rows.items():
+        survival = str(evidence_survival.get(fixture) or "")
+        # #573's historical demotion runs first and keeps the carried verdict in
+        # historical_exit_state; a row that has not been demoted yet still
+        # carries it in exit_state. Both shapes name a carried PASS.
+        carried_state = row.get("historical_exit_state", row.get("exit_state"))
+        if carried_state != "PASS" or not (
+            fixture in changed or survival.startswith("REQUALIFICATION_REQUIRED")
+        ):
+            continue
+        row["carried_exit_state"] = "PASS"
+        row["carried_reason"] = row.get("historical_reason", row.get("reason"))
+        row["exit_state"] = "UNKNOWN"
+        row["failure_reason"] = (
+            "the carried-forward PASS ran a predecessor of this fixture; the current "
+            f"contract changed it ({survival or 'changed_fixture_ids'}), so the historical "
+            "verdict does not transfer"
+        )
+        row["reason"] = row["failure_reason"]
+        row["evidence_class"] = CARRIED_VERDICT_NOT_TRANSFERRED
+        refused.append(fixture)
+    return refused
+
+
 def live_runner_digest() -> str:
     """Digest of the Lab-side qualification code executing this assembly.
 
@@ -843,7 +894,17 @@ def assemble() -> None:
         results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
         rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
         carried_forward = bool(results.get("carried_forward"))
+        # #573 first: every carried-forward PASS is historical, never current
+        # credit, and its current receipt fields are stripped.
         historical_counts = _demote_carried_rows(rows) if carried_forward else None
+        if carried_forward:
+            # Then this branch's changed-fixture refusal, which #573 does not
+            # replace: it names the fixtures the current contract changed, gives
+            # them their own evidence class, and fails closed when the authority
+            # lists a changed fixture with no evidence_survival entry.
+            results["carried_forward_refused_changed_fixture_passes"] = (
+                refuse_changed_fixture_carried_passes(rows, load(CURRENT_AUTHORITY_PATH)["full107"])
+            )
         promoted = 0
         demoted_without_receipt = 0
         receipt_backed_existing_pass = 0

@@ -29,8 +29,7 @@
     "obligation_digest",
     "supersedes_record_digest"
    ],
-   "predecessor_requested_state_digest": "2a40e275af77f173c62bb63fbd059cd17197ddffc2d9b338258b836ca1f83312",
-   "runtime_verdicts": {
+   "historical_runtime_verdicts": {
     "forge": {
      "exit_state": "PASS",
      "reason": "CR 103.8a satisfied on the current boundary: engine-observed turn-1 upkeep and precombat-main principal views have identical hand/library counts, and no draw-step checkpoint, draw event or in-step priority was exposed between them"
@@ -40,7 +39,16 @@
      "reason": "CR 103.8a satisfied on the current boundary: engine-observed turn-1 upkeep and precombat-main principal views have identical hand/library counts, and no draw-step checkpoint, draw event or in-step priority was exposed between them"
     }
    },
+   "historical_runtime_verdicts_status": "HISTORICAL_PROVENANCE_ONLY: these verdicts ran the 1.0.7 START-2 record; contract 1.0.22 supersedes it (natural-start record, #441 comment 6007651998), the changed fixture bytes are a new evidence identity and no historical PASS transfers",
+   "predecessor_requested_state_digest": "2a40e275af77f173c62bb63fbd059cd17197ddffc2d9b338258b836ca1f83312",
    "successor_requested_state_digest": "bc01a714cbaa035d2f7954d4fd2dcabb63c391160f78774749ab50ab63fa4342",
+   "superseded_by": {
+    "contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json",
+    "correction_class": "NATURAL_START_SCENARIO_ERRATUM",
+    "successor_requested_state_digest": "32ea4e9c6b8e9fa07561d076585dffdf3b92daf0f08f6fb85f87ab5709f36eac",
+    "evidence_survival": "REQUALIFICATION_REQUIRED",
+    "current_runtime_credit": "NONE_UNTIL_PB03_AND_A_SEALED_EPOCH"
+   },
    "supersedes_record_digest": "3e1cb30c55343d782bc6c3ee6931b13ede7aa092c76f7bef508cf9d2a71fbcdc"
   },
   {

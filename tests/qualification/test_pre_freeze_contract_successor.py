@@ -13,12 +13,15 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_21.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_21.json"
+)
+V121_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
+V120_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_20.json"
 )
-V120_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
 V119_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_19.json"
 )
@@ -197,7 +200,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_21_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_22_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -257,7 +260,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["evidence_survival"]["WS05-CMD-START-2"]
-        == "REQUALIFICATION_REQUIRED_SEMANTIC_CHANGE"
+        == "REQUALIFICATION_REQUIRED_NATURAL_START_SCENARIO_ERRATUM"
     )
     assert (
         authority["full107"]["evidence_survival"]["MICRO_COSTS"]
@@ -265,7 +268,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_21.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -300,21 +303,30 @@ def test_start2_successor_matches_cr1038a_shape_and_new_digest() -> None:
 
     resolver = _resolver()
     record = resolver.effective_record("WS05-CMD-START-2")
+    # 1.0.22 (#441 comment 6007651998): a natural game start read at the first
+    # mulligan decision, P1 the starting player holding the first priority.
+    assert record["execution_entry_mode"] == "NATURAL_GAME_START"
     assert record["temporal_state"] == {
-        "turn_number": 1,
-        "phase": "precombat_main",
-        "step": "main",
+        "turn_number": 0,
+        "phase": "pregame",
+        "step": "mulligan",
         "active_player": "P1",
         "priority_player": "P1",
         "extra_turn_queue": [],
     }
+    assert "starting_player:P1" in record["expected_events"]["required_events"]
     assert "first_turn_draw_step_skipped:true" in record["expected_events"]["required_events"]
     assert "draw_step_started:P1:turn1" in record["expected_events"]["forbidden_events"]
     assert "draw_step_draw:P1:turn1" in record["expected_events"]["forbidden_events"]
     assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
     assert (
         resolver.requested_state_digest(record)
-        == "bc01a714cbaa035d2f7954d4fd2dcabb63c391160f78774749ab50ab63fa4342"
+        == "32ea4e9c6b8e9fa07561d076585dffdf3b92daf0f08f6fb85f87ab5709f36eac"
+    )
+    # The obligation is the CR 103.8a one the 1.0.6 successor stated.
+    assert (
+        record["obligation_digest"]
+        == "bda093c040b17cf9e3447fcea28bda7f62289f14c8eb0ed1d159e0accdb6e325"
     )
     assert "RSP" not in record["knowledge_state"]["channel_policy"]
     assert record["knowledge_state"]["channel_policy"].startswith(
@@ -329,14 +341,18 @@ def test_start2_successor_matches_cr1038a_shape_and_new_digest() -> None:
 
 
 def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None:
-    """Historical overlays are provenance; the new contract supersedes them."""
+    """Historical overlays are provenance; the new contract supersedes them.
 
-    contract = _json(SUCCESSOR_PATH)
-    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    This is the 1.0.21 step over 1.0.20 (kept as history); the 1.0.22 step is
+    test_start2_mull_errata_supersede_their_overlays_in_place.
+    """
+
+    contract = _json(V121_CONTRACT_PATH)
+    predecessor = _json(V120_CONTRACT_PATH)
     assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_20.json")
     assert (
         contract["predecessor"]["sha256"]
-        == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
+        == hashlib.sha256(V120_CONTRACT_PATH.read_bytes()).hexdigest()
     )
     # Every predecessor overlay is carried over unchanged, in order, digests
     # included, except the rows whose lossless-library overlay now travels
@@ -402,7 +418,7 @@ def test_the_predecessor_successor_contract_is_preserved_byte_for_byte() -> None
         assert (
             new["predecessor_requested_state_digest"] == old["predecessor_requested_state_digest"]
         )
-    # The CR 103.8a patch still equals the 1.0.6 original.
+    # In 1.0.21 the CR 103.8a patch still equals the 1.0.6 original.
     start2 = next(
         patch
         for patch in contract["record_successors"]
@@ -606,7 +622,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.21-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.22-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -618,9 +634,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.21-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.22-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.21-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.22-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -2112,9 +2128,12 @@ def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
     """1.0.21 (#441, Owner-delegated contract authority, decided by CR text on
     #441 comment 5984201192): eight records get one erratum each and
     RNG_RULES_TAPE's 1.0.19 overlay is superseded in place and extended. No
-    obligation key changes; every changed row requalifies."""
-    contract = _json(SUCCESSOR_PATH)
-    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    obligation key changes; every changed row requalifies. (1.0.22 supersedes
+    the MULL-2/4 overlays again, adding only their Rules seed and channels, so
+    their current digest is the 1.0.22 one.)"""
+    contract = _json(V121_CONTRACT_PATH)
+    predecessor = _json(V120_CONTRACT_PATH)
+    current = {p["fixture_id"]: p for p in _json(SUCCESSOR_PATH)["record_successors"]}
     resolver = _resolver()
     base = {
         record["fixture_id"]: record
@@ -2135,7 +2154,10 @@ def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
         record = effective[fixture_id]
         assert patch["evidence_survival"] == "REQUALIFICATION_REQUIRED"
         assert record["obligation_digest"] == old["obligation_digest"], fixture_id
-        assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
+        assert (
+            record["requested_state_digest"]
+            == current[fixture_id]["successor_requested_state_digest"]
+        )
         assert record["requested_state_digest"] != old["requested_state_digest"]
         for step in patch["append_native_procedure"]:
             assert step["operation"] == "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
@@ -2207,8 +2229,9 @@ def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
         fixture_id: [s["decision_family"] for s in effective[fixture_id]["decision_script"]]
         for fixture_id in ("WS05-CMD-MULL-2", "WS05-CMD-MULL-4")
     }
-    assert families["WS05-CMD-MULL-2"] == ["mulligan"] * 3 + ["london_bottom"]
-    assert families["WS05-CMD-MULL-4"] == ["mulligan"] * 5
+    # (1.0.22 scripts the starter ahead of the 1.0.21 pregame script.)
+    assert families["WS05-CMD-MULL-2"] == ["starting_player"] + ["mulligan"] * 3 + ["london_bottom"]
+    assert families["WS05-CMD-MULL-4"] == ["starting_player"] + ["mulligan"] * 5
     # RNG_RULES_TAPE: a card-caused shuffle, and the 1.0.19 deck is kept; the
     # superseded "no Rules cause" instruction is no longer active procedure.
     assert objects("RNG_RULES_TAPE")["obj:replay-warp"]["card_identity"] == "Chaos Warp"
@@ -2265,3 +2288,180 @@ def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
     # MICRO_LAYERS: a creature with printed abilities and P/T discriminates the layers.
     assert objects("MICRO_LAYERS")["obj:p2-angel"]["card_identity"] == "Serra Angel"
     assert "obj:p2-bears" not in objects("MICRO_LAYERS")
+
+
+START2_MULL_ERRATA_DIGESTS = {
+    "WS05-CMD-START-2": "32ea4e9c6b8e9fa07561d076585dffdf3b92daf0f08f6fb85f87ab5709f36eac",
+    "WS05-CMD-MULL-2": "87b61e4f3e8f2997fda292ed778eea1b6a23372653ea03cb42fdba7f2b4f2c0e",
+    "WS05-CMD-MULL-4": "89d20bb6dbc4464fcc767752a681213db594cb8189f6ba09bbfd6883ffc784e3",
+}
+
+
+def _overlay(old: dict, patch: dict) -> dict:
+    """The record a successor patch yields on its historical base record."""
+    record = json.loads(json.dumps(old))
+    for key, value in patch["replace"].items():
+        record[key] = json.loads(json.dumps(value))
+    record["knowledge_state"]["channel_policy"] = patch["knowledge_state_channel_policy"]
+    record.setdefault("native_procedure", []).extend(patch["append_native_procedure"])
+    return record
+
+
+def test_start2_mull_errata_supersede_their_overlays_in_place() -> None:
+    """1.0.22 (#441 comment 6007651998): START-2 becomes a natural-start record and
+    MULL-2/4 state their Rules seed and per-seat shuffle channels. Each supersedes
+    its 1.0.21 overlay in place and keeps it as lineage; every other overlay is
+    carried byte for byte, no obligation key changes and every row requalifies."""
+    contract = _json(SUCCESSOR_PATH)
+    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    resolver = _resolver()
+    assert contract["contract_id"] == "commander-lab.full107/1.0.22-successor"
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_21.json")
+    assert (
+        contract["predecessor"]["sha256"]
+        == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
+    )
+    assert [p["fixture_id"] for p in contract["record_successors"]] == [
+        p["fixture_id"] for p in predecessor["record_successors"]
+    ]
+    changed = set(START2_MULL_ERRATA_DIGESTS)
+    for new, old in zip(
+        contract["record_successors"], predecessor["record_successors"], strict=True
+    ):
+        if new["fixture_id"] not in changed:
+            assert new == old, new["fixture_id"]
+    base = {
+        record["fixture_id"]: record
+        for record in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }
+    prior = {p["fixture_id"]: p for p in predecessor["record_successors"]}
+    patches = {p["fixture_id"]: p for p in contract["record_successors"]}
+    authority = _json(AUTHORITY_PATH)["full107"]
+    effective = {
+        record["fixture_id"]: record
+        for record in resolver.load_effective_materialization()["records"]
+    }
+    for fixture_id, digest in START2_MULL_ERRATA_DIGESTS.items():
+        patch, before = patches[fixture_id], prior[fixture_id]
+        record = effective[fixture_id]
+        previous = _overlay(base[fixture_id], before)
+        assert patch["evidence_survival"] == "REQUALIFICATION_REQUIRED"
+        assert authority["evidence_survival"][fixture_id] == (
+            "REQUALIFICATION_REQUIRED_" + patch["correction_class"]
+        )
+        assert patch["successor_requested_state_digest"] == digest
+        assert record["requested_state_digest"] == digest == resolver.requested_state_digest(record)
+        assert digest != before["successor_requested_state_digest"]
+        # The predecessor lineage is the historical base record, as for every overlay.
+        assert (
+            patch["predecessor_requested_state_digest"]
+            == base[fixture_id]["requested_state_digest"]
+        )
+        # The superseded 1.0.21 overlay is kept as lineage, digest-bound.
+        lineage = patch["superseded_successor_patch"]
+        assert lineage["contract"] == "commander-lab.full107/1.0.21-successor"
+        assert lineage["correction_class"] == before["correction_class"]
+        assert lineage["append_native_procedure"] == before["append_native_procedure"]
+        assert (
+            lineage["successor_requested_state_digest"]
+            == before["successor_requested_state_digest"]
+        )
+        assert (
+            lineage["patch_sha256"]
+            == hashlib.sha256(resolver.canonical_json(before).encode("utf-8")).hexdigest()
+        )
+        # Its replace is kept and extended; the obligation is the 1.0.21 one.
+        assert set(before["replace"]) <= set(patch["replace"]), fixture_id
+        assert record["obligation_digest"] == resolver.obligation_digest(previous)
+        assert record["expected_events"] == previous["expected_events"]
+        assert record["terminal_postconditions"] == previous["terminal_postconditions"]
+        erratum = patch["append_native_procedure"][-1]
+        assert erratum["operation"] == "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT"
+        assert erratum["details"]["authority"].startswith("#441 comment 6007651998")
+        assert erratum["details"]["obligation_changed"] is False
+        assert erratum["details"]["provider_semantics_used"] is False
+
+    # START-2: the natural-start record of the ruling.
+    start2 = effective["WS05-CMD-START-2"]
+    assert start2["execution_entry_mode"] == "NATURAL_GAME_START"
+    assert start2["deck_state"] == [
+        {
+            "commander_ids": [f"cmd:{seat}-A"],
+            "library_template": {"card_identity": "Mountain", "count": 99},
+            "opening_hand_size": 7,
+            "player_id": seat,
+            "shuffle_channel": f"library_shuffle:{seat}",
+        }
+        for seat in ("P1", "P2")
+    ]
+    assert [(o["semantic_id"], o["zone"]) for o in start2["semantic_objects"]] == [
+        ("obj:P1-commander", "command"),
+        ("obj:P2-commander", "command"),
+    ]
+    assert all(o["card_identity"] != "Grizzly Bears" for o in start2["semantic_objects"])
+    assert start2["rules_randomness"] == {
+        "channels": ["library_shuffle:P1", "library_shuffle:P2"],
+        "pilot_randomness_prohibited": True,
+        "predetermined_semantic_draws": [],
+        "rules_seed": 424242,
+    }
+    assert [step["operation"] for step in start2["native_procedure"]] == [
+        "CREATE_COMMANDER_GAME",
+        "NATIVE_SEEDED_INITIAL_SHUFFLE",
+        "NATIVE_OPENING_HAND_DRAW",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_MULLIGAN_PROMPT",
+        "NATIVE_ADVANCE_THROUGH_FIRST_BEGINNING_AND_VERIFY_DRAW_STEP_SKIPPED",
+        "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
+    ]
+    # The Lab never chooses for a player: the starter and both keeps are scripted.
+    assert [
+        (step["actor"], step["decision_family"], step["selection"]["semantic_value"])
+        for step in start2["decision_script"]
+    ] == [
+        ("P1", "starting_player", "P1"),
+        ("P1", "mulligan", "keep_opening_hand"),
+        ("P2", "mulligan", "keep_opening_hand"),
+    ]
+    # The shared declaration contract (#574, starting_player.py): a scripted
+    # starting_player step declares its seat with selector_kind "seat"; a
+    # "semantic_player" selector is no declaration and would leave the record
+    # unstartable. The obligation keys and requested-state digest do not read
+    # the decision script, so they are unchanged (#441 comment 6007651998).
+    assert start2["decision_script"][0]["selection"]["selector_kind"] == "seat"
+    assert start2["pregame_decision_plan"] == [
+        {"decision": "KEEP", "player_id": seat, "round": 1} for seat in ("P1", "P2")
+    ]
+    # The 1.0.6 skip-proof step stays active, byte for byte.
+    skip_proof = _json(V106_CONTRACT_PATH)["record_successors"][0]["append_native_procedure"][0]
+    assert start2["native_procedure"][5] == skip_proof
+    invalidity = patches["WS05-CMD-START-2"]["predecessor_invalidity"]
+    assert "construct-then-advance" in invalidity["reason"]
+    assert invalidity["predecessor_values"]["execution_entry_mode"] == "NATIVE_STATE_LOAD"
+
+    # MULL-2/4: the PILOT_MULLIGAN rules-randomness shape, one channel per seat.
+    mulligan = effective["PILOT_MULLIGAN"]["rules_randomness"]
+    for fixture_id, seats in (("WS05-CMD-MULL-2", 2), ("WS05-CMD-MULL-4", 4)):
+        record = effective[fixture_id]
+        assert len(record["players"]) == seats
+        assert record["rules_randomness"] == {
+            **mulligan,
+            "channels": [f"library_shuffle:P{i}" for i in range(1, seats + 1)],
+        }
+        assert "seed_binding" not in record["rules_randomness"]
+        # The Rules randomness changed and the starter is scripted ahead of the
+        # 1.0.21 script, which is kept entry for entry with the decks.
+        before = prior[fixture_id]
+        starter, *script = record["decision_script"]
+        assert (starter["actor"], starter["decision_family"]) == ("P1", "starting_player")
+        assert starter["selection"]["semantic_value"] == "P1"
+        assert patches[fixture_id]["replace"] == {
+            **before["replace"],
+            "rules_randomness": record["rules_randomness"],
+            "decision_script": [starter, *before["replace"]["decision_script"]],
+        }
+        assert script == before["replace"]["decision_script"]
+        active = patches[fixture_id]["append_native_procedure"]
+        assert active[: len(before["append_native_procedure"])] == before["append_native_procedure"]

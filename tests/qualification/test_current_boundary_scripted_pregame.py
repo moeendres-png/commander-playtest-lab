@@ -95,6 +95,12 @@ class _FakeProcess:
             return {"success": True, "payload": {"deck_handle": {"handle_id": f"d{self.imports}"}}}
         if message_type == "create_commander_game":
             created: dict[str, Any] = {"player_count": 4}
+            request = payload.get("request") or {}
+            if "starting_player_seat" in request:
+                # An honest bridge echoes the seat it applied. The echo is an
+                # acknowledgement only and never a starting-player channel
+                # (#574): the verified channel is the engine's own readback.
+                created["starting_player_seat"] = request["starting_player_seat"]
             if self.seed_echo is not None:
                 created["rules_seed"] = self.seed_echo
             if self.roster_at_create:
