@@ -95,9 +95,9 @@ Rules-randomness errata); the matrix is regenerated from the effective contract 
 
 | Class | Rows (of 70) |
 |---|---|
-| `LAB_EXECUTION_GAP` | 38 |
+| `LAB_EXECUTION_GAP` | 37 |
 | `PROVIDER_ADAPTER_GAP` | 19 |
-| `SCENARIO_LANE_EXECUTABLE` | 12 (six already PASS in the baseline epoch, and the six causal commander zone rows) |
+| `SCENARIO_LANE_EXECUTABLE` | 13 (six already PASS in the baseline epoch, the six causal commander zone rows, and WS05-MP-ELIM-STACK-3: the victim's own stack, then the declared elimination) |
 | `CONTRACT_AUTHORITY_GAP` | 1 (WS05-CMD-START-3: unscripted starting player) |
 
 The matrix describes the scenario lane only. WS05-CMD-START-2 passed in the baseline on
@@ -216,7 +216,7 @@ every mechanism of every row; the table shows the first one.
 | WS05-MP-ELIM-CONTROL-3 | PROVIDER_ADAPTER_GAP | checkpoint_readback: `owner_controller_divergence` | — |
 | WS05-MP-ELIM-OWNED-3 (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
 | WS05-MP-ELIM-PRIO-3 (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
-| WS05-MP-ELIM-STACK-3 | LAB_EXECUTION_GAP | construction: `stack_state` | — |
+| WS05-MP-ELIM-STACK-3 | SCENARIO_LANE_EXECUTABLE | — | — |
 | WS05-MP-ELIM-TURN-3 | LAB_EXECUTION_GAP | construction: `temporal_state.active_player` | — |
 | WS05-MP-PRIO-3 | LAB_EXECUTION_GAP | construction: `stack_state` | — |
 | WS05-MP-PRIO-5 | LAB_EXECUTION_GAP | construction: `stack_state` | — |

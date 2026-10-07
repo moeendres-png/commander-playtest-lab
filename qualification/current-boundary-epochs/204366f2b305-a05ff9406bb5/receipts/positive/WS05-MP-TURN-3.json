@@ -1,0 +1,135 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-MP-TURN-3",
+  "obligation_exercised": {
+    "obligation_digest": "a4a7e366c3237db4aa6893582d3d33a8101b9af96e259d7629d9dc9ee11850bb",
+    "requested_state_digest": "e47c27437421d2a19b4f0a192b1f837ab284f19d0d3602119d669c17a03d933d",
+    "required_events": [
+      "extra_turn_created:P2",
+      "extra_turn_created:P3",
+      "next_turn:P3",
+      "next_turn:P2"
+    ],
+    "terminal_checks": [
+      "rules_randomness channel library_shuffle:P3 used"
+    ],
+    "terminal_postconditions": [
+      "Most recently created extra turn is taken first: P3 extra, then P2 extra, then normal turn order resumes."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "rules_randomness channel library_shuffle:P3 used": true
+    },
+    "token_evidence": {
+      "extra_turn_created:P2": {
+        "binding": [
+          "at least one SPELL_CAST event(s) with source_object=obj:mp-time-warp, player_player=P1",
+          "every SPELL_CAST event with source_object=obj:mp-time-warp, player_player=P1 precedes the first ZONE_CHANGE event with target_object=obj:mp-time-warp, from=STACK",
+          "the engine had no pending extra turn for P2 when it asked the run's first frame or any frame before the first ZONE_CHANGE event with target_object=obj:mp-time-warp, from=STACK, and pending extra turns ['P2'], in the order taken, when it asked a frame after it"
+        ],
+        "parts": [
+          {
+            "binding": "at least one SPELL_CAST event(s) with source_object=obj:mp-time-warp, player_player=P1",
+            "events": [
+              7
+            ]
+          },
+          {
+            "binding": "every SPELL_CAST event with source_object=obj:mp-time-warp, player_player=P1 precedes the first ZONE_CHANGE event with target_object=obj:mp-time-warp, from=STACK",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "the engine had no pending extra turn for P2 when it asked the run's first frame or any frame before the first ZONE_CHANGE event with target_object=obj:mp-time-warp, from=STACK, and pending extra turns ['P2'], in the order taken, when it asked a frame after it",
+            "decision_frames": [
+              15,
+              18,
+              32,
+              55,
+              58
+            ]
+          }
+        ]
+      },
+      "extra_turn_created:P3": {
+        "binding": [
+          "at least one SPELL_CAST event(s) with source_object=obj:mp-nexus, player_player=P3",
+          "every SPELL_CAST event with source_object=obj:mp-nexus, player_player=P3 precedes the first ZONE_CHANGE event with target_object=obj:mp-nexus, from=STACK",
+          "the engine had no pending extra turn for P3 when it asked the run's first frame or any frame before the first ZONE_CHANGE event with target_object=obj:mp-nexus, from=STACK, and pending extra turns ['P3', 'P2'], in the order taken, when it asked a frame after it"
+        ],
+        "parts": [
+          {
+            "binding": "at least one SPELL_CAST event(s) with source_object=obj:mp-nexus, player_player=P3",
+            "events": [
+              10
+            ]
+          },
+          {
+            "binding": "every SPELL_CAST event with source_object=obj:mp-nexus, player_player=P3 precedes the first ZONE_CHANGE event with target_object=obj:mp-nexus, from=STACK",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "the engine had no pending extra turn for P3 when it asked the run's first frame or any frame before the first ZONE_CHANGE event with target_object=obj:mp-nexus, from=STACK, and pending extra turns ['P3', 'P2'], in the order taken, when it asked a frame after it",
+            "decision_frames": [
+              35
+            ]
+          }
+        ]
+      },
+      "next_turn:P2": {
+        "binding": [
+          "every BEGIN_TURN event with player_player=P3 precedes the first BEGIN_TURN event with player_player=P2",
+          "the engine's pending extra turns read ['P2'] at a frame after the first BEGIN_TURN event with player_player=P3 and before the first BEGIN_TURN event with player_player=P2",
+          "the engine's pending extra turns read [] at a frame after the first BEGIN_TURN event with player_player=P2"
+        ],
+        "parts": [
+          {
+            "binding": "every BEGIN_TURN event with player_player=P3 precedes the first BEGIN_TURN event with player_player=P2",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "the engine's pending extra turns read ['P2'] at a frame after the first BEGIN_TURN event with player_player=P3 and before the first BEGIN_TURN event with player_player=P2",
+            "decision_frames": [
+              55,
+              58
+            ]
+          },
+          {
+            "binding": "the engine's pending extra turns read [] at a frame after the first BEGIN_TURN event with player_player=P2",
+            "decision_frames": [
+              81
+            ]
+          }
+        ]
+      },
+      "next_turn:P3": {
+        "binding": [
+          "every SPELL_CAST event with source_object=obj:mp-time-warp, player_player=P1 precedes the first BEGIN_TURN event with player_player=P3",
+          "every SPELL_CAST event with source_object=obj:mp-nexus, player_player=P3 precedes the first BEGIN_TURN event with player_player=P3"
+        ],
+        "parts": [
+          {
+            "binding": "every SPELL_CAST event with source_object=obj:mp-time-warp, player_player=P1 precedes the first BEGIN_TURN event with player_player=P3",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "every SPELL_CAST event with source_object=obj:mp-nexus, player_player=P3 precedes the first BEGIN_TURN event with player_player=P3",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "1676855b0d5c504744b71b16594431c9c94df063dc57401db7f29eef7c5892ae",
+  "runner_digest": "63e05d2fb1e748791cbc6a2468d541b29f080df7241183632a06ffe6ddfe2b37",
+  "runtime_receipt_digest": "127a7bfffb452f638a43cfa0ce149456f46578c2149cd8a655f6808c82a07216",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-MP-TURN-3"
+}
