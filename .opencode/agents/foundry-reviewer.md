@@ -58,3 +58,26 @@ possible, followed by exactly one top-level verdict:
 A same-executor or cross-executor review is a useful engineering layer only. Never represent it as
 independent external Rules evidence, final Magic Rules authority, or qualification
 credit by itself.
+
+## Machine-verifiable review receipt (mandatory)
+
+The review is only admissible when its trusted workflow run can be independently
+verified. End your final message with the following block, verbatim keys, one value per
+line, with the exact identity you actually reviewed:
+
+```
+BUNNY_DIRECT_READ_ONLY_REVIEW
+
+REVIEWER_MODEL: opencode-go/space-bunny
+REVIEWER_VARIANT: max
+REVIEW_AGENT: foundry-reviewer
+REVIEWED_SHA: <exact 40-hex reviewed commit>
+REVIEWED_TREE: <exact 40-hex reviewed tree>
+REVIEW_VERDICT: <PASS|FAIL|PARTIAL|UNKNOWN>
+READ_ONLY: true
+```
+
+Never invent, guess or copy identifiers you did not resolve from the checked-out
+repository. The implementation executor cannot fabricate this receipt because
+`tools/foundry/review_evidence.py` re-reads the trigger comment, workflow run, jobs,
+workflow pin and this agent file from GitHub before a PASS is admitted.

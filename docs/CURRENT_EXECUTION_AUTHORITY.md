@@ -36,10 +36,15 @@ For MATERIAL implementation workstreams, a fresh-context READ-ONLY Space Bunny M
 reviewer must PASS the exact validated implementation SHA and TREE before `PR_READY` or
 `COMPLETE` may be claimed. DeepSeek implementation plus DeepSeek review does not satisfy
 the gate; a missing, blocked, unknown, partial, failed or stale review blocks completion,
-and any MATERIAL change after the review requires exact new-SHA/TREE re-review. The
-canonical structure and validator live in `tools/foundry/review_gate.py`; remote
-milestone checkpoints are verified through `tools/foundry/safe_push.py` and
-`tools/foundry/remote_checkpoint.py`. A pushed WIP is never qualification PASS.
+and any MATERIAL change after the review requires exact new-SHA/TREE re-review. A PASS
+record is only admissible with independently verifiable GitHub evidence of the trusted
+Space Bunny workflow run (trusted trigger comment, expected job, pinned Space Bunny MAX
+workflow/agent at the run's exact `head_sha`, and the OpenCode bot's machine-parseable
+receipt); self-declared record fields can never fabricate a review. The canonical
+structures and verifiers live in `tools/foundry/review_gate.py` and
+`tools/foundry/review_evidence.py`; remote milestone checkpoints are verified through
+`tools/foundry/safe_push.py` and `tools/foundry/remote_checkpoint.py`. A pushed WIP is
+never qualification PASS.
 
 ## Routing
 

@@ -1,17 +1,20 @@
 """Fail-safe materiality classification for review-gate enforcement.
 
 The cross-executor review is expensive, so genuinely generated-state-only and
-documentation-only closeout may be NON_MATERIAL. Everything else -- including
-unknown paths -- defaults to MATERIAL, so implementation, executable tooling,
-schemas/contracts, CI, tests that alter acceptance semantics, and
-evidence/qualification semantics can never evade review.
+narrow documentation-only closeout may be NON_MATERIAL. Everything else --
+including unknown paths and every ordinary ``docs/**`` change -- defaults to
+MATERIAL, so implementation, executable tooling, schemas/contracts, CI, tests
+that alter acceptance semantics, evidence/qualification semantics and governing
+policy documents can never evade review.
 
 Classification is path-based and deterministic:
 
 - ``GENERATED_STATE``: the explicit workstream state file and canonical
   ``.foundry/reviews/**`` receipts (checkpoint-only artifacts).
-- ``NON_MATERIAL``: ``docs/**`` and non-policy root markdown.
-- ``MATERIAL``: everything else, including every unknown path.
+- ``NON_MATERIAL``: non-policy root markdown and documentation-closeout reports
+  under ``docs/`` (basename contains ``closeout``, policy keywords absent).
+- ``MATERIAL``: everything else, including every unknown path and every other
+  ``docs/**`` change.
 
 A commit-range classification failure (missing objects, Git unavailable) is
 reported as ``UNKNOWN`` and is treated as MATERIAL by callers.
@@ -30,8 +33,41 @@ PATH_CLASSES = (MATERIAL, NON_MATERIAL, GENERATED_STATE)
 
 # Policy files that look like documentation but change operating authority.
 _POLICY_ROOT_MARKDOWN = {"AGENTS.md", "CLAUDE.md"}
-_POLICY_DOC_PATHS = {"docs/CURRENT_EXECUTION_AUTHORITY.md"}
+# Governing documents named explicitly; keyword matching below keeps unknown
+# policy-like docs MATERIAL even outside this list.
+_POLICY_DOC_PATHS = {
+    "docs/CURRENT_EXECUTION_AUTHORITY.md",
+    "docs/PROJECT_MISSION.md",
+    "docs/QUALIFICATION.md",
+    "docs/EVIDENCE_POLICY.md",
+}
 _POLICY_DOC_PREFIXES = ("docs/foundry-execution/",)
+# A docs path whose name mentions any of these concerns is never a "mere
+# closeout": mission/policy/evidence/routing/authority/qualification docs must
+# always be reviewed.
+_POLICY_KEYWORDS = (
+    "policy",
+    "authority",
+    "mission",
+    "qualification",
+    "evidence",
+    "routing",
+    "security",
+    "governance",
+    "approval",
+    "review",
+    "contract",
+    "protocol",
+    "freeze",
+    "ownership",
+    "charter",
+    "standard",
+)
+
+
+def _looks_policy_like(path: str) -> bool:
+    lowered = path.lower()
+    return any(keyword in lowered for keyword in _POLICY_KEYWORDS)
 
 
 def _relative(path: str) -> str:
@@ -61,11 +97,18 @@ def classify_path(path: str, *, state_paths: tuple[str, ...] = ()) -> str:
     # state_paths. Otherwise unknown .foundry YAML is fail-safe MATERIAL.
     if rel in _POLICY_ROOT_MARKDOWN:
         return MATERIAL
+    if _looks_policy_like(rel):
+        return MATERIAL
     if rel in _POLICY_DOC_PATHS or any(rel.startswith(prefix) for prefix in _POLICY_DOC_PREFIXES):
         return MATERIAL
+    # Every ordinary docs/** change is MATERIAL (fail-safe). Only a narrow,
+    # explicitly named documentation-closeout report is NON_MATERIAL.
+    if parts[0] == "docs":
+        basename = parts[-1].lower()
+        if rel.endswith(".md") and "closeout" in basename:
+            return NON_MATERIAL
+        return MATERIAL
     if "/" not in rel and rel.endswith(".md"):
-        return NON_MATERIAL
-    if parts[0] == "docs" and rel.endswith((".md", ".txt")):
         return NON_MATERIAL
     return MATERIAL
 

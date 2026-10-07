@@ -604,12 +604,11 @@ def _decide_push(
     ]
     if fatal:
         raise _PushReject(fatal[0])
-    # 7.5 policy-enabled COMPLETE claim: fail closed unless the cross-executor
-    # review gate and remote checkpoint are satisfied. Pre-policy historical
-    # states (no materiality/review/checkpoint fields) stay pushable.
-    if str(data.get("status", "")) == "COMPLETE" and any(
-        key in data for key in ("materiality", "cross_executor_review", "remote_checkpoint")
-    ):
+    # 7.5 COMPLETE claim: fail closed unless the cross-executor review gate
+    # and remote checkpoint are satisfied. A policy-less state cannot bypass
+    # the gate by omitting the policy fields; historical states remain
+    # parseable but are not re-certified as new completions.
+    if str(data.get("status", "")) == "COMPLETE":
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         import remote_checkpoint as remote_checkpoint_mod
         import review_gate as review_gate_mod

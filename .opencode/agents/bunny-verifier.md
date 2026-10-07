@@ -55,6 +55,31 @@ freely on verification, never on idle waiting or on re-deriving what a tool alre
 - When a tool result is truncated, read the saved full output with offset/limit instead of
   rerunning the command.
 
+## Cross-executor review attestation (when the trigger requests it)
+
+When the trusted `/bunny` comment asks for a cross-executor review attestation, run the
+`bunny-auditor` subagent in a fresh context (read-only; never a writable verifier) against
+the exact implementation SHA/TREE named by the trigger, and post the auditor's verdict
+unchanged. End the result with the machine-readable block so
+`tools/foundry/review_evidence.py` can verify the run; use only identities you resolved
+from the checked-out repository:
+
+```
+BUNNY_AUDITOR_SUBAGENT_REVIEW
+
+REVIEWER_MODEL: opencode-go/space-bunny
+REVIEWER_VARIANT: max
+REVIEW_AGENT: bunny-auditor
+REVIEWED_SHA: <exact 40-hex reviewed commit>
+REVIEWED_TREE: <exact 40-hex reviewed tree>
+REVIEW_VERDICT: <PASS|FAIL|PARTIAL|UNKNOWN>
+READ_ONLY: true
+```
+
+A DeepSeek run can never produce this receipt: the top-level lane is pinned to Space
+Bunny MAX and the verifier re-reads this run, its job conclusions and the workflow/agent
+pins from GitHub.
+
 ## Boundaries
 
 Git, ownership and destructive-operation rules are those of `AGENTS.md` sections 10-11; this agent

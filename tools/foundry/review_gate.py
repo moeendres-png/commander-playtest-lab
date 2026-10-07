@@ -8,8 +8,13 @@ TREE and returned PASS.
 Fail-closed semantics:
 
 - DeepSeek implementation + DeepSeek review stays unsatisfied.
+- a PASS record is only admitted with independently verified external evidence
+  (``review_evidence``): a self-declared record the implementation executor
+  writes can never fabricate a Space Bunny run;
 - the review runtime must be one of the two admitted Space Bunny runtime ids;
 - missing/blocked/unknown/partial/fail/stale review blocks completion;
+- a NON_MATERIAL claim cannot self-exempt by rebinding the audit base onto the
+  validated head, and a policy-less state cannot certify a new completion;
 - a MATERIAL delta after the review (including a P1/P2 repair) marks the prior
   review STALE and requires exact new SHA/TREE re-review;
 - a generated-state-only checkpoint commit is NON_MATERIAL and preserves the
@@ -25,6 +30,7 @@ import argparse
 import json
 import os
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -32,6 +38,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import executor_profiles as executor_mod
 import materiality as materiality_mod
+import review_evidence as evidence_mod
 
 REVIEW_RECORD_TYPE = "cross_executor_review"
 REVIEW_RECORD_SCHEMA_VERSION = "1.0"
@@ -57,8 +64,9 @@ REQUIRED_FIELDS = (
     "findings",
     "implementation_executor",
     "review_executor",
+    "review_evidence",
 )
-OPTIONAL_FIELDS = ("source_lock", "review_evidence", "reviewed_utc")
+OPTIONAL_FIELDS = ("source_lock", "reviewed_utc")
 FINDING_KEYS = ("P1", "P2", "P3")
 
 
@@ -157,6 +165,9 @@ def validate_review_record(
                     f"PASS verdict cannot carry unresolved blocking findings {blocking} "
                     "(evidenced P1/P2 repairs require re-review)"
                 )
+    evidence = record.get("review_evidence")
+    if evidence is not None:
+        errors.extend(evidence_mod.validate_evidence_shape(evidence))
     source_lock = record.get("source_lock")
     if source_lock is not None:
         if not isinstance(source_lock, dict):
@@ -230,10 +241,21 @@ def evaluate_review_gate(
     live_head: str | None = None,
     state_paths: tuple[str, ...] = (),
     state_path: str | None = None,
+    evidence_verifier: Callable[[dict], evidence_mod.ReviewEvidenceResult] | None = None,
+    evidence_transport: evidence_mod.EvidenceTransport | None = None,
+    expected_repository: str | None = None,
 ) -> ReviewGateResult:
-    """Evaluate the cross-executor review requirement for one state document."""
+    """Evaluate the cross-executor review requirement for one state document.
+
+    A PASS record is only admitted when its ``review_evidence`` is independently
+    verified against GitHub evidence by ``evidence_verifier`` (production
+    default) or an injected verifier/transport (tests). The implementation
+    executor cannot satisfy the gate by writing a record that merely declares
+    Space Bunny identity/verdict.
+    """
     state_paths = _effective_state_paths(state_paths, state_path)
     reg = registry or executor_mod.load_registry()
+    repository = expected_repository or str(doc.get("repository") or "") or None
     policy_engaged = "materiality" in doc or "cross_executor_review" in doc
     if not policy_engaged:
         return ReviewGateResult(
@@ -262,6 +284,20 @@ def evaluate_review_gate(
         )
     declared_materiality = declared if isinstance(declared, str) else materiality_mod.MATERIAL
     material_required = declared_materiality == materiality_mod.MATERIAL
+    if declared_materiality == materiality_mod.NON_MATERIAL and (
+        not _is_sha(base) or not _is_sha(validated_head) or base == validated_head
+    ):
+        # Wrong-reason control: rebinding audit_base_sha onto validated_head
+        # produces an empty delta; that must never grant a NON_MATERIAL
+        # exemption for the work that actually happened.
+        return ReviewGateResult(
+            status="UNSATISFIED",
+            reasons=(
+                "MATERIALITY_SELF_EXEMPT: a NON_MATERIAL exemption requires a Git-verified "
+                "change set beyond the declared audit base (validated_head != audit_base_sha)",
+            ),
+            materiality=report.to_dict() if report else None,
+        )
     if declared_materiality == materiality_mod.NON_MATERIAL and report is not None:
         claimed = materiality_mod.declared_materiality_problems(declared_materiality, report)
         if claimed:
@@ -381,6 +417,24 @@ def evaluate_review_gate(
                 "REVIEW_STALE_MATERIAL_DELTA: material changes after the reviewed "
                 f"identity ({', '.join(post.material_paths[:5]) or post.reason}); re-review required"
             )
+
+    # Authenticity: a PASS is only admitted when its external evidence is
+    # independently verified. A fabricated record with plausible Space Bunny
+    # fields fails here because the verifier reads the real GitHub evidence.
+    if not problems and record.get("verdict") == PASS_VERDICT:
+        try:
+            if evidence_verifier is not None:
+                evidence_result = evidence_verifier(record)
+            else:
+                evidence_result = evidence_mod.verify_review_evidence(
+                    record, expected_repository=repository, transport=evidence_transport
+                )
+        except Exception as exc:
+            problems.append(f"REVIEW_EVIDENCE_UNVERIFIABLE: verifier raised {type(exc).__name__}")
+        else:
+            if not evidence_result.ok:
+                first = evidence_result.reasons[0] if evidence_result.reasons else "no detail"
+                problems.append(f"REVIEW_EVIDENCE_{evidence_result.status}: {first}")
     if problems:
         stale = any("STALE" in problem or "IDENTITY_MISMATCH" in problem for problem in problems)
         return ReviewGateResult(
@@ -411,12 +465,16 @@ def evaluate_completion_claim(
     remote_verdict: str | None = None,
     state_paths: tuple[str, ...] = (),
     state_path: str | None = None,
+    evidence_verifier: Callable[[dict], evidence_mod.ReviewEvidenceResult] | None = None,
+    evidence_transport: evidence_mod.EvidenceTransport | None = None,
+    expected_repository: str | None = None,
 ) -> ReviewGateResult:
     """Combined policy gate for a PR_READY/COMPLETE claim.
 
     ``remote_verdict`` is the result of the remote-checkpoint check; a missing
     or mismatched remote checkpoint blocks the claim (the caller supplies it so
-    this module stays free of Git remote I/O).
+    this module stays free of Git remote I/O). A policy-less state cannot use
+    the historical exemption to certify a new completion claim.
     """
     if claim not in ("PR_READY", "COMPLETE"):
         return ReviewGateResult(status="NOT_REQUIRED", reasons=(f"claim {claim!r} not gated",))
@@ -427,12 +485,19 @@ def evaluate_completion_claim(
         review_record_path=review_record_path,
         state_paths=state_paths,
         state_path=state_path,
+        evidence_verifier=evidence_verifier,
+        evidence_transport=evidence_transport,
+        expected_repository=expected_repository,
     )
     problems = list(result.reasons) if not result.ok else []
     if result.status == "EXEMPT_HISTORICAL":
-        return ReviewGateResult(
-            status="EXEMPT_HISTORICAL",
-            reasons=("COMPLETION_GATE_EXEMPT_HISTORICAL: pre-policy state",),
+        # Historical states stay parseable, but absence of the policy fields
+        # never certifies a PR_READY/COMPLETE claim: a fresh workstream gets
+        # the policy fields from bootstrap, so omitting them is an evasion.
+        problems.append(
+            "COMPLETION_POLICY_FIELDS_MISSING: a PR_READY/COMPLETE claim requires "
+            "materiality/cross_executor_review policy fields; a policy-less state "
+            "cannot be certified as a new completion"
         )
     if remote_verdict is None:
         problems.append(

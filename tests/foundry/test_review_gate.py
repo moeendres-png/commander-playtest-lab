@@ -22,8 +22,35 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "tools"))
 
 from foundry import executor_profiles as executor_mod  # noqa: E402
+from foundry import review_evidence as evidence_mod  # noqa: E402
 from foundry import review_gate as review_mod  # noqa: E402
 from foundry import state as state_mod  # noqa: E402
+
+TRUSTED_REPO = "moeendres-png/commander-playtest-lab"
+
+
+class _StaticVerifier:
+    """Test double for the independently injected review-evidence verifier."""
+
+    def __init__(self, status: str = evidence_mod.SATISFIED) -> None:
+        self.status = status
+        self.calls = 0
+
+    def __call__(self, record: dict) -> evidence_mod.ReviewEvidenceResult:
+        self.calls += 1
+        return evidence_mod.ReviewEvidenceResult(self.status, (f"static:{self.status}",))
+
+
+class _EmptyTransport:
+    """All lookups 404: proves the default verifier cannot be bypassed."""
+
+    def request(self, method: str, url: str, headers: dict, timeout: float) -> tuple[int, bytes]:
+        return 404, b'{"message":"Not Found"}'
+
+
+def _satisfied() -> _StaticVerifier:
+    return _StaticVerifier()
+
 
 BUNNY = "opencode-go/space-bunny"
 BUNNY_LEGACY = "opencode-go/space-bunny-free"
@@ -55,16 +82,16 @@ def repo(tmp_path: Path) -> dict:
     _git(["add", "."], root)
     _git(["commit", "-m", "base"], root)
     base = _git(["rev-parse", "HEAD"], root)
-    (root / "tools").mkdir()
-    (root / "tools" / "impl.py").write_text("x = 1\n", encoding="utf-8")
-    _git(["add", "."], root)
-    _git(["commit", "-m", "implementation"], root)
-    impl = _git(["rev-parse", "HEAD"], root)
     (root / "docs").mkdir()
     (root / "docs" / "note.md").write_text("note\n", encoding="utf-8")
     _git(["add", "."], root)
     _git(["commit", "-m", "docs"], root)
     docs = _git(["rev-parse", "HEAD"], root)
+    (root / "tools").mkdir()
+    (root / "tools" / "impl.py").write_text("x = 1\n", encoding="utf-8")
+    _git(["add", "."], root)
+    _git(["commit", "-m", "implementation"], root)
+    impl = _git(["rev-parse", "HEAD"], root)
     (root / ".foundry").mkdir()
     state_path = root / ".foundry" / "WORKSTREAM_STATE.yaml"
     state_path.write_text(
@@ -142,6 +169,20 @@ def _record(repo: dict, *, reviewed_sha: str | None = None, verdict: str = "PASS
         "findings": {"P1": [], "P2": [], "P3": []},
         "implementation_executor": "deepseek",
         "review_executor": "space-bunny",
+        "review_evidence": {
+            "schema_version": "1.0",
+            "carrier": evidence_mod.CARRIER_DIRECT,
+            "repository": TRUSTED_REPO,
+            "trigger_issue_number": 578,
+            "trigger_comment_id": 1,
+            "result_comment_id": 2,
+            "workflow_run_id": 3,
+            "workflow_job_id": 4,
+            "workflow_job_name": "opencode-bunny-review",
+            "workflow_head_sha": "a" * 40,
+            "workflow_path": ".github/workflows/opencode.yml",
+            "marker": evidence_mod.MARKER_DIRECT,
+        },
     }
     record.update(over)
     return record
@@ -266,10 +307,59 @@ def test_deepseek_implementation_plus_bunny_exact_sha_tree_pass_is_satisfied(rep
         cross_executor_review=_mirror_passed(repo, record, path),
         validated_tree=_tree(repo["root"], repo["impl"]),
     )
+    verifier = _satisfied()
     result = review_mod.evaluate_review_gate(
-        doc, workdir=str(repo["root"]), review_record_path=str(path)
+        doc,
+        workdir=str(repo["root"]),
+        review_record_path=str(path),
+        state_path=str(repo["state"].relative_to(repo["root"])),
+        evidence_verifier=verifier,
     )
     assert result.status == "SATISFIED", result.reasons
+    # The gate only reaches SATISFIED through the independent verifier: a
+    # self-asserted PASS record can never skip external evidence.
+    assert verifier.calls == 1
+
+
+def test_self_asserted_pass_without_verifiable_evidence_is_not_satisfied(repo: dict) -> None:
+    """A fabricated record with plausible Bunny fields still fails closed."""
+    import json as _json
+
+    record = _record(repo)
+    record["review_evidence"] = {
+        "schema_version": "1.0",
+        "carrier": evidence_mod.CARRIER_DIRECT,
+        "repository": TRUSTED_REPO,
+        "trigger_issue_number": 578,
+        "trigger_comment_id": 111,
+        "result_comment_id": 222,
+        "workflow_run_id": 333,
+        "workflow_job_id": 444,
+        "workflow_job_name": "opencode-bunny-review",
+        "workflow_head_sha": "b" * 40,
+        "workflow_path": ".github/workflows/opencode.yml",
+        "marker": evidence_mod.MARKER_DIRECT,
+    }
+    path = repo["root"] / ".foundry" / "reviews" / "fabricated.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(_json.dumps(record), encoding="utf-8")
+    doc = _state_doc(
+        repo["base"],
+        repo["impl"],
+        repo["root"],
+        repo["state"],
+        cross_executor_review=_mirror_passed(repo, record, path),
+        validated_tree=_tree(repo["root"], repo["impl"]),
+    )
+    result = review_mod.evaluate_review_gate(
+        doc,
+        workdir=str(repo["root"]),
+        review_record_path=str(path),
+        state_path=str(repo["state"].relative_to(repo["root"])),
+        evidence_transport=_EmptyTransport(),
+    )
+    assert result.status != "SATISFIED"
+    assert any("REVIEW_EVIDENCE" in reason for reason in result.reasons)
 
 
 def test_reviewed_old_sha_after_material_change_is_stale(repo: dict) -> None:
@@ -327,7 +417,11 @@ def test_generated_state_only_closeout_preserves_review(repo: dict) -> None:
     )
     # Live HEAD is the state checkpoint (and later commits may also be state-only).
     result = review_mod.evaluate_review_gate(
-        doc, workdir=str(repo["root"]), review_record_path=str(path)
+        doc,
+        workdir=str(repo["root"]),
+        review_record_path=str(path),
+        state_path=str(repo["state"].relative_to(repo["root"])),
+        evidence_verifier=_satisfied(),
     )
     assert result.status == "SATISFIED", result.reasons
 
@@ -406,6 +500,43 @@ def test_non_material_underclaim_fails_closed(repo: dict) -> None:
     assert any("MATERIALITY_UNDERCLAIM" in reason for reason in result.reasons)
 
 
+def test_non_material_cannot_self_exempt_by_rebinding_audit_base(repo: dict) -> None:
+    """Rebinding audit_base_sha onto validated_head must not hide material work."""
+    doc = _state_doc(
+        repo["base"],
+        repo["base"],
+        repo["root"],
+        repo["state"],
+        materiality="NON_MATERIAL",
+        validated_tree=_tree(repo["root"], repo["base"]),
+    )
+    result = review_mod.evaluate_review_gate(doc, workdir=str(repo["root"]))
+    assert result.status == "UNSATISFIED"
+    assert any("MATERIALITY_SELF_EXEMPT" in reason for reason in result.reasons)
+
+    # The same bypass without a workdir (offline state validation) is refused.
+    result = review_mod.evaluate_review_gate(doc)
+    assert result.status == "UNSATISFIED"
+    assert any("MATERIALITY_SELF_EXEMPT" in reason for reason in result.reasons)
+
+
+def test_policy_less_complete_claim_is_not_certifiable(repo: dict) -> None:
+    """A fresh policy-less state cannot claim COMPLETE via EXEMPT_HISTORICAL."""
+    doc = _state_doc(repo["base"], repo["impl"], repo["root"], repo["state"])
+    doc.pop("materiality")
+    doc.pop("cross_executor_review")
+    assert review_mod.evaluate_review_gate(doc, workdir=str(repo["root"])).ok
+    result = review_mod.evaluate_completion_claim(
+        doc,
+        claim="COMPLETE",
+        workdir=str(repo["root"]),
+        state_path=str(repo["state"]),
+        remote_verdict="SATISFIED",
+    )
+    assert not result.ok
+    assert any("COMPLETION_POLICY_FIELDS_MISSING" in reason for reason in result.reasons)
+
+
 def test_historical_state_without_policy_fields_is_exempt(repo: dict) -> None:
     doc = _state_doc(repo["base"], repo["impl"], repo["root"], repo["state"])
     doc.pop("materiality")
@@ -446,6 +577,7 @@ def test_completion_claim_without_remote_verdict_fails_closed(repo: dict) -> Non
         review_record_path=str(path),
         remote_verdict=None,
         state_path=str(repo["state"]),
+        evidence_verifier=_satisfied(),
     )
     assert not result.ok
     assert any("REMOTE_CHECKPOINT_UNVERIFIED" in reason for reason in result.reasons)
@@ -469,6 +601,7 @@ def test_completion_claim_requires_satisfied_remote_checkpoint(repo: dict) -> No
         review_record_path=str(path),
         remote_verdict="MISMATCH",
         state_path=str(repo["state"]),
+        evidence_verifier=_satisfied(),
     )
     assert not result.ok
     assert any("REMOTE_CHECKPOINT_MISMATCH" in reason for reason in result.reasons)
@@ -527,7 +660,21 @@ def test_bunny_reviewer_agents_are_structurally_mutation_denied() -> None:
 # --- state CLI wiring -------------------------------------------------------
 
 
-def test_state_cli_review_gate_fails_closed_then_passes(repo: dict) -> None:
+def test_state_cli_review_gate_fails_closed_then_passes(
+    repo: dict, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import importlib
+
+    # state.py imports the tool modules by their flat names; inject the test
+    # double into the exact module object the CLI review gate resolves.
+    top_evidence = importlib.import_module("review_evidence")
+    calls: list[str] = []
+
+    def _verifier(record, *, expected_repository=None, transport=None):
+        calls.append(str(record.get("reviewed_sha")))
+        return evidence_mod.ReviewEvidenceResult(evidence_mod.SATISFIED, ("injected",))
+
+    monkeypatch.setattr(top_evidence, "verify_review_evidence", _verifier)
     doc = _state_doc(repo["base"], repo["impl"], repo["root"], repo["state"])
     repo["state"].write_text(yaml.safe_dump(doc), encoding="utf-8")
     rc = state_mod.main(
@@ -557,6 +704,7 @@ def test_state_cli_review_gate_fails_closed_then_passes(repo: dict) -> None:
         ]
     )
     assert rc == 0
+    assert calls == [repo["impl"]]
 
 
 def test_material_checkpoint_persists_sha_tree_evidence_next_action(repo: dict) -> None:
@@ -594,14 +742,27 @@ def test_historical_state_without_policy_fields_stays_valid(repo: dict) -> None:
     assert result.status == "EXEMPT_HISTORICAL"
 
 
-def test_bunny_review_workflow_allows_trusted_comments_on_agent_created_prs() -> None:
-    """Mandatory review must be reachable on the repository's own agent-created PRs."""
-    workflow = (REPO_ROOT / ".github" / "workflows" / "opencode.yml").read_text(encoding="utf-8")
-    marker = "  opencode-bunny-review:\n"
-    assert marker in workflow
-    review_job = workflow.split(marker, 1)[1]
-    assert "opencode-agent[bot]" in review_job
-    assert "github.event.comment.author_association" in review_job
-    assert "Refuse fork pull requests as agent targets" in review_job
-    assert "AGENT: foundry-reviewer" in review_job
-    assert "MODEL: opencode-go/space-bunny" in review_job
+def test_bunny_review_workflow_pins_the_read_only_lane() -> None:
+    """The direct carrier must pin Space Bunny MAX + the read-only agent."""
+    workflow = yaml.safe_load(
+        (REPO_ROOT / ".github" / "workflows" / "opencode.yml").read_text(encoding="utf-8")
+    )
+    job = workflow["jobs"]["opencode-bunny-review"]
+    env_steps = [
+        step
+        for step in job["steps"]
+        if isinstance(step.get("env"), dict) and "MODEL" in step["env"]
+    ]
+    assert len(env_steps) == 1
+    env = env_steps[0]["env"]
+    assert env["MODEL"] == BUNNY
+    assert env["VARIANT"] == "max"
+    assert env["AGENT"] == "foundry-reviewer"
+    assert job["steps"][0]["name"] == "Refuse fork pull requests as agent targets"
+    assert "--jq '.head.repo.full_name'" in job["steps"][0]["run"]
+    assert job["permissions"] == {
+        "id-token": "write",
+        "contents": "read",
+        "pull-requests": "read",
+        "issues": "read",
+    }

@@ -99,14 +99,30 @@ the exact validated implementation SHA **and** TREE before the workstream may cl
   bash default-deny, `task: deny`) or the read-only `bunny-auditor`. A DeepSeek review,
   a writable verifier, a self-review, or an unknown/blocked/partial/fail/stale verdict
   never satisfies the gate.
+- A PASS record is only admissible with independently verifiable GitHub evidence
+  (`tools/foundry/review_evidence.py`): a trusted trigger comment, the successful
+  trusted Space Bunny workflow run and expected job, the workflow file fetched at the
+  run's exact `head_sha` pinning Space Bunny MAX and the expected agent, the
+  structurally read-only reviewer agent file, and the OpenCode bot result comment
+  carrying the machine-parseable receipt marker and exact reviewed SHA/TREE/verdict.
+  Self-declared Space Bunny fields in a record the implementation executor wrote are
+  never sufficient; network/API/parse failures fail closed.
+- The current carriers are the trusted `/bunny` bootstrap lane with a read-only
+  `bunny-auditor` subreview receipt (`BUNNY_AUDITOR_SUBAGENT_REVIEW`) and the direct
+  bypass lane `/bunny-review` with `foundry-reviewer`
+  (`BUNNY_DIRECT_READ_ONLY_REVIEW`). Issue-comment lanes are evaluated from the
+  default branch, so a new lane is only reachable after it is merged to main.
 - Any MATERIAL change after the review (including an evidenced P1/P2 repair) makes the
   prior review STALE and requires exact new-SHA/TREE re-review. A generated-state-only
   receipt/checkpoint commit is NON_MATERIAL and preserves the reviewed validated
   implementation identity without claiming the later state commit was reviewed.
 - Materiality is fail-safe: implementation, executable tooling, schemas/contracts, CI,
-  tests that alter acceptance semantics, and evidence/qualification semantics are always
-  MATERIAL; only generated-state or documentation-only closeout may be NON_MATERIAL, and
-  a NON_MATERIAL claim is verified against the Git change set.
+  tests that alter acceptance semantics, evidence/qualification semantics and every
+  ordinary `docs/**` change are MATERIAL. The only documentation exemption is a narrow,
+  explicitly named closeout report under `docs/` (basename contains `closeout`, and no
+  policy/authority/mission/qualification/evidence/routing/security keyword). A
+  NON_MATERIAL claim is verified against the Git change set, and an empty/self-rebound
+  change set cannot grant an exemption.
 - Remote milestone persistence reuses the Foundry state file, `tools/foundry/safe_push.py`
   and `tools/foundry/remote_checkpoint.py`: state update -> focused commit -> safe push
   -> remote HEAD equality verification. A pushed WIP is never qualification PASS, and a

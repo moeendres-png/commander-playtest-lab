@@ -317,6 +317,16 @@ def test_null_validated_head_rejected(rig: dict) -> None:
     assert "validated_head is null" in proc.stderr
 
 
+def test_policy_less_complete_claim_rejected(rig: dict) -> None:
+    """Wrong-reason control: omitting the policy fields cannot certify COMPLETE."""
+    _rewrite_state(rig, status="COMPLETE")
+    proc = _run_push(rig)
+    assert proc.returncode == 2
+    assert "COMPLETION_GATE_BLOCKED" in proc.stderr
+    assert "COMPLETION_POLICY_FIELDS_MISSING" in proc.stderr
+    assert _remote_sha(rig, "refs/heads/test/ws") is None
+
+
 def test_rewritten_history_rejected(rig: dict) -> None:
     _git(["reset", "--hard", "HEAD~1"], rig["wt"], rig["env"])
     # Strand validated_head on the dropped checkpoint commit, then restore the
