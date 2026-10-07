@@ -474,6 +474,13 @@ class Capture:
     attempts: list[dict[str, Any]] = field(default_factory=list)
     tape: list[dict[str, Any]] = field(default_factory=list)
     log: str = ""
+    # Whether the process-log capture is scannable. A capture that never
+    # reached end of stream, or whose retention dropped text, has a gap and
+    # cannot support the forbidden-token scan; both default fail-closed, so a
+    # producer that does not explicitly bind a complete capture can never have
+    # its log treated as complete.
+    log_complete: bool = False
+    log_truncated: bool = False
     failure: str | None = None
     # The record's scripted event: where on the tape it began, every answer
     # given, and whether every scripted step was answered and resolved.
@@ -3225,6 +3232,21 @@ def verify(record: dict[str, Any], capture: Capture, *, viewer: str = "P1") -> R
         )
     if capture.failure is not None:
         return RowVerdict(fixture_id, viewer, UNVERIFIED, [], detail=capture.failure)
+    if capture.log_truncated or not capture.log_complete:
+        # A capture with a gap is not scannable: the log is a channel of its
+        # own and the scan cannot prove a forbidden token absent from text that
+        # was never read or was dropped. Fail closed as UNKNOWN, never PASS.
+        return RowVerdict(
+            fixture_id,
+            viewer,
+            UNVERIFIED,
+            [],
+            detail=(
+                "the process log capture is not scannable "
+                f"(complete={capture.log_complete}, truncated={capture.log_truncated}); "
+                "a capture with a gap cannot support the channel scan"
+            ),
+        )
     labels = _labels(record)
     if sorted(capture.projections) != sorted(labels):
         return RowVerdict(fixture_id, viewer, UNVERIFIED, [], detail="a projection is missing")
@@ -3512,7 +3534,10 @@ def execute_and_persist(
                     capture.failure = f"creation refused: {_error_code(created)}"
                 engine_commit = client.engine_commit
             capture.tape = list(client.tape)
-            capture.log = client.stderr_log
+            stderr_capture = client.stderr_capture()
+            capture.log = stderr_capture.text
+            capture.log_complete = stderr_capture.complete
+            capture.log_truncated = stderr_capture.truncated
         except ml.MidgameLaneError as exc:
             capture.failure = f"lane failed closed: {exc}"
         verdict = verify(record, capture, viewer=viewer)

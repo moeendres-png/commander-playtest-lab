@@ -39,7 +39,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
-from .bridge_launcher import STDERR_DRAIN_GRACE_S, StderrDrain
+from .bridge_launcher import STDERR_DRAIN_GRACE_S, StderrCapture, StderrDrain
 
 PROTOCOL_VERSION = "2.0.0"
 #: Never inherited by a launch (see bridge_launcher.ORCHESTRATION_KEY_VARIABLE).
@@ -366,13 +366,22 @@ class MidgameLaneClient:
         if drain is not None:
             drain.join(timeout_s)
 
+    def stderr_capture(self) -> StderrCapture:
+        """The child's stderr capture, with its completeness and truncation flags.
+
+        A hidden-information channel scan may only consume a capture that is
+        both complete (the drain saw end of stream) and untruncated (no text was
+        dropped); anything else must leave the scan unverified, never PASS.
+        """
+        drain = self._stderr_drain
+        if drain is None:
+            return StderrCapture(text="", complete=False, truncated=False)
+        return drain.capture()
+
     @property
     def stderr_log(self) -> str:
         """The child's stderr as drained so far (complete once the child exited)."""
-        drain = self._stderr_drain
-        if drain is None:
-            return ""
-        return drain.capture().text
+        return self.stderr_capture().text
 
     def __exit__(self, *_exc: object) -> None:
         self.close()
@@ -391,6 +400,8 @@ class MidgameLaneClient:
             process.wait(timeout=20)
         except subprocess.TimeoutExpired:
             process.kill()
+            with contextlib.suppress(subprocess.TimeoutExpired):
+                process.wait(timeout=5)
         # The direct child is gone (or killed): give the drain a short grace to
         # reach end of stream, then stop it. A descendant that inherited the pipe
         # can hold it open forever, so a drain still alive after the grace is
@@ -400,6 +411,17 @@ class MidgameLaneClient:
         if drain is not None and drain.draining:
             drain.stop()
             self._join_stderr(5.0)
+        # Release the read ends as well: a retained drain or an unclosed pipe
+        # would hold descriptors for the process life. Never close stderr under
+        # a drain that could not be stopped — the blocked read would wait on it;
+        # that capture stays incomplete and the daemon ends with the process.
+        for stream in (process.stdout, process.stderr):
+            if stream is None:
+                continue
+            if stream is process.stderr and drain is not None and drain.draining:
+                continue
+            with contextlib.suppress(OSError, ValueError):
+                stream.close()
 
     def request(
         self,

@@ -268,8 +268,17 @@ class StderrDrain:
     The default retention policy stops retaining once the cap is exceeded and
     marks the capture truncated, because a capture with a gap is not scannable.
     A tail-retaining caller (the mid-game lane, whose end-of-run log scan wants
-    the newest output) keeps the newest chunks and drops the oldest instead.
-    Every external engine process uses this one implementation.
+    the newest output) keeps the newest chunks, drops the oldest and marks the
+    capture truncated too, so both lossy policies stay visibly non-scannable.
+
+    This drain serves the current-boundary launcher (``BridgeProcess``) and the
+    mid-game lane (``MidgameLaneClient``). Two older production transports still
+    block on ``iter(stream.readline, "")`` and are not migrated here:
+    ``engine/rules/bridge.py`` (``RulesEngineBridge._pump``, which also serves
+    stdout and a per-line log file) and ``engine/rules/full_game.py``
+    (``_RawFullGameClient._pump_stdout``/``_pump_stderr``, which feed a line
+    queue/list). Migrating them would require per-line sinks this bounded chunk
+    drain does not serve, so they remain listed as known remaining readers.
     """
 
     stream: Any
@@ -311,7 +320,13 @@ class StderrDrain:
             return True
 
     def _retain(self, text: str) -> None:
-        """Keep one decoded chunk within the retention limit."""
+        """Keep one decoded chunk within the retention limit.
+
+        Both retention policies are lossy past the cap and both must mark the
+        capture truncated: the non-tail policy drops the newest text, and the
+        tail policy drops the oldest chunks to keep the newest. A caller that
+        scans the log must never treat a capture with a gap as complete.
+        """
         with self._stderr_lock:
             if not self.retain_tail and self._stderr_size + len(text) > self.retain_limit_chars:
                 self._stderr_truncated = True
@@ -324,10 +339,17 @@ class StderrDrain:
                 and len(self._stderr_chunks) > 1
             ):
                 self._stderr_size -= len(self._stderr_chunks.pop(0))
+                self._stderr_truncated = True
 
     def _drain_stderr(self) -> None:
         stream = self.stream
-        fd = stream.fileno()
+        try:
+            fd = stream.fileno()
+        except (OSError, ValueError):
+            # The stream was already closed before the drain started: there is
+            # nothing to read and no end of stream to record, and a bare
+            # ``fileno()`` here would raise uncaught on the drain thread.
+            return
         # Popen types stderr as IO[str]; a text-mode Popen wraps it in a
         # TextIOWrapper carrying the encoding/errors the bytes must decode with.
         decoder = codecs.getincrementaldecoder(getattr(stream, "encoding", None) or "utf-8")(

@@ -93,6 +93,50 @@ def test_a_long_unterminated_line_is_visible_while_the_child_is_alive(
         assert client.stderr_log == line
 
 
+def test_a_truncating_tail_capture_is_visible_and_not_scannable(tmp_path, monkeypatch) -> None:
+    """A tail capture that dropped its oldest chunks must report the gap.
+
+    The lane keeps the newest stderr for the end-of-run log scan, so beyond the
+    retention cap it drops the oldest text. Before this fix that loss was
+    invisible: the capture reported itself complete and untruncated, and the
+    hidden-information scan could treat the gap as a complete log.
+    """
+    monkeypatch.setattr(B, "STDERR_READ_CHUNK_BYTES", 64)
+    monkeypatch.setattr(ml.MidgameLaneClient, "STDERR_RETENTION_CHARS", 128, raising=False)
+    script = _line_stub(tmp_path, "first\n" + "z" * 4096 + "\nlast\n")
+    with _client(script) as client:
+        assert client.request("handshake", {}, timeout_s=20)["ok"] is True
+    drain = client._stderr_drain
+    assert drain is not None
+    # Behavioral red on the pre-fix drain: tail drops were never marked.
+    assert drain.capture().truncated is True
+    capture = client.stderr_capture()
+    assert capture.complete is True
+    assert capture.truncated is True
+    assert capture.scannable is False
+    assert capture.text.endswith("last\n")
+    assert "first" not in capture.text
+    # stderr_log still exposes the retained text, never a completeness claim.
+    assert client.stderr_log == capture.text
+
+
+def test_close_releases_both_read_ends(tmp_path) -> None:
+    """The lane's close must not retain the stdout/stderr read descriptors.
+
+    The drain owns stderr until it stops; stdout has no other reader after the
+    child exits. Both read ends used to stay open until the client was
+    collected.
+    """
+    script = _line_stub(tmp_path, "hello\n")
+    client = _client(script)
+    with client:
+        assert client.request("handshake", {}, timeout_s=20)["ok"] is True
+        process = client._process
+    assert process is not None
+    assert process.stdout is not None and process.stdout.closed
+    assert process.stderr is not None and process.stderr.closed
+
+
 _DESCENDANT_BODY = """\
 import json, os, subprocess, sys
 descendant = subprocess.Popen(
