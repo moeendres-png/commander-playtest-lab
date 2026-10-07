@@ -1,0 +1,13 @@
+P1_checkpoint_verdict_dropped {'exit': 1, 'killed': True, 'first_failed': ['tests/qualification/test_forge_scenario_lane.py::test_control_history_checkpoint_exact_when_engine_agrees'], 'tail': '1 failed, 60 passed in 1.40s'}
+P2_readback_truthiness_accepted {'exit': 1, 'killed': True, 'first_failed': ['tests/qualification/test_forge_scenario_lane.py::test_control_history_mismatch_fails_closed[True-False-yes-False-battlefield.obj:p1-bears.controlled_since_turn_began]'], 'tail': '1 failed, 64 passed in 1.24s'}
+P3_dimension_back_to_unobservable {'exit': 1, 'killed': True, 'first_failed': ['tests/qualification/test_forge_scenario_lane.py::test_control_history_unverifiable_requests_are_unsupported'], 'tail': '1 failed, 65 passed in 1.30s'}
+P3b_unobservable_for_every_request {'exit': 1, 'killed': True, 'first_failed': ['tests/qualification/test_forge_scenario_lane.py::test_control_history_is_forwarded_and_no_longer_unobservable'], 'tail': '1 failed, 59 passed in 0.98s'}
+P4_request_not_forwarded {'exit': 1, 'killed': True, 'first_failed': ['tests/qualification/test_forge_scenario_lane.py::test_control_history_is_forwarded_and_no_longer_unobservable'], 'tail': '1 failed, 59 passed in 1.01s'}
+P5_hook_assertion_reverted {'exit': 1, 'killed': True, 'first_failed': ['tests/qualification/test_forge_scenario_lane.py::test_capability_matrix_refuses_the_pre_g1_hook_placement'], 'tail': '1 failed, 3 passed in 0.18s'}
+P6_latch_fragment_dropped {'exit': 1, 'killed': True, 'first_failed': ['tests/qualification/test_forge_scenario_lane.py::test_capability_matrix_requires_the_g1_fail_closed_fragments[if'], 'tail': '1 failed, 4 passed in 0.23s'}
+P7_non_battlefield_request_accepted {'exit': 1, 'killed': True, 'first_failed': ['tests/qualification/test_forge_scenario_lane.py::test_control_history_unverifiable_requests_are_unsupported'], 'tail': '1 failed, 65 passed in 1.10s'}
+P8_group_multiset_dropped killed: test_micro_costs_shape_one_disagreeing_swamp_is_a_mismatch, test_ambiguous_same_name_readback_is_unknown_not_exact (2 failed, 72 passed)
+P9_in_true_false_instead_of_is SURVIVED (equivalent: JSON-typed multiset comparison still separates 1 from true) (74 passed)
+P10_unknown_reported_exact killed: test_ambiguous_same_name_readback_is_unknown_not_exact (1 failed, 73 passed)
+P11_bool_coercion_of_request killed: test_control_history_request_is_never_coerced[1], [true] (2 failed, 72 passed)
+P12_bool_coercion_of_tapped_readback killed: test_missing_tapped_readback_is_never_coerced_to_untapped, test_non_boolean_tapped_readback_is_never_coerced (2 failed on the old bool() code; both pass on the strict lane)

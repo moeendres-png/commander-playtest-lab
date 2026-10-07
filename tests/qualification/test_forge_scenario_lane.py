@@ -220,9 +220,49 @@ _SCENARIO_SOURCE = "\n".join(
         "continuous_effects_present",
         "scenario must not inject stack",
         "scenario must not inject decisions",
+        # forge#33 G1 R1 (C1/C2): placement at the turn-one TurnBegan point,
+        # never tapped there, counters once, and the post-untap apply.
+        "public static List<Card> placeBattlefield(BridgeSession session, Game game, Plan plan)",
+        "static void addRequestedCounters(BridgeSession session, Plan plan, List<Card> placed)",
+        "card.addCounterInternal(counterType, counter.getValue(), null, false, null,",
+        "private static void requireCompletePlacement(Plan plan, List<Card> placed)",
+        "scenario placement incomplete: placed ",
+        "static void applyRequestedTapped(BridgeSession session, Plan plan, List<Card> placed)",
+        "requested tapped permanent left the battlefield before the post-untap ",
+        "card.setTapped(true);",
+        "public static void applyPostUntap(BridgeSession session, Game game, Plan plan,",
+    ]
+)
+# forge#33 G1 R1 (C3): the engine-native control-history readback projection.
+_PROJECTION_SOURCE = "\n".join(
+    [
+        "firstTurnControlled = card.isFirstTurnControlled();",
+        'entry.addProperty("controlled_since_turn_began", !firstTurnControlled);',
     ]
 )
 _SESSION_SOURCE = "\n".join(
+    [
+        "final ScenarioBootstrap.Plan capturedPlan = scenarioPlan;",
+        "installScenarioBootstrap(capturedGame, capturedPlan);",
+        "final Runnable scenarioHook = scenarioStartGameHook(capturedGame, capturedPlan);",
+        "launchStarter(() -> capturedMatch.startGame(capturedGame, scenarioHook));",
+        "game.subscribeToEvents(new ScenarioTurnBeganSubscriber());",
+        "void handleScenarioTurnBegan(final GameEventTurnBegan event)",
+        "ScenarioBootstrap.placeBattlefield(this, intended, plan);",
+        "public synchronized void setScenarioPlan(ScenarioBootstrap.Plan plan)",
+        "private void recordScenarioBootstrapFailure(final String reason)",
+        "if (scenarioBootstrapInvocations.incrementAndGet() > 1) {",
+        'recordScenarioBootstrapFailure("scenario bootstrap failed: " + t);',
+        "if (status == Status.RUNNING) {",
+        "void requireScenarioBootstrapCompleted()",
+        "scenario bootstrap did not run exactly once before the start-game hook",
+        "ScenarioBootstrap.applyPostUntap(self, game, plan, scenarioPlacedCards);",
+        "scenario bootstrap placed ",
+    ]
+)
+# The pre-G1 session: permanents placed inside the startGameHook, after the
+# readiness loop (every placed creature summoning sick on turn 1).
+_PRE_G1_SESSION_SOURCE = "\n".join(
     [
         "final ScenarioBootstrap.Plan capturedPlan = scenarioPlan;",
         "ScenarioBootstrap.apply(self, capturedGame, capturedPlan);",
@@ -244,15 +284,20 @@ def _source() -> fsl.ForgeScenarioSource:
         scenario_source_path=fsl.SCENARIO_SOURCE_RELATIVE,
         scenario_source_sha256="9" * 64,
         session_source_sha256="8" * 64,
+        projection_source_sha256="7" * 64,
         rules_core_identity={"engine_equivalent": True},
         bridge_identity={"identical": True},
     )
 
 
-def _fake_git(scenario: str, session: str):
+def _fake_git(scenario: str, session: str, projection: str | None = None):
     def fake(args, cwd):
         target = args[-1]
-        return session if target.endswith("BridgeSession.java") else scenario
+        if target.endswith("BridgeSession.java"):
+            return session
+        if target.endswith("StateProjection.java"):
+            return projection if projection is not None else _PROJECTION_SOURCE
+        return scenario
 
     return fake
 
@@ -279,6 +324,89 @@ def test_capability_matrix_detects_hook_removal(monkeypatch):
     monkeypatch.setattr(fsl, "_git", _fake_git(_SCENARIO_SOURCE, "// no hook"))
     with pytest.raises(fsl.ScenarioCapabilityDrift):
         fsl.derive_capability_matrix(_source(), Path("."))
+
+
+def test_capability_matrix_refuses_the_pre_g1_hook_placement(monkeypatch):
+    """G1 R1 red: a bridge that still places permanents in the hook is drift."""
+    monkeypatch.setattr(fsl, "_git", _fake_git(_SCENARIO_SOURCE, _PRE_G1_SESSION_SOURCE))
+    with pytest.raises(fsl.ScenarioCapabilityDrift, match="hook_apply"):
+        fsl.derive_capability_matrix(_source(), Path("."))
+
+
+@pytest.mark.parametrize(
+    ("source_name", "fragment", "capability"),
+    [
+        (
+            "scenario",
+            "card.addCounterInternal(counterType, counter.getValue(), null, false, null,",
+            "place_at_turn_began_untapped",
+        ),
+        ("scenario", "scenario placement incomplete: placed ", "complete_placement_fails_closed"),
+        ("scenario", "card.setTapped(true);", "tapped_after_untap_silently"),
+        (
+            "session",
+            "if (scenarioBootstrapInvocations.incrementAndGet() > 1) {",
+            "hook_bootstrap_error_recorded_on_session",
+        ),
+        (
+            "session",
+            'recordScenarioBootstrapFailure("scenario bootstrap failed: " + t);',
+            "hook_bootstrap_error_recorded_on_session",
+        ),
+        (
+            "session",
+            "scenario bootstrap did not run exactly once before the start-game hook",
+            "hook_bootstrap_error_recorded_on_session",
+        ),
+        (
+            "session",
+            "ScenarioBootstrap.placeBattlefield(this, intended, plan);",
+            "hook_placement",
+        ),
+        (
+            "projection",
+            'entry.addProperty("controlled_since_turn_began", !firstTurnControlled);',
+            "battlefield_details.controlled_since_turn_began",
+        ),
+    ],
+)
+def test_capability_matrix_requires_the_g1_fail_closed_fragments(
+    monkeypatch, source_name, fragment, capability
+):
+    """forge#33 red (C1/C2/C3): losing the latch, the error capture, the
+    exactly-once assertion, the untapped TurnBegan placement or the
+    control-history readback projection is source drift."""
+    scenario, session, projection = _SCENARIO_SOURCE, _SESSION_SOURCE, _PROJECTION_SOURCE
+    if source_name == "scenario":
+        scenario = scenario.replace(fragment, "// removed")
+    elif source_name == "session":
+        session = session.replace(fragment, "// removed")
+    else:
+        projection = projection.replace(fragment, "// removed")
+    monkeypatch.setattr(fsl, "_git", _fake_git(scenario, session, projection))
+    with pytest.raises(fsl.ScenarioCapabilityDrift, match=capability):
+        fsl.derive_capability_matrix(_source(), Path("."))
+
+
+def test_capability_matrix_records_the_g1_hook_contract(monkeypatch):
+    monkeypatch.setattr(fsl, "_git", _fake_git(_SCENARIO_SOURCE, _SESSION_SOURCE))
+    matrix = fsl.derive_capability_matrix(_source(), Path("."))
+    assert matrix["readback"]["battlefield_details.controlled_since_turn_began"]["status"] == (
+        fsl.DIMENSION_SUPPORTED
+    )
+    assert matrix["source"]["projection_source_path"].endswith("StateProjection.java")
+    for hook in (
+        "hook_apply",
+        "hook_placement",
+        "hook_plan_set_once_at_creation",
+        "hook_bootstrap_error_recorded_on_session",
+        "hook_post_untap_complete_placement",
+        "place_at_turn_began_untapped",
+        "complete_placement_fails_closed",
+        "tapped_after_untap_silently",
+    ):
+        assert matrix["hook"][hook]["status"] == "PRESENT"
+    assert "controlled_since_turn_began" not in matrix["unobservable_record_dimensions"]
 
 
 # ---------------------------------------------------------------------------
@@ -349,6 +477,16 @@ def test_combat_state_and_combat_step_fail_closed():
     assert "combat_state" in dimensions
     assert "temporal_state.combat_step" in dimensions
     assert fsl.temporal_reachable(model) is False
+    # G1 R1: summoning sickness is no longer the stated reason (the active
+    # seat's placed creatures can attack on turn 1); the step stays fail-closed
+    # pending the separate combat-step ruling.
+    detail = next(
+        item.detail
+        for item in model.hard_unsupported
+        if item.dimension == "temporal_state.combat_step"
+    )
+    assert "summoning" not in detail
+    assert "separate Coordinator ruling" in detail
 
 
 def test_hand_after_natural_draw_is_unconstructible():
@@ -1435,3 +1573,256 @@ def test_first_turn_draw_requires_the_recorded_starting_selection(choice):
     verdict = fsl.evaluate_first_turn_draw(list(_START), _draw_progression(), choice)
     assert verdict.observed is False
     assert "selection" in verdict.reason
+
+
+# ---------------------------------------------------------------------------
+# G1 R1 (C3): controlled_since_turn_began is a checkpoint-verified dimension
+# ---------------------------------------------------------------------------
+def _control_history_record(p1_since, p2_since) -> dict:
+    return _record(
+        semantic_objects=[
+            _object("obj:P1-commander", "Rograkh, Son of Rohgahh", "command", "P1"),
+            _object("obj:P2-commander", "Rograkh, Son of Rohgahh", "command", "P2"),
+            _object(
+                "obj:p1-bears",
+                "Grizzly Bears",
+                "battlefield",
+                "P1",
+                controlled_since_turn_began=p1_since,
+            ),
+            _object(
+                "obj:p2-goblin",
+                "Raging Goblin",
+                "battlefield",
+                "P2",
+                controlled_since_turn_began=p2_since,
+            ),
+        ]
+    )
+
+
+def _control_history_observations(p1_observed, p2_observed) -> dict[str, dict]:
+    p1_detail = {"name": "Grizzly Bears", "tapped": False, "counters": {}}
+    p2_detail = {"name": "Raging Goblin", "tapped": False, "counters": {}}
+    if p1_observed is not None:
+        p1_detail["controlled_since_turn_began"] = p1_observed
+    if p2_observed is not None:
+        p2_detail["controlled_since_turn_began"] = p2_observed
+    rows = [
+        _zone_row(
+            "p1",
+            battlefield=["Grizzly Bears"],
+            battlefield_details=[p1_detail],
+            command=["Rograkh, Son of Rohgahh"],
+        ),
+        _zone_row(
+            "p2",
+            battlefield=["Raging Goblin"],
+            battlefield_details=[p2_detail],
+            command=["Rograkh, Son of Rohgahh"],
+        ),
+    ]
+    return {"p1": _observation(rows)}
+
+
+def test_control_history_is_forwarded_and_no_longer_unobservable():
+    model = fsl.model_requested_state(_control_history_record(True, False))
+    assert all(
+        "controlled_since_turn_began" not in item.dimension
+        for item in model.hard_unsupported + model.unobservable
+    )
+    assert model.credit_eligible is True
+    by_card = {entry["card"]: entry for entry in model.neutral_initial_state["battlefield"]}
+    assert by_card["Grizzly Bears"]["controlled_since_turn_began"] is True
+    assert by_card["Raging Goblin"]["controlled_since_turn_began"] is False
+
+
+def test_control_history_checkpoint_exact_when_engine_agrees():
+    model = fsl.model_requested_state(_control_history_record(True, False))
+    equivalence = fsl.compare_checkpoint(model, _control_history_observations(True, False))
+    fields = {item.field: item for item in equivalence.fields}
+    assert fields["battlefield.obj:p1-bears.controlled_since_turn_began"].verdict == (
+        fsl.CHECKPOINT_EXACT
+    )
+    assert fields["battlefield.obj:p2-goblin.controlled_since_turn_began"].verdict == (
+        fsl.CHECKPOINT_EXACT
+    )
+    assert equivalence.verdict == fsl.CHECKPOINT_EXACT
+
+
+@pytest.mark.parametrize(
+    ("p1_since", "p2_since", "p1_observed", "p2_observed", "field"),
+    [
+        # Impossible request: a non-active seat on turn 1 (CR 302.6).
+        (True, True, True, False, "battlefield.obj:p2-goblin.controlled_since_turn_began"),
+        # Laundered readiness: engine says sick, request says ready.
+        (True, False, False, False, "battlefield.obj:p1-bears.controlled_since_turn_began"),
+        # Missing readback can never prove equivalence.
+        (True, False, None, False, "battlefield.obj:p1-bears.controlled_since_turn_began"),
+        # A non-boolean readback is not an engine fact.
+        (True, False, "yes", False, "battlefield.obj:p1-bears.controlled_since_turn_began"),
+    ],
+)
+def test_control_history_mismatch_fails_closed(p1_since, p2_since, p1_observed, p2_observed, field):
+    model = fsl.model_requested_state(_control_history_record(p1_since, p2_since))
+    equivalence = fsl.compare_checkpoint(
+        model, _control_history_observations(p1_observed, p2_observed)
+    )
+    mismatched = {
+        item.field for item in equivalence.fields if item.verdict == fsl.CHECKPOINT_MISMATCH
+    }
+    assert field in mismatched
+    assert equivalence.verdict == fsl.CHECKPOINT_MISMATCH
+    assert equivalence.credit_eligible is False
+
+
+def test_control_history_unverifiable_requests_are_unsupported():
+    record = _control_history_record("yes", False)
+    model = fsl.model_requested_state(record)
+    assert "semantic_objects.controlled_since_turn_began" in {
+        item.dimension for item in model.hard_unsupported
+    }
+    record = _control_history_record(True, False)
+    record["semantic_objects"][0]["controlled_since_turn_began"] = True  # a command-zone object
+    model = fsl.model_requested_state(record)
+    assert "semantic_objects.controlled_since_turn_began" in {
+        item.dimension for item in model.hard_unsupported
+    }
+    assert model.credit_eligible is False
+
+
+# ---------------------------------------------------------------------------
+# Review P3-1: same-name, same-controller objects are matched as a multiset
+# ---------------------------------------------------------------------------
+def _swamp_record(requests: list) -> dict:
+    objects = [
+        _object("obj:P1-commander", "Rograkh, Son of Rohgahh", "command", "P1"),
+        _object("obj:P2-commander", "Rograkh, Son of Rohgahh", "command", "P2"),
+    ]
+    for index, since in enumerate(requests):
+        objects.append(
+            _object(
+                f"obj:p2-swamp-{index}",
+                "Swamp",
+                "battlefield",
+                "P2",
+                controlled_since_turn_began=since,
+            )
+        )
+    return _record(semantic_objects=objects)
+
+
+def _swamp_observations(
+    observed: list, *, tapped: list | None = None, omit_tapped: bool = False
+) -> dict[str, dict]:
+    details = []
+    for index, since in enumerate(observed):
+        detail = {
+            "name": "Swamp",
+            "counters": {},
+        }
+        if not omit_tapped:
+            detail["tapped"] = bool(tapped[index]) if tapped else False
+        if since is not None:
+            detail["controlled_since_turn_began"] = since
+        details.append(detail)
+    rows = [
+        _zone_row("p1", command=["Rograkh, Son of Rohgahh"]),
+        _zone_row(
+            "p2",
+            battlefield=["Swamp"] * len(observed),
+            battlefield_details=details,
+            command=["Rograkh, Son of Rohgahh"],
+        ),
+    ]
+    return {"p1": _observation(rows)}
+
+
+def _swamp_verdicts(equivalence, suffix: str) -> set[str]:
+    return {
+        item.verdict
+        for item in equivalence.fields
+        if item.field.startswith("battlefield.obj:p2-swamp-") and item.field.endswith(suffix)
+    }
+
+
+def test_micro_costs_shape_one_disagreeing_swamp_is_a_mismatch():
+    """Nine P2 Swamps requested True; the eighth readback says False. Matching
+    only the first detail used to call all nine EXACT."""
+    model = fsl.model_requested_state(_swamp_record([True] * 9))
+    observed = [True] * 9
+    observed[7] = False
+    equivalence = fsl.compare_checkpoint(model, _swamp_observations(observed))
+    assert _swamp_verdicts(equivalence, ".controlled_since_turn_began") == {fsl.CHECKPOINT_MISMATCH}
+    assert equivalence.verdict == fsl.CHECKPOINT_MISMATCH
+    assert equivalence.credit_eligible is False
+
+
+def test_micro_costs_shape_every_swamp_agreeing_is_exact():
+    model = fsl.model_requested_state(_swamp_record([True] * 9))
+    equivalence = fsl.compare_checkpoint(model, _swamp_observations([True] * 9))
+    assert _swamp_verdicts(equivalence, ".controlled_since_turn_began") == {fsl.CHECKPOINT_EXACT}
+    assert equivalence.verdict == fsl.CHECKPOINT_EXACT
+
+
+def test_ambiguous_same_name_readback_is_unknown_not_exact():
+    """Mixed requests that the readback can hold but cannot attribute."""
+    model = fsl.model_requested_state(_swamp_record([True, False]))
+    equivalence = fsl.compare_checkpoint(model, _swamp_observations([False, True]))
+    assert _swamp_verdicts(equivalence, ".controlled_since_turn_began") == {fsl.CHECKPOINT_UNKNOWN}
+    assert equivalence.verdict == fsl.CHECKPOINT_UNKNOWN
+    assert equivalence.credit_eligible is False
+
+
+def test_fewer_details_than_requested_objects_is_a_mismatch():
+    model = fsl.model_requested_state(_swamp_record([True] * 3))
+    equivalence = fsl.compare_checkpoint(model, _swamp_observations([True] * 2))
+    assert equivalence.verdict == fsl.CHECKPOINT_MISMATCH
+
+
+def test_tapped_is_matched_as_a_multiset_too():
+    model = fsl.model_requested_state(_swamp_record([True] * 3))
+    equivalence = fsl.compare_checkpoint(
+        model, _swamp_observations([True] * 3, tapped=[False, False, True])
+    )
+    assert _swamp_verdicts(equivalence, ".tapped") == {fsl.CHECKPOINT_MISMATCH}
+    assert equivalence.verdict == fsl.CHECKPOINT_MISMATCH
+
+
+def test_missing_tapped_readback_is_never_coerced_to_untapped():
+    """Review P3 (comment 6035940198): ``bool(item.get("tapped"))`` turned an
+    absent readback into False, so a default (untapped) request was called
+    EXACT against a detail that never stated the permanent was untapped. The
+    readback must be the literal engine boolean, as for
+    ``controlled_since_turn_began``."""
+    model = fsl.model_requested_state(_swamp_record([True] * 3))
+    equivalence = fsl.compare_checkpoint(model, _swamp_observations([True] * 3, omit_tapped=True))
+    assert _swamp_verdicts(equivalence, ".tapped") == {fsl.CHECKPOINT_MISMATCH}
+    assert equivalence.verdict == fsl.CHECKPOINT_MISMATCH
+    assert equivalence.credit_eligible is False
+
+
+def test_non_boolean_tapped_readback_is_never_coerced():
+    """A truthy string is not the engine's boolean and cannot prove a request."""
+    model = fsl.model_requested_state(_swamp_record([True] * 3))
+    for member in model.battlefield:
+        member["tapped"] = True
+    observations = _swamp_observations([True] * 3, tapped=[False, False, False])
+    for row in observations["p1"]["payload"]["state"]["players"]:
+        for detail in row["zones"]["battlefield_details"]:
+            detail["tapped"] = "yes"
+    equivalence = fsl.compare_checkpoint(model, observations)
+    assert _swamp_verdicts(equivalence, ".tapped") == {fsl.CHECKPOINT_MISMATCH}
+    assert equivalence.verdict == fsl.CHECKPOINT_MISMATCH
+    assert equivalence.credit_eligible is False
+
+
+@pytest.mark.parametrize("coerced", [1, "true", 0])
+def test_control_history_request_is_never_coerced(coerced):
+    model = fsl.model_requested_state(_control_history_record(True, False))
+    model.battlefield[0]["controlled_since_turn_began"] = coerced
+    equivalence = fsl.compare_checkpoint(model, _control_history_observations(True, False))
+    fields = {item.field: item for item in equivalence.fields}
+    assert fields["battlefield.obj:p1-bears.controlled_since_turn_began"].verdict == (
+        fsl.CHECKPOINT_MISMATCH
+    )

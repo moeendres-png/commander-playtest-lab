@@ -1,0 +1,82 @@
+{
+ "schema_version": "commander-lab.forge-bridge-successor-source-lock/1.0.0",
+ "workstream": "forge-bridge-g1r1-turnbegan-20261006",
+ "classification": "SUCCESSOR_BRIDGE_MATERIALIZATION_SOURCE",
+ "status": "MERGED_EXACT_HEAD_CI_GREEN_PB03_PENDING",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "DENOMINATOR_CHANGE",
+  "RULES_CORE_AUTHORITY_CHANGE",
+  "FORGE_MASTER_MERGE"
+ ],
+ "rules_core_authority": {
+  "repository": "https://github.com/moeendres-png/forge.git",
+  "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+  "role": "R-1 admitted Rules-Core qualification candidate (#11 incl. #12). UNCHANGED by this lock.",
+  "lock": "qualification/forge-r1-candidate-authority-20260930/SUCCESSOR_SOURCE_LOCK.json (Rules-Core fields unchanged)"
+ },
+ "prior_bridge_source": {
+  "commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+  "tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+  "content": "forge#16 + #22 + #25 + #28 (schema /4)",
+  "role": "historical; the bridge content before the G1 R1 placement; successor lock qualification/forge-bridge-constructed-state-20261005"
+ },
+ "superseded_bridge_source": {
+  "commit": "80336359cf468bec91f525199adb7d09fc726a69",
+  "tree": "e5731feabf3e7a9f55eec9de0b3c54d099182abe",
+  "pull_request": 33,
+  "content": "the same G1 R1 TurnBegan placement and every bridge blob as the current source",
+  "role": "historical; first merged target of this workstream, replaced by forge#35 because its tree still carried the OpenCode workstream state file. Exact-head CI on 80336359 (Test build 37531998578 Java 17/21 success, iOS 37531998583 success) is not reused for the new commit."
+ },
+ "new_bridge_source": {
+  "repository": "https://github.com/moeendres-png/forge.git",
+  "branch": "claude/forge-unified-successor-20260929",
+  "commit": "d9e356aa90da4c14dd6767a4ca11d38b9870a4ce",
+  "tree": "27bee40d1c50059d400da3cf8d589fa73d80204b",
+  "pull_request": 35,
+  "ancestry": "forge#35 merge commit d9e356aa (parents 80336359 = the forge#33 merge, tree e5731fea, and c2546d26 = the PR #35 head, tree 27bee40d) on claude/forge-unified-successor-20260929. PR #35 deletes only .foundry/oc561-g1-r1-forge-20261006.yaml (254 lines removed) from the forge#33 tree: 0 Rules-Core files, 0 card-data files, and every forge-protocol2-bridge blob byte-identical to 80336359 (StateProjection.java b3f801c3a12cb05c0739fcc69e67fff2cec16058 at both commits). The deletion removes the OpenCode workstream state file that made the H4F Rules-Core drift guard refuse 80336359; the guard itself is not weakened.",
+  "content": "Coordinator decision G1 R1 with conditions C1-C6 (#561): scenario permanents placed untapped by the GameEventTurnBegan(turn 1) subscriber before the readiness loop; session-owned one-shot latch with recorded failure; retained startGameHook fails closed unless the placement ran exactly once without error and the accepted placement list is complete, then applies requested tapped state silently after the untap; StateProjection reads back controlled_since_turn_began = !Card.isFirstTurnControlled() per battlefield entry, which the Lab lane checkpoint-verifies against the request. Hardening ports: a bootstrap error recorded after the hook completed fails a RUNNING session closed and aborts the parked frame; the retained hook requires turn one and a complete placement list; the complete and incremental attack paths decline only the starter's turn-1 sick casts; placement before the untap step leaves phasing permanents phased out (recorded divergence). forge#35 only removes the engine fork's own OpenCode state file; no bridge or Rules-Core byte changed."
+ },
+ "exact_head_qualification": {
+  "commit": "d9e356aa90da4c14dd6767a4ca11d38b9870a4ce",
+  "ci_status": "GREEN",
+  "github_test_build": [
+   {
+    "run_id": 37620949527,
+    "event": "push",
+    "status": "completed",
+    "java17": "success",
+    "java21": "success",
+    "note": "exact head; 'Test with Java 17' completed success at 2026-10-07T12:54:19Z and 'Test with Java 21' at 2026-10-07T12:53:43Z"
+   }
+  ],
+  "github_ios_mobivm": [],
+  "github_ios_mobivm_note": "no iOS compatibility gate run exists for d9e356aa, and none is triggered by this commit: ios-compat-gate.yml fires only on **/*.java, **/pom.xml, forge-gui-ios/** or its own workflow file, while forge#35 changes only .foundry/oc561-g1-r1-forge-20261006.yaml. Recorded as NO_RUN (not applicable), never satisfied by the 80336359 iOS run 37531998583.",
+  "local_forge_bridge_suite": {
+   "command": "LANG=C.UTF-8 xvfb-run -a mvn -B -ntp -o -pl forge-protocol2-bridge -am test -Dtest='forge.bridge.**' -Dsurefire.failIfNoSpecifiedTests=false",
+   "commit": "67da6f07e99e57b4dce2153b242e172ab70c2b12",
+   "tree_equal_to_new_bridge_source": false,
+   "run": 374,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "evidence_class": "LOCAL_OBSERVED",
+   "note": "run on the superseded local Claude line 67da6f07 (tree 8973bc76); provenance only, never credited to the merged d9e356aa tree"
+  },
+  "target_local_suite": {
+   "status": "NOT_RUN",
+   "note": "no Lab-local forge.bridge suite was run on d9e356aa in this repin; the exact-head GitHub Test build is the target's gate"
+  }
+ },
+ "lab_consumer": {
+  "scenario_lane": "forge_scenario_lane.py: controlled_since_turn_began checkpoint-verified against the battlefield_details readback; the capability tables are derived from the d9e356aa blobs (readback assertions from StateProjection, byte-identical to forge#33; hook assertions installScenarioBootstrap/requireScenarioBootstrapCompleted/placeBattlefield/applyPostUntap)",
+  "tapped_readback": "forge_scenario_lane.py battlefield.<id>.tapped compares the readback as the literal engine True/False (review P3 6035940198): an absent or non-boolean `tapped` key is a MISMATCH, never a bool()-coerced False/EXACT",
+  "hidden_information_channels": "forge_hidden_information.py re-asserted at d9e356aa (blobs byte-identical to 80336359): BOOTSTRAP_FIELDS loses controlled_since_turn_began because the merged bootstrap no longer reads it; every other channel fragment is unchanged and AF05 Forge stays 20 PROVIDER_ADAPTER_GAP",
+  "impact_adjudication": "docs/forge_g1r1_turnbegan_20261006/IMPACT_ADJUDICATION.md"
+ },
+ "evidence_transfer": {
+  "historical_receipts_relabelled": false
+ }
+}
