@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -44,21 +45,32 @@ def _git(args: list[str], cwd: str) -> str:
     return proc.stdout.strip()
 
 
+_REPOSITORY_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+
+
 def init_state(
     worktree: str,
     workstream: str,
     branch: str,
     audit_base_sha: str,
     audit_base_tree: str,
-    repository: str = "",
+    repository: str,
 ) -> dict:
+    """Build a minimal schema-2.0 state document.
+
+    ``repository`` is mandatory: an empty or malformed owner/name slug would
+    leave external review evidence unbound to any repository, so it fails
+    closed here instead of defaulting to "any repository".
+    """
+    if not isinstance(repository, str) or not _REPOSITORY_RE.match(repository.strip()):
+        raise ValueError(f"repository must be an explicit owner/name slug, got {repository!r}")
     try:
         live_head = _git(["rev-parse", "HEAD"], worktree)
     except RuntimeError as exc:
         raise ValueError(f"cannot read HEAD for state init: {exc}") from exc
     return {
         "schema_version": "2.0",
-        "repository": repository,
+        "repository": repository.strip(),
         "worktree": os.path.realpath(os.path.abspath(worktree)),
         "branch": branch,
         "audit_base_sha": audit_base_sha,
@@ -173,6 +185,22 @@ def bootstrap(
                     notes.append("state schema 1.0 (legacy; migrate to 2.0)")
                 if str(data.get("branch", "")) != branch:
                     failures.append(f"state branch {data.get('branch')!r} != expected {branch!r}")
+                # Repository identity drives which GitHub evidence a review can
+                # cite; a blank or foreign state repository must not silently
+                # mean "accept any repository".
+                state_repository = str(data.get("repository") or "").strip()
+                if not state_repository:
+                    failures.append(
+                        "state repository is missing: refusing to accept any repository"
+                    )
+                elif not slug:
+                    failures.append(
+                        "profile has no repo_slug: refusing to accept any state repository"
+                    )
+                elif state_repository != slug:
+                    failures.append(
+                        f"state repository {state_repository!r} != profile repository {slug!r}"
+                    )
                 try:
                     state_wt = os.path.realpath(str(data.get("worktree", "")))
                 except (TypeError, ValueError):

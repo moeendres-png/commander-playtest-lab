@@ -409,12 +409,16 @@ def test_suppressed_routing_gates_engine_stale_target(
     target: dict, canon: Path, tmp_path: Path
 ) -> None:
     # Retarget the fixture at the mage slug so the mage profile identity gate
-    # holds and only the routing finding is under test.
+    # holds and only the routing finding is under test. The state repository
+    # must move with the remote: bootstrap binds them (P3-a).
     _git(
         ["config", "remote.origin.url", "https://github.com/moeendres-png/mage.git"],
         target["wt"],
         target["env"],
     )
+    state = yaml.safe_load(target["state"].read_text(encoding="utf-8"))
+    state["repository"] = "moeendres-png/mage"
+    target["state"].write_text(yaml.safe_dump(state), encoding="utf-8")
     (target["wt"] / "AGENTS.md").write_text("WS33_COMPLETE gates apply\n", encoding="utf-8")
     refused = _plan(target, canon, profile="mage")
     assert refused["verdict"] == "LAUNCH_REFUSED"
@@ -828,6 +832,36 @@ def test_bootstrap_rejects_conflicting_state_ownership(target: dict, canon: Path
     )
     assert result["verdict"] == "BOOTSTRAP_FAIL"
     assert any("ownership" in f for f in result["failures"])
+
+
+def test_bootstrap_rejects_state_repository_mismatch(target: dict, canon: Path) -> None:
+    """An explicit state naming a foreign repository fails closed (P3-a)."""
+    data = yaml.safe_load(target["state"].read_text(encoding="utf-8"))
+    data["repository"] = "attacker/other-repo"
+    target["state"].write_text(yaml.safe_dump(data), encoding="utf-8")
+    result = bootstrap_mod.bootstrap(
+        str(target["wt"]),
+        "TEST-WS",
+        "project/test",
+        target["base"],
+        str(target["state"]),
+        "cpl",
+        str(ROOT / ".foundry" / "repo-profiles"),
+        str(canon),
+    )
+    assert result["verdict"] == "BOOTSTRAP_FAIL"
+    assert any("repository" in f for f in result["failures"])
+
+
+def test_init_state_requires_explicit_repository(target: dict) -> None:
+    """`repository=""` must never default state init to 'any repository'."""
+    for bad in ("", "   ", "not-a-slug"):
+        with pytest.raises(ValueError, match="repository"):
+            bootstrap_mod.init_state(str(target["wt"]), "TEST-WS", "main", "a" * 40, "b" * 40, bad)
+    doc = bootstrap_mod.init_state(
+        str(target["wt"]), "TEST-WS", "main", "a" * 40, "b" * 40, CPL_SLUG
+    )
+    assert doc["repository"] == CPL_SLUG
 
 
 def test_bootstrap_accepts_matching_explicit_ownership(target: dict, canon: Path) -> None:

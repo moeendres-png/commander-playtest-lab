@@ -24,6 +24,7 @@ def _git(args: list[str], cwd: Path) -> str:
             "GIT_COMMITTER_NAME": "T",
             "GIT_COMMITTER_EMAIL": "t@example.com",
             "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": "/dev/null",
         }
     )
     proc = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, env=env)

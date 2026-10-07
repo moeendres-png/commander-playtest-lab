@@ -516,7 +516,9 @@ def test_bootstrap_init_state_uses_canonical_writer(tmp_path: Path) -> None:
     _git(["add", "."], wt)
     _git(["commit", "-m", "init"], wt)
     base = _git(["rev-parse", "HEAD"], wt)
-    doc = bootstrap_mod.init_state(str(wt), "TEST-WS", "project/test", base, "0" * 40, "r")
+    doc = bootstrap_mod.init_state(
+        str(wt), "TEST-WS", "project/test", base, "0" * 40, "moeendres-png/commander-playtest-lab"
+    )
     target = tmp_path / "STATE.yaml"
     bootstrap_mod.state_mod.write_state(str(target), doc, workdir=str(wt))
     assert state_mod.validate(yaml.safe_load(target.read_text(encoding="utf-8"))) == []
