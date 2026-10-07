@@ -127,6 +127,8 @@ class XmageMidgameKnowledgeProjectionTest {
         request.addProperty("plan_id", gameId);
         request.addProperty("seed", SEED);
         request.add("requested_starting_state", record);
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         return request;
     }
 
@@ -225,6 +227,20 @@ class XmageMidgameKnowledgeProjectionTest {
      * the tape resolved its face-down target to the semantic object the record
      * requested, which the record binds to the hidden identity.
      */
+
+    /**
+     * The record's own active player, as the explicit create-time choosing seat.
+     *
+     * <p>#572: the bridge never defaults {@code starting_player_seat}; every
+     * create request must declare it. The lane's arrival pilot still answers the
+     * engine's own CR 103.2 starting-player choice from the record's requested
+     * state, so this value names who is asked, not who starts.</p>
+     */
+    private static int startingSeatFor(JsonObject record) {
+        String seat = record.getAsJsonObject("temporal_state").get("active_player").getAsString();
+        return Integer.parseInt(seat.substring(1)) - 1;
+    }
+
     @Test
     void thePublicEventTapeNeverResolvesAFaceDownPermanentToItsRequestedObject() {
         JsonObject record = successorRecord("HIDDEN_04");

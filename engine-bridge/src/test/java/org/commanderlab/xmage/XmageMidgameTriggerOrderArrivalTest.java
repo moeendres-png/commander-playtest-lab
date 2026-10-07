@@ -96,6 +96,8 @@ class XmageMidgameTriggerOrderArrivalTest {
         request.addProperty("plan_id", "trigger-order-" + fixtureId);
         request.addProperty("seed", SEED);
         request.add("requested_starting_state", frozenRecord(fixtureId));
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         return request;
     }
 
@@ -103,6 +105,20 @@ class XmageMidgameTriggerOrderArrivalTest {
         JsonObject counters = new JsonObject();
         counters.add(kind, count);
         return counters;
+    }
+
+
+    /**
+     * The record's own active player, as the explicit create-time choosing seat.
+     *
+     * <p>#572: the bridge never defaults {@code starting_player_seat}; every
+     * create request must declare it. The lane's arrival pilot still answers the
+     * engine's own CR 103.2 starting-player choice from the record's requested
+     * state, so this value names who is asked, not who starts.</p>
+     */
+    private static int startingSeatFor(JsonObject record) {
+        String seat = record.getAsJsonObject("temporal_state").get("active_player").getAsString();
+        return Integer.parseInt(seat.substring(1)) - 1;
     }
 
     @Test
@@ -137,6 +153,8 @@ class XmageMidgameTriggerOrderArrivalTest {
         }
         JsonObject request = createRequest("PILOT_CHOOSE_ABILITY");
         request.add("requested_starting_state", record);
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         JsonObject response = lane.call("create_midgame_game", request);
         assertFalse(response.get("success").getAsBoolean());
         String message = response.getAsJsonArray("errors").get(0).getAsJsonObject()

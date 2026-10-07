@@ -1,0 +1,40 @@
+{
+ "candidates": {
+  "forge": {
+   "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+   "eligible_execution_modes": [
+    "PROTOCOL2_LIFECYCLE",
+    "PROTOCOL2_SCRIPTED_PREGAME",
+    "PROTOCOL2_START2_V1_0_6"
+   ],
+   "receipt_count": 5,
+   "receipts_written": [
+    "PILOT_MULLIGAN",
+    "PLAYER_COUNT_2P",
+    "PLAYER_COUNT_3P",
+    "PLAYER_COUNT_4P",
+    "PLAYER_COUNT_5P"
+   ],
+   "runner_digest": "885abdc6946a72e3155aebfac6eea9b1fc9bcd207e5cb53a417111495b0f3371"
+  },
+  "xmage": {
+   "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "eligible_execution_modes": [
+    "PROTOCOL2_LIFECYCLE",
+    "PROTOCOL2_SCRIPTED_PREGAME",
+    "PROTOCOL2_START2_V1_0_6"
+   ],
+   "receipt_count": 5,
+   "receipts_written": [
+    "PILOT_MULLIGAN",
+    "PLAYER_COUNT_2P",
+    "PLAYER_COUNT_3P",
+    "PLAYER_COUNT_4P",
+    "PLAYER_COUNT_5P"
+   ],
+   "runner_digest": "885abdc6946a72e3155aebfac6eea9b1fc9bcd207e5cb53a417111495b0f3371"
+  }
+ },
+ "credit_rule": "R-4: only exact per-fixture direct producer receipts earn FULL107 credit; native-suite and adjacent mechanism evidence remain supporting only",
+ "schema_version": "commander-lab.direct-full107-receipts/1.0.0"
+}

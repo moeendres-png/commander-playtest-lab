@@ -84,7 +84,7 @@ def test_measured_improvement_preserves_quality_and_provenance() -> None:
     candidate = arm(
         "candidate",
         session={
-            "model": "opencode-go/space-bunny-free",
+            "model": "opencode-go/space-bunny",
             "tokens_input": 800,
             "tokens_output": 180,
             "elapsed_seconds": 90.0,
@@ -102,7 +102,7 @@ def test_measured_improvement_preserves_quality_and_provenance() -> None:
     assert result["disposition"] == "PAIR_MEASURED_EFFICIENCY_IMPROVEMENT"
     assert result["candidate_quality_gate"] == "PASS"
     assert result["baseline_session"]["model"] == "opencode-go/deepseek-v4.1-flash"
-    assert result["candidate_session"]["model"] == "opencode-go/space-bunny-free"
+    assert result["candidate_session"]["model"] == "opencode-go/space-bunny"
     assert result["candidate_session"]["cli_version"] == "1.18.30"
     assert result["efficiency_deltas"]["tokens_input"]["percent"] == -20.0
     assert result["efficiency_deltas"]["elapsed_seconds"]["absolute"] == -30.0

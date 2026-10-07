@@ -38,6 +38,7 @@ from typing import Any
 
 from commander_lab.qualification.current_boundary import forge_causal_route as fcr
 from commander_lab.qualification.current_boundary import receipts as receipt_mod
+from commander_lab.qualification.current_boundary import scripted_selection as ss
 
 from .bridge_launcher import (
     BridgeLaunchError,
@@ -53,6 +54,10 @@ from .game_driver import (
     decision_identity_params,
     poll_decision,
     select_cost_order_action,
+)
+from .starting_player import (
+    STARTER_DECLARATION_SCRIPT,
+    scenario_setup_starting_seat,
 )
 
 LANE_SCHEMA_VERSION = "commander-lab.forge-scenario-lane/1.0.0"
@@ -314,16 +319,32 @@ _UNSUPPORTED_RECORD_DIMENSIONS: dict[str, str] = {
 _LANE_EXECUTABLE_DECISION_SELECTORS: frozenset[str] = frozenset()
 
 # The causal stack route (#520) answers a record's scripted steps through the
-# shared fail-closed selector (``scripted_selection``) only for these selectors,
-# and only for a declared terminal whose obligation this lane can judge from
-# engine readback. Commander zone choices (CR 903.9): graveyard and exile are
-# the state-based choice (a COMMANDER_MOVE frame after the move), hand is the
-# replacement (a REPLACEMENT_CONFIRM frame before it). Library contents are
-# never exposed by the readback, so a library row stays unsupported.
-_CAUSAL_ROUTE_SELECTORS: frozenset[str] = frozenset(
-    {"choice.boolean", "replacement_effect.boolean"}
-)
-_CAUSAL_ROUTE_TERMINALS: frozenset[str] = frozenset({"commander_zone_choice"})
+# shared fail-closed selector (``scripted_selection``) only for the selectors
+# its declared terminal admits, and only for a terminal whose obligation this
+# lane judges from engine readback and the route's decision tape (one observer
+# contract per terminal, ``_CAUSAL_TERMINAL_CONTRACTS``). Commander zone choices
+# (CR 903.9): graveyard and exile are the state-based choice (a COMMANDER_MOVE
+# frame after the move), hand is the replacement (a REPLACEMENT_CONFIRM frame
+# before it). Library contents are never exposed by the readback, so a library
+# row stays unsupported. A scripted decision (``scripted_decision_offered``) is
+# a cast on the caused stack: the scripted priority cast, its targets (a stack
+# target named by the record's own stack) and its payment from the record's own
+# ``action_cost_state`` sources. A terminal without an observer contract here
+# (a priority ring, a copy, an elimination) stays unrouted.
+_CAUSAL_TERMINAL_SELECTORS: dict[str, frozenset[str]] = {
+    "commander_zone_choice": frozenset({"choice.boolean", "replacement_effect.boolean"}),
+    "scripted_decision_offered": frozenset(
+        {
+            "priority.semantic_action",
+            "target.semantic_object",
+            "target.semantic_player",
+            "target.semantic_stack_object",
+            "mana_payment.mana_payment",
+        }
+    ),
+}
+_CAUSAL_ROUTE_SELECTORS: frozenset[str] = frozenset().union(*_CAUSAL_TERMINAL_SELECTORS.values())
+_CAUSAL_ROUTE_TERMINALS: frozenset[str] = frozenset(_CAUSAL_TERMINAL_SELECTORS)
 _COMMANDER_EVENT_FRAMES: dict[str, str] = {
     "graveyard": "COMMANDER_MOVE",
     "exile": "COMMANDER_MOVE",
@@ -593,41 +614,71 @@ def _requested_temporal(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def lane_causal_plan(record: dict[str, Any]) -> fcr.CausalPlan | None:
-    """The causal stack route this lane can run and judge for a record, or None.
-
-    The route needs the shared declared entry (with its fuel), a modeless,
-    complete stack, a terminal this lane can evaluate, a commander zone the
-    readback exposes, and scripted steps the shared selector answers.
-    """
-    fixture_id = str(record.get("fixture_id"))
-    entry = fcr.declared_causal_entry(fixture_id)
-    if entry is None or entry.get("terminal") not in _CAUSAL_ROUTE_TERMINALS:
-        return None
+def _commander_zone_route(record: dict[str, Any], plan: fcr.CausalPlan) -> bool:
+    """One spell aimed at exactly one commander, for a zone the readback exposes."""
     required = list((record.get("expected_events") or {}).get("required_events") or [])
     zone = _required_token(required, "commander_zone_event:")
     if zone not in _COMMANDER_EVENT_FRAMES or not _required_token(required, "commander_choice:"):
-        return None
-    script = [step for step in record.get("decision_script") or () if isinstance(step, dict)]
-    if not script or any(
-        f"{step.get('decision_family')}.{(step.get('selection') or {}).get('selector_kind')}"
-        not in _CAUSAL_ROUTE_SELECTORS
-        for step in script
-    ):
-        return None
-    plan = fcr.causal_plan(record, entry)
-    if plan is None or len(plan.spells) != 1:
-        return None
+        return False
+    if len(plan.spells) != 1:
+        return False
+    (spell,) = plan.spells
     commanders = [
         obj
         for obj in record.get("semantic_objects") or ()
         if isinstance(obj, dict)
         and obj.get("commander_id")
-        and obj.get("semantic_id") in plan.spells[0].targets
+        and obj.get("semantic_id") in spell.targets
     ]
-    if len(plan.spells[0].targets) != 1 or len(commanders) != 1:
+    return len(spell.targets) == 1 and len(commanders) == 1
+
+
+def _scripted_decision_route(record: dict[str, Any], plan: fcr.CausalPlan) -> bool:
+    """The script opens with a priority cast and declares obligation tokens."""
+    script = [step for step in record.get("decision_script") or () if isinstance(step, dict)]
+    required = (record.get("expected_events") or {}).get("required_events") or []
+    return bool(plan.spells) and script[0].get("decision_family") == "priority" and bool(required)
+
+
+_CAUSAL_TERMINAL_ROUTES = {
+    "commander_zone_choice": _commander_zone_route,
+    "scripted_decision_offered": _scripted_decision_route,
+}
+
+
+def lane_causal_plan(record: dict[str, Any]) -> fcr.CausalPlan | None:
+    """The causal stack route this lane can run and judge for a record, or None.
+
+    The route needs the shared declared entry (with its fuel), a complete,
+    modeless stack, a terminal with an observer contract in this lane, scripted
+    steps the shared selector answers for that terminal, and the terminal's own
+    shape (``_CAUSAL_TERMINAL_ROUTES``).
+    """
+    fixture_id = str(record.get("fixture_id"))
+    entry = fcr.declared_causal_entry(fixture_id)
+    terminal = None if entry is None else str(entry.get("terminal"))
+    if entry is None or terminal not in _CAUSAL_ROUTE_TERMINALS:
+        return None
+    script = [step for step in record.get("decision_script") or () if isinstance(step, dict)]
+    if not script or any(
+        f"{step.get('decision_family')}.{(step.get('selection') or {}).get('selector_kind')}"
+        not in _CAUSAL_TERMINAL_SELECTORS[terminal]
+        for step in script
+    ):
+        return None
+    plan = fcr.causal_plan(record, entry)
+    if plan is None or not _CAUSAL_TERMINAL_ROUTES[terminal](record, plan):
         return None
     return plan
+
+
+def causal_terminal(model: RequestedStateModel) -> str | None:
+    """The declared terminal of a routed record (None when the lane has no route)."""
+    if model.causal_plan is None:
+        return None
+    entry = fcr.declared_causal_entry(model.fixture_id) or {}
+    terminal = str(entry.get("terminal"))
+    return terminal if terminal in _CAUSAL_ROUTE_TERMINALS else None
 
 
 def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
@@ -1727,8 +1778,10 @@ def drive_scenario_game(
     Decision policy (mirrors the current-boundary driver, never a default):
 
     * MULLIGAN -> keep (declared policy; engine-offered option)
-    * STARTING_PLAYER -> the requested starting seat when one is declared,
-      otherwise p1
+    * STARTING_PLAYER -> the record's explicit declaration (scripted
+      starting-player step, explicit field, or the requested state's own active
+      player as setup) submitted through the engine-offered frame; a record
+      without one fails closed, never p1 (#572)
     * PRIORITY -> pass (the requested checkpoint is reached by native progression)
     * ORDER_CHOICE -> the provider-published native CostPart order
     * any other decision class -> record the offered domain and stop fail closed
@@ -1737,8 +1790,16 @@ def drive_scenario_game(
     seats = SEATS[:players]
     if players < 2 or players > 6:
         raise ScenarioLaneError(f"unsupported player count {players}")
+    # The record's explicit starting-seat declaration (scripted step, explicit
+    # field, or the requested state's own active player as setup); no default.
+    declared_starting_seat, declared_starting_source = scenario_setup_starting_seat(model)
     result = ScenarioDriveResult(game_id=f"fsl-{model.fixture_id.lower()}-{uuid.uuid4().hex[:8]}")
     game_id = result.game_id
+    result.terminal_facts["starting_player_declaration"] = (
+        {"seat": declared_starting_seat, "source": declared_starting_source}
+        if declared_starting_seat is not None
+        else None
+    )
     created_request: dict[str, Any] = {
         "game_id": game_id,
         "deck_handles": [],
@@ -1831,12 +1892,22 @@ def drive_scenario_game(
                 continue
 
             if kind in {"STARTING_PLAYER", "CHOOSE_STARTING_PLAYER"}:
-                wanted = model.temporal_state.get("active_player") or "p1"
+                # The scenario lane never picks the starter itself: the seat must
+                # be declared by the record (scripted step or explicit field), or
+                # by the requested state's own active player as a setup answer.
+                # The p1 fallback that used to live here was the defect (#572).
+                if declared_starting_seat is None:
+                    raise DecisionUnsatisfied(
+                        "the engine offered a STARTING_PLAYER decision and the scenario "
+                        "record declares no starting seat; the Lab never chooses the "
+                        "starting player"
+                    )
+                wanted = declared_starting_seat
                 options = [
                     action
                     for action in actions
                     if action.get("action_type") == "structural_decision"
-                    and action.get("source_object_id") == wanted
+                    and str(action.get("source_object_id", "")).strip().lower() == wanted
                 ]
                 if len(options) != 1:
                     raise DecisionUnsatisfied(
@@ -1846,9 +1917,11 @@ def drive_scenario_game(
                     )
                 [chosen_action] = options
                 chosen = str(chosen_action["action_id"])
-                # The starter is the Lab's selection among engine-offered seats
-                # (requested_starting_seat), not an engine observation; it is
-                # recorded so an obligation can name that basis.
+                # A scripted starting-player decision is the only basis that can
+                # earn a starting-player obligation (STARTING_PLAYER_AUTHORIZED_
+                # BASIS); a setup answer from the requested state is recorded with
+                # its own basis and earns no such credit.
+                scripted_starter = declared_starting_source == STARTER_DECLARATION_SCRIPT
                 result.terminal_facts["starting_player_choice"] = {
                     "chooser": actor,
                     "revision": revision,
@@ -1858,8 +1931,15 @@ def drive_scenario_game(
                         for action in actions
                         if action.get("action_type") == "structural_decision"
                     ),
-                    "policy": "requested_starting_seat",
-                    "basis": "LAB_SELECTED_ENGINE_OFFERED",
+                    "policy": (
+                        "fixture_decision_script" if scripted_starter else "record_declared_setup"
+                    ),
+                    "basis": (
+                        STARTING_PLAYER_AUTHORIZED_BASIS
+                        if scripted_starter
+                        else "LAB_SELECTED_ENGINE_OFFERED"
+                    ),
+                    "declared_source": declared_starting_source,
                 }
                 response = proc.request(
                     "submit_action",
@@ -2039,8 +2119,9 @@ def _obligation_kind(model: RequestedStateModel) -> str | None:
     """
     if model.causal_plan is not None:
         # Only a routable record has a plan (``lane_causal_plan``); its terminal
-        # is judged from the route's readback by evaluate_commander_zone_choice.
-        return "commander_zone_choice"
+        # is judged from the route's readback and decision tape by that
+        # terminal's observer contract (``_CAUSAL_TERMINAL_CONTRACTS``).
+        return causal_terminal(model)
     required = [
         str(event)
         for event in (model.record.get("expected_events") or {}).get("required_events") or []
@@ -2545,6 +2626,401 @@ def evaluate_commander_zone_choice(
 
 
 # ---------------------------------------------------------------------------
+# Observer contract: a scripted decision on the caused stack
+# ---------------------------------------------------------------------------
+# Obligation-token families the scripted-decision contract cannot judge from the
+# pinned Forge readback and the route's tape. Each stays unobserved with its
+# reason; it is never inferred from card text or from rules knowledge.
+SCRIPTED_TOKEN_UNOBSERVABLE: dict[str, str] = {
+    "resolve": (
+        "the readback shows a spell leaving the stack, not whether it resolved, was "
+        "countered or was removed for illegal targets (CR 608.2b); the pinned bridge "
+        "projects no marked damage and exports no event log"
+    ),
+}
+
+
+def _scripted_token(token: str) -> tuple[str, str]:
+    """A required token's family and argument (``Counterspell_cast`` is a cast)."""
+    text = str(token)
+    if ":" in text:
+        family, argument = text.split(":", 1)
+        return family, argument
+    if text.endswith("_cast"):
+        return "spell_cast", text[: -len("_cast")]
+    return text, ""
+
+
+def scripted_token_observable(token: str) -> bool:
+    """Whether the scripted-decision contract has an observer for this token."""
+    return _scripted_token(token)[0] in _SCRIPTED_TOKEN_OBSERVERS
+
+
+def _card(argument: str) -> str:
+    return argument.replace("_", " ")
+
+
+@dataclass
+class _ScriptedCast:
+    """One scripted cast as the tape and the readback show it."""
+
+    document: dict[str, Any]
+    frame: fcr.RouteFrame
+    payments: list[fcr.RouteFrame]
+    before: dict[str, Any] | None
+    complete: dict[str, Any] | None
+
+
+def _scripted_casts(run: fcr.CausalRun) -> list[_ScriptedCast]:
+    snapshots = {snapshot["at"]: snapshot["state"] for snapshot in run.snapshots}
+    frames = [
+        (index, frame)
+        for index, frame in enumerate(run.frames)
+        if frame.reason == "scripted step" and frame.kind == "PRIORITY"
+    ]
+    if len(frames) != len(run.scripted_casts):
+        return []
+    casts: list[_ScriptedCast] = []
+    for number, ((index, frame), document) in enumerate(
+        zip(frames, run.scripted_casts, strict=True)
+    ):
+        payments: list[fcr.RouteFrame] = []
+        for later in run.frames[index + 1 :]:
+            if later.kind == "PRIORITY":
+                break
+            if later.reason.startswith("declared payment "):
+                payments.append(later)
+        casts.append(
+            _ScriptedCast(
+                document=document,
+                frame=frame,
+                payments=payments,
+                before=snapshots.get(f"before_scripted_{number}"),
+                complete=snapshots.get(f"cast_complete:{document['source_semantic_id']}"),
+            )
+        )
+    return casts
+
+
+def _named_tapped(state: dict[str, Any] | None, player: str, name: str) -> int | None:
+    if state is None:
+        return None
+    zones = (_players_by_id(state).get(player) or {}).get("zones") or {}
+    return sum(
+        1
+        for card in zones.get("battlefield_details") or ()
+        if isinstance(card, dict) and card.get("name") == name and card.get("tapped") is True
+    )
+
+
+def _payment_bound(model: RequestedStateModel, cast: _ScriptedCast) -> tuple[bool, str]:
+    """Every payment is an engine-offered tap of one declared source of this cast.
+
+    The tape's chosen option id must be one the engine offered on that frame,
+    its offered label must be the recorded choice, and its source must be the
+    declared source the route bound; each declared source pays once. The
+    readback must show exactly that many more of those sources tapped.
+    """
+    objects = ss.semantic_objects(model.record)
+    declared = list(cast.document.get("declared_payment_sources") or ())
+    seen: list[str] = []
+    for frame in cast.payments:
+        if frame.chosen_option_id not in frame.offered_option_ids:
+            return False, f"{frame.chosen_option_id} was not offered on its payment frame"
+        offered_label = frame.offered[frame.offered_option_ids.index(frame.chosen_option_id)]
+        source = objects.get(str(frame.payment_source))
+        if (
+            offered_label != frame.chosen
+            or frame.chosen_kind != "tap_mana_source"
+            or source is None
+            or frame.payment_source not in declared
+            or frame.chosen_source != source.name
+        ):
+            return False, f"{offered_label!r} is not a tap of a declared payment source"
+        seen.append(source.semantic_id)
+    if len(set(seen)) != len(seen) or sorted(seen) != sorted(declared):
+        return False, f"paid from {seen}, declared {declared}"
+    actor = str(cast.document.get("actor"))
+    for name in sorted({objects[sid].name for sid in seen}):
+        taps = sum(1 for sid in seen if objects[sid].name == name)
+        before = _named_tapped(cast.before, actor, name)
+        after = _named_tapped(cast.complete, actor, name)
+        if before is None or after is None or after - before != taps:
+            return False, f"the readback shows {before} -> {after} tapped {name}, taps {taps}"
+    return True, f"{len(seen)} engine-offered taps of the declared sources {seen}"
+
+
+def _one_cast(casts: list[_ScriptedCast], card: str | None = None) -> _ScriptedCast | None:
+    matching = [cast for cast in casts if card is None or cast.document.get("card") == card]
+    return matching[0] if len(matching) == 1 else None
+
+
+def _observe_priority(
+    model: RequestedStateModel, run: fcr.CausalRun, casts: list[_ScriptedCast], argument: str
+) -> tuple[bool, str]:
+    player = argument.lower()
+    taken = [cast for cast in casts if cast.frame.actor == player]
+    ok = bool(taken) and all(cast.before and cast.before.get("stack") for cast in taken)
+    return ok, f"{player} took the scripted cast on its own PRIORITY frame over the caused stack"
+
+
+def _observe_spell_cast(
+    model: RequestedStateModel, run: fcr.CausalRun, casts: list[_ScriptedCast], argument: str
+) -> tuple[bool, str]:
+    cast = _one_cast(casts, _card(argument))
+    ok = (
+        cast is not None
+        and cast.frame.chosen_kind == "cast"
+        and cast.frame.chosen_source == _card(argument)
+        and cast.frame.chosen_option_id in cast.frame.offered_option_ids
+        and cast.complete is not None
+    )
+    return ok, f"the engine-offered cast of {_card(argument)} completed with priority returned"
+
+
+def _observe_stack_push(
+    model: RequestedStateModel, run: fcr.CausalRun, casts: list[_ScriptedCast], argument: str
+) -> tuple[bool, str]:
+    cast = _one_cast(casts, _card(argument))
+    if cast is None or cast.before is None or cast.complete is None:
+        return False, f"no completed scripted cast of {_card(argument)}"
+    before = fcr._stack(cast.before)
+    after = fcr._stack(cast.complete)
+    ok = len(after) == len(before) + 1 and fcr.stack_card(after[0]) == _card(argument)
+    return ok, f"the stack went from {before} to {after}"
+
+
+def _observe_mana_abilities(
+    model: RequestedStateModel, run: fcr.CausalRun, casts: list[_ScriptedCast], argument: str
+) -> tuple[bool, str]:
+    paying = [cast for cast in casts if cast.payments]
+    cast = paying[0] if len(paying) == 1 else None
+    if cast is None or not argument.isdigit():
+        return False, f"{len(paying)} scripted casts paid"
+    bound, detail = _payment_bound(model, cast)
+    return bound and len(cast.payments) == int(argument), detail
+
+
+def _observe_mana_paid(
+    model: RequestedStateModel, run: fcr.CausalRun, casts: list[_ScriptedCast], argument: str
+) -> tuple[bool, str]:
+    paying = [cast for cast in casts if cast.payments]
+    cast = paying[0] if len(paying) == 1 else None
+    if cast is None or cast.complete is None:
+        return False, f"{len(paying)} scripted casts paid"
+    declared = cast.document.get("declared_mana") or []
+    cost = "(" + "".join(f"{{{symbol}}}" for symbol in declared) + ")"
+    bound, detail = _payment_bound(model, cast)
+    actor = str(cast.document.get("actor"))
+    pool = (_players_by_id(cast.complete).get(actor) or {}).get("mana_pool")
+    checks = {
+        "declared_mana_is_the_token": "".join(declared) == argument,
+        "engine_cast_cost": str(cast.frame.chosen or "").endswith(cost),
+        "one_tap_per_declared_symbol": len(cast.payments) == len(declared),
+        "taps_matched_to_declared_source_names": bound,
+        "no_floating_mana": isinstance(pool, dict)
+        and bool(pool)
+        and all(value == 0 for value in pool.values()),
+    }
+    failed = [name for name, ok in checks.items() if not ok]
+    return not failed, detail if not failed else f"not observed: {failed}; {detail}"
+
+
+def _observe_payment_frame(
+    model: RequestedStateModel, run: fcr.CausalRun, casts: list[_ScriptedCast], argument: str
+) -> tuple[bool, str]:
+    player = argument.lower()
+    paying = [cast for cast in casts if cast.payments and cast.frame.actor == player]
+    ok = bool(paying) and all(
+        frame.kind == "MANA_PAYMENT" and frame.actor == player
+        for cast in paying
+        for frame in cast.payments
+    )
+    return (
+        ok,
+        f"the engine asked {player} {sum(len(c.payments) for c in paying)} MANA_PAYMENT frames",
+    )
+
+
+_SCRIPTED_TOKEN_OBSERVERS = {
+    "mana_payment_frame": _observe_payment_frame,
+    "priority": _observe_priority,
+    "spell_cast": _observe_spell_cast,
+    "stack_push": _observe_stack_push,
+    "mana_abilities_activated": _observe_mana_abilities,
+    "mana_paid": _observe_mana_paid,
+}
+
+
+def _route_checkpoint(model: RequestedStateModel, run: fcr.CausalRun) -> dict[str, Any]:
+    """The record's checkpoint against the snapshot taken with the caused stack."""
+    plan = model.causal_plan
+    snapshot = next(
+        (snap["state"] for snap in run.snapshots if snap["at"] == "requested_checkpoint"), None
+    )
+    if plan is None or snapshot is None:
+        return {"verdict": CHECKPOINT_MISMATCH, "reason": "no requested-checkpoint snapshot"}
+    stack = fcr._stack(snapshot)
+    requested = model.temporal_state
+    targets = [
+        (index, target) for index, spell in enumerate(plan.spells) for target in spell.targets
+    ]
+    target_frames = [frame for frame in run.frames if frame.reason == "causal target"]
+    bound = len(target_frames) == len(targets) and len(stack) == len(plan.spells)
+    for frame, (index, target) in zip(target_frames, targets, strict=False):
+        refs = frame.refs
+        entry = stack[len(stack) - 1 - index] if bound else ""
+        if len(refs) != 1:
+            bound = False
+        elif refs[0].get("kind") == "player":
+            bound = bound and str(refs[0].get("player_id")).lower() == target.lower()
+        else:
+            bound = bound and f"({refs[0].get('card_id')})" in entry
+    fields = {
+        "stack_cards": (
+            [fcr.stack_card(entry) for entry in stack],
+            [spell.card for spell in reversed(plan.spells)],
+        ),
+        "stack_targets_bound": (bound, True),
+        "active_player": (
+            str(snapshot.get("active_player_id") or "").lower(),
+            str(requested.get("active_player") or "").lower(),
+        ),
+        "priority_player": (
+            str(snapshot.get("priority_player_id") or "").lower(),
+            str(requested.get("priority_player") or "").lower(),
+        ),
+        "phase": (_normalize_phase(snapshot.get("phase")), requested.get("phase")),
+        "step": (_normalize_step(snapshot.get("step")), requested.get("step")),
+        "turn_number": (snapshot.get("turn_number"), requested.get("turn_number")),
+    }
+    mismatched = sorted(name for name, (seen, wanted) in fields.items() if seen != wanted)
+    return {
+        "verdict": CHECKPOINT_EXACT if not mismatched else CHECKPOINT_MISMATCH,
+        "fields": {
+            name: {"observed": seen, "requested": wanted} for name, (seen, wanted) in fields.items()
+        },
+        "mismatched": mismatched,
+    }
+
+
+# The obligation fields the scripted-decision contract has no evaluator for. A
+# record that states any of them non-empty stays unobserved (UNKNOWN), and its
+# receipt never lists them as exercised.
+SCRIPTED_UNEVALUATED_FIELDS = (
+    "forbidden_events",
+    "ordering_constraints",
+    "partial_order_constraints",
+    "terminal_postconditions",
+)
+
+
+def scripted_unevaluated_fields(record: dict[str, Any]) -> list[str]:
+    """The record's non-empty obligation fields the scripted contract cannot judge."""
+    expected = record.get("expected_events") or {}
+    values = {
+        "forbidden_events": expected.get("forbidden_events"),
+        "ordering_constraints": expected.get("ordering_constraints"),
+        "partial_order_constraints": expected.get("partial_order_constraints"),
+        "terminal_postconditions": record.get("terminal_postconditions"),
+    }
+    return [name for name in SCRIPTED_UNEVALUATED_FIELDS if values[name]]
+
+
+def evaluate_scripted_decision_offered(
+    model: RequestedStateModel, run: fcr.CausalRun
+) -> ObligationVerdict:
+    """The record's scripted cast on the caused stack, from the tape and readback only.
+
+    The caused stack must be the record's (cast by its declared controllers on
+    engine-offered options, top first as requested), the record's checkpoint
+    must equal the snapshot taken with that stack, every tape choice must be an
+    option the engine offered on its frame, and every required token needs its
+    own observer. A token without one (``SCRIPTED_TOKEN_UNOBSERVABLE``) leaves
+    the obligation unobserved: UNKNOWN, never PASS. So does any non-empty
+    obligation field the contract does not evaluate
+    (``SCRIPTED_UNEVALUATED_FIELDS``).
+    """
+    kind = "scripted_decision_offered"
+    plan = model.causal_plan
+    required = [
+        str(token)
+        for token in (model.record.get("expected_events") or {}).get("required_events") or []
+    ]
+    facts: dict[str, Any] = {"causal_route": run.to_document(), "required_events": required}
+    if run.failure:
+        return ObligationVerdict(kind, False, False, facts, [], f"causal route: {run.failure}")
+    if plan is None or not required:
+        return ObligationVerdict(kind, False, False, facts, [], "the record is not routable")
+    casts = _scripted_casts(run)
+    checkpoint = _route_checkpoint(model, run)
+    facts["requested_checkpoint"] = checkpoint
+    causal_casts = [frame for frame in run.frames if frame.reason.startswith("causal cast ")]
+    checks: dict[str, bool] = {
+        "stack_caused": run.stack_after_cast is not None
+        and [fcr.stack_card(entry) for entry in run.stack_after_cast]
+        == [spell.card for spell in reversed(plan.spells)],
+        "cast_by_declared_controllers": [frame.actor.lower() for frame in causal_casts]
+        == [spell.controller for spell in plan.spells],
+        "tape_choices_offered": all(
+            frame.chosen_option_id is None
+            or (
+                frame.chosen_option_id in frame.offered_option_ids
+                and frame.offered[frame.offered_option_ids.index(frame.chosen_option_id)]
+                == frame.chosen
+            )
+            for frame in run.frames
+        ),
+        "scripted_casts_recorded": bool(casts) and len(casts) == len(run.scripted_casts),
+        "requested_checkpoint": checkpoint["verdict"] == CHECKPOINT_EXACT,
+    }
+    unevaluated = scripted_unevaluated_fields(model.record)
+    facts["unevaluated_obligation_fields"] = unevaluated
+    checks["no_unevaluated_obligation_fields"] = not unevaluated
+    tokens: dict[str, dict[str, Any]] = {}
+    for token in required:
+        family, argument = _scripted_token(token)
+        observer = _SCRIPTED_TOKEN_OBSERVERS.get(family)
+        if observer is None:
+            reason = SCRIPTED_TOKEN_UNOBSERVABLE.get(
+                family, f"the lane has no observer for {family!r} tokens"
+            )
+            tokens[token] = {"observed": False, "detail": reason}
+            continue
+        ok, detail = observer(model, run, casts, argument)
+        tokens[token] = {"observed": bool(ok), "detail": detail}
+    facts["checks"] = checks
+    facts["tokens"] = tokens
+    unobserved = [token for token, entry in tokens.items() if not entry["observed"]]
+    failed = [name for name, ok in checks.items() if not ok]
+    observed = not failed and not unobserved
+    reason = (
+        "the scripted cast on the caused stack was observed from engine facts: "
+        + "; ".join(f"{token}: {entry['detail']}" for token, entry in tokens.items())
+        if observed
+        else "not observed: "
+        + ", ".join([*failed, *(f"{token} ({tokens[token]['detail']})" for token in unobserved)])
+    )
+    return ObligationVerdict(
+        kind, observed, observed, facts, list(required) if observed else [], reason
+    )
+
+
+_CAUSAL_TERMINAL_CONTRACTS = {
+    "commander_zone_choice": evaluate_commander_zone_choice,
+    "scripted_decision_offered": evaluate_scripted_decision_offered,
+}
+
+
+def _route_observer(model: RequestedStateModel) -> str:
+    """The seat whose principal-scoped readback the route's terminal is judged from."""
+    if causal_terminal(model) == "commander_zone_choice":
+        return str((_route_commander(model) or {}).get("owner") or "").lower()
+    script = [step for step in model.record.get("decision_script") or () if isinstance(step, dict)]
+    return str(script[0].get("actor") or "").lower() if script else ""
+
+
+# ---------------------------------------------------------------------------
 # Per-row evidence pipeline
 # ---------------------------------------------------------------------------
 _RECEIPT_FIELDS = (
@@ -2861,7 +3337,7 @@ def probe_row(
         )
     else:
         obligation = ObligationVerdict(
-            "commander_zone_choice",
+            str(causal_terminal(model)),
             False,
             False,
             {"causal_route": None},
@@ -2919,10 +3395,11 @@ def probe_row(
     if model.causal_plan is not None:
         # The checkpoint is the pre-causal position; the requested stack is now
         # cast on the engine's own frames and the script answered from there.
-        owner = str((_route_commander(model) or {}).get("owner") or "").lower()
+        observer = _route_observer(model)
+        contract = _CAUSAL_TERMINAL_CONTRACTS[str(causal_terminal(model))]
 
         def observe_owner(game_id: str) -> dict[str, Any]:
-            return _state_view(observe_seat_state(proc, game_id, owner))
+            return _state_view(observe_seat_state(proc, game_id, observer))
 
         run = fcr.run_causal_route(
             proc,
@@ -2934,7 +3411,7 @@ def probe_row(
             answer_frame_kinds=_route_answer_frames(model),
             checkpoint_priority=model.temporal_state.get("priority_player"),
         )
-        obligation = evaluate_commander_zone_choice(model, run)
+        obligation = contract(model, run)
         # The bootstrap checkpoint compared above is the pre-causal position;
         # the record's own checkpoint (the cast stack, the requested player on
         # priority) is judged from the engine snapshot the route captured.
@@ -3101,6 +3578,33 @@ def _receipt_observed_assertion(evidence: RowEvidence) -> dict[str, Any]:
     }
 
 
+def _obligation_exercised(
+    record: dict[str, Any], obligation_kind: Any, state_digest: Any, obligation_digest: Any
+) -> dict[str, Any]:
+    """The obligation fields a receipt names as exercised: only those evaluated.
+
+    The scripted-decision contract judges ``required_events`` only; the fields it
+    does not evaluate are never listed (a record stating any of them is not
+    observed, so it never reaches a receipt).
+    """
+    expected = record.get("expected_events") or {}
+    exercised: dict[str, Any] = {
+        "requested_state_digest": state_digest,
+        "obligation_digest": obligation_digest,
+        "required_events": list(expected.get("required_events") or ()),
+    }
+    if obligation_kind == "scripted_decision_offered":
+        unevaluated = scripted_unevaluated_fields(record)
+        if unevaluated:
+            raise ScenarioLaneError(
+                f"{record.get('fixture_id')}: {unevaluated} were not evaluated; no receipt"
+            )
+        return exercised
+    exercised["forbidden_events"] = list(expected.get("forbidden_events") or ())
+    exercised["terminal_postconditions"] = list(record.get("terminal_postconditions") or ())
+    return exercised
+
+
 def positive_receipt(
     evidence: RowEvidence,
     record: dict[str, Any],
@@ -3146,17 +3650,9 @@ def positive_receipt(
             f"#{evidence.fixture_id}"
         ),
         "execution_mode": FORGE_SCENARIO_EXECUTION_MODE,
-        "obligation_exercised": {
-            "requested_state_digest": state_digest,
-            "obligation_digest": obligation_digest,
-            "required_events": list(
-                (record.get("expected_events") or {}).get("required_events") or ()
-            ),
-            "forbidden_events": list(
-                (record.get("expected_events") or {}).get("forbidden_events") or ()
-            ),
-            "terminal_postconditions": list(record.get("terminal_postconditions") or ()),
-        },
+        "obligation_exercised": _obligation_exercised(
+            record, classification.get("obligation_kind"), state_digest, obligation_digest
+        ),
         "observed_assertion": assertion,
         # A fixture-declared native player-loss cause is recorded as such, never
         # relabelled EXACT: the checkpoint verdict travels with the receipt.

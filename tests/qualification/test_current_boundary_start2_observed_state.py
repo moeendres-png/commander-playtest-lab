@@ -210,9 +210,9 @@ def test_the_acting_principal_comes_from_the_lab_seat_not_the_engine_actor() -> 
     """
     source = DRIVER.read_text(encoding="utf-8")
 
-    # The START-2 observer is pinned to the fixture-scripted Lab principal,
+    # The START-2 observer is pinned to the record-declared Lab principal,
     # never to a live engine actor id.
-    assert "principal=scripted_starting_seat" in source
+    assert "principal=declared_starting_seat" in source
     assert "seat_index = _SEATS.index(principal)" in source
     assert '"observer_player_id": principal' in source
     assert "principal = str(stated)" not in source
@@ -247,7 +247,7 @@ def _record() -> dict:
         "temporal_state": {"active_player": "P1", "priority_player": "P1"},
         # The starter and the keeps are the record's own decisions.
         "decision_script": [
-            _scripted("P1", "starting_player", "semantic_player", "P1"),
+            _scripted("P1", "starting_player", "seat", "P1"),
             *(
                 _scripted(seat, "mulligan", "semantic_action", "keep_opening_hand")
                 for seat in seats
@@ -265,6 +265,8 @@ def _scripted(actor: str, family: str, selector: str, value: str) -> dict:
         "decision_family": family,
         "selection": {
             "matches_only_provider_offered_legal_options": True,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
             "selector_kind": selector,
             "semantic_value": value,
         },
@@ -307,8 +309,10 @@ def _result(
     result.terminal_facts["draw_step_decision_frames"] = []
     result.terminal_facts["priority_reached"] = True
     result.terminal_facts["first_priority_seat"] = "p1"
-    # The record's starter verifiably executed (a create response echoing it).
-    result.terminal_facts["starting_seat_channel"] = "create_request_echo_verified"
+    # The record's starter verifiably executed (#574): the engine's own start
+    # readback resolved to the declared seat. A create-request echo is never a
+    # channel and would leave this unverified.
+    result.terminal_facts["starting_player_channel"] = "PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT"
     result.decision_tape = []
     return result
 

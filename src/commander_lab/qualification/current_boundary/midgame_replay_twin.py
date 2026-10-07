@@ -74,6 +74,7 @@ from . import midgame_lane as ml
 from . import midgame_rows as midgame_rows_mod
 from . import receipts as receipt_mod
 from . import replay_twins as twins
+from .starting_player import requested_active_seat_index
 
 ROWS: tuple[str, ...] = (
     "REPLAY_CLEAN_PROCESS",
@@ -439,15 +440,19 @@ def _create(
     # One game id for both roles: it is process-local only by being reported
     # back, and the terminal digest must not differ by a name the Lab chose.
     game_id = f"af09-{record['fixture_id']}"
-    created = client.request(
-        "create_midgame_game",
-        {
-            "game_id": game_id,
-            "plan_id": game_id,
-            "seed": seed,
-            "requested_starting_state": dict(record),
-        },
-    )
+    request: dict[str, Any] = {
+        "game_id": game_id,
+        "plan_id": game_id,
+        "seed": seed,
+        "requested_starting_state": dict(record),
+    }
+    # The record's own active player is the create-time choosing seat; without
+    # one the bridge refuses the creation instead of defaulting to seat 0
+    # (#572).
+    starting_seat_index = requested_active_seat_index(dict(record))
+    if starting_seat_index is not None:
+        request["starting_player_seat"] = starting_seat_index
+    created = client.request("create_midgame_game", request)
     if not created.get("success"):
         raise ReplayTwinRowError(f"creation refused: {created.get('errors')}")
     started = client.request("start_midgame_game", None)

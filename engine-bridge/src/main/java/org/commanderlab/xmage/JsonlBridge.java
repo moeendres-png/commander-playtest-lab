@@ -214,13 +214,23 @@ final class JsonlBridge {
             }
 
             List<String> deckHandles = requiredStringArray(gameRequest, "deck_handles");
-            int startingPlayerSeat = optionalInt(gameRequest, "starting_player_seat", 0);
-            // Whether the applied starting seat is the requested one or this
-            // bridge's own default: the Lab credits a starter only from REQUEST.
-            String startingPlayerSeatSource = gameRequest.has("starting_player_seat")
-                    && !gameRequest.get("starting_player_seat").isJsonNull()
-                    ? "REQUEST"
-                    : "BRIDGE_DEFAULT";
+            // The bridge never defaults the starting/choosing seat (#572): the
+            // caller must declare it explicitly, and absent or null is a
+            // fail-closed refusal rather than a seat-0 default. On this
+            // compatibility lane the declared seat is the engine's CR 103.2
+            // choosing player, whose narrow init exception selects itself; the
+            // start response reports the established player for readback.
+            if (!gameRequest.has("starting_player_seat")
+                    || gameRequest.get("starting_player_seat").isJsonNull()) {
+                return error(
+                        requestId,
+                        "missing_starting_player_seat",
+                        "CREATE_COMMANDER_GAME requires an explicit starting_player_seat; "
+                                + "the bridge never defaults to seat 0",
+                        false
+                );
+            }
+            int startingPlayerSeat = requiredInt(gameRequest, "starting_player_seat");
             int startingLife = optionalInt(gameRequest, "starting_life", 40);
             boolean externalControl = optionalBoolean(
                     gameRequest,
@@ -253,7 +263,6 @@ final class JsonlBridge {
             responsePayload.addProperty("engine_game_id", created.engineGameId());
             responsePayload.addProperty("player_count", created.playerCount());
             responsePayload.addProperty("starting_player_seat", created.startingPlayerSeat());
-            responsePayload.addProperty("starting_player_seat_source", startingPlayerSeatSource);
             responsePayload.addProperty("external_control", created.externalControl());
             addSeedAcknowledgement(responsePayload, created.rulesSeedBinding());
             return success(
@@ -384,6 +393,24 @@ final class JsonlBridge {
             responsePayload.addProperty("engine_game_id", started.engineGameId());
             responsePayload.addProperty("player_count", started.playerCount());
             responsePayload.addProperty("starting_player_id", started.startingPlayerId());
+            /*
+             * The identities of the CR 103.2 prompt the bridge actually
+             * answered. Absent when no answer was recorded, so the caller can
+             * tell a real answer from GameImpl.init's first-player fallback
+             * (#572).
+             */
+            if (started.startingPlayerChooserId() != null) {
+                responsePayload.addProperty(
+                        "starting_player_chooser_id",
+                        started.startingPlayerChooserId()
+                );
+            }
+            if (started.startingPlayerChosenId() != null) {
+                responsePayload.addProperty(
+                        "starting_player_chosen_id",
+                        started.startingPlayerChosenId()
+                );
+            }
             responsePayload.addProperty("turn_number", started.turnNumber());
             responsePayload.addProperty("paused", started.paused());
             responsePayload.addProperty("external_control", started.externalControl());
@@ -948,6 +975,18 @@ final class JsonlBridge {
 
     private static int optionalInt(JsonObject object, String property, int defaultValue) {
         long value = optionalLong(object, property, defaultValue);
+        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(property + " is outside integer range");
+        }
+        return (int) value;
+    }
+
+    /** A required integer property; absence is a refusal, never a default. */
+    private static int requiredInt(JsonObject object, String property) {
+        if (!object.has(property) || object.get(property).isJsonNull()) {
+            throw new IllegalArgumentException("missing required integer: " + property);
+        }
+        long value = optionalLong(object, property, 0);
         if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
             throw new IllegalArgumentException(property + " is outside integer range");
         }

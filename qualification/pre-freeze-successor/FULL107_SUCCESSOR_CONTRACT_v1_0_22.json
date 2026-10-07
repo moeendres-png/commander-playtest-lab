@@ -422,7 +422,7 @@
        "matches_only_provider_offered_legal_options": true,
        "on_multiple_match": "FAIL_CLOSED",
        "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "semantic_player",
+       "selector_kind": "seat",
        "semantic_value": "P1"
       }
      },
@@ -20321,7 +20321,7 @@
        "matches_only_provider_offered_legal_options": true,
        "on_multiple_match": "FAIL_CLOSED",
        "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "semantic_player",
+       "selector_kind": "seat",
        "semantic_value": "P1"
       }
      },
@@ -20596,7 +20596,7 @@
        "matches_only_provider_offered_legal_options": true,
        "on_multiple_match": "FAIL_CLOSED",
        "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "semantic_player",
+       "selector_kind": "seat",
        "semantic_value": "P1"
       }
      },

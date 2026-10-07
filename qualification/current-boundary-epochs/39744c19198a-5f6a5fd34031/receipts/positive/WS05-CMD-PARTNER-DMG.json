@@ -1,0 +1,41 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-PARTNER-DMG",
+  "obligation_exercised": {
+    "obligation_digest": "46b1eb6427635dd410069810c308faa9f5486fdba06ce82fd5ff85006ba1afc9",
+    "requested_state_digest": "79c514bca20aff91afc6099f1a6c63b605d74bc1e1e7032a5fdfd7fe0d5143d1",
+    "required_events": [],
+    "terminal_checks": [
+      "exactly 0 LOST event(s) with any fields",
+      "the engine asked exactly 1 priority decision(s) of P1 about ''",
+      "the engine reports P2 neither lost nor left",
+      "the engine's commander combat damage from P1's Kediss, Emberclaw Familiar to P2 is 9",
+      "the engine's commander combat damage from P1's Rograkh, Son of Rohgahh to P2 is 12"
+    ],
+    "terminal_postconditions": [
+      "12 + 9 combat damage from different partner commanders does not pool to cause a 21-damage loss."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "exactly 0 LOST event(s) with any fields": true,
+      "the engine asked exactly 1 priority decision(s) of P1 about ''": true,
+      "the engine reports P2 neither lost nor left": true,
+      "the engine's commander combat damage from P1's Kediss, Emberclaw Familiar to P2 is 9": true,
+      "the engine's commander combat damage from P1's Rograkh, Son of Rohgahh to P2 is 12": true
+    },
+    "token_evidence": {},
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "ea96aef0fa70ed7bd98e6f2a1151db8ad02aaffcdd02e2bceaf23c7b318531fd",
+  "runner_digest": "885abdc6946a72e3155aebfac6eea9b1fc9bcd207e5cb53a417111495b0f3371",
+  "runtime_receipt_digest": "67183f512f3055d3c3687d73b878dc5b58e453b2bc3dbdc1323afebf6febf7aa",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-PARTNER-DMG"
+}

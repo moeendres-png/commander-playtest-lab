@@ -251,6 +251,46 @@ class JsonlBridgeTest {
         assertTrue(result.shutdown());
     }
     @Test
+    void createWithoutAnExplicitStartingPlayerSeatFailsClosed() {
+        JsonObject request = JsonParser.parseString(
+                createGameRequest("r-no-seat", "no-seat", List.of("unused"), 0, 40)
+        ).getAsJsonObject();
+        request.getAsJsonObject("payload").getAsJsonObject("request")
+                .remove("starting_player_seat");
+
+        JsonObject response = JsonParser.parseString(
+                bridge.handle(request.toString()).json()
+        ).getAsJsonObject();
+
+        assertFalse(response.get("success").getAsBoolean(), response.toString());
+        assertEquals(
+                "missing_starting_player_seat",
+                response.getAsJsonArray("errors").get(0).getAsJsonObject()
+                        .get("code").getAsString()
+        );
+    }
+
+    @Test
+    void aNullStartingPlayerSeatIsNotASeat() {
+        JsonObject request = JsonParser.parseString(
+                createGameRequest("r-null-seat", "null-seat", List.of("unused"), 0, 40)
+        ).getAsJsonObject();
+        request.getAsJsonObject("payload").getAsJsonObject("request")
+                .add("starting_player_seat", com.google.gson.JsonNull.INSTANCE);
+
+        JsonObject response = JsonParser.parseString(
+                bridge.handle(request.toString()).json()
+        ).getAsJsonObject();
+
+        assertFalse(response.get("success").getAsBoolean(), response.toString());
+        assertEquals(
+                "missing_starting_player_seat",
+                response.getAsJsonArray("errors").get(0).getAsJsonObject()
+                        .get("code").getAsString()
+        );
+    }
+
+    @Test
     void b3CreatesAndStartsRealFourPlayerCommanderGameThroughJsonl()
             throws Exception {
 
@@ -319,13 +359,6 @@ class JsonlBridgeTest {
                         .getAsInt()
         );
 
-        // The applied seat is the requested one, and the bridge says so.
-        assertEquals(
-                "REQUEST",
-                created.get("starting_player_seat_source")
-                        .getAsString()
-        );
-
         JsonlBridge.Result startResult =
                 bridge.handle(
                         startGameRequest(
@@ -391,6 +424,108 @@ class JsonlBridgeTest {
         assertTrue(
                 started.get("paused")
                         .getAsBoolean()
+        );
+    }
+
+    @Test
+    void startReportsTheAnsweredStartingPlayerPromptIdentities()
+            throws Exception {
+
+        List<String> handles =
+                List.of(
+                        importRogShaiHandle("r-prompt-import-1"),
+                        importRogShaiHandle("r-prompt-import-2"),
+                        importRogShaiHandle("r-prompt-import-3")
+                );
+
+        JsonObject createResponse =
+                JsonParser.parseString(
+                        bridge.handle(
+                                createGameRequest(
+                                        "r-prompt-create",
+                                        "prompt-identities/three-player",
+                                        handles,
+                                        2,
+                                        40
+                                )
+                        ).json()
+                ).getAsJsonObject();
+
+        assertTrue(
+                createResponse.get("success")
+                        .getAsBoolean(),
+                createResponse.toString()
+        );
+
+        JsonObject startResponse =
+                JsonParser.parseString(
+                        bridge.handle(
+                                startGameRequest(
+                                        "r-prompt-start",
+                                        "prompt-identities/three-player"
+                                )
+                        ).json()
+                ).getAsJsonObject();
+
+        assertTrue(
+                startResponse.get("success")
+                        .getAsBoolean(),
+                startResponse.toString()
+        );
+
+        JsonObject started =
+                startResponse
+                        .getAsJsonObject("payload");
+
+        /*
+         * #572: the engine readback alone cannot tell a real CR 103.2 answer
+         * from GameImpl.init's first-player fallback in a pod of 3+; the
+         * bridge must also publish the chooser and chosen identities of the
+         * prompt it answered.
+         */
+        String startingPlayerId =
+                started.get("starting_player_id")
+                        .getAsString();
+
+        assertEquals(
+                startingPlayerId,
+                started.get("starting_player_chooser_id")
+                        .getAsString()
+        );
+
+        assertEquals(
+                startingPlayerId,
+                started.get("starting_player_chosen_id")
+                        .getAsString()
+        );
+
+        JsonObject stateResponse =
+                JsonParser.parseString(
+                        bridge.handle(
+                                gameStateRequest(
+                                        "r-prompt-state",
+                                        "prompt-identities/three-player",
+                                        "p3"
+                                )
+                        ).json()
+                ).getAsJsonObject();
+
+        assertTrue(
+                stateResponse.get("success")
+                        .getAsBoolean(),
+                stateResponse.toString()
+        );
+
+        /*
+         * The declared seat index 2 is the third seat; the engine's own roster
+         * must bind it to the established starter and to both prompt
+         * identities.
+         */
+        assertEquals(
+                startingPlayerId,
+                stateResponse.getAsJsonObject("payload")
+                        .get("observer_engine_player_id")
+                        .getAsString()
         );
     }
 

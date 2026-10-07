@@ -2425,7 +2425,12 @@ def test_start2_mull_errata_supersede_their_overlays_in_place() -> None:
         ("P1", "mulligan", "keep_opening_hand"),
         ("P2", "mulligan", "keep_opening_hand"),
     ]
-    assert start2["decision_script"][0]["selection"]["selector_kind"] == "semantic_player"
+    # The shared declaration contract (#574, starting_player.py): a scripted
+    # starting_player step declares its seat with selector_kind "seat"; a
+    # "semantic_player" selector is no declaration and would leave the record
+    # unstartable. The obligation keys and requested-state digest do not read
+    # the decision script, so they are unchanged (#441 comment 6007651998).
+    assert start2["decision_script"][0]["selection"]["selector_kind"] == "seat"
     assert start2["pregame_decision_plan"] == [
         {"decision": "KEEP", "player_id": seat, "round": 1} for seat in ("P1", "P2")
     ]

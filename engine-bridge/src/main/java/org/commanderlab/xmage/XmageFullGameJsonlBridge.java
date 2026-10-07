@@ -177,13 +177,22 @@ final class XmageFullGameJsonlBridge {
                 );
             }
             long seed = requiredLong(payload, "seed");
-            int startingPlayerSeat = optionalInt(payload, "starting_player_seat", 0);
-            // Whether the applied starting seat is the requested one or this
-            // bridge's own default: the Lab credits a starter only from REQUEST.
-            String startingPlayerSeatSource = payload.has("starting_player_seat")
-                    && !payload.get("starting_player_seat").isJsonNull()
-                    ? "REQUEST"
-                    : "BRIDGE_DEFAULT";
+            // The bridge never defaults the starting/choosing seat (#572): the
+            // caller must declare it explicitly, and absent or null refuses.
+            // The declared seat is the engine's choosing player; the engine's
+            // own CR 103.2 choice is then offered to that player as a decision
+            // frame, so the starter is not selected here.
+            if (!payload.has("starting_player_seat")
+                    || payload.get("starting_player_seat").isJsonNull()) {
+                return error(
+                        requestId,
+                        "missing_starting_player_seat",
+                        "CREATE_FULL_GAME requires an explicit starting_player_seat; "
+                                + "the bridge never defaults to seat 0",
+                        false
+                );
+            }
+            int startingPlayerSeat = requiredInt(payload, "starting_player_seat");
             int startingLife = optionalInt(payload, "starting_life", 40);
 
             session = new XmageFullGameSession(
@@ -199,7 +208,6 @@ final class XmageFullGameJsonlBridge {
             responsePayload.addProperty("game_id", gameId);
             responsePayload.addProperty("player_count", session.playerCount());
             responsePayload.addProperty("starting_player_seat", startingPlayerSeat);
-            responsePayload.addProperty("starting_player_seat_source", startingPlayerSeatSource);
             responsePayload.addProperty("starting_life", startingLife);
             responsePayload.addProperty("seed", seed);
             responsePayload.addProperty("seed_controlled", true);
@@ -616,6 +624,15 @@ final class XmageFullGameJsonlBridge {
         if (!object.has(property) || object.get(property).isJsonNull()) {
             return defaultValue;
         }
+        long value = requiredLong(object, property);
+        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(property + " outside integer range");
+        }
+        return (int) value;
+    }
+
+    /** A required integer property; absence is a refusal, never a default. */
+    private static int requiredInt(JsonObject object, String property) {
         long value = requiredLong(object, property);
         if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
             throw new IllegalArgumentException(property + " outside integer range");

@@ -279,7 +279,12 @@ start2_script = [
         "P1",
         "start-P1",
         "starting_player",
-        "semantic_player",
+        # The shared declaration contract (#574, starting_player.py): a
+        # starting_player step declares its seat with selector_kind "seat", the
+        # shape record_starting_seat accepts. The obligation keys and the
+        # requested-state digest do not read the decision script, so they are
+        # unchanged (#441 comment 6007651998).
+        "seat",
         "P1",
         notes=(
             "CR 103.1: the starting player is a player's choice; P1 is the record's "
@@ -428,7 +433,9 @@ for fixture, count in (("WS05-CMD-MULL-2", 2), ("WS05-CMD-MULL-4", 4)):
                     "P1",
                     "start-P1",
                     "starting_player",
-                    "semantic_player",
+                    # The shared declaration contract (#574): the seat selector
+                    # shape record_starting_seat accepts.
+                    "seat",
                     "P1",
                     notes=(
                         "CR 103.1: the starting player is a player's choice; P1 is the "

@@ -4,7 +4,7 @@ Status: **CANONICAL / CURRENT**
 
 Effective date: **2026-10-02**
 
-This file is the stable current routing authority for OpenCode/Foundry execution.
+This file is the stable current routing authority for OpenCode/Foundry execution and the Claude Opus 5.5 delegation pointer.
 It supersedes older model-routing instructions in dated handoffs, research packets,
 historical workstream state, donor reports, chats and superseded governance records.
 
@@ -20,7 +20,7 @@ Exactly two OpenCode execution profiles are authorized:
 
 2. **Space Bunny MAX**
    - profile: `space-bunny`
-   - model: `opencode-go/space-bunny-free`
+   - model: `opencode-go/space-bunny`
    - native variant: `max`
    - explicit secondary executor.
 
@@ -59,7 +59,7 @@ Executor choice never changes Rules authority, evidence semantics, hidden-inform
 rules, fail-closed requirements, Source Truth, provider-selection authority or
 Architecture Freeze authority.
 
-Production Provider selection and Architecture Freeze remain separate Owner gates.
+Production Provider selection and Architecture Freeze remain separate Owner gates, with the other Owner-only items in `AGENTS.md` §8.
 
 ## Claude Opus 5.5 delegation
 

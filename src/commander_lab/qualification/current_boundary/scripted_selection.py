@@ -40,6 +40,9 @@ FORBIDDEN_FALLBACKS = frozenset(
 )
 
 
+_MANA_SYMBOLS = frozenset({"W", "U", "B", "R", "G", "C"})
+
+
 class SelectionFailure(Exception):
     """The scripted step does not match exactly one offered option (fail closed)."""
 
@@ -108,11 +111,9 @@ def semantic_objects(record: dict[str, Any]) -> dict[str, SemanticObject]:
     return objects
 
 
-def validate_step(step: dict[str, Any]) -> tuple[str, str, Any]:
-    """The step's family, selector kind and semantic value, or a fail-closed refusal."""
-    family = str(step.get("decision_family") or "")
+def _validate_contract(step: dict[str, Any]) -> dict[str, Any]:
+    """The step's selection, once its fail-closed selection contract is checked."""
     selection = step.get("selection") or {}
-    selector_kind = str(selection.get("selector_kind") or "")
     if selection.get("matches_only_provider_offered_legal_options") is not True:
         raise SelectionFailure(
             "selection_contract_missing", "the step does not bind offered options"
@@ -126,6 +127,14 @@ def validate_step(step: dict[str, Any]) -> tuple[str, str, Any]:
         raise SelectionFailure(
             "forbidden_fallbacks_incomplete", repr(sorted(step.get("forbidden_fallbacks") or ()))
         )
+    return dict(selection)
+
+
+def validate_step(step: dict[str, Any]) -> tuple[str, str, Any]:
+    """The step's family, selector kind and semantic value, or a fail-closed refusal."""
+    family = str(step.get("decision_family") or "")
+    selection = _validate_contract(step)
+    selector_kind = str(selection.get("selector_kind") or "")
     if selector_kind not in FAMILIES_WITH_SELECTORS.get(family, frozenset()):
         raise SelectionFailure("selector_not_supported", f"{family}.{selector_kind}")
     return family, selector_kind, selection.get("semantic_value")
@@ -211,6 +220,31 @@ def select(
     raise SelectionFailure("selector_not_supported", f"{family}.{selector_kind}")
 
 
+def payment_step_mana(step: dict[str, Any]) -> tuple[str, ...]:
+    """The mana a scripted ``mana_payment.mana_payment`` step declares, or a refusal.
+
+    The step is never answered by itself: its payment frames are answered only
+    from the record's declared payment sources (``select_mana_source``), and the
+    declared mana is what the engine's own payment must be judged against.
+    """
+    if str(step.get("decision_family") or "") != "mana_payment":
+        raise SelectionFailure("selector_not_supported", repr(step.get("decision_family")))
+    selection = _validate_contract(step)
+    if selection.get("selector_kind") != "mana_payment":
+        raise SelectionFailure(
+            "selector_not_supported", f"mana_payment.{selection.get('selector_kind')}"
+        )
+    value = selection.get("semantic_value")
+    mana = value.get("mana") if isinstance(value, dict) else None
+    if (
+        not isinstance(mana, list)
+        or not mana
+        or any(not isinstance(symbol, str) or symbol not in _MANA_SYMBOLS for symbol in mana)
+    ):
+        raise SelectionFailure("payment_mana_missing", repr(value))
+    return tuple(mana)
+
+
 def select_mana_source(
     options: list[OfferedOption],
     declared: list[SemanticObject],
@@ -225,13 +259,17 @@ def select_mana_source(
     declared source not yet used; declining to pay is never chosen.
 
     Several offers for one card name are ambiguous and fail closed, with one
-    exception the caller must opt into: declared *fuel* (lands the causal route
-    itself placed, never record objects) of one card name, offered as identical
-    options (same label, same source, no references) and no more of them than
-    unused declared fuel of that name. Those are indistinguishable instances,
-    so their order is not a choice the record could make (the XMage lane's
-    ``_interchangeable`` rule); the returned source is the next unused one of
-    that name in declaration order.
+    exception the caller must opt into (``interchangeable_fuel``): offers for
+    one card name that are identical options (same label, same source, no
+    references), no more of them than the unused declared sources of that name.
+    Those are indistinguishable instances, so their order is not a choice the
+    record could make (the XMage lane's ``_interchangeable`` rule); the returned
+    source is the next unused one of that name in declaration order. The causal
+    route opts in for its own declared fuel, and for a record's declared payment
+    sources only when every same-name source is identical in every record
+    attribute (``declared_payment_sources``); it then sets
+    ``require_all_sources``, so every declared source must pay and no instance
+    choice survives the payment.
     """
     remaining = [source for source in declared if source.semantic_id not in used]
     for source in remaining:
@@ -276,6 +314,17 @@ FORGE_DECISION_CLASSES: dict[str, str] = {
     "TRIGGER_PLAY": "choice",
     # CR 903.9: "may put it into the command zone", a [Yes]/[No] frame.
     "COMMANDER_MOVE": "choice",
+    # Mapped so a frame of these kinds is named and recorded, never guessed. A
+    # mapping is not a selector: no scripted family answers these classes here
+    # (FAMILIES_WITH_SELECTORS), so ``select`` refuses them, and a route answers
+    # one only through its own declared policy (ORDER_CHOICE through
+    # ``game_driver.select_cost_order_action``) or fails closed.
+    "MODE_SELECTION": "mode",
+    "COST_SELECTION": "cost",
+    "ORDER_CHOICE": "cost_order",
+    "AMOUNT_DISTRIBUTION": "amount",
+    "X_ANNOUNCE": "amount",
+    "TRIGGER_ORDER": "order",
 }
 _FORGE_KINDS: dict[str, str] = {
     "cast_spell": "cast",

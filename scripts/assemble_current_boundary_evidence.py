@@ -106,12 +106,16 @@ def refuse_changed_fixture_carried_passes(
     refused: list[str] = []
     for fixture, row in rows.items():
         survival = str(evidence_survival.get(fixture) or "")
-        if row.get("exit_state") != "PASS" or not (
+        # #573's historical demotion runs first and keeps the carried verdict in
+        # historical_exit_state; a row that has not been demoted yet still
+        # carries it in exit_state. Both shapes name a carried PASS.
+        carried_state = row.get("historical_exit_state", row.get("exit_state"))
+        if carried_state != "PASS" or not (
             fixture in changed or survival.startswith("REQUALIFICATION_REQUIRED")
         ):
             continue
         row["carried_exit_state"] = "PASS"
-        row["carried_reason"] = row.get("reason")
+        row["carried_reason"] = row.get("historical_reason", row.get("reason"))
         row["exit_state"] = "UNKNOWN"
         row["failure_reason"] = (
             "the carried-forward PASS ran a predecessor of this fixture; the current "
@@ -289,6 +293,45 @@ def _annotate_carried_gates(
     )
     for gate in matrix:
         gate["nonblocking_limitations"] = [*gate.get("nonblocking_limitations", []), note]
+        # #572: historical results are provenance only (automatic_carry_forward:
+        # false). A carried PASS keeps its verdict in its own field, which is
+        # never credit; its current verdict is UNKNOWN. Non-PASS verdicts stay.
+        if gate.get("verdict") == "PASS":
+            gate["historical_verdict"] = "PASS"
+            gate["verdict"] = "UNKNOWN"
+
+
+def _demote_carried_rows(rows: dict[str, dict[str, Any]]) -> dict[str, int]:
+    """Mark every carried-forward row historical; return the historical counts.
+
+    The current authority's evidence migration sets ``automatic_carry_forward:
+    false``: a historical result is provenance pending a current-boundary
+    execution, never a current PASS (#572). Every row keeps its historical state
+    in ``historical_exit_state``; a PASS becomes UNKNOWN and loses its receipt
+    fields, while non-PASS states stay (they earn nothing). The returned counts
+    are a separate record that no count, gate or comparison reads as credit.
+    Idempotent: a re-assembly of the same epoch counts the original states.
+    """
+    historical: dict[str, int] = {}
+    for row in rows.values():
+        state = str(row.get("historical_exit_state", row["exit_state"]))
+        historical[state] = historical.get(state, 0) + 1
+        row.setdefault("historical_exit_state", state)
+        if state != "PASS":
+            continue
+        row.setdefault("historical_reason", row.get("reason"))
+        if "positive_receipt_identities" in row:
+            row["historical_positive_receipt_identities"] = row.pop("positive_receipt_identities")
+        facts = row.get("terminal_facts")
+        if isinstance(facts, dict) and "positive_receipts" in facts:
+            row["historical_positive_receipts"] = facts.pop("positive_receipts")
+        row["exit_state"] = "UNKNOWN"
+        row["failure_reason"] = (
+            "historical result carried forward from an earlier epoch: provenance only, "
+            "pending a current-boundary execution (automatic_carry_forward: false)"
+        )
+        row["reason"] = row["failure_reason"]
+    return historical
 
 
 def _load_fullgame_lane_auxiliary(candidate: str) -> dict[str, Any] | None:
@@ -851,7 +894,14 @@ def assemble() -> None:
         results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
         rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
         carried_forward = bool(results.get("carried_forward"))
+        # #573 first: every carried-forward PASS is historical, never current
+        # credit, and its current receipt fields are stripped.
+        historical_counts = _demote_carried_rows(rows) if carried_forward else None
         if carried_forward:
+            # Then this branch's changed-fixture refusal, which #573 does not
+            # replace: it names the fixtures the current contract changed, gives
+            # them their own evidence class, and fails closed when the authority
+            # lists a changed fixture with no evidence_survival entry.
             results["carried_forward_refused_changed_fixture_passes"] = (
                 refuse_changed_fixture_carried_passes(rows, load(CURRENT_AUTHORITY_PATH)["full107"])
             )
@@ -1040,6 +1090,8 @@ def assemble() -> None:
         assert sum(counts.values()) == 107, counts
         results["rows"] = [rows[row["fixture_id"]] for row in results["rows"]]
         results["counts"] = counts
+        if historical_counts is not None:
+            results["historical_counts_not_credit"] = historical_counts
         # Kept as a backwards-compatible field only: R-4 forbids native-suite
         # execution from promoting FULL107 rows, so it is now always zero.
         results["native_promotions"] = 0
@@ -1455,7 +1507,15 @@ def assemble() -> None:
     comparison: list[dict[str, Any]] = []
     for fixture in sorted(x):
         xr, fr = x[fixture], f[fixture]
-        if xr["exit_state"] == fr["exit_state"] == "PASS":
+        if "historical_exit_state" in xr or "historical_exit_state" in fr:
+            # #572: a carried-forward side is provenance only, so nothing on it
+            # is compared, adjudicated or listed as a current failure.
+            disposition = "NON_COMPARABLE"
+            note = (
+                "at least one side is the historical record carried forward into this "
+                "epoch; it is provenance only and is not compared"
+            )
+        elif xr["exit_state"] == fr["exit_state"] == "PASS":
             # PASS/PASS is not a semantic comparison. Compare the normalized
             # Rules-visible observations the two sides actually recorded, so two
             # engines that disagree about a turn number or a library count are

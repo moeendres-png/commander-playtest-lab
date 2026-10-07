@@ -28,6 +28,7 @@ from commander_lab.qualification.current_boundary import (
     full107,
     game_driver,
     generic_construction,
+    starting_player,
 )
 from commander_lab.qualification.current_boundary.game_driver import (
     CommandedGameResult,
@@ -133,8 +134,12 @@ def _observed(
     )
     if first_priority is not None:
         result.terminal_facts["first_priority_seat"] = first_priority
-    # The record's starter verifiably executed (a create response echoing it).
-    result.terminal_facts["starting_seat_channel"] = "create_request_echo_verified"
+    # The record's starter verifiably executed (#574): the engine's own start
+    # readback resolved to the declared seat. A create-request echo alone is
+    # never a channel.
+    result.terminal_facts["starting_player_channel"] = (
+        game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
+    )
     if keyed:
         result.terminal_facts.update(
             {
@@ -241,6 +246,9 @@ def test_a_record_that_keeps_native_state_load_stays_unsupported(start2, monkeyp
         first_priority_seat="p1",
         capture=generic_construction.CAPTURE_POINT,
         orchestration_key=KEY,
+        # The temporal check compares only on a verified channel (#574); here
+        # the engine confirmed P1, so only the entry mode is unsupported.
+        starting_player_channel=game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED,
     )
     assert proof.verdict == generic_construction.UNSUPPORTED
     failed = {check.field: check.verdict for check in proof.failures()}
@@ -338,7 +346,12 @@ def _without_family(record: dict[str, Any], family: str) -> dict[str, Any]:
 
 
 def test_start2_scripts_its_starter_and_keeps(start2) -> None:
-    assert full107.record_starting_seat(start2) == ("p1", "p1")
+    # The shared declaration parser (#574) reads the scripted seat step; the
+    # source names which of the three accepted shapes declared it.
+    assert starting_player.record_starting_seat(start2) == (
+        "p1",
+        starting_player.STARTER_DECLARATION_SCRIPT,
+    )
     assert full107.scripted_pregame_plan(start2) == (("p1", True), ("p2", True))
     families = [step["decision_family"] for step in start2["decision_script"]]
     assert families == ["starting_player", "mulligan", "mulligan"]
@@ -347,31 +360,33 @@ def test_start2_scripts_its_starter_and_keeps(start2) -> None:
 def test_start2_drives_the_records_starter_and_keeps(start2, monkeypatch) -> None:
     _, calls = _start2(start2, monkeypatch, _observed(state=_state()))
     (call,) = calls
-    assert call["record_starting_seat"] == "p1"
-    assert call["record_starting_chooser"] == "p1"
+    assert call["seed"] == 424242
+    assert call["decks"] == full107.record_decks(start2)
+    assert call["scripted_starting_seat"] == "p1"
+    assert call["starting_seat_source"] == starting_player.STARTER_DECLARATION_SCRIPT
     assert call["mulligan_plan"] == (("p1", True), ("p2", True))
 
 
-@pytest.mark.parametrize(
-    "mutate",
-    [
-        pytest.param(lambda r: _without_family(r, "starting_player"), id="no-starter"),
-        pytest.param(
-            lambda r: r["decision_script"][0]["selection"].update(semantic_value="P2"),
-            id="starter-not-the-requested-active-player",
-        ),
-        pytest.param(
-            lambda r: r["decision_script"].append(copy.deepcopy(r["decision_script"][0])),
-            id="two-starters",
-        ),
-    ],
-)
-def test_start2_without_one_scripted_starter_is_never_driven(start2, monkeypatch, mutate) -> None:
-    mutate(start2)
+def test_start2_declares_from_the_requested_state_when_no_step_scripts_one(
+    start2, monkeypatch
+) -> None:
+    _without_family(start2, "starting_player")
+    _, calls = _start2(start2, monkeypatch, _observed(state=_state()))
+    # The shared parser (#574) accepts the requested pre-first-turn active
+    # player as the third declaration shape, so the record still declares P1
+    # and the run is the record's game.
+    assert calls[0]["scripted_starting_seat"] == "p1"
+    assert calls[0]["starting_seat_source"] == (starting_player.STARTER_DECLARATION_PRE_FIRST_TURN)
+
+
+def test_start2_never_credits_a_starter_other_than_the_requested_state(start2, monkeypatch) -> None:
+    start2["decision_script"][0]["selection"].update(semantic_value="P2")
     row, calls = _start2(start2, monkeypatch, _observed(state=_state()))
-    assert calls == []
+    # The step declares P2 (shape 1), but the engine's first priority is P1:
+    # the seat check refuses before any CR 103.8a verdict, never a FAIL.
+    assert calls[0]["scripted_starting_seat"] == "p2"
     assert row.outcome == "UNKNOWN"
-    assert "starting player is not executable" in row.reason
+    assert "first priority to P1" in row.reason
 
 
 @pytest.mark.parametrize(
@@ -444,85 +459,51 @@ class _CreateOnly:
 
 @pytest.mark.parametrize(
     ("candidate", "seat", "sent"),
-    [("xmage", "p1", 0), ("xmage", "p2", 1), ("forge", "p1", None), ("xmage", None, None)],
+    [("xmage", "p1", 0), ("xmage", "p2", 1), ("forge", "p1", None)],
 )
-def test_the_records_starter_reaches_the_create_request(candidate, seat, sent) -> None:
-    from commander_lab.qualification.current_boundary import game_driver
-
+def test_the_declared_starter_reaches_the_create_request(candidate, seat, sent) -> None:
     proc = _CreateOnly()
     result = game_driver.drive_commander_game(
         proc,  # type: ignore[arg-type]
         candidate=candidate,
         player_count=2,
         seed=424242,
-        record_starting_seat=seat,
+        scripted_starting_seat=seat,
+        starting_seat_source=starting_player.STARTER_DECLARATION_SCRIPT,
     )
     assert proc.created is not None
     assert proc.created.get("starting_player_seat") == sent
-    # Sent is not executed: nothing echoed the seat and no frame was answered.
-    assert result.terminal_facts["starting_seat_channel"] == (
-        "LANE_OR_PROVIDER_DEFAULT_NOT_A_RECORD_DECISION"
-        if seat is None
-        else "record_starting_seat_unverified"
-    )
+    # Sent is not executed: a create request (or its echo) is never a channel.
+    assert result.terminal_facts["starting_player_channel"] is None
 
 
-@pytest.mark.parametrize(
-    ("echo", "channel"),
-    [
-        (
-            {"starting_player_seat": 0, "starting_player_seat_source": "REQUEST"},
-            "create_request_echo_verified",
-        ),
-        ({}, "record_starting_seat_unverified"),
-        ({"starting_player_seat": 0}, "record_starting_seat_unverified"),
-        (
-            {"starting_player_seat": 0, "starting_player_seat_source": "BRIDGE_DEFAULT"},
-            "record_starting_seat_unverified",
-        ),
-        (
-            {"starting_player_seat": 1, "starting_player_seat_source": "REQUEST"},
-            "record_starting_seat_unverified",
-        ),
-    ],
-    ids=["echoed", "no-echo", "no-source", "bridge-default", "mismatched"],
-)
-def test_an_xmage_starter_counts_only_when_echoed_as_applied(echo, channel) -> None:
-    proc = _CreateOnly(echo)
+def test_an_xmage_run_without_a_declared_starter_refuses_before_traffic() -> None:
+    proc = _CreateOnly()
     result = game_driver.drive_commander_game(
         proc,  # type: ignore[arg-type]
         candidate="xmage",
         player_count=2,
         seed=424242,
-        record_starting_seat="p1",
     )
-    assert result.terminal_facts["starting_seat_channel"] == channel
+    assert proc.created is None
+    assert result.failure_kind == "FAIL_CLOSED_UNSATISFIED"
+    assert "no starting seat" in (result.failure or "")
 
 
 @pytest.mark.parametrize(
-    ("choices", "channel"),
+    "channel",
     [
-        ([], "record_starting_seat_unverified"),
-        ([{"chosen_seat": "p1"}], "decision_frame_verified"),
-        ([{"chosen_seat": "p2"}], "record_starting_seat_unverified"),
-        ([{"chosen_seat": "p1"}, {"chosen_seat": "p1"}], "record_starting_seat_unverified"),
+        None,
+        game_driver.STARTING_PLAYER_CHANNEL_CREATE_ECHO_ONLY,
+        "create_request",
+        "decision_frame",
     ],
-    ids=["forge-no-frame", "one-frame", "other-seat", "two-frames"],
-)
-def test_a_frame_starter_counts_only_when_one_choice_resolves_to_it(choices, channel) -> None:
-    # The channel names are the persisted contract, so they are spelled out here.
-    facts = {"starting_player_choices": choices}
-    assert game_driver.verified_starting_seat_channel(facts, "p1", None) == channel
-
-
-@pytest.mark.parametrize(
-    "channel", ["record_starting_seat_unverified", None, "create_request", "decision_frame"]
 )
 def test_start2_is_unknown_unless_the_starter_was_verifiably_executed(
     start2, monkeypatch, channel
 ) -> None:
     game = _observed(state=_state())
-    game.terminal_facts["starting_seat_channel"] = channel
+    game.terminal_facts["starting_player_channel"] = channel
     row, _ = _start2(start2, monkeypatch, game)
     assert row.outcome == "UNKNOWN"
     assert "not verifiably executed" in row.reason
@@ -567,11 +548,10 @@ class _Roster(_CreateOnly):
 @pytest.mark.parametrize(
     ("actor", "seats", "fragment"),
     [
-        ("E2", ["p1", "p2"], "starting-player choice of 'p2'"),
-        ("E1", ["p1", "p1", "p2"], "matches 2 offered options"),
-        ("E1", ["p2"], "matches 0 offered options"),
+        ("E1", ["p1", "p1", "p2"], "2 matches, exactly one required"),
+        ("E1", ["p2"], "0 matches, exactly one required"),
     ],
-    ids=["other-chooser", "two-matches", "no-match"],
+    ids=["two-matches", "no-match"],
 )
 def test_the_starter_frame_fails_closed(monkeypatch, actor, seats, fragment) -> None:
     frames = iter([_starter_frame(actor, seats)])
@@ -581,59 +561,51 @@ def test_the_starter_frame_fails_closed(monkeypatch, actor, seats, fragment) -> 
         candidate="forge",
         player_count=2,
         seed=424242,
-        record_starting_seat="p1",
-        record_starting_chooser="p1",
+        scripted_starting_seat="p1",
+        starting_seat_source=starting_player.STARTER_DECLARATION_SCRIPT,
     )
     assert result.failure_kind == "FAIL_CLOSED_UNSATISFIED"
     assert fragment in (result.failure or "")
-    assert result.terminal_facts["starting_seat_channel"] == "record_starting_seat_unverified"
+    assert result.terminal_facts["starting_player_channel"] is None
 
 
-def test_an_unscripted_starter_is_labelled_a_lane_default(monkeypatch) -> None:
+def test_an_unscripted_starter_fails_closed(monkeypatch) -> None:
     frames = iter([_starter_frame("E1", ["p1", "p2"])])
-
-    def poll(*a: Any, **k: Any) -> dict[str, Any]:
-        try:
-            return next(frames)
-        except StopIteration:
-            raise game_driver.GameDriveError("stop") from None
-
-    monkeypatch.setattr(game_driver, "poll_decision", poll)
+    monkeypatch.setattr(game_driver, "poll_decision", lambda *a, **k: next(frames))
     result = game_driver.drive_commander_game(
         _Roster(),  # type: ignore[arg-type]
         candidate="forge",
         player_count=2,
         seed=424242,
     )
-    (entry,) = [e for e in result.decision_tape if e.step == "starting_player"]
-    assert entry.policy == "lane_default_seat_not_a_record_decision"
-    assert "no record decision" in entry.note
-    assert (
-        result.terminal_facts["starting_seat_channel"]
-        == "LANE_OR_PROVIDER_DEFAULT_NOT_A_RECORD_DECISION"
-    )
+    # The Lab never chooses the starting player: without a declaration the
+    # engine's frame is refused, never answered with a lane-default seat.
+    assert result.failure_kind == "FAIL_CLOSED_UNSATISFIED"
+    assert "declares no starting seat" in (result.failure or "")
+    assert result.terminal_facts["starting_player_channel"] is None
 
 
 @pytest.mark.parametrize("fixture_id", ["WS05-CMD-MULL-2", "WS05-CMD-MULL-4"])
 def test_the_mull_records_script_their_starter(materialization, fixture_id) -> None:
     record = materialization.record(fixture_id)
-    assert full107.record_starting_seat(record) == ("p1", "p1")
+    assert starting_player.record_starting_seat(record) == (
+        "p1",
+        starting_player.STARTER_DECLARATION_SCRIPT,
+    )
     assert record["decision_script"][0]["decision_family"] == "starting_player"
 
 
-def test_scripted_pregame_passes_and_verifies_the_records_starter(
+def test_scripted_pregame_passes_the_records_starter_declaration(
     materialization, monkeypatch
 ) -> None:
     record = copy.deepcopy(materialization.record("WS05-CMD-MULL-4"))
     calls: list[dict[str, Any]] = []
-    game = _observed(state=_state(4))
-    game.terminal_facts["starting_seat_channel"] = "record_starting_seat_unverified"
-    monkeypatch.setattr(full107, "drive_commander_game", lambda *a, **k: calls.append(k) or game)
-    row = full107.scripted_pregame_row(record, object(), candidate="xmage", runtime_identity={})
-    assert calls[0]["record_starting_seat"] == "p1"
-    assert calls[0]["record_starting_chooser"] == "p1"
-    assert row.outcome == "UNKNOWN"
-    assert "not verifiably executed" in row.reason
+    monkeypatch.setattr(
+        full107, "drive_commander_game", lambda *a, **k: calls.append(k) or _observed()
+    )
+    full107.scripted_pregame_row(record, object(), candidate="xmage", runtime_identity={})
+    assert calls[0]["scripted_starting_seat"] == "p1"
+    assert calls[0]["starting_seat_source"] == starting_player.STARTER_DECLARATION_SCRIPT
 
 
 # --- run_cardinality: a record without its seed is refused ----------------------- #
@@ -729,9 +701,18 @@ def test_a_changed_id_without_a_survival_entry_fails_closed() -> None:
 
 
 def test_the_channel_names_are_the_drivers() -> None:
-    assert game_driver.STARTING_SEAT_CREATE_VERIFIED == "create_request_echo_verified"
-    assert game_driver.STARTING_SEAT_FRAME_VERIFIED == "decision_frame_verified"
-    assert game_driver.STARTING_SEAT_UNVERIFIED == "record_starting_seat_unverified"
-    assert game_driver.STARTING_SEAT_UNSCRIPTED == (
-        "LANE_OR_PROVIDER_DEFAULT_NOT_A_RECORD_DECISION"
+    # The verified channels are the engine's own (#574): its start readback or
+    # the choice frame it published and the run answered. A create-echo is a
+    # weaker, auditable label that is never credit (R3-C3).
+    assert (
+        game_driver.STARTING_PLAYER_CHANNEL_ENGINE_FRAME == "ENGINE_FRAME_FROM_RECORD_DECLARATION"
+    )
+    assert (
+        game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
+        == "PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT"
+    )
+    assert game_driver.STARTING_PLAYER_CHANNEL_CREATE_ECHO_ONLY == "PROVIDER_CREATE_ECHO_ONLY"
+    assert (
+        game_driver.STARTING_PLAYER_CHANNEL_CREATE_ECHO_ONLY
+        not in game_driver.VERIFIED_STARTING_PLAYER_CHANNELS
     )

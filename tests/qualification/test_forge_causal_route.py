@@ -290,6 +290,7 @@ def test_the_route_casts_targets_pays_and_answers_on_engine_frames(monkeypatch) 
         }
     ]
     assert [snapshot["at"] for snapshot in run.snapshots] == [
+        "cast_complete:obj:blade",
         "stack_caused",
         "requested_checkpoint",
         "before_scripted_0",
@@ -372,10 +373,28 @@ def test_the_effective_rows_the_lane_routes(monkeypatch) -> None:
     records = load_effective_materialization(REPO).denominator_records()
     routed = sorted(r["fixture_id"] for r in records if fsl.lane_causal_plan(r) is not None)
     assert routed == sorted(
-        f"WS05-CMD-ZONE-{zone}-{answer}"
-        for zone in ("GY", "EXILE", "HAND")
-        for answer in ("YES", "NO")
+        [
+            *(
+                f"WS05-CMD-ZONE-{zone}-{answer}"
+                for zone in ("GY", "EXILE", "HAND")
+                for answer in ("YES", "NO")
+            ),
+            # B1 (#561): a scripted cast on the caused stack. Routed is not
+            # executable: each still names action_cost_state and the
+            # exact_hand_after_draw authority gate, so none earns credit.
+            "MICRO_MANA_PAYMENT",
+            "MICRO_PRIORITY",
+            "MICRO_STACK",
+            "PILOT_MANA_PAYMENT",
+        ]
     )
+    for record in records:
+        if record["fixture_id"].startswith(("MICRO_", "PILOT_")) and fsl.lane_causal_plan(record):
+            model = fsl.model_requested_state(record)
+            assert {item.dimension for item in model.hard_unsupported} == {
+                "action_cost_state",
+                "temporal_checkpoint.exact_hand_after_draw",
+            }
 
 
 def test_the_commander_zone_choice_is_judged_from_engine_facts(monkeypatch) -> None:
