@@ -1028,6 +1028,36 @@ def scripted_london_bottoms(record: dict[str, Any]) -> list[tuple[str, Any]]:
     ]
 
 
+def _london_bottom_names(selection: Any) -> tuple[str, ...] | None:
+    """A scripted bottom selection's card names (sorted), or None when malformed.
+
+    The record states ``selection.selector_kind == "card_identity_multiset"``
+    with a card-name multiset as its semantic value; the driver maps each name
+    to the engine's offered copies. A selection that does not state that
+    selector, or whose value is not a non-empty name -> positive count mapping,
+    is a record defect and nothing is executed.
+    """
+    if not isinstance(selection, dict) or selection.get("selector_kind") != (
+        "card_identity_multiset"
+    ):
+        return None
+    value = selection.get("semantic_value")
+    if not isinstance(value, dict) or not value:
+        return None
+    names: list[str] = []
+    for name, count in value.items():
+        if (
+            not isinstance(name, str)
+            or not name
+            or isinstance(count, bool)
+            or not isinstance(count, int)
+            or count < 1
+        ):
+            return None
+        names.extend([name] * count)
+    return tuple(sorted(names))
+
+
 def _bottom_count(hands: dict[str, Any], hand_sizes: dict[str, Any], seat: str) -> int | None:
     """Cards a seat put on the bottom, from its engine-reported hand at turn 1's start."""
     seen = hands.get(seat) or {}
@@ -1128,43 +1158,58 @@ def scripted_pregame_row(
     bottoms = scripted_london_bottoms(record)
     if bottoms:
         # The bottom card is the player's own choice (CR 103.5), so the Lab
-        # never selects it and no default may answer it. The pinned bridges
-        # offer no external London bottom surface on this lane; the refusal
-        # names the candidate's own missing channel, never a generic one.
+        # never selects it and no default may answer it. XMage's generic lane
+        # now projects the native callback as a structured london_bottom
+        # decision (decision_kind + bottom_of_library_selection context) that
+        # the driver answers from the record's multiset (see
+        # game_driver.SCRIPTED_LONDON_BOTTOM_POLICY). The pinned Forge bridge
+        # still offers no such surface, so its refusal names Forge's own
+        # missing channel, never a generic one.
         evidence["scripted_london_bottoms"] = [[seat, value] for seat, value in bottoms]
-        if candidate == "xmage":
-            # The scripted-pregame lane drives the generic XMage lane
-            # (create_commander_game -> XmageGameManager -> XmageBridgePlayer),
-            # whose bottom callback fails closed before publishing any decision:
-            # XmageBridgePlayer.choose(Cards, TargetCard) raises
-            # UNSUPPORTED_COMPATIBILITY_DECISION and the generic
-            # get_legal_actions payload (JsonlBridge.legalActionsPayload) carries
-            # no context, so no structured bottom_of_library_selection frame ever
-            # reaches the Lab. Only the full-game lane's XmageFullGamePlayer
-            # publishes that marker, and this lane does not use it.
-            reason = (
-                "the record scripts a London bottom selection "
-                f"({', '.join(seat.upper() for seat, _ in bottoms)}), and the pinned "
-                "XMage scripted-pregame lane offers no engine bottom decision: its "
-                "generic get_legal_actions frame carries no structured "
-                "bottom_of_library_selection context and XmageBridgePlayer refuses an "
-                "externally controlled bottom; the Lab never chooses the card for the player"
+        if candidate != "xmage":
+            if candidate == "forge":
+                reason = (
+                    "the record scripts a London bottom selection "
+                    f"({', '.join(seat.upper() for seat, _ in bottoms)}), and the pinned "
+                    "Forge bridge never answers an owed tuck; the Lab never chooses the "
+                    "card for the player"
+                )
+            else:
+                reason = (
+                    "the record scripts a London bottom selection "
+                    f"({', '.join(seat.upper() for seat, _ in bottoms)}), and the pinned "
+                    f"{candidate} bridge offers no engine london_bottom decision; the Lab "
+                    "never chooses the card for the player"
+                )
+            return RowResult(
+                fixture_id,
+                candidate,
+                "UNKNOWN",
+                SCRIPTED_PREGAME_MODE,
+                reason,
+                evidence,
             )
-        else:
-            reason = (
-                "the record scripts a London bottom selection "
-                f"({', '.join(seat.upper() for seat, _ in bottoms)}), and the pinned "
-                "Forge bridge never answers an owed tuck; the Lab never chooses the "
-                "card for the player"
+    bottom_plan: list[tuple[str, tuple[str, ...]]] = []
+    # The selections are filtered by the same predicate as ``bottoms``, so the
+    # two views stay aligned entry for entry.
+    bottom_selections = [
+        step.get("selection") or {}
+        for step in record.get("decision_script") or ()
+        if isinstance(step, dict) and step.get("decision_family") == "london_bottom"
+    ]
+    for (seat, value), selection in zip(bottoms, bottom_selections, strict=True):
+        names = _london_bottom_names(selection)
+        if names is None:
+            return RowResult(
+                fixture_id,
+                candidate,
+                "UNKNOWN",
+                SCRIPTED_PREGAME_MODE,
+                f"the record's scripted London bottom step for {seat.upper()} does not "
+                f"state a card_identity_multiset selection: {value!r}",
+                evidence,
             )
-        return RowResult(
-            fixture_id,
-            candidate,
-            "UNKNOWN",
-            SCRIPTED_PREGAME_MODE,
-            reason,
-            evidence,
-        )
+        bottom_plan.append((seat, names))
     evidence["requested_decks"] = [
         {"deck_id": deck["deck_id"], "deck_hash": deck["deck_hash"]} for deck in decks
     ]
@@ -1182,6 +1227,7 @@ def scripted_pregame_row(
         drive_to="priority",
         max_steps=80,
         mulligan_plan=plan,
+        london_bottom_plan=tuple(bottom_plan) if bottom_plan else None,
         decks=decks,
     )
     asked = [

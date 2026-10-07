@@ -41,9 +41,12 @@ class _FakeProcess:
         hands: dict[str, int] | None = None,
         seed_echo: int | None = None,
         shuffles_on_mulligan: bool | None = True,
+        engine_ids: dict[str, str] | None = None,
+        reject_bottom: bool = False,
     ) -> None:
         self.roster_at_create = roster_at_create
-        self.hands = hands or {seat: 7 for seat in ENGINE_IDS}
+        self.engine_ids = dict(engine_ids or ENGINE_IDS)
+        self.hands = hands or {seat: 7 for seat in self.engine_ids}
         self.seed_echo = seed_echo
         # None: a launch without the orchestration channel. True: every
         # mulligan shuffles the hand back (CR 103.5), as the engines do. False:
@@ -56,9 +59,15 @@ class _FakeProcess:
         self.imports = 0
         self.decks: list[dict[str, Any]] = []
         self.mulligans: list[tuple[str, bool]] = []
+        self.bottoms: list[tuple[str, list[str]]] = []
+        self.reject_bottom = reject_bottom
+
+    @property
+    def player_count(self) -> int:
+        return len(self.engine_ids)
 
     def actor(self, seat: str) -> str:
-        return seat if self.roster_at_create else ENGINE_IDS[seat]
+        return seat if self.roster_at_create else self.engine_ids[seat]
 
     def request(
         self,
@@ -77,14 +86,14 @@ class _FakeProcess:
             }
             return {"success": True, "payload": {"capabilities": capabilities}}
         if message_type == "get_constructed_state":
-            seats = {self.actor(seat): seat for seat in ENGINE_IDS}
-            taken = {seat: 0 for seat in ENGINE_IDS}
+            seats = {self.actor(seat): seat for seat in self.engine_ids}
+            taken = {seat: 0 for seat in self.engine_ids}
             for actor, keep in self.mulligans:
                 if not keep and self.shuffles_on_mulligan:
                     taken[seats.get(actor, actor)] += 1
             players = [
                 {"player_id": seat.upper(), "library_shuffles": 1 + taken[seat]}
-                for seat in ENGINE_IDS
+                for seat in self.engine_ids
             ]
             return {"success": True, "payload": {"constructed_state": {"players": players}}}
         if message_type in {"start_engine", "get_provider_version"}:
@@ -94,7 +103,7 @@ class _FakeProcess:
             self.decks.append(payload["deck"])
             return {"success": True, "payload": {"deck_handle": {"handle_id": f"d{self.imports}"}}}
         if message_type == "create_commander_game":
-            created: dict[str, Any] = {"player_count": 4}
+            created: dict[str, Any] = {"player_count": self.player_count}
             request = payload.get("request") or {}
             if "starting_player_seat" in request:
                 # An honest bridge echoes the seat it applied. The echo is an
@@ -105,7 +114,7 @@ class _FakeProcess:
                 created["rules_seed"] = self.seed_echo
             if self.roster_at_create:
                 created["seats"] = [
-                    {"seat": index, "player_id": seat} for index, seat in enumerate(ENGINE_IDS)
+                    {"seat": index, "player_id": seat} for index, seat in enumerate(self.engine_ids)
                 ]
             return {"success": True, "payload": created}
         if message_type == "start_game":
@@ -113,11 +122,24 @@ class _FakeProcess:
         if message_type == "resolve_mulligan":
             self.mulligans.append((str(payload["player_id"]), bool(payload["keep"])))
             return {"success": True, "payload": {"keep": payload["keep"]}}
+        if message_type == "resolve_bottom":
+            if self.reject_bottom:
+                return {
+                    "success": False,
+                    "errors": [
+                        {
+                            "code": "resolve_bottom_failed",
+                            "message": "EXTERNAL_DECISION_DOMAIN_INVALID: test refusal",
+                        }
+                    ],
+                }
+            self.bottoms.append((str(payload["player_id"]), list(payload["card_ids"])))
+            return {"success": True, "payload": {"bottom_selection_external": True}}
         if message_type == "pass_priority":
             return {"success": True, "payload": {}}
         if message_type == "get_game_state":
             seat = str(payload["observer_player_id"])
-            index = list(ENGINE_IDS).index(seat)
+            index = list(self.engine_ids).index(seat)
             rows = [
                 {
                     "player_id": self.actor(other),
@@ -125,7 +147,7 @@ class _FakeProcess:
                     "zones": {"hand": [None] * self.hands[other], "library_size": 92},
                     **({"is_actor": other == seat} if self.roster_at_create else {}),
                 }
-                for position, other in enumerate(ENGINE_IDS)
+                for position, other in enumerate(self.engine_ids)
             ]
             state = {"players": rows, "turn_number": 1, "phase": "beginning", "step": "upkeep"}
             envelope = (
@@ -134,7 +156,7 @@ class _FakeProcess:
                 else {
                     "observer_player_id": seat,
                     "observer_seat": index,
-                    "observer_engine_player_id": ENGINE_IDS[seat],
+                    "observer_engine_player_id": self.engine_ids[seat],
                 }
             )
             return {"success": True, "payload": {"state": state, **envelope}}
@@ -447,15 +469,291 @@ def test_a_scripted_forge_london_bottom_keeps_the_forge_refusal() -> None:
     assert row.evidence["scripted_london_bottoms"] == [["p1", {"Mountain": 1}]]
 
 
-def test_a_scripted_xmage_london_bottom_reports_the_missing_bridge_decision() -> None:
-    # #592 wave 2 current boundary: the scripted-pregame lane drives the generic
-    # XMage lane, whose bottom callback fails closed before publishing any
-    # decision (XmageBridgePlayer.choose(Cards, TargetCard) raises
-    # UNSUPPORTED_COMPATIBILITY_DECISION) and whose get_legal_actions payload
-    # carries no context, so no structured bottom_of_library_selection frame ever
-    # reaches the Lab. The row is UNKNOWN before any request, never a Lab-chosen
-    # card and never a generic reason.
+TWO_PLAYER_IDS = {"p1": "uuid-a", "p2": "uuid-b"}
+MULL2_PLAN = (("p1", False), ("p2", True), ("p1", True))
+
+
+def _bottom_frame(
+    actor: str,
+    cards: list[tuple[str, str]],
+    *,
+    count: int = 1,
+    context: Any = "default",
+) -> dict[str, Any]:
+    """A normalized generic-lane london_bottom frame: engine_card_id + card_name.
+
+    ``count`` is the engine-required number of cards to bottom (the context
+    value), not the number of offered options.
+    """
+    if context == "default":
+        context = {"bottom_of_library_selection": True, "count": count}
+    return {
+        "seat": "p1",
+        "decision": {
+            "kind": "LONDON_BOTTOM",
+            "actor": actor,
+            "revision": 2,
+            "decision_id": "bottom-1",
+            "status": "SUPPORTED",
+        },
+        "actions": [
+            {
+                "action_id": f"bottom-{index}",
+                "action_type": "bottom_card",
+                "actor_id": actor,
+                "metadata": {
+                    "option_type": "bottom_card",
+                    "engine_card_id": card_id,
+                    "card_name": name,
+                },
+            }
+            for index, (card_id, name) in enumerate(cards)
+        ],
+        "context": context,
+        "raw": {},
+    }
+
+
+def _mull2_frames(proc: _FakeProcess, *between: dict[str, Any]) -> list[dict[str, Any]]:
+    return [
+        *[_frame("MULLIGAN", proc.actor(seat)) for seat in ("p1", "p2", "p1")],
+        *between,
+        _frame("PRIORITY", proc.actor("p1")),
+    ]
+
+
+def _bottom_row(
+    monkeypatch: pytest.MonkeyPatch,
+    proc: _FakeProcess,
+    frames: list[dict[str, Any]],
+    record: dict[str, Any] | None = None,
+) -> full107.RowResult:
+    frames_iter = iter(frames)
+    monkeypatch.setattr(game_driver, "poll_decision", lambda *a, **k: next(frames_iter))
+    return full107.scripted_pregame_row(
+        record if record is not None else _mull_record("WS05-CMD-MULL-2"),
+        proc,  # type: ignore[arg-type]
+        candidate="xmage",
+        runtime_identity={},
+    )
+
+
+def test_a_scripted_xmage_london_bottom_submits_the_named_offered_card_id(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Offered: one non-Mountain first, then three same-name Mountains. The
+    # record names Mountain, so the transport must take an offered Mountain --
+    # and among same-name copies the least engine_card_id ("a-mountain"), which
+    # is neither the first option nor the last. Same-name copies are
+    # outcome-equivalent for this choice (same name/rules text in a hidden hand),
+    # so the deterministic least-id pick carries no content decision.
     record = _mull_record("WS05-CMD-MULL-2")
+    record["construction_validation"] = {"required": False}
+    proc = _FakeProcess(
+        roster_at_create=False,
+        engine_ids=TWO_PLAYER_IDS,
+        hands={"p1": 6, "p2": 7},
+        seed_echo=424242,
+    )
+    frame = _bottom_frame(
+        proc.actor("p1"),
+        [("z-island", "Island"), ("m-mountain", "Mountain"), ("a-mountain", "Mountain")],
+    )
+    row = _bottom_row(monkeypatch, proc, _mull2_frames(proc, frame), record)
+    assert proc.bottoms == [(proc.actor("p1"), ["a-mountain"])], row.reason
+    assert row.outcome == "PASS", row.reason
+    # PB-03 AF08 readback: P1 kept six cards after its one owed bottom at turn 1 upkeep.
+    hands = row.evidence["terminal_facts"]["post_pregame_zone_counts"]
+    assert hands["p1"]["hand_count"] == 6
+    assert hands["p2"]["hand_count"] == 7
+    tape = [e for e in row.evidence["decision_tape"] if e["step"] == "london_bottom"]
+    assert len(tape) == 1
+    assert tape[0]["seat"] == "p1"
+    assert tape[0]["chosen_option_id"] is None
+    assert tape[0]["offered_option_ids"] == [
+        "bottom-0",
+        "bottom-1",
+        "bottom-2",
+    ]
+    submissions = row.evidence["terminal_facts"]["london_bottom_submissions"]
+    assert submissions == [
+        {
+            "seat": "p1",
+            "multiset": ["Mountain"],
+            "offered": [
+                {"action_id": "bottom-0", "engine_card_id": "z-island", "card_name": "Island"},
+                {"action_id": "bottom-1", "engine_card_id": "m-mountain", "card_name": "Mountain"},
+                {"action_id": "bottom-2", "engine_card_id": "a-mountain", "card_name": "Mountain"},
+            ],
+            "submitted_card_ids": ["a-mountain"],
+        }
+    ]
+
+
+def test_the_bottom_is_never_answered_by_the_first_offered_option(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A lenient first-option driver fails this control: the record names the second card."""
+    record = _mull_record("WS05-CMD-MULL-2")
+    record["construction_validation"] = {"required": False}
+    proc = _FakeProcess(
+        roster_at_create=False,
+        engine_ids=TWO_PLAYER_IDS,
+        hands={"p1": 6, "p2": 7},
+        seed_echo=424242,
+    )
+    frame = _bottom_frame(
+        proc.actor("p1"), [("first-option", "Island"), ("named-option", "Mountain")]
+    )
+    row = _bottom_row(monkeypatch, proc, _mull2_frames(proc, frame), record)
+    assert proc.bottoms == [(proc.actor("p1"), ["named-option"])]
+    assert "first-option" not in proc.bottoms[0][1]
+    assert row.outcome == "PASS", row.reason
+
+
+def test_a_second_unscripted_bottom_decision_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proc = _FakeProcess(
+        roster_at_create=False,
+        engine_ids=TWO_PLAYER_IDS,
+        hands={"p1": 6, "p2": 7},
+        seed_echo=424242,
+    )
+    frame = _bottom_frame(proc.actor("p1"), [("m-1", "Mountain")])
+    row = _bottom_row(monkeypatch, proc, _mull2_frames(proc, frame, frame))
+    assert proc.bottoms == [(proc.actor("p1"), ["m-1"])]
+    assert row.outcome == "UNKNOWN"
+    assert "the record scripts none" in row.reason
+
+
+def test_a_bottom_decision_for_another_seat_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proc = _FakeProcess(
+        roster_at_create=False,
+        engine_ids=TWO_PLAYER_IDS,
+        hands={"p1": 6, "p2": 7},
+        seed_echo=424242,
+    )
+    # The actor is P2's engine id; the record scripts P1's bottom.
+    frame = _bottom_frame(proc.actor("p2"), [("m-1", "Mountain")])
+    row = _bottom_row(monkeypatch, proc, _mull2_frames(proc, frame))
+    assert proc.bottoms == []
+    assert row.outcome == "UNKNOWN"
+    assert "asked London bottom decision #1 of p2; the record scripts p1" in row.reason
+
+
+def test_a_structured_context_count_that_differs_from_the_multiset_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proc = _FakeProcess(
+        roster_at_create=False,
+        engine_ids=TWO_PLAYER_IDS,
+        hands={"p1": 6, "p2": 7},
+        seed_echo=424242,
+    )
+    frame = _bottom_frame(proc.actor("p1"), [("m-1", "Mountain")], count=2)
+    row = _bottom_row(monkeypatch, proc, _mull2_frames(proc, frame))
+    assert proc.bottoms == []
+    assert row.outcome == "UNKNOWN"
+    assert "asks for 2 card(s)" in row.reason
+    assert "has 1" in row.reason
+
+
+def test_a_bottom_without_the_structured_selection_context_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proc = _FakeProcess(
+        roster_at_create=False,
+        engine_ids=TWO_PLAYER_IDS,
+        hands={"p1": 6, "p2": 7},
+        seed_echo=424242,
+    )
+    frame = _bottom_frame(proc.actor("p1"), [("m-1", "Mountain")], context=None)
+    row = _bottom_row(monkeypatch, proc, _mull2_frames(proc, frame))
+    assert proc.bottoms == []
+    assert row.outcome == "UNKNOWN"
+    assert "without the structured bottom_of_library_selection context" in row.reason
+
+
+def test_a_named_card_the_engine_does_not_offer_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proc = _FakeProcess(
+        roster_at_create=False,
+        engine_ids=TWO_PLAYER_IDS,
+        hands={"p1": 6, "p2": 7},
+        seed_echo=424242,
+    )
+    frame = _bottom_frame(proc.actor("p1"), [("i-1", "Island"), ("i-2", "Island")])
+    row = _bottom_row(monkeypatch, proc, _mull2_frames(proc, frame))
+    assert proc.bottoms == []
+    assert row.outcome == "UNKNOWN"
+    assert "names 1x 'Mountain'" in row.reason
+    assert "offers 0 such card(s)" in row.reason
+    # The offered options are evidenced even when the record's name is absent.
+    assert row.evidence["terminal_facts"]["london_bottom_offers"][0]["offered"] == [
+        {"action_id": "bottom-0", "engine_card_id": "i-1", "card_name": "Island"},
+        {"action_id": "bottom-1", "engine_card_id": "i-2", "card_name": "Island"},
+    ]
+
+
+def test_too_few_same_name_copies_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None:
+    record = _mull_record("WS05-CMD-MULL-2")
+    record["decision_script"][-1]["selection"]["semantic_value"] = {"Mountain": 2}
+    proc = _FakeProcess(
+        roster_at_create=False,
+        engine_ids=TWO_PLAYER_IDS,
+        hands={"p1": 6, "p2": 7},
+        seed_echo=424242,
+    )
+    frame = _bottom_frame(proc.actor("p1"), [("m-1", "Mountain"), ("i-1", "Island")], count=2)
+    row = _bottom_row(monkeypatch, proc, _mull2_frames(proc, frame), record)
+    assert proc.bottoms == []
+    assert row.outcome == "UNKNOWN"
+    assert "names 2x 'Mountain'" in row.reason
+    assert "offers 1 such card(s)" in row.reason
+
+
+def test_a_bridge_refusal_of_the_bottom_submission_is_unknown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proc = _FakeProcess(
+        roster_at_create=False,
+        engine_ids=TWO_PLAYER_IDS,
+        hands={"p1": 6, "p2": 7},
+        seed_echo=424242,
+        reject_bottom=True,
+    )
+    frame = _bottom_frame(proc.actor("p1"), [("m-1", "Mountain")])
+    row = _bottom_row(monkeypatch, proc, _mull2_frames(proc, frame))
+    assert proc.bottoms == []
+    assert row.outcome == "UNKNOWN"
+    assert "did not complete" in row.reason
+    assert "resolve_bottom(london_bottom) failed" in row.reason
+    assert "EXTERNAL_DECISION_DOMAIN_INVALID" in row.reason
+
+
+def test_a_bottom_the_engine_never_offered_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # The engine lets the pregame reach priority without the owed bottom.
+    proc = _FakeProcess(
+        roster_at_create=False,
+        engine_ids=TWO_PLAYER_IDS,
+        hands={"p1": 6, "p2": 7},
+        seed_echo=424242,
+    )
+    row = _bottom_row(monkeypatch, proc, _mull2_frames(proc))
+    assert proc.bottoms == []
+    assert row.outcome == "UNKNOWN"
+    assert "offered no london_bottom decision for ['p1']" in row.reason
+
+
+def test_a_bottom_step_without_the_multiset_selector_fails_closed() -> None:
+    record = _mull_record("WS05-CMD-MULL-2")
+    record["decision_script"][-1]["selection"]["selector_kind"] = "semantic_action"
     row = full107.scripted_pregame_row(
         record,
         _Untouched(),  # type: ignore[arg-type]
@@ -463,10 +761,7 @@ def test_a_scripted_xmage_london_bottom_reports_the_missing_bridge_decision() ->
         runtime_identity={},
     )
     assert row.outcome == "UNKNOWN"
-    assert "XMage scripted-pregame lane offers no engine bottom decision" in row.reason
-    assert "bottom_of_library_selection" in row.reason
-    assert "never chooses the card for the player" in row.reason
-    assert row.evidence["scripted_london_bottoms"] == [["p1", {"Mountain": 1}]]
+    assert "does not state a card_identity_multiset selection" in row.reason
 
 
 def test_an_answered_mulligan_the_engine_never_performed_is_not_observed(
