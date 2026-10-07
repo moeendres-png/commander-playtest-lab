@@ -188,6 +188,40 @@ def effective_record(fixture_id: str) -> dict[str, Any]:
     raise ContractError(f"fixture not found: {fixture_id}")
 
 
+def bounded_secondary_records() -> list[dict[str, Any]]:
+    """The successor contract's bounded-secondary, non-denominator records.
+
+    A bounded-secondary record is authoritative only as the ``record`` argument
+    of its lifecycle run (contract 1.0.23, #441 Coordinator erratum): it is
+    never a FULL107 denominator row and never changes the denominator or AF06.
+    Each record is digest-bound by the successor contract generator, and a
+    digest that does not match its own bytes is a fail-closed contract error.
+    The section is optional; a contract without it yields no records.
+    """
+    authority = _load(AUTHORITY_PATH)
+    successor = _load(REPO_ROOT / authority["full107"]["successor_contract"])
+    section = successor.get("bounded_secondary_records")
+    if section is None:
+        return []
+    if not isinstance(section, dict) or section.get("denominator_effect") != "NONE":
+        raise ContractError(
+            "a bounded-secondary record section must declare denominator_effect NONE"
+        )
+    records: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for record in section.get("records") or ():
+        fixture_id = record.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id or fixture_id in seen:
+            raise ContractError(f"malformed or duplicate bounded-secondary record {fixture_id!r}")
+        seen.add(fixture_id)
+        if record.get("requested_state_digest") != requested_state_digest(record):
+            raise ContractError(f"bounded-secondary requested-state digest mismatch: {fixture_id}")
+        if record.get("obligation_digest") != obligation_digest(record):
+            raise ContractError(f"bounded-secondary obligation digest mismatch: {fixture_id}")
+        records.append(record)
+    return records
+
+
 if __name__ == "__main__":
     import argparse
 

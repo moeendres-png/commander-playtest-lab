@@ -50,6 +50,7 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     canonical_forge_rules_core_pin,
     canonical_xmage_engine_pin,
     cardinality_row,
+    cardinality_row_eligible,
     drive_commander_game,
     export_replay,
     launch,
@@ -1480,21 +1481,28 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         # ---- player cardinality 2P..5P (+ bounded 6P) --------------------
         # Each lifecycle runs on its own orchestration launch, so the provider's
         # constructed state can be read (#441 decision (c)); that launch serves
-        # no principal-facing probe.
+        # no principal-facing probe. The bounded-secondary 6P record lives in
+        # the successor contract, not the denominator: it is used only as this
+        # lifecycle's record argument (its explicit seed and starting seat), and
+        # it never appends a FULL107 row (#441 Coordinator erratum, contract
+        # 1.0.23). Without the record the run is record-less and fails closed.
         cardinality: dict[str, Any] = {}
         with launch(orchestration_plan(plan)) as keyed:
             for count in (2, 3, 4, 5, 6):
                 fixture = f"PLAYER_COUNT_{count}P"
+                record = by_id.get(fixture)
+                if record is None:
+                    record = materialization.bounded_secondary_record(fixture)
                 result = run_cardinality(
                     keyed,
                     candidate=candidate,
                     player_count=count,
                     runtime_identity=identity,
-                    record=by_id.get(fixture),
+                    record=record,
                 )
                 document = result.to_document()
                 cardinality[f"{count}P"] = document
-                if fixture in by_id:
+                if cardinality_row_eligible(fixture, by_id):
                     rows.append(
                         cardinality_row(
                             by_id[fixture], result, candidate=candidate, runtime_identity=identity

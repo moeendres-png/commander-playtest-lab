@@ -51,6 +51,21 @@ class EffectiveMaterialization:
     # hard-coded fallback here previously advertised one corrected fixture
     # while nine were in effect.
     changed_fixture_ids: tuple[str, ...] = ()
+    # The successor contract's bounded-secondary, non-denominator records
+    # (contract 1.0.23, #441). They are never FULL107 denominator rows: the
+    # loader refuses any overlap, so a bounded-secondary record can never
+    # change the 107-row denominator, produce a cardinality_row or affect AF06.
+    bounded_secondary: tuple[dict[str, Any], ...] = ()
+
+    def bounded_secondary_records(self) -> list[dict[str, Any]]:
+        return list(self.bounded_secondary)
+
+    def bounded_secondary_record(self, fixture_id: str) -> dict[str, Any] | None:
+        """The bounded-secondary record for ``fixture_id``, or None (fail closed)."""
+        for item in self.bounded_secondary:
+            if item["fixture_id"] == fixture_id:
+                return item
+        return None
 
     def record(self, fixture_id: str) -> dict[str, Any]:
         for item in self.bundle["records"]:
@@ -111,11 +126,21 @@ def load_effective_materialization(root: Path | None = None) -> EffectiveMateria
                 f"authority names {fixture_id} as corrected but the effective materialization "
                 "carries no repair provenance for it"
             )
+    bounded = tuple(module.bounded_secondary_records())
+    overlap = {record["fixture_id"] for record in bounded}.intersection(denominator)
+    if overlap:
+        # Fail closed at the boundary: a bounded-secondary record is not a
+        # denominator row, and a contract that made one so would silently move
+        # the 107-row denominator and AF06. Refuse the whole materialization.
+        raise RuntimeError(
+            f"bounded-secondary record(s) are FULL107 denominator rows: {sorted(overlap)}"
+        )
     return EffectiveMaterialization(
         bundle=bundle,
         denominator=denominator,
         canonical_bundle_digest=bundle["canonical_bundle_digest"],
         changed_fixture_ids=changed,
+        bounded_secondary=bounded,
     )
 
 
