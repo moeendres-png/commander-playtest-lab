@@ -1,0 +1,82 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_PREVENTION",
+  "obligation_exercised": {
+    "obligation_digest": "1a3f1402293e527f60daa18405f93f3d72959972ea941bf2e6a1283c6dde94af",
+    "requested_state_digest": "bba58afce89b7035dc86d97ed86e6f24acdef63ef64a1c85b7490ca5dd267e94",
+    "required_events": [
+      "combat_damage_would_be:P2:2",
+      "prevention_applied",
+      "combat_damage_prevented:P2:2"
+    ],
+    "terminal_checks": [
+      "P2 is at 40 life",
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state"
+    ],
+    "terminal_postconditions": [
+      "P2 loses 0 life from the prevented combat damage."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "P2 is at 40 life": true,
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state": true
+    },
+    "token_evidence": {
+      "combat_damage_prevented:P2:2": {
+        "binding": [
+          "exactly 1 PREVENTED_DAMAGE event(s) with target_player=P2, amount=2",
+          "exactly 0 DAMAGED_PLAYER event(s) with target_player=P2"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 PREVENTED_DAMAGE event(s) with target_player=P2, amount=2",
+            "events": [
+              11
+            ]
+          },
+          {
+            "binding": "exactly 0 DAMAGED_PLAYER event(s) with target_player=P2",
+            "events": []
+          }
+        ]
+      },
+      "combat_damage_would_be:P2:2": {
+        "binding": [
+          "every Grizzly Bears on P1's battlefield is 2/2",
+          "exactly 1 PREVENTED_DAMAGE event(s) with target_player=P2, amount=2"
+        ],
+        "parts": [
+          {
+            "binding": "every Grizzly Bears on P1's battlefield is 2/2",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "exactly 1 PREVENTED_DAMAGE event(s) with target_player=P2, amount=2",
+            "events": [
+              11
+            ]
+          }
+        ]
+      },
+      "prevention_applied": {
+        "binding": "exactly 1 PREVENTED_DAMAGE event(s) with source_object=obj:micro-fog, target_player=P2",
+        "events": [
+          11
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "7a9b68999fa2de7280b6022801ed0c8228cbda4f2671f337894d9897dbd7b463",
+  "runner_digest": "63e05d2fb1e748791cbc6a2468d541b29f080df7241183632a06ffe6ddfe2b37",
+  "runtime_receipt_digest": "45ff0c3a6d4753a52e2c4166b8c8e0a7c518ec51531d5bef19d0028cb3757c0f",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_PREVENTION"
+}

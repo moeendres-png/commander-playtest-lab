@@ -1,0 +1,89 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_21",
+  "obligation_exercised": {
+    "obligation_digest": "2e328a02530bb1d67e1ee289a61ed94d7e1342236f6276edbfd36f021cd379b3",
+    "requested_state_digest": "dc1d71a1dcdc6770b5c2f18d364add2058a1b152c923993fd1911ec08b191c3c",
+    "required_events": [
+      "damage_would_be:3",
+      "replacement_effect",
+      "damage:P2:6"
+    ],
+    "terminal_checks": [
+      "P2 is at 34 life",
+      "exactly 0 DAMAGED_PLAYER event(s) with target_player=P2, amount=3",
+      "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2, source_object=obj:card21-creature, amount=6",
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state"
+    ],
+    "terminal_postconditions": [
+      "P2 is dealt 6 damage, not 3."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "de7a2f1554431b9c5690d3721562001cc27c050c64fbad2509d88cdcfda290aa",
+      "size": 7107607
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 0 DAMAGED_PLAYER event(s) with target_player=P2, amount=3",
+          "P2 is at 34 life"
+        ],
+        "check": "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2, source_object=obj:card21-creature, amount=6",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P2 is dealt 6 damage, not 3."
+      }
+    ],
+    "terminal_facts": {
+      "P2 is at 34 life": true,
+      "exactly 0 DAMAGED_PLAYER event(s) with target_player=P2, amount=3": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2, source_object=obj:card21-creature, amount=6": true,
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state": true
+    },
+    "token_evidence": {
+      "damage:P2:6": {
+        "events": [
+          9
+        ]
+      },
+      "damage_would_be:3": {
+        "binding": "every Hill Giant on P1's battlefield is 3/3",
+        "observation": "engine terminal observation"
+      },
+      "replacement_effect": {
+        "binding": [
+          "every Hill Giant on P1's battlefield is 3/3",
+          "at least one DAMAGED_PLAYER event(s) with source_object=obj:card21-creature, combat=True, amount=6"
+        ],
+        "parts": [
+          {
+            "binding": "every Hill Giant on P1's battlefield is 3/3",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "at least one DAMAGED_PLAYER event(s) with source_object=obj:card21-creature, combat=True, amount=6",
+            "events": [
+              9
+            ]
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "4cd4f9092b87202b2c5e0af94a799fb3f4c520ca4f06aad8f82e331bca4b3a87",
+  "runner_digest": "63e05d2fb1e748791cbc6a2468d541b29f080df7241183632a06ffe6ddfe2b37",
+  "runtime_receipt_digest": "2d983c68573e30310be428fe91c6619e320f73a2460303e6a4ef24d3c66f629d",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_21"
+}
