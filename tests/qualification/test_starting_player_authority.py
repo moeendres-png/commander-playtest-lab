@@ -562,6 +562,17 @@ def test_identical_duplicate_declarations_are_one_declaration() -> None:
     assert record_starting_seat(duplicate) == ("p2", STARTER_DECLARATION_SCRIPT)
 
 
+def test_an_agreeing_script_step_still_reports_the_script_source() -> None:
+    """P3-2: precedence stays covered for agreeing declarations. A scripted step
+    and the pre-first-turn state naming the same seat are one declaration, and
+    the reported source is the script shape, not the state it agrees with."""
+    record = _record(
+        decision_script=[_starter_step("P2")],
+        temporal_state={"turn_number": 0, "active_player": "P2"},
+    )
+    assert record_starting_seat(record) == ("p2", STARTER_DECLARATION_SCRIPT)
+
+
 def test_an_expected_starting_player_token_is_not_a_declaration() -> None:
     """#572: an obligation statement may not be read as the decision."""
     record = _record(
