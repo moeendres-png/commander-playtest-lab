@@ -1128,19 +1128,41 @@ def scripted_pregame_row(
     bottoms = scripted_london_bottoms(record)
     if bottoms:
         # The bottom card is the player's own choice (CR 103.5), so the Lab
-        # never selects it and no default may answer it. This lane has no
-        # external London bottom surface: the XMage generic lane refuses the
-        # selection as UNSUPPORTED_COMPATIBILITY_DECISION and the pinned Forge
-        # bridge never answers an owed tuck. Nothing is executed.
+        # never selects it and no default may answer it. The pinned bridges
+        # offer no external London bottom surface on this lane; the refusal
+        # names the candidate's own missing channel, never a generic one.
         evidence["scripted_london_bottoms"] = [[seat, value] for seat, value in bottoms]
+        if candidate == "xmage":
+            # The scripted-pregame lane drives the generic XMage lane
+            # (create_commander_game -> XmageGameManager -> XmageBridgePlayer),
+            # whose bottom callback fails closed before publishing any decision:
+            # XmageBridgePlayer.choose(Cards, TargetCard) raises
+            # UNSUPPORTED_COMPATIBILITY_DECISION and the generic
+            # get_legal_actions payload (JsonlBridge.legalActionsPayload) carries
+            # no context, so no structured bottom_of_library_selection frame ever
+            # reaches the Lab. Only the full-game lane's XmageFullGamePlayer
+            # publishes that marker, and this lane does not use it.
+            reason = (
+                "the record scripts a London bottom selection "
+                f"({', '.join(seat.upper() for seat, _ in bottoms)}), and the pinned "
+                "XMage scripted-pregame lane offers no engine bottom decision: its "
+                "generic get_legal_actions frame carries no structured "
+                "bottom_of_library_selection context and XmageBridgePlayer refuses an "
+                "externally controlled bottom; the Lab never chooses the card for the player"
+            )
+        else:
+            reason = (
+                "the record scripts a London bottom selection "
+                f"({', '.join(seat.upper() for seat, _ in bottoms)}), and the pinned "
+                "Forge bridge never answers an owed tuck; the Lab never chooses the "
+                "card for the player"
+            )
         return RowResult(
             fixture_id,
             candidate,
             "UNKNOWN",
             SCRIPTED_PREGAME_MODE,
-            "the record scripts a London bottom selection "
-            f"({', '.join(seat.upper() for seat, _ in bottoms)}), and this lane offers no "
-            "external bottom-card decision; the Lab never chooses the card for the player",
+            reason,
             evidence,
         )
     evidence["requested_decks"] = [

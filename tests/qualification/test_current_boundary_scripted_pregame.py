@@ -421,18 +421,41 @@ def test_mull_4_is_not_credited_without_construction_equality(
     assert "construction equality is unestablished" in row.reason
 
 
-def test_a_scripted_london_bottom_is_never_chosen_by_the_lab() -> None:
-    # MULL-2 owes one card after a non-free two-player mulligan. No lane offers
-    # an external bottom-card decision, so nothing is executed: the row is
-    # UNKNOWN before any request, never a Lab-chosen card.
+class _Untouched:
+    """A bridge that must never be spoken to for an unanswerable bottom."""
+
+    def request(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        raise AssertionError("nothing may be sent for an unanswerable bottom selection")
+
+
+def test_a_scripted_forge_london_bottom_keeps_the_forge_refusal() -> None:
+    # MULL-2 owes one card after a non-free two-player mulligan. The pinned
+    # Forge bridge never answers an owed tuck, so nothing is executed: the row
+    # is UNKNOWN before any request, never a Lab-chosen card.
     record = _mull_record("WS05-CMD-MULL-2")
     assert full107.scripted_london_bottoms(record) == [("p1", {"Mountain": 1})]
     assert full107.scripted_pregame_plan(record) == (("p1", False), ("p2", True), ("p1", True))
+    row = full107.scripted_pregame_row(
+        record,
+        _Untouched(),  # type: ignore[arg-type]
+        candidate="forge",
+        runtime_identity={},
+    )
+    assert row.outcome == "UNKNOWN"
+    assert "Forge bridge never answers an owed tuck" in row.reason
+    assert "XMage" not in row.reason
+    assert row.evidence["scripted_london_bottoms"] == [["p1", {"Mountain": 1}]]
 
-    class _Untouched:
-        def request(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
-            raise AssertionError("nothing may be sent for an unanswerable bottom selection")
 
+def test_a_scripted_xmage_london_bottom_reports_the_missing_bridge_decision() -> None:
+    # #592 wave 2 current boundary: the scripted-pregame lane drives the generic
+    # XMage lane, whose bottom callback fails closed before publishing any
+    # decision (XmageBridgePlayer.choose(Cards, TargetCard) raises
+    # UNSUPPORTED_COMPATIBILITY_DECISION) and whose get_legal_actions payload
+    # carries no context, so no structured bottom_of_library_selection frame ever
+    # reaches the Lab. The row is UNKNOWN before any request, never a Lab-chosen
+    # card and never a generic reason.
+    record = _mull_record("WS05-CMD-MULL-2")
     row = full107.scripted_pregame_row(
         record,
         _Untouched(),  # type: ignore[arg-type]
@@ -440,7 +463,9 @@ def test_a_scripted_london_bottom_is_never_chosen_by_the_lab() -> None:
         runtime_identity={},
     )
     assert row.outcome == "UNKNOWN"
-    assert "London bottom selection" in row.reason
+    assert "XMage scripted-pregame lane offers no engine bottom decision" in row.reason
+    assert "bottom_of_library_selection" in row.reason
+    assert "never chooses the card for the player" in row.reason
     assert row.evidence["scripted_london_bottoms"] == [["p1", {"Mountain": 1}]]
 
 
