@@ -55,30 +55,15 @@ freely on verification, never on idle waiting or on re-deriving what a tool alre
 - When a tool result is truncated, read the saved full output with offset/limit instead of
   rerunning the command.
 
-## Cross-executor review attestation (when the trigger requests it)
+## Cross-executor review boundary
 
-When the trusted `/bunny` comment asks for a cross-executor review attestation, run the
-`bunny-auditor` subagent in a fresh context (read-only; never a writable verifier) against
-the exact implementation SHA/TREE named by the trigger, and post the auditor's verdict
-unchanged. End the result with the machine-readable block so
-`tools/foundry/review_evidence.py` can verify the run; use only identities you resolved
-from the checked-out repository:
-
-```
-BUNNY_AUDITOR_SUBAGENT_REVIEW
-
-REVIEWER_MODEL: opencode-go/space-bunny
-REVIEWER_VARIANT: max
-REVIEW_AGENT: bunny-auditor
-REVIEWED_SHA: <exact 40-hex reviewed commit>
-REVIEWED_TREE: <exact 40-hex reviewed tree>
-REVIEW_VERDICT: <PASS|FAIL|PARTIAL|UNKNOWN>
-READ_ONLY: true
-```
-
-A DeepSeek run can never produce this receipt: the top-level lane is pinned to Space
-Bunny MAX and the verifier re-reads this run, its job conclusions and the workflow/agent
-pins from GitHub.
+A `/bunny` run is a writable secondary-execution lane. It can dispatch the read-only
+`bunny-auditor` subagent for internal assurance, but that subreview is **not** verifiable
+cross-executor review evidence: the top-level agent can write, so no receipt it posts
+can satisfy `tools/foundry/review_gate.py`. The only admissible review evidence comes
+from the structurally read-only `/bunny-review` lane (`foundry-reviewer`), and a review
+record with `review_agent: bunny-verifier` or `bunny-auditor` is rejected. Never claim
+or post a cross-executor review PASS from this lane.
 
 ## Boundaries
 

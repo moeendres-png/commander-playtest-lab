@@ -66,6 +66,7 @@ def _git(args: list[str], cwd: Path) -> str:
             "GIT_COMMITTER_NAME": "T",
             "GIT_COMMITTER_EMAIL": "t@example.com",
             "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": "/dev/null",
         }
     )
     proc = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, env=env)
@@ -237,7 +238,13 @@ def test_deepseek_review_or_self_review_is_never_admitted(repo: dict) -> None:
 
 
 def test_writable_or_unknown_review_agents_are_rejected(repo: dict) -> None:
-    for agent in ("bunny-verifier", "foundry-implementer", "", "bunny-auditor "):
+    for agent in (
+        "bunny-verifier",
+        "foundry-implementer",
+        "",
+        "bunny-auditor",
+        "bunny-auditor ",
+    ):
         record = _record(repo)
         record["review_agent"] = agent
         errors = review_mod.validate_review_record(record)
@@ -500,6 +507,40 @@ def test_non_material_underclaim_fails_closed(repo: dict) -> None:
     assert any("MATERIALITY_UNDERCLAIM" in reason for reason in result.reasons)
 
 
+@pytest.mark.parametrize("declared", ["UNKNOWN", "material", "N/A", "", "MATERIAL "])
+def test_invalid_materiality_enum_never_exempts_a_material_change_set(
+    repo: dict, declared: str
+) -> None:
+    """P2 wrong-reason control: only an exact NON_MATERIAL can seek exemption.
+
+    A typo, lowercase, blank or unknown declaration against a real MATERIAL
+    change set must be UNSATISFIED, never NOT_REQUIRED/ok.
+    """
+    doc = _state_doc(
+        repo["base"],
+        repo["impl"],
+        repo["root"],
+        repo["state"],
+        materiality=declared,
+    )
+    result = review_mod.evaluate_review_gate(doc, workdir=str(repo["root"]))
+    assert result.status == "UNSATISFIED", (declared, result.status)
+    assert not result.ok
+    assert any("MATERIALITY_DECLARATION_INVALID" in reason for reason in result.reasons), (
+        declared,
+        result.reasons,
+    )
+
+
+def test_missing_materiality_is_treated_as_material_not_exempt(repo: dict) -> None:
+    """Any value that is not exactly NON_MATERIAL is treated as MATERIAL."""
+    doc = _state_doc(repo["base"], repo["impl"], repo["root"], repo["state"])
+    doc.pop("materiality")
+    result = review_mod.evaluate_review_gate(doc, workdir=str(repo["root"]))
+    assert result.status == "UNSATISFIED"
+    assert any("REVIEW_RECORD_MISSING" in reason for reason in result.reasons)
+
+
 def test_non_material_cannot_self_exempt_by_rebinding_audit_base(repo: dict) -> None:
     """Rebinding audit_base_sha onto validated_head must not hide material work."""
     doc = _state_doc(
@@ -650,11 +691,9 @@ def test_bunny_reviewer_agents_are_structurally_mutation_denied() -> None:
             assert rule in read_only_prefixes, (agent, rule)
 
     registry = executor_mod.load_registry()
-    assert set(registry.review_policy["review_agents"]) == {
-        "bunny-auditor",
-        "foundry-reviewer",
-    }
+    assert set(registry.review_policy["review_agents"]) == {"foundry-reviewer"}
     assert "bunny-verifier" not in registry.review_policy["review_agents"]
+    assert "bunny-auditor" not in registry.review_policy["review_agents"]
 
 
 # --- state CLI wiring -------------------------------------------------------

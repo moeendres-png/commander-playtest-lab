@@ -225,13 +225,12 @@ jobs:
     # tools/foundry/review_gate.py): a fresh-context READ-ONLY Space Bunny MAX
     # reviewer bound to the exact validated implementation SHA and TREE. Started
     # only by an explicit `/bunny-review` comment, separated from the writable
-    # `/bunny` secondary-execution lane above. Same trust gate and hardening.
+    # `/bunny` secondary-execution lane above. Same trust gate and hardening as
+    # every other lane: both the commenter and the thread author must have a
+    # write-level association. Bot-authored threads are not exempt.
     if: |
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) && (
-        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) ||
-        github.event.issue.user.login == 'opencode-agent[bot]' ||
-        github.event.pull_request.user.login == 'opencode-agent[bot]'
-      ) && (
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
         contains(github.event.comment.body, ' /bunny-review') ||
         startsWith(github.event.comment.body, '/bunny-review')
       )

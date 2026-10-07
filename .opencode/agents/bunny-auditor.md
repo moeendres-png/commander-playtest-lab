@@ -39,20 +39,10 @@ Report each finding with severity (P1 blocks, P2 should fix, P3 note), file:line
 failing scenario and the minimal fix. Verify each against the code and drop what you cannot
 substantiate. If nothing survives, say so in one line.
 
-## Attestation for the orchestrator (mandatory)
+## Review boundary
 
-Return this exact machine-readable block with your findings so the top-level Space Bunny
-run can post a verifiable subreview receipt. Use only identities you resolved yourself;
-never invent or copy them. `READ_ONLY: true` attests that this audit mutated nothing.
-
-```
-BUNNY_AUDITOR_SUBAGENT_REVIEW
-
-REVIEWER_MODEL: opencode-go/space-bunny
-REVIEWER_VARIANT: max
-REVIEW_AGENT: bunny-auditor
-REVIEWED_SHA: <exact 40-hex reviewed commit>
-REVIEWED_TREE: <exact 40-hex reviewed tree>
-REVIEW_VERDICT: <PASS|FAIL|PARTIAL|UNKNOWN>
-READ_ONLY: true
-```
+This audit is internal assurance for the run that dispatched you. It is not a verifiable
+cross-executor review receipt: the dispatching top-level lane is writable, and only the
+trusted read-only `/bunny-review` lane (`foundry-reviewer`) can produce review evidence
+admitted by `tools/foundry/review_gate.py`. Never present this audit as a gate PASS and
+never invent or copy repository/run identities.

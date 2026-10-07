@@ -61,13 +61,12 @@
     "automatic_fallback": false
   },
   "cross_executor_review_policy": {
-    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY Space Bunny MAX review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed.",
+    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY Space Bunny MAX review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. Only the top-level read-only /bunny-review lane (foundry-reviewer) can carry verifiable review evidence; a writable top-level run or a subagent it dispatches never satisfies the gate. A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed.",
     "required_for_material": true,
     "implementation_executor": "deepseek",
     "review_executor": "space-bunny",
     "review_mode": "READ_ONLY_FRESH_CONTEXT",
     "review_agents": [
-      "bunny-auditor",
       "foundry-reviewer"
     ],
     "verdict_vocabulary": [

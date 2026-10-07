@@ -13,6 +13,9 @@ Fail-closed semantics:
   writes can never fabricate a Space Bunny run;
 - the review runtime must be one of the two admitted Space Bunny runtime ids;
 - missing/blocked/unknown/partial/fail/stale review blocks completion;
+- an unknown or invalid materiality declaration is UNSATISFIED: only an exact
+  NON_MATERIAL declaration can seek the Git-verified exemption, and every
+  other value is treated as MATERIAL;
 - a NON_MATERIAL claim cannot self-exempt by rebinding the audit base onto the
   validated head, and a policy-less state cannot certify a new completion;
 - a MATERIAL delta after the review (including a P1/P2 repair) marks the prior
@@ -45,7 +48,10 @@ REVIEW_RECORD_SCHEMA_VERSION = "1.0"
 REVIEW_MODE = "READ_ONLY_FRESH_CONTEXT"
 VERDICTS = ("PASS", "FAIL", "PARTIAL", "UNKNOWN", "BLOCKED", "STALE")
 PASS_VERDICT = "PASS"
-READ_ONLY_REVIEW_AGENTS = frozenset({"bunny-auditor", "foundry-reviewer"})
+# Only the top-level agent of the trusted read-only direct lane can carry
+# verifiable review evidence. A writable top-level run (bunny-verifier) or a
+# subagent it dispatches (bunny-auditor) can never satisfy the gate.
+READ_ONLY_REVIEW_AGENTS = frozenset({"foundry-reviewer"})
 REQUIRED_FIELDS = (
     "schema_version",
     "record_type",
@@ -263,6 +269,20 @@ def evaluate_review_gate(
             reasons=("REVIEW_GATE_EXEMPT_HISTORICAL: no review policy fields present",),
         )
     declared = doc.get("materiality")
+    if declared is not None and (
+        not isinstance(declared, str)
+        or declared not in (materiality_mod.MATERIAL, materiality_mod.NON_MATERIAL)
+    ):
+        # Wrong-reason control: an unknown/lowercase/"N/A" declaration must not
+        # fall through to the NON_MATERIAL exemption path and self-exempt.
+        return ReviewGateResult(
+            status="UNSATISFIED",
+            reasons=(
+                "MATERIALITY_DECLARATION_INVALID: declared materiality "
+                f"{declared!r} is not one of "
+                f"{[materiality_mod.MATERIAL, materiality_mod.NON_MATERIAL]}",
+            ),
+        )
     mirror = doc.get("cross_executor_review")
     if mirror is not None and not isinstance(mirror, dict):
         return ReviewGateResult(
@@ -283,7 +303,9 @@ def evaluate_review_gate(
             state_paths=state_paths,
         )
     declared_materiality = declared if isinstance(declared, str) else materiality_mod.MATERIAL
-    material_required = declared_materiality == materiality_mod.MATERIAL
+    # Any declaration that is not exactly NON_MATERIAL is treated as MATERIAL;
+    # a missing declaration never exempts material work.
+    material_required = declared_materiality != materiality_mod.NON_MATERIAL
     if declared_materiality == materiality_mod.NON_MATERIAL and (
         not _is_sha(base) or not _is_sha(validated_head) or base == validated_head
     ):

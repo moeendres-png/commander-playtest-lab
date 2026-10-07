@@ -30,21 +30,27 @@ Exactly two OpenCode execution profiles are authorized:
 
 No other OpenCode model/profile is currently authorized or a planned migration target.
 
-## Cross-executor review gate
+## Cross-executor review gate (Foundry tooling)
 
-For MATERIAL implementation workstreams, a fresh-context READ-ONLY Space Bunny MAX
-reviewer must PASS the exact validated implementation SHA and TREE before `PR_READY` or
-`COMPLETE` may be claimed. DeepSeek implementation plus DeepSeek review does not satisfy
-the gate; a missing, blocked, unknown, partial, failed or stale review blocks completion,
-and any MATERIAL change after the review requires exact new-SHA/TREE re-review. A PASS
-record is only admissible with independently verifiable GitHub evidence of the trusted
-Space Bunny workflow run (trusted trigger comment, expected job, pinned Space Bunny MAX
-workflow/agent at the run's exact `head_sha`, and the OpenCode bot's machine-parseable
-receipt); self-declared record fields can never fabricate a review. The canonical
-structures and verifiers live in `tools/foundry/review_gate.py` and
-`tools/foundry/review_evidence.py`; remote milestone checkpoints are verified through
-`tools/foundry/safe_push.py` and `tools/foundry/remote_checkpoint.py`. A pushed WIP is
-never qualification PASS.
+This is a Foundry tooling gate, not a change to Rules, evidence semantics,
+qualification credit or provider/freeze authority. `tools/foundry/review_gate.py`
+refuses to certify a `PR_READY` or `COMPLETE` claim for a MATERIAL implementation
+workstream unless the record carries a fresh-context READ-ONLY Space Bunny MAX PASS on
+the exact validated implementation SHA and TREE. DeepSeek implementation plus DeepSeek
+review does not satisfy the gate; a missing, blocked, unknown, partial, failed or stale
+review blocks the tooling claim, and any MATERIAL change after the review requires exact
+new-SHA/TREE re-review. A PASS record is only admissible with independently verifiable
+GitHub evidence of the trusted `/bunny-review` run (trusted trigger comment, expected
+job, canonical Space Bunny MAX workflow pin and structurally read-only
+`foundry-reviewer` agent file at the run's exact `head_sha`, the OpenCode bot's
+machine-parseable receipt, and the comment/run time and footer-link binding);
+self-declared record fields can never fabricate a review. `REVIEWER_MODEL`,
+`REVIEWER_VARIANT` and `READ_ONLY` inside the receipt are self-reported text checked
+for equality only; the run pin and agent file are the independently observed facts, and
+the runtime alias is never observed. The canonical structures and verifiers live in
+`tools/foundry/review_gate.py` and `tools/foundry/review_evidence.py`; remote milestone
+checkpoints are verified through `tools/foundry/safe_push.py` and
+`tools/foundry/remote_checkpoint.py`. A pushed WIP is never qualification PASS.
 
 ## Routing
 

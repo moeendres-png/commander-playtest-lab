@@ -179,7 +179,7 @@ def test_cross_executor_review_policy_is_declared_and_strict() -> None:
     assert policy["implementation_executor"] == "deepseek"
     assert policy["review_executor"] == "space-bunny"
     assert policy["review_mode"] == "READ_ONLY_FRESH_CONTEXT"
-    assert set(policy["review_agents"]) == {"bunny-auditor", "foundry-reviewer"}
+    assert set(policy["review_agents"]) == {"foundry-reviewer"}
     assert policy["pass_verdict"] == "PASS"
     assert "MATERIAL_DELTA_AFTER_REVIEW" in policy["re_review_on"]
     assert "P1_REPAIR" in policy["re_review_on"]

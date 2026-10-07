@@ -2,23 +2,27 @@
 
 A review record is authored by the implementation executor, so a PASS verdict
 inside it proves nothing by itself. This module binds a PASS record to
-independently verifiable GitHub evidence produced by the trusted OpenCode
-workflow lanes: a trusted issue comment selected the Space Bunny lane, the
-workflow run and its expected job succeeded, the workflow file at the run's
-exact ``head_sha`` pins Space Bunny MAX and the expected agent, the read-only
-reviewer agent file is structurally mutation-denied, and the OpenCode bot's
+independently verifiable GitHub evidence produced by the single trusted
+read-only OpenCode workflow lane: a trusted issue comment selected the
+``/bunny-review`` lane, the workflow run and its expected job succeeded, the
+workflow file at the run's exact ``head_sha`` pins Space Bunny MAX and the
+structurally read-only ``foundry-reviewer`` agent, and the OpenCode bot's
 result comment carries the machine-parseable marker and the exact reviewed
 identifiers/verdict.
 
-Two carriers are admitted:
+The receipt is bound to the run, not merely embedded in its text:
 
-- ``BOOTSTRAP_ISSUE_COMMENT``: a trusted comment triggers the existing main
-  ``opencode-bunny`` job (Space Bunny MAX, top-level ``bunny-verifier``) and the
-  result attests a fresh-context read-only ``bunny-auditor`` subreview with the
-  marker ``BUNNY_AUDITOR_SUBAGENT_REVIEW``.
-- ``DIRECT_REVIEW_LANE``: a trusted comment triggers the structurally read-only
-  ``opencode-bunny-review`` job (``foundry-reviewer``) and the result carries
-  the marker ``BUNNY_DIRECT_READ_ONLY_REVIEW``.
+- the result comment's ``created_at`` must fall inside that run's
+  ``run_started_at..updated_at`` window;
+- the run must have been triggered by the evidence's trigger comment: the
+  trigger comment precedes the run start and is the newest issue comment on the
+  thread created before it (no other issue comment could have started the run);
+- the result comment's last ``/actions/runs/{id}`` link must be the cited run,
+  so a quoted or foreign run link elsewhere in the body is never credited.
+
+Only ``DIRECT_REVIEW_LANE`` (``opencode-bunny-review`` / ``foundry-reviewer``)
+is admitted. The former writable ``opencode-bunny``/``bunny-verifier``
+attestation carrier is removed: a review that can write is not review evidence.
 
 The verifier performs read-only GitHub REST reads through a dependency-injected
 transport. Production defaults to ``urllib`` against ``api.github.com``; a
@@ -36,6 +40,7 @@ import urllib.error
 import urllib.request
 from collections.abc import Mapping
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Any, Protocol
 
 SATISFIED = "SATISFIED"
@@ -44,39 +49,23 @@ UNVERIFIABLE = "UNVERIFIABLE"
 
 EVIDENCE_SCHEMA_VERSION = "1.0"
 
-CARRIER_BOOTSTRAP = "BOOTSTRAP_ISSUE_COMMENT"
+# Only the structurally read-only direct lane is admitted. There is no carrier
+# for a review produced by a writable top-level agent.
 CARRIER_DIRECT = "DIRECT_REVIEW_LANE"
-CARRIERS = (CARRIER_BOOTSTRAP, CARRIER_DIRECT)
+CARRIERS = (CARRIER_DIRECT,)
 
-MARKER_BOOTSTRAP = "BUNNY_AUDITOR_SUBAGENT_REVIEW"
 MARKER_DIRECT = "BUNNY_DIRECT_READ_ONLY_REVIEW"
-CARRIER_MARKERS = {
-    CARRIER_BOOTSTRAP: MARKER_BOOTSTRAP,
-    CARRIER_DIRECT: MARKER_DIRECT,
-}
+CARRIER_MARKERS = {CARRIER_DIRECT: MARKER_DIRECT}
 
-BOOTSTRAP_JOB_NAME = "opencode-bunny"
 DIRECT_JOB_NAME = "opencode-bunny-review"
-CARRIER_JOB_NAMES = {
-    CARRIER_BOOTSTRAP: BOOTSTRAP_JOB_NAME,
-    CARRIER_DIRECT: DIRECT_JOB_NAME,
-}
+CARRIER_JOB_NAMES = {CARRIER_DIRECT: DIRECT_JOB_NAME}
 # Top-level agent pinned by the trusted workflow lane.
-CARRIER_TOP_LEVEL_AGENTS = {
-    CARRIER_BOOTSTRAP: ("bunny-verifier",),
-    CARRIER_DIRECT: ("foundry-reviewer",),
-}
+CARRIER_TOP_LEVEL_AGENTS = {CARRIER_DIRECT: ("foundry-reviewer",)}
 # Agent attested by the result comment: the fresh-context read-only reviewer.
-CARRIER_REVIEW_AGENTS = {
-    CARRIER_BOOTSTRAP: "bunny-auditor",
-    CARRIER_DIRECT: "foundry-reviewer",
-}
+CARRIER_REVIEW_AGENTS = {CARRIER_DIRECT: "foundry-reviewer"}
 # Lanes that must NOT be the successful lane for the carrier to count.
 INCOMPATIBLE_LANE_JOBS = ("opencode", "opencode-bunny")
-READ_ONLY_AGENT_FILES = {
-    "bunny-auditor": ".opencode/agents/bunny-auditor.md",
-    "foundry-reviewer": ".opencode/agents/foundry-reviewer.md",
-}
+READ_ONLY_AGENT_FILES = {"foundry-reviewer": ".opencode/agents/foundry-reviewer.md"}
 
 TRUSTED_ASSOCIATIONS = frozenset({"OWNER", "MEMBER", "COLLABORATOR"})
 OPENCODE_BOT_LOGINS = frozenset({"opencode-agent[bot]", "opencode-agent"})
@@ -291,6 +280,20 @@ def _issue_number_from_url(url: Any) -> int | None:
     return int(match.group(1)) if match else None
 
 
+def _parse_utc(value: Any) -> datetime | None:
+    """Parse a GitHub ISO-8601 timestamp; anything unparseable stays None."""
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
+
+
 class _Verifier:
     def __init__(
         self,
@@ -307,6 +310,12 @@ class _Verifier:
         self.repository = str(evidence["repository"])
         self.carrier = str(evidence["carrier"])
         self.expected_repository = expected_repository
+        self.trigger_comment: dict[str, Any] | None = None
+        self.run_started: datetime | None = None
+        self.run_updated: datetime | None = None
+        self._run_link_re = re.compile(
+            re.escape(f"https://github.com/{self.repository}/actions/runs/") + r"(\d+)"
+        )
 
     def verify_repository(self) -> None:
         if self.expected_repository and self.expected_repository != self.repository:
@@ -364,17 +373,12 @@ class _Verifier:
                 f"trigger comment association {comment.get('author_association')!r}",
             )
         body = str(comment.get("body") or "")
-        if self.carrier == CARRIER_BOOTSTRAP:
-            if not _selects(body, "/bunny") or "/bunny-review" in body:
-                raise _EvidenceFailure(
-                    "REVIEW_EVIDENCE_TRIGGER_CARRIER_MISMATCH",
-                    "trigger comment does not select the /bunny bootstrap carrier",
-                )
-        elif not _selects(body, "/bunny-review"):
+        if not _selects(body, "/bunny-review"):
             raise _EvidenceFailure(
                 "REVIEW_EVIDENCE_TRIGGER_CARRIER_MISMATCH",
                 "trigger comment does not select the /bunny-review carrier",
             )
+        self.trigger_comment = comment
         self.checks.append(
             f"trigger_comment:{comment_id}:trusted:{comment.get('author_association')}"
         )
@@ -403,11 +407,27 @@ class _Verifier:
                 "REVIEW_EVIDENCE_RESULT_AUTHOR_UNTRUSTED",
                 f"result comment author {login!r} is not the OpenCode bot",
             )
+        created_at = _parse_utc(comment.get("created_at"))
+        if (
+            created_at is None
+            or self.run_started is None
+            or self.run_updated is None
+            or created_at < self.run_started
+            or created_at > self.run_updated
+        ):
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_RESULT_TIME_WINDOW",
+                f"result comment {comment_id} created_at {comment.get('created_at')!r} is "
+                f"outside run {run_id} window {self.run_started}..{self.run_updated}",
+            )
         body = str(comment.get("body") or "")
-        if f"https://github.com/{self.repository}/actions/runs/{run_id}" not in body:
+        run_links = self._run_link_re.findall(body)
+        if not run_links or int(run_links[-1]) != run_id:
             raise _EvidenceFailure(
                 "REVIEW_EVIDENCE_RESULT_RUN_LINK_MISMATCH",
-                f"result comment does not link workflow run {run_id}",
+                f"result comment {comment_id} must end with its own run link "
+                f"https://github.com/{self.repository}/actions/runs/{run_id}; "
+                f"last run link was {run_links[-1] if run_links else None!r}",
             )
         if not _has_marker(body, marker):
             raise _EvidenceFailure(
@@ -490,8 +510,85 @@ class _Verifier:
                 "REVIEW_EVIDENCE_RUN_HEAD_MISMATCH",
                 f"run head_sha {run.get('head_sha')!r} != {self.evidence['workflow_head_sha']!r}",
             )
+        started = _parse_utc(run.get("run_started_at"))
+        updated = _parse_utc(run.get("updated_at"))
+        if started is None or updated is None or updated < started:
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_RUN_TIME_MISSING",
+                f"run {run_id} has no usable run_started_at..updated_at window "
+                f"({run.get('run_started_at')!r}..{run.get('updated_at')!r})",
+            )
+        self.run_started = started
+        self.run_updated = updated
         self.checks.append(f"workflow_run:{run_id}:success:head:{run.get('head_sha')}")
         return run
+
+    def verify_run_trigger_binding(self) -> None:
+        """Bind the run to the trigger comment, not merely to a shared thread.
+
+        A run cannot start before its trigger comment, and the trigger comment
+        must be the newest issue comment created before the run started: any
+        other issue comment in between could have been the actual trigger.
+        Comments created during the run (including the result comment) do not
+        affect this check.
+        """
+        run_id = int(self.evidence["workflow_run_id"])
+        trigger_id = int(self.evidence["trigger_comment_id"])
+        issue_number = int(self.evidence["trigger_issue_number"])
+        if self.trigger_comment is None or self.run_started is None:
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_RUN_TRIGGER_MISMATCH",
+                f"trigger comment {trigger_id} was not fetched before run {run_id} binding",
+            )
+        trigger_at = _parse_utc(self.trigger_comment.get("created_at"))
+        if trigger_at is None:
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_TRIGGER_TIME_MISSING",
+                f"trigger comment {trigger_id} has no parseable created_at",
+            )
+        if trigger_at > self.run_started:
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_RUN_TRIGGER_ORDER",
+                f"trigger comment {trigger_id} created {trigger_at.isoformat()} after "
+                f"run {run_id} started {self.run_started.isoformat()}",
+            )
+        payload = self._get_json(
+            f"/repos/{self.repository}/issues/{issue_number}/comments"
+            "?per_page=100&sort=created&direction=desc",
+            "REVIEW_EVIDENCE_ISSUE_COMMENTS_MISSING",
+        )
+        if not isinstance(payload, list) or not payload:
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_ISSUE_COMMENTS_MISSING",
+                f"cannot read issue {issue_number} comments to bind run {run_id}",
+            )
+        candidates: list[tuple[datetime, int]] = []
+        for item in payload:
+            if not isinstance(item, dict):
+                continue
+            created = _parse_utc(item.get("created_at"))
+            comment_id = item.get("id")
+            if (
+                created is not None
+                and isinstance(comment_id, int)
+                and not isinstance(comment_id, bool)
+                and comment_id > 0
+                and created <= self.run_started
+            ):
+                candidates.append((created, comment_id))
+        if not candidates:
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_RUN_TRIGGER_MISMATCH",
+                f"no issue comment before run {run_id} start is visible on issue {issue_number}",
+            )
+        latest_at, latest_id = max(candidates)
+        if latest_id != trigger_id:
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_RUN_TRIGGER_MISMATCH",
+                f"run {run_id} started after comment {latest_id} "
+                f"({latest_at.isoformat()}), not trigger comment {trigger_id}",
+            )
+        self.checks.append(f"run_trigger:{run_id}:trigger_comment:{trigger_id}:bound")
 
     def verify_jobs(self) -> None:
         run_id = int(self.evidence["workflow_run_id"])
@@ -523,24 +620,14 @@ class _Verifier:
                 f"job {job_name!r} status={expected.get('status')!r} "
                 f"conclusion={expected.get('conclusion')!r}",
             )
-        if self.carrier == CARRIER_BOOTSTRAP:
-            primary = jobs.get("opencode")
-            if primary is None or primary.get("conclusion") != "skipped":
-                conclusion = None if primary is None else primary.get("conclusion")
+        for lane in INCOMPATIBLE_LANE_JOBS:
+            lane_job = jobs.get(lane)
+            if lane_job is not None and lane_job.get("conclusion") == "success":
                 raise _EvidenceFailure(
                     "REVIEW_EVIDENCE_IMPLEMENTATION_LANE_RAN",
-                    f"bootstrap requires the deepseek 'opencode' job skipped, got {conclusion!r}",
+                    f"lane {lane!r} succeeded; an implementation lane is not review evidence",
                 )
-            self.checks.append("jobs:opencode-bunny:success:opencode:skipped")
-        else:
-            for lane in INCOMPATIBLE_LANE_JOBS:
-                lane_job = jobs.get(lane)
-                if lane_job is not None and lane_job.get("conclusion") == "success":
-                    raise _EvidenceFailure(
-                        "REVIEW_EVIDENCE_IMPLEMENTATION_LANE_RAN",
-                        f"lane {lane!r} succeeded; an implementation lane is not review evidence",
-                    )
-            self.checks.append("jobs:opencode-bunny-review:success:implementation_lanes:absent")
+        self.checks.append("jobs:opencode-bunny-review:success:implementation_lanes:absent")
 
     def verify_workflow_pin(self) -> None:
         head_sha = str(self.evidence["workflow_head_sha"])
@@ -569,11 +656,19 @@ class _Verifier:
         if (
             "github.event.comment.author_association" not in condition
             or '["OWNER", "MEMBER", "COLLABORATOR"]' not in condition
+            or "github.event.issue.author_association" not in condition
         ):
             raise _EvidenceFailure(
                 "REVIEW_EVIDENCE_WORKFLOW_TRUST_GATE_MISSING",
-                f"job {job_name!r} has no commenter trust gate",
+                f"job {job_name!r} has no commenter/thread trust gate",
             )
+        for bot_login in OPENCODE_BOT_LOGINS:
+            if bot_login in condition:
+                raise _EvidenceFailure(
+                    "REVIEW_EVIDENCE_WORKFLOW_BOT_THREAD_EXCEPTION",
+                    f"job {job_name!r} exempts the bot-authored thread {bot_login!r} "
+                    "from the target trust gate",
+                )
         env_steps = [
             step
             for step in job.get("steps") or []
@@ -659,8 +754,9 @@ class _Verifier:
     def run(self) -> ReviewEvidenceResult:
         self.verify_repository()
         self.verify_trigger_comment()
-        self.verify_result_comment()
         self.verify_workflow_run()
+        self.verify_run_trigger_binding()
+        self.verify_result_comment()
         self.verify_jobs()
         self.verify_workflow_pin()
         self.verify_read_only_agent()

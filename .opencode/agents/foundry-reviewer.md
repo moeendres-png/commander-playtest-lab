@@ -78,6 +78,11 @@ READ_ONLY: true
 ```
 
 Never invent, guess or copy identifiers you did not resolve from the checked-out
-repository. The implementation executor cannot fabricate this receipt because
-`tools/foundry/review_evidence.py` re-reads the trigger comment, workflow run, jobs,
-workflow pin and this agent file from GitHub before a PASS is admitted.
+repository. `REVIEWER_MODEL`, `REVIEWER_VARIANT` and `READ_ONLY` are self-reported text:
+the verifier checks them for exact equality with the record and the pinned run, but they
+are not independent observation. The independently observed facts are the run/job
+identity and conclusions, the workflow and agent files fetched at the run's exact
+`head_sha`, the run/comment timing, and the comment/run link binding. The runtime alias is
+never observed: the workflow pin at `head_sha` must be canonical
+`opencode-go/space-bunny`, so a review that merely claims a legacy alias cannot satisfy
+the evidence gate.

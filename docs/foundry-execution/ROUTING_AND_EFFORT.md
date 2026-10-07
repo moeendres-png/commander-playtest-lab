@@ -85,33 +85,45 @@ Profile postures (both at native `max`):
   first and independent checks in parallel subagents. No executor
 fallback occurs on quota, auth, catalog or child failure.
 
-## Cross-executor review gate (MATERIAL workstreams)
+## Cross-executor review gate (MATERIAL workstreams, Foundry tooling)
 
-DeepSeek MAX remains the default implementation executor. For every MATERIAL
-implementation workstream, a fresh-context READ-ONLY Space Bunny MAX reviewer must review
-the exact validated implementation SHA **and** TREE before the workstream may claim
-`PR_READY` or `COMPLETE`.
+This is a Foundry tooling gate, not a change to Rules, evidence semantics or
+qualification credit: `tools/foundry/review_gate.py` refuses to certify a
+`PR_READY`/`COMPLETE` claim for a MATERIAL workstream unless the record carries a PASS
+from the trusted read-only review lane on the exact validated implementation SHA
+**and** TREE. It never relabels a review as Rules validation, qualification credit,
+production-provider evidence or Architecture Freeze.
 
 - Canonical structure and validator: `tools/foundry/review_gate.py`; canonical review
   records live under `.foundry/reviews/`.
-- The reviewer must resolve to an admitted Space Bunny runtime id (canonical or the
-  legacy alias) and run read-only: `foundry-reviewer` (Space Bunny MAX, `edit: deny`,
-  bash default-deny, `task: deny`) or the read-only `bunny-auditor`. A DeepSeek review,
-  a writable verifier, a self-review, or an unknown/blocked/partial/fail/stale verdict
-  never satisfies the gate.
+- The only admissible reviewer is the top-level `foundry-reviewer` agent of the
+  `/bunny-review` lane: Space Bunny MAX, structurally read-only (`mode: all`,
+  `edit: deny`, bash default-deny, `task: deny`). A DeepSeek review, a writable
+  top-level verifier (`bunny-verifier`), a subagent attestation (`bunny-auditor`),
+  a self-review, or an unknown/blocked/partial/fail/stale verdict never satisfies the
+  gate.
 - A PASS record is only admissible with independently verifiable GitHub evidence
   (`tools/foundry/review_evidence.py`): a trusted trigger comment, the successful
-  trusted Space Bunny workflow run and expected job, the workflow file fetched at the
-  run's exact `head_sha` pinning Space Bunny MAX and the expected agent, the
-  structurally read-only reviewer agent file, and the OpenCode bot result comment
-  carrying the machine-parseable receipt marker and exact reviewed SHA/TREE/verdict.
-  Self-declared Space Bunny fields in a record the implementation executor wrote are
-  never sufficient; network/API/parse failures fail closed.
-- The current carriers are the trusted `/bunny` bootstrap lane with a read-only
-  `bunny-auditor` subreview receipt (`BUNNY_AUDITOR_SUBAGENT_REVIEW`) and the direct
-  bypass lane `/bunny-review` with `foundry-reviewer`
-  (`BUNNY_DIRECT_READ_ONLY_REVIEW`). Issue-comment lanes are evaluated from the
-  default branch, so a new lane is only reachable after it is merged to main.
+  trusted `/bunny-review` workflow run and expected job, the workflow file fetched at
+  the run's exact `head_sha` pinning canonical Space Bunny MAX and the
+  `foundry-reviewer` agent, the structurally read-only reviewer agent file, and the
+  OpenCode bot result comment carrying the machine-parseable
+  `BUNNY_DIRECT_READ_ONLY_REVIEW` receipt with the exact reviewed SHA/TREE/verdict.
+  The receipt is bound to its run: the result comment must fall inside the run's
+  `run_started_at..updated_at` window, the trigger comment must be the newest issue
+  comment created before the run started, and the comment's own run footer link must
+  be the last run link in the body. Self-declared record fields can never fabricate a
+  review; network/API/parse failures fail closed.
+- `REVIEWER_MODEL`, `REVIEWER_VARIANT` and `READ_ONLY` in the receipt are
+  self-reported by the reviewing agent text. They are checked for exact equality with
+  the record and the pinned run, but they are not themselves independent observation.
+  The independently observed facts are the run/job identity and conclusions, the
+  workflow and agent files fetched at the run's `head_sha`, and the comment/run
+  binding. The runtime alias is declared by the record and never observed: the
+  workflow pin verified at `head_sha` must be canonical `opencode-go/space-bunny`, so
+  a review that merely claims the legacy alias cannot satisfy the evidence gate.
+- Issue-comment lanes are evaluated from the default branch, so the `/bunny-review`
+  lane is only reachable after it is merged to main.
 - Any MATERIAL change after the review (including an evidenced P1/P2 repair) makes the
   prior review STALE and requires exact new-SHA/TREE re-review. A generated-state-only
   receipt/checkpoint commit is NON_MATERIAL and preserves the reviewed validated

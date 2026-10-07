@@ -453,7 +453,7 @@ def test_opencode_agent_refuses_untrusted_targets() -> None:
 
     Evaluated semantically per job: an untrusted commenter is refused, and a
     trusted commenter on an untrusted target (an issue/PR whose author has no
-    trusted association and is not the repository's own agent) is refused. A
+    write-level association, including a bot-authored thread) is refused. A
     fork PR is refused structurally before anything is checked out.
     """
     doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
@@ -496,8 +496,8 @@ def test_trusted_comments_start_each_opencode_lane() -> None:
     )
     review_pr = _event_context(
         commenter="MEMBER",
-        target="NONE",
-        target_login="opencode-agent[bot]",
+        target="OWNER",
+        target_login="maintainer",
         body="/bunny-review review exact SHA",
         is_pr=True,
     )
@@ -507,7 +507,7 @@ def test_trusted_comments_start_each_opencode_lane() -> None:
 
 
 def test_bunny_bootstrap_lane_is_not_selected_by_the_direct_marker() -> None:
-    """`/bunny-review` must never fall through to the writable bootstrap lane."""
+    """`/bunny-review` must never fall through to the writable /bunny lane."""
     doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
     direct_body = _event_context(
         commenter="OWNER",
@@ -520,7 +520,7 @@ def test_bunny_bootstrap_lane_is_not_selected_by_the_direct_marker() -> None:
 
 
 def test_bunny_review_lane_stays_closed_for_untrusted_principals() -> None:
-    """Agent-authored PRs lower the target bar only, never the commenter bar."""
+    """Both the commenter and the thread author must be write-level trusted."""
     doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
     condition = str(doc["jobs"]["opencode-bunny-review"]["if"])
     untrusted_commenter = _event_context(
@@ -539,6 +539,16 @@ def test_bunny_review_lane_stays_closed_for_untrusted_principals() -> None:
         is_pr=True,
     )
     assert condition_result(condition, untrusted_target) is False
+    # A bot-authored thread is not exempt: the review lane matches the other
+    # lanes' thread-author gate and refuses `opencode-agent[bot]` threads.
+    bot_target = _event_context(
+        commenter="OWNER",
+        target="NONE",
+        target_login="opencode-agent[bot]",
+        body="/bunny-review review this",
+        is_pr=True,
+    )
+    assert condition_result(condition, bot_target) is False
     wrong_mention = _event_context(
         commenter="OWNER",
         target="NONE",
