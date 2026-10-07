@@ -53,7 +53,7 @@ CHANNEL_UNAUDITED = "PRESENT_UNAUDITED"
 
 # The bridge commit whose blobs this channel table was asserted against. A
 # moved canonical pin invalidates every channel status until it is re-asserted.
-ASSERTED_BRIDGE_COMMIT = "ee37e4a52d99401ba57fba7ca516ac01f1981161"
+ASSERTED_BRIDGE_COMMIT = "d9e356aa90da4c14dd6767a4ca11d38b9870a4ce"
 
 _BRIDGE_SOURCE = f"{lane.BRIDGE_MODULE}/src/main/java/forge/bridge"
 SOURCES: dict[str, str] = {
@@ -97,6 +97,12 @@ BOOTSTRAP_FIELDS = frozenset(
         "card",
         "commander_damage_taken",
         "continuous_effects_present",
+        # G1 R1 (#561) at forge#33: controlled_since_turn_began is deliberately
+        # not a bootstrap field. The lane may forward it on the wire for
+        # checkpoint verification, but the bridge ignores it; the engine-native
+        # fact leaves only as the StateProjection readback
+        # (battlefield_details[].controlled_since_turn_began), never as a
+        # bootstrap read.
         "controller",
         "counters",
         "decision_script",
