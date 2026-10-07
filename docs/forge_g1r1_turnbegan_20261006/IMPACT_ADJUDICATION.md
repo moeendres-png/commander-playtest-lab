@@ -2,34 +2,39 @@
 
 - **Decision implemented:** Coordinator decision G1 on #561 (comment 6005365186), R1 approved with
   conditions C1-C6; R2 denied. The six combat-step rows are out of scope (separate ruling).
-- **Bridge source (this revision):** `ee37e4a52d99401ba57fba7ca516ac01f1981161` (tree `b26c5936`,
-  forge#28) -> forge#33 merge `80336359cf468bec91f525199adb7d09fc726a69` (tree `e5731fea`) on
-  `claude/forge-unified-successor-20260929`. PR #33 ports the G1 R1 placement from the superseded
-  local Claude line (`510697fa` implementation and tests, `04892c87` WS216 test driver, `67da6f07`
-  review follow-ups; tree `8973bc76`) onto the unified successor. Over `ee37e4a5` the only changed
-  paths are `forge-protocol2-bridge/` plus the Forge repository's own `.foundry` state file:
-  0 Rules-Core files and 0 card-data files. Exact-head CI on `80336359`: Test build run
-  `37531998578` (Java 17 and Java 21 success) and iOS compatibility gate run `37531998583`
-  (success). The successor lock (`qualification/forge-bridge-g1r1-turnbegan-20261006/`) records
-  them by run id; **PB-03 at the merged pin is PENDING**.
+- **Bridge source (this revision):** `d9e356aa90da4c14dd6767a4ca11d38b9870a4ce` (tree `27bee40d`,
+  forge#35) on `claude/forge-unified-successor-20260929`. forge#35 deletes only
+  `.foundry/oc561-g1-r1-forge-20261006.yaml` (the engine fork's own OpenCode workstream state file)
+  from the forge#33 merge `80336359cf468bec91f525199adb7d09fc726a69` (tree `e5731fea`), which had
+  ported the G1 R1 placement from the superseded local Claude line (`510697fa` implementation and
+  tests, `04892c87` WS216 test driver, `67da6f07` review follow-ups; tree `8973bc76`) onto the
+  unified successor from `ee37e4a5` (forge#28). Over `ee37e4a5` the only changed paths are
+  `forge-protocol2-bridge/`: 0 Rules-Core files and 0 card-data files; every bridge blob is
+  byte-identical between `80336359` and `d9e356aa` (`StateProjection.java` blob `b3f801c3` at both).
+  Exact-head CI on the new commit: Test build run `37620949527` (**PENDING** at writing; see the
+  second-repin section and the lock). The iOS compatibility gate does not trigger for a
+  `.foundry`-only change. The superseded `80336359` exact-head runs (`37531998578`
+  Java 17/21 success, `37531998583` iOS success) are provenance only and are never reused. **PB-03
+  at the merged pin is PENDING**.
 - **Rules-Core authority:** unchanged, `bb0a740d`.
 - **Evidence class:** every C5 run below is LOCAL_OBSERVED and ran on the **superseded local Claude
   line** noted in each table row (before `ee37e4a5`; after `510697fa`/`04892c87`/`67da6f07`). Those
-  runs are kept as provenance for the ported semantics and are **not credited to `80336359`**.
-  Credit requires exact-head CI (now present) plus a sealed PB-03 epoch on the merged pin.
+  runs are kept as provenance for the ported semantics and are **not credited to the merged pin**
+  (`80336359`/`d9e356aa`). Credit requires exact-head CI (present on `80336359`, PENDING on
+  `d9e356aa`) plus a sealed PB-03 epoch on the merged pin.
 - **Not:** Production Provider selection, Architecture Freeze, a denominator change, a Rules-Core
   change, or a PASS promotion.
 
 ## What changed in the bridge
 
-| Condition | Implementation at forge#33 (`forge-protocol2-bridge`) |
+| Condition | Implementation at the merged bridge (forge#33 content, forge#35 head; `forge-protocol2-bridge`) |
 |---|---|
 | C1 fail closed | `BridgeSession.ScenarioTurnBeganSubscriber.onTurnBegan` is registered on the game event bus by `installScenarioBootstrap` (`game.subscribeToEvents(new ScenarioTurnBeganSubscriber())`) before the game thread starts; `handleScenarioTurnBegan` acts only on `GameEventTurnBegan` with `turnNumber()==1` for the intended game. Guava's EventBus (`Game.java:95`) swallows subscriber exceptions, so the handler catches every `Throwable` and records it with `recordScenarioBootstrapFailure`. A session-owned `scenarioBootstrapInvocations` latch records a second turn-1 run as an error; a failure recorded after the hook already completed fails a RUNNING session and aborts the parked frame. The retained `startGameHook` requires `requireScenarioBootstrapCompleted()` (no recorded failure and exactly one successful placement), turn one, and a complete placement list. |
 | C2 no fabricated events/state | `ScenarioBootstrap.placeBattlefield` places permanents **untapped** at TurnBegan (the untap step runs after it). Counters are added once there with `addCounterInternal(..., fireEvents=false, ...)` and are never re-applied. Requested tapped state is applied silently with `Card.setTapped(true)` in the retained post-untap hook; `applyPostUntap` then applies requested hands, life and commander damage. `requireCompletePlacement` fails closed on a truncated placement list instead of skipping plan entries. |
 | C3 no readiness laundering | `StateProjection.battlefieldDetails` projects `controlled_since_turn_began = !card.isFirstTurnControlled()` (raw summoning sickness, CR 302.6, never `hasSickness()`) for every battlefield entry, redacted ones included. The forge#33 bootstrap neither reads nor validates the requested field; `forge_scenario_lane.py` forwards it only for checkpoint verification and marks `MISMATCH` on a different, missing or non-boolean readback. A non-boolean request or a non-battlefield object is `UNSUPPORTED`. (On the superseded local Claude line the Java side additionally failed an impossible request closed; that verification is Lab-side in the merged port and is covered by `_READBACK_ASSERTIONS` plus the lane checkpoint tests.) |
 | C5 hook frame | `PhaseHandler.setupFirstTurn` is unchanged: the hook still runs inside the `givePriorityToPlayer` frame (`PhaseHandler.java:1023-1026`). `_HOOK_ASSERTIONS` are re-derived for `installScenarioBootstrap` / `handleScenarioTurnBegan` / `requireScenarioBootstrapCompleted` / `applyPostUntap`; `_SCENARIO_HOOK_ASSERTIONS` bind the untapped TurnBegan placement, the complete-placement guard and the silent post-untap tap. `_READBACK_ASSERTIONS` assert the `StateProjection` projection fragment. A pre-G1 hook-placement bridge is drift (`test_capability_matrix_refuses_the_pre_g1_hook_placement`). Stale rationale updated: the combat-step dimension, `temporal_reachable`, the `ScenarioBootstrap` class documentation, the `_requested_battlefield` forwarding comment and the `_UNOBSERVABLE_RECORD_DIMENSIONS` text. |
 
-Placement point (re-located on `ee37e4a5`; unchanged by the forge#33 port):
+Placement point (re-located on `ee37e4a5`; unchanged by the forge#33 port and by forge#35):
 `PhaseHandler.advanceToNextPhase` fires `GameEventTurnBegan` at `:180`. The readiness loop at
 `:183-187` clears sickness for the active player's permanents unless `isStartsGameInPlay()` on
 turn 0. The placed permanents are not start-in-play objects, so the active seat's permanents are
@@ -38,9 +43,9 @@ controlled since the turn began. Every other seat's stay summoning sick (CR 302.
 ## C5: requalification of the 17 Forge PASS rows
 
 **Provenance: every run in this section is LOCAL_OBSERVED on the superseded local Claude line**
-(`ee37e4a5` before; `510697fa`/`04892c87`/`67da6f07` after), not on the merged forge#33 commit
-`80336359`. It is retained as the ported semantics' provenance and is not requalification credit for
-the merged pin; see "Repin to forge#33" below.
+(`ee37e4a5` before; `510697fa`/`04892c87`/`67da6f07` after), not on any merged pin
+(`80336359`/`d9e356aa`). It is retained as the ported semantics' provenance and is not
+requalification credit for the merged pin; see the repin sections below.
 
 Epoch `ab357d1772c3-8698ff38979c` has 17 Forge PASS rows:
 
@@ -120,12 +125,12 @@ Raw documents stay in session scratch, with these sha256 digests:
    disappears from the rows that requested it.
    - Adjudication: **intended**.
    - On the local after-runs the classification counts were CONTRACT 2, LAB 39, PROVIDER 17,
-     SCENARIO_LANE_EXECUTABLE 12, pass 0. Regenerated on the merged forge#33 tree for this repin they
-     are CONTRACT 2, LAB 37, PROVIDER 19, SCENARIO_LANE_EXECUTABLE 12, pass 0; the delta comes from
-     main's `stack_state`/`action_cost_state` lane changes absorbed by the merge, not from this
+     SCENARIO_LANE_EXECUTABLE 12, pass 0. Regenerated on the merged forge#33 tree for the first repin
+     they were CONTRACT 2, LAB 37, PROVIDER 19, SCENARIO_LANE_EXECUTABLE 12, pass 0; the delta came
+     from main's `stack_state`/`action_cost_state` lane changes absorbed by the merge, not from this
      repin. In both the local and the merged matrices 17 rows simply lose the control-history entry
      from their `mechanisms` list; no `first_missing` changes, no row changes class, and no row gains
-     credit.
+     credit. (Second-repin counts are in the forge#35 section below.)
 6. **Bridge suite, `WS216SeparateProcessTest.testPipeAmount`.**
    - At `510697fa` it failed with "unexpected COMBAT_DECLARE_ATTACKERS for p1 while driving to
      PRIORITY". p1's placed Dire Wolves / Master of the Wild Hunt may now attack on turn 1, so the
@@ -153,7 +158,7 @@ Raw documents stay in session scratch, with these sha256 digests:
 Not re-baselined silently: nothing was re-baselined. The historical epoch evidence stays bound to
 `ee37e4a5`.
 
-## Repin to forge#33 (this revision)
+## First repin to forge#33 (historical, superseded by forge#35)
 
 - **Pin:** the Lab's `config/rules_engines.json` bridge source moves from the local-only Claude line
   `67da6f07` (tree `8973bc76`) to the merged forge#33 commit
@@ -189,6 +194,44 @@ Not re-baselined silently: nothing was re-baselined. The historical epoch eviden
 - **What this is not:** no historical receipt was relabelled, no row was promoted to PASS, and the C5
   data above was not re-run on the merged pin. Requalification of the 17 Forge PASS rows still
   requires PB-03 on `80336359` plus a sealed epoch.
+
+## Second repin to forge#35 (this revision)
+
+- **Why.** The H4F guard at `docker/forge/Dockerfile:48` admits only `forge-protocol2-bridge/` and
+  `pom.xml` as drift from the Rules-Core pin, and forge#33's tree still carried the engine fork's own
+  `.foundry/oc561-g1-r1-forge-20261006.yaml`, so the H4F build refused `80336359` with "unapproved
+  Rules-Core drift outside the qualified H4F surface". forge#35 deletes only that file; the guard is
+  not weakened. The successor branch head is `d9e356aa` (forge#35 merge, tree `27bee40d`, parents
+  `80336359` and `c2546d26`).
+- **Pin.** The Lab's `config/rules_engines.json` bridge source moves `80336359` -> `d9e356aa` (PR 35);
+  `ASSERTED_BRIDGE_COMMIT`, the AF05 matrix `bridge_commit`, `CURRENT_BRIDGE`/`_TREE` and
+  `CANONICAL_FORGE_BRIDGE_COMMIT` move with it. The Rules-Core authority stays `bb0a740d`, and every
+  bridge blob is byte-identical to `80336359`, so the capability tables (readback + hook) re-derive
+  unchanged against the new blobs.
+- **Exact-head CI (by run id).** Test build run `37620949527` is the only workflow run dispatched for
+  `d9e356aa` (push, in progress at lock-writing time): **PENDING**. The iOS compatibility gate cannot
+  trigger for this commit (its path filter admits only `**/*.java`, `**/pom.xml`, `forge-gui-ios/**`
+  and its own workflow file; forge#35 changes only `.foundry/oc561-g1-r1-forge-20261006.yaml`), so
+  no iOS run exists or will exist. The `80336359` runs `37531998578`/`37531998583` are provenance for
+  the superseded commit only and are never reused. `PENDING != PASS`; the lock test is red while the
+  lock records PENDING, and the lock records it rather than reusing old run ids.
+- **Review P3 (comment 6035940198) fixed on the Lab side.** `forge_scenario_lane.py` compared the
+  `battlefield_details[].tapped` readback with `bool(item.get("tapped"))`, so an absent key became
+  `False` and a default untapped request passed as EXACT against a detail that never stated it. The
+  readback is now compared as the literal engine `True`/`False` (the same strict rule as
+  `controlled_since_turn_began`): a missing or non-boolean key is a MISMATCH and can never credit.
+  Two new red tests fail on the old code (`test_missing_tapped_readback_is_never_coerced_to_untapped`,
+  `test_non_boolean_tapped_readback_is_never_coerced`).
+- **Census and manifests.** `FORGE_AF05_MATRIX.json` and `FORGE_RESIDUAL_MATRIX.json` regenerated with
+  their scripts against the new pin; manifests only with `scripts/regenerate_hash_manifests.py`. AF05
+  at `d9e356aa`: 20 `PROVIDER_ADAPTER_GAP`, pass 0, effect UNKNOWN. Residual at this revision after the
+  `origin/main` merge (#580-#588): CONTRACT 2, LAB 36, PROVIDER 19, SCENARIO_LANE_EXECUTABLE 13,
+  pass 0; the delta vs the first repin is main's #585/#587 reclassification, not this repin.
+- **Merge with `origin/main`.** Generated conflicts (`WS17_SHA256SUMS`,
+  `FORGE_RESIDUAL_MATRIX.json`) were resolved by regeneration with their scripts, never by hand.
+- **What this is not:** no historical receipt was relabelled, no row was promoted to PASS, and the C5
+  data above was not re-run on the merged pin. Requalification of the 17 Forge PASS rows still
+  requires PB-03 on `d9e356aa` plus a sealed epoch.
 
 ## C6: authority and divergence record
 
@@ -261,6 +304,9 @@ added these mutants:
   nine-Swamp test and the ambiguity test.
 - P10, ambiguity reported as EXACT: killed.
 - P11, `bool()` coercion of the request: killed by `test_control_history_request_is_never_coerced[1, "true"]`.
+- P12, `bool()` coercion of the `tapped` readback (review P3 6035940198): killed by
+  `test_missing_tapped_readback_is_never_coerced_to_untapped` and
+  `test_non_boolean_tapped_readback_is_never_coerced`; both are red on the old code.
 - P9, `in (True, False)` instead of `is`: survived as an equivalent mutant. The JSON-typed multiset
   comparison still separates `1` from `true`.
 
@@ -270,16 +316,22 @@ assertion reverted, latch fragment dropped, non-battlefield request accepted).
 
 ## UNKNOWN / open
 
-- Exact-head CI for the merged pin `80336359`: **PRESENT** — Test build run `37531998578` (Java 17
-  and Java 21 jobs success) and iOS compatibility gate run `37531998583` (success). The superseded
+- Exact-head CI for the merged pin `d9e356aa`: **PENDING** — Test build run `37620949527` was the
+  only workflow run dispatched for the commit (push, in progress at lock-writing time). The iOS
+  compatibility gate cannot trigger for this commit (path filter: Java, pom, `forge-gui-ios/**`, its
+  own workflow file; forge#35 changes only the fork's `.foundry` state file), so no iOS run exists or
+  will exist. `PENDING != PASS`. The superseded `80336359` runs (`37531998578` Java 17/21 success,
+  `37531998583` iOS success) are provenance for that commit only and are never reused. The superseded
   local line `67da6f07` had **NOT_RUN** (never pushed); the 374/0/0/0 local suite is provenance on
   that tree only and is not credited to the merged pin.
-- PB-03 epoch at `80336359`: **NOT_RUN**. Current Forge standing at the merged pin stays UNKNOWN
+- PB-03 epoch at `d9e356aa`: **NOT_RUN**. Current Forge standing at the merged pin stays UNKNOWN
   until it exists; no historical PASS is promoted by this repin.
 - C4(c), complete-declaration path: no bridge-level mutant kills it (J12 is equivalent). It is
   guarded by engine revalidation. The incremental path is covered (J15 killed).
 - Review P3-1: same-name, same-controller battlefield objects are now matched as a multiset. EXACT
   requires every matching detail to agree; an ambiguous attribution is UNKNOWN (never credited).
-  None of the 12 scenario PASS rows changes (see the review rerun below).
+  None of the 12 scenario PASS rows changes.
+- Review P3 (6035940198): the `.tapped` readback is compared as the literal engine boolean; an
+  absent or non-boolean key is a MISMATCH, so a missing readback can never be laundered into EXACT.
 
 `PRODUCTION_PROVIDER = NOT_SELECTED` · `ARCHITECTURE_FREEZE = NOT_CLAIMED`

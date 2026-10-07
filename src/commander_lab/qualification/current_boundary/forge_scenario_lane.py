@@ -1809,14 +1809,26 @@ def compare_checkpoint(
             )
         )
         if detail is not None:
-            observed_tapped = [bool(item.get("tapped")) for item in matching]
+            # Review P3 (6035940198): the readback is compared as the literal
+            # True/False it is (same strict rule as controlled_since_turn_began).
+            # An absent or non-boolean ``tapped`` readback cannot prove the
+            # requested state; ``bool()`` would coerce a missing key to False and
+            # launder an unverifiable readback into EXACT. The request itself
+            # defaults to untapped: only a model entry that is literally True
+            # requests tapped.
+            requested_tapped = [member.get("tapped") is True for member in group]
+            observed_tapped = [item.get("tapped") for item in matching]
+            strict_readback = all(value is True or value is False for value in observed_tapped)
+            tapped_verdict = (
+                _group_field_verdict(requested_tapped, observed_tapped)
+                if strict_readback
+                else CHECKPOINT_MISMATCH
+            )
             verdicts.append(
                 FieldVerdict(
                     field=f"battlefield.{placement.get('semantic_id')}.tapped",
-                    verdict=_group_field_verdict(
-                        [bool(member.get("tapped")) for member in group], observed_tapped
-                    ),
-                    requested=bool(placement.get("tapped")),
+                    verdict=tapped_verdict,
+                    requested=placement.get("tapped") is True,
                     observed=observed_tapped[0] if len(observed_tapped) == 1 else observed_tapped,
                 )
             )

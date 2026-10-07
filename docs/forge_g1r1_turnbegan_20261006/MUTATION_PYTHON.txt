@@ -10,3 +10,4 @@ P8_group_multiset_dropped killed: test_micro_costs_shape_one_disagreeing_swamp_i
 P9_in_true_false_instead_of_is SURVIVED (equivalent: JSON-typed multiset comparison still separates 1 from true) (74 passed)
 P10_unknown_reported_exact killed: test_ambiguous_same_name_readback_is_unknown_not_exact (1 failed, 73 passed)
 P11_bool_coercion_of_request killed: test_control_history_request_is_never_coerced[1], [true] (2 failed, 72 passed)
+P12_bool_coercion_of_tapped_readback killed: test_missing_tapped_readback_is_never_coerced_to_untapped, test_non_boolean_tapped_readback_is_never_coerced (2 failed on the old bool() code; both pass on the strict lane)

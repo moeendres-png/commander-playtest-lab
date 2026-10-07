@@ -1712,14 +1712,17 @@ def _swamp_record(requests: list) -> dict:
     return _record(semantic_objects=objects)
 
 
-def _swamp_observations(observed: list, *, tapped: list | None = None) -> dict[str, dict]:
+def _swamp_observations(
+    observed: list, *, tapped: list | None = None, omit_tapped: bool = False
+) -> dict[str, dict]:
     details = []
     for index, since in enumerate(observed):
         detail = {
             "name": "Swamp",
-            "tapped": bool(tapped[index]) if tapped else False,
             "counters": {},
         }
+        if not omit_tapped:
+            detail["tapped"] = bool(tapped[index]) if tapped else False
         if since is not None:
             detail["controlled_since_turn_began"] = since
         details.append(detail)
@@ -1784,6 +1787,34 @@ def test_tapped_is_matched_as_a_multiset_too():
     )
     assert _swamp_verdicts(equivalence, ".tapped") == {fsl.CHECKPOINT_MISMATCH}
     assert equivalence.verdict == fsl.CHECKPOINT_MISMATCH
+
+
+def test_missing_tapped_readback_is_never_coerced_to_untapped():
+    """Review P3 (comment 6035940198): ``bool(item.get("tapped"))`` turned an
+    absent readback into False, so a default (untapped) request was called
+    EXACT against a detail that never stated the permanent was untapped. The
+    readback must be the literal engine boolean, as for
+    ``controlled_since_turn_began``."""
+    model = fsl.model_requested_state(_swamp_record([True] * 3))
+    equivalence = fsl.compare_checkpoint(model, _swamp_observations([True] * 3, omit_tapped=True))
+    assert _swamp_verdicts(equivalence, ".tapped") == {fsl.CHECKPOINT_MISMATCH}
+    assert equivalence.verdict == fsl.CHECKPOINT_MISMATCH
+    assert equivalence.credit_eligible is False
+
+
+def test_non_boolean_tapped_readback_is_never_coerced():
+    """A truthy string is not the engine's boolean and cannot prove a request."""
+    model = fsl.model_requested_state(_swamp_record([True] * 3))
+    for member in model.battlefield:
+        member["tapped"] = True
+    observations = _swamp_observations([True] * 3, tapped=[False, False, False])
+    for row in observations["p1"]["payload"]["state"]["players"]:
+        for detail in row["zones"]["battlefield_details"]:
+            detail["tapped"] = "yes"
+    equivalence = fsl.compare_checkpoint(model, observations)
+    assert _swamp_verdicts(equivalence, ".tapped") == {fsl.CHECKPOINT_MISMATCH}
+    assert equivalence.verdict == fsl.CHECKPOINT_MISMATCH
+    assert equivalence.credit_eligible is False
 
 
 @pytest.mark.parametrize("coerced", [1, "true", 0])

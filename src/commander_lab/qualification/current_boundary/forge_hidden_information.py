@@ -53,7 +53,7 @@ CHANNEL_UNAUDITED = "PRESENT_UNAUDITED"
 
 # The bridge commit whose blobs this channel table was asserted against. A
 # moved canonical pin invalidates every channel status until it is re-asserted.
-ASSERTED_BRIDGE_COMMIT = "80336359cf468bec91f525199adb7d09fc726a69"
+ASSERTED_BRIDGE_COMMIT = "d9e356aa90da4c14dd6767a4ca11d38b9870a4ce"
 
 _BRIDGE_SOURCE = f"{lane.BRIDGE_MODULE}/src/main/java/forge/bridge"
 SOURCES: dict[str, str] = {
