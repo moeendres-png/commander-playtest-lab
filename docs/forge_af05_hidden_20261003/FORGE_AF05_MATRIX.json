@@ -1,5 +1,5 @@
 {
- "bridge_commit": "d9e356aa90da4c14dd6767a4ca11d38b9870a4ce",
+ "bridge_commit": "31cbae12640e6066499aa7f17c9bf2dba6a30da6",
  "candidate": "forge",
  "canonical_bundle_digest": "db91c0c6d57016350c985bb60b419c155d034475364345644816b7314962d764",
  "channels": [
@@ -147,12 +147,7 @@
    "status": "ABSENT"
   },
   {
-   "absent_tokens": [
-    "face_down",
-    "FaceDown",
-    "faceDown",
-    "manifest"
-   ],
+   "absent_tokens": [],
    "channel": "face_down_construction",
    "closed_bootstrap_fields": [
     "attached_to",
@@ -163,6 +158,8 @@
     "controller",
     "counters",
     "decision_script",
+    "face_down",
+    "face_down_type",
     "hands",
     "id",
     "life",
@@ -175,10 +172,16 @@
    "closed_message_types": [],
    "closed_stderr_prints": [],
    "frame_key_facets": {},
-   "meaning": "the scenario bootstrap has no face-down field (MANIFESTED, CLOAKED, ...)",
-   "present_fragments": [],
+   "meaning": "the scenario bootstrap places a battlefield permanent face down as a manifested permanent (E-B2: CR 708.2, CR 701.34; the engine's own GameState FaceDown/Manifested state setup); other kinds (CLOAKED, MORPHED, ...) are rejected, and the controller-only look permission is not constructed (E-B3)",
+   "present_fragments": [
+    "throw new IllegalArgumentException(\"face_down must be a boolean\");",
+    "\"face_down_type unsupported: \"",
+    "throw new IllegalArgumentException( \"face_down placement cannot be attached\");",
+    "card.setManifested(new SpellAbility.EmptySa(ApiType.Manifest, card));",
+    "session.audit(\"scenario_placed_face_down\", details);"
+   ],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
-   "status": "ABSENT"
+   "status": "SUPPORTED"
   },
   {
    "absent_tokens": [
@@ -195,6 +198,8 @@
     "controller",
     "counters",
     "decision_script",
+    "face_down",
+    "face_down_type",
     "hands",
     "id",
     "life",
@@ -227,6 +232,8 @@
     "controller",
     "counters",
     "decision_script",
+    "face_down",
+    "face_down_type",
     "hands",
     "id",
     "life",
@@ -261,6 +268,8 @@
     "controller",
     "counters",
     "decision_script",
+    "face_down",
+    "face_down_type",
     "hands",
     "id",
     "life",
@@ -293,6 +302,8 @@
     "controller",
     "counters",
     "decision_script",
+    "face_down",
+    "face_down_type",
     "hands",
     "id",
     "life",
@@ -575,9 +586,9 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -606,7 +617,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_hand). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_hand). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -635,9 +646,9 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -666,7 +677,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_library). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_library). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -703,9 +714,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -734,7 +745,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (public_exile). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (public_exile). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -771,9 +782,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -802,7 +813,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (face_down_controller). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (face_down_controller). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -915,9 +926,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -947,7 +958,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1042,9 +1053,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1073,7 +1084,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1144,9 +1155,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1176,7 +1187,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1260,9 +1271,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1291,7 +1302,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1374,9 +1385,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1405,7 +1416,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1514,9 +1525,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1546,7 +1557,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1634,9 +1645,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1665,7 +1676,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1747,9 +1758,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1779,7 +1790,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1891,9 +1902,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1923,7 +1934,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2002,9 +2013,9 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2033,7 +2044,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2138,9 +2149,9 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2169,7 +2180,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2274,9 +2285,9 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2305,7 +2316,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2397,9 +2408,9 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2429,7 +2440,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2511,9 +2522,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2542,7 +2553,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2571,9 +2582,9 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2602,7 +2613,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2631,9 +2642,9 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2662,7 +2673,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2684,8 +2695,8 @@
   "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java": "d4f048ec959023be08b544998aa2b62a6e1d6e0a",
   "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeMain.java": "b3fe9cfde4205d59d80fef53ef35954eadbaa2d0",
   "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java": "d45bd01485ed711ced39e9ec51976b4aa2246845",
-  "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java": "0339d40d53d51b54fcb0384835e245657b7820f9",
-  "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java": "b3f801c3a12cb05c0739fcc69e67fff2cec16058"
+  "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java": "5b722a18530012ab4b4cc1a7ac32542042bcda37",
+  "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java": "e9aa6e3e6195fff9aabfde907c82a752da7ed044"
  },
  "sources": {
   "bootstrap": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",

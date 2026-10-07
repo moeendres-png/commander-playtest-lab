@@ -220,10 +220,24 @@ class FakeForge:
         players = []
         for seat in SEATS:
             details = [
-                {"name": "Grizzly Bears", "tapped": False, "counters": {}}
+                {
+                    "name": "Grizzly Bears",
+                    "tapped": False,
+                    # E-B2: the pinned projection emits face_down/face_down_type
+                    # for every battlefield entry; this fake readback models it.
+                    "face_down": False,
+                    "face_down_type": None,
+                    "counters": {},
+                }
                 for _ in self.battlefield_extra[seat]
             ] + [
-                {"name": "Mountain", "tapped": tapped, "counters": {}}
+                {
+                    "name": "Mountain",
+                    "tapped": tapped,
+                    "face_down": False,
+                    "face_down_type": None,
+                    "counters": {},
+                }
                 for tapped in self.lands[seat]
             ]
             players.append(

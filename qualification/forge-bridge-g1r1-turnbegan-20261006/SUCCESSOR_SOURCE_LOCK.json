@@ -2,7 +2,7 @@
  "schema_version": "commander-lab.forge-bridge-successor-source-lock/1.0.0",
  "workstream": "forge-bridge-g1r1-turnbegan-20261006",
  "classification": "SUCCESSOR_BRIDGE_MATERIALIZATION_SOURCE",
- "status": "MERGED_EXACT_HEAD_CI_GREEN_PB03_PENDING",
+ "status": "PR34_HEAD_EXACT_HEAD_CI_GREEN_PB03_PENDING",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -27,33 +27,56 @@
   "commit": "80336359cf468bec91f525199adb7d09fc726a69",
   "tree": "e5731feabf3e7a9f55eec9de0b3c54d099182abe",
   "pull_request": 33,
-  "content": "the same G1 R1 TurnBegan placement and every bridge blob as the current source",
-  "role": "historical; first merged target of this workstream, replaced by forge#35 because its tree still carried the OpenCode workstream state file. Exact-head CI on 80336359 (Test build 37531998578 Java 17/21 success, iOS 37531998583 success) is not reused for the new commit."
+  "content": "the same G1 R1 TurnBegan placement and every bridge blob as the d9e356aa source",
+  "role": "historical; first merged target of this workstream, replaced by forge#35 because its tree still carried the OpenCode workstream state file. Exact-head CI on 80336359 (Test build 37531998578 Java 17/21 success, iOS 37531998583 success) is not reused for any later commit."
  },
- "new_bridge_source": {
-  "repository": "https://github.com/moeendres-png/forge.git",
-  "branch": "claude/forge-unified-successor-20260929",
+ "base_bridge_source": {
   "commit": "d9e356aa90da4c14dd6767a4ca11d38b9870a4ce",
   "tree": "27bee40d1c50059d400da3cf8d589fa73d80204b",
   "pull_request": 35,
-  "ancestry": "forge#35 merge commit d9e356aa (parents 80336359 = the forge#33 merge, tree e5731fea, and c2546d26 = the PR #35 head, tree 27bee40d) on claude/forge-unified-successor-20260929. PR #35 deletes only .foundry/oc561-g1-r1-forge-20261006.yaml (254 lines removed) from the forge#33 tree: 0 Rules-Core files, 0 card-data files, and every forge-protocol2-bridge blob byte-identical to 80336359 (StateProjection.java b3f801c3a12cb05c0739fcc69e67fff2cec16058 at both commits). The deletion removes the OpenCode workstream state file that made the H4F Rules-Core drift guard refuse 80336359; the guard itself is not weakened.",
-  "content": "Coordinator decision G1 R1 with conditions C1-C6 (#561): scenario permanents placed untapped by the GameEventTurnBegan(turn 1) subscriber before the readiness loop; session-owned one-shot latch with recorded failure; retained startGameHook fails closed unless the placement ran exactly once without error and the accepted placement list is complete, then applies requested tapped state silently after the untap; StateProjection reads back controlled_since_turn_began = !Card.isFirstTurnControlled() per battlefield entry, which the Lab lane checkpoint-verifies against the request. Hardening ports: a bootstrap error recorded after the hook completed fails a RUNNING session closed and aborts the parked frame; the retained hook requires turn one and a complete placement list; the complete and incremental attack paths decline only the starter's turn-1 sick casts; placement before the untap step leaves phasing permanents phased out (recorded divergence). forge#35 only removes the engine fork's own OpenCode state file; no bridge or Rules-Core byte changed."
+  "content": "the G1 R1 TurnBegan placement on the forge#28 head, with .foundry/oc561-g1-r1-forge-20261006.yaml removed",
+  "role": "historical successor line; the E-B2 head merged this commit as its base (second parent). Exact-head CI on d9e356aa (Test build 37620949527 Java 17/21 success) stays provenanced on that commit only and is not reused for 31cbae12."
+ },
+ "new_bridge_source": {
+  "repository": "https://github.com/moeendres-png/forge.git",
+  "branch": "hardening/forge-eb2-face-down-20261007",
+  "commit": "31cbae12640e6066499aa7f17c9bf2dba6a30da6",
+  "tree": "b5c19c19de37ca7976059e1a9fd6295a30534c06",
+  "pull_request": 34,
+  "ancestry": "PR #34 head 31cbae12 (parents 6a1a60c5 = the E-B2 branch and d9e356aa = the forge#35 successor line, tree 27bee40d) on hardening/forge-eb2-face-down-20261007. The branch is c3a025fa (E-B2 manifested face-down construction, parent 80336359 the forge#33 G1 R1 merge) plus 6a1a60c5 (review P3: the failed-placement IllegalStateException chains its cause). Over d9e356aa the only changed paths are forge-protocol2-bridge/: ScenarioBootstrap.java (blob 0339d40d -> 5b722a18530012ab4b4cc1a7ac32542042bcda37), StateProjection.java (blob b3f801c3 -> e9aa6e3e6195fff9aabfde907c82a752da7ed044) and the bridge test G1R1TurnBeganBootstrapTest.java (blob 0ae158f09880ce96d793a1a2abefb6757d954224); 0 Rules-Core files, 0 card-data files. The forge#35 removal of .foundry/oc561-g1-r1-forge-20261006.yaml is retained, so the H4F Rules-Core drift guard admits the successor tree; the guard itself is not weakened.",
+  "content": "E-B2 manifested face-down scenario construction (#561): the bootstrap parses face_down (boolean) and face_down_type (MANIFESTED only; a missing or unsupported kind and attached placements are rejected), places a battlefield permanent face down with the engine's own manifest state setup (turnFaceDown(true) + setManifested(EmptySa(Manifest)), the GameState.java face-down precedent, recording the Original card state for the view refresh), verifies after the post-untap hook that a requested face-down card is still on the battlefield, face down and manifested, and StateProjection emits face_down publicly (CR 708.2) with face_down_type only when the observer's shown name is not a redacted marker. Review P3 chains the cause of a failed placement instead of dropping it. Carried on the G1 R1 TurnBegan successor line; no Rules-Core or card-data byte changed."
  },
  "exact_head_qualification": {
-  "commit": "d9e356aa90da4c14dd6767a4ca11d38b9870a4ce",
+  "commit": "31cbae12640e6066499aa7f17c9bf2dba6a30da6",
   "ci_status": "GREEN",
   "github_test_build": [
    {
-    "run_id": 37620949527,
+    "run_id": 37634912575,
     "event": "push",
     "status": "completed",
+    "conclusion": "success",
     "java17": "success",
     "java21": "success",
-    "note": "exact head; 'Test with Java 17' completed success at 2026-10-07T12:54:19Z and 'Test with Java 21' at 2026-10-07T12:53:43Z"
+    "note": "the exact-head push Test build run; 'Test with Java 21' completed success at 2026-10-07T14:43:14Z and 'Test with Java 17' at 2026-10-07T14:44:19Z. The pull_request run 37634922429 also completed success at 14:45:39Z."
    }
   ],
-  "github_ios_mobivm": [],
-  "github_ios_mobivm_note": "no iOS compatibility gate run exists for d9e356aa, and none is triggered by this commit: ios-compat-gate.yml fires only on **/*.java, **/pom.xml, forge-gui-ios/** or its own workflow file, while forge#35 changes only .foundry/oc561-g1-r1-forge-20261006.yaml. Recorded as NO_RUN (not applicable), never satisfied by the 80336359 iOS run 37531998583.",
+  "github_ios_mobivm": [
+   {
+    "run_id": 37634912612,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "note": "iOS compatibility gate on the exact head (push); completed success 2026-10-07T14:16:58Z"
+   },
+   {
+    "run_id": 37634922406,
+    "event": "pull_request",
+    "status": "completed",
+    "conclusion": "success",
+    "note": "iOS compatibility gate on the exact head (pull_request); completed success 2026-10-07T14:17:24Z"
+   }
+  ],
+  "github_ios_mobivm_note": "both iOS compatibility gate runs on 31cbae12 completed success; they are this commit's own runs, never the 80336359 iOS run 37531998583.",
   "local_forge_bridge_suite": {
    "command": "LANG=C.UTF-8 xvfb-run -a mvn -B -ntp -o -pl forge-protocol2-bridge -am test -Dtest='forge.bridge.**' -Dsurefire.failIfNoSpecifiedTests=false",
    "commit": "67da6f07e99e57b4dce2153b242e172ab70c2b12",
@@ -63,18 +86,19 @@
    "errors": 0,
    "skipped": 0,
    "evidence_class": "LOCAL_OBSERVED",
-   "note": "run on the superseded local Claude line 67da6f07 (tree 8973bc76); provenance only, never credited to the merged d9e356aa tree"
+   "note": "run on the superseded local Claude line 67da6f07 (tree 8973bc76); provenance only, never credited to the 31cbae12 tree"
   },
   "target_local_suite": {
    "status": "NOT_RUN",
-   "note": "no Lab-local forge.bridge suite was run on d9e356aa in this repin; the exact-head GitHub Test build is the target's gate"
+   "note": "no Lab-local forge.bridge suite was run against 31cbae12 in this repin; the exact-head GitHub Test build is the target's gate"
   }
  },
  "lab_consumer": {
-  "scenario_lane": "forge_scenario_lane.py: controlled_since_turn_began checkpoint-verified against the battlefield_details readback; the capability tables are derived from the d9e356aa blobs (readback assertions from StateProjection, byte-identical to forge#33; hook assertions installScenarioBootstrap/requireScenarioBootstrapCompleted/placeBattlefield/applyPostUntap)",
+  "scenario_lane": "forge_scenario_lane.py: battlefield.face_down/face_down_type checkpoint-verified strictly against the readback (E-B2), alongside the G1 R1 controlled_since_turn_began readback; the capability tables are derived from the 31cbae12 blobs (face_down support assertions from ScenarioBootstrap, readback assertions from StateProjection)",
   "tapped_readback": "forge_scenario_lane.py battlefield.<id>.tapped compares the readback as the literal engine True/False (review P3 6035940198): an absent or non-boolean `tapped` key is a MISMATCH, never a bool()-coerced False/EXACT",
-  "hidden_information_channels": "forge_hidden_information.py re-asserted at d9e356aa (blobs byte-identical to 80336359): BOOTSTRAP_FIELDS loses controlled_since_turn_began because the merged bootstrap no longer reads it; every other channel fragment is unchanged and AF05 Forge stays 20 PROVIDER_ADAPTER_GAP",
-  "impact_adjudication": "docs/forge_g1r1_turnbegan_20261006/IMPACT_ADJUDICATION.md"
+  "look_permission_detector": "forge_scenario_lane.py _states_look_permission reads the record's structured knowledge_state.viewer_states[*].face_down_look_permissions (the field knowledge_projection reads) and keeps the 'look permission' construction-note phrase only as an additional trigger (review P2 6039789823): the gap knowledge_state.face_down_look_permissions -> knowledge_construction stays open",
+  "hidden_information_channels": "forge_hidden_information.py re-asserted at 31cbae12: BOOTSTRAP_FIELDS gains face_down and face_down_type, face_down_construction is no longer a gap, and the 20 AF05 HIDDEN rows stay PROVIDER_ADAPTER_GAP with the face-down look permission counted on knowledge_construction (E-B3); AF05 Forge stays 20 rows, pass 0, UNKNOWN",
+  "impact_adjudication": "docs/forge_g1r1_turnbegan_20261006/IMPACT_ADJUDICATION.md (G1 R1 revision, historical) and docs/forge_eb2_face_down_20261007/DESIGN.md (E-B2 revision)"
  },
  "evidence_transfer": {
   "historical_receipts_relabelled": false

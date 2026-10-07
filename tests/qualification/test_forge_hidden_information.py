@@ -52,11 +52,17 @@ def test_every_mandatory_hidden_row_is_classified(records) -> None:
 
 
 def test_construction_gaps_are_the_lane_model_findings(records) -> None:
-    """Every row requests a face-down permanent and an exact library order."""
+    """Every row requests an exact library order; E-B2 closed the face-down construction gap.
+
+    Each row requests a battlefield MANIFESTED face-down permanent, which the bridge now
+    constructs (``face_down_construction`` is no longer a gap), while the record's
+    controller-only look permission stays its own ``knowledge_construction`` gap (E-B3).
+    """
     for fixture in knowledge_projection.ROWS:
         row = fh.classify_row(records[fixture])
         channels = {gap["channel"] for gap in row.provider_gaps}
-        assert "face_down_construction" in channels, fixture
+        assert "face_down_construction" not in channels, fixture
+        assert "knowledge_construction" in channels, fixture
         assert "library_construction" in channels, fixture
         # E-B1b: the public exile object is a construction gap of its own.
         assert "exile_construction" in channels, fixture
@@ -321,6 +327,8 @@ def test_the_runner_uses_the_exact_reason_for_forge_only(records, monkeypatch) -
 
 
 def test_the_committed_matrix_is_current(records) -> None:
+    # E-B2 repinned to 31cbae12 (forge#34 head) and this matrix was regenerated
+    # with scripts/run_forge_hidden_census.py; it is no longer expected red.
     """Stale-evidence control: the committed matrix is bound to the current contract and bridge."""
     import json
 

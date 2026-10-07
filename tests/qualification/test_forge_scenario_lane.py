@@ -204,6 +204,12 @@ _SCENARIO_SOURCE = "\n".join(
         "Card.fromPaperCard(paper, owner)",
         'entry.has("tapped")',
         "tapped must be a boolean",
+        # E-B2: the fragments of the Forge bridge's face-down placement. The
+        # real pinned bridge blob (31cbae12, forge#34 head) carries them; a blob
+        # that predates E-B2 fails closed (ScenarioCapabilityDrift).
+        "face_down must be a boolean",
+        "face_down_type unsupported: ",
+        "setManifested(new SpellAbility.EmptySa(ApiType.Manifest, card));",
         'entry.has("counters")',
         "counters must be an object",
         "counter amounts must be integers",
@@ -580,7 +586,13 @@ def _exact_observations() -> dict[str, dict]:
             life=40,
             battlefield=["Grizzly Bears"],
             battlefield_details=[
-                {"name": "Grizzly Bears", "tapped": True, "counters": {"+1/+1": 1}}
+                {
+                    "name": "Grizzly Bears",
+                    "tapped": True,
+                    "face_down": False,
+                    "face_down_type": None,
+                    "counters": {"+1/+1": 1},
+                }
             ],
             command=["Rograkh, Son of Rohgahh", "Commander Effect"],
         ),
@@ -588,7 +600,15 @@ def _exact_observations() -> dict[str, dict]:
             "p2",
             life=40,
             battlefield=["Grizzly Bears"],
-            battlefield_details=[{"name": "Grizzly Bears", "tapped": False, "counters": {}}],
+            battlefield_details=[
+                {
+                    "name": "Grizzly Bears",
+                    "tapped": False,
+                    "face_down": False,
+                    "face_down_type": None,
+                    "counters": {},
+                }
+            ],
             command=["Rograkh, Son of Rohgahh", "Commander Effect"],
             commander_damage={"Rograkh, Son of Rohgahh": 11, "Kediss, Emberclaw Familiar": 10},
         ),
@@ -1602,8 +1622,23 @@ def _control_history_record(p1_since, p2_since) -> dict:
 
 
 def _control_history_observations(p1_observed, p2_observed) -> dict[str, dict]:
-    p1_detail = {"name": "Grizzly Bears", "tapped": False, "counters": {}}
-    p2_detail = {"name": "Raging Goblin", "tapped": False, "counters": {}}
+    # E-B2: the pinned StateProjection now emits face_down/face_down_type for
+    # every battlefield entry (public state, CR 708.2), so a synthetic readback
+    # models it; the checkpoint compares face_down strictly.
+    p1_detail = {
+        "name": "Grizzly Bears",
+        "tapped": False,
+        "face_down": False,
+        "face_down_type": None,
+        "counters": {},
+    }
+    p2_detail = {
+        "name": "Raging Goblin",
+        "tapped": False,
+        "face_down": False,
+        "face_down_type": None,
+        "counters": {},
+    }
     if p1_observed is not None:
         p1_detail["controlled_since_turn_began"] = p1_observed
     if p2_observed is not None:
@@ -1719,6 +1754,10 @@ def _swamp_observations(
     for index, since in enumerate(observed):
         detail = {
             "name": "Swamp",
+            # E-B2: the pinned projection emits face_down/face_down_type for
+            # every battlefield entry; this synthetic readback models it.
+            "face_down": False,
+            "face_down_type": None,
             "counters": {},
         }
         if not omit_tapped:

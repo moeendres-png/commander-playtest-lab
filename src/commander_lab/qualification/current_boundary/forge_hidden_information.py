@@ -53,7 +53,7 @@ CHANNEL_UNAUDITED = "PRESENT_UNAUDITED"
 
 # The bridge commit whose blobs this channel table was asserted against. A
 # moved canonical pin invalidates every channel status until it is re-asserted.
-ASSERTED_BRIDGE_COMMIT = "d9e356aa90da4c14dd6767a4ca11d38b9870a4ce"
+ASSERTED_BRIDGE_COMMIT = "31cbae12640e6066499aa7f17c9bf2dba6a30da6"
 
 _BRIDGE_SOURCE = f"{lane.BRIDGE_MODULE}/src/main/java/forge/bridge"
 SOURCES: dict[str, str] = {
@@ -106,6 +106,8 @@ BOOTSTRAP_FIELDS = frozenset(
         "controller",
         "counters",
         "decision_script",
+        "face_down",
+        "face_down_type",
         "hands",
         "id",
         "life",
@@ -416,11 +418,22 @@ CHANNELS: tuple[Channel, ...] = (
     ),
     Channel(
         "face_down_construction",
-        CHANNEL_ABSENT,
+        CHANNEL_SUPPORTED,
         "bootstrap",
-        absent=("face_down", "FaceDown", "faceDown", "manifest"),
+        present=(
+            'throw new IllegalArgumentException("face_down must be a boolean");',
+            '"face_down_type unsupported: "',
+            'throw new IllegalArgumentException( "face_down placement cannot be attached");',
+            "card.setManifested(new SpellAbility.EmptySa(ApiType.Manifest, card));",
+            'session.audit("scenario_placed_face_down", details);',
+        ),
         fields=BOOTSTRAP_FIELDS,
-        meaning="the scenario bootstrap has no face-down field (MANIFESTED, CLOAKED, ...)",
+        meaning=(
+            "the scenario bootstrap places a battlefield permanent face down as a manifested "
+            "permanent (E-B2: CR 708.2, CR 701.34; the engine's own GameState FaceDown/"
+            "Manifested state setup); other kinds (CLOAKED, MORPHED, ...) are rejected, and "
+            "the controller-only look permission is not constructed (E-B3)"
+        ),
     ),
     Channel(
         "library_construction",
@@ -638,6 +651,7 @@ _PROVIDER_DIMENSIONS: dict[str, str] = {
     "semantic_objects.face_down": "face_down_construction",
     "temporal_checkpoint.exact_hand_after_draw": "library_construction",
     "knowledge_state": "knowledge_construction",
+    "knowledge_state.face_down_look_permissions": "knowledge_construction",
 }
 # Lab-side lane dimensions: the provider offers the engine's own frames, but the
 # Lab's Forge lane implements no selector execution for them.
