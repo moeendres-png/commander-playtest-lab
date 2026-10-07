@@ -2,7 +2,7 @@
  "schema_version": "commander-lab.forge-bridge-successor-source-lock/1.0.0",
  "workstream": "forge-bridge-g1r1-turnbegan-20261006",
  "classification": "SUCCESSOR_BRIDGE_MATERIALIZATION_SOURCE",
- "status": "MERGED_EXACT_HEAD_CI_PENDING_PB03_PENDING",
+ "status": "MERGED_EXACT_HEAD_CI_GREEN_PB03_PENDING",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -41,15 +41,15 @@
  },
  "exact_head_qualification": {
   "commit": "d9e356aa90da4c14dd6767a4ca11d38b9870a4ce",
-  "ci_status": "PENDING",
+  "ci_status": "GREEN",
   "github_test_build": [
    {
     "run_id": 37620949527,
     "event": "push",
-    "status": "in_progress",
-    "java17": "PENDING",
-    "java21": "PENDING",
-    "note": "the only exact-head workflow run dispatched for d9e356aa; in_progress at lock-writing time (2026-10-07T12:36Z). PENDING is not PASS; this lock is re-adjudicated when it completes."
+    "status": "completed",
+    "java17": "success",
+    "java21": "success",
+    "note": "exact head; 'Test with Java 17' completed success at 2026-10-07T12:54:19Z and 'Test with Java 21' at 2026-10-07T12:53:43Z"
    }
   ],
   "github_ios_mobivm": [],

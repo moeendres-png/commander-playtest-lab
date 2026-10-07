@@ -11,8 +11,8 @@
   unified successor from `ee37e4a5` (forge#28). Over `ee37e4a5` the only changed paths are
   `forge-protocol2-bridge/`: 0 Rules-Core files and 0 card-data files; every bridge blob is
   byte-identical between `80336359` and `d9e356aa` (`StateProjection.java` blob `b3f801c3` at both).
-  Exact-head CI on the new commit: Test build run `37620949527` (**PENDING** at writing; see the
-  second-repin section and the lock). The iOS compatibility gate does not trigger for a
+  Exact-head CI on the new commit: Test build run `37620949527` (**success**, Java 17 and Java 21,
+  push; completed 2026-10-07 12:54Z). The iOS compatibility gate does not trigger for a
   `.foundry`-only change. The superseded `80336359` exact-head runs (`37531998578`
   Java 17/21 success, `37531998583` iOS success) are provenance only and are never reused. **PB-03
   at the merged pin is PENDING**.
@@ -20,8 +20,8 @@
 - **Evidence class:** every C5 run below is LOCAL_OBSERVED and ran on the **superseded local Claude
   line** noted in each table row (before `ee37e4a5`; after `510697fa`/`04892c87`/`67da6f07`). Those
   runs are kept as provenance for the ported semantics and are **not credited to the merged pin**
-  (`80336359`/`d9e356aa`). Credit requires exact-head CI (present on `80336359`, PENDING on
-  `d9e356aa`) plus a sealed PB-03 epoch on the merged pin.
+  (`80336359`/`d9e356aa`). Credit requires exact-head CI (present on both merged pins, by run id)
+  plus a sealed PB-03 epoch on the merged pin.
 - **Not:** Production Provider selection, Architecture Freeze, a denominator change, a Rules-Core
   change, or a PASS promotion.
 
@@ -208,13 +208,13 @@ Not re-baselined silently: nothing was re-baselined. The historical epoch eviden
   `CANONICAL_FORGE_BRIDGE_COMMIT` move with it. The Rules-Core authority stays `bb0a740d`, and every
   bridge blob is byte-identical to `80336359`, so the capability tables (readback + hook) re-derive
   unchanged against the new blobs.
-- **Exact-head CI (by run id).** Test build run `37620949527` is the only workflow run dispatched for
-  `d9e356aa` (push, in progress at lock-writing time): **PENDING**. The iOS compatibility gate cannot
-  trigger for this commit (its path filter admits only `**/*.java`, `**/pom.xml`, `forge-gui-ios/**`
-  and its own workflow file; forge#35 changes only `.foundry/oc561-g1-r1-forge-20261006.yaml`), so
-  no iOS run exists or will exist. The `80336359` runs `37531998578`/`37531998583` are provenance for
-  the superseded commit only and are never reused. `PENDING != PASS`; the lock test is red while the
-  lock records PENDING, and the lock records it rather than reusing old run ids.
+- **Exact-head CI (by run id).** Test build run `37620949527` completed **success** for `d9e356aa`
+  (`Test with Java 17` at 12:54:19Z and `Test with Java 21` at 12:53:43Z, push). The iOS
+  compatibility gate cannot trigger for this commit (its path filter admits only `**/*.java`,
+  `**/pom.xml`, `forge-gui-ios/**` and its own workflow file; forge#35 changes only
+  `.foundry/oc561-g1-r1-forge-20261006.yaml`), so no iOS run exists or will exist and none is
+  applicable to a state-file-only change. The `80336359` runs `37531998578`/`37531998583` are
+  provenance for the superseded commit only and are never reused.
 - **Review P3 (comment 6035940198) fixed on the Lab side.** `forge_scenario_lane.py` compared the
   `battlefield_details[].tapped` readback with `bool(item.get("tapped"))`, so an absent key became
   `False` and a default untapped request passed as EXACT against a detail that never stated it. The
@@ -316,14 +316,14 @@ assertion reverted, latch fragment dropped, non-battlefield request accepted).
 
 ## UNKNOWN / open
 
-- Exact-head CI for the merged pin `d9e356aa`: **PENDING** — Test build run `37620949527` was the
-  only workflow run dispatched for the commit (push, in progress at lock-writing time). The iOS
-  compatibility gate cannot trigger for this commit (path filter: Java, pom, `forge-gui-ios/**`, its
-  own workflow file; forge#35 changes only the fork's `.foundry` state file), so no iOS run exists or
-  will exist. `PENDING != PASS`. The superseded `80336359` runs (`37531998578` Java 17/21 success,
-  `37531998583` iOS success) are provenance for that commit only and are never reused. The superseded
-  local line `67da6f07` had **NOT_RUN** (never pushed); the 374/0/0/0 local suite is provenance on
-  that tree only and is not credited to the merged pin.
+- Exact-head CI for the merged pin `d9e356aa`: **GREEN (PRESENT)** — Test build run `37620949527`
+  completed success (`Test with Java 17` at 12:54:19Z and `Test with Java 21` at 12:53:43Z, push).
+  The iOS compatibility gate cannot trigger for this commit (path filter: Java, pom,
+  `forge-gui-ios/**`, its own workflow file; forge#35 changes only the fork's `.foundry` state
+  file), so no iOS run exists or will exist and none is applicable. The superseded `80336359` runs
+  (`37531998578` Java 17/21 success, `37531998583` iOS success) are provenance for that commit only
+  and are never reused. The superseded local line `67da6f07` had **NOT_RUN** (never pushed); the
+  374/0/0/0 local suite is provenance on that tree only and is not credited to the merged pin.
 - PB-03 epoch at `d9e356aa`: **NOT_RUN**. Current Forge standing at the merged pin stays UNKNOWN
   until it exists; no historical PASS is promoted by this repin.
 - C4(c), complete-declaration path: no bridge-level mutant kills it (J12 is equivalent). It is
