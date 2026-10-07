@@ -58,8 +58,10 @@ def test_construction_gaps_are_the_lane_model_findings(records) -> None:
         channels = {gap["channel"] for gap in row.provider_gaps}
         assert "face_down_construction" in channels, fixture
         assert "library_construction" in channels, fixture
+        # E-B1b: the public exile object is a construction gap of its own.
+        assert "exile_construction" in channels, fixture
         dimensions = {gap["dimension"] for gap in row.provider_gaps}
-        assert dimensions <= set(fh._PROVIDER_DIMENSIONS), fixture
+        assert dimensions <= set(fh._PROVIDER_DIMENSIONS) | {fh.EXILE_DIMENSION}, fixture
         assert not row.other_unsupported, (fixture, row.other_unsupported)
 
 
@@ -90,9 +92,10 @@ def test_every_row_needs_the_universal_principal_surface(records) -> None:
         assert {"decision_frames", "message_surface", "transport_diagnostics"} <= set(
             row.unaudited_channels
         ), fixture
-        assert "lab_capture.transport_diagnostics" in {gap["dimension"] for gap in row.lab_gaps}, (
-            fixture
-        )
+        # E-B0: the Lab retains stderr, so it is no longer a Lab capture gap.
+        assert "lab_capture.transport_diagnostics" not in {
+            gap["dimension"] for gap in row.lab_gaps
+        }, fixture
 
 
 def test_scripted_rows_record_the_lab_execution_gap(records) -> None:
@@ -205,13 +208,15 @@ def test_an_unmapped_lane_dimension_fails_closed(records, monkeypatch) -> None:
         row.classification  # noqa: B018
 
 
-def test_cost_state_follows_the_lane_construction_finding(records) -> None:
-    """The lane files mid-cast cost state as a missing bootstrap field; so does this module."""
+def test_cost_state_is_caused_on_the_engine_frames(records) -> None:
+    """E-B1a: mid-cast cost state is a Lab execution gap, as forge_residuals files it."""
     row = fh.classify_row(records["HIDDEN_07"])
-    gaps = {gap["dimension"]: gap for gap in row.provider_gaps}
-    assert gaps["action_cost_state"]["channel"] == "cost_state_construction"
-    assert "no bootstrap field" in gaps["action_cost_state"]["detail"]
-    assert all(not gap["dimension"].startswith("action_cost_state") for gap in row.lab_gaps)
+    assert all(gap["dimension"] != "action_cost_state" for gap in row.provider_gaps)
+    gaps = {gap["dimension"]: gap for gap in row.lab_gaps}
+    assert gaps["action_cost_state"]["basis"] == "LAB_EXECUTION_GAP"
+    assert "engine's own frames" in gaps["action_cost_state"]["detail"]
+    # The lane's own construction finding is kept verbatim beside the Lab basis.
+    assert "no bootstrap field" in gaps["action_cost_state"]["lane_detail"]
 
 
 def test_a_fragment_only_in_a_comment_is_drift() -> None:
@@ -234,6 +239,9 @@ def test_a_fragment_only_in_a_comment_is_drift() -> None:
         ("bootstrap", 'if (neutral.has("libraries")) { }'),
         ("bootstrap", 'if (entry.has("hidden_face")) { }'),
         ("bootstrap", 'final String order = optString(entry, "order", "");'),
+        ("bootstrap", 'if (neutral.has("exile")) { }'),
+        ("bootstrap", "owner.getZone(ZoneType.Exile).add(card);"),
+        ("projection", "zone.add(exileZone(player, null));"),
         ("engine", 'caps.addProperty("replay_supported", true);'),
         ("engine", 'caps.addProperty("replay_supported", Boolean.TRUE);'),
         ("engine", 'caps.addProperty("event_log_supported", Boolean.TRUE);'),
@@ -455,14 +463,15 @@ def test_transport_diagnostics_are_unaudited_and_required(records) -> None:
         assert "PASS" not in row.reason()
 
 
-def test_stderr_is_a_lab_capture_gap_until_the_lab_retains_it(records) -> None:
-    """The Lab pipes but discards stderr, so a row's scan cannot read it yet."""
+def test_stderr_is_retained_but_the_scan_is_still_unaudited(records) -> None:
+    """E-B0: the Lab retains stderr; the row's scan of it has still not run."""
+    assert "drains" in fh.LAB_CAPTURE_RETAINED["transport_diagnostics"]
     for fixture in ("HIDDEN_19", "HIDDEN_HONEYCARD_SENTINEL"):
         row = fh.classify_row(records[fixture])
-        gaps = {gap["dimension"]: gap["detail"] for gap in row.lab_gaps}
-        assert "lab_capture.transport_diagnostics" in gaps, fixture
-        assert "discards" in gaps["lab_capture.transport_diagnostics"]
-        assert "lab_capture.transport_diagnostics" in row.reason()
+        gaps = {gap["dimension"] for gap in row.lab_gaps}
+        assert "lab_capture.transport_diagnostics" not in gaps, fixture
+        assert "transport_diagnostics" in row.unaudited_channels, fixture
+        assert "lab_capture" not in row.reason()
 
 
 @pytest.mark.parametrize(
@@ -479,7 +488,7 @@ def test_a_changed_lab_launcher_is_re_reviewed(edit) -> None:
         REPO_ROOT / "src/commander_lab/qualification/current_boundary/bridge_launcher.py"
     ).read_text(encoding="utf-8")
     fh.assert_lab_capture(launcher)
-    with pytest.raises(fh.HiddenChannelDrift, match="Lab capture gap"):
+    with pytest.raises(fh.HiddenChannelDrift, match="Lab capture"):
         fh.assert_lab_capture(edit(launcher))
 
 

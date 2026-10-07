@@ -1,0 +1,281 @@
+{
+  "assertion_class": "KNOWLEDGE_BOUNDARY_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+  "fixture_id": "HIDDEN_10",
+  "obligation_exercised": {
+    "forbidden_events": [
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+    ],
+    "obligation_digest": "f4a129d9e73db063d95b9cd410e774c25b7addb796249a26f0a8ac32d5e7f245",
+    "requested_state_digest": "8d5ebea042b8f4fdb4c612ae5a8cd63cb2e25a62c6c8bc133d6be273002e3808",
+    "required_events": [
+      "knowledge_projection:HIDDEN_10:P1"
+    ],
+    "terminal_postconditions": [
+      "P1 observation exactly respects declared viewer state.",
+      "No prohibited metadata appears in any tested channel.",
+      "Knowledge invalidation/permission persistence follows the declared conditions."
+    ],
+    "viewer_obligation": "scry/surveil top-N actor knowledge"
+  },
+  "observed_assertion": {
+    "channel_coverage": {
+      "ability_metadata": 246,
+      "context": 40,
+      "event": 14,
+      "log": 216,
+      "option_id": 192,
+      "option_label": 192,
+      "option_metadata": 192,
+      "pile_metadata": 0,
+      "prompt": 40,
+      "source_metadata": 40,
+      "state": 53,
+      "transcript": 199
+    },
+    "checks": [
+      {
+        "detail": "arrival EXACT, construction_match True, mismatches []",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "construction_exact"
+      },
+      {
+        "detail": "required {'library_order': 2, 'library_object': 3, 'hand_composition': 4, 'face_down': 1}; the engine reported {'library_order': 2, 'hand_composition': 4, 'library_object': 3, 'face_down': 1}",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "lossless_checks_performed"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P1"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P2"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P3"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P4"
+      },
+      {
+        "detail": "4 distinct principal ids for 4 seats",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "distinct_principals"
+      },
+      {
+        "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P1"
+      },
+      {
+        "detail": "every channel carried content",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scan_coverage"
+      },
+      {
+        "detail": "each honey sentinel is found in the harness's own create request",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_sentinel_in_request"
+      },
+      {
+        "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_honey_identity_where_entitled"
+      },
+      {
+        "detail": "8 scripted answers, complete=True",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scripted_event_executed"
+      },
+      {
+        "detail": "1 declared",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "known_range_declared"
+      },
+      {
+        "detail": "2 distinct requested objects for a range of 2",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "known_range_requested_exactly"
+      },
+      {
+        "detail": "29 frames after the event",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "knower_frames_observed:P1"
+      },
+      {
+        "detail": "library offers shown to P1: [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], [], [], []]",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "range_shown_exactly_to:P1"
+      },
+      {
+        "detail": "2 library-to-library moves of P1's cards",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "range_returned_to_library"
+      },
+      {
+        "detail": "0 library offers in 0 frames",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_range_offer_to:P2"
+      },
+      {
+        "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Grizzly Bears', 'Magma Jet', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0', 'obj:hidden10-jet', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P2"
+      },
+      {
+        "detail": "0 library offers in 0 frames",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_range_offer_to:P3"
+      },
+      {
+        "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Demonic Tutor', 'Grizzly Bears', 'Magma Jet', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden10-jet', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P3"
+      },
+      {
+        "detail": "0 library offers in 0 frames",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_range_offer_to:P4"
+      },
+      {
+        "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Demonic Tutor', 'Grizzly Bears', 'Magma Jet', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden10-jet', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P4"
+      }
+    ],
+    "forbidden_evidence": {
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+        "ambiguous_tokens_not_scanned": {},
+        "occurrences": [],
+        "tokens_scanned": [
+          "Brainstorm",
+          "Counterspell",
+          "Demonic Tutor",
+          "Vampiric Tutor",
+          "WS30_HONEY_P2_PRIVATE_7F3A",
+          "obj:hidden-hand",
+          "obj:hidden-lib-0",
+          "obj:hidden10-lib-0",
+          "obj:hidden10-lib-1"
+        ]
+      }
+    },
+    "token_evidence": {
+      "knowledge_projection:HIDDEN_10:P1": [
+        {
+          "detail": "8 scripted answers, complete=True",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "scripted_event_executed"
+        },
+        {
+          "detail": "1 declared",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "known_range_declared"
+        },
+        {
+          "detail": "2 distinct requested objects for a range of 2",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "known_range_requested_exactly"
+        },
+        {
+          "detail": "29 frames after the event",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "knower_frames_observed:P1"
+        },
+        {
+          "detail": "library offers shown to P1: [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], ['Brainstorm', 'Counterspell'], [], [], []]",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "range_shown_exactly_to:P1"
+        },
+        {
+          "detail": "2 library-to-library moves of P1's cards",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "range_returned_to_library"
+        },
+        {
+          "detail": "0 library offers in 0 frames",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_range_offer_to:P2"
+        },
+        {
+          "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Grizzly Bears', 'Magma Jet', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0', 'obj:hidden10-jet', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P2"
+        },
+        {
+          "detail": "0 library offers in 0 frames",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_range_offer_to:P3"
+        },
+        {
+          "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Demonic Tutor', 'Grizzly Bears', 'Magma Jet', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden10-jet', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P3"
+        },
+        {
+          "detail": "0 library offers in 0 frames",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_range_offer_to:P4"
+        },
+        {
+          "detail": "0 occurrences of ['Brainstorm', 'Counterspell', 'Demonic Tutor', 'Grizzly Bears', 'Magma Jet', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden10-jet', 'obj:hidden10-lib-0', 'obj:hidden10-lib-1']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P4"
+        }
+      ]
+    },
+    "viewer": "P1"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "77eb767899b56e91198d0556da0289a76c26697204700e4898d2c4485c801356",
+  "runner_digest": "63e05d2fb1e748791cbc6a2468d541b29f080df7241183632a06ffe6ddfe2b37",
+  "runtime_receipt_digest": "959ddac5feb73c09f507dd2681f1bd7003d8cea999a6426f5d604dd79d8d1e1f",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:knowledge-projection#HIDDEN_10"
+}

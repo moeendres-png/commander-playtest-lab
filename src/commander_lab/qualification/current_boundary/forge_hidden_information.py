@@ -33,6 +33,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from . import forge_residuals as residuals
 from . import forge_scenario_lane as lane
 from . import knowledge_projection
 from .bridge_launcher import canonical_forge_authority
@@ -323,6 +324,27 @@ CHANNELS: tuple[Channel, ...] = (
         ),
     ),
     Channel(
+        "exile_name_readback",
+        CHANNEL_SUPPORTED,
+        "projection",
+        present=(
+            'zones.add("exile", require("zones.exile", () -> exileZone(player, observerView)));',
+            "private static JsonArray exileZone(Player player, PlayerView observerView) { "
+            "final JsonArray zone = new JsonArray(); "
+            "for (Card card : player.getCardsIn(ZoneType.Exile)) { "
+            "zone.add(shownName(card, observerView)); } return zone; }",
+        ),
+        absent=("exileZone(",),
+        meaning=(
+            "each seat's exile projects as one shownName per card to the observer: a "
+            "face-up exiled card is named to every principal (CR 406.3), a face-down one "
+            "only through the face-down redaction. Names carry no semantic identity, so the "
+            "Lab binds a requested exile object to a readback name only by the exactly-one "
+            "rule (bind_exile_identities). No obligation requires this channel: it satisfies "
+            "no row, it only decides whether an exile finding is a readback limit"
+        ),
+    ),
+    Channel(
         "library_contents",
         CHANNEL_ABSENT,
         "projection",
@@ -422,7 +444,23 @@ CHANNELS: tuple[Channel, ...] = (
         "bootstrap",
         absent=('"action_cost_state"', '"cost', '"payment', '"mana_pool"'),
         fields=BOOTSTRAP_FIELDS,
-        meaning="the scenario bootstrap has no mid-cast cost or payment state field",
+        meaning=(
+            "the scenario bootstrap has no mid-cast cost or payment state field. No row "
+            "files a gap here: mid-cast cost state is caused by casting and paying on the "
+            "engine's own frames, a Lab execution gap (_LAB_DIMENSIONS, E-B1)"
+        ),
+    ),
+    Channel(
+        "exile_construction",
+        CHANNEL_ABSENT,
+        "bootstrap",
+        absent=("ZoneType.Exile", '"exile'),
+        fields=BOOTSTRAP_FIELDS,
+        meaning=(
+            "the scenario bootstrap places battlefield, hand and command-zone cards only; it "
+            "has no exile field and never moves a card to exile, so a requested exile object "
+            "is not constructed"
+        ),
     ),
     Channel(
         "message_surface",
@@ -529,8 +567,8 @@ CHANNELS: tuple[Channel, ...] = (
             "closed set STDERR_PRINTS (exception texts and stack traces included), and "
             "every engine System.out print is redirected to stderr. What the engine prints "
             "there is not bounded by bridge source, so whether stderr carries a hidden "
-            "identity is shown only by the row's channel scan, which was not run; the Lab "
-            "does not yet retain stderr for that scan (LAB_CAPTURE_GAPS)"
+            "identity is shown only by the row's channel scan, which was not run. The Lab "
+            "retains stderr for that scan (LAB_CAPTURE_RETAINED); retention is not the scan"
         ),
     ),
 )
@@ -600,22 +638,108 @@ _PROVIDER_DIMENSIONS: dict[str, str] = {
     "semantic_objects.face_down": "face_down_construction",
     "temporal_checkpoint.exact_hand_after_draw": "library_construction",
     "knowledge_state": "knowledge_construction",
-    # The lane's own finding: "mid-cast cost/payment state has no bootstrap field".
-    "action_cost_state": "cost_state_construction",
 }
 # Lab-side lane dimensions: the provider offers the engine's own frames, but the
 # Lab's Forge lane implements no selector execution for them.
 _LAB_DIMENSION_PREFIXES = ("decision_execution.",)
+# Lab-side lane dimensions filed by exact name, with the Lab basis. Mid-cast cost
+# state has no bootstrap field on any engine; it is caused by casting and paying
+# on the engine's own frames, so it is a Lab execution gap (E-B1, #561). The
+# basis is forge_residuals' own entry, so the two Lab modules cannot disagree.
+_LAB_DIMENSIONS: dict[str, str] = {
+    dimension: residuals._CONSTRUCTION[dimension][1] for dimension in ("action_cost_state",)
+}
+
+# A requested public exile object (E-B1, #561). The bootstrap cannot place it
+# (exile_construction), which is the first missing mechanism; the readback names
+# it to every principal (exile_name_readback), so it is unobservable only when
+# the exactly-one name rule cannot bind it.
+EXILE_DIMENSION = "semantic_objects.zone:exile"
+EXILE_CONSTRUCTION_DETAIL = (
+    "the bootstrap cannot place a card in exile (no exile field, no exile move), so the "
+    "requested exile object is not constructed"
+)
+# Names the projection writes in place of an identity; they never bind.
+_REDACTED_NAMES = frozenset({"<hidden>", "<face-down>"})
+
+
+def bind_exile_identities(
+    objects: list[dict[str, Any]], exile_names_by_owner: dict[str, list[str]]
+) -> dict[str, str | None]:
+    """Bind each requested exile object to a readback name by the exactly-one rule.
+
+    An object binds only when it is face up, names a real card, is the only
+    requested exile object of that name for its owner, and its owner's exile
+    readback holds that name exactly once. Anything else (zero or several
+    matches, a face-down card, a redaction placeholder, another owner's exile)
+    is ``None``: unbound, never a guess.
+    """
+    readback = {
+        str(owner).lower(): [str(name) for name in names]
+        for owner, names in exile_names_by_owner.items()
+    }
+    requested: dict[tuple[str, str], int] = {}
+    for obj in objects:
+        key = (str(obj.get("owner") or "").lower(), str(obj.get("card_identity") or ""))
+        requested[key] = requested.get(key, 0) + 1
+    bound: dict[str, str | None] = {}
+    for obj in objects:
+        owner = str(obj.get("owner") or "").lower()
+        name = str(obj.get("card_identity") or "")
+        bindable = (
+            bool(name)
+            and name not in _REDACTED_NAMES
+            and not obj.get("face_down")
+            and requested[(owner, name)] == 1
+            and readback.get(owner, []).count(name) == 1
+        )
+        bound[str(obj.get("semantic_id"))] = name if bindable else None
+    return bound
+
+
+def _exile_finding(record: dict[str, Any], finding: Any) -> tuple[dict[str, Any], bool]:
+    """The exile construction gap, and whether the readback could bind every object.
+
+    The binding is judged on the readback an exact construction would produce:
+    each owner's exile holding exactly the requested face-up names.
+    """
+    objects = [
+        obj
+        for obj in record.get("semantic_objects") or ()
+        if isinstance(obj, dict) and obj.get("zone") == "exile"
+    ]
+    constructed: dict[str, list[str]] = {}
+    for obj in objects:
+        if not obj.get("face_down"):
+            owner = str(obj.get("owner") or "")
+            constructed.setdefault(owner, []).append(str(obj.get("card_identity") or ""))
+    binding = bind_exile_identities(objects, constructed)
+    document = {
+        **finding.to_document(),
+        "status": lane.DIMENSION_UNSUPPORTED,
+        "detail": EXILE_CONSTRUCTION_DETAIL,
+        "lane_status": finding.status,
+        "lane_detail": finding.detail,
+        "channel": "exile_construction",
+        "readback_binding": binding,
+    }
+    return document, bool(binding) and all(name is not None for name in binding.values())
+
 
 # Principal-facing channels the provider emits but the Lab does not retain for a
-# row's channel scan. Each claim is bound to the Lab's own launcher source by
-# LAB_CAPTURE_ASSERTIONS, so a launcher that starts retaining the channel fails
-# the assertion and the gap is re-reviewed instead of silently staying listed.
-LAB_CAPTURE_GAPS: dict[str, str] = {
+# row's channel scan (a Lab gap on every row that needs the channel), and those
+# the Lab does retain. Every claim in either table is bound to the Lab's own
+# launcher source by LAB_CAPTURE_ASSERTIONS, so a launcher change in either
+# direction fails the assertion and is re-reviewed instead of silently staying
+# listed. Retention is not an audit: a retained channel stays PRESENT_UNAUDITED
+# until the row's scan runs.
+LAB_CAPTURE_GAPS: dict[str, str] = {}
+LAB_CAPTURE_RETAINED: dict[str, str] = {
     "transport_diagnostics": (
-        "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close "
-        "discards it; only a 2000-character tail is read, and only when stdout closes "
-        "during a request, so a row's sentinel scan cannot read normal diagnostics"
+        "bridge_launcher.launch pipes the bridge's stderr and BridgeProcess drains it on a "
+        "daemon thread from launch to end of stream into an in-memory capture "
+        "(stderr_capture), never into the persisted transcript; a capture that is "
+        "incomplete or over STDERR_RETAIN_LIMIT_CHARS is not scannable"
     ),
 }
 _LAB_LAUNCHER = Path(__file__).with_name("bridge_launcher.py")
@@ -623,15 +747,30 @@ LAB_CAPTURE_ASSERTIONS: dict[str, tuple[tuple[str, int], ...]] = {
     # (fragment, exact occurrence count) in the Lab launcher's code
     "transport_diagnostics": (
         ("stderr=subprocess.PIPE,", 1),
-        ("self.popen.stderr.read()[-2000:]", 1),
-        (".stderr.read", 1),
-        ("for stream in (self.popen.stdout, self.popen.stderr):", 1),
+        ("target=self._drain_stderr", 1),
+        # The drain reads bounded raw chunks, never an unbounded line.
+        ("os.read(fd, STDERR_READ_CHUNK_BYTES)", 1),
+        ("self._stderr_chunks.append(text)", 1),
+        ("self._stderr_truncated = True", 1),
+        ("self._stderr_complete = True", 1),
+        # close() stops a drain a descendant's inherited pipe is holding open.
+        ("self._stderr_stop.set()", 1),
+        # No direct read may race the drain for the stream.
+        (".stderr.read", 0),
     ),
 }
 
 
 def assert_lab_capture(launcher_text: str | None = None) -> None:
-    """Each LAB_CAPTURE_GAPS claim must still describe the Lab launcher's code."""
+    """Each LAB_CAPTURE_GAPS / LAB_CAPTURE_RETAINED claim must still describe the launcher."""
+    both = sorted(set(LAB_CAPTURE_GAPS) & set(LAB_CAPTURE_RETAINED))
+    if both:
+        raise HiddenChannelDrift(f"Lab capture channels listed as both gap and retained: {both}")
+    unbound = sorted(
+        (set(LAB_CAPTURE_GAPS) | set(LAB_CAPTURE_RETAINED)) ^ set(LAB_CAPTURE_ASSERTIONS)
+    )
+    if unbound:
+        raise HiddenChannelDrift(f"Lab capture claims without a launcher assertion: {unbound}")
     code = code_text(
         _LAB_LAUNCHER.read_text(encoding="utf-8") if launcher_text is None else launcher_text
     )
@@ -640,8 +779,9 @@ def assert_lab_capture(launcher_text: str | None = None) -> None:
             (fragment, count) for fragment, count in fragments if code.count(fragment) != count
         ]
         if wrong:
+            state = "gap" if channel in LAB_CAPTURE_GAPS else "retention"
             raise HiddenChannelDrift(
-                f"Lab capture gap {channel!r} no longer matches bridge_launcher.py: {wrong}"
+                f"Lab capture {state} {channel!r} no longer matches bridge_launcher.py: {wrong}"
             )
 
 
@@ -732,6 +872,15 @@ def classify_row(record: dict[str, Any]) -> HiddenRowClassification:
         channel = _PROVIDER_DIMENSIONS.get(finding.dimension)
         if channel is not None:
             row.provider_gaps.append({**document, "channel": channel})
+        elif finding.dimension in _LAB_DIMENSIONS:
+            row.lab_gaps.append(
+                {
+                    **document,
+                    "basis": residuals.LAB_EXECUTION_GAP,
+                    "detail": _LAB_DIMENSIONS[finding.dimension],
+                    "lane_detail": finding.detail,
+                }
+            )
         elif finding.dimension.startswith(_LAB_DIMENSION_PREFIXES):
             row.lab_gaps.append(document)
         else:
@@ -741,7 +890,13 @@ def classify_row(record: dict[str, Any]) -> HiddenRowClassification:
             f"{fixture_id}: lane dimensions with no channel or Lab mapping: "
             f"{[gap['dimension'] for gap in row.other_unsupported]}"
         )
-    row.unobservable = [finding.to_document() for finding in model.unobservable]
+    for finding in model.unobservable:
+        if finding.dimension == EXILE_DIMENSION:
+            document, bound = _exile_finding(record, finding)
+            row.provider_gaps.append(document)
+            if bound:
+                continue
+        row.unobservable.append(finding.to_document())
     required = required_channels(kind)
     row.missing_channels = [
         name for name in required if CHANNELS_BY_NAME[name].status == CHANNEL_ABSENT

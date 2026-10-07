@@ -1,0 +1,341 @@
+{
+  "assertion_class": "KNOWLEDGE_BOUNDARY_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+  "fixture_id": "HIDDEN_11",
+  "obligation_exercised": {
+    "forbidden_events": [
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+    ],
+    "obligation_digest": "2336a10ea625ba95a36e819a57af57c205382e39fcd0bed0cf7a75cde360e44b",
+    "requested_state_digest": "b326e480861f33a9aabac35a2ce614725fed48bc7ac5e537fe2c19be0b0f2928",
+    "required_events": [
+      "knowledge_projection:HIDDEN_11:P1"
+    ],
+    "terminal_postconditions": [
+      "P1 observation exactly respects declared viewer state.",
+      "No prohibited metadata appears in any tested channel.",
+      "Knowledge invalidation/permission persistence follows the declared conditions."
+    ],
+    "viewer_obligation": "shuffle invalidates order knowledge"
+  },
+  "observed_assertion": {
+    "channel_coverage": {
+      "ability_metadata": 236,
+      "context": 28,
+      "event": 24,
+      "log": 216,
+      "option_id": 160,
+      "option_label": 160,
+      "option_metadata": 160,
+      "pile_metadata": 0,
+      "prompt": 28,
+      "source_metadata": 28,
+      "state": 43,
+      "transcript": 194
+    },
+    "checks": [
+      {
+        "detail": "arrival EXACT, construction_match True, mismatches []",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "construction_exact"
+      },
+      {
+        "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 3, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 3, 'face_down': 1}",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "lossless_checks_performed"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P1"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P2"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P3"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P4"
+      },
+      {
+        "detail": "4 distinct principal ids for 4 seats",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "distinct_principals"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P1"
+      },
+      {
+        "detail": "every channel carried content",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scan_coverage"
+      },
+      {
+        "detail": "each honey sentinel is found in the harness's own create request",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_sentinel_in_request"
+      },
+      {
+        "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_honey_identity_where_entitled"
+      },
+      {
+        "detail": "7 scripted answers, complete=True",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scripted_event_executed"
+      },
+      {
+        "detail": "1 ordered pre-shuffle ranges declared for P1",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "one_pre_shuffle_known_range_declared"
+      },
+      {
+        "detail": "3 requested objects cover declared count 3",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "known_range_is_losslessly_materialized"
+      },
+      {
+        "detail": "1 snapshots captured immediately before the shuffle action",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "pre_shuffle_snapshot_observed"
+      },
+      {
+        "detail": "1 ordered observations exactly match ['Vampiric Tutor', 'Mystical Tutor', 'Enlightened Tutor']",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "pre_shuffle_ordered_snapshot_matches_engine_look"
+      },
+      {
+        "detail": "1 P2 shuffles before snapshot; 2 after scripted event",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "native_shuffle_observed_after_ordered_snapshot"
+      },
+      {
+        "detail": "1 look observations retain exactly ['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "remembered_identity_set_observed"
+      },
+      {
+        "detail": "order_invalidated_by_shuffle=True",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "shuffle_order_invalidated_explicitly"
+      },
+      {
+        "detail": "before=['Vampiric Tutor', 'Mystical Tutor', 'Enlightened Tutor']; after=['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "pre_shuffle_order_not_retained"
+      },
+      {
+        "detail": "after=['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']; canonical=['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "invalidated_memory_is_canonical_not_engine_order"
+      },
+      {
+        "detail": "0 active library grants remain",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_active_library_grant_survives_shuffle"
+      },
+      {
+        "detail": "P2 received []",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "remembered_identity_withheld_from:P2"
+      },
+      {
+        "detail": "0 occurrences of ['Enlightened Tutor', 'Grizzly Bears', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P2"
+      },
+      {
+        "detail": "P3 received []",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "remembered_identity_withheld_from:P3"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Enlightened Tutor', 'Grizzly Bears', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P3"
+      },
+      {
+        "detail": "P4 received []",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "remembered_identity_withheld_from:P4"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Enlightened Tutor', 'Grizzly Bears', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P4"
+      }
+    ],
+    "forbidden_evidence": {
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+        "ambiguous_tokens_not_scanned": {},
+        "occurrences": [],
+        "tokens_scanned": [
+          "Demonic Tutor",
+          "Enlightened Tutor",
+          "Mystical Tutor",
+          "Vampiric Tutor",
+          "WS30_HONEY_P2_PRIVATE_7F3A",
+          "obj:hidden-hand",
+          "obj:hidden-lib-0",
+          "obj:hidden11-lib-1",
+          "obj:hidden11-lib-2"
+        ]
+      }
+    },
+    "token_evidence": {
+      "knowledge_projection:HIDDEN_11:P1": [
+        {
+          "detail": "7 scripted answers, complete=True",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "scripted_event_executed"
+        },
+        {
+          "detail": "1 ordered pre-shuffle ranges declared for P1",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "one_pre_shuffle_known_range_declared"
+        },
+        {
+          "detail": "3 requested objects cover declared count 3",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "known_range_is_losslessly_materialized"
+        },
+        {
+          "detail": "1 snapshots captured immediately before the shuffle action",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "pre_shuffle_snapshot_observed"
+        },
+        {
+          "detail": "1 ordered observations exactly match ['Vampiric Tutor', 'Mystical Tutor', 'Enlightened Tutor']",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "pre_shuffle_ordered_snapshot_matches_engine_look"
+        },
+        {
+          "detail": "1 P2 shuffles before snapshot; 2 after scripted event",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "native_shuffle_observed_after_ordered_snapshot"
+        },
+        {
+          "detail": "1 look observations retain exactly ['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "remembered_identity_set_observed"
+        },
+        {
+          "detail": "order_invalidated_by_shuffle=True",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "shuffle_order_invalidated_explicitly"
+        },
+        {
+          "detail": "before=['Vampiric Tutor', 'Mystical Tutor', 'Enlightened Tutor']; after=['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "pre_shuffle_order_not_retained"
+        },
+        {
+          "detail": "after=['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']; canonical=['Enlightened Tutor', 'Mystical Tutor', 'Vampiric Tutor']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "invalidated_memory_is_canonical_not_engine_order"
+        },
+        {
+          "detail": "0 active library grants remain",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_active_library_grant_survives_shuffle"
+        },
+        {
+          "detail": "P2 received []",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "remembered_identity_withheld_from:P2"
+        },
+        {
+          "detail": "0 occurrences of ['Enlightened Tutor', 'Grizzly Bears', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P2"
+        },
+        {
+          "detail": "P3 received []",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "remembered_identity_withheld_from:P3"
+        },
+        {
+          "detail": "0 occurrences of ['Demonic Tutor', 'Enlightened Tutor', 'Grizzly Bears', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P3"
+        },
+        {
+          "detail": "P4 received []",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "remembered_identity_withheld_from:P4"
+        },
+        {
+          "detail": "0 occurrences of ['Demonic Tutor', 'Enlightened Tutor', 'Grizzly Bears', 'Mystical Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden11-lib-1', 'obj:hidden11-lib-2']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P4"
+        }
+      ]
+    },
+    "viewer": "P1"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "2013e7505d84a72a241e88b58088fcc8f5c1008b39b979cf465b97c8f249513f",
+  "runner_digest": "63e05d2fb1e748791cbc6a2468d541b29f080df7241183632a06ffe6ddfe2b37",
+  "runtime_receipt_digest": "7961e810776eda792e2716d6f6d35564080d161b833cd8f047f019830950da98",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:knowledge-projection#HIDDEN_11"
+}
