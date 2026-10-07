@@ -76,6 +76,7 @@ final class JsonlBridge {
             case "get_constructed_state" -> getConstructedState(requestId, request);
             case "get_legal_actions" -> getLegalActions(requestId, request);
             case "resolve_mulligan" -> resolveMulligan(requestId, request);
+            case "resolve_bottom" -> resolveBottom(requestId, request);
             case "pass_priority" -> passPriority(requestId, request);
             case "submit_action" -> submitAction(requestId, request);
             case "export_event_log", "get_event_log" -> exportEventLog(requestId, request);
@@ -657,6 +658,101 @@ final class JsonlBridge {
         }
     }
 
+    /**
+     * Submit the external answer to a pending {@code london_bottom} decision.
+     *
+     * <p>The bridge never picks the card: {@code card_ids} must be exactly the
+     * engine-required count of distinct ids from the offered bottom actions. The
+     * controller rejects a stale decision id, a wrong actor, a wrong count, a
+     * duplicate id or a non-offered id with a named EXTERNAL_DECISION_* code and
+     * leaves the decision pending, so there is no default or fallback choice.</p>
+     */
+    private Result resolveBottom(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "invalid_bottom_payload",
+                    "RESOLVE_BOTTOM requires an object payload"
+            );
+            String gameId = requestGameId(request, payload);
+            String gameHandle = requireGameHandle(gameId);
+            String decisionId = stringValue(payload, "decision_id").trim();
+            String actorId = stringValue(payload, "player_id").trim();
+            if (actorId.isBlank()) {
+                actorId = stringValue(payload, "actor_id").trim();
+            }
+            if (decisionId.isBlank() || actorId.isBlank()) {
+                return error(
+                        requestId,
+                        "invalid_bottom_payload",
+                        "RESOLVE_BOTTOM requires decision_id and player_id/actor_id",
+                        false
+                );
+            }
+            List<String> cardIds = requiredStringArray(payload, "card_ids");
+
+            String preStateHash = gameManager.stateHashIfAvailable(gameHandle);
+            XmageActionExecutor.ExecutionResult executed = gameManager.resolveBottom(
+                    gameHandle,
+                    decisionId,
+                    actorId,
+                    cardIds
+            );
+            String postStateHash = gameManager.stateHashIfAvailable(gameHandle);
+            gameManager.recordExternalAction(
+                    gameHandle,
+                    executed,
+                    preStateHash,
+                    postStateHash
+            );
+
+            XmageGameManager.LegalActionsSnapshot after = gameManager.legalActions(gameHandle);
+            JsonObject responsePayload;
+            if (postStateHash == null) {
+                responsePayload = new JsonObject();
+                responsePayload.addProperty("game_id", gameId);
+                responsePayload.addProperty("executed_decision_id", executed.decisionId());
+                responsePayload.addProperty("executed_action_id", executed.actionId());
+                responsePayload.addProperty("executed_action_type", executed.actionType());
+                responsePayload.addProperty("executed_actor_id", executed.actorId());
+                responsePayload.add("state_observation_offset", JsonNull.INSTANCE);
+                responsePayload.add("observer_player_id", JsonNull.INSTANCE);
+                responsePayload.add("observer_engine_player_id", JsonNull.INSTANCE);
+                responsePayload.add("observer_seat", JsonNull.INSTANCE);
+                responsePayload.add("state", JsonNull.INSTANCE);
+                responsePayload.add("next_decision", legalActionsPayload(after));
+                responsePayload.addProperty("state_available", false);
+                responsePayload.addProperty(
+                        "state_unavailable_reason",
+                        "XMage has not established turn phase/step during the mulligan sequence"
+                );
+            } else {
+                XmageGameManager.StateSnapshot state =
+                        gameManager.snapshotState(gameHandle, executed.actorId());
+                responsePayload = actionExecutionPayload(executed, state, after);
+                responsePayload.addProperty("state_available", true);
+            }
+            responsePayload.addProperty("bottom_selection_external", true);
+            responsePayload.addProperty("bottom_card_count", cardIds.size());
+            responsePayload.addProperty("global_capability_promoted", false);
+            return success(
+                    requestId,
+                    responsePayload,
+                    false,
+                    gameManager.latestEventOffset(gameHandle)
+            );
+        } catch (XmageGameManager.GameException exc) {
+            return error(requestId, "resolve_bottom_failed", exc.getMessage(), false);
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_bottom_payload",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
     private Result passPriority(String requestId, JsonObject request) {
         try {
             JsonObject payload = requireObjectPayload(
@@ -871,6 +967,11 @@ final class JsonlBridge {
         payload.addProperty("decision_id", snapshot.decisionId());
         payload.addProperty("actor_id", snapshot.actorId());
         payload.addProperty("decision_kind", snapshot.decisionKind());
+        if (snapshot.context() == null) {
+            payload.add("context", JsonNull.INSTANCE);
+        } else {
+            payload.add("context", snapshot.context().deepCopy());
+        }
         payload.addProperty("complete", snapshot.complete());
         JsonArray actions = new JsonArray();
         snapshot.actions().forEach(actions::add);
