@@ -48,12 +48,15 @@ import java.util.UUID;
  * auto-passed, the init-phase starting-player selection honors the requested
  * seat by self-selecting, the engine-authored keep/mulligan domain is
  * published and externally resolved, and the native London bottom-card
- * callback is published as a separate engine-authored decision whose exact
- * required count of distinct offered cards must be answered externally. Every
- * other discretionary Player callback fails closed with
- * UNSUPPORTED_COMPATIBILITY_DECISION instead of silently returning a tactical
- * default. The no-controller B3 path retains bounded compatibility behavior and
- * is not gameplay evidence.
+ * callback ({@code chooseTarget(TargetCardInHand)} from
+ * {@code LondonMulligan.mulligan}) is published as a separate engine-authored
+ * decision whose exact required count of distinct offered cards must be
+ * answered externally. Any-order bulk bottom-of-library orderings (two or more
+ * cards through {@code choose(Cards,TargetCard)}) are not the London callback
+ * and stay fail-closed. Every other discretionary Player callback fails closed
+ * with UNSUPPORTED_COMPATIBILITY_DECISION instead of silently returning a
+ * tactical default. The no-controller B3 path retains bounded compatibility
+ * behavior and is not gameplay evidence.
  * GUI/out-of-scope lifecycle methods remain bounded compatibility behavior.</p>
  *
  * <p>Library shuffling is never overridden: it is Rules randomness owned by
@@ -273,10 +276,20 @@ final class XmageBridgePlayer extends PlayerImpl {
             Game game
     ) {
         if (externalDecisionController != null && BOTTOM_SELECTION.get()) {
-            return chooseBottomFromExternalDecision(
-                    new ArrayList<>(cards.getCards(game)),
-                    target,
-                    game
+            /*
+             * Pinned 1.4.61 PlayerImpl.putCardsOnBottomOfLibrary reaches this
+             * bulk callback only for an any-order ordering of two or more
+             * cards (mid-game "put the rest on the bottom in any order", e.g.
+             * Impulse/Anticipate). London mulligan bottoms one card at a time
+             * through chooseTarget(TargetCardInHand) (LondonMulligan.mulligan)
+             * and never reaches here. Publishing a london_bottom decision for
+             * this ordering would mislabel a different Rules callback, so it
+             * stays fail-closed like every other unprojected bulk ordering.
+             */
+            throw new XmageGameManager.GameException(
+                    "UNSUPPORTED_COMPATIBILITY_DECISION: any-order bulk "
+                            + "bottom-of-library ordering is not the London mulligan "
+                            + "callback; no default card order is permitted"
             );
         }
         failIfExternallyControlled("choose(Cards,TargetCard)");

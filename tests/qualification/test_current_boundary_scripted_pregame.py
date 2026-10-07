@@ -590,6 +590,37 @@ def test_a_scripted_xmage_london_bottom_submits_the_named_offered_card_id(
     ]
 
 
+def test_same_name_copies_resolve_to_the_least_engine_card_id(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Two Mountain copies offered; the record names one Mountain.
+
+    The transport submits the least engine_card_id ("m-1"), which is the
+    second offered option, never the first ("m-2"). Same-name copies are
+    outcome-equivalent for this choice (CR 103.5 selects a card; equal names
+    share identity in a hidden hand), so the least-id pick is
+    content-independent and deterministic, never positional.
+    """
+    record = _mull_record("WS05-CMD-MULL-2")
+    record["construction_validation"] = {"required": False}
+    proc = _FakeProcess(
+        roster_at_create=False,
+        engine_ids=TWO_PLAYER_IDS,
+        hands={"p1": 6, "p2": 7},
+        seed_echo=424242,
+    )
+    frame = _bottom_frame(proc.actor("p1"), [("m-2", "Mountain"), ("m-1", "Mountain")])
+    row = _bottom_row(monkeypatch, proc, _mull2_frames(proc, frame), record)
+    assert proc.bottoms == [(proc.actor("p1"), ["m-1"])], row.reason
+    assert row.outcome == "PASS", row.reason
+    submissions = row.evidence["terminal_facts"]["london_bottom_submissions"]
+    assert submissions[0]["submitted_card_ids"] == ["m-1"]
+    assert submissions[0]["offered"] == [
+        {"action_id": "bottom-0", "engine_card_id": "m-2", "card_name": "Mountain"},
+        {"action_id": "bottom-1", "engine_card_id": "m-1", "card_name": "Mountain"},
+    ]
+
+
 def test_the_bottom_is_never_answered_by_the_first_offered_option(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

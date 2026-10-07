@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mage.cards.Card;
+import mage.cards.CardsImpl;
 import mage.game.Game;
 import mage.players.Player;
 import org.junit.jupiter.api.Test;
@@ -61,9 +62,8 @@ class XmageGenericLaneBottomDecisionTest {
                 .count();
         assertEquals(7, distinctOffered);
 
-        String chosenId = actions.get(0).getAsJsonObject()
-                .getAsJsonObject("metadata")
-                .get("engine_card_id").getAsString();
+        String chosenId = engineCardId(
+                leastEngineCardIdOption(optionObjects(actions), "Mountain"));
         XmageActionExecutor.ExecutionResult executed = harness.manager.resolveBottom(
                 harness.handle,
                 bottom.decisionId(),
@@ -89,8 +89,8 @@ class XmageGenericLaneBottomDecisionTest {
     void redControlsRejectInvalidSelectionsAndKeepDecisionPending() {
         Harness harness = driveToBottom();
         XmageGameManager.LegalActionsSnapshot bottom = harness.bottom;
-        String offeredId = bottom.actions().get(0).getAsJsonObject("metadata")
-                .get("engine_card_id").getAsString();
+        String offeredId = engineCardId(
+                leastEngineCardIdOption(bottom.actions(), "Mountain"));
 
         assertRejected(
                 harness,
@@ -180,12 +180,9 @@ class XmageGenericLaneBottomDecisionTest {
         String decisionId = payload.get("decision_id").getAsString();
         JsonArray actions = payload.getAsJsonArray("actions");
         assertEquals(7, actions.size());
-        String offeredId = actions.get(0).getAsJsonObject()
-                .getAsJsonObject("metadata")
-                .get("engine_card_id")
-                .getAsString();
-        assertEquals("Mountain", actions.get(0).getAsJsonObject()
-                .getAsJsonObject("metadata")
+        JsonObject chosen = leastEngineCardIdOption(optionObjects(actions), "Mountain");
+        String offeredId = engineCardId(chosen);
+        assertEquals("Mountain", chosen.getAsJsonObject("metadata")
                 .get("card_name")
                 .getAsString());
 
@@ -212,6 +209,188 @@ class XmageGenericLaneBottomDecisionTest {
                 decisionId,
                 acceptedPayload.get("executed_decision_id").getAsString()
         );
+    }
+
+    /**
+     * Choose one offered bottom card explicitly: the least engine card id among
+     * the options carrying the named card. Never positional. In these fixtures
+     * every offered card is the same-name Mountain, so same-name copies are
+     * outcome-equivalent for this decision and the least-id pick is
+     * content-independent and deterministic.
+     */
+    private static JsonObject leastEngineCardIdOption(
+            List<JsonObject> options,
+            String cardName
+    ) {
+        JsonObject chosen = null;
+        for (JsonObject option : options) {
+            JsonObject metadata = option.getAsJsonObject("metadata");
+            if (!cardName.equals(metadata.get("card_name").getAsString())) {
+                continue;
+            }
+            if (chosen == null
+                    || engineCardId(option).compareTo(engineCardId(chosen)) < 0) {
+                chosen = option;
+            }
+        }
+        assertNotNull(chosen, "the engine must offer at least one " + cardName);
+        return chosen;
+    }
+
+    private static List<JsonObject> optionObjects(JsonArray actions) {
+        List<JsonObject> options = new ArrayList<>();
+        for (JsonElement element : actions) {
+            options.add(element.getAsJsonObject());
+        }
+        return options;
+    }
+
+    private static String engineCardId(JsonObject option) {
+        return option.getAsJsonObject("metadata")
+                .get("engine_card_id")
+                .getAsString();
+    }
+
+    @Test
+    void anyOrderBulkBottomingFailsClosedWithoutPublishingLondonBottom() {
+        XmageDeckImporter importer = new XmageDeckImporter();
+        List<String> firstDeck = new ArrayList<>();
+        for (int index = 0; index < 99; index++) {
+            firstDeck.add("Mountain");
+        }
+        List<String> secondDeck = new ArrayList<>();
+        for (int index = 0; index < 99; index++) {
+            secondDeck.add("Mountain");
+        }
+        String firstHandle = importer.importCommanderDeck(
+                "mull2-bulk-p1",
+                "mull2-bulk-hash-1",
+                firstDeck,
+                List.of("Rograkh, Son of Rohgahh")
+        ).deckHandle();
+        String secondHandle = importer.importCommanderDeck(
+                "mull2-bulk-p2",
+                "mull2-bulk-hash-2",
+                secondDeck,
+                List.of("Rograkh, Son of Rohgahh")
+        ).deckHandle();
+
+        XmageGameManager manager = new XmageGameManager(importer);
+        XmageGameManager.CreateResult created = manager.createCommanderGame(
+                "mull2-bulk-manager",
+                List.of(firstHandle, secondHandle),
+                0,
+                40,
+                true
+        );
+        manager.startGame(created.gameHandle());
+
+        XmageGameManager.LegalActionsSnapshot pending =
+                manager.legalActions(created.gameHandle());
+        assertEquals("mulligan", pending.decisionKind());
+
+        Game game = manager.requireGame(created.gameHandle());
+        XmageBridgePlayer player = (XmageBridgePlayer) game.getPlayer(
+                UUID.fromString(pending.actorId()));
+        List<Card> hand = new ArrayList<>(player.getHand().getCards(game));
+        assertEquals(7, hand.size(), "the opening hand is seven");
+
+        // Pinned PlayerImpl reaches choose(Cards,TargetCard) only for an
+        // any-order ordering of two or more cards (Impulse/Anticipate), never
+        // for the London callback. That is not a projected decision: it must
+        // fail closed, and no london_bottom decision may appear.
+        XmageGameManager.GameException failure = assertThrows(
+                XmageGameManager.GameException.class,
+                () -> player.putCardsOnBottomOfLibrary(
+                        new CardsImpl(hand.subList(0, 2)),
+                        game,
+                        null,
+                        true
+                )
+        );
+        assertTrue(
+                failure.getMessage().contains("UNSUPPORTED_COMPATIBILITY_DECISION"),
+                failure.getMessage()
+        );
+        assertTrue(
+                failure.getMessage().contains("any-order bulk bottom-of-library ordering"),
+                failure.getMessage()
+        );
+
+        XmageGameManager.LegalActionsSnapshot after =
+                manager.legalActions(created.gameHandle());
+        assertEquals(
+                "mulligan",
+                after.decisionKind(),
+                "bulk bottoming must not publish a london_bottom decision"
+        );
+        assertEquals(
+                pending.decisionId(),
+                after.decisionId(),
+                "the pending decision must be untouched"
+        );
+        assertEquals(
+                7,
+                player.getHand().size(),
+                "the failed ordering must not have moved a card"
+        );
+    }
+
+    @Test
+    void nonExternalGameKeepsItsBoundedAnyOrderBottoming() {
+        XmageDeckImporter importer = new XmageDeckImporter();
+        List<String> deck = new ArrayList<>();
+        for (int index = 0; index < 99; index++) {
+            deck.add("Mountain");
+        }
+        String firstHandle = importer.importCommanderDeck(
+                "mull2-bounded-p1",
+                "mull2-bounded-hash-1",
+                deck,
+                List.of("Rograkh, Son of Rohgahh")
+        ).deckHandle();
+        String secondHandle = importer.importCommanderDeck(
+                "mull2-bounded-p2",
+                "mull2-bounded-hash-2",
+                deck,
+                List.of("Rograkh, Son of Rohgahh")
+        ).deckHandle();
+
+        XmageGameManager manager = new XmageGameManager(importer);
+        XmageGameManager.CreateResult created = manager.createCommanderGame(
+                "mull2-bounded-manager",
+                List.of(firstHandle, secondHandle),
+                0,
+                40,
+                false,
+                424242L
+        );
+        manager.startGame(created.gameHandle());
+
+        // Without external control there is no external decision surface and no
+        // BOTTOM_SELECTION marker: the validated B3 bounded behaviour is
+        // unchanged. (London bottoming itself never occurs here: the bounded
+        // chooseMulligan keeps the opening hand.)
+        Game game = manager.requireGame(created.gameHandle());
+        XmageBridgePlayer player = (XmageBridgePlayer) game.getPlayers()
+                .values()
+                .iterator()
+                .next();
+        List<Card> hand = new ArrayList<>(player.getHand().getCards(game));
+        int libraryBefore = player.getLibrary().size();
+        assertEquals(7, hand.size(), "the bounded path keeps the opening hand");
+
+        assertTrue(
+                player.putCardsOnBottomOfLibrary(
+                        new CardsImpl(hand.subList(0, 2)),
+                        game,
+                        null,
+                        true
+                ),
+                "the bounded any-order path must keep its old true return"
+        );
+        assertEquals(hand.size() - 2, player.getHand().size());
+        assertEquals(libraryBefore + 2, player.getLibrary().size());
     }
 
     private static void assertRejected(
