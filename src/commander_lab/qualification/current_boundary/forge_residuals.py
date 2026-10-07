@@ -123,7 +123,8 @@ _CONSTRUCTION: dict[str, tuple[str, str]] = {
     ),
     "semantic_objects.face_down": (
         PROVIDER_ADAPTER_GAP,
-        "the bootstrap has no face-down field",
+        "the bootstrap constructs only battlefield MANIFESTED face-down permanents "
+        "(E-B2); this face-down object is another kind, zone or attached",
     ),
     "knowledge_state": (
         PROVIDER_ADAPTER_GAP,

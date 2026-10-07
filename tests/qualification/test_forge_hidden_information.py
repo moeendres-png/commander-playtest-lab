@@ -52,11 +52,17 @@ def test_every_mandatory_hidden_row_is_classified(records) -> None:
 
 
 def test_construction_gaps_are_the_lane_model_findings(records) -> None:
-    """Every row requests a face-down permanent and an exact library order."""
+    """Every row requests an exact library order; E-B2 closed the face-down construction gap.
+
+    Each row requests a battlefield MANIFESTED face-down permanent, which the bridge now
+    constructs (``face_down_construction`` is no longer a gap), while the record's
+    controller-only look permission stays its own ``knowledge_construction`` gap (E-B3).
+    """
     for fixture in knowledge_projection.ROWS:
         row = fh.classify_row(records[fixture])
         channels = {gap["channel"] for gap in row.provider_gaps}
-        assert "face_down_construction" in channels, fixture
+        assert "face_down_construction" not in channels, fixture
+        assert "knowledge_construction" in channels, fixture
         assert "library_construction" in channels, fixture
         dimensions = {gap["dimension"] for gap in row.provider_gaps}
         assert dimensions <= set(fh._PROVIDER_DIMENSIONS), fixture
@@ -313,6 +319,11 @@ def test_the_runner_uses_the_exact_reason_for_forge_only(records, monkeypatch) -
 
 
 def test_the_committed_matrix_is_current(records) -> None:
+    # E-B2 REPIN DEPENDENCY: EXPECTED RED until the Forge repin. The channel table and the
+    # lane now describe the E-B2 bridge (face-down construction), but this matrix is bound
+    # to the pinned bridge ee37e4a5, which predates it, so it cannot be regenerated
+    # honestly. At the repin, run scripts/run_forge_hidden_census.py and commit its output.
+    # See docs/forge_eb2_face_down_20261007/DESIGN.md. Not skipped, not deleted.
     """Stale-evidence control: the committed matrix is bound to the current contract and bridge."""
     import json
 

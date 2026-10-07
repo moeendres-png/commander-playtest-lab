@@ -204,6 +204,12 @@ _SCENARIO_SOURCE = "\n".join(
         "Card.fromPaperCard(paper, owner)",
         'entry.has("tapped")',
         "tapped must be a boolean",
+        # E-B2: the fragments of the Forge bridge's face-down placement. The real
+        # pinned bridge blob (ee37e4a5) predates them; the capability derivation
+        # against it fails closed (ScenarioCapabilityDrift) until the Forge repin.
+        "face_down must be a boolean",
+        "face_down_type unsupported: ",
+        "setManifested(new SpellAbility.EmptySa(ApiType.Manifest, card));",
         'entry.has("counters")',
         "counters must be an object",
         "counter amounts must be integers",
@@ -442,7 +448,13 @@ def _exact_observations() -> dict[str, dict]:
             life=40,
             battlefield=["Grizzly Bears"],
             battlefield_details=[
-                {"name": "Grizzly Bears", "tapped": True, "counters": {"+1/+1": 1}}
+                {
+                    "name": "Grizzly Bears",
+                    "tapped": True,
+                    "face_down": False,
+                    "face_down_type": None,
+                    "counters": {"+1/+1": 1},
+                }
             ],
             command=["Rograkh, Son of Rohgahh", "Commander Effect"],
         ),
@@ -450,7 +462,15 @@ def _exact_observations() -> dict[str, dict]:
             "p2",
             life=40,
             battlefield=["Grizzly Bears"],
-            battlefield_details=[{"name": "Grizzly Bears", "tapped": False, "counters": {}}],
+            battlefield_details=[
+                {
+                    "name": "Grizzly Bears",
+                    "tapped": False,
+                    "face_down": False,
+                    "face_down_type": None,
+                    "counters": {},
+                }
+            ],
             command=["Rograkh, Son of Rohgahh", "Commander Effect"],
             commander_damage={"Rograkh, Son of Rohgahh": 11, "Kediss, Emberclaw Familiar": 10},
         ),

@@ -79,6 +79,7 @@ RESULT_CHECKPOINT_MISMATCH = "EXECUTED_CHECKPOINT_MISMATCH"
 RESULT_OBLIGATION_NOT_OBSERVABLE = "OBLIGATION_NOT_OBSERVABLE"
 RESULT_ENGINE_REJECTED = "ENGINE_REJECTED_SCENARIO"
 RESULT_UNSUPPORTED_DIMENSION = "UNSUPPORTED_DIMENSION"
+RESULT_CHECKPOINT_UNKNOWN = "CHECKPOINT_READBACK_UNKNOWN"
 RESULT_TRANSPORT_FAILURE = "TRANSPORT_FAILURE"
 RESULT_NOT_ATTEMPTED = "NOT_ATTEMPTED"
 
@@ -87,6 +88,9 @@ CHECKPOINT_ALLOWED_VARIANCE = "ALLOWED_VARIANCE"
 CHECKPOINT_MISMATCH = "MISMATCH"
 CHECKPOINT_UNSUPPORTED_DIMENSION = "UNSUPPORTED_DIMENSION"
 CHECKPOINT_TRANSPORT_FAILURE = "TRANSPORT_FAILURE"
+# A requested field whose readback is missing or mistyped. It is never EXACT and
+# never credit-eligible (UNKNOWN != PASS).
+CHECKPOINT_UNKNOWN = "UNKNOWN"
 
 DIMENSION_SUPPORTED = "SUPPORTED"
 DIMENSION_UNSUPPORTED = "UNSUPPORTED"
@@ -269,6 +273,14 @@ _SUPPORTED_FIELD_ASSERTIONS: dict[str, tuple[str, ...]] = {
         "Card.fromPaperCard(paper, owner)",
     ),
     "battlefield.tapped": ('entry.has("tapped")', "tapped must be a boolean"),
+    # E-B2 (face-down construction, CR 708.2 / CR 701.34). Exact fragments of the
+    # Forge bridge's face-down placement: the parse rejections and the engine's own
+    # manifest state-setup call (GameState.java FaceDown/Manifested precedent).
+    "battlefield.face_down": (
+        "face_down must be a boolean",
+        "face_down_type unsupported: ",
+        "setManifested(new SpellAbility.EmptySa(ApiType.Manifest",
+    ),
     "battlefield.counters": (
         'entry.has("counters")',
         "counters must be an object",
@@ -309,6 +321,12 @@ _UNSUPPORTED_RECORD_DIMENSIONS: dict[str, str] = {
     "combat_state": "combat declaration state has no bootstrap field",
     "action_cost_state": "mid-cast cost/payment state has no bootstrap field",
     "knowledge_state": "knowledge permissions have no bootstrap field",
+    # E-B2 constructs the face-down state (CR 708.2) but not the record's
+    # controller-only look permission; that stays its own gap (E-B3).
+    "knowledge_state.face_down_look_permissions": (
+        "the record's controller-only face-down look permission has no bootstrap field; "
+        "constructing the face-down permanent does not construct the permission"
+    ),
     "rules_randomness.predetermined_semantic_draws": "predetermined draws have no bootstrap field",
 }
 
@@ -366,11 +384,29 @@ _UNOBSERVABLE_RECORD_DIMENSIONS: dict[str, str] = {
     "exile": "exile is exposed as names only, with no semantic identity mapping",
     "graveyard": "graveyard is exposed as names only, with no semantic identity mapping",
     "revealed": "revealed zones have no generic projection",
-    "face_down": "face-down state has no bootstrap field and no generic projection",
     "controlled_since_turn_began": "no bootstrap field; attack eligibility is engine-derived",
     "prior_command_zone_cast_count": "no bootstrap field for command-zone cast counts",
     "temporal_state": "the bootstrap hook runs at the first-turn untap; other checkpoints are reachable only by native progression",
 }
+
+
+# E-B2: the only face-down kind the bridge constructs (CR 701.34 manifest). Any other
+# requested kind, a non-battlefield face-down object, or an attached face-down
+# permanent has no bootstrap path and stays a hard unsupported dimension.
+FACE_DOWN_SUPPORTED_TYPES = frozenset({"MANIFESTED"})
+_FACE_DOWN_UNSUPPORTED_DETAIL = (
+    "the bootstrap places only battlefield MANIFESTED face-down permanents "
+    "(face_down + face_down_type MANIFESTED, not attached); other face-down kinds, "
+    "zones and attached permanents have no bootstrap field"
+)
+
+
+def _states_look_permission(obj: dict[str, Any]) -> bool:
+    """Whether a record object's construction notes grant a look permission."""
+    return any(
+        isinstance(note, str) and "look permission" in note.lower()
+        for note in obj.get("construction_notes") or ()
+    )
 
 
 def derive_capability_matrix(source: ForgeScenarioSource, root: Path) -> dict[str, Any]:
@@ -531,6 +567,10 @@ def _requested_battlefield(record: dict[str, Any]) -> list[dict[str, Any]]:
         }
         if obj.get("tapped"):
             entry["tapped"] = True
+        if obj.get("face_down") is True:
+            entry["face_down"] = True
+            if obj.get("face_down_type") is not None:
+                entry["face_down_type"] = obj.get("face_down_type")
         counters = obj.get("counters") or {}
         if counters:
             entry["counters"] = dict(counters)
@@ -751,12 +791,16 @@ def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
     for obj in record.get("semantic_objects") or []:
         if not isinstance(obj, dict):
             continue
-        if obj.get("face_down"):
+        if obj.get("face_down") and not (
+            obj.get("zone") == "battlefield"
+            and obj.get("face_down_type") in FACE_DOWN_SUPPORTED_TYPES
+            and not obj.get("attached_to")
+        ):
             dimensions.append(
                 DimensionFinding(
                     dimension="semantic_objects.face_down",
                     status=DIMENSION_UNSUPPORTED,
-                    detail=_UNOBSERVABLE_RECORD_DIMENSIONS["face_down"],
+                    detail=_FACE_DOWN_UNSUPPORTED_DETAIL,
                     requested=obj.get("semantic_id"),
                 )
             )
@@ -766,6 +810,17 @@ def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
                     dimension="semantic_objects.controlled_since_turn_began",
                     status=DIMENSION_UNOBSERVABLE,
                     detail=_UNOBSERVABLE_RECORD_DIMENSIONS["controlled_since_turn_began"],
+                    requested=obj.get("semantic_id"),
+                )
+            )
+        if obj.get("face_down") and _states_look_permission(obj):
+            dimensions.append(
+                DimensionFinding(
+                    dimension="knowledge_state.face_down_look_permissions",
+                    status=DIMENSION_UNSUPPORTED,
+                    detail=_UNSUPPORTED_RECORD_DIMENSIONS[
+                        "knowledge_state.face_down_look_permissions"
+                    ],
                     requested=obj.get("semantic_id"),
                 )
             )
@@ -1351,6 +1406,57 @@ def _normalize_phase(value: Any) -> str | None:
     return _PHASE_ALIASES.get(text, text)
 
 
+def _face_down_verdicts(placement: dict[str, Any], detail: dict[str, Any]) -> list[FieldVerdict]:
+    """E-B2 field verdicts for one placement's face-down state (CR 708.2).
+
+    Whether a permanent is face down is public, so ``face_down`` is read from the
+    placement's readback and compared strictly (``is True`` / ``is False``, never
+    ``bool()`` coercion: 0, 1, "true" and a missing key are no readback). The
+    kind (``face_down_type``) is compared only when the record states one, and
+    only from the controller-observer readback ``detail`` was taken from; a
+    missing or non-string kind is UNKNOWN, never PASS.
+    """
+    semantic_id = placement.get("semantic_id")
+    requested = placement.get("face_down") is True
+    observed = detail.get("face_down")
+    if not isinstance(observed, bool):
+        verdict = CHECKPOINT_UNKNOWN
+        note = "the readback carries no boolean face_down"
+    else:
+        verdict = CHECKPOINT_EXACT if observed is requested else CHECKPOINT_MISMATCH
+        note = ""
+    verdicts = [
+        FieldVerdict(
+            field=f"battlefield.{semantic_id}.face_down",
+            verdict=verdict,
+            requested=requested,
+            observed=observed,
+            detail=note,
+        )
+    ]
+    requested_type = placement.get("face_down_type") if requested else None
+    if requested_type is not None:
+        observed_type = detail.get("face_down_type")
+        if not isinstance(observed_type, str):
+            type_verdict = CHECKPOINT_UNKNOWN
+            type_note = "the controller-observer readback carries no face_down_type"
+        else:
+            type_verdict = (
+                CHECKPOINT_EXACT if observed_type == requested_type else CHECKPOINT_MISMATCH
+            )
+            type_note = ""
+        verdicts.append(
+            FieldVerdict(
+                field=f"battlefield.{semantic_id}.face_down_type",
+                verdict=type_verdict,
+                requested=requested_type,
+                observed=observed_type,
+                detail=type_note,
+            )
+        )
+    return verdicts
+
+
 def compare_checkpoint(
     model: RequestedStateModel, seat_observations: dict[str, dict[str, Any]]
 ) -> CheckpointEquivalence:
@@ -1534,10 +1640,23 @@ def compare_checkpoint(
                 )
             )
 
-    # battlefield placement / tapped / counters
+    # battlefield placement / tapped / face_down / counters
     for placement in model.battlefield:
         controller = placement["controller"]
-        row = players.get(controller)
+        face_down_requested = placement.get("face_down") is True
+        # A face-down permanent's identity is visible only to its controller (and to
+        # explicit may-look grants), so its name-keyed readback comes from the
+        # controller's own seat view; every other placement keeps the primary view.
+        view_players = players
+        controller_view_missing = False
+        if face_down_requested:
+            controller_observation = seat_observations.get(controller)
+            if controller_observation is None:
+                controller_view_missing = True
+                view_players = {}
+            else:
+                view_players = _players_by_id(_state_view(controller_observation))
+        row = view_players.get(controller)
         zones = row.get("zones") if isinstance(row, dict) else {}
         battlefield = zones.get("battlefield") if isinstance(zones, dict) else []
         details = zones.get("battlefield_details") if isinstance(zones, dict) else []
@@ -1560,6 +1679,8 @@ def compare_checkpoint(
         )
         if present:
             placement_verdict = CHECKPOINT_EXACT
+        elif controller_view_missing:
+            placement_verdict = CHECKPOINT_UNKNOWN
         elif losing_controller:
             placement_verdict = "CAUSE_ADVANCE"
         else:
@@ -1572,6 +1693,7 @@ def compare_checkpoint(
                     "card": placement["card"],
                     "controller": controller,
                     "tapped": bool(placement.get("tapped")),
+                    "face_down": face_down_requested,
                     "counters": placement.get("counters") or {},
                 },
                 observed=(
@@ -1580,6 +1702,7 @@ def compare_checkpoint(
                     else {
                         "name": detail.get("name"),
                         "tapped": detail.get("tapped"),
+                        "face_down": detail.get("face_down"),
                         "counters": detail.get("counters"),
                     }
                 ),
@@ -1588,6 +1711,9 @@ def compare_checkpoint(
                     "permanents leave by the declared native cause, not by construction "
                     "variation"
                     if placement_verdict == "CAUSE_ADVANCE"
+                    else "no readback from the controller's own view; a face-down "
+                    "identity is not visible to other seats"
+                    if placement_verdict == CHECKPOINT_UNKNOWN
                     else ""
                 ),
             )
@@ -1606,6 +1732,7 @@ def compare_checkpoint(
                     observed=observed_tapped,
                 )
             )
+            verdicts.extend(_face_down_verdicts(placement, detail))
             counter_requested = Counter(_canonical_counters(placement.get("counters") or {}))
             counter_observed = Counter(_canonical_counters(detail.get("counters") or {}))
             if counter_requested or counter_observed:
@@ -1647,12 +1774,15 @@ def compare_checkpoint(
     unsupported = [item.dimension for item in model.hard_unsupported]
     unobservable = [item.dimension for item in model.unobservable]
     mismatches = [item for item in verdicts if item.verdict == CHECKPOINT_MISMATCH]
+    unknowns = [item for item in verdicts if item.verdict == CHECKPOINT_UNKNOWN]
     cause_advances = [item for item in verdicts if item.verdict == "CAUSE_ADVANCE"]
     variance_source: str | None = None
     if unsupported:
         verdict = CHECKPOINT_UNSUPPORTED_DIMENSION
     elif mismatches:
         verdict = CHECKPOINT_MISMATCH
+    elif unknowns:
+        verdict = CHECKPOINT_UNKNOWN
     elif unobservable:
         verdict = CHECKPOINT_UNSUPPORTED_DIMENSION
     elif cause_advances:
@@ -3361,6 +3491,14 @@ def probe_row(
         elif equivalence.unobservable_dimensions:
             result = RESULT_UNSUPPORTED_DIMENSION
             reasons = [f"{item.dimension}: {item.detail}" for item in model.unobservable]
+        elif equivalence.verdict == CHECKPOINT_UNKNOWN:
+            result = RESULT_CHECKPOINT_UNKNOWN
+            reasons = [
+                f"{item.field}: requested={item.requested!r} observed={item.observed!r}"
+                f" {item.detail}".rstrip()
+                for item in equivalence.fields
+                if item.verdict == CHECKPOINT_UNKNOWN
+            ]
         else:
             result = RESULT_CHECKPOINT_MISMATCH
             reasons = [
