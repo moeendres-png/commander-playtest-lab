@@ -89,22 +89,25 @@ alone closes such a row; otherwise it is the first Lab gap:
 An unmapped dimension or token raises instead of defaulting to a class.
 
 ## Result
-Updated for contract 1.0.21 (#441: the TURN-3/5, PILOT_PILE, PILOT_CHOOSE_USE,
-NEGATIVE_DEFAULT_YES_NO, MULL-2/4 and MICRO_LAYERS errata); the matrix is regenerated from
-the effective contract.
+Updated for contract 1.0.22 (#441: the START-2 natural-start and MULL-2/4
+Rules-randomness errata); the matrix is regenerated from the effective contract by
+`scripts/run_forge_residual_census.py`.
 
 | Class | Rows (of 70) |
 |---|---|
-| `LAB_EXECUTION_GAP` | 36 |
+| `LAB_EXECUTION_GAP` | 37 |
 | `PROVIDER_ADAPTER_GAP` | 19 |
 | `SCENARIO_LANE_EXECUTABLE` | 13 (six already PASS in the baseline epoch, the six causal commander zone rows, and WS05-MP-ELIM-STACK-3: the victim's own stack, then the declared elimination) |
-| `CONTRACT_AUTHORITY_GAP` | 2 (WS05-CMD-START-2, WS05-CMD-START-3: unscripted starting player) |
+| `CONTRACT_AUTHORITY_GAP` | 1 (WS05-CMD-START-3: unscripted starting player) |
 
-The matrix describes the scenario lane only. WS05-CMD-START-2 passes in the baseline on
-the generic lane's own route; in the scenario lane it is now a `CONTRACT_AUTHORITY_GAP`
-for the same unscripted starting player. Whether the generic route's starter selection
-(`game_driver.STARTING_PLAYER_POLICY`, default seat `p1`) has contract authority is an
-open impact question for the #441 reassembly; see Findings.
+The matrix describes the scenario lane only. WS05-CMD-START-2 passed in the baseline on
+the generic lane's own route; contract 1.0.22 (#441 comment 6007651998) made it a
+natural-start record read at turn 0 whose starting player and keeps are scripted
+decisions, so its starting player is no longer a contract gap. In the scenario lane its
+first missing mechanism is now the native progression to turn 1, then the scripted
+starting-player and keep selectors (all `LAB_EXECUTION_GAP`; a scripted keep needs no
+tuck). The generic route now runs START-2's starter and keeps from the record and
+credits the starter only when it is verifiably executed (#441).
 
 The 19 provider gaps break down as follows:
 - 10 rows need an event log (MICRO_LAYERS no longer does: its layer tokens are
@@ -194,7 +197,7 @@ every mechanism of every row; the table shows the first one.
 | WS05-CMD-PARTNER-DMG (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
 | WS05-CMD-PARTNER-TAX | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | WS05-CMD-PARTNER-ZONE (PASS in epoch `18f0097373e6`) | SCENARIO_LANE_EXECUTABLE | — | — |
-| WS05-CMD-START-2 (PASS in epoch `18f0097373e6`, generic route; authority to re-check) | CONTRACT_AUTHORITY_GAP | execution: `decision_execution.starting_player.unscripted` | — |
+| WS05-CMD-START-2 (historical PASS in epoch `18f0097373e6` on the superseded 1.0.21 record; requalification required) | LAB_EXECUTION_GAP | construction: `temporal_state.turn_number` | — |
 | WS05-CMD-START-3 | CONTRACT_AUTHORITY_GAP | execution: `decision_execution.starting_player.unscripted` | — |
 | WS05-CMD-TAX-2 | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
 | WS05-CMD-TAX-4 | LAB_EXECUTION_GAP | construction: `action_cost_state` | — |
@@ -267,9 +270,9 @@ check fails closed instead of guessing. WS05-CMD-START-2 passes on its own route
    (requested cards present, extra natural cards allowed). Any XMage credit that rests
    on that weakened comparison must be impact-adjudicated before reuse.
 2. **Starting player (adjudicated).** A starting-player obligation without a scripted
-   response is a `CONTRACT_AUTHORITY_GAP`. **Impact flag for #441:** WS05-CMD-START-2's
-   baseline PASS on the generic route must be re-checked for the authority of its starter
-   selection (`fixture_scripted_seat`, default `p1`).
+   response is a `CONTRACT_AUTHORITY_GAP`. Resolved for WS05-CMD-START-2 by contract
+   1.0.22 (#441): its baseline PASS is historical, and the record now scripts the
+   starter and keeps.
 3. **MICRO_CONTINUOUS_EFFECTS** stays construction-dependent. Forge's bootstrap gives P1
    six cards at the checkpoint, so the 1.0.20 obligation's 13/13 P/T is XMage's
    construction. This repeats flag 1 of the #456 comment on #255.
