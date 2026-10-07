@@ -29,6 +29,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -72,6 +73,7 @@ FIXTURE_CLASS_VOCABULARY = (
 )
 FAILING_ROW_STATES = ("FAIL", "CRASH", "TIMEOUT", "PROTOCOL_FAILURE")
 UNRESOLVED_ROW_STATES = ("UNKNOWN", "BLOCKED")
+HEX64 = re.compile(r"^[0-9a-fA-F]{64}$")
 
 # Section-F dimensions of issue #255.  Fixture ids are explicit so that coverage
 # is auditable; a fixture may inform more than one dimension.
@@ -373,6 +375,38 @@ DIMENSIONS: tuple[dict[str, Any], ...] = (
 CANDIDATES = ("xmage", "forge")
 CANDIDATE_FILES = {"xmage": "XMAGE", "forge": "FORGE"}
 
+# Explicit, fail-closed evidence requirements for dimensions whose backing gate
+# subject is broader than the dimension itself.  A cell may become PASS only when
+# these exact sealed facts are present, so a dimension can never inherit PASS
+# from an adjacent gate subject without its own dimension-specific evidence.
+REQUIRED_GATE_EVIDENCE: dict[str, tuple[dict[str, str], ...]] = {
+    "process_isolation": (
+        {
+            "gate": "AF11",
+            "evidence_prefix": (
+                "each candidate was driven through its own distinct external adapter"
+            ),
+            "meaning": "each candidate is reached only through its own external adapter process",
+        },
+        {
+            "gate": "AF11",
+            "evidence_prefix": ("no adapter identity resolves to the Lab's in-tree engine package"),
+            "meaning": "no engine code is embedded in the Lab process",
+        },
+    ),
+}
+
+# Bounded-6P status derivation from the sealed failure facts.  A fail-closed
+# refusal that only proves the record could not be driven stays UNKNOWN with the
+# sealed cause; a FAIL-class failure is FAIL; unknown vocabulary fails closed so
+# it can never be rendered as a benign NOT_RUN/UNSUPPORTED.
+BOUNDED_6P_REFUSAL_STATUS = {
+    "FAIL_CLOSED_UNSATISFIED": "UNKNOWN",
+    "RECORD_REFUSED": "UNKNOWN",
+}
+BOUNDED_6P_FAILURE_STATUS = {state: "FAIL" for state in FAILING_ROW_STATES}
+BOUNDED_6P_FAILURE_STATUS["ENGINE_RUNTIME_ERROR"] = "FAIL"
+
 # Known residuals named by issue #255, kept explicitly beside the current sealed
 # state.  The sealed state is read from the epoch; only the issue-recorded label
 # is a constant.
@@ -448,9 +482,11 @@ def verify_epoch(epoch_root: Path, repo_root: Path = REPO_ROOT) -> dict[str, Any
         if not raw.strip():
             continue
         parts = raw.split("  ", 1)
-        if len(parts) != 2 or len(parts[0]) != 64:
+        if len(parts) != 2 or not HEX64.fullmatch(parts[0]):
             raise FailClosed(f"malformed manifest line {lineno}: {raw!r}")
         digest, relative = parts[0], parts[1]
+        if relative in entries:
+            raise FailClosed(f"duplicate manifest entry {lineno}: {relative!r}")
         entries[relative] = digest
     if entries == {}:
         raise FailClosed(f"epoch manifest is empty: {manifest_path}")
@@ -516,6 +552,23 @@ def _gate_verdicts(document: dict[str, Any]) -> dict[str, str]:
         if required not in verdicts:
             raise FailClosed(f"AF matrix is missing gate {required}")
     return verdicts
+
+
+def _gate_documents(document: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    gates: dict[str, dict[str, Any]] = {}
+    for gate in document["gates"]:
+        gate_id = gate["gate"]
+        if gate_id in gates:
+            raise FailClosed(f"duplicate AF gate: {gate_id}")
+        gates[gate_id] = gate
+    return gates
+
+
+def _gate_row_field(gate: dict[str, Any], field: str) -> list[str]:
+    value = gate.get(field)
+    if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+        raise FailClosed(f"gate {gate.get('gate')} lacks a valid {field} list")
+    return list(value)
 
 
 def _row_states(document: dict[str, Any]) -> dict[str, str]:
@@ -700,6 +753,49 @@ def derive_status(gate_verdicts: dict[str, str], fixture_states: list[str]) -> s
     return "UNKNOWN"
 
 
+def missing_required_gate_evidence(
+    gate_documents: dict[str, dict[str, Any]],
+    requirements: tuple[dict[str, str], ...],
+) -> list[str]:
+    """Return the dimension-specific gate evidence facts that are absent."""
+
+    missing: list[str] = []
+    for requirement in requirements:
+        gate = gate_documents.get(requirement["gate"])
+        if gate is None:
+            missing.append(f"{requirement['gate']}: gate missing")
+            continue
+        if not any(
+            str(item).startswith(requirement["evidence_prefix"])
+            for item in gate.get("evidence", [])
+        ):
+            missing.append(f"{requirement['gate']}: {requirement['evidence_prefix']!r}")
+    return missing
+
+
+def derive_bounded_6p_status(candidate: str, result_6p: dict[str, Any]) -> tuple[str, str, str]:
+    """Derive the bounded-6P cell status from the sealed failure facts.
+
+    A fail-closed refusal that only proves the record could not be driven stays
+    UNKNOWN with the sealed cause.  A FAIL-class failure is FAIL.  Unknown
+    vocabulary fails closed: it is never rendered as a benign NOT_RUN/UNSUPPORTED.
+    """
+
+    failure_kind = result_6p.get("failure_kind")
+    if failure_kind in BOUNDED_6P_REFUSAL_STATUS:
+        return (
+            BOUNDED_6P_REFUSAL_STATUS[failure_kind],
+            f"BOUNDED_6P_{failure_kind}_RECORD_AUTHORITY_GAP",
+            str(failure_kind),
+        )
+    if failure_kind in BOUNDED_6P_FAILURE_STATUS:
+        return ("FAIL", f"BOUNDED_6P_FAILURE_{failure_kind}", str(failure_kind))
+    raise FailClosed(
+        f"unknown bounded-6P failure_kind for {candidate}: {failure_kind!r}; "
+        "the cell fails closed rather than rendering a benign status"
+    )
+
+
 def _citation(file: str, field: str, value: Any, kind: str) -> dict[str, str]:
     return {"file": file, "field": field, "value": str(value), "kind": kind}
 
@@ -712,71 +808,103 @@ def _candidate_dimension(
     fixture_classes: dict[str, str],
     epoch_root: str,
     epoch: dict[str, Any],
+    gate_documents: dict[str, dict[str, Any]],
 ) -> dict[str, Any]:
+    gate_file = f"{epoch_root}/AF00_AF11_{CANDIDATE_FILES[candidate]}.json"
     gate_citations = [
         _citation(
-            f"{epoch_root}/AF00_AF11_{CANDIDATE_FILES[candidate]}.json",
+            gate_file,
             f"gates[gate={gate_id}].verdict",
             gate_verdicts[gate_id],
             "AF_GATE_VERDICT",
         )
         for gate_id in dimension["gates"]
     ]
+    gate_blocking_rows = {
+        gate_id: _gate_row_field(gate_documents[gate_id], "blocking_rows")
+        for gate_id in dimension["gates"]
+    }
+    gate_limitations = {
+        gate_id: _gate_row_field(gate_documents[gate_id], "nonblocking_limitations")
+        for gate_id in dimension["gates"]
+    }
+    gate_residuals: list[str] = []
+    gate_fact_citations: list[dict[str, str]] = []
+    for gate_id in dimension["gates"]:
+        gate_residuals.extend(
+            f"{gate_id} blocking row: {row}" for row in gate_blocking_rows[gate_id]
+        )
+        gate_residuals.extend(
+            f"{gate_id} limitation: {limitation}" for limitation in gate_limitations[gate_id]
+        )
+        gate_fact_citations.append(
+            _citation(
+                gate_file,
+                f"gates[gate={gate_id}].blocking_rows",
+                gate_blocking_rows[gate_id],
+                "AF_GATE_BLOCKING_ROWS",
+            )
+        )
+        gate_fact_citations.append(
+            _citation(
+                gate_file,
+                f"gates[gate={gate_id}].nonblocking_limitations",
+                gate_limitations[gate_id],
+                "AF_GATE_NONBLOCKING_LIMITATIONS",
+            )
+        )
     status_basis = "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS"
 
     if dimension["special"] == "bounded_6p":
         cardinality = epoch[f"PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json"]
         result_6p = cardinality["results"]["6P"]
-        if candidate == "xmage":
-            capabilities = cardinality["runtime_identity"]["capabilities_provider_reported"]
-            if capabilities.get("max_players") != 5:
-                raise FailClosed("XMage bounded-6P declaration changed; re-adjudicate this cell")
-            status = "UNSUPPORTED"
-            status_basis = "PROVIDER_DECLARED_MAX_PLAYERS_5"
-            residuals = [
-                "declared capability max_players=5; the 6P attempt is additionally recorded "
-                f"fail-closed: {result_6p['failure_kind']}",
-            ]
-            citations = [
-                *gate_citations,
+        status, status_basis, failure_kind = derive_bounded_6p_status(candidate, result_6p)
+        failure_text = result_6p.get("failure")
+        if not isinstance(failure_text, str) or not failure_text:
+            raise FailClosed("bounded-6P result does not state its sealed failure cause")
+        terminal_facts = result_6p.get("terminal_facts") or {}
+        start_status = terminal_facts.get("start_status")
+        if start_status is not None and not isinstance(start_status, str):
+            raise FailClosed("bounded-6P start_status is not a string; re-adjudicate this cell")
+        residuals = [
+            f"6P bounded secondary evidence is not established ({failure_kind}); "
+            f"sealed start_status={start_status!r}; sealed cause: {failure_text}"
+        ]
+        citations = [
+            *gate_citations,
+            *gate_fact_citations,
+            _citation(
+                f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json",
+                "results.6P.failure_kind",
+                failure_kind,
+                "BOUNDED_6P_RESULT",
+            ),
+            _citation(
+                f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json",
+                "results.6P.failure",
+                failure_text,
+                "BOUNDED_6P_RESULT",
+            ),
+        ]
+        if start_status is not None:
+            citations.append(
                 _citation(
-                    f"{epoch_root}/PLAYER_CARDINALITY_XMAGE.json",
-                    "runtime_identity.capabilities_provider_reported.max_players",
-                    5,
-                    "PROVIDER_CAPABILITY_DECLARATION",
-                ),
-                _citation(
-                    f"{epoch_root}/PLAYER_CARDINALITY_XMAGE.json",
-                    "results.6P.failure_kind",
-                    result_6p["failure_kind"],
+                    f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json",
+                    "results.6P.terminal_facts.start_status",
+                    start_status,
                     "BOUNDED_6P_RESULT",
-                ),
-            ]
-        else:
-            if result_6p.get("terminal_facts", {}).get("created_player_count") != 6:
-                raise FailClosed(
-                    "Forge bounded-6P construction fact changed; re-adjudicate this cell"
                 )
-            status = "NOT_RUN"
-            status_basis = "BOUNDED_6P_LIFECYCLE_NOT_COMPLETED_RECORD_AUTHORITY_GAP"
-            residuals = [
-                f"6P construction reached, lifecycle not completed: {result_6p['failure_kind']}",
-            ]
-            citations = [
-                *gate_citations,
+            )
+        created_player_count = terminal_facts.get("created_player_count")
+        if created_player_count is not None:
+            citations.append(
                 _citation(
-                    f"{epoch_root}/PLAYER_CARDINALITY_FORGE.json",
-                    "results.6P.failure_kind",
-                    result_6p["failure_kind"],
-                    "BOUNDED_6P_RESULT",
-                ),
-                _citation(
-                    f"{epoch_root}/PLAYER_CARDINALITY_FORGE.json",
+                    f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json",
                     "results.6P.terminal_facts.created_player_count",
-                    6,
+                    created_player_count,
                     "BOUNDED_6P_RESULT",
-                ),
-            ]
+                )
+            )
         return {
             "status": status,
             "status_basis": status_basis,
@@ -787,20 +915,33 @@ def _candidate_dimension(
             "fixture_status_counts": {},
             "fixture_ids": [],
             "fixture_classes": {},
+            "gate_blocking_rows": gate_blocking_rows,
+            "gate_nonblocking_limitations": gate_limitations,
             "blocking_rows": [],
-            "residuals": residuals,
+            "residuals": [*residuals, *gate_residuals],
             "citations": citations,
         }
 
     fixtures = tuple(sorted(dimension["fixtures"]))
-    counts, blocking = _dimension_fixture_status(fixtures, row_states)
+    counts, fixture_blocking = _dimension_fixture_status(fixtures, row_states)
     fixture_states = [row_states[fixture_id] for fixture_id in fixtures]
     status = derive_status(
         {gate_id: gate_verdicts[gate_id] for gate_id in dimension["gates"]}, fixture_states
     )
+    required_evidence = REQUIRED_GATE_EVIDENCE.get(dimension["key"], ())
+    missing_evidence = missing_required_gate_evidence(gate_documents, required_evidence)
+    if status == "PASS" and missing_evidence:
+        raise FailClosed(
+            f"{dimension['key']}/{candidate} would be PASS without required gate evidence: "
+            f"{missing_evidence}"
+        )
 
+    gate_blocking_flat = [
+        row for gate_id in dimension["gates"] for row in gate_blocking_rows[gate_id]
+    ]
+    blocking = sorted(set(gate_blocking_flat) | set(fixture_blocking))
     cited_fixtures = fixtures if status == "PASS" or not blocking else tuple(blocking)
-    citations = list(gate_citations)
+    citations = [*gate_citations, *gate_fact_citations]
     for fixture_id in cited_fixtures:
         citations.append(
             _citation(
@@ -819,7 +960,8 @@ def _candidate_dimension(
                 "FIXTURE_CLASS",
             )
         )
-    residuals = [f"{fixture_id}: {row_states[fixture_id]}" for fixture_id in blocking]
+    residuals = [f"{fixture_id}: {row_states[fixture_id]}" for fixture_id in fixture_blocking]
+    residuals.extend(gate_residuals)
     return {
         "status": status,
         "status_basis": status_basis,
@@ -828,6 +970,8 @@ def _candidate_dimension(
         "fixture_status_counts": counts,
         "fixture_ids": list(fixtures),
         "fixture_classes": {fixture_id: fixture_classes[fixture_id] for fixture_id in fixtures},
+        "gate_blocking_rows": gate_blocking_rows,
+        "gate_nonblocking_limitations": gate_limitations,
         "blocking_rows": blocking,
         "residuals": residuals,
         "citations": citations,
@@ -843,10 +987,23 @@ def build_packet(repo_root: Path = REPO_ROOT, epoch_name: str = DEFAULT_EPOCH) -
     epoch_root = f"qualification/current-boundary-epochs/{epoch_root_path.name}"
 
     identity = epoch["EFFECTIVE_FULL107_MANIFEST.json"]
+    gate_documents = {
+        candidate: _gate_documents(epoch[f"AF00_AF11_{CANDIDATE_FILES[candidate]}.json"])
+        for candidate in CANDIDATES
+    }
     gate_verdicts = {
         candidate: _gate_verdicts(epoch[f"AF00_AF11_{CANDIDATE_FILES[candidate]}.json"])
         for candidate in CANDIDATES
     }
+    gate_names: dict[str, str] = {}
+    for candidate in CANDIDATES:
+        for gate_id, gate in gate_documents[candidate].items():
+            name = gate.get("name")
+            if not isinstance(name, str) or not name:
+                raise FailClosed(f"gate {gate_id} lacks a name")
+            if gate_id in gate_names and gate_names[gate_id] != name:
+                raise FailClosed(f"gate {gate_id} name differs between candidates")
+            gate_names[gate_id] = name
     row_states = {
         candidate: _row_states(epoch[f"FULL107_{CANDIDATE_FILES[candidate]}_RESULTS.json"])
         for candidate in CANDIDATES
@@ -912,6 +1069,13 @@ def build_packet(repo_root: Path = REPO_ROOT, epoch_name: str = DEFAULT_EPOCH) -
                 "key": dimension["key"],
                 "name": dimension["name"],
                 "backing_af_gates": list(dimension["gates"]),
+                "backing_af_gate_names": {
+                    gate_id: gate_names[gate_id] for gate_id in dimension["gates"]
+                },
+                "required_gate_evidence": [
+                    dict(requirement)
+                    for requirement in REQUIRED_GATE_EVIDENCE.get(dimension["key"], ())
+                ],
                 "section_f_source": "issue-255 section F",
                 "candidates": {
                     candidate: _candidate_dimension(
@@ -922,6 +1086,7 @@ def build_packet(repo_root: Path = REPO_ROOT, epoch_name: str = DEFAULT_EPOCH) -
                         fixture_classes,
                         epoch_root,
                         epoch,
+                        gate_documents[candidate],
                     )
                     for candidate in CANDIDATES
                 },
@@ -1075,6 +1240,37 @@ def validate_packet(packet: dict[str, Any]) -> None:
                 raise FailClosed(
                     f"unknown dimension status: {dimension['key']}/{candidate}={status}"
                 )
+            backing_gates = set(dimension["backing_af_gates"])
+            if set(cell["gate_blocking_rows"]) != backing_gates:
+                raise FailClosed(
+                    f"gate blocking-row mapping does not match backing gates: "
+                    f"{dimension['key']}/{candidate}"
+                )
+            if set(cell["gate_nonblocking_limitations"]) != backing_gates:
+                raise FailClosed(
+                    f"gate limitation mapping does not match backing gates: "
+                    f"{dimension['key']}/{candidate}"
+                )
+            gate_rows = {row for rows in cell["gate_blocking_rows"].values() for row in rows}
+            if not gate_rows <= set(cell["blocking_rows"]):
+                raise FailClosed(
+                    f"gate blocking rows are missing from the cell blocking rows: "
+                    f"{dimension['key']}/{candidate}"
+                )
+            for gate_id, rows in cell["gate_blocking_rows"].items():
+                for row in rows:
+                    if f"{gate_id} blocking row: {row}" not in cell["residuals"]:
+                        raise FailClosed(
+                            f"gate blocking row missing from residuals: "
+                            f"{dimension['key']}/{candidate}/{gate_id}/{row}"
+                        )
+            for gate_id, limitations in cell["gate_nonblocking_limitations"].items():
+                for limitation in limitations:
+                    if f"{gate_id} limitation: {limitation}" not in cell["residuals"]:
+                        raise FailClosed(
+                            f"gate nonblocking limitation missing from residuals: "
+                            f"{dimension['key']}/{candidate}/{gate_id}"
+                        )
             verdicts = cell["backing_af_verdicts"].values()
             if status == "PASS":
                 if any(verdict != "PASS" for verdict in verdicts):
@@ -1083,6 +1279,10 @@ def validate_packet(packet: dict[str, Any]) -> None:
                     )
                 if cell["blocking_rows"]:
                     raise FailClosed(f"PASS with blocking rows: {dimension['key']}/{candidate}")
+                if any(cell["gate_blocking_rows"].values()):
+                    raise FailClosed(
+                        f"PASS with gate blocking rows: {dimension['key']}/{candidate}"
+                    )
                 for citation in cell["citations"]:
                     if citation["kind"] == "FIXTURE_ROW_STATE" and citation["value"] != "PASS":
                         raise FailClosed(
@@ -1096,9 +1296,10 @@ def validate_packet(packet: dict[str, Any]) -> None:
             for citation in cell["citations"]:
                 if citation["kind"] not in {
                     "AF_GATE_VERDICT",
+                    "AF_GATE_BLOCKING_ROWS",
+                    "AF_GATE_NONBLOCKING_LIMITATIONS",
                     "FIXTURE_ROW_STATE",
                     "FIXTURE_CLASS",
-                    "PROVIDER_CAPABILITY_DECLARATION",
                     "BOUNDED_6P_RESULT",
                 }:
                     raise FailClosed(f"unknown citation kind: {citation['kind']}")
@@ -1191,6 +1392,55 @@ def render_markdown(packet: dict[str, Any]) -> str:
         lines.append(
             f"| {dimension['id']} | {dimension['name']} | {gate_summaries[0]} | {gate_summaries[1]} |"
         )
+    lines.append("")
+    lines.append("## Dimension-to-backing-gate mapping")
+    lines.append("")
+    lines.append(
+        "AF10 (RUNTIME_EVIDENCE_RELIABILITY) is cross-cutting and is not a backing gate "
+        "of any section-F dimension; its denominator accounting is cited through the "
+        "sealed epoch and the optional metrics."
+    )
+    lines.append("")
+    lines.append(
+        "| # | Dimension | Backing AF gates | Required dimension-specific evidence facts |"
+    )
+    lines.append("| --- | --- | --- | --- |")
+    for dimension in packet["dimensions"]:
+        gates = ", ".join(
+            f"{gate_id} ({dimension['backing_af_gate_names'][gate_id]})"
+            for gate_id in dimension["backing_af_gates"]
+        )
+        required = dimension.get("required_gate_evidence") or []
+        facts = (
+            "; ".join(f"{item['gate']}: {item['meaning']}" for item in required).replace("|", "\\|")
+            if required
+            else "-"
+        )
+        lines.append(f"| {dimension['id']} | {dimension['name']} | {gates} | {facts} |")
+    lines.append("")
+    lines.append("## Backing-gate residuals (blocking rows and nonblocking limitations)")
+    lines.append("")
+    lines.append(
+        "Every backing gate's sealed blocking rows and nonblocking limitations are carried "
+        "beside the dimension, including beside PASS cells."
+    )
+    lines.append("")
+    lines.append("| # | Dimension | Candidate | Gate | Blocking rows | Nonblocking limitations |")
+    lines.append("| --- | --- | --- | --- | --- | --- |")
+    for dimension in packet["dimensions"]:
+        for candidate in CANDIDATES:
+            cell = dimension["candidates"][candidate]
+            for gate_id in dimension["backing_af_gates"]:
+                rows = cell["gate_blocking_rows"][gate_id]
+                limitations = cell["gate_nonblocking_limitations"][gate_id]
+                if not rows and not limitations:
+                    continue
+                row_text = ", ".join(rows).replace("|", "\\|") if rows else "-"
+                limitation_text = "; ".join(limitations).replace("|", "\\|") if limitations else "-"
+                lines.append(
+                    f"| {dimension['id']} | {dimension['name']} | {candidate} | {gate_id} | "
+                    f"{row_text} | {limitation_text} |"
+                )
     lines.append("")
     lines.append("## Known residuals (issue-recorded state beside current sealed state)")
     lines.append("")

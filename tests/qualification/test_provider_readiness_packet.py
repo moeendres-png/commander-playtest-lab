@@ -16,6 +16,7 @@ artifact must fail closed before anything is read.
 from __future__ import annotations
 
 import copy
+import hashlib
 import importlib.util
 import json
 import shutil
@@ -138,6 +139,8 @@ def test_every_dimension_carries_both_candidates_and_required_fields(
                 "backing_af_verdicts",
                 "fixture_ids",
                 "fixture_classes",
+                "gate_blocking_rows",
+                "gate_nonblocking_limitations",
                 "blocking_rows",
                 "residuals",
                 "citations",
@@ -198,9 +201,10 @@ def test_all_citations_resolve_into_the_sealed_epoch(packet: dict[str, Any], sea
     root = packet["sealed_evidence_root"]
     allowed_kind = {
         "AF_GATE_VERDICT",
+        "AF_GATE_BLOCKING_ROWS",
+        "AF_GATE_NONBLOCKING_LIMITATIONS",
         "FIXTURE_ROW_STATE",
         "FIXTURE_CLASS",
-        "PROVIDER_CAPABILITY_DECLARATION",
         "BOUNDED_6P_RESULT",
     }
     for dimension in packet["dimensions"]:
@@ -361,18 +365,172 @@ def test_non_claims_and_no_ranking(packet: dict[str, Any]) -> None:
     assert "selects no provider" in packet["authority"]
 
 
-def test_bounded_6p_special_states_are_stated(packet: dict[str, Any]) -> None:
+def test_bounded_6p_states_derived_from_sealed_failure(packet: dict[str, Any], sealed: Any) -> None:
+    """The bounded-6P cells are derived from the sealed failure facts, not labels."""
+
     dimension = next(item for item in packet["dimensions"] if item["key"] == "bounded_6p")
-    assert dimension["candidates"]["xmage"]["status"] == "UNSUPPORTED"
-    assert dimension["candidates"]["forge"]["status"] == "NOT_RUN"
     for candidate in CANDIDATES:
-        assert dimension["candidates"][candidate]["residuals"]
+        cell = dimension["candidates"][candidate]
+        result = sealed(
+            f"{packet['sealed_evidence_root']}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json"
+        )["results"]["6P"]
+        assert result["failure_kind"] == "FAIL_CLOSED_UNSATISFIED"
+        assert cell["status"] == "UNKNOWN"
+        assert cell["status"] != "UNSUPPORTED"
+        assert "FAIL_CLOSED_UNSATISFIED" in cell["status_basis"]
+        assert any(result["failure"] in residual for residual in cell["residuals"])
+        assert any(result["failure_kind"] in residual for residual in cell["residuals"])
+        assert not any(
+            citation["kind"] == "PROVIDER_CAPABILITY_DECLARATION" for citation in cell["citations"]
+        )
+        assert not any("max_players" in residual for residual in cell["residuals"])
+
+
+def test_fail_class_bounded_6p_never_renders_benign(generator: Any) -> None:
+    """Red control: a FAIL-class 6P result must never become NOT_RUN/UNSUPPORTED."""
+
+    for failure_kind in (
+        "FAIL",
+        "CRASH",
+        "TIMEOUT",
+        "PROTOCOL_FAILURE",
+        "ENGINE_RUNTIME_ERROR",
+    ):
+        status, basis, kind = generator.derive_bounded_6p_status(
+            "forge", {"failure_kind": failure_kind, "failure": "sealed failure"}
+        )
+        assert status == "FAIL", failure_kind
+        assert status not in {"NOT_RUN", "UNSUPPORTED"}
+        assert failure_kind in basis
+        assert kind == failure_kind
+    with pytest.raises(generator.FailClosed, match="unknown bounded-6P failure_kind"):
+        generator.derive_bounded_6p_status(
+            "forge", {"failure_kind": "SOMETHING_NEW", "failure": "sealed failure"}
+        )
+
+
+def test_gate_blocking_rows_reach_dimension_cells(packet: dict[str, Any], sealed: Any) -> None:
+    """AF-gate blocking rows are carried into the cells and the residuals."""
+
+    dimension = next(item for item in packet["dimensions"] if item["id"] == 2)
+    for candidate in CANDIDATES:
+        cell = dimension["candidates"][candidate]
+        sealed_gate = next(
+            gate
+            for gate in sealed(
+                f"{packet['sealed_evidence_root']}/AF00_AF11_{CANDIDATE_FILES[candidate]}.json"
+            )["gates"]
+            if gate["gate"] == "AF04"
+        )
+        assert cell["gate_blocking_rows"]["AF04"] == sealed_gate["blocking_rows"]
+        assert sealed_gate["blocking_rows"] == [
+            "PLAYER_COUNT_2P",
+            "PLAYER_COUNT_3P",
+            "PLAYER_COUNT_4P",
+            "PLAYER_COUNT_5P",
+        ]
+        for row in sealed_gate["blocking_rows"]:
+            assert row in cell["blocking_rows"]
+            assert f"AF04 blocking row: {row}" in cell["residuals"]
+        for limitation in sealed_gate["nonblocking_limitations"]:
+            assert f"AF04 limitation: {limitation}" in cell["residuals"]
+
+
+def test_pass_cells_render_backing_gate_nonblocking_limitations(
+    packet: dict[str, Any],
+) -> None:
+    """PASS cells keep every backing gate's nonblocking limitations."""
+
+    dimension = next(item for item in packet["dimensions"] if item["id"] == 1)
+    for candidate in CANDIDATES:
+        cell = dimension["candidates"][candidate]
+        assert cell["status"] == "PASS"
+        limitations = cell["gate_nonblocking_limitations"]["AF03"]
+        assert any(
+            "not an exhaustive proof of deck legality" in limitation for limitation in limitations
+        )
+        assert any(
+            "not an exhaustive proof of deck legality" in residual for residual in cell["residuals"]
+        )
+        assert not cell["gate_blocking_rows"]["AF03"]
+
+
+def test_process_isolation_mapping_is_explicit(packet: dict[str, Any]) -> None:
+    """Dimension 19 maps explicitly and cannot inherit PASS from AF11 alone."""
+
+    dimension = next(item for item in packet["dimensions"] if item["id"] == 19)
+    assert dimension["backing_af_gates"] == ["AF11"]
+    required = dimension["required_gate_evidence"]
+    assert required
+    assert all(item["gate"] == "AF11" for item in required)
+    for candidate in CANDIDATES:
+        cell = dimension["candidates"][candidate]
+        assert cell["backing_af_verdicts"]["AF11"] != "PASS"
+        assert cell["status"] != "PASS"
+
+
+def test_process_isolation_pass_requires_process_isolation_evidence(generator: Any) -> None:
+    """Red control: AF11 PASS without the process-isolation facts fails closed."""
+
+    requirements = generator.REQUIRED_GATE_EVIDENCE["process_isolation"]
+    dimension = next(item for item in generator.DIMENSIONS if item["key"] == "process_isolation")
+    bare_gate = {
+        "gate": "AF11",
+        "verdict": "PASS",
+        "evidence": [],
+        "blocking_rows": [],
+        "nonblocking_limitations": [],
+    }
+    bare = {"AF11": bare_gate}
+    assert generator.missing_required_gate_evidence(bare, requirements)
+    with pytest.raises(generator.FailClosed, match="required gate evidence"):
+        generator._candidate_dimension(
+            "xmage", dimension, {"AF11": "PASS"}, {}, {}, "epoch-root", {}, bare
+        )
+
+    full_gate = copy.deepcopy(bare_gate)
+    full_gate["evidence"] = [item["evidence_prefix"] + ": sealed fact" for item in requirements]
+    full = {"AF11": full_gate}
+    assert generator.missing_required_gate_evidence(full, requirements) == []
+    cell = generator._candidate_dimension(
+        "xmage", dimension, {"AF11": "PASS"}, {}, {}, "epoch-root", {}, full
+    )
+    assert cell["status"] == "PASS"
+
+
+def test_manifest_parser_rejects_non_hex_and_duplicate_digests(
+    generator: Any, tmp_path: Path
+) -> None:
+    """Red controls for the manifest parser: non-64-hex and duplicate entries."""
+
+    fake_repo = tmp_path / "repo-manifest"
+    target = fake_repo / "epoch"
+    target.mkdir(parents=True)
+    artifact = target / "a.json"
+    artifact.write_text("{}\n", encoding="utf-8")
+    manifest = target / "CURRENT_BOUNDARY_SHA256SUMS"
+
+    manifest.write_text("z" * 64 + "  epoch/a.json\n", encoding="utf-8")
+    with pytest.raises(generator.FailClosed, match="malformed manifest"):
+        generator.verify_epoch(target, fake_repo)
+
+    manifest.write_text("abc  epoch/a.json\n", encoding="utf-8")
+    with pytest.raises(generator.FailClosed, match="malformed manifest"):
+        generator.verify_epoch(target, fake_repo)
+
+    digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    manifest.write_text(f"{digest}  epoch/a.json\n{digest}  epoch/a.json\n", encoding="utf-8")
+    with pytest.raises(generator.FailClosed, match="duplicate manifest entry"):
+        generator.verify_epoch(target, fake_repo)
 
 
 def test_markdown_mirrors_json(packet: dict[str, Any]) -> None:
     markdown = PACKET_MD.read_text(encoding="utf-8")
     assert "PRODUCTION_PROVIDER = NOT_SELECTED" in markdown
     assert "ARCHITECTURE_FREEZE = NOT_CLAIMED" in markdown
+    assert "Dimension-to-backing-gate mapping" in markdown
+    assert "Backing-gate residuals" in markdown
+    assert "not an exhaustive proof of deck legality" in markdown
     for dimension in packet["dimensions"]:
         assert dimension["name"] in markdown
     for residual in packet["known_residuals"]:
