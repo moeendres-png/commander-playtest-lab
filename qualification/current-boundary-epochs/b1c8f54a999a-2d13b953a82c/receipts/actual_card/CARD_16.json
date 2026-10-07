@@ -1,0 +1,89 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_16",
+  "obligation_exercised": {
+    "obligation_digest": "d0c2b1eee4b2225a49ab9219b5d81999d2c175804a3ec5b15d9e67acd6ef75ad",
+    "requested_state_digest": "c73ab4b536fcf42d25d0d5b3e155de783b01235f59bcf4dacba324572887146b",
+    "required_events": [
+      "draw_card",
+      "Crawler_trigger",
+      "draw_card",
+      "Crawler_trigger"
+    ],
+    "terminal_checks": [
+      "P1 holds exactly 13 cards",
+      "P1 moved exactly 2 card(s) from library to hand",
+      "P2 is at 17 life",
+      "P3 is at 17 life",
+      "P4 is at 17 life",
+      "every Psychosis Crawler on P1's battlefield is 13/13"
+    ],
+    "terminal_postconditions": [
+      "P1 hand size=13 and Crawler is 13/13 absent other modifiers.",
+      "P2/P3/P4 are each at 17 life."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "6355ee836e67baf842c4cdc1a914af6171ffa6d28f4d0f9d8781327eb64984d6",
+      "size": 7107607
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "P1 holds exactly 13 cards",
+          "P1 moved exactly 2 card(s) from library to hand"
+        ],
+        "check": "every Psychosis Crawler on P1's battlefield is 13/13",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P1 hand size=13 and Crawler is 13/13 absent other modifiers."
+      },
+      {
+        "also": [
+          "P3 is at 17 life",
+          "P4 is at 17 life"
+        ],
+        "check": "P2 is at 17 life",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P2/P3/P4 are each at 17 life."
+      }
+    ],
+    "terminal_facts": {
+      "P1 holds exactly 13 cards": true,
+      "P1 moved exactly 2 card(s) from library to hand": true,
+      "P2 is at 17 life": true,
+      "P3 is at 17 life": true,
+      "P4 is at 17 life": true,
+      "every Psychosis Crawler on P1's battlefield is 13/13": true
+    },
+    "token_evidence": {
+      "Crawler_trigger": {
+        "binding": "exactly 2 TRIGGERED_ABILITY event(s) with source_object=obj:card_16-subject",
+        "events": [
+          16,
+          17
+        ]
+      },
+      "draw_card": {
+        "binding": "P1 moved exactly 2 card(s) from library to hand",
+        "observation": "engine terminal observation"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "e99b86c53626a6f4cd6ab17d6742d936e693ed2015771f70679a1436dcefd685",
+  "runner_digest": "b9b419e07fa37afc044c753af81cfd596bf1f75520036b69df5afdec17ccc081",
+  "runtime_receipt_digest": "a4fca6b4438f95ea4304410e2a9295716f0dbf4aaf14ba0d166de60570d247d8",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_16"
+}

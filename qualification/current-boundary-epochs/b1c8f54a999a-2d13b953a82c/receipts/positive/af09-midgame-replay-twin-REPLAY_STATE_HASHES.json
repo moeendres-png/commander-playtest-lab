@@ -1,0 +1,39 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "execution_mode": "AF09_MIDGAME_CLEAN_PROCESS_REPLAY_TWIN",
+  "fixture_id": "REPLAY_STATE_HASHES",
+  "obligation_exercised": {
+    "obligation_digest": "83e98a7c36ba6775c0969ed2f04f433edb7db620398f20ff9144c1ef6cb39b5a",
+    "requested_state_digest": "9913c8ac73367925d7ce6ed43b38e420fec89f28d5ff1d953e0dc02421ae0b0c",
+    "required_events": [
+      "rules_rng:library_shuffle:P1",
+      "decision:choose_mode:create_devils",
+      "create_Devil_token:3"
+    ],
+    "terminal_postconditions": [
+      "Three Devil tokens exist under P1 after resolution.",
+      "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+      "Privileged/public/actor-scoped hashes exclude process-local identity."
+    ]
+  },
+  "observed_assertion": {
+    "comparison_verdict": "PASS",
+    "row_properties": {
+      "clean_replay_equal_checkpoints": true,
+      "privileged_hashes_recorded": true,
+      "process_local_identity_differs": true,
+      "public_and_actor_hashes_recorded": true,
+      "scenario_obligation_observed": true
+    },
+    "twin_digest": "7f58fb97e448a0f6c56a1ee62904fa7f907b18ac3c8a1a23af6c8d7d77fa3a41"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "7302962822336a297683190daa3f2e96d9a86294ee1317866a0e731c4cb5bd41",
+  "runner_digest": "b9b419e07fa37afc044c753af81cfd596bf1f75520036b69df5afdec17ccc081",
+  "runtime_receipt_digest": "7f58fb97e448a0f6c56a1ee62904fa7f907b18ac3c8a1a23af6c8d7d77fa3a41",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af09-midgame-replay-twin#REPLAY_STATE_HASHES"
+}
