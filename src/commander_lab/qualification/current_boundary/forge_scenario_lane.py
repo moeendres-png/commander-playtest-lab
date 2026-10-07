@@ -3263,7 +3263,7 @@ def evaluate_stack_controller_eliminated(
         "stack_empty_after_loss": after is not None
         and after.get("stack") == []
         and str(after.get("priority_player_id") or "").lower() in survivors,
-        "victim_spell_not_resolved_to_graveyard": isinstance(victim_graveyard, list)
+        "victim_spell_absent_from_victim_graveyard": isinstance(victim_graveyard, list)
         and not any(
             str(card) in {spell.card for spell in plan.spells} for card in victim_graveyard
         ),
@@ -3885,6 +3885,17 @@ def _obligation_exercised(
     return exercised
 
 
+def _receipt_assertion_class(evidence: RowEvidence) -> str:
+    """The receipt's assertion class, naming who declared any checkpoint variance."""
+    checkpoint = evidence.fields.get("checkpoint_equivalence") or {}
+    if checkpoint.get("verdict") != CHECKPOINT_ALLOWED_VARIANCE:
+        return "BEHAVIOUR_OBSERVED"
+    verdicts = {str(item.get("verdict")) for item in checkpoint.get("fields") or []}
+    if CHECKPOINT_CAUSAL_SUBSTITUTION in verdicts:
+        return "BEHAVIOUR_OBSERVED_LAB_DECLARED_CAUSAL_SUBSTITUTION"
+    return "BEHAVIOUR_OBSERVED_FIXTURE_DECLARED_CAUSE_VARIANCE"
+
+
 def positive_receipt(
     evidence: RowEvidence,
     record: dict[str, Any],
@@ -3917,7 +3928,6 @@ def positive_receipt(
             f"{evidence.fixture_id}: the effective record carries no exact "
             "requested-state/obligation digest"
         )
-    checkpoint = (evidence.fields.get("checkpoint_equivalence") or {}).get("verdict")
     assertion = _receipt_observed_assertion(evidence)
     document: dict[str, Any] = {
         "schema_version": receipt_mod.POSITIVE_FIXTURE_RECEIPT_SCHEMA,
@@ -3934,13 +3944,10 @@ def positive_receipt(
             record, classification.get("obligation_kind"), state_digest, obligation_digest
         ),
         "observed_assertion": assertion,
-        # A fixture-declared native player-loss cause is recorded as such, never
-        # relabelled EXACT: the checkpoint verdict travels with the receipt.
-        "assertion_class": (
-            "BEHAVIOUR_OBSERVED_FIXTURE_DECLARED_CAUSE_VARIANCE"
-            if checkpoint == CHECKPOINT_ALLOWED_VARIANCE
-            else "BEHAVIOUR_OBSERVED"
-        ),
+        # A variance is recorded with its authority, never relabelled EXACT: a
+        # fixture-declared native player-loss cause and the Lab-declared causal
+        # life substitution (CAUSAL_ROWS) are distinct classes.
+        "assertion_class": _receipt_assertion_class(evidence),
         "assertion_kind": "POSITIVE_BEHAVIOUR",
         "outcome": "PASS",
         "runtime_receipt_digest": assertion["row_document_sha256"],

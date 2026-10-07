@@ -20,6 +20,7 @@ from __future__ import annotations
 import copy
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -648,3 +649,28 @@ def test_an_empty_run_is_unobserved_not_passed(record) -> None:
     assert not verdict.observed and not verdict.credit_eligible_observation
     failed = _verdict(model, fcr.CausalRun(failure="boom"))
     assert not failed.observed and "boom" in failed.reason
+
+
+@pytest.mark.parametrize(
+    ("field_verdicts", "expected"),
+    [
+        (
+            ["EXACT", fsl.CHECKPOINT_CAUSAL_SUBSTITUTION],
+            "BEHAVIOUR_OBSERVED_LAB_DECLARED_CAUSAL_SUBSTITUTION",
+        ),
+        (["EXACT", "CAUSE_ADVANCE"], "BEHAVIOUR_OBSERVED_FIXTURE_DECLARED_CAUSE_VARIANCE"),
+    ],
+)
+def test_the_receipt_names_who_declared_the_variance(field_verdicts, expected) -> None:
+    """A Lab-declared life substitution is never receipted as fixture-declared."""
+    evidence = SimpleNamespace(
+        fields={
+            "checkpoint_equivalence": {
+                "verdict": fsl.CHECKPOINT_ALLOWED_VARIANCE,
+                "fields": [{"verdict": v} for v in field_verdicts],
+            }
+        }
+    )
+    assert fsl._receipt_assertion_class(evidence) == expected
+    exact = SimpleNamespace(fields={"checkpoint_equivalence": {"verdict": fsl.CHECKPOINT_EXACT}})
+    assert fsl._receipt_assertion_class(exact) == "BEHAVIOUR_OBSERVED"
