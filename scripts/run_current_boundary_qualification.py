@@ -949,7 +949,9 @@ def run_native_suites_with_shadow_overlap(
     candidates' groups and the XMage phases. The Forge future is joined before
     this function returns, so no caller can consume a Forge native receipt
     before it exists and a Forge-thread failure is re-raised rather than being
-    dropped at pool shutdown.
+    dropped at pool shutdown. A failure raised on the calling thread stays
+    authoritative: when the Forge thread failed too, that failure is chained as
+    the primary exception's cause instead of superseding it.
 
     The returned receipts are in candidate order (for the PB-03 candidate set:
     the XMage groups, then the Forge groups), identical to the serial path.
@@ -971,10 +973,19 @@ def run_native_suites_with_shadow_overlap(
                 receipts_by_candidate[candidate] = run_all_native_suites(runner, (candidate,))
             if xmage_phases is not None:
                 xmage_phases()
-        finally:
-            # Join before returning: a Forge receipt must exist before anything
-            # consumes it, and a worker failure must propagate to the run.
-            receipts_by_candidate["forge"] = forge_future.result()
+        except BaseException as primary_error:
+            # The calling thread's failure stays authoritative. Still join the
+            # Forge worker: when it failed too, that failure is chained behind
+            # the primary instead of superseding it, and it can never be
+            # dropped silently at pool shutdown.
+            try:
+                forge_future.result()
+            except BaseException as forge_error:
+                raise primary_error from forge_error
+            raise
+        # Join before returning: a Forge receipt must exist before anything
+        # consumes it, and a worker failure must propagate to the run.
+        receipts_by_candidate["forge"] = forge_future.result()
     return [receipt for candidate in candidates for receipt in receipts_by_candidate[candidate]]
 
 

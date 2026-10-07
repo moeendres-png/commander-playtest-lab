@@ -10,7 +10,14 @@ Compared, per candidate:
 - the AF00-AF11 gate verdicts and blocking-row sets;
 - the FULL107 outcome counts;
 - the exit state of every FULL107 fixture row;
-- every native receipt's tests/failures/errors/skipped counts.
+- every native receipt's return code, test/failure/error/skip counts and
+  unexecuted-class set.
+
+The five raw XMage-only phase documents (PB03_RUNTIME_EXECUTION.json,
+MIDGAME_ROW_EXECUTIONS.json, KNOWLEDGE_PROJECTION_EXECUTIONS.json,
+MIDGAME_REPLAY_TWIN_EXECUTIONS.json, ACTUAL_CARD_CAMPAIGN_XMAGE.json) are not
+read directly: a divergence there is only a difference when it reaches the
+derived AF00-AF11 verdicts or the FULL107 rows, which are compared above.
 
 One line is printed per difference and the exit code is non-zero when any
 difference exists. This comparison is a shadow-experiment control, never
@@ -85,10 +92,12 @@ def _native_state(root: Path) -> dict[str, dict[str, Any]]:
             continue
         key = f"{document.get('candidate')}:{document.get('group')}"
         state[key] = {
+            "returncode": document.get("returncode"),
             "tests": document.get("tests"),
             "failures": document.get("failed"),
             "errors": document.get("errors"),
             "skipped": document.get("skipped"),
+            "unexecuted_classes": sorted(document.get("unexecuted_classes") or ()),
         }
     return state
 
@@ -155,7 +164,14 @@ def _compare_native_receipts(differences: list[str], serial_root: Path, shadow_r
             side = "serial" if left is None else "shadow"
             differences.append(f"native receipt {key}: missing from the {side} packet")
             continue
-        for field in ("tests", "failures", "errors", "skipped"):
+        for field in (
+            "returncode",
+            "tests",
+            "failures",
+            "errors",
+            "skipped",
+            "unexecuted_classes",
+        ):
             if left[field] != right[field]:
                 differences.append(
                     f"native receipt {key} {field}: serial={left[field]!r} shadow={right[field]!r}"

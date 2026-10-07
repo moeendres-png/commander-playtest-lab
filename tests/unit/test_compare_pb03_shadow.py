@@ -2,9 +2,9 @@
 
 The comparator exists to answer one question: did the shadow overlap change any
 semantic outcome? These tests pin that it detects the outcomes that matter (an
-AF gate verdict, a FULL107 count and row state, a native-suite failure count)
-and ignores the run noise that legitimately differs (timestamps, receipt
-digests, run ids).
+AF gate verdict, a FULL107 count and row state, a native-suite failure count, a
+native-suite return code, an unexecuted class) and ignores the run noise that
+legitimately differs (timestamps, receipt digests, run ids).
 """
 
 from __future__ import annotations
@@ -34,6 +34,8 @@ def _write_packet(
     pass_count: int = 102,
     row_b_state: str = "UNKNOWN",
     forge_direct_failed: int = 0,
+    forge_direct_returncode: int = 0,
+    forge_direct_unexecuted: list[str] | None = None,
     stamp: str = "2026-01-01T00:00:00+00:00",
     run_id: str = "111111",
 ) -> None:
@@ -74,17 +76,20 @@ def _write_packet(
     receipts.mkdir(parents=True, exist_ok=True)
     for candidate in ("xmage", "forge"):
         for group in ("direct", "mechanism"):
+            is_forge_direct = (candidate, group) == ("forge", "direct")
             (receipts / f"native-{candidate}-{group}.json").write_text(
                 json.dumps(
                     {
                         "candidate": candidate,
                         "group": group,
                         "tests": 10,
-                        "failed": forge_direct_failed
-                        if (candidate, group) == ("forge", "direct")
-                        else 0,
+                        "failed": forge_direct_failed if is_forge_direct else 0,
                         "errors": 0,
                         "skipped": 0,
+                        "returncode": forge_direct_returncode if is_forge_direct else 0,
+                        "unexecuted_classes": (
+                            list(forge_direct_unexecuted or ()) if is_forge_direct else []
+                        ),
                         "started_utc": stamp,
                         "ended_utc": stamp,
                         "receipt_digest": f"digest-{stamp}",
@@ -137,6 +142,41 @@ def test_a_changed_native_failure_count_is_detected(tmp_path: Path) -> None:
         "native receipt forge:direct failures" in line and "serial=0" in line and "shadow=2" in line
         for line in differences
     ), differences
+
+
+def test_a_changed_native_return_code_is_detected(tmp_path: Path) -> None:
+    module = _module()
+    serial, shadow = tmp_path / "serial", tmp_path / "shadow"
+    _write_packet(serial)
+    _write_packet(shadow, forge_direct_returncode=1)
+    differences = module.compare_packets(serial, shadow)
+    assert any(
+        "native receipt forge:direct returncode" in line
+        and "serial=0" in line
+        and "shadow=1" in line
+        for line in differences
+    ), differences
+
+
+def test_a_changed_native_unexecuted_class_set_is_detected(tmp_path: Path) -> None:
+    module = _module()
+    serial, shadow = tmp_path / "serial", tmp_path / "shadow"
+    _write_packet(serial)
+    _write_packet(shadow, forge_direct_unexecuted=["ForgeDirectResidualTest"])
+    differences = module.compare_packets(serial, shadow)
+    assert any(
+        "native receipt forge:direct unexecuted_classes" in line
+        and "shadow=['ForgeDirectResidualTest']" in line
+        for line in differences
+    ), differences
+
+
+def test_reordered_unexecuted_classes_are_not_a_difference(tmp_path: Path) -> None:
+    module = _module()
+    serial, shadow = tmp_path / "serial", tmp_path / "shadow"
+    _write_packet(serial, forge_direct_unexecuted=["AlphaTest", "BetaTest"])
+    _write_packet(shadow, forge_direct_unexecuted=["BetaTest", "AlphaTest"])
+    assert module.compare_packets(serial, shadow) == []
 
 
 def test_timestamps_durations_and_run_ids_are_ignored(tmp_path: Path) -> None:
