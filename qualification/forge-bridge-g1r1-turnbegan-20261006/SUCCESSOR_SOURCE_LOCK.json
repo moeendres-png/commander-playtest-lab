@@ -2,7 +2,7 @@
  "schema_version": "commander-lab.forge-bridge-successor-source-lock/1.0.0",
  "workstream": "forge-bridge-g1r1-turnbegan-20261006",
  "classification": "SUCCESSOR_BRIDGE_MATERIALIZATION_SOURCE",
- "status": "PR34_HEAD_EXACT_HEAD_CI_PENDING_PB03_PENDING",
+ "status": "PR34_HEAD_EXACT_HEAD_CI_GREEN_PB03_PENDING",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -48,15 +48,16 @@
  },
  "exact_head_qualification": {
   "commit": "31cbae12640e6066499aa7f17c9bf2dba6a30da6",
-  "ci_status": "PENDING",
+  "ci_status": "GREEN",
   "github_test_build": [
    {
     "run_id": 37634912575,
     "event": "push",
-    "status": "in_progress",
-    "java17": "PENDING",
-    "java21": "PENDING",
-    "note": "the exact-head push Test build run; in_progress at lock-writing time (started 2026-10-07T14:13:37Z). PENDING is not PASS; this lock is re-adjudicated when it completes. The pull_request run 37634922429 mirrors it."
+    "status": "completed",
+    "conclusion": "success",
+    "java17": "success",
+    "java21": "success",
+    "note": "the exact-head push Test build run; 'Test with Java 21' completed success at 2026-10-07T14:43:14Z and 'Test with Java 17' at 2026-10-07T14:44:19Z. The pull_request run 37634922429 also completed success at 14:45:39Z."
    }
   ],
   "github_ios_mobivm": [

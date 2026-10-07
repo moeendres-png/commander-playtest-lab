@@ -78,10 +78,10 @@ merged onto the forge#35 successor line `d9e356aa`; over `d9e356aa` only the thr
 2. `tests/qualification/test_forge_hidden_information.py::test_the_committed_matrix_is_current`
    is green on the regenerated matrix; the expected-red comment is removed.
 3. `qualification/forge-bridge-g1r1-turnbegan-20261006/SUCCESSOR_SOURCE_LOCK.json` records the
-   new source, its ancestry and its exact-head CI: Test build push run `37634912575` is
-   **PENDING** (in progress at lock-writing time) and the iOS compatibility gate push run
-   `37634912612` plus pull-request run `37634922406` completed success. PENDING is not PASS;
-   the lock is re-adjudicated when the Test build completes. No prior run id is reused.
+   new source, its ancestry and its exact-head CI: Test build push run `37634912575` completed
+   **success** (Java 17/21; the pull_request run `37634922429` mirrors it) and the iOS
+   compatibility gate push run `37634912612` plus pull-request run `37634922406` completed
+   success. No prior run id is reused; PB-03 stays PENDING.
 4. `scripts/run_forge_residual_census.py` was re-run: no change (source-independent).
 
 The census is bound to the pinned blobs, not computed in scratch:
