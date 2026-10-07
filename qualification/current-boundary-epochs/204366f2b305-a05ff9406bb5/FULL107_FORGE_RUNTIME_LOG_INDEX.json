@@ -1,0 +1,6458 @@
+{
+ "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+ "candidate": "forge",
+ "denominator_complete": true,
+ "runtime_identity": {
+  "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+  "adapter_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+  "adapter_tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+  "bridge_identity": {
+   "actual_bridge_module_tree": "3fac19bfd1b29718e29774935fd6bb1a3471b181",
+   "actual_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+   "bridge_module": "forge-protocol2-bridge",
+   "detail": "the executing checkout's forge-protocol2-bridge module tree is identical to the bound bridge/evidence commit's, so the bridge that executes is the bridge the evidence is about; the Rules Core is bound separately by tree equivalence",
+   "expected_bridge_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+   "expected_bridge_module_tree": "3fac19bfd1b29718e29774935fd6bb1a3471b181",
+   "expected_bridge_tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+   "identical": true,
+   "justification": "EXACT_BRIDGE_COMMIT",
+   "recorded_commit_tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e"
+  },
+  "bridge_source_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+  "bridge_source_tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+  "capabilities_provider_reported": {
+   "action_submission_supported": false,
+   "commander_damage_visible": true,
+   "commander_supported": true,
+   "commander_tax_visible": true,
+   "concede_supported": true,
+   "constructed_state_scope": "orchestration_keyed_digests_refused_without_launch_key",
+   "constructed_state_supported": true,
+   "deck_import_supported": true,
+   "engine_shutdown_supported": true,
+   "event_log_supported": false,
+   "game_shutdown_supported": true,
+   "headless_supported": true,
+   "healthcheck_supported": true,
+   "legal_actions_supported": false,
+   "max_players": 6,
+   "min_players": 2,
+   "mode_selection_supported": true,
+   "mulligan_supported": false,
+   "multiplayer_supported": true,
+   "notes": [
+    "WS202 executable surface: pre-floated pool mana payment with framed ambiguity, single-target selection, X/number, modes, trigger/replacement/static ordering, copy/entity/spell/zone/color selections, alternate costs, commander-move confirms, priority concession, and complete attack/block declarations (each whole declaration validated by CombatUtil.validateAttackers/validateBlocks, including multi-block; more than four candidate attackers or blockers fail closed); multi-target/divided, sacrifice/discard/exile costs and choice-mana outputs still fail closed; global legal_actions_supported and action_submission_supported stay false until the full decision surface qualifies",
+    "partner commanders import but pod-level partner lifecycle is not yet qualified",
+    "mulligan keep/ship is externally decided per player; London-tuck selection aborts loudly",
+    "seeds are bound per session via native MyRandom; global scope requires single-flight seeded execution for twin determinism",
+    "scenario bootstrap establishes battlefield/hands/life only through native zone/lifecycle APIs inside the engine-owned start hook; outcomes, stack, decisions and continuous effects are never injected",
+    "external event export is disabled for principal privacy; the bridge audit trail remains internal engineering evidence only",
+    "replay is not offered: deterministic replay is not claimed"
+   ],
+   "partner_supported": false,
+   "priority_visible": true,
+   "replay_supported": false,
+   "runtime_kind": "external_rules_engine",
+   "scenario_injection_supported": true,
+   "seed_supported": true,
+   "stack_visible": true,
+   "starting_state_injection_supported": true,
+   "target_selection_supported": true,
+   "trigger_order_supported": true
+  },
+  "engine_candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "engine_candidate_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+  "evidence_epoch": {
+   "epoch_id": "204366f2b305-a05ff9406bb5",
+   "epoch_root": "qualification/current-boundary-epochs/204366f2b305-a05ff9406bb5",
+   "predecessor_epoch": "qualification/final-current-boundary-20260927",
+   "predecessor_is_read_only": true,
+   "writes_historical_epoch": false
+  },
+  "forge_workspace": "/home/runner/work/commander-playtest-lab/commander-playtest-lab/vendor/engine-source/forge",
+  "lane": "protocol2-jsonl",
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "rules_core_identity": {
+   "actual_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+   "compared_module_roots": [
+    "forge-game",
+    "forge-core",
+    "forge-ai",
+    "forge-gui",
+    "forge-gui-desktop",
+    "adventure-editor"
+   ],
+   "detail": "the commits differ only outside the Forge Rules-Core main sources, so the Rules Core that executed is the Rules Core the evidence is about. The bridge module is deliberately excluded and is bound as a separate identity.",
+   "differing_modules": [],
+   "engine_equivalent": true,
+   "justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
+   "modules": {
+    "adventure-editor": {
+     "actual_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7",
+     "identical": true,
+     "recorded_tree": "b29338c6d3ba9f2de172be93c6b32d075f938ed7"
+    },
+    "forge-ai": {
+     "actual_tree": "3e500340675e9030cc56f38f5560e286f03defef",
+     "identical": true,
+     "recorded_tree": "3e500340675e9030cc56f38f5560e286f03defef"
+    },
+    "forge-core": {
+     "actual_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d",
+     "identical": true,
+     "recorded_tree": "421be9b5c05b361c12898558d27fa9d14de26f2d"
+    },
+    "forge-game": {
+     "actual_tree": "3d31b13fbc8db6963998af551724ea3ff775f625",
+     "identical": true,
+     "recorded_tree": "3d31b13fbc8db6963998af551724ea3ff775f625"
+    },
+    "forge-gui": {
+     "actual_tree": "8e5f32179943df1d824597e219617f21627b1881",
+     "identical": true,
+     "recorded_tree": "8e5f32179943df1d824597e219617f21627b1881"
+    },
+    "forge-gui-desktop": {
+     "actual_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc",
+     "identical": true,
+     "recorded_tree": "cd6518038bf73dfc921fab24e52516cb029c1ebc"
+    }
+   },
+   "one_sided_modules": [],
+   "recorded_commit": "bb0a740d2bef725194798383c2452213ecdd0b37"
+  },
+  "runner_commit": "204366f2b30533bd3c8740f084b31060bf19ff63",
+  "runner_tree": "a05ff9406bb598995d52b8d2790df074c3e70197",
+  "scenario_injection_supported": true,
+  "seed_supported": true,
+  "starting_state_injection_supported": true
+ },
+ "schema_version": "wsr22.runtime-log-index/1.0.0",
+ "transcripts": {
+  "af01_transcript_digest": "see AF01_FORGE.json",
+  "cardinality": {
+   "2P": {
+    "candidate": "forge",
+    "decision_tape": [
+     {
+      "actor": "p1",
+      "chosen_option_id": "opt-cb885100-70dd-4169-b060-dc5f302937e1",
+      "keep": null,
+      "kind": "STARTING_PLAYER",
+      "note": "record-declared seat p1 (RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER)",
+      "offered_option_ids": [
+       "opt-cb885100-70dd-4169-b060-dc5f302937e1",
+       "opt-b31c6def-ea1f-473f-b6e5-0c8912ec6f68"
+      ],
+      "policy": "fixture_scripted_seat",
+      "revision": 1,
+      "seat": null,
+      "step": "starting_player"
+     },
+     {
+      "actor": "p1",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 1: keep for p1; no bottoming",
+      "offered_option_ids": [
+       "opt-4a9ce07d-043a-4da1-bd5a-79ca11668284",
+       "opt-576bd158-e926-48a0-9557-0e95ab6cc831"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 2,
+      "seat": "p1",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p2",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 2: keep for p2; no bottoming",
+      "offered_option_ids": [
+       "opt-a26c5627-a655-4c61-aa4c-6499b4a16f57",
+       "opt-2b3ef7c6-c6e4-4cae-a046-a758a9419c00"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 3,
+      "seat": "p2",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p1",
+      "chosen_option_id": "opt-e9fbb8cc-2ec8-4f32-aac9-1e1449f1feea",
+      "keep": null,
+      "kind": "PRIORITY",
+      "note": "external priority pass",
+      "offered_option_ids": [
+       "opt-e9fbb8cc-2ec8-4f32-aac9-1e1449f1feea",
+       "opt-22f34051-bd9c-4432-b2f9-ff9c14ada473"
+      ],
+      "policy": "pass_when_offered",
+      "revision": 4,
+      "seat": null,
+      "step": "priority"
+     }
+    ],
+    "deck_identity": [
+     "PLAYER_COUNT_2P-P1",
+     "PLAYER_COUNT_2P-P2"
+    ],
+    "failure": null,
+    "failure_kind": null,
+    "game_id": "wsr22-forge-2p-b1100b31",
+    "observations": [
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": {
+         "actor": "p1",
+         "decision_class": "forge:mulligan/1",
+         "decision_protocol_version": "forge-decision-protocol/1.0.0",
+         "event_offset": 9,
+         "kind": "MULLIGAN",
+         "legal_set_digest": "f111623e17181b69f06726bab07c2c35d4d9656b2ce72402fb9deeeef4beecaf",
+         "legal_set_size": 2,
+         "lifecycle": false,
+         "options": 2,
+         "principal_observation_digest": "574085faf1157ad3a51ccb1bdc984f1da388f820e481e82fb96fd350340ddc6c",
+         "public_state_digest": "c691f448b29fb5a75adbe48a1652ed692311da5c8363bcf67a2a19db7fb8b9ca",
+         "revision": 2,
+         "rng_binding": {
+          "explicit_seed": true,
+          "require_explicit_seed": true,
+          "root_seed": 424242,
+          "rules_calls": 197,
+          "rules_root_seed": 424242
+         },
+         "semantic_replay_version": "forge-semantic-replay/1.0.0",
+         "status": "SUPPORTED"
+        },
+        "revision": 2,
+        "session_status": "RUNNING",
+        "state_hash": "08a2d3cb36c5d2685f79133d1c1603e231353ed8e3e6170462554f8ff6036f9b"
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "08a2d3cb36c5d2685f79133d1c1603e231353ed8e3e6170462554f8ff6036f9b",
+        "pre_state_hash": "0c535c42b879761b5709b78452c7056ca92303b08e465102de00b3de231ef6e7"
+       },
+       "game_over": false,
+       "next_decision": {
+        "actor": "p1",
+        "decision_class": "forge:mulligan/1",
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 9,
+        "kind": "MULLIGAN",
+        "legal_set_digest": "f111623e17181b69f06726bab07c2c35d4d9656b2ce72402fb9deeeef4beecaf",
+        "legal_set_size": 2,
+        "lifecycle": false,
+        "options": 2,
+        "principal_observation_digest": "574085faf1157ad3a51ccb1bdc984f1da388f820e481e82fb96fd350340ddc6c",
+        "public_state_digest": "c691f448b29fb5a75adbe48a1652ed692311da5c8363bcf67a2a19db7fb8b9ca",
+        "revision": 2,
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 197,
+         "rules_root_seed": 424242
+        },
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "status": "SUPPORTED"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 9,
+        "event_sequence": 9,
+        "game_id": "wsr22-forge-2p-b1100b31",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "c691f448b29fb5a75adbe48a1652ed692311da5c8363bcf67a2a19db7fb8b9ca",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 197,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "starting_player"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "08a2d3cb36c5d2685f79133d1c1603e231353ed8e3e6170462554f8ff6036f9b",
+        "pre_state_hash": "08a2d3cb36c5d2685f79133d1c1603e231353ed8e3e6170462554f8ff6036f9b"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 12,
+        "event_sequence": 12,
+        "game_id": "wsr22-forge-2p-b1100b31",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "c691f448b29fb5a75adbe48a1652ed692311da5c8363bcf67a2a19db7fb8b9ca",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 197,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "44604e4904a4d1ae5400a4aacb2ae53ab6210815da3d6d39bb99d9d9dc0f01eb",
+        "pre_state_hash": "08a2d3cb36c5d2685f79133d1c1603e231353ed8e3e6170462554f8ff6036f9b"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": "p1",
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 15,
+        "event_sequence": 15,
+        "game_id": "wsr22-forge-2p-b1100b31",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": "p1",
+        "public_state_digest": "9eeabb496e578dd25c09ff3c63511925ca065403af9b24117a47cde1fed16d2a",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 197,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": "UPKEEP",
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         }
+        ],
+        "turn_number": 1,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "50f82a61752a7c28380df4b7fd77bbd18be18932321d78120fa7e97d353e543d",
+        "pre_state_hash": "44604e4904a4d1ae5400a4aacb2ae53ab6210815da3d6d39bb99d9d9dc0f01eb"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": "p1",
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 18,
+        "event_sequence": 18,
+        "game_id": "wsr22-forge-2p-b1100b31",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": "p2",
+        "public_state_digest": "358322d0166e337a2608e2d91aa6d030c566dad76ab4e8a3ecc6ca0560973752",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 197,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": "UPKEEP",
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         }
+        ],
+        "turn_number": 1,
+        "winner_ids": []
+       }
+      },
+      "step": "priority_pass"
+     }
+    ],
+    "player_count": 2,
+    "rules_rng_binding": {
+     "acknowledged_seed": 424242,
+     "acknowledgement_source": "create_commander_game_response",
+     "classification": "ACKNOWLEDGED_ENGINE_SEED",
+     "controlled": true,
+     "requested_seed": 424242,
+     "rng_credit": true,
+     "schema_version": "commander-lab.seed-binding/1.0.0"
+    },
+    "semantic_events": [],
+    "steps_completed": [
+     "handshake",
+     "import_deck",
+     "create_commander_game",
+     "start_game",
+     "decision_drive"
+    ],
+    "terminal_facts": {
+     "constructed_state_capture": "first_mulligan_decision_before_answer",
+     "constructed_state_channel": "orchestration_keyed_launch",
+     "created_player_count": 2,
+     "decision_identity_shape": {
+      "field": "revision",
+      "pass_extra": [
+       "actor_id"
+      ],
+      "requires_external_control": false,
+      "type": "monotonic_long"
+     },
+     "declared_starting_seat": "p1",
+     "draw_step_decision_exposed": false,
+     "draw_step_decision_frames": [],
+     "first_priority_seat": "p1",
+     "post_pregame_library_shuffles": {
+      "p1": 1,
+      "p2": 1
+     },
+     "post_pregame_zone_counts": {
+      "p1": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p1",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p1",
+       "seat": 0
+      },
+      "p2": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p2",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p2",
+       "seat": 1
+      }
+     },
+     "priority_pass_state_changed": null,
+     "priority_reached": true,
+     "provider_constructed_state_supported": true,
+     "provider_seed_supported": true,
+     "rules_rng_binding": {
+      "acknowledged_seed": 424242,
+      "acknowledgement_source": "create_commander_game_response",
+      "classification": "ACKNOWLEDGED_ENGINE_SEED",
+      "controlled": true,
+      "requested_seed": 424242,
+      "rng_credit": true,
+      "schema_version": "commander-lab.seed-binding/1.0.0"
+     },
+     "seed_sent_to_provider": true,
+     "start_status": "started",
+     "starting_player_channel": "ENGINE_FRAME_FROM_RECORD_DECLARATION",
+     "starting_player_declaration": {
+      "seat": "p1",
+      "source": "RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER"
+     },
+     "starting_player_frame_answered": {
+      "actor": "p1",
+      "chosen_option_id": "opt-cb885100-70dd-4169-b060-dc5f302937e1",
+      "offered_seats": [
+       "p1",
+       "p2"
+      ],
+      "revision": 1,
+      "seat": "p1",
+      "source": "RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER"
+     }
+    }
+   },
+   "3P": {
+    "candidate": "forge",
+    "decision_tape": [
+     {
+      "actor": "p2",
+      "chosen_option_id": "opt-e3f006fc-1974-43a4-848b-06cc95dff959",
+      "keep": null,
+      "kind": "STARTING_PLAYER",
+      "note": "record-declared seat p1 (RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER)",
+      "offered_option_ids": [
+       "opt-e3f006fc-1974-43a4-848b-06cc95dff959",
+       "opt-de73c30d-4bd7-466f-a944-7e58a8904c06",
+       "opt-db058899-8d87-4050-8442-a8281ac9ab68"
+      ],
+      "policy": "fixture_scripted_seat",
+      "revision": 1,
+      "seat": null,
+      "step": "starting_player"
+     },
+     {
+      "actor": "p1",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 1: keep for p1; no bottoming",
+      "offered_option_ids": [
+       "opt-f68ceec0-bb63-4d0f-a5c2-812a580dd6e9",
+       "opt-cde06afa-d674-4dbe-9ef2-93f6bbeb54ad"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 2,
+      "seat": "p1",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p2",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 2: keep for p2; no bottoming",
+      "offered_option_ids": [
+       "opt-bac96e06-d24d-48dd-aee7-7d4274db4e31",
+       "opt-0935faf4-1b43-47df-81f9-145f189d5203"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 3,
+      "seat": "p2",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p3",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 3: keep for p3; no bottoming",
+      "offered_option_ids": [
+       "opt-e1e3defb-3abe-4c5f-a3c3-7639b012a67d",
+       "opt-9fd0f062-9a5e-4996-8c49-c9ee2650fb8e"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 4,
+      "seat": "p3",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p1",
+      "chosen_option_id": "opt-faeac75e-a808-495e-b55a-989889628237",
+      "keep": null,
+      "kind": "PRIORITY",
+      "note": "external priority pass",
+      "offered_option_ids": [
+       "opt-faeac75e-a808-495e-b55a-989889628237",
+       "opt-1c5e7050-5c47-47cb-89b7-780e7ed850d7"
+      ],
+      "policy": "pass_when_offered",
+      "revision": 5,
+      "seat": null,
+      "step": "priority"
+     }
+    ],
+    "deck_identity": [
+     "PLAYER_COUNT_3P-P1",
+     "PLAYER_COUNT_3P-P2",
+     "PLAYER_COUNT_3P-P3"
+    ],
+    "failure": null,
+    "failure_kind": null,
+    "game_id": "wsr22-forge-3p-ef956839",
+    "observations": [
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "dd727286c818eed239ee83ff62670785cec28a7a30b944b027d2deb9145fc0ab",
+        "pre_state_hash": "bc00e27dea35d639e0f117d427dd83f50ad09aace9b03a2c28b76f4ad5f2c8e2"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 9,
+        "event_sequence": 9,
+        "game_id": "wsr22-forge-3p-ef956839",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "ce67ca70b8dc2c014872a339b7d05252f5381f2534dd2eeb37aed33a294df263",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 295,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "starting_player"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "dd727286c818eed239ee83ff62670785cec28a7a30b944b027d2deb9145fc0ab",
+        "pre_state_hash": "dd727286c818eed239ee83ff62670785cec28a7a30b944b027d2deb9145fc0ab"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 12,
+        "event_sequence": 12,
+        "game_id": "wsr22-forge-3p-ef956839",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "ce67ca70b8dc2c014872a339b7d05252f5381f2534dd2eeb37aed33a294df263",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 295,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "dd727286c818eed239ee83ff62670785cec28a7a30b944b027d2deb9145fc0ab",
+        "pre_state_hash": "dd727286c818eed239ee83ff62670785cec28a7a30b944b027d2deb9145fc0ab"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 15,
+        "event_sequence": 15,
+        "game_id": "wsr22-forge-3p-ef956839",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "ce67ca70b8dc2c014872a339b7d05252f5381f2534dd2eeb37aed33a294df263",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 295,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "37c878d90de446b4e143c6eae3a443f259365b5cb5e5012a9027e6b99f3ffd82",
+        "pre_state_hash": "dd727286c818eed239ee83ff62670785cec28a7a30b944b027d2deb9145fc0ab"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": "p1",
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 18,
+        "event_sequence": 18,
+        "game_id": "wsr22-forge-3p-ef956839",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": "p1",
+        "public_state_digest": "ac473c1f6965012e08cb03f358fe610c99c185a78517683ff576f64e8a041a33",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 295,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": "UPKEEP",
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         }
+        ],
+        "turn_number": 1,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "a0765fb994e203cea4e112cdc36810a4778dc190d4450ae1569967c4c751388d",
+        "pre_state_hash": "37c878d90de446b4e143c6eae3a443f259365b5cb5e5012a9027e6b99f3ffd82"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": "p1",
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 21,
+        "event_sequence": 21,
+        "game_id": "wsr22-forge-3p-ef956839",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": "p2",
+        "public_state_digest": "2dd8da263d5c6e2b9a6559261edf8c1c94e09d6c242a4dbfc538dea82b818b8b",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 295,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": "UPKEEP",
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         }
+        ],
+        "turn_number": 1,
+        "winner_ids": []
+       }
+      },
+      "step": "priority_pass"
+     }
+    ],
+    "player_count": 3,
+    "rules_rng_binding": {
+     "acknowledged_seed": 424242,
+     "acknowledgement_source": "create_commander_game_response",
+     "classification": "ACKNOWLEDGED_ENGINE_SEED",
+     "controlled": true,
+     "requested_seed": 424242,
+     "rng_credit": true,
+     "schema_version": "commander-lab.seed-binding/1.0.0"
+    },
+    "semantic_events": [],
+    "steps_completed": [
+     "handshake",
+     "import_deck",
+     "create_commander_game",
+     "start_game",
+     "decision_drive"
+    ],
+    "terminal_facts": {
+     "constructed_state_capture": "first_mulligan_decision_before_answer",
+     "constructed_state_channel": "orchestration_keyed_launch",
+     "created_player_count": 3,
+     "decision_identity_shape": {
+      "field": "revision",
+      "pass_extra": [
+       "actor_id"
+      ],
+      "requires_external_control": false,
+      "type": "monotonic_long"
+     },
+     "declared_starting_seat": "p1",
+     "draw_step_decision_exposed": false,
+     "draw_step_decision_frames": [],
+     "first_priority_seat": "p1",
+     "post_pregame_library_shuffles": {
+      "p1": 1,
+      "p2": 1,
+      "p3": 1
+     },
+     "post_pregame_zone_counts": {
+      "p1": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p1",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p1",
+       "seat": 0
+      },
+      "p2": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p2",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p2",
+       "seat": 1
+      },
+      "p3": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p3",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p3",
+       "seat": 2
+      }
+     },
+     "priority_pass_state_changed": null,
+     "priority_reached": true,
+     "provider_constructed_state_supported": true,
+     "provider_seed_supported": true,
+     "rules_rng_binding": {
+      "acknowledged_seed": 424242,
+      "acknowledgement_source": "create_commander_game_response",
+      "classification": "ACKNOWLEDGED_ENGINE_SEED",
+      "controlled": true,
+      "requested_seed": 424242,
+      "rng_credit": true,
+      "schema_version": "commander-lab.seed-binding/1.0.0"
+     },
+     "seed_sent_to_provider": true,
+     "start_status": "started",
+     "starting_player_channel": "ENGINE_FRAME_FROM_RECORD_DECLARATION",
+     "starting_player_declaration": {
+      "seat": "p1",
+      "source": "RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER"
+     },
+     "starting_player_frame_answered": {
+      "actor": "p2",
+      "chosen_option_id": "opt-e3f006fc-1974-43a4-848b-06cc95dff959",
+      "offered_seats": [
+       "p1",
+       "p2",
+       "p3"
+      ],
+      "revision": 1,
+      "seat": "p1",
+      "source": "RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER"
+     }
+    }
+   },
+   "4P": {
+    "candidate": "forge",
+    "decision_tape": [
+     {
+      "actor": "p3",
+      "chosen_option_id": "opt-d7f83220-afc5-4f11-bbb2-4a6e4832cf80",
+      "keep": null,
+      "kind": "STARTING_PLAYER",
+      "note": "record-declared seat p1 (RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER)",
+      "offered_option_ids": [
+       "opt-d7f83220-afc5-4f11-bbb2-4a6e4832cf80",
+       "opt-5b30b800-9a1b-4395-bb1d-a093d08e6b84",
+       "opt-c735af27-f1eb-4c6e-ac3a-1d8afc247c73",
+       "opt-a0ab82b3-4f16-4e7b-893f-565f65b8240d"
+      ],
+      "policy": "fixture_scripted_seat",
+      "revision": 1,
+      "seat": null,
+      "step": "starting_player"
+     },
+     {
+      "actor": "p1",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 1: keep for p1; no bottoming",
+      "offered_option_ids": [
+       "opt-bb4173e3-50ee-4d2d-a373-1a24eb894bfc",
+       "opt-b6de2188-95e9-4470-bd63-a0df779ae3cf"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 2,
+      "seat": "p1",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p2",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 2: keep for p2; no bottoming",
+      "offered_option_ids": [
+       "opt-1329979e-e86f-407c-8188-c6a495c35d1d",
+       "opt-c3633e7a-191f-4aff-a3a4-43b8943bdf28"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 3,
+      "seat": "p2",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p3",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 3: keep for p3; no bottoming",
+      "offered_option_ids": [
+       "opt-1b0c5add-f6e6-4143-8885-a4b2c96db9ce",
+       "opt-38985e13-114a-4373-ae14-b4d1de9f8d82"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 4,
+      "seat": "p3",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p4",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 4: keep for p4; no bottoming",
+      "offered_option_ids": [
+       "opt-39ae1300-0901-48cf-9c90-db4edb6a1bc1",
+       "opt-9082be06-7e76-4eb8-b01d-06b3df086214"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 5,
+      "seat": "p4",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p1",
+      "chosen_option_id": "opt-5446f77e-a760-49f3-8673-eddc8069d5fd",
+      "keep": null,
+      "kind": "PRIORITY",
+      "note": "external priority pass",
+      "offered_option_ids": [
+       "opt-5446f77e-a760-49f3-8673-eddc8069d5fd",
+       "opt-bb0d8e3e-7274-4fcf-a29b-5b274e8cd48c"
+      ],
+      "policy": "pass_when_offered",
+      "revision": 6,
+      "seat": null,
+      "step": "priority"
+     }
+    ],
+    "deck_identity": [
+     "PLAYER_COUNT_4P-P1",
+     "PLAYER_COUNT_4P-P2",
+     "PLAYER_COUNT_4P-P3",
+     "PLAYER_COUNT_4P-P4"
+    ],
+    "failure": null,
+    "failure_kind": null,
+    "game_id": "wsr22-forge-4p-f7584198",
+    "observations": [
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "83a038ca60ab563bf03d48822954d66a4277935324bf7abcc14e32952987f27e",
+        "pre_state_hash": "c1fb7a62655b46296b38494c747ad80e461fbfecae2944dfcfd45f0544926347"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 9,
+        "event_sequence": 9,
+        "game_id": "wsr22-forge-4p-f7584198",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "b2e056714b0785b172e0847a8d3786a5d7d228612193d8de604f0b3a4c74f62f",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 393,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "starting_player"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "83a038ca60ab563bf03d48822954d66a4277935324bf7abcc14e32952987f27e",
+        "pre_state_hash": "83a038ca60ab563bf03d48822954d66a4277935324bf7abcc14e32952987f27e"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 12,
+        "event_sequence": 12,
+        "game_id": "wsr22-forge-4p-f7584198",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "b2e056714b0785b172e0847a8d3786a5d7d228612193d8de604f0b3a4c74f62f",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 393,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "83a038ca60ab563bf03d48822954d66a4277935324bf7abcc14e32952987f27e",
+        "pre_state_hash": "83a038ca60ab563bf03d48822954d66a4277935324bf7abcc14e32952987f27e"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 15,
+        "event_sequence": 15,
+        "game_id": "wsr22-forge-4p-f7584198",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "b2e056714b0785b172e0847a8d3786a5d7d228612193d8de604f0b3a4c74f62f",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 393,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "83a038ca60ab563bf03d48822954d66a4277935324bf7abcc14e32952987f27e",
+        "pre_state_hash": "83a038ca60ab563bf03d48822954d66a4277935324bf7abcc14e32952987f27e"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 18,
+        "event_sequence": 18,
+        "game_id": "wsr22-forge-4p-f7584198",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "b2e056714b0785b172e0847a8d3786a5d7d228612193d8de604f0b3a4c74f62f",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 393,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "f799a1fc9b76d6460a32283608b52d0b548709baef273fd9db06851b9deef503",
+        "pre_state_hash": "83a038ca60ab563bf03d48822954d66a4277935324bf7abcc14e32952987f27e"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": "p1",
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 21,
+        "event_sequence": 21,
+        "game_id": "wsr22-forge-4p-f7584198",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": "p1",
+        "public_state_digest": "d4868ba337a5dd3f805d1f775be2f7a9b75d70dc49c15e7aad18092f2e4daae3",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 393,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": "UPKEEP",
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         }
+        ],
+        "turn_number": 1,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "ac451fe979522d3a1fb55226d0953529eac9a2238839189608239c817e95bf77",
+        "pre_state_hash": "f799a1fc9b76d6460a32283608b52d0b548709baef273fd9db06851b9deef503"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": "p1",
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 24,
+        "event_sequence": 24,
+        "game_id": "wsr22-forge-4p-f7584198",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": "p2",
+        "public_state_digest": "87a11fd7fda6098b13ccc1efb268936cfe6f9e4ac2b6a4ee726700a202ad9dbd",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 393,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": "UPKEEP",
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         }
+        ],
+        "turn_number": 1,
+        "winner_ids": []
+       }
+      },
+      "step": "priority_pass"
+     }
+    ],
+    "player_count": 4,
+    "rules_rng_binding": {
+     "acknowledged_seed": 424242,
+     "acknowledgement_source": "create_commander_game_response",
+     "classification": "ACKNOWLEDGED_ENGINE_SEED",
+     "controlled": true,
+     "requested_seed": 424242,
+     "rng_credit": true,
+     "schema_version": "commander-lab.seed-binding/1.0.0"
+    },
+    "semantic_events": [],
+    "steps_completed": [
+     "handshake",
+     "import_deck",
+     "create_commander_game",
+     "start_game",
+     "decision_drive"
+    ],
+    "terminal_facts": {
+     "constructed_state_capture": "first_mulligan_decision_before_answer",
+     "constructed_state_channel": "orchestration_keyed_launch",
+     "created_player_count": 4,
+     "decision_identity_shape": {
+      "field": "revision",
+      "pass_extra": [
+       "actor_id"
+      ],
+      "requires_external_control": false,
+      "type": "monotonic_long"
+     },
+     "declared_starting_seat": "p1",
+     "draw_step_decision_exposed": false,
+     "draw_step_decision_frames": [],
+     "first_priority_seat": "p1",
+     "post_pregame_library_shuffles": {
+      "p1": 1,
+      "p2": 1,
+      "p3": 1,
+      "p4": 1
+     },
+     "post_pregame_zone_counts": {
+      "p1": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p1",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p1",
+       "seat": 0
+      },
+      "p2": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p2",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p2",
+       "seat": 1
+      },
+      "p3": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p3",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p3",
+       "seat": 2
+      },
+      "p4": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p4",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p4",
+       "seat": 3
+      }
+     },
+     "priority_pass_state_changed": null,
+     "priority_reached": true,
+     "provider_constructed_state_supported": true,
+     "provider_seed_supported": true,
+     "rules_rng_binding": {
+      "acknowledged_seed": 424242,
+      "acknowledgement_source": "create_commander_game_response",
+      "classification": "ACKNOWLEDGED_ENGINE_SEED",
+      "controlled": true,
+      "requested_seed": 424242,
+      "rng_credit": true,
+      "schema_version": "commander-lab.seed-binding/1.0.0"
+     },
+     "seed_sent_to_provider": true,
+     "start_status": "started",
+     "starting_player_channel": "ENGINE_FRAME_FROM_RECORD_DECLARATION",
+     "starting_player_declaration": {
+      "seat": "p1",
+      "source": "RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER"
+     },
+     "starting_player_frame_answered": {
+      "actor": "p3",
+      "chosen_option_id": "opt-d7f83220-afc5-4f11-bbb2-4a6e4832cf80",
+      "offered_seats": [
+       "p1",
+       "p2",
+       "p3",
+       "p4"
+      ],
+      "revision": 1,
+      "seat": "p1",
+      "source": "RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER"
+     }
+    }
+   },
+   "5P": {
+    "candidate": "forge",
+    "decision_tape": [
+     {
+      "actor": "p3",
+      "chosen_option_id": "opt-6bc6f632-0078-4313-bb85-1e06ecda8ecd",
+      "keep": null,
+      "kind": "STARTING_PLAYER",
+      "note": "record-declared seat p1 (RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER)",
+      "offered_option_ids": [
+       "opt-6bc6f632-0078-4313-bb85-1e06ecda8ecd",
+       "opt-ffdf4e28-edbf-4c5c-9172-2c425b591f16",
+       "opt-67fbab3a-aa37-4c4e-8b56-3b86aaee4e12",
+       "opt-231b48d2-4e04-4b58-b6f6-67623ee1b573",
+       "opt-bb624f33-437a-43c8-9771-51bf378a4797"
+      ],
+      "policy": "fixture_scripted_seat",
+      "revision": 1,
+      "seat": null,
+      "step": "starting_player"
+     },
+     {
+      "actor": "p1",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 1: keep for p1; no bottoming",
+      "offered_option_ids": [
+       "opt-78a7abdb-e132-4aaf-9c10-197310f13f75",
+       "opt-e5835f98-2b2d-42b1-96d0-c6389b2dbac6"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 2,
+      "seat": "p1",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p2",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 2: keep for p2; no bottoming",
+      "offered_option_ids": [
+       "opt-e3075986-6df8-4963-b65b-7de136a720e5",
+       "opt-a705d5ec-76c8-4927-bca4-a40d07c95c57"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 3,
+      "seat": "p2",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p3",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 3: keep for p3; no bottoming",
+      "offered_option_ids": [
+       "opt-8d60cd1e-2624-4605-ab60-6af795877595",
+       "opt-3bf673f6-a9e4-4bb2-8ce5-a4ba188280a2"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 4,
+      "seat": "p3",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p4",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 4: keep for p4; no bottoming",
+      "offered_option_ids": [
+       "opt-6ede6bfc-4d99-4c39-87b6-e749f367e31e",
+       "opt-e6a230d9-5325-429b-881a-948873ab0060"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 5,
+      "seat": "p4",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p5",
+      "chosen_option_id": null,
+      "keep": true,
+      "kind": "MULLIGAN",
+      "note": "record plan entry 5: keep for p5; no bottoming",
+      "offered_option_ids": [
+       "opt-dfde3917-298a-4d37-b124-022f8596ce21",
+       "opt-cb2f4856-df48-4901-9cb4-d04d7bfc311f"
+      ],
+      "policy": "fixture_scripted_mulligan",
+      "revision": 6,
+      "seat": "p5",
+      "step": "mulligan"
+     },
+     {
+      "actor": "p1",
+      "chosen_option_id": "opt-184eb64d-e182-42c3-9ec9-a84382c507ba",
+      "keep": null,
+      "kind": "PRIORITY",
+      "note": "external priority pass",
+      "offered_option_ids": [
+       "opt-184eb64d-e182-42c3-9ec9-a84382c507ba",
+       "opt-f5d1045f-d2bc-40da-8cad-21d56c7b5229"
+      ],
+      "policy": "pass_when_offered",
+      "revision": 7,
+      "seat": null,
+      "step": "priority"
+     }
+    ],
+    "deck_identity": [
+     "PLAYER_COUNT_5P-P1",
+     "PLAYER_COUNT_5P-P2",
+     "PLAYER_COUNT_5P-P3",
+     "PLAYER_COUNT_5P-P4",
+     "PLAYER_COUNT_5P-P5"
+    ],
+    "failure": null,
+    "failure_kind": null,
+    "game_id": "wsr22-forge-5p-93f4d04b",
+    "observations": [
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "573a9a43e719d395bd6ecce91b8977380966bb78a6652fec9f5dc3c653149cbd",
+        "pre_state_hash": "62faacba10875d142dcaa1b47b932af905e3606d016640b1209a8c39cbba60f4"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 9,
+        "event_sequence": 9,
+        "game_id": "wsr22-forge-5p-93f4d04b",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p5",
+          "poison_counters": 0,
+          "seat": 4,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "8ecceba4a0d81b14b4c2365b41eca3583ee7d39110942fd5a766bd6ae26e36ff",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 491,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p5",
+          "seat": 4,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "starting_player"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "573a9a43e719d395bd6ecce91b8977380966bb78a6652fec9f5dc3c653149cbd",
+        "pre_state_hash": "573a9a43e719d395bd6ecce91b8977380966bb78a6652fec9f5dc3c653149cbd"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 12,
+        "event_sequence": 12,
+        "game_id": "wsr22-forge-5p-93f4d04b",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p5",
+          "poison_counters": 0,
+          "seat": 4,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "8ecceba4a0d81b14b4c2365b41eca3583ee7d39110942fd5a766bd6ae26e36ff",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 491,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p5",
+          "seat": 4,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "573a9a43e719d395bd6ecce91b8977380966bb78a6652fec9f5dc3c653149cbd",
+        "pre_state_hash": "573a9a43e719d395bd6ecce91b8977380966bb78a6652fec9f5dc3c653149cbd"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 15,
+        "event_sequence": 15,
+        "game_id": "wsr22-forge-5p-93f4d04b",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p5",
+          "poison_counters": 0,
+          "seat": 4,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "8ecceba4a0d81b14b4c2365b41eca3583ee7d39110942fd5a766bd6ae26e36ff",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 491,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p5",
+          "seat": 4,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "573a9a43e719d395bd6ecce91b8977380966bb78a6652fec9f5dc3c653149cbd",
+        "pre_state_hash": "573a9a43e719d395bd6ecce91b8977380966bb78a6652fec9f5dc3c653149cbd"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 18,
+        "event_sequence": 18,
+        "game_id": "wsr22-forge-5p-93f4d04b",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p5",
+          "poison_counters": 0,
+          "seat": 4,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "8ecceba4a0d81b14b4c2365b41eca3583ee7d39110942fd5a766bd6ae26e36ff",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 491,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p5",
+          "seat": 4,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "573a9a43e719d395bd6ecce91b8977380966bb78a6652fec9f5dc3c653149cbd",
+        "pre_state_hash": "573a9a43e719d395bd6ecce91b8977380966bb78a6652fec9f5dc3c653149cbd"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": null,
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 21,
+        "event_sequence": 21,
+        "game_id": "wsr22-forge-5p-93f4d04b",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p5",
+          "poison_counters": 0,
+          "seat": 4,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": null,
+        "public_state_digest": "8ecceba4a0d81b14b4c2365b41eca3583ee7d39110942fd5a766bd6ae26e36ff",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 491,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": null,
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p5",
+          "seat": 4,
+          "won": false
+         }
+        ],
+        "turn_number": 0,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "4eacd3f4466fc500d87ae779d0ff301bf15782a0e3e1709ac60ed6200d6278b0",
+        "pre_state_hash": "573a9a43e719d395bd6ecce91b8977380966bb78a6652fec9f5dc3c653149cbd"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": "p1",
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 24,
+        "event_sequence": 24,
+        "game_id": "wsr22-forge-5p-93f4d04b",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p5",
+          "poison_counters": 0,
+          "seat": 4,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": "p1",
+        "public_state_digest": "56189eabdb9f803b07b90cc5a694dfee7047338000c82f0e3c392b3178fb3627",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 491,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": "UPKEEP",
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p5",
+          "seat": 4,
+          "won": false
+         }
+        ],
+        "turn_number": 1,
+        "winner_ids": []
+       }
+      },
+      "step": "mulligan_keep"
+     },
+     {
+      "payload": {
+       "bridge": {
+        "pending_decision": null,
+        "revision": -1,
+        "session_status": "RUNNING",
+        "state_hash": null
+       },
+       "decision": {
+        "executed": true,
+        "post_state_hash": "4e2685071320fd84bf3bed141876e57a24ecd41099efb77da481f5e06cacfbf7",
+        "pre_state_hash": "4eacd3f4466fc500d87ae779d0ff301bf15782a0e3e1709ac60ed6200d6278b0"
+       },
+       "game_over": false,
+       "next_decision": {
+        "status": "withheld"
+       },
+       "state": {
+        "active_player_id": "p1",
+        "decision_protocol_version": "forge-decision-protocol/1.0.0",
+        "event_offset": 27,
+        "event_sequence": 27,
+        "game_id": "wsr22-forge-5p-93f4d04b",
+        "legal_actions": [],
+        "observer_player_id": null,
+        "phase": "beginning",
+        "players": [
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p1",
+          "poison_counters": 0,
+          "seat": 0,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p2",
+          "poison_counters": 0,
+          "seat": 1,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p3",
+          "poison_counters": 0,
+          "seat": 2,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p4",
+          "poison_counters": 0,
+          "seat": 3,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         },
+         {
+          "commander_cast_count": {
+           "Rograkh, Son of Rohgahh": 0
+          },
+          "commander_damage_received": {},
+          "has_lost": false,
+          "is_actor": false,
+          "land_plays_remaining": 1,
+          "life": 40,
+          "loss_reason": null,
+          "mana_pool": {
+           "B": 0,
+           "C": 0,
+           "G": 0,
+           "R": 0,
+           "U": 0,
+           "W": 0
+          },
+          "player_id": "p5",
+          "poison_counters": 0,
+          "seat": 4,
+          "zones": {
+           "battlefield": [],
+           "battlefield_details": [],
+           "command": [
+            "Rograkh, Son of Rohgahh",
+            "Commander Effect"
+           ],
+           "exile": [],
+           "graveyard": [],
+           "hand": [
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>",
+            "<hidden>"
+           ],
+           "library": [],
+           "library_size": 92
+          }
+         }
+        ],
+        "principal_observation_digest": null,
+        "priority_player_id": "p2",
+        "public_state_digest": "309fca7cd6c31c1db7ff5e64388f3f8b2ea77f32a5b56b13c34f836610852fb8",
+        "rng_binding": {
+         "explicit_seed": true,
+         "require_explicit_seed": true,
+         "root_seed": 424242,
+         "rules_calls": 491,
+         "rules_root_seed": 424242
+        },
+        "rng_counter": null,
+        "seed": 424242,
+        "semantic_replay_version": "forge-semantic-replay/1.0.0",
+        "stack": [],
+        "status": "in_progress",
+        "step": "UPKEEP",
+        "tape_contract": "semantic-replay-tape/1.0.0",
+        "terminal_outcomes": [
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p1",
+          "seat": 0,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p2",
+          "seat": 1,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p3",
+          "seat": 2,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p4",
+          "seat": 3,
+          "won": false
+         },
+         {
+          "left": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "p5",
+          "seat": 4,
+          "won": false
+         }
+        ],
+        "turn_number": 1,
+        "winner_ids": []
+       }
+      },
+      "step": "priority_pass"
+     }
+    ],
+    "player_count": 5,
+    "rules_rng_binding": {
+     "acknowledged_seed": 424242,
+     "acknowledgement_source": "create_commander_game_response",
+     "classification": "ACKNOWLEDGED_ENGINE_SEED",
+     "controlled": true,
+     "requested_seed": 424242,
+     "rng_credit": true,
+     "schema_version": "commander-lab.seed-binding/1.0.0"
+    },
+    "semantic_events": [],
+    "steps_completed": [
+     "handshake",
+     "import_deck",
+     "create_commander_game",
+     "start_game",
+     "decision_drive"
+    ],
+    "terminal_facts": {
+     "constructed_state_capture": "first_mulligan_decision_before_answer",
+     "constructed_state_channel": "orchestration_keyed_launch",
+     "created_player_count": 5,
+     "decision_identity_shape": {
+      "field": "revision",
+      "pass_extra": [
+       "actor_id"
+      ],
+      "requires_external_control": false,
+      "type": "monotonic_long"
+     },
+     "declared_starting_seat": "p1",
+     "draw_step_decision_exposed": false,
+     "draw_step_decision_frames": [],
+     "first_priority_seat": "p1",
+     "post_pregame_library_shuffles": {
+      "p1": 1,
+      "p2": 1,
+      "p3": 1,
+      "p4": 1,
+      "p5": 1
+     },
+     "post_pregame_zone_counts": {
+      "p1": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p1",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p1",
+       "seat": 0
+      },
+      "p2": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p2",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p2",
+       "seat": 1
+      },
+      "p3": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p3",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p3",
+       "seat": 2
+      },
+      "p4": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p4",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p4",
+       "seat": 3
+      },
+      "p5": {
+       "binding_mechanism": "STATE_ACTOR_MARKER",
+       "checkpoint": {
+        "observer_player_id": "p5",
+        "phase": "beginning",
+        "step": "upkeep",
+        "turn_number": 1
+       },
+       "hand_count": 7,
+       "library_count": 92,
+       "observer_player_id": "p5",
+       "seat": 4
+      }
+     },
+     "priority_pass_state_changed": null,
+     "priority_reached": true,
+     "provider_constructed_state_supported": true,
+     "provider_seed_supported": true,
+     "rules_rng_binding": {
+      "acknowledged_seed": 424242,
+      "acknowledgement_source": "create_commander_game_response",
+      "classification": "ACKNOWLEDGED_ENGINE_SEED",
+      "controlled": true,
+      "requested_seed": 424242,
+      "rng_credit": true,
+      "schema_version": "commander-lab.seed-binding/1.0.0"
+     },
+     "seed_sent_to_provider": true,
+     "start_status": "started",
+     "starting_player_channel": "ENGINE_FRAME_FROM_RECORD_DECLARATION",
+     "starting_player_declaration": {
+      "seat": "p1",
+      "source": "RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER"
+     },
+     "starting_player_frame_answered": {
+      "actor": "p3",
+      "chosen_option_id": "opt-6bc6f632-0078-4313-bb85-1e06ecda8ecd",
+      "offered_seats": [
+       "p1",
+       "p2",
+       "p3",
+       "p4",
+       "p5"
+      ],
+      "revision": 1,
+      "seat": "p1",
+      "source": "RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER"
+     }
+    }
+   },
+   "6P": {
+    "candidate": "forge",
+    "decision_tape": [],
+    "deck_identity": [
+     "forge-wsr22-deck-1",
+     "forge-wsr22-deck-2",
+     "forge-wsr22-deck-3",
+     "forge-wsr22-deck-4",
+     "forge-wsr22-deck-5",
+     "forge-wsr22-deck-6"
+    ],
+    "failure": "DecisionUnsatisfied: the engine offered a STARTING_PLAYER decision and the authoritative record declares no starting seat; the Lab never chooses the starting player",
+    "failure_kind": "FAIL_CLOSED_UNSATISFIED",
+    "game_id": "wsr22-forge-6p-dbbdd2ed",
+    "observations": [],
+    "player_count": 6,
+    "rules_rng_binding": {
+     "acknowledged_seed": 424242,
+     "acknowledgement_source": "create_commander_game_response",
+     "classification": "ACKNOWLEDGED_ENGINE_SEED",
+     "controlled": true,
+     "requested_seed": 424242,
+     "rng_credit": true,
+     "schema_version": "commander-lab.seed-binding/1.0.0"
+    },
+    "semantic_events": [],
+    "steps_completed": [
+     "handshake",
+     "import_deck",
+     "create_commander_game",
+     "start_game"
+    ],
+    "terminal_facts": {
+     "constructed_state_channel": "orchestration_keyed_launch",
+     "created_player_count": 6,
+     "declared_starting_seat": null,
+     "provider_constructed_state_supported": true,
+     "provider_seed_supported": true,
+     "rules_rng_binding": {
+      "acknowledged_seed": 424242,
+      "acknowledgement_source": "create_commander_game_response",
+      "classification": "ACKNOWLEDGED_ENGINE_SEED",
+      "controlled": true,
+      "requested_seed": 424242,
+      "rng_credit": true,
+      "schema_version": "commander-lab.seed-binding/1.0.0"
+     },
+     "seed_sent_to_provider": true,
+     "start_status": "started",
+     "starting_player_channel": null
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,124 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_29",
+  "obligation_exercised": {
+    "obligation_digest": "5ee2f43029bfeedcb45321511bdeed019cc9df5d15b35e3d5a319319b6d94ce2",
+    "requested_state_digest": "099554901126add0f83f9037a2bc624b8db375004b09509cfc3d95aaddafd875",
+    "required_events": [
+      "Saga_I",
+      "Saga_II",
+      "Saga_III",
+      "exile_Saga",
+      "return_transformed:Branch_of_Boseiju"
+    ],
+    "terminal_checks": [
+      "Branch of Boseiju is on P1's battlefield",
+      "P1's battlefield is exactly ['Branch of Boseiju', 'Forest', 'Forest', 'Forest', 'Forest', 'Spellbook'] (by card identity, as a multiset)",
+      "every Branch of Boseiju on P1's battlefield has reach",
+      "every Branch of Boseiju on P1's battlefield is 4/4"
+    ],
+    "terminal_postconditions": [
+      "After chapter III Branch of Boseiju is on P1 battlefield transformed with reach and P/T equal to P1 current land count."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "de7a2f1554431b9c5690d3721562001cc27c050c64fbad2509d88cdcfda290aa",
+      "size": 7107607
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "every Branch of Boseiju on P1's battlefield has reach",
+          "every Branch of Boseiju on P1's battlefield is 4/4",
+          "P1's battlefield is exactly ['Branch of Boseiju', 'Forest', 'Forest', 'Forest', 'Forest', 'Spellbook'] (by card identity, as a multiset)"
+        ],
+        "check": "Branch of Boseiju is on P1's battlefield",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "After chapter III Branch of Boseiju is on P1 battlefield transformed with reach and P/T equal to P1 current land count."
+      }
+    ],
+    "terminal_facts": {
+      "Branch of Boseiju is on P1's battlefield": true,
+      "P1's battlefield is exactly ['Branch of Boseiju', 'Forest', 'Forest', 'Forest', 'Forest', 'Spellbook'] (by card identity, as a multiset)": true,
+      "every Branch of Boseiju on P1's battlefield has reach": true,
+      "every Branch of Boseiju on P1's battlefield is 4/4": true
+    },
+    "token_evidence": {
+      "Saga_I": {
+        "binding": [
+          "exactly 1 TRIGGERED_ABILITY event(s) with source_name=Boseiju Reaches Skyward, target_name~=stack ability (I - ",
+          "exactly 2 ZONE_CHANGE event(s) with source_name=Boseiju Reaches Skyward, from=LIBRARY, to=HAND"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 TRIGGERED_ABILITY event(s) with source_name=Boseiju Reaches Skyward, target_name~=stack ability (I - ",
+            "events": [
+              11
+            ]
+          },
+          {
+            "binding": "exactly 2 ZONE_CHANGE event(s) with source_name=Boseiju Reaches Skyward, from=LIBRARY, to=HAND",
+            "events": [
+              13,
+              14
+            ]
+          }
+        ]
+      },
+      "Saga_II": {
+        "binding": [
+          "exactly 1 TRIGGERED_ABILITY event(s) with source_name=Boseiju Reaches Skyward, target_name~=stack ability (II - ",
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card29-gy-forest, from=GRAVEYARD, to=LIBRARY"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 TRIGGERED_ABILITY event(s) with source_name=Boseiju Reaches Skyward, target_name~=stack ability (II - ",
+            "events": [
+              24
+            ]
+          },
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card29-gy-forest, from=GRAVEYARD, to=LIBRARY",
+            "events": [
+              25
+            ]
+          }
+        ]
+      },
+      "Saga_III": {
+        "binding": "exactly 1 TRIGGERED_ABILITY event(s) with source_name=Boseiju Reaches Skyward, target_name~=stack ability (III - ",
+        "events": [
+          35
+        ]
+      },
+      "exile_Saga": {
+        "binding": "exactly 1 ZONE_CHANGE event(s) with target_name=Boseiju Reaches Skyward, player_player=P1, from=BATTLEFIELD, to=EXILED",
+        "events": [
+          36
+        ]
+      },
+      "return_transformed:Branch_of_Boseiju": {
+        "binding": "exactly 1 ZONE_CHANGE event(s) with target_name=Branch of Boseiju, player_player=P1, from=EXILED, to=BATTLEFIELD",
+        "events": [
+          37
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "990f04913a2d716b8262dba94bad596646007d101f0d8825a89116d555f0d77f",
+  "runner_digest": "63e05d2fb1e748791cbc6a2468d541b29f080df7241183632a06ffe6ddfe2b37",
+  "runtime_receipt_digest": "596b2295d123ecad8897e05430ef5fac3d5e47210f1559827de6f62a6dda532f",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_29"
+}
