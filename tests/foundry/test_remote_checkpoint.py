@@ -127,6 +127,17 @@ def test_exact_remote_head_equality_is_satisfied(repo: dict) -> None:
     assert result.ok
 
 
+def test_exact_remote_head_without_local_recorded_object_is_unverifiable(repo: dict) -> None:
+    missing = "a" * 40
+    doc = _doc(repo, sha=missing, tree="b" * 40)
+    result = remote_mod.verify_remote_checkpoint(
+        doc, workdir=str(repo["root"]), remote_head_fn=_head(missing)
+    )
+    assert result.status == remote_mod.UNVERIFIABLE
+    assert not result.ok
+    assert any("TREE identity cannot be verified" in reason for reason in result.reasons)
+
+
 def test_recorded_tree_mismatch_is_refused(repo: dict) -> None:
     doc = _doc(repo, tree="f" * 40)
     result = remote_mod.verify_remote_checkpoint(

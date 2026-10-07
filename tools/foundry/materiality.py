@@ -30,6 +30,8 @@ PATH_CLASSES = (MATERIAL, NON_MATERIAL, GENERATED_STATE)
 
 # Policy files that look like documentation but change operating authority.
 _POLICY_ROOT_MARKDOWN = {"AGENTS.md", "CLAUDE.md"}
+_POLICY_DOC_PATHS = {"docs/CURRENT_EXECUTION_AUTHORITY.md"}
+_POLICY_DOC_PREFIXES = ("docs/foundry-execution/",)
 
 
 def _relative(path: str) -> str:
@@ -50,14 +52,16 @@ def classify_path(path: str, *, state_paths: tuple[str, ...] = ()) -> str:
     if rel in explicit_states:
         return GENERATED_STATE
     if rel.startswith(".foundry/reviews/"):
+        # A canonical review receipt records an already-produced independent
+        # review. It does not alter implementation/evidence-policy semantics.
         return GENERATED_STATE
     parts = rel.split("/")
-    if parts[0] == ".foundry" and rel.endswith((".yaml", ".yml")):
-        # Operational workstream-state YAML is generated state, never Source
-        # Authority; the registry/schema/receipt JSON under .foundry stays
-        # MATERIAL so policy and evidence semantics cannot evade review.
-        return GENERATED_STATE
+    # No blanket ".foundry/**/*.yaml" exemption exists. A workstream state
+    # file is GENERATED_STATE only when the caller names that exact path via
+    # state_paths. Otherwise unknown .foundry YAML is fail-safe MATERIAL.
     if rel in _POLICY_ROOT_MARKDOWN:
+        return MATERIAL
+    if rel in _POLICY_DOC_PATHS or any(rel.startswith(prefix) for prefix in _POLICY_DOC_PREFIXES):
         return MATERIAL
     if "/" not in rel and rel.endswith(".md"):
         return NON_MATERIAL

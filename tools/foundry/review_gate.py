@@ -434,7 +434,12 @@ def evaluate_completion_claim(
             status="EXEMPT_HISTORICAL",
             reasons=("COMPLETION_GATE_EXEMPT_HISTORICAL: pre-policy state",),
         )
-    if remote_verdict is not None and remote_verdict != "SATISFIED":
+    if remote_verdict is None:
+        problems.append(
+            f"REMOTE_CHECKPOINT_UNVERIFIED: {claim} claim requires an explicit "
+            "remote-checkpoint verdict"
+        )
+    elif remote_verdict != "SATISFIED":
         problems.append(
             f"REMOTE_CHECKPOINT_{remote_verdict}: {claim} claim requires remote equality"
         )

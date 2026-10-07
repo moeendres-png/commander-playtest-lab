@@ -227,8 +227,11 @@ jobs:
     # only by an explicit `/bunny-review` comment, separated from the writable
     # `/bunny` secondary-execution lane above. Same trust gate and hardening.
     if: |
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) && (
+        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) ||
+        github.event.issue.user.login == 'opencode-agent[bot]' ||
+        github.event.pull_request.user.login == 'opencode-agent[bot]'
+      ) && (
         contains(github.event.comment.body, ' /bunny-review') ||
         startsWith(github.event.comment.body, '/bunny-review')
       )

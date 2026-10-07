@@ -191,7 +191,21 @@ def verify_remote_checkpoint(
         )
     if live == recorded_sha:
         local_tree = _local_tree(workdir, recorded_sha)
-        if local_tree is not None and local_tree != recorded_tree:
+        if local_tree is None:
+            return RemoteCheckpointResult(
+                status=UNVERIFIABLE,
+                reasons=(
+                    "REMOTE_CHECKPOINT_UNVERIFIABLE: remote SHA matches the recorded "
+                    "checkpoint but the local commit object/tree is unavailable; TREE "
+                    "identity cannot be verified",
+                ),
+                remote=remote,
+                branch=branch,
+                recorded_sha=recorded_sha,
+                recorded_tree=recorded_tree,
+                live_remote_sha=live,
+            )
+        if local_tree != recorded_tree:
             return RemoteCheckpointResult(
                 status=MISMATCH,
                 reasons=(
@@ -289,7 +303,11 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, ValueError) as exc:
         print(f"REMOTE_CHECKPOINT_FAIL: cannot read state: {exc}", file=sys.stderr)
         return 2
-    result = verify_remote_checkpoint(doc, workdir=args.workdir)
+    try:
+        rel_state = str(Path(args.state).resolve().relative_to(Path(args.workdir).resolve()))
+    except ValueError:
+        rel_state = args.state
+    result = verify_remote_checkpoint(doc, workdir=args.workdir, state_paths=(rel_state,))
     payload = result.to_dict()
     payload["resumability"] = resumability_status(doc, result)
     if args.json:

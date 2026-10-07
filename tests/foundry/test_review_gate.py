@@ -428,6 +428,29 @@ def test_bunny_unavailable_and_no_review_blocks_completion_claim(repo: dict) -> 
     assert any("REVIEW_RECORD_MISSING" in reason for reason in result.reasons)
 
 
+def test_completion_claim_without_remote_verdict_fails_closed(repo: dict) -> None:
+    record = _record(repo)
+    path = _write_record(repo, record)
+    doc = _state_doc(
+        repo["base"],
+        repo["impl"],
+        repo["root"],
+        repo["state"],
+        cross_executor_review=_mirror_passed(repo, record, path),
+        validated_tree=_tree(repo["root"], repo["impl"]),
+    )
+    result = review_mod.evaluate_completion_claim(
+        doc,
+        claim="PR_READY",
+        workdir=str(repo["root"]),
+        review_record_path=str(path),
+        remote_verdict=None,
+        state_path=str(repo["state"]),
+    )
+    assert not result.ok
+    assert any("REMOTE_CHECKPOINT_UNVERIFIED" in reason for reason in result.reasons)
+
+
 def test_completion_claim_requires_satisfied_remote_checkpoint(repo: dict) -> None:
     record = _record(repo)
     path = _write_record(repo, record)
@@ -569,3 +592,16 @@ def test_historical_state_without_policy_fields_stays_valid(repo: dict) -> None:
     assert state_mod.validate(doc) == []
     result = review_mod.evaluate_review_gate(doc, workdir=str(repo["root"]))
     assert result.status == "EXEMPT_HISTORICAL"
+
+
+def test_bunny_review_workflow_allows_trusted_comments_on_agent_created_prs() -> None:
+    """Mandatory review must be reachable on the repository's own agent-created PRs."""
+    workflow = (REPO_ROOT / ".github" / "workflows" / "opencode.yml").read_text(encoding="utf-8")
+    marker = "  opencode-bunny-review:\n"
+    assert marker in workflow
+    review_job = workflow.split(marker, 1)[1]
+    assert "opencode-agent[bot]" in review_job
+    assert "github.event.comment.author_association" in review_job
+    assert "Refuse fork pull requests as agent targets" in review_job
+    assert "AGENT: foundry-reviewer" in review_job
+    assert "MODEL: opencode-go/space-bunny" in review_job

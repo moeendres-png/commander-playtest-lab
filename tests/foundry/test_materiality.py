@@ -37,13 +37,21 @@ def test_documentation_only_paths_are_non_material() -> None:
 
 
 def test_policy_markdown_is_always_material() -> None:
-    for path in ("AGENTS.md", "CLAUDE.md"):
+    for path in (
+        "AGENTS.md",
+        "CLAUDE.md",
+        "docs/CURRENT_EXECUTION_AUTHORITY.md",
+        "docs/foundry-execution/ROUTING_AND_EFFORT.md",
+        "docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md",
+    ):
         assert mat.classify_path(path) == mat.MATERIAL, path
 
 
-def test_generated_state_paths_are_non_material_but_policy_json_is_not() -> None:
-    assert mat.classify_path(".foundry/WORKSTREAM_STATE.yaml") == mat.GENERATED_STATE
-    assert mat.classify_path(".foundry/oc-policy-20261006.yaml") == mat.GENERATED_STATE
+def test_generated_state_paths_are_non_material_but_unknown_foundry_yaml_and_policy_are_not() -> None:
+    state = ".foundry/WORKSTREAM_STATE.yaml"
+    assert mat.classify_path(state, state_paths=(state,)) == mat.GENERATED_STATE
+    # Wrong-reason control: a YAML suffix alone must never grant an exemption.
+    assert mat.classify_path(".foundry/oc-policy-20261006.yaml") == mat.MATERIAL
     assert mat.classify_path(".foundry/reviews/ws.json") == mat.GENERATED_STATE
     # Policy/registry/schema/evidence receipts under .foundry are MATERIAL:
     # review cannot be evaded by dressing a policy change as state.
@@ -128,7 +136,12 @@ def test_commit_range_material_and_generated_state_classification(repo: dict) ->
     assert report.computed == mat.MATERIAL
     assert report.material_paths == ("tools/impl.py",)
 
-    report = mat.classify_commit_range(str(repo["root"]), repo["material"], repo["generated"])
+    report = mat.classify_commit_range(
+        str(repo["root"]),
+        repo["material"],
+        repo["generated"],
+        state_paths=(".foundry/WORKSTREAM_STATE.yaml",),
+    )
     assert report.computed == mat.NON_MATERIAL
     assert report.generated_state_paths == (".foundry/WORKSTREAM_STATE.yaml",)
 
