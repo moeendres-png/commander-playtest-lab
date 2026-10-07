@@ -4,8 +4,8 @@ worktree: /home/moeen/work/worktrees/oc572-starting-player-20261006
 branch: opencode/oc572-starting-player-20261006
 audit_base_sha: 5849d187a0adf0ce323991ea0bf0c8a7fd931a88
 audit_base_tree: e839522778c050567cbf5f4f542c96881ad7dc61
-state_written_against_head: 982b03b0f9664ae80408bf143d1b895a0974656e
-validated_head: 982b03b0f9664ae80408bf143d1b895a0974656e
+state_written_against_head: 626d742ac4c04eabf3c321a039261252ad1621a3
+validated_head: 626d742ac4c04eabf3c321a039261252ad1621a3
 objective: '#572 / #441 / #255 starting-player authority. Eliminate every production-reachable
   or qualification-credit path where the Lab or its provider bridge chooses the starting
   player by an implicit p1/seat-0 default; then close the impacted XMage AF08 starting-player
@@ -80,11 +80,11 @@ forbidden_shortcuts:
 - parent_class_fallback
 - requested_option_filtering_that_reconstructs_legality
 - implicit_p1_or_seat_0_starting_player
-current_failure: 'None blocking. The Space Bunny cross-executor review found no P0/P1/P2;
-  its three P3s are repaired and the repaired tree is locally green (Java 967/0/0/1;
-  qualification 1806/21). Remaining: bounded confirmation review on the repair head,
-  exact-head CI including PB-03 re-run, then the merge decision. Context: the review
-  repair at 8c572e79 is committed and validated.
+current_failure: 'None. Workstream COMPLETE: PR #574 merged as 23b2e993 at validated
+  head 626d742a; Space Bunny confirmation review NO BLOCKING; exact-head CI and PB-03
+  sealed packet d76ff8b5 PASS. Non-blocking P3 residuals and the contract 1.0.22
+  erratum are successor-workstream scope. Context: the review repair at 8c572e79
+  is committed and validated.
   The out-of-scope tooling commit 5f2468fe is dispositioned: the separated tooling
   PR #576 landed on main as 84c17f9d (normal merge; exact head 09a6bf9c; required
   checks quality/security/infrastructure PASS) and main was merged into this branch
@@ -190,8 +190,21 @@ authority_gates:
   profile still names opencode-go/space-bunny-free. Claude must choose between aligning
   the canonical config/tests and dropping commit 5f2468fe from the integration line;
   do not force-push.
-status: ACTIVE
+status: COMPLETE
 validated_gates:
+- 'WORKSTREAM TERMINAL RECEIPT (2026-10-07 01:40Z): PR #574 merged through the normal
+  GitHub merge path at exact head 626d742a (tree d4a05cdb); merge commit
+  23b2e993f70c324f3b22314d3c7be45efd8c1134; main advanced 5a062a5b -> 23b2e993. All
+  merge-gate conditions held: exclusive ownership, exact head/base verified, no drift
+  at merge, required checks quality/security/infrastructure PASS, PB-03 runtime run
+  37552162620 SUCCESS with sealed packet current-boundary-two-candidate-d76ff8b500f11847e7997612b65329474217a3e0
+  (epoch d76ff8b500f1-d4a05cdbabcb, producing tree = head tree), no unresolved P1/P2,
+  no force/admin/history rewrite, branch retained.'
+- 'Space Bunny MAX confirmation review of the exact final repair head 626d742a (comment
+  6028146983, run 37552207107, bounded static-first): NO BLOCKING FINDINGS; all three
+  prior P3 repairs confirmed at the root; two new non-blocking P3 residuals recorded
+  (no Java regression control pinning record-after-accept ordering; game_driver.py:42-46
+  comment paraphrase). Engineering cross-check only, not qualification credit.'
 - 'Cross-executor review gate (Owner-mandated, 2026-10-07): Space Bunny MAX independent
   bounded read-only review of e6ed1233 (comment 6027900877, Actions run 37550421681)
   returned NO BLOCKING FINDINGS: no P0/P1/P2; P2-1/P2-2/P3-1/P3-2/P3-3 and R3-C1..C5
@@ -417,8 +430,10 @@ remaining_scope:
   rows PASS with the P3-3 prompt-answer identity recorded.'
 - 'R5c: exact-head CI on the final head including PB-03 runtime re-run and sealed
   epoch.'
-- 'R5d: update state + GitHub handoff, then the protected merge decision if every
-  gate is satisfied.'
+- 'R5d (done): state + GitHub handoff updated; #574 merged as 23b2e993.'
+- 'Successor workstream (explicitly out of scope here): the already-adjudicated contract
+  1.0.22 START-2/MULL-2/MULL-4 erratum plus the P3 residuals (Java ordering regression
+  control; game_driver.py:42-46 comment).'
 - 'P3 dispositions (DeepSeek review, non-blocking): state-head fields corrected in
   this update; PB-03 wording corrected; LOCAL_OBSERVED identity header accepted as
   a known limitation (LOCAL_OBSERVED is not the credit path and PB-03 records provider
@@ -432,18 +447,13 @@ first_failing_boundary: 'Historical: engine-bridge JSONL bridges defaulted start
   to 0 (fixed), and tests/foundry failed on the canonical Space Bunny model ID after
   commit 5f2468fe (resolved at b6029d6f via #576 + normal main merge).'
 root_cause_class: HARNESS_DEFECT
-next_action: 'The merged head carries the validated starting-player repair, the
-  absorbed tooling disposition, green foundry/targeted suites, and the P3-3 re-captured
-  real-engine evidence. Next: fresh-context adversarial review of the final head,
-  exact-head CI including PB-03, state + GitHub handoff, then the protected merge
-  decision. Contract 1.0.22 stays a separate successor workstream.'
-exact_next_action: '1) Commit+push the P3 repair batch + this state update and verify
-  remote HEAD. 2) Dispatch the bounded Space Bunny MAX confirmation review via the
-  /bunny lane against the repair head SHA/TREE (static-first, read-only; e6ed1233
-  review already returned NO BLOCKING FINDINGS). 3) Consume exact-head CI incl. the
-  PB-03 runtime re-run and sealed epoch on the repair head. 4) Repair only evidenced
-  P1/P2 if the confirmation review finds any; otherwise update state + GitHub handoff.
-  5) Merge #574 only if every gate is satisfied (normal merge only, no force, no rewrite).'
+next_action: 'Terminal: #574 merged as 23b2e993 at validated head 626d742a after both
+  fresh-context reviews (DeepSeek + Space Bunny), exact-head CI and PB-03 sealed packet
+  d76ff8b5. Contract 1.0.22 and the P3 residuals are a separate successor workstream.'
+exact_next_action: 'None for this workstream (COMPLETE; #574 merged as 23b2e993).
+  Successor: open a new workstream for the decided contract 1.0.22 START-2/MULL-2/MULL-4
+  erratum (with rules_randomness and C-E1/C-E2) and the recorded P3 residuals; do
+  not reopen this state file.'
 executor_handoff_from: opencode-go/deepseek-v4.1-flash
 executor_handoff_reason: Owner instruction to pause implementation and convert the
   workstream into a durable GitHub handoff for Claude; implementation was mid-repair
