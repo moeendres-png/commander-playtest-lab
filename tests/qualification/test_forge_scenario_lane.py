@@ -1221,10 +1221,11 @@ def test_selection_covers_eligible_rows_and_the_declared_wave():
         if model.credit_eligible and fsl.temporal_reachable(model):
             assert fixture_id in selected
     # The structurally credit-eligible rows, the 6 causal-route commander zone rows
-    # (#520) and the 7 wave rows. WS05-CMD-START-2 and START-3 are refused (#511
-    # P1): their obligations name a starting player that no record scripts, so the
-    # lane may not choose one.
-    assert len(selected) == 20
+    # (#520), the causal stack-then-elimination row and the 7 wave rows.
+    # WS05-CMD-START-2 and START-3 are refused (#511 P1): their obligations name a
+    # starting player that no record scripts, so the lane may not choose one.
+    assert len(selected) == 21
+    assert "WS05-MP-ELIM-STACK-3" in selected
     assert not {"WS05-CMD-START-2", "WS05-CMD-START-3"} & selected
 
 

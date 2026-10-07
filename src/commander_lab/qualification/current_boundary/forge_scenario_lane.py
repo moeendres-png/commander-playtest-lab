@@ -33,6 +33,7 @@ import time
 import uuid
 from collections import Counter
 from dataclasses import dataclass, field
+from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
@@ -80,6 +81,9 @@ RESULT_NOT_ATTEMPTED = "NOT_ATTEMPTED"
 
 CHECKPOINT_EXACT = "EXACT"
 CHECKPOINT_ALLOWED_VARIANCE = "ALLOWED_VARIANCE"
+# A field-level verdict only: the requested value is reached causally after the
+# pre-causal position, which holds the declared substituted value exactly.
+CHECKPOINT_CAUSAL_SUBSTITUTION = "CAUSAL_SUBSTITUTION"
 CHECKPOINT_MISMATCH = "MISMATCH"
 CHECKPOINT_UNSUPPORTED_DIMENSION = "UNSUPPORTED_DIMENSION"
 CHECKPOINT_TRANSPORT_FAILURE = "TRANSPORT_FAILURE"
@@ -325,8 +329,11 @@ _LANE_EXECUTABLE_DECISION_SELECTORS: frozenset[str] = frozenset()
 # row stays unsupported. A scripted decision (``scripted_decision_offered``) is
 # a cast on the caused stack: the scripted priority cast, its targets (a stack
 # target named by the record's own stack) and its payment from the record's own
-# ``action_cost_state`` sources. A terminal without an observer contract here
-# (a priority ring, a copy, an elimination) stays unrouted.
+# ``action_cost_state`` sources. A stack whose controller is then eliminated
+# (``stack_controller_eliminated``, CR 800.4a) scripts no decision at all: the
+# record's stack is cast, verified, and only then do the declared instruments
+# cause the loss. A terminal without an observer contract here (a priority ring,
+# a copy, a caused permanent's elimination) stays unrouted.
 _CAUSAL_TERMINAL_SELECTORS: dict[str, frozenset[str]] = {
     "commander_zone_choice": frozenset({"choice.boolean", "replacement_effect.boolean"}),
     "scripted_decision_offered": frozenset(
@@ -338,6 +345,7 @@ _CAUSAL_TERMINAL_SELECTORS: dict[str, frozenset[str]] = {
             "mana_payment.mana_payment",
         }
     ),
+    "stack_controller_eliminated": frozenset(),
 }
 _CAUSAL_ROUTE_SELECTORS: frozenset[str] = frozenset().union(*_CAUSAL_TERMINAL_SELECTORS.values())
 _CAUSAL_ROUTE_TERMINALS: frozenset[str] = frozenset(_CAUSAL_TERMINAL_SELECTORS)
@@ -636,9 +644,37 @@ def _scripted_decision_route(record: dict[str, Any], plan: fcr.CausalPlan) -> bo
     return bool(plan.spells) and script[0].get("decision_family") == "priority" and bool(required)
 
 
+def _stack_controller_eliminated_route(record: dict[str, Any], plan: fcr.CausalPlan) -> bool:
+    """The victim's own stack is caused, then the declared elimination removes the victim.
+
+    Every stack entry is the declared victim's spell, the record scripts no
+    decision, and its obligation names the victim leaving and the multiplayer
+    cleanup (CR 800.4a), which the observer judges from the readback.
+    """
+    elimination = plan.elimination
+    required = [
+        str(token) for token in (record.get("expected_events") or {}).get("required_events") or ()
+    ]
+    return (
+        elimination is not None
+        and bool(plan.spells)
+        and all(spell.controller == elimination.victim for spell in plan.spells)
+        and not record.get("decision_script")
+        and _required_token(required, "player_leaves:") == elimination.victim.upper()
+        and _required_token(required, "multiplayer_cleanup:") is not None
+        and set(required)
+        <= {f"player_leaves:{elimination.victim.upper()}", *_cleanup_tokens(required)}
+    )
+
+
+def _cleanup_tokens(required: list[str]) -> list[str]:
+    return [token for token in required if token.startswith("multiplayer_cleanup:")]
+
+
 _CAUSAL_TERMINAL_ROUTES = {
     "commander_zone_choice": _commander_zone_route,
     "scripted_decision_offered": _scripted_decision_route,
+    "stack_controller_eliminated": _stack_controller_eliminated_route,
 }
 
 
@@ -656,9 +692,12 @@ def lane_causal_plan(record: dict[str, Any]) -> fcr.CausalPlan | None:
     if entry is None or terminal not in _CAUSAL_ROUTE_TERMINALS:
         return None
     script = [step for step in record.get("decision_script") or () if isinstance(step, dict)]
-    if not script or any(
+    selectors = _CAUSAL_TERMINAL_SELECTORS[terminal]
+    # A terminal with selectors needs the record's script; one without (the
+    # declared elimination) runs only for a record that scripts nothing.
+    if bool(script) != bool(selectors) or any(
         f"{step.get('decision_family')}.{(step.get('selection') or {}).get('selector_kind')}"
-        not in _CAUSAL_TERMINAL_SELECTORS[terminal]
+        not in selectors
         for step in script
     ):
         return None
@@ -1423,9 +1462,32 @@ def compare_checkpoint(
         )
 
     # life
+    elimination = model.causal_plan.elimination if model.causal_plan is not None else None
     for player_id, expected in model.life_by_player.items():
         life_row = players.get(player_id)
         observed_life = life_row.get("life") if isinstance(life_row, dict) else None
+        if elimination is not None and player_id == elimination.victim:
+            # The declared elimination's open life substitution: the pre-causal
+            # position holds the victim at its starting life, exactly; the
+            # recorded life is judged later from the engine's own damage and loss.
+            placed = elimination.starting_life
+            verdicts.append(
+                FieldVerdict(
+                    field=f"players.{player_id}.life",
+                    verdict=(
+                        CHECKPOINT_CAUSAL_SUBSTITUTION
+                        if expected == elimination.recorded_life and observed_life == placed
+                        else CHECKPOINT_MISMATCH
+                    ),
+                    requested=expected,
+                    observed=observed_life,
+                    detail=(
+                        f"pre-causal life {placed} placed for the recorded {expected}, which the "
+                        "declared elimination reaches through the engine (CR 704.3)"
+                    ),
+                )
+            )
+            continue
         verdicts.append(
             FieldVerdict(
                 field=f"players.{player_id}.life",
@@ -1644,6 +1706,7 @@ def compare_checkpoint(
     unobservable = [item.dimension for item in model.unobservable]
     mismatches = [item for item in verdicts if item.verdict == CHECKPOINT_MISMATCH]
     cause_advances = [item for item in verdicts if item.verdict == "CAUSE_ADVANCE"]
+    substitutions = [item for item in verdicts if item.verdict == CHECKPOINT_CAUSAL_SUBSTITUTION]
     variance_source: str | None = None
     if unsupported:
         verdict = CHECKPOINT_UNSUPPORTED_DIMENSION
@@ -1657,6 +1720,14 @@ def compare_checkpoint(
             "fixture.native_procedure NATIVE_CAUSE_DECLARED_PLAYER_LOSS + declared "
             "terminal_postconditions; the cause transition is declared by the frozen "
             "fixture, not invented by this lane"
+        )
+    elif substitutions:
+        verdict = CHECKPOINT_ALLOWED_VARIANCE
+        variance_source = (
+            "declared causal elimination (run_midgame_capability_probe.CAUSAL_ROWS, shared "
+            "with XMage): the victim's recorded life is the state-based-action-pending "
+            "instant (CR 704.3), placed openly as its starting life and reached only by the "
+            "engine dealing the declared instruments' damage"
         )
     else:
         verdict = CHECKPOINT_EXACT
@@ -2973,9 +3044,248 @@ def evaluate_scripted_decision_offered(
     )
 
 
+# ---------------------------------------------------------------------------
+# Observer contract: the caused stack's controller is eliminated (CR 800.4a)
+# ---------------------------------------------------------------------------
+def _frame_choice_offered(frame: fcr.RouteFrame) -> bool:
+    """The tape's chosen id is one the engine offered on that frame, under its own label."""
+    return (
+        frame.chosen_option_id is not None
+        and frame.chosen_option_id in frame.offered_option_ids
+        and frame.offered[frame.offered_option_ids.index(frame.chosen_option_id)] == frame.chosen
+    )
+
+
+def _tapped(state: dict[str, Any] | None, player: str, name: str) -> int | None:
+    if state is None:
+        return None
+    return _named_tapped(state, player, name)
+
+
+def _instrument_tape(
+    run: fcr.CausalRun,
+    elimination: fcr.EliminationPlan,
+    snapshots: dict[str, dict[str, Any]],
+) -> tuple[bool, list[str]]:
+    """Every instrument frame is an engine offer bound to the declaration.
+
+    Each cast is one of exactly as many identical offers as declared
+    instruments remain; its one target frame chose the declared victim; each
+    payment tapped a declared instrument land once, and the actor's readback
+    shows exactly that many more of those lands tapped.
+    """
+    problems: list[str] = []
+    declared_lands = {card.semantic_id for card in elimination.lands}
+    land = elimination.lands[0].card
+    paid: list[str] = []
+    casts = run.elimination_casts
+    for number, cast in enumerate(casts):
+        raw_index = cast.get("frame_index")
+        index = raw_index if isinstance(raw_index, int) and raw_index >= 0 else len(run.frames)
+        frame = run.frames[index] if index < len(run.frames) else None
+        bolt = elimination.bolts[number] if number < len(elimination.bolts) else None
+        if frame is None or bolt is None or cast.get("semantic_id") != bolt.semantic_id:
+            problems.append(f"cast {number}: no tape frame for {cast.get('semantic_id')}")
+            continue
+        remaining = elimination.bolt_count - number
+        if not (
+            _frame_choice_offered(frame)
+            and frame.kind == "PRIORITY"
+            and frame.actor == elimination.actor
+            and frame.chosen_kind == "cast"
+            and frame.chosen_source == bolt.card
+            and frame.offered.count(str(frame.chosen)) == remaining
+        ):
+            problems.append(f"cast {number}: not one of {remaining} identical declared offers")
+        following: list[fcr.RouteFrame] = []
+        for later in run.frames[index + 1 :]:
+            if later.kind == "PRIORITY":
+                break
+            following.append(later)
+        targets = [item for item in following if item.reason == "elimination target"]
+        payments = [item for item in following if item.reason.startswith("declared instrument ")]
+        if len(targets) + len(payments) != len(following) or len(targets) != 1:
+            problems.append(f"cast {number}: {len(targets)} target frames among {len(following)}")
+        for target in targets:
+            refs = [
+                (ref.get("kind"), str(ref.get("player_id") or "").lower()) for ref in target.refs
+            ]
+            if not _frame_choice_offered(target) or refs != [("player", elimination.victim)]:
+                problems.append(f"cast {number}: the target is not the declared victim: {refs}")
+        for payment in payments:
+            if not (
+                _frame_choice_offered(payment)
+                and payment.chosen_kind == "tap_mana_source"
+                and payment.chosen_source == land
+                and payment.payment_source in declared_lands
+            ):
+                problems.append(f"cast {number}: {payment.chosen!r} is not a declared land tap")
+            paid.append(str(payment.payment_source))
+        before = snapshots.get(
+            "elimination_start" if number == 0 else f"elimination_resolved:{number}"
+        )
+        after = snapshots.get(f"cast_complete:{bolt.semantic_id}")
+        tapped_before = _tapped(before, elimination.actor, land)
+        tapped_after = _tapped(after, elimination.actor, land)
+        if (
+            not payments
+            or tapped_before is None
+            or tapped_after is None
+            or tapped_after - tapped_before != len(payments)
+        ):
+            problems.append(
+                f"cast {number}: {len(payments)} taps, readback {tapped_before} -> {tapped_after}"
+            )
+    if len(set(paid)) != len(paid):
+        problems.append(f"an instrument land paid twice: {paid}")
+    return not problems, problems
+
+
+def evaluate_stack_controller_eliminated(
+    model: RequestedStateModel, run: fcr.CausalRun
+) -> ObligationVerdict:
+    """The victim's caused spell leaves with the victim and never resolves (CR 800.4a).
+
+    Judged from the route's decision tape and the actor's own readback only:
+    the record's stack was cast by its declared controller and verified at the
+    requested checkpoint; the declared instruments (exactly the declared count,
+    each an engine offer bound to the declaration) were cast at the victim only
+    on top of that verified stack, which the victim still controlled with the
+    victim in the game at every step; the engine then reported the victim lost
+    for the declared reason with its life at or below the recorded value, nobody
+    else lost, every survivor kept its requested life (the victim's spell dealt
+    no damage), and the stack was empty at the next priority. Missing evidence
+    for any of these leaves the obligation unobserved: UNKNOWN, never PASS.
+    """
+    kind = "stack_controller_eliminated"
+    plan = model.causal_plan
+    elimination = None if plan is None else plan.elimination
+    required = [
+        str(token)
+        for token in (model.record.get("expected_events") or {}).get("required_events") or []
+    ]
+    facts: dict[str, Any] = {"causal_route": run.to_document(), "required_events": required}
+    if run.failure:
+        return ObligationVerdict(kind, False, False, facts, [], f"causal route: {run.failure}")
+    if plan is None or elimination is None or not required:
+        return ObligationVerdict(kind, False, False, facts, [], "the record is not routable")
+    order = [str(snapshot["at"]) for snapshot in run.snapshots]
+    snapshots = {str(snapshot["at"]): snapshot["state"] for snapshot in run.snapshots}
+    caused = [str(entry) for entry in run.stack_after_cast or ()]
+    victim = elimination.victim
+    survivors = list(elimination.survivors)
+    instruments = [f"cast_complete:{bolt.semantic_id}" for bolt in elimination.bolts]
+    resolved = [f"elimination_resolved:{number}" for number in range(1, elimination.bolt_count + 1)]
+    checkpoint = _route_checkpoint(model, run)
+    facts["requested_checkpoint"] = checkpoint
+
+    def position(at: str) -> int:
+        return order.index(at) if at in order else -1
+
+    pre_loss = ["elimination_start", *instruments, *resolved[:-1]]
+    sequence = ["stack_caused", "requested_checkpoint", "elimination_start"]
+    for cast_at, resolved_at in zip(instruments, resolved, strict=True):
+        sequence.extend([cast_at, resolved_at])
+    sequence.append("after_loss")
+    positions = [position(at) for at in sequence]
+    after = snapshots.get("after_loss")
+    victim_row = fcr.player_row(after, victim) or {}
+    lives: list[Any] = [
+        (fcr.player_row(snapshots.get(at), victim) or {}).get("life")
+        for at in ["elimination_start", *resolved]
+    ]
+    facts["victim_life_progression"] = lives
+    every = [snapshots.get(at) for at in sequence[2:]]
+    causal_casts = [frame for frame in run.frames if frame.reason.startswith("causal cast ")]
+    tape_bound, tape_problems = _instrument_tape(run, elimination, snapshots)
+    facts["instrument_tape_problems"] = tape_problems
+    start_counts = fcr.instrument_counts(snapshots.get("elimination_start"), elimination)
+    facts["instrument_counts_at_start"] = start_counts
+    victim_graveyard = (victim_row.get("zones") or {}).get("graveyard")
+    checks: dict[str, bool] = {
+        "stack_caused": bool(caused)
+        and [fcr.stack_card(entry) for entry in caused]
+        == [spell.card for spell in reversed(plan.spells)],
+        "cast_by_declared_controllers": [frame.actor.lower() for frame in causal_casts]
+        == [spell.controller for spell in plan.spells],
+        "requested_checkpoint": checkpoint["verdict"] == CHECKPOINT_EXACT,
+        # The stack was verified (and the checkpoint captured) before any
+        # instrument, and every snapshot before the loss shows it intact under
+        # at most one instrument, with the victim still in the game.
+        "stack_verified_before_loss": all(at >= 0 for at in positions)
+        and positions == sorted(positions)
+        and all(
+            snapshots[at].get("stack") is not None
+            and [str(entry) for entry in snapshots[at].get("stack") or ()][-len(caused) :] == caused
+            and fcr.has_lost(snapshots[at], victim) is False
+            for at in pre_loss
+            if at in snapshots
+        ),
+        "declared_instrument_count": [cast.get("semantic_id") for cast in run.elimination_casts]
+        == [bolt.semantic_id for bolt in elimination.bolts]
+        and len(run.elimination_casts) == elimination.bolt_count,
+        "instruments_present_at_start": start_counts
+        == {
+            "bolts_in_hand": elimination.bolt_count,
+            "lands": elimination.bolt_count,
+            "untapped_lands": elimination.bolt_count,
+        },
+        "instrument_tape_bound": tape_bound,
+        "victim_life_reached_by_engine": len(lives) == elimination.bolt_count + 1
+        and all(isinstance(life, int) for life in lives)
+        and lives[0] == elimination.starting_life
+        and all(later < earlier for earlier, later in pairwise(lives))
+        and lives[-1] <= elimination.recorded_life,
+        "victim_lost_for_declared_reason": fcr.has_lost(after, victim) is True
+        and victim_row.get("loss_reason") == elimination.engine_loss_reason
+        and isinstance(victim_row.get("life"), int)
+        and victim_row["life"] <= elimination.recorded_life,
+        "no_undeclared_loss": bool(every)
+        and all(state is not None for state in every)
+        and all(fcr.has_lost(state, player) is False for state in every for player in survivors),
+        "survivors_at_requested_life": bool(survivors)
+        and bool(every)
+        and all(
+            state is not None
+            and (fcr.player_row(state, player) or {}).get("life")
+            == model.life_by_player.get(player)
+            for state in every
+            for player in survivors
+        ),
+        # CR 800.4a: every object the victim owns left the game with it.
+        "victim_permanents_left": isinstance(
+            (victim_row.get("zones") or {}).get("battlefield"), list
+        )
+        and not (victim_row.get("zones") or {}).get("battlefield"),
+        "survivors_remain": bool(survivors)
+        and after is not None
+        and all(fcr.has_lost(after, player) is False for player in survivors),
+        "stack_empty_after_loss": after is not None
+        and after.get("stack") == []
+        and str(after.get("priority_player_id") or "").lower() in survivors,
+        "victim_spell_not_resolved_to_graveyard": isinstance(victim_graveyard, list)
+        and not any(
+            str(card) in {spell.card for spell in plan.spells} for card in victim_graveyard
+        ),
+    }
+    facts["checks"] = checks
+    observed = all(checks.values())
+    reason = (
+        f"the engine eliminated {victim.upper()} by its declared instruments while "
+        f"{victim.upper()}'s spell was on the verified stack; the spell left the game with "
+        "its owner without resolving (CR 800.4a) and every survivor kept its requested life"
+        if observed
+        else "not observed: " + ", ".join(name for name, ok in checks.items() if not ok)
+    )
+    return ObligationVerdict(
+        kind, observed, observed, facts, list(required) if observed else [], reason
+    )
+
+
 _CAUSAL_TERMINAL_CONTRACTS = {
     "commander_zone_choice": evaluate_commander_zone_choice,
     "scripted_decision_offered": evaluate_scripted_decision_offered,
+    "stack_controller_eliminated": evaluate_stack_controller_eliminated,
 }
 
 
@@ -2983,6 +3293,9 @@ def _route_observer(model: RequestedStateModel) -> str:
     """The seat whose principal-scoped readback the route's terminal is judged from."""
     if causal_terminal(model) == "commander_zone_choice":
         return str((_route_commander(model) or {}).get("owner") or "").lower()
+    if causal_terminal(model) == "stack_controller_eliminated" and model.causal_plan is not None:
+        # The elimination's actor survives the loss and sees its own instruments.
+        return model.causal_plan.elimination.actor if model.causal_plan.elimination else ""
     script = [step for step in model.record.get("decision_script") or () if isinstance(step, dict)]
     return str(script[0].get("actor") or "").lower() if script else ""
 
