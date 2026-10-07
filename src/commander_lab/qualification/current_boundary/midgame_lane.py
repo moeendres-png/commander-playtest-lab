@@ -39,6 +39,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
+from .bridge_launcher import STDERR_DRAIN_GRACE_S, StderrDrain
+
 PROTOCOL_VERSION = "2.0.0"
 #: Never inherited by a launch (see bridge_launcher.ORCHESTRATION_KEY_VARIABLE).
 ORCHESTRATION_KEY_VARIABLE = "COMMANDER_LAB_ORCHESTRATION_KEY"
@@ -313,13 +315,11 @@ class MidgameLaneClient:
         self._tape: list[dict[str, Any]] = []
         self.manifest: DimensionManifest | None = None
         self._last_timeout_s: float | None = None
-        # The child's stderr, drained continuously: an undrained pipe would block
-        # a child that writes more than the pipe buffer, and the knowledge
-        # boundary scans the process log as a channel of its own.
-        self._stderr_chunks: list[str] = []
-        self._stderr_size = 0
-        self._stderr_lock = threading.Lock()
-        self._stderr_thread: threading.Thread | None = None
+        # The child's stderr, drained continuously by the shared bounded
+        # non-blocking drain (#580): an undrained pipe would block a child that
+        # writes more than the pipe buffer, and the knowledge boundary scans the
+        # process log as a channel of its own.
+        self._stderr_drain: StderrDrain | None = None
 
     # -- transport ---------------------------------------------------
 
@@ -347,42 +347,32 @@ class MidgameLaneClient:
         except OSError as exc:
             raise MidgameLaneError(f"cannot launch the mid-game lane: {exc}") from exc
         if self._process.stderr is not None:
-            self._stderr_thread = threading.Thread(
-                target=self._drain_stderr,
-                args=(self._process.stderr,),
-                name="midgame-lane-stderr",
-                daemon=True,
+            self._stderr_drain = StderrDrain(
+                self._process.stderr,
+                retain_limit_chars=self.STDERR_RETENTION_CHARS,
+                thread_name="midgame-lane-stderr",
+                # The knowledge boundary scans the log at the end of the run, so
+                # this caller keeps the newest output rather than the oldest.
+                retain_tail=True,
             )
-            self._stderr_thread.start()
+            self._stderr_drain.start()
         return self
 
     #: Retained bytes of the child's stderr; the oldest text is dropped beyond it.
     STDERR_RETENTION_CHARS = 4_000_000
 
-    def _drain_stderr(self, stream: Any) -> None:
-        try:
-            for line in iter(stream.readline, ""):
-                with self._stderr_lock:
-                    self._stderr_chunks.append(line)
-                    self._stderr_size += len(line)
-                    while (
-                        self._stderr_size > self.STDERR_RETENTION_CHARS
-                        and len(self._stderr_chunks) > 1
-                    ):
-                        self._stderr_size -= len(self._stderr_chunks.pop(0))
-        except (OSError, ValueError):
-            return
-
     def _join_stderr(self, timeout_s: float) -> None:
-        thread = self._stderr_thread
-        if thread is not None:
-            thread.join(timeout=timeout_s)
+        drain = self._stderr_drain
+        if drain is not None:
+            drain.join(timeout_s)
 
     @property
     def stderr_log(self) -> str:
         """The child's stderr as drained so far (complete once the child exited)."""
-        with self._stderr_lock:
-            return "".join(self._stderr_chunks)
+        drain = self._stderr_drain
+        if drain is None:
+            return ""
+        return drain.capture().text
 
     def __exit__(self, *_exc: object) -> None:
         self.close()
@@ -401,7 +391,15 @@ class MidgameLaneClient:
             process.wait(timeout=20)
         except subprocess.TimeoutExpired:
             process.kill()
-        self._join_stderr(10)
+        # The direct child is gone (or killed): give the drain a short grace to
+        # reach end of stream, then stop it. A descendant that inherited the pipe
+        # can hold it open forever, so a drain still alive after the grace is
+        # reclaimed instead of pinning its thread for the process life (#580).
+        drain = self._stderr_drain
+        self._join_stderr(STDERR_DRAIN_GRACE_S)
+        if drain is not None and drain.draining:
+            drain.stop()
+            self._join_stderr(5.0)
 
     def request(
         self,
