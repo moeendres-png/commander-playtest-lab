@@ -11,7 +11,10 @@ UNOBSERVABLE finding is retired only when every requested exile object binds.
 
 from __future__ import annotations
 
+import contextlib
 import copy
+import os
+import signal
 import sys
 import textwrap
 import time
@@ -30,6 +33,17 @@ from commander_lab.qualification.current_boundary.materialization import (
 REPO_ROOT = Path(__file__).resolve().parents[2]
 LAUNCHER = REPO_ROOT / "src/commander_lab/qualification/current_boundary/bridge_launcher.py"
 COST_ROWS = {f"HIDDEN_{index:02d}" for index in range(5, 19)}
+# The exact detail both Lab modules must file for action_cost_state (E-B1a). It is
+# written out here so the agreement test has an independent expected value instead
+# of comparing one module's derived copy against the other module's source.
+EXPECTED_COST_STATE_DETAIL = (
+    "mid-cast cost state is caused by casting and paying on the engine's own frames "
+    "(the bootstrap has no cost field); the lane casts only through its causal stack route "
+    "(#520, #561): complete, modeless spells with declared fuel, either one aimed at a "
+    "commander for a commander zone choice to the graveyard, exile or hand, or a stack the "
+    "record's scripted priority cast, targets and declared payment answer "
+    "(scripted_decision_offered)"
+)
 
 
 @pytest.fixture(scope="module")
@@ -164,6 +178,148 @@ def test_a_closed_stdout_still_reports_the_stderr_tail(tmp_path) -> None:
         proc.close(timeout_s=10.0)
 
 
+def test_a_long_unterminated_stderr_line_is_retained_in_bounded_chunks(
+    tmp_path, monkeypatch
+) -> None:
+    """E-B0 P3: a long line is drained in bounded chunks, not buffered whole."""
+    monkeypatch.setattr(B, "STDERR_READ_CHUNK_BYTES", 1024)
+    line = "y" * 5000
+    script = _stub(
+        tmp_path,
+        f"""\
+        import json, sys
+        sys.stderr.write("{line}")
+        sys.stderr.flush()
+        for raw in sys.stdin:
+            req = json.loads(raw)
+            sys.stdout.write(json.dumps({{"request_id": req["request_id"], "ok": True}}) + "\\n")
+            sys.stdout.flush()
+            if req["message_type"] == "shutdown_engine":
+                break
+        """,
+    )
+    proc = _process(script)
+    try:
+        assert proc.request("handshake", {}, timeout_s=30.0)["ok"] is True
+        # The unterminated line is visible while the child is still alive: a
+        # blocking readline would hold it in an unbounded buffer until newline.
+        deadline = time.monotonic() + 5.0
+        while proc.stderr_capture().text != line and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert proc.stderr_capture().text == line
+    finally:
+        proc.close(timeout_s=30.0)
+    capture = proc.stderr_capture()
+    assert capture.complete is True
+    assert capture.truncated is False
+    assert capture.text == line
+
+
+def test_a_descendant_held_pipe_does_not_leak_the_drain(tmp_path, monkeypatch) -> None:
+    """E-B0 P3: close reclaims a drain a descendant's inherited pipe holds open."""
+    monkeypatch.setattr(B, "STDERR_TAIL_WAIT_S", 0.5)
+    script = _stub(
+        tmp_path,
+        """\
+        import json, os, subprocess, sys
+        descendant = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(300)"],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+        )
+        # stderr is inherited: the descendant holds the pipe after this process exits.
+        with open(os.path.join(os.path.dirname(__file__), "descendant.pid"), "w") as pid:
+            pid.write(str(descendant.pid))
+        sys.stderr.write("[bridge] starting\\n")
+        sys.stderr.flush()
+        for raw in sys.stdin:
+            req = json.loads(raw)
+            sys.stdout.write(json.dumps({"request_id": req["request_id"], "ok": True}) + "\\n")
+            sys.stdout.flush()
+            break
+        """,
+    )
+    pid_file = tmp_path / "descendant.pid"
+    proc = _process(script)
+    try:
+        try:
+            assert proc.request("handshake", {}, timeout_s=30.0)["ok"] is True
+        finally:
+            proc.close(timeout_s=5.0)
+        # The direct child is gone; the descendant still holds stderr open. The
+        # drain must be stopped and reclaimed, not pinned for the process life.
+        assert proc._stderr_draining() is False
+        capture = proc.stderr_capture()
+        assert capture.text == "[bridge] starting\n"
+        assert capture.complete is False
+    finally:
+        if pid_file.exists():
+            with contextlib.suppress(ProcessLookupError, ValueError):
+                os.kill(int(pid_file.read_text(encoding="utf-8")), signal.SIGTERM)
+
+
+def test_a_closed_stdout_reports_only_complete_tail_lines(tmp_path) -> None:
+    """E-B0 P3: the error tail must not start in the middle of a line."""
+    script = _stub(
+        tmp_path,
+        """\
+        import sys
+        sys.stdin.readline()
+        sys.stderr.write("first\\n" + "y" * 5000 + "\\nlast complete\\ntail partial")
+        sys.stderr.flush()
+        """,
+    )
+    proc = _process(script)
+    try:
+        with pytest.raises(B.BridgeLaunchError) as error:
+            proc.request("handshake", {}, timeout_s=30.0)
+    finally:
+        proc.close(timeout_s=10.0)
+    tail = str(error.value).split("(stderr tail: ", 1)[1].removesuffix(")")
+    assert tail.startswith("last complete\n")
+    assert "y" * 50 not in tail
+    assert tail.endswith("tail partial")
+
+
+def test_the_error_tail_drops_a_partial_first_line() -> None:
+    """E-B0 P3: the tail helper keeps whole lines only."""
+    assert B._stderr_tail("short\n", 100) == "short\n"
+    lines = "".join(f"line {index:04d}\n" for index in range(500))
+    tail = B._stderr_tail(lines, 100)
+    assert tail
+    assert lines.endswith(tail)
+    assert all(line.startswith("line ") for line in tail.splitlines())
+    assert B._stderr_tail("x" * 200, 100) == ""
+    assert B._stderr_tail("head\n" + "x" * 200, 100) == ""
+
+
+def test_the_error_tail_wait_is_one_bounded_budget(tmp_path, monkeypatch) -> None:
+    """E-B0 P3: the tail collection shares one deadline instead of two serial waits."""
+    monkeypatch.setattr(B, "STDERR_TAIL_WAIT_S", 2.0)
+    script = _stub(
+        tmp_path,
+        """\
+        import os, sys, time
+        sys.stdin.readline()
+        sys.stdout.flush()
+        os.close(1)
+        sys.stderr.write("still alive\\n")
+        sys.stderr.flush()
+        time.sleep(300)
+        """,
+    )
+    proc = _process(script)
+    try:
+        started = time.monotonic()
+        with pytest.raises(B.BridgeLaunchError, match="closed stdout"):
+            proc.request("handshake", {}, timeout_s=5.0)
+        assert time.monotonic() - started < 6.0
+    finally:
+        proc.popen.kill()
+        proc.popen.wait(timeout=5)
+        proc.close(timeout_s=1.0)
+
+
 def test_transport_diagnostics_is_retained_not_a_lab_gap(records) -> None:
     assert fh.LAB_CAPTURE_GAPS == {}
     assert set(fh.LAB_CAPTURE_RETAINED) == {"transport_diagnostics"}
@@ -199,6 +355,22 @@ def test_a_launcher_that_stops_retaining_stderr_is_drift(edit) -> None:
         fh.assert_lab_capture(edit(launcher))
 
 
+@pytest.mark.parametrize(
+    "edit",
+    [
+        # The bounded raw read is replaced by an unbounded one.
+        lambda text: text.replace("os.read(fd, STDERR_READ_CHUNK_BYTES)", "os.read(fd, -1)"),
+        # close() no longer stops a drain a descendant's pipe is holding open.
+        lambda text: text.replace("self._stderr_stop.set()", "pass"),
+    ],
+)
+def test_a_launcher_that_drops_the_capture_edges_is_drift(edit) -> None:
+    launcher = LAUNCHER.read_text(encoding="utf-8")
+    fh.assert_lab_capture(launcher)
+    with pytest.raises(fh.HiddenChannelDrift, match="Lab capture"):
+        fh.assert_lab_capture(edit(launcher))
+
+
 def test_a_channel_cannot_be_both_gap_and_retained(monkeypatch) -> None:
     monkeypatch.setitem(fh.LAB_CAPTURE_GAPS, "transport_diagnostics", "stale gap")
     with pytest.raises(fh.HiddenChannelDrift, match="both"):
@@ -228,13 +400,13 @@ def test_cost_state_is_a_lab_execution_gap(records) -> None:
 
 
 def test_both_modules_file_cost_state_the_same_way() -> None:
-    """The two Lab modules that disagreed (forge_residuals vs the AF05 table) now agree."""
-    for dimension, detail in fh._LAB_DIMENSIONS.items():
-        klass, reason = fr._CONSTRUCTION[dimension]
-        assert klass == fr.LAB_EXECUTION_GAP, dimension
-        assert detail == reason, dimension
-        assert dimension not in fh._PROVIDER_DIMENSIONS, dimension
-    assert "action_cost_state" in fh._LAB_DIMENSIONS
+    """Independent expected value: both modules must file action_cost_state exactly so."""
+    assert fh._LAB_DIMENSIONS == {"action_cost_state": EXPECTED_COST_STATE_DETAIL}
+    assert fr._CONSTRUCTION["action_cost_state"] == (
+        fr.LAB_EXECUTION_GAP,
+        EXPECTED_COST_STATE_DETAIL,
+    )
+    assert "action_cost_state" not in fh._PROVIDER_DIMENSIONS
 
 
 def test_a_cost_row_without_cost_state_drops_the_lab_entry(records) -> None:
@@ -326,6 +498,26 @@ def test_an_unbindable_exile_keeps_the_unobservable_finding(records) -> None:
         "obj:public-exile": None,
         "obj:public-exile-twin": None,
     }
+    assert "semantic_objects.zone:exile" in {gap["dimension"] for gap in row.unobservable}
+
+
+def test_a_bindable_exile_does_not_retire_a_face_down_siblings_limit(records) -> None:
+    """M21 control: one bound face-up exile plus one face-down exile stays UNOBSERVABLE."""
+    record = copy.deepcopy(records["HIDDEN_01"])
+    public = next(obj for obj in record["semantic_objects"] if obj.get("zone") == "exile")
+    face_down = copy.deepcopy(public)
+    face_down["semantic_id"] = "obj:face-down-exile"
+    face_down["card_identity"] = "Mystery Card"
+    face_down["face_down"] = True
+    record["semantic_objects"].append(face_down)
+    row = fh.classify_row(record)
+    exile = [g for g in row.provider_gaps if g["dimension"] == "semantic_objects.zone:exile"]
+    assert len(exile) == 1
+    assert exile[0]["readback_binding"] == {
+        "obj:public-exile": "Sol Ring",
+        "obj:face-down-exile": None,
+    }
+    # One bound sibling must not retire the limit the face-down object keeps.
     assert "semantic_objects.zone:exile" in {gap["dimension"] for gap in row.unobservable}
 
 

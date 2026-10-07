@@ -742,10 +742,13 @@ LAB_CAPTURE_ASSERTIONS: dict[str, tuple[tuple[str, int], ...]] = {
     "transport_diagnostics": (
         ("stderr=subprocess.PIPE,", 1),
         ("target=self._drain_stderr", 1),
-        ('for line in iter(stream.readline, ""):', 1),
-        ("self._stderr_chunks.append(line)", 1),
+        # The drain reads bounded raw chunks, never an unbounded line.
+        ("os.read(fd, STDERR_READ_CHUNK_BYTES)", 1),
+        ("self._stderr_chunks.append(text)", 1),
         ("self._stderr_truncated = True", 1),
         ("self._stderr_complete = True", 1),
+        # close() stops a drain a descendant's inherited pipe is holding open.
+        ("self._stderr_stop.set()", 1),
         # No direct read may race the drain for the stream.
         (".stderr.read", 0),
     ),

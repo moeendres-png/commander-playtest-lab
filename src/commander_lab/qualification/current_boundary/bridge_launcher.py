@@ -7,14 +7,17 @@ internals, never computes legality, and never fabricates a response.
 
 from __future__ import annotations
 
+import codecs
 import contextlib
 import dataclasses
 import json
 import os
 import re
 import secrets
+import select
 import subprocess
 import threading
+import time
 import uuid
 from collections.abc import Iterator
 from dataclasses import dataclass, field
@@ -39,6 +42,27 @@ ORCHESTRATION_KEY_VARIABLE = "COMMANDER_LAB_ORCHESTRATION_KEY"
 #: Past it the drain keeps reading, so the child never stalls on a full pipe, but
 #: discards and marks the capture truncated: a truncated capture is not scannable.
 STDERR_RETAIN_LIMIT_CHARS = 32 * 1024 * 1024
+
+#: Upper bound on one raw stderr read (E-B0 P3, #580 review). A single endless
+#: diagnostic line must not grow the drain's read buffer before the retention
+#: cap is applied: the drain reads at most this many bytes per ``os.read``.
+STDERR_READ_CHUNK_BYTES = 64 * 1024
+
+#: How long the drain sleeps on an empty non-blocking pipe before checking its
+#: stop flag again (E-B0 P3). Bounds how long ``close`` waits to reclaim a drain
+#: that a descendant's inherited pipe is holding open.
+STDERR_POLL_INTERVAL_S = 0.2
+
+#: Grace for the drain to reach end of stream after the direct child is gone.
+#: After it, a drain still alive is stopped rather than leaked (E-B0 P3).
+STDERR_DRAIN_GRACE_S = 2.0
+
+#: Total budget to collect the stderr tail after stdout closed, shared by the
+#: child wait and the drain join (E-B0 P3: it used to be two serial 5 s waits).
+STDERR_TAIL_WAIT_S = 5.0
+
+#: How much of the retained stderr an error message reports.
+STDERR_TAIL_LIMIT_CHARS = 2000
 
 _SHA40 = re.compile(r"[0-9a-f]{40}")
 
@@ -212,6 +236,24 @@ class StderrCapture:
         return self.complete and not self.truncated
 
 
+def _stderr_tail(text: str, limit: int = STDERR_TAIL_LIMIT_CHARS) -> str:
+    """The last complete stderr lines, at most ``limit`` characters (E-B0 P3).
+
+    A tail cut by the limit must not start mid-line, so the partial first line is
+    dropped rather than reported as if it were a whole diagnostic.
+    """
+    if len(text) <= limit:
+        return text
+    cut = len(text) - limit
+    tail = text[cut:]
+    if text[cut - 1] != "\n":
+        newline = tail.find("\n")
+        if newline == -1:
+            return ""
+        tail = tail[newline + 1 :]
+    return tail
+
+
 @dataclass
 class BridgeProcess:
     """A live external candidate bridge speaking Protocol 2.0.0.
@@ -236,6 +278,9 @@ class BridgeProcess:
     _stderr_thread: threading.Thread | None = field(
         default=None, init=False, repr=False, compare=False
     )
+    _stderr_stop: threading.Event = field(
+        default_factory=threading.Event, init=False, repr=False, compare=False
+    )
 
     def __post_init__(self) -> None:
         if self.popen.stderr is None:
@@ -246,23 +291,61 @@ class BridgeProcess:
         )
         self._stderr_thread.start()
 
+    def _stderr_readable(self, fd: int) -> bool:
+        """Wait up to the poll interval for stderr data or end of stream.
+
+        ``select`` keeps the drain responsive without busy-waiting. On platforms
+        whose pipes ``select`` does not cover (Windows), fall back to a bounded
+        sleep and let the non-blocking read decide.
+        """
+        try:
+            return bool(select.select([fd], [], [], STDERR_POLL_INTERVAL_S)[0])
+        except (OSError, ValueError):
+            self._stderr_stop.wait(STDERR_POLL_INTERVAL_S)
+            return True
+
     def _drain_stderr(self) -> None:
         stream = self.popen.stderr
         assert stream is not None
+        fd = stream.fileno()
+        # Popen types stderr as IO[str]; a text-mode Popen wraps it in a
+        # TextIOWrapper carrying the encoding/errors the bytes must decode with.
+        decoder = codecs.getincrementaldecoder(getattr(stream, "encoding", None) or "utf-8")(
+            getattr(stream, "errors", None) or "strict"
+        )
         try:
-            for line in iter(stream.readline, ""):
+            # A non-blocking read plus a stop flag, not a blocking readline: the
+            # read is bounded by STDERR_READ_CHUNK_BYTES, and a descendant that
+            # inherits the pipe can never pin this thread (E-B0 P3).
+            os.set_blocking(fd, False)
+            while not self._stderr_stop.is_set():
+                if not self._stderr_readable(fd):
+                    continue
+                try:
+                    data = os.read(fd, STDERR_READ_CHUNK_BYTES)
+                except BlockingIOError:
+                    continue
+                except (OSError, ValueError):
+                    return
+                if not data:
+                    break
+                try:
+                    text = decoder.decode(data)
+                except ValueError:
+                    return
                 with self._stderr_lock:
-                    if self._stderr_size + len(line) > STDERR_RETAIN_LIMIT_CHARS:
+                    if self._stderr_size + len(text) > STDERR_RETAIN_LIMIT_CHARS:
                         self._stderr_truncated = True
                         continue
-                    self._stderr_chunks.append(line)
-                    self._stderr_size += len(line)
+                    self._stderr_chunks.append(text)
+                    self._stderr_size += len(text)
         except (OSError, ValueError):
             # The stream was closed under the drain: what was read is kept, but
             # the end of stream was never seen, so the capture stays incomplete.
             return
-        with self._stderr_lock:
-            self._stderr_complete = True
+        if not self._stderr_stop.is_set():
+            with self._stderr_lock:
+                self._stderr_complete = True
 
     def _join_stderr(self, timeout_s: float) -> None:
         if self._stderr_thread is not None:
@@ -321,11 +404,13 @@ class BridgeProcess:
             raise BridgeLaunchError(f"bridge stdin unavailable: {exc}") from exc
         raw = self._read_line_with_deadline(timeout_s, message_type, rid)
         if not raw:
-            # stdout closed: let the drain reach the end of stderr, then report its tail.
+            # stdout closed: give the drain one bounded budget to reach the end
+            # of stderr (E-B0 P3), then report complete lines only.
+            deadline = time.monotonic() + STDERR_TAIL_WAIT_S
             with contextlib.suppress(OSError, ValueError, subprocess.TimeoutExpired):
-                self.popen.wait(timeout=5)
-            self._join_stderr(5.0)
-            stderr = self.stderr_capture().text[-2000:]
+                self.popen.wait(timeout=max(0.0, deadline - time.monotonic()))
+            self._join_stderr(max(0.0, deadline - time.monotonic()))
+            stderr = _stderr_tail(self.stderr_capture().text)
             raise BridgeLaunchError(
                 f"bridge closed stdout for {message_type} (stderr tail: {stderr})"
             )
@@ -414,16 +499,22 @@ class BridgeProcess:
         except subprocess.TimeoutExpired:
             self.popen.kill()
         finally:
-            # The process is gone (or killed): let the drain reach end of stream
-            # before the stream is closed under it.
+            # The process is gone (or killed): give the drain a short grace to
+            # reach end of stream, then stop it. A descendant that inherited the
+            # pipe can hold it open forever, so a drain still blocked after the
+            # grace is reclaimed here instead of pinning its thread and capture
+            # for the life of this process (E-B0 P3).
             with contextlib.suppress(OSError, ValueError, subprocess.TimeoutExpired):
                 self.popen.wait(timeout=5)
-            self._join_stderr(5.0)
+            self._join_stderr(STDERR_DRAIN_GRACE_S)
+            if self._stderr_draining():
+                self._stderr_stop.set()
+                self._join_stderr(5.0)
             for stream in (self.popen.stdout, self.popen.stderr):
                 if stream is self.popen.stderr and self._stderr_draining():
-                    # A descendant still holds the pipe open; closing it under the
-                    # blocked drain would wait on the drain's read. The daemon drain
-                    # ends with the pipe, and the capture stays incomplete.
+                    # A drain that could not be stopped: closing it under the
+                    # blocked read would wait on that read. The capture stays
+                    # incomplete, and the daemon ends with the process.
                     continue
                 if stream is not None:
                     with contextlib.suppress(OSError):

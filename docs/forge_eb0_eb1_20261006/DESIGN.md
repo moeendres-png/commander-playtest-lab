@@ -75,9 +75,10 @@ it, so it satisfies no row, and the binder is used only to decide the label.
 
 `LAB_CAPTURE_GAPS` is empty. `LAB_CAPTURE_RETAINED["transport_diagnostics"]` states the
 retention. `LAB_CAPTURE_ASSERTIONS` now binds that claim to the launcher code: the stderr
-pipe, the drain thread, the bounded append and the EOF flag must be present, and there must
-be no direct `.stderr.read` racing the drain. A channel must be in exactly one of
-GAPS or RETAINED. A launcher that stops retaining stderr raises `HiddenChannelDrift`. It
+pipe, the drain thread, the bounded raw chunk read, the bounded append, the EOF flag and
+the close-path stop must be present, and there must be no direct `.stderr.read` racing the
+drain. A channel must be in exactly one of GAPS or RETAINED. A launcher that stops
+retaining stderr, or drops the chunk bound or the stop, raises `HiddenChannelDrift`. It
 cannot silently keep the gap closed.
 
 Capture contract (`BridgeProcess.stderr_capture()`):
@@ -85,6 +86,13 @@ Capture contract (`BridgeProcess.stderr_capture()`):
 - `truncated` is true when the retention cap was exceeded;
 - `scannable` is `complete and not truncated`. A scan over an unscannable capture must
   fail closed (UNKNOWN), never PASS.
+
+The drain reads a non-blocking pipe with `os.read(fd, STDERR_READ_CHUNK_BYTES)` chunks
+(64 KiB) gated by a stop flag checked every `STDERR_POLL_INTERVAL_S`, decoded with an
+incremental decoder, so a single endless diagnostic line cannot grow its read buffer and a
+descendant that inherited the pipe cannot pin the thread. `close()` gives the drain
+`STDERR_DRAIN_GRACE_S` to reach EOF, then sets the stop flag and joins again; a stopped
+drain leaves the capture incomplete.
 
 Privacy: the capture is held in memory on the process object. It never enters
 `transcript`, which is persisted, and nothing in this batch writes it to evidence. Before
@@ -124,17 +132,55 @@ reclassification named above, not a weakening:
 - `test_construction_gaps_are_the_lane_model_findings` now also requires
   `exile_construction`.
 
+## Review fixes (PR #580 review comment 6026098771)
+
+A fresh-context review of the first head (`7051710`) found one P2 and four P3 items. All
+are fixed here. The census re-run is byte-identical to the committed matrix, the manifests
+are unchanged, and no verdict moves.
+
+- **P2, mutation M21.** The table claimed `all`→`any` was killed by
+  `test_an_unbindable_exile_keeps_the_unobservable_finding`, but that test's two twin
+  objects are both unbound, so `any` also returns false and the mutant survived (22/23,
+  not 23/23). The reviewer's probe is now the test
+  `test_a_bindable_exile_does_not_retire_a_face_down_siblings_limit`: one face-up exile
+  binds to `Sol Ring`, one face-down sibling stays `None`, and the UNOBSERVABLE finding
+  must stay. M21 is killed by that test.
+- **P3, tautological agreement test.** `test_both_modules_file_cost_state_the_same_way`
+  compared `fh._LAB_DIMENSIONS` with `forge_residuals._CONSTRUCTION`, which is exactly the
+  comprehension `_LAB_DIMENSIONS` is derived from. It now asserts an independent literal,
+  `EXPECTED_COST_STATE_DETAIL`, against both modules and against the mapping, so a text
+  change in either module fails the test.
+- **P3, drain line buffer.** The drain no longer uses a blocking `readline()`: it reads
+  `os.read(fd, STDERR_READ_CHUNK_BYTES)` chunks from a non-blocking pipe and decodes them
+  with an incremental decoder, so one endless diagnostic line cannot grow the read buffer
+  past one chunk. The ratchet binds the bounded call.
+- **P3, blocked drain never reclaimed.** The drain checks a stop flag every
+  `STDERR_POLL_INTERVAL_S`. `close()` joins for `STDERR_DRAIN_GRACE_S` for EOF, then sets
+  the flag and joins again, so a descendant that inherited the pipe cannot pin the drain
+  thread or its capture for the life of the process.
+- **P3, late and mid-line tail.** The error path now uses one `STDERR_TAIL_WAIT_S` budget
+  for the child wait plus the drain join (it was two serial 5 s waits, so up to 10 s) and
+  reports `_stderr_tail(...)`: complete lines only, the partial first line is dropped.
+
+Red/green for the new tests: against the pre-fix launcher (`7051710`) the six new E-B0
+tests fail (missing `STDERR_READ_CHUNK_BYTES`/`STDERR_TAIL_WAIT_S`/`_stderr_tail`, a
+mid-line tail, and the ratchet mismatch). With the fix, the two focused files pass 115.
+The M21 test passes on the unmutated source and fails only under the M21 mutant.
+
 ## Mutation-kill evidence
 
-Each mutant was applied by hand to a copy of the source and run against its named test,
-and the source was then restored. The driver script is in the session scratchpad and is
-not committed. 23/23 mutants were killed.
+Each mutant is applied by string replacement to the real source file and run against its
+named test, and the source is restored byte-for-byte afterwards. The driver script is in
+the session scratchpad and is not committed. This is the rerun after the review fixes
+above: the named tests pass on the unmutated source first, and **27/27 mutants were
+killed**. The first head's table said 23/23; the review proved M21 survived (see the P2
+item above), so that claim was wrong until the discriminating test was added.
 
 | Mutant | Change | Killed by |
 |---|---|---|
 | M1 | `LAB_CAPTURE_GAPS` non-empty again | `test_transport_diagnostics_is_retained_not_a_lab_gap` |
 | M2 | the drain thread is never started | `test_the_launcher_retains_the_whole_stderr_stream` |
-| M3 | over-cap lines are dropped without setting `truncated` | `test_an_over_limit_capture_is_marked_truncated_and_unscannable` |
+| M3 | over-cap chunks are dropped without setting `truncated` | `test_an_over_limit_capture_is_marked_truncated_and_unscannable` |
 | M4 | the cap is ignored (append past the limit) | `test_an_over_limit_capture_is_marked_truncated_and_unscannable` |
 | M5 | `scannable` ignores `truncated` | `test_an_over_limit_capture_is_marked_truncated_and_unscannable` |
 | M6 | `complete` starts true (a live capture looks complete) | `test_a_live_capture_is_incomplete_and_unscannable` |
@@ -152,17 +198,24 @@ not committed. 23/23 mutants were killed.
 | M18 | exile finding dropped instead of moved | `test_public_exile_is_a_construction_gap_not_a_readback_limit` |
 | M19 | UNOBSERVABLE always retired, even unbound | `test_an_unbindable_exile_keeps_the_unobservable_finding` |
 | M20 | UNOBSERVABLE never retired | `test_public_exile_is_a_construction_gap_not_a_readback_limit` |
-| M21 | "all bound" weakened to "any bound" | `test_an_unbindable_exile_keeps_the_unobservable_finding` |
+| M21 | "all bound" weakened to "any bound" | `test_a_bindable_exile_does_not_retire_a_face_down_siblings_limit` |
 | M22 | `exile_construction` loses its absent tokens | `test_a_new_capability_is_drift` |
 | M23 | `exile_name_readback` loses its absent token | `test_a_new_capability_is_drift` |
+| M24 | the bounded raw read is replaced by an unbounded one | `test_a_launcher_that_drops_the_capture_edges_is_drift` |
+| M25 | `close` no longer stops a descendant-held drain | `test_a_descendant_held_pipe_does_not_leak_the_drain` |
+| M26 | the error tail may start mid-line | `test_the_error_tail_drops_a_partial_first_line` |
+| M27 | the tail wait ignores the shared deadline | `test_the_error_tail_wait_is_one_bounded_budget` |
 
 On the first pass M13 survived, because no binder case had two requested objects with
-only one readback card. That case was added. The final table comes from one fresh run of
-all 23 mutants, with `PYTHONDONTWRITEBYTECODE=1` and `__pycache__` cleared. Restoring a
-source file with an equal size and mtime second can otherwise leave a stale mutant `.pyc`
-in place. The named tests also pass on the unmutated source in that run (107 passed). On its first form, M7
-was killed but stalled pytest's assertion diff over megabytes of stderr. The test now
-compares booleans.
+only one readback card. That case was added. M21 survived the same way: both objects in
+`test_an_unbindable_exile_keeps_the_unobservable_finding` are unbound, so `any` is false
+too; the mixed face-up/face-down case above is the discriminating one. The final table
+comes from one fresh run of all 27 mutants, with `PYTHONDONTWRITEBYTECODE=1` and
+`__pycache__` cleared between mutants. Restoring a source file with an equal size and
+mtime second can otherwise leave a stale mutant `.pyc` in place. The named tests also pass
+on the unmutated source in that run (27 control passes). On its first form, M7 was killed
+but stalled pytest's assertion diff over megabytes of stderr. The test now compares
+booleans.
 
 ## Definition conflicts and open questions
 
