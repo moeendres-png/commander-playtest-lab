@@ -166,7 +166,10 @@ class RulesGameRequest(FrozenModel):
     deck_handles: tuple[str, ...]
     format: Literal["commander"] = "commander"
     seed: int | None = Field(default=None, ge=0)
-    starting_player_seat: int = Field(default=0, ge=0)
+    # #572: there is no seat-0 default. A caller that reaches an external engine
+    # must declare the starting/choosing seat explicitly; without one the
+    # request carries null and the bridge fails closed.
+    starting_player_seat: int | None = Field(default=None, ge=0)
     starting_life: int = Field(default=40, ge=1)
     deterministic_starting_state: dict[str, Any] | None = None
     external_control: bool = False
@@ -175,7 +178,9 @@ class RulesGameRequest(FrozenModel):
     def validate_pod(self) -> RulesGameRequest:
         if not 1 <= len(self.deck_handles) <= 10:
             raise ValueError("rules-engine game requires between one and ten decks")
-        if self.starting_player_seat >= len(self.deck_handles):
+        if self.starting_player_seat is not None and self.starting_player_seat >= len(
+            self.deck_handles
+        ):
             raise ValueError("starting_player_seat is outside the pod")
         return self
 

@@ -67,11 +67,17 @@ from typing import Any
 from . import receipts as receipt_mod
 from .bridge_launcher import BridgeLaunchError, build_launch_plan, launch
 from .game_driver import (
+    _SEATS,
+    STARTING_PLAYER_CHANNEL_CREATE_ECHO_ONLY,
+    STARTING_PLAYER_CHANNEL_ENGINE_FRAME,
+    STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED,
     DecisionUnsatisfied,
     GameDriveError,
     _acknowledged_seed,
     _create_request,
     _declares_seed_support,
+    _engine_seat_roster,
+    _evaluate_starting_player_readback,
     _payload,
     _require_ok,
     build_deck,
@@ -1273,20 +1279,31 @@ def _record_action_for_kind(
     actions: list[dict[str, Any]],
     frame: dict[str, Any],
     *,
-    scripted_starting_seat: str,
+    scripted_starting_seat: str | None,
 ) -> tuple[dict[str, Any], str]:
-    """Apply the declared recording policy and return (action, policy)."""
+    """Apply the declared recording policy and return (action, policy).
+
+    ``scripted_starting_seat`` is the starting seat the run's authoritative
+    declaration names, or ``None`` when the lane declares none. The engine's
+    starting-player frame is never answered without one (#572).
+    """
     if kind in {"STARTING_PLAYER", "CHOOSE_STARTING_PLAYER"}:
+        if scripted_starting_seat is None:
+            raise DecisionUnsatisfied(
+                "the engine offered a STARTING_PLAYER decision and the twin lane "
+                "declares no starting seat; the Lab never chooses it"
+            )
         matches = [
             action
             for action in actions
             if action.get("action_type") == "structural_decision"
-            and action.get("source_object_id") == scripted_starting_seat
+            and str(action.get("source_object_id", "")).strip().lower() == scripted_starting_seat
         ]
         if len(matches) != 1:
             raise DecisionUnsatisfied(
-                f"the fixture script requires starting seat {scripted_starting_seat!r}; "
-                f"the engine offered {[a.get('source_object_id') for a in actions]}"
+                f"the declared starting seat is {scripted_starting_seat!r}; "
+                f"the engine offered {[a.get('source_object_id') for a in actions]} "
+                f"({len(matches)} matches, exactly one required)"
             )
         return matches[0], "fixture_scripted_seat"
     if kind == "ORDER_CHOICE":
@@ -1427,7 +1444,8 @@ def gather_generic_lane_process(
     lab_source: dict[str, Any],
     decision_tape: Sequence[Mapping[str, Any]] | None,
     max_decisions: int = 6000,
-    scripted_starting_seat: str = "p1",
+    scripted_starting_seat: str | None = None,
+    starting_seat_source: str | None = None,
     deck_payloads: Sequence[Mapping[str, Any]] | None = None,
     concede_after_decisions: int | None = None,
 ) -> TwinRun:
@@ -1438,7 +1456,19 @@ def gather_generic_lane_process(
     resolved to exactly one engine-offered semantic option and the engine's own
     acceptance is required. Nothing is answered when the resolution is missing
     or ambiguous.
+
+    ``scripted_starting_seat`` is the twin lane's explicit starting-seat
+    declaration (with ``starting_seat_source``), or ``None``. There is no
+    default; a run without one fails closed on the engine's starting-player
+    frame and the recorded policy names the absence (#572).
     """
+    if (scripted_starting_seat is None) != (starting_seat_source is None):
+        raise ValueError("the starting seat and its source are declared together")
+    if scripted_starting_seat is not None and scripted_starting_seat not in _SEATS[:player_count]:
+        raise ValueError(
+            f"declared starting seat {scripted_starting_seat!r} is outside "
+            f"the {player_count}-player twin"
+        )
     replaying = decision_tape is not None
     tape = list(decision_tape or [])
     conceded_actors: set[str] = set()
@@ -1458,6 +1488,9 @@ def gather_generic_lane_process(
     binding_document: dict[str, Any] = {}
     created_player_count: Any = None
     start_status: Any = None
+    starting_player_frame_answered = False
+    provider_acknowledged_starting_seat: int | None = None
+    provider_readback_seen = False
     deck_identity: list[str] = []
     deck_hashes: list[str] = []
     fixture_identity: dict[str, Any] = {}
@@ -1465,6 +1498,14 @@ def gather_generic_lane_process(
     rules_rng: dict[str, Any] = {}
 
     try:
+        if candidate == "xmage" and scripted_starting_seat is None:
+            # Same refusal as the generic driver: XMage's create channel needs
+            # the declaration and publishes no starting-player frame here.
+            raise DecisionUnsatisfied(
+                "the twin declares no starting seat and the XMage create channel "
+                "requires an explicit starting_player_seat; the Lab never supplies "
+                "a p1/seat-0 default"
+            )
         for message in ("start_engine", "get_provider_version", "get_capabilities"):
             response = proc.request(message, {}, timeout_s=60.0)
             payload = _require_ok(response, message)
@@ -1498,12 +1539,31 @@ def gather_generic_lane_process(
         created = _require_ok(
             proc.request(
                 "create_commander_game",
-                _create_request(game_id, handles, seed, seed_supported),
+                _create_request(
+                    game_id,
+                    handles,
+                    seed,
+                    seed_supported,
+                    candidate=candidate,
+                    starting_seat=scripted_starting_seat,
+                ),
                 game_id=game_id,
                 timeout_s=300.0,
             ),
             "create_commander_game",
         )
+        if scripted_starting_seat is not None and candidate == "xmage":
+            echoed = created.get("starting_player_seat")
+            if isinstance(echoed, int) and not isinstance(echoed, bool):
+                if echoed != _SEATS.index(scripted_starting_seat):
+                    # A provider acknowledgement of another seat means the
+                    # declared decision was not executed: UNKNOWN, never a
+                    # rules failure (#572 review P3-2, R3-C2).
+                    raise DecisionUnsatisfied(
+                        "the provider acknowledged starting_player_seat "
+                        f"{echoed}, not the declared seat {scripted_starting_seat!r}"
+                    )
+                provider_acknowledged_starting_seat = echoed
         binding = receipt_mod.classify_seed_binding(
             requested_seed=seed,
             acknowledged_seed=_acknowledged_seed(created),
@@ -1515,6 +1575,24 @@ def gather_generic_lane_process(
             proc.request("start_game", {}, game_id=game_id, timeout_s=300.0), "start_game"
         )
         start_status = started.get("status")
+        # The create echo repeats the request and is never engine confirmation
+        # (#572 review P2-1). The confirmed channel requires the engine's own
+        # start readback *and* the identities of the CR 103.2 prompt the bridge
+        # actually answered, all resolved through the engine's own seat roster
+        # to the declared seat; anything less stays unverified.
+        provider_confirmed_seat: str | None = None
+        if scripted_starting_seat is not None and candidate == "xmage":
+            started_player_id = started.get("starting_player_id")
+            if isinstance(started_player_id, str) and started_player_id:
+                provider_readback_seen = True
+                roster = _engine_seat_roster(
+                    proc, game_id=game_id, player_count=player_count, created_seats=None
+                )
+                provider_confirmed_seat, refusal = _evaluate_starting_player_readback(
+                    started, roster, scripted_starting_seat
+                )
+                if refusal is not None:
+                    raise DecisionUnsatisfied(refusal)
 
         steps = 0
         frame: dict[str, Any] | None = None
@@ -1617,6 +1695,23 @@ def gather_generic_lane_process(
                 )
             if chosen.get("action_type") == "concede":
                 conceded_actors.add(actor)
+            if (
+                kind in {"STARTING_PLAYER", "CHOOSE_STARTING_PLAYER"}
+                and policy == "fixture_scripted_seat"
+                and scripted_starting_seat is not None
+            ):
+                # The channel requires the engine-executed option itself to name
+                # the declared seat. The tape's policy string alone is data and
+                # could be forged, so it is never sufficient (#572 review P2).
+                executed_seat = str(chosen.get("source_object_id", "")).strip().lower()
+                if executed_seat and executed_seat != scripted_starting_seat:
+                    raise TwinReplayDivergence(
+                        f"decision {steps}: the {kind} submission executed seat "
+                        f"{executed_seat!r}, not the declared seat "
+                        f"{scripted_starting_seat!r}"
+                    )
+                if executed_seat == scripted_starting_seat:
+                    starting_player_frame_answered = True
             state = answer.get("state")
             state = state if isinstance(state, dict) else None
             checkpoint_after = _state_checkpoint(state)
@@ -1710,6 +1805,22 @@ def gather_generic_lane_process(
                     "reason": "no terminal fact was observed",
                     **_state_checkpoint(last_state),
                 }
+        if starting_player_frame_answered:
+            starting_player_channel: str | None = STARTING_PLAYER_CHANNEL_ENGINE_FRAME
+        elif provider_confirmed_seat is not None:
+            starting_player_channel = STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
+        elif provider_acknowledged_starting_seat is not None and not provider_readback_seen:
+            # The create response echoed the declared seat and no engine
+            # starting-player readback followed at all. The label is auditable,
+            # deliberately distinct, and never a verified channel: an echo
+            # repeats the request and carries no temporal credit (#572 review
+            # P2-1, R3-C3/C4).
+            starting_player_channel = STARTING_PLAYER_CHANNEL_CREATE_ECHO_ONLY
+        else:
+            # No answered frame, no confirmed readback. A readback that exists
+            # but cannot be confirmed (missing prompt identities) is explicitly
+            # not a channel either.
+            starting_player_channel = None
         fixture_identity = {
             "fixture_id": fixture_id,
             "candidate": candidate,
@@ -1719,7 +1830,21 @@ def gather_generic_lane_process(
             "deck_identity": deck_identity,
             "deck_hashes": deck_hashes,
             "commander": "Isamaru, Hound of Konda",
-            "starting_seat_policy": "fixture_scripted_seat:p1",
+            # The declared starting seat and its source, or an explicit absence.
+            # Never a default (#572).
+            "starting_seat_policy": (
+                f"declared:{scripted_starting_seat}:{starting_seat_source}"
+                if scripted_starting_seat is not None
+                else "NO_DECLARED_STARTING_SEAT"
+            ),
+            "starting_player_declaration": (
+                {"seat": scripted_starting_seat, "source": starting_seat_source}
+                if scripted_starting_seat is not None
+                else None
+            ),
+            "starting_player_channel": starting_player_channel,
+            "starting_player_provider_confirmed_seat": provider_confirmed_seat,
+            "starting_player_provider_acknowledged_seat": (provider_acknowledged_starting_seat),
         }
         candidate_build = {
             "candidate": candidate,
@@ -1838,6 +1963,8 @@ def run_generic_lane_twin(
     player_count: int = 4,
     seed: int = 424242,
     fixture_id: str | None = None,
+    scripted_starting_seat: str,
+    starting_seat_source: str,
     xmage_workspace: Path | None = None,
     forge_workspace: Path | None = None,
     max_decisions: int = 6000,
@@ -1849,6 +1976,10 @@ def run_generic_lane_twin(
     Only the Forge lane currently publishes the cross-process semantic option
     identity this contract requires; an attempt on another candidate fails
     closed with the exact missing channel.
+
+    ``scripted_starting_seat``/``starting_seat_source`` are required: the twin
+    lane has no fixture record, so its starting seat must be an explicit
+    declaration by the caller (#572). There is no default.
     """
     if candidate != "forge":
         raise TwinChannelUnavailable(
@@ -1884,6 +2015,8 @@ def run_generic_lane_twin(
             lab_source=lab_source,
             decision_tape=None,
             max_decisions=max_decisions,
+            scripted_starting_seat=scripted_starting_seat,
+            starting_seat_source=starting_seat_source,
             deck_payloads=deck_payloads,
             concede_after_decisions=concede_after_decisions,
         )
@@ -1910,6 +2043,8 @@ def run_generic_lane_twin(
             lab_source=lab_source,
             decision_tape=record.decisions,
             max_decisions=max_decisions,
+            scripted_starting_seat=scripted_starting_seat,
+            starting_seat_source=starting_seat_source,
             deck_payloads=deck_payloads,
             concede_after_decisions=concede_after_decisions,
         )

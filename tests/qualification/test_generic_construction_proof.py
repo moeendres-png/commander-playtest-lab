@@ -16,6 +16,7 @@ import copy
 from pathlib import Path
 
 import pytest
+from _protocol2_starting_frames import StartingFrameProcess
 
 from commander_lab.qualification.current_boundary import (
     bridge_launcher,
@@ -108,6 +109,9 @@ def _proof(record, state, **overrides):
         "first_priority_seat": "p1",
         "capture": generic_construction.CAPTURE_POINT,
         "orchestration_key": KEY,
+        # The run this state represents reported a verified starting-player
+        # channel; the dedicated tests below remove or forge it.
+        "starting_player_channel": game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED,
     }
     kwargs.update(overrides)
     return generic_construction.compare(record, state, **kwargs)
@@ -252,6 +256,88 @@ def test_run_facts_are_checked_too(record, overrides, field) -> None:
     proof = _proof(record, _state(), **overrides)
     assert proof.verdict == generic_construction.MISMATCH
     assert field in {check.field for check in proof.failures()}
+
+
+def test_temporal_active_player_needs_a_verified_starter_channel(record) -> None:
+    """#572: without a verified starter channel the temporal facts are UNSUPPORTED.
+
+    The same state and run facts that establish equality above must not
+    establish it when the run cannot show where its starting seat came from; a
+    recorded position the Lab may itself have chosen is not a proof.
+    """
+    proof = _proof(record, _state(), starting_player_channel=None)
+    assert proof.verdict == generic_construction.UNSUPPORTED
+    assert _verdict_of(proof, "temporal_state.active_player") == "UNSUPPORTED"
+    assert _verdict_of(proof, "temporal_state.priority_player") == "UNSUPPORTED"
+    assert proof.starting_player_channel is None
+    assert proof.established is False
+    assert full107.construction_credit_gap(record, proof) is not None
+
+
+def test_a_declared_seat_without_an_answered_frame_keeps_temporal_unsupported(
+    record, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """#572 review P2-2 (mutant M10): the real driver's channel gate, end to end.
+
+    Forge declares p1 but the run answers no STARTING_PLAYER frame; the driver
+    must report no channel, and the construction proof must leave the temporal
+    active/priority facts UNSUPPORTED rather than comparing them.
+    """
+    proc = StartingFrameProcess(candidate="forge", offered_seats=None)
+    priority = {
+        "seat": "p1",
+        "decision": {
+            "kind": "PRIORITY",
+            "actor": "p1",
+            "revision": 4,
+            "decision_id": "e" * 64,
+            "status": "SUPPORTED",
+        },
+        "actions": [{"action_id": "pass", "action_type": "pass_priority", "metadata": {}}],
+        "raw": {},
+    }
+    monkeypatch.setattr(game_driver, "poll_decision", lambda *a, **k: priority)
+    result = game_driver.drive_commander_game(
+        proc,  # type: ignore[arg-type]
+        candidate="forge",
+        player_count=4,
+        seed=7,
+        scripted_starting_seat="p1",
+        starting_seat_source="TEST_DECLARATION",
+    )
+    assert result.failure is None, result.failure
+    assert result.terminal_facts["starting_player_channel"] is None
+    proof = _proof(
+        record, _state(), starting_player_channel=result.terminal_facts["starting_player_channel"]
+    )
+    assert _verdict_of(proof, "temporal_state.active_player") == "UNSUPPORTED"
+    assert _verdict_of(proof, "temporal_state.priority_player") == "UNSUPPORTED"
+    assert proof.established is False
+
+
+@pytest.mark.parametrize(
+    "channel",
+    [
+        "fixture_scripted_seat:p1",
+        "ENGINE_DEFAULT",
+        "",
+        "PROVIDER_CREATE_DECLARATION",
+    ],
+)
+def test_a_foreign_or_misspelled_starter_channel_never_verifies(record, channel) -> None:
+    proof = _proof(record, _state(), starting_player_channel=channel)
+    assert _verdict_of(proof, "temporal_state.active_player") == "UNSUPPORTED"
+    assert proof.established is False
+
+
+def test_the_proof_document_records_the_starting_player_channel(record) -> None:
+    document = _proof(record, _state()).to_document()
+    assert (
+        document["starting_player_channel"]
+        == game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
+    )
+    without = _proof(record, _state(), starting_player_channel=None).to_document()
+    assert without["starting_player_channel"] is None
 
 
 @pytest.mark.parametrize("key", [None, b"", bytes(15), "00" * 32])
@@ -444,6 +530,15 @@ def _run(state: dict | None, *, supported: bool = True) -> CommandedGameResult:
         result.constructed_state = state
         result.terminal_facts["constructed_state_capture"] = generic_construction.CAPTURE_POINT
     result.terminal_facts["first_priority_seat"] = "p1"
+    # A real current-boundary run reports the verified starting-player channel
+    # it used; without it the temporal facts stay UNSUPPORTED (#572).
+    result.terminal_facts["starting_player_channel"] = (
+        game_driver.STARTING_PLAYER_CHANNEL_PROVIDER_CONFIRMED
+    )
+    result.terminal_facts["starting_player_declaration"] = {
+        "seat": "p1",
+        "source": "RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER",
+    }
     result.seed_binding = classify_seed_binding(
         requested_seed=424242, acknowledged_seed=424242, source="test"
     )
@@ -719,9 +814,11 @@ def test_the_cardinality_row_needs_the_records_own_pregame(record) -> None:
 def test_a_plan_the_engine_did_not_follow_is_unknown_not_a_rules_failure(record) -> None:
     run = _run(_state())
     run.failure = "DecisionUnsatisfied: the engine asked mulligan #2 of p3; the plan names p2"
+    run.failure_kind = "FAIL_CLOSED_UNSATISFIED"
     row = full107.cardinality_row(record, run, candidate="xmage", runtime_identity={})
     assert row.outcome == "UNKNOWN"
-    assert "scripted pregame did not complete" in row.reason
+    assert "refused a decision the record does not authorize" in row.reason
+    run.failure_kind = "ENGINE_RUNTIME_ERROR"
     run.failure = "BridgeError: the process died"
     assert full107.cardinality_row(record, run, candidate="xmage", runtime_identity={}).outcome == (
         "FAIL"
@@ -740,8 +837,14 @@ def test_run_cardinality_drives_the_records_plan(record, monkeypatch: pytest.Mon
         object(), candidate="xmage", player_count=4, runtime_identity={}, record=record
     )
     assert seen["mulligan_plan"] == (("p1", True), ("p2", True), ("p3", True), ("p4", True))
+    # #572: the record's own declaration is passed through with its source; the
+    # driver never substitutes a default.
+    assert seen["scripted_starting_seat"] == "p1"
+    assert seen["starting_seat_source"] == ("RECORD_TEMPORAL_STATE_PRE_FIRST_TURN_ACTIVE_PLAYER")
     full107.run_cardinality(object(), candidate="xmage", player_count=4, runtime_identity={})
     assert seen["mulligan_plan"] is None
+    assert seen["scripted_starting_seat"] is None
+    assert seen["starting_seat_source"] is None
 
 
 @pytest.mark.usefixtures("complete_lifecycle")

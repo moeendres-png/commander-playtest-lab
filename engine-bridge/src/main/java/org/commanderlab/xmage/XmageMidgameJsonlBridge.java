@@ -321,7 +321,22 @@ final class XmageMidgameJsonlBridge {
             String planTag = stringValue(payload, "plan_id").isBlank()
                     ? gameId
                     : stringValue(payload, "plan_id");
-            int startingPlayerSeat = optionalInt(payload, "starting_player_seat", 0);
+            // The bridge never defaults the starting/choosing seat (#572): the
+            // record-derived seat is an explicit caller declaration, and absent
+            // or null refuses rather than falling back to seat 0. The declared
+            // seat is the engine's choosing player; the engine's own CR 103.2
+            // choice is offered to it as a decision frame.
+            if (!payload.has("starting_player_seat")
+                    || payload.get("starting_player_seat").isJsonNull()) {
+                return error(
+                        requestId,
+                        "missing_starting_player_seat",
+                        "CREATE_MIDGAME_GAME requires an explicit starting_player_seat; "
+                                + "the bridge never defaults to seat 0",
+                        false
+                );
+            }
+            int startingPlayerSeat = requiredInt(payload, "starting_player_seat");
             int startingLife = optionalInt(payload, "starting_life", 40);
             String requestedEntryMode = stringValue(payload, "entry_mode");
             String resolvedEntryMode = requestedEntryMode.isBlank()
@@ -1608,6 +1623,15 @@ final class XmageMidgameJsonlBridge {
             return defaultValue;
         }
         return object.get(property).getAsInt();
+    }
+
+    /** A required integer property; absence is a refusal, never a default. */
+    private static int requiredInt(JsonObject object, String property) {
+        long value = requiredLong(object, property);
+        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(property + " outside integer range");
+        }
+        return (int) value;
     }
 
     private static Result success(String requestId, JsonObject payload, boolean shutdown) {

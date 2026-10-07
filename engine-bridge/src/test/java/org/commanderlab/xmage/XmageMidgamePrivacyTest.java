@@ -130,6 +130,8 @@ class XmageMidgamePrivacyTest {
             request.addProperty("entry_mode", entryMode);
         }
         request.add("requested_starting_state", record);
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         if (fuel != null) {
             request.add("fuel", fuel);
         }
@@ -255,6 +257,20 @@ class XmageMidgamePrivacyTest {
      * lane surface addressed to P1 must be honeycard-free, while the engine's
      * internal construction verdict must still be exact.
      */
+
+    /**
+     * The record's own active player, as the explicit create-time choosing seat.
+     *
+     * <p>#572: the bridge never defaults {@code starting_player_seat}; every
+     * create request must declare it. The lane's arrival pilot still answers the
+     * engine's own CR 103.2 starting-player choice from the record's requested
+     * state, so this value names who is asked, not who starts.</p>
+     */
+    private static int startingSeatFor(JsonObject record) {
+        String seat = record.getAsJsonObject("temporal_state").get("active_player").getAsString();
+        return Integer.parseInt(seat.substring(1)) - 1;
+    }
+
     @Test
     void opposingHandIdentitiesNeverCrossTheBoundary() {
         Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());

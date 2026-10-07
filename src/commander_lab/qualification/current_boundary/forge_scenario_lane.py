@@ -55,6 +55,10 @@ from .game_driver import (
     poll_decision,
     select_cost_order_action,
 )
+from .starting_player import (
+    STARTER_DECLARATION_SCRIPT,
+    scenario_setup_starting_seat,
+)
 
 LANE_SCHEMA_VERSION = "commander-lab.forge-scenario-lane/1.0.0"
 BRIDGE_MODULE = "forge-protocol2-bridge"
@@ -1774,8 +1778,10 @@ def drive_scenario_game(
     Decision policy (mirrors the current-boundary driver, never a default):
 
     * MULLIGAN -> keep (declared policy; engine-offered option)
-    * STARTING_PLAYER -> the requested starting seat when one is declared,
-      otherwise p1
+    * STARTING_PLAYER -> the record's explicit declaration (scripted
+      starting-player step, explicit field, or the requested state's own active
+      player as setup) submitted through the engine-offered frame; a record
+      without one fails closed, never p1 (#572)
     * PRIORITY -> pass (the requested checkpoint is reached by native progression)
     * ORDER_CHOICE -> the provider-published native CostPart order
     * any other decision class -> record the offered domain and stop fail closed
@@ -1784,8 +1790,16 @@ def drive_scenario_game(
     seats = SEATS[:players]
     if players < 2 or players > 6:
         raise ScenarioLaneError(f"unsupported player count {players}")
+    # The record's explicit starting-seat declaration (scripted step, explicit
+    # field, or the requested state's own active player as setup); no default.
+    declared_starting_seat, declared_starting_source = scenario_setup_starting_seat(model)
     result = ScenarioDriveResult(game_id=f"fsl-{model.fixture_id.lower()}-{uuid.uuid4().hex[:8]}")
     game_id = result.game_id
+    result.terminal_facts["starting_player_declaration"] = (
+        {"seat": declared_starting_seat, "source": declared_starting_source}
+        if declared_starting_seat is not None
+        else None
+    )
     created_request: dict[str, Any] = {
         "game_id": game_id,
         "deck_handles": [],
@@ -1878,12 +1892,22 @@ def drive_scenario_game(
                 continue
 
             if kind in {"STARTING_PLAYER", "CHOOSE_STARTING_PLAYER"}:
-                wanted = model.temporal_state.get("active_player") or "p1"
+                # The scenario lane never picks the starter itself: the seat must
+                # be declared by the record (scripted step or explicit field), or
+                # by the requested state's own active player as a setup answer.
+                # The p1 fallback that used to live here was the defect (#572).
+                if declared_starting_seat is None:
+                    raise DecisionUnsatisfied(
+                        "the engine offered a STARTING_PLAYER decision and the scenario "
+                        "record declares no starting seat; the Lab never chooses the "
+                        "starting player"
+                    )
+                wanted = declared_starting_seat
                 options = [
                     action
                     for action in actions
                     if action.get("action_type") == "structural_decision"
-                    and action.get("source_object_id") == wanted
+                    and str(action.get("source_object_id", "")).strip().lower() == wanted
                 ]
                 if len(options) != 1:
                     raise DecisionUnsatisfied(
@@ -1893,9 +1917,11 @@ def drive_scenario_game(
                     )
                 [chosen_action] = options
                 chosen = str(chosen_action["action_id"])
-                # The starter is the Lab's selection among engine-offered seats
-                # (requested_starting_seat), not an engine observation; it is
-                # recorded so an obligation can name that basis.
+                # A scripted starting-player decision is the only basis that can
+                # earn a starting-player obligation (STARTING_PLAYER_AUTHORIZED_
+                # BASIS); a setup answer from the requested state is recorded with
+                # its own basis and earns no such credit.
+                scripted_starter = declared_starting_source == STARTER_DECLARATION_SCRIPT
                 result.terminal_facts["starting_player_choice"] = {
                     "chooser": actor,
                     "revision": revision,
@@ -1905,8 +1931,15 @@ def drive_scenario_game(
                         for action in actions
                         if action.get("action_type") == "structural_decision"
                     ),
-                    "policy": "requested_starting_seat",
-                    "basis": "LAB_SELECTED_ENGINE_OFFERED",
+                    "policy": (
+                        "fixture_decision_script" if scripted_starter else "record_declared_setup"
+                    ),
+                    "basis": (
+                        STARTING_PLAYER_AUTHORIZED_BASIS
+                        if scripted_starter
+                        else "LAB_SELECTED_ENGINE_OFFERED"
+                    ),
+                    "declared_source": declared_starting_source,
                 }
                 response = proc.request(
                     "submit_action",

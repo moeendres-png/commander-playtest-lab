@@ -23,6 +23,8 @@ def test_tactical_adapter_loads_decks_and_reproduces_starting_state(repo_root) -
         game_id="a",
         deck_handles=(rogshai.handle_id,) * 4,
         seed=12345,
+        # #572: the tactical adapter never defaults the starting seat.
+        starting_player_seat=0,
     )
     a = adapter.start_commander_game(request)
     b = adapter.start_commander_game(request.model_copy(update={"game_id": "b"}))
