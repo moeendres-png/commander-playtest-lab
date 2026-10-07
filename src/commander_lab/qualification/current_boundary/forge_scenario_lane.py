@@ -64,6 +64,7 @@ LANE_SCHEMA_VERSION = "commander-lab.forge-scenario-lane/1.0.0"
 BRIDGE_MODULE = "forge-protocol2-bridge"
 SCENARIO_SOURCE_RELATIVE = f"{BRIDGE_MODULE}/src/main/java/forge/bridge/ScenarioBootstrap.java"
 SESSION_SOURCE_RELATIVE = f"{BRIDGE_MODULE}/src/main/java/forge/bridge/BridgeSession.java"
+PROJECTION_SOURCE_RELATIVE = f"{BRIDGE_MODULE}/src/main/java/forge/bridge/StateProjection.java"
 
 SEATS = ("p1", "p2", "p3", "p4", "p5", "p6")
 
@@ -125,6 +126,7 @@ class ForgeScenarioSource:
     scenario_source_path: str
     scenario_source_sha256: str
     session_source_sha256: str
+    projection_source_sha256: str
     rules_core_identity: dict[str, Any]
     bridge_identity: dict[str, Any]
 
@@ -140,6 +142,8 @@ class ForgeScenarioSource:
             "scenario_source_path": self.scenario_source_path,
             "scenario_source_sha256": self.scenario_source_sha256,
             "session_source_sha256": self.session_source_sha256,
+            "projection_source_path": PROJECTION_SOURCE_RELATIVE,
+            "projection_source_sha256": self.projection_source_sha256,
             "rules_core_identity": self.rules_core_identity,
             "bridge_identity": self.bridge_identity,
         }
@@ -244,6 +248,9 @@ def bind_forge_scenario_source(workspace: Path | str) -> ForgeScenarioSource:
         session_source_sha256=_blob_sha256(
             root, authority["bridge_commit"], SESSION_SOURCE_RELATIVE
         ),
+        projection_source_sha256=_blob_sha256(
+            root, authority["bridge_commit"], PROJECTION_SOURCE_RELATIVE
+        ),
         rules_core_identity=rules_core_identity,
         bridge_identity={
             "bridge_module": BRIDGE_MODULE,
@@ -278,15 +285,6 @@ _SUPPORTED_FIELD_ASSERTIONS: dict[str, tuple[str, ...]] = {
         "counter amounts must be integers",
         "CounterEnumType.valueOf(counter.getKey())",
     ),
-    # G1 R1 (C3): a requested control history is sent to the bridge, which never
-    # sets it and fails the game closed unless the engine's own
-    # !isFirstTurnControlled() agrees after the first-turn untap; the lane then
-    # verifies the same engine fact at the checkpoint from the readback.
-    "battlefield.controlled_since_turn_began": (
-        'entry.has("controlled_since_turn_began")',
-        "controlled_since_turn_began must be a boolean",
-        "observed = !card.isFirstTurnControlled();",
-    ),
     "battlefield.attached_to": (
         'entry.has("attached_to")',
         "attach host not on battlefield: ",
@@ -303,46 +301,75 @@ _REJECTION_ASSERTIONS: dict[str, str] = {
     "decision_script": "scenario must not inject decisions",
 }
 
-# Re-derived for Coordinator decision G1 R1 (#561): permanents are placed by a
-# GameEventTurnBegan(turn 1) subscriber registered on the game's own event bus
-# (it runs before the engine's readiness loop); the retained startGameHook keeps
-# the givePriorityToPlayer frame of PhaseHandler.setupFirstTurn and fails closed
-# unless that placement ran exactly once without error.
+# Readback dimensions the bridge projects from an engine-native fact rather than
+# accepting a construction request. forge#33 G1 R1 (C3): the first-turn control
+# flag is a per-battlefield-entry projection of Card.isFirstTurnControlled()
+# (raw summoning sickness, CR 302.6; never hasSickness(), which folds in haste).
+# The lane forwards a requested controlled_since_turn_began only for checkpoint
+# verification and compares it against this readback; the bootstrap neither sets
+# nor validates it, so a missing or non-boolean readback is a MISMATCH.
+_READBACK_ASSERTIONS: dict[str, tuple[str, ...]] = {
+    "battlefield_details.controlled_since_turn_began": (
+        "firstTurnControlled = card.isFirstTurnControlled();",
+        'entry.addProperty("controlled_since_turn_began", !firstTurnControlled);',
+    ),
+}
+
+# Re-derived for forge#33 (G1 R1 port, Coordinator decision G1 on #561):
+# permanents are placed by a GameEventTurnBegan(turn 1) subscriber registered on
+# the game's own event bus (it runs before the engine's readiness loop). The
+# session owns the one-shot latch and the recorded failure; the retained
+# startGameHook keeps the givePriorityToPlayer frame of
+# PhaseHandler.setupFirstTurn and fails closed unless that placement ran exactly
+# once without error, then applies the post-untap plan.
 _HOOK_ASSERTIONS: dict[str, tuple[str, ...]] = {
     "hook_apply": (
         "final ScenarioBootstrap.Plan capturedPlan = scenarioPlan;",
-        "new ScenarioBootstrap.TurnBeganPlacement(this, capturedGame, capturedPlan);",
-        "capturedGame.subscribeToEvents(bootstrap);",
-        "bootstrap.completeInRetainedHook();",
+        "installScenarioBootstrap(capturedGame, capturedPlan);",
+        "final Runnable scenarioHook = scenarioStartGameHook(capturedGame, capturedPlan);",
+        "launchStarter(() -> capturedMatch.startGame(capturedGame, scenarioHook));",
     ),
-    "hook_placement": ("capturedMatch.startGame(capturedGame, () -> {",),
+    "hook_placement": (
+        "game.subscribeToEvents(new ScenarioTurnBeganSubscriber());",
+        "void handleScenarioTurnBegan(final GameEventTurnBegan event)",
+        "ScenarioBootstrap.placeBattlefield(this, intended, plan);",
+    ),
     "hook_plan_set_once_at_creation": (
         "public synchronized void setScenarioPlan(ScenarioBootstrap.Plan plan)",
     ),
     "hook_bootstrap_error_recorded_on_session": (
-        "public void recordBootstrapError(Throwable error)",
+        "private void recordScenarioBootstrapFailure(final String reason)",
+        "if (scenarioBootstrapInvocations.incrementAndGet() > 1)",
+        'recordScenarioBootstrapFailure("scenario bootstrap failed: " + t);',
+        "if (status == Status.RUNNING) {",
+        "void requireScenarioBootstrapCompleted()",
+        "scenario bootstrap did not run exactly once before the start-game hook",
+    ),
+    "hook_post_untap_complete_placement": (
+        "ScenarioBootstrap.applyPostUntap(self, game, plan, scenarioPlacedCards);",
+        "scenario bootstrap placed ",
     ),
 }
 
-# The ScenarioBootstrap side of the same contract (C1/C2): turn-1 latch, error
-# capture inside the subscriber, the hook's exactly-once assertion, and counters
-# added once at placement with fireEvents=false while tapped state is applied
-# silently after the untap step.
+# The ScenarioBootstrap side of the same contract (C1/C2): placement happens
+# untapped at TurnBegan (the untap step runs after it), counters are added once
+# there with fireEvents=false, tapped state is applied silently after the untap
+# step, and a truncated placement fails closed instead of skipping plan entries.
 _SCENARIO_HOOK_ASSERTIONS: dict[str, tuple[str, ...]] = {
-    "turn_began_subscriber_latch": (
-        "public void onTurnBegan(GameEventTurnBegan event)",
-        "event.turnNumber() != 1",
-        "if (turnOneRuns.incrementAndGet() != 1)",
-        "session.recordBootstrapError(t);",
-    ),
-    "retained_hook_fails_closed": (
-        "scenario bootstrap failed at TurnBegan: ",
-        "exactly once is required",
-        "completeAfterUntap(session, game, plan, cards);",
-    ),
-    "counters_once_tapped_after_untap": (
+    "place_at_turn_began_untapped": (
+        "public static List<Card> placeBattlefield(BridgeSession session, Game game, Plan plan)",
+        "static void addRequestedCounters(BridgeSession session, Plan plan, List<Card> placed)",
         "card.addCounterInternal(counterType, counter.getValue(), null, false, null,",
-        "static void completeAfterUntap(",
+    ),
+    "complete_placement_fails_closed": (
+        "private static void requireCompletePlacement(Plan plan, List<Card> placed)",
+        "scenario placement incomplete: placed ",
+    ),
+    "tapped_after_untap_silently": (
+        "static void applyRequestedTapped(BridgeSession session, Plan plan, List<Card> placed)",
+        "requested tapped permanent left the battlefield before the post-untap ",
+        "card.setTapped(true);",
+        "public static void applyPostUntap(BridgeSession session, Game game, Plan plan,",
     ),
 }
 
@@ -420,6 +447,7 @@ def derive_capability_matrix(source: ForgeScenarioSource, root: Path) -> dict[st
     """Derive the exact supported/rejected scenario contract from pinned source."""
     scenario_text = _git(["show", f"{source.bridge_commit}:{SCENARIO_SOURCE_RELATIVE}"], root)
     session_text = _git(["show", f"{source.bridge_commit}:{SESSION_SOURCE_RELATIVE}"], root)
+    projection_text = _git(["show", f"{source.bridge_commit}:{PROJECTION_SOURCE_RELATIVE}"], root)
     supported: dict[str, dict[str, Any]] = {}
     for capability, fragments in _SUPPORTED_FIELD_ASSERTIONS.items():
         missing = [fragment for fragment in fragments if fragment not in scenario_text]
@@ -428,6 +456,18 @@ def derive_capability_matrix(source: ForgeScenarioSource, root: Path) -> dict[st
                 f"pinned ScenarioBootstrap no longer supports {capability!r}: missing {missing}"
             )
         supported[capability] = {
+            "status": DIMENSION_SUPPORTED,
+            "assertions": list(fragments),
+            "evidence": "exact code fragment present in the pinned bridge source blob",
+        }
+    readback: dict[str, dict[str, Any]] = {}
+    for capability, fragments in _READBACK_ASSERTIONS.items():
+        missing = [fragment for fragment in fragments if fragment not in projection_text]
+        if missing:
+            raise ScenarioCapabilityDrift(
+                f"pinned StateProjection no longer provides {capability!r}: missing {missing}"
+            )
+        readback[capability] = {
             "status": DIMENSION_SUPPORTED,
             "assertions": list(fragments),
             "evidence": "exact code fragment present in the pinned bridge source blob",
@@ -468,8 +508,11 @@ def derive_capability_matrix(source: ForgeScenarioSource, root: Path) -> dict[st
             "scenario_source_sha256": source.scenario_source_sha256,
             "session_source_path": SESSION_SOURCE_RELATIVE,
             "session_source_sha256": source.session_source_sha256,
+            "projection_source_path": PROJECTION_SOURCE_RELATIVE,
+            "projection_source_sha256": source.projection_source_sha256,
         },
         "supported": supported,
+        "readback": readback,
         "rejected": rejections,
         "hook": hooks,
         "unsupported_record_dimensions": _UNSUPPORTED_RECORD_DIMENSIONS,
@@ -587,7 +630,10 @@ def _requested_battlefield(record: dict[str, Any]) -> list[dict[str, Any]]:
         if obj.get("attached_to"):
             entry["attached_to"] = obj.get("attached_to")
         # Requested control history (CR 302.6) is forwarded for verification
-        # only: the bridge never sets it and fails closed on an impossible one.
+        # only. At forge#33 the bootstrap neither reads nor validates it: the
+        # lane's checkpoint comparison against the battlefield_details readback
+        # (the engine's !isFirstTurnControlled()) is the entire check, and a
+        # missing or non-boolean readback is a MISMATCH.
         if obj.get("controlled_since_turn_began") is not None:
             entry["controlled_since_turn_began"] = obj.get("controlled_since_turn_began")
         placements.append(entry)
@@ -887,10 +933,11 @@ def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
                 )
             )
 
-    # Temporal checkpoint reachability: the bootstrap hook establishes the
-    # first-turn untap state. Other requested checkpoints are reachable only by
-    # native progression, and a requested explicit hand cannot equal the
-    # post-draw hand unless the draw step is skipped.
+    # Temporal checkpoint reachability: the bootstrap places at the first turn's
+    # TurnBegan event and the retained hook completes the apply at the first-turn
+    # untap step. Other requested checkpoints are reachable only by native
+    # progression, and a requested explicit hand cannot equal the post-draw hand
+    # unless the draw step is skipped.
     turn = temporal.get("turn_number")
     active = temporal.get("active_player")
     if turn is not None and turn != 1:

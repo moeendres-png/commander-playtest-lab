@@ -1,5 +1,5 @@
 {
- "bridge_commit": "67da6f07e99e57b4dce2153b242e172ab70c2b12",
+ "bridge_commit": "80336359cf468bec91f525199adb7d09fc726a69",
  "candidate": "forge",
  "canonical_bundle_digest": "0f6f1701b73cc60ec8422353c5127673b0b25f4a4fa1f5b9a8092621fdf71c49",
  "channels": [
@@ -142,7 +142,6 @@
     "card",
     "commander_damage_taken",
     "continuous_effects_present",
-    "controlled_since_turn_began",
     "controller",
     "counters",
     "decision_script",
@@ -175,7 +174,6 @@
     "card",
     "commander_damage_taken",
     "continuous_effects_present",
-    "controlled_since_turn_began",
     "controller",
     "counters",
     "decision_script",
@@ -208,7 +206,6 @@
     "card",
     "commander_damage_taken",
     "continuous_effects_present",
-    "controlled_since_turn_began",
     "controller",
     "counters",
     "decision_script",
@@ -243,7 +240,6 @@
     "card",
     "commander_damage_taken",
     "continuous_effects_present",
-    "controlled_since_turn_began",
     "controller",
     "counters",
     "decision_script",
@@ -2590,8 +2586,8 @@
   "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java": "d4f048ec959023be08b544998aa2b62a6e1d6e0a",
   "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeMain.java": "b3fe9cfde4205d59d80fef53ef35954eadbaa2d0",
   "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java": "d45bd01485ed711ced39e9ec51976b4aa2246845",
-  "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java": "a881b5afff7baed827c765c767cb3629868d0c72",
-  "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java": "541d4502ced7be6896289b302d32b0ce4c3d9cb1"
+  "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java": "0339d40d53d51b54fcb0384835e245657b7820f9",
+  "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java": "b3f801c3a12cb05c0739fcc69e67fff2cec16058"
  },
  "sources": {
   "bootstrap": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",

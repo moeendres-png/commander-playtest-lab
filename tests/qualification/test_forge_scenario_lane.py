@@ -220,30 +220,44 @@ _SCENARIO_SOURCE = "\n".join(
         "continuous_effects_present",
         "scenario must not inject stack",
         "scenario must not inject decisions",
-        # G1 R1 (#561): control-history verification and the TurnBegan latch.
-        'entry.has("controlled_since_turn_began")',
-        "controlled_since_turn_began must be a boolean",
-        "observed = !card.isFirstTurnControlled();",
-        "public void onTurnBegan(GameEventTurnBegan event)",
-        "event.turnNumber() != 1",
-        "if (turnOneRuns.incrementAndGet() != 1)",
-        "session.recordBootstrapError(t);",
-        "scenario bootstrap failed at TurnBegan: ",
-        "exactly once is required",
-        "completeAfterUntap(session, game, plan, cards);",
+        # forge#33 G1 R1 (C1/C2): placement at the turn-one TurnBegan point,
+        # never tapped there, counters once, and the post-untap apply.
+        "public static List<Card> placeBattlefield(BridgeSession session, Game game, Plan plan)",
+        "static void addRequestedCounters(BridgeSession session, Plan plan, List<Card> placed)",
         "card.addCounterInternal(counterType, counter.getValue(), null, false, null,",
-        "static void completeAfterUntap(",
+        "private static void requireCompletePlacement(Plan plan, List<Card> placed)",
+        "scenario placement incomplete: placed ",
+        "static void applyRequestedTapped(BridgeSession session, Plan plan, List<Card> placed)",
+        "requested tapped permanent left the battlefield before the post-untap ",
+        "card.setTapped(true);",
+        "public static void applyPostUntap(BridgeSession session, Game game, Plan plan,",
+    ]
+)
+# forge#33 G1 R1 (C3): the engine-native control-history readback projection.
+_PROJECTION_SOURCE = "\n".join(
+    [
+        "firstTurnControlled = card.isFirstTurnControlled();",
+        'entry.addProperty("controlled_since_turn_began", !firstTurnControlled);',
     ]
 )
 _SESSION_SOURCE = "\n".join(
     [
         "final ScenarioBootstrap.Plan capturedPlan = scenarioPlan;",
-        "new ScenarioBootstrap.TurnBeganPlacement(this, capturedGame, capturedPlan);",
-        "capturedGame.subscribeToEvents(bootstrap);",
-        "bootstrap.completeInRetainedHook();",
-        "capturedMatch.startGame(capturedGame, () -> {",
+        "installScenarioBootstrap(capturedGame, capturedPlan);",
+        "final Runnable scenarioHook = scenarioStartGameHook(capturedGame, capturedPlan);",
+        "launchStarter(() -> capturedMatch.startGame(capturedGame, scenarioHook));",
+        "game.subscribeToEvents(new ScenarioTurnBeganSubscriber());",
+        "void handleScenarioTurnBegan(final GameEventTurnBegan event)",
+        "ScenarioBootstrap.placeBattlefield(this, intended, plan);",
         "public synchronized void setScenarioPlan(ScenarioBootstrap.Plan plan)",
-        "public void recordBootstrapError(Throwable error)",
+        "private void recordScenarioBootstrapFailure(final String reason)",
+        "if (scenarioBootstrapInvocations.incrementAndGet() > 1) {",
+        'recordScenarioBootstrapFailure("scenario bootstrap failed: " + t);',
+        "if (status == Status.RUNNING) {",
+        "void requireScenarioBootstrapCompleted()",
+        "scenario bootstrap did not run exactly once before the start-game hook",
+        "ScenarioBootstrap.applyPostUntap(self, game, plan, scenarioPlacedCards);",
+        "scenario bootstrap placed ",
     ]
 )
 # The pre-G1 session: permanents placed inside the startGameHook, after the
@@ -270,15 +284,20 @@ def _source() -> fsl.ForgeScenarioSource:
         scenario_source_path=fsl.SCENARIO_SOURCE_RELATIVE,
         scenario_source_sha256="9" * 64,
         session_source_sha256="8" * 64,
+        projection_source_sha256="7" * 64,
         rules_core_identity={"engine_equivalent": True},
         bridge_identity={"identical": True},
     )
 
 
-def _fake_git(scenario: str, session: str):
+def _fake_git(scenario: str, session: str, projection: str | None = None):
     def fake(args, cwd):
         target = args[-1]
-        return session if target.endswith("BridgeSession.java") else scenario
+        if target.endswith("BridgeSession.java"):
+            return session
+        if target.endswith("StateProjection.java"):
+            return projection if projection is not None else _PROJECTION_SOURCE
+        return scenario
 
     return fake
 
@@ -315,19 +334,56 @@ def test_capability_matrix_refuses_the_pre_g1_hook_placement(monkeypatch):
 
 
 @pytest.mark.parametrize(
-    ("fragment", "capability"),
+    ("source_name", "fragment", "capability"),
     [
-        ("if (turnOneRuns.incrementAndGet() != 1)", "turn_began_subscriber_latch"),
-        ("session.recordBootstrapError(t);", "turn_began_subscriber_latch"),
-        ("exactly once is required", "retained_hook_fails_closed"),
-        ("observed = !card.isFirstTurnControlled();", "battlefield.controlled_since_turn_began"),
+        (
+            "scenario",
+            "card.addCounterInternal(counterType, counter.getValue(), null, false, null,",
+            "place_at_turn_began_untapped",
+        ),
+        ("scenario", "scenario placement incomplete: placed ", "complete_placement_fails_closed"),
+        ("scenario", "card.setTapped(true);", "tapped_after_untap_silently"),
+        (
+            "session",
+            "if (scenarioBootstrapInvocations.incrementAndGet() > 1) {",
+            "hook_bootstrap_error_recorded_on_session",
+        ),
+        (
+            "session",
+            'recordScenarioBootstrapFailure("scenario bootstrap failed: " + t);',
+            "hook_bootstrap_error_recorded_on_session",
+        ),
+        (
+            "session",
+            "scenario bootstrap did not run exactly once before the start-game hook",
+            "hook_bootstrap_error_recorded_on_session",
+        ),
+        (
+            "session",
+            "ScenarioBootstrap.placeBattlefield(this, intended, plan);",
+            "hook_placement",
+        ),
+        (
+            "projection",
+            'entry.addProperty("controlled_since_turn_began", !firstTurnControlled);',
+            "battlefield_details.controlled_since_turn_began",
+        ),
     ],
 )
-def test_capability_matrix_requires_the_g1_fail_closed_fragments(monkeypatch, fragment, capability):
-    """G1 R1 red (C1/C3): losing the latch, the error capture, the hook
-    assertion or the control-history comparison is source drift."""
-    drifted = _SCENARIO_SOURCE.replace(fragment, "// removed")
-    monkeypatch.setattr(fsl, "_git", _fake_git(drifted, _SESSION_SOURCE))
+def test_capability_matrix_requires_the_g1_fail_closed_fragments(
+    monkeypatch, source_name, fragment, capability
+):
+    """forge#33 red (C1/C2/C3): losing the latch, the error capture, the
+    exactly-once assertion, the untapped TurnBegan placement or the
+    control-history readback projection is source drift."""
+    scenario, session, projection = _SCENARIO_SOURCE, _SESSION_SOURCE, _PROJECTION_SOURCE
+    if source_name == "scenario":
+        scenario = scenario.replace(fragment, "// removed")
+    elif source_name == "session":
+        session = session.replace(fragment, "// removed")
+    else:
+        projection = projection.replace(fragment, "// removed")
+    monkeypatch.setattr(fsl, "_git", _fake_git(scenario, session, projection))
     with pytest.raises(fsl.ScenarioCapabilityDrift, match=capability):
         fsl.derive_capability_matrix(_source(), Path("."))
 
@@ -335,15 +391,19 @@ def test_capability_matrix_requires_the_g1_fail_closed_fragments(monkeypatch, fr
 def test_capability_matrix_records_the_g1_hook_contract(monkeypatch):
     monkeypatch.setattr(fsl, "_git", _fake_git(_SCENARIO_SOURCE, _SESSION_SOURCE))
     matrix = fsl.derive_capability_matrix(_source(), Path("."))
-    assert matrix["supported"]["battlefield.controlled_since_turn_began"]["status"] == (
+    assert matrix["readback"]["battlefield_details.controlled_since_turn_began"]["status"] == (
         fsl.DIMENSION_SUPPORTED
     )
+    assert matrix["source"]["projection_source_path"].endswith("StateProjection.java")
     for hook in (
         "hook_apply",
+        "hook_placement",
+        "hook_plan_set_once_at_creation",
         "hook_bootstrap_error_recorded_on_session",
-        "turn_began_subscriber_latch",
-        "retained_hook_fails_closed",
-        "counters_once_tapped_after_untap",
+        "hook_post_untap_complete_placement",
+        "place_at_turn_began_untapped",
+        "complete_placement_fails_closed",
+        "tapped_after_untap_silently",
     ):
         assert matrix["hook"][hook]["status"] == "PRESENT"
     assert "controlled_since_turn_began" not in matrix["unobservable_record_dimensions"]

@@ -2,7 +2,7 @@
  "schema_version": "commander-lab.forge-bridge-successor-source-lock/1.0.0",
  "workstream": "forge-bridge-g1r1-turnbegan-20261006",
  "classification": "SUCCESSOR_BRIDGE_MATERIALIZATION_SOURCE",
- "status": "WIP_PENDING_PUSH_AND_EXACT_HEAD_CI",
+ "status": "MERGED_EXACT_HEAD_CI_GREEN_PB03_PENDING",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -25,45 +25,51 @@
  },
  "new_bridge_source": {
   "repository": "https://github.com/moeendres-png/forge.git",
-  "branch": "hardening/forge-g1r1-turnbegan-subscriber-pin-20261006",
-  "commit": "67da6f07e99e57b4dce2153b242e172ab70c2b12",
-  "tree": "8973bc76aaef87be85e9e720351800e42761fccd",
-  "pull_request": null,
-  "ancestry": "three commits on ee37e4a5 (510697fa implementation, 04892c87 WS216 test driver, 67da6f07 review follow-ups); bb0a740d..67da6f07 changes only forge-protocol2-bridge/ (0 Rules-Core, 0 card-data files)",
-  "content": "Coordinator decision G1 R1 with conditions C1-C6 (#561): scenario permanents placed untapped by a GameEventTurnBegan(turn 1) subscriber before the readiness loop; one-shot latch and subscriber error capture; retained startGameHook fails closed unless the placement ran exactly once without error, applies tapped state silently after untap, verifies controlled_since_turn_began against !isFirstTurnControlled(); battlefield_details readback gains controlled_since_turn_began. Review follow-ups (67da6f07): a bootstrap error recorded after the hook completed fails a RUNNING session closed; WS216 declines only the starter's turn-1 attack frame; incremental-attack and phasing controls."
+  "branch": "claude/forge-unified-successor-20260929",
+  "commit": "80336359cf468bec91f525199adb7d09fc726a69",
+  "tree": "e5731feabf3e7a9f55eec9de0b3c54d099182abe",
+  "pull_request": 33,
+  "ancestry": "forge#33 merge commit 80336359 (parents 732e1335 = the forge#28 head, tree b26c5936 equal to ee37e4a5, and b74ac8a35d = the PR #33 port) on claude/forge-unified-successor-20260929. PR #33 ports the G1 R1 placement from the superseded Claude line (510697fa / 04892c87 / 67da6f07) onto the unified successor; over ee37e4a5 the only changed paths are forge-protocol2-bridge/ plus the Forge repository's own .foundry state file (0 Rules-Core, 0 card-data files).",
+  "content": "Coordinator decision G1 R1 with conditions C1-C6 (#561): scenario permanents placed untapped by the GameEventTurnBegan(turn 1) subscriber before the readiness loop; session-owned one-shot latch with recorded failure; retained startGameHook fails closed unless the placement ran exactly once without error and the accepted placement list is complete, then applies requested tapped state silently after the untap; StateProjection reads back controlled_since_turn_began = !Card.isFirstTurnControlled() per battlefield entry, which the Lab lane checkpoint-verifies against the request. Hardening ports: a bootstrap error recorded after the hook completed fails a RUNNING session closed and aborts the parked frame; the retained hook requires turn one and a complete placement list; the complete and incremental attack paths decline only the starter's turn-1 sick casts; placement before the untap step leaves phasing permanents phased out (recorded divergence)."
  },
  "exact_head_qualification": {
-  "commit": "67da6f07e99e57b4dce2153b242e172ab70c2b12",
+  "commit": "80336359cf468bec91f525199adb7d09fc726a69",
   "github_test_build": [
    {
-    "run_id": null,
+    "run_id": 37531998578,
     "event": "push",
-    "java17": "PENDING",
-    "java21": "PENDING",
-    "note": "NOT_RUN: the commit is local only (not pushed) at lock time"
+    "java17": "success",
+    "java21": "success",
+    "note": "exact head; 'Test with Java 17' and 'Test with Java 21' both completed success on 2026-10-06"
    }
   ],
   "github_ios_mobivm": [
    {
-    "run_id": null,
+    "run_id": 37531998583,
     "event": "push",
-    "conclusion": "PENDING"
+    "conclusion": "success",
+    "note": "iOS compatibility gate run 628, completed success on 2026-10-06"
    }
   ],
   "local_forge_bridge_suite": {
    "command": "LANG=C.UTF-8 xvfb-run -a mvn -B -ntp -o -pl forge-protocol2-bridge -am test -Dtest='forge.bridge.**' -Dsurefire.failIfNoSpecifiedTests=false",
    "commit": "67da6f07e99e57b4dce2153b242e172ab70c2b12",
-   "tree_equal_to_new_bridge_source": true,
+   "tree_equal_to_new_bridge_source": false,
    "run": 374,
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "evidence_class": "LOCAL_OBSERVED"
+   "evidence_class": "LOCAL_OBSERVED",
+   "note": "run on the superseded local Claude line 67da6f07 (tree 8973bc76); provenance only, never credited to the merged 80336359 tree"
+  },
+  "target_local_suite": {
+   "status": "NOT_RUN",
+   "note": "no Lab-local forge.bridge suite was run on 80336359 in this repin; the exact-head GitHub Test build (Java 17/21) is the target's gate"
   }
  },
  "lab_consumer": {
-  "scenario_lane": "forge_scenario_lane.py: controlled_since_turn_began checkpoint-verified; _HOOK_ASSERTIONS re-derived; _SCENARIO_HOOK_ASSERTIONS added",
-  "hidden_information_channels": "forge_hidden_information.py re-asserted at 67da6f07: BOOTSTRAP_FIELDS gains controlled_since_turn_began (boolean, no card name); no other drift; AF05 Forge unchanged (20 PROVIDER_ADAPTER_GAP)",
+  "scenario_lane": "forge_scenario_lane.py: controlled_since_turn_began checkpoint-verified against the battlefield_details readback; the capability tables are re-derived from the forge#33 blobs (readback assertions from StateProjection; hook assertions installScenarioBootstrap/requireScenarioBootstrapCompleted/placeBattlefield/applyPostUntap)",
+  "hidden_information_channels": "forge_hidden_information.py re-asserted at 80336359: BOOTSTRAP_FIELDS loses controlled_since_turn_began because the forge#33 bootstrap no longer reads it; every other channel fragment is unchanged and AF05 Forge stays 20 PROVIDER_ADAPTER_GAP",
   "impact_adjudication": "docs/forge_g1r1_turnbegan_20261006/IMPACT_ADJUDICATION.md"
  },
  "evidence_transfer": {

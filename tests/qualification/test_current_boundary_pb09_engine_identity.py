@@ -95,8 +95,8 @@ BRIDGE_HEAD = "e15f37d6b2b5c0ad682948f86f037e07b6aaded5"
 BRIDGE_TREE = "a1d4d4a8fe421e57b919e8e0bd9fda7d9deb0d3b"
 CURRENT_CANDIDATE = "bb0a740d2bef725194798383c2452213ecdd0b37"
 CURRENT_CANDIDATE_TREE = "4989b5bb35b8279e82f79c1ca99dc698d63d093a"
-CURRENT_BRIDGE = "67da6f07e99e57b4dce2153b242e172ab70c2b12"
-CURRENT_BRIDGE_TREE = "8973bc76aaef87be85e9e720351800e42761fccd"
+CURRENT_BRIDGE = "80336359cf468bec91f525199adb7d09fc726a69"
+CURRENT_BRIDGE_TREE = "e5731feabf3e7a9f55eec9de0b3c54d099182abe"
 # The bridge source before forge#16 (#11 + #13), historical.
 R1_BRIDGE = "e8b8aec60720aee218338754224721597b8c6ec5"
 R1_BRIDGE_TREE = "6c49f100fe61d1b2a71dd46a7347a2ff0f0da4ea"
@@ -463,11 +463,20 @@ def test_bridge_successor_lock_binds_the_live_bridge_without_moving_rules_core()
     qual = lock["exact_head_qualification"]
     assert qual["commit"] == CURRENT_BRIDGE
     assert all(r["java17"] == r["java21"] == "success" for r in qual["github_test_build"])
-    assert qual["local_forge_bridge_suite"]["failures"] == 0
+    assert all(r["conclusion"] == "success" for r in qual["github_ios_mobivm"])
+    local_suite = qual["local_forge_bridge_suite"]
+    assert local_suite["failures"] == 0
     assert set(lock["not_a"]) >= {"PRODUCTION_PROVIDER_SELECTION", "RULES_CORE_AUTHORITY_CHANGE"}
     assert lock["evidence_transfer"]["historical_receipts_relabelled"] is False
-    # The PR head the local suite ran on has the merged source's tree.
-    assert qual["local_forge_bridge_suite"]["tree_equal_to_new_bridge_source"] is True
+    # A local full-suite entry may claim the merged source's tree only when it
+    # actually ran on that commit; the exact-head CI above is the target gate.
+    assert local_suite["tree_equal_to_new_bridge_source"] == (
+        local_suite["commit"] == CURRENT_BRIDGE
+    )
+    target_local = qual["target_local_suite"]
+    if target_local["status"] != "NOT_RUN":
+        assert target_local["failures"] == 0
+        assert target_local["tree_equal_to_new_bridge_source"] is True
 
 
 def test_the_r5_bridge_lock_stays_historical() -> None:
