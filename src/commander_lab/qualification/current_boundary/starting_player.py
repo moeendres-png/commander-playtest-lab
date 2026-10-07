@@ -20,6 +20,14 @@ A declaration exists only in one of exactly three shapes:
 Anything else -- a later checkpoint's active player, an expected-event token, a
 provider field, a lane default -- is no declaration: the caller gets
 ``(None, None)`` and the lane fails closed on the engine's frame.
+
+An ambiguous record has no declaration either. A record that carries two or
+more starter declarations which *disagree* says two different things about who
+starts, and an ambiguity is never resolved by order -- first-wins would let a
+second, contradictory step quietly overrule or be overruled by the first. The
+parser therefore returns ``(None, None)`` and the row is UNKNOWN. Identical
+duplicates are not ambiguous (they state one thing twice) and are accepted;
+the reported source is still the highest-precedence shape that declared it.
 """
 
 from __future__ import annotations
@@ -51,28 +59,71 @@ def _seat_selector(selection: Any) -> str:
     return _seat_text(selection.get("semantic_value"))
 
 
-def record_starting_seat(record: dict[str, Any]) -> tuple[str | None, str | None]:
-    """The record's explicit starting-seat declaration and its source, or ``(None, None)``."""
+def _declarations(record: Any, *, pre_first_turn_shape: bool) -> list[tuple[str, str]] | None:
+    """Every valid starter declaration of ``record``, in shape-precedence order.
+
+    ``None`` means a declared shape carries no seat at all (a starting-player
+    step without its fail-closed selection contract, or a ``starting_player``
+    field naming no seat) while no valid declaration has been read yet: such a
+    record has no authority to declare a starter, exactly as before. Once a
+    valid declaration exists, a later malformed shape is ignored, and a
+    pre-first-turn ``temporal_state`` that names no seat is never a declaration
+    in the first place.
+    """
+    if not isinstance(record, dict):
+        return []
+    found: list[tuple[str, str]] = []
     for step in record.get("decision_script") or ():
         if not isinstance(step, dict) or step.get("decision_family") != "starting_player":
             continue
         seat = _seat_selector(step.get("selection"))
-        return (seat, STARTER_DECLARATION_SCRIPT) if seat in SEATS else (None, None)
+        if seat not in SEATS:
+            if not found:
+                return None
+            continue
+        found.append((seat, STARTER_DECLARATION_SCRIPT))
 
     declared = record.get("starting_player")
     if isinstance(declared, str):
         seat = _seat_text(declared)
-        return (seat, STARTER_DECLARATION_FIELD) if seat in SEATS else (None, None)
+        if seat not in SEATS:
+            if not found:
+                return None
+        else:
+            found.append((seat, STARTER_DECLARATION_FIELD))
 
-    temporal = record.get("temporal_state")
-    if isinstance(temporal, dict):
-        turn = temporal.get("turn_number")
-        active = temporal.get("active_player")
-        if isinstance(turn, int) and not isinstance(turn, bool) and turn == 0:
-            seat = _seat_text(active)
-            if seat in SEATS:
-                return seat, STARTER_DECLARATION_PRE_FIRST_TURN
-    return None, None
+    if pre_first_turn_shape:
+        temporal = record.get("temporal_state")
+        if isinstance(temporal, dict):
+            turn = temporal.get("turn_number")
+            active = temporal.get("active_player")
+            if isinstance(turn, int) and not isinstance(turn, bool) and turn == 0:
+                seat = _seat_text(active)
+                if seat in SEATS:
+                    found.append((seat, STARTER_DECLARATION_PRE_FIRST_TURN))
+    return found
+
+
+def _one_declaration(declarations: list[tuple[str, str]] | None) -> tuple[str | None, str | None]:
+    """The record's one starting seat, or ``(None, None)`` when there is none.
+
+    A missing, malformed or ambiguous set of declarations is no declaration:
+    two declarations that disagree are never resolved by order.
+    """
+    if not declarations:
+        return None, None
+    if len({seat for seat, _ in declarations}) > 1:
+        return None, None
+    return declarations[0]
+
+
+def record_starting_seat(record: dict[str, Any]) -> tuple[str | None, str | None]:
+    """The record's explicit starting-seat declaration and its source, or ``(None, None)``.
+
+    Two or more declarations that disagree are an ambiguity, not a declaration:
+    the row is UNKNOWN rather than resolved by shape order.
+    """
+    return _one_declaration(_declarations(record, pre_first_turn_shape=True))
 
 
 STARTER_DECLARATION_SETUP_ACTIVE_PLAYER = "RECORD_TEMPORAL_STATE_ACTIVE_PLAYER_SETUP"
@@ -109,11 +160,13 @@ def scenario_setup_starting_seat(model: Any) -> tuple[str | None, str | None]:
     step / explicit field first, then the requested state's own
     ``temporal_state.active_player`` (the state the engine will verify at the
     checkpoint), whatever turn that state is at. There is still no default: a
-    model that declares no active player fails closed.
+    model that declares no active player fails closed, and a record whose
+    scripted step and explicit field disagree is ambiguous -- it never falls
+    through to the setup shape either.
     """
-    seat, source = record_starting_seat_for_script_or_field(model)
-    if seat is not None:
-        return seat, source
+    declared = _declarations(getattr(model, "record", None), pre_first_turn_shape=False)
+    if declared is None or declared:
+        return _one_declaration(declared)
     temporal = getattr(model, "temporal_state", None)
     if isinstance(temporal, dict):
         seat = _seat_text(temporal.get("active_player"))
@@ -123,17 +176,10 @@ def scenario_setup_starting_seat(model: Any) -> tuple[str | None, str | None]:
 
 
 def record_starting_seat_for_script_or_field(model: Any) -> tuple[str | None, str | None]:
-    """Only the scripted-step / explicit-field declaration of a record-bearing model."""
+    """Only the scripted-step / explicit-field declaration of a record-bearing model.
+
+    Two of those declarations that disagree are an ambiguity, never a
+    declaration resolved by order.
+    """
     record = getattr(model, "record", None)
-    if not isinstance(record, dict):
-        return None, None
-    for step in record.get("decision_script") or ():
-        if not isinstance(step, dict) or step.get("decision_family") != "starting_player":
-            continue
-        seat = _seat_selector(step.get("selection"))
-        return (seat, STARTER_DECLARATION_SCRIPT) if seat in SEATS else (None, None)
-    declared = record.get("starting_player")
-    if isinstance(declared, str):
-        seat = _seat_text(declared)
-        return (seat, STARTER_DECLARATION_FIELD) if seat in SEATS else (None, None)
-    return None, None
+    return _one_declaration(_declarations(record, pre_first_turn_shape=False))

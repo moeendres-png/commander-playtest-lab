@@ -380,13 +380,47 @@ def test_start2_declares_from_the_requested_state_when_no_step_scripts_one(
 
 
 def test_start2_never_credits_a_starter_other_than_the_requested_state(start2, monkeypatch) -> None:
+    # The record declares P2 consistently (script step and pre-first-turn state),
+    # but the engine's first priority is P1: the seat check refuses before any
+    # CR 103.8a verdict, never a FAIL.
     start2["decision_script"][0]["selection"].update(semantic_value="P2")
+    start2["temporal_state"]["active_player"] = "P2"
     row, calls = _start2(start2, monkeypatch, _observed(state=_state()))
-    # The step declares P2 (shape 1), but the engine's first priority is P1:
-    # the seat check refuses before any CR 103.8a verdict, never a FAIL.
     assert calls[0]["scripted_starting_seat"] == "p2"
     assert row.outcome == "UNKNOWN"
     assert "first priority to P1" in row.reason
+
+
+@pytest.mark.parametrize(
+    "second_seat",
+    [
+        pytest.param("P2", id="two-starters"),
+        pytest.param("p3", id="two-starters-casing"),
+    ],
+)
+def test_two_starters_that_disagree_are_ambiguous_and_are_never_driven(
+    start2, monkeypatch, second_seat
+) -> None:
+    second = copy.deepcopy(start2["decision_script"][0])
+    second["selection"]["semantic_value"] = second_seat
+    start2["decision_script"].append(second)
+    row, calls = _start2(start2, monkeypatch, _observed(state=_state()))
+    # A record that declares two starters which disagree says two different
+    # things about who starts. The shared parser (#574) refuses the ambiguity;
+    # it is never resolved by taking the first step. The engine is not driven
+    # and the row is UNKNOWN.
+    assert calls == []
+    assert row.outcome == "UNKNOWN"
+    assert "no unambiguous starting seat" in row.reason
+
+
+def test_a_starter_declared_twice_identically_is_not_an_ambiguity(start2, monkeypatch) -> None:
+    start2["decision_script"].append(copy.deepcopy(start2["decision_script"][0]))
+    row, calls = _start2(start2, monkeypatch, _observed(state=_state()))
+    # The same seat stated twice is one declaration, not a conflict.
+    assert calls[0]["scripted_starting_seat"] == "p1"
+    assert calls[0]["starting_seat_source"] == starting_player.STARTER_DECLARATION_SCRIPT
+    assert row.outcome == "PASS", row.reason
 
 
 @pytest.mark.parametrize(

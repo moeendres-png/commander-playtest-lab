@@ -474,6 +474,20 @@ def _record(**overrides: Any) -> dict[str, Any]:
     return record
 
 
+def _starter_step(seat: str, *, actor: str = "P2") -> dict[str, Any]:
+    return {
+        "decision_family": "starting_player",
+        "actor": actor,
+        "selection": {
+            "selector_kind": "seat",
+            "semantic_value": seat,
+            "matches_only_provider_offered_legal_options": True,
+            "on_zero_match": "FAIL_CLOSED",
+            "on_multiple_match": "FAIL_CLOSED",
+        },
+    }
+
+
 def test_record_declarations_are_only_the_three_authoritative_shapes() -> None:
     assert record_starting_seat(_record()) == ("p1", STARTER_DECLARATION_PRE_FIRST_TURN)
     assert record_starting_seat(
@@ -487,20 +501,11 @@ def test_record_declarations_are_only_the_three_authoritative_shapes() -> None:
         "p3",
         STARTER_DECLARATION_FIELD,
     )
+    # A later checkpoint's active player is not a declaration, so the scripted
+    # step is read on its own (turn 1 is not the pre-first-turn shape).
     scripted = _record(
-        decision_script=[
-            {
-                "decision_family": "starting_player",
-                "actor": "P2",
-                "selection": {
-                    "selector_kind": "seat",
-                    "semantic_value": "P2",
-                    "matches_only_provider_offered_legal_options": True,
-                    "on_zero_match": "FAIL_CLOSED",
-                    "on_multiple_match": "FAIL_CLOSED",
-                },
-            }
-        ]
+        decision_script=[_starter_step("P2")],
+        temporal_state={"turn_number": 1, "active_player": "P1"},
     )
     assert record_starting_seat(scripted) == ("p2", STARTER_DECLARATION_SCRIPT)
     # A scripted step without its fail-closed selection contract has no authority.
@@ -515,6 +520,46 @@ def test_record_declarations_are_only_the_three_authoritative_shapes() -> None:
     )
     assert record_starting_seat(broken) == (None, None)
     assert record_starting_seat(_record(temporal_state=None)) == (None, None)
+
+
+@pytest.mark.parametrize(
+    "record",
+    [
+        pytest.param(
+            _record(decision_script=[_starter_step("P2"), _starter_step("P3")]),
+            id="two-scripted-steps",
+        ),
+        pytest.param(
+            _record(decision_script=[_starter_step("P2")], starting_player="p3"),
+            id="script-and-field",
+        ),
+        # The pre-first-turn active player *is* the starting player (CR 103.1),
+        # so a step that names another seat contradicts the requested state.
+        pytest.param(
+            _record(decision_script=[_starter_step("P2")]),
+            id="script-and-pre-first-turn-state",
+        ),
+        pytest.param(
+            _record(starting_player="p3"),
+            id="field-and-pre-first-turn-state",
+        ),
+    ],
+)
+def test_two_starters_that_disagree_are_an_ambiguity_never_a_declaration(
+    record: dict[str, Any],
+) -> None:
+    # First-wins would silently pick one of two contradictory statements. An
+    # ambiguous record declares nothing, so every caller fails closed.
+    assert record_starting_seat(record) == (None, None)
+
+
+def test_identical_duplicate_declarations_are_one_declaration() -> None:
+    duplicate = _record(
+        decision_script=[_starter_step("P2"), _starter_step("P2")],
+        starting_player="p2",
+        temporal_state={"turn_number": 0, "active_player": "P2"},
+    )
+    assert record_starting_seat(duplicate) == ("p2", STARTER_DECLARATION_SCRIPT)
 
 
 def test_an_expected_starting_player_token_is_not_a_declaration() -> None:

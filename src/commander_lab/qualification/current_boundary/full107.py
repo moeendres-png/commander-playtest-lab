@@ -583,7 +583,8 @@ def start2_row(
     # engine's starting-player frame when this record explicitly declares the
     # seat. The expected-event token is an obligation statement, not a decision
     # (#572), so it is never read as the declaration. The declaration parser is
-    # the shared one (#574); a record without a declaration runs nothing.
+    # the shared one (#574); a record without an unambiguous declaration -- none
+    # at all, or two that disagree -- runs nothing.
     starting_seat, starting_source = record_starting_seat(record)
     if starting_seat is None:
         return RowResult(
@@ -591,8 +592,9 @@ def start2_row(
             candidate,
             "UNKNOWN",
             "PROTOCOL2_START2_V1_0_6",
-            "the record declares no starting seat, so the Lab would have to choose the "
-            "starting player and nothing is executed",
+            "the record declares no unambiguous starting seat (none, or several that "
+            "disagree), so the Lab would have to choose the starting player and nothing "
+            "is executed",
             refused,
         )
     game = drive_commander_game(
