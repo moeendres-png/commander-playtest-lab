@@ -156,6 +156,11 @@ final class XmageMidgameJsonlBridge {
         for (XmageNativeStateRestoration.RequestedCommander commander : plan.commanders()) {
             identities.add(commander.cardIdentity());
         }
+        if (plan.resumeStackSpell() != null) {
+            // The declared already-fully-cast stack spell's real card comes from
+            // the same materialization vehicle; it is resumed at the checkpoint.
+            identities.add(plan.resumeStackSpell().cardIdentity());
+        }
         // SLOT-04 library objects are placed after arrival from the same vehicle.
         identities.addAll(lossless.vehicleIdentities());
         return new XmageNativeStateRestoration(
@@ -872,8 +877,19 @@ final class XmageMidgameJsonlBridge {
             // below is projected from.
             XmageLosslessHiddenPlan.Verification lossless = restoration.losslessHiddenVerification(
                     requireSession().restorationGame(), seats);
+            // The record's own declared already-fully-cast stack spell is
+            // resumed here, at the record's checkpoint, while the engine thread
+            // is parked. It never casts, pays, targets or chooses; the readback
+            // is engine-direct and a mismatch fails the construction closed.
+            JsonObject resumeReadback = restoration.resumeFullyCastStackSpell(
+                    requireSession().restorationGame(), seats);
             List<String> allMismatches = new ArrayList<>(verdict.mismatches());
             allMismatches.addAll(lossless.mismatches());
+            if (resumeReadback != null && !resumeReadback.get("verified").getAsBoolean()) {
+                for (JsonElement failure : resumeReadback.getAsJsonArray("failures")) {
+                    allMismatches.add(failure.getAsString());
+                }
+            }
             boolean constructionMatch = allMismatches.isEmpty();
 
             JsonObject observation = principalScopedObservation(observed, requesterPrincipal);
@@ -881,6 +897,9 @@ final class XmageMidgameJsonlBridge {
             response.addProperty("plan_id", planId);
             response.addProperty("construction_match", constructionMatch);
             response.addProperty("requested_state_digest", verdict.requestedDigest());
+            if (resumeReadback != null) {
+                response.add("resume_stack_spell", resumeReadback);
+            }
             response.addProperty(
                     "constructed_state_digest",
                     XmageNativeStateRestoration.digestJson(observation));

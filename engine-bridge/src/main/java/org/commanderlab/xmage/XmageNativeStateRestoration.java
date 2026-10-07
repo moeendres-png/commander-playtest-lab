@@ -18,6 +18,8 @@ import mage.game.GameCommanderImpl;
 import mage.game.Game;
 import mage.game.PutToBattlefieldInfo;
 import mage.game.permanent.Permanent;
+import mage.game.stack.Spell;
+import mage.game.stack.StackObject;
 import mage.players.Player;
 import mage.watchers.common.CommanderInfoWatcher;
 import mage.watchers.common.CommanderPlaysCountState;
@@ -73,8 +75,9 @@ import java.util.UUID;
  * untapped, without counters or attachments; commander cast counts; genuine
  * commanders on the battlefield; life totals equal to each player's starting
  * life; turn-1 precombat-main arrival envelope with active/priority
- * binding; explicit Rules-seed binding. Everything else (stack spells,
- * library identity, revealed, facedown, attachments, counters, tapped
+ * binding; explicit Rules-seed binding; a record-declared already-fully-cast
+ * stack spell (see {@link RequestedStackSpell}). Everything else (stack spells
+ * without that declaration, library identity, revealed, facedown, attachments, counters, tapped
  * permanents, controller/owner divergence, commander damage, poison, other
  * temporal points) is rejected fail-closed. Control divergence is rejected
  * deliberately: the engine's layer application re-derives control from
@@ -141,6 +144,26 @@ final class XmageNativeStateRestoration {
     }
 
     /**
+     * A stack spell the record itself declares as already fully cast.
+     *
+     * <p>Only a record with {@code execution_entry_mode NATIVE_STATE_LOAD} and
+     * a {@code NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL} native-procedure step
+     * naming this object may request one, and its {@code stack_state} entry must
+     * declare {@code cast_complete true}, {@code costs_paid true} and no
+     * targets/modes. The engine then resumes the real card as a real stack
+     * object; it never casts, pays, targets or chooses anything for it. This is
+     * restoration of a declared already-cast object, never casting out of
+     * timing.</p>
+     */
+    record RequestedStackSpell(
+            String semanticId,
+            String cardIdentity,
+            String owner,
+            String controller
+    ) {
+    }
+
+    /**
      * One requested commander binding. {@code zone} is where the genuine commander
      * is requested (COMMAND or BATTLEFIELD); {@code semanticId} names the frozen
      * object that is this commander outside the command zone (null in the command
@@ -197,8 +220,35 @@ final class XmageNativeStateRestoration {
             String priorityPlayer,
             Map<String, Map<String, Integer>> objectCounters,
             Map<String, Boolean> controlledSinceTurnBegan,
-            Set<String> declaredAttackers
+            Set<String> declaredAttackers,
+            RequestedStackSpell resumeStackSpell
     ) {
+        /**
+         * Backward-compatible constructor for plans that resume no declared
+         * already-cast stack spell.
+         */
+        Plan(
+                String planId,
+                int playerCount,
+                long seed,
+                List<RequestedPlayer> players,
+                List<RequestedCommander> commanders,
+                List<RequestedCommanderDamage> commanderDamage,
+                List<RequestedObject> objects,
+                int turnNumber,
+                TurnPhase phase,
+                PhaseStep step,
+                String activePlayer,
+                String priorityPlayer,
+                Map<String, Map<String, Integer>> objectCounters,
+                Map<String, Boolean> controlledSinceTurnBegan,
+                Set<String> declaredAttackers
+        ) {
+            this(planId, playerCount, seed, players, commanders, commanderDamage, objects,
+                    turnNumber, phase, step, activePlayer, priorityPlayer, objectCounters,
+                    controlledSinceTurnBegan, declaredAttackers, null);
+        }
+
         /**
          * Backward-compatible constructor for plans whose requested combat
          * declares no attacker.
@@ -300,6 +350,9 @@ final class XmageNativeStateRestoration {
     private boolean arrivalRestored;
     private boolean losslessLibrariesApplied;
     private boolean preStartApplied;
+    /** The real card of the record's declared already-fully-cast stack spell. */
+    private Card resumeSpellCard;
+    private boolean resumeSpellResumed;
     /** Restored face-up permanents that enter when the first turn begins (CR 103.6). */
     private final List<String> firstTurnPlacedSemanticIds = new ArrayList<>();
 
@@ -507,10 +560,22 @@ final class XmageNativeStateRestoration {
         List<RequestedObject> objects = new ArrayList<>();
         Map<String, Map<String, Integer>> objectCounters = new TreeMap<>();
         Map<String, Boolean> controlledSinceTurnBegan = new TreeMap<>();
+        RequestedStackSpell resumeStackSpell = declaredResumeStackSpell(record, fixtureId);
         for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
             JsonObject object = element.getAsJsonObject();
             String semanticId = object.has("semantic_id") && !object.get("semantic_id").isJsonNull()
                     ? object.get("semantic_id").getAsString() : "?";
+            if ("stack".equals(object.get("zone").getAsString())) {
+                // The record's own declared already-fully-cast stack spell is
+                // never a zone placement: it is resumed as a real stack object
+                // at the record's checkpoint. Any other requested stack object
+                // still fails closed.
+                if (resumeStackSpell == null || !resumeStackSpell.semanticId().equals(semanticId)) {
+                    throw new RestorationException(
+                            "UNSUPPORTED_ZONE", fixtureId + " " + semanticId + " requests stack");
+                }
+                continue;
+            }
             if (object.has("face_down") && !object.get("face_down").isJsonNull()
                     && object.get("face_down").getAsBoolean()
                     && !lossless.declaresFaceDown(semanticId)) {
@@ -659,7 +724,8 @@ final class XmageNativeStateRestoration {
                 temporal.get("priority_player").getAsString(),
                 Map.copyOf(objectCounters),
                 Map.copyOf(controlledSinceTurnBegan),
-                declaredAttackers(record));
+                declaredAttackers(record),
+                resumeStackSpell);
     }
 
     /**
@@ -676,6 +742,112 @@ final class XmageNativeStateRestoration {
             return Set.of();
         }
         return Set.copyOf(combat.getAsJsonObject("attackers").keySet());
+    }
+
+    /**
+     * The record's own declared already-fully-cast stack spell, or null.
+     *
+     * <p>Only {@code execution_entry_mode NATIVE_STATE_LOAD} with exactly one
+     * {@code NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL} step naming a requested
+     * stack object qualifies; the step's {@code source_object} must bind 1:1 to
+     * a {@code stack} semantic object and to a {@code stack_state} entry that
+     * declares {@code cast_complete true}, {@code costs_paid true}, a
+     * controller equal to the object's, and no targets or modes. A declaration
+     * that does not hold fails closed rather than being silently ignored: the
+     * record asked for a construction mode the bridge cannot honor.</p>
+     */
+    static RequestedStackSpell declaredResumeStackSpell(JsonObject record, String fixtureId) {
+        String entryMode = record.has("execution_entry_mode")
+                && !record.get("execution_entry_mode").isJsonNull()
+                ? record.get("execution_entry_mode").getAsString() : "";
+        String resumeSource = null;
+        if (record.has("native_procedure") && record.get("native_procedure").isJsonArray()) {
+            for (JsonElement element : record.getAsJsonArray("native_procedure")) {
+                JsonObject step = element.getAsJsonObject();
+                if (!step.has("operation") || step.get("operation").isJsonNull()
+                        || !"NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL".equals(
+                                step.get("operation").getAsString())) {
+                    continue;
+                }
+                if (resumeSource != null) {
+                    throw new RestorationException(
+                            "DUPLICATE_RESUME_STACK_SPELL", fixtureId);
+                }
+                resumeSource = step.has("source_object") && !step.get("source_object").isJsonNull()
+                        ? step.get("source_object").getAsString() : null;
+            }
+        }
+        if (resumeSource == null) {
+            // A record that declares no resume step is an ordinary placement
+            // record regardless of its entry-mode label.
+            return null;
+        }
+        if (!"NATIVE_STATE_LOAD".equals(entryMode)) {
+            throw new RestorationException(
+                    "RESUME_STACK_SPELL_WITHOUT_NATIVE_STATE_LOAD",
+                    fixtureId + " declares " + resumeSource + " under entry mode " + entryMode);
+        }
+        if (!record.has("stack_state") || !record.get("stack_state").isJsonArray()) {
+            throw new RestorationException(
+                    "RESUME_STACK_STATE_MISSING", fixtureId + " " + resumeSource);
+        }
+        JsonObject requested = null;
+        for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
+            JsonObject object = element.getAsJsonObject();
+            if (object.has("semantic_id") && !object.get("semantic_id").isJsonNull()
+                    && resumeSource.equals(object.get("semantic_id").getAsString())) {
+                requested = object;
+                break;
+            }
+        }
+        if (requested == null || !"stack".equals(requested.get("zone").getAsString())) {
+            throw new RestorationException(
+                    "RESUME_STACK_OBJECT_MISSING", fixtureId + " " + resumeSource);
+        }
+        JsonObject declared = null;
+        for (JsonElement element : record.getAsJsonArray("stack_state")) {
+            JsonObject frame = element.getAsJsonObject();
+            if (frame.has("source_semantic_id") && !frame.get("source_semantic_id").isJsonNull()
+                    && resumeSource.equals(frame.get("source_semantic_id").getAsString())) {
+                declared = frame;
+                break;
+            }
+        }
+        if (declared == null) {
+            throw new RestorationException(
+                    "RESUME_STACK_STATE_MISSING", fixtureId + " " + resumeSource);
+        }
+        if (!declared.has("cast_complete") || declared.get("cast_complete").isJsonNull()
+                || !declared.get("cast_complete").getAsBoolean()) {
+            throw new RestorationException(
+                    "RESUME_STACK_NOT_CAST_COMPLETE", fixtureId + " " + resumeSource);
+        }
+        if (!declared.has("costs_paid") || declared.get("costs_paid").isJsonNull()
+                || !declared.get("costs_paid").getAsBoolean()) {
+            throw new RestorationException(
+                    "RESUME_STACK_COSTS_UNPAID", fixtureId + " " + resumeSource);
+        }
+        if (declared.has("targets") && !declared.get("targets").isJsonNull()
+                && !declared.getAsJsonArray("targets").isEmpty()) {
+            throw new RestorationException(
+                    "RESUME_STACK_TARGETS_UNSUPPORTED", fixtureId + " " + resumeSource);
+        }
+        if (declared.has("modes") && !declared.get("modes").isJsonNull()
+                && !declared.getAsJsonArray("modes").isEmpty()) {
+            throw new RestorationException(
+                    "RESUME_STACK_MODES_UNSUPPORTED", fixtureId + " " + resumeSource);
+        }
+        String controller = requested.get("controller").getAsString();
+        if (!declared.has("controller") || declared.get("controller").isJsonNull()
+                || !controller.equals(declared.get("controller").getAsString())) {
+            throw new RestorationException(
+                    "RESUME_STACK_CONTROLLER_CONFLICT", fixtureId + " " + resumeSource);
+        }
+        return new RequestedStackSpell(
+                resumeSource,
+                requested.get("card_identity").getAsString(),
+                requested.get("owner").getAsString(),
+                controller);
     }
 
     /**
@@ -940,6 +1112,22 @@ final class XmageNativeStateRestoration {
                 throw new RestorationException("INVALID_CARD_IDENTITY", object.semanticId());
             }
         }
+        RequestedStackSpell resume = validated.resumeStackSpell();
+        if (resume != null) {
+            if (!seats.contains(resume.owner()) || !seats.contains(resume.controller())) {
+                throw new RestorationException(
+                        "UNKNOWN_ACTOR", "resume spell owner/controller must name a planned player");
+            }
+            if (!resume.owner().equals(resume.controller())) {
+                throw new RestorationException(
+                        "UNSUPPORTED_CONTROL_DIVERGENCE",
+                        resume.semanticId() + "; the resumed spell's control must equal ownership"
+                                + " in v1 (engine layers re-derive control)");
+            }
+            if (resume.cardIdentity() == null || resume.cardIdentity().isBlank()) {
+                throw new RestorationException("INVALID_CARD_IDENTITY", resume.semanticId());
+            }
+        }
         Set<String> commanderIds = new HashSet<>();
         for (RequestedCommander commander : validated.commanders()) {
             if (commander.commanderId() == null || commander.commanderId().isBlank()) {
@@ -1084,6 +1272,30 @@ final class XmageNativeStateRestoration {
             // XmageFirstTurnSetupWatcher, which sets it when the first turn
             // begins (F-40).
         }
+        if (plan.resumeStackSpell() != null) {
+            // The record's declared already-fully-cast stack spell: materialize
+            // its real card and register it with its controller as owner. The
+            // stack object itself is resumed at the record's own checkpoint;
+            // nothing is cast, paid, targeted or chosen here or there.
+            Card card = takeVehicleCard(
+                    vehicleByName,
+                    consumed,
+                    new RequestedObject(
+                            plan.resumeStackSpell().semanticId(),
+                            plan.resumeStackSpell().cardIdentity(),
+                            plan.resumeStackSpell().owner(),
+                            plan.resumeStackSpell().controller(),
+                            Zone.BATTLEFIELD,
+                            false));
+            Player controller = requirePlayer(playersByPid, plan.resumeStackSpell().controller());
+            if (injectedObjectIdsBySemanticId.put(
+                    plan.resumeStackSpell().semanticId(), card.getId()) != null) {
+                throw new RestorationException(
+                        "DUPLICATE_SEMANTIC_OBJECT", plan.resumeStackSpell().semanticId());
+            }
+            game.loadCards(new HashSet<>(List.of(card)), controller.getId());
+            resumeSpellCard = card;
+        }
         // SLOT-04: the typed face-down object turns face down here, before game
         // start and before the public event tape exists, so no observation
         // ever shows it face up.
@@ -1214,6 +1426,95 @@ final class XmageNativeStateRestoration {
 
         arrivalRestored = true;
         applyLosslessLibrariesAtCheckpoint(game, playersByPid);
+    }
+
+    /**
+     * Resumes the record's own declared already-fully-cast stack spell as a
+     * real stack object at the record's checkpoint, or returns null while the
+     * game is not yet there or the record declares none.
+     *
+     * <p>The engine never casts, pays, targets or chooses anything: the record
+     * declares the spell {@code cast_complete} and {@code costs_paid} with no
+     * targets/modes, and this resume only materializes that declared object on
+     * the stack with the real card and the card's own real spell ability. The
+     * readback is engine-direct and fails closed on any mismatch of stack size,
+     * source card, identity or controller. Idempotent: the declared spell is
+     * resumed exactly once.</p>
+     */
+    synchronized JsonObject resumeFullyCastStackSpell(
+            GameCommanderImpl game, Map<String, Player> playersByPid) {
+        requireApplied();
+        if (plan.resumeStackSpell() == null || !atRequestedCheckpoint(game)) {
+            return null;
+        }
+        if (!resumeSpellResumed) {
+            if (!game.getStack().isEmpty()) {
+                throw new RestorationException(
+                        "RESUME_STACK_NOT_EMPTY",
+                        "the declared resume expects the record's stack to hold only it; observed "
+                                + game.getStack().size() + " objects");
+            }
+            Card card = resumeSpellCard;
+            if (card == null) {
+                throw new RestorationException(
+                        "RESUME_STACK_CARD_MISSING", plan.resumeStackSpell().semanticId());
+            }
+            if (card.getSpellAbility() == null) {
+                throw new RestorationException(
+                        "RESUME_STACK_NO_SPELL_ABILITY", plan.resumeStackSpell().semanticId());
+            }
+            Player controller = requirePlayer(playersByPid, plan.resumeStackSpell().controller());
+            Spell spell = new Spell(
+                    card, card.getSpellAbility().copy(), controller.getId(), Zone.HAND, game);
+            spell.syncZoneChangeCounterOnStack(card, game);
+            game.getState().setZone(spell.getId(), Zone.STACK);
+            game.getState().setZone(card.getId(), Zone.STACK);
+            game.getStack().push(game, spell);
+            resumeSpellResumed = true;
+        }
+        return resumeStackSpellReadback(game, playersByPid);
+    }
+
+    /** Engine-direct readback of the resumed declared stack spell. */
+    private JsonObject resumeStackSpellReadback(
+            GameCommanderImpl game, Map<String, Player> playersByPid) {
+        RequestedStackSpell requested = plan.resumeStackSpell();
+        JsonObject readback = new JsonObject();
+        JsonArray failures = new JsonArray();
+        UUID bound = injectedObjectIdsBySemanticId.get(requested.semanticId());
+        List<StackObject> objects = new ArrayList<>();
+        for (StackObject object : game.getStack()) {
+            objects.add(object);
+        }
+        readback.addProperty("semantic_id", requested.semanticId());
+        readback.addProperty("card_identity", requested.cardIdentity());
+        readback.addProperty("stack_size", objects.size());
+        if (objects.size() != 1) {
+            failures.add("RESUME_STACK_SIZE_MISMATCH: expected 1 actual " + objects.size());
+        }
+        JsonArray observed = new JsonArray();
+        for (StackObject object : objects) {
+            JsonObject entry = new JsonObject();
+            entry.addProperty("card_identity", object.getName());
+            entry.addProperty("controller", pidOf(object.getControllerId(), playersByPid));
+            entry.addProperty("source_bound", bound != null && bound.equals(object.getSourceId()));
+            observed.add(entry);
+            if (bound == null || !bound.equals(object.getSourceId())) {
+                failures.add("RESUME_STACK_SOURCE_MISMATCH: " + requested.semanticId());
+            } else if (!requested.cardIdentity().equals(object.getName())) {
+                failures.add("RESUME_STACK_IDENTITY_MISMATCH: expected "
+                        + requested.cardIdentity() + " actual " + object.getName());
+            }
+            String controller = pidOf(object.getControllerId(), playersByPid);
+            if (!requested.controller().equals(controller)) {
+                failures.add("RESUME_STACK_CONTROLLER_MISMATCH: expected "
+                        + requested.controller() + " actual " + controller);
+            }
+        }
+        readback.add("observed", observed);
+        readback.add("failures", failures);
+        readback.addProperty("verified", failures.isEmpty());
+        return readback;
     }
 
     /**
@@ -1904,6 +2205,12 @@ final class XmageNativeStateRestoration {
                 + "declare attackers, declare blockers, combat damage, postcombat main; "
                 + "arrival requires XmageTemporalProgressionDriver native progression");
         supported.add("explicit Rules-seed binding with replay determinism");
+        supported.add("a record-declared already-fully-cast stack spell "
+                + "(execution_entry_mode NATIVE_STATE_LOAD with "
+                + "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL, cast_complete and costs_paid "
+                + "declared, no targets/modes) resumed as a real stack object at the record's "
+                + "checkpoint with engine-direct source/identity/controller readback; nothing "
+                + "is cast, paid, targeted or chosen");
         supported.add("strict native readback with field-level compare and digests");
         supported.add("explicit L7 lossless hidden-state requests: complete live-library "
                 + "identity order plus one explicitly typed face-down battlefield object; "
@@ -1920,7 +2227,9 @@ final class XmageNativeStateRestoration {
         supported.addAll(XmageLosslessHiddenPlan.supportedDescriptor());
         payload.add("supported_dimensions", supported);
         JsonArray unsupported = new JsonArray();
-        unsupported.add("stack spells (casting requires real costs/timing: executor scope)");
+        unsupported.add("stack spells without a record declaration of an already-fully-cast "
+                + "spell (NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL with cast_complete and "
+                + "costs_paid; anything else needs real casting costs/timing: executor scope)");
         unsupported.add("legacy/frozen partial library identity: no complete permutation, fail closed");
         unsupported.add("legacy/frozen face_down=true without explicit native type: fail closed");
         unsupported.add("revealed-zone restoration");
