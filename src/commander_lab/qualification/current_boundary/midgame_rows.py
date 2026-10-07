@@ -379,6 +379,44 @@ def step_decision_class(step: dict[str, Any]) -> str:
     return engine_decision_class(family)
 
 
+def declared_omission_probe(record: dict[str, Any]) -> tuple[str, str] | None:
+    """The record's declared intentionally-omitted decision handler, if any.
+
+    Some negative records declare their obligation directly on the fixture
+    rather than in a ``decision_script`` step: ``negative_fallback_probe``
+    names the engine decision class whose external handler is intentionally
+    unavailable, and the record's ``NATIVE_RESOLVE_TOP_OF_STACK`` procedure
+    step names the actor the frame is expected to ask. The obligation is the
+    typed fail-closed refusal of exactly that frame, so the executor must
+    refuse it instead of answering it. The actor is never guessed: a record
+    without the procedure step's expected actor gets no probe.
+    """
+    probe = record.get("negative_fallback_probe")
+    if not isinstance(probe, dict):
+        return None
+    if probe.get("external_decision_handler") != "INTENTIONALLY_UNSUPPORTED_FOR_PROBE":
+        return None
+    if probe.get("production_decision_reached_natively") is not True:
+        return None
+    family = probe.get("omitted_handler")
+    if not isinstance(family, str) or not family:
+        return None
+    actor: str | None = None
+    for step in record.get("native_procedure") or ():
+        if not isinstance(step, dict):
+            continue
+        if str(step.get("operation")) != "NATIVE_RESOLVE_TOP_OF_STACK":
+            continue
+        details = step.get("details") or {}
+        expected = details.get("expected_decision_actor")
+        if isinstance(expected, str) and expected:
+            actor = expected
+        break
+    if actor is None:
+        return None
+    return engine_decision_class(family), actor
+
+
 def _life(principal: str, value: int) -> TerminalCheck:
     return TerminalCheck("life", principal=principal, value=value)
 
@@ -911,6 +949,13 @@ ROWS: dict[str, RowSpec] = {
     "NEGATIVE_DEFAULT_YES_NO": RowSpec(
         mana_sources=tuple(f"obj:neg-forest-{index}" for index in range(3)),
     ),
+    # The parent-class sibling: the record declares its own
+    # ``negative_fallback_probe`` (omitted_handler choose_object, external
+    # handler intentionally unavailable) instead of a decision_script step, so
+    # the executor refuses the engine's own frame from that declaration. The
+    # obligation is the typed fail-closed refusal of the discard decision, with
+    # no option selected and no state mutation.
+    "NEGATIVE_PARENT_CLASS_FALLBACK": RowSpec(),
     # PILOT_CHOICE: P1's Utopia Sprawl (rebuilt on the stack through the declared
     # causal route) resolves onto the Forest and the engine asks P1 its
     # as-enters color on its own choice frame; the record's key names the
@@ -4553,6 +4598,8 @@ def execute_row(
         if native.startswith(LIBRARY_POSITION_PREFIX)
     }
     refusals: list[dict[str, Any]] = []
+    omission_probe = declared_omission_probe(record)
+    omission_refused = False
     bindings = dict(spec.token_bindings)
     pending_alternative: str | None = None
     pending_costs: list[tuple[str, str]] = []
@@ -4715,6 +4762,32 @@ def execute_row(
                 frame.refusal_kind = typed.kind
                 refusals.append(typed.document())
                 position += 1
+                continue
+            if (
+                omission_probe is not None
+                and not omission_refused
+                and decision_class == omission_probe[0]
+                and principal == omission_probe[1]
+            ):
+                # The record declares this frame's external handler
+                # intentionally unavailable (``negative_fallback_probe``) and
+                # its obligation is the typed fail-closed refusal: nothing is
+                # selected, nothing is submitted, and the engine's own frame
+                # must still be pending afterwards with its event offset
+                # unchanged. A malformed refusal fails the row closed. A second
+                # frame of the class is not refused again: it falls through to
+                # the unscripted stop below, because the record scripts one
+                # omission only.
+                try:
+                    typed = refusal_mod.refuse_pending_decision(client, decision, legal=legal)
+                except refusal_mod.RefusalError as exc:
+                    raise ml.MidgameLaneError(
+                        f"the declared omission refusal failed closed: {exc}"
+                    ) from exc
+                frame.refused = True
+                frame.refusal_kind = typed.kind
+                refusals.append(typed.document())
+                omission_refused = True
                 continue
             if (
                 decision_class == "declare_attacker"
