@@ -249,6 +249,13 @@ jobs:
           PY
 
       - name: Execute authoritative two-candidate current-boundary runner
+        env:
+          # #479 E2: overlap the Forge native suites with the XMage-only phases.
+          # Promoted after 3 consecutive paired serial/shadow runs with 0
+          # compare_pb03_shadow.py differences (37609639402/37609636008,
+          # 37636020029/37636015934, 37655739220/37655726198). Unset the
+          # variable to restore the serial order; receipts are identical.
+          PB03_SHADOW_PARALLEL_FORGE_NATIVE: "1"
         run: python scripts/run_current_boundary_qualification.py --candidate all
 
       - name: Assemble source-bound current-boundary evidence
