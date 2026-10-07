@@ -49,8 +49,8 @@ Neither candidate passes AF00–AF11. Neither is freeze-ready.
 4. **AF04 is open for both for one recorded reason: the bounded 6P run.** On 2P–5P every frame
    is clean and `contradictions` is empty (XMage answers MULLIGAN and PRIORITY externally, Forge
    additionally STARTING_PLAYER). The only recorded gaps are the three 6P gaps: the 6P record
-   declares no starting seat, both create channels require one, and the Lab supplies no seat
-   default, so the run stops before any frame or priority decision
+   declares no starting seat, XMage's create channel requires one and Forge offers a
+   STARTING_PLAYER decision, and the Lab supplies no seat default, so the run stops before any frame or priority decision
    (`src/commander_lab/qualification/current_boundary/decision_boundary.py` turns any
    bounded-secondary gap into UNKNOWN). Closing AF04 needs an authoritative starting seat in the
    6P record (a contract erratum of the START-2 kind), which is Coordinator qualification design,
