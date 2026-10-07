@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import mage.abilities.Ability;
 import mage.abilities.ActivatedAbility;
+import mage.cards.Card;
 import mage.constants.AbilityType;
 import mage.constants.CommanderCardType;
 import mage.game.Game;
@@ -16,6 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +38,7 @@ final class ExternalDecisionController {
             String decisionId,
             String actorId,
             String decisionKind,
+            JsonObject context,
             boolean complete,
             List<JsonObject> actions
     ) {
@@ -45,6 +48,7 @@ final class ExternalDecisionController {
 
     private Decision currentDecision;
     private String submittedActionId;
+    private List<String> submittedCardIds;
     private RuntimeException terminalFailure;
     private boolean terminal;
     private long decisionOffset = 0L;
@@ -215,6 +219,7 @@ final class ExternalDecisionController {
                 decisionId,
                 actorId,
                 "priority",
+                new JsonObject(),
                 complete,
                 List.copyOf(actions)
         );
@@ -287,11 +292,13 @@ final class ExternalDecisionController {
                 decisionId,
                 actorId,
                 "mulligan",
+                new JsonObject(),
                 true,
                 actions
         );
         currentDecision = pending;
         submittedActionId = null;
+        submittedCardIds = null;
         notifyAll();
 
         long deadlineNanos = System.nanoTime() + RESPONSE_TIMEOUT_MILLIS * 1_000_000L;
@@ -348,7 +355,8 @@ final class ExternalDecisionController {
     /**
      * Resolve the currently pending mulligan decision from an explicit external
      * choice. bottom_card_ids must be empty here: London bottoming is a separate
-     * engine callback and remains fail-closed until that callback is projected.
+     * engine callback ({@link #requestBottom}) and cannot be injected into the
+     * keep/mulligan submit.
      */
     synchronized String submitMulligan(
             String engineGameId,
@@ -394,6 +402,194 @@ final class ExternalDecisionController {
         submittedActionId = matches.get(0).get("action_id").getAsString();
         notifyAll();
         return submittedActionId;
+    }
+
+    /**
+     * Publish the engine-authored London bottom-card domain (CR 103.5) and block
+     * the XMage engine thread until the JSONL control thread submits exactly the
+     * engine's required count of distinct offered cards. Every offered card is
+     * one option identified by its engine card id and card name; there is no
+     * default, positional, first-option or name-matched pick on this path.
+     */
+    synchronized List<String> requestBottom(
+            Player player,
+            Game game,
+            List<Card> offered,
+            int count
+    ) {
+        requireLiveController();
+        if (currentDecision != null) {
+            throw new IllegalStateException("CONCURRENT_EXTERNAL_DECISION");
+        }
+        if (count < 0 || count > offered.size()) {
+            throw new IllegalStateException(
+                    "EXTERNAL_DECISION_DOMAIN_INVALID: bottom count " + count
+                            + " is not between 0 and the offered card count "
+                            + offered.size()
+            );
+        }
+
+        decisionOffset++;
+        String gameId = game.getId().toString();
+        String actorId = player.getId().toString();
+        String decisionId = stableId(
+                gameId,
+                Long.toString(decisionOffset),
+                actorId,
+                "london_bottom"
+        );
+
+        List<Card> ordered = new ArrayList<>(offered);
+        ordered.sort(Comparator.comparing(Card::getId, XmageStableOrder.objects(game)));
+
+        List<JsonObject> actions = new ArrayList<>();
+        int ordinal = 0;
+        for (Card card : ordered) {
+            JsonObject metadata = new JsonObject();
+            metadata.addProperty("option_type", "bottom_card");
+            metadata.addProperty("engine_card_id", card.getId().toString());
+            metadata.addProperty("card_name", card.getName());
+            actions.add(
+                    legalAction(
+                            decisionId,
+                            ordinal,
+                            actorId,
+                            "bottom_card",
+                            null,
+                            null,
+                            true,
+                            List.of(),
+                            new JsonObject(),
+                            new JsonObject(),
+                            metadata
+                    )
+            );
+            ordinal++;
+        }
+
+        JsonObject context = new JsonObject();
+        context.addProperty("bottom_of_library_selection", true);
+        context.addProperty("count", count);
+
+        Decision pending = new Decision(
+                gameId,
+                gameId,
+                decisionOffset,
+                decisionId,
+                actorId,
+                "london_bottom",
+                context,
+                true,
+                List.copyOf(actions)
+        );
+        currentDecision = pending;
+        submittedActionId = null;
+        submittedCardIds = null;
+        notifyAll();
+
+        long deadlineNanos = System.nanoTime() + RESPONSE_TIMEOUT_MILLIS * 1_000_000L;
+        while (submittedCardIds == null && terminalFailure == null && !terminal) {
+            long remainingNanos = deadlineNanos - System.nanoTime();
+            if (remainingNanos <= 0L) {
+                RuntimeException failure = new IllegalStateException(
+                        "EXTERNAL_DECISION_TIMEOUT: " + decisionId + " kind=london_bottom"
+                );
+                terminalFailure = failure;
+                currentDecision = null;
+                notifyAll();
+                throw failure;
+            }
+            try {
+                wait(Math.max(1L, remainingNanos / 1_000_000L));
+            } catch (InterruptedException exc) {
+                Thread.currentThread().interrupt();
+                RuntimeException failure = new IllegalStateException(
+                        "EXTERNAL_DECISION_TIMEOUT: interrupted while awaiting " + decisionId,
+                        exc
+                );
+                terminalFailure = failure;
+                currentDecision = null;
+                notifyAll();
+                throw failure;
+            }
+        }
+
+        if (terminalFailure != null) {
+            throw terminalFailure;
+        }
+        if (submittedCardIds == null) {
+            throw new IllegalStateException(
+                    "EXTERNAL_DECISION_ENDED_WITHOUT_RESPONSE: " + decisionId
+            );
+        }
+
+        List<String> selection = List.copyOf(submittedCardIds);
+        submittedCardIds = null;
+        currentDecision = null;
+        notifyAll();
+        return selection;
+    }
+
+    /**
+     * Resolve the currently pending London bottom decision from an explicit
+     * external card selection. The selection must contain exactly the engine's
+     * required count of distinct offered engine card ids; a wrong decision id,
+     * actor, count, duplicate id, or non-offered id fails closed with a named
+     * EXTERNAL_DECISION_* code and leaves the decision pending.
+     */
+    synchronized List<String> submitBottom(
+            String engineGameId,
+            String decisionId,
+            String actorId,
+            List<String> cardIds
+    ) {
+        requireLiveController();
+        Decision decision = requireCurrentDecision(engineGameId);
+        if (!"london_bottom".equals(decision.decisionKind())) {
+            throw new IllegalStateException(
+                    "EXTERNAL_DECISION_KIND_MISMATCH: expected london_bottom, observed "
+                            + decision.decisionKind()
+            );
+        }
+        if (!decision.decisionId().equals(decisionId)) {
+            throw new IllegalStateException("STALE_EXTERNAL_DECISION");
+        }
+        if (!decision.actorId().equals(actorId)) {
+            throw new IllegalStateException("EXTERNAL_DECISION_ACTOR_MISMATCH");
+        }
+        int expectedCount = decision.context().get("count").getAsInt();
+        if (cardIds == null || cardIds.size() != expectedCount) {
+            throw new IllegalStateException(
+                    "EXTERNAL_DECISION_DOMAIN_INVALID: expected exactly "
+                            + expectedCount + " bottom card id(s), observed "
+                            + (cardIds == null ? "null" : cardIds.size())
+            );
+        }
+        if (new HashSet<>(cardIds).size() != cardIds.size()) {
+            throw new IllegalStateException(
+                    "EXTERNAL_DECISION_DOMAIN_INVALID: bottom card ids must be distinct"
+            );
+        }
+        Set<String> offered = new HashSet<>();
+        for (JsonObject action : decision.actions()) {
+            offered.add(
+                    action.getAsJsonObject("metadata")
+                            .get("engine_card_id")
+                            .getAsString()
+            );
+        }
+        for (String cardId : cardIds) {
+            if (!offered.contains(cardId)) {
+                throw new IllegalStateException(
+                        "EXTERNAL_DECISION_DOMAIN_INVALID: card id " + cardId
+                                + " is not one of the offered cards"
+                );
+            }
+        }
+
+        submittedCardIds = List.copyOf(cardIds);
+        notifyAll();
+        return submittedCardIds;
     }
 
     synchronized Decision awaitCurrentDecision(

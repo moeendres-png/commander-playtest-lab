@@ -28,12 +28,14 @@ import mage.target.Target;
 import mage.target.TargetAmount;
 import mage.target.TargetCard;
 import mage.target.TargetPlayer;
+import mage.target.common.TargetCardInHand;
 import mage.util.MultiAmountMessage;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -44,10 +46,11 @@ import java.util.UUID;
  * and pass priority. When an ExternalDecisionController is attached (B4
  * external control), priority is paused and published rather than silently
  * auto-passed, the init-phase starting-player selection honors the requested
- * seat by self-selecting, and the engine-authored keep/mulligan domain is
- * published and externally resolved. London bottom-card selection is explicitly
- * fail-closed until that separate callback is projected. Every other
- * discretionary Player callback fails closed with
+ * seat by self-selecting, the engine-authored keep/mulligan domain is
+ * published and externally resolved, and the native London bottom-card
+ * callback is published as a separate engine-authored decision whose exact
+ * required count of distinct offered cards must be answered externally. Every
+ * other discretionary Player callback fails closed with
  * UNSUPPORTED_COMPATIBILITY_DECISION instead of silently returning a tactical
  * default. The no-controller B3 path retains bounded compatibility behavior and
  * is not gameplay evidence.
@@ -270,9 +273,10 @@ final class XmageBridgePlayer extends PlayerImpl {
             Game game
     ) {
         if (externalDecisionController != null && BOTTOM_SELECTION.get()) {
-            throw new XmageGameManager.GameException(
-                    "UNSUPPORTED_COMPATIBILITY_DECISION: London bottom-card selection "
-                            + "requires external decision control; no default card choice is permitted"
+            return chooseBottomFromExternalDecision(
+                    new ArrayList<>(cards.getCards(game)),
+                    target,
+                    game
             );
         }
         failIfExternallyControlled("choose(Cards,TargetCard)");
@@ -287,6 +291,60 @@ final class XmageBridgePlayer extends PlayerImpl {
                 );
 
         return true;
+    }
+
+    /**
+     * Project the native London bottom-card callback onto the generic external
+     * decision lane. The engine alone authors the offered card set and the
+     * required count; the external client answers, and this method only applies
+     * the returned engine card ids to the engine target. No default or
+     * positional card choice exists here.
+     */
+    private boolean chooseBottomFromExternalDecision(
+            List<Card> offered,
+            Target target,
+            Game game
+    ) {
+        int count = target.getMinNumberOfTargets();
+        if (count != target.getMaxNumberOfTargets()) {
+            throw new XmageGameManager.GameException(
+                    "UNSUPPORTED_COMPATIBILITY_DECISION: London bottom-card selection"
+                            + " requires a fixed card count; observed min="
+                            + target.getMinNumberOfTargets()
+                            + " max="
+                            + target.getMaxNumberOfTargets()
+            );
+        }
+        List<String> selection = externalDecisionController.requestBottom(
+                this,
+                game,
+                offered,
+                count
+        );
+        for (String cardId : selection) {
+            target.add(UUID.fromString(cardId), game);
+        }
+        return true;
+    }
+
+    /**
+     * The pinned London mulligan asks for each card to bottom through
+     * {@code chooseTarget} on a {@code TargetCardInHand} whose engine-authored
+     * filter message requests cards "to put on the bottom of your library".
+     * Only that native callback identity is projected; every other target choice
+     * on the externally controlled path remains fail-closed.
+     */
+    private static boolean isLondonBottomTarget(Target target) {
+        if (!(target instanceof TargetCardInHand)) {
+            return false;
+        }
+        try {
+            String message = target.getFilter().getMessage();
+            return message != null
+                    && message.endsWith(" more) to put on the bottom of your library");
+        } catch (RuntimeException exc) {
+            return false;
+        }
     }
 
     @Override
@@ -353,6 +411,14 @@ final class XmageBridgePlayer extends PlayerImpl {
             Ability source,
             Game game
     ) {
+        if (externalDecisionController != null && isLondonBottomTarget(target)) {
+            List<Card> offered = target.possibleTargets(getId(), source, game)
+                    .stream()
+                    .map(game::getCard)
+                    .filter(Objects::nonNull)
+                    .toList();
+            return chooseBottomFromExternalDecision(offered, target, game);
+        }
         failIfExternallyControlled("chooseTarget(Target)");
         if (target.getFilter().getMessage() != null
                 && target.getFilter()
