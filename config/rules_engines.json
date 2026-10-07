@@ -100,13 +100,13 @@
  "secondary_engine": {
   "bridge_source": {
    "repository": "https://github.com/moeendres-png/forge.git",
-   "commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+   "commit": "31cbae12640e6066499aa7f17c9bf2dba6a30da6",
    "rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
    "qualification_lineage_base_commit": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
-   "role": "Exact bridge/materialization source for the current R-1 candidate. The #11 qualification branch head after merging forge#22 (the free multiplayer mulligan's zero-card London tuck, #441 PILOT_MULLIGAN) forge#25 (the orchestration-keyed get_constructed_state with library shuffle counts, #441 (c)) and forge#28 (each commander's native controller, counters, face-down, tapped and attachment state, the engine's rules state and each seat's knowledge and commander-damage counts in that read, schema /4) on the integrated R-5 bridge gate forge#16. Every change over the Rules-Core candidate is under forge-protocol2-bridge/. rules_core_base_commit binds it back to the admitted #11/#12 candidate. Prior bridge sources e8b8aec6 (#11 + #13) and 20e3e1f7 (forge#16, qualification/forge-bridge-r5-integrated-20261001) are historical; qualification/forge-bridge-constructed-state-20261005/SUCCESSOR_SOURCE_LOCK.json records the exact-head gate of this source."
+   "role": "Exact bridge/materialization source for the current R-1 candidate. PR #34 head 31cbae12 (tree b5c19c19) on hardening/forge-eb2-face-down-20261007: the E-B2 manifested face-down construction (#561) plus the review P3 fix that chains the cause of a failed face-down placement, carried on the forge#33/forge#35 successor line. Ancestry: c3a025fa (E-B2 face-down construction) on 80336359 (the forge#33 G1 R1 merge, tree e5731fea); 6a1a60c5 adds the P3 cause chaining (throw new IllegalStateException(\"face-down placement failed\", t)); the PR #34 head 31cbae12 (parents 6a1a60c5 and d9e356aa, tree 27bee40d) merges that branch back onto the forge#35 successor line. Over d9e356aa the only changed paths are forge-protocol2-bridge/: ScenarioBootstrap.java (0339d40d -> 5b722a18), StateProjection.java (b3f801c3 -> e9aa6e3e) and the bridge test G1R1TurnBeganBootstrapTest.java; 0 Rules-Core files and 0 card-data files. The forge#35 removal of .foundry/oc561-g1-r1-forge-20261006.yaml is retained, so the H4F Rules-Core drift guard admits the successor tree. The bridge parses face_down/face_down_type (missing kind, unsupported kind and attached placements are rejected), places a battlefield MANIFESTED permanent face down with the engine's own manifest state setup (GameState.java face-down precedent; the Original card state is recorded for the view refresh), verifies the requested face-down state after the post-untap hook, and projects face_down (public, CR 708.2) plus face_down_type only when the observer's shown name is not a redacted marker. rules_core_base_commit binds it back to the admitted #11/#12 candidate. Exact-head CI on 31cbae12 is PENDING: Test build run 37634912575 (push) was in progress at lock-writing time, and the iOS compatibility gate run 37634912612 (push) completed success; the pull_request pair 37634922429 / 37634922406 mirrors it. No prior run id is reused and PB-03 stays PENDING."
   },
   "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
-  "commit_meaning": "CURRENT R-1 ADMITTED QUALIFICATION CANDIDATE SOURCE. Exact Commander-Lab-maintained Forge fork #11 head including accepted #12. The bridge source ee37e4a5 (forge#16 + #22 + #25 + #28) is bound separately as the bridge/materialization source and is not part of the Rules-Core candidate identity. Qualification authority only: not a Production Provider selection and no merge to forge/master is authorized.",
+  "commit_meaning": "CURRENT R-1 ADMITTED QUALIFICATION CANDIDATE SOURCE. Exact Commander-Lab-maintained Forge fork #11 head including accepted #12. The bridge source 31cbae12 (PR #34 head: E-B2 manifested face-down construction plus the cause-chaining P3 fix on the forge#33/#35 successor line, #561; exact-head Test build run 37634912575 pending; PB-03 pending) is bound separately as the bridge/materialization source and is not part of the Rules-Core candidate identity. Qualification authority only: not a Production Provider selection and no merge to forge/master is authorized.",
   "engine_identity_pb09": {
    "pb09_status": "RESOLVED_BY_OWNER_R1_2026_09_30_FOR_CURRENT_QUALIFICATION_AUTHORITY",
    "current_candidate": {
@@ -125,12 +125,12 @@
     "is_current_candidate": false
    },
    "bridge_source": {
-    "role": "CURRENT BRIDGE/MATERIALIZATION ROLE. The forge#28 head on the #11 branch after forge#22 and forge#25, on the integrated bridge gate #16; separately source-bound from the #11 Rules-Core candidate.",
+    "role": "CURRENT BRIDGE/MATERIALIZATION ROLE. PR #34 head 31cbae12 (tree b5c19c19) on hardening/forge-eb2-face-down-20261007: the E-B2 manifested face-down construction (#561: the record's face_down / face_down_type placement is parsed and built as a battlefield MANIFESTED permanent, the requested state is verified after the post-untap hook, and StateProjection emits face_down publicly with face_down_type only to an observer whose shown name is not a redacted marker) plus the review P3 fix that chains the cause of a failed placement. The branch is c3a025fa (E-B2) on 80336359 (forge#33 G1 R1 merge) plus 6a1a60c5 (P3), merged with d9e356aa (the forge#35 successor line, tree 27bee40d) into the head 31cbae12; separately source-bound from the #11 Rules-Core candidate. Exact-head CI on 31cbae12: Test build run 37634912575 (push) PENDING/in progress, iOS compatibility gate run 37634912612 (push) success; the pull_request runs 37634922429 / 37634922406 mirror it. The forge#33 runs 37531998578/37531998583 and the forge#35 run 37620949527 are not reused. PB-03 remains PENDING.",
     "repository": "https://github.com/moeendres-png/forge.git",
-    "commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
-    "tree": "b26c59365bb88f898a2ec7e7a7e337bdf7d4573e",
+    "commit": "31cbae12640e6066499aa7f17c9bf2dba6a30da6",
+    "tree": "b5c19c19de37ca7976059e1a9fd6295a30534c06",
     "rules_core_base_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
-    "pull_request": 28
+    "pull_request": 34
    },
    "upstream_baseline": {
     "role": "REFERENCE BASELINE / DONOR EVIDENCE ONLY. Not the current candidate and not the engine under current qualification.",

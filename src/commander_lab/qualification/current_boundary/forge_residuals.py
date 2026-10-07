@@ -63,8 +63,9 @@ EVENT_LOG = "EVENT_LOG"
 _CAUSAL_ROUTE_SCOPE = (
     "the lane casts only through its causal stack route (#520, #561): complete, modeless "
     "spells with declared fuel, either one aimed at a commander for a commander zone "
-    "choice to the graveyard, exile or hand, or a stack the record's scripted priority "
-    "cast, targets and declared payment answer (scripted_decision_offered)"
+    "choice to the graveyard, exile or hand, a stack the record's scripted priority "
+    "cast, targets and declared payment answer (scripted_decision_offered), or the "
+    "victim's own stack before a declared elimination (stack_controller_eliminated)"
 )
 
 # Construction dimensions of the lane's model (``hard_unsupported``), by exact
@@ -192,9 +193,9 @@ _UNOBSERVABLE: dict[str, tuple[str, str]] = {
     ),
     "semantic_objects.controlled_since_turn_began": (
         LAB_EXECUTION_GAP,
-        "bootstrap-placed creatures arrive after the turn began; continuous control is "
-        "caused by native progression to a later turn and shown by the engine's own attack "
-        "frame, neither of which the lane executes",
+        "since G1 R1 a boolean request on a battlefield object is checkpoint-verified "
+        "against the engine's !isFirstTurnControlled() readback; only a non-boolean "
+        "request or one on a non-battlefield object still reaches this mechanism",
     ),
 }
 
@@ -335,6 +336,7 @@ _LANE_OBLIGATION_KINDS = frozenset(
         "commander_zone_choice",
         "game_start_command_zone",
         "scripted_decision_offered",
+        "stack_controller_eliminated",
         "player_leaves_multiplayer_cleanup",
         "starting_player_first_turn_draw",
     }

@@ -44,6 +44,10 @@ from commander_lab.qualification.current_boundary.game_driver import (
 )
 
 ROUTE_SCHEMA_VERSION = "forge-causal-stack-route-1.0.0"
+# The production probe's composed entry mode (``CAUSAL_STACK_ELIMINATION``):
+# the record's stack is cast, verified, and only then is its controller
+# eliminated. Checked against the probe's own constant when planned.
+CAUSAL_STACK_ELIMINATION = "causal_stack_elimination"
 
 
 class CausalRouteError(RuntimeError):
@@ -65,13 +69,70 @@ class FuelCard:
     owner: str  # "p2"
 
 
+# The record's declared loss reason, mapped to the pinned engine's own
+# ``GameLossReason`` name the readback reports (``loss_reason``). A reason not
+# listed here is not routed: the Lab never guesses how an engine names a loss.
+ENGINE_LOSS_REASONS: dict[str, str] = {"life_total_0": "LifeReachedZero"}
+
+
+@dataclass(frozen=True)
+class EliminationPlan:
+    """A declared causal elimination after the record's stack is cast (CR 800.4a).
+
+    The instruments are the shared declaration (``elimination_request`` of the
+    production probe, the XMage lane's own): one Lightning Bolt in the actor's
+    hand and one Mountain on the actor's battlefield per declared bolt. The
+    victim's recorded life (the state-based-action-pending instant of CR 704.3,
+    which no priority point shows) cannot be placed before the victim casts its
+    spell, so the victim starts at its recorded starting life, openly
+    substituted and published, and the engine alone deals the damage and
+    applies the loss.
+    """
+
+    actor: str
+    victim: str
+    bolt_count: int
+    bolts: tuple[FuelCard, ...]
+    lands: tuple[FuelCard, ...]
+    recorded_life: int
+    starting_life: int
+    engine_loss_reason: str
+    survivors: tuple[str, ...]
+
+    def to_document(self) -> dict[str, Any]:
+        return {
+            "actor": self.actor,
+            "victim": self.victim,
+            "bolt_count": self.bolt_count,
+            "instruments": [
+                {"semantic_id": card.semantic_id, "card": card.card, "owner": card.owner}
+                for card in (*self.bolts, *self.lands)
+            ],
+            "life_substitution": {
+                "player_id": self.victim,
+                "recorded_life": self.recorded_life,
+                "placed_life": self.starting_life,
+                "basis": (
+                    "the recorded life is the state-based-action-pending instant (CR 704.3); "
+                    "it is reached only by the engine dealing the declared bolts' damage"
+                ),
+            },
+            "engine_loss_reason": self.engine_loss_reason,
+            "survivors": list(self.survivors),
+            "instrument_authority": (
+                "run_midgame_capability_probe.CAUSAL_ROWS + elimination_request (shared with XMage)"
+            ),
+        }
+
+
 @dataclass(frozen=True)
 class CausalPlan:
     spells: tuple[StackSpell, ...]
     fuel: tuple[FuelCard, ...]
+    elimination: EliminationPlan | None = None
 
     def to_document(self) -> dict[str, Any]:
-        return {
+        document: dict[str, Any] = {
             "schema_version": ROUTE_SCHEMA_VERSION,
             "spells": [
                 {
@@ -88,6 +149,9 @@ class CausalPlan:
             ],
             "fuel_authority": "run_midgame_capability_probe.CAUSAL_ROWS (shared with XMage)",
         }
+        if self.elimination is not None:
+            document["elimination"] = self.elimination.to_document()
+        return document
 
 
 def _principal(value: Any) -> str:
@@ -98,7 +162,88 @@ def declared_causal_entry(fixture_id: str) -> dict[str, Any] | None:
     """The shared declared causal-stack entry for a row, or None."""
     from commander_lab.qualification.current_boundary import midgame_rows
 
-    return midgame_rows.causal_stack_entry(fixture_id)
+    return midgame_rows.causal_stack_entry(
+        fixture_id
+    ) or midgame_rows.causal_stack_elimination_entry(fixture_id)
+
+
+def _elimination_plan(record: dict[str, Any], entry: dict[str, Any]) -> EliminationPlan | None:
+    """The declared elimination of a composed entry, or None when it is not executable.
+
+    Only a composed stack-then-elimination entry without caused permanents is
+    planned (a caused permanent needs an attachment and control readback the
+    pinned bridge does not project). The instruments come from the shared
+    declaration and must be exactly the declared count of bolts and lands; the
+    victim must be the record's declared elimination at a declared reason the
+    engine names, and at least one survivor must remain.
+    """
+    from commander_lab.qualification.current_boundary import midgame_rows
+
+    probe = midgame_rows.probe_module()
+    if (
+        entry.get("entry_mode") != CAUSAL_STACK_ELIMINATION
+        or getattr(probe, "CAUSAL_STACK_ELIMINATION", None) != CAUSAL_STACK_ELIMINATION
+        or entry.get("caused_permanents")
+    ):
+        return None
+    count = entry.get("bolt_count")
+    if not isinstance(count, int) or isinstance(count, bool) or count < 1:
+        return None
+    request = probe.elimination_request(entry)
+    actor = _principal(request.get("actor"))
+    victim = _principal(request.get("victim"))
+    instruments = [item for item in request.get("instruments") or () if isinstance(item, dict)]
+
+    def declared(card: str, zone: str) -> tuple[FuelCard, ...]:
+        return tuple(
+            FuelCard(str(item["semantic_id"]), card, _principal(item.get("owner")))
+            for item in instruments
+            if item.get("card_identity") == card and item.get("zone") == zone
+        )
+
+    bolts = declared("Lightning Bolt", "hand")
+    lands = declared("Mountain", "battlefield")
+    if (
+        len(bolts) != count
+        or len(lands) != count
+        or len(instruments) != 2 * count
+        or any(card.owner != actor for card in (*bolts, *lands))
+    ):
+        return None
+    trigger = record.get("elimination_trigger") or {}
+    reason = ENGINE_LOSS_REASONS.get(str(trigger.get("reason")))
+    players = {
+        _principal(player.get("player_id")): player
+        for player in record.get("players") or ()
+        if isinstance(player, dict)
+    }
+    victim_row = players.get(victim) or {}
+    recorded = victim_row.get("life")
+    starting = victim_row.get("starting_life")
+    survivors = tuple(sorted(player for player in players if player != victim))
+    if (
+        _principal(trigger.get("player")) != victim
+        or reason is None
+        or actor not in players
+        or actor == victim
+        or not isinstance(recorded, int)
+        or not isinstance(starting, int)
+        or recorded > 0
+        or starting <= 0
+        or not survivors
+    ):
+        return None
+    return EliminationPlan(
+        actor=actor,
+        victim=victim,
+        bolt_count=count,
+        bolts=bolts,
+        lands=lands,
+        recorded_life=recorded,
+        starting_life=starting,
+        engine_loss_reason=reason,
+        survivors=survivors,
+    )
 
 
 def causal_plan(record: dict[str, Any], entry: dict[str, Any] | None) -> CausalPlan | None:
@@ -143,7 +288,13 @@ def causal_plan(record: dict[str, Any], entry: dict[str, Any] | None) -> CausalP
         for card in entry.get("fuel") or ()
         if isinstance(card, dict)
     )
-    return CausalPlan(spells=tuple(spells), fuel=fuel)
+    elimination: EliminationPlan | None = None
+    if entry.get("entry_mode") == CAUSAL_STACK_ELIMINATION:
+        # A composed entry is planned only with its declared elimination.
+        elimination = _elimination_plan(record, entry)
+        if elimination is None:
+            return None
+    return CausalPlan(spells=tuple(spells), fuel=fuel, elimination=elimination)
 
 
 def pre_causal_state(neutral: dict[str, Any], plan: CausalPlan) -> dict[str, Any]:
@@ -159,10 +310,26 @@ def pre_causal_state(neutral: dict[str, Any], plan: CausalPlan) -> dict[str, Any
     hands = {player: list(cards) for player, cards in (state.get("hands") or {}).items()}
     for spell in plan.spells:
         hands.setdefault(spell.controller, []).append(spell.card)
+    elimination = plan.elimination
+    lands = list(plan.fuel)
+    if elimination is not None:
+        # The declared instruments, and the victim's open life substitution
+        # (published in the plan): the recorded life is reached by the engine.
+        for card in elimination.bolts:
+            hands.setdefault(card.owner, []).append(card.card)
+        lands.extend(elimination.lands)
+        life = dict(state.get("life") or {})
+        if life.get(elimination.victim) != elimination.recorded_life:
+            raise CausalRouteError(
+                f"the neutral state's {elimination.victim} life {life.get(elimination.victim)!r} "
+                f"is not the recorded {elimination.recorded_life}"
+            )
+        life[elimination.victim] = elimination.starting_life
+        state["life"] = life
     state["hands"] = hands
     state["battlefield"] = [
         *(state.get("battlefield") or ()),
-        *({"card": card.card, "controller": card.owner, "owner": card.owner} for card in plan.fuel),
+        *({"card": card.card, "controller": card.owner, "owner": card.owner} for card in lands),
     ]
     return state
 
@@ -194,9 +361,12 @@ class CausalRun:
     engine_assigned_targets: list[dict[str, Any]] = field(default_factory=list)
     pre_causal_position: dict[str, Any] | None = None
     failure: str | None = None
+    # The declared instruments cast after the stack was verified, in order:
+    # the instrument's declared id and the tape index of its cast frame.
+    elimination_casts: list[dict[str, Any]] = field(default_factory=list)
 
     def to_document(self) -> dict[str, Any]:
-        return {
+        document = {
             "frames": [frame.__dict__ for frame in self.frames],
             "stack_after_cast": self.stack_after_cast,
             "snapshots": self.snapshots,
@@ -206,6 +376,9 @@ class CausalRun:
             "pre_causal_position": self.pre_causal_position,
             "failure": self.failure,
         }
+        if self.elimination_casts:
+            document["elimination_casts"] = self.elimination_casts
+        return document
 
 
 @dataclass
@@ -228,6 +401,10 @@ class _Cast:
     stack_before: int
     require_all_sources: bool
     used: set[str] = field(default_factory=set)
+
+
+# How a payment frame of each kind of cast names its declared source in the tape.
+_PAYMENT_LABELS = {"causal": "fuel", "scripted": "payment", "elimination": "instrument"}
 
 
 def _submit(
@@ -481,6 +658,76 @@ def _cast_target_steps(record: dict[str, Any], steps: list[dict[str, Any]]) -> l
     return resolved
 
 
+def player_row(state: dict[str, Any] | None, player: str) -> dict[str, Any] | None:
+    """One player's row of an engine readback, by its player id, or None."""
+    rows = [
+        row
+        for row in (state or {}).get("players") or ()
+        if isinstance(row, dict) and _principal(row.get("player_id")) == player
+    ]
+    return rows[0] if len(rows) == 1 else None
+
+
+def has_lost(state: dict[str, Any] | None, player: str) -> bool | None:
+    """The engine's own ``has_lost`` flag for a player, or None when it is not read back."""
+    row = player_row(state, player)
+    value = None if row is None else row.get("has_lost")
+    return value if isinstance(value, bool) else None
+
+
+def instrument_counts(state: dict[str, Any] | None, plan: EliminationPlan) -> dict[str, Any]:
+    """The actor's own view of its declared instruments: bolts in hand, untapped lands.
+
+    Read from the actor's principal-scoped readback only. The declared bolt and
+    land counts must equal these engine facts before any instrument is cast.
+    """
+    zones = (player_row(state, plan.actor) or {}).get("zones") or {}
+    bolt = plan.bolts[0].card if plan.bolts else None
+    land = plan.lands[0].card if plan.lands else None
+    hand = [str(card) for card in zones.get("hand") or ()]
+    details = [item for item in zones.get("battlefield_details") or () if isinstance(item, dict)]
+    return {
+        "bolts_in_hand": sum(1 for card in hand if card == bolt),
+        "lands": sum(1 for item in details if item.get("name") == land),
+        "untapped_lands": sum(
+            1 for item in details if item.get("name") == land and item.get("tapped") is False
+        ),
+    }
+
+
+def select_instrument_cast(
+    options: list[ss.OfferedOption], card: str, remaining: int
+) -> ss.OfferedOption:
+    """The cast of the next declared instrument, among identical engine offers only.
+
+    The engine offers one cast per castable card. The offers of the instrument's
+    name must be exactly as many as the declared instruments not yet cast, and
+    identical (same label and source, no identity reference): they are then
+    indistinguishable instances whose order is not a choice (the XMage lane's
+    ``_interchangeable`` rule, as ``select_mana_source`` applies it to declared
+    fuel). Any other count, including an engine-legal but undeclared instance of
+    the same card, and any distinguishable offer fails closed.
+    """
+    casts = [
+        option
+        for option in options
+        if option.decision_class == "priority"
+        and option.kind == "cast"
+        and option.source_name == card
+    ]
+    if len(casts) != remaining:
+        raise ss.SelectionFailure(
+            "instrument_count_mismatch",
+            f"the engine offered {len(casts)} casts of {card}; {remaining} declared "
+            "instruments remain",
+        )
+    if len({(o.label, o.source_name, o.refs) for o in casts}) != 1 or any(o.refs for o in casts):
+        raise ss.SelectionFailure(
+            "instrument_ambiguous", f"distinguishable casts of {card}: {[o.label for o in casts]}"
+        )
+    return casts[0]
+
+
 def run_causal_route(
     proc: BridgeProcess,
     game_id: str,
@@ -528,8 +775,20 @@ def run_causal_route(
     casting: _Cast | None = None
     used_fuel: set[str] = set()
     script = list(record.get("decision_script") or ())
+    elimination = plan.elimination
+    instrument_lands = (
+        []
+        if elimination is None
+        else [
+            ss.SemanticObject(card.semantic_id, card.card, card.owner, "battlefield")
+            for card in elimination.lands
+        ]
+    )
+    used_instruments: set[str] = set()
+    resolved_instruments = 0
+    frame_limit = max_frames + (0 if elimination is None else 8 * elimination.bolt_count)
     try:
-        for _ in range(max_frames):
+        for _ in range(frame_limit):
             frame = poll_decision(proc, game_id, seat_count=seat_count, candidate="forge")
             decision = frame.get("decision") or {}
             kind = str(decision.get("kind") or "").upper()
@@ -573,8 +832,7 @@ def run_causal_route(
                         decision_class,
                         options,
                         chosen,
-                        f"declared {'fuel' if casting.prefix == 'causal' else 'payment'} "
-                        f"{source.semantic_id}",
+                        f"declared {_PAYMENT_LABELS[casting.prefix]} {source.semantic_id}",
                         payment_source=source.semantic_id,
                     )
                     continue
@@ -620,6 +878,18 @@ def run_causal_route(
                         f"the cast of {casting.semantic_id} left declared payment sources "
                         f"unused: {sorted({s.semantic_id for s in casting.sources} - casting.used)}"
                     )
+                if casting.prefix == "elimination":
+                    # The instrument went on top of the verified stack, which is
+                    # otherwise untouched, and its target is still in the game.
+                    assert elimination is not None
+                    if stack[1:] != list(run.stack_after_cast or ()) or has_lost(
+                        state, elimination.victim
+                    ):
+                        raise CausalRouteError(
+                            f"the cast of {casting.semantic_id} did not keep the verified stack "
+                            f"{run.stack_after_cast} under it with {elimination.victim} in the "
+                            f"game: {stack}"
+                        )
                 if casting.targets:
                     assigned = _engine_assigned_targets(casting, stack, objects)
                     run.engine_assigned_targets.append(
@@ -686,6 +956,101 @@ def run_causal_route(
                 state = observe(game_id)
                 if state.get("stack"):
                     run.snapshots.append({"at": "requested_checkpoint", "state": state})
+            if (
+                elimination is not None
+                and decision_class == "priority"
+                and actor == elimination.actor
+                and not pending_spells
+                and run.stack_after_cast is not None
+            ):
+                # The declared elimination, only after the record's stack was
+                # cast and verified at the requested checkpoint (CR 800.4a: the
+                # victim's spell must be on the stack when the victim leaves).
+                if script:
+                    raise CausalRouteError("a declared elimination runs no decision script")
+                if not any(snap["at"] == "requested_checkpoint" for snap in run.snapshots):
+                    raise CausalRouteError(
+                        f"{actor} holds priority before the requested checkpoint was captured"
+                    )
+                state = observe(game_id)
+                stack = _stack(state)
+                caused = list(run.stack_after_cast)
+                if len(stack) == len(caused) + 1 and run.elimination_casts:
+                    # An instrument is on top of the verified stack: every
+                    # player passes so the engine resolves it.
+                    passes = [option for option in options if option.kind == "pass"]
+                    chosen = ss._exactly_one(passes, "priority pass")
+                    _pass(proc, game_id, frame)
+                    _record(run, frame, decision_class, options, chosen, "elimination pass")
+                    continue
+                if len(run.elimination_casts) > resolved_instruments:
+                    resolved_instruments += 1
+                    run.snapshots.append(
+                        {"at": f"elimination_resolved:{resolved_instruments}", "state": state}
+                    )
+                if has_lost(state, elimination.victim):
+                    if len(run.elimination_casts) != elimination.bolt_count:
+                        # The loss must be the engine's answer to every declared
+                        # instrument, after the stack was verified, never earlier.
+                        raise CausalRouteError(
+                            f"{elimination.victim} lost after {len(run.elimination_casts)} of "
+                            f"{elimination.bolt_count} declared instruments"
+                        )
+                    _record(run, frame, decision_class, options, None, "eliminated: settled")
+                    run.snapshots.append({"at": "after_loss", "state": state})
+                    return run
+                if stack != caused:
+                    raise CausalRouteError(
+                        f"the engine stack {stack} is not the verified stack {caused} while "
+                        f"{elimination.victim} is in the game"
+                    )
+                if not run.elimination_casts:
+                    counts = instrument_counts(state, elimination)
+                    wanted = {
+                        "bolts_in_hand": elimination.bolt_count,
+                        "lands": elimination.bolt_count,
+                        "untapped_lands": elimination.bolt_count,
+                    }
+                    if counts != wanted or has_lost(state, elimination.victim) is not False:
+                        raise CausalRouteError(
+                            f"the engine shows {actor}'s instruments {counts} and "
+                            f"{elimination.victim} lost={has_lost(state, elimination.victim)!r}; "
+                            f"declared {wanted} with {elimination.victim} in the game"
+                        )
+                    run.snapshots.append({"at": "elimination_start", "state": state})
+                index = len(run.elimination_casts)
+                if index >= elimination.bolt_count:
+                    raise CausalRouteError(
+                        f"all {elimination.bolt_count} declared instruments resolved and the "
+                        f"engine did not eliminate {elimination.victim}"
+                    )
+                bolt = elimination.bolts[index]
+                chosen = select_instrument_cast(options, bolt.card, elimination.bolt_count - index)
+                _submit(proc, game_id, frame, chosen)
+                _record(
+                    run,
+                    frame,
+                    decision_class,
+                    options,
+                    chosen,
+                    f"elimination cast {bolt.semantic_id}",
+                )
+                run.elimination_casts.append(
+                    {"semantic_id": bolt.semantic_id, "frame_index": len(run.frames) - 1}
+                )
+                casting = _Cast(
+                    actor=actor,
+                    semantic_id=bolt.semantic_id,
+                    card=bolt.card,
+                    prefix="elimination",
+                    targets=[_target_step(elimination.victim.upper())],
+                    sources=instrument_lands,
+                    interchangeable=True,
+                    stack_before=len(stack),
+                    require_all_sources=False,
+                    used=used_instruments,
+                )
+                continue
             step = script[0] if script else None
             if (
                 step is not None

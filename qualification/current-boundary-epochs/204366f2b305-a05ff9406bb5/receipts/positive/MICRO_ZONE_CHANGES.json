@@ -1,0 +1,83 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "causal_reconstruction": {
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:micro-bolt-stack"
+    ],
+    "fuel": [
+      "obj:fuel-mountain-p1"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:micro-bolt-stack"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_ZONE_CHANGES",
+  "obligation_exercised": {
+    "obligation_digest": "d4263d061a028c7f672e4d8610c4e65202f95128a42866e6004be59d984d5a2c",
+    "requested_state_digest": "358d1908752e5dc47a5ed27a2a13601596fa892a35d66d171266aab294f8b79a",
+    "required_events": [
+      "resolve:obj:micro-bolt-stack",
+      "zone_change:stack->graveyard",
+      "new_object_incarnation:line:micro-bolt"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "The physical/card lineage is continuous but the graveyard object is a new object incarnation; provider-local UUID is ignored."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "new_object_incarnation:line:micro-bolt": {
+        "events": [
+          11
+        ],
+        "from": "STACK",
+        "to": "GRAVEYARD"
+      },
+      "resolve:obj:micro-bolt-stack": {
+        "binding": [
+          "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:micro-bolt-stack, target_player=P2, amount=3",
+          "every DAMAGED_PLAYER event with source_object=obj:micro-bolt-stack precedes the first ZONE_CHANGE event with target_object=obj:micro-bolt-stack, from=STACK"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:micro-bolt-stack, target_player=P2, amount=3",
+            "events": [
+              10
+            ]
+          },
+          {
+            "binding": "every DAMAGED_PLAYER event with source_object=obj:micro-bolt-stack precedes the first ZONE_CHANGE event with target_object=obj:micro-bolt-stack, from=STACK",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "zone_change:stack->graveyard": {
+        "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-bolt-stack, from=STACK, to=GRAVEYARD",
+        "events": [
+          11
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "f3c6b715d2cfd707877ab8cc1ed049eb412dda987f089b985e4b5b823f58ef66",
+  "runner_digest": "63e05d2fb1e748791cbc6a2468d541b29f080df7241183632a06ffe6ddfe2b37",
+  "runtime_receipt_digest": "3eb82af79505bd248f306f9c80489abf077cfa2c5f3811620c84f38128eb6e20",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_ZONE_CHANGES"
+}

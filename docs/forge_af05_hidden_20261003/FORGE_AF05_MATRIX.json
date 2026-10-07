@@ -1,5 +1,5 @@
 {
- "bridge_commit": "ee37e4a52d99401ba57fba7ca516ac01f1981161",
+ "bridge_commit": "31cbae12640e6066499aa7f17c9bf2dba6a30da6",
  "candidate": "forge",
  "canonical_bundle_digest": "0f6f1701b73cc60ec8422353c5127673b0b25f4a4fa1f5b9a8092621fdf71c49",
  "channels": [
@@ -31,6 +31,24 @@
     "shown = view != null && view.canBeShownTo(observerView) && view.canFaceDownBeShownTo(observerView);",
     "return faceDown ? \"<face-down>\" : \"<hidden>\";",
     "shown = observerView != null && view != null && view.canBeShownTo(observerView) && view.canFaceDownBeShownTo(observerView);"
+   ],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
+   "status": "SUPPORTED"
+  },
+  {
+   "absent_tokens": [
+    "exileZone("
+   ],
+   "channel": "exile_name_readback",
+   "closed_bootstrap_fields": [],
+   "closed_frame_keys": [],
+   "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
+   "meaning": "each seat's exile projects as one shownName per card to the observer: a face-up exiled card is named to every principal (CR 406.3), a face-down one only through the face-down redaction. Names carry no semantic identity, so the Lab binds a requested exile object to a readback name only by the exactly-one rule (bind_exile_identities). No obligation requires this channel: it satisfies no row, it only decides whether an exile finding is a readback limit",
+   "present_fragments": [
+    "zones.add(\"exile\", require(\"zones.exile\", () -> exileZone(player, observerView)));",
+    "private static JsonArray exileZone(Player player, PlayerView observerView) { final JsonArray zone = new JsonArray(); for (Card card : player.getCardsIn(ZoneType.Exile)) { zone.add(shownName(card, observerView)); } return zone; }"
    ],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java",
    "status": "SUPPORTED"
@@ -129,12 +147,7 @@
    "status": "ABSENT"
   },
   {
-   "absent_tokens": [
-    "face_down",
-    "FaceDown",
-    "faceDown",
-    "manifest"
-   ],
+   "absent_tokens": [],
    "channel": "face_down_construction",
    "closed_bootstrap_fields": [
     "attached_to",
@@ -145,6 +158,8 @@
     "controller",
     "counters",
     "decision_script",
+    "face_down",
+    "face_down_type",
     "hands",
     "id",
     "life",
@@ -157,10 +172,16 @@
    "closed_message_types": [],
    "closed_stderr_prints": [],
    "frame_key_facets": {},
-   "meaning": "the scenario bootstrap has no face-down field (MANIFESTED, CLOAKED, ...)",
-   "present_fragments": [],
+   "meaning": "the scenario bootstrap places a battlefield permanent face down as a manifested permanent (E-B2: CR 708.2, CR 701.34; the engine's own GameState FaceDown/Manifested state setup); other kinds (CLOAKED, MORPHED, ...) are rejected, and the controller-only look permission is not constructed (E-B3)",
+   "present_fragments": [
+    "throw new IllegalArgumentException(\"face_down must be a boolean\");",
+    "\"face_down_type unsupported: \"",
+    "throw new IllegalArgumentException( \"face_down placement cannot be attached\");",
+    "card.setManifested(new SpellAbility.EmptySa(ApiType.Manifest, card));",
+    "session.audit(\"scenario_placed_face_down\", details);"
+   ],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
-   "status": "ABSENT"
+   "status": "SUPPORTED"
   },
   {
    "absent_tokens": [
@@ -177,6 +198,8 @@
     "controller",
     "counters",
     "decision_script",
+    "face_down",
+    "face_down_type",
     "hands",
     "id",
     "life",
@@ -209,6 +232,8 @@
     "controller",
     "counters",
     "decision_script",
+    "face_down",
+    "face_down_type",
     "hands",
     "id",
     "life",
@@ -243,6 +268,8 @@
     "controller",
     "counters",
     "decision_script",
+    "face_down",
+    "face_down_type",
     "hands",
     "id",
     "life",
@@ -255,7 +282,41 @@
    "closed_message_types": [],
    "closed_stderr_prints": [],
    "frame_key_facets": {},
-   "meaning": "the scenario bootstrap has no mid-cast cost or payment state field",
+   "meaning": "the scenario bootstrap has no mid-cast cost or payment state field. No row files a gap here: mid-cast cost state is caused by casting and paying on the engine's own frames, a Lab execution gap (_LAB_DIMENSIONS, E-B1)",
+   "present_fragments": [],
+   "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
+   "status": "ABSENT"
+  },
+  {
+   "absent_tokens": [
+    "ZoneType.Exile",
+    "\"exile"
+   ],
+   "channel": "exile_construction",
+   "closed_bootstrap_fields": [
+    "attached_to",
+    "battlefield",
+    "card",
+    "commander_damage_taken",
+    "continuous_effects_present",
+    "controller",
+    "counters",
+    "decision_script",
+    "face_down",
+    "face_down_type",
+    "hands",
+    "id",
+    "life",
+    "owner",
+    "players",
+    "stack",
+    "tapped"
+   ],
+   "closed_frame_keys": [],
+   "closed_message_types": [],
+   "closed_stderr_prints": [],
+   "frame_key_facets": {},
+   "meaning": "the scenario bootstrap places battlefield, hand and command-zone cards only; it has no exile field and never moves a card to exile, so a requested exile object is not constructed",
    "present_fragments": [],
    "source": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
    "status": "ABSENT"
@@ -498,7 +559,7 @@
     "\"[bridge] starting \" + VersionInfo.BRIDGE_NAME + \"/\" + VersionInfo.BRIDGE_VERSION + \" protocol=\" + BridgeProtocol.PROTOCOL_VERSION"
    ],
    "frame_key_facets": {},
-   "meaning": "BridgeMain, the JSONL process the Lab launches, writes exactly one response per line to stdout; a malformed request echoes the parser's message and an internal failure returns a fixed text. Its own stderr diagnostics are the closed set STDERR_PRINTS (exception texts and stack traces included), and every engine System.out print is redirected to stderr. What the engine prints there is not bounded by bridge source, so whether stderr carries a hidden identity is shown only by the row's channel scan, which was not run; the Lab does not yet retain stderr for that scan (LAB_CAPTURE_GAPS)",
+   "meaning": "BridgeMain, the JSONL process the Lab launches, writes exactly one response per line to stdout; a malformed request echoes the parser's message and an internal failure returns a fixed text. Its own stderr diagnostics are the closed set STDERR_PRINTS (exception texts and stack traces included), and every engine System.out print is redirected to stderr. What the engine prints there is not bounded by bridge source, so whether stderr carries a hidden identity is shown only by the row's channel scan, which was not run. The Lab retains stderr for that scan (LAB_CAPTURE_RETAINED); retention is not the scan",
    "present_fragments": [
     "System.setOut(System.err);",
     "protocolOut.println(response);",
@@ -516,12 +577,7 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_01",
-   "lab_execution_gaps": [
-    {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
-    }
-   ],
+   "lab_execution_gaps": [],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -530,9 +586,9 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -546,9 +602,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_hand). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_hand). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -558,13 +627,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -575,12 +637,7 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_02",
-   "lab_execution_gaps": [
-    {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
-    }
-   ],
+   "lab_execution_gaps": [],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -589,9 +646,9 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -605,9 +662,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_library). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_library). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -620,13 +690,6 @@
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
     }
    ]
   },
@@ -634,12 +697,7 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_03",
-   "lab_execution_gaps": [
-    {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
-    }
-   ],
+   "lab_execution_gaps": [],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -656,9 +714,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -672,9 +730,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (public_exile). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (public_exile). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -687,13 +758,6 @@
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
     }
    ]
   },
@@ -701,12 +765,7 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_04",
-   "lab_execution_gaps": [
-    {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
-    }
-   ],
+   "lab_execution_gaps": [],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -723,9 +782,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -739,9 +798,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (face_down_controller). provider cannot construct: knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (face_down_controller). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -751,13 +823,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -825,21 +890,10 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
-    }
-   ],
-   "missing_principal_channels": [
-    "event_log",
-    "replay_transcript"
-   ],
-   "obligation_kind": "exile_permission_persists",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
-    {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
      "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
      "requested": [
       {
        "actor": "P1",
@@ -854,7 +908,15 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log",
+    "replay_transcript"
+   ],
+   "obligation_kind": "exile_permission_persists",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
@@ -864,9 +926,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -881,9 +943,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -894,13 +969,6 @@
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
      "requested": 2,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
-     "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
     }
@@ -954,8 +1022,19 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
+     "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden06-gonti"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
    "missing_principal_channels": [
@@ -966,20 +1045,6 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
-     "dimension": "action_cost_state",
-     "requested": [
-      {
-       "actor": "P1",
-       "payable": true,
-       "source_semantic_id": "obj:hidden06-gonti"
-      }
-     ],
-     "runtime_probe": null,
-     "status": "UNSUPPORTED"
-    },
-    {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
      "dimension": "knowledge_state",
@@ -988,9 +1053,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1004,9 +1069,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1017,13 +1095,6 @@
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
      "requested": 2,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
-     "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
     }
@@ -1051,8 +1122,19 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
+     "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden07-telepathy"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
    "missing_principal_channels": [
@@ -1065,20 +1147,6 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
-     "dimension": "action_cost_state",
-     "requested": [
-      {
-       "actor": "P1",
-       "payable": true,
-       "source_semantic_id": "obj:hidden07-telepathy"
-      }
-     ],
-     "runtime_probe": null,
-     "status": "UNSUPPORTED"
-    },
-    {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
      "dimension": "knowledge_state",
@@ -1087,9 +1155,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1104,9 +1172,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1116,13 +1197,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -1164,8 +1238,19 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
+     "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden08-spy"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
    "missing_principal_channels": [
@@ -1178,20 +1263,6 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
-     "dimension": "action_cost_state",
-     "requested": [
-      {
-       "actor": "P1",
-       "payable": true,
-       "source_semantic_id": "obj:hidden08-spy"
-      }
-     ],
-     "runtime_probe": null,
-     "status": "UNSUPPORTED"
-    },
-    {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
      "dimension": "knowledge_state",
@@ -1200,9 +1271,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1216,9 +1287,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1228,13 +1312,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -1276,8 +1353,19 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
+     "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
+     "requested": [
+      {
+       "actor": "P2",
+       "payable": true,
+       "source_semantic_id": "obj:hidden09-portal"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
    "missing_principal_channels": [
@@ -1289,20 +1377,6 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
-     "dimension": "action_cost_state",
-     "requested": [
-      {
-       "actor": "P2",
-       "payable": true,
-       "source_semantic_id": "obj:hidden09-portal"
-      }
-     ],
-     "runtime_probe": null,
-     "status": "UNSUPPORTED"
-    },
-    {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
      "dimension": "knowledge_state",
@@ -1311,9 +1385,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1327,9 +1401,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1339,13 +1426,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -1413,8 +1493,19 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
+     "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden10-jet"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
    "missing_principal_channels": [
@@ -1426,20 +1517,6 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
-     "dimension": "action_cost_state",
-     "requested": [
-      {
-       "actor": "P1",
-       "payable": true,
-       "source_semantic_id": "obj:hidden10-jet"
-      }
-     ],
-     "runtime_probe": null,
-     "status": "UNSUPPORTED"
-    },
-    {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
      "dimension": "knowledge_state",
@@ -1448,9 +1525,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1465,9 +1542,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1478,13 +1568,6 @@
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
      "requested": 3,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
-     "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
     }
@@ -1525,22 +1608,10 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
-    }
-   ],
-   "missing_principal_channels": [
-    "event_log",
-    "replay_transcript",
-    "library_contents"
-   ],
-   "obligation_kind": "shuffle_invalidates_order",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
-    {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
      "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
      "requested": [
       {
        "actor": "P1",
@@ -1555,7 +1626,16 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log",
+    "replay_transcript",
+    "library_contents"
+   ],
+   "obligation_kind": "shuffle_invalidates_order",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
@@ -1565,9 +1645,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1581,9 +1661,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1594,13 +1687,6 @@
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
      "requested": 3,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
-     "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
     }
@@ -1641,8 +1727,19 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
+     "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden12-mindslaver"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
    "missing_principal_channels": [
@@ -1653,20 +1750,6 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
-     "dimension": "action_cost_state",
-     "requested": [
-      {
-       "actor": "P1",
-       "payable": true,
-       "source_semantic_id": "obj:hidden12-mindslaver"
-      }
-     ],
-     "runtime_probe": null,
-     "status": "UNSUPPORTED"
-    },
-    {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
      "dimension": "knowledge_state",
@@ -1675,9 +1758,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1692,9 +1775,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1704,13 +1800,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -1781,8 +1870,19 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
+     "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden13-fof"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
    "missing_principal_channels": [
@@ -1794,20 +1894,6 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
-     "dimension": "action_cost_state",
-     "requested": [
-      {
-       "actor": "P1",
-       "payable": true,
-       "source_semantic_id": "obj:hidden13-fof"
-      }
-     ],
-     "runtime_probe": null,
-     "status": "UNSUPPORTED"
-    },
-    {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
      "dimension": "knowledge_state",
@@ -1816,9 +1902,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1833,9 +1919,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1846,13 +1945,6 @@
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
      "requested": 6,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
-     "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
     }
@@ -1893,21 +1985,10 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
-    }
-   ],
-   "missing_principal_channels": [
-    "event_log",
-    "replay_transcript"
-   ],
-   "obligation_kind": "target_metadata",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
-    {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
      "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
      "requested": [
       {
        "actor": "P2",
@@ -1922,11 +2003,19 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log",
+    "replay_transcript"
+   ],
+   "obligation_kind": "target_metadata",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1940,9 +2029,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1952,13 +2054,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -2026,21 +2121,10 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
-    }
-   ],
-   "missing_principal_channels": [
-    "event_log",
-    "replay_transcript"
-   ],
-   "obligation_kind": "source_metadata",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
-    {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
      "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
      "requested": [
       {
        "actor": "P2",
@@ -2055,11 +2139,19 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log",
+    "replay_transcript"
+   ],
+   "obligation_kind": "source_metadata",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2073,9 +2165,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2085,13 +2190,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -2159,21 +2257,10 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
-    }
-   ],
-   "missing_principal_channels": [
-    "event_log",
-    "replay_transcript"
-   ],
-   "obligation_kind": "ability_metadata",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
-    {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
      "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
      "requested": [
       {
        "actor": "P2",
@@ -2188,11 +2275,19 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log",
+    "replay_transcript"
+   ],
+   "obligation_kind": "ability_metadata",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2206,9 +2301,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2218,13 +2326,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -2279,21 +2380,10 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
-    }
-   ],
-   "missing_principal_channels": [
-    "event_log",
-    "replay_transcript"
-   ],
-   "obligation_kind": "copy_face_down",
-   "other_unsupported_dimensions": [],
-   "provider_construction_gaps": [
-    {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
      "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
      "requested": [
       {
        "actor": "P2",
@@ -2308,11 +2398,19 @@
      ],
      "runtime_probe": null,
      "status": "UNSUPPORTED"
-    },
+    }
+   ],
+   "missing_principal_channels": [
+    "event_log",
+    "replay_transcript"
+   ],
+   "obligation_kind": "copy_face_down",
+   "other_unsupported_dimensions": [],
+   "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2327,9 +2425,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: action_cost_state (cost_state_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2339,13 +2450,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -2387,8 +2491,19 @@
      "status": "UNSUPPORTED"
     },
     {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
+     "basis": "LAB_EXECUTION_GAP",
+     "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
+     "dimension": "action_cost_state",
+     "lane_detail": "mid-cast cost/payment state has no bootstrap field",
+     "requested": [
+      {
+       "actor": "P1",
+       "payable": true,
+       "source_semantic_id": "obj:hidden18-spy"
+      }
+     ],
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
    "missing_principal_channels": [
@@ -2399,20 +2514,6 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "cost_state_construction",
-     "detail": "mid-cast cost/payment state has no bootstrap field",
-     "dimension": "action_cost_state",
-     "requested": [
-      {
-       "actor": "P1",
-       "payable": true,
-       "source_semantic_id": "obj:hidden18-spy"
-      }
-     ],
-     "runtime_probe": null,
-     "status": "UNSUPPORTED"
-    },
-    {
      "channel": "knowledge_construction",
      "detail": "knowledge permissions have no bootstrap field",
      "dimension": "knowledge_state",
@@ -2421,9 +2522,9 @@
      "status": "UNSUPPORTED"
     },
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2437,9 +2538,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: action_cost_state (cost_state_construction); knowledge_state (knowledge_construction); semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2449,13 +2563,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -2466,12 +2573,7 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_19",
-   "lab_execution_gaps": [
-    {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
-    }
-   ],
+   "lab_execution_gaps": [],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -2480,9 +2582,9 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2496,9 +2598,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2508,13 +2623,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -2525,12 +2633,7 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
-   "lab_execution_gaps": [
-    {
-     "detail": "bridge_launcher.launch pipes the bridge's stderr, but BridgeProcess.close discards it; only a 2000-character tail is read, and only when stdout closes during a request, so a row's sentinel scan cannot read normal diagnostics",
-     "dimension": "lab_capture.transport_diagnostics"
-    }
-   ],
+   "lab_execution_gaps": [],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -2539,9 +2642,9 @@
    "other_unsupported_dimensions": [],
    "provider_construction_gaps": [
     {
-     "channel": "face_down_construction",
-     "detail": "face-down state has no bootstrap field and no generic projection",
-     "dimension": "semantic_objects.face_down",
+     "channel": "knowledge_construction",
+     "detail": "the record's controller-only face-down look permission has no bootstrap field; constructing the face-down permanent does not construct the permission",
+     "dimension": "knowledge_state.face_down_look_permissions",
      "requested": "obj:facedown",
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2555,9 +2658,22 @@
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
+    },
+    {
+     "channel": "exile_construction",
+     "detail": "the bootstrap cannot place a card in exile (no exile field, no exile move), so the requested exile object is not constructed",
+     "dimension": "semantic_objects.zone:exile",
+     "lane_detail": "exile is exposed as names only, with no semantic identity mapping",
+     "lane_status": "UNOBSERVABLE",
+     "readback_binding": {
+      "obj:public-exile": "Sol Ring"
+     },
+     "requested": 1,
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: semantic_objects.face_down (face_down_construction); temporal_checkpoint.exact_hand_after_draw (library_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: lab_capture.transport_diagnostics. readback cannot prove: semantic_objects.zone:library, semantic_objects.zone:exile. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2567,13 +2683,6 @@
     {
      "detail": "library contents/order are never exposed; only library_size",
      "dimension": "semantic_objects.zone:library",
-     "requested": 1,
-     "runtime_probe": null,
-     "status": "UNOBSERVABLE"
-    },
-    {
-     "detail": "exile is exposed as names only, with no semantic identity mapping",
-     "dimension": "semantic_objects.zone:exile",
      "requested": 1,
      "runtime_probe": null,
      "status": "UNOBSERVABLE"
@@ -2586,8 +2695,8 @@
   "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeEngine.java": "d4f048ec959023be08b544998aa2b62a6e1d6e0a",
   "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeMain.java": "b3fe9cfde4205d59d80fef53ef35954eadbaa2d0",
   "forge-protocol2-bridge/src/main/java/forge/bridge/ExternalPlayerController.java": "d45bd01485ed711ced39e9ec51976b4aa2246845",
-  "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java": "94ad4423b9c67d0e3242f5de9b59bce3d9eac7a4",
-  "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java": "4be49fee9f49b3dedb649b84ec8c932798259d1e"
+  "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java": "5b722a18530012ab4b4cc1a7ac32542042bcda37",
+  "forge-protocol2-bridge/src/main/java/forge/bridge/StateProjection.java": "e9aa6e3e6195fff9aabfde907c82a752da7ed044"
  },
  "sources": {
   "bootstrap": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",

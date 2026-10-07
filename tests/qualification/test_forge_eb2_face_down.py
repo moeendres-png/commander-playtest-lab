@@ -16,10 +16,13 @@ Every test here fails on the pre-E-B2 lane code.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from commander_lab.qualification.current_boundary import forge_scenario_lane as fsl
 
+REPO = Path(__file__).resolve().parents[2]
 MANIFESTED_NOTE = "fixture grants controller-only look permission where relevant"
 
 
@@ -230,13 +233,24 @@ def test_the_capability_matrix_asserts_the_bridge_face_down_fragments(monkeypatc
     source = "\n".join(
         fragment for fragments in fsl._SUPPORTED_FIELD_ASSERTIONS.values() for fragment in fragments
     ) + "\n".join(fsl._REJECTION_ASSERTIONS.values())
+    source += "\n" + "\n".join(
+        fragment for fragments in fsl._SCENARIO_HOOK_ASSERTIONS.values() for fragment in fragments
+    )
     session = "\n".join(
         fragment for fragments in fsl._HOOK_ASSERTIONS.values() for fragment in fragments
+    )
+    projection = "\n".join(
+        fragment for fragments in fsl._READBACK_ASSERTIONS.values() for fragment in fragments
     )
 
     def fake(texts):
         def git(args, cwd):
-            return texts[1] if args[-1].endswith("BridgeSession.java") else texts[0]
+            target = args[-1]
+            if target.endswith("StateProjection.java"):
+                return texts[2]
+            if target.endswith("BridgeSession.java"):
+                return texts[1]
+            return texts[0]
 
         return git
 
@@ -251,17 +265,18 @@ def test_the_capability_matrix_asserts_the_bridge_face_down_fragments(monkeypatc
         scenario_source_path=fsl.SCENARIO_SOURCE_RELATIVE,
         scenario_source_sha256="9" * 64,
         session_source_sha256="8" * 64,
+        projection_source_sha256="7" * 64,
         rules_core_identity={"engine_equivalent": True},
         bridge_identity={"identical": True},
     )
     from pathlib import Path
 
-    monkeypatch.setattr(fsl, "_git", fake((source, session)))
+    monkeypatch.setattr(fsl, "_git", fake((source, session, projection)))
     matrix = fsl.derive_capability_matrix(source_info, Path("."))
     assert matrix["supported"]["battlefield.face_down"]["status"] == fsl.DIMENSION_SUPPORTED
     # A bridge blob that predates E-B2 (no setManifested call) is capability drift.
     older = source.replace("setManifested(new SpellAbility.EmptySa(ApiType.Manifest", "")
-    monkeypatch.setattr(fsl, "_git", fake((older, session)))
+    monkeypatch.setattr(fsl, "_git", fake((older, session, projection)))
     with pytest.raises(fsl.ScenarioCapabilityDrift):
         fsl.derive_capability_matrix(source_info, Path("."))
 
@@ -355,9 +370,101 @@ def test_a_kind_mismatch_is_a_mismatch_and_earns_no_credit():
     assert (kind.requested, kind.observed) == ("MANIFESTED", "CLOAKED")
 
 
+# ---------------------------------------------------------------------------
+# probe_row: a missing face_down readback is its own result, never a mismatch
+# ---------------------------------------------------------------------------
+class _FakeProc:
+    """The minimal BridgeProcess surface probe_row/drive_scenario_game call."""
+
+    def __init__(self) -> None:
+        self.requests: list[tuple[str, dict]] = []
+
+    def request(self, message_type, params=None, **kwargs):
+        self.requests.append((message_type, params or {}))
+        if message_type == "import_deck":
+            return {"success": True, "payload": {"deck_handle": {"handle_id": "h1"}}}
+        if message_type == "create_commander_game":
+            return {"success": True, "payload": {"status": "created", "player_count": 1}}
+        return {"success": True, "payload": {}}
+
+
+def _frame(kind: str, actor: str, revision: int, actions: list[dict] | None = None) -> dict:
+    return {
+        "seat": actor,
+        "decision": {"kind": kind, "actor": actor, "revision": revision, "status": "SUPPORTED"},
+        "actions": actions or [],
+        "raw": {},
+    }
+
+
+def _source() -> fsl.ForgeScenarioSource:
+    return fsl.ForgeScenarioSource(
+        workspace="/nonexistent",
+        actual_commit="a" * 40,
+        actual_tree="b" * 40,
+        rules_core_commit="c" * 40,
+        rules_core_tree="d" * 40,
+        bridge_commit="e" * 40,
+        bridge_tree="f" * 40,
+        scenario_source_path=fsl.SCENARIO_SOURCE_RELATIVE,
+        scenario_source_sha256="9" * 64,
+        session_source_sha256="8" * 64,
+        projection_source_sha256="7" * 64,
+        rules_core_identity={"engine_equivalent": True},
+        bridge_identity={"identical": True},
+    )
+
+
+def _run_probe(
+    monkeypatch, *, model: fsl.RequestedStateModel, observations: dict
+) -> fsl.RowEvidence:
+    frames = [
+        _frame(
+            "STARTING_PLAYER",
+            "p1",
+            1,
+            [
+                {
+                    "action_id": "opt-start",
+                    "action_type": "structural_decision",
+                    "source_object_id": "p1",
+                }
+            ],
+        ),
+        _frame("PRIORITY", "p1", 2, [{"action_id": "opt-pass", "action_type": "pass_priority"}]),
+    ]
+    queue = list(frames)
+
+    def fake_poll(proc, game_id, *, seat_count, candidate):
+        return queue.pop(0) if queue else frames[-1]
+
+    def fake_seat_state(proc, game_id, seat):
+        return observations.get(seat) or next(iter(observations.values()))
+
+    monkeypatch.setattr(fsl, "poll_decision", fake_poll)
+    monkeypatch.setattr(fsl, "observe_seat_state", fake_seat_state)
+    monkeypatch.setattr(fsl, "observe_all_seats", lambda proc, game_id, seat_count: observations)
+    return fsl.probe_row(
+        _FakeProc(), model=model, source=_source(), root=REPO, inject_unsupported_probe=False
+    )
+
+
 def test_an_unknown_readback_reports_its_own_result_not_a_mismatch(monkeypatch):
-    """The lane result vocabulary keeps UNKNOWN distinct from a verified mismatch."""
-    assert fsl.RESULT_CHECKPOINT_UNKNOWN != fsl.RESULT_CHECKPOINT_MISMATCH
+    """A missing ``face_down`` readback in probe_row is RESULT_CHECKPOINT_UNKNOWN.
+
+    Mutant-killing: replacing ``result = RESULT_CHECKPOINT_UNKNOWN`` with
+    ``result = RESULT_CHECKPOINT_MISMATCH`` in the lane's classification branch
+    fails this test (the result vocabulary must keep UNKNOWN distinct from a
+    verified mismatch).
+    """
+    model = fsl.model_requested_state(_record([_face_down_object()]))
+    detail = _bears()
+    del detail["face_down"]
+    evidence = _run_probe(monkeypatch, model=model, observations=_seats(detail))
+    classification = evidence.fields["classification"]
+    assert classification["result"] == fsl.RESULT_CHECKPOINT_UNKNOWN
+    assert classification["result"] != fsl.RESULT_CHECKPOINT_MISMATCH
+    assert evidence.fields["receipt_eligibility"]["eligible"] is False
 
 
 # ---------------------------------------------------------------------------
@@ -389,3 +496,51 @@ def test_a_stated_look_permission_in_knowledge_state_stays_unsupported():
     model = fsl.model_requested_state(record)
     assert "knowledge_state" in {item.dimension for item in model.hard_unsupported}
     assert model.construction_eligible is False
+
+
+def test_a_structured_look_permission_is_a_gap_without_the_free_text_phrase():
+    """Review P2 6039789823: the structured field is authoritative.
+
+    The note below never says "look permission"; only the record's own
+    ``knowledge_state.viewer_states[*].face_down_look_permissions`` (the field
+    ``knowledge_projection`` reads) names the object. The E-B3 gap must stay
+    open, or the row silently leaves the AF05 ``knowledge_construction`` count.
+    """
+    record = _record(
+        [_face_down_object(construction_notes=["controller may look at obj:p1-fd"])],
+        knowledge_state={
+            "viewer_states": [
+                {
+                    "viewer": "P1",
+                    "face_down_look_permissions": [
+                        {"object": "obj:p1-fd", "scope": "identity", "viewer": "P1"}
+                    ],
+                }
+            ]
+        },
+    )
+    model = fsl.model_requested_state(record)
+    dimensions = {item.dimension for item in model.hard_unsupported}
+    assert "knowledge_state.face_down_look_permissions" in dimensions
+    assert model.construction_eligible is False
+
+
+def test_a_structured_look_permission_on_another_object_is_not_this_gap():
+    """Wrong-object control: the structured match is per requested object."""
+    record = _record(
+        [_face_down_object(construction_notes=["controller may look at obj:p1-fd"])],
+        knowledge_state={
+            "viewer_states": [
+                {
+                    "viewer": "P1",
+                    "face_down_look_permissions": [
+                        {"object": "obj:another-permanent", "scope": "identity", "viewer": "P1"}
+                    ],
+                }
+            ]
+        },
+    )
+    model = fsl.model_requested_state(record)
+    assert "knowledge_state.face_down_look_permissions" not in {
+        item.dimension for item in model.hard_unsupported
+    }

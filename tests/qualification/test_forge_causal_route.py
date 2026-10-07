@@ -386,6 +386,8 @@ def test_the_effective_rows_the_lane_routes(monkeypatch) -> None:
             "MICRO_PRIORITY",
             "MICRO_STACK",
             "PILOT_MANA_PAYMENT",
+            # The victim's own stack, then the declared elimination (CR 800.4a).
+            "WS05-MP-ELIM-STACK-3",
         ]
     )
     for record in records:

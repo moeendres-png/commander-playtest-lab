@@ -33,6 +33,7 @@ import time
 import uuid
 from collections import Counter
 from dataclasses import dataclass, field
+from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
@@ -64,6 +65,7 @@ LANE_SCHEMA_VERSION = "commander-lab.forge-scenario-lane/1.0.0"
 BRIDGE_MODULE = "forge-protocol2-bridge"
 SCENARIO_SOURCE_RELATIVE = f"{BRIDGE_MODULE}/src/main/java/forge/bridge/ScenarioBootstrap.java"
 SESSION_SOURCE_RELATIVE = f"{BRIDGE_MODULE}/src/main/java/forge/bridge/BridgeSession.java"
+PROJECTION_SOURCE_RELATIVE = f"{BRIDGE_MODULE}/src/main/java/forge/bridge/StateProjection.java"
 
 SEATS = ("p1", "p2", "p3", "p4", "p5", "p6")
 
@@ -85,10 +87,15 @@ RESULT_NOT_ATTEMPTED = "NOT_ATTEMPTED"
 
 CHECKPOINT_EXACT = "EXACT"
 CHECKPOINT_ALLOWED_VARIANCE = "ALLOWED_VARIANCE"
+# A field-level verdict only: the requested value is reached causally after the
+# pre-causal position, which holds the declared substituted value exactly.
+CHECKPOINT_CAUSAL_SUBSTITUTION = "CAUSAL_SUBSTITUTION"
 CHECKPOINT_MISMATCH = "MISMATCH"
 CHECKPOINT_UNSUPPORTED_DIMENSION = "UNSUPPORTED_DIMENSION"
 CHECKPOINT_TRANSPORT_FAILURE = "TRANSPORT_FAILURE"
-# A requested field whose readback is missing or mistyped. It is never EXACT and
+# A field-level verdict only: the requested value could not be established. The
+# readback is missing or mistyped (E-B2), or it cannot be attributed to one
+# requested object (same name, same controller, differing values). Never EXACT,
 # never credit-eligible (UNKNOWN != PASS).
 CHECKPOINT_UNKNOWN = "UNKNOWN"
 
@@ -126,6 +133,7 @@ class ForgeScenarioSource:
     scenario_source_path: str
     scenario_source_sha256: str
     session_source_sha256: str
+    projection_source_sha256: str
     rules_core_identity: dict[str, Any]
     bridge_identity: dict[str, Any]
 
@@ -141,6 +149,8 @@ class ForgeScenarioSource:
             "scenario_source_path": self.scenario_source_path,
             "scenario_source_sha256": self.scenario_source_sha256,
             "session_source_sha256": self.session_source_sha256,
+            "projection_source_path": PROJECTION_SOURCE_RELATIVE,
+            "projection_source_sha256": self.projection_source_sha256,
             "rules_core_identity": self.rules_core_identity,
             "bridge_identity": self.bridge_identity,
         }
@@ -245,6 +255,9 @@ def bind_forge_scenario_source(workspace: Path | str) -> ForgeScenarioSource:
         session_source_sha256=_blob_sha256(
             root, authority["bridge_commit"], SESSION_SOURCE_RELATIVE
         ),
+        projection_source_sha256=_blob_sha256(
+            root, authority["bridge_commit"], PROJECTION_SOURCE_RELATIVE
+        ),
         rules_core_identity=rules_core_identity,
         bridge_identity={
             "bridge_module": BRIDGE_MODULE,
@@ -303,14 +316,75 @@ _REJECTION_ASSERTIONS: dict[str, str] = {
     "decision_script": "scenario must not inject decisions",
 }
 
+# Readback dimensions the bridge projects from an engine-native fact rather than
+# accepting a construction request. forge#33 G1 R1 (C3): the first-turn control
+# flag is a per-battlefield-entry projection of Card.isFirstTurnControlled()
+# (raw summoning sickness, CR 302.6; never hasSickness(), which folds in haste).
+# The lane forwards a requested controlled_since_turn_began only for checkpoint
+# verification and compares it against this readback; the bootstrap neither sets
+# nor validates it, so a missing or non-boolean readback is a MISMATCH.
+_READBACK_ASSERTIONS: dict[str, tuple[str, ...]] = {
+    "battlefield_details.controlled_since_turn_began": (
+        "firstTurnControlled = card.isFirstTurnControlled();",
+        'entry.addProperty("controlled_since_turn_began", !firstTurnControlled);',
+    ),
+}
+
+# Re-derived for forge#33 (G1 R1 port, Coordinator decision G1 on #561):
+# permanents are placed by a GameEventTurnBegan(turn 1) subscriber registered on
+# the game's own event bus (it runs before the engine's readiness loop). The
+# session owns the one-shot latch and the recorded failure; the retained
+# startGameHook keeps the givePriorityToPlayer frame of
+# PhaseHandler.setupFirstTurn and fails closed unless that placement ran exactly
+# once without error, then applies the post-untap plan.
 _HOOK_ASSERTIONS: dict[str, tuple[str, ...]] = {
     "hook_apply": (
         "final ScenarioBootstrap.Plan capturedPlan = scenarioPlan;",
-        "ScenarioBootstrap.apply(self, capturedGame, capturedPlan);",
+        "installScenarioBootstrap(capturedGame, capturedPlan);",
+        "final Runnable scenarioHook = scenarioStartGameHook(capturedGame, capturedPlan);",
+        "launchStarter(() -> capturedMatch.startGame(capturedGame, scenarioHook));",
     ),
-    "hook_placement": ("capturedMatch.startGame(capturedGame, () -> {",),
+    "hook_placement": (
+        "game.subscribeToEvents(new ScenarioTurnBeganSubscriber());",
+        "void handleScenarioTurnBegan(final GameEventTurnBegan event)",
+        "ScenarioBootstrap.placeBattlefield(this, intended, plan);",
+    ),
     "hook_plan_set_once_at_creation": (
         "public synchronized void setScenarioPlan(ScenarioBootstrap.Plan plan)",
+    ),
+    "hook_bootstrap_error_recorded_on_session": (
+        "private void recordScenarioBootstrapFailure(final String reason)",
+        "if (scenarioBootstrapInvocations.incrementAndGet() > 1)",
+        'recordScenarioBootstrapFailure("scenario bootstrap failed: " + t);',
+        "if (status == Status.RUNNING) {",
+        "void requireScenarioBootstrapCompleted()",
+        "scenario bootstrap did not run exactly once before the start-game hook",
+    ),
+    "hook_post_untap_complete_placement": (
+        "ScenarioBootstrap.applyPostUntap(self, game, plan, scenarioPlacedCards);",
+        "scenario bootstrap placed ",
+    ),
+}
+
+# The ScenarioBootstrap side of the same contract (C1/C2): placement happens
+# untapped at TurnBegan (the untap step runs after it), counters are added once
+# there with fireEvents=false, tapped state is applied silently after the untap
+# step, and a truncated placement fails closed instead of skipping plan entries.
+_SCENARIO_HOOK_ASSERTIONS: dict[str, tuple[str, ...]] = {
+    "place_at_turn_began_untapped": (
+        "public static List<Card> placeBattlefield(BridgeSession session, Game game, Plan plan)",
+        "static void addRequestedCounters(BridgeSession session, Plan plan, List<Card> placed)",
+        "card.addCounterInternal(counterType, counter.getValue(), null, false, null,",
+    ),
+    "complete_placement_fails_closed": (
+        "private static void requireCompletePlacement(Plan plan, List<Card> placed)",
+        "scenario placement incomplete: placed ",
+    ),
+    "tapped_after_untap_silently": (
+        "static void applyRequestedTapped(BridgeSession session, Plan plan, List<Card> placed)",
+        "requested tapped permanent left the battlefield before the post-untap ",
+        "card.setTapped(true);",
+        "public static void applyPostUntap(BridgeSession session, Game game, Plan plan,",
     ),
 }
 
@@ -347,8 +421,11 @@ _LANE_EXECUTABLE_DECISION_SELECTORS: frozenset[str] = frozenset()
 # row stays unsupported. A scripted decision (``scripted_decision_offered``) is
 # a cast on the caused stack: the scripted priority cast, its targets (a stack
 # target named by the record's own stack) and its payment from the record's own
-# ``action_cost_state`` sources. A terminal without an observer contract here
-# (a priority ring, a copy, an elimination) stays unrouted.
+# ``action_cost_state`` sources. A stack whose controller is then eliminated
+# (``stack_controller_eliminated``, CR 800.4a) scripts no decision at all: the
+# record's stack is cast, verified, and only then do the declared instruments
+# cause the loss. A terminal without an observer contract here (a priority ring,
+# a copy, a caused permanent's elimination) stays unrouted.
 _CAUSAL_TERMINAL_SELECTORS: dict[str, frozenset[str]] = {
     "commander_zone_choice": frozenset({"choice.boolean", "replacement_effect.boolean"}),
     "scripted_decision_offered": frozenset(
@@ -360,6 +437,7 @@ _CAUSAL_TERMINAL_SELECTORS: dict[str, frozenset[str]] = {
             "mana_payment.mana_payment",
         }
     ),
+    "stack_controller_eliminated": frozenset(),
 }
 _CAUSAL_ROUTE_SELECTORS: frozenset[str] = frozenset().union(*_CAUSAL_TERMINAL_SELECTORS.values())
 _CAUSAL_ROUTE_TERMINALS: frozenset[str] = frozenset(_CAUSAL_TERMINAL_SELECTORS)
@@ -384,9 +462,8 @@ _UNOBSERVABLE_RECORD_DIMENSIONS: dict[str, str] = {
     "exile": "exile is exposed as names only, with no semantic identity mapping",
     "graveyard": "graveyard is exposed as names only, with no semantic identity mapping",
     "revealed": "revealed zones have no generic projection",
-    "controlled_since_turn_began": "no bootstrap field; attack eligibility is engine-derived",
     "prior_command_zone_cast_count": "no bootstrap field for command-zone cast counts",
-    "temporal_state": "the bootstrap hook runs at the first-turn untap; other checkpoints are reachable only by native progression",
+    "temporal_state": "the bootstrap places permanents when the first turn begins and completes at the first-turn untap; other checkpoints are reachable only by native progression",
 }
 
 
@@ -401,7 +478,29 @@ _FACE_DOWN_UNSUPPORTED_DETAIL = (
 )
 
 
-def _states_look_permission(obj: dict[str, Any]) -> bool:
+def _states_look_permission(obj: dict[str, Any], record: dict[str, Any]) -> bool:
+    """Whether the record grants a look permission on this face-down object.
+
+    The authoritative channel is the record's own structured
+    ``knowledge_state.viewer_states[*].face_down_look_permissions``
+    (``knowledge_projection`` reads the same field when it decides entitlement);
+    a construction note phrased as a look permission is an additional trigger,
+    never the only one. Either channel keeps the E-B3 gap open.
+    """
+    semantic_id = obj.get("semantic_id")
+    for state in (record.get("knowledge_state") or {}).get("viewer_states") or ():
+        if not isinstance(state, dict):
+            continue
+        for permission in state.get("face_down_look_permissions") or ():
+            if isinstance(permission, dict):
+                if permission.get("object") == semantic_id:
+                    return True
+            elif permission == semantic_id:
+                return True
+    return _states_look_permission_note(obj)
+
+
+def _states_look_permission_note(obj: dict[str, Any]) -> bool:
     """Whether a record object's construction notes grant a look permission."""
     return any(
         isinstance(note, str) and "look permission" in note.lower()
@@ -413,6 +512,7 @@ def derive_capability_matrix(source: ForgeScenarioSource, root: Path) -> dict[st
     """Derive the exact supported/rejected scenario contract from pinned source."""
     scenario_text = _git(["show", f"{source.bridge_commit}:{SCENARIO_SOURCE_RELATIVE}"], root)
     session_text = _git(["show", f"{source.bridge_commit}:{SESSION_SOURCE_RELATIVE}"], root)
+    projection_text = _git(["show", f"{source.bridge_commit}:{PROJECTION_SOURCE_RELATIVE}"], root)
     supported: dict[str, dict[str, Any]] = {}
     for capability, fragments in _SUPPORTED_FIELD_ASSERTIONS.items():
         missing = [fragment for fragment in fragments if fragment not in scenario_text]
@@ -421,6 +521,18 @@ def derive_capability_matrix(source: ForgeScenarioSource, root: Path) -> dict[st
                 f"pinned ScenarioBootstrap no longer supports {capability!r}: missing {missing}"
             )
         supported[capability] = {
+            "status": DIMENSION_SUPPORTED,
+            "assertions": list(fragments),
+            "evidence": "exact code fragment present in the pinned bridge source blob",
+        }
+    readback: dict[str, dict[str, Any]] = {}
+    for capability, fragments in _READBACK_ASSERTIONS.items():
+        missing = [fragment for fragment in fragments if fragment not in projection_text]
+        if missing:
+            raise ScenarioCapabilityDrift(
+                f"pinned StateProjection no longer provides {capability!r}: missing {missing}"
+            )
+        readback[capability] = {
             "status": DIMENSION_SUPPORTED,
             "assertions": list(fragments),
             "evidence": "exact code fragment present in the pinned bridge source blob",
@@ -445,6 +557,13 @@ def derive_capability_matrix(source: ForgeScenarioSource, root: Path) -> dict[st
                     f"pinned bridge session no longer provides {hook!r}: missing {fragment!r}"
                 )
         hooks[hook] = {"status": "PRESENT", "assertions": list(fragments)}
+    for hook, fragments in _SCENARIO_HOOK_ASSERTIONS.items():
+        for fragment in fragments:
+            if fragment not in scenario_text:
+                raise ScenarioCapabilityDrift(
+                    f"pinned ScenarioBootstrap no longer provides {hook!r}: missing {fragment!r}"
+                )
+        hooks[hook] = {"status": "PRESENT", "assertions": list(fragments)}
     return {
         "schema_version": f"{LANE_SCHEMA_VERSION}.capability-matrix",
         "source": {
@@ -454,8 +573,11 @@ def derive_capability_matrix(source: ForgeScenarioSource, root: Path) -> dict[st
             "scenario_source_sha256": source.scenario_source_sha256,
             "session_source_path": SESSION_SOURCE_RELATIVE,
             "session_source_sha256": source.session_source_sha256,
+            "projection_source_path": PROJECTION_SOURCE_RELATIVE,
+            "projection_source_sha256": source.projection_source_sha256,
         },
         "supported": supported,
+        "readback": readback,
         "rejected": rejections,
         "hook": hooks,
         "unsupported_record_dimensions": _UNSUPPORTED_RECORD_DIMENSIONS,
@@ -576,6 +698,13 @@ def _requested_battlefield(record: dict[str, Any]) -> list[dict[str, Any]]:
             entry["counters"] = dict(counters)
         if obj.get("attached_to"):
             entry["attached_to"] = obj.get("attached_to")
+        # Requested control history (CR 302.6) is forwarded for verification
+        # only. At forge#33 the bootstrap neither reads nor validates it: the
+        # lane's checkpoint comparison against the battlefield_details readback
+        # (the engine's !isFirstTurnControlled()) is the entire check, and a
+        # missing or non-boolean readback is a MISMATCH.
+        if obj.get("controlled_since_turn_began") is not None:
+            entry["controlled_since_turn_began"] = obj.get("controlled_since_turn_began")
         placements.append(entry)
     return placements
 
@@ -680,9 +809,37 @@ def _scripted_decision_route(record: dict[str, Any], plan: fcr.CausalPlan) -> bo
     return bool(plan.spells) and script[0].get("decision_family") == "priority" and bool(required)
 
 
+def _stack_controller_eliminated_route(record: dict[str, Any], plan: fcr.CausalPlan) -> bool:
+    """The victim's own stack is caused, then the declared elimination removes the victim.
+
+    Every stack entry is the declared victim's spell, the record scripts no
+    decision, and its obligation names the victim leaving and the multiplayer
+    cleanup (CR 800.4a), which the observer judges from the readback.
+    """
+    elimination = plan.elimination
+    required = [
+        str(token) for token in (record.get("expected_events") or {}).get("required_events") or ()
+    ]
+    return (
+        elimination is not None
+        and bool(plan.spells)
+        and all(spell.controller == elimination.victim for spell in plan.spells)
+        and not record.get("decision_script")
+        and _required_token(required, "player_leaves:") == elimination.victim.upper()
+        and _required_token(required, "multiplayer_cleanup:") is not None
+        and set(required)
+        <= {f"player_leaves:{elimination.victim.upper()}", *_cleanup_tokens(required)}
+    )
+
+
+def _cleanup_tokens(required: list[str]) -> list[str]:
+    return [token for token in required if token.startswith("multiplayer_cleanup:")]
+
+
 _CAUSAL_TERMINAL_ROUTES = {
     "commander_zone_choice": _commander_zone_route,
     "scripted_decision_offered": _scripted_decision_route,
+    "stack_controller_eliminated": _stack_controller_eliminated_route,
 }
 
 
@@ -700,9 +857,12 @@ def lane_causal_plan(record: dict[str, Any]) -> fcr.CausalPlan | None:
     if entry is None or terminal not in _CAUSAL_ROUTE_TERMINALS:
         return None
     script = [step for step in record.get("decision_script") or () if isinstance(step, dict)]
-    if not script or any(
+    selectors = _CAUSAL_TERMINAL_SELECTORS[terminal]
+    # A terminal with selectors needs the record's script; one without (the
+    # declared elimination) runs only for a record that scripts nothing.
+    if bool(script) != bool(selectors) or any(
         f"{step.get('decision_family')}.{(step.get('selection') or {}).get('selector_kind')}"
-        not in _CAUSAL_TERMINAL_SELECTORS[terminal]
+        not in selectors
         for step in script
     ):
         return None
@@ -804,16 +964,33 @@ def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
                     requested=obj.get("semantic_id"),
                 )
             )
-        if obj.get("controlled_since_turn_began") is not None:
+        if obj.get("controlled_since_turn_began") is not None and not isinstance(
+            obj.get("controlled_since_turn_began"), bool
+        ):
+            # G1 R1 (C3): the dimension is checkpoint-verified, which needs a
+            # boolean request; anything else fails closed here.
             dimensions.append(
                 DimensionFinding(
                     dimension="semantic_objects.controlled_since_turn_began",
-                    status=DIMENSION_UNOBSERVABLE,
-                    detail=_UNOBSERVABLE_RECORD_DIMENSIONS["controlled_since_turn_began"],
+                    status=DIMENSION_UNSUPPORTED,
+                    detail="controlled_since_turn_began must be a boolean to be verified",
                     requested=obj.get("semantic_id"),
                 )
             )
-        if obj.get("face_down") and _states_look_permission(obj):
+        elif (
+            obj.get("controlled_since_turn_began") is not None and obj.get("zone") != "battlefield"
+        ):
+            # Control history exists only for permanents; the readback has no
+            # other zone to verify it against.
+            dimensions.append(
+                DimensionFinding(
+                    dimension="semantic_objects.controlled_since_turn_began",
+                    status=DIMENSION_UNSUPPORTED,
+                    detail="controlled_since_turn_began is verifiable only for battlefield objects",
+                    requested=obj.get("semantic_id"),
+                )
+            )
+        if obj.get("face_down") and _states_look_permission(obj, record):
             dimensions.append(
                 DimensionFinding(
                     dimension="knowledge_state.face_down_look_permissions",
@@ -871,10 +1048,11 @@ def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
                 )
             )
 
-    # Temporal checkpoint reachability: the bootstrap hook establishes the
-    # first-turn untap state. Other requested checkpoints are reachable only by
-    # native progression, and a requested explicit hand cannot equal the
-    # post-draw hand unless the draw step is skipped.
+    # Temporal checkpoint reachability: the bootstrap places at the first turn's
+    # TurnBegan event and the retained hook completes the apply at the first-turn
+    # untap step. Other requested checkpoints are reachable only by native
+    # progression, and a requested explicit hand cannot equal the post-draw hand
+    # unless the draw step is skipped.
     turn = temporal.get("turn_number")
     active = temporal.get("active_player")
     if turn is not None and turn != 1:
@@ -922,10 +1100,14 @@ def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
             )
         )
 
-    # A requested combat step cannot be established at the bootstrap checkpoint:
-    # the hook places permanents during the first turn untap, so bootstrap-placed
-    # creatures are summoning-sick and cannot be declared as attackers, and the
-    # bootstrap has no combat-state field. The step is therefore unreachable.
+    # A requested combat step stays fail-closed here. Since G1 R1 (#561) the
+    # active seat's placed creatures are no longer summoning sick on turn 1 (they
+    # enter when the first turn begins, before the engine's readiness loop), so
+    # summoning sickness is no longer the reason. The reasons that remain: the
+    # bootstrap has no combat-state field, this lane executes no
+    # declare-attacker/blocker selection, and the six combat-step rows await
+    # their own Coordinator ruling (G1: "the six combat-step rows get a
+    # separate ruling"). Nothing here is credited until that ruling exists.
     requested_step = temporal.get("step")
     requested_phase = temporal.get("phase")
     if requested_phase == "combat" or (
@@ -936,9 +1118,9 @@ def model_requested_state(record: dict[str, Any]) -> RequestedStateModel:
                 dimension="temporal_state.combat_step",
                 status=DIMENSION_UNSUPPORTED,
                 detail=(
-                    "the requested combat step is unreachable from the bootstrap checkpoint: "
-                    "there is no combat-state field and bootstrap-placed attackers are "
-                    "summoning-sick on their first turn"
+                    "the requested combat step is not established by the bootstrap: there "
+                    "is no combat-state field and the lane executes no combat declaration; "
+                    "the combat-step rows await a separate Coordinator ruling (G1)"
                 ),
                 requested={"phase": requested_phase, "step": requested_step},
             )
@@ -1315,10 +1497,11 @@ def effective_temporal_target(model: RequestedStateModel) -> dict[str, Any]:
 def temporal_reachable(model: RequestedStateModel) -> bool:
     """Whether the requested temporal checkpoint is reachable by native play.
 
-    The bootstrap hook runs during the first turn of the requested starting
-    player. Any other turn, a different active player, or a combat step (where
-    bootstrap-placed attackers would be summoning-sick and no combat state can
-    be injected) is not reachable and must fail closed statically.
+    The bootstrap places permanents when the requested starting player's first
+    turn begins and completes at that turn's untap step. Any other turn, a
+    different active player, or a combat step (no combat state can be
+    established and the combat-step rows await a separate G1 ruling) is not
+    reachable and must fail closed statically.
     """
     temporal = model.temporal_state
     if not temporal:
@@ -1351,6 +1534,30 @@ def _canonical_counters(counters: dict[str, Any]) -> dict[str, Any]:
     return {
         _COUNTER_DISPLAY_NAMES.get(str(key), str(key)): value for key, value in counters.items()
     }
+
+
+def _group_field_verdict(requested: list[Any], observed: list[Any]) -> str:
+    """Verdict for one field over same-name, same-controller objects (P3-1).
+
+    The readback names objects only by card name, so ``n`` requested objects
+    and the ``m`` matching details are compared as multisets. ``requested``
+    holds one value per requested object (``None`` = unconstrained). EXACT
+    only when every matching detail agrees with every constrained request;
+    MISMATCH when the observed multiset cannot hold the requests; UNKNOWN
+    when it can but the readback cannot say which object holds which value.
+    """
+    constrained = [value for value in requested if value is not None]
+    if not constrained:
+        return CHECKPOINT_EXACT
+    if len(observed) < len(requested):
+        return CHECKPOINT_MISMATCH
+    keys_observed = Counter(json.dumps(value, sort_keys=True) for value in observed)
+    keys_requested = Counter(json.dumps(value, sort_keys=True) for value in constrained)
+    if any(keys_observed[key] < count for key, count in keys_requested.items()):
+        return CHECKPOINT_MISMATCH
+    if len(keys_observed) == 1:
+        return CHECKPOINT_EXACT
+    return CHECKPOINT_UNKNOWN
 
 
 def _state_view(response: dict[str, Any]) -> dict[str, Any]:
@@ -1533,9 +1740,32 @@ def compare_checkpoint(
         )
 
     # life
+    elimination = model.causal_plan.elimination if model.causal_plan is not None else None
     for player_id, expected in model.life_by_player.items():
         life_row = players.get(player_id)
         observed_life = life_row.get("life") if isinstance(life_row, dict) else None
+        if elimination is not None and player_id == elimination.victim:
+            # The declared elimination's open life substitution: the pre-causal
+            # position holds the victim at its starting life, exactly; the
+            # recorded life is judged later from the engine's own damage and loss.
+            placed = elimination.starting_life
+            verdicts.append(
+                FieldVerdict(
+                    field=f"players.{player_id}.life",
+                    verdict=(
+                        CHECKPOINT_CAUSAL_SUBSTITUTION
+                        if expected == elimination.recorded_life and observed_life == placed
+                        else CHECKPOINT_MISMATCH
+                    ),
+                    requested=expected,
+                    observed=observed_life,
+                    detail=(
+                        f"pre-causal life {placed} placed for the recorded {expected}, which the "
+                        "declared elimination reaches through the engine (CR 704.3)"
+                    ),
+                )
+            )
+            continue
         verdicts.append(
             FieldVerdict(
                 field=f"players.{player_id}.life",
@@ -1641,6 +1871,13 @@ def compare_checkpoint(
             )
 
     # battlefield placement / tapped / face_down / counters
+    # P3-1: requested objects that share a name and a controller are matched
+    # against every detail of that name as a multiset, never against the first.
+    group_members: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for placement in model.battlefield:
+        group_members.setdefault((placement["controller"], str(placement["card"])), []).append(
+            placement
+        )
     for placement in model.battlefield:
         controller = placement["controller"]
         face_down_requested = placement.get("face_down") is True
@@ -1662,14 +1899,14 @@ def compare_checkpoint(
         details = zones.get("battlefield_details") if isinstance(zones, dict) else []
         battlefield = battlefield if isinstance(battlefield, list) else []
         details = details if isinstance(details, list) else []
-        detail = next(
-            (
-                item
-                for item in details
-                if isinstance(item, dict) and item.get("name") == placement["card"]
-            ),
-            None,
-        )
+        matching = [
+            item
+            for item in details
+            if isinstance(item, dict) and item.get("name") == placement["card"]
+        ]
+        group = group_members[(controller, str(placement["card"]))]
+        position = next(index for index, member in enumerate(group) if member is placement)
+        detail = matching[position] if position < len(matching) else None
         present = placement["card"] in battlefield and detail is not None
         cause_declared = _declared_player_loss_cause(model)
         losing_controller = (
@@ -1719,33 +1956,78 @@ def compare_checkpoint(
             )
         )
         if detail is not None:
-            observed_tapped = bool(detail.get("tapped"))
+            # Review P3 (6035940198): the readback is compared as the literal
+            # True/False it is (same strict rule as controlled_since_turn_began).
+            # An absent or non-boolean ``tapped`` readback cannot prove the
+            # requested state; ``bool()`` would coerce a missing key to False and
+            # launder an unverifiable readback into EXACT. The request itself
+            # defaults to untapped: only a model entry that is literally True
+            # requests tapped.
+            requested_tapped = [member.get("tapped") is True for member in group]
+            observed_tapped = [item.get("tapped") for item in matching]
+            strict_readback = all(value is True or value is False for value in observed_tapped)
+            tapped_verdict = (
+                _group_field_verdict(requested_tapped, observed_tapped)
+                if strict_readback
+                else CHECKPOINT_MISMATCH
+            )
             verdicts.append(
                 FieldVerdict(
                     field=f"battlefield.{placement.get('semantic_id')}.tapped",
-                    verdict=(
-                        CHECKPOINT_EXACT
-                        if observed_tapped == bool(placement.get("tapped"))
-                        else CHECKPOINT_MISMATCH
-                    ),
-                    requested=bool(placement.get("tapped")),
-                    observed=observed_tapped,
+                    verdict=tapped_verdict,
+                    requested=placement.get("tapped") is True,
+                    observed=observed_tapped[0] if len(observed_tapped) == 1 else observed_tapped,
                 )
             )
             verdicts.extend(_face_down_verdicts(placement, detail))
+            # G1 R1 (C3): checkpoint-verified control history. The readback is
+            # the engine's own !isFirstTurnControlled(). The request is compared
+            # as the literal True/False it is (no coercion); an absent or
+            # non-boolean readback cannot prove equivalence and is a mismatch.
+            requested_since = placement.get("controlled_since_turn_began")
+            if requested_since is not None:
+                observed_since = [item.get("controlled_since_turn_began") for item in matching]
+                strict_request = requested_since is True or requested_since is False
+                strict_readback = all(value is True or value is False for value in observed_since)
+                if not (strict_request and strict_readback):
+                    since_verdict = CHECKPOINT_MISMATCH
+                else:
+                    since_verdict = _group_field_verdict(
+                        [member.get("controlled_since_turn_began") for member in group],
+                        observed_since,
+                    )
+                verdicts.append(
+                    FieldVerdict(
+                        field=(
+                            f"battlefield.{placement.get('semantic_id')}"
+                            ".controlled_since_turn_began"
+                        ),
+                        verdict=since_verdict,
+                        requested=requested_since,
+                        observed=observed_since[0] if len(observed_since) == 1 else observed_since,
+                    )
+                )
             counter_requested = Counter(_canonical_counters(placement.get("counters") or {}))
-            counter_observed = Counter(_canonical_counters(detail.get("counters") or {}))
-            if counter_requested or counter_observed:
+            counters_observed = [
+                dict(Counter(_canonical_counters(item.get("counters") or {}))) for item in matching
+            ]
+            if counter_requested or any(counters_observed):
                 verdicts.append(
                     FieldVerdict(
                         field=f"battlefield.{placement.get('semantic_id')}.counters",
-                        verdict=(
-                            CHECKPOINT_EXACT
-                            if counter_requested == counter_observed
-                            else CHECKPOINT_MISMATCH
+                        verdict=_group_field_verdict(
+                            [
+                                dict(Counter(_canonical_counters(member.get("counters") or {})))
+                                for member in group
+                            ],
+                            counters_observed,
                         ),
                         requested=dict(counter_requested),
-                        observed=dict(counter_observed),
+                        observed=(
+                            counters_observed[0]
+                            if len(counters_observed) == 1
+                            else counters_observed
+                        ),
                     )
                 )
 
@@ -1774,14 +2056,15 @@ def compare_checkpoint(
     unsupported = [item.dimension for item in model.hard_unsupported]
     unobservable = [item.dimension for item in model.unobservable]
     mismatches = [item for item in verdicts if item.verdict == CHECKPOINT_MISMATCH]
-    unknowns = [item for item in verdicts if item.verdict == CHECKPOINT_UNKNOWN]
+    unknown_fields = [item for item in verdicts if item.verdict == CHECKPOINT_UNKNOWN]
     cause_advances = [item for item in verdicts if item.verdict == "CAUSE_ADVANCE"]
+    substitutions = [item for item in verdicts if item.verdict == CHECKPOINT_CAUSAL_SUBSTITUTION]
     variance_source: str | None = None
     if unsupported:
         verdict = CHECKPOINT_UNSUPPORTED_DIMENSION
     elif mismatches:
         verdict = CHECKPOINT_MISMATCH
-    elif unknowns:
+    elif unknown_fields:
         verdict = CHECKPOINT_UNKNOWN
     elif unobservable:
         verdict = CHECKPOINT_UNSUPPORTED_DIMENSION
@@ -1791,6 +2074,14 @@ def compare_checkpoint(
             "fixture.native_procedure NATIVE_CAUSE_DECLARED_PLAYER_LOSS + declared "
             "terminal_postconditions; the cause transition is declared by the frozen "
             "fixture, not invented by this lane"
+        )
+    elif substitutions:
+        verdict = CHECKPOINT_ALLOWED_VARIANCE
+        variance_source = (
+            "declared causal elimination (run_midgame_capability_probe.CAUSAL_ROWS, shared "
+            "with XMage): the victim's recorded life is the state-based-action-pending "
+            "instant (CR 704.3), placed openly as its starting life and reached only by the "
+            "engine dealing the declared instruments' damage"
         )
     else:
         verdict = CHECKPOINT_EXACT
@@ -3136,9 +3427,248 @@ def evaluate_scripted_decision_offered(
     )
 
 
+# ---------------------------------------------------------------------------
+# Observer contract: the caused stack's controller is eliminated (CR 800.4a)
+# ---------------------------------------------------------------------------
+def _frame_choice_offered(frame: fcr.RouteFrame) -> bool:
+    """The tape's chosen id is one the engine offered on that frame, under its own label."""
+    return (
+        frame.chosen_option_id is not None
+        and frame.chosen_option_id in frame.offered_option_ids
+        and frame.offered[frame.offered_option_ids.index(frame.chosen_option_id)] == frame.chosen
+    )
+
+
+def _tapped(state: dict[str, Any] | None, player: str, name: str) -> int | None:
+    if state is None:
+        return None
+    return _named_tapped(state, player, name)
+
+
+def _instrument_tape(
+    run: fcr.CausalRun,
+    elimination: fcr.EliminationPlan,
+    snapshots: dict[str, dict[str, Any]],
+) -> tuple[bool, list[str]]:
+    """Every instrument frame is an engine offer bound to the declaration.
+
+    Each cast is one of exactly as many identical offers as declared
+    instruments remain; its one target frame chose the declared victim; each
+    payment tapped a declared instrument land once, and the actor's readback
+    shows exactly that many more of those lands tapped.
+    """
+    problems: list[str] = []
+    declared_lands = {card.semantic_id for card in elimination.lands}
+    land = elimination.lands[0].card
+    paid: list[str] = []
+    casts = run.elimination_casts
+    for number, cast in enumerate(casts):
+        raw_index = cast.get("frame_index")
+        index = raw_index if isinstance(raw_index, int) and raw_index >= 0 else len(run.frames)
+        frame = run.frames[index] if index < len(run.frames) else None
+        bolt = elimination.bolts[number] if number < len(elimination.bolts) else None
+        if frame is None or bolt is None or cast.get("semantic_id") != bolt.semantic_id:
+            problems.append(f"cast {number}: no tape frame for {cast.get('semantic_id')}")
+            continue
+        remaining = elimination.bolt_count - number
+        if not (
+            _frame_choice_offered(frame)
+            and frame.kind == "PRIORITY"
+            and frame.actor == elimination.actor
+            and frame.chosen_kind == "cast"
+            and frame.chosen_source == bolt.card
+            and frame.offered.count(str(frame.chosen)) == remaining
+        ):
+            problems.append(f"cast {number}: not one of {remaining} identical declared offers")
+        following: list[fcr.RouteFrame] = []
+        for later in run.frames[index + 1 :]:
+            if later.kind == "PRIORITY":
+                break
+            following.append(later)
+        targets = [item for item in following if item.reason == "elimination target"]
+        payments = [item for item in following if item.reason.startswith("declared instrument ")]
+        if len(targets) + len(payments) != len(following) or len(targets) != 1:
+            problems.append(f"cast {number}: {len(targets)} target frames among {len(following)}")
+        for target in targets:
+            refs = [
+                (ref.get("kind"), str(ref.get("player_id") or "").lower()) for ref in target.refs
+            ]
+            if not _frame_choice_offered(target) or refs != [("player", elimination.victim)]:
+                problems.append(f"cast {number}: the target is not the declared victim: {refs}")
+        for payment in payments:
+            if not (
+                _frame_choice_offered(payment)
+                and payment.chosen_kind == "tap_mana_source"
+                and payment.chosen_source == land
+                and payment.payment_source in declared_lands
+            ):
+                problems.append(f"cast {number}: {payment.chosen!r} is not a declared land tap")
+            paid.append(str(payment.payment_source))
+        before = snapshots.get(
+            "elimination_start" if number == 0 else f"elimination_resolved:{number}"
+        )
+        after = snapshots.get(f"cast_complete:{bolt.semantic_id}")
+        tapped_before = _tapped(before, elimination.actor, land)
+        tapped_after = _tapped(after, elimination.actor, land)
+        if (
+            not payments
+            or tapped_before is None
+            or tapped_after is None
+            or tapped_after - tapped_before != len(payments)
+        ):
+            problems.append(
+                f"cast {number}: {len(payments)} taps, readback {tapped_before} -> {tapped_after}"
+            )
+    if len(set(paid)) != len(paid):
+        problems.append(f"an instrument land paid twice: {paid}")
+    return not problems, problems
+
+
+def evaluate_stack_controller_eliminated(
+    model: RequestedStateModel, run: fcr.CausalRun
+) -> ObligationVerdict:
+    """The victim's caused spell leaves with the victim and never resolves (CR 800.4a).
+
+    Judged from the route's decision tape and the actor's own readback only:
+    the record's stack was cast by its declared controller and verified at the
+    requested checkpoint; the declared instruments (exactly the declared count,
+    each an engine offer bound to the declaration) were cast at the victim only
+    on top of that verified stack, which the victim still controlled with the
+    victim in the game at every step; the engine then reported the victim lost
+    for the declared reason with its life at or below the recorded value, nobody
+    else lost, every survivor kept its requested life (the victim's spell dealt
+    no damage), and the stack was empty at the next priority. Missing evidence
+    for any of these leaves the obligation unobserved: UNKNOWN, never PASS.
+    """
+    kind = "stack_controller_eliminated"
+    plan = model.causal_plan
+    elimination = None if plan is None else plan.elimination
+    required = [
+        str(token)
+        for token in (model.record.get("expected_events") or {}).get("required_events") or []
+    ]
+    facts: dict[str, Any] = {"causal_route": run.to_document(), "required_events": required}
+    if run.failure:
+        return ObligationVerdict(kind, False, False, facts, [], f"causal route: {run.failure}")
+    if plan is None or elimination is None or not required:
+        return ObligationVerdict(kind, False, False, facts, [], "the record is not routable")
+    order = [str(snapshot["at"]) for snapshot in run.snapshots]
+    snapshots = {str(snapshot["at"]): snapshot["state"] for snapshot in run.snapshots}
+    caused = [str(entry) for entry in run.stack_after_cast or ()]
+    victim = elimination.victim
+    survivors = list(elimination.survivors)
+    instruments = [f"cast_complete:{bolt.semantic_id}" for bolt in elimination.bolts]
+    resolved = [f"elimination_resolved:{number}" for number in range(1, elimination.bolt_count + 1)]
+    checkpoint = _route_checkpoint(model, run)
+    facts["requested_checkpoint"] = checkpoint
+
+    def position(at: str) -> int:
+        return order.index(at) if at in order else -1
+
+    pre_loss = ["elimination_start", *instruments, *resolved[:-1]]
+    sequence = ["stack_caused", "requested_checkpoint", "elimination_start"]
+    for cast_at, resolved_at in zip(instruments, resolved, strict=True):
+        sequence.extend([cast_at, resolved_at])
+    sequence.append("after_loss")
+    positions = [position(at) for at in sequence]
+    after = snapshots.get("after_loss")
+    victim_row = fcr.player_row(after, victim) or {}
+    lives: list[Any] = [
+        (fcr.player_row(snapshots.get(at), victim) or {}).get("life")
+        for at in ["elimination_start", *resolved]
+    ]
+    facts["victim_life_progression"] = lives
+    every = [snapshots.get(at) for at in sequence[2:]]
+    causal_casts = [frame for frame in run.frames if frame.reason.startswith("causal cast ")]
+    tape_bound, tape_problems = _instrument_tape(run, elimination, snapshots)
+    facts["instrument_tape_problems"] = tape_problems
+    start_counts = fcr.instrument_counts(snapshots.get("elimination_start"), elimination)
+    facts["instrument_counts_at_start"] = start_counts
+    victim_graveyard = (victim_row.get("zones") or {}).get("graveyard")
+    checks: dict[str, bool] = {
+        "stack_caused": bool(caused)
+        and [fcr.stack_card(entry) for entry in caused]
+        == [spell.card for spell in reversed(plan.spells)],
+        "cast_by_declared_controllers": [frame.actor.lower() for frame in causal_casts]
+        == [spell.controller for spell in plan.spells],
+        "requested_checkpoint": checkpoint["verdict"] == CHECKPOINT_EXACT,
+        # The stack was verified (and the checkpoint captured) before any
+        # instrument, and every snapshot before the loss shows it intact under
+        # at most one instrument, with the victim still in the game.
+        "stack_verified_before_loss": all(at >= 0 for at in positions)
+        and positions == sorted(positions)
+        and all(
+            snapshots[at].get("stack") is not None
+            and [str(entry) for entry in snapshots[at].get("stack") or ()][-len(caused) :] == caused
+            and fcr.has_lost(snapshots[at], victim) is False
+            for at in pre_loss
+            if at in snapshots
+        ),
+        "declared_instrument_count": [cast.get("semantic_id") for cast in run.elimination_casts]
+        == [bolt.semantic_id for bolt in elimination.bolts]
+        and len(run.elimination_casts) == elimination.bolt_count,
+        "instruments_present_at_start": start_counts
+        == {
+            "bolts_in_hand": elimination.bolt_count,
+            "lands": elimination.bolt_count,
+            "untapped_lands": elimination.bolt_count,
+        },
+        "instrument_tape_bound": tape_bound,
+        "victim_life_reached_by_engine": len(lives) == elimination.bolt_count + 1
+        and all(isinstance(life, int) for life in lives)
+        and lives[0] == elimination.starting_life
+        and all(later < earlier for earlier, later in pairwise(lives))
+        and lives[-1] <= elimination.recorded_life,
+        "victim_lost_for_declared_reason": fcr.has_lost(after, victim) is True
+        and victim_row.get("loss_reason") == elimination.engine_loss_reason
+        and isinstance(victim_row.get("life"), int)
+        and victim_row["life"] <= elimination.recorded_life,
+        "no_undeclared_loss": bool(every)
+        and all(state is not None for state in every)
+        and all(fcr.has_lost(state, player) is False for state in every for player in survivors),
+        "survivors_at_requested_life": bool(survivors)
+        and bool(every)
+        and all(
+            state is not None
+            and (fcr.player_row(state, player) or {}).get("life")
+            == model.life_by_player.get(player)
+            for state in every
+            for player in survivors
+        ),
+        # CR 800.4a: every object the victim owns left the game with it.
+        "victim_permanents_left": isinstance(
+            (victim_row.get("zones") or {}).get("battlefield"), list
+        )
+        and not (victim_row.get("zones") or {}).get("battlefield"),
+        "survivors_remain": bool(survivors)
+        and after is not None
+        and all(fcr.has_lost(after, player) is False for player in survivors),
+        "stack_empty_after_loss": after is not None
+        and after.get("stack") == []
+        and str(after.get("priority_player_id") or "").lower() in survivors,
+        "victim_spell_absent_from_victim_graveyard": isinstance(victim_graveyard, list)
+        and not any(
+            str(card) in {spell.card for spell in plan.spells} for card in victim_graveyard
+        ),
+    }
+    facts["checks"] = checks
+    observed = all(checks.values())
+    reason = (
+        f"the engine eliminated {victim.upper()} by its declared instruments while "
+        f"{victim.upper()}'s spell was on the verified stack; the spell left the game with "
+        "its owner without resolving (CR 800.4a) and every survivor kept its requested life"
+        if observed
+        else "not observed: " + ", ".join(name for name, ok in checks.items() if not ok)
+    )
+    return ObligationVerdict(
+        kind, observed, observed, facts, list(required) if observed else [], reason
+    )
+
+
 _CAUSAL_TERMINAL_CONTRACTS = {
     "commander_zone_choice": evaluate_commander_zone_choice,
     "scripted_decision_offered": evaluate_scripted_decision_offered,
+    "stack_controller_eliminated": evaluate_stack_controller_eliminated,
 }
 
 
@@ -3146,6 +3676,9 @@ def _route_observer(model: RequestedStateModel) -> str:
     """The seat whose principal-scoped readback the route's terminal is judged from."""
     if causal_terminal(model) == "commander_zone_choice":
         return str((_route_commander(model) or {}).get("owner") or "").lower()
+    if causal_terminal(model) == "stack_controller_eliminated" and model.causal_plan is not None:
+        # The elimination's actor survives the loss and sees its own instruments.
+        return model.causal_plan.elimination.actor if model.causal_plan.elimination else ""
     script = [step for step in model.record.get("decision_script") or () if isinstance(step, dict)]
     return str(script[0].get("actor") or "").lower() if script else ""
 
@@ -3743,6 +4276,17 @@ def _obligation_exercised(
     return exercised
 
 
+def _receipt_assertion_class(evidence: RowEvidence) -> str:
+    """The receipt's assertion class, naming who declared any checkpoint variance."""
+    checkpoint = evidence.fields.get("checkpoint_equivalence") or {}
+    if checkpoint.get("verdict") != CHECKPOINT_ALLOWED_VARIANCE:
+        return "BEHAVIOUR_OBSERVED"
+    verdicts = {str(item.get("verdict")) for item in checkpoint.get("fields") or []}
+    if CHECKPOINT_CAUSAL_SUBSTITUTION in verdicts:
+        return "BEHAVIOUR_OBSERVED_LAB_DECLARED_CAUSAL_SUBSTITUTION"
+    return "BEHAVIOUR_OBSERVED_FIXTURE_DECLARED_CAUSE_VARIANCE"
+
+
 def positive_receipt(
     evidence: RowEvidence,
     record: dict[str, Any],
@@ -3775,7 +4319,6 @@ def positive_receipt(
             f"{evidence.fixture_id}: the effective record carries no exact "
             "requested-state/obligation digest"
         )
-    checkpoint = (evidence.fields.get("checkpoint_equivalence") or {}).get("verdict")
     assertion = _receipt_observed_assertion(evidence)
     document: dict[str, Any] = {
         "schema_version": receipt_mod.POSITIVE_FIXTURE_RECEIPT_SCHEMA,
@@ -3792,13 +4335,10 @@ def positive_receipt(
             record, classification.get("obligation_kind"), state_digest, obligation_digest
         ),
         "observed_assertion": assertion,
-        # A fixture-declared native player-loss cause is recorded as such, never
-        # relabelled EXACT: the checkpoint verdict travels with the receipt.
-        "assertion_class": (
-            "BEHAVIOUR_OBSERVED_FIXTURE_DECLARED_CAUSE_VARIANCE"
-            if checkpoint == CHECKPOINT_ALLOWED_VARIANCE
-            else "BEHAVIOUR_OBSERVED"
-        ),
+        # A variance is recorded with its authority, never relabelled EXACT: a
+        # fixture-declared native player-loss cause and the Lab-declared causal
+        # life substitution (CAUSAL_ROWS) are distinct classes.
+        "assertion_class": _receipt_assertion_class(evidence),
         "assertion_kind": "POSITIVE_BEHAVIOUR",
         "outcome": "PASS",
         "runtime_receipt_digest": assertion["row_document_sha256"],
