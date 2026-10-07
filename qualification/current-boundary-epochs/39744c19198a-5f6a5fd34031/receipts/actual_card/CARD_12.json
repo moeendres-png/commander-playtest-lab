@@ -1,0 +1,115 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_12",
+  "obligation_exercised": {
+    "obligation_digest": "92de1a2dc0cea02e20f5cf598782491a8e60f109cbad85e9f647d9499865892f",
+    "requested_state_digest": "0525062f779f0ed802ad00f58d9f0c736b3094118f670a2688b2f982d2e7e919",
+    "required_events": [
+      "delve_exile:6",
+      "mana_paid:UU",
+      "look_top:7",
+      "put_hand:2",
+      "put_bottom:5"
+    ],
+    "terminal_checks": [
+      "Dig Through Time in P1's graveyard has mana value 8",
+      "exactly 1 SPELL_CAST event(s) with source_object=obj:card_12-subject",
+      "exactly 2 ZONE_CHANGE event(s) with from=LIBRARY, to=HAND, player_player=P1",
+      "exactly 5 ZONE_CHANGE event(s) with from=LIBRARY, to=LIBRARY, player_player=P1",
+      "the scripted choose_object frames about 'to put on the BOTTOM of your library' selected ['obj:card12-lib3', 'obj:card12-lib4', 'obj:card12-lib5', 'obj:card12-lib6'] in that order"
+    ],
+    "terminal_postconditions": [
+      "Exactly two looked-at cards are in hand and five are bottomed in chosen order.",
+      "Dig Through Time mana value remains 8."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "3a602e798bb1b7f86bc703973a1ff078e2e0e97e0c94570e773b2c667806f643",
+      "size": 7107607
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 5 ZONE_CHANGE event(s) with from=LIBRARY, to=LIBRARY, player_player=P1",
+          "the scripted choose_object frames about 'to put on the BOTTOM of your library' selected ['obj:card12-lib3', 'obj:card12-lib4', 'obj:card12-lib5', 'obj:card12-lib6'] in that order"
+        ],
+        "check": "exactly 2 ZONE_CHANGE event(s) with from=LIBRARY, to=HAND, player_player=P1",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Exactly two looked-at cards are in hand and five are bottomed in chosen order."
+      },
+      {
+        "also": [
+          "exactly 1 SPELL_CAST event(s) with source_object=obj:card_12-subject"
+        ],
+        "check": "Dig Through Time in P1's graveyard has mana value 8",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Dig Through Time mana value remains 8."
+      }
+    ],
+    "terminal_facts": {
+      "Dig Through Time in P1's graveyard has mana value 8": true,
+      "exactly 1 SPELL_CAST event(s) with source_object=obj:card_12-subject": true,
+      "exactly 2 ZONE_CHANGE event(s) with from=LIBRARY, to=HAND, player_player=P1": true,
+      "exactly 5 ZONE_CHANGE event(s) with from=LIBRARY, to=LIBRARY, player_player=P1": true,
+      "the scripted choose_object frames about 'to put on the BOTTOM of your library' selected ['obj:card12-lib3', 'obj:card12-lib4', 'obj:card12-lib5', 'obj:card12-lib6'] in that order": true
+    },
+    "token_evidence": {
+      "delve_exile:6": {
+        "binding": "exactly 6 ZONE_CHANGE event(s) with from=GRAVEYARD, to=EXILED, player_player=P1",
+        "events": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ]
+      },
+      "look_top:7": {
+        "binding": "a scripted target frame about 'to put into your hand' offered exactly 7 option(s)",
+        "observation": "engine terminal observation"
+      },
+      "mana_paid:UU": {
+        "binding": "engine-verified mana_paid:2",
+        "decision_frames": [
+          2,
+          4
+        ]
+      },
+      "put_bottom:5": {
+        "binding": "exactly 5 ZONE_CHANGE event(s) with from=LIBRARY, to=LIBRARY, player_player=P1",
+        "events": [
+          17,
+          18,
+          19,
+          20,
+          21
+        ]
+      },
+      "put_hand:2": {
+        "binding": "exactly 2 ZONE_CHANGE event(s) with from=LIBRARY, to=HAND, player_player=P1",
+        "events": [
+          15,
+          16
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "ea90994e19638e853110e2ba8341420d74ba97a7b031a1e6fb623cfc107ed698",
+  "runner_digest": "885abdc6946a72e3155aebfac6eea9b1fc9bcd207e5cb53a417111495b0f3371",
+  "runtime_receipt_digest": "fad24acdbb90e43dda7cd8a2bb6fd39bc4e1f23cde0a9553536b4e49ebdc564a",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_12"
+}

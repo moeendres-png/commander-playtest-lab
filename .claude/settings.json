@@ -1,4 +1,5 @@
 {
+  "effortLevel": "medium",
   "env": {
     "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },

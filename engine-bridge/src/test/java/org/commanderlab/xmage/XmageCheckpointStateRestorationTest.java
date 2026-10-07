@@ -173,6 +173,8 @@ class XmageCheckpointStateRestorationTest {
         create.addProperty("plan_id", fixtureId);
         create.addProperty("seed", SEED);
         create.add("requested_starting_state", effectiveRecord(fixtureId));
+        create.addProperty("starting_player_seat",
+                startingSeatFor(create.getAsJsonObject("requested_starting_state")));
         JsonObject created = lane.ok("create_midgame_game", create);
         lane.placed = created.getAsJsonObject("placed_objects");
         lane.ok("start_midgame_game", null);
@@ -213,6 +215,20 @@ class XmageCheckpointStateRestorationTest {
      * the first arrival completion (its upkeep), so its first-turn draw took
      * the requested top card and the checkpoint library was incomplete.
      */
+
+    /**
+     * The record's own active player, as the explicit create-time choosing seat.
+     *
+     * <p>#572: the bridge never defaults {@code starting_player_seat}; every
+     * create request must declare it. The lane's arrival pilot still answers the
+     * engine's own CR 103.2 starting-player choice from the record's requested
+     * state, so this value names who is asked, not who starts.</p>
+     */
+    private static int startingSeatFor(JsonObject record) {
+        String seat = record.getAsJsonObject("temporal_state").get("active_player").getAsString();
+        return Integer.parseInt(seat.substring(1)) - 1;
+    }
+
     @Test
     void theActivePlayersRequestedLibraryIsTheLibraryAtTheCheckpoint() {
         JsonObject arrival = arrive("CARD_09");

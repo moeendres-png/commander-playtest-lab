@@ -132,6 +132,8 @@ class XmageMidgameCausalTest {
         request.addProperty("seed", SEED);
         request.addProperty("entry_mode", "causal_stack");
         request.add("requested_starting_state", frozenRecord(fixtureId));
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         request.add("fuel", fuel);
         return request;
     }
@@ -139,6 +141,20 @@ class XmageMidgameCausalTest {
     // ------------------------------------------------------------------
     // Entry publication: the causal plan is the pilot's script.
     // ------------------------------------------------------------------
+
+
+    /**
+     * The record's own active player, as the explicit create-time choosing seat.
+     *
+     * <p>#572: the bridge never defaults {@code starting_player_seat}; every
+     * create request must declare it. The lane's arrival pilot still answers the
+     * engine's own CR 103.2 starting-player choice from the record's requested
+     * state, so this value names who is asked, not who starts.</p>
+     */
+    private static int startingSeatFor(JsonObject record) {
+        String seat = record.getAsJsonObject("temporal_state").get("active_player").getAsString();
+        return Integer.parseInt(seat.substring(1)) - 1;
+    }
 
     @Test
     void causalStackEntryPublishesScriptAndFuelBindings() {
@@ -193,6 +209,8 @@ class XmageMidgameCausalTest {
         request.addProperty("seed", SEED);
         request.addProperty("entry_mode", "causal_elimination");
         request.add("requested_starting_state", frozenRecord("WS05-MP-ELIM-PRIO-3"));
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         JsonObject response = lane.rejected("create_midgame_game", request);
         assertEquals("midgame_causal_preparation_rejected",
                 response.getAsJsonArray("errors").get(0).getAsJsonObject()
@@ -221,6 +239,8 @@ class XmageMidgameCausalTest {
         request.addProperty("game_id", "causal-wrong-lane");
         request.addProperty("seed", SEED);
         request.add("requested_starting_state", frozenRecord("WS05-MP-COMBAT-4"));
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         lane.ok("create_midgame_game", request);
         lane.ok("start_midgame_game", null);
         JsonObject verify = new JsonObject();
@@ -343,6 +363,8 @@ class XmageMidgameCausalTest {
         request.addProperty("seed", SEED);
         request.addProperty("entry_mode", "causal_elimination");
         request.add("requested_starting_state", frozenRecord(fixtureId));
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         JsonObject spec = new JsonObject();
         spec.addProperty("actor", actor);
         spec.addProperty("victim", victim);
@@ -478,6 +500,8 @@ class XmageMidgameCausalTest {
         request.addProperty("plan_id", "causal-block4");
         request.addProperty("seed", SEED);
         request.add("requested_starting_state", frozenRecord("WS05-MP-BLOCK-4"));
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         JsonObject created = lane.ok("create_midgame_game", request);
         assertEquals("placement", created.get("entry_mode").getAsString());
         lane.ok("start_midgame_game", null);
@@ -675,6 +699,8 @@ class XmageMidgameCausalTest {
         request.addProperty("plan_id", "causal-microrepl");
         request.addProperty("seed", SEED);
         request.add("requested_starting_state", frozenRecord("MICRO_REPLACEMENT"));
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         JsonObject created = lane.ok("create_midgame_game", request);
         assertEquals("placement", created.get("entry_mode").getAsString());
         lane.ok("start_midgame_game", null);
@@ -809,6 +835,8 @@ class XmageMidgameCausalTest {
         request.addProperty("plan_id", "causal-turn5");
         request.addProperty("seed", SEED);
         request.add("requested_starting_state", frozenRecord("WS05-MP-TURN-5"));
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         JsonObject created = lane.ok("create_midgame_game", request);
         assertEquals("placement", created.get("entry_mode").getAsString());
         assertEquals(5, created.get("player_count").getAsInt());
@@ -1246,6 +1274,8 @@ class XmageMidgameCausalTest {
         request.addProperty("seed", SEED);
         request.addProperty("entry_mode", "causal_elimination");
         request.add("requested_starting_state", frozenRecord(fixtureId));
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         JsonObject spec = new JsonObject();
         spec.addProperty("actor", "P1");
         spec.addProperty("victim", victimPid);
@@ -1327,6 +1357,8 @@ class XmageMidgameCausalTest {
             element.getAsJsonObject().remove("attached_to");
         }
         request.add("requested_starting_state", record);
+        request.addProperty("starting_player_seat",
+                startingSeatFor(request.getAsJsonObject("requested_starting_state")));
         JsonObject spec = new JsonObject();
         spec.addProperty("actor", "P1");
         spec.addProperty("victim", "P2");

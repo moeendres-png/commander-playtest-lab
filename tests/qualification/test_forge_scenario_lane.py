@@ -884,6 +884,69 @@ def _run_probe(monkeypatch, *, model, observations, create_success=True):
     )
 
 
+def test_a_scenario_without_a_declared_starting_seat_fails_closed(monkeypatch):
+    """#572: the old `or "p1"` answered this frame; now nothing is submitted."""
+    model = _supported_model()
+    model.record.pop("starting_player", None)
+    model.record["decision_script"] = []
+    model.temporal_state["active_player"] = None
+    frame = _frame(
+        "STARTING_PLAYER",
+        "p1",
+        1,
+        [
+            {
+                "action_id": "opt-start",
+                "action_type": "structural_decision",
+                "source_object_id": "p1",
+            }
+        ],
+    )
+    monkeypatch.setattr(fsl, "poll_decision", lambda *a, **k: frame)
+    proc = _FakeProc()
+    result = fsl.drive_scenario_game(proc, model, seed=7, max_steps=1)
+    assert result.failure_kind == "FAIL_CLOSED_UNSATISFIED"
+    assert result.failure is not None and "declares no starting seat" in result.failure
+    assert not any(message == "submit_action" for message, _ in proc.requests)
+
+
+def test_a_scripted_starting_seat_is_answered_on_the_engine_frame(monkeypatch):
+    model = _supported_model()
+    model.record["decision_script"] = [
+        {
+            "decision_family": "starting_player",
+            "actor": "P1",
+            "selection": {
+                "selector_kind": "seat",
+                "semantic_value": "P1",
+                "matches_only_provider_offered_legal_options": True,
+                "on_zero_match": "FAIL_CLOSED",
+                "on_multiple_match": "FAIL_CLOSED",
+            },
+        }
+    ]
+    frame = _frame(
+        "STARTING_PLAYER",
+        "p1",
+        1,
+        [
+            {
+                "action_id": "opt-start",
+                "action_type": "structural_decision",
+                "source_object_id": "p1",
+            }
+        ],
+    )
+    monkeypatch.setattr(fsl, "poll_decision", lambda *a, **k: frame)
+    proc = _FakeProc()
+    result = fsl.drive_scenario_game(proc, model, seed=7, max_steps=1)
+    assert any(message == "submit_action" for message, _ in proc.requests)
+    choice = result.terminal_facts["starting_player_choice"]
+    assert choice["chosen_seat"] == "p1"
+    assert choice["policy"] == "fixture_decision_script"
+    assert choice["basis"] == fsl.STARTING_PLAYER_AUTHORIZED_BASIS
+
+
 def test_control_positive_executes_and_credits(monkeypatch):
     model = _supported_model()
     model.record["expected_events"]["required_events"] = ["commander_damage_checked_per_commander"]

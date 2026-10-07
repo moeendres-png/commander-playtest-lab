@@ -58,6 +58,8 @@ final class XmageGameManager {
             String engineGameId,
             int playerCount,
             String startingPlayerId,
+            String startingPlayerChooserId,
+            String startingPlayerChosenId,
             int turnNumber,
             boolean paused,
             boolean externalControl,
@@ -141,6 +143,7 @@ final class XmageGameManager {
         private final int startingLife;
         private final boolean externalControl;
         private final ExternalDecisionController externalDecisionController;
+        private final XmageStartingPlayerPrompt startingPlayerPrompt;
         private final XmageAuditEventLog eventLog;
         /* Explicit orchestration seed bound to the native Rules RNG, or null. */
         private final Long explicitRulesSeed;
@@ -159,6 +162,7 @@ final class XmageGameManager {
                 int startingLife,
                 boolean externalControl,
                 ExternalDecisionController externalDecisionController,
+                XmageStartingPlayerPrompt startingPlayerPrompt,
                 Long explicitRulesSeed
         ) {
             this.gameId = gameId;
@@ -169,6 +173,7 @@ final class XmageGameManager {
             this.startingLife = startingLife;
             this.externalControl = externalControl;
             this.externalDecisionController = externalDecisionController;
+            this.startingPlayerPrompt = startingPlayerPrompt;
             this.explicitRulesSeed = explicitRulesSeed;
             this.eventLog = new XmageAuditEventLog(gameId, game.getId().toString());
         }
@@ -325,6 +330,12 @@ final class XmageGameManager {
             ExternalDecisionController decisionController = externalControl
                     ? new ExternalDecisionController()
                     : null;
+            /*
+             * Shared per game: the players record the CR 103.2 prompt each
+             * actually answered, and startGame publishes those identities so a
+             * readback can never be mistaken for an answer (#572).
+             */
+            XmageStartingPlayerPrompt startingPlayerPrompt = new XmageStartingPlayerPrompt();
 
             List<Player> players = new ArrayList<>(decks.size());
             for (int index = 0; index < decks.size(); index++) {
@@ -332,7 +343,8 @@ final class XmageGameManager {
                 XmageBridgePlayer player = new XmageBridgePlayer(
                         "Bridge Seat " + (index + 1),
                         RangeOfInfluence.ALL,
-                        decisionController
+                        decisionController,
+                        startingPlayerPrompt
                 );
 
                 player.init(game);
@@ -365,6 +377,7 @@ final class XmageGameManager {
                     startingLife,
                     externalControl,
                     decisionController,
+                    startingPlayerPrompt,
                     rulesSeed
             );
 
@@ -494,6 +507,7 @@ final class XmageGameManager {
                         "starting_player_id",
                         managed.game.getStartingPlayerId().toString()
                 );
+                addStartingPlayerPrompt(startedPayload, managed.startingPlayerPrompt);
                 startedPayload.addProperty("turn_number", managed.game.getState().getTurnNum());
                 startedPayload.addProperty("external_control", true);
                 startedPayload.addProperty("seed_controlled", managed.explicitRulesSeed != null);
@@ -521,6 +535,8 @@ final class XmageGameManager {
                         managed.game.getId().toString(),
                         managed.game.getPlayers().size(),
                         managed.game.getStartingPlayerId().toString(),
+                        managed.startingPlayerPrompt.chooserId(),
+                        managed.startingPlayerPrompt.chosenId(),
                         managed.game.getState().getTurnNum(),
                         managed.game.isPaused(),
                         true,
@@ -602,6 +618,7 @@ final class XmageGameManager {
                     "starting_player_id",
                     managed.game.getStartingPlayerId().toString()
             );
+            addStartingPlayerPrompt(startedPayload, managed.startingPlayerPrompt);
             startedPayload.addProperty("turn_number", managed.game.getState().getTurnNum());
             startedPayload.addProperty("external_control", false);
             startedPayload.addProperty("seed_controlled", managed.explicitRulesSeed != null);
@@ -621,12 +638,34 @@ final class XmageGameManager {
                     managed.game.getId().toString(),
                     managed.game.getPlayers().size(),
                     managed.game.getStartingPlayerId().toString(),
+                    managed.startingPlayerPrompt.chooserId(),
+                    managed.startingPlayerPrompt.chosenId(),
                     managed.game.getState().getTurnNum(),
                     managed.game.isPaused(),
                     false,
                     rulesSeedBinding(managed)
             );
         }
+    }
+
+    /**
+     * Adds the identities of the CR 103.2 prompt the bridge actually answered,
+     * when it answered one. Absent means no prompt answer was recorded: the
+     * established {@code starting_player_id} readback alone cannot distinguish
+     * a real answer from GameImpl.init's first-player fallback in a pod of 3+
+     * (#572).
+     */
+    private static void addStartingPlayerPrompt(
+            JsonObject payload,
+            XmageStartingPlayerPrompt prompt
+    ) {
+        String chooserId = prompt.chooserId();
+        String chosenId = prompt.chosenId();
+        if (chooserId == null || chosenId == null) {
+            return;
+        }
+        payload.addProperty("starting_player_chooser_id", chooserId);
+        payload.addProperty("starting_player_chosen_id", chosenId);
     }
 
     private static void runExternalStart(ManagedGame managed, UUID startingPlayerId) {

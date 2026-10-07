@@ -172,6 +172,10 @@ def _drive(
         candidate="xmage",
         player_count=4,
         seed=424242,
+        # The 4P test lane declares P1 explicitly; the record-bearing lane reads
+        # this from the record (#572).
+        scripted_starting_seat="p1",
+        starting_seat_source="TEST_DECLARED_STARTING_SEAT",
         drive_to="priority",
         mulligan_plan=plan,
     )
@@ -237,6 +241,8 @@ def test_an_actor_outside_the_engines_roster_fails_closed(
         candidate="xmage",
         player_count=4,
         seed=1,
+        scripted_starting_seat="p1",
+        starting_seat_source="TEST_DECLARED_STARTING_SEAT",
         mulligan_plan=PLAN,
     )
     assert result.failure is not None and "not a seat" in result.failure

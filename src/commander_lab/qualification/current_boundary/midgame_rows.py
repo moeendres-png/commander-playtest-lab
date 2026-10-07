@@ -41,6 +41,7 @@ from typing import Any
 from . import midgame_lane as ml
 from . import receipts as receipt_mod
 from . import refusal as refusal_mod
+from .starting_player import requested_active_seat_index
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 PROBE_SCRIPT = REPO_ROOT / "scripts" / "run_midgame_capability_probe.py"
@@ -5130,10 +5131,24 @@ def execute_and_persist(
     executions: dict[str, Any] = {}
     for fixture_id in selected:
         record = records[fixture_id]
+        # The record's own active player is the create-time choosing seat; the
+        # engine's CR 103.2 frame is answered by the arrival pilot from the same
+        # record field. No record declaration means no run (#572).
+        starting_seat_index = requested_active_seat_index(record)
+        if starting_seat_index is None:
+            executions[fixture_id] = {
+                "verified": False,
+                "detail": (
+                    "the record declares no active player, so the lane cannot declare "
+                    "a starting/choosing seat and refuses to run; the Lab never chooses it"
+                ),
+            }
+            continue
         request = {
             "game_id": f"row-{fixture_id}",
             "plan_id": f"row-{fixture_id}",
             "seed": probe.SEED,
+            "starting_player_seat": starting_seat_index,
             "requested_starting_state": record,
         }
         # A record whose stack holds spells enters through the production

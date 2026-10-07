@@ -36,6 +36,7 @@ from typing import Any
 from . import midgame_lane as ml
 from . import midgame_rows as midgame_rows_mod
 from . import receipts as receipt_mod
+from .starting_player import requested_active_seat_index
 
 EXECUTION_MODE = "MIDGAME_LANE_KNOWLEDGE_PROJECTION"
 TEST_IDENTITY_PREFIX = "midgame-lane:knowledge-projection#"
@@ -3491,6 +3492,12 @@ def execute_and_persist(
             "seed": probe.SEED,
             "requested_starting_state": record,
         }
+        # The record's own active player is the create-time choosing seat; a
+        # record without one omits the field and the bridge refuses creation.
+        # No seat-0 default (#572).
+        starting_seat_index = requested_active_seat_index(record)
+        if starting_seat_index is not None:
+            request["starting_player_seat"] = starting_seat_index
         capture = Capture()
         engine_commit: str | None = None
         try:

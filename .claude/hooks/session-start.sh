@@ -5,11 +5,17 @@
 # put it first on PATH. Idempotent: an existing venv for the same lock is reused.
 set -euo pipefail
 
+repo="${CLAUDE_PROJECT_DIR:?}"
+
+# A fresh session starts from the generated handoff index instead of a compacted
+# conversation. It may be stale; regenerating is one command.
+if [ -f "${repo}/docs/claude/state/HANDOFF.md" ]; then
+  echo "Handoff index: ${repo}/docs/claude/state/HANDOFF.md (regenerate: python3 scripts/claude_handoff.py). Read it before the lane issues."
+fi
+
 if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
   exit 0
 fi
-
-repo="${CLAUDE_PROJECT_DIR:?}"
 venv="${HOME}/.cache/commander-lab-venv"
 stamp="${venv}/.lock-sha256"
 lock_sha="$(sha256sum "${repo}/requirements/lock.txt" | cut -d' ' -f1)"

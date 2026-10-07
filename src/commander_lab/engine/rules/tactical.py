@@ -830,6 +830,11 @@ class TacticalRulesAdapter(RulesEngineAdapter):
                     ),
                 )
             )
+        if request.starting_player_seat is None:
+            raise RulesEngineError(
+                "the request declares no starting_player_seat; the in-process tactical "
+                "simulator never chooses the starting player itself (#572)"
+            )
         active = players[request.starting_player_seat].player_id
         pass_action = LegalAction(
             action_id="pass-priority",

@@ -277,10 +277,10 @@ def test_opencode_config_schema_conformance() -> None:
     assert config["enabled_providers"] == ["opencode-go"]
     provider = config["provider"]["opencode-go"]
     # No silent fallback: primary first, documented secondary still selectable.
-    assert provider["whitelist"] == ["deepseek-v4.1-flash", "space-bunny-free"]
+    assert provider["whitelist"] == ["deepseek-v4.1-flash", "space-bunny"]
     authorized = {
         "deepseek-v4.1-flash": ("max", {"reasoningEffort": "max"}),
-        "space-bunny-free": ("max", {"reasoningEffort": "max"}),
+        "space-bunny": ("max", {"reasoningEffort": "max"}),
     }
     assert set(provider["models"]) == set(authorized)
     for short, (variant, options) in authorized.items():
@@ -300,8 +300,8 @@ def test_only_authorized_executors_present_in_canonical_config() -> None:
     """The canonical config exposes exactly the two currently authorized models."""
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     provider = config["provider"]["opencode-go"]
-    assert provider["whitelist"] == ["deepseek-v4.1-flash", "space-bunny-free"]
-    assert set(provider["models"]) == {"deepseek-v4.1-flash", "space-bunny-free"}
+    assert provider["whitelist"] == ["deepseek-v4.1-flash", "space-bunny"]
+    assert set(provider["models"]) == {"deepseek-v4.1-flash", "space-bunny"}
 
 
 def _agent_frontmatter(name: str) -> dict:
@@ -319,7 +319,7 @@ def test_high_default_retained() -> None:
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     models = config["provider"]["opencode-go"]["models"]
     assert models["deepseek-v4.1-flash"]["options"] == {"reasoningEffort": "max"}
-    assert models["space-bunny-free"]["options"] == {"reasoningEffort": "max"}
+    assert models["space-bunny"]["options"] == {"reasoningEffort": "max"}
     # The on-disk agent snapshot is the DeepSeek primary; the launcher pins the
     # explicitly selected profile inline for every run.
     expected = {
@@ -986,7 +986,7 @@ def test_dual_executor_current_authority_is_canonical() -> None:
         "deepseek v4.1 flash max",
         "opencode-go/deepseek-v4.1-flash",
         "space bunny max",
-        "opencode-go/space-bunny-free",
+        "opencode-go/space-bunny",
         "no other opencode model/profile is currently authorized",
         "no automatic fallback",
         "production provider",
@@ -1016,7 +1016,9 @@ def test_claude_entrypoint_delegates_to_canonical_policy() -> None:
     assert "canonical durable agent policy" in flat
     assert "not an independent policy source" in flat
     assert "claude opus 5.5" in flat
-    assert "claude_opus_coordinator_authority = delegated_by_owner" in flat
+    assert "when the owner delegation applies" in flat
+    assert "docs/current_execution_authority.md" in flat
+    assert "claude_opus_coordinator_authority = delegated_by_owner" not in flat
     assert "owner-only reservations" in flat
 
 
