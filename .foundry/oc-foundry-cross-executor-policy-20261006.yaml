@@ -4,7 +4,7 @@ worktree: /home/runner/work/commander-playtest-lab/commander-playtest-lab
 branch: opencode/issue578-20261006204641
 audit_base_sha: 5a062a5bd1836e08514c78085f97071e8f533970
 audit_base_tree: ba3ce0870c305d28845c9f174a93496181bfc074
-state_written_against_head: 832d9c454f59d40b46211214aa7b9922a456f3df
+state_written_against_head: f379df8ed2c81bf34dec4838a0e114f43e84d7f9
 validated_head: 832d9c454f59d40b46211214aa7b9922a456f3df
 validated_tree: 1eddc21928965b23c80b687b23582dbfaca793a2
 objective: 'Implement issue #578 durably: DeepSeek MAX remains the default/primary
@@ -72,8 +72,8 @@ validated_gates:
 failed_gates:
 - 'FULL_SUITE_RUNNER_ENV_ONLY: 11/2684 non-qualification tests fail only in this local
   runner (packaging smoke lock-pin metadata and shallow-clone ancestry detection)
-  and reproduce identically at the pre-repair PR head; no required gate failed for the
-  changed surface'
+  and reproduce identically at the pre-repair PR head; no required gate failed for
+  the changed surface'
 invalidated_gates: []
 do_not_rerun: []
 current_failure: none (independent Space Bunny review not yet dispatched; review gate
@@ -142,18 +142,20 @@ evidence:
 - 'DIRECTLY_VERIFIED: semantic GitHub-expression evaluation proves /bunny-review reachability
   for trusted comments on opencode-agent[bot] PRs while refusing untrusted commenters/targets
   and keeping /bunny-review out of the writable /bunny lane'
-- 'UNKNOWN: independent trusted Space Bunny exact-SHA/TREE review of 832d9c45/1eddc219
+- 'DIRECTLY_VERIFIED: non-force push to origin/opencode/issue578-20261006204641 was
+  read back equal to the intended state checkpoint f379df8ed2c81bf34dec4838a0e114f43e84d7f9
+  / 33e659a2d7962057ad2fab8917882d8bdac9d7aa; this document''s later generated-state-only
+  commit is an admissible closeout descendant'
+- 'UNKNOWN: independent trusted Space Bunny exact-SHA/TREE review of 832d9c454f59d40b46211214aa7b9922a456f3df/1eddc21928965b23c80b687b23582dbfaca793a2
   is not dispatched; it cannot be self-claimed and must cite a real workflow run as
   review_evidence'
-- 'ABSENT: remote checkpoint verification (push is performed by the GitHub opencode
-  infrastructure after this session; no writer-lock-holding launcher path exists in
-  this runner)'
 artifacts: []
 remaining_scope:
-- independent fresh-context read-only Space Bunny review of 832d9c45 / 1eddc219 through
-  the trusted bootstrap /bunny carrier plus bunny-auditor attestation (BUNNY_AUDITOR_SUBAGENT_REVIEW),
-  recorded with verified review_evidence
-- remote checkpoint recording + remote HEAD equality verification after the push
+- independent fresh-context read-only Space Bunny review of 832d9c454f59d40b46211214aa7b9922a456f3df
+  / 1eddc21928965b23c80b687b23582dbfaca793a2 through the trusted bootstrap /bunny
+  carrier plus bunny-auditor attestation (BUNNY_AUDITOR_SUBAGENT_REVIEW), recorded
+  with verified review_evidence
+- canonical review record under .foundry/reviews/ and state mirror update to PASS
 - normal PR review/merge path (explicitly not performed in this run)
 status: ACTIVE
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
@@ -208,16 +210,15 @@ authority_gates: []
 first_failing_boundary: independent Space Bunny review dispatch (external reviewer
   required; not a self-satisfiable gate)
 root_cause_class: NONE
-next_action: dispatch trusted Space Bunny review of 832d9c45/1eddc219
+next_action: dispatch trusted Space Bunny review of 832d9c454f59/1eddc2192896
 exact_next_action: Dispatch a fresh-context READ-ONLY Space Bunny review of implementation
   SHA 832d9c454f59d40b46211214aa7b9922a456f3df / tree 1eddc21928965b23c80b687b23582dbfaca793a2
   through the trusted bootstrap /bunny carrier instructing a bunny-auditor subreview,
   so the result comment carries BUNNY_AUDITOR_SUBAGENT_REVIEW with the exact SHA/TREE/verdict;
   then write the canonical record to .foundry/reviews/oc-foundry-cross-executor-policy-20261006.json
-  including its review_evidence, update cross_executor_review to PASS with those exact
-  identities, and record the remote checkpoint after the push. Do not claim the gate
-  satisfied before that review. Future reviews may use the direct /bunny-review lane
-  once this PR is merged.
+  including its review_evidence and update cross_executor_review to PASS with those
+  exact identities. Do not claim the gate satisfied before that review. The direct
+  /bunny-review lane becomes reachable for future PRs once this PR is merged.
 execution_profile: deepseek
 executor_model: opencode-go/deepseek-v4.1-flash
 logical_executor_profile: deepseek
@@ -236,3 +237,8 @@ cross_executor_review:
   reviewed_tree: null
   verdict: UNKNOWN
   review_record_path: null
+remote_checkpoint:
+  remote: origin
+  branch: opencode/issue578-20261006204641
+  sha: f379df8ed2c81bf34dec4838a0e114f43e84d7f9
+  tree: 33e659a2d7962057ad2fab8917882d8bdac9d7aa
