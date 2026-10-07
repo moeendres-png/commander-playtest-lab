@@ -466,6 +466,63 @@ def test_the_records_seat_still_fails_on_a_rules_visible_draw(start2, monkeypatc
     assert row.outcome == "FAIL"
 
 
+def test_a_lifecycle_failure_a_wrong_seat_started_is_unknown_never_fail(
+    start2, monkeypatch
+) -> None:
+    # P3-1: which game was run comes before the failure verdict. A game the
+    # record's starting player did not start is not the requested game, so even
+    # a lifecycle failure stays UNKNOWN rather than becoming a FAIL.
+    observed = _observed(state=_state(), first_priority="p2")
+    observed.failure = "EngineRuntimeError: the engine closed the stream"
+    observed.failure_kind = "ENGINE_RUNTIME_ERROR"
+    row, _ = _start2(start2, monkeypatch, observed)
+    assert row.outcome == "UNKNOWN"
+    assert "first priority to P2" in row.reason
+
+
+@pytest.mark.parametrize(
+    "channel",
+    [
+        pytest.param(None, id="no-channel"),
+        pytest.param(game_driver.STARTING_PLAYER_CHANNEL_CREATE_ECHO_ONLY, id="create-echo"),
+    ],
+)
+def test_a_lifecycle_failure_without_a_verified_starter_is_unknown(
+    start2, monkeypatch, channel
+) -> None:
+    # P3-1: an unverified starter makes the run not the requested game, so its
+    # failure is UNKNOWN too; a create echo is still never a channel (R3-C3).
+    observed = _observed(state=_state())
+    observed.terminal_facts["starting_player_channel"] = channel
+    observed.failure = "GameDriveError: the bridge stopped before the checkpoint"
+    observed.failure_kind = "ENGINE_RUNTIME_ERROR"
+    row, _ = _start2(start2, monkeypatch, observed)
+    assert row.outcome == "UNKNOWN"
+    assert "not verifiably executed" in row.reason
+
+
+def test_a_lifecycle_failure_the_verified_starter_started_stays_fail(start2, monkeypatch) -> None:
+    # Negative control for P3-1: once the starter is verified this is the
+    # requested game, so its lifecycle failure is still a FAIL.
+    observed = _observed(state=_state())
+    observed.failure = "EngineRuntimeError: the engine closed the stream"
+    observed.failure_kind = "ENGINE_RUNTIME_ERROR"
+    row, _ = _start2(start2, monkeypatch, observed)
+    assert row.outcome == "FAIL"
+    assert "START-2 lifecycle failure" in row.reason
+
+
+def test_a_refusal_the_verified_starter_started_stays_unknown(start2, monkeypatch) -> None:
+    # Moving the seat checks must not reclassify a refusal: a verified game
+    # that then refuses an unauthorized decision is still UNKNOWN.
+    observed = _observed(state=_state())
+    observed.failure = "DecisionUnsatisfied: the engine offered a decision the record lacks"
+    observed.failure_kind = "FAIL_CLOSED_UNSATISFIED"
+    row, _ = _start2(start2, monkeypatch, observed)
+    assert row.outcome == "UNKNOWN"
+    assert "refused a decision the record does not authorize" in row.reason
+
+
 class _CreateOnly:
     """A bridge that records the create request and stops the run at start_game."""
 

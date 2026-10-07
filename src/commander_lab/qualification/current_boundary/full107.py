@@ -683,34 +683,12 @@ def start2_row(
         ],
         "fixture_required_events_are_obligation_statements_not_evidence": True,
     }
-    if game.failure:
-        if game.failure_kind == "FAIL_CLOSED_UNSATISFIED":
-            # The engine offered a decision the record does not authorize (most
-            # importantly its starting-player frame without a declared seat).
-            # Refusing it is not a Rules failure; the obligation is simply not
-            # established. The Lab never chooses the starter to make it pass.
-            return RowResult(
-                fixture_id,
-                candidate,
-                "UNKNOWN",
-                "PROTOCOL2_START2_V1_0_6",
-                "the run refused a decision the record does not authorize, so the "
-                f"CR 103.8a obligation is not established: {game.failure}",
-                evidence,
-            )
-        return RowResult(
-            fixture_id,
-            candidate,
-            "FAIL",
-            "PROTOCOL2_START2_V1_0_6",
-            f"START-2 lifecycle failure: {game.failure}",
-            evidence,
-        )
-    # Which game was run comes first: a game the record's starting player did
-    # not verifiably start is not the requested game, so nothing it shows is a
-    # CR 103.8a verdict either way (UNKNOWN, never FAIL). The channel is the
-    # engine's own frame answer or its start readback (#574); a create-request
-    # echo alone is never a channel.
+    # Which game was run comes first, before any failure verdict: a game the
+    # record's starting player did not verifiably start is not the requested
+    # game, so nothing it shows is a CR 103.8a verdict either way (UNKNOWN,
+    # never FAIL) -- even when the run then fails. The channel is the engine's
+    # own frame answer or its start readback (#574); a create-request echo
+    # alone is never a channel.
     channel = game.terminal_facts.get("starting_player_channel")
     if channel not in VERIFIED_STARTING_PLAYER_CHANNELS:
         return RowResult(
@@ -742,6 +720,30 @@ def start2_row(
             f"the engine gave the first priority to {observed_starting_seat}, but the record's "
             f"starting player is {requested_starting}, so the requested game was "
             "not the one run",
+            evidence,
+        )
+    # The starter is verified, so this *is* the requested game: a refusal to
+    # answer a decision the record does not authorize (most importantly a
+    # starting-player frame without a declared seat) is not a Rules failure and
+    # the obligation is not established (UNKNOWN); anything else is a lifecycle
+    # FAIL. The Lab never chooses the starter to make it pass.
+    if game.failure:
+        if game.failure_kind == "FAIL_CLOSED_UNSATISFIED":
+            return RowResult(
+                fixture_id,
+                candidate,
+                "UNKNOWN",
+                "PROTOCOL2_START2_V1_0_6",
+                "the run refused a decision the record does not authorize, so the "
+                f"CR 103.8a obligation is not established: {game.failure}",
+                evidence,
+            )
+        return RowResult(
+            fixture_id,
+            candidate,
+            "FAIL",
+            "PROTOCOL2_START2_V1_0_6",
+            f"START-2 lifecycle failure: {game.failure}",
             evidence,
         )
     if draw_frames:
