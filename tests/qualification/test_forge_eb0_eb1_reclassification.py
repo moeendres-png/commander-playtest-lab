@@ -40,9 +40,10 @@ EXPECTED_COST_STATE_DETAIL = (
     "mid-cast cost state is caused by casting and paying on the engine's own frames "
     "(the bootstrap has no cost field); the lane casts only through its causal stack route "
     "(#520, #561): complete, modeless spells with declared fuel, either one aimed at a "
-    "commander for a commander zone choice to the graveyard, exile or hand, or a stack the "
+    "commander for a commander zone choice to the graveyard, exile or hand, a stack the "
     "record's scripted priority cast, targets and declared payment answer "
-    "(scripted_decision_offered)"
+    "(scripted_decision_offered), or the victim's own stack before a declared elimination "
+    "(stack_controller_eliminated)"
 )
 
 
