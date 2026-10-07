@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import importlib.util
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -2553,26 +2555,24 @@ def test_contract_1_0_23_adds_only_the_bounded_secondary_6p_record() -> None:
         {"decision": "KEEP", "player_id": f"P{i}", "round": 1} for i in range(1, 7)
     ]
 
-    # The explicit starting-seat declaration, in the forms the 2P-5P records and
-    # START-2 use, consumed by starting_player.record_starting_seat: the
-    # pre-first-turn temporal_state active player (P1, turn 0) and the scripted
-    # starting_player step with the fail-closed seat selector P1 (they agree).
+    # The starting-seat declaration uses the 5P model's channel: the
+    # pre-first-turn temporal_state.active_player (P1, turn 0), consumed by
+    # starting_player.record_starting_seat. The 6P record adds no separate
+    # scripted starting_player step, so its declaration source is exactly the
+    # PLAYER_COUNT_5P record's source.
     from commander_lab.qualification.current_boundary import starting_player
 
     assert record["temporal_state"]["turn_number"] == 0
     assert record["temporal_state"]["active_player"] == "P1"
-    step = record["decision_script"][0]
-    assert (step["actor"], step["decision_family"]) == ("P1", "starting_player")
-    assert step["selection"]["selector_kind"] == "seat"
-    assert step["selection"]["semantic_value"] == "P1"
-    assert (
-        step["selection"]["on_zero_match"]
-        == step["selection"]["on_multiple_match"]
-        == ("FAIL_CLOSED")
-    )
-    assert starting_player.record_starting_seat(record) == (
+    assert [(step["actor"], step["decision_family"]) for step in record["decision_script"]] == [
+        (f"P{i}", "mulligan") for i in range(1, 7)
+    ]
+    assert starting_player.record_starting_seat(model) == (
         "p1",
-        starting_player.STARTER_DECLARATION_SCRIPT,
+        starting_player.STARTER_DECLARATION_PRE_FIRST_TURN,
+    )
+    assert starting_player.record_starting_seat(record) == starting_player.record_starting_seat(
+        model
     )
 
     # The record is digest-bound, and its digests are computed from its bytes.
@@ -2588,24 +2588,176 @@ def test_contract_1_0_23_adds_only_the_bounded_secondary_6p_record() -> None:
     assert record["construction_validation"]["required"] is True
 
 
-def test_contract_1_0_23_generator_regenerates_byte_identically() -> None:
+# The resolver/generator tests below read and write a disposable copy of the
+# repository inputs. They must never mutate REPO_ROOT, and the generator must be
+# proven byte-deterministic without writing into the checkout.
+_TEMP_REPO_FILES: dict[str, Path] = {
+    "scripts/resolve_pre_freeze_contract.py": REPO_ROOT / "scripts/resolve_pre_freeze_contract.py",
+    "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": AUTHORITY_PATH,
+    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json": (
+        PREDECESSOR_CONTRACT_PATH
+    ),
+    "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_22_SUCCESSOR.json": (
+        REPO_ROOT
+        / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_22_SUCCESSOR.json"
+    ),
+    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json": SUCCESSOR_PATH,
+    "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_23_SUCCESSOR.json": (
+        MATERIALIZATION_SCHEMA_PATH
+    ),
+    "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json": (
+        REPO_ROOT / "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json"
+    ),
+    "qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json": (
+        REPO_ROOT / "qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json"
+    ),
+    "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json": LEDGER_PATH,
+}
+
+
+def _temp_repo(tmp_path: Path) -> Path:
+    """A disposable repo root holding copies of exactly the files the resolver
+    and the 1.0.23 generator read or write, so tests can mutate contract bytes
+    without touching REPO_ROOT."""
+    root = tmp_path / "repo"
+    for relative, source in _TEMP_REPO_FILES.items():
+        target = root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+    return root
+
+
+def _resolver_at(root: Path):
+    """Load the resolver copy at ``root`` (its REPO_ROOT is ``root``)."""
+    path = root / "scripts/resolve_pre_freeze_contract.py"
+    spec = importlib.util.spec_from_file_location(f"pre_freeze_resolver_{abs(hash(root))}", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _successor_contract_path(root: Path) -> Path:
+    return root / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
+
+
+def test_contract_1_0_23_generator_regenerates_byte_identically(tmp_path: Path) -> None:
     """The 1.0.22 precedent: the contract, schema, pointer and ledger are always
-    regenerated from the 1.0.22 bytes, so a second run is byte-identical."""
-    outputs = [
-        SUCCESSOR_PATH,
-        MATERIALIZATION_SCHEMA_PATH,
-        AUTHORITY_PATH,
-        LEDGER_PATH,
-    ]
-    before = {path: path.read_bytes() for path in outputs}
+    regenerated from the 1.0.22 bytes, so a second run is byte-identical. The
+    regeneration runs against a disposable copy of the inputs (#602 review P3):
+    it writes into the temp root and REPO_ROOT stays byte-identical."""
+    root = _temp_repo(tmp_path)
+    targets = {
+        "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json": SUCCESSOR_PATH,
+        "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_23_SUCCESSOR.json": (
+            MATERIALIZATION_SCHEMA_PATH
+        ),
+        "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": AUTHORITY_PATH,
+        "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json": LEDGER_PATH,
+    }
+    before = {relative: target.read_bytes() for relative, target in targets.items()}
     subprocess.run(
-        [sys.executable, str(GENERATOR_1_0_23), str(REPO_ROOT)],
+        [sys.executable, str(GENERATOR_1_0_23), str(root)],
         check=True,
         capture_output=True,
         text=True,
     )
-    after = {path: path.read_bytes() for path in outputs}
-    assert after == before
+    for relative, target in targets.items():
+        assert (root / relative).read_bytes() == before[relative]
+        assert target.read_bytes() == before[relative], f"REPO_ROOT was mutated: {relative}"
+
+
+def test_contract_1_0_23_generator_reproduces_the_committed_bytes(tmp_path: Path) -> None:
+    """The committed 1.0.23 bytes are exactly the generator's output: a fresh run
+    against the 1.0.22 inputs reproduces them, so no manual edit can hide."""
+    root = _temp_repo(tmp_path)
+    subprocess.run(
+        [sys.executable, str(GENERATOR_1_0_23), str(root)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    for relative in _TEMP_REPO_FILES:
+        if "pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23" in relative or (
+            "SEMANTIC_FIXTURE_SCHEMA_v1_0_23" in relative
+        ):
+            assert (root / relative).read_bytes() == (REPO_ROOT / relative).read_bytes()
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "denominator_effect_not_none",
+        "duplicate_fixture_id",
+        "empty_fixture_id",
+        "requested_state_digest_mismatch",
+        "materialization_digest_mismatch",
+    ],
+)
+def test_bounded_secondary_records_reject_malformed_sections(tmp_path: Path, case: str) -> None:
+    """The resolver's bounded-secondary contract paths fail closed (#602 review
+    P2): a section that is not denominator-neutral, a duplicate or empty
+    fixture_id, or a bounded record whose own digest does not match its bytes
+    is a ContractError, never a silent acceptance."""
+    root = _temp_repo(tmp_path)
+    path = _successor_contract_path(root)
+    contract = _json(path)
+    section = contract["bounded_secondary_records"]
+    record = section["records"][0]
+    resolver = _resolver_at(root)
+    if case == "denominator_effect_not_none":
+        section["denominator_effect"] = "NONZERO_BY_MUTATION"
+    elif case == "duplicate_fixture_id":
+        section["records"] = [record, copy.deepcopy(record)]
+    elif case == "empty_fixture_id":
+        # Keep the record otherwise digest-consistent, so only the malformed-id
+        # check can reject it (a stale digest would fail for the wrong reason).
+        record["fixture_id"] = ""
+        record["requested_state_digest"] = resolver.requested_state_digest(record)
+        record["obligation_digest"] = resolver.obligation_digest(record)
+        record["materialization_digest"] = resolver.materialization_digest(record)
+    elif case == "requested_state_digest_mismatch":
+        # Corrupt only the requested-state projection and keep the whole-record
+        # materialization digest consistent, so only this check can reject it.
+        record["requested_state_digest"] = "0" * 64
+        record["materialization_digest"] = resolver.materialization_digest(record)
+    else:
+        assert case == "materialization_digest_mismatch"
+        record["materialization_digest"] = "0" * 64
+    path.write_text(json.dumps(contract, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    with pytest.raises(resolver.ContractError):
+        resolver.bounded_secondary_records()
+
+
+def test_a_bounded_secondary_record_that_is_a_denominator_row_is_refused(tmp_path: Path) -> None:
+    """The overlap guard in ``load_effective_materialization`` (#602 review P2):
+    a bounded-secondary record named for a FULL107 denominator row is a
+    fail-closed RuntimeError, never a silent denominator move. The injected
+    record is fully digest-consistent, so only the overlap can reject it, and
+    the pristine copy still loads."""
+    from commander_lab.qualification.current_boundary.materialization import (
+        load_effective_materialization,
+    )
+
+    root = _temp_repo(tmp_path)
+    pristine = load_effective_materialization(root)
+    assert [item["fixture_id"] for item in pristine.bounded_secondary_records()] == [
+        "PLAYER_COUNT_6P"
+    ]
+
+    resolver = _resolver_at(root)
+    path = _successor_contract_path(root)
+    contract = _json(path)
+    record = contract["bounded_secondary_records"]["records"][0]
+    record["fixture_id"] = "PLAYER_COUNT_5P"
+    record["requested_state_digest"] = resolver.requested_state_digest(record)
+    record["obligation_digest"] = resolver.obligation_digest(record)
+    record["materialization_digest"] = resolver.materialization_digest(record)
+    path.write_text(json.dumps(contract, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="bounded-secondary record"):
+        load_effective_materialization(root)
 
 
 def test_the_bounded_secondary_6p_record_is_never_a_denominator_row() -> None:
@@ -2684,7 +2836,7 @@ def test_run_cardinality_uses_the_6p_records_starting_seat_or_fails_closed(
     assert record is not None
     assert starting_player.record_starting_seat(record) == (
         "p1",
-        starting_player.STARTER_DECLARATION_SCRIPT,
+        starting_player.STARTER_DECLARATION_PRE_FIRST_TURN,
     )
 
     seen: dict = {}
@@ -2699,7 +2851,7 @@ def test_run_cardinality_uses_the_6p_records_starting_seat_or_fails_closed(
         object(), candidate="xmage", player_count=6, runtime_identity={}, record=record
     )
     assert seen["scripted_starting_seat"] == "p1"
-    assert seen["starting_seat_source"] == starting_player.STARTER_DECLARATION_SCRIPT
+    assert seen["starting_seat_source"] == starting_player.STARTER_DECLARATION_PRE_FIRST_TURN
     assert seen["seed"] == record["rules_randomness"]["rules_seed"] == 424242
     assert seen["mulligan_plan"] == tuple((f"p{i}", True) for i in range(1, 7))
     assert seen["decks"] is not None and len(seen["decks"]) == 6

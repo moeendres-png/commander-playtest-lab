@@ -21012,28 +21012,6 @@
     "decision_script": [
      {
       "actor": "P1",
-      "causal_step_id": "start-P1",
-      "decision_family": "starting_player",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "CR 103.1: the starting player is a player's choice; P1 is the record's starting player (temporal_state.active_player), scripted, never a lane default",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "seat",
-       "semantic_value": "P1"
-      }
-     },
-     {
-      "actor": "P1",
       "causal_step_id": "keep-P1",
       "decision_family": "mulligan",
       "forbidden_fallbacks": [
@@ -21322,7 +21300,7 @@
       }
      ]
     },
-    "materialization_digest": "96e3d651c0af0f578237cee52a50feb9437809f64c87c7bcb449645bcf90492c",
+    "materialization_digest": "0b33d2c83a10ac4c3f921b83115b4f158cbed5f790c115a0d46a7cda14d928ff",
     "materialization_status": "BOUNDED_SECONDARY_NON_DENOMINATOR",
     "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.23-successor",
     "native_procedure": [

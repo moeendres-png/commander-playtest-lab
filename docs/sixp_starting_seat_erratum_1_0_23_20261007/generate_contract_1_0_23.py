@@ -19,11 +19,12 @@ record, modelled on the existing PLAYER_COUNT_5P record:
   template, opening hand 7, one seeded ``library_shuffle:Pn`` channel per seat);
 * an explicit integer ``rules_seed`` (424242, the PLAYER_COUNT_5P value);
 * the same NATURAL_GAME_START pregame plan with one round-1 keep per seat;
-* an explicit starting-seat declaration exactly in the form the 2P-5P records /
-  START-2 use, consumed by ``starting_player.record_starting_seat``: the
-  pre-first-turn ``temporal_state.active_player`` (P1, turn 0), plus the
-  scripted ``starting_player`` step with the fail-closed ``seat`` selector P1.
-  The two declarations agree, so the parser has one unambiguous declaration.
+* a starting-seat declaration exactly in the form the 2P-5P model records use,
+  consumed by ``starting_player.record_starting_seat``: the pre-first-turn
+  ``temporal_state.active_player`` (P1, turn 0). The record declares the
+  pre-first-turn active player; it adds no separate scripted
+  ``starting_player`` step, so its declaration channel is identical to the
+  PLAYER_COUNT_5P record's.
 
 The record is authoritative only as the ``record`` argument of the 6P
 ``run_cardinality`` call. It never becomes a FULL107 row, never changes the
@@ -64,16 +65,6 @@ MODEL_FIXTURE = "PLAYER_COUNT_5P"
 NEW_VERSION = "1.0.23"
 NEW_MINOR = "23"
 
-FORBIDDEN = [
-    "first_option",
-    "random_option",
-    "default_yes_no",
-    "internal_ai",
-    "gui_default",
-    "silent_skip",
-    "parent_class_fallback",
-]
-
 raw = src.read_bytes()
 contract = json.loads(raw)
 authority = json.loads((REPO / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json").read_text())
@@ -97,27 +88,6 @@ assert model["temporal_state"] == {
 
 
 # --- the bounded-secondary 6P record ---------------------------------------- #
-
-
-def _start_step() -> dict:
-    """The START-2 / MULL-2 declaration shape record_starting_seat consumes."""
-    return {
-        "actor": "P1",
-        "causal_step_id": "start-P1",
-        "decision_family": "starting_player",
-        "forbidden_fallbacks": list(FORBIDDEN),
-        "notes": (
-            "CR 103.1: the starting player is a player's choice; P1 is the record's "
-            "starting player (temporal_state.active_player), scripted, never a lane default"
-        ),
-        "selection": {
-            "matches_only_provider_offered_legal_options": True,
-            "on_multiple_match": "FAIL_CLOSED",
-            "on_zero_match": "FAIL_CLOSED",
-            "selector_kind": "seat",
-            "semantic_value": "P1",
-        },
-    }
 
 
 def _sixp() -> dict:
@@ -160,13 +130,15 @@ def _sixp() -> dict:
     }
     record["pregame_decision_plan"].append({"decision": "KEEP", "player_id": "P6", "round": 1})
 
-    # The scripted starting-seat declaration, ahead of the six keeps, exactly in
-    # the form the 2P-5P records / START-2 use (both accepted, and agreeing).
+    # No separate scripted starting_player step: the 6P record declares the seat
+    # through the same channel as its PLAYER_COUNT_5P model (and 2P-4P), the
+    # pre-first-turn temporal_state.active_player consumed by
+    # starting_player.record_starting_seat. Only the six keeps are scripted.
     keeps = copy.deepcopy(record["decision_script"])
     assert [step["actor"] for step in keeps] == [f"P{i}" for i in range(1, 6)]
     keeps.append({**copy.deepcopy(keeps[-1]), "actor": "P6", "causal_step_id": "keep-P6"})
-    record["decision_script"] = [_start_step(), *keeps]
-    for index, step in enumerate(record["decision_script"][1:], start=1):
+    record["decision_script"] = keeps
+    for index, step in enumerate(record["decision_script"], start=1):
         assert step["decision_family"] == "mulligan" and step["actor"] == f"P{index}"
 
     procedure = copy.deepcopy(record["native_procedure"])

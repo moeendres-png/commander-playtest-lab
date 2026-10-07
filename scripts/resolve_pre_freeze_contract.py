@@ -218,6 +218,8 @@ def bounded_secondary_records() -> list[dict[str, Any]]:
             raise ContractError(f"bounded-secondary requested-state digest mismatch: {fixture_id}")
         if record.get("obligation_digest") != obligation_digest(record):
             raise ContractError(f"bounded-secondary obligation digest mismatch: {fixture_id}")
+        if record.get("materialization_digest") != materialization_digest(record):
+            raise ContractError(f"bounded-secondary materialization digest mismatch: {fixture_id}")
         records.append(record)
     return records
 
