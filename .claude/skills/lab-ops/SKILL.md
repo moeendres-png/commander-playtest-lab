@@ -18,6 +18,7 @@ change GitHub state. Run them from the Lab worktree root.
 | Re-run only jobs that died on infrastructure (runner never acquired, operation canceled; no failed step) | `scripts/gh_ops.py rerun-cancelled [--dry-run] 559 552` |
 | Wait for CI on PRs / for one workflow run | `scripts/gh_ops.py wait 544` · `scripts/gh_ops.py run RUN_ID` (background) |
 | Dispatch a `/oc` or `/bunny` task from a skeleton (fixed footer: trailers, evidence rules, no force-push, open PR never merge) and watch the outcome in ≤15 lines | `scripts/oc_dispatch.py post --issue N --lane oc --task .claude/skills/lab-ops/oc_tasks/<template>.md [--branch B]` · `scripts/oc_dispatch.py watch RUN` (background) |
+| Recover the work of a failed or cancelled `/oc`/`/bunny` run (its action token expires after an hour; the run then uploads an `opencode-rescue-*` bundle) | `scripts/oc_dispatch.py rescue RUN [--out DIR]`, then the printed `git fetch …/work.bundle` |
 | Cold-start index for a fresh session (baton owners, heads per repo, dirty/unpushed worktrees, open decisions) | `python3 scripts/claude_handoff.py` → `docs/claude/state/HANDOFF.md` |
 | PB-03 packet: identity, sha256 check, AF00-AF11 per candidate | `scripts/pb03_packet.py RUN_ID OUT [--into .]` |
 | Seal an epoch (packet + manifests + the required secret scan, before any push) | `scripts/seal.py RUN_ID [--replace OLD_EPOCH]` on a fresh branch from main |
