@@ -4,16 +4,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import mage.constants.Zone;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -28,23 +32,27 @@ import static org.junit.jupiter.api.Assertions.fail;
  * <p>NEGATIVE_PARENT_CLASS_FALLBACK requests {@code execution_entry_mode
  * NATIVE_STATE_LOAD} with a {@code NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL}
  * native-procedure step on P2's Syphon Mind, whose {@code stack_state} entry
- * declares {@code cast_complete true} and {@code costs_paid true} with no
- * targets or modes. The record's declared temporal state has P1 active in P1's
- * precombat main, so a sorcery controlled by P2 could not have been cast there
- * (CR 307.1/307.5): the resume refuses the unreachable state with
- * {@code UNSUPPORTED_RESUME_TIMING} and mutates nothing. A timing-reachable
- * variant (P2 active in its own main, the cast-from zone declared) exercises
- * the resume itself: it never casts, pays, targets or chooses, the
- * engine-direct readback must match source card, identity, controller, kind
- * and card zone, and any mismatch fails the construction closed.</p>
+ * declares {@code cast_complete true}, {@code costs_paid true} and the
+ * cast-from zone, with no targets or modes. Contract 1.0.25 also declares the
+ * record's turn-2 temporal state (P2 active in P2's own precombat main after
+ * the engine's own turn 1) and P1's scripted turn-1 cleanup discard (one
+ * Mountain, CR 514.1), so the checkpoint is reachable through the engine's
+ * own turn structure. The cleanup {@code choose_object} frame is answered
+ * from the record's own card-name multiset -- by name, never first or
+ * positionally, least option id among same-name copies -- and a red control
+ * shows an answer naming a card outside the script is rejected. The resume
+ * itself never casts, pays, targets or chooses; the engine-direct readback
+ * must match source card, identity, controller, kind and card zone, and any
+ * mismatch fails the construction closed. An undeclared cast-from zone is
+ * refused with its named code rather than defaulting to HAND.</p>
  *
- * <p>The parent-class-fallback negative runs on the timing-reachable variant:
- * when the declared spell resolves, XMage asks P1 to discard. The bridge only
- * publishes that {@code choose_object} frame; no parent-class/AI fallback
- * answers it, so the same decision stays pending until an external client
- * answers. The wrong-reason control at the end of that test answers the frame
- * explicitly and shows the game then advances, which is exactly the condition
- * the pending-frame equality would detect.</p>
+ * <p>The parent-class-fallback negative runs on the corrected record: when the
+ * declared spell resolves, XMage asks P1 to discard. The bridge only publishes
+ * that {@code choose_object} frame; no parent-class/AI fallback answers it, so
+ * the same decision stays pending until an external client answers. The
+ * wrong-reason control at the end of that test answers the frame explicitly
+ * and shows the game then advances, which is exactly the condition the
+ * pending-frame equality would detect.</p>
  */
 class XmageMidgameFullyCastStackResumeTest {
 
@@ -181,23 +189,134 @@ class XmageMidgameFullyCastStackResumeTest {
         return null;
     }
 
-    private static String labelled(JsonObject decision, String label) {
+    private static String firstOptionLabelled(JsonObject decision, String label) {
         for (JsonElement element : decision.getAsJsonArray("legal_options")) {
             JsonObject option = element.getAsJsonObject();
             if (option.get("label").getAsString().endsWith(label)) {
                 return option.get("option_id").getAsString();
             }
         }
-        fail("no option labelled " + label);
         return null;
     }
 
-    private static void submit(Lane lane, JsonObject decision, String optionId) {
+    /**
+     * The record's own card-name multiset for its scripted cleanup discard
+     * (CR 514.1; contract 1.0.25 declares exactly one Mountain for P1's turn-1
+     * cleanup). The frame is answered from this multiset only.
+     */
+    private static Map<String, Integer> scriptedCleanupDiscard(JsonObject record) {
+        for (JsonElement element : record.getAsJsonArray("decision_script")) {
+            JsonObject step = element.getAsJsonObject();
+            if (!"cleanup_discard".equals(step.get("decision_family").getAsString())) {
+                continue;
+            }
+            JsonObject selection = step.getAsJsonObject("selection");
+            if (!"card_identity_multiset".equals(selection.get("selector_kind").getAsString())) {
+                fail("the cleanup_discard script is not a card-identity multiset: " + step);
+            }
+            Map<String, Integer> multiset = new TreeMap<>();
+            for (Map.Entry<String, JsonElement> entry
+                    : selection.getAsJsonObject("semantic_value").entrySet()) {
+                multiset.put(entry.getKey(), entry.getValue().getAsInt());
+            }
+            return multiset;
+        }
+        fail("the record declares no cleanup_discard script");
+        return null;
+    }
+
+    /**
+     * The option ids the record's cleanup-discard multiset selects from the
+     * engine's own offer: candidates are matched by card name only, never by
+     * position, and among same-name copies the least option id is taken (the
+     * copies share one identity, so their relative order is not a choice the
+     * record could make). The selection is re-validated against the record by
+     * {@link #requireScriptedCleanupSelection} before it is returned, and the
+     * frame's own selection bounds must authorize the multiset's total.
+     */
+    private static List<String> scriptedCleanupSelection(JsonObject record, JsonObject decision) {
+        Map<String, Integer> multiset = scriptedCleanupDiscard(record);
+        List<JsonObject> offers = new ArrayList<>();
+        for (JsonElement element : decision.getAsJsonArray("legal_options")) {
+            offers.add(element.getAsJsonObject());
+        }
+        List<String> selected = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : multiset.entrySet()) {
+            List<JsonObject> named = new ArrayList<>();
+            for (JsonObject offer : offers) {
+                if (entry.getKey().equals(offer.get("label").getAsString())) {
+                    named.add(offer);
+                }
+            }
+            if (named.size() < entry.getValue()) {
+                fail("the record scripts " + entry.getValue() + " " + entry.getKey()
+                        + " but the engine offers " + named.size());
+            }
+            named.sort(Comparator.comparing(offer -> offer.get("option_id").getAsString()));
+            for (JsonObject offer : named.subList(0, entry.getValue())) {
+                selected.add(offer.get("option_id").getAsString());
+            }
+        }
+        requireScriptedCleanupSelection(decision, selected, multiset);
+        int min = decision.get("minimum_selections").getAsInt();
+        int max = decision.get("maximum_selections").getAsInt();
+        if (selected.size() < min || selected.size() > max) {
+            fail("the record scripts " + selected.size() + " discards, the engine asks "
+                    + min + ".." + max);
+        }
+        return selected;
+    }
+
+    /**
+     * Rejects a cleanup-discard answer that is not exactly the record's own
+     * multiset: every selected option must be offered and carry a scripted
+     * card name, and no name may be picked more often than the record scripts
+     * it. This is the gate the transport runs before submitting, so a lenient
+     * picker (first option, least option id, any positional rule) cannot pass:
+     * an answer that picks a card the script never names is rejected.
+     */
+    private static void requireScriptedCleanupSelection(
+            JsonObject decision, List<String> selectedOptionIds, Map<String, Integer> multiset) {
+        Map<String, JsonObject> offered = new HashMap<>();
+        for (JsonElement element : decision.getAsJsonArray("legal_options")) {
+            JsonObject option = element.getAsJsonObject();
+            offered.put(option.get("option_id").getAsString(), option);
+        }
+        Map<String, Integer> counted = new TreeMap<>();
+        for (String optionId : selectedOptionIds) {
+            JsonObject option = offered.get(optionId);
+            if (option == null) {
+                fail("the cleanup answer names an option the engine never offered: " + optionId);
+            }
+            String name = option.get("label").getAsString();
+            if (!multiset.containsKey(name)) {
+                fail("the cleanup answer picks " + name
+                        + ", which the record's cleanup_discard script never names");
+            }
+            counted.merge(name, 1, Integer::sum);
+        }
+        for (Map.Entry<String, Integer> entry : counted.entrySet()) {
+            if (entry.getValue() > multiset.get(entry.getKey())) {
+                fail("the cleanup answer picks " + entry.getValue() + " " + entry.getKey()
+                        + ", the record scripts " + multiset.get(entry.getKey()));
+            }
+        }
+    }
+
+    /** A crafted option in the engine's own frame shape, for control tests. */
+    private static JsonObject offeredOption(String optionId, String label) {
+        JsonObject option = new JsonObject();
+        option.addProperty("option_id", optionId);
+        option.addProperty("label", label);
+        return option;
+    }
+
+    private static void submit(Lane lane, JsonObject decision, List<String> optionIds) {
         JsonObject response = new JsonObject();
         response.addProperty("decision_id", decision.get("decision_id").getAsString());
         response.addProperty("actor_id", decision.get("actor_id").getAsString());
         JsonArray selected = new JsonArray();
-        selected.add(optionId);
+        optionIds.forEach(selected::add);
         response.add("selected_option_ids", selected);
         response.add("ordering", new JsonArray());
         JsonObject request = new JsonObject();
@@ -205,9 +324,42 @@ class XmageMidgameFullyCastStackResumeTest {
         lane.ok("submit_midgame_decision", request);
     }
 
-    private static int startingSeatFor(JsonObject record) {
-        String seat = record.getAsJsonObject("temporal_state").get("active_player").getAsString();
+    private static void submit(Lane lane, JsonObject decision, String optionId) {
+        submit(lane, decision, List.of(optionId));
+    }
+
+    /**
+     * The seat the record itself declares as the starting player: the
+     * {@code starting_player} decision-script step's seat (CR 103.1). The
+     * turn-2 checkpoint's active player is never turned into a starter by
+     * seat arithmetic; an absent or ambiguous declaration fails closed.
+     */
+    private static int startingPlayerSeatFor(JsonObject record) {
+        String seat = null;
+        for (JsonElement element : record.getAsJsonArray("decision_script")) {
+            JsonObject step = element.getAsJsonObject();
+            if (!"starting_player".equals(step.get("decision_family").getAsString())) {
+                continue;
+            }
+            JsonObject selection = step.getAsJsonObject("selection");
+            if (!"seat".equals(selection.get("selector_kind").getAsString())) {
+                fail("the starting_player script is not a seat selector: " + step);
+            }
+            String declared = selection.get("semantic_value").getAsString();
+            if (seat != null && !seat.equals(declared)) {
+                fail("the record declares two different starting seats: " + seat
+                        + " and " + declared);
+            }
+            seat = declared;
+        }
+        if (seat == null) {
+            fail("the record declares no starting_player script step");
+        }
         return Integer.parseInt(seat.substring(1)) - 1;
+    }
+
+    private static String startingPlayerLabel(JsonObject record) {
+        return "Full Game Seat " + (startingPlayerSeatFor(record) + 1);
     }
 
     private static JsonObject createRequest(String gameId, JsonObject record) {
@@ -216,14 +368,41 @@ class XmageMidgameFullyCastStackResumeTest {
         create.addProperty("plan_id", gameId);
         create.addProperty("seed", SEED);
         create.add("requested_starting_state", record);
-        create.addProperty("starting_player_seat", startingSeatFor(record));
+        create.addProperty("starting_player_seat", startingPlayerSeatFor(record));
         return create;
     }
 
     /** The engine's choice frames during arrival are answered for the declared starting seat. */
     private static String startingSeatLabel(JsonObject record) {
-        String seat = record.getAsJsonObject("temporal_state").get("active_player").getAsString();
-        return "Full Game Seat " + seat.substring(1);
+        return startingPlayerLabel(record);
+    }
+
+    /**
+     * One arrival frame that is not a {@code priority} frame, answered for the
+     * record's own declarations: mulligans keep, a seat choice is answered at
+     * the record's declared starting seat, the cleanup discard comes from the
+     * record's scripted card-name multiset, and turn-1 combat (which the record
+     * declares none of) holds every legal attacker. Anything else fails closed.
+     */
+    private static void answerArrivalFrame(Lane lane, JsonObject record, JsonObject decision) {
+        String decisionClass = decision.get("decision_class").getAsString();
+        if ("mulligan".equals(decisionClass)) {
+            submit(lane, decision, option(decision, "keep"));
+        } else if ("choice".equals(decisionClass) || "choose_object".equals(decisionClass)) {
+            String bySeat = firstOptionLabelled(decision, startingSeatLabel(record));
+            if (bySeat != null) {
+                submit(lane, decision, bySeat);
+            } else {
+                submit(lane, decision, scriptedCleanupSelection(record, decision));
+            }
+        } else if ("declare_attacker".equals(decisionClass)) {
+            // The record declares no turn-1 combat. Holding every legal
+            // attacker is the engine's own no-attack outcome (the only
+            // declaration consistent with the record); no attack is chosen.
+            submit(lane, decision, option(decision, "hold_attacker"));
+        } else {
+            fail("unexpected decision during arrival: " + decisionClass);
+        }
     }
 
     /**
@@ -239,45 +418,50 @@ class XmageMidgameFullyCastStackResumeTest {
             JsonObject decision = pendingDecision(lane);
             assertNotNull(decision, "the engine stopped offering decisions before the checkpoint");
             String decisionClass = decision.get("decision_class").getAsString();
-            if ("mulligan".equals(decisionClass)) {
-                submit(lane, decision, option(decision, "keep"));
-            } else if ("choice".equals(decisionClass) || "choose_object".equals(decisionClass)) {
-                submit(lane, decision, labelled(decision, startingSeatLabel(record)));
-            } else if ("priority".equals(decisionClass)) {
+            if ("priority".equals(decisionClass)) {
                 JsonObject arrival = lane.ok("complete_midgame_arrival", new JsonObject());
-                if ("PRECOMBAT_MAIN".equals(
-                        arrival.getAsJsonObject("observation").get("phase").getAsString())) {
+                JsonObject observation = arrival.getAsJsonObject("observation");
+                JsonObject temporal = record.getAsJsonObject("temporal_state");
+                // Only the record's declared turn is the checkpoint: an
+                // earlier turn's precombat main (turn 1, P1) is passed
+                // through by the engine's own priority rotation.
+                if (observation.get("turn_number").getAsInt()
+                                == temporal.get("turn_number").getAsInt()
+                        && "PRECOMBAT_MAIN".equals(observation.get("phase").getAsString())) {
                     return arrival;
                 }
                 submit(lane, decision, option(decision, "pass_priority"));
             } else {
-                fail("unexpected decision during arrival: " + decisionClass);
+                answerArrivalFrame(lane, record, decision);
             }
         }
         fail("the checkpoint was never reached");
         return null;
     }
 
-    private static JsonObject actorRequest(String actorId) {
-        JsonObject payload = new JsonObject();
-        payload.addProperty("actor_id", actorId);
-        return payload;
-    }
-
-    /** The P1 seat's own hand identities from a principal-scoped projection. */
-    private static List<String> actorHandNames(JsonObject projection) {
-        List<String> names = new ArrayList<>();
-        for (JsonElement element : projection.getAsJsonObject("view").getAsJsonArray("players")) {
-            JsonObject player = element.getAsJsonObject();
-            if (!player.get("is_actor").getAsBoolean() || !player.has("hand")) {
-                continue;
-            }
-            for (JsonElement card : player.getAsJsonArray("hand")) {
-                names.add(card.getAsJsonObject().get("name").getAsString());
+    /**
+     * Drives the record to its checkpoint and returns the first refused
+     * completion (a checkpoint whose construction is refused fails closed at
+     * the same place the production driver would refuse it).
+     */
+    private static JsonObject arriveExpectingRefusal(Lane lane, String gameId, JsonObject record) {
+        lane.ok("create_midgame_game", createRequest(gameId, record));
+        lane.ok("start_midgame_game", null);
+        for (int step = 0; step < 80; step++) {
+            JsonObject decision = pendingDecision(lane);
+            assertNotNull(decision, "the engine stopped offering decisions before the checkpoint");
+            if ("priority".equals(decision.get("decision_class").getAsString())) {
+                JsonObject response = lane.call("complete_midgame_arrival", new JsonObject());
+                if (!response.get("success").getAsBoolean()) {
+                    return response;
+                }
+                submit(lane, decision, option(decision, "pass_priority"));
+            } else {
+                answerArrivalFrame(lane, record, decision);
             }
         }
-        Collections.sort(names);
-        return names;
+        fail("the checkpoint was never reached");
+        return null;
     }
 
     // ------------------------------------------------------------------
@@ -294,9 +478,10 @@ class XmageMidgameFullyCastStackResumeTest {
         assertEquals("Syphon Mind", declared.cardIdentity());
         assertEquals("P2", declared.owner());
         assertEquals("P2", declared.controller());
-        // The shipped record declares no cast-from zone; the resume refuses
-        // it (UNDECLARED_RESUME_CAST_ZONE) rather than defaulting to HAND.
-        assertNull(declared.fromZone());
+        // Contract 1.0.24 declares the cast-from zone (CR 601.2a); the
+        // route still refuses an absent zone rather than defaulting to HAND
+        // (see anUndeclaredCastZoneIsRefusedOnTheRealEngine).
+        assertEquals(Zone.HAND, declared.fromZone());
         assertEquals("NATIVE_STATE_LOAD", record.get("execution_entry_mode").getAsString());
     }
 
@@ -375,118 +560,48 @@ class XmageMidgameFullyCastStackResumeTest {
     }
 
     // ------------------------------------------------------------------
-    // Real engine: the unreachable record is refused and changes nothing.
-    // ------------------------------------------------------------------
-
-    @Test
-    void theUnreachableTimingResumeIsRefusedAndNothingIsMutated() {
-        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
-        JsonObject create = createRequest(FIXTURE, effectiveRecord(FIXTURE));
-        lane.ok("create_midgame_game", create);
-        lane.ok("start_midgame_game", null);
-
-        List<String> handBeforeRefusal = new ArrayList<>();
-        int offsetBeforeRefusal = -1;
-        String decisionBeforeRefusal = null;
-        JsonObject refusal = null;
-        for (int step = 0; step < 80; step++) {
-            JsonObject decision = pendingDecision(lane);
-            assertNotNull(decision, "the engine stopped offering decisions before the checkpoint");
-            String decisionClass = decision.get("decision_class").getAsString();
-            if ("mulligan".equals(decisionClass)) {
-                submit(lane, decision, option(decision, "keep"));
-                continue;
-            }
-            if (!"priority".equals(decisionClass)) {
-                submit(lane, decision, labelled(decision, startingSeatLabel(effectiveRecord(FIXTURE))));
-                continue;
-            }
-            // Baselines immediately before the completion attempt: P1's own
-            // hand, the public tape offset and the pending priority frame.
-            handBeforeRefusal.clear();
-            handBeforeRefusal.addAll(
-                    actorHandNames(lane.ok("get_midgame_projection", actorRequest("P1"))));
-            offsetBeforeRefusal = lane.ok("get_midgame_events", new JsonObject())
-                    .get("latest_offset").getAsInt();
-            decisionBeforeRefusal = decision.get("decision_id").getAsString();
-            JsonObject response = lane.call("complete_midgame_arrival", new JsonObject());
-            if (!response.get("success").getAsBoolean()) {
-                refusal = response;
-                break;
-            }
-            submit(lane, decision, option(decision, "pass_priority"));
-        }
-        assertNotNull(refusal, "the unreachable resume must be refused at the checkpoint");
-        String errors = refusal.getAsJsonArray("errors").toString();
-        assertTrue(errors.contains("UNSUPPORTED_RESUME_TIMING"), errors);
-
-        // Nothing was cast, resolved or chosen: the tape did not move, P1's
-        // hand is untouched, and the engine still stands on the same frame.
-        JsonObject events = lane.ok("get_midgame_events", actorRequest("P1"));
-        assertEquals(offsetBeforeRefusal, events.get("latest_offset").getAsInt(),
-                "the refused resume must not emit any event");
-        JsonObject afterEvents = new JsonObject();
-        afterEvents.addProperty("after_offset", offsetBeforeRefusal);
-        assertEquals(0, lane.ok("get_midgame_events", afterEvents)
-                .getAsJsonArray("events").size(), "no event may follow the refusal");
-        assertEquals(handBeforeRefusal,
-                actorHandNames(lane.ok("get_midgame_projection", actorRequest("P1"))),
-                "P1's hand must be unchanged by the refused resume");
-        JsonObject pending = pendingDecision(lane);
-        assertNotNull(pending, "the engine must stay parked after the refusal");
-        assertEquals(decisionBeforeRefusal, pending.get("decision_id").getAsString(),
-                "the refused resume must not advance the engine");
-
-        // A second completion attempt refuses identically: no partial resume.
-        JsonObject again = lane.call("complete_midgame_arrival", new JsonObject());
-        assertTrue(again.getAsJsonArray("errors").toString().contains("UNSUPPORTED_RESUME_TIMING"),
-                again.toString());
-        assertEquals(offsetBeforeRefusal, lane.ok("get_midgame_events", new JsonObject())
-                .get("latest_offset").getAsInt());
-    }
-
-    @Test
-    void anUndeclaredCastZoneIsRefusedOnTheRealEngine() {
-        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
-        JsonObject record = reachableTimingVariant(false);
-        JsonObject create = createRequest(FIXTURE, record);
-        lane.ok("create_midgame_game", create);
-        lane.ok("start_midgame_game", null);
-        JsonObject refusal = null;
-        for (int step = 0; step < 80; step++) {
-            JsonObject decision = pendingDecision(lane);
-            assertNotNull(decision, "the engine stopped offering decisions before the checkpoint");
-            String decisionClass = decision.get("decision_class").getAsString();
-            if ("mulligan".equals(decisionClass)) {
-                submit(lane, decision, option(decision, "keep"));
-                continue;
-            }
-            if (!"priority".equals(decisionClass)) {
-                submit(lane, decision, labelled(decision, startingSeatLabel(record)));
-                continue;
-            }
-            JsonObject response = lane.call("complete_midgame_arrival", new JsonObject());
-            if (!response.get("success").getAsBoolean()) {
-                refusal = response;
-                break;
-            }
-            submit(lane, decision, option(decision, "pass_priority"));
-        }
-        assertNotNull(refusal, "the undeclared cast-from zone must be refused at the checkpoint");
-        assertTrue(refusal.getAsJsonArray("errors").toString()
-                        .contains("UNDECLARED_RESUME_CAST_ZONE"), refusal.toString());
-    }
-
-    // ------------------------------------------------------------------
-    // Real engine: resume + engine-direct readback on a reachable variant.
+    // Real engine: the corrected record reaches its turn-2 checkpoint, the
+    // scripted cleanup discard is transported, and the resume runs.
     // ------------------------------------------------------------------
 
     @Test
     void aReachableVariantResumesAndReadsBackOnTheRealEngine() {
+        // The engine's own turn 1 is performed: P1 is the record's declared
+        // starting player, draws in the turn-1 draw step (CR 103.8c
+        // multiplayer: the first player draws), and at cleanup (CR 514.1) has
+        // 8 cards and discards the one Mountain the record scripts. That
+        // discard is answered from the record's own card-name multiset, never
+        // picked by the transport.
         Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
-        JsonObject arrival = arriveOn(lane, "reachable-resume", reachableTimingVariant(true));
+        JsonObject arrival = arriveOn(lane, "reachable-resume", effectiveRecord(FIXTURE));
+        JsonObject observation = arrival.getAsJsonObject("observation");
+        assertEquals(2, observation.get("turn_number").getAsInt(), "the engine's own turn number");
+        assertEquals("P2", observation.get("active_player").getAsString());
+        assertEquals("P2", observation.get("priority_player").getAsString());
+        assertEquals("PRECOMBAT_MAIN", observation.get("phase").getAsString());
+        assertEquals("PRECOMBAT_MAIN", observation.get("step").getAsString());
+        // The record declares complete checkpoint hands: exact, not "at least".
+        assertEquals(0, seatOf(observation, "P3").get("hand_count").getAsInt(),
+                "P3's declared complete hand is empty");
+        assertEquals(0, seatOf(observation, "P4").get("hand_count").getAsInt(),
+                "P4's declared complete hand is empty");
+        // The four declared tapped Swamps are checkpoint state on P2's battlefield.
+        int tappedSwamps = 0;
+        for (JsonElement element : seatOf(observation, "P2").getAsJsonArray("battlefield")) {
+            JsonObject permanent = element.getAsJsonObject();
+            if ("Swamp".equals(permanent.get("card_identity").getAsString())
+                    && permanent.get("tapped").getAsBoolean()
+                    && "P2".equals(permanent.get("controller").getAsString())) {
+                tappedSwamps++;
+            }
+        }
+        assertEquals(4, tappedSwamps, "the four declared tapped Swamps must be on the battlefield");
+        // The scripted cleanup discard makes the construction exact: the
+        // record's graveyard Mountain is present and nothing mismatches.
         assertTrue(arrival.get("construction_match").getAsBoolean(),
                 "the checkpoint must construct exactly: " + arrival.get("mismatches"));
+        assertEquals(0, arrival.getAsJsonArray("mismatches").size(),
+                "the scripted cleanup discard leaves no mismatch: " + arrival);
         JsonObject resume = arrival.getAsJsonObject("resume_stack_spell");
         assertNotNull(resume, "the arrival must report the resumed declared stack spell");
         assertTrue(resume.get("verified").getAsBoolean(), resume.toString());
@@ -506,17 +621,37 @@ class XmageMidgameFullyCastStackResumeTest {
                 "the declared cast-from zone must be the Spell's from-zone");
         // The resumed spell is part of the constructed-state observation (and
         // therefore of the digest), not only of its own readback.
-        JsonArray stack = arrival.getAsJsonObject("observation").getAsJsonArray("stack");
+        JsonArray stack = observation.getAsJsonArray("stack");
         assertNotNull(stack, "the observation must carry the public stack");
         assertEquals(1, stack.size());
         assertEquals("Syphon Mind",
                 stack.get(0).getAsJsonObject().get("card_identity").getAsString());
     }
 
+    // ------------------------------------------------------------------
+    // Real engine: an undeclared cast-from zone is refused, and the route
+    // declares no default (a missing zone is never HAND).
+    // ------------------------------------------------------------------
+
+    @Test
+    void anUndeclaredCastZoneIsRefusedOnTheRealEngine() {
+        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
+        JsonObject record = effectiveRecord(FIXTURE);
+        record.getAsJsonArray("stack_state").get(0).getAsJsonObject().remove("from_zone");
+        JsonObject refusal = arriveExpectingRefusal(lane, "undeclared-zone", record);
+        assertTrue(refusal.getAsJsonArray("errors").toString()
+                        .contains("UNDECLARED_RESUME_CAST_ZONE"), refusal.toString());
+    }
+
+    // ------------------------------------------------------------------
+    // Real engine: the parent-class-fallback negative. The bridge publishes
+    // the resolving spell's discard frame and no handler answers it.
+    // ------------------------------------------------------------------
+
     @Test
     void theParentClassFallbackNegativeIsTheEngineOwnUnansweredFrame() {
         Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
-        JsonObject arrival = arriveOn(lane, "parent-fallback", reachableTimingVariant(true));
+        JsonObject arrival = arriveOn(lane, "parent-fallback", effectiveRecord(FIXTURE));
         assertTrue(arrival.getAsJsonObject("resume_stack_spell").get("verified").getAsBoolean());
 
         // Pass the checkpoint priority; the declared spell then resolves and
@@ -552,15 +687,122 @@ class XmageMidgameFullyCastStackResumeTest {
                 "the parent-class fallback must not have answered the discard frame");
 
         // Wrong-reason control: an answer to this frame (exactly what a
-        // parent-class fallback would have applied) does move the game on —
-        // the pending frame changes — so the equality assertion above cannot
-        // hold for the wrong reason.
-        submit(lane, discard, labelled(discard, "Mountain"));
+        // parent-class fallback would have applied) does move the game on --
+        // the pending frame changes -- so the equality assertion above cannot
+        // hold for the wrong reason. The control names the card explicitly and
+        // among same-name copies takes the least option id, never a position.
+        submit(lane, discard, leastOptionIdLabelled(discard, "Mountain"));
         JsonObject afterAnswer = pendingDecision(lane);
         assertNotNull(afterAnswer, "the game must continue after a real answer");
         assertNotEquals(discardId, afterAnswer.get("decision_id").getAsString(),
                 "an answered frame must not still be the pending frame");
     }
+
+    /** The least option id among the options that carry the given card name. */
+    private static String leastOptionIdLabelled(JsonObject decision, String label) {
+        String least = null;
+        for (JsonElement element : decision.getAsJsonArray("legal_options")) {
+            JsonObject option = element.getAsJsonObject();
+            if (label.equals(option.get("label").getAsString())) {
+                String id = option.get("option_id").getAsString();
+                if (least == null || id.compareTo(least) < 0) {
+                    least = id;
+                }
+            }
+        }
+        if (least == null) {
+            fail("no option labelled " + label + " in " + decision);
+        }
+        return least;
+    }
+
+    // ------------------------------------------------------------------
+    // Red control: a cleanup answer that picks a card the record's script
+    // never names is rejected by the transport gate, even when it is the
+    // least/positionally-first offered option.
+    // ------------------------------------------------------------------
+
+    @Test
+    void aCleanupAnswerPickingACardOutsideTheScriptIsRejected() {
+        JsonObject record = effectiveRecord(FIXTURE);
+        Map<String, Integer> multiset = scriptedCleanupDiscard(record);
+        assertEquals(Map.of("Mountain", 1), multiset);
+
+        // The engine's frame offers the record's Mountain plus an Island the
+        // record never scripts; the Island's option id sorts first.
+        JsonObject frame = new JsonObject();
+        frame.addProperty("decision_id", "cleanup-red-control");
+        frame.addProperty("actor_id", "P1");
+        frame.addProperty("decision_class", "choose_object");
+        frame.addProperty("minimum_selections", 1);
+        frame.addProperty("maximum_selections", 1);
+        JsonArray options = new JsonArray();
+        options.add(offeredOption("a-island", "Island"));
+        options.add(offeredOption("z-mountain", "Mountain"));
+        frame.add("legal_options", options);
+
+        // The transport picks by card name, never by position: the Island is
+        // not chosen even though its option id is the least offered one.
+        assertEquals(List.of("z-mountain"), scriptedCleanupSelection(record, frame));
+        // A lenient answer that picks that least/first option anyway is
+        // rejected by the same gate every submitted answer passes.
+        AssertionError rejection = assertThrows(AssertionError.class,
+                () -> requireScriptedCleanupSelection(frame, List.of("a-island"), multiset));
+        assertTrue(rejection.getMessage().contains("never names"), rejection.getMessage());
+
+        // Among same-name copies the deterministic least option id is chosen,
+        // independent of the engine's offer order.
+        JsonObject tied = new JsonObject();
+        tied.add("legal_options", new JsonArray());
+        tied.getAsJsonArray("legal_options").add(offeredOption("z-mountain", "Mountain"));
+        tied.getAsJsonArray("legal_options").add(offeredOption("a-mountain", "Mountain"));
+        tied.addProperty("minimum_selections", 1);
+        tied.addProperty("maximum_selections", 1);
+        assertEquals(List.of("a-mountain"), scriptedCleanupSelection(record, tied));
+    }
+
+    @Test
+    void aTurnThreeRequestIsStillRefusedWithTheNamedTemporalCode() {
+        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
+        JsonObject record = effectiveRecord(FIXTURE);
+        record.getAsJsonObject("temporal_state").addProperty("turn_number", 3);
+        JsonObject refusal = lane.rejected("create_midgame_game", createRequest("turn3", record));
+        assertTrue(refusal.getAsJsonArray("errors").toString()
+                        .contains("UNSUPPORTED_TEMPORAL_POINT"), refusal.toString());
+    }
+
+    @Test
+    void aNonEmptyDeclaredCheckpointHandFailsClosed() {
+        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
+        JsonObject record = effectiveRecord(FIXTURE);
+        for (JsonElement element : record.getAsJsonArray("deck_state")) {
+            JsonObject deck = element.getAsJsonObject();
+            if ("P3".equals(deck.get("player_id").getAsString())) {
+                deck.getAsJsonObject("checkpoint_hand").addProperty("template_count", 1);
+            }
+        }
+        JsonObject arrival = arriveOn(lane, "nonempty-p3", record);
+        assertFalse(arrival.get("construction_match").getAsBoolean(),
+                "a declared hand the engine cannot satisfy must fail closed: " + arrival);
+        assertTrue(arrival.getAsJsonArray("mismatches").toString().contains("hand_composition P3"),
+                arrival.toString());
+    }
+
+    private static JsonObject seatOf(JsonObject observation, String playerId) {
+        for (JsonElement element : observation.getAsJsonArray("seats")) {
+            JsonObject seat = element.getAsJsonObject();
+            if (playerId.equals(seat.get("player_id").getAsString())) {
+                return seat;
+            }
+        }
+        fail("no seat " + playerId + " in the observation");
+        return null;
+    }
+
+    // ------------------------------------------------------------------
+    // The resume declaration is refused at creation when the record cannot
+    // honor it (an unpaid declaration never becomes a resume).
+    // ------------------------------------------------------------------
 
     @Test
     void anUnpaidResumeDeclarationIsRejectedAtCreation() {

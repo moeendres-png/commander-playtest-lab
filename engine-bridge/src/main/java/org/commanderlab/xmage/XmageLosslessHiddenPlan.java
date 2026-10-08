@@ -70,7 +70,7 @@ final class XmageLosslessHiddenPlan {
     record PlayerDeck(
             String playerId,
             String templateIdentity,
-            int templateCount,
+            Integer templateCount,
             List<String> libraryOrder,
             Integer handTemplateCount
     ) {
@@ -235,11 +235,36 @@ final class XmageLosslessHiddenPlan {
                 }
                 JsonObject template = deck.has("library_template") && deck.get("library_template").isJsonObject()
                         ? deck.getAsJsonObject("library_template") : null;
+                JsonObject declaredHand = deck.has("checkpoint_hand")
+                        && deck.get("checkpoint_hand").isJsonObject()
+                        ? deck.getAsJsonObject("checkpoint_hand") : null;
                 String templateIdentity = text(template, "card_identity");
                 if (templateIdentity == null) {
-                    throw fail("INVALID_DECK_STATE", playerId + " requires library_template.card_identity");
+                    // A hand-only declaration (#441 NEGATIVE_PARENT_CLASS_FALLBACK
+                    // erratum): the complete checkpoint hand carries its own
+                    // template identity while declaring no library. The library
+                    // stays the lane's scaffolding, exactly as an undeclared
+                    // library always has; no library_template is invented.
+                    String handTemplateIdentity = text(declaredHand, "template_card_identity");
+                    if (handTemplateIdentity == null) {
+                        throw fail("INVALID_DECK_STATE", playerId
+                                + " requires library_template.card_identity or"
+                                + " checkpoint_hand.template_card_identity");
+                    }
+                    templateIdentity = handTemplateIdentity;
                 }
-                int templateCount = nonNegativeInt(template, "count", playerId + " library_template");
+                Integer templateCount = template == null
+                        ? null
+                        : nonNegativeInt(template, "count", playerId + " library_template");
+                if (templateCount == null && deck.has("checkpoint_library")
+                        && !deck.get("checkpoint_library").isJsonNull()) {
+                    // Hand-only deck state declares no library at all; a
+                    // checkpoint_library without its template has no scaffolding
+                    // identity to pin runs to, so it fails closed instead of
+                    // falling back to a guess.
+                    throw fail("INVALID_DECK_STATE",
+                            playerId + " declares a checkpoint_library without library_template");
+                }
 
                 List<String> libraryOrder = null;
                 if (deck.has("checkpoint_library") && !deck.get("checkpoint_library").isJsonNull()) {
@@ -346,7 +371,9 @@ final class XmageLosslessHiddenPlan {
      */
     void validateScaffolding(String playerId, List<String> scaffoldingMainboard) {
         for (PlayerDeck deck : decks) {
-            if (!deck.playerId().equals(playerId)) {
+            if (!deck.playerId().equals(playerId) || deck.templateCount() == null) {
+                // A hand-only deck state declares no library; there is no
+                // template count to pin against the lane's scaffolding.
                 continue;
             }
             boolean uniform = scaffoldingMainboard.stream().allMatch(deck.templateIdentity()::equals);
@@ -373,11 +400,47 @@ final class XmageLosslessHiddenPlan {
     }
 
     /**
-     * Post-arrival application, once, while the engine is parked: place the
-     * requested library cards with the engine's typed setup primitive, then
-     * restore every declared complete library order through the native RG-06A
-     * game-load API. Libraries wait for the opening hands; the face-down object
-     * does not ({@link #applyPreStart}).
+     * Materializes a complete checkpoint hand that declares zero template
+     * cards: the engine always deals the scaffolding vehicle's opening hand,
+     * so the declaration is made true through the engine's own setup
+     * primitive ({@code Game.cheat}, HAND clear) and the requested hand
+     * objects, which are the record's own, are re-placed. A positive declared
+     * template count is the engine's own post-deal hand and is only verified,
+     * never synthesized: no draw is fabricated.
+     */
+    private void materializeDeclaredHands(
+            GameCommanderImpl game,
+            Map<String, Player> playersByPid,
+            XmageNativeStateRestoration restoration) {
+        for (PlayerDeck deck : decks) {
+            if (deck.handTemplateCount() == null || deck.handTemplateCount() != 0) {
+                continue;
+            }
+            Player player = playersByPid.get(deck.playerId());
+            if (player == null) {
+                throw fail("UNKNOWN_ACTOR", deck.playerId());
+            }
+            Set<UUID> injected = restoration.injectedHandIdsForTests(deck.playerId());
+            if (!injected.isEmpty()) {
+                // A zero-template complete hand that also requests hand
+                // objects would have to be re-placed after the clear; the
+                // route has not qualified that combination, so it fails
+                // closed instead of guessing.
+                throw fail("UNSUPPORTED_HAND_MATERIALIZATION",
+                        deck.playerId() + " declares a zero-template complete hand with "
+                                + injected.size() + " requested hand objects");
+            }
+            game.cheat(player.getId(), Map.of(mage.constants.Zone.HAND, "clear"));
+        }
+    }
+
+    /**
+     * Post-arrival application, once, while the engine is parked: materialize
+     * every declared complete hand, place the requested library cards with the
+     * engine's typed setup primitive, then restore every declared complete
+     * library order through the native RG-06A game-load API. Libraries wait
+     * for the opening hands; the face-down object does not
+     * ({@link #applyPreStart}).
      */
     void applyAfterArrival(
             GameCommanderImpl game,
@@ -386,6 +449,7 @@ final class XmageLosslessHiddenPlan {
         if (isEmpty()) {
             return;
         }
+        materializeDeclaredHands(game, playersByPid, restoration);
         List<LibraryObject> ordered = new ArrayList<>(libraryObjects);
         // Bottom-most first, so each later putOnTop lands above it; the complete
         // native order restore below is authoritative either way.

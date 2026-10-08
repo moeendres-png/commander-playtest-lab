@@ -259,6 +259,8 @@ class _OmissionClient:
         }
 
     def complete_arrival(self) -> dict[str, Any]:
+        # The record's declared checkpoint is turn 2 (P2 active); a turn-1
+        # readback is not that checkpoint.
         return {
             "construction_match": True,
             "mismatches": [],
@@ -266,7 +268,7 @@ class _OmissionClient:
                 "phase": "PRECOMBAT_MAIN",
                 "step": "PRECOMBAT_MAIN",
                 "priority_player": "P1",
-                "turn_number": 1,
+                "turn_number": 2,
             },
         }
 
@@ -275,12 +277,17 @@ class _OmissionClient:
             seat = self._decisions[0].get("seat", 0) if self._decisions else 0
             return {"success": True, "payload": self._legal(seat)}
         if message_type == "submit_action":
-            self.submissions.append(payload)
-            raise AssertionError("the declared omission must submit no action")
+            pending = self._decisions[0] if self._decisions else None
+            assert pending is not None and pending["decision_class"] == "choose_object", (
+                "the declared omission must submit no action for its frame"
+            )
+            self.submissions.append([payload["proposal"]["legal_action_id"]])
+            self._decisions.pop(0)
+            return {"success": True, "payload": {}}
         raise AssertionError(f"unexpected lane request {message_type}")
 
     def submit_options(self, decision: dict[str, Any], option_ids: list[str]) -> None:
-        assert decision["decision_class"] == "priority", (
+        assert decision["decision_class"] in ("priority", "cleanup_discard"), (
             "the declared omission must submit no answer for its frame"
         )
         self.submissions.append(list(option_ids))
@@ -291,14 +298,37 @@ class _OmissionClient:
     def _legal(seat: int) -> dict[str, Any]:
         return {
             "actor_id": f"actor-{seat}",
+            "decision": {"minimum_selections": 1, "maximum_selections": 1},
             "actions": [
                 {
                     "action_id": f"opt-hand-{name.lower()}",
-                    "metadata": {"label": f"{name} — discard", "seat": seat},
+                    "action_type": "discard",
+                    "metadata": {
+                        "label": f"{name} — discard",
+                        "option_id": f"opt-hand-{name.lower()}",
+                        "seat": seat,
+                        "xmage_option_metadata": {
+                            "name": name,
+                            "object_id": f"hand-{name.lower()}-{seat}",
+                        },
+                    },
                 }
                 for name in ("Mountain", "Island")
             ],
         }
+
+
+def _cleanup_frame(seat: int = 0) -> dict[str, Any]:
+    # XMage publishes the forced cleanup discard (CR 514.1) as its own
+    # choose_object frame over the hand (midgame_rows.ENGINE_DECISION_CLASS maps
+    # the record's cleanup_discard family onto that engine class).
+    return {
+        "decision_id": "d-cleanup",
+        "decision_class": "choose_object",
+        "actor_id": f"actor-{seat}",
+        "seat": seat,
+        "prompt": "Discard down to your maximum hand size",
+    }
 
 
 def _priority(seat: int = 0) -> dict[str, Any]:
@@ -332,13 +362,14 @@ def test_the_parent_class_record_declares_its_omitted_handler() -> None:
 
 def test_the_omission_refusal_is_verified_with_no_answer_applied() -> None:
     record = _parent_class_record()
-    client = _OmissionClient([_priority(), _discard_frame()])
+    client = _OmissionClient([_cleanup_frame(), _priority(), _discard_frame()])
     execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
     assert execution.verified, execution.detail
     assert execution.detail == "obligation observed"
-    # The only submission is the checkpoint priority pass; the refused frame
-    # itself is never answered (the fake rejects any non-priority submission).
-    assert client.submissions == [["pass"]]
+    # The record's own scripted turn-1 cleanup discard (CR 514.1) is answered
+    # first, then the checkpoint priority is passed; the refused frame itself is
+    # never answered (the fake rejects any other submission).
+    assert client.submissions == [["opt-hand-mountain"], ["pass"]]
     (refusal,) = execution.refusals
     assert refusal["well_formed"] is True
     assert refusal["decision_class"] == "choose_object"
