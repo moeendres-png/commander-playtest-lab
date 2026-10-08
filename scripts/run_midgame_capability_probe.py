@@ -35,7 +35,8 @@ from commander_lab.qualification.current_boundary import bridge_launcher  # noqa
 from commander_lab.qualification.current_boundary import midgame_lane as ml  # noqa: E402
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 from commander_lab.qualification.current_boundary.starting_player import (  # noqa: E402
-    requested_active_seat_index as seat_index_of_active_player,
+    SEATS,
+    midgame_starting_seat,
 )
 
 MATERIALIZATION = (
@@ -576,7 +577,146 @@ def option_by_label_suffix(decision: dict[str, Any], suffix: str) -> str | None:
 
 
 def seat_label(principal_id: str) -> str:
-    return "Full Game Seat " + principal_id.removeprefix("P")
+    """The engine's own seat label for a record seat id.
+
+    The record's declarations use the lowercase ``p1``..``p6`` seat ids
+    (``starting_player``), while the engine labels its seat offers
+    ``Full Game Seat 1``..; the ``P``/``p`` prefix case is the only
+    normalization, applied alike to both sides.
+    """
+    token = str(principal_id).strip()
+    if token[:1].lower() == "p" and token[1:].isdigit():
+        token = token[1:]
+    return "Full Game Seat " + token
+
+
+def record_starting_seat_index(record: dict[str, Any]) -> int | None:
+    """The create-time starting seat from the record's own declaration, or None.
+
+    The record's ``starting_player`` step/field wins; a turn-1 checkpoint's
+    active player is the starter by CR 103.1 (the engine still performs that
+    turn). A later checkpoint's active player is never converted into a starter
+    by seat arithmetic: without a declaration the caller gets None and the
+    bridge refuses creation rather than the Lab inventing a start.
+    """
+    seat, _source = midgame_starting_seat(record)
+    return SEATS.index(seat) if seat is not None else None
+
+
+def _seat_token(value: Any) -> str:
+    """A seat id normalized for comparison (``P2`` == ``p2`` == ``Full Game Seat 2``)."""
+    token = str(value).strip() if isinstance(value, str) else ""
+    lowered = token.lower()
+    if lowered.startswith("full game seat "):
+        token = token[len("Full Game Seat ") :]
+        lowered = token.lower()
+    if lowered[:1] == "p" and lowered[1:].isdigit():
+        token = token[1:]
+    return token
+
+
+def _fail_closed_selection(selection: Any) -> bool:
+    """Whether a scripted step carries the record's intact fail-closed contract."""
+    return (
+        isinstance(selection, dict)
+        and selection.get("matches_only_provider_offered_legal_options") is True
+        and selection.get("on_zero_match") == "FAIL_CLOSED"
+        and selection.get("on_multiple_match") == "FAIL_CLOSED"
+    )
+
+
+def _scripted_mulligan_keep(record: dict[str, Any], principal: str) -> bool:
+    """Whether the record scripts KEEP for ``principal`` at the mulligan prompt.
+
+    The engine's mulligan prompt (CR 103.5) is answered only from the record's
+    own ``mulligan`` step for exactly this seat, in the WS05-CMD-MULL-2 shape
+    (``semantic_action`` / ``keep_opening_hand`` with the fail-closed selection
+    contract intact). Without that step the arrival pilot never keeps an
+    opening hand on a player's behalf.
+    """
+    for step in record.get("decision_script") or ():
+        if not isinstance(step, dict) or step.get("decision_family") != "mulligan":
+            continue
+        if _seat_token(step.get("actor")) != _seat_token(principal):
+            continue
+        selection = step.get("selection") or {}
+        if (
+            _fail_closed_selection(selection)
+            and selection.get("selector_kind") == "semantic_action"
+            and selection.get("semantic_value") == "keep_opening_hand"
+        ):
+            return True
+    return False
+
+
+def _scripted_priority_pass_through(record: dict[str, Any], principal: str) -> bool:
+    """Whether the record declares its priority passes for this principal.
+
+    The record's ``priority_pass_through`` step (actor ``ALL`` or the seat)
+    declares that every priority in scope is passed: no land is played and no
+    spell or ability is activated (CR 117.3d, 305.1). Without that step the
+    arrival pilot never passes priority on a player's behalf.
+    """
+    for step in record.get("decision_script") or ():
+        if not isinstance(step, dict) or step.get("decision_family") != "priority_pass_through":
+            continue
+        actor = str(step.get("actor") or "").strip().upper()
+        if actor not in ("ALL", "ANY") and _seat_token(actor) != _seat_token(principal):
+            continue
+        selection = step.get("selection") or {}
+        if (
+            _fail_closed_selection(selection)
+            and selection.get("selector_kind") == "semantic_action"
+            and selection.get("semantic_value") == "pass_priority"
+        ):
+            return True
+    return False
+
+
+def _scripted_empty_declare_attackers(
+    record: dict[str, Any], principal: str, observation: dict[str, Any]
+) -> bool:
+    """Whether the record declares the empty attack set for this frame.
+
+    A pre-checkpoint ``declare_attacker`` frame is transported only from the
+    record's own ``declare_attackers`` step: the frame's actor, its turn and its
+    step must match, and the selection must be the fail-closed empty
+    ``attacker_assignment`` (CR 508.1, 508.8). The record's complete attack set
+    on its checkpoint turn is the requested combat the caller's ``declare``
+    callback answers; every other pre-checkpoint attack frame is unrecorded and
+    fails closed. A readback without a readable turn is never a match.
+    """
+    turn = observation.get("turn_number")
+    if not isinstance(turn, int) or isinstance(turn, bool):
+        return False
+    step_token = str(observation.get("step") or "").upper()
+    phase_token = str(observation.get("phase") or "").upper()
+    for step in record.get("decision_script") or ():
+        if not isinstance(step, dict) or step.get("decision_family") != "declare_attackers":
+            continue
+        if _seat_token(step.get("actor")) != _seat_token(principal):
+            continue
+        if step.get("turn") != turn:
+            continue
+        declared_phase = str(step.get("phase") or "").upper()
+        if declared_phase and declared_phase not in {step_token, phase_token}:
+            continue
+        selection = step.get("selection") or {}
+        if (
+            _fail_closed_selection(selection)
+            and selection.get("selector_kind") == "attacker_assignment"
+            and selection.get("semantic_value") == {}
+        ):
+            return True
+    return False
+
+
+def _decision_seat_principal(decision: dict[str, Any]) -> str:
+    """The requested-state principal the engine names on the pending frame."""
+    seat = decision.get("seat")
+    if not isinstance(seat, int) or isinstance(seat, bool):
+        raise ml.MidgameLaneError("the pending decision names no seat")
+    return f"P{seat + 1}"
 
 
 # The frozen record addresses a checkpoint by (phase, step) pair; the engine's
@@ -603,10 +743,30 @@ def engine_temporal_point(phase: str, step: str, fixture_id: str) -> tuple[str, 
         ) from exc
 
 
+def _arrival_at_checkpoint(
+    probe: dict[str, Any], target_turn: int, target_phase: str, target_step: str
+) -> bool:
+    """Whether the arrival readback stands exactly at the record's temporal point.
+
+    The declared turn is part of the point: turn 1's precombat main is not the
+    turn-2 checkpoint, and an arrival that stopped there would report the wrong
+    state. A readback without a readable turn never matches.
+    """
+    turn = probe.get("turn_number")
+    if not isinstance(turn, int) or isinstance(turn, bool):
+        return False
+    return (
+        turn == target_turn
+        and str(probe.get("phase")) == target_phase
+        and str(probe.get("step")) == target_step
+    )
+
+
 def drive_arrival(
     client: ml.MidgameLaneClient,
     record: dict[str, Any],
     declare: Callable[[dict[str, Any], str], bool] | None = None,
+    answer_scripted: Callable[[dict[str, Any], str, str, dict[str, Any]], bool] | None = None,
 ) -> ml.RowVerdict | None:
     """Drive the engine to the record's own temporal checkpoint.
 
@@ -623,12 +783,34 @@ def drive_arrival(
     passed until the record's requested priority player holds it (the record's
     policy scripts exactly the passes needed to reach its declared checkpoint);
     the step never ends on the way.
+
+    ``answer_scripted`` answers a record-scripted decision that the engine asks
+    during the arrival (a turn-1 cleanup discard, CR 514.1), from the record's
+    own selection. It is tried only when no setup option matches, and it fails
+    closed itself on a wrong actor, a missing name, a count mismatch or an
+    unscripted extra frame; the probe never picks a card for a player.
     """
     temporal = record["temporal_state"]
     target_phase, target_step = engine_temporal_point(
         str(temporal["phase"]), str(temporal["step"]), str(record["fixture_id"])
     )
-    active_label = seat_label(str(temporal["active_player"]))
+    target_turn = temporal.get("turn_number")
+    if not isinstance(target_turn, int) or isinstance(target_turn, bool):
+        raise ml.MidgameLaneError("the record declares no readable turn for its checkpoint")
+    # The setup frame (the starting-player choice) is answered for the seat the
+    # record declares as the starter, never for a later checkpoint's active
+    # player: at turn 2 those are different seats. Missing or malformed
+    # starting authority is refused before any seat label is derived; the
+    # checkpoint's active player is never used as a fallback (a turn-1
+    # checkpoint's active player is already the parser's own authorized
+    # declaration and arrives here as a seat).
+    starter_seat, _starter_source = midgame_starting_seat(record)
+    if starter_seat is None:
+        raise ml.MidgameLaneError(
+            "the record declares no usable starting authority: the arrival pilot refuses "
+            "to derive the starting principal from a later checkpoint's active player"
+        )
+    active_label = seat_label(starter_seat)
     wanted_priority = str(temporal.get("priority_player") or "")
     reached_checkpoint_step = False
 
@@ -648,7 +830,7 @@ def drive_arrival(
             # checkpoint step. It is the checkpoint only if the engine is at the
             # record's temporal point; otherwise it is an unrecognised decision.
             probe = client.complete_arrival().get("observation") or {}
-            if str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step:
+            if _arrival_at_checkpoint(probe, target_turn, target_phase, target_step):
                 return ml.classification_from_arrival(
                     str(record["fixture_id"]),
                     ml.MIDGAME_LANE,
@@ -664,22 +846,31 @@ def drive_arrival(
             # Before the game starts the same class is a setup frame (the
             # starting player), answered below like any other setup frame.
         if decision_class == "mulligan":
+            principal = _decision_seat_principal(decision)
+            if not _scripted_mulligan_keep(record, principal):
+                raise ml.MidgameLaneError(
+                    f"the record scripts no mulligan keep for {principal}: the arrival "
+                    "pilot never keeps an opening hand on a player's behalf (CR 103.5)"
+                )
             keep = option_of_type(decision, "keep")
             if keep is None:
                 raise ml.MidgameLaneError("the engine offered no keep option for the mulligan")
             client.submit_options(decision, [keep])
         elif decision_class in {"choice", "choose_object"}:
             chosen = option_by_label_suffix(decision, active_label)
+            if chosen is None and answer_scripted is not None:
+                legal = legal_actions(client)
+                principal = decision_principal(decision, legal)
+                if answer_scripted(decision, decision_class, principal, legal):
+                    continue
             if chosen is None:
                 raise ml.MidgameLaneError(
-                    f"the engine offered no option for the record's active principal {active_label}"
+                    f"the engine offered no option for the record's starting principal {active_label}"
                 )
             client.submit_options(decision, [chosen])
         elif decision_class == "priority":
             probe = client.complete_arrival().get("observation") or {}
-            at_checkpoint = (
-                str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step
-            )
+            at_checkpoint = _arrival_at_checkpoint(probe, target_turn, target_phase, target_step)
             if reached_checkpoint_step and not at_checkpoint:
                 raise ml.MidgameLaneError(
                     f"the checkpoint step {target_phase}/{target_step} ended before "
@@ -697,6 +888,12 @@ def drive_arrival(
                     engine_commit=client.engine_commit,
                 )
             reached_checkpoint_step = reached_checkpoint_step or at_checkpoint
+            principal = _decision_seat_principal(decision)
+            if not _scripted_priority_pass_through(record, principal):
+                raise ml.MidgameLaneError(
+                    f"the record scripts no priority pass-through for {principal}: the "
+                    "arrival pilot never passes priority on a player's behalf"
+                )
             passed = option_of_type(decision, "pass_priority")
             if passed is None:
                 raise ml.MidgameLaneError("the engine offered no pass-priority option")
@@ -706,12 +903,22 @@ def drive_arrival(
             # temporal point. Stop and let the caller decide whether to
             # execute the obligation.
             probe = client.complete_arrival().get("observation") or {}
-            at_checkpoint = (
-                str(probe.get("phase")) == target_phase and str(probe.get("step")) == target_step
+            at_checkpoint = _arrival_at_checkpoint(probe, target_turn, target_phase, target_step)
+            at_checkpoint_turn = (
+                probe.get("turn_number") == target_turn
+                if isinstance(probe.get("turn_number"), int)
+                and not isinstance(probe.get("turn_number"), bool)
+                else False
             )
             if (
                 declare is not None
-                and (at_checkpoint or _checkpoint_follows(str(probe.get("step")), target_step))
+                and (
+                    at_checkpoint
+                    or (
+                        at_checkpoint_turn
+                        and _checkpoint_follows(str(probe.get("step")), target_step)
+                    )
+                )
                 and declare(decision, decision_class)
             ):
                 reached_checkpoint_step = reached_checkpoint_step or at_checkpoint
@@ -722,6 +929,35 @@ def drive_arrival(
                     ml.MIDGAME_LANE,
                     client.complete_arrival(),
                     engine_commit=client.engine_commit,
+                )
+            if decision_class == "declare_attacker":
+                # A pre-checkpoint attack declaration is transported only from
+                # the record's own scripted ``declare_attackers`` step (its
+                # complete attack set is empty here). The absence of a combat
+                # declaration in the record is not an external pilot decision
+                # to hold: an unrecorded frame fails closed before any
+                # submission.
+                turn = probe.get("turn_number")
+                if not isinstance(turn, int) or isinstance(turn, bool):
+                    raise ml.MidgameLaneError(
+                        "the engine asked for attackers without a readable turn: the "
+                        "arrival pilot cannot match the record's scripted declaration"
+                    )
+                principal = _decision_seat_principal(decision)
+                if _scripted_empty_declare_attackers(record, principal, probe):
+                    hold = option_of_type(decision, "hold_attacker")
+                    if hold is None:
+                        raise ml.MidgameLaneError(
+                            "the engine offered no hold-attacker option for the record's "
+                            "scripted empty attack declaration"
+                        )
+                    client.submit_options(decision, [hold])
+                    continue
+                raise ml.MidgameLaneError(
+                    f"the engine asked {principal} to declare attackers in turn {turn} at "
+                    f"{probe.get('phase')}/{probe.get('step')}, and the record scripts no "
+                    "attackers for that frame: the arrival pilot never holds an unrecorded "
+                    "attack"
                 )
             raise ml.MidgameLaneError(
                 f"the engine reached {probe.get('phase')}/{probe.get('step')} before the "
@@ -768,10 +1004,11 @@ def probe_row(workspace: Path, fixture_id: str) -> dict[str, Any]:
         "seed": SEED,
         "requested_starting_state": record,
     }
-    # The record's own active player is the create-time choosing seat; without
-    # one the bridge refuses the creation instead of defaulting to seat 0
-    # (#572).
-    starting_seat_index = seat_index_of_active_player(record)
+    # The record's own starting-seat declaration is the create-time choosing
+    # seat; without one the bridge refuses the creation instead of defaulting
+    # to seat 0 (#572). A later checkpoint's active player is never turned
+    # into a starter by seat arithmetic.
+    starting_seat_index = record_starting_seat_index(record)
     if starting_seat_index is not None:
         request["starting_player_seat"] = starting_seat_index
     started = time.time()
@@ -1620,16 +1857,26 @@ def drive_to_precombat_main(
     client: ml.MidgameLaneClient,
     record: dict[str, Any],
 ) -> None:
-    """Drive the engine to the first precombat-main priority.
+    """Drive the engine to the record's declared precombat-main priority.
 
     Placement rows with later checkpoints (declare_blockers, combat_damage)
-    must be arrived at precombat main; their own obligation execution advances
-    from there through the engine's combat steps. Answering only arrival
-    transport (mulligan, choosing-pick, priority passes) and failing closed
-    on anything else.
+    must be arrived at their own precombat main; their own obligation execution
+    advances from there through the engine's combat steps. The declared turn is
+    part of the stop: turn 1's precombat main is not a turn-2 checkpoint.
+    Answering only arrival transport (mulligan, choosing-pick, priority passes)
+    and failing closed on anything else.
     """
     temporal = record.get("temporal_state") or {}
-    active_label = seat_label(str(temporal.get("active_player") or "P1"))
+    target_turn = temporal.get("turn_number")
+    if not isinstance(target_turn, int) or isinstance(target_turn, bool):
+        raise ml.MidgameLaneError("the record declares no readable turn for its checkpoint")
+    starter_seat, _starter_source = midgame_starting_seat(record)
+    if starter_seat is None:
+        raise ml.MidgameLaneError(
+            "the record declares no usable starting authority: the arrival pilot refuses "
+            "to derive the starting principal from a later checkpoint's active player"
+        )
+    active_label = seat_label(starter_seat)
     for _ in range(120):
         decision = client.pending_decision()
         if decision is None:
@@ -1648,7 +1895,8 @@ def drive_to_precombat_main(
         elif decision_class == "priority":
             observation = client.complete_arrival().get("observation") or {}
             if (
-                observation.get("phase") == "PRECOMBAT_MAIN"
+                observation.get("turn_number") == target_turn
+                and observation.get("phase") == "PRECOMBAT_MAIN"
                 and observation.get("step") == "PRECOMBAT_MAIN"
             ):
                 return
@@ -1680,10 +1928,11 @@ def probe_causal_row(
             "entry_mode": entry_mode,
             "requested_starting_state": record,
         }
-        # The record's own active player is the create-time choosing seat; a
-        # record without one omits the field and the bridge refuses creation
-        # instead of defaulting to seat 0 (#572).
-        starting_seat_index = seat_index_of_active_player(record)
+        # The record's own starting-seat declaration is the create-time
+        # choosing seat; a record without one omits the field and the bridge
+        # refuses creation instead of defaulting to seat 0 (#572). A later
+        # checkpoint's active player is never turned into a starter.
+        starting_seat_index = record_starting_seat_index(record)
         if starting_seat_index is not None:
             request["starting_player_seat"] = starting_seat_index
         if entry_mode in ("causal_stack", CAUSAL_STACK_ELIMINATION):

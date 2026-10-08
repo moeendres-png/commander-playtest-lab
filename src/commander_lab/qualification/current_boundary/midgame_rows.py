@@ -41,7 +41,7 @@ from typing import Any
 from . import midgame_lane as ml
 from . import receipts as receipt_mod
 from . import refusal as refusal_mod
-from .starting_player import requested_active_seat_index
+from .starting_player import SEATS, midgame_starting_seat
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 PROBE_SCRIPT = REPO_ROOT / "scripts" / "run_midgame_capability_probe.py"
@@ -482,7 +482,13 @@ class RowSpec:
 # divided-damage `choose_targets` frame (observed on the production mid-game
 # lane); the record distinguishes the number of damage legs in its semantic
 # value, not in the engine's class name.
-ENGINE_DECISION_CLASS = {"choose_mode": "mode", "multi_amount": "target_amount"}
+ENGINE_DECISION_CLASS = {
+    "choose_mode": "mode",
+    "multi_amount": "target_amount",
+    # A cleanup discard (CR 514.1) is XMage's own choose_object frame over the
+    # discarding player's hand; the record names the family it scripts.
+    "cleanup_discard": "choose_object",
+}
 
 
 def engine_decision_class(family: str) -> str:
@@ -516,6 +522,45 @@ def step_decision_class(step: dict[str, Any]) -> str:
     if selector == "partition" and family == "pile":
         return PARTITION_DECISION_CLASS
     return engine_decision_class(family)
+
+
+# The record's arrival transport steps: answered by the arrival driver itself
+# (the starting-seat declaration CR 103.1, the pregame keeps CR 103.5, the
+# priority pass-through CR 117.3d and the pre-checkpoint empty attack
+# declaration CR 508.1), never by the obligation loop's engine-frame matching.
+ARRIVAL_TRANSPORT_FAMILIES = frozenset(
+    {"starting_player", "mulligan", "priority_pass_through", "declare_attackers"}
+)
+
+
+def _require_scripted_temporal_point(client: ml.MidgameLaneClient, step: dict[str, Any]) -> None:
+    """Refuse a scripted step whose declared phase/turn is not the engine's point.
+
+    A decision family can be asked at more than one point in a game (a cleanup
+    discard happens every turn); a step that declares its own ``phase``/``turn``
+    binds to exactly that point, and the same family at another point is an
+    unscripted extra decision that fails closed.
+    """
+    declared_turn = step.get("turn")
+    declared_phase = str(step.get("phase") or "").upper()
+    if declared_turn is None and not declared_phase:
+        return
+    observation = client.complete_arrival().get("observation") or {}
+    if declared_turn is not None and observation.get("turn_number") != declared_turn:
+        raise ml.MidgameLaneError(
+            f"the record scripts {step.get('decision_family')} for turn {declared_turn}; "
+            f"the engine asked it in turn {observation.get('turn_number')}"
+        )
+    if declared_phase:
+        tokens = {
+            str(observation.get("phase") or "").upper(),
+            str(observation.get("step") or "").upper(),
+        }
+        if declared_phase not in tokens:
+            raise ml.MidgameLaneError(
+                f"the record scripts {step.get('decision_family')} for {declared_phase}; "
+                f"the engine asked it at {observation.get('phase')}/{observation.get('step')}"
+            )
 
 
 def declared_omission_probe(record: dict[str, Any]) -> tuple[str, str] | None:
@@ -4033,10 +4078,12 @@ def _card_identity_answer(
     The record names how many cards of each identity are chosen (a cleanup
     discard of template cards, CR 514.1), not which object: every offered card
     of that identity that is no named record object is the same semantic
-    selection, so the engine's own order among those identical cards decides
-    which is submitted, as among indistinguishable trigger instances. An offer
-    of that identity that is a named record object, fewer such cards than
-    requested, or a total the engine frame does not authorize fails closed.
+    selection, so the least offered option id among those identical cards is
+    submitted, as among indistinguishable trigger instances. That pick is
+    content-independent and outcome-equivalent only because the copies share
+    one identity; it is never positional. An offer of that identity that is a
+    named record object, fewer such cards than requested, or a total the engine
+    frame does not authorize fails closed.
     """
     value = (step.get("selection") or {}).get("semantic_value")
     if (
@@ -4074,7 +4121,14 @@ def _card_identity_answer(
             raise ml.MidgameLaneError(
                 f"the record selects {count} {name!r}, the engine offers {len(offers)}"
             )
-        selected.extend(offers[:count])
+        # Deterministic least-option-id pick among the same-name copies. This is
+        # content-independent and outcome-equivalent only because the chosen
+        # copies share one card identity (same name, same rules text, same
+        # identity for every game decision): no outcome distinction remains
+        # between them, so the choice is not a player choice the record could
+        # have made differently. Never positional: the engine's offer order is
+        # not read as a preference.
+        selected.extend(sorted(offers, key=_option_id)[:count])
     option_ids = tuple(_option_id(action) for action in selected)
     if any(not option_id for option_id in option_ids) or len(set(option_ids)) != len(option_ids):
         raise ml.MidgameLaneError(f"the engine offers for {value!r} carry no distinct option ids")
@@ -4538,6 +4592,87 @@ def execute_row(
     trace: list[Frame] = []
     placed_by_native = {native: semantic for semantic, native in placed.items()}
     combat = requested_combat(record)
+    # The record's own scripted decisions. A step the engine asks during the
+    # arrival (a turn-1 cleanup discard, CR 514.1) is answered there and is
+    # consumed here, so the obligation loop starts at the first step the
+    # arrival did not answer.
+    script = list(record.get("decision_script") or ())
+    arrival_consumed = [0]
+
+    def answer_scripted_arrival(
+        decision: dict[str, Any],
+        decision_class: str,
+        principal: str,
+        legal: dict[str, Any],
+    ) -> bool:
+        """Answer the next scripted arrival frame from the record, or refuse.
+
+        The frame is answered only when the record's own next unconsumed step
+        scripts this decision class: a cleanup discard is transported from the
+        record's card-name multiset (least option id among same-name copies;
+        outcome-equivalent only because the copies share one identity). A wrong
+        actor, a missing name, a count mismatch, a malformed frame and an
+        unscripted extra discard all fail closed with the exact reason; the Lab
+        never chooses a card for a player.
+        """
+        position_ = arrival_consumed[0]
+        while position_ < len(script) and (
+            str(script[position_].get("decision_family")) in ARRIVAL_TRANSPORT_FAMILIES
+        ):
+            # The arrival transport steps are not engine choose_object frames:
+            # the starting_player step is the record's setup declaration (CR
+            # 103.1), the mulligan steps are the pregame keeps (CR 103.5), and
+            # the priority_pass_through / declare_attackers steps are answered
+            # by the arrival driver itself. The cursor steps over them instead
+            # of demanding a same-class engine frame.
+            position_ += 1
+            arrival_consumed[0] = position_
+        if position_ < len(script):
+            step = script[position_]
+            if step_decision_class(step) == decision_class:
+                _require_scripted_temporal_point(client, step)
+                actor = str(step.get("actor"))
+                if actor != principal:
+                    raise ml.MidgameLaneError(
+                        f"the engine asked the scripted {decision_class} of {principal}, "
+                        f"but the record scripts it for {actor}"
+                    )
+                answer = _scripted_answer(legal, stack_object_step(step, record), placed, spec, 0)
+                trace.append(
+                    Frame(
+                        decision_class,
+                        principal,
+                        _labels(legal),
+                        decision_id=str(decision.get("decision_id") or "") or None,
+                        prompt=str(decision.get("prompt") or ""),
+                        context=dict(decision.get("context") or {}),
+                        selected_label=_label_of(answer.action) if answer.action else None,
+                        selected_key=answer.key,
+                        selected_option_ids=answer.option_ids,
+                        scripted=True,
+                    )
+                )
+                if answer.action is None:
+                    client.submit_options(decision, [])
+                else:
+                    probe.submit_proposal(
+                        client,
+                        legal,
+                        answer.action,
+                        f"{fixture_id}-arrival-{len(trace)}",
+                        selected_option_ids=list(answer.option_ids) or None,
+                    )
+                arrival_consumed[0] = position_ + 1
+                return True
+        consumed = [
+            step for step in script[:position_] if step_decision_class(step) == decision_class
+        ]
+        if any(str(step.get("actor")) == principal for step in consumed):
+            raise ml.MidgameLaneError(
+                f"unscripted extra {decision_class} for {principal}: the record scripts "
+                f"{len(consumed)} such decision(s) and no more"
+            )
+        return False
 
     def declare(decision: dict[str, Any], decision_class: str) -> bool:
         # A combat checkpoint: the record's requested combat is declared on
@@ -4568,7 +4703,10 @@ def execute_row(
 
     try:
         arrival = probe.drive_arrival(
-            client, record, declare=declare if combat is not None else None
+            client,
+            record,
+            declare=declare if combat is not None else None,
+            answer_scripted=answer_scripted_arrival,
         )
     except ml.MidgameLaneError as exc:
         return row_execution(fixture_id, False, None, f"arrival failed closed: {exc}")
@@ -4734,7 +4872,6 @@ def execute_row(
         baseline = elimination_baseline
     else:
         baseline = int(client.events(0)["latest_offset"])
-    script = list(record.get("decision_script") or ())
     sources = [placed[s] for s in spec.mana_sources if s in placed]
     if len(sources) != len(spec.mana_sources):
         return row_execution(
@@ -4750,7 +4887,9 @@ def execute_row(
             )
         cost_obligation = (native_cost_source, cost_base, cost_total)
     required = list((record.get("expected_events") or {}).get("required_events") or ())
-    position = 0
+    # The arrival already answered its own scripted steps (a turn-1 cleanup
+    # discard); the obligation loop starts at the first unconsumed step.
+    position = arrival_consumed[0]
     ordinal = 0
     declaring = False
     blocking = False
@@ -5395,19 +5534,25 @@ def execute_and_persist(
     executions: dict[str, Any] = {}
     for fixture_id in selected:
         record = records[fixture_id]
-        # The record's own active player is the create-time choosing seat; the
-        # engine's CR 103.2 frame is answered by the arrival pilot from the same
-        # record field. No record declaration means no run (#572).
-        starting_seat_index = requested_active_seat_index(record)
-        if starting_seat_index is None:
+        # The starting seat comes from the record's own starting-seat
+        # declaration (``starting_player`` step/field; a turn-1 checkpoint's
+        # active player is the starter by CR 103.1). It is never derived from a
+        # later checkpoint's active player: at turn 2 the active player is the
+        # second seat, and the seat arithmetic "active - (turn - 1)" would
+        # invent a start the record never declared. No declaration means no run
+        # (#572).
+        starting_seat, _starting_source = midgame_starting_seat(record)
+        if starting_seat is None:
             executions[fixture_id] = {
                 "verified": False,
                 "detail": (
-                    "the record declares no active player, so the lane cannot declare "
-                    "a starting/choosing seat and refuses to run; the Lab never chooses it"
+                    "the record declares no starting seat for this checkpoint, so the lane "
+                    "cannot declare a starting/choosing seat and refuses to run; the Lab "
+                    "never derives or chooses it"
                 ),
             }
             continue
+        starting_seat_index = SEATS.index(starting_seat)
         request = {
             "game_id": f"row-{fixture_id}",
             "plan_id": f"row-{fixture_id}",

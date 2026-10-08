@@ -263,10 +263,10 @@
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
   },
   {
-   "correction_class": "FIXTURE_DEFECT_CORRECTION_CAST_TIMING_AND_COST_CONSISTENCY",
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_TURN1_CLEANUP_DISCARD_REACHABILITY",
    "denominator_effect": "NONE",
    "effective_obligation_digest": "bf42a01771a1e9d4b999f209229e009692f2e4e8ac6bfd9b059a6144b51609a9",
-   "effective_requested_state_digest": "abb022769fb5afbc5a1645e7aede6a72e010718d3d94df2d1d21d21fae6c4c73",
+   "effective_requested_state_digest": "5e523efc86893d62d0546dfe64c05e2f85eb86b68f98102f797160923d0c4aa1",
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
@@ -291,8 +291,8 @@
     },
     {
      "change": "semantic_objects +4 tapped Swamps controlled by P2",
-     "comprehensive_rules": "305.2",
-     "reason": "the record declares costs_paid for {3}{B}; the four declared tapped Swamps are the mana sources that paid it, making the paid cast consistent with the declared battlefield"
+     "comprehensive_rules": "601.2g-h",
+     "reason": "the record declares costs_paid for {3}{B}; the four declared tapped Swamps are the mana sources that paid it, making the paid cast consistent with the declared battlefield under CR 601.2g-h. They are injected; not natural-play reachable (305.2). No natural-play path is claimed"
     },
     {
      "change": "stack_state[0].costs_paid now has declared mana sources",
@@ -303,13 +303,28 @@
      "change": "deck_state absent -> complete empty checkpoint hands for P3 and P4 (hand_count 0)",
      "comprehensive_rules": "101.4",
      "reason": "Syphon Mind makes each other player discard a card; APNAP order from active player P2 is P3, P4, P1, so P1 is the first actor asked to discard only if P3 and P4 hold no cards. The complete empty checkpoint hands declare that precondition explicitly. P1's two declared hand cards are unchanged, so the expected decision actor stays P1"
+    },
+    {
+     "change": "decision_script absent -> one scripted starting_player declaration for P1 (seat P1)",
+     "comprehensive_rules": "103.1",
+     "reason": "the corrected checkpoint is the turn-2 precombat main with P2 active, so the checkpoint's active player is not the starting player. The mid-game lane never derives the starting seat from a later checkpoint's active player and never defaults to seat 0; without an explicit declaration it fails closed. The record therefore declares its own starting seat P1 (CR 103.1), consistent with P2's turn 2 in four-player seat order, in the exact decision-script shape midgame_starting_seat consumes"
+    },
+    {
+     "change": "decision_script absent -> one scripted cleanup_discard for P1 (one Mountain)",
+     "comprehensive_rules": "514.1, 103.8c",
+     "reason": "the corrected turn-2 checkpoint is only reachable through P1's turn 1. In this four-player game the first turn's player draws a card (CR 103.8c), so P1 holds eight cards when its cleanup step begins and must discard down to seven (CR 514.1). Which card is discarded is P1's own choice, so the Lab may not choose it: the choice is scripted as a one-card card_identity_multiset of the scaffolding hand's Mountain"
+    },
+    {
+     "change": "semantic_objects +1 Mountain in P1's graveyard",
+     "comprehensive_rules": "514.1, 103.8c",
+     "reason": "the scripted forced discard is part of the declared history at the checkpoint: the card P1 discarded at its turn-1 cleanup is in P1's graveyard. Without the declaration the engine's checkpoint readback reported exactly one undeclared P1|GRAVEYARD|Mountain (requested 0 / observed 1), the sole mismatch of the corrected state, so the requested state declares exactly that one Mountain"
     }
    ],
    "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
-   "known_runtime_blocker": "NOT_RUNNABLE_ON_CURRENT_BRIDGE: the native resume route accepts only the qualified turn-1 checkpoints (XmageNativeStateRestoration.isSupportedTemporalPoint), so this corrected turn-2 checkpoint is refused with UNSUPPORTED_TEMPORAL_POINT. Bridge code is out of scope; no runtime credit is claimed or possible until the bridge admits the checkpoint",
-   "notes": "the effective record declared a cast-timing and cost-inconsistent state: a fully cast P2 sorcery (Syphon Mind) on the stack while P1 was active in P1's turn-1 precombat main, which CR 307.1 forbids (its controller's own main phase, empty stack; no flash grant exists), with costs_paid for {3}{B} but no declared P2 mana source (CR 305.2 / 601.2g-h) and no declared P3/P4 hands (CR 101.4 APNAP). The erratum is scoped to cast timing and cost consistency and claims no full natural-play reachability: the temporal/stack declaration, four tapped P2 Swamps paying the cost, and complete empty P3/P4 checkpoint hands change, while the negative_fallback_probe obligation, the omitted handler, the expected and forbidden events and the expected decision actor P1 are byte for byte the predecessor's, and the obligation digest is unchanged. The 107-row denominator is untouched",
+   "known_runtime_blocker": "NOT_RUNNABLE_ON_CURRENT_BRIDGE: the native resume route accepts only the qualified turn-1 checkpoints (XmageNativeStateRestoration.isSupportedTemporalPoint), so the corrected turn-2 checkpoint is refused with UNSUPPORTED_TEMPORAL_POINT until the turn-2 precombat-main route (PR #609) lands. PR #609's real-engine finding was the sole mismatch this erratum removes: P1 draws on turn 1 (CR 103.8c) and the forced cleanup discard (CR 514.1) left one undeclared P1 graveyard Mountain. No runtime credit is claimed by the materialization",
+   "notes": "the 1.0.24 corrected state is reachable only through P1's turn 1. In this four-player game P1 draws on turn 1 (CR 103.8c), so it holds eight cards at its cleanup and CR 514.1 forces a discard. The 1.0.24 record declared neither the forced discard decision nor its resulting graveyard card; the real engine then reported one undeclared scaffolding Mountain in P1's graveyard (the sole mismatch of the corrected state). This erratum scripts the discard as one Mountain in the existing london_bottom card-selection shape (the Lab never picks the card) and declares exactly that one Mountain in P1's graveyard in the record's existing graveyard form. The obligation keys are byte for byte the predecessor's and the obligation digest is unchanged; the requested-state digest is recomputed from the declared graveyard object. The superseded 1.0.24 patch is kept as lineage. The #608 P3 note is fixed: the four tapped Swamps are supported by CR 601.2g-h, not CR 305.2, and are injected, not natural-play reachable (305.2). The 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "ab71d3a7b9b9a6cb31e3fd193114c1d718e4c8f390cb1fe9b4957ce5c7c0e0f2",
-   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_24.json"
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_25.json"
   }
  ],
  "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_7.json"
