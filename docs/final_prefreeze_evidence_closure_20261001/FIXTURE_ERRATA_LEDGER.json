@@ -250,6 +250,17 @@
    },
    "successor_requested_state_digest": "500d01f149295012a72df0216651a5e1461958ab550cc310a5a9fd4dceeec731",
    "supersedes_record_digest": "310cbf1c260cea0917bf066afbc006a2a55c40732c8ae9d8e10501d11557c635"
+  },
+  {
+   "correction_class": "BOUNDED_SECONDARY_NON_DENOMINATOR_RECORD_ADDITION",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "a30d387a405ce8cef51c1ba78f12c88fbce90eb50a86b51ad10ec62a44c30981",
+   "effective_requested_state_digest": "f17c6769bdb4552a7cca03e1d061fe6f18f74c276f3150e7129e82f07d5406ea",
+   "evidence_survival": "NO_RUNTIME_CREDIT_UNTIL_PB03_AND_A_SEALED_EPOCH",
+   "fixture_id": "PLAYER_COUNT_6P",
+   "model_record": "PLAYER_COUNT_5P",
+   "notes": "bounded-secondary, non-denominator record added by successor contract 1.0.23 to close the recorded AF04 6P starting-seat gap: it is used only as the record argument of the 6P cardinality lifecycle, never as a FULL107 row; the 107-row denominator and AF06 are unchanged",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
   }
  ],
  "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_7.json"

@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import importlib.util
 import json
 import re
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -13,12 +17,15 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json"
+)
+V122_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
+V121_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_21.json"
 )
-V121_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
 V120_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_20.json"
 )
@@ -200,7 +207,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_22_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_23_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -268,7 +275,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -622,7 +629,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.22-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.23-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -634,9 +641,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.22-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.23-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.22-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.23-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -2312,14 +2319,14 @@ def test_start2_mull_errata_supersede_their_overlays_in_place() -> None:
     MULL-2/4 state their Rules seed and per-seat shuffle channels. Each supersedes
     its 1.0.21 overlay in place and keeps it as lineage; every other overlay is
     carried byte for byte, no obligation key changes and every row requalifies."""
-    contract = _json(SUCCESSOR_PATH)
-    predecessor = _json(PREDECESSOR_CONTRACT_PATH)
+    contract = _json(V122_CONTRACT_PATH)
+    predecessor = _json(V121_CONTRACT_PATH)
     resolver = _resolver()
     assert contract["contract_id"] == "commander-lab.full107/1.0.22-successor"
     assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_21.json")
     assert (
         contract["predecessor"]["sha256"]
-        == hashlib.sha256(PREDECESSOR_CONTRACT_PATH.read_bytes()).hexdigest()
+        == hashlib.sha256(V121_CONTRACT_PATH.read_bytes()).hexdigest()
     )
     assert [p["fixture_id"] for p in contract["record_successors"]] == [
         p["fixture_id"] for p in predecessor["record_successors"]
@@ -2465,3 +2472,395 @@ def test_start2_mull_errata_supersede_their_overlays_in_place() -> None:
         assert script == before["replace"]["decision_script"]
         active = patches[fixture_id]["append_native_procedure"]
         assert active[: len(before["append_native_procedure"])] == before["append_native_procedure"]
+
+
+# --------------------------------------------------------------------------- #
+# Contract 1.0.23: the bounded-secondary PLAYER_COUNT_6P record (#441 erratum)
+# --------------------------------------------------------------------------- #
+
+GENERATOR_1_0_23 = (
+    REPO_ROOT / "docs/sixp_starting_seat_erratum_1_0_23_20261007/generate_contract_1_0_23.py"
+)
+RUNNER_PATH = REPO_ROOT / "scripts/run_current_boundary_qualification.py"
+LEDGER_PATH = (
+    REPO_ROOT / "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json"
+)
+
+
+def test_contract_1_0_23_adds_only_the_bounded_secondary_6p_record() -> None:
+    """1.0.23 (#441 Coordinator erratum, 2026-10-07): everything in 1.0.22 is
+    carried byte for byte and the only additions are the bounded-secondary 6P
+    record, the version fields, the predecessor binding and the schema note."""
+    contract = _json(SUCCESSOR_PATH)
+    predecessor = _json(V122_CONTRACT_PATH)
+    resolver = _resolver()
+
+    assert contract["contract_id"] == "commander-lab.full107/1.0.23-successor"
+    assert (
+        contract["effective_materialization_version"]
+        == "commander-lab.semantic-fixture-materialization/1.0.23-successor"
+    )
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_22.json")
+    assert (
+        contract["predecessor"]["sha256"]
+        == hashlib.sha256(V122_CONTRACT_PATH.read_bytes()).hexdigest()
+    )
+    assert contract["predecessor"]["record_count"] == len(predecessor["record_successors"])
+
+    # Every record successor, the change accounting, the evidence policy and the
+    # rules authority are carried byte for byte.
+    assert contract["record_successors"] == predecessor["record_successors"]
+    changed = {
+        "contract_id",
+        "effective_materialization_version",
+        "materialization_schema_version_note",
+        "predecessor",
+    }
+    assert set(contract) == set(predecessor) | {"bounded_secondary_records"}
+    for key, value in predecessor.items():
+        if key not in changed:
+            assert contract[key] == value, key
+
+    # Exactly one bounded-secondary record, non-denominator by declaration.
+    section = contract["bounded_secondary_records"]
+    assert section["denominator_effect"] == "NONE"
+    assert section["af06_effect"] == "NONE"
+    (record,) = section["records"]
+    assert record["fixture_id"] == "PLAYER_COUNT_6P"
+
+    # Modelled on PLAYER_COUNT_5P: the same deck shape per seat, one more seat.
+    model = {
+        item["fixture_id"]: item
+        for item in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }["PLAYER_COUNT_5P"]
+    assert record["rules_randomness"]["rules_seed"] == model["rules_randomness"]["rules_seed"]
+    assert isinstance(record["rules_randomness"]["rules_seed"], int)
+    assert record["rules_randomness"]["pilot_randomness_prohibited"] is True
+    assert record["rules_randomness"]["channels"] == [f"library_shuffle:P{i}" for i in range(1, 7)]
+    assert record["deck_state"] == [
+        {
+            "commander_ids": [f"cmd:P{seat}-A"],
+            "library_template": {"card_identity": "Mountain", "count": 99},
+            "opening_hand_size": 7,
+            "player_id": f"P{seat}",
+            "shuffle_channel": f"library_shuffle:P{seat}",
+        }
+        for seat in range(1, 7)
+    ]
+    assert [p["player_id"] for p in record["players"]] == [f"P{i}" for i in range(1, 7)]
+    assert [p["seat"] for p in record["players"]] == list(range(1, 7))
+    assert record["pregame_decision_plan"] == [
+        {"decision": "KEEP", "player_id": f"P{i}", "round": 1} for i in range(1, 7)
+    ]
+
+    # The starting-seat declaration uses the 5P model's channel: the
+    # pre-first-turn temporal_state.active_player (P1, turn 0), consumed by
+    # starting_player.record_starting_seat. The 6P record adds no separate
+    # scripted starting_player step, so its declaration source is exactly the
+    # PLAYER_COUNT_5P record's source.
+    from commander_lab.qualification.current_boundary import starting_player
+
+    assert record["temporal_state"]["turn_number"] == 0
+    assert record["temporal_state"]["active_player"] == "P1"
+    assert [(step["actor"], step["decision_family"]) for step in record["decision_script"]] == [
+        (f"P{i}", "mulligan") for i in range(1, 7)
+    ]
+    assert starting_player.record_starting_seat(model) == (
+        "p1",
+        starting_player.STARTER_DECLARATION_PRE_FIRST_TURN,
+    )
+    assert starting_player.record_starting_seat(record) == starting_player.record_starting_seat(
+        model
+    )
+
+    # The record is digest-bound, and its digests are computed from its bytes.
+    assert record["requested_state_digest"] == resolver.requested_state_digest(record)
+    assert record["obligation_digest"] == resolver.obligation_digest(record)
+    assert record["materialization_digest"] == resolver.materialization_digest(record)
+    assert record["materialization_version"] == (
+        "commander-lab.semantic-fixture-materialization/1.0.23-successor"
+    )
+    assert record["materialization_status"] == "BOUNDED_SECONDARY_NON_DENOMINATOR"
+    assert record["frozen_contract_binding"]["manifest_fixture_id"] == "PLAYER_COUNT_6P"
+    assert "supersedes_record_digest" not in record
+    assert record["construction_validation"]["required"] is True
+
+
+# The resolver/generator tests below read and write a disposable copy of the
+# repository inputs. They must never mutate REPO_ROOT, and the generator must be
+# proven byte-deterministic without writing into the checkout.
+_TEMP_REPO_FILES: dict[str, Path] = {
+    "scripts/resolve_pre_freeze_contract.py": REPO_ROOT / "scripts/resolve_pre_freeze_contract.py",
+    "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": AUTHORITY_PATH,
+    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json": (
+        PREDECESSOR_CONTRACT_PATH
+    ),
+    "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_22_SUCCESSOR.json": (
+        REPO_ROOT
+        / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_22_SUCCESSOR.json"
+    ),
+    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json": SUCCESSOR_PATH,
+    "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_23_SUCCESSOR.json": (
+        MATERIALIZATION_SCHEMA_PATH
+    ),
+    "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json": (
+        REPO_ROOT / "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json"
+    ),
+    "qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json": (
+        REPO_ROOT / "qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json"
+    ),
+    "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json": LEDGER_PATH,
+}
+
+
+def _temp_repo(tmp_path: Path) -> Path:
+    """A disposable repo root holding copies of exactly the files the resolver
+    and the 1.0.23 generator read or write, so tests can mutate contract bytes
+    without touching REPO_ROOT."""
+    root = tmp_path / "repo"
+    for relative, source in _TEMP_REPO_FILES.items():
+        target = root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+    return root
+
+
+def _resolver_at(root: Path):
+    """Load the resolver copy at ``root`` (its REPO_ROOT is ``root``)."""
+    path = root / "scripts/resolve_pre_freeze_contract.py"
+    spec = importlib.util.spec_from_file_location(f"pre_freeze_resolver_{abs(hash(root))}", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _successor_contract_path(root: Path) -> Path:
+    return root / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
+
+
+def test_contract_1_0_23_generator_regenerates_byte_identically(tmp_path: Path) -> None:
+    """The 1.0.22 precedent: the contract, schema, pointer and ledger are always
+    regenerated from the 1.0.22 bytes, so a second run is byte-identical. The
+    regeneration runs against a disposable copy of the inputs (#602 review P3):
+    it writes into the temp root and REPO_ROOT stays byte-identical."""
+    root = _temp_repo(tmp_path)
+    targets = {
+        "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json": SUCCESSOR_PATH,
+        "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_23_SUCCESSOR.json": (
+            MATERIALIZATION_SCHEMA_PATH
+        ),
+        "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": AUTHORITY_PATH,
+        "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json": LEDGER_PATH,
+    }
+    before = {relative: target.read_bytes() for relative, target in targets.items()}
+    subprocess.run(
+        [sys.executable, str(GENERATOR_1_0_23), str(root)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    for relative, target in targets.items():
+        assert (root / relative).read_bytes() == before[relative]
+        assert target.read_bytes() == before[relative], f"REPO_ROOT was mutated: {relative}"
+
+
+def test_contract_1_0_23_generator_reproduces_the_committed_bytes(tmp_path: Path) -> None:
+    """The committed 1.0.23 bytes are exactly the generator's output: a fresh run
+    against the 1.0.22 inputs reproduces them, so no manual edit can hide."""
+    root = _temp_repo(tmp_path)
+    subprocess.run(
+        [sys.executable, str(GENERATOR_1_0_23), str(root)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    for relative in _TEMP_REPO_FILES:
+        if "pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23" in relative or (
+            "SEMANTIC_FIXTURE_SCHEMA_v1_0_23" in relative
+        ):
+            assert (root / relative).read_bytes() == (REPO_ROOT / relative).read_bytes()
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "denominator_effect_not_none",
+        "duplicate_fixture_id",
+        "empty_fixture_id",
+        "requested_state_digest_mismatch",
+        "materialization_digest_mismatch",
+    ],
+)
+def test_bounded_secondary_records_reject_malformed_sections(tmp_path: Path, case: str) -> None:
+    """The resolver's bounded-secondary contract paths fail closed (#602 review
+    P2): a section that is not denominator-neutral, a duplicate or empty
+    fixture_id, or a bounded record whose own digest does not match its bytes
+    is a ContractError, never a silent acceptance."""
+    root = _temp_repo(tmp_path)
+    path = _successor_contract_path(root)
+    contract = _json(path)
+    section = contract["bounded_secondary_records"]
+    record = section["records"][0]
+    resolver = _resolver_at(root)
+    if case == "denominator_effect_not_none":
+        section["denominator_effect"] = "NONZERO_BY_MUTATION"
+    elif case == "duplicate_fixture_id":
+        section["records"] = [record, copy.deepcopy(record)]
+    elif case == "empty_fixture_id":
+        # Keep the record otherwise digest-consistent, so only the malformed-id
+        # check can reject it (a stale digest would fail for the wrong reason).
+        record["fixture_id"] = ""
+        record["requested_state_digest"] = resolver.requested_state_digest(record)
+        record["obligation_digest"] = resolver.obligation_digest(record)
+        record["materialization_digest"] = resolver.materialization_digest(record)
+    elif case == "requested_state_digest_mismatch":
+        # Corrupt only the requested-state projection and keep the whole-record
+        # materialization digest consistent, so only this check can reject it.
+        record["requested_state_digest"] = "0" * 64
+        record["materialization_digest"] = resolver.materialization_digest(record)
+    else:
+        assert case == "materialization_digest_mismatch"
+        record["materialization_digest"] = "0" * 64
+    path.write_text(json.dumps(contract, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    with pytest.raises(resolver.ContractError):
+        resolver.bounded_secondary_records()
+
+
+def test_a_bounded_secondary_record_that_is_a_denominator_row_is_refused(tmp_path: Path) -> None:
+    """The overlap guard in ``load_effective_materialization`` (#602 review P2):
+    a bounded-secondary record named for a FULL107 denominator row is a
+    fail-closed RuntimeError, never a silent denominator move. The injected
+    record is fully digest-consistent, so only the overlap can reject it, and
+    the pristine copy still loads."""
+    from commander_lab.qualification.current_boundary.materialization import (
+        load_effective_materialization,
+    )
+
+    root = _temp_repo(tmp_path)
+    pristine = load_effective_materialization(root)
+    assert [item["fixture_id"] for item in pristine.bounded_secondary_records()] == [
+        "PLAYER_COUNT_6P"
+    ]
+
+    resolver = _resolver_at(root)
+    path = _successor_contract_path(root)
+    contract = _json(path)
+    record = contract["bounded_secondary_records"]["records"][0]
+    record["fixture_id"] = "PLAYER_COUNT_5P"
+    record["requested_state_digest"] = resolver.requested_state_digest(record)
+    record["obligation_digest"] = resolver.obligation_digest(record)
+    record["materialization_digest"] = resolver.materialization_digest(record)
+    path.write_text(json.dumps(contract, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="bounded-secondary record"):
+        load_effective_materialization(root)
+
+
+def test_the_bounded_secondary_6p_record_is_never_a_denominator_row() -> None:
+    """The 107-row denominator is untouched and the bounded record produces no
+    row. Red control: a wiring that appends a 6P row violates the eligibility
+    guard the runner uses for every cardinality row."""
+    from commander_lab.qualification.current_boundary import full107 as full107_mod
+    from commander_lab.qualification.current_boundary.materialization import (
+        load_effective_materialization,
+    )
+
+    materialization = load_effective_materialization(REPO_ROOT)
+    denominator_ids = [record["fixture_id"] for record in materialization.denominator_records()]
+    assert len(denominator_ids) == 107
+    assert "PLAYER_COUNT_6P" not in denominator_ids
+    record = materialization.bounded_secondary_record("PLAYER_COUNT_6P")
+    assert record is not None and record["fixture_id"] == "PLAYER_COUNT_6P"
+    assert materialization.bounded_secondary_records() == [record]
+    assert materialization.receipt()["provider_denominator_count"] == 107
+    assert materialization.bundle["record_count"] == 135
+
+    # The runner's single row-eligibility guard.
+    assert full107_mod.cardinality_row_eligible("PLAYER_COUNT_5P", denominator_ids)
+    assert not full107_mod.cardinality_row_eligible("PLAYER_COUNT_6P", denominator_ids)
+    wired = [
+        fixture
+        for fixture in ("PLAYER_COUNT_2P", "PLAYER_COUNT_6P")
+        if full107_mod.cardinality_row_eligible(fixture, denominator_ids)
+    ]
+    assert wired == ["PLAYER_COUNT_2P"]
+    wrong_wiring = [*wired, "PLAYER_COUNT_6P"]
+    with pytest.raises(AssertionError):
+        assert all(
+            full107_mod.cardinality_row_eligible(fixture, denominator_ids)
+            for fixture in wrong_wiring
+        )
+
+    # The authority pointer and the ledger name the new record and contract.
+    assert _json(AUTHORITY_PATH)["full107"]["successor_contract"].endswith(
+        "FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
+    )
+    entry = next(
+        item for item in _json(LEDGER_PATH)["records"] if item["fixture_id"] == "PLAYER_COUNT_6P"
+    )
+    assert entry["denominator_effect"] == "NONE"
+    assert entry["successor_contract"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_23.json")
+    assert entry["effective_requested_state_digest"] == record["requested_state_digest"]
+
+    # The schema of the 1.0.23 materialization still accepts the effective
+    # bundle (the bounded record is not part of it) and enumerates 1.0.23.
+    effective = _resolver().load_effective_materialization()
+    Draft202012Validator(_json(MATERIALIZATION_SCHEMA_PATH)).validate(effective)
+    assert effective["contract_id"] == "commander-lab.full107/1.0.23-successor"
+
+
+def test_the_runner_uses_the_bounded_record_only_as_the_6p_record_argument() -> None:
+    source = RUNNER_PATH.read_text(encoding="utf-8")
+    assert "record = materialization.bounded_secondary_record(fixture)" in source
+    assert "record=by_id.get(fixture)," not in source
+    assert "if cardinality_row_eligible(fixture, by_id):" in source
+
+
+def test_run_cardinality_uses_the_6p_records_starting_seat_or_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """#441: the 6P lifecycle receives the record's own seed, decks and starting
+    seat through record_starting_seat; without the record it stays record-less
+    and fails closed (no Lab default)."""
+    from commander_lab.qualification.current_boundary import full107 as full107_mod
+    from commander_lab.qualification.current_boundary import starting_player
+    from commander_lab.qualification.current_boundary.materialization import (
+        load_effective_materialization,
+    )
+
+    record = load_effective_materialization(REPO_ROOT).bounded_secondary_record("PLAYER_COUNT_6P")
+    assert record is not None
+    assert starting_player.record_starting_seat(record) == (
+        "p1",
+        starting_player.STARTER_DECLARATION_PRE_FIRST_TURN,
+    )
+
+    seen: dict = {}
+
+    def fake_drive(proc, **kwargs):
+        seen.clear()
+        seen.update(kwargs)
+        return object()
+
+    monkeypatch.setattr(full107_mod, "drive_commander_game", fake_drive)
+    full107_mod.run_cardinality(
+        object(), candidate="xmage", player_count=6, runtime_identity={}, record=record
+    )
+    assert seen["scripted_starting_seat"] == "p1"
+    assert seen["starting_seat_source"] == starting_player.STARTER_DECLARATION_PRE_FIRST_TURN
+    assert seen["seed"] == record["rules_randomness"]["rules_seed"] == 424242
+    assert seen["mulligan_plan"] == tuple((f"p{i}", True) for i in range(1, 7))
+    assert seen["decks"] is not None and len(seen["decks"]) == 6
+
+    # Red control: with the bounded record removed (its predecessor behaviour)
+    # the lifecycle passes no seat, no plan and no record seed; the provider's
+    # starting-player frame then fails closed with no Lab default (#572).
+    full107_mod.run_cardinality(object(), candidate="xmage", player_count=6, runtime_identity={})
+    assert seen["scripted_starting_seat"] is None
+    assert seen["starting_seat_source"] is None
+    assert seen["mulligan_plan"] is None
+    assert seen["decks"] is None

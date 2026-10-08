@@ -26,6 +26,7 @@ import json
 import re
 import time
 import uuid
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -211,6 +212,18 @@ LIFECYCLE_PROBE_SEED = 424242
 # A run the record itself refuses (it does not state what to run): nothing was
 # driven, so the row is UNKNOWN, never a lifecycle FAIL.
 RECORD_REFUSED = "RECORD_REFUSED"
+
+
+def cardinality_row_eligible(fixture_id: str, denominator_ids: Iterable[str]) -> bool:
+    """Whether a cardinality lifecycle may append a FULL107 row.
+
+    Only a record inside the frozen 107-row denominator earns a row. A
+    bounded-secondary lifecycle (contract 1.0.23's 6P record) is run with its
+    record but is never a denominator row, so the runner never appends a
+    ``cardinality_row`` for it (#441 Coordinator erratum). This is the single
+    testable guard the runner's cardinality loop uses.
+    """
+    return fixture_id in set(denominator_ids)
 
 
 def run_cardinality(
