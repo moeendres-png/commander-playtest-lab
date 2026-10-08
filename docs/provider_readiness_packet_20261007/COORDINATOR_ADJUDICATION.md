@@ -44,8 +44,14 @@ Neither candidate passes AF00–AF11. Neither is freeze-ready.
 3. **XMage is two rows from AF06 and one row from AF08.**
    - `WS05-CMD-MULL-2`: the generic Protocol2 lane has no London-bottom decision (#595 finding);
      the bridge projection is in progress (#592). The Lab never chooses the card.
-   - `NEGATIVE_PARENT_CLASS_FALLBACK`: the runner lacks the per-shortcut negative control; this is
-     Lab work, not an engine capability question.
+   - `NEGATIVE_PARENT_CLASS_FALLBACK`: the runner lacked an execution seam for this negative.
+     Building it (#601, #605, #606) showed that the 1.0.22/1.0.23 record itself is unreachable:
+     it puts P2's sorcery Syphon Mind on the stack in turn 1 while P1 is active, which CR 307.1
+     forbids. The bridge now refuses that state fail-closed (`UNSUPPORTED_RESUME_TIMING`, #606).
+     Contract erratum 1.0.24 (#607) corrects the record: turn 2, P2 active, cast from hand, a
+     paid cost, and P3/P4 with empty hands (CR 101.4). The corrected record still needs bridge
+     support for qualified checkpoints after turn 1. Until then the row stays UNKNOWN. This is
+     Lab/bridge work, not an engine capability question.
 4. **AF04 is open for both for one recorded reason: the bounded 6P run.** On 2P–5P every frame
    is clean and `contradictions` is empty (XMage answers MULLIGAN and PRIORITY externally, Forge
    additionally STARTING_PLAYER). The only recorded gaps are the three 6P gaps: the 6P record
@@ -94,7 +100,8 @@ change a gate, so option C stays available without blocking B.
 
 1. Land the XMage generic-lane London-bottom projection and the Lab answer path (#592), then re-run
    PB-03 and seal.
-2. Implement the per-shortcut negative for `NEGATIVE_PARENT_CLASS_FALLBACK`.
+2. Qualify turn-2 resume checkpoints in the XMage bridge so the corrected
+   `NEGATIVE_PARENT_CLASS_FALLBACK` record (1.0.24) can run.
 3. Issue a contract erratum giving the bounded 6P record an authoritative starting seat (AF04, both
    candidates), executed through the existing starting-player channels (#574).
 4. Re-issue this adjudication against the new epoch.
