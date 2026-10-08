@@ -46,10 +46,29 @@ def _turn2_record(value: Any = None, actor: str = "P1") -> dict[str, Any]:
     record["starting_player"] = "P1"
     record["decision_script"] = [
         {
+            "actor": "ALL",
+            "decision_family": "priority_pass_through",
+            "selection": {
+                "selector_kind": "pass_priority",
+                "semantic_value": {
+                    "scope": {
+                        "from": {"turn": 1, "phase": "beginning"},
+                        "until": {"turn": 2, "phase": "precombat_main", "step": "main"},
+                    }
+                },
+            },
+        },
+        {
             "actor": actor,
             "decision_family": "cleanup_discard",
-            "selection": {"selector_kind": "card_identity_multiset", "semantic_value": value},
-        }
+            "turn": 1,
+            "phase": "CLEANUP",
+            "selection": {
+                "selector_kind": "card_identity_multiset",
+                "on_multiple_match": "SAME_NAME_OUTCOME_EQUIVALENT_LEAST_ID",
+                "semantic_value": value,
+            },
+        },
     ]
     return record
 
@@ -215,6 +234,7 @@ def _omission_frame(
 
 
 TURN1_CLEANUP = _observation(1, "CLEANUP", "CLEANUP", "P1")
+TURN2_CLEANUP = _observation(2, "CLEANUP", "CLEANUP", "P2")
 TURN2_MAIN = _observation(2, "PRECOMBAT_MAIN", "PRECOMBAT_MAIN", "P2")
 
 
@@ -484,3 +504,41 @@ def test_an_undeclared_cleanup_discard_is_never_answered_by_the_lab() -> None:
     assert not execution.verified
     assert "arrival failed closed" in execution.detail
     assert client.proposals == []
+
+
+def test_a_cleanup_discard_at_a_later_turn_fails_closed() -> None:
+    """The step declares turn 1, CLEANUP: a turn-2 cleanup discard is not it."""
+    record = _turn2_record()
+    client = _SequencedClient(
+        [
+            _cleanup_frame(
+                [_card_offer("Mountain", "n-mtn-a", "opt-a")],
+                observation=TURN2_CLEANUP,
+            )
+        ]
+    )
+    execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
+    assert not execution.verified
+    assert "declares turn 1" in execution.detail
+    assert client.proposals == []
+
+
+def test_a_malformed_starting_player_declaration_is_never_salvaged() -> None:
+    """A declared shape without a usable seat is a refusal, not a turn-1 salvage."""
+    assert midgame_starting_seat(
+        {
+            "starting_player": "INVALID",
+            "temporal_state": {"turn_number": 1, "active_player": "P2"},
+        }
+    ) == (None, None)
+    assert midgame_starting_seat(
+        {
+            "decision_script": [
+                {
+                    "decision_family": "starting_player",
+                    "selection": {"selector_kind": "seat", "semantic_value": "INVALID"},
+                }
+            ],
+            "temporal_state": {"turn_number": 1, "active_player": "P2"},
+        }
+    ) == (None, None)

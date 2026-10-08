@@ -259,6 +259,20 @@ class _OmissionClient:
         }
 
     def complete_arrival(self) -> dict[str, Any]:
+        pending = self._decisions[0] if self._decisions else None
+        if pending is not None and pending.get("decision_class") == "choose_object":
+            # The record's scripted cleanup discard is the turn-1 CLEANUP one
+            # (contract 1.0.26 declares turn/phase on the step).
+            return {
+                "construction_match": True,
+                "mismatches": [],
+                "observation": {
+                    "phase": "CLEANUP",
+                    "step": "CLEANUP",
+                    "priority_player": "P1",
+                    "turn_number": 1,
+                },
+            }
         # The record's declared checkpoint is turn 2 (P2 active); a turn-1
         # readback is not that checkpoint.
         return {

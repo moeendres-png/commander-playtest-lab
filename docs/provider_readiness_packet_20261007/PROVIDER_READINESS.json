@@ -46,12 +46,12 @@
     },
     "effective_contract": {
       "pointer": "qualification/CURRENT_PRE_FREEZE_CONTRACT.json",
-      "pointer_sha256": "53d02f1fc341521c311d3b0a0482ada2e25f4f5d1255dd4d7693874ba735a896",
-      "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_25.json",
-      "successor_sha256": "9c22e3e4f2aaaafae5f90e1d188aa1b805b6c4c5923d598074cecbb003c032d5",
-      "successor_id": "commander-lab.full107/1.0.25-successor",
-      "schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_25_SUCCESSOR.json",
-      "schema_sha256": "0ce45f201321e8fba34eb27aa60f082f94bc80c4ab4cc4803c02cd998fa86247",
+      "pointer_sha256": "7df7cef10f0de30a23f0c5d59c681d36157cd17af915dfa40c6f524aa1f586e9",
+      "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_26.json",
+      "successor_sha256": "db59d55d3afde5692b9f3b29a7d2364ad7d99c31fe4a50e045556b7f5bbbc90c",
+      "successor_id": "commander-lab.full107/1.0.26-successor",
+      "schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_26_SUCCESSOR.json",
+      "schema_sha256": "0cfb8d8a52221e5539a69439a2252e14909f918f971d3558bf403a301bbae310",
       "effective_manifest_contract_id": "commander-lab.full107/1.0.22-successor"
     },
     "engine_pins": {
@@ -117,7 +117,7 @@
       },
       {
         "subject": "effective fixture contract",
-        "pin": "commander-lab.full107/1.0.25-successor",
+        "pin": "commander-lab.full107/1.0.26-successor",
         "sealed_evidence": "commander-lab.full107/1.0.22-successor",
         "verdict": "DIFFERS",
         "pin_source": "qualification/CURRENT_PRE_FREEZE_CONTRACT.json#full107.successor_contract",

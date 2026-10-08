@@ -210,11 +210,20 @@ class SequencedEngine:
         if self.index >= len(self.frames):
             return None
         decision_class = self._current()[0]
-        options = (
-            [{"option_id": f"pass-{self.index}", "option_type": "pass_priority"}]
-            if decision_class == "priority"
-            else []
-        )
+        if decision_class == "priority":
+            options = [{"option_id": f"pass-{self.index}", "option_type": "pass_priority"}]
+        elif decision_class == "declare_attacker":
+            options = [
+                {"option_id": f"hold-{self.index}", "option_type": "hold_attacker"},
+                {"option_id": f"attack-{self.index}", "option_type": "declare_attacker"},
+            ]
+        elif decision_class == "mulligan":
+            options = [
+                {"option_id": f"keep-{self.index}", "option_type": "keep"},
+                {"option_id": f"mulligan-{self.index}", "option_type": "mulligan"},
+            ]
+        else:
+            options = []
         return {"decision_class": decision_class, "seat": 0, "legal_options": options}
 
     def complete_arrival(self) -> dict[str, Any]:
@@ -246,7 +255,21 @@ def _combat_record(step: str, priority: str) -> dict[str, Any]:
             "active_player": "P1",
             "priority_player": priority,
         },
-        "decision_script": [],
+        "decision_script": [
+            {
+                "actor": "ALL",
+                "decision_family": "priority_pass_through",
+                "selection": {
+                    "selector_kind": "pass_priority",
+                    "semantic_value": {
+                        "scope": {
+                            "from": {"turn": 1, "phase": "beginning"},
+                            "until": {"turn": 1, "phase": "combat", "step": step},
+                        }
+                    },
+                },
+            }
+        ],
     }
 
 
@@ -312,3 +335,123 @@ def test_the_checkpoint_step_never_ends_before_the_requested_priority(probe: Any
         probe.drive_arrival(
             engine, _combat_record("declare_attackers", "P3"), lambda decision, cls: True
         )
+
+
+# --------------------------------------------------------------------------- #
+# The record declares its own pre-checkpoint history; the Lab only transports
+# --------------------------------------------------------------------------- #
+
+
+def _postcombat_record(declare_value: Any) -> dict[str, Any]:
+    return {
+        "fixture_id": "COMBAT",
+        "temporal_state": {
+            "turn_number": 1,
+            "phase": "postcombat_main",
+            "step": "main",
+            "active_player": "P1",
+            "priority_player": "P2",
+        },
+        "decision_script": [
+            {
+                "actor": "ALL",
+                "decision_family": "priority_pass_through",
+                "selection": {
+                    "selector_kind": "pass_priority",
+                    "semantic_value": {
+                        "scope": {
+                            "from": {"turn": 1, "phase": "beginning"},
+                            "until": {"turn": 1, "phase": "postcombat_main", "step": "main"},
+                        }
+                    },
+                },
+            },
+            {
+                "actor": "P1",
+                "decision_family": "declare_attackers",
+                "turn": 1,
+                "phase": "COMBAT",
+                "selection": {"selector_kind": "attack_set", "semantic_value": declare_value},
+            },
+        ],
+    }
+
+
+def test_a_scripted_empty_attack_set_is_transported(probe: Any) -> None:
+    engine = SequencedEngine(
+        [
+            ("declare_attacker", "COMBAT", "DECLARE_ATTACKERS", "P1"),
+            ("priority", "POSTCOMBAT_MAIN", "POSTCOMBAT_MAIN", "P2"),
+        ]
+    )
+    verdict = probe.drive_arrival(engine, _postcombat_record([]))
+    assert verdict is not None and verdict.construction_verdict == "EXACT"
+    # "Do not attack" for the offered creature, from the record's empty set.
+    assert engine.submitted == ["hold-0"]
+
+
+def test_an_unscripted_attacker_frame_fails_closed(probe: Any) -> None:
+    record = _postcombat_record([])
+    # Drop the record's own declare_attackers step: the frame before the
+    # checkpoint is then unscripted and must fail closed, never be held by a
+    # Lab default.
+    record["decision_script"] = [
+        step for step in record["decision_script"] if step["decision_family"] != "declare_attackers"
+    ]
+    engine = SequencedEngine([("declare_attacker", "COMBAT", "DECLARE_ATTACKERS", "P1")])
+    with pytest.raises(probe.ml.MidgameLaneError, match="before the record's requested"):
+        probe.drive_arrival(engine, record)
+
+
+def test_a_non_empty_scripted_attack_set_is_not_transported(probe: Any) -> None:
+    engine = SequencedEngine([("declare_attacker", "COMBAT", "DECLARE_ATTACKERS", "P1")])
+    with pytest.raises(probe.ml.MidgameLaneError, match="non-empty scripted attack set"):
+        probe.drive_arrival(engine, _postcombat_record(["obj:bear"]))
+
+
+def test_a_priority_frame_outside_the_declared_scope_fails_closed(probe: Any) -> None:
+    engine = SequencedEngine([("priority", "BEGINNING", "END_TURN", "P1")])
+    with pytest.raises(probe.ml.MidgameLaneError, match="outside every declared"):
+        probe.drive_arrival(engine, _combat_record("declare_attackers", "P2"))
+
+
+def test_a_priority_frame_without_a_readable_turn_fails_closed(probe: Any) -> None:
+    class _NoTurnEngine(SequencedEngine):
+        def complete_arrival(self) -> dict[str, Any]:
+            payload = super().complete_arrival()
+            payload["observation"].pop("turn_number", None)
+            return payload
+
+    engine = _NoTurnEngine([("priority", "PRECOMBAT_MAIN", "PRECOMBAT_MAIN", "P1")])
+    with pytest.raises(probe.ml.MidgameLaneError, match="no readable turn_number"):
+        probe.drive_arrival(engine, _combat_record("declare_attackers", "P2"))
+
+
+def test_an_unscripted_pregame_keep_fails_closed(probe: Any) -> None:
+    engine = SequencedEngine([("mulligan", "UNINITIALIZED", "UNINITIALIZED", "P1")])
+    with pytest.raises(probe.ml.MidgameLaneError, match="does not script for this seat"):
+        probe.drive_arrival(engine, _combat_record("declare_attackers", "P2"))
+
+
+def test_a_scripted_pregame_keep_is_transported(probe: Any) -> None:
+    record = _combat_record("declare_attackers", "P2")
+    record["decision_script"].insert(
+        0,
+        {
+            "actor": "P1",
+            "decision_family": "mulligan",
+            "selection": {
+                "selector_kind": "semantic_action",
+                "semantic_value": "keep_opening_hand",
+            },
+        },
+    )
+    engine = SequencedEngine(
+        [
+            ("mulligan", "UNINITIALIZED", "UNINITIALIZED", "P1"),
+            ("priority", "COMBAT", "DECLARE_ATTACKERS", "P2"),
+        ]
+    )
+    verdict = probe.drive_arrival(engine, record)
+    assert verdict is not None and verdict.construction_verdict == "EXACT"
+    assert engine.submitted == ["keep-0"]

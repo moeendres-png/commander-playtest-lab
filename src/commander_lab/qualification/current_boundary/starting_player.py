@@ -147,6 +147,11 @@ def midgame_starting_seat(record: Any) -> tuple[str | None, str | None]:
     active player either.
     """
     declarations = _declarations(record, pre_first_turn_shape=True)
+    if declarations is None:
+        # A declared shape that carries no usable seat is the parser's refusal,
+        # not authority to salvage the starter from the turn-1 active player
+        # (#616 review P2): a malformed declaration never becomes a declaration.
+        return None, None
     if declarations:
         declared = _one_declaration(declarations)
         if declared[0] is not None:

@@ -495,6 +495,48 @@ def engine_decision_class(family: str) -> str:
     return ENGINE_DECISION_CLASS.get(family, family)
 
 
+# The decision families the arrival transport answers itself from the record's
+# own declarations: the setup starting player (CR 103.1), the pregame keeps
+# (CR 103.5), the declared priority pass-through scope (CR 117.3d) and the
+# declared attack set (CR 508.1). The scripted-answer cursor steps over them;
+# the generic object selectors never answer them, and the transport never
+# answers a frame the record does not declare.
+ARRIVAL_TRANSPORT_FAMILIES = frozenset(
+    {"starting_player", "mulligan", "priority_pass_through", "declare_attackers"}
+)
+
+
+def _require_declared_point(step: dict[str, Any], client: ml.MidgameLaneClient) -> None:
+    """Require the engine frame to stand at the step's declared turn/phase.
+
+    A scripted step that declares its turn and/or phase (the turn-1 cleanup
+    discard: turn 1, CLEANUP) answers only a frame the engine reads back at
+    exactly that point. A missing or unreadable engine turn fails closed, as
+    does a frame at another turn or phase: a later cleanup discard is not the
+    declared turn-1 one.
+    """
+    declared_turn = step.get("turn")
+    declared_phase = step.get("phase")
+    if declared_turn is None and declared_phase is None:
+        return
+    observation = client.complete_arrival().get("observation") or {}
+    turn = observation.get("turn_number")
+    if not isinstance(turn, int) or isinstance(turn, bool):
+        raise ml.MidgameLaneError(
+            f"the engine reported no readable turn for the scripted {step.get('decision_family')}"
+        )
+    if declared_turn is not None and turn != declared_turn:
+        raise ml.MidgameLaneError(
+            f"the engine asked the scripted {step.get('decision_family')} at turn {turn}, "
+            f"but the record declares turn {declared_turn}"
+        )
+    if declared_phase is not None and str(observation.get("phase")) != str(declared_phase):
+        raise ml.MidgameLaneError(
+            f"the engine asked the scripted {step.get('decision_family')} in "
+            f"{observation.get('phase')}, but the record declares {declared_phase}"
+        )
+
+
 # XMage asks every yes/no question through one decision class, ``choose_use``
 # (its chooseUse surface). A record step that answers a yes/no question with a
 # boolean selector may name the question's rules family instead (the owner's
@@ -4578,18 +4620,21 @@ def execute_row(
         """
         position_ = arrival_consumed[0]
         while position_ < len(script) and (
-            str(script[position_].get("decision_family")) == "starting_player"
+            str(script[position_].get("decision_family")) in ARRIVAL_TRANSPORT_FAMILIES
         ):
             # A starting_player step is the record's setup declaration (CR
-            # 103.1): the lane's own starting-player frame handling answers the
-            # engine's choice before any arrival decision, and that frame is
-            # never an engine choose_object. The cursor therefore steps over it
-            # instead of demanding a same-class engine frame.
+            # 103.1), a mulligan step its pregame keep (CR 103.5), a
+            # priority_pass_through step its declared pass scope (CR 117.3d) and
+            # a declare_attackers step its declared attack set (CR 508.1). The
+            # arrival transport answers those frames itself, so the cursor steps
+            # over them instead of demanding a same-class generic frame; they
+            # are never answered by the record's object selectors.
             position_ += 1
             arrival_consumed[0] = position_
         if position_ < len(script):
             step = script[position_]
             if step_decision_class(step) == decision_class:
+                _require_declared_point(step, client)
                 actor = str(step.get("actor"))
                 if actor != principal:
                     raise ml.MidgameLaneError(

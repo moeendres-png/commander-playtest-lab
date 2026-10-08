@@ -646,6 +646,98 @@ def _arrival_at_checkpoint(
     )
 
 
+def _readable_turn(probe: dict[str, Any], context: str) -> int:
+    """The engine readback's integer turn, or a fail-closed refusal.
+
+    Every turn comparison needs the engine's own readable integer turn first
+    (the same rule ``_arrival_at_checkpoint`` applies): a frame whose readback
+    carries no integer turn is never assumed to be before, at, or after any
+    declared turn.
+    """
+    turn = probe.get("turn_number")
+    if not isinstance(turn, int) or isinstance(turn, bool):
+        raise ml.MidgameLaneError(f"the engine reported no readable turn_number for {context}")
+    return turn
+
+
+def _frame_seat_matches_actor(step: dict[str, Any], decision: dict[str, Any]) -> bool:
+    """Whether the record's scripted actor is the engine frame's own seat."""
+    actor = str(step.get("actor") or "").strip().lower()
+    if actor == "all":
+        return True
+    if actor not in SEATS:
+        return False
+    seat = decision.get("seat")
+    return isinstance(seat, int) and not isinstance(seat, bool) and SEATS.index(actor) == seat
+
+
+def _declared_point_matches(step: dict[str, Any], probe: dict[str, Any], context: str) -> bool:
+    """Whether a scripted step's declared turn/phase is the engine frame's own.
+
+    A step that declares its turn and/or phase (the scripted cleanup discard:
+    turn 1, CLEANUP) answers only a frame the engine reads back at exactly that
+    point. An unreadable engine turn fails closed rather than matching.
+    """
+    declared_turn = step.get("turn")
+    if declared_turn is not None:
+        if not isinstance(declared_turn, int) or isinstance(declared_turn, bool):
+            raise ml.MidgameLaneError(
+                f"the record's scripted step declares no readable turn for {context}"
+            )
+        if _readable_turn(probe, context) != declared_turn:
+            return False
+    declared_phase = step.get("phase")
+    return declared_phase is None or str(probe.get("phase")) == str(declared_phase)
+
+
+def _scope_bound(bound: Any, *, opening: bool) -> tuple[int, int]:
+    """One (turn, step index) bound of a declared priority pass-through scope."""
+    if not isinstance(bound, dict):
+        raise ml.MidgameLaneError("the record scripts priority_pass_through without a bound")
+    turn = bound.get("turn")
+    if not isinstance(turn, int) or isinstance(turn, bool):
+        raise ml.MidgameLaneError("the record's priority_pass_through bound declares no turn")
+    step_name = bound.get("step")
+    if step_name is None:
+        index = 0 if opening else len(_TURN_STEP_ORDER)
+    else:
+        token = _ENGINE_STEP_BY_POINT.get((str(bound.get("phase") or ""), str(step_name)))
+        token = token or str(step_name).upper()
+        if token not in _TURN_STEP_ORDER:
+            raise ml.MidgameLaneError(
+                f"the record's priority_pass_through bound names no engine step: {step_name!r}"
+            )
+        index = _TURN_STEP_ORDER.index(token)
+    return turn, index
+
+
+def _priority_scope_covers(step: dict[str, Any], probe: dict[str, Any]) -> bool:
+    """Whether a scripted priority_pass_through step covers the engine's frame.
+
+    The scope is the closed (turn, step) interval from its ``from`` bound to its
+    ``until`` bound; the checkpoint's own priority frame is recognized before
+    this check, so a frame at the until bound that is not the checkpoint is a
+    pass on the way to the declared checkpoint.
+    """
+    value = (step.get("selection") or {}).get("semantic_value")
+    scope = value.get("scope") if isinstance(value, dict) else None
+    if not isinstance(scope, dict):
+        raise ml.MidgameLaneError("the record scripts priority_pass_through without a scope")
+    opening = _scope_bound(scope.get("from"), opening=True)
+    closing = _scope_bound(scope.get("until"), opening=False)
+    engine_step = str(probe.get("step"))
+    if engine_step not in _TURN_STEP_ORDER:
+        raise ml.MidgameLaneError(
+            "the engine reported no readable step for the priority pass-through scope: "
+            f"{engine_step!r}"
+        )
+    current = (
+        _readable_turn(probe, "the priority pass-through scope"),
+        _TURN_STEP_ORDER.index(engine_step),
+    )
+    return opening <= current <= closing
+
+
 def drive_arrival(
     client: ml.MidgameLaneClient,
     record: dict[str, Any],
@@ -691,6 +783,14 @@ def drive_arrival(
 
     script = list(record.get("decision_script") or ())
     first_family = str(script[0].get("decision_family")) if script else None
+    mulligan_steps = [step for step in script if str(step.get("decision_family")) == "mulligan"]
+    priority_steps = [
+        step for step in script if str(step.get("decision_family")) == "priority_pass_through"
+    ]
+    attacker_steps = [
+        step for step in script if str(step.get("decision_family")) == "declare_attackers"
+    ]
+    mulligan_answered = [0]
 
     for _ in range(120):
         decision = client.pending_decision()
@@ -721,10 +821,33 @@ def drive_arrival(
             # Before the game starts the same class is a setup frame (the
             # starting player), answered below like any other setup frame.
         if decision_class == "mulligan":
-            keep = option_of_type(decision, "keep")
-            if keep is None:
-                raise ml.MidgameLaneError("the engine offered no keep option for the mulligan")
-            client.submit_options(decision, [keep])
+            # The pregame keep is the seat's own choice (CR 103.5): the probe
+            # answers it only from the record's own scripted mulligan step for
+            # exactly this seat, never with a default keep. An engine mulligan
+            # frame the record does not script for the asked seat fails closed.
+            index_ = mulligan_answered[0]
+            while index_ < len(mulligan_steps) and not _frame_seat_matches_actor(
+                mulligan_steps[index_], decision
+            ):
+                index_ += 1
+            if index_ >= len(mulligan_steps):
+                raise ml.MidgameLaneError(
+                    "the engine asked a mulligan decision the record does not script for this seat"
+                )
+            step = mulligan_steps[index_]
+            value = str((step.get("selection") or {}).get("semantic_value") or "")
+            wanted_type = {"keep_opening_hand": "keep", "mulligan": "mulligan"}.get(value)
+            if wanted_type is None:
+                raise ml.MidgameLaneError(
+                    f"the record scripts an unreadable mulligan selection {value!r}"
+                )
+            answer = option_of_type(decision, wanted_type)
+            if answer is None:
+                raise ml.MidgameLaneError(
+                    f"the engine offered no {wanted_type} option for the scripted mulligan"
+                )
+            client.submit_options(decision, [answer])
+            mulligan_answered[0] = index_ + 1
         elif decision_class in {"choice", "choose_object"}:
             chosen = option_by_label_suffix(decision, active_label)
             if chosen is None and answer_scripted is not None:
@@ -760,6 +883,15 @@ def drive_arrival(
             passed = option_of_type(decision, "pass_priority")
             if passed is None:
                 raise ml.MidgameLaneError("the engine offered no pass-priority option")
+            # Only the record's own declared priority_pass_through scope
+            # authorizes PASS (CR 117.3d, 305.1): a priority frame outside it
+            # would otherwise be a Lab answer for a player, so it fails closed.
+            if not any(_priority_scope_covers(step, probe) for step in priority_steps):
+                raise ml.MidgameLaneError(
+                    f"the engine asked priority at {probe.get('turn_number')}/"
+                    f"{probe.get('phase')}/{probe.get('step')} outside every declared "
+                    "priority_pass_through scope"
+                )
             client.submit_options(decision, [passed])
         elif decision_class in {"declare_attacker", "declare_blocker"}:
             # A declaration checkpoint: the engine has reached the record's
@@ -772,7 +904,7 @@ def drive_arrival(
                 and (
                     at_checkpoint
                     or (
-                        int(probe.get("turn_number") or 0) == target_turn
+                        _readable_turn(probe, "the combat declaration frame") == target_turn
                         and _checkpoint_follows(str(probe.get("step")), target_step)
                     )
                 )
@@ -787,23 +919,42 @@ def drive_arrival(
                     client.complete_arrival(),
                     engine_commit=client.engine_commit,
                 )
-            if (
-                decision_class == "declare_attacker"
-                and int(probe.get("turn_number") or 0) < target_turn
-            ):
-                # An earlier turn before a later checkpoint: the record
-                # declares no combat there, so every legal attacker is held.
-                # Holding every legal attacker is the engine's own no-attack
-                # outcome for the record's declared state, never a Lab-chosen
-                # attack; the checkpoint step itself is unaffected.
-                hold = option_of_type(decision, "hold_attacker")
-                if hold is None:
-                    raise ml.MidgameLaneError(
-                        "the engine offered no hold-attacker option on the turn before "
-                        "the record's checkpoint"
-                    )
-                client.submit_options(decision, [hold])
-                continue
+            if decision_class == "declare_attacker":
+                # An attacker frame before the checkpoint is answered only from
+                # the record's own scripted declare_attackers step: the script's
+                # empty attack set means "do not attack" for every offered
+                # creature (CR 508.1, 508.8). There is no default hold: a frame
+                # the record does not declare fails closed.
+                step = next(
+                    (
+                        candidate
+                        for candidate in attacker_steps
+                        if _frame_seat_matches_actor(candidate, decision)
+                        and _declared_point_matches(
+                            candidate, probe, "the scripted declare_attackers step"
+                        )
+                    ),
+                    None,
+                )
+                if step is not None:
+                    selection = step.get("selection") or {}
+                    if (
+                        selection.get("selector_kind") != "attack_set"
+                        or selection.get("semantic_value") != []
+                    ):
+                        raise ml.MidgameLaneError(
+                            "the probe cannot transport a non-empty scripted attack set: "
+                            "the record's declare_attackers step must declare an empty "
+                            "attack set"
+                        )
+                    hold = option_of_type(decision, "hold_attacker")
+                    if hold is None:
+                        raise ml.MidgameLaneError(
+                            "the engine offered no hold-attacker option for the record's "
+                            "scripted empty attack set"
+                        )
+                    client.submit_options(decision, [hold])
+                    continue
             raise ml.MidgameLaneError(
                 f"the engine reached {probe.get('phase')}/{probe.get('step')} before the "
                 f"record's requested {target_phase}/{target_step} checkpoint"
