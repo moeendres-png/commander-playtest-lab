@@ -263,10 +263,10 @@
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
   },
   {
-   "correction_class": "FIXTURE_DEFECT_CORRECTION_CAST_TIMING_AND_COST_CONSISTENCY",
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_PRE_CHECKPOINT_HISTORY_DECLARATIONS",
    "denominator_effect": "NONE",
    "effective_obligation_digest": "bf42a01771a1e9d4b999f209229e009692f2e4e8ac6bfd9b059a6144b51609a9",
-   "effective_requested_state_digest": "abb022769fb5afbc5a1645e7aede6a72e010718d3d94df2d1d21d21fae6c4c73",
+   "effective_requested_state_digest": "0b29fb7790fbbec3f906c688f03cfe4afcdd9394d8d958dc3600249c56e06b70",
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
@@ -291,8 +291,8 @@
     },
     {
      "change": "semantic_objects +4 tapped Swamps controlled by P2",
-     "comprehensive_rules": "305.2",
-     "reason": "the record declares costs_paid for {3}{B}; the four declared tapped Swamps are the mana sources that paid it, making the paid cast consistent with the declared battlefield"
+     "comprehensive_rules": "601.2g-h",
+     "reason": "the record declares costs_paid for {3}{B}; the four declared tapped Swamps are the mana sources that paid it, making the paid cast consistent with the declared battlefield under CR 601.2g-h. They are injected; not natural-play reachable (305.2). No natural-play path is claimed"
     },
     {
      "change": "stack_state[0].costs_paid now has declared mana sources",
@@ -303,13 +303,53 @@
      "change": "deck_state absent -> complete empty checkpoint hands for P3 and P4 (hand_count 0)",
      "comprehensive_rules": "101.4",
      "reason": "Syphon Mind makes each other player discard a card; APNAP order from active player P2 is P3, P4, P1, so P1 is the first actor asked to discard only if P3 and P4 hold no cards. The complete empty checkpoint hands declare that precondition explicitly. P1's two declared hand cards are unchanged, so the expected decision actor stays P1"
+    },
+    {
+     "change": "decision_script absent -> one scripted starting_player declaration for P1 (seat P1)",
+     "comprehensive_rules": "103.1",
+     "reason": "the corrected checkpoint is the turn-2 precombat main with P2 active, so the checkpoint's active player is not the starting player. The mid-game lane never derives the starting seat from a later checkpoint's active player and never defaults to seat 0; without an explicit declaration it fails closed. The record therefore declares its own starting seat P1 (CR 103.1), consistent with P2's turn 2 in four-player seat order, in the exact decision-script shape midgame_starting_seat consumes"
+    },
+    {
+     "change": "decision_script absent -> one scripted cleanup_discard for P1 (one Mountain)",
+     "comprehensive_rules": "514.1, 103.8c",
+     "reason": "the corrected turn-2 checkpoint is only reachable through P1's turn 1. In this four-player game the first turn's player draws a card (CR 103.8c), so P1 holds eight cards when its cleanup step begins and must discard down to seven (CR 514.1). Which card is discarded is P1's own choice, so the Lab may not choose it: the choice is scripted as a one-card card_identity_multiset of the scaffolding hand's Mountain"
+    },
+    {
+     "change": "semantic_objects +1 Mountain in P1's graveyard",
+     "comprehensive_rules": "514.1, 103.8c",
+     "reason": "the scripted forced discard is part of the declared history at the checkpoint: the card P1 discarded at its turn-1 cleanup is in P1's graveyard. Without the declaration the engine's checkpoint readback reported exactly one undeclared P1|GRAVEYARD|Mountain (requested 0 / observed 1), the sole mismatch of the corrected state, so the requested state declares exactly that one Mountain"
+    },
+    {
+     "change": "decision_script +4 pregame mulligan keep steps (P1-P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.25 record declared no mulligan step, so the arrival answered the engine's keep with a Lab default. The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL)",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from turn 1's beginning to the turn-2 precombat-main checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The 1.0.25 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
+    },
+    {
+     "change": "decision_script +1 declare_attackers step for P1 on turn 1 (empty set)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "P1 is active on turn 1 and reaches its declare-attackers step before the turn-2 checkpoint. The record declares the empty attack set (no creature attacks). The 1.0.25 arrival held every offered attacker as a Lab default; now only this declaration authorizes the hold and an unscripted attacker frame fails closed"
+    },
+    {
+     "change": "cleanup_discard step declares phase CLEANUP, turn 1; on_multiple_match SAME_NAME_OUTCOME_EQUIVALENT_LEAST_ID",
+     "comprehensive_rules": "514.1, 103.8c, 603.3",
+     "reason": "the scripted discard is the turn-1 CLEANUP one: the frame is matched by engine class and the declared phase/turn so a later cleanup discard cannot consume it. Among same-name copies in the hidden hand the least option id is content-independent and outcome-equivalent (precedent #603), so the step's on_multiple_match changes from FAIL_CLOSED to SAME_NAME_OUTCOME_EQUIVALENT_LEAST_ID for this step only"
+    },
+    {
+     "change": "graveyard Mountain declares produced_by_step cleanup-r1-P1",
+     "comprehensive_rules": "514.1",
+     "reason": "the declared graveyard Mountain is the result of the engine's own scripted turn-1 cleanup discard, not a state the Lab may top up: the native restoration must require the engine's own zone change and fail closed when it is missing, instead of injecting the identity"
     }
    ],
    "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
-   "known_runtime_blocker": "NOT_RUNNABLE_ON_CURRENT_BRIDGE: the native resume route accepts only the qualified turn-1 checkpoints (XmageNativeStateRestoration.isSupportedTemporalPoint), so this corrected turn-2 checkpoint is refused with UNSUPPORTED_TEMPORAL_POINT. Bridge code is out of scope; no runtime credit is claimed or possible until the bridge admits the checkpoint",
-   "notes": "the effective record declared a cast-timing and cost-inconsistent state: a fully cast P2 sorcery (Syphon Mind) on the stack while P1 was active in P1's turn-1 precombat main, which CR 307.1 forbids (its controller's own main phase, empty stack; no flash grant exists), with costs_paid for {3}{B} but no declared P2 mana source (CR 305.2 / 601.2g-h) and no declared P3/P4 hands (CR 101.4 APNAP). The erratum is scoped to cast timing and cost consistency and claims no full natural-play reachability: the temporal/stack declaration, four tapped P2 Swamps paying the cost, and complete empty P3/P4 checkpoint hands change, while the negative_fallback_probe obligation, the omitted handler, the expected and forbidden events and the expected decision actor P1 are byte for byte the predecessor's, and the obligation digest is unchanged. The 107-row denominator is untouched",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the pre-checkpoint history is now declared (pregame keeps, priority pass-through scope, empty attack set, turn-1 cleanup discard with produced graveyard card) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #616 review reproduced",
+   "notes": "the review of PR #616 found the row's local PASS depended on Lab answers for players: the pre-checkpoint attacker default and the default pregame keep. The record now declares its whole pre-checkpoint history in decision_script (pregame keeps, priority pass-through scope, P1's turn-1 empty attack set, the turn-1 cleanup discard with its produced graveyard card) and the Lab transports each frame; unscripted frames fail closed. The obligation digest is unchanged; the requested-state digest is recomputed from the declared script and graveyard producing step. The 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "ab71d3a7b9b9a6cb31e3fd193114c1d718e4c8f390cb1fe9b4957ce5c7c0e0f2",
-   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_24.json"
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_26.json"
   }
  ],
  "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_7.json"

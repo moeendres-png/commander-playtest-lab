@@ -192,8 +192,10 @@ class XmageTemporalProgressionDriverTest {
 
     @Test
     void laterTurnAndUnqualifiedStepsRemainFailClosed() {
+        // Turn 2 qualifies only the precombat main (#441 erratum); every
+        // other turn-2 step and turn 3 remain refused.
         XmageNativeStateRestoration.Plan later = new XmageNativeStateRestoration.Plan(
-                "rg03-turn2", 2, SEED,
+                "rg03-turn2-upkeep", 2, SEED,
                 List.of(
                         new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
                         new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40)),
@@ -203,11 +205,27 @@ class XmageTemporalProgressionDriverTest {
                         new XmageNativeStateRestoration.RequestedCommander(
                                 "cmd:P2-A", "Rograkh, Son of Rohgahh", "P2", 0)),
                 List.of(), List.of(),
-                2, TurnPhase.PRECOMBAT_MAIN, PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
+                2, TurnPhase.BEGINNING, PhaseStep.UPKEEP, "P1", "P1");
         XmageNativeStateRestoration.RestorationException failure = assertThrows(
                 XmageNativeStateRestoration.RestorationException.class,
                 () -> XmageNativeStateRestorationTest.restorationFor(later));
         assertTrue(failure.getMessage().startsWith("UNSUPPORTED_TEMPORAL_POINT"));
+        XmageNativeStateRestoration.Plan turnThree = new XmageNativeStateRestoration.Plan(
+                "rg03-turn3", 2, SEED,
+                List.of(
+                        new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
+                        new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40)),
+                List.of(
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P1-A", "Rograkh, Son of Rohgahh", "P1", 0),
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P2-A", "Rograkh, Son of Rohgahh", "P2", 0)),
+                List.of(), List.of(),
+                3, TurnPhase.PRECOMBAT_MAIN, PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
+        XmageNativeStateRestoration.RestorationException third = assertThrows(
+                XmageNativeStateRestoration.RestorationException.class,
+                () -> XmageNativeStateRestorationTest.restorationFor(turnThree));
+        assertTrue(third.getMessage().startsWith("UNSUPPORTED_TEMPORAL_POINT"));
     }
 
     /**

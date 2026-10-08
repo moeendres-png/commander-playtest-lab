@@ -129,6 +129,48 @@ def record_starting_seat(record: dict[str, Any]) -> tuple[str | None, str | None
 STARTER_DECLARATION_SETUP_ACTIVE_PLAYER = "RECORD_TEMPORAL_STATE_ACTIVE_PLAYER_SETUP"
 
 
+STARTER_DECLARATION_TURN_ONE_ACTIVE_PLAYER = "RECORD_TEMPORAL_STATE_TURN_ONE_ACTIVE_PLAYER"
+
+
+def midgame_starting_seat(record: Any) -> tuple[str | None, str | None]:
+    """The starting seat a mid-game arrival must start the engine from.
+
+    The record's explicit declaration (``starting_player`` decision-script step
+    or top-level field) always wins. A requested state at turn 1 has exactly one
+    consistent starter: turn 1 belongs to the starting player (CR 103.1), the
+    engine still performs that turn itself, and the requested state's own
+    ``active_player`` therefore is the starter. At any later checkpoint the
+    active player is *not* the starter (turn 2 belongs to the next seat), so the
+    arithmetic "starter = active - (turn - 1)" is never performed: without an
+    explicit declaration the caller gets ``(None, None)`` and fails closed.
+    An ambiguous explicit declaration is never resolved by falling back to the
+    active player either.
+    """
+    declarations = _declarations(record, pre_first_turn_shape=True)
+    if declarations is None:
+        # A declared shape carries no seat at all: that is the parser's refusal
+        # of malformed explicit authority, not the absence of a declaration.
+        # Only an empty list (no declaration shape present) may use the
+        # authorized turn-1 active-player shape below; a malformed explicit
+        # ``starting_player`` field or script must never be salvaged from it.
+        return None, None
+    if declarations:
+        declared = _one_declaration(declarations)
+        if declared[0] is not None:
+            return declared
+        return None, None
+    if not isinstance(record, dict):
+        return None, None
+    temporal = record.get("temporal_state")
+    if isinstance(temporal, dict):
+        turn = temporal.get("turn_number")
+        if isinstance(turn, int) and not isinstance(turn, bool) and turn == 1:
+            seat = _seat_text(temporal.get("active_player"))
+            if seat in SEATS:
+                return seat, STARTER_DECLARATION_TURN_ONE_ACTIVE_PLAYER
+    return None, None
+
+
 def requested_active_seat_index(record: Any) -> int | None:
     """The seat index of a requested state's own ``active_player``, or ``None``.
 

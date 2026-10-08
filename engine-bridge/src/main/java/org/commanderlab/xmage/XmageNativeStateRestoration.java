@@ -139,8 +139,27 @@ final class XmageNativeStateRestoration {
             String owner,
             String controller,
             Zone zone,
-            boolean tapped
+            boolean tapped,
+            /**
+             * The record's producing step id when the object's zone change is
+             * caused by the engine's own scripted history (contract 1.0.26's
+             * {@code produced_by_step}); {@code null} when the object is setup
+             * state this lane places. A produced object is never topped up: the
+             * engine's own zone change is the only source and a missing one is
+             * an exact-comparison mismatch (fail closed), never a silent cheat.
+             */
+            String producedByStep
     ) {
+        RequestedObject(
+                String semanticId,
+                String cardIdentity,
+                String owner,
+                String controller,
+                Zone zone,
+                boolean tapped
+        ) {
+            this(semanticId, cardIdentity, owner, controller, zone, tapped, null);
+        }
     }
 
     /**
@@ -346,6 +365,33 @@ final class XmageNativeStateRestoration {
     private final Deck materializationVehicle;
     private final XmageLosslessHiddenPlan losslessHidden;
     private final Map<String, Set<UUID>> injectedHandIdsByPlayer = new HashMap<>();
+    /**
+     * Requested hand objects of a turn-2 checkpoint, placed at the checkpoint
+     * instead of before the opening deal. Placing them earlier would add them
+     * to P1's opening hand across the whole of turn 1 and force a cleanup
+     * discard choice (CR 514.1) the record does not declare; the hand is
+     * checkpoint state (like a requested library), so it is placed when the
+     * engine stands at the checkpoint.
+     */
+    private final Map<String, List<Card>> deferredHandByPlayer = new HashMap<>();
+    /**
+     * Requested graveyard objects of a turn-2 checkpoint. The engine's own
+     * turn 1 can already produce the recorded graveyard result (P1's cleanup
+     * discard, CR 514.1, scripted by the record as one Mountain), so these are
+     * not placed before the opening deal. At the checkpoint each requested
+     * object is materialized only as far as the engine's own state does not
+     * already contain a matching identity: the construction tops the zone up
+     * to the record, it never duplicates an engine-performed zone change.
+     */
+    private final Map<String, List<Card>> deferredGraveyardByPlayer = new HashMap<>();
+    /**
+     * The deferred graveyard cards whose record object declares
+     * {@code produced_by_step} (contract 1.0.26): their zone change is the
+     * engine's own scripted history, so the checkpoint never tops them up. A
+     * missing engine zone change stays missing and the exact comparison fails
+     * the construction.
+     */
+    private final Set<UUID> producedByStepGraveyardCardIds = new HashSet<>();
     private final Map<String, UUID> injectedObjectIdsBySemanticId = new HashMap<>();
     private final Map<String, UUID> commanderObjectIdsBySemanticId = new HashMap<>();
     private boolean arrivalRestored;
@@ -691,13 +737,17 @@ final class XmageNativeStateRestoration {
             };
             boolean tapped = object.has("tapped") && !object.get("tapped").isJsonNull()
                     && object.get("tapped").getAsBoolean();
+            String producedByStep = object.has("produced_by_step")
+                    && !object.get("produced_by_step").isJsonNull()
+                    ? object.get("produced_by_step").getAsString() : null;
             objects.add(new RequestedObject(
                     semanticId,
                     canonicalCardIdentity(object.get("card_identity").getAsString()),
                     object.get("owner").getAsString(),
                     object.get("controller").getAsString(),
                     zone,
-                    tapped));
+                    tapped,
+                    producedByStep));
         }
         for (RequestedCommander commander : commanders) {
             if (commander.zone() != Zone.COMMAND && commander.semanticId() == null) {
@@ -1079,7 +1129,16 @@ final class XmageNativeStateRestoration {
      */
     static boolean isSupportedTemporalPoint(Plan validated) {
         if (validated.turnNumber() != 1) {
-            return false;
+            // Turn 2 (#441 NEGATIVE_PARENT_CLASS_FALLBACK erratum, contract
+            // 1.0.24): the record declares P2 active in P2's own turn-2
+            // precombat main with P2 holding priority, after the engine's own
+            // turn 1 (P1) and P2's untap/upkeep/draw. The natural turn order
+            // reaches it with P1 as the starting player; only the declared
+            // precombat main is qualified, so a turn-3 request still fails
+            // closed with UNSUPPORTED_TEMPORAL_POINT.
+            return validated.turnNumber() == 2
+                    && validated.phase() == TurnPhase.PRECOMBAT_MAIN
+                    && validated.step() == PhaseStep.PRECOMBAT_MAIN;
         }
         return (validated.phase() == TurnPhase.BEGINNING
                         && (validated.step() == PhaseStep.UPKEEP
@@ -1118,9 +1177,9 @@ final class XmageNativeStateRestoration {
         if (!isSupportedTemporalPoint(validated)) {
             throw new RestorationException(
                     "UNSUPPORTED_TEMPORAL_POINT",
-                    "RG-03 supports only qualified turn-1 checkpoints; requested "
-                            + validated.turnNumber() + "/" + validated.phase()
-                            + "/" + validated.step());
+                    "RG-03 supports qualified turn-1 checkpoints and the turn-2 precombat"
+                            + " main; requested " + validated.turnNumber() + "/"
+                            + validated.phase() + "/" + validated.step());
         }
         if (!seats.contains(validated.activePlayer())
                 || !seats.contains(validated.priorityPlayer())) {
@@ -1298,12 +1357,39 @@ final class XmageNativeStateRestoration {
                         }
                     }
                     case HAND -> {
-                        hand.add(card);
-                        injectedHandIdsByPlayer
-                                .computeIfAbsent(requested.playerId(), ignored -> new HashSet<>())
-                                .add(card.getId());
+                        if (plan.turnNumber() > 1) {
+                            // Turn-2 checkpoint: the requested hand is
+                            // checkpoint state, placed when the engine stands
+                            // at the checkpoint (see deferredHandByPlayer).
+                            deferredHandByPlayer
+                                    .computeIfAbsent(requested.playerId(), ignored -> new ArrayList<>())
+                                    .add(card);
+                        } else {
+                            hand.add(card);
+                            injectedHandIdsByPlayer
+                                    .computeIfAbsent(requested.playerId(), ignored -> new HashSet<>())
+                                    .add(card.getId());
+                        }
                     }
-                    case GRAVEYARD -> graveyard.add(card);
+                    case GRAVEYARD -> {
+                        if (plan.turnNumber() > 1) {
+                            // Turn-2 checkpoint: the recorded graveyard is
+                            // checkpoint state the engine's own turn 1 may
+                            // already produce (the scripted cleanup discard);
+                            // place only the shortfall at the checkpoint. An
+                            // object the record marks with produced_by_step is
+                            // never placed at all: only the engine's own zone
+                            // change may satisfy it.
+                            deferredGraveyardByPlayer
+                                    .computeIfAbsent(requested.playerId(), ignored -> new ArrayList<>())
+                                    .add(card);
+                            if (object.producedByStep() != null) {
+                                producedByStepGraveyardCardIds.add(card.getId());
+                            }
+                        } else {
+                            graveyard.add(card);
+                        }
+                    }
                     case EXILED -> exile.add(card);
                     default -> throw new RestorationException(
                             "UNSUPPORTED_ZONE", object.semanticId());
@@ -1689,9 +1775,80 @@ final class XmageNativeStateRestoration {
             return;
         }
         requireFirstTurnPlacement(game);
+        applyDeferredHandAtCheckpoint(game, playersByPid);
+        applyDeferredGraveyardAtCheckpoint(game, playersByPid);
         losslessHidden.applyAfterArrival(game, playersByPid, this);
         applyCheckpointPermanentState(game);
         losslessLibrariesApplied = true;
+    }
+
+    /**
+     * Places a turn-2 record's requested hand objects at the checkpoint
+     * ({@link #deferredHandByPlayer}), through the same engine setup
+     * primitive the pre-start placement uses. Runs exactly once, while the
+     * engine stands at the requested checkpoint.
+     */
+    private void applyDeferredHandAtCheckpoint(
+            GameCommanderImpl game, Map<String, Player> playersByPid) {
+        if (deferredHandByPlayer.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, List<Card>> entry : deferredHandByPlayer.entrySet()) {
+            Player player = requirePlayer(playersByPid, entry.getKey());
+            game.cheat(player.getId(), List.of(), entry.getValue(),
+                    List.of(), List.of(), List.of(), List.of());
+            for (Card card : entry.getValue()) {
+                injectedHandIdsByPlayer
+                        .computeIfAbsent(entry.getKey(), ignored -> new HashSet<>())
+                        .add(card.getId());
+            }
+        }
+        deferredHandByPlayer.clear();
+    }
+
+    /**
+     * Places a turn-2 record's requested graveyard objects at the checkpoint
+     * ({@link #deferredGraveyardByPlayer}) only as far as the engine's own
+     * state does not already satisfy them: the engine's own turn 1 may have
+     * produced the recorded graveyard result itself (P1's scripted cleanup
+     * discard), and a construction never duplicates an engine-performed zone
+     * change. A requested object the record marks with {@code produced_by_step}
+     * is never topped up, however far the engine's state is from the record:
+     * only the engine's own zone change may satisfy it, and a missing one is
+     * left to the exact comparison (fail closed), never silently injected.
+     */
+    private void applyDeferredGraveyardAtCheckpoint(
+            GameCommanderImpl game, Map<String, Player> playersByPid) {
+        if (deferredGraveyardByPlayer.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, List<Card>> entry : deferredGraveyardByPlayer.entrySet()) {
+            Player player = requirePlayer(playersByPid, entry.getKey());
+            Map<String, Integer> present = new HashMap<>();
+            for (Card card : player.getGraveyard().getCards(game)) {
+                present.merge(card.getName(), 1, Integer::sum);
+            }
+            Map<String, Integer> planned = new HashMap<>();
+            List<Card> toPlace = new ArrayList<>();
+            for (Card card : entry.getValue()) {
+                int want = planned.merge(card.getName(), 1, Integer::sum);
+                if (producedByStepGraveyardCardIds.contains(card.getId())) {
+                    // The record's produced object: the engine's own zone change
+                    // is the only source. Never placed here; the exact
+                    // comparison below the checkpoint fails closed when the
+                    // engine's history did not produce it.
+                    continue;
+                }
+                if (present.getOrDefault(card.getName(), 0) < want) {
+                    toPlace.add(card);
+                }
+            }
+            if (!toPlace.isEmpty()) {
+                game.cheat(player.getId(), List.of(), List.of(), List.of(), toPlace,
+                        List.of(), List.of());
+            }
+        }
+        deferredGraveyardByPlayer.clear();
     }
 
     /**
@@ -2379,6 +2536,9 @@ final class XmageNativeStateRestoration {
         supported.add("qualified turn-1 temporal targets: upkeep, draw, precombat main, "
                 + "declare attackers, declare blockers, combat damage, postcombat main; "
                 + "arrival requires XmageTemporalProgressionDriver native progression");
+        supported.add("the qualified turn-2 precombat-main temporal target (P2 active and "
+                + "holding priority after the engine's own turn 1 and turn-based actions), "
+                + "reached only through the engine's own turn structure");
         supported.add("explicit Rules-seed binding with replay determinism");
         supported.add("a record-declared already-fully-cast stack spell "
                 + "(execution_entry_mode NATIVE_STATE_LOAD with "
@@ -2429,7 +2589,8 @@ final class XmageNativeStateRestoration {
                 + "first-turn placement");
         unsupported.add("commander relations other than validated Partner linkage");
         unsupported.add("poison counters");
-        unsupported.add("temporal points outside the qualified RG-03 turn-1 checkpoint allow-list");
+        unsupported.add("temporal points outside the qualified RG-03 checkpoint allow-list "
+                + "(turn 1 as declared, or the turn-2 precombat main)");
         unsupported.add("frozen requested_state_digest reproduction (no canonicalization spec in repo)");
         payload.add("unsupported_dimensions", unsupported);
         return payload;

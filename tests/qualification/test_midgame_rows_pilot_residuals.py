@@ -236,7 +236,7 @@ class _OmissionClient:
     def pending_decision(
         self, *, attempts: int = 60, interval_s: float = 0.5
     ) -> dict[str, Any] | None:
-        if self._decisions and self._decisions[0].get("decision_class") == "choose_object":
+        if self._decisions and self._decisions[0].get("decision_id") == "d-discard":
             self._object_reads += 1
             if self._fallback_answers and self._object_reads > 1:
                 self._decisions.pop(0)
@@ -259,6 +259,43 @@ class _OmissionClient:
         }
 
     def complete_arrival(self) -> dict[str, Any]:
+        # The engine's own turn-1 cleanup discard (CR 514.1) is asked in the
+        # CLEANUP step of turn 1; the record's scripted step declares exactly
+        # that point. The record's declared checkpoint (turn 2, P2 active) is
+        # a different moment and every other readback is that checkpoint.
+        pending = self._decisions[0] if self._decisions else None
+        if pending is not None and pending.get("decision_class") == "mulligan":
+            return {
+                "construction_match": True,
+                "mismatches": [],
+                "observation": {
+                    "phase": "UNINITIALIZED",
+                    "step": "MULLIGAN",
+                    "priority_player": "P1",
+                },
+            }
+        if pending is not None and pending.get("decision_id") == "d-atk-history":
+            return {
+                "construction_match": True,
+                "mismatches": [],
+                "observation": {
+                    "phase": "COMBAT",
+                    "step": "DECLARE_ATTACKERS",
+                    "priority_player": "P1",
+                    "turn_number": 1,
+                },
+            }
+        if pending is not None and pending.get("decision_id") == "d-cleanup":
+            return {
+                "construction_match": True,
+                "mismatches": [],
+                "observation": {
+                    "phase": "CLEANUP",
+                    "step": "CLEANUP",
+                    "priority_player": "P1",
+                    "turn_number": 1,
+                },
+            }
         return {
             "construction_match": True,
             "mismatches": [],
@@ -266,7 +303,7 @@ class _OmissionClient:
                 "phase": "PRECOMBAT_MAIN",
                 "step": "PRECOMBAT_MAIN",
                 "priority_player": "P1",
-                "turn_number": 1,
+                "turn_number": 2,
             },
         }
 
@@ -275,14 +312,23 @@ class _OmissionClient:
             seat = self._decisions[0].get("seat", 0) if self._decisions else 0
             return {"success": True, "payload": self._legal(seat)}
         if message_type == "submit_action":
-            self.submissions.append(payload)
-            raise AssertionError("the declared omission must submit no action")
+            pending = self._decisions[0] if self._decisions else None
+            assert pending is not None and pending["decision_class"] == "choose_object", (
+                "the declared omission must submit no action for its frame"
+            )
+            self.submissions.append([payload["proposal"]["legal_action_id"]])
+            self._decisions.pop(0)
+            return {"success": True, "payload": {}}
         raise AssertionError(f"unexpected lane request {message_type}")
 
     def submit_options(self, decision: dict[str, Any], option_ids: list[str]) -> None:
-        assert decision["decision_class"] == "priority", (
-            "the declared omission must submit no answer for its frame"
-        )
+        assert decision["decision_class"] in (
+            "priority",
+            "cleanup_discard",
+            "mulligan",
+            "declare_attacker",
+            "choose_object",
+        ), "the declared omission must submit no answer for its frame"
         self.submissions.append(list(option_ids))
         if self._decisions:
             self._decisions.pop(0)
@@ -291,14 +337,37 @@ class _OmissionClient:
     def _legal(seat: int) -> dict[str, Any]:
         return {
             "actor_id": f"actor-{seat}",
+            "decision": {"minimum_selections": 1, "maximum_selections": 1},
             "actions": [
                 {
                     "action_id": f"opt-hand-{name.lower()}",
-                    "metadata": {"label": f"{name} — discard", "seat": seat},
+                    "action_type": "discard",
+                    "metadata": {
+                        "label": f"{name} — discard",
+                        "option_id": f"opt-hand-{name.lower()}",
+                        "seat": seat,
+                        "xmage_option_metadata": {
+                            "name": name,
+                            "object_id": f"hand-{name.lower()}-{seat}",
+                        },
+                    },
                 }
                 for name in ("Mountain", "Island")
             ],
         }
+
+
+def _cleanup_frame(seat: int = 0) -> dict[str, Any]:
+    # XMage publishes the forced cleanup discard (CR 514.1) as its own
+    # choose_object frame over the hand (midgame_rows.ENGINE_DECISION_CLASS maps
+    # the record's cleanup_discard family onto that engine class).
+    return {
+        "decision_id": "d-cleanup",
+        "decision_class": "choose_object",
+        "actor_id": f"actor-{seat}",
+        "seat": seat,
+        "prompt": "Discard down to your maximum hand size",
+    }
 
 
 def _priority(seat: int = 0) -> dict[str, Any]:
@@ -321,6 +390,36 @@ def _discard_frame(seat: int = 0) -> dict[str, Any]:
     }
 
 
+def _history_frames() -> list[dict[str, Any]]:
+    """The record's declared pre-checkpoint history as engine frames.
+
+    Contract 1.0.26 scripts four pregame keeps (CR 103.5) and P1's empty
+    turn-1 attack declaration (CR 508.1) before the turn-2 checkpoint; the
+    arrival ledger refuses an unconsumed declared step.
+    """
+    frames: list[dict[str, Any]] = []
+    for seat in range(4):
+        frames.append(
+            {
+                "decision_id": f"d-mull-{seat}",
+                "decision_class": "mulligan",
+                "actor_id": f"actor-{seat}",
+                "seat": seat,
+                "legal_options": [{"option_id": f"keep-{seat}", "option_type": "keep"}],
+            }
+        )
+    frames.append(
+        {
+            "decision_id": "d-atk-history",
+            "decision_class": "declare_attacker",
+            "actor_id": "actor-0",
+            "seat": 0,
+            "legal_options": [{"option_id": "hold-history", "option_type": "hold_attacker"}],
+        }
+    )
+    return frames
+
+
 def test_the_parent_class_record_declares_its_omitted_handler() -> None:
     record = _parent_class_record()
     assert mr.ROWS[PARENT_CLASS] == mr.RowSpec()
@@ -332,13 +431,22 @@ def test_the_parent_class_record_declares_its_omitted_handler() -> None:
 
 def test_the_omission_refusal_is_verified_with_no_answer_applied() -> None:
     record = _parent_class_record()
-    client = _OmissionClient([_priority(), _discard_frame()])
+    client = _OmissionClient([*_history_frames(), _cleanup_frame(), _priority(), _discard_frame()])
     execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
     assert execution.verified, execution.detail
     assert execution.detail == "obligation observed"
-    # The only submission is the checkpoint priority pass; the refused frame
-    # itself is never answered (the fake rejects any non-priority submission).
-    assert client.submissions == [["pass"]]
+    # The record's own scripted turn-1 cleanup discard (CR 514.1) is answered
+    # first, then the checkpoint priority is passed; the refused frame itself is
+    # never answered (the fake rejects any other submission).
+    assert client.submissions == [
+        ["keep-0"],
+        ["keep-1"],
+        ["keep-2"],
+        ["keep-3"],
+        ["hold-history"],
+        ["opt-hand-mountain"],
+        ["pass"],
+    ]
     (refusal,) = execution.refusals
     assert refusal["well_formed"] is True
     assert refusal["decision_class"] == "choose_object"
@@ -354,7 +462,10 @@ def test_a_parent_class_fallback_that_answers_the_frame_is_never_a_pass() -> Non
     through the parent class, the frame would be gone and the tape advanced;
     the no-mutation refusal cannot be established and the row fails closed."""
     record = _parent_class_record()
-    client = _OmissionClient([_priority(), _discard_frame()], fallback_answers=True)
+    client = _OmissionClient(
+        [*_history_frames(), _cleanup_frame(), _priority(), _discard_frame()],
+        fallback_answers=True,
+    )
     execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
     assert not execution.verified
     assert "declared omission refusal failed closed" in execution.detail
@@ -363,12 +474,22 @@ def test_a_parent_class_fallback_that_answers_the_frame_is_never_a_pass() -> Non
 
 def test_the_omission_refusal_fires_only_for_the_declared_actor() -> None:
     record = _parent_class_record()
-    client = _OmissionClient([_priority(seat=1), _discard_frame(seat=1)])
+    client = _OmissionClient(
+        [*_history_frames(), _cleanup_frame(), _priority(seat=1), _discard_frame(seat=1)]
+    )
     execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
     assert not execution.verified
     assert "unscripted choose_object for P2" in execution.detail
     assert execution.refusals == []
-    assert client.submissions == [["pass"]]
+    assert client.submissions == [
+        ["keep-0"],
+        ["keep-1"],
+        ["keep-2"],
+        ["keep-3"],
+        ["hold-history"],
+        ["opt-hand-mountain"],
+        ["pass"],
+    ]
 
 
 # --------------------------------------------------------------------------- #
