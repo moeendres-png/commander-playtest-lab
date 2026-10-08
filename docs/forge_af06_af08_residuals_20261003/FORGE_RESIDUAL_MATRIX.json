@@ -1,7 +1,7 @@
 {
  "candidate": "forge",
- "canonical_bundle_digest": "2be7fa64d6aef02d2a5869534b6b018aa5ddde13dd2698c8208b9fa68fe889f6",
- "contract_id": "commander-lab.full107/1.0.26-successor",
+ "canonical_bundle_digest": "2adef359fcd0c89ed40836b9fd816725cf37a9c8a85607da867d677a1141272e",
+ "contract_id": "commander-lab.full107/1.0.27-successor",
  "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
  "rows": [
   {
@@ -483,6 +483,18 @@
      "stage": "construction"
     },
     {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a keep: the bridge frames keep or mulligan and a keep needs no tuck, but the lane has no selector for the scripted answer",
+     "dimension": "decision_execution.mulligan.semantic_action",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a priority_pass_through decision; the bridge carries it on its PRIORITY (pass priority) frames, but the lane has no selector for them",
+     "dimension": "decision_execution.priority_pass_through.semantic_action",
+     "stage": "execution"
+    },
+    {
      "class": "PROVIDER_ADAPTER_GAP",
      "detail": "the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED)",
      "dimension": "event_log",
@@ -505,7 +517,7 @@
      "damage:P2:6"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: damage_would_be:P2:3, replacement_effect:double. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction combat_state (LAB_EXECUTION_GAP); construction temporal_state.combat_step (LAB_EXECUTION_GAP); execution decision_execution.mulligan.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.priority_pass_through.semantic_action (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: damage_would_be:P2:3, replacement_effect:double. no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -2333,6 +2345,18 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a keep: the bridge frames keep or mulligan and a keep needs no tuck, but the lane has no selector for the scripted answer",
+     "dimension": "decision_execution.mulligan.semantic_action",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a priority_pass_through decision; the bridge carries it on its PRIORITY (pass priority) frames, but the lane has no selector for them",
+     "dimension": "decision_execution.priority_pass_through.semantic_action",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a declare_blocker decision; the bridge carries it on its BLOCK_DECLARATION frames, but the lane has no selector for them",
      "dimension": "decision_execution.declare_blocker.blocker_assignment",
      "stage": "execution"
@@ -2351,7 +2375,7 @@
      "blocker_declared:obj:mp-p2-blocker->obj:mp-a2"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); execution decision_execution.declare_blocker.blocker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (combat_state): combat is declared on the engine's own attack and block frames (the bootstrap has no combat field); the lane has no attack or block selector. then: construction temporal_state.combat_step (LAB_EXECUTION_GAP); execution decision_execution.mulligan.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.priority_pass_through.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.declare_blocker.blocker_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",
@@ -2906,6 +2930,18 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a keep: the bridge frames keep or mulligan and a keep needs no tuck, but the lane has no selector for the scripted answer",
+     "dimension": "decision_execution.mulligan.semantic_action",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
+     "detail": "the record scripts a priority_pass_through decision; the bridge carries it on its PRIORITY (pass priority) frames, but the lane has no selector for them",
+     "dimension": "decision_execution.priority_pass_through.semantic_action",
+     "stage": "execution"
+    },
+    {
+     "class": "LAB_EXECUTION_GAP",
      "detail": "the record scripts a priority decision; the bridge carries it on its PRIORITY (cast and activate actions) frames, but the lane has no selector for them",
      "dimension": "decision_execution.priority.semantic_action",
      "stage": "execution"
@@ -2958,7 +2994,7 @@
      "next_turn:P2"
     ]
    },
-   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); execution decision_execution.choose_object.card_identity_multiset (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
+   "reason": "Forge PROVIDER_ADAPTER_GAP: first missing mechanism at observation (event_log): the obligation needs engine events and the pinned bridge exports no event log (EVENT_LOG_UNSUPPORTED). then: construction action_cost_state (LAB_EXECUTION_GAP); construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.mulligan.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.priority_pass_through.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.declare_attacker.attacker_assignment (LAB_EXECUTION_GAP); execution decision_execution.choose_object.card_identity_multiset (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). event-only obligation tokens with no Forge event log: extra_turn_created:P2, extra_turn_created:P3. no receipt; the row stays unestablished."
   }
  ],
  "schema_version": "commander-lab.forge-residuals/1.0.0",

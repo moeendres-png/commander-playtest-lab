@@ -720,6 +720,12 @@ def _scripted_priority_pass_through(
     a step without a readable scope is malformed and a frame without a readable
     turn or phase can never be matched, so the arrival pilot never passes
     priority on a player's behalf outside the record's own declaration.
+
+    The ``until`` bound is exclusive (``from <= position < until``): the
+    declared scope ends before the checkpoint step's own priority window, where
+    the row's obligation may require a cast or activation (CR 117.1a). An
+    inclusive bound would let the pass-through answer the checkpoint's own
+    priority frame and silently consume the obligation.
     """
     matching = [
         step
@@ -760,7 +766,7 @@ def _scripted_priority_pass_through(
                 "the record's priority_pass_through step declares an unreadable scope "
                 "(scope.from/scope.until): the arrival pilot cannot bound its passes"
             )
-        if start_position <= position <= end_position:
+        if start_position <= position < end_position:
             return True
     return False
 
@@ -854,6 +860,28 @@ def _arrival_at_checkpoint(
     )
 
 
+def _history_step_before_checkpoint(
+    step: dict[str, Any], target_turn: int, target_step: str
+) -> bool:
+    """Whether a declared history step lies before the arrival's checkpoint.
+
+    A step that declares its own turn/phase (a cleanup discard, an attack
+    declaration) is arrival history only when that declared position precedes
+    the checkpoint; a step at or after it is the caller's obligation and never
+    required by the arrival ledger. A step with no readable position (the
+    pregame keeps) is always before the checkpoint.
+    """
+    turn = step.get("turn")
+    if not isinstance(turn, int) or isinstance(turn, bool):
+        return True
+    if turn != target_turn:
+        return turn < target_turn
+    declared_step = str(step.get("phase") or "").strip().upper()
+    if declared_step not in _TURN_STEP_ORDER or target_step not in _TURN_STEP_ORDER:
+        return True
+    return _TURN_STEP_ORDER.index(declared_step) < _TURN_STEP_ORDER.index(target_step)
+
+
 def drive_arrival(
     client: ml.MidgameLaneClient,
     record: dict[str, Any],
@@ -937,7 +965,13 @@ def drive_arrival(
         consumed_history.add(index)
 
     def _require_history_complete() -> None:
-        """Every declared pre-checkpoint transport step must have been answered."""
+        """Every declared pre-checkpoint transport step must have been answered.
+
+        Only the steps whose own declared turn/phase lies before the record's
+        checkpoint are arrival history; a declared step at or after it belongs
+        to the caller's obligation and is not required here. A step with no
+        readable turn (the pregame keeps) is always before the checkpoint.
+        """
         if not require_history:
             return
         for index, step in enumerate(script):
@@ -945,6 +979,8 @@ def drive_arrival(
                 continue
             family = str(step.get("decision_family") or "")
             if family not in _HISTORY_TRANSPORT_FAMILIES:
+                continue
+            if not _history_step_before_checkpoint(step, target_turn, target_step):
                 continue
             if index not in consumed_history:
                 raise ml.MidgameLaneError(
@@ -2013,10 +2049,10 @@ def drive_to_precombat_main(
     part of the stop: turn 1's precombat main is not a turn-2 checkpoint.
 
     The mulligan keeps and priority passes go through the same script guards as
-    ``drive_arrival``: at a later-turn checkpoint an undeclared keep or pass is
-    never taken on a player's behalf. The existing turn-1 rows that declare no
-    such steps are unchanged (their own checkpoints are turn 1); a later-turn
-    checkpoint without those declarations fails closed.
+    ``drive_arrival``: an undeclared keep or pass is never taken on a player's
+    behalf, at any turn. The existing turn-1 rows declare their own pregame
+    keeps and scoped priority pass-through (contract 1.0.27); a row without
+    those declarations fails closed.
     """
     temporal = record.get("temporal_state") or {}
     target_turn = temporal.get("turn_number")
@@ -2029,6 +2065,41 @@ def drive_to_precombat_main(
             "to derive the starting principal from a later checkpoint's active player"
         )
     active_label = seat_label(starter_seat)
+    script = list(record.get("decision_script") or ())
+    consumed_history: set[int] = set()
+
+    def _consume_history(index: int) -> None:
+        """Record one answer to the script's own pre-checkpoint transport step."""
+        family = ""
+        if 0 <= index < len(script) and isinstance(script[index], dict):
+            family = str(script[index].get("decision_family") or "")
+        if index in consumed_history and family in _HISTORY_SINGLE_ANSWER_FAMILIES:
+            raise ml.MidgameLaneError(
+                f"the record scripts one {family} step but the engine asked it again: "
+                "the arrival pilot never answers a mandatory decision twice"
+            )
+        consumed_history.add(index)
+
+    def _require_pregame_keeps_complete() -> None:
+        """Every declared pregame mulligan keep must have been answered.
+
+        The engine asks every seat's keep (CR 103.5) before turn 1, so by the
+        time the transport reaches precombat main a declared keep the record
+        scripts but the engine never asked is an unconsumed declaration: the
+        arrival refuses it instead of reporting a completed pregame.
+        """
+        for index, step in enumerate(script):
+            if not isinstance(step, dict):
+                continue
+            if str(step.get("decision_family") or "") != "mulligan":
+                continue
+            if index not in consumed_history:
+                raise ml.MidgameLaneError(
+                    f"the record scripts a mulligan keep for {step.get('actor')} but "
+                    "the engine never asked it before precombat main: an unconsumed "
+                    "declared keep fails closed"
+                )
+
     for _ in range(120):
         decision = client.pending_decision()
         if decision is None:
@@ -2037,15 +2108,15 @@ def drive_to_precombat_main(
         if decision_class == "mulligan":
             principal = _decision_seat_principal(decision)
             keep_step = _scripted_mulligan_keep(record, principal)
-            if keep_step is None and target_turn > 1:
+            if keep_step is None:
                 raise ml.MidgameLaneError(
-                    f"the record scripts no mulligan keep for {principal} at its "
-                    f"turn-{target_turn} checkpoint: the arrival pilot never keeps an "
-                    "opening hand on a player's behalf (CR 103.5)"
+                    f"the record scripts no mulligan keep for {principal}: the arrival "
+                    "pilot never keeps an opening hand on a player's behalf (CR 103.5)"
                 )
             kept = option_of_type(decision, "keep")
             if kept is None:
                 raise ml.MidgameLaneError("the engine offered no keep option")
+            _consume_history(keep_step)
             client.submit_options(decision, [kept])
         elif decision_class in {"choice", "choose_object"}:
             observation = client.complete_arrival().get("observation") or {}
@@ -2064,14 +2135,14 @@ def drive_to_precombat_main(
                 and observation.get("phase") == "PRECOMBAT_MAIN"
                 and observation.get("step") == "PRECOMBAT_MAIN"
             ):
+                _require_pregame_keeps_complete()
                 return
             principal = _decision_seat_principal(decision)
-            if not _scripted_priority_pass_through(record, principal, observation) and (
-                target_turn > 1
-            ):
+            if not _scripted_priority_pass_through(record, principal, observation):
                 raise ml.MidgameLaneError(
-                    f"the record scripts no priority pass-through for {principal} at its "
-                    f"turn-{target_turn} checkpoint: the arrival pilot never passes "
+                    f"the record scripts no priority pass-through for {principal} at "
+                    f"turn {observation.get('turn_number')} {observation.get('phase')}/"
+                    f"{observation.get('step')}: the arrival pilot never passes "
                     "priority on a player's behalf"
                 )
             passed = option_of_type(decision, "pass_priority")
