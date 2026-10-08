@@ -62,8 +62,10 @@ credit by itself.
 ## Machine-verifiable review receipt (mandatory)
 
 The review is only admissible when its trusted workflow run can be independently
-verified. End your final message with the following block, verbatim keys, one value per
-line, with the exact identity you actually reviewed:
+verified. End your final message with the following receipt, verbatim keys, one value per
+line, with the exact identity you actually reviewed. The marker and every field must be
+standalone plain-text lines: no bold, backticks, headings, list markers or blockquote
+prefixes. The code fence below is documentation only; do not include it in your receipt.
 
 ```
 BUNNY_DIRECT_READ_ONLY_REVIEW
@@ -75,7 +77,22 @@ REVIEWED_SHA: <exact 40-hex reviewed commit>
 REVIEWED_TREE: <exact 40-hex reviewed tree>
 REVIEW_VERDICT: <PASS|FAIL|PARTIAL|UNKNOWN>
 READ_ONLY: true
+
+https://github.com/<owner>/<repo>/actions/runs/<your actual current workflow run id>
 ```
+
+Read `.opencode/review-run-metadata.json` using the read tool. The trusted runner
+writes this public input before the native CLI starts; it contains the actual run URL,
+attempt, trigger comment id and workflow SHA. Use its `run_url` for this receipt and
+check the trigger identity against the current request. Do not use env/printenv, shell
+wrappers or credential access to obtain it. This input is a locator only: the unchanged
+strict verifier still independently checks the actual run, trigger, job and source.
+The own-run URL must be the LAST absolute Actions run link in your final response.
+Do not cite any other absolute Actions run link after it. The pinned CLI's relative
+`[github run]` footer may follow; that footer alone cannot satisfy the verifier.
+If you cannot establish the actual own-run binding, report UNKNOWN and do not claim an
+admissible PASS receipt. Never edit an earlier bot report or weaken the verifier to make
+a receipt admissible.
 
 Never invent, guess or copy identifiers you did not resolve from the checked-out
 repository. `REVIEWER_MODEL`, `REVIEWER_VARIANT` and `READ_ONLY` are self-reported text:
