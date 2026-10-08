@@ -46,12 +46,12 @@
     },
     "effective_contract": {
       "pointer": "qualification/CURRENT_PRE_FREEZE_CONTRACT.json",
-      "pointer_sha256": "da111ba14910d889240dc7c464d9a57b92e6fd0214becf8a960c384b92f10604",
-      "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json",
-      "successor_sha256": "f52cd34e221dca8f86eff51b8490e994cd1286cfacda33ce0b8011d86a00f27e",
-      "successor_id": "commander-lab.full107/1.0.22-successor",
-      "schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_22_SUCCESSOR.json",
-      "schema_sha256": "4d5b3fc929bd6480fe8703f13483a5571922f220b703e311f420849631684475",
+      "pointer_sha256": "34eee0809ad2cae850b81c787f4c87cd0ed154aae5f27009589cc8b021f70d67",
+      "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json",
+      "successor_sha256": "510d1aea951f7b49302a177afed7c6c21511fd0aca7ec6ceda9ffe3bd3ffd5a2",
+      "successor_id": "commander-lab.full107/1.0.23-successor",
+      "schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_23_SUCCESSOR.json",
+      "schema_sha256": "1da062e3b1c5021fe8510ef58052ab0da7ef3013d2bb69d22c396414d2b5f655",
       "effective_manifest_contract_id": "commander-lab.full107/1.0.22-successor"
     },
     "engine_pins": {
@@ -117,12 +117,12 @@
       },
       {
         "subject": "effective fixture contract",
-        "pin": "commander-lab.full107/1.0.22-successor",
+        "pin": "commander-lab.full107/1.0.23-successor",
         "sealed_evidence": "commander-lab.full107/1.0.22-successor",
-        "verdict": "IDENTICAL",
+        "verdict": "DIFFERS",
         "pin_source": "qualification/CURRENT_PRE_FREEZE_CONTRACT.json#full107.successor_contract",
         "evidence_source": "EFFECTIVE_FULL107_MANIFEST.json#contract_id",
-        "note": "no drift: the sealed epoch was produced from this exact pin"
+        "note": "PIN_ADVANCED_AFTER_SEALED_EPOCH: the sealed evidence is not promoted and no credit is transferred to the newer pin"
       }
     ]
   },

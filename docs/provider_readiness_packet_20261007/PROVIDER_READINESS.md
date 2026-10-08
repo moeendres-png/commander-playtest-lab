@@ -8,7 +8,7 @@ Evidence summary only. It selects no provider, ranks no candidate and makes no r
 
 - Packet branch: `evidence/provider-readiness-packet-20261007` from `1d605a5883c1a8dd1de87d5a9261c74768c65f16` (tree `34bc6cef608dec6ca2c0ae470932c709ea28b1eb`).
 - Sealed epoch: `b1c8f54a999a-2d13b953a82c`; manifest `qualification/current-boundary-epochs/b1c8f54a999a-2d13b953a82c/CURRENT_BOUNDARY_SHA256SUMS` sha256 `dddc3cb1a6fd5eb0d89fde8706b34fbdb9884ca8d189d1b8320075627c8ce385`; 194/194 digests verified (EXACT_ALL_FILES_EXCEPT_MANIFEST).
-- Effective contract: `commander-lab.full107/1.0.22-successor` (`qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json` sha256 `f52cd34e221dca8f86eff51b8490e994cd1286cfacda33ce0b8011d86a00f27e`); pointer sha256 `da111ba14910d889240dc7c464d9a57b92e6fd0214becf8a960c384b92f10604`.
+- Effective contract: `commander-lab.full107/1.0.23-successor` (`qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json` sha256 `510d1aea951f7b49302a177afed7c6c21511fd0aca7ec6ceda9ffe3bd3ffd5a2`); pointer sha256 `34eee0809ad2cae850b81c787f4c87cd0ed154aae5f27009589cc8b021f70d67`.
 - Engine pins (`config/rules_engines.json` sha256 `1eea3b67946fd93e951af96d9f868268bc6c2616640f590bfd71ce127ad323dd`): XMage `b479fe74` / tree `1ff64c79`; Forge Rules-Core `bb0a740d` / tree `4989b5bb`; Forge bridge `31cbae12` / tree `b5c19c19`.
 
 ## Drift records
@@ -18,7 +18,7 @@ Evidence summary only. It selects no provider, ranks no candidate and makes no r
 | xmage engine commit | `b479fe74fd1eaf899ff16c6a9203e74a91c0f339` | `b479fe74fd1eaf899ff16c6a9203e74a91c0f339` | IDENTICAL |
 | forge Rules-Core commit | `bb0a740d2bef725194798383c2452213ecdd0b37` | `bb0a740d2bef725194798383c2452213ecdd0b37` | IDENTICAL |
 | forge bridge/materialization commit | `31cbae12640e6066499aa7f17c9bf2dba6a30da6` | `31cbae12640e6066499aa7f17c9bf2dba6a30da6` | IDENTICAL |
-| effective fixture contract | `commander-lab.full107/1.0.22-successor` | `commander-lab.full107/1.0.22-successor` | IDENTICAL |
+| effective fixture contract | `commander-lab.full107/1.0.23-successor` | `commander-lab.full107/1.0.22-successor` | DIFFERS |
 
 ## Dimensions
 
