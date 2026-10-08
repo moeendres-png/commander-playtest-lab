@@ -71,7 +71,16 @@ def fake_git(repo_dir: Path, *args: str):
     raise AssertionError(f"unexpected git call: {path} {joined}")
 
 
+OPEN_ISSUES = [
+    {"number": 441, "title": "Lane 441"},
+    {"number": 479, "title": "Lane 479"},
+    {"number": 600, "title": "a pull request", "pull_request": {}},
+]
+
+
 def fake_api(url: str):
+    if url.endswith("/issues?state=open&per_page=50"):
+        return OPEN_ISSUES
     if "/issues/" in url and url.endswith("/comments?per_page=100"):
         return COMMENTS.get(int(url.split("/issues/")[1].split("/")[0]), [])
     if "/issues/" in url:
@@ -143,3 +152,12 @@ def test_render_covers_lanes_heads_worktrees_and_decisions(tmp_path, fake_env):
     assert "/wt/detached" not in text
     assert "WS-WAITING: Choose option A or B" in text
     assert "WS-COMPLETE" not in text
+
+
+def test_lanes_are_the_open_issues_without_pull_requests(fake_env):
+    assert handoff.lane_issues() == (479, 441)
+
+
+def test_lanes_fall_back_when_the_api_answers_nothing(monkeypatch):
+    monkeypatch.setattr(handoff, "api", lambda url: None)
+    assert handoff.lane_issues() == handoff.LANE_ISSUES
