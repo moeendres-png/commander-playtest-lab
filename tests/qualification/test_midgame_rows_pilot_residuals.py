@@ -204,6 +204,174 @@ def test_the_yes_no_refusal_runs_only_on_its_reachable_scenario() -> None:
 
 
 # --------------------------------------------------------------------------- #
+# NEGATIVE_PARENT_CLASS_FALLBACK: the record declares its omitted handler
+# --------------------------------------------------------------------------- #
+
+PARENT_CLASS = "NEGATIVE_PARENT_CLASS_FALLBACK"
+
+
+def _parent_class_record() -> dict[str, Any]:
+    return load_effective_materialization(REPO_ROOT).record(PARENT_CLASS)
+
+
+class _OmissionClient:
+    """A fake mid-game lane whose engine offers the record's own frames.
+
+    ``fallback_answers`` models the wrong reason: a bridge that silently
+    answers the frame through its parent engine class instead of waiting for
+    the external client. The second read of the pending choose_object frame
+    then finds it gone, with a discard already on the tape.
+    """
+
+    def __init__(self, decisions: list[dict[str, Any]], *, fallback_answers: bool = False) -> None:
+        self._decisions = list(decisions)
+        self._fallback_answers = fallback_answers
+        self._object_reads = 0
+        self.offset = 0
+        self.tape: list[dict[str, Any]] = []
+        self.submissions: list[Any] = []
+        self._events: list[dict[str, Any]] = []
+        self.engine_commit = "e" * 40
+
+    def pending_decision(
+        self, *, attempts: int = 60, interval_s: float = 0.5
+    ) -> dict[str, Any] | None:
+        if self._decisions and self._decisions[0].get("decision_class") == "choose_object":
+            self._object_reads += 1
+            if self._fallback_answers and self._object_reads > 1:
+                self._decisions.pop(0)
+                self.offset += 1
+                self._events.append(
+                    {
+                        "sequence": self.offset,
+                        "type": "ZONE_CHANGE",
+                        "from": "HAND",
+                        "to": "GRAVEYARD",
+                        "player_player": "P1",
+                    }
+                )
+        return self._decisions[0] if self._decisions else None
+
+    def events(self, after_offset: int = 0) -> dict[str, Any]:
+        return {
+            "latest_offset": self.offset,
+            "events": [e for e in self._events if e["sequence"] > after_offset],
+        }
+
+    def complete_arrival(self) -> dict[str, Any]:
+        return {
+            "construction_match": True,
+            "mismatches": [],
+            "observation": {
+                "phase": "PRECOMBAT_MAIN",
+                "step": "PRECOMBAT_MAIN",
+                "priority_player": "P1",
+                "turn_number": 1,
+            },
+        }
+
+    def request(self, message_type: str, payload: Any = None) -> dict[str, Any]:
+        if message_type == "get_legal_actions":
+            seat = self._decisions[0].get("seat", 0) if self._decisions else 0
+            return {"success": True, "payload": self._legal(seat)}
+        if message_type == "submit_action":
+            self.submissions.append(payload)
+            raise AssertionError("the declared omission must submit no action")
+        raise AssertionError(f"unexpected lane request {message_type}")
+
+    def submit_options(self, decision: dict[str, Any], option_ids: list[str]) -> None:
+        assert decision["decision_class"] == "priority", (
+            "the declared omission must submit no answer for its frame"
+        )
+        self.submissions.append(list(option_ids))
+        if self._decisions:
+            self._decisions.pop(0)
+
+    @staticmethod
+    def _legal(seat: int) -> dict[str, Any]:
+        return {
+            "actor_id": f"actor-{seat}",
+            "actions": [
+                {
+                    "action_id": f"opt-hand-{name.lower()}",
+                    "metadata": {"label": f"{name} — discard", "seat": seat},
+                }
+                for name in ("Mountain", "Island")
+            ],
+        }
+
+
+def _priority(seat: int = 0) -> dict[str, Any]:
+    return {
+        "decision_id": "d-priority",
+        "decision_class": "priority",
+        "actor_id": f"actor-{seat}",
+        "seat": seat,
+        "legal_options": [{"option_type": "pass_priority", "option_id": "pass"}],
+    }
+
+
+def _discard_frame(seat: int = 0) -> dict[str, Any]:
+    return {
+        "decision_id": "d-discard",
+        "decision_class": "choose_object",
+        "actor_id": f"actor-{seat}",
+        "seat": seat,
+        "prompt": "Choose a card to discard",
+    }
+
+
+def test_the_parent_class_record_declares_its_omitted_handler() -> None:
+    record = _parent_class_record()
+    assert mr.ROWS[PARENT_CLASS] == mr.RowSpec()
+    assert mr.declared_omission_probe(record) == ("choose_object", "P1")
+    # The probe is record-driven: without the expected actor it must not fire.
+    stripped = {**record, "native_procedure": []}
+    assert mr.declared_omission_probe(stripped) is None
+
+
+def test_the_omission_refusal_is_verified_with_no_answer_applied() -> None:
+    record = _parent_class_record()
+    client = _OmissionClient([_priority(), _discard_frame()])
+    execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
+    assert execution.verified, execution.detail
+    assert execution.detail == "obligation observed"
+    # The only submission is the checkpoint priority pass; the refused frame
+    # itself is never answered (the fake rejects any non-priority submission).
+    assert client.submissions == [["pass"]]
+    (refusal,) = execution.refusals
+    assert refusal["well_formed"] is True
+    assert refusal["decision_class"] == "choose_object"
+    assert refusal["kind"] == mr.refusal_mod.TYPED_UNSUPPORTED_DISCRETIONARY_DECISION
+    assert execution.token_evidence["decision_frame:choose_object"]["decision_frames"]
+    assert execution.token_evidence["fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"][
+        "refusal_frame_digests"
+    ]
+
+
+def test_a_parent_class_fallback_that_answers_the_frame_is_never_a_pass() -> None:
+    """Wrong-reason control: if the engine's own/AI choice answered the frame
+    through the parent class, the frame would be gone and the tape advanced;
+    the no-mutation refusal cannot be established and the row fails closed."""
+    record = _parent_class_record()
+    client = _OmissionClient([_priority(), _discard_frame()], fallback_answers=True)
+    execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
+    assert not execution.verified
+    assert "declared omission refusal failed closed" in execution.detail
+    assert execution.refusals == []
+
+
+def test_the_omission_refusal_fires_only_for_the_declared_actor() -> None:
+    record = _parent_class_record()
+    client = _OmissionClient([_priority(seat=1), _discard_frame(seat=1)])
+    execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
+    assert not execution.verified
+    assert "unscripted choose_object for P2" in execution.detail
+    assert execution.refusals == []
+    assert client.submissions == [["pass"]]
+
+
+# --------------------------------------------------------------------------- #
 # PILOT_CHOICE: the record's named choice on the engine's own choice frame
 # --------------------------------------------------------------------------- #
 
