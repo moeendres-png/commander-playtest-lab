@@ -355,6 +355,16 @@ final class XmageNativeStateRestoration {
      * engine stands at the checkpoint.
      */
     private final Map<String, List<Card>> deferredHandByPlayer = new HashMap<>();
+    /**
+     * Requested graveyard objects of a turn-2 checkpoint. The engine's own
+     * turn 1 can already produce the recorded graveyard result (P1's cleanup
+     * discard, CR 514.1, scripted by the record as one Mountain), so these are
+     * not placed before the opening deal. At the checkpoint each requested
+     * object is materialized only as far as the engine's own state does not
+     * already contain a matching identity: the construction tops the zone up
+     * to the record, it never duplicates an engine-performed zone change.
+     */
+    private final Map<String, List<Card>> deferredGraveyardByPlayer = new HashMap<>();
     private final Map<String, UUID> injectedObjectIdsBySemanticId = new HashMap<>();
     private final Map<String, UUID> commanderObjectIdsBySemanticId = new HashMap<>();
     private boolean arrivalRestored;
@@ -1330,7 +1340,19 @@ final class XmageNativeStateRestoration {
                                     .add(card.getId());
                         }
                     }
-                    case GRAVEYARD -> graveyard.add(card);
+                    case GRAVEYARD -> {
+                        if (plan.turnNumber() > 1) {
+                            // Turn-2 checkpoint: the recorded graveyard is
+                            // checkpoint state the engine's own turn 1 may
+                            // already produce (the scripted cleanup discard);
+                            // place only the shortfall at the checkpoint.
+                            deferredGraveyardByPlayer
+                                    .computeIfAbsent(requested.playerId(), ignored -> new ArrayList<>())
+                                    .add(card);
+                        } else {
+                            graveyard.add(card);
+                        }
+                    }
                     case EXILED -> exile.add(card);
                     default -> throw new RestorationException(
                             "UNSUPPORTED_ZONE", object.semanticId());
@@ -1717,6 +1739,7 @@ final class XmageNativeStateRestoration {
         }
         requireFirstTurnPlacement(game);
         applyDeferredHandAtCheckpoint(game, playersByPid);
+        applyDeferredGraveyardAtCheckpoint(game, playersByPid);
         losslessHidden.applyAfterArrival(game, playersByPid, this);
         applyCheckpointPermanentState(game);
         losslessLibrariesApplied = true;
@@ -1744,6 +1767,43 @@ final class XmageNativeStateRestoration {
             }
         }
         deferredHandByPlayer.clear();
+    }
+
+    /**
+     * Places a turn-2 record's requested graveyard objects at the checkpoint
+     * ({@link #deferredGraveyardByPlayer}) only as far as the engine's own
+     * state does not already satisfy them: the engine's own turn 1 may have
+     * produced the recorded graveyard result itself (P1's scripted cleanup
+     * discard), and a construction never duplicates an engine-performed zone
+     * change. The zone is topped up per card identity through the same engine
+     * setup primitive the pre-start placement uses; the comparison afterwards
+     * still checks the exact requested multiset.
+     */
+    private void applyDeferredGraveyardAtCheckpoint(
+            GameCommanderImpl game, Map<String, Player> playersByPid) {
+        if (deferredGraveyardByPlayer.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, List<Card>> entry : deferredGraveyardByPlayer.entrySet()) {
+            Player player = requirePlayer(playersByPid, entry.getKey());
+            Map<String, Integer> present = new HashMap<>();
+            for (Card card : player.getGraveyard().getCards(game)) {
+                present.merge(card.getName(), 1, Integer::sum);
+            }
+            Map<String, Integer> planned = new HashMap<>();
+            List<Card> toPlace = new ArrayList<>();
+            for (Card card : entry.getValue()) {
+                int want = planned.merge(card.getName(), 1, Integer::sum);
+                if (present.getOrDefault(card.getName(), 0) < want) {
+                    toPlace.add(card);
+                }
+            }
+            if (!toPlace.isEmpty()) {
+                game.cheat(player.getId(), List.of(), List.of(), List.of(), toPlace,
+                        List.of(), List.of());
+            }
+        }
+        deferredGraveyardByPlayer.clear();
     }
 
     /**
