@@ -1040,3 +1040,206 @@ def test_a_later_checkpoint_without_declared_passes_fails_closed_in_placement() 
     with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
         probe.drive_to_precombat_main(client, record)
     assert "scripts no priority pass-through" in str(excinfo.value)
+
+
+# --------------------------------------------------------------------------- #
+# #625 re-review P3: the answered-twice ledger and the checkpoint-bounded
+# completeness check
+# --------------------------------------------------------------------------- #
+
+
+def test_answering_a_single_answer_history_step_twice_fails_closed() -> None:
+    """#625 re-review P3: one declared single-answer step is answered once. A
+    repeated engine frame is not a second Lab answer. Mutation: dropping the
+    ``consumed_history`` guard from ``_consume_history`` makes this pass."""
+    record = _turn2_record()
+    repeated = _precheckpoint_history_frames()[0]
+    client = _SequencedClient([repeated, repeated])
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        _probe_module("probe_double_answer_under_test").drive_arrival(
+            client, record, require_history=True
+        )
+    assert "never answers a mandatory decision twice" in str(excinfo.value)
+    assert len(client.submissions) == 1
+
+
+def test_a_declared_history_step_after_the_checkpoint_is_not_required() -> None:
+    """#625 re-review P3: ``_require_history_complete`` requires only the steps
+    whose declared turn/phase lies before the checkpoint. A declared cleanup
+    discard at a later turn is the caller's obligation, not arrival history, and
+    never blocks the arrival. Mutation: without the position bound the ledger
+    reports the turn-5 step unconsumed and this fails closed."""
+    record = _turn2_record()
+    record["decision_script"] = [
+        step for step in record["decision_script"] if step["decision_family"] == "mulligan"
+    ]
+    record["decision_script"].append(
+        {
+            "actor": "P1",
+            "decision_family": "cleanup_discard",
+            "phase": "CLEANUP",
+            "turn": 5,
+            "selection": {
+                **_FAIL_CLOSED,
+                "selector_kind": "card_identity_multiset",
+                "semantic_value": {"Mountain": 1},
+            },
+        }
+    )
+    client = _SequencedClient(
+        [
+            *_precheckpoint_history_frames()[:4],
+            _checkpoint_frame(TURN2_MAIN),
+        ]
+    )
+    verdict = _probe_module("probe_late_history_under_test").drive_arrival(
+        client, record, require_history=True
+    )
+    assert verdict is not None and verdict.construction_verdict == "EXACT"
+
+
+# --------------------------------------------------------------------------- #
+# #626: the turn-1 placement arrival path routes every keep/pass through the
+# record's own declarations (contract 1.0.27)
+# --------------------------------------------------------------------------- #
+
+
+def _placement_turn1_record(script: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "fixture_id": "PLACEMENT_TURN1",
+        "starting_player": "P1",
+        "temporal_state": {
+            "turn_number": 1,
+            "phase": "precombat_main",
+            "step": "main",
+            "active_player": "P1",
+            "priority_player": "P1",
+        },
+        "decision_script": script,
+    }
+
+
+def test_a_turn_one_placement_checkpoint_without_declared_keeps_fails_closed() -> None:
+    """#626: a turn-1 placement row without a declared mulligan keep fails
+    closed; the turn-1 keep is never a Lab default. Mutation: the removed
+    ``target_turn > 1`` guard let this keep through."""
+    probe = _probe_module("probe_placement_turn1_keep_under_test")
+    client = _SequencedClient(
+        [
+            (
+                {
+                    "decision_id": "d-mull",
+                    "decision_class": "mulligan",
+                    "actor_id": "actor-0",
+                    "seat": 0,
+                    "legal_options": [{"option_id": "keep", "option_type": "keep"}],
+                },
+                _legal("actor-0", [{"action_id": "keep", "metadata": {"seat": 0}}]),
+                {"phase": "UNINITIALIZED", "step": "MULLIGAN", "priority_player": "P1"},
+            )
+        ]
+    )
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_to_precombat_main(client, _placement_turn1_record([]))
+    assert "scripts no mulligan keep" in str(excinfo.value)
+    assert client.submissions == []
+
+
+def test_a_turn_one_placement_frame_without_declared_passes_fails_closed() -> None:
+    """#626: a turn-1 placement row without a declared pass-through fails closed
+    before the checkpoint frame; priority is never passed by Lab default.
+    Mutation: the removed ``target_turn > 1`` guard let this pass through."""
+    probe = _probe_module("probe_placement_turn1_pass_under_test")
+    client = _SequencedClient(
+        [
+            _checkpoint_frame(
+                _observation(1, "UPKEEP", "UPKEEP", "P1"),
+                seat=0,
+                decision_id="d-upkeep",
+            )
+        ]
+    )
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_to_precombat_main(client, _placement_turn1_record([]))
+    assert "scripts no priority pass-through" in str(excinfo.value)
+    assert client.submissions == []
+
+
+def test_a_placement_priority_frame_outside_the_declared_scope_fails_closed() -> None:
+    """#626: a declared pass-through authorizes only its own scope. A priority
+    frame after the scope's end and before the checkpoint fails closed instead
+    of being answered from outside the record's declaration."""
+    probe = _probe_module("probe_placement_scope_under_test")
+    record = _placement_turn1_record(
+        [
+            {
+                "actor": "ALL",
+                "decision_family": "priority_pass_through",
+                "scope": {
+                    "from": {"turn": 1, "phase": "beginning"},
+                    "until": {"turn": 1, "phase": "beginning"},
+                },
+                "selection": {
+                    **_FAIL_CLOSED,
+                    "selector_kind": "semantic_action",
+                    "semantic_value": "pass_priority",
+                },
+            }
+        ]
+    )
+    record["temporal_state"] = {
+        "turn_number": 2,
+        "phase": "precombat_main",
+        "step": "main",
+        "active_player": "P2",
+        "priority_player": "P2",
+    }
+    client = _SequencedClient(
+        [
+            _checkpoint_frame(
+                _observation(1, "PRECOMBAT_MAIN", "PRECOMBAT_MAIN", "P1"),
+                seat=0,
+                decision_id="d-out-of-scope",
+            )
+        ]
+    )
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_to_precombat_main(client, record)
+    assert "scripts no priority pass-through" in str(excinfo.value)
+    assert client.submissions == []
+
+
+def test_a_turn_one_placement_mulligan_answered_twice_fails_closed() -> None:
+    """#626: the turn-1 placement transport keeps the same answered-twice
+    ledger as ``drive_arrival``; a repeated keep frame is never a second Lab
+    answer."""
+    probe = _probe_module("probe_placement_double_answer_under_test")
+    frame = (
+        {
+            "decision_id": "d-mull",
+            "decision_class": "mulligan",
+            "actor_id": "actor-0",
+            "seat": 0,
+            "legal_options": [{"option_id": "keep", "option_type": "keep"}],
+        },
+        _legal("actor-0", [{"action_id": "keep", "metadata": {"seat": 0}}]),
+        {"phase": "UNINITIALIZED", "step": "MULLIGAN", "priority_player": "P1"},
+    )
+    record = _placement_turn1_record(
+        [
+            {
+                "actor": "P1",
+                "decision_family": "mulligan",
+                "selection": {
+                    **_FAIL_CLOSED,
+                    "selector_kind": "semantic_action",
+                    "semantic_value": "keep_opening_hand",
+                },
+            }
+        ]
+    )
+    client = _SequencedClient([frame, frame])
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_to_precombat_main(client, record)
+    assert "never answers a mandatory decision twice" in str(excinfo.value)
+    assert len(client.submissions) == 1

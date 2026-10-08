@@ -350,6 +350,78 @@
    "notes": "the review of PR #616 found the row's local PASS depended on Lab answers for players: the pre-checkpoint attacker default and the default pregame keep. The record now declares its whole pre-checkpoint history in decision_script (pregame keeps, priority pass-through scope, P1's turn-1 empty attack set, the turn-1 cleanup discard with its produced graveyard card) and the Lab transports each frame; unscripted frames fail closed. The obligation digest is unchanged; the requested-state digest is recomputed from the declared script and graveyard producing step. The 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "ab71d3a7b9b9a6cb31e3fd193114c1d718e4c8f390cb1fe9b4957ce5c7c0e0f2",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_26.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_TURN1_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "99f4964c29f5fa1a2e06a9ac3bbc18646b505c47cb8f9db7fac6c8e2b9794a8f",
+   "effective_requested_state_digest": "cf41ff5b38ad101a5adaf17997b76f35d1391c79532b5306f6c1ec32df58c5d1",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep steps (P1-P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.26 record declared no mulligan step, so the turn-1 arrival answered the engine's keep with a Lab default. The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "WS05-MP-TURN-5",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the turn-1 arrival history is now declared (pregame keeps and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #625 review reproduced",
+   "notes": "#625 review: the turn-1 arrival kept hands and passed priority without a record script. The record now declares its whole turn-1 pre-checkpoint history in decision_script (four pregame keeps, CR 103.5; a priority pass-through scope from turn 1's beginning to the row's checkpoint, CR 117.3d/305.1) and the Lab transports each frame; unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "cf41ff5b38ad101a5adaf17997b76f35d1391c79532b5306f6c1ec32df58c5d1",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_27.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_TURN1_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "66ec06a25c6e3c151607879a033a3e11e42bcf982615d659eafd389c83792b56",
+   "effective_requested_state_digest": "dc9b4247ca1363943130771f6afa2ce81ff4f1168b5c19ae87783271974add89",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep steps (P1-P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.26 record declared no mulligan step, so the turn-1 arrival answered the engine's keep with a Lab default. The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "WS05-MP-BLOCK-4",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the turn-1 arrival history is now declared (pregame keeps and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #625 review reproduced",
+   "notes": "#625 review: the turn-1 arrival kept hands and passed priority without a record script. The record now declares its whole turn-1 pre-checkpoint history in decision_script (four pregame keeps, CR 103.5; a priority pass-through scope from turn 1's beginning to the row's checkpoint, CR 117.3d/305.1) and the Lab transports each frame; unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "dc9b4247ca1363943130771f6afa2ce81ff4f1168b5c19ae87783271974add89",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_27.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_TURN1_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "afd395236e1930860436037bfde2a2de45e1567e2cf99438dc9f06695f761528",
+   "effective_requested_state_digest": "dda405e286b67c7d5a5ac4c831adc6d13fa14fd5cf4814c664cb9332abd8b0bc",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep steps (P1-P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.26 record declared no mulligan step, so the turn-1 arrival answered the engine's keep with a Lab default. The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "MICRO_REPLACEMENT",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the turn-1 arrival history is now declared (pregame keeps and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #625 review reproduced",
+   "notes": "#625 review: the turn-1 arrival kept hands and passed priority without a record script. The record now declares its whole turn-1 pre-checkpoint history in decision_script (four pregame keeps, CR 103.5; a priority pass-through scope from turn 1's beginning to the row's checkpoint, CR 117.3d/305.1) and the Lab transports each frame; unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "dda405e286b67c7d5a5ac4c831adc6d13fa14fd5cf4814c664cb9332abd8b0bc",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_27.json"
   }
  ],
  "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_7.json"
