@@ -1,0 +1,55 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+  "obligation_exercised": {
+    "obligation_digest": "cc01f231f7c88c19f20b5b9f99f6417fef63db426ea6d6ec6448c1d8eb3775af",
+    "requested_state_digest": "e2b9f841eecc5f320f02d60325838faf09407699c47f0be0f78c5fb8e7e27eff",
+    "required_events": [
+      "continuous_pt_evaluated:13/13"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Psychosis Crawler power/toughness are 13/13 from current P1 hand size (13 cards: the opening seven, the turn-1 draw and the five named Mountains) without a trigger."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "continuous_pt_evaluated:13/13": {
+        "binding": [
+          "every Psychosis Crawler on P1's battlefield is 13/13",
+          "P1 holds exactly 13 cards",
+          "exactly 0 TRIGGERED_ABILITY event(s) with source_object=obj:micro-crawler"
+        ],
+        "parts": [
+          {
+            "binding": "every Psychosis Crawler on P1's battlefield is 13/13",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "P1 holds exactly 13 cards",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "exactly 0 TRIGGERED_ABILITY event(s) with source_object=obj:micro-crawler",
+            "events": []
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "3fb47c3718ffc99537a9034df56b3ee39c77fe3d89216048fc3f50a1d96a6411",
+  "runner_digest": "c2a82b393c755f271437ec6e4381b692808c8f73f90ddd8701577ba192a41e6f",
+  "runtime_receipt_digest": "a6fda7e42d60b44a21b6e83f9a0a3fef482d1c4fbc27b351544ff3eefdd01688",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_CONTINUOUS_EFFECTS",
+  "variance_source": null
+}

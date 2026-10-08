@@ -1,0 +1,106 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_25",
+  "obligation_exercised": {
+    "obligation_digest": "497c6797a1c14b54952c2b214e1fd01fb343bedf82d18ae3b74b9082cf34747a",
+    "requested_state_digest": "202e97eed60277dd4d081c8f245521c83c1354f6794c1348df6f955f00ee9376",
+    "required_events": [
+      "combat_damage:1_to_blocker",
+      "combat_damage:5_to_attacker",
+      "lifelink_gain:P1:1",
+      "deathtouch_SBA"
+    ],
+    "terminal_checks": [
+      "Basilisk Collar is on P1's battlefield",
+      "Colossal Dreadmaw is in P2's graveyard",
+      "Eager Cadet is in P1's graveyard",
+      "P1 is at 21 life",
+      "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:card25-blocker",
+      "exactly 1 GAINED_LIFE event(s) with player_player=P1, amount=1",
+      "no Colossal Dreadmaw is on P2's battlefield",
+      "no Eager Cadet is on P1's battlefield"
+    ],
+    "terminal_postconditions": [
+      "P1 is at 21 life.",
+      "P2 5/5 is destroyed by deathtouch SBA; P1 1/1 also dies absent other effects."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "65c4824a2c212686d3762947f307ac44819122d35c16770d36abde284fee1014",
+      "size": 7107607
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 1 GAINED_LIFE event(s) with player_player=P1, amount=1"
+        ],
+        "check": "P1 is at 21 life",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P1 is at 21 life."
+      },
+      {
+        "also": [
+          "Colossal Dreadmaw is in P2's graveyard",
+          "no Colossal Dreadmaw is on P2's battlefield",
+          "Eager Cadet is in P1's graveyard",
+          "no Eager Cadet is on P1's battlefield",
+          "Basilisk Collar is on P1's battlefield"
+        ],
+        "check": "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:card25-blocker",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P2 5/5 is destroyed by deathtouch SBA; P1 1/1 also dies absent other effects."
+      }
+    ],
+    "terminal_facts": {
+      "Basilisk Collar is on P1's battlefield": true,
+      "Colossal Dreadmaw is in P2's graveyard": true,
+      "Eager Cadet is in P1's graveyard": true,
+      "P1 is at 21 life": true,
+      "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:card25-blocker": true,
+      "exactly 1 GAINED_LIFE event(s) with player_player=P1, amount=1": true,
+      "no Colossal Dreadmaw is on P2's battlefield": true,
+      "no Eager Cadet is on P1's battlefield": true
+    },
+    "token_evidence": {
+      "combat_damage:1_to_blocker": {
+        "binding": "exactly 1 DAMAGED_PERMANENT event(s) with target_object=obj:card25-blocker, source_object=obj:card25-attacker, amount=1",
+        "events": [
+          10
+        ]
+      },
+      "combat_damage:5_to_attacker": {
+        "binding": "exactly 1 DAMAGED_PERMANENT event(s) with target_object=obj:card25-attacker, source_object=obj:card25-blocker, amount=5",
+        "events": [
+          9
+        ]
+      },
+      "deathtouch_SBA": {
+        "binding": "every DAMAGED_PERMANENT event with target_object=obj:card25-blocker precedes the first DESTROYED_PERMANENT event with target_object=obj:card25-blocker",
+        "observation": "engine terminal observation"
+      },
+      "lifelink_gain:P1:1": {
+        "binding": "exactly 1 GAINED_LIFE event(s) with player_player=P1, amount=1",
+        "events": [
+          11
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "355db702faa441030f10253a69173686aa74292b604e762f58080644d508015b",
+  "runner_digest": "c2a82b393c755f271437ec6e4381b692808c8f73f90ddd8701577ba192a41e6f",
+  "runtime_receipt_digest": "0ffb551bc1f830afbafebc1a3b6c4ae5c1add74840a4c3168e260805b48f7421",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_25"
+}
