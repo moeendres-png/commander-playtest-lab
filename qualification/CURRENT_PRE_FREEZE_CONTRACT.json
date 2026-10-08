@@ -21,7 +21,7 @@
   "denominator_count": 107,
   "historical_base_materialization": "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json",
   "historical_base_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
-  "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json",
+  "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_24.json",
   "changed_fixture_ids": [
    "WS05-CMD-START-2",
    "MICRO_MODES",
@@ -101,9 +101,10 @@
    "WS05-MP-TURN-5",
    "WS05-CMD-MULL-2",
    "WS05-CMD-MULL-4",
-   "MICRO_LAYERS"
+   "MICRO_LAYERS",
+   "NEGATIVE_PARENT_CLASS_FALLBACK"
   ],
-  "unchanged_fixture_count": 50,
+  "unchanged_fixture_count": 49,
   "evidence_survival": {
    "WS05-CMD-START-2": "REQUALIFICATION_REQUIRED_NATURAL_START_SCENARIO_ERRATUM",
    "MICRO_COSTS": "REQUALIFICATION_REQUIRED_FIXTURE_DEFECT_CORRECTION_CR_307_1",
@@ -184,9 +185,10 @@
    "WS05-MP-TURN-5": "REQUALIFICATION_REQUIRED_CAUSAL_EXTRA_TURN_SCENARIO_ERRATUM",
    "WS05-CMD-MULL-2": "REQUALIFICATION_REQUIRED_FIXTURE_SCRIPT_CONTRACT_AND_RULES_RANDOMNESS_ERRATUM",
    "WS05-CMD-MULL-4": "REQUALIFICATION_REQUIRED_FIXTURE_SCRIPT_CONTRACT_AND_RULES_RANDOMNESS_ERRATUM",
-   "MICRO_LAYERS": "REQUALIFICATION_REQUIRED_FIXTURE_OBSERVABILITY_ERRATUM"
+   "MICRO_LAYERS": "REQUALIFICATION_REQUIRED_FIXTURE_OBSERVABILITY_ERRATUM",
+   "NEGATIVE_PARENT_CLASS_FALLBACK": "REQUALIFICATION_REQUIRED_FIXTURE_DEFECT_CORRECTION_CAST_TIMING_AND_COST_CONSISTENCY"
   },
-  "effective_materialization_schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_22_SUCCESSOR.json",
+  "effective_materialization_schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_24_SUCCESSOR.json",
   "evidence_migration": {
    "protocol_boundary_changed": true,
    "automatic_carry_forward": false,

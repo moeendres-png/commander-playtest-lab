@@ -1,7 +1,7 @@
 {
  "candidate": "forge",
- "canonical_bundle_digest": "db91c0c6d57016350c985bb60b419c155d034475364345644816b7314962d764",
- "contract_id": "commander-lab.full107/1.0.22-successor",
+ "canonical_bundle_digest": "ca0a38140976a7a4663778f47088fd9157f8779481d2f0e4f2e69bdc867611cf",
+ "contract_id": "commander-lab.full107/1.0.24-successor",
  "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
  "rows": [
   {
