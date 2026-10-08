@@ -136,6 +136,44 @@ def work_dir(tmp_path: Path) -> Path:
     return root
 
 
+@pytest.fixture(scope="session")
+def accepted_evidence_json(built_wheel, tmp_path_factory):
+    """Generate and independently accept one real baseline per current-source run.
+
+    Only immutable JSON is shared. This never reuses an installation for a red
+    control: every ``check`` still invokes the unmodified consumer subprocess,
+    including its fresh isolated runtime re-verification when required.
+    """
+    wheel, digest = built_wheel
+    root = tmp_path_factory.mktemp("b9-accepted-evidence")
+    completed, document = _smoke(wheel.parent, root, extra=("--expect-wheel-sha256", digest))
+    assert completed.returncode == EXIT_PASS, completed.stdout + completed.stderr
+    checked = _run_script(
+        "check",
+        "--repo",
+        str(ROOT),
+        "--evidence",
+        str(root / "evidence" / "PACKAGING_SMOKE.json"),
+        "--wheel-dir",
+        str(wheel.parent),
+    )
+    assert checked.returncode == EXIT_PASS, checked.stdout + checked.stderr
+    return json.dumps(document)
+
+
+@pytest.fixture
+def accepted_evidence(accepted_evidence_json, built_wheel, work_dir, tmp_path):
+    """Give each mutation test separate evidence and artifact bytes."""
+    wheel, _ = built_wheel
+    wheel_dir = tmp_path / "dist"
+    wheel_dir.mkdir()
+    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
+    output = work_dir / "evidence" / "PACKAGING_SMOKE.json"
+    output.parent.mkdir()
+    output.write_text(accepted_evidence_json, encoding="utf-8")
+    return wheel_dir, output, json.loads(accepted_evidence_json)
+
+
 def _write_source_proxy_wheel(
     wheel_dir: Path, *, name: str, version: str, proxied_source_root: Path
 ) -> Path:
@@ -658,62 +696,67 @@ def test_red_control_malformed_evidence_never_passes(tmp_path: Path) -> None:
 
 
 def test_red_control_incomplete_evidence_document_never_passes(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    accepted_evidence, tmp_path: Path
 ) -> None:
-    wheel, wheel_sha256 = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-    _, document = _smoke(wheel_dir, work_dir, extra=("--expect-wheel-sha256", wheel_sha256))
-    assert document["overall_classification"] == "PASS"
-    source_path = work_dir / "evidence" / "PACKAGING_SMOKE.json"
+    wheel_dir, source_path, document = accepted_evidence
 
     for dropped in ("wheel_sha256", "cli_entrypoint_results", "installed_import", "reasons"):
         broken = tmp_path / f"missing-{dropped}.json"
         mutated = dict(document)
         del mutated[dropped]
         broken.write_text(json.dumps(mutated), encoding="utf-8")
-        checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(broken))
+        checked = _run_script(
+            "check",
+            "--repo",
+            str(ROOT),
+            "--evidence",
+            str(broken),
+            "--wheel-dir",
+            str(wheel_dir),
+        )
         assert checked.returncode == EXIT_FAIL, dropped
+        assert "missing required keys" in checked.stderr, checked.stderr
         assert dropped in checked.stderr, dropped
 
     assert source_path.is_file()
 
 
 def test_red_control_unknown_or_failed_classification_is_never_promoted_to_pass(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    accepted_evidence, tmp_path: Path
 ) -> None:
-    wheel, wheel_sha256 = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-    _, document = _smoke(wheel_dir, work_dir, extra=("--expect-wheel-sha256", wheel_sha256))
+    wheel_dir, _, document = accepted_evidence
 
     for classification in ("UNKNOWN", "FAIL", "PARTIAL", "NOT_RUN"):
         broken = tmp_path / f"classification-{classification}.json"
         mutated = dict(document)
         mutated["overall_classification"] = classification
         broken.write_text(json.dumps(mutated), encoding="utf-8")
-        checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(broken))
+        checked = _run_script(
+            "check",
+            "--repo",
+            str(ROOT),
+            "--evidence",
+            str(broken),
+            "--wheel-dir",
+            str(wheel_dir),
+        )
         assert checked.returncode == EXIT_FAIL, classification
         assert "recorded_classification_not_pass" in checked.stderr, classification
 
 
 def test_red_control_evidence_bound_to_a_different_candidate_is_rejected(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    accepted_evidence, tmp_path: Path
 ) -> None:
-    wheel, wheel_sha256 = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-    _, document = _smoke(wheel_dir, work_dir, extra=("--expect-wheel-sha256", wheel_sha256))
+    wheel_dir, evidence, document = accepted_evidence
 
     checked = _run_script(
         "check",
         "--repo",
         str(ROOT),
         "--evidence",
-        str(work_dir / "evidence" / "PACKAGING_SMOKE.json"),
+        str(evidence),
+        "--wheel-dir",
+        str(wheel_dir),
         "--expect-source-sha",
         "0" * 40,
     )
@@ -725,19 +768,23 @@ def test_red_control_evidence_bound_to_a_different_candidate_is_rejected(
     stale_version["declared_version"] = "0.0.1"
     stale_path = tmp_path / "stale-version.json"
     stale_path.write_text(json.dumps(stale_version), encoding="utf-8")
-    checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(stale_path))
+    checked = _run_script(
+        "check",
+        "--repo",
+        str(ROOT),
+        "--evidence",
+        str(stale_path),
+        "--wheel-dir",
+        str(wheel_dir),
+    )
     assert checked.returncode == EXIT_FAIL
     assert "package_version_not_the_current_declared_version" in checked.stderr
 
 
 def test_red_control_evidence_claiming_a_source_tree_import_is_rejected(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    accepted_evidence, tmp_path: Path
 ) -> None:
-    wheel, wheel_sha256 = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-    _, document = _smoke(wheel_dir, work_dir, extra=("--expect-wheel-sha256", wheel_sha256))
+    wheel_dir, _, document = accepted_evidence
 
     forged = dict(document)
     forged_import = dict(document["installed_import"])
@@ -745,25 +792,37 @@ def test_red_control_evidence_claiming_a_source_tree_import_is_rejected(
     forged["installed_import"] = forged_import
     forged_path = tmp_path / "forged-import.json"
     forged_path.write_text(json.dumps(forged), encoding="utf-8")
-    checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(forged_path))
+    checked = _run_script(
+        "check",
+        "--repo",
+        str(ROOT),
+        "--evidence",
+        str(forged_path),
+        "--wheel-dir",
+        str(wheel_dir),
+    )
     assert checked.returncode == EXIT_FAIL
     assert "installed_import_not_proven_isolated" in checked.stderr
 
 
 def test_red_control_non_wheel_install_source_claim_is_rejected(
-    built_wheel: tuple[Path, str], work_dir: Path, tmp_path: Path
+    accepted_evidence, tmp_path: Path
 ) -> None:
-    wheel, wheel_sha256 = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-    _, document = _smoke(wheel_dir, work_dir, extra=("--expect-wheel-sha256", wheel_sha256))
+    wheel_dir, _, document = accepted_evidence
 
     forged = dict(document)
     forged["install_source"] = "source_tree"
     forged_path = tmp_path / "forged-source.json"
     forged_path.write_text(json.dumps(forged), encoding="utf-8")
-    checked = _run_script("check", "--repo", str(ROOT), "--evidence", str(forged_path))
+    checked = _run_script(
+        "check",
+        "--repo",
+        str(ROOT),
+        "--evidence",
+        str(forged_path),
+        "--wheel-dir",
+        str(wheel_dir),
+    )
     assert checked.returncode == EXIT_FAIL
     assert "install_source_not_wheel" in checked.stderr
 
@@ -955,15 +1014,10 @@ def test_early_failure_overwrites_stale_pass(work_dir, tmp_path):
 _FIRST_SCRIPT = next(iter(CONTRACT.scripts))
 
 
-def test_every_forged_binding_is_rejected_independently(built_wheel, work_dir, tmp_path):
+def test_every_forged_binding_is_rejected_independently(accepted_evidence, tmp_path):
     import copy
 
-    wheel, _ = built_wheel
-    wheel_dir = tmp_path / "dist"
-    wheel_dir.mkdir()
-    (wheel_dir / wheel.name).write_bytes(wheel.read_bytes())
-    completed, valid = _smoke(wheel_dir, work_dir)
-    assert completed.returncode == EXIT_PASS, completed.stderr
+    wheel_dir, _, valid = accepted_evidence
     controls = [
         (("source_sha",), "0" * 40),
         (("installed_import", "module"), "commander_lab.__b9_missing__"),
@@ -996,18 +1050,54 @@ def test_every_forged_binding_is_rejected_independently(built_wheel, work_dir, t
         (("cli_entrypoint_results", _FIRST_SCRIPT, "stdout_bytes"), 1),
         (("cli_entrypoint_results", _FIRST_SCRIPT, "target"), "forged:app"),
     ]
+    expected_failures = {
+        ("source_sha",): "evidence_source_identity_not_current",
+        ("source_tree",): "evidence_source_identity_not_current",
+        ("install", "direct_url_sha256"): "install_binding_invalid:direct_url_sha256",
+        ("install", "editable"): "install_binding_invalid:editable",
+        ("install", "install_source"): "install_binding_invalid:install_source",
+        ("install", "index_access"): "install_binding_invalid:index_access",
+        (
+            "environment",
+            "include_system_site_packages",
+        ): "environment_binding_invalid:include_system_site_packages",
+        ("environment", "created_by_this_run"): "environment_binding_invalid:created_by_this_run",
+        ("reasons",): "pass_carries_failure_reasons",
+        ("package_contract",): "package_contract_not_current",
+        ("cli_entrypoints",): "cli_entrypoint_sections_inconsistent",
+        ("expected_bindings",): "expected_binding_mismatch:source_sha",
+        ("python_version",): "runtime_observation_mismatch:python_version",
+    }
     for keys, value in controls:
         forged = copy.deepcopy(valid)
         target = forged
         for key in keys[:-1]:
             target = target[key]
         target[keys[-1]] = value
+        if keys[0] == "cli_entrypoint_results":
+            # Keep redundant sections consistent: prove the runtime observation
+            # guard, not an earlier representation mismatch, catches the forgery.
+            forged["cli_entrypoints"] = list(forged["cli_entrypoint_results"].values())
         evidence = tmp_path / "forged.json"
         evidence.write_text(json.dumps(forged))
         checked = _run_script(
             "check", "--repo", str(ROOT), "--evidence", str(evidence), "--wheel-dir", str(wheel_dir)
         )
         assert checked.returncode == EXIT_FAIL, (keys, checked.stdout, checked.stderr)
+        if keys == ("installed_import", "module"):
+            expected = (
+                "installed_import_module_invalid"
+                if value is None or value == 123 or value == "invalid-name"
+                else "runtime_reverification_failed:"
+            )
+        elif keys[0] == "installed_import":
+            expected = "runtime_observation_mismatch:installed_import"
+        elif keys[0] == "cli_entrypoint_results":
+            expected = "runtime_observation_mismatch:cli_entrypoint_results"
+        else:
+            expected = expected_failures[keys]
+        assert expected in checked.stderr, (keys, checked.stderr)
+        assert "artifact_reverification_required" not in checked.stderr
     for key in ("package_contract", "environment", "install", "cli_entrypoints"):
         forged = copy.deepcopy(valid)
         del forged[key]
@@ -1016,6 +1106,7 @@ def test_every_forged_binding_is_rejected_independently(built_wheel, work_dir, t
             "check", "--repo", str(ROOT), "--evidence", str(evidence), "--wheel-dir", str(wheel_dir)
         )
         assert checked.returncode == EXIT_FAIL, key
+        assert "missing required keys" in checked.stderr and key in checked.stderr
 
 
 def test_wheel_from_foreign_source_fails_binding(built_wheel, work_dir, tmp_path):
