@@ -64,7 +64,10 @@ def footer(lane: str) -> str:
     if lane == "oc":
         rules.append(
             "Open a PR against `main` and never merge it. Work only on your own branch and do "
-            "not touch another workstream's files."
+            "not touch another workstream's files. Never write a GitHub closing keyword "
+            "(`Closes`, `Fixes`, `Resolves` followed by an issue number) in a commit message or "
+            "the PR body: merging would close the issue. Use `Refs #N`; the Coordinator closes "
+            "issues."
         )
     else:
         rules.append(

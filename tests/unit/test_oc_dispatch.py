@@ -193,3 +193,9 @@ def test_rescue_downloads_only_rescue_artifacts_and_pushes_nothing(monkeypatch, 
     out = capsys.readouterr().out
     assert "abc123 agent work" in out
     assert "git fetch" in out and "work.bundle" in out
+
+
+def test_oc_footer_forbids_closing_keywords():
+    text = oc_dispatch.footer("oc")
+    assert "Never write a GitHub closing keyword" in text
+    assert "Refs #N" in text
