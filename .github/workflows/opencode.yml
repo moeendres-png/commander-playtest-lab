@@ -125,7 +125,7 @@ jobs:
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
         contains(github.event.comment.body, ' /bunny') ||
         startsWith(github.event.comment.body, '/bunny')
-      )
+      ) && !contains(github.event.comment.body, '/bunny-review')
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -217,5 +217,101 @@ jobs:
           # `opencode github run` accepts a comment only when it mentions one of these
           # phrases (default /opencode,/oc). This lane is started by /bunny.
           MENTIONS: '/bunny'
+          VARIANT: max
+          OIDC_BASE_URL: ''
+
+  opencode-bunny-review:
+    # Mandatory cross-executor review lane (ROUTING_AND_EFFORT.md,
+    # tools/foundry/review_gate.py): a fresh-context READ-ONLY Space Bunny MAX
+    # reviewer bound to the exact validated implementation SHA and TREE. Started
+    # only by an explicit `/bunny-review` comment, separated from the writable
+    # `/bunny` secondary-execution lane above. Same trust gate and hardening as
+    # every other lane: both the commenter and the thread author must have a
+    # write-level association. Bot-authored threads are not exempt.
+    if: |
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
+        contains(github.event.comment.body, ' /bunny-review') ||
+        startsWith(github.event.comment.body, '/bunny-review')
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: read
+      issues: read
+    steps:
+      # The agent reads the target issue/PR text and, on a PR, its head. The
+      # target's author must be trusted (job `if:`) and a PR head must live in
+      # this repository: a fork PR could carry its own agent config. Comments by
+      # others on a trusted thread are NOT filtered here (tracked separately);
+      # only invoke the agent on threads whose comments you trust.
+      - name: Refuse fork pull requests as agent targets
+        if: github.event.issue.pull_request || github.event.pull_request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          head_repo="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.repo.full_name')"
+          if [ "$head_repo" != "$GITHUB_REPOSITORY" ]; then
+            echo "Refusing: PR head repository '${head_repo}' is not ${GITHUB_REPOSITORY}." >&2
+            exit 1
+          fi
+      - name: Checkout repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      # Hardened OpenCode CLI execution lane (same pin/verification as the
+      # DeepSeek and Space Bunny execution jobs above).
+      - name: Install pinned OpenCode CLI v1.18.30
+        env:
+          VERSION: 1.18.30
+          OPENCODE_X64_SHA256: 55007246858165496ff85ba1c2b648f7421e8e2013bf4189a680c9ff8e699d17
+          OPENCODE_ARM64_SHA256: 4111a55c2a02c0fac314bd51e9a2330280e6d29d2b85b9554fff6d62612566ed
+        run: |
+          set -euo pipefail
+          ARCH="$(uname -m)"
+          case "${ARCH}" in
+            x86_64) ASSET="opencode-linux-x64.tar.gz"; SHA="${OPENCODE_X64_SHA256}" ;;
+            aarch64|arm64) ASSET="opencode-linux-arm64.tar.gz"; SHA="${OPENCODE_ARM64_SHA256}" ;;
+            *) echo "unsupported arch ${ARCH} (fail closed)"; exit 1 ;;
+          esac
+          URL="https://github.com/sst/opencode/releases/download/v${VERSION}/${ASSET}"
+          curl -fsSL -o "/tmp/${ASSET}" "${URL}"
+          echo "${SHA}  /tmp/${ASSET}" | sha256sum -c -
+          mkdir -p "$HOME/.opencode/bin"
+          tar -xzf "/tmp/${ASSET}" -C "$HOME/.opencode/bin"
+          rm -f "/tmp/${ASSET}"
+          echo "$HOME/.opencode/bin" >> "$GITHUB_PATH"
+
+      - name: Assert OpenCode CLI is exactly v1.18.30
+        run: |
+          set -euo pipefail
+          BIN="$HOME/.opencode/bin/opencode"
+          test -x "$BIN"
+          RESOLVED="$(command -v opencode)"
+          echo "opencode path: ${RESOLVED}"
+          test "${RESOLVED}" = "${BIN}"
+          INSTALLED="$("${BIN}" --version)"
+          echo "opencode --version (path): ${INSTALLED}"
+          test "${INSTALLED}" = "1.18.30"
+          INSTALLED_PATH="$(opencode --version)"
+          echo "opencode --version (PATH): ${INSTALLED_PATH}"
+          test "${INSTALLED_PATH}" = "1.18.30"
+
+      - name: Run opencode
+        run: opencode github run
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          MODEL: opencode-go/space-bunny
+          AGENT: foundry-reviewer
+          SHARE: 'false'
+          PROMPT: ''
+          USE_GITHUB_TOKEN: 'false'
+          # `opencode github run` accepts a comment only when it mentions one of these
+          # phrases (default /opencode,/oc). This lane is started by /bunny-review.
+          MENTIONS: '/bunny-review'
           VARIANT: max
           OIDC_BASE_URL: ''

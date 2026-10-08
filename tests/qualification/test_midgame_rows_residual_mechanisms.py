@@ -828,6 +828,9 @@ WORKSTREAM_ROWS = {
     "PILOT_CHOOSE_USE",
     # #441 contract 1.0.21: the layer tokens as discriminating readbacks.
     "MICRO_LAYERS",
+    # #592: the parent-class fallback negative, whose omitted choose_object
+    # handler the record declares itself (negative_fallback_probe).
+    "NEGATIVE_PARENT_CLASS_FALLBACK",
 }
 
 

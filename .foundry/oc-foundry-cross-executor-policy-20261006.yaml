@@ -1,0 +1,259 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/runner/work/commander-playtest-lab/commander-playtest-lab
+branch: tooling/cross-executor-policy-hardening-20261007
+audit_base_sha: 5a062a5bd1836e08514c78085f97071e8f533970
+audit_base_tree: ba3ce0870c305d28845c9f174a93496181bfc074
+state_written_against_head: b183343ea3f052b14fbe91d8bae69a58be9fb522
+validated_head: b183343ea3f052b14fbe91d8bae69a58be9fb522
+validated_tree: fed324dc71896f12134bb9a26e83c7b748370c3e
+objective: 'Implement issue #578 durably: DeepSeek MAX remains the default/primary
+  implementation executor; Space Bunny MAX is the mandatory independent fresh-context
+  READ-ONLY cross-executor reviewer for MATERIAL implementation workstreams. A PASS
+  is only admissible with independently verified trusted GitHub review evidence; materiality,
+  completion and remote-checkpoint gates fail closed. This repair also closes the
+  current-head audit findings (self-attested review records, fail-open docs materiality,
+  stale state) and the semantic workflow-security guard. Follow-up repair on PR #590
+  closes the fresh-context review findings: run-bound review receipts, removal of the
+  writable bootstrap carrier, invalid-materiality fail-closed semantics, repository
+  binding, bot-thread closure and hermetic test git env. No merge in this run.'
+in_scope:
+- tools/foundry/review_evidence.py trusted GitHub review-evidence contract/verifier
+- run-bound receipt verification (comment time window, trigger-comment binding, own
+  footer run link) and removal of the writable BOOTSTRAP carrier (PR #590 review)
+- tools/foundry/review_gate.py canonical structure/validator + completion claim gate
+- fail-closed invalid materiality declarations and repository-bound bootstrap state
+- tools/foundry/materiality.py fail-safe MATERIAL/NON_MATERIAL classification
+- tools/foundry/executor_profiles.py + launcher/opencode.json registry alias resolution
+- tools/foundry/remote_checkpoint.py + safe_push.py remote HEAD equality and COMPLETE
+  gating
+- state schema/validator policy fields (validated_tree, materiality, cross_executor_review,
+  remote_checkpoint)
+- read-only foundry-reviewer bound to Space Bunny + /bunny-review workflow lane and
+  semantic workflow-security tests
+- 'wrong-reason/regression tests and restored #577 P3 activation-evidence guards'
+out_of_scope:
+- Magic Rules semantics, qualification denominators/credit, engine/provider evidence
+  semantics
+- hidden-information semantics, production provider selection, Architecture Freeze
+- production repository creation, Mage/Forge Rules Core changes
+- '#574 surfaces, main-branch mutation, merge of this PR'
+ownership: oc-foundry-cross-executor-policy-20261006
+dependencies:
+- '#577 merged as 5a062a5bd1836e08514c78085f97071e8f533970 (consumed, not undone)'
+- '#575 gh_ops/oc_dispatch/HANDOFF tooling reused for checkpoints'
+- '#576/#577 canonical executor identity and evidence semantics reused'
+hard_gates:
+- exactly two logical executor profiles; no third executor
+- DeepSeek remains default; both logical profiles native max
+- Space Bunny resolution requires live catalog inspection; canonical before legacy
+  alias; else fail closed
+- no automatic cross-family fallback; post-selection failure is BLOCKED, never re-resolution
+- MATERIAL PR_READY/COMPLETE requires fresh-context READ-ONLY Space Bunny PASS on
+  exact validated SHA and TREE
+- DeepSeek review, writable verifier, unknown/blocked/partial/fail/stale review never
+  satisfies the gate
+- material delta after review or P1/P2 repair requires exact new-SHA/TREE re-review
+- historical pre-policy states remain parseable and are not retroactively failed
+- UNKNOWN/BLOCKED/NOT_RUN/PARTIAL != PASS
+forbidden_shortcuts:
+- no silent Longcat/other-model substitution or first-available catalog row
+- no weakening tests/contracts/CI to obtain green results
+- no rewriting historical Bunny provenance to look current
+- no direct main mutation, force push, rebase, reset --hard or history rewrite
+validated_gates:
+- 'pytest -q -p no:cacheprovider tests/foundry tests/unit on the PR #590 review-fix
+  tree fed324dc71896f12134bb9a26e83c7b748370c3e (head b183343ea3f052b14fbe91d8bae69a58be9fb522):
+  2535 passed, 4 skipped, 0 failed (skips: mage checkout absent, bubblewrap absent,
+  2x Windows junction semantics)'
+- 'the prior 10 packaging-smoke UNKNOWNs were runner-venv-only (typer metadata 0.27.3
+  vs the hash-locked 0.27.2); with typer 0.27.2 installed the packaging smoke suite
+  is 33/33 passed'
+- ruff check . -> clean; ruff format --check . -> 1404 files already formatted
+- 'mypy is not applicable to this change: no src/commander_lab file changed'
+failed_gates: []
+invalidated_gates: []
+do_not_rerun: []
+current_failure: none (review findings repaired; independent read-only /bunny-review
+  cannot run from this PR because issue-comment lanes execute from main, so the review
+  gate remains UNSATISFIED by design until the lane is on main)
+failure_class: NONE
+files_modified:
+- .foundry/WORKSTREAM_STATE.schema.json
+- .foundry/executor-profiles.json
+- .foundry/oc-foundry-cross-executor-policy-20261006.yaml
+- .github/workflows/opencode.yml
+- .opencode/agents/bunny-auditor.md
+- .opencode/agents/bunny-verifier.md
+- .opencode/agents/foundry-reviewer.md
+- docs/CURRENT_EXECUTION_AUTHORITY.md
+- docs/foundry-execution/ROUTING_AND_EFFORT.md
+- opencode.json
+- tests/foundry/test_executor_profiles.py
+- tests/foundry/test_executor_resolution.py
+- tests/foundry/test_foundry_tools.py
+- tests/foundry/test_launcher.py
+- tests/foundry/test_materiality.py
+- tests/foundry/test_remote_checkpoint.py
+- tests/foundry/test_review_evidence.py
+- tests/foundry/test_review_gate.py
+- tests/foundry/test_safe_push.py
+- tests/unit/test_claude_routing_policy.py
+- tests/unit/test_workflow_security.py
+- tests/unit/test_ws78_token_economy.py
+- tools/foundry/bootstrap.py
+- tools/foundry/executor_profiles.py
+- tools/foundry/launcher.py
+- tools/foundry/materiality.py
+- tools/foundry/metrics.py
+- tools/foundry/remote_checkpoint.py
+- tools/foundry/review_evidence.py
+- tools/foundry/review_gate.py
+- tools/foundry/safe_push.py
+- tools/foundry/state.py
+tests_run:
+- python -m pytest -q -p no:cacheprovider tests/foundry tests/unit -> 2535 passed,
+  4 skipped, 0 failed on tree fed324dc
+- python -m pytest -q -p no:cacheprovider tests/unit/test_packaging_smoke.py -> 33
+  passed with the hash-locked typer 0.27.2 in the runner venv
+- python -m ruff check . -> All checks passed
+- python -m ruff format --check . -> 1404 files already formatted
+evidence:
+- 'DIRECTLY_VERIFIED: PR #590 review-fix implementation head b183343ea3f052b14fbe91d8bae69a58be9fb522
+  / tree fed324dc71896f12134bb9a26e83c7b748370c3e; fix commits 9d01af4 (P1-a/P1-b/P2/P3-b/P3-c/P3-e)
+  and b183343 (P3-a/P3-d); audit base 5a062a5bd1836e08514c78085f97071e8f533970 /
+  ba3ce0870c305d28845c9f174a93496181bfc074'
+- 'DIRECTLY_VERIFIED: P1-a wrong-reason controls with injected FakeGitHub: a bot comment
+  whose footer links a foreign run fails (REVIEW_EVIDENCE_RESULT_RUN_LINK_MISMATCH),
+  a cited foreign run whose footer belongs to another run fails, result comments outside
+  run_started_at..updated_at fail, a run that predates its trigger comment fails, and
+  any issue comment between trigger and run start fails (REVIEW_EVIDENCE_RUN_TRIGGER_BINDING)'
+- 'DIRECTLY_VERIFIED: P1-b: CARRIERS == (DIRECT_REVIEW_LANE,), no CARRIER_BOOTSTRAP/MARKER_BOOTSTRAP
+  attributes, a BOOTSTRAP_ISSUE_COMMENT carrier is structurally invalid, bunny-verifier/bunny-auditor
+  agent docs post no receipt and review_agent bunny-verifier/bunny-auditor is rejected;
+  only a coherent direct foundry-reviewer graph satisfies'
+- 'DIRECTLY_VERIFIED: P2: declared materiality UNKNOWN/material/N/A/""/"MATERIAL " against
+  a real MATERIAL change set returns UNSATISFIED MATERIALITY_DECLARATION_INVALID, not
+  NOT_REQUIRED; a missing materiality is treated as MATERIAL'
+- 'DIRECTLY_VERIFIED: P3-a: bootstrap.init_state rejects blank/malformed repository and
+  bootstrap() refuses a state whose repository is blank or differs from the profile
+  repo_slug; existing bootstrap fixtures pass with matching identity'
+- 'DIRECTLY_VERIFIED: P3-c: the /bunny-review job if-expression has no opencode-agent[bot]
+  thread exception; semantic expression evaluation refuses bot-authored and untrusted
+  targets, and the pinned-workflow verifier rejects any bot-login exemption'
+- 'DIRECTLY_VERIFIED: P3-d: test_materiality.py and test_review_gate.py git helpers set
+  GIT_CONFIG_GLOBAL=/dev/null and GIT_CONFIG_NOSYSTEM=1'
+- 'DIRECTLY_VERIFIED: P3-b/P3-e: docs now state that REVIEWER_MODEL/REVIEWER_VARIANT/READ_ONLY
+  are self-reported and the alias is never observed, and both authority docs frame the
+  completion gate as a Foundry tooling gate without changing AGENTS.md, Rules, evidence
+  or credit semantics'
+- 'DIRECTLY_VERIFIED: origin/tooling/cross-executor-policy-hardening-20261007 fetched
+  at run start was 58ccfb8ebb64284691715cd5316b7afa7b4745c8 / 3586b09224d6b2952be2677349016ead92d43df9;
+  the two local fix commits are not yet pushed'
+- 'UNKNOWN: independent fresh-context read-only /bunny-review evidence for b183343/fed324dc
+  cannot be produced from this PR: issue-comment workflows execute the workflow file
+  on the default branch, which does not yet contain the /bunny-review lane. The review
+  gate therefore stays UNSATISFIED and no PR_READY/COMPLETE claim is made'
+artifacts: []
+remaining_scope:
+- independent fresh-context read-only Space Bunny review of b183343ea3f052b14fbe91d8bae69a58be9fb522
+  / fed324dc71896f12134bb9a26e83c7b748370c3e through the trusted /bunny-review lane
+  once that lane is on main, recorded with verified review_evidence
+- canonical review record under .foundry/reviews/ and state mirror update to PASS
+- normal PR review/merge path (explicitly not performed in this run)
+status: ACTIVE
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: max
+hypotheses_rejected:
+- Guessing the legacy alias from history instead of inspecting the live pinned CLI
+  catalog
+- Treating the legacy alias as a third logical executor instead of a runtime identity
+  of space-bunny
+- Letting DeepSeek or a writable verifier satisfy the cross-executor gate
+- Trusting a self-declared Space Bunny identity/verdict in a record the implementation
+  executor writes (review evidence must cross a trust boundary)
+- Treating ordinary docs/** changes, governing policy docs, or unknown docs as documentation-only
+  closeout
+- Granting NON_MATERIAL from an empty delta after rebinding audit_base_sha onto validated_head
+- Letting a policy-less COMPLETE state bypass the completion gate
+- Treating a pushed WIP as qualification PASS
+- Enforcing the new policy retroactively on historical COMPLETE states
+- 'Treating a comment-body substring link as proof that the comment belongs to the cited run (PR #590 P1-a)'
+- 'Admitting a writable top-level lane (bunny-verifier) or its bunny-auditor subreview as review evidence (PR #590 P1-b)'
+- 'Treating an unknown/lowercase/blank materiality declaration as a NON_MATERIAL exemption (PR #590 P2)'
+- 'Letting state.repository be blank or foreign so review evidence could bind to any repository (PR #590 P3-a)'
+technical_decisions:
+- 'Materiality is fail-safe: unknown paths, tools/, tests/, schemas, CI, evidence
+  semantics and ordinary docs/** are MATERIAL; only the explicit workstream state
+  path, canonical .foundry/reviews/** receipts, and explicitly named documentation-closeout
+  reports under docs/ (basename contains closeout, no policy/authority/mission/qualification/evidence/routing/security
+  keyword) are NON_MATERIAL, and NON_MATERIAL is verified against the Git change set.'
+- A PASS review record is only admissible with independently verified GitHub review_evidence
+  (trusted trigger comment, trusted Space Bunny workflow run + expected job conclusion,
+  workflow and read-only agent files fetched at the run head_sha, and the OpenCode
+  bot receipt with the exact marker/SHA/TREE/verdict); self-declared record fields
+  can never fabricate a review, and network/API/parse failures fail closed.
+- 'The receipt is bound to the run, not to a substring: the result comment created_at
+  must fall inside the run run_started_at..updated_at window, the trigger comment must
+  precede the run and be the newest issue comment created before it, and the comment''s
+  own footer /actions/runs link must be the last run link in the body. REVIEWER_MODEL/REVIEWER_VARIANT/READ_ONLY
+  are self-reported text; the run/job identity, timing, workflow pin and read-only
+  agent file are the observed facts, and the runtime alias is never observed.'
+- 'One carrier only: the direct /bunny-review lane with foundry-reviewer (BUNNY_DIRECT_READ_ONLY_REVIEW).
+  The writable bootstrap /bunny lane and any bunny-auditor subagent attestation are
+  removed because a review that can write is not review evidence. Issue-comment workflows
+  run from main, so the direct lane is only reachable after this PR merges.'
+- An invalid declared materiality (UNKNOWN, lowercase, blank, N/A) is UNSATISFIED and
+  only an exact NON_MATERIAL declaration may seek the Git-verified exemption.
+- The bootstrap state repository is bound to the profile repo_slug; init_state requires
+  an explicit owner/name slug, so no review evidence can be bound to "any repository".
+- A NON_MATERIAL claim from an empty or self-rebound audit base is refused (MATERIALITY_SELF_EXEMPT),
+  and a policy-less state cannot certify a new PR_READY/COMPLETE claim (completion
+  gate and safe_push always gate COMPLETE).
+- Review records live at .foundry/reviews/<workstream>.json; the state mirrors the
+  verdict and exact reviewed identities and fails closed on any mirror/record mismatch.
+- A generated-state-only checkpoint commit preserves the reviewed validated implementation
+  identity (reviewed_sha == validated_head) without pretending the later state commit
+  was reviewed.
+- The legacy runtime id opencode-go/space-bunny-free is admitted only as a runtime
+  identity (LEGACY_ALIAS) of the same logical space-bunny profile; canonical wins
+  when both are present.
+- "The takeover PR #590 branch is tooling/cross-executor-policy-hardening-20261007, created by the owner from #579's head 58ccfb8e; this state file was moved to that branch identity and now validates under bootstrap against the profile repo_slug."
+- A MATERIAL workstream cannot self-exempt by setting cross_executor_review.required=false;
+  the gate refuses it explicitly.
+authority_gates: []
+first_failing_boundary: independent Space Bunny review dispatch (external reviewer
+  required; not a self-satisfiable gate; the read-only lane must first exist on main)
+root_cause_class: NONE
+next_action: merge the read-only lane to main, then dispatch /bunny-review for b183343/fed324dc
+exact_next_action: Once this PR's workflow is on main, dispatch a fresh-context READ-ONLY
+  Space Bunny review of implementation SHA b183343ea3f052b14fbe91d8bae69a58be9fb522
+  / tree fed324dc71896f12134bb9a26e83c7b748370c3e through the trusted /bunny-review
+  lane (foundry-reviewer), so the OpenCode bot result comment carries BUNNY_DIRECT_READ_ONLY_REVIEW
+  with the exact SHA/TREE/verdict and passes the run-bound evidence checks; then write
+  the canonical record to .foundry/reviews/oc-foundry-cross-executor-policy-20261006.json
+  including its review_evidence and update cross_executor_review to PASS with those
+  exact identities. Do not claim the gate satisfied before that review.
+execution_profile: deepseek
+executor_model: opencode-go/deepseek-v4.1-flash
+logical_executor_profile: deepseek
+resolved_provider: opencode-go
+resolved_model_id: opencode-go/deepseek-v4.1-flash
+model_alias_class: CANONICAL
+native_variant: max
+variant_resolution: workflow_pinned_max
+materiality: MATERIAL
+cross_executor_review:
+  required: true
+  logical_profile: space-bunny
+  implementation_executor: deepseek
+  review_executor: space-bunny
+  reviewed_sha: null
+  reviewed_tree: null
+  verdict: UNKNOWN
+  review_record_path: null
+remote_checkpoint:
+  remote: origin
+  branch: tooling/cross-executor-policy-hardening-20261007
+  sha: 58ccfb8ebb64284691715cd5316b7afa7b4745c8
+  tree: 3586b09224d6b2952be2677349016ead92d43df9

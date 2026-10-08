@@ -55,6 +55,16 @@ freely on verification, never on idle waiting or on re-deriving what a tool alre
 - When a tool result is truncated, read the saved full output with offset/limit instead of
   rerunning the command.
 
+## Cross-executor review boundary
+
+A `/bunny` run is a writable secondary-execution lane. It can dispatch the read-only
+`bunny-auditor` subagent for internal assurance, but that subreview is **not** verifiable
+cross-executor review evidence: the top-level agent can write, so no receipt it posts
+can satisfy `tools/foundry/review_gate.py`. The only admissible review evidence comes
+from the structurally read-only `/bunny-review` lane (`foundry-reviewer`), and a review
+record with `review_agent: bunny-verifier` or `bunny-auditor` is rejected. Never claim
+or post a cross-executor review PASS from this lane.
+
 ## Boundaries
 
 Git, ownership and destructive-operation rules are those of `AGENTS.md` sections 10-11; this agent

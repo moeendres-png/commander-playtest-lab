@@ -18,6 +18,7 @@ from __future__ import annotations
 import hashlib
 import time
 import uuid
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
@@ -33,6 +34,11 @@ MULLIGAN_POLICY = "keep_all"  # Commander: keep the opening hand.
 # A record's own pregame plan: each mulligan frame is answered with the plan's
 # next (seat, keep) entry, and only for the seat the plan names next.
 SCRIPTED_MULLIGAN_POLICY = "fixture_scripted_mulligan"
+# A record's own scripted London bottom (CR 103.5): the engine offers one option
+# per card in the acting player's hand, and the driver submits exactly the
+# offered card ids whose names the record's multiset names. The Lab never picks
+# a card itself: there is no default, no positional pick and no first option.
+SCRIPTED_LONDON_BOTTOM_POLICY = "fixture_scripted_london_bottom"
 PRIORITY_POLICY = "pass_when_offered"  # Decline the optional priority action.
 STARTING_PLAYER_POLICY = "fixture_scripted_seat"
 COST_ORDER_POLICY = "native_declared_cost_part_order"
@@ -400,6 +406,11 @@ def normalize_decision_frame(
     actions = payload.get("actions")
     if not isinstance(actions, list):
         actions = []
+    # The provider's own structured decision context, when it publishes one.
+    # It is field-mapped, never inferred: a London bottom is routed only by the
+    # engine's bottom_of_library_selection marker and count (see the LONDON_BOTTOM
+    # branch of drive_commander_game), never by prompt text.
+    context = payload.get("context")
     return {
         "seat": seat,
         "decision": {
@@ -410,6 +421,7 @@ def normalize_decision_frame(
             "status": str(status),
         },
         "actions": actions,
+        "context": context if isinstance(context, dict) else None,
         "raw": payload,
     }
 
@@ -436,6 +448,64 @@ def poll_decision(
                 return frame
         time.sleep(POLL_INTERVAL_S)
     raise GameDriveError(f"no parked decision observed (last: {last})")
+
+
+def _offered_bottom_cards(actions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Every engine-offered London bottom option as a card identity.
+
+    One option is offered per card in the acting player's hand; it carries the
+    engine's own ``engine_card_id`` and ``card_name``. Nothing is added,
+    removed or ranked here.
+    """
+    offered: list[dict[str, Any]] = []
+    for action in actions:
+        if not isinstance(action, dict) or action.get("action_type") != "bottom_card":
+            continue
+        metadata = action.get("metadata")
+        metadata = metadata if isinstance(metadata, dict) else {}
+        offered.append(
+            {
+                "action_id": action.get("action_id"),
+                "engine_card_id": metadata.get("engine_card_id"),
+                "card_name": metadata.get("card_name"),
+            }
+        )
+    return offered
+
+
+def _match_bottom_multiset(
+    names: tuple[str, ...], offered_cards: list[dict[str, Any]]
+) -> list[str]:
+    """The offered engine card ids the record's bottom multiset names.
+
+    The record states a card-name multiset; the engine offers one option per
+    physical card. A name maps to its offered copies and the least
+    ``engine_card_id`` among same-name copies is taken. Same-name copies are
+    outcome-equivalent for this choice: CR 103.5 selects a card, and cards that
+    share a name are indistinguishable inside a hidden hand (same name, same
+    rules text, same identity for every game decision), so no outcome
+    distinction remains between them. The pick is therefore content-independent
+    and deterministic, never positional. Any name with fewer offered copies
+    than the multiset requires fails closed.
+    """
+    by_name: dict[str, list[str]] = {}
+    for card in offered_cards:
+        name = card.get("card_name")
+        card_id = card.get("engine_card_id")
+        if isinstance(name, str) and name and isinstance(card_id, str) and card_id:
+            by_name.setdefault(name, []).append(card_id)
+    needed = Counter(names)
+    selected: list[str] = []
+    for name in sorted(needed):
+        copies = sorted(by_name.get(name, []))
+        if len(copies) < needed[name]:
+            raise DecisionUnsatisfied(
+                f"the record's scripted London bottom names {needed[name]}x {name!r}, but "
+                f"the engine offers {len(copies)} such card(s) among its "
+                f"{len(offered_cards)} option(s) ({sorted(by_name)})"
+            )
+        selected.extend(copies[: needed[name]])
+    return selected
 
 
 def _structural_options(
@@ -779,6 +849,7 @@ def drive_commander_game(
     drive_to: Literal["priority", "full_turn", "first_turn_draw_skip"] = "priority",
     max_steps: int = 400,
     mulligan_plan: tuple[tuple[str, bool], ...] | None = None,
+    london_bottom_plan: tuple[tuple[str, tuple[str, ...]], ...] | None = None,
     decks: list[dict[str, Any]] | None = None,
 ) -> CommandedGameResult:
     """Run a real Commander lifecycle for one candidate at one player count.
@@ -800,6 +871,16 @@ def drive_commander_game(
     the plan is exhausted, or a plan entry the engine never asked fails closed.
     With a plan, every seat's zone counts are read from the engine at the first
     priority after the pregame, before anything is passed.
+
+    ``london_bottom_plan`` is the record's own London bottom selections
+    (CR 103.5) as ``(seat, card-name multiset)`` entries in script order. Each
+    engine ``london_bottom`` decision is answered by submitting exactly the
+    offered card ids the multiset names, for the seat the engine's actor maps
+    to. The driver never selects a card itself: a bottom decision for another
+    seat, a structured-context mismatch, an unknown or short-named multiset, an
+    unscripted extra decision, or a decision the engine never offered before
+    the pregame ends all fail closed. Each offer and submission is recorded in
+    ``terminal_facts["london_bottom_offers"]`` / ``["london_bottom_submissions"]``.
 
     ``decks`` replaces the driver's own test decks with one import payload per
     seat (a record's requested decks); the engine still validates every card.
@@ -1156,6 +1237,99 @@ def drive_commander_game(
                 result.observations.append(GameObservation("mulligan_keep", keep))
                 continue
 
+            if kind == "LONDON_BOTTOM":
+                # CR 103.5: the bottom card is the acting player's own choice.
+                # The Lab transports the record's scripted multiset to exactly
+                # the offered card ids that carry those names; it never picks a
+                # card itself, never a default and never a positional option.
+                answered = sum(1 for entry in result.decision_tape if entry.step == "london_bottom")
+                if london_bottom_plan is None or answered >= len(london_bottom_plan):
+                    raise DecisionUnsatisfied(
+                        f"the engine offered London bottom decision #{answered + 1} and "
+                        "the record scripts none; the Lab never chooses the card for the player"
+                    )
+                planned_seat, names = london_bottom_plan[answered]
+                if seat_by_actor is None:
+                    seat_by_actor = _engine_seat_roster(
+                        proc, game_id=game_id, player_count=player_count, created_seats=seat_ids
+                    )
+                acting_seat = seat_by_actor.get(actor)
+                if acting_seat is None:
+                    raise DecisionUnsatisfied(
+                        f"London bottom decision #{answered + 1}: the engine's actor "
+                        f"{actor!r} is not a seat of the engine's own roster"
+                    )
+                if acting_seat != planned_seat:
+                    raise DecisionUnsatisfied(
+                        f"the engine asked London bottom decision #{answered + 1} of "
+                        f"{acting_seat}; the record scripts {planned_seat}"
+                    )
+                context = frame.get("context")
+                if (
+                    not isinstance(context, dict)
+                    or context.get("bottom_of_library_selection") is not True
+                ):
+                    # Route by the engine's structured marker only; a frame that
+                    # merely claims the kind is not a structured bottom decision.
+                    raise DecisionUnsatisfied(
+                        "the engine offered a London bottom decision without the "
+                        "structured bottom_of_library_selection context; the Lab routes a "
+                        "bottom only through that engine-authored marker"
+                    )
+                count = context.get("count")
+                if isinstance(count, bool) or not isinstance(count, int) or count != len(names):
+                    raise DecisionUnsatisfied(
+                        f"the engine's London bottom asks for {count!r} card(s); the record's "
+                        f"scripted multiset for {planned_seat} has {len(names)}"
+                    )
+                offered_cards = _offered_bottom_cards(actions)
+                result.terminal_facts.setdefault("london_bottom_offers", []).append(
+                    {
+                        "seat": planned_seat,
+                        "multiset": sorted(names),
+                        "count": count,
+                        "offered": offered_cards,
+                    }
+                )
+                selected = _match_bottom_multiset(names, offered_cards)
+                answer = _require_ok(
+                    proc.request(
+                        "resolve_bottom",
+                        {
+                            "player_id": actor,
+                            **decision_identity_params(candidate, frame),
+                            "card_ids": selected,
+                        },
+                        game_id=game_id,
+                        timeout_s=120.0,
+                    ),
+                    "resolve_bottom(london_bottom)",
+                )
+                result.decision_tape.append(
+                    DecisionTapeEntry(
+                        "london_bottom",
+                        kind,
+                        actor,
+                        revision,
+                        SCRIPTED_LONDON_BOTTOM_POLICY,
+                        None,
+                        offered,
+                        f"record bottom entry {answered + 1}: {sorted(names)} for "
+                        f"{planned_seat} submitted as {selected}",
+                        seat=planned_seat,
+                    )
+                )
+                result.terminal_facts.setdefault("london_bottom_submissions", []).append(
+                    {
+                        "seat": planned_seat,
+                        "multiset": sorted(names),
+                        "offered": offered_cards,
+                        "submitted_card_ids": selected,
+                    }
+                )
+                result.observations.append(GameObservation("london_bottom", answer))
+                continue
+
             if kind in STARTING_PLAYER_FRAME_KINDS:
                 # Never answer this frame without an authoritative declaration.
                 # A p1 default here was the original defect (#572): the run then
@@ -1264,6 +1438,19 @@ def drive_commander_game(
                         raise DecisionUnsatisfied(
                             f"the pregame ended after {asked} mulligan decisions; the "
                             f"record's plan has {len(mulligan_plan)}"
+                        )
+                    bottoms_asked = sum(
+                        1 for entry in result.decision_tape if entry.step == "london_bottom"
+                    )
+                    if london_bottom_plan is not None and bottoms_asked != len(london_bottom_plan):
+                        # The engine let the pregame end without offering the
+                        # bottom the record scripts: the Lab never answers it with
+                        # a default or a Lab-chosen card.
+                        raise DecisionUnsatisfied(
+                            f"the pregame ended after {bottoms_asked} of the record's "
+                            f"{len(london_bottom_plan)} scripted London bottom decision(s); "
+                            "the engine offered no london_bottom decision for "
+                            f"{[seat for seat, _ in london_bottom_plan[bottoms_asked:]]}"
                         )
                     post_pregame: dict[str, Any] = {}
                     for seat in _SEATS[:player_count]:

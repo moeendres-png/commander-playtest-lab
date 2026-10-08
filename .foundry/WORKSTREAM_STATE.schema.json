@@ -53,6 +53,132 @@
       "pattern": "^[0-9a-f]{40}$",
       "description": "Newest commit with actual validation evidence; null means none beyond the audit base."
     },
+    "validated_tree": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{40}$",
+      "description": "Exact Git tree of validated_head. Required for the cross-executor review gate; null is honest for legacy/in-progress states."
+    },
+    "materiality": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "MATERIAL",
+        "NON_MATERIAL",
+        null
+      ],
+      "description": "Declared change-set materiality. MATERIAL (fail-safe default when policy-enabled) requires a fresh-context read-only Space Bunny PASS on validated_head/validated_tree before PR_READY/COMPLETE. A NON_MATERIAL claim is verified against the Git change set and fails closed if it hides material paths. Absent/null preserves historical state compatibility."
+    },
+    "cross_executor_review": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Policy-enabled cross-executor review mirror. Presence opts the workstream into the fail-closed review policy; absence keeps historical states parseable.",
+      "additionalProperties": false,
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "logical_profile": {
+          "type": "string",
+          "enum": [
+            "space-bunny"
+          ]
+        },
+        "resolved_model_id": {
+          "type": "string"
+        },
+        "model_alias_class": {
+          "type": "string",
+          "enum": [
+            "CANONICAL",
+            "LEGACY_ALIAS"
+          ]
+        },
+        "implementation_executor": {
+          "type": "string",
+          "enum": [
+            "deepseek",
+            "space-bunny"
+          ]
+        },
+        "review_executor": {
+          "type": "string",
+          "enum": [
+            "deepseek",
+            "space-bunny"
+          ]
+        },
+        "reviewed_sha": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "reviewed_tree": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "PARTIAL",
+            "UNKNOWN",
+            "BLOCKED",
+            "STALE"
+          ]
+        },
+        "review_record_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "remote_checkpoint": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Verified remote milestone checkpoint. A COMPLETE/PR_READY claim fails closed until live remote HEAD equals the recorded checkpoint (or a generated-state-only closeout descendant).",
+      "additionalProperties": false,
+      "properties": {
+        "remote": {
+          "type": "string",
+          "minLength": 1
+        },
+        "branch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "tree": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      },
+      "required": [
+        "remote",
+        "branch",
+        "sha",
+        "tree"
+      ]
+    },
     "objective": {
       "type": "string",
       "minLength": 1
@@ -249,6 +375,44 @@
         null
       ],
       "description": "Explicit currently authorized Foundry executor profile for the run. Null preserves historical state compatibility; historical executor names remain free-form provenance only in executor_model/hand-off evidence, not selectable profiles."
+    },
+    "logical_executor_profile": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "deepseek",
+        "space-bunny",
+        null
+      ],
+      "description": "Logical executor profile actually resolved for the run (same two-profile vocabulary as execution_profile)."
+    },
+    "resolved_provider": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Provider of the exact resolved runtime model id (provenance; opencode-go under current policy)."
+    },
+    "resolved_model_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Exact provider/model runtime identity selected for the run, e.g. opencode-go/space-bunny or the admitted legacy alias."
+    },
+    "model_alias_class": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "CANONICAL",
+        "LEGACY_ALIAS",
+        null
+      ],
+      "description": "Whether the resolved runtime id is the canonical model or the admitted legacy alias for the same logical profile."
     },
     "executor_model": {
       "type": [

@@ -255,19 +255,37 @@ def _stderr_tail(text: str, limit: int = STDERR_TAIL_LIMIT_CHARS) -> str:
 
 
 @dataclass
-class BridgeProcess:
-    """A live external candidate bridge speaking Protocol 2.0.0.
+class StderrDrain:
+    """A bounded, non-blocking drain of one child process's stderr pipe (#580).
 
-    The bridge's stderr is drained from launch to end of stream on a daemon
-    thread and retained in memory (``stderr_capture``), so a row's channel scan
-    can read the transport diagnostics and a chatty child never stalls on a full
-    pipe. The capture is never added to ``transcript`` and never persisted here:
-    it may carry engine text a principal must not see.
+    A blocking ``readline`` holds an endless diagnostic line in an unbounded
+    buffer and cannot be reclaimed after the direct child exits while a
+    descendant still holds the inherited pipe. The drain instead polls the pipe
+    with ``select``, reads bounded raw chunks, decodes them incrementally and
+    stops on a flag, so the child never stalls on a full pipe and the thread is
+    always reclaimable.
+
+    The default retention policy stops retaining once the cap is exceeded and
+    marks the capture truncated, because a capture with a gap is not scannable.
+    A tail-retaining caller (the mid-game lane, whose end-of-run log scan wants
+    the newest output) keeps the newest chunks, drops the oldest and marks the
+    capture truncated too, so both lossy policies stay visibly non-scannable.
+
+    This drain serves the current-boundary launcher (``BridgeProcess``) and the
+    mid-game lane (``MidgameLaneClient``). Two older production transports still
+    block on ``iter(stream.readline, "")`` and are not migrated here:
+    ``engine/rules/bridge.py`` (``RulesEngineBridge._pump``, which also serves
+    stdout and a per-line log file) and ``engine/rules/full_game.py``
+    (``_RawFullGameClient._pump_stdout``/``_pump_stderr``, which feed a line
+    queue/list). Migrating them would require per-line sinks this bounded chunk
+    drain does not serve, so they remain listed as known remaining readers.
     """
 
-    plan: LaunchPlan
-    popen: subprocess.Popen[str]
-    transcript: list[dict[str, Any]] = field(default_factory=list)
+    stream: Any
+    retain_limit_chars: int
+    thread_name: str = "bridge-stderr"
+    retain_tail: bool = False
+
     _stderr_chunks: list[str] = field(default_factory=list, init=False, repr=False)
     _stderr_size: int = field(default=0, init=False, repr=False)
     _stderr_truncated: bool = field(default=False, init=False, repr=False)
@@ -282,12 +300,9 @@ class BridgeProcess:
         default_factory=threading.Event, init=False, repr=False, compare=False
     )
 
-    def __post_init__(self) -> None:
-        if self.popen.stderr is None:
-            # Nothing piped, nothing retained: the capture stays incomplete.
-            return
+    def start(self) -> None:
         self._stderr_thread = threading.Thread(
-            target=self._drain_stderr, name="bridge-stderr", daemon=True
+            target=self._drain_stderr, name=self.thread_name, daemon=True
         )
         self._stderr_thread.start()
 
@@ -304,10 +319,37 @@ class BridgeProcess:
             self._stderr_stop.wait(STDERR_POLL_INTERVAL_S)
             return True
 
+    def _retain(self, text: str) -> None:
+        """Keep one decoded chunk within the retention limit.
+
+        Both retention policies are lossy past the cap and both must mark the
+        capture truncated: the non-tail policy drops the newest text, and the
+        tail policy drops the oldest chunks to keep the newest. A caller that
+        scans the log must never treat a capture with a gap as complete.
+        """
+        with self._stderr_lock:
+            if not self.retain_tail and self._stderr_size + len(text) > self.retain_limit_chars:
+                self._stderr_truncated = True
+                return
+            self._stderr_chunks.append(text)
+            self._stderr_size += len(text)
+            while (
+                self.retain_tail
+                and self._stderr_size > self.retain_limit_chars
+                and len(self._stderr_chunks) > 1
+            ):
+                self._stderr_size -= len(self._stderr_chunks.pop(0))
+                self._stderr_truncated = True
+
     def _drain_stderr(self) -> None:
-        stream = self.popen.stderr
-        assert stream is not None
-        fd = stream.fileno()
+        stream = self.stream
+        try:
+            fd = stream.fileno()
+        except (OSError, ValueError):
+            # The stream was already closed before the drain started: there is
+            # nothing to read and no end of stream to record, and a bare
+            # ``fileno()`` here would raise uncaught on the drain thread.
+            return
         # Popen types stderr as IO[str]; a text-mode Popen wraps it in a
         # TextIOWrapper carrying the encoding/errors the bytes must decode with.
         decoder = codecs.getincrementaldecoder(getattr(stream, "encoding", None) or "utf-8")(
@@ -333,12 +375,7 @@ class BridgeProcess:
                     text = decoder.decode(data)
                 except ValueError:
                     return
-                with self._stderr_lock:
-                    if self._stderr_size + len(text) > STDERR_RETAIN_LIMIT_CHARS:
-                        self._stderr_truncated = True
-                        continue
-                    self._stderr_chunks.append(text)
-                    self._stderr_size += len(text)
+                self._retain(text)
         except (OSError, ValueError):
             # The stream was closed under the drain: what was read is kept, but
             # the end of stream was never seen, so the capture stays incomplete.
@@ -347,21 +384,65 @@ class BridgeProcess:
             with self._stderr_lock:
                 self._stderr_complete = True
 
-    def _join_stderr(self, timeout_s: float) -> None:
+    def stop(self) -> None:
+        self._stderr_stop.set()
+
+    def join(self, timeout_s: float) -> None:
         if self._stderr_thread is not None:
             self._stderr_thread.join(timeout_s)
 
-    def _stderr_draining(self) -> bool:
+    @property
+    def draining(self) -> bool:
         return self._stderr_thread is not None and self._stderr_thread.is_alive()
 
-    def stderr_capture(self) -> StderrCapture:
-        """What has been read from the bridge's stderr so far."""
+    def capture(self) -> StderrCapture:
+        """What has been read from the child's stderr so far."""
         with self._stderr_lock:
             return StderrCapture(
                 text="".join(self._stderr_chunks),
                 complete=self._stderr_complete,
                 truncated=self._stderr_truncated,
             )
+
+
+@dataclass
+class BridgeProcess:
+    """A live external candidate bridge speaking Protocol 2.0.0.
+
+    The bridge's stderr is drained from launch to end of stream on a daemon
+    thread and retained in memory (``stderr_capture``), so a row's channel scan
+    can read the transport diagnostics and a chatty child never stalls on a full
+    pipe. The capture is never added to ``transcript`` and never persisted here:
+    it may carry engine text a principal must not see.
+    """
+
+    plan: LaunchPlan
+    popen: subprocess.Popen[str]
+    transcript: list[dict[str, Any]] = field(default_factory=list)
+    _stderr_drain: StderrDrain | None = field(default=None, init=False, repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        if self.popen.stderr is None:
+            # Nothing piped, nothing retained: the capture stays incomplete.
+            return
+        self._stderr_drain = StderrDrain(
+            self.popen.stderr,
+            retain_limit_chars=STDERR_RETAIN_LIMIT_CHARS,
+        )
+        self._stderr_drain.start()
+
+    def _join_stderr(self, timeout_s: float) -> None:
+        if self._stderr_drain is not None:
+            self._stderr_drain.join(timeout_s)
+
+    def _stderr_draining(self) -> bool:
+        return self._stderr_drain is not None and self._stderr_drain.draining
+
+    def stderr_capture(self) -> StderrCapture:
+        """What has been read from the bridge's stderr so far."""
+        if self._stderr_drain is None:
+            return StderrCapture(text="", complete=False, truncated=False)
+        return self._stderr_drain.capture()
 
     def request(
         self,
@@ -506,12 +587,13 @@ class BridgeProcess:
             # for the life of this process (E-B0 P3).
             with contextlib.suppress(OSError, ValueError, subprocess.TimeoutExpired):
                 self.popen.wait(timeout=5)
+            drain = self._stderr_drain
             self._join_stderr(STDERR_DRAIN_GRACE_S)
-            if self._stderr_draining():
-                self._stderr_stop.set()
+            if drain is not None and drain.draining:
+                drain.stop()
                 self._join_stderr(5.0)
             for stream in (self.popen.stdout, self.popen.stderr):
-                if stream is self.popen.stderr and self._stderr_draining():
+                if stream is self.popen.stderr and drain is not None and drain.draining:
                     # A drain that could not be stopped: closing it under the
                     # blocked read would wait on that read. The capture stays
                     # incomplete, and the daemon ends with the process.

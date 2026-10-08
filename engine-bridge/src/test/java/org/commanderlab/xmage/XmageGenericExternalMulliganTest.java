@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -66,7 +67,7 @@ class XmageGenericExternalMulliganTest {
     }
 
     @Test
-    void selectedMulliganFailsClosedAtUnprojectedLondonBottoming() {
+    void selectedMulliganPublishesLondonBottomForTheMulliganingSeat() {
         XmageDeckImporter importer = new XmageDeckImporter();
         XmageGameManager manager = new XmageGameManager(importer);
         List<String> handles = mountainDecks(importer, "generic-mulligan-bottom", 2);
@@ -84,6 +85,7 @@ class XmageGenericExternalMulliganTest {
                 manager.legalActions(created.gameHandle());
         assertEquals("mulligan", first.decisionKind());
         XmageGenericExternalMulliganSupport.requireDomain(first);
+        String mulliganingSeat = first.actorId();
 
         // The pilot explicitly chooses mulligan. This is not an inferred
         // preference and not the first action in an arbitrary order.
@@ -95,42 +97,32 @@ class XmageGenericExternalMulliganTest {
                 List.of()
         );
 
-        XmageGameManager.GameException failure = null;
-        for (int decision = 0; decision < 12 && failure == null; decision++) {
-            XmageGameManager.LegalActionsSnapshot pending =
-                    manager.legalActions(created.gameHandle());
-            assertEquals("mulligan", pending.decisionKind());
-            XmageGenericExternalMulliganSupport.requireDomain(pending);
-            try {
-                manager.resolveMulligan(
-                        created.gameHandle(),
-                        pending.decisionId(),
-                        pending.actorId(),
-                        true,
-                        List.of()
-                );
-            } catch (XmageGameManager.GameException exc) {
-                failure = exc;
-            }
-        }
+        XmageGameManager.LegalActionsSnapshot second =
+                manager.legalActions(created.gameHandle());
+        assertEquals("mulligan", second.decisionKind());
+        XmageGenericExternalMulliganSupport.requireDomain(second);
+        assertFalse(
+                mulliganingSeat.equals(second.actorId()),
+                "the other seat must answer its own keep/mulligan domain"
+        );
+        manager.resolveMulligan(
+                created.gameHandle(),
+                second.decisionId(),
+                second.actorId(),
+                true,
+                List.of()
+        );
 
-        if (failure == null) {
-            throw new AssertionError(
-                    "selected 2P London mulligan reached no explicit bottom-card fail-closed boundary"
-            );
-        }
-        String message = failure.getMessage();
-        assertTrue(
-                message.contains("MULLIGAN_RESOLUTION_FAILED"),
-                "failure must be attributed to the explicit mulligan resolution: " + message
-        );
-        assertTrue(
-                message.contains("London bottom-card selection")
-                        || (message.contains("UNSUPPORTED_COMPATIBILITY_DECISION")
-                        && message.contains("chooseTarget(Target)")),
-                "selected London mulligan must fail closed at the first unprojected "
-                        + "bottoming/choice boundary, never continue via a default: " + message
-        );
+        // 2P London: the mulliganing seat redraws seven and owes exactly one
+        // bottom card (one mulligan -> count 1). The engine offers that bottom
+        // as its own structured decision; nothing is auto-bottomed.
+        XmageGameManager.LegalActionsSnapshot bottom =
+                manager.legalActions(created.gameHandle());
+        assertEquals("london_bottom", bottom.decisionKind());
+        assertEquals(mulliganingSeat, bottom.actorId());
+        assertTrue(bottom.context().get("bottom_of_library_selection").getAsBoolean());
+        assertEquals(1, bottom.context().get("count").getAsInt());
+        assertEquals(7, bottom.actions().size(), "the redrawn seven-card hand is offered");
     }
 
     @Test

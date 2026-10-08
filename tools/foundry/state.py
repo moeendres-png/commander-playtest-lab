@@ -37,9 +37,15 @@ from typing import Any
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 VERSION_RE = re.compile(r"^[0-9]+\.[0-9]+$")
 SUPPORTED_VERSIONS = ("1.0", "2.0")
+MATERIALITY_VALUES = ("MATERIAL", "NON_MATERIAL")
+REVIEW_VERDICTS = ("PASS", "FAIL", "PARTIAL", "UNKNOWN", "BLOCKED", "STALE")
+REVIEW_ALIAS_CLASSES = ("CANONICAL", "LEGACY_ALIAS")
+REVIEW_EXECUTOR_PROFILES = ("deepseek", "space-bunny")
 
 REQUIRED_V1 = [
     "schema_version",
@@ -117,6 +123,62 @@ def _git(args: list[str], cwd: str) -> str:
     return proc.stdout.strip()
 
 
+def _validate_review_mirror(value: Any, errors: list[str]) -> None:
+    """Structural validation of the cross_executor_review mirror (policy fields).
+
+    Historical states omit this field entirely; presence opts the workstream
+    into the fail-closed review policy. Deep admission checks live in
+    review_gate.py; this layer only guarantees parseable structure.
+    """
+    if value is None:
+        return
+    if not isinstance(value, dict):
+        errors.append("cross_executor_review must be a mapping or null")
+        return
+    if not isinstance(value.get("required"), bool):
+        errors.append("cross_executor_review.required must be a bool")
+    if value.get("logical_profile") not in (None, "space-bunny"):
+        errors.append("cross_executor_review.logical_profile must be space-bunny")
+    if value.get("review_executor") not in (None, *REVIEW_EXECUTOR_PROFILES):
+        errors.append(
+            f"bad cross_executor_review.review_executor: {value.get('review_executor')!r}"
+        )
+    if value.get("implementation_executor") not in (None, *REVIEW_EXECUTOR_PROFILES):
+        errors.append(
+            f"bad cross_executor_review.implementation_executor: "
+            f"{value.get('implementation_executor')!r}"
+        )
+    if value.get("model_alias_class") not in (None, *REVIEW_ALIAS_CLASSES):
+        errors.append(
+            f"bad cross_executor_review.model_alias_class: {value.get('model_alias_class')!r}"
+        )
+    if value.get("verdict") not in (None, *REVIEW_VERDICTS):
+        errors.append(f"bad cross_executor_review.verdict: {value.get('verdict')!r}")
+    for field in ("reviewed_sha", "reviewed_tree"):
+        item = value.get(field)
+        if item is not None and not SHA_RE.match(str(item)):
+            errors.append(f"bad cross_executor_review.{field}: {item!r}")
+    if value.get("resolved_model_id") is not None and not str(value["resolved_model_id"]).strip():
+        errors.append("cross_executor_review.resolved_model_id must be a non-empty string")
+    if value.get("review_record_path") is not None and not str(value["review_record_path"]).strip():
+        errors.append("cross_executor_review.review_record_path must be a non-empty string")
+
+
+def _validate_remote_checkpoint(value: Any, errors: list[str]) -> None:
+    """Structural validation of the recorded remote milestone checkpoint."""
+    if value is None:
+        return
+    if not isinstance(value, dict):
+        errors.append("remote_checkpoint must be a mapping or null")
+        return
+    for field in ("sha", "tree"):
+        if not SHA_RE.match(str(value.get(field, ""))):
+            errors.append(f"bad remote_checkpoint.{field}: {value.get(field)!r}")
+    for field in ("remote", "branch"):
+        if not str(value.get(field, "")).strip():
+            errors.append(f"remote_checkpoint.{field} must be a non-empty string")
+
+
 def _check_common(data: dict, errors: list[str], sha_fields: list[str]) -> None:
     for field in ("in_scope", "out_of_scope"):
         if field in data and not isinstance(data[field], list):
@@ -143,6 +205,29 @@ def _check_common(data: dict, errors: list[str], sha_fields: list[str]) -> None:
     root_cause = data.get("root_cause_class")
     if root_cause is not None and root_cause not in FAILURE_CLASSES:
         errors.append(f"bad root_cause_class: {root_cause!r}")
+    validated_tree = data.get("validated_tree")
+    if validated_tree is not None and not SHA_RE.match(str(validated_tree)):
+        errors.append(f"bad validated_tree: {validated_tree!r} (want 40 hex chars or null)")
+    declared_materiality = data.get("materiality")
+    if declared_materiality is not None and declared_materiality not in MATERIALITY_VALUES:
+        errors.append(
+            f"bad materiality: {declared_materiality!r} (want one of {list(MATERIALITY_VALUES)})"
+        )
+    _validate_review_mirror(data.get("cross_executor_review"), errors)
+    _validate_remote_checkpoint(data.get("remote_checkpoint"), errors)
+    logical_profile = data.get("logical_executor_profile")
+    if logical_profile is not None and logical_profile not in REVIEW_EXECUTOR_PROFILES:
+        errors.append(
+            f"bad logical_executor_profile: {logical_profile!r} (want one of "
+            f"{list(REVIEW_EXECUTOR_PROFILES)})"
+        )
+    alias_class = data.get("model_alias_class")
+    if alias_class is not None and alias_class not in REVIEW_ALIAS_CLASSES:
+        errors.append(f"bad model_alias_class: {alias_class!r}")
+    for field in ("resolved_provider", "resolved_model_id"):
+        value = data.get(field)
+        if value is not None and not str(value).strip():
+            errors.append(f"{field} must be a non-empty string when present")
 
 
 def validate(data: dict) -> list[str]:
@@ -330,6 +415,17 @@ def _check_proposed_ancestry(doc: dict, workdir: str) -> list[str]:
             f"VALIDATED_REWRITTEN: validated_head {validated} is not an "
             f"ancestor of live HEAD {live} (history moved; revalidate)"
         )
+    tree = doc.get("validated_tree")
+    if tree is not None:
+        try:
+            live_tree = _git(["rev-parse", f"{validated}^{{tree}}"], workdir)
+        except RuntimeError:
+            live_tree = None
+        if live_tree != str(tree):
+            problems.append(
+                f"VALIDATED_TREE_MISMATCH: validated_tree {tree} != live tree of "
+                f"{validated} ({live_tree!r}); revalidate the exact identity"
+            )
     return problems
 
 
@@ -407,6 +503,7 @@ def update_state(
     *,
     workdir: str | None = None,
     validated_head: Any = _UNSET,
+    validated_tree: Any = _UNSET,
     stamp_head: bool = False,
     allow_identity_change: bool = False,
 ) -> dict:
@@ -414,7 +511,8 @@ def update_state(
 
     "validated_head" inside the patch mapping is rejected: validation credit
     changes only via the explicit validated_head parameter (None = honest
-    null, str = claimed SHA, omitted = preserved). stamp_head stamps
+    null, str = claimed SHA, omitted = preserved). validated_tree travels with
+    validated_head through the same explicit parameter. stamp_head stamps
     state_written_against_head from live workdir HEAD (descriptive only).
     """
     if not isinstance(patch, dict):
@@ -422,6 +520,11 @@ def update_state(
     if "validated_head" in patch:
         raise StateWriteError(
             "validated_head must be supplied via the explicit validated_head "
+            "parameter, not the patch mapping"
+        )
+    if "validated_tree" in patch:
+        raise StateWriteError(
+            "validated_tree must be supplied via the explicit validated_tree "
             "parameter, not the patch mapping"
         )
     for field in IMMUTABLE_IDENTITY_FIELDS:
@@ -444,6 +547,10 @@ def update_state(
     merged.update(patch)
     if validated_head is not _UNSET:
         merged["validated_head"] = validated_head
+        if validated_head is None:
+            merged["validated_tree"] = None
+    if validated_tree is not _UNSET:
+        merged["validated_tree"] = validated_tree
     if stamp_head:
         if workdir is None:
             raise StateWriteError("stamp_head requires workdir")
@@ -560,6 +667,17 @@ def check_validated_ancestry(state_path: str, workdir: str) -> list[str]:
             f"VALIDATED_REWRITTEN: validated_head {validated} is not an "
             f"ancestor of live HEAD {live} (history moved; revalidate)"
         )
+    tree = data.get("validated_tree")
+    if tree is not None:
+        try:
+            live_tree = _git(["rev-parse", f"{validated}^{{tree}}"], workdir)
+        except RuntimeError:
+            live_tree = None
+        if live_tree != str(tree):
+            problems.append(
+                f"VALIDATED_TREE_MISMATCH: validated_tree {tree} != live tree of "
+                f"{validated} ({live_tree!r}); revalidate the exact identity"
+            )
     return problems
 
 
@@ -603,6 +721,19 @@ def _main_write(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return 1
+    if args.set_validated_tree is not None and args.set_validated_head is None:
+        print(
+            "STATE_REJECT: --set-validated-tree requires --set-validated-head "
+            "(tree credit always travels with commit credit)",
+            file=sys.stderr,
+        )
+        return 1
+    if args.set_validated_tree is not None and not SHA_RE.match(str(args.set_validated_tree)):
+        print(
+            "STATE_REJECT: --set-validated-tree must be a 40-hex tree",
+            file=sys.stderr,
+        )
+        return 1
     if args.stamp_head and (not args.patch_file or not args.workdir):
         print("STATE_REJECT: --stamp-head requires --patch-file and --workdir", file=sys.stderr)
         return 1
@@ -638,8 +769,23 @@ def _main_write(args: argparse.Namespace) -> int:
             if patch is None:
                 patch = {}
             validated: Any = _UNSET
+            validated_tree_value: Any = _UNSET
             if args.set_validated_head is not None:
                 validated = args.set_validated_head
+                if args.set_validated_tree is not None:
+                    validated_tree_value = args.set_validated_tree
+                else:
+                    try:
+                        validated_tree_value = _git(
+                            ["rev-parse", f"{args.set_validated_head}^{{tree}}"], args.workdir
+                        )
+                    except RuntimeError as exc:
+                        print(
+                            f"STATE_REJECT: cannot derive validated_tree for "
+                            f"{args.set_validated_head!r}: {exc}",
+                            file=sys.stderr,
+                        )
+                        return 1
             elif args.clear_validated_head:
                 validated = None
             update_state(
@@ -647,6 +793,7 @@ def _main_write(args: argparse.Namespace) -> int:
                 patch,
                 workdir=args.workdir,
                 validated_head=validated,
+                validated_tree=validated_tree_value,
                 stamp_head=args.stamp_head,
                 allow_identity_change=args.allow_identity_change,
             )
@@ -715,6 +862,13 @@ def main(argv: list[str] | None = None) -> int:
         "(requires --patch-file and --workdir for ancestry proof).",
     )
     parser.add_argument(
+        "--set-validated-tree",
+        default=None,
+        metavar="TREE",
+        help="Exact 40-hex tree for the validated implementation identity; "
+        "requires --set-validated-head (derived from Git when omitted).",
+    )
+    parser.add_argument(
         "--clear-validated-head",
         action="store_true",
         help="Reset validation credit to null (requires --patch-file).",
@@ -730,6 +884,43 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Explicit rebind: permit source-lock identity field changes "
         "(requires --write-from or --patch-file).",
+    )
+    parser.add_argument(
+        "--check-review-gate",
+        action="store_true",
+        help="Evaluate the cross-executor review gate for this state document.",
+    )
+    parser.add_argument(
+        "--fail-on-review-gate",
+        action="store_true",
+        help="Exit nonzero when the review gate is unsatisfied or stale.",
+    )
+    parser.add_argument(
+        "--check-remote-checkpoint",
+        action="store_true",
+        help="Verify the recorded remote checkpoint against live remote state.",
+    )
+    parser.add_argument(
+        "--fail-on-remote-checkpoint",
+        action="store_true",
+        help="Exit nonzero when the recorded remote checkpoint is missing or mismatched.",
+    )
+    parser.add_argument(
+        "--check-completion-gate",
+        action="store_true",
+        help="Evaluate the full PR_READY/COMPLETE gate (review + remote checkpoint).",
+    )
+    parser.add_argument(
+        "--completion-claim",
+        choices=("PR_READY", "COMPLETE"),
+        default=None,
+        help="Claim to evaluate with --check-completion-gate "
+        "(default: state status when it is COMPLETE).",
+    )
+    parser.add_argument(
+        "--fail-on-completion-gate",
+        action="store_true",
+        help="Exit nonzero when a PR_READY/COMPLETE claim fails the policy gate.",
     )
     args = parser.parse_args(argv)
     # P2 (PR #178): any write-intent flag without a valid write mode must
@@ -750,13 +941,14 @@ def main(argv: list[str] | None = None) -> int:
     if (
         args.set_validated_head is not None
         or args.clear_validated_head
+        or args.set_validated_tree is not None
         or args.stamp_head
         or args.allow_identity_change
     ) and not has_structured_write:
         print(
-            "STATE_REJECT: --set-validated-head/--clear-validated-head/"
-            "--stamp-head/--allow-identity-change require --write-from or "
-            "--patch-file (refusing silent no-op)",
+            "STATE_REJECT: --set-validated-head/--set-validated-tree/"
+            "--clear-validated-head/--stamp-head/--allow-identity-change require "
+            "--write-from or --patch-file (refusing silent no-op)",
             file=sys.stderr,
         )
         return 1
@@ -811,15 +1003,65 @@ def main(argv: list[str] | None = None) -> int:
         validated_notes = check_validated_ancestry(args.state, args.workdir or ".")
         for note in validated_notes:
             print(f"STATE_VALIDATED: {note}", file=sys.stderr)
+    try:
+        rel_state = str(Path(args.state).resolve().relative_to(Path(args.workdir or ".").resolve()))
+    except ValueError:
+        rel_state = args.state
+    review_result = None
+    remote_result = None
+    if args.check_review_gate or args.check_completion_gate:
+        import review_gate as review_gate_mod
+
+        review_result = review_gate_mod.evaluate_review_gate(
+            data, workdir=args.workdir, state_path=rel_state
+        )
+        if args.check_review_gate:
+            print(f"STATE_REVIEW: {review_result.status}: {review_result.reasons[0]}")
+    if args.check_remote_checkpoint or args.check_completion_gate:
+        import remote_checkpoint as remote_checkpoint_mod
+
+        remote_result = remote_checkpoint_mod.verify_remote_checkpoint(
+            data, workdir=args.workdir, state_paths=(rel_state,)
+        )
+        if args.check_remote_checkpoint:
+            print(f"STATE_REMOTE: {remote_result.status}: {remote_result.reasons[0]}")
     version = data.get("schema_version") if isinstance(data, dict) else "?"
     print(f"STATE_OK: schema={version} status={data['status']} branch={data['branch']}")
     if args.fail_on_head_mismatch and warnings:
         return 1
     if args.fail_on_validated_problem and any(
-        n.startswith("VALIDATED_OUTSIDE_LOCK") or n.startswith("VALIDATED_REWRITTEN")
+        n.startswith("VALIDATED_OUTSIDE_LOCK")
+        or n.startswith("VALIDATED_REWRITTEN")
+        or n.startswith("VALIDATED_TREE_MISMATCH")
         for n in validated_notes
     ):
         return 1
+    if args.fail_on_review_gate and review_result is not None and not review_result.ok:
+        return 1
+    if args.fail_on_remote_checkpoint and remote_result is not None and not remote_result.ok:
+        return 1
+    if args.check_completion_gate:
+        claim = args.completion_claim
+        if claim is None and str(data.get("status")) == "COMPLETE":
+            claim = "COMPLETE"
+        if claim is None:
+            print("STATE_COMPLETION: SKIPPED (no PR_READY/COMPLETE claim)")
+        else:
+            import review_gate as review_gate_mod
+
+            result = review_gate_mod.evaluate_completion_claim(
+                data,
+                claim=claim,
+                workdir=args.workdir,
+                state_path=rel_state,
+                remote_verdict=(remote_result.status if remote_result else None),
+            )
+            if result.ok:
+                print(f"STATE_COMPLETION: PASS ({claim})")
+            else:
+                print(f"STATE_COMPLETION: FAIL ({claim}): {result.reasons[0]}", file=sys.stderr)
+                if args.fail_on_completion_gate:
+                    return 1
     return 0
 
 

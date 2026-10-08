@@ -92,6 +92,7 @@ final class XmageGameManager {
             String decisionId,
             String actorId,
             String decisionKind,
+            JsonObject context,
             boolean complete,
             List<JsonObject> actions
     ) {
@@ -750,6 +751,9 @@ final class XmageGameManager {
                         decision.decisionId(),
                         decision.actorId(),
                         decision.decisionKind(),
+                        decision.context() == null
+                                ? new JsonObject()
+                                : decision.context().deepCopy(),
                         decision.complete(),
                         decision.actions()
                 );
@@ -823,6 +827,80 @@ final class XmageGameManager {
                     before.actorId(),
                     null,
                     keep ? "keep" : "mulligan"
+            );
+        }
+    }
+
+    /**
+     * Resolve the pending London bottom-card decision (CR 103.5) from an
+     * explicit external card-id selection. The controller validates the
+     * decision id, actor, exact distinct offered-count selection and offered
+     * membership before waking the engine thread; nothing is picked here.
+     */
+    XmageActionExecutor.ExecutionResult resolveBottom(
+            String gameHandle,
+            String decisionId,
+            String actorId,
+            List<String> cardIds
+    ) {
+        ManagedGame managed = requireManagedGame(gameHandle);
+        synchronized (managed) {
+            if (managed.lifecycle != Lifecycle.STARTED) {
+                throw new GameException("BOTTOM_SELECTION_UNAVAILABLE: game must be started");
+            }
+            if (!managed.externalControl || managed.externalDecisionController == null) {
+                throw new GameException(
+                        "BOTTOM_SELECTION_UNAVAILABLE: game was not created with external_control=true"
+                );
+            }
+
+            ExternalDecisionController.Decision before;
+            try {
+                before = managed.externalDecisionController.requireCurrentDecision(
+                        managed.game.getId().toString()
+                );
+                managed.externalDecisionController.submitBottom(
+                        managed.game.getId().toString(),
+                        decisionId,
+                        actorId,
+                        cardIds
+                );
+                managed.externalDecisionController.awaitDecisionAdvance(
+                        managed.game.getId().toString(),
+                        before.decisionId(),
+                        Duration.ofSeconds(20)
+                );
+            } catch (RuntimeException exc) {
+                throw new GameException(
+                        "BOTTOM_SELECTION_RESOLUTION_FAILED: " + exc.getMessage(),
+                        exc
+                );
+            }
+            awaitPriorityPause(managed, Duration.ofSeconds(20));
+
+            if (managed.engineFailure != null) {
+                throw new GameException(
+                        "BOTTOM_SELECTION_RESOLUTION_FAILED: "
+                                + managed.engineFailure.getClass().getSimpleName()
+                                + ": "
+                                + String.valueOf(managed.engineFailure.getMessage()),
+                        managed.engineFailure
+                );
+            }
+
+            /*
+             * The resolution is a card-id set, not one engine action. The
+             * engine decision id is reported as the executed action id so the
+             * audit event names the resolved decision without republishing the
+             * actor's own card identities.
+             */
+            return new XmageActionExecutor.ExecutionResult(
+                    before.decisionId(),
+                    before.decisionId(),
+                    "london_bottom",
+                    before.actorId(),
+                    null,
+                    null
             );
         }
     }

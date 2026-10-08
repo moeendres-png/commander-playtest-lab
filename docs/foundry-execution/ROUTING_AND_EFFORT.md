@@ -19,6 +19,12 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
    - explicit secondary only: `space-bunny` =
      `opencode-go/space-bunny` at native `max`, for bounded, mechanical,
      token-heavy, bulk and background work.
+   Logical `space-bunny` resolves only after live pinned-CLI catalog inspection
+   (`opencode models opencode-go`): canonical `opencode-go/space-bunny` first, else the
+   admitted legacy runtime alias `opencode-go/space-bunny-free` (`LEGACY_ALIAS`, the
+   SAME logical profile), else fail closed. No Longcat, DeepSeek or other
+   provider/model may substitute, and there is no third logical executor. A runtime,
+   auth, quota or catalog failure after selection is a blocked run, never a re-resolution.
    No other OpenCode executor is selectable under current authority.
 3. Claude Opus 5.5 — explicitly authorized direct engineering/campaign executor when a
    session declares its campaign objective and writable ownership surface(s). It may own
@@ -78,6 +84,61 @@ Profile postures (both at native `max`):
   fresh-context `bunny-auditor` reviews the diff. It saves wall-clock time by running long checks
   first and independent checks in parallel subagents. No executor
 fallback occurs on quota, auth, catalog or child failure.
+
+## Cross-executor review gate (MATERIAL workstreams, Foundry tooling)
+
+This is a Foundry tooling gate, not a change to Rules, evidence semantics or
+qualification credit: `tools/foundry/review_gate.py` refuses to certify a
+`PR_READY`/`COMPLETE` claim for a MATERIAL workstream unless the record carries a PASS
+from the trusted read-only review lane on the exact validated implementation SHA
+**and** TREE. It never relabels a review as Rules validation, qualification credit,
+production-provider evidence or Architecture Freeze.
+
+- Canonical structure and validator: `tools/foundry/review_gate.py`; canonical review
+  records live under `.foundry/reviews/`.
+- The only admissible reviewer is the top-level `foundry-reviewer` agent of the
+  `/bunny-review` lane: Space Bunny MAX, structurally read-only (`mode: all`,
+  `edit: deny`, bash default-deny, `task: deny`). A DeepSeek review, a writable
+  top-level verifier (`bunny-verifier`), a subagent attestation (`bunny-auditor`),
+  a self-review, or an unknown/blocked/partial/fail/stale verdict never satisfies the
+  gate.
+- A PASS record is only admissible with independently verifiable GitHub evidence
+  (`tools/foundry/review_evidence.py`): a trusted trigger comment, the successful
+  trusted `/bunny-review` workflow run and expected job, the workflow file fetched at
+  the run's exact `head_sha` pinning canonical Space Bunny MAX and the
+  `foundry-reviewer` agent, the structurally read-only reviewer agent file, and the
+  OpenCode bot result comment carrying the machine-parseable
+  `BUNNY_DIRECT_READ_ONLY_REVIEW` receipt with the exact reviewed SHA/TREE/verdict.
+  The receipt is bound to its run: the result comment must fall inside the run's
+  `run_started_at..updated_at` window, the trigger comment must be the newest issue
+  comment created before the run started, and the comment's own run footer link must
+  be the last run link in the body. Self-declared record fields can never fabricate a
+  review; network/API/parse failures fail closed.
+- `REVIEWER_MODEL`, `REVIEWER_VARIANT` and `READ_ONLY` in the receipt are
+  self-reported by the reviewing agent text. They are checked for exact equality with
+  the record and the pinned run, but they are not themselves independent observation.
+  The independently observed facts are the run/job identity and conclusions, the
+  workflow and agent files fetched at the run's `head_sha`, and the comment/run
+  binding. The runtime alias is declared by the record and never observed: the
+  workflow pin verified at `head_sha` must be canonical `opencode-go/space-bunny`, so
+  a review that merely claims the legacy alias cannot satisfy the evidence gate.
+- Issue-comment lanes are evaluated from the default branch, so the `/bunny-review`
+  lane is only reachable after it is merged to main.
+- Any MATERIAL change after the review (including an evidenced P1/P2 repair) makes the
+  prior review STALE and requires exact new-SHA/TREE re-review. A generated-state-only
+  receipt/checkpoint commit is NON_MATERIAL and preserves the reviewed validated
+  implementation identity without claiming the later state commit was reviewed.
+- Materiality is fail-safe: implementation, executable tooling, schemas/contracts, CI,
+  tests that alter acceptance semantics, evidence/qualification semantics and every
+  ordinary `docs/**` change are MATERIAL. The only documentation exemption is a narrow,
+  explicitly named closeout report under `docs/` (basename contains `closeout`, and no
+  policy/authority/mission/qualification/evidence/routing/security keyword). A
+  NON_MATERIAL claim is verified against the Git change set, and an empty/self-rebound
+  change set cannot grant an exemption.
+- Remote milestone persistence reuses the Foundry state file, `tools/foundry/safe_push.py`
+  and `tools/foundry/remote_checkpoint.py`: state update -> focused commit -> safe push
+  -> remote HEAD equality verification. A pushed WIP is never qualification PASS, and a
+  remote HEAD mismatch blocks remote resumability.
 
 ## Technical decision authority
 

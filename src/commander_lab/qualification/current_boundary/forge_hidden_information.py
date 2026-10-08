@@ -765,7 +765,9 @@ LAB_CAPTURE_ASSERTIONS: dict[str, tuple[tuple[str, int], ...]] = {
         # The drain reads bounded raw chunks, never an unbounded line.
         ("os.read(fd, STDERR_READ_CHUNK_BYTES)", 1),
         ("self._stderr_chunks.append(text)", 1),
-        ("self._stderr_truncated = True", 1),
+        # Both retention policies mark their loss: the non-tail policy drops
+        # the newest text, the tail policy drops the oldest chunks (#589 P2-b).
+        ("self._stderr_truncated = True", 2),
         ("self._stderr_complete = True", 1),
         # close() stops a drain a descendant's inherited pipe is holding open.
         ("self._stderr_stop.set()", 1),
