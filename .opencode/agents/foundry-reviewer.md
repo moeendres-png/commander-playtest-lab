@@ -81,12 +81,15 @@ READ_ONLY: true
 https://github.com/<owner>/<repo>/actions/runs/<your actual current workflow run id>
 ```
 
-Resolve the absolute URL of your own current workflow run from launcher-provided run
-metadata or read-only GitHub Actions metadata bound to this trigger. Verify it is the
-actual run producing this receipt; never copy a prior review's run ID, a sibling run,
-or a placeholder. Include that absolute own-run URL after the field lines. The pinned
-OpenCode CLI appends a relative `[github run]` footer automatically; that footer alone
-does not satisfy the verifier's absolute-link binding. It may remain after your receipt.
+Read `.opencode/review-run-metadata.json` using the read tool. The trusted runner
+writes this public input before the native CLI starts; it contains the actual run URL,
+attempt, trigger comment id and workflow SHA. Use its `run_url` for this receipt and
+check the trigger identity against the current request. Do not use env/printenv, shell
+wrappers or credential access to obtain it. This input is a locator only: the unchanged
+strict verifier still independently checks the actual run, trigger, job and source.
+The own-run URL must be the LAST absolute Actions run link in your final response.
+Do not cite any other absolute Actions run link after it. The pinned CLI's relative
+`[github run]` footer may follow; that footer alone cannot satisfy the verifier.
 If you cannot establish the actual own-run binding, report UNKNOWN and do not claim an
 admissible PASS receipt. Never edit an earlier bot report or weaken the verifier to make
 a receipt admissible.

@@ -301,6 +301,33 @@ jobs:
           echo "opencode --version (PATH): ${INSTALLED_PATH}"
           test "${INSTALLED_PATH}" = "1.18.30"
 
+      - name: Write public review run metadata
+        env:
+          REVIEW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          REVIEW_RUN_ATTEMPT: ${{ github.run_attempt }}
+          REVIEW_TRIGGER_COMMENT_ID: ${{ github.event.comment.id }}
+          REVIEW_WORKFLOW_SHA: ${{ github.workflow_sha }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PYTHON'
+          import json
+          import os
+          from pathlib import Path
+
+          metadata = {
+              "run_url": os.environ["REVIEW_RUN_URL"],
+              "run_attempt": int(os.environ["REVIEW_RUN_ATTEMPT"]),
+              "trigger_comment_id": int(os.environ["REVIEW_TRIGGER_COMMENT_ID"]),
+              "workflow_sha": os.environ["REVIEW_WORKFLOW_SHA"],
+          }
+          path = Path(".opencode/review-run-metadata.json")
+          path.parent.mkdir(exist_ok=True)
+          path.write_text(json.dumps(metadata) + "\n", encoding="utf-8")
+          path.chmod(0o444)
+          PYTHON
+          # Keep native CLI branchIsDirty false; this input survives PR checkout.
+          printf '\n/.opencode/review-run-metadata.json\n' >> .git/info/exclude
+
       - name: Run opencode
         run: opencode github run
         env:
