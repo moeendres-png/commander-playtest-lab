@@ -12,8 +12,11 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import Any
+
+import pytest
 
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "compare_pb03_shadow.py"
 
@@ -58,16 +61,23 @@ def _write_packet(
             ),
             encoding="utf-8",
         )
+        rows = [
+            {"fixture_id": "ROW_A", "exit_state": "PASS"},
+            {"fixture_id": "ROW_B", "exit_state": row_b_state},
+            *[
+                {"fixture_id": f"ROW_EXTRA_{i:03d}",
+                 "exit_state": "PASS" if i < pass_count - 1 else "UNKNOWN"}
+                for i in range(105)
+            ],
+        ]
         (root / f"FULL107_{candidate.upper()}_RESULTS.json").write_text(
             json.dumps(
                 {
                     "candidate": candidate,
                     "run_id": run_id,
-                    "counts": {"PASS": pass_count, "UNKNOWN": 107 - pass_count},
-                    "rows": [
-                        {"fixture_id": "ROW_A", "exit_state": "PASS"},
-                        {"fixture_id": "ROW_B", "exit_state": row_b_state},
-                    ],
+                    "total": 107,
+                    "counts": dict(Counter(row["exit_state"] for row in rows)),
+                    "rows": rows,
                 }
             ),
             encoding="utf-8",
@@ -90,6 +100,17 @@ def _write_packet(
                         "unexecuted_classes": (
                             list(forge_direct_unexecuted or ()) if is_forge_direct else []
                         ),
+                        "classes": ["ExampleTest", *(forge_direct_unexecuted or ())]
+                        if is_forge_direct else ["ExampleTest"],
+                        "executed_classes": {
+                            "ExampleTest": {
+                                "tests": 10,
+                                "failures": forge_direct_failed if is_forge_direct else 0,
+                                "errors": 0,
+                                "skipped": 0,
+                                "reports": [f"report-{run_id}.xml"],
+                            }
+                        },
                         "started_utc": stamp,
                         "ended_utc": stamp,
                         "receipt_digest": f"digest-{stamp}",
@@ -98,7 +119,11 @@ def _write_packet(
                 encoding="utf-8",
             )
     (root / "EPOCH_IDENTITY.json").write_text(
-        json.dumps({"created_utc": stamp, "run_id": run_id}), encoding="utf-8"
+        json.dumps({
+            "created_utc": stamp, "run_id": run_id,
+            "producing_source": {"repository": "https://github.com/example/lab",
+                                 "commit": "a" * 40, "tree": "b" * 40},
+        }), encoding="utf-8"
     )
 
 
@@ -204,3 +229,136 @@ def test_the_cli_exit_code_is_non_zero_on_any_difference(tmp_path: Path) -> None
     _write_packet(shadow, forge_direct_failed=1)
     assert module.main([str(serial), str(shadow)]) == 1
     assert module.main([str(serial), str(tmp_path / "serial")]) == 0
+
+
+def _change(root: Path, name: str, mutate: Any) -> None:
+    path = root / name
+    document = json.loads(path.read_text())
+    mutate(document)
+    path.write_text(json.dumps(document))
+
+
+@pytest.mark.parametrize("sides", [("shadow",), ("serial", "shadow")])
+@pytest.mark.parametrize(
+    ("name", "mutate", "reason"),
+    [
+        ("AF00_AF11_XMAGE.json", lambda d: d["gates"].pop(), "12 gates"),
+        ("AF00_AF11_XMAGE.json", lambda d: d["gates"].__setitem__(1, d["gates"][0]),
+         "duplicate AF00-AF11"),
+        ("AF00_AF11_XMAGE.json", lambda d: d["gates"][0].pop("verdict"), "malformed gate"),
+        ("AF00_AF11_XMAGE.json", lambda d: d.__setitem__("candidate", "forge"),
+         "candidate-bound"),
+        ("FULL107_XMAGE_RESULTS.json", lambda d: d["rows"].pop(), "107 rows"),
+        ("FULL107_XMAGE_RESULTS.json", lambda d: d["rows"].__setitem__(2, d["rows"][0]),
+         "duplicate fixture"),
+        ("FULL107_XMAGE_RESULTS.json", lambda d: d["rows"][0].pop("exit_state"),
+         "malformed fixture"),
+        ("FULL107_XMAGE_RESULTS.json", lambda d: d["counts"].__setitem__("PASS", True),
+         "malformed outcome counts"),
+        ("FULL107_XMAGE_RESULTS.json", lambda d: d["counts"].__setitem__("PASS", 101),
+         "counts disagree"),
+        ("FULL107_XMAGE_RESULTS.json", lambda d: d.__setitem__("total", 106),
+         "total must be exactly 107"),
+        ("receipts/native-forge-direct.json", lambda d: d.pop("classes"),
+         "declared/unexecuted classes"),
+        ("receipts/native-forge-direct.json", lambda d: d["classes"].append("ExampleTest"),
+         "duplicate declared/unexecuted classes"),
+        ("receipts/native-forge-direct.json", lambda d: d["executed_classes"]["ExampleTest"].pop("tests"),
+         "per-class execution counts"),
+        ("receipts/native-forge-direct.json", lambda d: d["unexecuted_classes"].append("ExampleTest"),
+         "partitioned"),
+        ("receipts/native-forge-direct.json", lambda d: d.__setitem__("returncode", False),
+         "malformed native return code"),
+    ],
+)
+def test_equal_or_one_sided_invalid_packets_never_compare_as_equivalent(
+    tmp_path: Path, sides: tuple[str, ...], name: str, mutate: Any, reason: str
+) -> None:
+    module = _module()
+    roots = {side: tmp_path / side for side in ("serial", "shadow")}
+    for root in roots.values():
+        _write_packet(root)
+    for side in sides:
+        _change(roots[side], name, mutate)
+    differences = module.compare_packets(roots["serial"], roots["shadow"])
+    for side in sides:
+        assert any(line.startswith(side) and reason in line for line in differences), differences
+    assert module.main([str(roots["serial"]), str(roots["shadow"])]) == 1
+
+
+@pytest.mark.parametrize("duplicate", [False, True])
+def test_equal_native_group_omissions_or_duplicates_are_rejected(
+    tmp_path: Path, duplicate: bool
+) -> None:
+    module = _module()
+    serial, shadow = tmp_path / "serial", tmp_path / "shadow"
+    for root in (serial, shadow):
+        _write_packet(root)
+        path = root / "receipts/native-forge-direct.json"
+        if duplicate:
+            (root / "receipts/native-forge-duplicate.json").write_bytes(path.read_bytes())
+        else:
+            path.unlink()
+    differences = module.compare_packets(serial, shadow)
+    reason = "duplicate candidate/group" if duplicate else "required group is missing"
+    assert any(reason in line for line in differences), differences
+
+
+def test_native_class_outcomes_cannot_hide_behind_equal_aggregates(tmp_path: Path) -> None:
+    module = _module()
+    serial, shadow = tmp_path / "serial", tmp_path / "shadow"
+    for root in (serial, shadow):
+        _write_packet(root, forge_direct_failed=2)
+        def install_two_classes(doc: dict) -> None:
+            doc["classes"] = ["ExampleTest", "OtherTest"]
+            doc["executed_classes"] = {
+                "ExampleTest": {"tests": 5, "failures": 2, "errors": 0, "skipped": 0},
+                "OtherTest": {"tests": 5, "failures": 0, "errors": 0, "skipped": 0},
+            }
+        _change(root, "receipts/native-forge-direct.json", install_two_classes)
+    assert module.compare_packets(serial, shadow) == []
+    def redistribute(doc: dict) -> None:
+        doc["executed_classes"]["ExampleTest"]["failures"] = 1
+        doc["executed_classes"]["OtherTest"]["failures"] = 1
+    _change(shadow, "receipts/native-forge-direct.json", redistribute)
+    differences = module.compare_packets(serial, shadow)
+    assert any("executed_classes" in line for line in differences), differences
+    assert not any("forge:direct failures:" in line for line in differences), differences
+
+
+def test_malformed_top_level_objects_fail_closed(tmp_path: Path) -> None:
+    module = _module()
+    serial, shadow = tmp_path / "serial", tmp_path / "shadow"
+    for root in (serial, shadow):
+        _write_packet(root)
+        (root / "FULL107_XMAGE_RESULTS.json").write_text("[]")
+    assert any("candidate-bound object" in line for line in module.compare_packets(serial, shadow))
+
+
+@pytest.mark.parametrize("field", ["repository", "commit", "tree"])
+def test_equal_outcomes_from_another_source_are_not_a_valid_pair(
+    tmp_path: Path, field: str
+) -> None:
+    module = _module()
+    serial, shadow = tmp_path / "serial", tmp_path / "shadow"
+    _write_packet(serial)
+    _write_packet(shadow)
+    def change_source(doc: dict) -> None:
+        doc["producing_source"][field] = (
+            "https://github.com/example/other" if field == "repository" else "c" * 40
+        )
+    _change(shadow, "EPOCH_IDENTITY.json", change_source)
+    assert module.compare_packets(serial, shadow) == [
+        "epoch identity: producing repository/commit/tree differ"
+    ]
+
+
+def test_missing_epoch_identity_on_both_sides_is_not_a_valid_pair(tmp_path: Path) -> None:
+    module = _module()
+    serial, shadow = tmp_path / "serial", tmp_path / "shadow"
+    for root in (serial, shadow):
+        _write_packet(root)
+        (root / "EPOCH_IDENTITY.json").unlink()
+    differences = module.compare_packets(serial, shadow)
+    assert len(differences) == 2
+    assert all("missing or malformed producing source" in line for line in differences)

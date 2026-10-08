@@ -1,0 +1,31 @@
+{
+  "workstream": "PB03-SHADOW-COMPARISON-20261009",
+  "issue": 630,
+  "owner": "Codex",
+  "branch": "codex/pb03-shadow-comparison-20261009",
+  "source_commit": "f3939d99f575a0e9820a82b9843589c754f8b43a",
+  "source_tree": "69fe9728d83217cf6dc054bd575a8119a81c2c48",
+  "objective": "Reject incomplete/malformed PB03 experiment comparison inputs and detect source/per-class outcome divergence hidden by equal aggregate results.",
+  "owned_write": ["scripts/compare_pb03_shadow.py", "tests/unit/test_compare_pb03_shadow.py", ".foundry/pb03-shadow-comparison-20261009.json"],
+  "foreign_read_only": ["Claude #626/#592 runtime/fixtures/engines", "Codex #629 workflows"],
+  "reuse": "EXTRACT_AND_GENERALIZE existing comparator; no parallel evidence or qualification system",
+  "validation": {
+    "comparator_tests": "48 passed in 0.51s; original 10 retained with complete internally consistent 107-row positive fixtures",
+    "related_comparator_overlap_concurrency_tests": "87 passed in 1.13s",
+    "historical_packet_shape_compatibility": "All 11 sealed current-boundary epoch packets pass self-comparison; this proves parser compatibility only, not fresh runtime/equivalence credit",
+    "actual_packet_mutations": "Per-class failure changed while aggregates remain unchanged => detected; equally duplicated real FULL107 rows on both sides => rejected",
+    "lint_and_diff": "PASS",
+    "evidence_class": "DIRECTLY_VERIFIED local controls; mutated packets are SYNTHETIC controls outside canonical evidence"
+  },
+  "limits": [
+    "No runtime speedup claim or production overlap change",
+    "Comparator is an experiment control, never qualification credit",
+    "Raw XMage phase documents remain indirectly compared through AF/FULL107 derivations",
+    "Native aggregate counters may include extra reactor tests; no false requirement that selected per-class sums equal reactor totals"
+  ],
+  "status": "IMPLEMENTED_LOCAL_VALIDATED",
+  "pending": ["exact-head required CI", "strict fresh read-only review", "normal merge and canonical receipt"],
+  "next_action": "Publish the exact tested tree, open the bounded PR, obtain gates/review and integrate normally.",
+  "production_provider": "NOT_SELECTED",
+  "architecture_freeze": "NOT_CLAIMED"
+}
