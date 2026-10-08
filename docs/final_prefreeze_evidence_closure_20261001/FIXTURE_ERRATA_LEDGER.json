@@ -261,6 +261,39 @@
    "model_record": "PLAYER_COUNT_5P",
    "notes": "bounded-secondary, non-denominator record added by successor contract 1.0.23 to close the recorded AF04 6P starting-seat gap: it is used only as the record argument of the 6P cardinality lifecycle, never as a FULL107 row; the 107-row denominator and AF06 are unchanged",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_CR307_1_REACHABILITY",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "bf42a01771a1e9d4b999f209229e009692f2e4e8ac6bfd9b059a6144b51609a9",
+   "effective_requested_state_digest": "c91d53899e6fb5616f07e0a6d2a9b7b2268e5adb25e077eb48d037abbf77105f",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "temporal_state.turn_number 1 -> 2",
+     "comprehensive_rules": "307.1",
+     "reason": "a sorcery requires its controller's own main phase; P2's own first main phase is turn 2, after P1's turn 1"
+    },
+    {
+     "change": "temporal_state.active_player P1 -> P2",
+     "comprehensive_rules": "307.1",
+     "reason": "the main phase in which a sorcery may be cast is a phase of its controller's turn, so the active player must be the caster P2"
+    },
+    {
+     "change": "temporal_state.priority_player P1 -> P2",
+     "comprehensive_rules": "117.3b",
+     "reason": "after the sorcery is put on the stack the active player, its caster P2, receives priority; the declared point is that priority"
+    },
+    {
+     "change": "stack_state[0].from_zone absent -> hand",
+     "comprehensive_rules": "601.2a",
+     "reason": "declares the cast-from zone: to cast a spell is to put it on the stack from where it is, and this cast is from P2's hand"
+    }
+   ],
+   "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+   "notes": "the effective record declared an unreachable state: a fully cast P2 sorcery (Syphon Mind) on the stack while P1 was active in P1's turn-1 precombat main, which CR 307.1 forbids (its controller's own main phase, empty stack; no flash grant exists). Only the temporal/stack declaration changes; the negative_fallback_probe obligation, the omitted handler, the expected and forbidden events and the expected decision actor P1 are byte for byte the predecessor's, and the obligation digest is unchanged. The 107-row denominator is untouched",
+   "predecessor_requested_state_digest": "ab71d3a7b9b9a6cb31e3fd193114c1d718e4c8f390cb1fe9b4957ce5c7c0e0f2",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_24.json"
   }
  ],
  "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_7.json"
