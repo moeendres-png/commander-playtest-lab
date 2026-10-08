@@ -126,8 +126,12 @@ def _packet_errors(root: Path, side: str) -> list[str]:
             continue
         if len({row["fixture_id"] for row in rows}) != 107:
             invalid(label, "duplicate fixture identities")
-        if not isinstance(counts, dict) or not counts or not all(
-            isinstance(key, str) and key and _count(value) for key, value in counts.items()
+        if (
+            not isinstance(counts, dict)
+            or not counts
+            or not all(
+                isinstance(key, str) and key and _count(value) for key, value in counts.items()
+            )
         ):
             invalid(label, "malformed outcome counts")
         elif dict(Counter(row["exit_state"] for row in rows)) != {
@@ -155,19 +159,47 @@ def _packet_errors(root: Path, side: str) -> list[str]:
         ):
             invalid(label, "malformed native return code or outcome counts")
         classes, executed, unexecuted = (
-            doc.get("classes"), doc.get("executed_classes"), doc.get("unexecuted_classes")
+            doc.get("classes"),
+            doc.get("executed_classes"),
+            doc.get("unexecuted_classes"),
         )
         if not _strings(classes) or not classes or not _strings(unexecuted):
             invalid(label, "missing, malformed or duplicate declared/unexecuted classes")
             continue
-        if not isinstance(executed, dict) or not all(
-            isinstance(name, str) and name and isinstance(counts, dict)
-            and all(_count(counts.get(field)) for field in ("tests", "failures", "errors", "skipped"))
-            for name, counts in executed.items()
+        if (
+            not isinstance(executed, dict)
+            or set(executed) != set(classes)
+            or not set(unexecuted) <= set(classes)
         ):
-            invalid(label, "malformed per-class execution counts")
-        elif set(executed) & set(unexecuted) or set(executed) | set(unexecuted) != set(classes):
-            invalid(label, "declared classes must be partitioned into executed and unexecuted")
+            invalid(
+                label,
+                "every declared class must have an observation; unexecuted classes must be declared",
+            )
+            continue
+        for name, counts in executed.items():
+            fields = ("tests", "failures", "errors", "skipped")
+            if not isinstance(counts, dict):
+                invalid(label, "malformed per-class execution counts")
+            elif all(_count(counts.get(field)) for field in fields):
+                # observed_class_executions also calls failed, all-skipped and
+                # zero-case classes unexecuted, while retaining their counters.
+                missing = (
+                    counts["tests"] == 0
+                    or counts["skipped"] >= counts["tests"]
+                    or bool(counts["failures"] or counts["errors"])
+                )
+                if (name in unexecuted) != missing:
+                    invalid(label, "unexecuted identity inconsistent with class outcomes")
+            elif not (
+                name in unexecuted
+                and not any(field in counts for field in fields)
+                and _count(counts.get("fresh_reports_scanned"))
+                and isinstance(counts.get("unparseable_reports"), list)
+                and all(isinstance(report, str) for report in counts["unparseable_reports"])
+            ):
+                # No fresh case/report is represented by scan diagnostics in
+                # the real producer's observation map, not by a missing entry.
+                invalid(label, "malformed per-class execution counts")
     required = {(candidate, group) for candidate in CANDIDATES for group in NATIVE_GROUPS}
     for candidate, group in sorted(required - seen):
         invalid(f"native receipt {candidate}:{group}", "required group is missing")
@@ -239,7 +271,9 @@ def _native_state(root: Path) -> dict[str, dict[str, Any]]:
             "unexecuted_classes": sorted(document.get("unexecuted_classes") or ()),
             "classes": sorted(document["classes"]),
             "executed_classes": {
-                name: {field: counts[field] for field in ("tests", "failures", "errors", "skipped")}
+                name: {
+                    field: counts.get(field) for field in ("tests", "failures", "errors", "skipped")
+                }
                 for name, counts in document["executed_classes"].items()
             },
         }
