@@ -40,26 +40,28 @@ Neither candidate passes AF00–AF11. Neither is freeze-ready.
 2. **Forge's gap is dominated by unexecuted work, not engine defects.** Forge's row states are
    unchanged from epoch `b1c8f54a999a-2d13b953a82c` (20 PASS / 33 BLOCKED / 54 UNKNOWN). Of the 87
    non-PASS Forge rows:
-   grouped by the leading clause of `failure_reason`, 54 are fixtures corrected by the successor
+   grouped by the leading clause of `failure_reason`, 55 are fixtures corrected by the successor
    contract and not yet re-executed on Forge, 23 are `LAB_EXECUTION_GAP` (21 at construction,
-   2 at execution), 5 `PROVIDER_ADAPTER_GAP`, 1 `CONTRACT_AUTHORITY_GAP`, 2 missing per-shortcut
-   negatives, 1 London bottom (MULL-2) and 1 without a current-boundary execution path. Counted
+   2 at execution), 5 `PROVIDER_ADAPTER_GAP`, 1 `CONTRACT_AUTHORITY_GAP`, 1 missing per-shortcut
+   negative, 1 London bottom (MULL-2) and 1 without a current-boundary execution path. Counted
    across all recorded missing mechanisms, however, **36 rows name a `PROVIDER_ADAPTER_GAP`** (for
    example the pinned bridge exports no event log, or the readback lacks the card owner), 31 of
-   them among the 54 corrected rows. Forge therefore carries real provider-side work, not only
+   them among the 55 corrected rows. Forge therefore carries real provider-side work, not only
    Lab execution. Wave 2 (#592) owns these rows.
 3. **XMage is one row from AF06.** MULL-2 now passes on the real engine: the generic Protocol2
    lane publishes the London bottom as a decision, and the Lab answers it only from the record's
    script (#603). With that, XMage AF08 passes. The remaining row is `NEGATIVE_PARENT_CLASS_FALLBACK`.
    Building its execution seam showed that the record itself was unreachable. It put P2's
-   sorcery on the stack in turn 1, which CR 307.1 forbids. Three errata fixed that:
-   - 1.0.24: turn 2, P2 active, cast from hand, a paid cost, and empty hands for P3/P4
-     (CR 101.4).
-   - 1.0.25: P1's forced turn-1 cleanup discard, CR 103.8c / 514.1.
+   sorcery on the stack in turn 1, which CR 307.1 forbids. The correction comes in three errata:
+   - 1.0.24 (merged): turn 2, P2 active, cast from hand, a paid cost, and empty hands for
+     P3/P4 (CR 101.4).
+   - 1.0.25 (unmerged, in the #616 chain): P1's forced turn-1 cleanup discard, CR 103.8c / 514.1.
    - 1.0.26: the whole pre-checkpoint history declared explicitly, so the Lab never chooses
      for a player (#592). This one is in progress.
 
-   The bridge supports the turn-2 checkpoint and refuses unreachable states fail-closed. The row
+   On main, the bridge refuses unreachable resume timing fail-closed (#606). Turn-2 checkpoint
+   support is unmerged; it lives in the same chain and contract 1.0.24 records the row as not
+   runnable on the current bridge. The row
    has run locally on the real engine, but that is LOCAL_OBSERVED and not credit. It needs the
    1.0.26 round to merge and a new epoch.
 4. **AF04 now passes for both candidates.** The bounded 6P record carries an authoritative starting
