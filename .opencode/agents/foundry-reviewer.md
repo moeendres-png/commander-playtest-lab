@@ -62,8 +62,10 @@ credit by itself.
 ## Machine-verifiable review receipt (mandatory)
 
 The review is only admissible when its trusted workflow run can be independently
-verified. End your final message with the following block, verbatim keys, one value per
-line, with the exact identity you actually reviewed:
+verified. End your final message with the following receipt, verbatim keys, one value per
+line, with the exact identity you actually reviewed. The marker and every field must be
+standalone plain-text lines: no bold, backticks, headings, list markers or blockquote
+prefixes. The code fence below is documentation only; do not include it in your receipt.
 
 ```
 BUNNY_DIRECT_READ_ONLY_REVIEW
@@ -75,7 +77,19 @@ REVIEWED_SHA: <exact 40-hex reviewed commit>
 REVIEWED_TREE: <exact 40-hex reviewed tree>
 REVIEW_VERDICT: <PASS|FAIL|PARTIAL|UNKNOWN>
 READ_ONLY: true
+
+https://github.com/<owner>/<repo>/actions/runs/<your actual current workflow run id>
 ```
+
+Resolve the absolute URL of your own current workflow run from launcher-provided run
+metadata or read-only GitHub Actions metadata bound to this trigger. Verify it is the
+actual run producing this receipt; never copy a prior review's run ID, a sibling run,
+or a placeholder. Include that absolute own-run URL after the field lines. The pinned
+OpenCode CLI appends a relative `[github run]` footer automatically; that footer alone
+does not satisfy the verifier's absolute-link binding. It may remain after your receipt.
+If you cannot establish the actual own-run binding, report UNKNOWN and do not claim an
+admissible PASS receipt. Never edit an earlier bot report or weaken the verifier to make
+a receipt admissible.
 
 Never invent, guess or copy identifiers you did not resolve from the checked-out
 repository. `REVIEWER_MODEL`, `REVIEWER_VARIANT` and `READ_ONLY` are self-reported text:
