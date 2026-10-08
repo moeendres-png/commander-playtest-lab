@@ -3564,6 +3564,34 @@ def test_contract_1_0_25_supersedes_only_the_negative_parent_class_fallback_patc
     assert record["decision_script"] == [
         {
             "actor": "P1",
+            "causal_step_id": "start-P1",
+            "decision_family": "starting_player",
+            "forbidden_fallbacks": [
+                "first_option",
+                "random_option",
+                "default_yes_no",
+                "internal_ai",
+                "gui_default",
+                "silent_skip",
+                "parent_class_fallback",
+            ],
+            "notes": (
+                "CR 103.1: the starting player is a player's choice; P1 is the record's "
+                "starting player, consistent with the turn-2 checkpoint (P2 active after "
+                "the engine's own turn 1 in four-player seat order). The mid-game lane "
+                "starts the engine from this declaration; the engine's own CR 103.2 "
+                "choice is offered to P1 as a decision frame"
+            ),
+            "selection": {
+                "matches_only_provider_offered_legal_options": True,
+                "on_multiple_match": "FAIL_CLOSED",
+                "on_zero_match": "FAIL_CLOSED",
+                "selector_kind": "seat",
+                "semantic_value": "P1",
+            },
+        },
+        {
+            "actor": "P1",
             "causal_step_id": "cleanup-r1-P1",
             "decision_family": "cleanup_discard",
             "forbidden_fallbacks": [
@@ -3588,7 +3616,7 @@ def test_contract_1_0_25_supersedes_only_the_negative_parent_class_fallback_patc
                 "selector_kind": "card_identity_multiset",
                 "semantic_value": {"Mountain": 1},
             },
-        }
+        },
     ]
     graveyard = [obj for obj in record["semantic_objects"] if obj.get("zone") == "graveyard"]
     assert graveyard == [
@@ -3645,6 +3673,7 @@ def test_contract_1_0_25_supersedes_only_the_negative_parent_class_fallback_patc
         for change in erratum["details"]["field_changes"]
     )
     assert {change["change"] for change in erratum["details"]["field_changes"]} >= {
+        "decision_script absent -> one scripted starting_player declaration for P1 (seat P1)",
         "decision_script absent -> one scripted cleanup_discard for P1 (one Mountain)",
         "semantic_objects +1 Mountain in P1's graveyard",
     }
@@ -3733,6 +3762,42 @@ def test_negative_parent_class_fallback_forced_cleanup_discard_is_scripted_and_d
     assert _cleanup_discard_violations(wrong_card) == [
         "forced_cleanup_discard_card_is_not_declared_in_graveyard:P1"
     ]
+
+
+def test_negative_parent_class_fallback_declares_its_starting_seat_p1() -> None:
+    """Contract 1.0.25: the corrected record declares its starting seat P1 in
+    the decision-script shape ``midgame_starting_seat`` consumes (CR 103.1),
+    consistent with the turn-2 / P2-active checkpoint. The checkpoint's own
+    active player is never turned into a starter, and declarations that
+    disagree fail closed instead of being resolved by shape order."""
+    from commander_lab.qualification.current_boundary import starting_player
+
+    resolver = _resolver()
+    record = resolver.effective_record(NEGATIVE_PARENT_CLASS_FALLBACK)
+    assert record["temporal_state"]["turn_number"] == 2
+    assert record["temporal_state"]["active_player"] == "P2"
+    assert starting_player.midgame_starting_seat(record) == (
+        "p1",
+        starting_player.STARTER_DECLARATION_SCRIPT,
+    )
+
+    # Red control: a top-level declaration that disagrees with the scripted
+    # step is an ambiguity -- never resolved by shape precedence, and never
+    # salvaged from the checkpoint's active player.
+    disagreeing = {**record, "starting_player": "P2"}
+    assert starting_player.midgame_starting_seat(disagreeing) == (None, None)
+
+    # Red control: without the scripted declaration a later checkpoint's
+    # active player is not a starter: the lane fails closed.
+    undeclared = {
+        **record,
+        "decision_script": [
+            step
+            for step in record["decision_script"]
+            if step["decision_family"] != "starting_player"
+        ],
+    }
+    assert starting_player.midgame_starting_seat(undeclared) == (None, None)
 
 
 def test_contract_1_0_25_generator_regenerates_byte_identically(tmp_path: Path) -> None:

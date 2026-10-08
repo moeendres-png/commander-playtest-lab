@@ -305,6 +305,11 @@
      "reason": "Syphon Mind makes each other player discard a card; APNAP order from active player P2 is P3, P4, P1, so P1 is the first actor asked to discard only if P3 and P4 hold no cards. The complete empty checkpoint hands declare that precondition explicitly. P1's two declared hand cards are unchanged, so the expected decision actor stays P1"
     },
     {
+     "change": "decision_script absent -> one scripted starting_player declaration for P1 (seat P1)",
+     "comprehensive_rules": "103.1",
+     "reason": "the corrected checkpoint is the turn-2 precombat main with P2 active, so the checkpoint's active player is not the starting player. The mid-game lane never derives the starting seat from a later checkpoint's active player and never defaults to seat 0; without an explicit declaration it fails closed. The record therefore declares its own starting seat P1 (CR 103.1), consistent with P2's turn 2 in four-player seat order, in the exact decision-script shape midgame_starting_seat consumes"
+    },
+    {
      "change": "decision_script absent -> one scripted cleanup_discard for P1 (one Mountain)",
      "comprehensive_rules": "514.1, 103.8c",
      "reason": "the corrected turn-2 checkpoint is only reachable through P1's turn 1. In this four-player game the first turn's player draws a card (CR 103.8c), so P1 holds eight cards when its cleanup step begins and must discard down to seven (CR 514.1). Which card is discarded is P1's own choice, so the Lab may not choose it: the choice is scripted as a one-card card_identity_multiset of the scaffolding hand's Mountain"

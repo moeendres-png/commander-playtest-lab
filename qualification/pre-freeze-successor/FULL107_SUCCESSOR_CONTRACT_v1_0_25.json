@@ -20926,8 +20926,8 @@
     {
      "actor": null,
      "details": {
-      "authority": "#441 Coordinator erratum 2026-10-08 (contract 1.0.25): declare the scripted P1 turn-1 cleanup discard (CR 103.8c/514.1) and its graveyard card so the corrected NEGATIVE_PARENT_CLASS_FALLBACK state is reachable through turn 1",
-      "comprehensive_rules": "307.1, 601.2g-h, 101.4, 117.3c, 601.2a, 514.1, 103.8c",
+      "authority": "#441 Coordinator erratum 2026-10-08 (contract 1.0.25): declare the scripted P1 turn-1 cleanup discard (CR 103.8c/514.1) and its graveyard card so the corrected NEGATIVE_PARENT_CLASS_FALLBACK state is reachable through turn 1, and declare the record's starting seat P1 (CR 103.1) in the form the mid-game lane's midgame_starting_seat consumes, consistent with the turn-2 checkpoint (P2 active in four-player seat order)",
+      "comprehensive_rules": "307.1, 601.2g-h, 101.4, 117.3c, 601.2a, 514.1, 103.8c, 103.1",
       "erratum_class": "FIXTURE_DEFECT_CORRECTION_TURN1_CLEANUP_DISCARD_REACHABILITY",
       "field_changes": [
        {
@@ -20966,6 +20966,11 @@
         "reason": "Syphon Mind makes each other player discard a card; APNAP order from active player P2 is P3, P4, P1, so P1 is the first actor asked to discard only if P3 and P4 hold no cards. The complete empty checkpoint hands declare that precondition explicitly. P1's two declared hand cards are unchanged, so the expected decision actor stays P1"
        },
        {
+        "change": "decision_script absent -> one scripted starting_player declaration for P1 (seat P1)",
+        "comprehensive_rules": "103.1",
+        "reason": "the corrected checkpoint is the turn-2 precombat main with P2 active, so the checkpoint's active player is not the starting player. The mid-game lane never derives the starting seat from a later checkpoint's active player and never defaults to seat 0; without an explicit declaration it fails closed. The record therefore declares its own starting seat P1 (CR 103.1), consistent with P2's turn 2 in four-player seat order, in the exact decision-script shape midgame_starting_seat consumes"
+       },
+       {
         "change": "decision_script absent -> one scripted cleanup_discard for P1 (one Mountain)",
         "comprehensive_rules": "514.1, 103.8c",
         "reason": "the corrected turn-2 checkpoint is only reachable through P1's turn 1. In this four-player game the first turn's player draws a card (CR 103.8c), so P1 holds eight cards when its cleanup step begins and must discard down to seven (CR 514.1). Which card is discarded is P1's own choice, so the Lab may not choose it: the choice is scripted as a one-card card_identity_multiset of the scaffolding hand's Mountain"
@@ -20978,7 +20983,7 @@
       ],
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "reason": "the 1.0.24 corrected state is reachable only through P1's turn 1. In this four-player game P1 draws on turn 1 (CR 103.8c) and holds eight cards at its cleanup, where CR 514.1 forces a discard. The 1.0.24 record declared neither the forced discard decision nor its resulting graveyard card, so the real engine reported one undeclared scaffolding Mountain in P1's graveyard and the checkpoint could not match. This erratum scripts the discard as one Mountain (the Lab never picks the card) and declares exactly that one Mountain in P1's graveyard. It also supersedes the 1.0.24 erratum step and fixes its #608 P3 citation: the four tapped Swamps are supported by CR 601.2g-h, not CR 305.2, and are injected, not natural-play reachable (305.2). No obligation key changes and no runtime credit is claimed",
+      "reason": "the 1.0.24 corrected state is reachable only through P1's turn 1. In this four-player game P1 draws on turn 1 (CR 103.8c) and holds eight cards at its cleanup, where CR 514.1 forces a discard. The 1.0.24 record declared neither the forced discard decision nor its resulting graveyard card, so the real engine reported one undeclared scaffolding Mountain in P1's graveyard and the checkpoint could not match. This erratum scripts the discard as one Mountain (the Lab never picks the card) and declares exactly that one Mountain in P1's graveyard. It also declares the record's starting seat P1 (CR 103.1) in the decision-script shape midgame_starting_seat consumes, so the mid-game lane starts the engine at the record's own seat instead of a later checkpoint's active player. It also supersedes the 1.0.24 erratum step and fixes its #608 P3 citation: the four tapped Swamps are supported by CR 601.2g-h, not CR 305.2, and are injected, not natural-play reachable (305.2). No obligation key changes and no runtime credit is claimed",
       "supersedes_erratum_step": "erratum-cast-timing-and-cost-consistency-negative_parent_class_fallback"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
@@ -21385,6 +21390,28 @@
      "turn_number": 2
     },
     "decision_script": [
+     {
+      "actor": "P1",
+      "causal_step_id": "start-P1",
+      "decision_family": "starting_player",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "CR 103.1: the starting player is a player's choice; P1 is the record's starting player, consistent with the turn-2 checkpoint (P2 active after the engine's own turn 1 in four-player seat order). The mid-game lane starts the engine from this declaration; the engine's own CR 103.2 choice is offered to P1 as a decision frame",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "seat",
+       "semantic_value": "P1"
+      }
+     },
      {
       "actor": "P1",
       "causal_step_id": "cleanup-r1-P1",

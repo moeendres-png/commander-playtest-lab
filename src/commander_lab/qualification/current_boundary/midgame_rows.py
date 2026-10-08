@@ -4577,6 +4577,16 @@ def execute_row(
         never chooses a card for a player.
         """
         position_ = arrival_consumed[0]
+        while position_ < len(script) and (
+            str(script[position_].get("decision_family")) == "starting_player"
+        ):
+            # A starting_player step is the record's setup declaration (CR
+            # 103.1): the lane's own starting-player frame handling answers the
+            # engine's choice before any arrival decision, and that frame is
+            # never an engine choose_object. The cursor therefore steps over it
+            # instead of demanding a same-class engine frame.
+            position_ += 1
+            arrival_consumed[0] = position_
         if position_ < len(script):
             step = script[position_]
             if step_decision_class(step) == decision_class:

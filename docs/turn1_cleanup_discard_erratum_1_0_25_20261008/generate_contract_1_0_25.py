@@ -21,6 +21,12 @@ The erratum is scoped to that reachability gap and fixes the two #608 P3 notes:
   same shape as the WS05-CMD-MULL-2 ``london_bottom`` steps: selector kind
   ``card_identity_multiset``, semantic value one ``Mountain`` (P1's turn-1 hand
   is the scaffolding Mountains);
+* ``decision_script`` also gains one scripted ``starting_player`` step for P1,
+  in the WS05-CMD-START-* shape ``starting_player.midgame_starting_seat``
+  consumes: selector kind ``seat``, semantic value ``P1``. The corrected
+  checkpoint is a later turn whose active player (P2) is not the starter, so
+  the lane never derives the seat from the checkpoint; without the declaration
+  the mid-game lane fails closed (CR 103.1);
 * ``semantic_objects`` gains exactly one Mountain in P1's graveyard, in the
   record's existing graveyard declaration form (the CARD_29 form);
 * the ``+4 tapped Swamps`` field change no longer cites CR 305.2 as support: it
@@ -68,7 +74,10 @@ SUCCESSOR_PATH = "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_
 DECISIONS = (
     "#441 Coordinator erratum 2026-10-08 (contract 1.0.25): declare the scripted "
     "P1 turn-1 cleanup discard (CR 103.8c/514.1) and its graveyard card so the "
-    "corrected NEGATIVE_PARENT_CLASS_FALLBACK state is reachable through turn 1"
+    "corrected NEGATIVE_PARENT_CLASS_FALLBACK state is reachable through turn 1, "
+    "and declare the record's starting seat P1 (CR 103.1) in the form the "
+    "mid-game lane's midgame_starting_seat consumes, consistent with the turn-2 "
+    "checkpoint (P2 active in four-player seat order)"
 )
 FIXTURE = "NEGATIVE_PARENT_CLASS_FALLBACK"
 PRIOR_CLASS = "FIXTURE_DEFECT_CORRECTION_CAST_TIMING_AND_COST_CONSISTENCY"
@@ -185,6 +194,32 @@ cleanup_step = {
         "semantic_value": {"Mountain": 1},
     },
 }
+# The scripted starting-seat declaration, in the WS05-CMD-START-* shape that
+# ``starting_player.midgame_starting_seat`` consumes. The corrected checkpoint
+# is a later turn whose active player (P2) is not the starter, so the lane never
+# derives the seat by arithmetic; without this declaration the mid-game lane
+# fails closed (record_starting_seat returns (None, None)). The engine still
+# offers its own CR 103.2 choice to P1, which answers with this declaration.
+starting_step = {
+    "actor": "P1",
+    "causal_step_id": "start-P1",
+    "decision_family": "starting_player",
+    "forbidden_fallbacks": list(FORBIDDEN),
+    "notes": (
+        "CR 103.1: the starting player is a player's choice; P1 is the record's "
+        "starting player, consistent with the turn-2 checkpoint (P2 active after the "
+        "engine's own turn 1 in four-player seat order). The mid-game lane starts the "
+        "engine from this declaration; the engine's own CR 103.2 choice is offered to "
+        "P1 as a decision frame"
+    ),
+    "selection": {
+        "matches_only_provider_offered_legal_options": True,
+        "on_multiple_match": "FAIL_CLOSED",
+        "on_zero_match": "FAIL_CLOSED",
+        "selector_kind": "seat",
+        "semantic_value": "P1",
+    },
+}
 # The declared graveyard card: one Mountain in P1's graveyard, in the record's
 # existing graveyard declaration form (the CARD_29 form).
 discarded_mountain = {
@@ -214,7 +249,7 @@ corrected_scenario_notes = [
 ]
 merged_replace = {
     **prior_replace,
-    "decision_script": [cleanup_step],
+    "decision_script": [starting_step, cleanup_step],
     "scenario_notes": corrected_scenario_notes,
     "semantic_objects": corrected_objects,
 }
@@ -243,6 +278,19 @@ swamps_change[0]["reason"] = (
     "No natural-play path is claimed"
 )
 new_changes = [
+    {
+        "change": "decision_script absent -> one scripted starting_player declaration for P1 (seat P1)",
+        "comprehensive_rules": "103.1",
+        "reason": (
+            "the corrected checkpoint is the turn-2 precombat main with P2 active, so "
+            "the checkpoint's active player is not the starting player. The mid-game "
+            "lane never derives the starting seat from a later checkpoint's active "
+            "player and never defaults to seat 0; without an explicit declaration it "
+            "fails closed. The record therefore declares its own starting seat P1 (CR "
+            "103.1), consistent with P2's turn 2 in four-player seat order, in the "
+            "exact decision-script shape midgame_starting_seat consumes"
+        ),
+    },
     {
         "change": "decision_script absent -> one scripted cleanup_discard for P1 (one Mountain)",
         "comprehensive_rules": "514.1, 103.8c",
@@ -273,7 +321,7 @@ erratum = {
     "actor": None,
     "details": {
         "authority": DECISIONS,
-        "comprehensive_rules": "307.1, 601.2g-h, 101.4, 117.3c, 601.2a, 514.1, 103.8c",
+        "comprehensive_rules": "307.1, 601.2g-h, 101.4, 117.3c, 601.2a, 514.1, 103.8c, 103.1",
         "erratum_class": CORRECTION_CLASS,
         "field_changes": field_changes,
         "obligation_changed": False,
@@ -286,7 +334,10 @@ erratum = {
             "engine reported one undeclared scaffolding Mountain in P1's graveyard and the "
             "checkpoint could not match. This erratum scripts the discard as one Mountain "
             "(the Lab never picks the card) and declares exactly that one Mountain in P1's "
-            "graveyard. It also supersedes the 1.0.24 erratum step and fixes its #608 P3 "
+            "graveyard. It also declares the record's starting seat P1 (CR 103.1) in the "
+            "decision-script shape midgame_starting_seat consumes, so the mid-game lane "
+            "starts the engine at the record's own seat instead of a later checkpoint's "
+            "active player. It also supersedes the 1.0.24 erratum step and fixes its #608 P3 "
             "citation: the four tapped Swamps are supported by CR 601.2g-h, not CR 305.2, "
             "and are injected, not natural-play reachable (305.2). No obligation key "
             "changes and no runtime credit is claimed"

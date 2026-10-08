@@ -278,7 +278,7 @@ class _OmissionClient:
             return {"success": True, "payload": self._legal(seat)}
         if message_type == "submit_action":
             pending = self._decisions[0] if self._decisions else None
-            assert pending is not None and pending["decision_class"] == "cleanup_discard", (
+            assert pending is not None and pending["decision_class"] == "choose_object", (
                 "the declared omission must submit no action for its frame"
             )
             self.submissions.append([payload["proposal"]["legal_action_id"]])
@@ -319,9 +319,12 @@ class _OmissionClient:
 
 
 def _cleanup_frame(seat: int = 0) -> dict[str, Any]:
+    # XMage publishes the forced cleanup discard (CR 514.1) as its own
+    # choose_object frame over the hand (midgame_rows.ENGINE_DECISION_CLASS maps
+    # the record's cleanup_discard family onto that engine class).
     return {
         "decision_id": "d-cleanup",
-        "decision_class": "cleanup_discard",
+        "decision_class": "choose_object",
         "actor_id": f"actor-{seat}",
         "seat": seat,
         "prompt": "Discard down to your maximum hand size",

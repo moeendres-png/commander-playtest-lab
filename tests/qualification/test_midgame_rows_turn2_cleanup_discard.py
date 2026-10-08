@@ -277,7 +277,16 @@ def test_the_probe_starting_seat_index_uses_only_the_declaration() -> None:
     probe = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(probe)
     assert probe.record_starting_seat_index(_turn2_record()) == 0
+    # Contract 1.0.25 declares the effective record's starting seat P1, so the
+    # undeclared control is built by removing that declaration: a turn-2
+    # checkpoint's active player (P2) is still never a starting seat.
     undeclared = _effective_record()
+    undeclared["decision_script"] = [
+        step
+        for step in undeclared.get("decision_script") or ()
+        if step.get("decision_family") != "starting_player"
+    ]
+    undeclared.pop("starting_player", None)
     assert undeclared["temporal_state"]["turn_number"] == 2
     assert probe.record_starting_seat_index(undeclared) is None
 
@@ -454,9 +463,14 @@ def test_the_cleanup_discard_family_maps_to_the_engine_choose_object_frame() -> 
 
 
 def test_an_undeclared_cleanup_discard_is_never_answered_by_the_lab() -> None:
-    # The effective 1.0.24 record scripts no discard: the arrival callback has
-    # no step to answer with, so the frame falls through and fails closed.
+    # The record scripts no discard step: the arrival callback has no step to
+    # answer with, so the frame falls through and fails closed.
     record = _effective_record()
+    record["decision_script"] = [
+        step
+        for step in record.get("decision_script") or ()
+        if step.get("decision_family") != "cleanup_discard"
+    ]
     record["starting_player"] = "P1"
     client = _SequencedClient(
         [
