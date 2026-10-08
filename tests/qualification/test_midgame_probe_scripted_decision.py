@@ -152,7 +152,7 @@ class ParkedEngine:
         return {
             "construction_match": True,
             "mismatches": [],
-            "observation": {"phase": self.phase, "step": self.step},
+            "observation": {"turn_number": 1, "phase": self.phase, "step": self.step},
         }
 
     def submit_options(self, decision: dict[str, Any], option_ids: list[str]) -> dict[str, Any]:
@@ -163,7 +163,12 @@ class ParkedEngine:
 def _upkeep_record(first_family: str) -> dict[str, Any]:
     return {
         "fixture_id": "PILOT_TRIGGER_ORDER",
-        "temporal_state": {"phase": "beginning", "step": "upkeep", "active_player": "P1"},
+        "temporal_state": {
+            "turn_number": 1,
+            "phase": "beginning",
+            "step": "upkeep",
+            "active_player": "P1",
+        },
         "decision_script": [{"actor": "P1", "decision_family": first_family}],
     }
 
@@ -217,7 +222,12 @@ class SequencedEngine:
         return {
             "construction_match": True,
             "mismatches": [],
-            "observation": {"phase": phase, "step": step, "priority_player": priority},
+            "observation": {
+                "turn_number": 1,
+                "phase": phase,
+                "step": step,
+                "priority_player": priority,
+            },
         }
 
     def submit_options(self, decision: dict[str, Any], option_ids: list[str]) -> dict[str, Any]:
@@ -230,6 +240,7 @@ def _combat_record(step: str, priority: str) -> dict[str, Any]:
     return {
         "fixture_id": "COMBAT",
         "temporal_state": {
+            "turn_number": 1,
             "phase": "combat",
             "step": step,
             "active_player": "P1",
