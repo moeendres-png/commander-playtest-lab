@@ -1,0 +1,70 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-DMG-SAME-21",
+  "obligation_exercised": {
+    "obligation_digest": "db64ee8837d9f42c1412da2669b2112341854a20bed776c906981e93cdb57e6e",
+    "requested_state_digest": "3b2c69da6ec81a0192add468e6f5cc681ea871ecd3946706704de59b02b8fc33",
+    "required_events": [
+      "commander_combat_damage:P2:2",
+      "commander_damage_total:P2:21",
+      "player_loses:P2"
+    ],
+    "terminal_checks": [
+      "P2 is at 38 life",
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state"
+    ],
+    "terminal_postconditions": [
+      "P2 loses as SBA for 21 combat damage from the same commander."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "P2 is at 38 life": true,
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state": true
+    },
+    "token_evidence": {
+      "commander_combat_damage:P2:2": {
+        "binding": "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:isamaru, target_player=P2, amount=2, combat=True",
+        "events": [
+          9
+        ]
+      },
+      "commander_damage_total:P2:21": {
+        "binding": "the engine's commander combat damage from P1's Isamaru, Hound of Konda to P2 is 21",
+        "observation": "engine terminal observation"
+      },
+      "player_loses:P2": {
+        "binding": [
+          "exactly 1 LOST event(s) with player_player=P2",
+          "every DAMAGED_PLAYER event with source_object=obj:isamaru, target_player=P2, amount=2, combat=True precedes the first LOST event with player_player=P2"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 LOST event(s) with player_player=P2",
+            "events": [
+              10
+            ]
+          },
+          {
+            "binding": "every DAMAGED_PLAYER event with source_object=obj:isamaru, target_player=P2, amount=2, combat=True precedes the first LOST event with player_player=P2",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "f8146d8f1c4e5fb91fda5a45b9d65afbd86878fc5d5177451469329334094b6d",
+  "runner_digest": "c2a82b393c755f271437ec6e4381b692808c8f73f90ddd8701577ba192a41e6f",
+  "runtime_receipt_digest": "e4f66929aa7834489bd80dd8527d7cbfcae4383f326f4496a85981652912ae97",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-DMG-SAME-21",
+  "variance_source": null
+}

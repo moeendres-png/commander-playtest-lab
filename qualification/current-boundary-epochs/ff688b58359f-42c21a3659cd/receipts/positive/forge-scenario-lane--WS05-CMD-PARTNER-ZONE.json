@@ -1,0 +1,45 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "forge",
+  "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+  "fixture_id": "WS05-CMD-PARTNER-ZONE",
+  "obligation_exercised": {
+    "forbidden_events": [],
+    "obligation_digest": "0e1f450cbbe6f7ac6316db72cd605fead37431bbc93d5228f15deb7d969bf4b7",
+    "requested_state_digest": "d13cf57e931370ea78f14b5cc8008d0204ed1bc03a6d83986b5974b0d57b9a05",
+    "required_events": [
+      "game_start_command_zone:cmd:P1-A",
+      "game_start_command_zone:cmd:P1-B"
+    ],
+    "terminal_postconditions": [
+      "Both partner commanders begin in command zone as separate commander identities."
+    ]
+  },
+  "observed_assertion": {
+    "checkpoint_basis": "BOOTSTRAP_CHECKPOINT",
+    "checkpoint_variance_source": null,
+    "checkpoint_verdict": "EXACT",
+    "engine_authored_decision_count": 17,
+    "external_decision_selection_sha256": "95a725e8af4bd6a7d8e55b7bb9888e17aec060a385f6195a9911c3045241c67f",
+    "native_bootstrap_applied": true,
+    "obligation_kind": "game_start_command_zone",
+    "requested_checkpoint_verdict": null,
+    "row_document_sha256": "ed7c261c01acb6342a3a98aa1adc65d78e90d439a0c07cf1784f9452fdd6226f",
+    "semantic_events": [
+      "game_start_command_zone:cmd:P1-A",
+      "game_start_command_zone:cmd:P2-A",
+      "game_start_command_zone:cmd:P3-A",
+      "game_start_command_zone:cmd:P4-A",
+      "game_start_command_zone:cmd:P1-B"
+    ],
+    "terminal_facts_sha256": "9bc509f47fa16f7abda26714db402981211e6c5f94d2b8dfc7e4ef5f18569a68"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "ddb52395fba0ae56b995e984f8735d463b7aca66df9d4ccfc3681d69c6a75ef6",
+  "runner_digest": "c2a82b393c755f271437ec6e4381b692808c8f73f90ddd8701577ba192a41e6f",
+  "runtime_receipt_digest": "ed7c261c01acb6342a3a98aa1adc65d78e90d439a0c07cf1784f9452fdd6226f",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-PARTNER-ZONE"
+}
