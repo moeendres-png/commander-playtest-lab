@@ -116,21 +116,43 @@ jobs:
       # hour) loses its push, comment and PR, and with them the agent's work
       # (runs 37662806891, 37672161637, 37672584114). On failure or cancellation,
       # keep the local work as a short-lived artifact instead: a bundle of every
-      # local ref plus the tracked uncommitted diff. Untracked files are never
+      # branch and HEAD plus the tracked uncommitted diff. Untracked files are never
       # collected. The job token stays read-only; nothing is pushed from here.
       - name: Collect unpublished agent work
         if: failure() || cancelled()
         run: |
           set -uo pipefail
           out="$RUNNER_TEMP/opencode-rescue"
+          rm -rf "$out"
           mkdir -p "$out"
-          git -C "$GITHUB_WORKSPACE" log --oneline -20 --all > "$out/log.txt" 2>&1 || true
+          git -C "$GITHUB_WORKSPACE" log --oneline -20 HEAD --branches > "$out/log.txt" 2>&1 || true
           git -C "$GITHUB_WORKSPACE" status --porcelain=v1 --untracked-files=no > "$out/status.txt" 2>&1 || true
           git -C "$GITHUB_WORKSPACE" diff HEAD > "$out/uncommitted.diff" 2>/dev/null || true
-          git -C "$GITHUB_WORKSPACE" bundle create "$out/work.bundle" --all > "$out/bundle.txt" 2>&1 || true
+          git -C "$GITHUB_WORKSPACE" bundle create "$out/work.bundle" HEAD --branches > "$out/bundle.txt" 2>&1 || true
+
+      # Fail closed: the artifact is public, so it is uploaded only when the pinned
+      # gitleaks finds nothing in the agent's new commits and in the uncommitted
+      # diff. The installer and rule set come from the triggering commit, never
+      # from the workspace the agent may have changed. A bundle needs a full clone
+      # to fetch from (the checkout is shallow): `oc_dispatch.py rescue` says so.
+      - name: Secret-scan unpublished agent work
+        id: rescue_scan
+        if: failure() || cancelled()
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/opencode-rescue"
+          trusted="$RUNNER_TEMP/opencode-rescue-trusted"
+          rm -rf "$trusted"
+          mkdir -p "$trusted"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:scripts/run_broad_secret_scan.py" > "$trusted/scan.py"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:.gitleaks.toml" > "$trusted/gitleaks.toml"
+          gitleaks="$(python3 -c 'import importlib.util,sys,pathlib; s=importlib.util.spec_from_file_location("scan", sys.argv[1]); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print(m.install(pathlib.Path(sys.argv[2])))' "$trusted/scan.py" "$trusted/bin")"
+          "$gitleaks" git "$GITHUB_WORKSPACE" --config "$trusted/gitleaks.toml" --ignore-gitleaks-allow --no-banner --redact --exit-code 1 --log-opts="HEAD --branches --not ${GITHUB_SHA}"
+          "$gitleaks" dir "$out" --config "$trusted/gitleaks.toml" --ignore-gitleaks-allow --no-banner --redact --exit-code 1 --max-archive-depth 3
+          echo "clean=true" >> "$GITHUB_OUTPUT"
 
       - name: Upload unpublished agent work
-        if: failure() || cancelled()
+        if: (failure() || cancelled()) && steps.rescue_scan.outputs.clean == 'true'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: opencode-rescue-${{ github.job }}-${{ github.run_id }}
@@ -250,21 +272,43 @@ jobs:
       # hour) loses its push, comment and PR, and with them the agent's work
       # (runs 37662806891, 37672161637, 37672584114). On failure or cancellation,
       # keep the local work as a short-lived artifact instead: a bundle of every
-      # local ref plus the tracked uncommitted diff. Untracked files are never
+      # branch and HEAD plus the tracked uncommitted diff. Untracked files are never
       # collected. The job token stays read-only; nothing is pushed from here.
       - name: Collect unpublished agent work
         if: failure() || cancelled()
         run: |
           set -uo pipefail
           out="$RUNNER_TEMP/opencode-rescue"
+          rm -rf "$out"
           mkdir -p "$out"
-          git -C "$GITHUB_WORKSPACE" log --oneline -20 --all > "$out/log.txt" 2>&1 || true
+          git -C "$GITHUB_WORKSPACE" log --oneline -20 HEAD --branches > "$out/log.txt" 2>&1 || true
           git -C "$GITHUB_WORKSPACE" status --porcelain=v1 --untracked-files=no > "$out/status.txt" 2>&1 || true
           git -C "$GITHUB_WORKSPACE" diff HEAD > "$out/uncommitted.diff" 2>/dev/null || true
-          git -C "$GITHUB_WORKSPACE" bundle create "$out/work.bundle" --all > "$out/bundle.txt" 2>&1 || true
+          git -C "$GITHUB_WORKSPACE" bundle create "$out/work.bundle" HEAD --branches > "$out/bundle.txt" 2>&1 || true
+
+      # Fail closed: the artifact is public, so it is uploaded only when the pinned
+      # gitleaks finds nothing in the agent's new commits and in the uncommitted
+      # diff. The installer and rule set come from the triggering commit, never
+      # from the workspace the agent may have changed. A bundle needs a full clone
+      # to fetch from (the checkout is shallow): `oc_dispatch.py rescue` says so.
+      - name: Secret-scan unpublished agent work
+        id: rescue_scan
+        if: failure() || cancelled()
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/opencode-rescue"
+          trusted="$RUNNER_TEMP/opencode-rescue-trusted"
+          rm -rf "$trusted"
+          mkdir -p "$trusted"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:scripts/run_broad_secret_scan.py" > "$trusted/scan.py"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:.gitleaks.toml" > "$trusted/gitleaks.toml"
+          gitleaks="$(python3 -c 'import importlib.util,sys,pathlib; s=importlib.util.spec_from_file_location("scan", sys.argv[1]); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print(m.install(pathlib.Path(sys.argv[2])))' "$trusted/scan.py" "$trusted/bin")"
+          "$gitleaks" git "$GITHUB_WORKSPACE" --config "$trusted/gitleaks.toml" --ignore-gitleaks-allow --no-banner --redact --exit-code 1 --log-opts="HEAD --branches --not ${GITHUB_SHA}"
+          "$gitleaks" dir "$out" --config "$trusted/gitleaks.toml" --ignore-gitleaks-allow --no-banner --redact --exit-code 1 --max-archive-depth 3
+          echo "clean=true" >> "$GITHUB_OUTPUT"
 
       - name: Upload unpublished agent work
-        if: failure() || cancelled()
+        if: (failure() || cancelled()) && steps.rescue_scan.outputs.clean == 'true'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: opencode-rescue-${{ github.job }}-${{ github.run_id }}

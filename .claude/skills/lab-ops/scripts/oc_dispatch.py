@@ -285,7 +285,10 @@ def cmd_rescue(a: argparse.Namespace) -> None:
             print(f"  uncommitted diff: {diff.stat().st_size} bytes -> git apply {diff}")
         bundle = out / "work.bundle"
         if bundle.exists():
-            print(f"  recover: git fetch {bundle} 'refs/heads/*:refs/remotes/rescue-{a.run}/*'")
+            print(
+                f"  recover (in a full clone; the bundle is cut from a shallow checkout): "
+                f"git fetch {bundle} 'refs/heads/*:refs/remotes/rescue-{a.run}/*'"
+            )
 
 
 def main() -> None:

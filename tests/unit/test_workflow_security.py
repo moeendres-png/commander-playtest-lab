@@ -585,12 +585,29 @@ def test_opencode_rescue_runs_only_on_failure_keeps_tokens_read_only_and_skips_u
         collect = job["steps"][names.index("Collect unpublished agent work")]
         upload = job["steps"][names.index("Upload unpublished agent work")]
         assert names.index("Collect unpublished agent work") > names.index("Run opencode")
-        for step in (collect, upload):
-            assert step["if"] == "failure() || cancelled()", job_name
+        assert collect["if"] == "failure() || cancelled()", job_name
         script = collect["run"]
         assert "--untracked-files=no" in script
-        assert "git push" not in script and "GH_TOKEN" not in script and "secrets." not in script
+        assert 'rm -rf "$out"' in script
+        assert "--all" not in script and "HEAD --branches" in script
+        for forbidden in ("git push", "GH_TOKEN", "secrets.", " add ", "stash", "tar ", "cp "):
+            assert forbidden not in script, (job_name, forbidden)
         assert "env" not in collect
+        scan = job["steps"][names.index("Secret-scan unpublished agent work")]
+        assert (
+            names.index("Collect unpublished agent work")
+            < names.index("Secret-scan unpublished agent work")
+            < names.index("Upload unpublished agent work")
+        )
+        assert scan["id"] == "rescue_scan" and scan["if"] == "failure() || cancelled()"
+        assert "set -euo pipefail" in scan["run"]
+        assert '"${GITHUB_SHA}:scripts/run_broad_secret_scan.py"' in scan["run"]
+        assert '"${GITHUB_SHA}:.gitleaks.toml"' in scan["run"]
+        assert scan["run"].count("--exit-code 1") == 2
+        assert upload["if"] == (
+            "(failure() || cancelled()) && steps.rescue_scan.outputs.clean == 'true'"
+        )
+        assert upload["with"]["path"] == "${{ runner.temp }}/opencode-rescue"
         assert upload["uses"].startswith("actions/upload-artifact@")
         assert re.fullmatch(r"actions/upload-artifact@[0-9a-f]{40}", upload["uses"].split()[0])
         assert upload["with"]["retention-days"] <= 7
