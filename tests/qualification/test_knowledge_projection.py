@@ -565,6 +565,9 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         attempts=attempts,
         tape=tape,
         log="log4j:WARN No appenders could be found for logger (mage.util.ClassScanner).\n",
+        # This fixture is the end-of-run capture the production lane binds: the
+        # drain saw end of stream and retained everything.
+        log_complete=True,
         script_start=script_start,
         script_trace=(
             [{"decision_class": "priority", "step": 0}]
@@ -821,6 +824,10 @@ def _remove_one_lossless_check(capture: kp.Capture) -> None:
         ),
         ("an inexact construction", lambda c: setattr(c, "arrival_verdict", "MISMATCH")),
         ("a construction mismatch", lambda c: c.scoped_arrival.update(mismatches=["x"])),
+        # A truncated or incomplete process-log capture has a gap, so the log
+        # channel scan cannot prove anything absent from it.
+        ("a truncated log capture", lambda c: setattr(c, "log_truncated", True)),
+        ("an incomplete log capture", lambda c: setattr(c, "log_complete", False)),
         (
             "frames without prompts or options",
             # In place, so the tape keeps its length and the event boundary.

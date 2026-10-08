@@ -54,10 +54,149 @@ REQUESTED_COMBAT_FACT = (
     "combat_state"
 )
 
+#: The receipt assertion class a causal-elimination row carries when its only
+#: non-exact construction disposition is the declared open life substitution.
+#: It is the same class the Forge scenario lane carries for that disposition
+#: (``forge_scenario_lane._receipt_assertion_class``): the variance is declared
+#: by the Lab's shared causal route, never by the engine's own compare or the
+#: fixture, so a receipt that relabelled it ``BEHAVIOUR_OBSERVED`` would hide it.
+ASSERTION_LAB_DECLARED_CAUSAL_SUBSTITUTION = "BEHAVIOUR_OBSERVED_LAB_DECLARED_CAUSAL_SUBSTITUTION"
+
+#: The variance source named for that substitution. The recorded life is the
+#: state-based-action-pending instant of CR 704.3, which no priority point
+#: shows, so the shared route's causal-elimination plan places the victim's
+#: recorded starting life openly and reaches the recorded value only through
+#: the engine's own damage; the plan publishes the substitution verbatim.
+DECLARED_CAUSAL_SUBSTITUTION_VARIANCE_SOURCE = (
+    "declared causal elimination (run_midgame_capability_probe.CAUSAL_ROWS, shared "
+    "with Forge): the victim's recorded life is the state-based-action-pending "
+    "instant (CR 704.3), placed openly as its starting life and reached only by "
+    "the engine dealing the declared instruments' damage"
+)
+
 
 # A `*_object` value meaning "an object the tape does not name" (see
 # matching_events); `None` means "no object at all".
 UNNAMED_OBJECT = "<unnamed-object>"
+
+
+def _declared_life_substitutions(
+    plan: dict[str, Any],
+) -> tuple[tuple[str, int, int], ...] | None:
+    """The elimination plan's own declared substitutions, or None uninterpretable.
+
+    Nothing is inferred: each entry must be the engine's plan payload shape
+    (``player_id``, ``recorded_life``, ``placed_life``), and a list that does
+    not parse leaves the substitution unestablished rather than absent.
+    """
+    raw = plan.get("life_substitutions")
+    if not isinstance(raw, list):
+        return None
+    parsed: list[tuple[str, int, int]] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            return None
+        player = item.get("player_id")
+        recorded = item.get("recorded_life")
+        placed = item.get("placed_life")
+        if not isinstance(player, str) or not player:
+            return None
+        if isinstance(recorded, bool) or not isinstance(recorded, int):
+            return None
+        if isinstance(placed, bool) or not isinstance(placed, int):
+            return None
+        parsed.append((player, recorded, placed))
+    return tuple(parsed)
+
+
+#: The variance source of the engine's own declaration-step priority
+#: allowance: during a declaration step the engine does not hold priority the
+#: way its arrival readback reports it, so the engine's own field-level compare
+#: is false with only the priority mismatches the lane models
+#: (``midgame_lane.DECLARATION_STEP_PRIORITY_ALLOWANCE``). That allowance is
+#: the engine's own disposition, not the Lab's causal life substitution, and a
+#: row carrying both must name both.
+ENGINE_DECLARATION_STEP_PRIORITY_ALLOWANCE_VARIANCE_SOURCE = (
+    "engine declaration-step priority allowance "
+    "(midgame_lane.DECLARATION_STEP_PRIORITY_ALLOWANCE): during a declaration step "
+    "the engine does not hold priority the way its arrival readback reports it, so "
+    "the engine's own field-level compare is false with only the priority "
+    "mismatches it documents"
+)
+
+
+@dataclass(frozen=True)
+class ConstructionDisposition:
+    """The row's construction verdict and every declared variance behind it.
+
+    ``variance_source`` names what makes the final verdict non-exact: the
+    engine's own declaration-step priority allowance when the engine's verdict
+    was already ``ALLOWED_VARIANCE``, or the Lab's declared causal life
+    substitution when it turns an otherwise-``EXACT`` engine verdict into the
+    declared variance. ``declared_substitution_source`` names the Lab's
+    declared substitution whenever the elimination plan declares one, even
+    beside an engine variance, so neither source ever overwrites the other.
+    """
+
+    verdict: str | None
+    variance_source: str | None = None
+    declared_substitution_source: str | None = None
+
+
+def construction_with_declared_substitution(
+    construction_verdict: str | None, created: dict[str, Any]
+) -> ConstructionDisposition:
+    """The row's construction disposition after its own declared life substitution.
+
+    A causal-elimination record asks for the state-based-action-pending instant
+    of CR 704.3, which no priority point shows. The engine's own plan therefore
+    places the victim at its recorded starting life and publishes the
+    substitution (``elimination_plan.life_substitutions``); the recorded value
+    is then reached only by the engine dealing the declared instruments'
+    damage.
+
+    The overlay applies only to an engine verdict of ``EXACT``: an otherwise
+    exact construction with a real, fully declared victim substitution becomes
+    ``ALLOWED_VARIANCE`` with the Lab's own source and assertion class, exactly
+    as the Forge scenario lane labels the same disposition. An engine
+    ``ALLOWED_VARIANCE`` is the engine's own disposition (the declaration-step
+    priority allowance, for example): it keeps its own ``variance_source`` and
+    assertion class, and a Lab substitution the same plan declares is recorded
+    beside it rather than in place of it.
+
+    The refusal order matters. A construction mismatch, an uninterpretable
+    engine verdict and every non-elimination row keep the engine's own verdict
+    verbatim; only a real, fully declared substitution for the plan's victim
+    turns an otherwise-exact construction into the declared variance. An
+    elimination plan that cannot state its substitutions is not interpretable,
+    so the row fails its construction closed instead of reading as exact.
+    """
+    plan = created.get("elimination_plan") if isinstance(created, dict) else None
+    if not isinstance(plan, dict):
+        return ConstructionDisposition(construction_verdict)
+    if construction_verdict not in ("EXACT", "ALLOWED_VARIANCE"):
+        # A real mismatch (or an unrecognized verdict) takes precedence.
+        return ConstructionDisposition(construction_verdict)
+    substitutions = _declared_life_substitutions(plan)
+    victim = plan.get("victim")
+    if substitutions is None or not isinstance(victim, str) or not victim:
+        return ConstructionDisposition("UNRECOGNIZED")
+    declared = [
+        item for item in substitutions if item[0].lower() == victim.lower() and item[1] != item[2]
+    ]
+    declared_source = DECLARED_CAUSAL_SUBSTITUTION_VARIANCE_SOURCE if declared else None
+    if construction_verdict == "ALLOWED_VARIANCE":
+        # The engine's own variance already explains the verdict; the Lab
+        # declaration the same plan carries is recorded beside it, never
+        # overwritten by it, and the engine's assertion class is kept.
+        return ConstructionDisposition(
+            "ALLOWED_VARIANCE",
+            ENGINE_DECLARATION_STEP_PRIORITY_ALLOWANCE_VARIANCE_SOURCE,
+            declared_source,
+        )
+    if declared_source is None:
+        return ConstructionDisposition("EXACT")
+    return ConstructionDisposition("ALLOWED_VARIANCE", declared_source, declared_source)
 
 
 @dataclass(frozen=True)
@@ -1823,6 +1962,17 @@ class RowExecution:
     # its whole script can demonstrate that the engine's end state contradicts
     # the obligation; an unfinished script proves nothing either way.
     script_consumed: bool | None = None
+    # The source of the non-exact construction verdict: the engine's own
+    # declaration-step priority allowance when the engine's verdict was already
+    # ALLOWED_VARIANCE, or the Lab's own declared causal life substitution when
+    # it turned an otherwise-exact construction into the declared variance.
+    # None for every exact row, and for a row whose engine ALLOWED_VARIANCE
+    # carries no interpretable elimination plan.
+    variance_source: str | None = None
+    # The Lab's declared causal life substitution whenever the elimination plan
+    # declares one, recorded even beside an engine variance so neither source
+    # overwrites the other. None when no substitution is declared.
+    declared_substitution_source: str | None = None
 
     def document(self) -> dict[str, Any]:
         document = self._base_document()
@@ -1837,6 +1987,8 @@ class RowExecution:
             "fixture_id": self.fixture_id,
             "verified": self.verified,
             "construction_verdict": self.construction_verdict,
+            "variance_source": self.variance_source,
+            "declared_substitution_source": self.declared_substitution_source,
             "detail": self.detail,
             "token_evidence": self.token_evidence,
             "missing_tokens": self.missing_tokens,
@@ -4308,11 +4460,23 @@ def execute_row(
     """
     probe = probe_module()
     fixture_id = str(record["fixture_id"])
+    # The construction disposition this row's verdict carries: the engine's own
+    # declaration-step priority allowance and/or the Lab's declared causal life
+    # substitution, if any. Both are attached to every return below so a row
+    # that stops unverified still states why its verdict is not exact.
+    variance_source: str | None = None
+    declared_substitution_source: str | None = None
+
+    def row_execution(*args: Any, **kwargs: Any) -> RowExecution:
+        kwargs.setdefault("variance_source", variance_source)
+        kwargs.setdefault("declared_substitution_source", declared_substitution_source)
+        return RowExecution(*args, **kwargs)
+
     if not (record.get("expected_events") or {}).get("required_events") and not (
         spec.terminal_checks
     ):
         # Nothing would be observed, so "verified" would hold for any behaviour.
-        return RowExecution(
+        return row_execution(
             fixture_id, False, None, "the obligation names no required event and no terminal check"
         )
     placed = {str(k): str(v) for k, v in (created.get("placed_objects") or {}).items()}
@@ -4362,14 +4526,22 @@ def execute_row(
             client, record, declare=declare if combat is not None else None
         )
     except ml.MidgameLaneError as exc:
-        return RowExecution(fixture_id, False, None, f"arrival failed closed: {exc}")
+        return row_execution(fixture_id, False, None, f"arrival failed closed: {exc}")
     if arrival is None:
-        return RowExecution(
+        return row_execution(
             fixture_id, False, None, "the engine did not reach the record's checkpoint"
         )
-    construction = arrival.construction_verdict
+    # The declared causal elimination openly substitutes the victim's recorded
+    # life at the pre-causal position (CR 704.3); that substitution is a
+    # Lab-declared variance and can never read as an exact construction. An
+    # engine verdict that was already ALLOWED_VARIANCE keeps its own source and
+    # only records the Lab declaration beside it.
+    disposition = construction_with_declared_substitution(arrival.construction_verdict, created)
+    construction = disposition.verdict
+    variance_source = disposition.variance_source
+    declared_substitution_source = disposition.declared_substitution_source
     if construction not in ACCEPTED_CONSTRUCTION:
-        return RowExecution(
+        return row_execution(
             fixture_id,
             False,
             construction,
@@ -4391,7 +4563,7 @@ def execute_row(
             else None
         )
         if len(fuel) != len(declared_fuel):
-            return RowExecution(
+            return row_execution(
                 fixture_id,
                 False,
                 construction,
@@ -4402,7 +4574,7 @@ def execute_row(
             probe.causal_stack_frames(client, f"{fixture_id}-causal", causal_plan, placed, fuel)
             verdict = probe.complete_causal(client, "stack").get("verdict") or {}
         except ml.MidgameLaneError as exc:
-            return RowExecution(
+            return row_execution(
                 fixture_id,
                 False,
                 construction,
@@ -4419,7 +4591,7 @@ def execute_row(
             "verdict": verdict,
         }
         if not verdict.get("causal_match") or verdict.get("mismatches"):
-            return RowExecution(
+            return row_execution(
                 fixture_id,
                 False,
                 construction,
@@ -4441,7 +4613,7 @@ def execute_row(
             probe.resolve_stack(client, f"{fixture_id}-causal-resolve")
             permanents = probe.complete_causal(client, "permanents").get("verdict") or {}
         except ml.MidgameLaneError as exc:
-            return RowExecution(
+            return row_execution(
                 fixture_id,
                 False,
                 construction,
@@ -4456,7 +4628,7 @@ def execute_row(
         assert reconstruction is not None
         reconstruction["permanents"] = permanents
         if not permanents.get("causal_match") or permanents.get("mismatches"):
-            return RowExecution(
+            return row_execution(
                 fixture_id,
                 False,
                 construction,
@@ -4487,7 +4659,7 @@ def execute_row(
         try:
             verdict = probe.eliminate_causally(client, f"{fixture_id}-causal", created, causal)
         except ml.MidgameLaneError as exc:
-            return RowExecution(
+            return row_execution(
                 fixture_id,
                 False,
                 construction,
@@ -4504,7 +4676,7 @@ def execute_row(
             }
         )
         if not (verdict.get("victim_lost") is True or verdict.get("victim_left") is True):
-            return RowExecution(
+            return row_execution(
                 fixture_id,
                 False,
                 construction,
@@ -4520,7 +4692,7 @@ def execute_row(
     script = list(record.get("decision_script") or ())
     sources = [placed[s] for s in spec.mana_sources if s in placed]
     if len(sources) != len(spec.mana_sources):
-        return RowExecution(
+        return row_execution(
             fixture_id, False, construction, "a declared mana source was not placed"
         )
     cost_obligation: tuple[str, str, str] | None = None
@@ -4528,7 +4700,7 @@ def execute_row(
         cost_source, cost_base, cost_total = spec.cost_obligation
         native_cost_source = placed.get(cost_source)
         if native_cost_source is None:
-            return RowExecution(
+            return row_execution(
                 fixture_id, False, construction, "the declared cost source was not placed"
             )
         cost_obligation = (native_cost_source, cost_base, cost_total)
@@ -4962,7 +5134,7 @@ def execute_row(
             # decision trace are the whole evidence.
             observation = {}
         else:
-            return RowExecution(
+            return row_execution(
                 fixture_id,
                 False,
                 construction,
@@ -5010,7 +5182,7 @@ def execute_row(
         and not missing
         and all(terminal.values())
     )
-    return RowExecution(
+    return row_execution(
         fixture_id,
         verified,
         construction,
@@ -5046,6 +5218,15 @@ def positive_receipt(
         "test_identity": TEST_IDENTITY_PREFIX + execution.fixture_id,
         "execution_mode": EXECUTION_MODE,
         "construction_verdict": execution.construction_verdict,
+        # The source of a non-exact verdict: the engine's own declaration-step
+        # priority allowance, or the Lab's own declared causal life
+        # substitution. It is carried beside the verdict, never folded into the
+        # token evidence.
+        "variance_source": execution.variance_source,
+        # The Lab's declared causal life substitution whenever the elimination
+        # plan declares one, recorded even beside an engine variance so the
+        # engine's own disposition is never overwritten.
+        "declared_substitution_source": execution.declared_substitution_source,
         "obligation_exercised": {
             "required_events": required,
             "terminal_postconditions": list(record.get("terminal_postconditions") or ()),
@@ -5063,8 +5244,18 @@ def positive_receipt(
             "typed_refusals": execution.refusals,
         },
         "assertion_kind": "POSITIVE_BEHAVIOUR",
+        # A typed refusal is its own class. Otherwise the Lab's declared causal
+        # life substitution names itself only when it is the verdict's own
+        # source, exactly as the Forge scenario lane labels that disposition. An
+        # engine ALLOWED_VARIANCE keeps its own class even beside a Lab
+        # declaration, which the separate ``declared_substitution_source``
+        # still records.
         "assertion_class": (
-            "TYPED_FAIL_CLOSED_REFUSAL" if execution.refusals else "BEHAVIOUR_OBSERVED"
+            "TYPED_FAIL_CLOSED_REFUSAL"
+            if execution.refusals
+            else ASSERTION_LAB_DECLARED_CAUSAL_SUBSTITUTION
+            if execution.variance_source == DECLARED_CAUSAL_SUBSTITUTION_VARIANCE_SOURCE
+            else "BEHAVIOUR_OBSERVED"
         ),
         "outcome": "PASS",
         "runtime_receipt_digest": receipt_mod._digest(execution.document()),
