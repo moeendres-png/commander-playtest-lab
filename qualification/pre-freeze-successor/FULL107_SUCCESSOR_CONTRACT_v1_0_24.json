@@ -165,7 +165,7 @@
    "WS05-CMD-MULL-2": "FIXTURE_SCRIPT_CONTRACT_AND_RULES_RANDOMNESS_ERRATUM",
    "WS05-CMD-MULL-4": "FIXTURE_SCRIPT_CONTRACT_AND_RULES_RANDOMNESS_ERRATUM",
    "MICRO_LAYERS": "FIXTURE_OBSERVABILITY_ERRATUM",
-   "NEGATIVE_PARENT_CLASS_FALLBACK": "FIXTURE_DEFECT_CORRECTION_CR307_1_REACHABILITY"
+   "NEGATIVE_PARENT_CLASS_FALLBACK": "FIXTURE_DEFECT_CORRECTION_CAST_TIMING_AND_COST_CONSISTENCY"
   },
   "provider_semantics_used_to_define_successor": false,
   "unchanged_provider_denominator_rows": 49
@@ -183,7 +183,7 @@
   "successor_contract_creation_is_runtime_credit": false,
   "xmage_predecessor_start2_blocker_is_historical_provenance": true
  },
- "materialization_schema_version_note": "the record shape is unchanged from the 1.0.8 successor schema; 1.0.24 carries every 1.0.23 record successor and the bounded-secondary PLAYER_COUNT_6P section byte for byte, and adds exactly one corrected record: NEGATIVE_PARENT_CLASS_FALLBACK's declared temporal/stack state is made reachable under CR 307.1 (turn 2, P2 active and holding priority in P2's precombat main, cast-from zone hand), with the obligation keys untouched. Per #441 Coordinator erratum 2026-10-08.",
+ "materialization_schema_version_note": "the record shape is unchanged from the 1.0.8 successor schema; 1.0.24 carries every 1.0.23 record successor and the bounded-secondary PLAYER_COUNT_6P section byte for byte, and adds exactly one corrected record: NEGATIVE_PARENT_CLASS_FALLBACK's declared state is made cast-timing and cost consistent (turn 2, P2 active and holding priority under CR 117.3c in P2's precombat main, cast-from zone hand, four tapped P2 Swamps paying {3}{B}, and complete empty P3/P4 checkpoint hands under CR 101.4), with the obligation keys untouched. No full natural-play reachability is claimed, and the turn-2 checkpoint is not runnable on the current bridge (UNSUPPORTED_TEMPORAL_POINT). Per #441 Coordinator erratum 2026-10-08.",
  "predecessor": {
   "path": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json",
   "record_count": 79,
@@ -20927,8 +20927,8 @@
      "actor": null,
      "details": {
       "authority": "#441 Coordinator erratum 2026-10-08 (contract 1.0.24): correct the NEGATIVE_PARENT_CLASS_FALLBACK temporal/stack declaration so its declared state is reachable under CR 307.1",
-      "comprehensive_rules": "307.1",
-      "erratum_class": "FIXTURE_DEFECT_CORRECTION_CR_307_1_REACHABILITY",
+      "comprehensive_rules": "307.1, 305.2, 601.2g-h, 101.4, 117.3c, 601.2a",
+      "erratum_class": "FIXTURE_DEFECT_CORRECTION_CAST_TIMING_AND_COST_CONSISTENCY",
       "field_changes": [
        {
         "change": "temporal_state.turn_number 1 -> 2",
@@ -20942,43 +20942,174 @@
        },
        {
         "change": "temporal_state.priority_player P1 -> P2",
-        "comprehensive_rules": "117.3b",
-        "reason": "after the sorcery is put on the stack the active player, its caster P2, receives priority; the declared point is that priority"
+        "comprehensive_rules": "117.3c",
+        "reason": "a player who had priority and cast a spell receives priority again after the cast (CR 117.3c); the declared point is that priority, held by the caster P2"
        },
        {
         "change": "stack_state[0].from_zone absent -> hand",
         "comprehensive_rules": "601.2a",
         "reason": "declares the cast-from zone: to cast a spell is to put it on the stack from where it is, and this cast is from P2's hand"
+       },
+       {
+        "change": "semantic_objects +4 tapped Swamps controlled by P2",
+        "comprehensive_rules": "305.2",
+        "reason": "the record declares costs_paid for {3}{B}; the four declared tapped Swamps are the mana sources that paid it, making the paid cast consistent with the declared battlefield"
+       },
+       {
+        "change": "stack_state[0].costs_paid now has declared mana sources",
+        "comprehensive_rules": "601.2g-h",
+        "reason": "a cost is paid with mana; declaring the tapped Swamps keeps the declared paid cast consistent instead of asserting payment out of an empty battlefield"
+       },
+       {
+        "change": "deck_state absent -> complete empty checkpoint hands for P3 and P4 (hand_count 0)",
+        "comprehensive_rules": "101.4",
+        "reason": "Syphon Mind makes each other player discard a card; APNAP order from active player P2 is P3, P4, P1, so P1 is the first actor asked to discard only if P3 and P4 hold no cards. The complete empty checkpoint hands declare that precondition explicitly. P1's two declared hand cards are unchanged, so the expected decision actor stays P1"
        }
       ],
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "reason": "the 1.0.5/1.0.23 record declares a fully cast P2 Syphon Mind on the stack while P1 is active in P1's turn-1 precombat main. CR 307.1 permits a sorcery only in its controller's own main phase with an empty stack and no flash grant exists, so no legal line reaches that declaration. The correction moves the declared point to P2's own first main phase (turn 2) with P2 active and holding priority, and declares the cast-from zone hand. The probe's opponent-discard decision (actor P1) is reached after the spell resolves, which the corrected cast now makes legally possible"
+      "reason": "the 1.0.5/1.0.23 record declares a fully cast P2 Syphon Mind on the stack while P1 is active in P1's turn-1 precombat main, with costs_paid and no P2 mana source, and with no declared hand for P3/P4. The erratum is scoped to cast timing and cost consistency: CR 307.1 permits a sorcery only in its controller's own main phase with an empty stack and no flash grant exists; CR 305.2 / 601.2g-h require the declared paid cost to have declared mana sources; CR 101.4 makes P1 the first discarding actor only when P3 and P4 hold no cards. The correction moves the declared point to P2's own first main phase (turn 2) with P2 active and holding priority (CR 117.3c), declares the cast-from zone hand (CR 601.2a), adds the four tapped Swamps that paid {3}{B}, and declares complete empty P3/P4 checkpoint hands. No full natural-play reachability is claimed (other injected permanents pre-exist and are out of scope)"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
-     "step_id": "erratum-cr3071-reachability-negative_parent_class_fallback"
+     "step_id": "erratum-cast-timing-and-cost-consistency-negative_parent_class_fallback"
     }
    ],
    "authority_overlay": {
     "comprehensive_rules_effective_date": "2026-09-25",
-    "comprehensive_rules_rule": "fixture-contract successor rule: #441 NEGATIVE_PARENT_CLASS_FALLBACK CR 307.1 reachability erratum",
+    "comprehensive_rules_rule": "fixture-contract successor rule: #441 NEGATIVE_PARENT_CLASS_FALLBACK cast timing and cost consistency erratum",
     "historical_rsp": "commander-lab.rules-service/1.1.0",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
     "transport_protocol": "2.0.0"
    },
-   "correction_class": "FIXTURE_DEFECT_CORRECTION_CR307_1_REACHABILITY",
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_CAST_TIMING_AND_COST_CONSISTENCY",
    "digest_migration": {
     "obligation_digest": "UNCHANGED_FROM_THE_1_0_23_SUCCESSOR_OBLIGATION_KEYS_UNTOUCHED",
     "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
     "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests",
-    "reason": "the declared temporal/stack state changes; the obligation keys are byte for byte the predecessor's, so the obligation digest is unchanged and the historical materialization digest is preserved under historical_digests"
+    "reason": "the declared temporal/stack state, the mana sources for the paid cost and the P3/P4 hand preconditions change; the obligation keys are byte for byte the predecessor's, so the obligation digest is unchanged and the historical materialization digest is preserved under historical_digests"
    },
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
    "knowledge_state_channel_policy": "RSP actor-aware observation applies to prompts, context, options, source/ability metadata, events, transcripts and logs.",
    "predecessor_invalidity": {
     "predecessor_values": {
+     "semantic_objects": [
+      {
+       "card_identity": "Rograkh, Son of Rohgahh",
+       "card_lineage_id": "line:obj:P1-commander",
+       "commander_id": "cmd:P1-A",
+       "controller": "P1",
+       "counters": {},
+       "face_down": false,
+       "owner": "P1",
+       "semantic_id": "obj:P1-commander",
+       "tapped": false,
+       "zone": "command"
+      },
+      {
+       "card_identity": "Rograkh, Son of Rohgahh",
+       "card_lineage_id": "line:obj:P2-commander",
+       "commander_id": "cmd:P2-A",
+       "controller": "P2",
+       "counters": {},
+       "face_down": false,
+       "owner": "P2",
+       "semantic_id": "obj:P2-commander",
+       "tapped": false,
+       "zone": "command"
+      },
+      {
+       "card_identity": "Rograkh, Son of Rohgahh",
+       "card_lineage_id": "line:obj:P3-commander",
+       "commander_id": "cmd:P3-A",
+       "controller": "P3",
+       "counters": {},
+       "face_down": false,
+       "owner": "P3",
+       "semantic_id": "obj:P3-commander",
+       "tapped": false,
+       "zone": "command"
+      },
+      {
+       "card_identity": "Rograkh, Son of Rohgahh",
+       "card_lineage_id": "line:obj:P4-commander",
+       "commander_id": "cmd:P4-A",
+       "controller": "P4",
+       "counters": {},
+       "face_down": false,
+       "owner": "P4",
+       "semantic_id": "obj:P4-commander",
+       "tapped": false,
+       "zone": "command"
+      },
+      {
+       "card_identity": "Grizzly Bears",
+       "card_lineage_id": "line:obj:p1-bears",
+       "controller": "P1",
+       "counters": {},
+       "face_down": false,
+       "owner": "P1",
+       "semantic_id": "obj:p1-bears",
+       "tapped": false,
+       "zone": "battlefield"
+      },
+      {
+       "card_identity": "Grizzly Bears",
+       "card_lineage_id": "line:obj:p2-bears",
+       "controller": "P2",
+       "counters": {},
+       "face_down": false,
+       "owner": "P2",
+       "semantic_id": "obj:p2-bears",
+       "tapped": false,
+       "zone": "battlefield"
+      },
+      {
+       "card_identity": "Grizzly Bears",
+       "card_lineage_id": "line:obj:p3-bears",
+       "controller": "P3",
+       "counters": {},
+       "face_down": false,
+       "owner": "P3",
+       "semantic_id": "obj:p3-bears",
+       "tapped": false,
+       "zone": "battlefield"
+      },
+      {
+       "card_identity": "Mountain",
+       "card_lineage_id": "line:obj:neg-hand-a",
+       "controller": "P1",
+       "counters": {},
+       "face_down": false,
+       "owner": "P1",
+       "semantic_id": "obj:neg-hand-a",
+       "tapped": false,
+       "zone": "hand"
+      },
+      {
+       "card_identity": "Island",
+       "card_lineage_id": "line:obj:neg-hand-b",
+       "controller": "P1",
+       "counters": {},
+       "face_down": false,
+       "owner": "P1",
+       "semantic_id": "obj:neg-hand-b",
+       "tapped": false,
+       "zone": "hand"
+      },
+      {
+       "card_identity": "Syphon Mind",
+       "card_lineage_id": "line:obj:negative-syphon",
+       "controller": "P2",
+       "counters": {},
+       "face_down": false,
+       "owner": "P2",
+       "semantic_id": "obj:negative-syphon",
+       "tapped": false,
+       "zone": "stack"
+      }
+     ],
      "stack_state": [
       {
        "cast_complete": true,
@@ -20998,10 +21129,192 @@
       "turn_number": 1
      }
     },
-    "reason": "unreachable declaration: a P2 sorcery fully cast while P1 is active in P1's turn-1 precombat main violates CR 307.1 (its controller's own main phase, empty stack); no flash grant exists in the record"
+    "reason": "cast timing and cost inconsistency: a P2 sorcery fully cast while P1 is active in P1's turn-1 precombat main violates CR 307.1 (its controller's own main phase, empty stack; no flash grant exists), and the declared costs_paid for {3}{B} has no declared P2 mana source under CR 305.2 / 601.2g-h"
    },
    "predecessor_requested_state_digest": "ab71d3a7b9b9a6cb31e3fd193114c1d718e4c8f390cb1fe9b4957ce5c7c0e0f2",
    "replace": {
+    "deck_state": [
+     {
+      "player_id": "P3",
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 0
+      }
+     },
+     {
+      "player_id": "P4",
+      "checkpoint_hand": {
+       "completeness": "COMPLETE",
+       "template_card_identity": "Mountain",
+       "template_count": 0
+      }
+     }
+    ],
+    "scenario_notes": [
+     "Minimal deterministic provider-neutral representative of the frozen obligation; provider-native construction and legality remain authoritative.",
+     "Corrected declared state (#441 Coordinator erratum 2026-10-08), scoped to cast timing and cost consistency: P2 is the active player holding priority in P2's turn-2 precombat main with Syphon Mind fully cast from hand; P2 controls four tapped Swamps (the {3}{B} was paid); P3 and P4 hold no cards (complete empty checkpoint hands). Not runnable on the current bridge: the resume route accepts only the qualified turn-1 checkpoints, so this turn-2 checkpoint is refused with UNSUPPORTED_TEMPORAL_POINT; no runtime credit is claimed."
+    ],
+    "semantic_objects": [
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:P1-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P2-commander",
+      "commander_id": "cmd:P2-A",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:P2-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P3-commander",
+      "commander_id": "cmd:P3-A",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:P3-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "card_lineage_id": "line:obj:P4-commander",
+      "commander_id": "cmd:P4-A",
+      "controller": "P4",
+      "counters": {},
+      "face_down": false,
+      "owner": "P4",
+      "semantic_id": "obj:P4-commander",
+      "tapped": false,
+      "zone": "command"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:p1-bears",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:p1-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:p2-bears",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:p2-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Grizzly Bears",
+      "card_lineage_id": "line:obj:p3-bears",
+      "controller": "P3",
+      "counters": {},
+      "face_down": false,
+      "owner": "P3",
+      "semantic_id": "obj:p3-bears",
+      "tapped": false,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Mountain",
+      "card_lineage_id": "line:obj:neg-hand-a",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:neg-hand-a",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Island",
+      "card_lineage_id": "line:obj:neg-hand-b",
+      "controller": "P1",
+      "counters": {},
+      "face_down": false,
+      "owner": "P1",
+      "semantic_id": "obj:neg-hand-b",
+      "tapped": false,
+      "zone": "hand"
+     },
+     {
+      "card_identity": "Syphon Mind",
+      "card_lineage_id": "line:obj:negative-syphon",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:negative-syphon",
+      "tapped": false,
+      "zone": "stack"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:neg-swamp-1",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:neg-swamp-1",
+      "tapped": true,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:neg-swamp-2",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:neg-swamp-2",
+      "tapped": true,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:neg-swamp-3",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:neg-swamp-3",
+      "tapped": true,
+      "zone": "battlefield"
+     },
+     {
+      "card_identity": "Swamp",
+      "card_lineage_id": "line:obj:neg-swamp-4",
+      "controller": "P2",
+      "counters": {},
+      "face_down": false,
+      "owner": "P2",
+      "semantic_id": "obj:neg-swamp-4",
+      "tapped": true,
+      "zone": "battlefield"
+     }
+    ],
     "stack_state": [
      {
       "cast_complete": true,
@@ -21022,7 +21335,7 @@
      "turn_number": 2
     }
    },
-   "successor_requested_state_digest": "c91d53899e6fb5616f07e0a6d2a9b7b2268e5adb25e077eb48d037abbf77105f"
+   "successor_requested_state_digest": "abb022769fb5afbc5a1645e7aede6a72e010718d3d94df2d1d21d21fae6c4c73"
   }
  ],
  "rules_authority": {

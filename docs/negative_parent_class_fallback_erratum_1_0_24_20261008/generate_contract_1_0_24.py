@@ -1,32 +1,47 @@
-"""Generate FULL107 successor contract 1.0.24 from 1.0.23: the NEGATIVE_PARENT_CLASS_FALLBACK reachability erratum.
+"""Generate FULL107 successor contract 1.0.24 from 1.0.23: the NEGATIVE_PARENT_CLASS_FALLBACK cast timing and cost consistency erratum.
 
 Coordinator erratum (Lab issue #441, 2026-10-08; parent #255), modelled exactly
 on the PR #583 / #604 precedent (deterministic generator, contract + schema,
 authority pointer, errata-ledger entry, manifests via the repository tool).
 
-The recorded defect: the effective NEGATIVE_PARENT_CLASS_FALLBACK record
-declares an unreachable state. Its requested stack carries a fully cast P2
-Syphon Mind (a sorcery) while P1 is the active player in P1's turn-1 precombat
-main. Under CR 307.1 a sorcery can be cast only during its controller's own
-main phase while the stack is empty, and no flash grant exists in the record,
-so no legal line of play reaches that state. The opponent-discard decision the
-probe exercises (actor P1, omitted handler ``choose_object``) is reachable only
-after the spell resolves, which requires it to have been legally cast first.
+The recorded defect is scoped to cast timing and cost consistency: the
+effective NEGATIVE_PARENT_CLASS_FALLBACK record declares a fully cast P2
+Syphon Mind (a sorcery) on the stack while P1 is the active player in P1's
+turn-1 precombat main, and declares ``costs_paid`` although P2 controls no mana
+source. Under CR 307.1 a sorcery can be cast only during its controller's own
+main phase while the stack is empty, and no flash grant exists in the record;
+under CR 305.2 / 601.2g-h the declared paid cost needs declared mana sources.
+The opponent-discard decision the probe exercises (actor P1, omitted handler
+``choose_object``) is reachable only after the spell resolves, which requires
+it to have been legally cast first. No full natural-play reachability is
+claimed: the other injected permanents pre-exist and are out of scope.
 
-The erratum corrects only the temporal/stack declaration:
+The erratum corrects only the declared state needed for that consistency:
 
 * ``temporal_state``: turn 2, active player P2, precombat main, priority P2
   (P2's own first main phase, immediately after P1's turn 1);
 * ``stack_state[0]`` additionally declares the cast origin ``from_zone: hand``
   (CR 601.2a: to cast a spell is to put it on the stack from where it is; the
-  cast here is from P2's hand).
+  cast here is from P2's hand);
+* ``semantic_objects`` gains four tapped Swamps controlled by P2, the mana
+  spent on {3}{B} (CR 305.2, 601.2g-h);
+* ``deck_state`` declares complete empty checkpoint hands (``hand_count`` 0)
+  for P3 and P4, the APNAP precondition under CR 101.4 that makes P1 the first
+  actor that must discard (P1's two declared hand cards are kept byte for
+  byte).
 
 Every other record field is unchanged: the obligation semantics
 (``negative_fallback_probe``, the omitted handler, the expected and forbidden
 events, the expected decision actor P1) are kept byte for byte, and the
-obligation digest is asserted equal to the base record's. No hand, land,
-untapped, life or prior-draw field depends on turn 1 / P1 active, so none is
-touched.
+obligation digest is asserted equal to the base record's. No untapped, life or
+prior-draw field depends on turn 1 / P1 active, so none is touched.
+
+The record is NOT runnable on the current bridge: the resume route accepts only
+the qualified turn-1 checkpoints (``XmageNativeStateRestoration.
+isSupportedTemporalPoint``), so this turn-2 checkpoint is refused with
+``UNSUPPORTED_TEMPORAL_POINT``. That is recorded as an explicit
+``known_runtime_blocker`` in the errata-ledger entry; no runtime credit is
+claimed.
 
 Everything else in 1.0.23 is carried over byte for byte: every record
 successor, the bounded-secondary PLAYER_COUNT_6P section, the change
@@ -62,11 +77,19 @@ DECISIONS = (
 FIXTURE = "NEGATIVE_PARENT_CLASS_FALLBACK"
 NEW_VERSION = "1.0.24"
 NEW_MINOR = "24"
+CORRECTION_CLASS = "FIXTURE_DEFECT_CORRECTION_CAST_TIMING_AND_COST_CONSISTENCY"
+KNOWN_RUNTIME_BLOCKER = (
+    "NOT_RUNNABLE_ON_CURRENT_BRIDGE: the native resume route accepts only the "
+    "qualified turn-1 checkpoints (XmageNativeStateRestoration.isSupportedTemporalPoint), "
+    "so this corrected turn-2 checkpoint is refused with UNSUPPORTED_TEMPORAL_POINT. "
+    "Bridge code is out of scope; no runtime credit is claimed or possible until the "
+    "bridge admits the checkpoint"
+)
 OVERLAY = {
     "comprehensive_rules_effective_date": "2026-09-25",
     "comprehensive_rules_rule": (
         "fixture-contract successor rule: #441 NEGATIVE_PARENT_CLASS_FALLBACK "
-        "CR 307.1 reachability erratum"
+        "cast timing and cost consistency erratum"
     ),
     "historical_rsp": "commander-lab.rules-service/1.1.0",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
@@ -92,7 +115,7 @@ base = {
 
 old = base[FIXTURE]
 
-# --- the predecessor's unreachable declaration ------------------------------ #
+# --- the predecessor's inconsistent declaration ------------------------------ #
 
 assert old["temporal_state"] == {
     "active_player": "P1",
@@ -113,8 +136,23 @@ assert old["stack_state"] == [
     }
 ], old["stack_state"]
 assert old["native_procedure"][1]["details"]["expected_decision_actor"] == "P1"
+# The predecessor declares no deck state and no P2 mana source (only the
+# injected Grizzly Bears), so its ``costs_paid`` has nothing that could have
+# paid {3}{B}, and P3/P4 hold no declared hand. Both preconditions are made
+# explicit below.
+assert old.get("deck_state") is None
+assert [
+    obj["card_identity"]
+    for obj in old["semantic_objects"]
+    if obj.get("zone") == "battlefield" and obj["controller"] == "P2"
+] == ["Grizzly Bears"]
+assert [
+    obj["card_identity"]
+    for obj in old["semantic_objects"]
+    if obj.get("zone") == "hand" and obj["controller"] == "P1"
+] == ["Mountain", "Island"]
 
-# --- the corrected temporal/stack declaration ------------------------------- #
+# --- the corrected declared state -------------------------------------------- #
 
 corrected_temporal = {
     "active_player": "P2",
@@ -131,12 +169,56 @@ corrected_stack = [
     }
     for entry in old["stack_state"]
 ]
+# Four tapped Swamps controlled by P2: the mana spent on Syphon Mind's {3}{B}
+# (CR 305.2). Declaring them makes ``costs_paid`` consistent with the declared
+# battlefield (CR 601.2g-h). Nothing else about P2's board changes.
+swamps = [
+    {
+        "card_identity": "Swamp",
+        "card_lineage_id": f"line:obj:neg-swamp-{index}",
+        "controller": "P2",
+        "counters": {},
+        "face_down": False,
+        "owner": "P2",
+        "semantic_id": f"obj:neg-swamp-{index}",
+        "tapped": True,
+        "zone": "battlefield",
+    }
+    for index in range(1, 5)
+]
+corrected_objects = [*copy.deepcopy(old["semantic_objects"]), *swamps]
+# Complete empty checkpoint hands for P3 and P4: the explicit ``hand_count: 0``
+# APNAP precondition (CR 101.4), so P1 is the first actor Syphon Mind asks to
+# discard. P1's two declared hand cards above are kept byte for byte.
+corrected_deck_state = [
+    {
+        "player_id": player,
+        "checkpoint_hand": {
+            "completeness": "COMPLETE",
+            "template_card_identity": "Mountain",
+            "template_count": 0,
+        },
+    }
+    for player in ("P3", "P4")
+]
+corrected_scenario_notes = [
+    *old["scenario_notes"],
+    (
+        "Corrected declared state (#441 Coordinator erratum 2026-10-08), scoped to cast "
+        "timing and cost consistency: P2 is the active player holding priority in P2's "
+        "turn-2 precombat main with Syphon Mind fully cast from hand; P2 controls four "
+        "tapped Swamps (the {3}{B} was paid); P3 and P4 hold no cards (complete empty "
+        "checkpoint hands). Not runnable on the current bridge: the resume route accepts "
+        "only the qualified turn-1 checkpoints, so this turn-2 checkpoint is refused with "
+        "UNSUPPORTED_TEMPORAL_POINT; no runtime credit is claimed."
+    ),
+]
 erratum = {
     "actor": None,
     "details": {
         "authority": DECISIONS,
-        "comprehensive_rules": "307.1",
-        "erratum_class": "FIXTURE_DEFECT_CORRECTION_CR_307_1_REACHABILITY",
+        "comprehensive_rules": "307.1, 305.2, 601.2g-h, 101.4, 117.3c, 601.2a",
+        "erratum_class": CORRECTION_CLASS,
         "field_changes": [
             {
                 "change": "temporal_state.turn_number 1 -> 2",
@@ -156,10 +238,11 @@ erratum = {
             },
             {
                 "change": "temporal_state.priority_player P1 -> P2",
-                "comprehensive_rules": "117.3b",
+                "comprehensive_rules": "117.3c",
                 "reason": (
-                    "after the sorcery is put on the stack the active player, its caster "
-                    "P2, receives priority; the declared point is that priority"
+                    "a player who had priority and cast a spell receives priority again "
+                    "after the cast (CR 117.3c); the declared point is that priority, held "
+                    "by the caster P2"
                 ),
             },
             {
@@ -170,34 +253,73 @@ erratum = {
                     "stack from where it is, and this cast is from P2's hand"
                 ),
             },
+            {
+                "change": "semantic_objects +4 tapped Swamps controlled by P2",
+                "comprehensive_rules": "305.2",
+                "reason": (
+                    "the record declares costs_paid for {3}{B}; the four declared tapped "
+                    "Swamps are the mana sources that paid it, making the paid cast "
+                    "consistent with the declared battlefield"
+                ),
+            },
+            {
+                "change": "stack_state[0].costs_paid now has declared mana sources",
+                "comprehensive_rules": "601.2g-h",
+                "reason": (
+                    "a cost is paid with mana; declaring the tapped Swamps keeps the "
+                    "declared paid cast consistent instead of asserting payment out of "
+                    "an empty battlefield"
+                ),
+            },
+            {
+                "change": (
+                    "deck_state absent -> complete empty checkpoint hands for P3 and P4 "
+                    "(hand_count 0)"
+                ),
+                "comprehensive_rules": "101.4",
+                "reason": (
+                    "Syphon Mind makes each other player discard a card; APNAP order from "
+                    "active player P2 is P3, P4, P1, so P1 is the first actor asked to "
+                    "discard only if P3 and P4 hold no cards. The complete empty "
+                    "checkpoint hands declare that precondition explicitly. P1's two "
+                    "declared hand cards are unchanged, so the expected decision actor "
+                    "stays P1"
+                ),
+            },
         ],
         "obligation_changed": False,
         "provider_semantics_used": False,
         "reason": (
             "the 1.0.5/1.0.23 record declares a fully cast P2 Syphon Mind on the stack "
-            "while P1 is active in P1's turn-1 precombat main. CR 307.1 permits a "
-            "sorcery only in its controller's own main phase with an empty stack and no "
-            "flash grant exists, so no legal line reaches that declaration. The "
-            "correction moves the declared point to P2's own first main phase (turn 2) "
-            "with P2 active and holding priority, and declares the cast-from zone hand. "
-            "The probe's opponent-discard decision (actor P1) is reached after the spell "
-            "resolves, which the corrected cast now makes legally possible"
+            "while P1 is active in P1's turn-1 precombat main, with costs_paid and no P2 "
+            "mana source, and with no declared hand for P3/P4. The erratum is scoped to "
+            "cast timing and cost consistency: CR 307.1 permits a sorcery only in its "
+            "controller's own main phase with an empty stack and no flash grant exists; "
+            "CR 305.2 / 601.2g-h require the declared paid cost to have declared mana "
+            "sources; CR 101.4 makes P1 the first discarding actor only when P3 and P4 "
+            "hold no cards. The correction moves the declared point to P2's own first "
+            "main phase (turn 2) with P2 active and holding priority (CR 117.3c), "
+            "declares the cast-from zone hand (CR 601.2a), adds the four tapped Swamps "
+            "that paid {3}{B}, and declares complete empty P3/P4 checkpoint hands. No "
+            "full natural-play reachability is claimed (other injected permanents "
+            "pre-exist and are out of scope)"
         ),
     },
     "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
     "source_object": None,
-    "step_id": "erratum-cr3071-reachability-negative_parent_class_fallback",
+    "step_id": "erratum-cast-timing-and-cost-consistency-negative_parent_class_fallback",
 }
 patch = {
     "append_native_procedure": [erratum],
     "authority_overlay": dict(OVERLAY),
-    "correction_class": "FIXTURE_DEFECT_CORRECTION_CR307_1_REACHABILITY",
+    "correction_class": CORRECTION_CLASS,
     "digest_migration": {
         **DIGEST_MIGRATION,
         "reason": (
-            "the declared temporal/stack state changes; the obligation keys are byte for "
-            "byte the predecessor's, so the obligation digest is unchanged and the "
-            "historical materialization digest is preserved under historical_digests"
+            "the declared temporal/stack state, the mana sources for the paid cost and "
+            "the P3/P4 hand preconditions change; the obligation keys are byte for byte "
+            "the predecessor's, so the obligation digest is unchanged and the historical "
+            "materialization digest is preserved under historical_digests"
         ),
     },
     "evidence_survival": "REQUALIFICATION_REQUIRED",
@@ -205,17 +327,22 @@ patch = {
     "knowledge_state_channel_policy": old["knowledge_state"]["channel_policy"],
     "predecessor_invalidity": {
         "predecessor_values": {
+            "semantic_objects": copy.deepcopy(old["semantic_objects"]),
             "stack_state": copy.deepcopy(old["stack_state"]),
             "temporal_state": copy.deepcopy(old["temporal_state"]),
         },
         "reason": (
-            "unreachable declaration: a P2 sorcery fully cast while P1 is active in P1's "
-            "turn-1 precombat main violates CR 307.1 (its controller's own main phase, "
-            "empty stack); no flash grant exists in the record"
+            "cast timing and cost inconsistency: a P2 sorcery fully cast while P1 is "
+            "active in P1's turn-1 precombat main violates CR 307.1 (its controller's own "
+            "main phase, empty stack; no flash grant exists), and the declared costs_paid "
+            "for {3}{B} has no declared P2 mana source under CR 305.2 / 601.2g-h"
         ),
     },
     "predecessor_requested_state_digest": old["requested_state_digest"],
     "replace": {
+        "deck_state": corrected_deck_state,
+        "scenario_notes": corrected_scenario_notes,
+        "semantic_objects": corrected_objects,
         "stack_state": corrected_stack,
         "temporal_state": corrected_temporal,
     },
@@ -263,9 +390,12 @@ contract["materialization_schema_version_note"] = (
     "the record shape is unchanged from the 1.0.8 successor schema; 1.0.24 carries every "
     "1.0.23 record successor and the bounded-secondary PLAYER_COUNT_6P section byte for "
     "byte, and adds exactly one corrected record: NEGATIVE_PARENT_CLASS_FALLBACK's "
-    "declared temporal/stack state is made reachable under CR 307.1 (turn 2, P2 active "
-    "and holding priority in P2's precombat main, cast-from zone hand), with the "
-    "obligation keys untouched. Per #441 Coordinator erratum 2026-10-08."
+    "declared state is made cast-timing and cost consistent (turn 2, P2 active and "
+    "holding priority under CR 117.3c in P2's precombat main, cast-from zone hand, four "
+    "tapped P2 Swamps paying {3}{B}, and complete empty P3/P4 checkpoint hands under CR "
+    "101.4), with the obligation keys untouched. No full natural-play reachability is "
+    "claimed, and the turn-2 checkpoint is not runnable on the current bridge "
+    "(UNSUPPORTED_TEMPORAL_POINT). Per #441 Coordinator erratum 2026-10-08."
 )
 contract["predecessor"] = {
     "path": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json",
@@ -334,12 +464,17 @@ entry = {
     "evidence_survival": "REQUALIFICATION_REQUIRED",
     "field_changes": copy.deepcopy(erratum["details"]["field_changes"]),
     "fixture_id": FIXTURE,
+    "known_runtime_blocker": KNOWN_RUNTIME_BLOCKER,
     "notes": (
-        "the effective record declared an unreachable state: a fully cast P2 sorcery "
-        "(Syphon Mind) on the stack while P1 was active in P1's turn-1 precombat main, "
-        "which CR 307.1 forbids (its controller's own main phase, empty stack; no flash "
-        "grant exists). Only the temporal/stack declaration changes; the "
-        "negative_fallback_probe obligation, the omitted handler, the expected and "
+        "the effective record declared a cast-timing and cost-inconsistent state: a "
+        "fully cast P2 sorcery (Syphon Mind) on the stack while P1 was active in P1's "
+        "turn-1 precombat main, which CR 307.1 forbids (its controller's own main phase, "
+        "empty stack; no flash grant exists), with costs_paid for {3}{B} but no declared "
+        "P2 mana source (CR 305.2 / 601.2g-h) and no declared P3/P4 hands (CR 101.4 "
+        "APNAP). The erratum is scoped to cast timing and cost consistency and claims no "
+        "full natural-play reachability: the temporal/stack declaration, four tapped P2 "
+        "Swamps paying the cost, and complete empty P3/P4 checkpoint hands change, while "
+        "the negative_fallback_probe obligation, the omitted handler, the expected and "
         "forbidden events and the expected decision actor P1 are byte for byte the "
         "predecessor's, and the obligation digest is unchanged. The 107-row denominator "
         "is untouched"

@@ -263,10 +263,10 @@
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
   },
   {
-   "correction_class": "FIXTURE_DEFECT_CORRECTION_CR307_1_REACHABILITY",
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_CAST_TIMING_AND_COST_CONSISTENCY",
    "denominator_effect": "NONE",
    "effective_obligation_digest": "bf42a01771a1e9d4b999f209229e009692f2e4e8ac6bfd9b059a6144b51609a9",
-   "effective_requested_state_digest": "c91d53899e6fb5616f07e0a6d2a9b7b2268e5adb25e077eb48d037abbf77105f",
+   "effective_requested_state_digest": "abb022769fb5afbc5a1645e7aede6a72e010718d3d94df2d1d21d21fae6c4c73",
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
@@ -281,17 +281,33 @@
     },
     {
      "change": "temporal_state.priority_player P1 -> P2",
-     "comprehensive_rules": "117.3b",
-     "reason": "after the sorcery is put on the stack the active player, its caster P2, receives priority; the declared point is that priority"
+     "comprehensive_rules": "117.3c",
+     "reason": "a player who had priority and cast a spell receives priority again after the cast (CR 117.3c); the declared point is that priority, held by the caster P2"
     },
     {
      "change": "stack_state[0].from_zone absent -> hand",
      "comprehensive_rules": "601.2a",
      "reason": "declares the cast-from zone: to cast a spell is to put it on the stack from where it is, and this cast is from P2's hand"
+    },
+    {
+     "change": "semantic_objects +4 tapped Swamps controlled by P2",
+     "comprehensive_rules": "305.2",
+     "reason": "the record declares costs_paid for {3}{B}; the four declared tapped Swamps are the mana sources that paid it, making the paid cast consistent with the declared battlefield"
+    },
+    {
+     "change": "stack_state[0].costs_paid now has declared mana sources",
+     "comprehensive_rules": "601.2g-h",
+     "reason": "a cost is paid with mana; declaring the tapped Swamps keeps the declared paid cast consistent instead of asserting payment out of an empty battlefield"
+    },
+    {
+     "change": "deck_state absent -> complete empty checkpoint hands for P3 and P4 (hand_count 0)",
+     "comprehensive_rules": "101.4",
+     "reason": "Syphon Mind makes each other player discard a card; APNAP order from active player P2 is P3, P4, P1, so P1 is the first actor asked to discard only if P3 and P4 hold no cards. The complete empty checkpoint hands declare that precondition explicitly. P1's two declared hand cards are unchanged, so the expected decision actor stays P1"
     }
    ],
    "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
-   "notes": "the effective record declared an unreachable state: a fully cast P2 sorcery (Syphon Mind) on the stack while P1 was active in P1's turn-1 precombat main, which CR 307.1 forbids (its controller's own main phase, empty stack; no flash grant exists). Only the temporal/stack declaration changes; the negative_fallback_probe obligation, the omitted handler, the expected and forbidden events and the expected decision actor P1 are byte for byte the predecessor's, and the obligation digest is unchanged. The 107-row denominator is untouched",
+   "known_runtime_blocker": "NOT_RUNNABLE_ON_CURRENT_BRIDGE: the native resume route accepts only the qualified turn-1 checkpoints (XmageNativeStateRestoration.isSupportedTemporalPoint), so this corrected turn-2 checkpoint is refused with UNSUPPORTED_TEMPORAL_POINT. Bridge code is out of scope; no runtime credit is claimed or possible until the bridge admits the checkpoint",
+   "notes": "the effective record declared a cast-timing and cost-inconsistent state: a fully cast P2 sorcery (Syphon Mind) on the stack while P1 was active in P1's turn-1 precombat main, which CR 307.1 forbids (its controller's own main phase, empty stack; no flash grant exists), with costs_paid for {3}{B} but no declared P2 mana source (CR 305.2 / 601.2g-h) and no declared P3/P4 hands (CR 101.4 APNAP). The erratum is scoped to cast timing and cost consistency and claims no full natural-play reachability: the temporal/stack declaration, four tapped P2 Swamps paying the cost, and complete empty P3/P4 checkpoint hands change, while the negative_fallback_probe obligation, the omitted handler, the expected and forbidden events and the expected decision actor P1 are byte for byte the predecessor's, and the obligation digest is unchanged. The 107-row denominator is untouched",
    "predecessor_requested_state_digest": "ab71d3a7b9b9a6cb31e3fd193114c1d718e4c8f390cb1fe9b4957ce5c7c0e0f2",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_24.json"
   }
