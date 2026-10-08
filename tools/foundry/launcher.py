@@ -69,40 +69,48 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import bootstrap as bootstrap_mod
 import drift_check as drift_mod
+import executor_profiles as executor_mod
 import metrics as metrics_mod
 import opencode_cli_version as version_mod
 import reference_roots as reference_mod
 import workspace_access as workspace_access_mod
 import writer_lock as writer_lock_mod
 
-CANONICAL_PROVIDER = "opencode-go"
-# Operator authority (2026-09-29): exactly two executors are reachable, each
-# pinned to one native reasoning level. DeepSeek MAX is the primary autonomous
-# engineering executor; Space Bunny MAX is the explicitly selected secondary
-# bounded/mechanical/token-heavy executor. No other OpenCode execution profile is
-# authorized or reachable through this launcher. The project-level --effort field still
-# describes task and authority routing and never lowers either native level. No
-# other variant of either model is selectable, and there is no automatic
-# fallback between them: a runtime/quota/auth/catalog failure is fail-closed
-# and switching executor requires an explicit task rerouting.
+CANONICAL_PROVIDER = executor_mod.CANONICAL_PROVIDER
+# Operator authority (2026-09-29) and durable cross-executor policy (2026-10-06):
+# exactly two LOGICAL executors are reachable, each pinned to one native
+# reasoning level. DeepSeek MAX is the primary/default autonomous engineering
+# executor; Space Bunny MAX is the explicitly selected secondary and the
+# mandatory independent fresh-context read-only reviewer for MATERIAL
+# implementation workstreams. The logical `space-bunny` profile admits one
+# canonical runtime id plus one legacy alias runtime id for the SAME profile
+# (see .foundry/executor-profiles.json); no third executor exists. A
+# runtime/quota/auth/catalog failure after selection is fail-closed and never
+# re-resolves to another executor family.
 PRIMARY_EXECUTION_PROFILE = "deepseek"
 SECONDARY_EXECUTION_PROFILE = "space-bunny"
 EXECUTION_PROFILES = (PRIMARY_EXECUTION_PROFILE, SECONDARY_EXECUTION_PROFILE)
 DEFAULT_EXECUTION_PROFILE = PRIMARY_EXECUTION_PROFILE
-# Single generic profile->model table. Both reachable executors live on the
-# canonical provider at native `max`, so adding a future profile is one row
-# here plus one whitelist row in opencode.json.
+# Single generic profile->canonical-runtime table, loaded from the validated
+# registry so code and durable policy cannot drift.
+EXECUTOR_REGISTRY = executor_mod.load_registry()
 PROFILE_MODELS = {
-    "deepseek": "opencode-go/deepseek-v4.1-flash",
-    "space-bunny": "opencode-go/space-bunny",
+    name: spec.canonical_runtime_id for name, spec in EXECUTOR_REGISTRY.profiles.items()
 }
 DEEPSEEK_MODEL = PROFILE_MODELS[PRIMARY_EXECUTION_PROFILE]
 SPACE_BUNNY_MODEL = PROFILE_MODELS[SECONDARY_EXECUTION_PROFILE]
 CANONICAL_MODEL = PROFILE_MODELS[PRIMARY_EXECUTION_PROFILE]
 ALTERNATE_MODEL = PROFILE_MODELS[SECONDARY_EXECUTION_PROFILE]
+# Canonical runtime id first, then the admitted legacy alias for the same
+# logical profile. The root opencode.json whitelist must match exactly this set.
+ADMITTED_BUNNY_MODELS = EXECUTOR_REGISTRY.profiles[SECONDARY_EXECUTION_PROFILE].admitted_runtime_ids
+ADMITTED_RUNTIME_MODELS = tuple(EXECUTOR_REGISTRY.runtime_identity)
+ADMITTED_MODEL_SHORTS = tuple(model.split("/", 1)[1] for model in ADMITTED_RUNTIME_MODELS)
 AUTHORIZED_NATIVE_VARIANT = {
-    "deepseek-v4.1-flash": "max",
-    "space-bunny": "max",
+    model.split("/", 1)[1]: EXECUTOR_REGISTRY.profiles[
+        EXECUTOR_REGISTRY.runtime_identity[model].logical_profile
+    ].native_variant
+    for model in ADMITTED_RUNTIME_MODELS
 }
 ALLOWED_EFFORTS = ("high", "xhigh")
 BELOW_HIGH = ("medium", "low", "minimal", "none", "off")
@@ -111,9 +119,20 @@ UI_MODES = ("headless", "tui")
 
 
 def execution_identity(
-    override: str | None, effort: str, execution_profile: str | None = None
+    override: str | None,
+    effort: str,
+    execution_profile: str | None = None,
+    *,
+    catalog: list[str] | tuple[str, ...] | None = None,
+    catalog_source: str | None = None,
 ) -> dict:
-    """Resolve one explicit executor; never infer/fallback from quota or failures."""
+    """Resolve one explicit executor; never infer/fallback from quota or failures.
+
+    Space Bunny resolution requires live pinned-CLI catalog inspection (or an
+    explicit ``catalog`` supplied by hermetic callers/tests); the canonical
+    runtime id wins, the admitted legacy alias is second, and an empty
+    admission fails closed. A post-selection failure never re-resolves.
+    """
     if override is not None:
         # Legacy provider overrides are retired. Every provider override fails
         # closed so callers cannot escape the exact two-profile allowlist.
@@ -127,14 +146,24 @@ def execution_identity(
         raise ValueError(f"effort {effort!r} rejected (allowed: {ALLOWED_EFFORTS})")
 
     profile = execution_profile or DEFAULT_EXECUTION_PROFILE
+    try:
+        resolved = executor_mod.resolve_executor(
+            profile,
+            registry=EXECUTOR_REGISTRY,
+            catalog=catalog,
+            catalog_source=catalog_source,
+        )
+    except executor_mod.ExecutorResolutionError as exc:
+        raise ValueError(str(exc)) from exc
     return {
-        "profile": profile,
-        "override": profile,
-        "provider": CANONICAL_PROVIDER,
-        "model": PROFILE_MODELS[profile],
+        "profile": resolved.logical_executor_profile,
+        "override": resolved.logical_executor_profile,
+        "provider": resolved.resolved_provider,
+        "model": resolved.resolved_model_id,
         "requested_effort": effort,
         "variant_resolution": "native_max",
-        "native_variant": "max",
+        "native_variant": resolved.native_variant,
+        **resolved.to_provenance(),
     }
 
 
@@ -557,10 +586,18 @@ def build_content_bundle(
     extra_denies: list[str],
     execution_provider: str | None = None,
     execution_profile: str | None = None,
+    catalog: list[str] | tuple[str, ...] | None = None,
+    catalog_source: str | None = None,
 ) -> dict:
     """Canonical permissions with one explicitly selected execution model."""
     config_path = Path(canonical_root) / "opencode.json"
-    execution = execution_identity(execution_provider, "high", execution_profile)
+    execution = execution_identity(
+        execution_provider,
+        "high",
+        execution_profile,
+        catalog=catalog,
+        catalog_source=catalog_source,
+    )
     try:
         config = json.loads(config_path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
@@ -572,23 +609,20 @@ def build_content_bundle(
         raise ValueError(f"canonical provider drift: {providers!r}")
     # NOTE: provider.models is keyed by SHORT model name (verified against the
     # resolved config); the provider/model pair lives in top-level "model".
-    canonical_short = CANONICAL_MODEL.split("/", 1)[1]
-    alternate_short = ALTERNATE_MODEL.split("/", 1)[1]
+    # The whitelist admits exactly the canonical deepseek id, the canonical
+    # Space Bunny id, and the legacy Space Bunny alias runtime identity
+    # (same logical profile). No third executor is admitted.
     try:
         models = config["provider"][CANONICAL_PROVIDER]["models"]
     except KeyError as exc:
         raise ValueError(f"canonical model entry missing: {exc}") from exc
-    # No silent fallback: the canonical executor must be first, and the documented
-    # secondary must stay selectable in the same session. A whitelist that drops
-    # the secondary would make an explicit Space Bunny reroute impossible without
-    # an edit.
     whitelist = config["provider"][CANONICAL_PROVIDER].get("whitelist", [])
-    if whitelist != [canonical_short, alternate_short]:
+    if whitelist != list(ADMITTED_MODEL_SHORTS):
         raise ValueError(
             f"canonical execution allowlist drift: {whitelist!r} "
-            f"(want canonical {[canonical_short, alternate_short]!r})"
+            f"(want admitted runtime identities {list(ADMITTED_MODEL_SHORTS)!r})"
         )
-    for model_name in (canonical_short, alternate_short):
+    for model_name in ADMITTED_MODEL_SHORTS:
         try:
             variants = models[model_name]["variants"]
         except KeyError as exc:
@@ -635,11 +669,12 @@ def build_content_bundle(
     bundle["experimental"] = experimental
     if "default_agent" in config:
         bundle["default_agent"] = config["default_agent"]
-    # Narrow the bundle to the RESOLVED profile, never the raw flag. An omitted
-    # flag resolves to the DeepSeek default, so branching on the flag would let a
-    # default launch fall through to the wrong executor block.
-    resolved_profile = execution["profile"]
-    selected_model = PROFILE_MODELS[resolved_profile]
+    # Narrow the bundle to the RESOLVED profile/model, never the raw flag. An
+    # omitted flag resolves to the DeepSeek default, so branching on the flag
+    # would let a default launch fall through to the wrong executor block.
+    # For Space Bunny the model is the resolved runtime identity (canonical or
+    # admitted legacy alias), already provenance-recorded in `execution`.
+    selected_model = execution["model"]
     short = selected_model.split("/", 1)[1]
     bundle["model"] = selected_model
     bundle["small_model"] = selected_model
@@ -706,6 +741,8 @@ def resolve_environment(
     opencode_binary: str,
     execution_provider: str | None = None,
     execution_profile: str | None = None,
+    catalog: list[str] | tuple[str, ...] | None = None,
+    catalog_source: str | None = None,
 ) -> dict:
     """Build the child environment. Raises ValueError fail-closed."""
     if effort in BELOW_HIGH or effort not in ALLOWED_EFFORTS:
@@ -743,9 +780,20 @@ def resolve_environment(
                     f"declared workspace root {root!r} conflicts with static deny {pattern!r}"
                 )
     denies += static_denies_only
-    execution = execution_identity(execution_provider, effort, execution_profile)
+    execution = execution_identity(
+        execution_provider,
+        effort,
+        execution_profile,
+        catalog=catalog,
+        catalog_source=catalog_source,
+    )
     bundle = build_content_bundle(
-        canonical_root, sorted(set(denies)), execution_provider, execution_profile
+        canonical_root,
+        sorted(set(denies)),
+        execution_provider,
+        execution_profile,
+        catalog=catalog,
+        catalog_source=catalog_source,
     )
     ext = bundle["permission"].setdefault("external_directory", {})
     edit = bundle["permission"].setdefault("edit", {})
@@ -824,6 +872,8 @@ def resolve_environment(
     env["FOUNDRY_SESSION"] = session
     env["FOUNDRY_EFFORT"] = effort
     env["FOUNDRY_EXECUTION_PROFILE"] = execution["profile"]
+    env["FOUNDRY_EXECUTOR_MODEL"] = execution["resolved_model_id"]
+    env["FOUNDRY_MODEL_ALIAS_CLASS"] = execution["model_alias_class"]
     if execution["native_variant"]:
         env["FOUNDRY_NATIVE_VARIANT"] = execution["native_variant"]
     # WS75 state-path context, hardened by ROOT_STATE_SEMANTICS: the exact
@@ -891,10 +941,30 @@ def init(
     worktree_states: list[str] | None = None,
     execution_provider: str | None = None,
     execution_profile: str | None = None,
+    model_catalog: list[str] | None = None,
 ) -> dict:
     """Validate + prepare. Returns the launch plan (never execs)."""
+    effective_catalog = model_catalog
+    catalog_source: str | None = None
+    active_profile = execution_profile or DEFAULT_EXECUTION_PROFILE
+    if effective_catalog is None and active_profile == SECONDARY_EXECUTION_PROFILE:
+        # Space Bunny resolution must inspect the live pinned-CLI catalog
+        # before selection. Load it once here and pass the exact snapshot to
+        # every internal resolver call so no second, possibly different,
+        # inspection can occur.
+        try:
+            live_models, catalog_source = executor_mod.load_live_catalog(opencode_bin)
+            effective_catalog = list(live_models)
+        except executor_mod.ExecutorResolutionError as exc:
+            return {"verdict": "LAUNCH_REFUSED", "error": str(exc)}
     try:
-        execution = execution_identity(execution_provider, effort, execution_profile)
+        execution = execution_identity(
+            execution_provider,
+            effort,
+            execution_profile,
+            catalog=effective_catalog,
+            catalog_source=catalog_source,
+        )
     except ValueError as exc:
         return {"verdict": "LAUNCH_REFUSED", "error": str(exc)}
     if not state_path:
@@ -1087,6 +1157,8 @@ def init(
             opencode_binary=binary,
             execution_provider=execution_provider,
             execution_profile=execution_profile,
+            catalog=effective_catalog,
+            catalog_source=catalog_source,
         )
     except ValueError as exc:
         return {"verdict": "LAUNCH_REFUSED", "gate": gate, "error": str(exc)}
@@ -1292,6 +1364,10 @@ def _launch_locked(
         "execution_provider": "AUTOCAPTURED",
         "execution_override": "AUTOCAPTURED",
         "execution_profile": "AUTOCAPTURED",
+        "logical_executor_profile": "AUTOCAPTURED",
+        "resolved_provider": "AUTOCAPTURED",
+        "resolved_model_id": "AUTOCAPTURED",
+        "model_alias_class": "AUTOCAPTURED",
         "variant_resolution": "AUTOCAPTURED",
     }
     if execution["native_variant"] is not None:
@@ -1307,6 +1383,10 @@ def _launch_locked(
             execution_provider=execution["provider"],
             execution_override=execution["override"],
             execution_profile=execution["profile"],
+            logical_executor_profile=execution["logical_executor_profile"],
+            resolved_provider=execution["resolved_provider"],
+            resolved_model_id=execution["resolved_model_id"],
+            model_alias_class=execution["model_alias_class"],
             native_variant=execution["native_variant"],
             variant_resolution=execution["variant_resolution"],
             reasoning_effort=effort,
@@ -1377,6 +1457,10 @@ def _launch_locked(
                 execution_provider=execution["provider"],
                 execution_override=execution["override"],
                 execution_profile=execution["profile"],
+                logical_executor_profile=execution["logical_executor_profile"],
+                resolved_provider=execution["resolved_provider"],
+                resolved_model_id=execution["resolved_model_id"],
+                model_alias_class=execution["model_alias_class"],
                 native_variant=execution["native_variant"],
                 variant_resolution=execution["variant_resolution"],
                 reasoning_effort=effort,

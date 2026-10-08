@@ -229,25 +229,250 @@ def test_every_workflow_declares_token_permissions(path: Path) -> None:
         assert "permissions" in job, f"{path.name}:{name} runs with the default token permissions"
 
 
+# --- behavioral evaluation of the GitHub Actions `if` expressions -----------
+#
+# The trust properties below are semantic: the workflow's condition text is
+# parsed and evaluated against concrete event contexts, so weakening a
+# conjunction to a disjunction (or dropping the target gate) fails here even
+# when the text still contains the expected substrings.
+
+_EXPR_TOKEN = re.compile(
+    r"\s*(?:(&&|\|\||==|!=|!|\(|\)|\[|\]|,)"
+    r"|'((?:[^'\\]|\\.)*)'"
+    r'|"((?:[^"\\]|\\.)*)"'
+    r"|([A-Za-z_][A-Za-z0-9_.]*)"
+    r"|(\d+))"
+)
+
+
+def _expr_tokens(text: str) -> list[tuple[str, object]]:
+    tokens: list[tuple[str, object]] = []
+    pos = 0
+    while pos < len(text):
+        match = _EXPR_TOKEN.match(text, pos)
+        if match is None:
+            if text[pos:].strip():
+                raise ValueError(f"unparseable expression text at {pos}: {text[pos : pos + 20]!r}")
+            break
+        pos = match.end()
+        op, single, double, identifier, number = match.groups()
+        if op is not None:
+            tokens.append(("op", op))
+        elif single is not None or double is not None:
+            tokens.append(("str", single if single is not None else double))
+        elif identifier is not None:
+            tokens.append(("id", identifier))
+        else:
+            tokens.append(("num", int(number)))
+    return tokens
+
+
+class _ExprParser:
+    def __init__(self, tokens: list[tuple[str, object]]) -> None:
+        self.tokens = tokens
+        self.pos = 0
+
+    def _peek(self) -> tuple[str, object] | None:
+        return self.tokens[self.pos] if self.pos < len(self.tokens) else None
+
+    def _take(self, kind: str, value: object = None) -> tuple[str, object]:
+        token = self._peek()
+        if token is None or token[0] != kind or (value is not None and token[1] != value):
+            raise ValueError(f"expected {kind} {value!r}, got {token!r}")
+        self.pos += 1
+        return token
+
+    def parse(self) -> object:
+        node = self.parse_or()
+        if self._peek() is not None:
+            raise ValueError(f"trailing tokens: {self.tokens[self.pos :]!r}")
+        return node
+
+    def parse_or(self) -> object:
+        node = self.parse_and()
+        while self._peek() == ("op", "||"):
+            self.pos += 1
+            node = ("or", node, self.parse_and())
+        return node
+
+    def parse_and(self) -> object:
+        node = self.parse_not()
+        while self._peek() == ("op", "&&"):
+            self.pos += 1
+            node = ("and", node, self.parse_not())
+        return node
+
+    def parse_not(self) -> object:
+        if self._peek() == ("op", "!"):
+            self.pos += 1
+            return ("not", self.parse_not())
+        return self.parse_comparison()
+
+    def parse_comparison(self) -> object:
+        node = self.parse_atom()
+        while self._peek() in (("op", "=="), ("op", "!=")):
+            operator = self._take("op")[1]
+            node = (str(operator), node, self.parse_atom())
+        return node
+
+    def parse_atom(self) -> object:
+        token = self._peek()
+        if token is None:
+            raise ValueError("unexpected end of expression")
+        if token == ("op", "("):
+            self.pos += 1
+            node = self.parse_or()
+            self._take("op", ")")
+            return node
+        if token == ("op", "["):
+            self.pos += 1
+            items: list[object] = []
+            if self._peek() != ("op", "]"):
+                items.append(self.parse_or())
+                while self._peek() == ("op", ","):
+                    self.pos += 1
+                    items.append(self.parse_or())
+            self._take("op", "]")
+            return ("array", items)
+        if token[0] == "str":
+            self.pos += 1
+            return ("lit", token[1])
+        if token[0] == "num":
+            self.pos += 1
+            return ("lit", token[1])
+        if token[0] == "id":
+            self.pos += 1
+            identifier = str(token[1])
+            if self._peek() == ("op", "("):
+                self.pos += 1
+                args: list[object] = []
+                if self._peek() != ("op", ")"):
+                    args.append(self.parse_or())
+                    while self._peek() == ("op", ","):
+                        self.pos += 1
+                        args.append(self.parse_or())
+                self._take("op", ")")
+                return ("call", identifier, args)
+            return ("id", identifier)
+        raise ValueError(f"unexpected token {token!r}")
+
+
+def _expr_eval(node: object, context: dict) -> object:
+    kind = node[0]  # type: ignore[index]
+    if kind == "lit":
+        return node[1]  # type: ignore[index]
+    if kind == "array":
+        return [_expr_eval(item, context) for item in node[1]]  # type: ignore[index]
+    if kind == "id":
+        identifier = str(node[1])  # type: ignore[index]
+        if identifier in ("true", "false", "null"):
+            return {"true": True, "false": False, "null": None}[identifier]
+        current: object = context
+        for part in identifier.split("."):
+            if isinstance(current, dict) and part in current:
+                current = current[part]
+            else:
+                return None
+        return current
+    if kind == "or":
+        return _expr_eval(node[1], context) or _expr_eval(node[2], context)  # type: ignore[index]
+    if kind == "and":
+        return _expr_eval(node[1], context) and _expr_eval(node[2], context)  # type: ignore[index]
+    if kind == "not":
+        return not _expr_eval(node[1], context)  # type: ignore[index]
+    if kind in ("==", "!="):
+        left = _expr_eval(node[1], context)  # type: ignore[index]
+        right = _expr_eval(node[2], context)  # type: ignore[index]
+        return (left == right) if kind == "==" else (left != right)
+    if kind == "call":
+        name = str(node[1])  # type: ignore[index]
+        args = [_expr_eval(arg, context) for arg in node[2]]  # type: ignore[index]
+        if name == "contains":
+            haystack, needle = args
+            if isinstance(haystack, list):
+                return any(item == needle for item in haystack)
+            return str(needle) in str(haystack or "")
+        if name == "startsWith":
+            return str(args[0] or "").startswith(str(args[1]))
+        if name == "endsWith":
+            return str(args[0] or "").endswith(str(args[1]))
+        if name == "fromJSON":
+            import json
+
+            return json.loads(str(args[0]))
+        raise ValueError(f"unsupported expression function {name!r}")
+    raise ValueError(f"unknown expression node {node!r}")
+
+
+def condition_result(condition: str, context: dict) -> bool:
+    return bool(_expr_eval(_ExprParser(_expr_tokens(condition)).parse(), context))
+
+
+def _event_context(
+    *,
+    commenter: str,
+    target: str,
+    target_login: str,
+    body: str,
+    is_pr: bool = False,
+) -> dict:
+    issue: dict = {
+        "author_association": target,
+        "user": {"login": target_login},
+        "pull_request": {} if is_pr else None,
+        "number": 1,
+    }
+    event: dict = {
+        "comment": {"author_association": commenter, "body": body},
+        "issue": issue,
+    }
+    if is_pr:
+        event["pull_request"] = {
+            "author_association": target,
+            "user": {"login": target_login},
+            "number": 1,
+        }
+    return {"github": {"event": event}}
+
+
+def test_expression_evaluator_tracks_boolean_semantics() -> None:
+    """The evaluator is non-vacuous: it detects a conjunction->disjunction swap."""
+    context = {"github": {"event": {"comment": {"author_association": "NONE"}}}}
+    trusted = (
+        'contains(fromJSON(\'["OWNER", "MEMBER", "COLLABORATOR"]\'), '
+        "github.event.comment.author_association)"
+    )
+    assert condition_result(f"{trusted} && false", context) is False
+    assert condition_result(f"{trusted} || false", context) is False  # NONE is not trusted
+    weakened = f"{trusted} || true"
+    assert condition_result(weakened, context) is True
+
+
 def test_opencode_agent_refuses_untrusted_targets() -> None:
     """An agent run holding OPENCODE_API_KEY never targets untrusted content.
 
-    The comment author's association is not enough: the agent reads the target
-    issue/PR text and, on a PR, its head. Both jobs must also require a trusted
-    target author and refuse fork pull requests before anything is checked out.
+    Evaluated semantically per job: an untrusted commenter is refused, and a
+    trusted commenter on an untrusted target (an issue/PR whose author has no
+    write-level association, including a bot-authored thread) is refused. A
+    fork PR is refused structurally before anything is checked out.
     """
     doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
     jobs = doc["jobs"]
     assert jobs, "opencode.yml has no jobs"
     for name, job in jobs.items():
-        condition = job["if"]
-        assert "github.event.comment.author_association" in condition, name
-        assert (
-            '&&\ncontains(fromJSON(\'["OWNER", "MEMBER", "COLLABORATOR"]\'), '
-            "github.event.issue.author_association || "
-            "github.event.pull_request.author_association) &&"
-            in "\n".join(line.strip() for line in condition.splitlines())
-        ), name
+        condition = str(job["if"])
+        untrusted_commenter = _event_context(
+            commenter="NONE", target="OWNER", target_login="maintainer", body="/oc work"
+        )
+        assert condition_result(condition, untrusted_commenter) is False, (
+            f"{name}: an untrusted commenter can start the job"
+        )
+        untrusted_target = _event_context(
+            commenter="OWNER", target="NONE", target_login="stranger", body="/oc work"
+        )
+        assert condition_result(condition, untrusted_target) is False, (
+            f"{name}: an untrusted target can start the job"
+        )
         first = job["steps"][0]
         assert first["name"] == "Refuse fork pull requests as agent targets", name
         assert first["if"] == "github.event.issue.pull_request || github.event.pull_request", name
@@ -257,6 +482,81 @@ def test_opencode_agent_refuses_untrusted_targets() -> None:
         assert "--jq '.head.repo.full_name'" in first["run"], name
         assert '"$head_repo" != "$GITHUB_REPOSITORY"' in first["run"], name
         assert "exit 1" in first["run"], name
+
+
+def test_trusted_comments_start_each_opencode_lane() -> None:
+    """Positive reachability: trusted comments select exactly the intended lane."""
+    doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
+    jobs = doc["jobs"]
+    implementation = _event_context(
+        commenter="OWNER", target="OWNER", target_login="maintainer", body="/oc continue"
+    )
+    bootstrap = _event_context(
+        commenter="OWNER", target="OWNER", target_login="maintainer", body="/bunny audit this"
+    )
+    review_pr = _event_context(
+        commenter="MEMBER",
+        target="OWNER",
+        target_login="maintainer",
+        body="/bunny-review review exact SHA",
+        is_pr=True,
+    )
+    assert condition_result(str(jobs["opencode"]["if"]), implementation) is True
+    assert condition_result(str(jobs["opencode-bunny"]["if"]), bootstrap) is True
+    assert condition_result(str(jobs["opencode-bunny-review"]["if"]), review_pr) is True
+
+
+def test_bunny_bootstrap_lane_is_not_selected_by_the_direct_marker() -> None:
+    """`/bunny-review` must never fall through to the writable /bunny lane."""
+    doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
+    direct_body = _event_context(
+        commenter="OWNER",
+        target="OWNER",
+        target_login="maintainer",
+        body="/bunny-review review this",
+    )
+    assert condition_result(str(doc["jobs"]["opencode-bunny"]["if"]), direct_body) is False
+    assert condition_result(str(doc["jobs"]["opencode-bunny-review"]["if"]), direct_body) is True
+
+
+def test_bunny_review_lane_stays_closed_for_untrusted_principals() -> None:
+    """Both the commenter and the thread author must be write-level trusted."""
+    doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
+    condition = str(doc["jobs"]["opencode-bunny-review"]["if"])
+    untrusted_commenter = _event_context(
+        commenter="NONE",
+        target="NONE",
+        target_login="opencode-agent[bot]",
+        body="/bunny-review review this",
+        is_pr=True,
+    )
+    assert condition_result(condition, untrusted_commenter) is False
+    untrusted_target = _event_context(
+        commenter="OWNER",
+        target="NONE",
+        target_login="stranger",
+        body="/bunny-review review this",
+        is_pr=True,
+    )
+    assert condition_result(condition, untrusted_target) is False
+    # A bot-authored thread is not exempt: the review lane matches the other
+    # lanes' thread-author gate and refuses `opencode-agent[bot]` threads.
+    bot_target = _event_context(
+        commenter="OWNER",
+        target="NONE",
+        target_login="opencode-agent[bot]",
+        body="/bunny-review review this",
+        is_pr=True,
+    )
+    assert condition_result(condition, bot_target) is False
+    wrong_mention = _event_context(
+        commenter="OWNER",
+        target="NONE",
+        target_login="opencode-agent[bot]",
+        body="/oc do implementation work",
+        is_pr=True,
+    )
+    assert condition_result(condition, wrong_mention) is False
 
 
 def test_pull_request_target_checkouts_never_persist_credentials() -> None:
