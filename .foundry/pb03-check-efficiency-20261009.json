@@ -11,10 +11,15 @@
     ".github/workflows/pb03-shadow-parallel.yml",
     ".foundry/pb03-check-efficiency-20261009.json"
   ],
-  "foreign_read_only": ["Claude #626/#592 runtime, fixture, contract and engine surfaces"],
+  "foreign_read_only": [
+    "Claude #626/#592 runtime, fixture, contract and engine surfaces"
+  ],
   "reuse": "REUSE_AS_IS: existing contract commands, producer, freshness assertions, packet hashing and uploader",
   "measurements": {
-    "hosted_baseline_jobs": {"37845122855": 2773, "37842313592": 2888},
+    "hosted_baseline_jobs": {
+      "37845122855": 2773,
+      "37842313592": 2888
+    },
     "hosted_last_builds_seconds": 279,
     "hosted_last_bridge_seconds": 16,
     "hosted_last_contract_seconds": 4,
@@ -30,11 +35,41 @@
     "diff_check": "PASS",
     "evidence_class": "DIRECTLY_VERIFIED local controls; no runtime qualification credit"
   },
-  "status": "IMPLEMENTED_LOCAL_VALIDATED",
-  "pending": ["exact-head required CI", "exact-head PB03", "strict fresh read-only review", "normal PR merge and canonical receipt"],
-  "forbidden_shortcuts": ["coverage reduction", "retry-to-green", "cached PASS", "required-context weakening", "foreign co-writing"],
+  "status": "ACTIVE",
+  "pending": [
+    "exact-head required CI",
+    "exact-head PB03",
+    "strict fresh read-only review",
+    "normal PR merge and canonical receipt"
+  ],
+  "forbidden_shortcuts": [
+    "coverage reduction",
+    "retry-to-green",
+    "cached PASS",
+    "required-context weakening",
+    "foreign co-writing"
+  ],
   "stop_conditions": "Complete after exact-head gates, admitted review, normal integration and persisted canonical receipt; stop only on a named genuine authority/ownership/source blocker.",
   "next_action": "Publish the exact tested tree on the owned feature branch and open the bounded PR.",
   "production_provider": "NOT_SELECTED",
-  "architecture_freeze": "NOT_CLAIMED"
+  "architecture_freeze": "NOT_CLAIMED",
+  "schema_version": "2.0",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "worktree": "/workspace/scratch/645aaee2cf0d/pb03-check-efficiency",
+  "audit_base_sha": "f3939d99f575a0e9820a82b9843589c754f8b43a",
+  "audit_base_tree": "69fe9728d83217cf6dc054bd575a8119a81c2c48",
+  "state_written_against_head": "0e88bbe5e4a0a7d38e6716cd22f71d39b6fc3e07",
+  "validated_head": null,
+  "in_scope": [
+    ".github/workflows/pb03-runtime-qualification.yml",
+    ".github/workflows/pb03-shadow-parallel.yml",
+    ".foundry/pb03-check-efficiency-20261009.json"
+  ],
+  "out_of_scope": [
+    "Claude #626/#592 runtime, fixture, contract and engine surfaces",
+    "Coverage reduction, provider selection or Architecture Freeze"
+  ],
+  "ownership": "PB03-CHECK-EFFICIENCY-20261009 (Codex sole writer of in_scope)",
+  "exact_next_action": "Repair the required state-schema gate, publish a normal follow-up, obtain exact-head gates/review and integrate.",
+  "state_schema_repair": "Required conformance gate rejected initial custom state; use existing state.py schema2.0, no exemption or gate change."
 }
