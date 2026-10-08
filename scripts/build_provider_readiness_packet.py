@@ -463,8 +463,16 @@ def _sha256(path: Path) -> str:
 
 
 def _load_json(path: Path) -> Any:
+    def unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        document: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in document:
+                raise FailClosed(f"duplicate JSON key in sealed artifact: {path}: {key!r}")
+            document[key] = value
+        return document
+
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=unique_object)
     except FileNotFoundError as exc:
         raise FailClosed(f"sealed artifact missing: {path}") from exc
     except json.JSONDecodeError as exc:
@@ -594,8 +602,8 @@ def _af_evidence_value(document: dict[str, Any], gate_id: str, prefix: str) -> s
     raise FailClosed(f"AF {gate_id} evidence does not state {prefix!r}")
 
 
-def _read_pin_section() -> dict[str, Any]:
-    config = _load_json(REPO_ROOT / "config" / "rules_engines.json")
+def _read_pin_section(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
+    config = _load_json(repo_root / "config" / "rules_engines.json")
     pins = {
         "xmage": {
             "commit": config["primary_engine"]["commit"],
@@ -620,9 +628,9 @@ def _read_pin_section() -> dict[str, Any]:
     return {"config": config, "pins": pins}
 
 
-def _xmage_pin_tree() -> dict[str, str]:
+def _xmage_pin_tree(repo_root: Path = REPO_ROOT) -> dict[str, str]:
     lock = _load_json(
-        REPO_ROOT
+        repo_root
         / "qualification"
         / "xmage-sba-priority-repin-v4-20261003"
         / "SUCCESSOR_SOURCE_LOCK.json"
@@ -631,19 +639,21 @@ def _xmage_pin_tree() -> dict[str, str]:
     return {"commit": candidate["commit"], "tree": candidate["tree"]}
 
 
-def _effective_contract_binding(epoch: dict[str, Any]) -> dict[str, Any]:
-    pointer = _load_json(REPO_ROOT / "qualification" / "CURRENT_PRE_FREEZE_CONTRACT.json")
+def _effective_contract_binding(
+    epoch: dict[str, Any], repo_root: Path = REPO_ROOT
+) -> dict[str, Any]:
+    pointer = _load_json(repo_root / "qualification" / "CURRENT_PRE_FREEZE_CONTRACT.json")
     successor_rel = pointer["full107"]["successor_contract"]
-    successor = _load_json(REPO_ROOT / successor_rel)
+    successor = _load_json(repo_root / successor_rel)
     schema_rel = pointer["full107"]["effective_materialization_schema"]
     return {
         "pointer": "qualification/CURRENT_PRE_FREEZE_CONTRACT.json",
-        "pointer_sha256": _sha256(REPO_ROOT / "qualification" / "CURRENT_PRE_FREEZE_CONTRACT.json"),
+        "pointer_sha256": _sha256(repo_root / "qualification" / "CURRENT_PRE_FREEZE_CONTRACT.json"),
         "successor_contract": successor_rel,
-        "successor_sha256": _sha256(REPO_ROOT / successor_rel),
+        "successor_sha256": _sha256(repo_root / successor_rel),
         "successor_id": successor.get("contract_id") or successor.get("schema_version"),
         "schema": schema_rel,
-        "schema_sha256": _sha256(REPO_ROOT / schema_rel),
+        "schema_sha256": _sha256(repo_root / schema_rel),
         "effective_manifest_contract_id": epoch["EFFECTIVE_FULL107_MANIFEST.json"]["contract_id"],
     }
 
@@ -707,10 +717,13 @@ def _drift_records(
 def _fixture_classes(epoch: dict[str, Any]) -> dict[str, str]:
     classes: dict[str, str] = {}
     for row in epoch["CURRENT_BOUNDARY_COMPARISON.json"]["rows"]:
+        fixture_id = row["fixture_id"]
+        if fixture_id in classes:
+            raise FailClosed(f"duplicate comparison fixture: {fixture_id}")
         disposition = row["disposition"]
         if disposition not in FIXTURE_CLASS_VOCABULARY:
             raise FailClosed(f"unknown fixture class vocabulary: {disposition!r}")
-        classes[row["fixture_id"]] = disposition
+        classes[fixture_id] = disposition
     return classes
 
 
@@ -1010,7 +1023,12 @@ def build_packet(repo_root: Path = REPO_ROOT, epoch_name: str = DEFAULT_EPOCH) -
     }
     fixture_classes = _fixture_classes(epoch)
 
-    manifest_ids = {row["fixture_id"] for row in identity["rows"]}
+    manifest_ids: set[str] = set()
+    for row in identity["rows"]:
+        fixture_id = row["fixture_id"]
+        if fixture_id in manifest_ids:
+            raise FailClosed(f"duplicate effective manifest fixture: {fixture_id}")
+        manifest_ids.add(fixture_id)
     if identity["provider_denominator_count"] != 107 or len(manifest_ids) != 107:
         raise FailClosed(
             f"effective manifest denominator is not the frozen 107: {identity['provider_denominator_count']}"
@@ -1032,9 +1050,9 @@ def build_packet(repo_root: Path = REPO_ROOT, epoch_name: str = DEFAULT_EPOCH) -
     if dimension_ids != list(range(1, 22)):
         raise FailClosed("section F must contain exactly the 21 ordered dimensions")
 
-    pin_section = _read_pin_section()
+    pin_section = _read_pin_section(repo_root)
     config_digest = _sha256(repo_root / "config" / "rules_engines.json")
-    xmage_lock = _xmage_pin_tree()
+    xmage_lock = _xmage_pin_tree(repo_root)
     if xmage_lock["commit"] != pin_section["pins"]["xmage"]["commit"]:
         raise FailClosed("XMage successor source lock disagrees with the current pin")
 
@@ -1058,7 +1076,7 @@ def build_packet(repo_root: Path = REPO_ROOT, epoch_name: str = DEFAULT_EPOCH) -
             forge_gates, "AF00", "Rules-Core equivalence:"
         ),
     }
-    contract_binding = _effective_contract_binding(epoch)
+    contract_binding = _effective_contract_binding(epoch, repo_root)
     drift = _drift_records(pin_section["pins"], evidence_identity, contract_binding, epoch)
 
     dimensions: list[dict[str, Any]] = []
