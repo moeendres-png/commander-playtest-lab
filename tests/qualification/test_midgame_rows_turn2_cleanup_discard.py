@@ -86,6 +86,10 @@ def _turn2_record(value: Any = None, actor: str = "P1") -> dict[str, Any]:
         {
             "actor": "ALL",
             "decision_family": "priority_pass_through",
+            "scope": {
+                "from": {"turn": 1, "phase": "beginning"},
+                "until": {"turn": 2, "phase": "precombat_main", "step": "main"},
+            },
             "selection": {
                 **_FAIL_CLOSED,
                 "selector_kind": "semantic_action",
@@ -294,6 +298,42 @@ def _omission_frame(
     )
 
 
+def _precheckpoint_history_frames() -> list[tuple[dict[str, Any], dict[str, Any], dict[str, Any]]]:
+    """The record's declared pre-checkpoint history as engine frames.
+
+    The contract scripts four pregame keeps (CR 103.5) and P1's empty turn-1
+    attack declaration (CR 508.1) before the turn-2 checkpoint. Tests that
+    reach the checkpoint must transport them like the engine does; the arrival
+    ledger refuses an unconsumed declared step.
+    """
+    frames: list[tuple[dict[str, Any], dict[str, Any], dict[str, Any]]] = []
+    for seat in range(4):
+        frames.append(
+            (
+                {
+                    "decision_id": f"d-mull-{seat}",
+                    "decision_class": "mulligan",
+                    "actor_id": f"actor-{seat}",
+                    "seat": seat,
+                    "legal_options": [{"option_id": f"keep-{seat}", "option_type": "keep"}],
+                },
+                _legal(
+                    f"actor-{seat}",
+                    [{"action_id": f"keep-{seat}", "metadata": {"seat": seat}}],
+                ),
+                {"phase": "UNINITIALIZED", "step": "MULLIGAN", "priority_player": f"P{seat + 1}"},
+            )
+        )
+    frames.append(
+        (
+            _attacker_frame(decision_id="d-atk-history"),
+            _legal("actor-0", [{"action_id": "hold-history", "metadata": {"seat": 0}}]),
+            _observation(1, "COMBAT", "DECLARE_ATTACKERS", "P1"),
+        )
+    )
+    return frames
+
+
 TURN1_CLEANUP = _observation(1, "CLEANUP", "CLEANUP", "P1")
 TURN2_MAIN = _observation(2, "PRECOMBAT_MAIN", "PRECOMBAT_MAIN", "P2")
 
@@ -486,6 +526,7 @@ def test_the_scripted_cleanup_discard_submits_the_named_card_and_verifies() -> N
     record = _turn2_record()
     client = _SequencedClient(
         [
+            *_precheckpoint_history_frames(),
             # The engine offers the same-name copies out of id order: the
             # transport must take the least option id, not the first offer.
             _cleanup_frame(
@@ -517,6 +558,7 @@ def test_a_lenient_first_option_transport_is_not_the_records_selection() -> None
     record = _turn2_record()
     client = _SequencedClient(
         [
+            *_precheckpoint_history_frames(),
             _cleanup_frame(
                 [
                     _card_offer("Island", "n-isl", "opt-0"),
@@ -790,3 +832,211 @@ def test_a_cleanup_discard_is_bound_to_its_declared_phase_and_turn() -> None:
     assert not execution.verified
     assert "cleanup_discard for turn 1" in execution.detail
     assert client.submissions == []
+
+
+# --------------------------------------------------------------------------- #
+# PR #624 review round: scope, history completeness and frame routing controls
+# --------------------------------------------------------------------------- #
+
+
+def test_a_priority_frame_outside_the_declared_scope_fails_closed() -> None:
+    """Review item 1: the pass-through applies only inside the record's own
+    ``scope.from``/``scope.until`` window. A turn-2 priority frame whose scope
+    ended on turn 1 must never be passed by the Lab."""
+    probe = _probe_module("probe_scope_under_test")
+    record = _turn2_record()
+    for step in record["decision_script"]:
+        if step.get("decision_family") == "priority_pass_through":
+            step["scope"] = {
+                "from": {"turn": 1, "phase": "beginning"},
+                "until": {"turn": 1, "phase": "precombat_main", "step": "main"},
+            }
+    client = _SequencedClient(
+        [
+            *_precheckpoint_history_frames(),
+            _checkpoint_frame(_observation(2, "BEGINNING", "UPKEEP", "P2"), decision_id="d-oos"),
+        ]
+    )
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_arrival(client, record)
+    assert "scripts no priority pass-through" in str(excinfo.value)
+
+
+def test_a_priority_frame_without_a_readable_turn_fails_closed() -> None:
+    """Review item 1: the scope cannot be evaluated from an unreadable frame;
+    a priority frame without a turn number is never passed."""
+    probe = _probe_module("probe_no_turn_scope_under_test")
+    record = _turn2_record()
+    client = _SequencedClient(
+        [
+            *_precheckpoint_history_frames(),
+            _checkpoint_frame(
+                {"phase": "PRECOMBAT_MAIN", "step": "PRECOMBAT_MAIN", "priority_player": "P2"},
+                decision_id="d-no-turn",
+            ),
+        ]
+    )
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_arrival(client, record)
+    assert "readable turn or phase" in str(excinfo.value)
+
+
+def test_a_priority_frame_without_a_turn_is_never_a_checkpoint() -> None:
+    """Review item 3: PRECOMBAT_MAIN without a readable turn_number is never
+    taken as the checkpoint. Mutation: dropping the turn guard from
+    ``_arrival_at_checkpoint`` makes this assertion fail."""
+    probe = _probe_module("probe_checkpoint_turn_under_test")
+    assert (
+        probe._arrival_at_checkpoint(
+            {"phase": "PRECOMBAT_MAIN", "step": "PRECOMBAT_MAIN"},
+            2,
+            "PRECOMBAT_MAIN",
+            "PRECOMBAT_MAIN",
+        )
+        is False
+    )
+    assert (
+        probe._arrival_at_checkpoint(
+            {"turn_number": True, "phase": "PRECOMBAT_MAIN", "step": "PRECOMBAT_MAIN"},
+            2,
+            "PRECOMBAT_MAIN",
+            "PRECOMBAT_MAIN",
+        )
+        is False
+    )
+
+
+def test_an_in_game_choice_is_not_answered_by_a_seat_label() -> None:
+    """Review item 4: the starting-seat label selects only the pre-game setup
+    frame; an in-game choose_object offering a seat-labelled option is never
+    answered from that label."""
+    probe = _probe_module("probe_in_game_label_under_test")
+    record = _turn2_record()
+    record["decision_script"] = [
+        step
+        for step in record["decision_script"]
+        if step.get("decision_family") != "cleanup_discard"
+    ]
+    label_action = {
+        "action_id": "seat-opt",
+        "metadata": {"label": "Full Game Seat 1", "seat": 0},
+    }
+    client = _SequencedClient(
+        [
+            *_precheckpoint_history_frames(),
+            (
+                {
+                    "decision_id": "d-in-game",
+                    "decision_class": "choose_object",
+                    "actor_id": "actor-0",
+                    "seat": 0,
+                    "legal_options": [
+                        {
+                            "option_id": "seat-opt",
+                            "option_type": "object",
+                            "label": "Full Game Seat 1",
+                        }
+                    ],
+                },
+                _legal("actor-0", [label_action]),
+                _observation(1, "PRECOMBAT_MAIN", "PRECOMBAT_MAIN", "P1"),
+            ),
+        ]
+    )
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_arrival(client, record)
+    assert "offered no option" in str(excinfo.value)
+    assert "seat-opt" not in [opt for submission in client.submissions for opt in submission]
+
+
+def test_an_unconsumed_declared_history_step_fails_closed() -> None:
+    """Review item 5: a declared pre-checkpoint transport step the engine never
+    asked fails the row closed instead of silently skipping a mandatory
+    player decision."""
+    record = _turn2_record()
+    record["decision_script"] = [
+        step
+        for step in record["decision_script"]
+        if step.get("decision_family") in {"starting_player", "cleanup_discard"}
+    ]
+    client = _SequencedClient([_checkpoint_frame(TURN2_MAIN)])
+    execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
+    assert not execution.verified
+    assert "unconsumed transport step fails closed" in execution.detail
+    assert client.submissions == []
+
+
+def test_an_unconsumed_declared_mulligan_keep_fails_closed() -> None:
+    """Review item 5: a declared keep that was never answered is refused."""
+    record = _turn2_record()
+    record["decision_script"] = [
+        step
+        for step in record["decision_script"]
+        if step.get("decision_family") in {"starting_player", "mulligan"}
+    ]
+    client = _SequencedClient([_checkpoint_frame(TURN2_MAIN)])
+    execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
+    assert not execution.verified
+    assert "unconsumed transport step fails closed" in execution.detail
+
+
+def test_a_later_checkpoint_without_declared_keeps_fails_closed_in_placement() -> None:
+    """Review item 2: ``drive_to_precombat_main`` never keeps a hand for a
+    player at a later-turn checkpoint without the record's own keep step."""
+    probe = _probe_module("probe_placement_keep_under_test")
+    record = {
+        "fixture_id": "PLACEMENT_LATER",
+        "starting_player": "P1",
+        "temporal_state": {
+            "turn_number": 2,
+            "phase": "precombat_main",
+            "step": "main",
+            "active_player": "P2",
+        },
+        "decision_script": [],
+    }
+    client = _SequencedClient(
+        [
+            (
+                {
+                    "decision_id": "d-mull",
+                    "decision_class": "mulligan",
+                    "actor_id": "actor-0",
+                    "seat": 0,
+                    "legal_options": [{"option_id": "keep", "option_type": "keep"}],
+                },
+                _legal("actor-0", [{"action_id": "keep", "metadata": {"seat": 0}}]),
+                {"phase": "UNINITIALIZED", "step": "MULLIGAN", "priority_player": "P1"},
+            )
+        ]
+    )
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_to_precombat_main(client, record)
+    assert "scripts no mulligan keep" in str(excinfo.value)
+
+
+def test_a_later_checkpoint_without_declared_passes_fails_closed_in_placement() -> None:
+    """Review item 2: ``drive_to_precombat_main`` never passes priority for a
+    player at a later-turn checkpoint without the record's own pass-through."""
+    probe = _probe_module("probe_placement_pass_under_test")
+    record = {
+        "fixture_id": "PLACEMENT_LATER",
+        "starting_player": "P1",
+        "temporal_state": {
+            "turn_number": 2,
+            "phase": "precombat_main",
+            "step": "main",
+            "active_player": "P2",
+        },
+        "decision_script": [],
+    }
+    client = _SequencedClient(
+        [
+            _checkpoint_frame(
+                _observation(1, "PRECOMBAT_MAIN", "PRECOMBAT_MAIN", "P1"), decision_id="d-p"
+            )
+        ]
+    )
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_to_precombat_main(client, record)
+    assert "scripts no priority pass-through" in str(excinfo.value)

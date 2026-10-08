@@ -236,7 +236,7 @@ class _OmissionClient:
     def pending_decision(
         self, *, attempts: int = 60, interval_s: float = 0.5
     ) -> dict[str, Any] | None:
-        if self._decisions and self._decisions[0].get("decision_class") == "choose_object":
+        if self._decisions and self._decisions[0].get("decision_id") == "d-discard":
             self._object_reads += 1
             if self._fallback_answers and self._object_reads > 1:
                 self._decisions.pop(0)
@@ -264,6 +264,27 @@ class _OmissionClient:
         # that point. The record's declared checkpoint (turn 2, P2 active) is
         # a different moment and every other readback is that checkpoint.
         pending = self._decisions[0] if self._decisions else None
+        if pending is not None and pending.get("decision_class") == "mulligan":
+            return {
+                "construction_match": True,
+                "mismatches": [],
+                "observation": {
+                    "phase": "UNINITIALIZED",
+                    "step": "MULLIGAN",
+                    "priority_player": "P1",
+                },
+            }
+        if pending is not None and pending.get("decision_id") == "d-atk-history":
+            return {
+                "construction_match": True,
+                "mismatches": [],
+                "observation": {
+                    "phase": "COMBAT",
+                    "step": "DECLARE_ATTACKERS",
+                    "priority_player": "P1",
+                    "turn_number": 1,
+                },
+            }
         if pending is not None and pending.get("decision_id") == "d-cleanup":
             return {
                 "construction_match": True,
@@ -301,9 +322,13 @@ class _OmissionClient:
         raise AssertionError(f"unexpected lane request {message_type}")
 
     def submit_options(self, decision: dict[str, Any], option_ids: list[str]) -> None:
-        assert decision["decision_class"] in ("priority", "cleanup_discard"), (
-            "the declared omission must submit no answer for its frame"
-        )
+        assert decision["decision_class"] in (
+            "priority",
+            "cleanup_discard",
+            "mulligan",
+            "declare_attacker",
+            "choose_object",
+        ), "the declared omission must submit no answer for its frame"
         self.submissions.append(list(option_ids))
         if self._decisions:
             self._decisions.pop(0)
@@ -365,6 +390,36 @@ def _discard_frame(seat: int = 0) -> dict[str, Any]:
     }
 
 
+def _history_frames() -> list[dict[str, Any]]:
+    """The record's declared pre-checkpoint history as engine frames.
+
+    Contract 1.0.26 scripts four pregame keeps (CR 103.5) and P1's empty
+    turn-1 attack declaration (CR 508.1) before the turn-2 checkpoint; the
+    arrival ledger refuses an unconsumed declared step.
+    """
+    frames: list[dict[str, Any]] = []
+    for seat in range(4):
+        frames.append(
+            {
+                "decision_id": f"d-mull-{seat}",
+                "decision_class": "mulligan",
+                "actor_id": f"actor-{seat}",
+                "seat": seat,
+                "legal_options": [{"option_id": f"keep-{seat}", "option_type": "keep"}],
+            }
+        )
+    frames.append(
+        {
+            "decision_id": "d-atk-history",
+            "decision_class": "declare_attacker",
+            "actor_id": "actor-0",
+            "seat": 0,
+            "legal_options": [{"option_id": "hold-history", "option_type": "hold_attacker"}],
+        }
+    )
+    return frames
+
+
 def test_the_parent_class_record_declares_its_omitted_handler() -> None:
     record = _parent_class_record()
     assert mr.ROWS[PARENT_CLASS] == mr.RowSpec()
@@ -376,14 +431,22 @@ def test_the_parent_class_record_declares_its_omitted_handler() -> None:
 
 def test_the_omission_refusal_is_verified_with_no_answer_applied() -> None:
     record = _parent_class_record()
-    client = _OmissionClient([_cleanup_frame(), _priority(), _discard_frame()])
+    client = _OmissionClient([*_history_frames(), _cleanup_frame(), _priority(), _discard_frame()])
     execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
     assert execution.verified, execution.detail
     assert execution.detail == "obligation observed"
     # The record's own scripted turn-1 cleanup discard (CR 514.1) is answered
     # first, then the checkpoint priority is passed; the refused frame itself is
     # never answered (the fake rejects any other submission).
-    assert client.submissions == [["opt-hand-mountain"], ["pass"]]
+    assert client.submissions == [
+        ["keep-0"],
+        ["keep-1"],
+        ["keep-2"],
+        ["keep-3"],
+        ["hold-history"],
+        ["opt-hand-mountain"],
+        ["pass"],
+    ]
     (refusal,) = execution.refusals
     assert refusal["well_formed"] is True
     assert refusal["decision_class"] == "choose_object"
@@ -399,7 +462,10 @@ def test_a_parent_class_fallback_that_answers_the_frame_is_never_a_pass() -> Non
     through the parent class, the frame would be gone and the tape advanced;
     the no-mutation refusal cannot be established and the row fails closed."""
     record = _parent_class_record()
-    client = _OmissionClient([_priority(), _discard_frame()], fallback_answers=True)
+    client = _OmissionClient(
+        [*_history_frames(), _cleanup_frame(), _priority(), _discard_frame()],
+        fallback_answers=True,
+    )
     execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
     assert not execution.verified
     assert "declared omission refusal failed closed" in execution.detail
@@ -408,12 +474,22 @@ def test_a_parent_class_fallback_that_answers_the_frame_is_never_a_pass() -> Non
 
 def test_the_omission_refusal_fires_only_for_the_declared_actor() -> None:
     record = _parent_class_record()
-    client = _OmissionClient([_priority(seat=1), _discard_frame(seat=1)])
+    client = _OmissionClient(
+        [*_history_frames(), _cleanup_frame(), _priority(seat=1), _discard_frame(seat=1)]
+    )
     execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
     assert not execution.verified
     assert "unscripted choose_object for P2" in execution.detail
     assert execution.refusals == []
-    assert client.submissions == [["pass"]]
+    assert client.submissions == [
+        ["keep-0"],
+        ["keep-1"],
+        ["keep-2"],
+        ["keep-3"],
+        ["hold-history"],
+        ["opt-hand-mountain"],
+        ["pass"],
+    ]
 
 
 # --------------------------------------------------------------------------- #

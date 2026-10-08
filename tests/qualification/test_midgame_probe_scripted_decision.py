@@ -248,11 +248,16 @@ def _combat_record(step: str, priority: str) -> dict[str, Any]:
         },
         # The record's own declaration that every priority on the way to the
         # checkpoint is passed (CR 117.3d); the arrival pilot never passes on a
-        # player's behalf without it.
+        # player's behalf without it. The declared scope window is part of the
+        # declaration: the frame must lie inside it.
         "decision_script": [
             {
                 "actor": "ALL",
                 "decision_family": "priority_pass_through",
+                "scope": {
+                    "from": {"turn": 1, "phase": "beginning"},
+                    "until": {"turn": 1, "phase": "combat", "step": step},
+                },
                 "selection": {
                     "matches_only_provider_offered_legal_options": True,
                     "on_zero_match": "FAIL_CLOSED",

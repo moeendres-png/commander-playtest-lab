@@ -4604,7 +4604,7 @@ def execute_row(
         decision_class: str,
         principal: str,
         legal: dict[str, Any],
-    ) -> bool:
+    ) -> int | None:
         """Answer the next scripted arrival frame from the record, or refuse.
 
         The frame is answered only when the record's own next unconsumed step
@@ -4613,7 +4613,8 @@ def execute_row(
         outcome-equivalent only because the copies share one identity). A wrong
         actor, a missing name, a count mismatch, a malformed frame and an
         unscripted extra discard all fail closed with the exact reason; the Lab
-        never chooses a card for a player.
+        never chooses a card for a player. Returns the consumed script step
+        index so the arrival's pre-checkpoint history ledger stays exact.
         """
         position_ = arrival_consumed[0]
         while position_ < len(script) and (
@@ -4663,7 +4664,7 @@ def execute_row(
                         selected_option_ids=list(answer.option_ids) or None,
                     )
                 arrival_consumed[0] = position_ + 1
-                return True
+                return position_
         consumed = [
             step for step in script[:position_] if step_decision_class(step) == decision_class
         ]
@@ -4672,7 +4673,7 @@ def execute_row(
                 f"unscripted extra {decision_class} for {principal}: the record scripts "
                 f"{len(consumed)} such decision(s) and no more"
             )
-        return False
+        return None
 
     def declare(decision: dict[str, Any], decision_class: str) -> bool:
         # A combat checkpoint: the record's requested combat is declared on
@@ -4707,6 +4708,7 @@ def execute_row(
             record,
             declare=declare if combat is not None else None,
             answer_scripted=answer_scripted_arrival,
+            require_history=True,
         )
     except ml.MidgameLaneError as exc:
         return row_execution(fixture_id, False, None, f"arrival failed closed: {exc}")
