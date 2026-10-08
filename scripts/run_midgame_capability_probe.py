@@ -577,7 +577,17 @@ def option_by_label_suffix(decision: dict[str, Any], suffix: str) -> str | None:
 
 
 def seat_label(principal_id: str) -> str:
-    return "Full Game Seat " + principal_id.removeprefix("P")
+    """The engine's own seat label for a record seat id.
+
+    The record's declarations use the lowercase ``p1``..``p6`` seat ids
+    (``starting_player``), while the engine labels its seat offers
+    ``Full Game Seat 1``..; the ``P``/``p`` prefix case is the only
+    normalization, applied alike to both sides.
+    """
+    token = str(principal_id).strip()
+    if token[:1].lower() == "p" and token[1:].isdigit():
+        token = token[1:]
+    return "Full Game Seat " + token
 
 
 def record_starting_seat_index(record: dict[str, Any]) -> int | None:
