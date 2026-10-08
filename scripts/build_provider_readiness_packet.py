@@ -36,7 +36,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
-DEFAULT_EPOCH = "b1c8f54a999a-2d13b953a82c"
+DEFAULT_EPOCH = "ff688b58359f-42c21a3659cd"
 PACKET_DIR = REPO_ROOT / "docs" / "provider_readiness_packet_20261007"
 PACKET_JSON = PACKET_DIR / "PROVIDER_READINESS.json"
 PACKET_MD = PACKET_DIR / "PROVIDER_READINESS.md"
@@ -45,9 +45,9 @@ PACKET_MD = PACKET_DIR / "PROVIDER_READINESS.md"
 # from.  Deliberately constants: the generator must not read mutable Git state.
 PACKET_SOURCE = {
     "repository": "moeendres-png/commander-playtest-lab",
-    "declared_branch": "evidence/provider-readiness-packet-20261007",
-    "base_main_commit": "1d605a5883c1a8dd1de87d5a9261c74768c65f16",
-    "base_main_tree": "34bc6cef608dec6ca2c0ae470932c709ea28b1eb",
+    "declared_branch": "opencode/issue255-20261008194759",
+    "base_main_commit": "ff688b58359f7ec3cbace344322989c18e58886a",
+    "base_main_tree": "42c21a3659cdf73ca15d1baaf62bbfed9003c797",
     "basis": "origin/main at workstream start",
 }
 
@@ -400,12 +400,43 @@ REQUIRED_GATE_EVIDENCE: dict[str, tuple[dict[str, str], ...]] = {
 # refusal that only proves the record could not be driven stays UNKNOWN with the
 # sealed cause; a FAIL-class failure is FAIL; unknown vocabulary fails closed so
 # it can never be rendered as a benign NOT_RUN/UNSUPPORTED.
+#
+# A run with no failure_kind (the 1.0.23 record-declared starting seat run) is a
+# success CLAIM, not a success.  It becomes PASS only when the sealed evidence
+# positively proves every fact of a completed bounded-6P game, and those facts
+# are cited one by one: a successful start status when the provider publishes
+# one (Forge publishes "started"; XMage publishes no start status and the
+# lifecycle proof carries), a complete Commander lifecycle, an empty AF04
+# bounded-secondary gap list for that candidate, and AF02 PASS.  Anything less
+# is UNKNOWN with the unmet condition named, never PASS.
 BOUNDED_6P_REFUSAL_STATUS = {
     "FAIL_CLOSED_UNSATISFIED": "UNKNOWN",
     "RECORD_REFUSED": "UNKNOWN",
 }
 BOUNDED_6P_FAILURE_STATUS = {state: "FAIL" for state in FAILING_ROW_STATES}
 BOUNDED_6P_FAILURE_STATUS["ENGINE_RUNTIME_ERROR"] = "FAIL"
+
+# The sealed start-status vocabulary: a provider that publishes a start status
+# says exactly this on success (the only observed sealed success value).  Any
+# other published value, including "completed", fails closed.
+BOUNDED_6P_SUCCESS_START_STATUS = frozenset({"started"})
+
+# XMage's sealed positive start fact when no start status is published: the
+# engine-confirmed starting-seat channel, and the provider-confirmed seat equal
+# to the record-declared starting seat.  Both facts are cited in the cell.
+BOUNDED_6P_XMAGE_START_CHANNEL = "PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT"
+BOUNDED_6P_PLAYER_COUNT = 6
+
+# The required Commander lifecycle prefix, in order, mirroring
+# ``commander_lab.qualification.current_boundary.lifecycle``.  Kept local so the
+# generator stays standalone (no package import, no clock, no network).
+BOUNDED_6P_REQUIRED_LIFECYCLE_STEPS = (
+    "handshake",
+    "import_deck",
+    "create_commander_game",
+    "start_game",
+    "decision_drive",
+)
 
 # Known residuals named by issue #255, kept explicitly beside the current sealed
 # state.  The sealed state is read from the epoch; only the issue-recorded label
@@ -766,6 +797,41 @@ def derive_status(gate_verdicts: dict[str, str], fixture_states: list[str]) -> s
     return "UNKNOWN"
 
 
+ALL_PASS_STATUS_BASIS = "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS"
+FAIL_STATUS_BASIS = "FAIL_CLASS_EVIDENCE_PRESENT"
+NOT_RUN_STATUS_BASIS = "ALL_BACKING_GATES_AND_FIXTURES_NOT_RUN"
+
+
+def derive_status_basis(
+    status: str, gate_verdicts: dict[str, str], fixture_states: list[str]
+) -> str:
+    """Return an accurate basis string for a non-special dimension cell.
+
+    Only an all-PASS cell carries the all-PASS basis.  FAIL, NOT_RUN and
+    UNKNOWN cells state the evidence facts that actually produced the status so
+    a non-PASS cell can never claim that every backing gate and fixture passed.
+    """
+
+    if status == "PASS":
+        return ALL_PASS_STATUS_BASIS
+    if status == "NOT_RUN":
+        return NOT_RUN_STATUS_BASIS
+    unresolved_gates = ",".join(
+        f"{gate}={verdict}" for gate, verdict in sorted(gate_verdicts.items()) if verdict != "PASS"
+    )
+    if status == "FAIL":
+        failing_fixtures = sum(1 for state in fixture_states if state in FAILING_ROW_STATES)
+        return (
+            f"{FAIL_STATUS_BASIS}:gates={unresolved_gates or 'none'}:"
+            f"fail_class_fixtures={failing_fixtures}"
+        )
+    unresolved_fixtures = sum(1 for state in fixture_states if state != "PASS")
+    return (
+        "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:"
+        f"gates={unresolved_gates or 'none'}:unresolved_fixtures={unresolved_fixtures}"
+    )
+
+
 def missing_required_gate_evidence(
     gate_documents: dict[str, dict[str, Any]],
     requirements: tuple[dict[str, str], ...],
@@ -786,15 +852,162 @@ def missing_required_gate_evidence(
     return missing
 
 
-def derive_bounded_6p_status(candidate: str, result_6p: dict[str, Any]) -> tuple[str, str, str]:
+def _is_int(value: Any) -> bool:
+    """True only for a real integer (bools are not player counts)."""
+
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _bounded_6p_start_gaps(candidate: str, terminal_facts: dict[str, Any]) -> list[str]:
+    """Return the missing positive start fact(s) for a claimed 6P success.
+
+    Every candidate must positively prove that the bounded-6P game started.
+    Forge publishes ``start_status``; it must be exactly the observed sealed
+    success value ("started").  XMage publishes no start status (sealed null);
+    its positive start fact is the engine-confirmed starting-seat channel plus
+    the provider-confirmed seat equalling the record-declared starting seat.
+    Any other published start status fails closed.
+    """
+
+    if candidate not in CANDIDATES:
+        raise FailClosed(f"unknown candidate for bounded-6P start fact: {candidate!r}")
+
+    start_status = terminal_facts.get("start_status")
+    if start_status is not None:
+        if not isinstance(start_status, str):
+            raise FailClosed(
+                f"bounded-6P start_status for {candidate} is not a string: "
+                f"{start_status!r}; re-adjudicate this cell"
+            )
+        if start_status not in BOUNDED_6P_SUCCESS_START_STATUS:
+            raise FailClosed(
+                f"unknown bounded-6P start_status for {candidate}: {start_status!r}; "
+                "the cell fails closed rather than granting success credit"
+            )
+
+    gaps: list[str] = []
+    if candidate == "forge":
+        if start_status != "started":
+            gaps.append(f"FORGE_START_STATUS_NOT_OBSERVED:{start_status!r}")
+        return gaps
+
+    channel = terminal_facts.get("starting_player_channel")
+    declared = terminal_facts.get("declared_starting_seat")
+    confirmed = terminal_facts.get("starting_player_provider_confirmed_seat")
+    if channel != BOUNDED_6P_XMAGE_START_CHANNEL:
+        gaps.append(f"XMAGE_STARTING_PLAYER_CHANNEL:{channel!r}")
+    if not isinstance(declared, str) or not declared:
+        gaps.append(f"XMAGE_DECLARED_STARTING_SEAT:{declared!r}")
+    if not isinstance(confirmed, str) or not confirmed:
+        gaps.append(f"XMAGE_CONFIRMED_STARTING_SEAT:{confirmed!r}")
+    elif isinstance(declared, str) and declared and confirmed != declared:
+        gaps.append(f"XMAGE_CONFIRMED_STARTING_SEAT_MISMATCH:{confirmed!r}!={declared!r}")
+    return gaps
+
+
+def _bounded_6p_success_gaps(
+    candidate: str,
+    result_6p: dict[str, Any],
+    af02_verdict: str | None,
+    af04_gate: dict[str, Any] | None,
+) -> list[str]:
+    """Return the unmet positive-success conditions for a claimed 6P success.
+
+    Every condition the packet cites for a bounded-6P PASS is checked here from
+    the sealed documents alone.  An empty list is the only state that may become
+    PASS; each returned item names the exact missing sealed fact.
+    """
+
+    gaps: list[str] = []
+    terminal_facts = result_6p.get("terminal_facts")
+    if not isinstance(terminal_facts, dict):
+        terminal_facts = {}
+
+    gaps.extend(_bounded_6p_start_gaps(candidate, terminal_facts))
+
+    completed = result_6p.get("steps_completed")
+    completed_steps = list(completed) if isinstance(completed, list) else []
+    missing = [step for step in BOUNDED_6P_REQUIRED_LIFECYCLE_STEPS if step not in completed_steps]
+    if missing:
+        gaps.append("LIFECYCLE_STEPS_MISSING:" + ",".join(missing))
+    elif completed_steps:
+        indices = [completed_steps.index(step) for step in BOUNDED_6P_REQUIRED_LIFECYCLE_STEPS]
+        if indices != sorted(indices):
+            gaps.append("LIFECYCLE_STEPS_OUT_OF_ORDER")
+    if terminal_facts.get("priority_reached") is not True:
+        gaps.append("PRIORITY_NOT_REACHED")
+
+    declared = result_6p.get("player_count")
+    created = terminal_facts.get("created_player_count")
+    if not _is_int(declared) or not _is_int(created):
+        gaps.append(f"PLAYER_COUNT_FACTS_NOT_INTS:{declared!r}/{created!r}")
+    elif declared != created:
+        gaps.append(f"PLAYER_COUNT_MISMATCH:{declared!r}!={created!r}")
+    elif declared != BOUNDED_6P_PLAYER_COUNT:
+        gaps.append(f"PLAYER_COUNT_NOT_BOUNDED_6P:{declared!r}")
+
+    tape = result_6p.get("decision_tape")
+    bound_choices = [
+        entry for entry in (tape or []) if isinstance(entry, dict) and entry.get("chosen_option_id")
+    ]
+    if not bound_choices:
+        gaps.append("NO_BOUND_EXTERNAL_CHOICE")
+
+    if af02_verdict != "PASS":
+        gaps.append(f"AF02_PLAYER_CARDINALITY:{af02_verdict!r}")
+
+    af04_verdict = af04_gate.get("verdict") if isinstance(af04_gate, dict) else None
+    af04_blocking = af04_gate.get("blocking_rows") if isinstance(af04_gate, dict) else None
+    if af04_verdict != "PASS" or af04_blocking != []:
+        gaps.append(f"AF04_BOUNDED_SECONDARY_GAPS:{af04_verdict!r}/{af04_blocking!r}")
+    contradictions = None
+    if isinstance(af04_gate, dict):
+        boundary = af04_gate.get("decision_boundary")
+        if isinstance(boundary, dict):
+            contradictions = boundary.get("contradictions")
+    if isinstance(contradictions, list) and contradictions:
+        gaps.append(f"AF04_DECISION_BOUNDARY_CONTRADICTIONS:{len(contradictions)}")
+
+    failure_text = result_6p.get("failure")
+    if failure_text:
+        gaps.append(f"FAILURE_TEXT_WITHOUT_FAILURE_KIND:{failure_text!r}")
+    return gaps
+
+
+def derive_bounded_6p_status(
+    candidate: str,
+    result_6p: dict[str, Any],
+    *,
+    af02_verdict: str | None = None,
+    af04_gate: dict[str, Any] | None = None,
+) -> tuple[str, str, str]:
     """Derive the bounded-6P cell status from the sealed failure facts.
 
     A fail-closed refusal that only proves the record could not be driven stays
-    UNKNOWN with the sealed cause.  A FAIL-class failure is FAIL.  Unknown
-    vocabulary fails closed: it is never rendered as a benign NOT_RUN/UNSUPPORTED.
+    UNKNOWN with the sealed cause.  A FAIL-class failure is FAIL.  A run with no
+    failure_kind is PASS only when the sealed evidence positively proves a
+    completed bounded-6P lifecycle, a clean AF04 bounded-secondary boundary and
+    AF02 PASS, plus the candidate's own positive start fact (Forge
+    ``start_status == "started"``; XMage engine-confirmed starting-seat channel
+    with the provider-confirmed seat equalling the declared seat).  Unknown
+    failure/start vocabulary fails closed; an unproven success claim is UNKNOWN
+    with the unmet condition named, never PASS.
     """
 
     failure_kind = result_6p.get("failure_kind")
+    if failure_kind is None:
+        gaps = _bounded_6p_success_gaps(candidate, result_6p, af02_verdict, af04_gate)
+        if gaps:
+            return (
+                "UNKNOWN",
+                "BOUNDED_6P_SUCCESS_CLAIM_UNPROVEN_" + "_".join(gaps),
+                "success_unproven",
+            )
+        return (
+            "PASS",
+            "BOUNDED_6P_LIFECYCLE_AND_AF04_BOUNDED_SECONDARY_PROVEN",
+            "success",
+        )
     if failure_kind in BOUNDED_6P_REFUSAL_STATUS:
         return (
             BOUNDED_6P_REFUSAL_STATUS[failure_kind],
@@ -866,58 +1079,126 @@ def _candidate_dimension(
                 "AF_GATE_NONBLOCKING_LIMITATIONS",
             )
         )
-    status_basis = "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS"
-
     if dimension["special"] == "bounded_6p":
         cardinality = epoch[f"PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json"]
         result_6p = cardinality["results"]["6P"]
-        status, status_basis, failure_kind = derive_bounded_6p_status(candidate, result_6p)
-        failure_text = result_6p.get("failure")
-        if not isinstance(failure_text, str) or not failure_text:
-            raise FailClosed("bounded-6P result does not state its sealed failure cause")
+        af02_verdict = gate_verdicts["AF02"]
+        af04_gate = gate_documents["AF04"]
+        status, status_basis, failure_kind = derive_bounded_6p_status(
+            candidate, result_6p, af02_verdict=af02_verdict, af04_gate=af04_gate
+        )
         terminal_facts = result_6p.get("terminal_facts") or {}
         start_status = terminal_facts.get("start_status")
         if start_status is not None and not isinstance(start_status, str):
             raise FailClosed("bounded-6P start_status is not a string; re-adjudicate this cell")
-        residuals = [
-            f"6P bounded secondary evidence is not established ({failure_kind}); "
-            f"sealed start_status={start_status!r}; sealed cause: {failure_text}"
+        citation_root = f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json"
+        af04_citations = [
+            _citation(
+                gate_file,
+                "gates[gate=AF04].verdict",
+                af04_gate.get("verdict"),
+                "AF_GATE_VERDICT",
+            ),
+            _citation(
+                gate_file,
+                "gates[gate=AF04].blocking_rows",
+                af04_gate.get("blocking_rows"),
+                "AF_GATE_BLOCKING_ROWS",
+            ),
         ]
         citations = [
             *gate_citations,
             *gate_fact_citations,
+            *af04_citations,
             _citation(
-                f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json",
+                citation_root,
                 "results.6P.failure_kind",
-                failure_kind,
+                result_6p.get("failure_kind"),
                 "BOUNDED_6P_RESULT",
             ),
             _citation(
-                f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json",
-                "results.6P.failure",
-                failure_text,
+                citation_root,
+                "results.6P.steps_completed",
+                result_6p.get("steps_completed"),
+                "BOUNDED_6P_RESULT",
+            ),
+            _citation(
+                citation_root,
+                "results.6P.terminal_facts.start_status",
+                start_status,
+                "BOUNDED_6P_RESULT",
+            ),
+            _citation(
+                citation_root,
+                "results.6P.terminal_facts.created_player_count",
+                terminal_facts.get("created_player_count"),
+                "BOUNDED_6P_RESULT",
+            ),
+            _citation(
+                citation_root,
+                "results.6P.terminal_facts.priority_reached",
+                terminal_facts.get("priority_reached"),
                 "BOUNDED_6P_RESULT",
             ),
         ]
-        if start_status is not None:
-            citations.append(
-                _citation(
-                    f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json",
-                    "results.6P.terminal_facts.start_status",
-                    start_status,
-                    "BOUNDED_6P_RESULT",
-                )
+        if candidate == "xmage":
+            # XMage's positive start fact is the engine-confirmed starting-seat
+            # channel plus the provider-confirmed seat equalling the declared
+            # seat; both facts are cited beside the (null) start_status.
+            citations.extend(
+                [
+                    _citation(
+                        citation_root,
+                        "results.6P.terminal_facts.starting_player_channel",
+                        terminal_facts.get("starting_player_channel"),
+                        "BOUNDED_6P_RESULT",
+                    ),
+                    _citation(
+                        citation_root,
+                        "results.6P.terminal_facts.declared_starting_seat",
+                        terminal_facts.get("declared_starting_seat"),
+                        "BOUNDED_6P_RESULT",
+                    ),
+                    _citation(
+                        citation_root,
+                        "results.6P.terminal_facts.starting_player_provider_confirmed_seat",
+                        terminal_facts.get("starting_player_provider_confirmed_seat"),
+                        "BOUNDED_6P_RESULT",
+                    ),
+                ]
             )
-        created_player_count = terminal_facts.get("created_player_count")
-        if created_player_count is not None:
-            citations.append(
-                _citation(
-                    f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json",
-                    "results.6P.terminal_facts.created_player_count",
-                    created_player_count,
-                    "BOUNDED_6P_RESULT",
-                )
+        if candidate == "forge":
+            start_fact_summary = f"start_status={start_status!r}"
+        else:
+            start_fact_summary = (
+                f"channel={terminal_facts.get('starting_player_channel')!r}, "
+                "starting_player_provider_confirmed_seat="
+                f"{terminal_facts.get('starting_player_provider_confirmed_seat')!r}, "
+                f"declared_starting_seat={terminal_facts.get('declared_starting_seat')!r}"
             )
+        if status == "PASS":
+            residuals = [
+                "6P bounded secondary evidence is established by the sealed facts: "
+                f"failure_kind={result_6p.get('failure_kind')!r}, sealed "
+                f"start_status={start_status!r}, positive start fact: {start_fact_summary}, "
+                f"lifecycle steps {BOUNDED_6P_REQUIRED_LIFECYCLE_STEPS}, created_player_count="
+                f"{terminal_facts.get('created_player_count')!r}, priority_reached="
+                f"{terminal_facts.get('priority_reached')!r}, AF02={af02_verdict}, "
+                f"AF04={af04_gate.get('verdict')}, AF04 blocking rows "
+                f"{af04_gate.get('blocking_rows')!r}"
+            ]
+        else:
+            failure_text = result_6p.get("failure")
+            if result_6p.get("failure_kind") is not None and (
+                not isinstance(failure_text, str) or not failure_text
+            ):
+                raise FailClosed("bounded-6P failure result does not state its sealed cause")
+            if not isinstance(failure_text, str) or not failure_text:
+                failure_text = status_basis
+            residuals = [
+                f"6P bounded secondary evidence is not established ({failure_kind}); "
+                f"sealed start_status={start_status!r}; sealed cause: {failure_text}"
+            ]
         return {
             "status": status,
             "status_basis": status_basis,
@@ -940,6 +1221,11 @@ def _candidate_dimension(
     fixture_states = [row_states[fixture_id] for fixture_id in fixtures]
     status = derive_status(
         {gate_id: gate_verdicts[gate_id] for gate_id in dimension["gates"]}, fixture_states
+    )
+    status_basis = derive_status_basis(
+        status,
+        {gate_id: gate_verdicts[gate_id] for gate_id in dimension["gates"]},
+        fixture_states,
     )
     required_evidence = REQUIRED_GATE_EVIDENCE.get(dimension["key"], ())
     missing_evidence = missing_required_gate_evidence(gate_documents, required_evidence)
