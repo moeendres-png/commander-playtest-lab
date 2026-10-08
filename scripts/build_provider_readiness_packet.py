@@ -36,7 +36,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
-DEFAULT_EPOCH = "b1c8f54a999a-2d13b953a82c"
+DEFAULT_EPOCH = "ff688b58359f-42c21a3659cd"
 PACKET_DIR = REPO_ROOT / "docs" / "provider_readiness_packet_20261007"
 PACKET_JSON = PACKET_DIR / "PROVIDER_READINESS.json"
 PACKET_MD = PACKET_DIR / "PROVIDER_READINESS.md"
@@ -45,9 +45,9 @@ PACKET_MD = PACKET_DIR / "PROVIDER_READINESS.md"
 # from.  Deliberately constants: the generator must not read mutable Git state.
 PACKET_SOURCE = {
     "repository": "moeendres-png/commander-playtest-lab",
-    "declared_branch": "evidence/provider-readiness-packet-20261007",
-    "base_main_commit": "1d605a5883c1a8dd1de87d5a9261c74768c65f16",
-    "base_main_tree": "34bc6cef608dec6ca2c0ae470932c709ea28b1eb",
+    "declared_branch": "opencode/issue255-20261008194759",
+    "base_main_commit": "ff688b58359f7ec3cbace344322989c18e58886a",
+    "base_main_tree": "42c21a3659cdf73ca15d1baaf62bbfed9003c797",
     "basis": "origin/main at workstream start",
 }
 
@@ -400,12 +400,36 @@ REQUIRED_GATE_EVIDENCE: dict[str, tuple[dict[str, str], ...]] = {
 # refusal that only proves the record could not be driven stays UNKNOWN with the
 # sealed cause; a FAIL-class failure is FAIL; unknown vocabulary fails closed so
 # it can never be rendered as a benign NOT_RUN/UNSUPPORTED.
+#
+# A run with no failure_kind (the 1.0.23 record-declared starting seat run) is a
+# success CLAIM, not a success.  It becomes PASS only when the sealed evidence
+# positively proves every fact of a completed bounded-6P game, and those facts
+# are cited one by one: a successful start status when the provider publishes
+# one (Forge publishes "started"; XMage publishes no start status and the
+# lifecycle proof carries), a complete Commander lifecycle, an empty AF04
+# bounded-secondary gap list for that candidate, and AF02 PASS.  Anything less
+# is UNKNOWN with the unmet condition named, never PASS.
 BOUNDED_6P_REFUSAL_STATUS = {
     "FAIL_CLOSED_UNSATISFIED": "UNKNOWN",
     "RECORD_REFUSED": "UNKNOWN",
 }
 BOUNDED_6P_FAILURE_STATUS = {state: "FAIL" for state in FAILING_ROW_STATES}
 BOUNDED_6P_FAILURE_STATUS["ENGINE_RUNTIME_ERROR"] = "FAIL"
+
+# The sealed start-status vocabulary: a provider that publishes a start status
+# says one of these on success.  Any other published value fails closed.
+BOUNDED_6P_SUCCESS_START_STATUS = frozenset({"started", "completed"})
+
+# The required Commander lifecycle prefix, in order, mirroring
+# ``commander_lab.qualification.current_boundary.lifecycle``.  Kept local so the
+# generator stays standalone (no package import, no clock, no network).
+BOUNDED_6P_REQUIRED_LIFECYCLE_STEPS = (
+    "handshake",
+    "import_deck",
+    "create_commander_game",
+    "start_game",
+    "decision_drive",
+)
 
 # Known residuals named by issue #255, kept explicitly beside the current sealed
 # state.  The sealed state is read from the epoch; only the issue-recorded label
@@ -773,15 +797,115 @@ def missing_required_gate_evidence(
     return missing
 
 
-def derive_bounded_6p_status(candidate: str, result_6p: dict[str, Any]) -> tuple[str, str, str]:
+def _bounded_6p_success_gaps(
+    result_6p: dict[str, Any],
+    af02_verdict: str | None,
+    af04_gate: dict[str, Any] | None,
+) -> list[str]:
+    """Return the unmet positive-success conditions for a claimed 6P success.
+
+    Every condition the packet cites for a bounded-6P PASS is checked here from
+    the sealed documents alone.  An empty list is the only state that may become
+    PASS; each returned item names the exact missing sealed fact.
+    """
+
+    gaps: list[str] = []
+    terminal_facts = result_6p.get("terminal_facts")
+    if not isinstance(terminal_facts, dict):
+        terminal_facts = {}
+
+    completed = result_6p.get("steps_completed")
+    completed_steps = list(completed) if isinstance(completed, list) else []
+    missing = [step for step in BOUNDED_6P_REQUIRED_LIFECYCLE_STEPS if step not in completed_steps]
+    if missing:
+        gaps.append("LIFECYCLE_STEPS_MISSING:" + ",".join(missing))
+    elif completed_steps:
+        indices = [completed_steps.index(step) for step in BOUNDED_6P_REQUIRED_LIFECYCLE_STEPS]
+        if indices != sorted(indices):
+            gaps.append("LIFECYCLE_STEPS_OUT_OF_ORDER")
+    if not terminal_facts.get("priority_reached"):
+        gaps.append("PRIORITY_NOT_REACHED")
+
+    declared = result_6p.get("player_count")
+    created = terminal_facts.get("created_player_count")
+    if declared is not None and created != declared:
+        gaps.append(f"CREATED_PLAYER_COUNT:{created!r}!={declared!r}")
+
+    tape = result_6p.get("decision_tape")
+    bound_choices = [
+        entry for entry in (tape or []) if isinstance(entry, dict) and entry.get("chosen_option_id")
+    ]
+    if not bound_choices:
+        gaps.append("NO_BOUND_EXTERNAL_CHOICE")
+
+    if af02_verdict != "PASS":
+        gaps.append(f"AF02_PLAYER_CARDINALITY:{af02_verdict!r}")
+
+    af04_verdict = af04_gate.get("verdict") if isinstance(af04_gate, dict) else None
+    af04_blocking = af04_gate.get("blocking_rows") if isinstance(af04_gate, dict) else None
+    if af04_verdict != "PASS" or af04_blocking != []:
+        gaps.append(f"AF04_BOUNDED_SECONDARY_GAPS:{af04_verdict!r}/{af04_blocking!r}")
+    contradictions = None
+    if isinstance(af04_gate, dict):
+        boundary = af04_gate.get("decision_boundary")
+        if isinstance(boundary, dict):
+            contradictions = boundary.get("contradictions")
+    if isinstance(contradictions, list) and contradictions:
+        gaps.append(f"AF04_DECISION_BOUNDARY_CONTRADICTIONS:{len(contradictions)}")
+
+    failure_text = result_6p.get("failure")
+    if failure_text:
+        gaps.append(f"FAILURE_TEXT_WITHOUT_FAILURE_KIND:{failure_text!r}")
+    return gaps
+
+
+def derive_bounded_6p_status(
+    candidate: str,
+    result_6p: dict[str, Any],
+    *,
+    af02_verdict: str | None = None,
+    af04_gate: dict[str, Any] | None = None,
+) -> tuple[str, str, str]:
     """Derive the bounded-6P cell status from the sealed failure facts.
 
     A fail-closed refusal that only proves the record could not be driven stays
-    UNKNOWN with the sealed cause.  A FAIL-class failure is FAIL.  Unknown
-    vocabulary fails closed: it is never rendered as a benign NOT_RUN/UNSUPPORTED.
+    UNKNOWN with the sealed cause.  A FAIL-class failure is FAIL.  A run with no
+    failure_kind is PASS only when the sealed evidence positively proves a
+    completed bounded-6P lifecycle, a clean AF04 bounded-secondary boundary and
+    AF02 PASS, with a successful start status whenever the provider publishes
+    one.  Unknown failure/start vocabulary fails closed; an unproven success
+    claim is UNKNOWN with the unmet condition named, never PASS.
     """
 
     failure_kind = result_6p.get("failure_kind")
+    if failure_kind is None:
+        terminal_facts = result_6p.get("terminal_facts")
+        start_status = (
+            terminal_facts.get("start_status") if isinstance(terminal_facts, dict) else None
+        )
+        if start_status is not None:
+            if not isinstance(start_status, str):
+                raise FailClosed(
+                    f"bounded-6P start_status for {candidate} is not a string: "
+                    f"{start_status!r}; re-adjudicate this cell"
+                )
+            if start_status not in BOUNDED_6P_SUCCESS_START_STATUS:
+                raise FailClosed(
+                    f"unknown bounded-6P start_status for {candidate}: {start_status!r}; "
+                    "the cell fails closed rather than granting success credit"
+                )
+        gaps = _bounded_6p_success_gaps(result_6p, af02_verdict, af04_gate)
+        if gaps:
+            return (
+                "UNKNOWN",
+                "BOUNDED_6P_SUCCESS_CLAIM_UNPROVEN_" + "_".join(gaps),
+                "success_unproven",
+            )
+        return (
+            "PASS",
+            "BOUNDED_6P_LIFECYCLE_AND_AF04_BOUNDED_SECONDARY_PROVEN",
+            "success",
+        )
     if failure_kind in BOUNDED_6P_REFUSAL_STATUS:
         return (
             BOUNDED_6P_REFUSAL_STATUS[failure_kind],
@@ -858,53 +982,88 @@ def _candidate_dimension(
     if dimension["special"] == "bounded_6p":
         cardinality = epoch[f"PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json"]
         result_6p = cardinality["results"]["6P"]
-        status, status_basis, failure_kind = derive_bounded_6p_status(candidate, result_6p)
-        failure_text = result_6p.get("failure")
-        if not isinstance(failure_text, str) or not failure_text:
-            raise FailClosed("bounded-6P result does not state its sealed failure cause")
+        af02_verdict = gate_verdicts["AF02"]
+        af04_gate = gate_documents["AF04"]
+        status, status_basis, failure_kind = derive_bounded_6p_status(
+            candidate, result_6p, af02_verdict=af02_verdict, af04_gate=af04_gate
+        )
         terminal_facts = result_6p.get("terminal_facts") or {}
         start_status = terminal_facts.get("start_status")
         if start_status is not None and not isinstance(start_status, str):
             raise FailClosed("bounded-6P start_status is not a string; re-adjudicate this cell")
-        residuals = [
-            f"6P bounded secondary evidence is not established ({failure_kind}); "
-            f"sealed start_status={start_status!r}; sealed cause: {failure_text}"
+        citation_root = f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json"
+        af04_citations = [
+            _citation(
+                gate_file,
+                "gates[gate=AF04].verdict",
+                af04_gate.get("verdict"),
+                "AF_GATE_VERDICT",
+            ),
+            _citation(
+                gate_file,
+                "gates[gate=AF04].blocking_rows",
+                af04_gate.get("blocking_rows"),
+                "AF_GATE_BLOCKING_ROWS",
+            ),
         ]
         citations = [
             *gate_citations,
             *gate_fact_citations,
+            *af04_citations,
             _citation(
-                f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json",
+                citation_root,
                 "results.6P.failure_kind",
-                failure_kind,
+                result_6p.get("failure_kind"),
                 "BOUNDED_6P_RESULT",
             ),
             _citation(
-                f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json",
-                "results.6P.failure",
-                failure_text,
+                citation_root,
+                "results.6P.steps_completed",
+                result_6p.get("steps_completed"),
+                "BOUNDED_6P_RESULT",
+            ),
+            _citation(
+                citation_root,
+                "results.6P.terminal_facts.start_status",
+                start_status,
+                "BOUNDED_6P_RESULT",
+            ),
+            _citation(
+                citation_root,
+                "results.6P.terminal_facts.created_player_count",
+                terminal_facts.get("created_player_count"),
+                "BOUNDED_6P_RESULT",
+            ),
+            _citation(
+                citation_root,
+                "results.6P.terminal_facts.priority_reached",
+                terminal_facts.get("priority_reached"),
                 "BOUNDED_6P_RESULT",
             ),
         ]
-        if start_status is not None:
-            citations.append(
-                _citation(
-                    f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json",
-                    "results.6P.terminal_facts.start_status",
-                    start_status,
-                    "BOUNDED_6P_RESULT",
-                )
-            )
-        created_player_count = terminal_facts.get("created_player_count")
-        if created_player_count is not None:
-            citations.append(
-                _citation(
-                    f"{epoch_root}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json",
-                    "results.6P.terminal_facts.created_player_count",
-                    created_player_count,
-                    "BOUNDED_6P_RESULT",
-                )
-            )
+        if status == "PASS":
+            residuals = [
+                "6P bounded secondary evidence is established by the sealed facts: "
+                f"failure_kind={result_6p.get('failure_kind')!r}, sealed "
+                f"start_status={start_status!r}, lifecycle steps "
+                f"{BOUNDED_6P_REQUIRED_LIFECYCLE_STEPS}, created_player_count="
+                f"{terminal_facts.get('created_player_count')!r}, priority_reached="
+                f"{terminal_facts.get('priority_reached')!r}, AF02={af02_verdict}, "
+                f"AF04={af04_gate.get('verdict')}, AF04 blocking rows "
+                f"{af04_gate.get('blocking_rows')!r}"
+            ]
+        else:
+            failure_text = result_6p.get("failure")
+            if result_6p.get("failure_kind") is not None and (
+                not isinstance(failure_text, str) or not failure_text
+            ):
+                raise FailClosed("bounded-6P failure result does not state its sealed cause")
+            if not isinstance(failure_text, str) or not failure_text:
+                failure_text = status_basis
+            residuals = [
+                f"6P bounded secondary evidence is not established ({failure_kind}); "
+                f"sealed start_status={start_status!r}; sealed cause: {failure_text}"
+            ]
         return {
             "status": status,
             "status_basis": status_basis,

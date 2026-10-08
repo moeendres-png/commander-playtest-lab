@@ -32,7 +32,7 @@ SCRIPT = REPO / "scripts" / "build_provider_readiness_packet.py"
 PACKET_DIR = REPO / "docs" / "provider_readiness_packet_20261007"
 PACKET_JSON = PACKET_DIR / "PROVIDER_READINESS.json"
 PACKET_MD = PACKET_DIR / "PROVIDER_READINESS.md"
-EPOCH_NAME = "b1c8f54a999a-2d13b953a82c"
+EPOCH_NAME = "ff688b58359f-42c21a3659cd"
 EPOCH_ROOT = REPO / "qualification" / "current-boundary-epochs" / EPOCH_NAME
 
 EXPECTED_DIMENSION_KEYS = (
@@ -351,7 +351,12 @@ def test_known_residuals_reported_with_current_sealed_state(
         )
         row = next(row for row in document["rows"] if row["fixture_id"] == item["residual"])
         assert item["sealed_state"] == row["exit_state"]
-        assert item["sealed_state"] != "PASS"
+        if (item["residual"], candidate) == ("WS05-CMD-MULL-2", "xmage"):
+            # Resolved in the new sealed epoch: the row is PASS and the packet
+            # still lists it with its issue-recorded label rather than hiding it.
+            assert item["sealed_state"] == "PASS"
+        else:
+            assert item["sealed_state"] != "PASS"
         assert item["disposition"] == "REPORTED_NOT_REMEDIATED_IN_THIS_PACKET"
 
 
@@ -365,25 +370,145 @@ def test_non_claims_and_no_ranking(packet: dict[str, Any]) -> None:
     assert "selects no provider" in packet["authority"]
 
 
-def test_bounded_6p_states_derived_from_sealed_failure(packet: dict[str, Any], sealed: Any) -> None:
-    """The bounded-6P cells are derived from the sealed failure facts, not labels."""
+def test_bounded_6p_success_is_pass_with_sealed_citations(
+    packet: dict[str, Any], sealed: Any
+) -> None:
+    """A sealed 6P success renders PASS and cites every fact it rests on."""
 
     dimension = next(item for item in packet["dimensions"] if item["key"] == "bounded_6p")
     for candidate in CANDIDATES:
         cell = dimension["candidates"][candidate]
-        result = sealed(
+        document = sealed(
             f"{packet['sealed_evidence_root']}/PLAYER_CARDINALITY_{CANDIDATE_FILES[candidate]}.json"
-        )["results"]["6P"]
-        assert result["failure_kind"] == "FAIL_CLOSED_UNSATISFIED"
-        assert cell["status"] == "UNKNOWN"
-        assert cell["status"] != "UNSUPPORTED"
-        assert "FAIL_CLOSED_UNSATISFIED" in cell["status_basis"]
-        assert any(result["failure"] in residual for residual in cell["residuals"])
-        assert any(result["failure_kind"] in residual for residual in cell["residuals"])
-        assert not any(
-            citation["kind"] == "PROVIDER_CAPABILITY_DECLARATION" for citation in cell["citations"]
         )
-        assert not any("max_players" in residual for residual in cell["residuals"])
+        result = document["results"]["6P"]
+        terminal_facts = result["terminal_facts"]
+        assert result["failure_kind"] is None
+        assert result["failure"] is None
+        assert cell["status"] == "PASS"
+        assert cell["status_basis"] == "BOUNDED_6P_LIFECYCLE_AND_AF04_BOUNDED_SECONDARY_PROVEN"
+        assert cell["backing_af_verdicts"] == {"AF02": "PASS"}
+        assert not cell["blocking_rows"]
+        assert any("established by the sealed facts" in residual for residual in cell["residuals"])
+
+        cited_fields = {
+            citation["field"]
+            for citation in cell["citations"]
+            if citation["kind"] == "BOUNDED_6P_RESULT"
+        }
+        assert {
+            "results.6P.failure_kind",
+            "results.6P.steps_completed",
+            "results.6P.terminal_facts.start_status",
+            "results.6P.terminal_facts.created_player_count",
+            "results.6P.terminal_facts.priority_reached",
+        } <= cited_fields
+        gate_fields = {
+            citation["field"]: citation["value"]
+            for citation in cell["citations"]
+            if citation["kind"] in {"AF_GATE_VERDICT", "AF_GATE_BLOCKING_ROWS"}
+        }
+        assert gate_fields["gates[gate=AF02].verdict"] == "PASS"
+        assert gate_fields["gates[gate=AF04].verdict"] == "PASS"
+        assert gate_fields["gates[gate=AF04].blocking_rows"] == "[]"
+        for citation in cell["citations"]:
+            assert citation["value"] == str(_resolve_citation(citation, sealed))
+        # The cited facts are the sealed ones, including the published start
+        # status (Forge "started"; XMage publishes none, so the lifecycle proof
+        # carries and the cell states the absent status explicitly).
+        cited_by_field = {citation["field"]: citation["value"] for citation in cell["citations"]}
+        assert cited_by_field["results.6P.terminal_facts.start_status"] == str(
+            terminal_facts.get("start_status")
+        )
+        assert cited_by_field["results.6P.terminal_facts.created_player_count"] == str(
+            terminal_facts.get("created_player_count")
+        )
+        assert terminal_facts.get("priority_reached") is True
+
+
+def _claimed_6p_success() -> dict[str, Any]:
+    return {
+        "failure_kind": None,
+        "failure": None,
+        "player_count": 6,
+        "steps_completed": [
+            "handshake",
+            "import_deck",
+            "create_commander_game",
+            "start_game",
+            "decision_drive",
+        ],
+        "decision_tape": [{"chosen_option_id": "engine-offered-option"}],
+        "terminal_facts": {
+            "start_status": "started",
+            "created_player_count": 6,
+            "priority_reached": True,
+        },
+    }
+
+
+def test_bounded_6p_claimed_success_with_af04_gap_is_not_pass(generator: Any) -> None:
+    """Red control: a success claim with a sealed AF04 gap is never PASS."""
+
+    gapped = {
+        "verdict": "PASS",
+        "blocking_rows": ["PLAYER_COUNT_6P"],
+        "decision_boundary": {"contradictions": []},
+    }
+    status, basis, kind = generator.derive_bounded_6p_status(
+        "forge", _claimed_6p_success(), af02_verdict="PASS", af04_gate=gapped
+    )
+    assert status != "PASS"
+    assert status == "UNKNOWN"
+    assert "AF04_BOUNDED_SECONDARY_GAPS" in basis
+    assert "PLAYER_COUNT_6P" in basis
+    assert kind == "success_unproven"
+
+    contaminated = {
+        "verdict": "PASS",
+        "blocking_rows": [],
+        "decision_boundary": {"contradictions": [{"severity": "CONTRADICTION"}]},
+    }
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "forge", _claimed_6p_success(), af02_verdict="PASS", af04_gate=contaminated
+    )
+    assert status == "UNKNOWN"
+    assert "AF04_DECISION_BOUNDARY_CONTRADICTIONS" in basis
+
+    # Positive control: the same claim with clean sealed facts is PASS.
+    clean = {"verdict": "PASS", "blocking_rows": [], "decision_boundary": {"contradictions": []}}
+    status, basis, kind = generator.derive_bounded_6p_status(
+        "forge", _claimed_6p_success(), af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "PASS"
+    assert basis == "BOUNDED_6P_LIFECYCLE_AND_AF04_BOUNDED_SECONDARY_PROVEN"
+    assert kind == "success"
+
+
+def test_bounded_6p_success_claim_without_af02_or_lifecycle_is_not_pass(generator: Any) -> None:
+    """Red control: missing AF02 PASS or an incomplete lifecycle is never PASS."""
+
+    clean = {"verdict": "PASS", "blocking_rows": [], "decision_boundary": {"contradictions": []}}
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "forge", _claimed_6p_success(), af02_verdict="UNKNOWN", af04_gate=clean
+    )
+    assert status == "UNKNOWN"
+    assert "AF02_PLAYER_CARDINALITY" in basis
+
+    incomplete = _claimed_6p_success()
+    incomplete["terminal_facts"]["priority_reached"] = False
+    incomplete["steps_completed"] = ["handshake", "import_deck"]
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "forge", incomplete, af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "UNKNOWN"
+    assert "PRIORITY_NOT_REACHED" in basis
+    assert "LIFECYCLE_STEPS_MISSING" in basis
+
+    status, basis, _ = generator.derive_bounded_6p_status("forge", _claimed_6p_success())
+    assert status == "UNKNOWN"
+    assert "AF02_PLAYER_CARDINALITY" in basis
+    assert "AF04_BOUNDED_SECONDARY_GAPS" in basis
 
 
 def test_fail_class_bounded_6p_never_renders_benign(generator: Any) -> None:
@@ -407,33 +532,48 @@ def test_fail_class_bounded_6p_never_renders_benign(generator: Any) -> None:
         generator.derive_bounded_6p_status(
             "forge", {"failure_kind": "SOMETHING_NEW", "failure": "sealed failure"}
         )
+    with pytest.raises(generator.FailClosed, match="unknown bounded-6P start_status"):
+        claimed = _claimed_6p_success()
+        claimed["terminal_facts"]["start_status"] = "SOMETHING_NEW"
+        generator.derive_bounded_6p_status(
+            "forge",
+            claimed,
+            af02_verdict="PASS",
+            af04_gate={"verdict": "PASS", "blocking_rows": []},
+        )
 
 
 def test_gate_blocking_rows_reach_dimension_cells(packet: dict[str, Any], sealed: Any) -> None:
     """AF-gate blocking rows are carried into the cells and the residuals."""
 
-    dimension = next(item for item in packet["dimensions"] if item["id"] == 2)
-    for candidate in CANDIDATES:
-        cell = dimension["candidates"][candidate]
-        sealed_gate = next(
-            gate
-            for gate in sealed(
-                f"{packet['sealed_evidence_root']}/AF00_AF11_{CANDIDATE_FILES[candidate]}.json"
-            )["gates"]
-            if gate["gate"] == "AF04"
-        )
-        assert cell["gate_blocking_rows"]["AF04"] == sealed_gate["blocking_rows"]
-        assert sealed_gate["blocking_rows"] == [
-            "PLAYER_COUNT_2P",
-            "PLAYER_COUNT_3P",
-            "PLAYER_COUNT_4P",
-            "PLAYER_COUNT_5P",
-        ]
-        for row in sealed_gate["blocking_rows"]:
-            assert row in cell["blocking_rows"]
-            assert f"AF04 blocking row: {row}" in cell["residuals"]
-        for limitation in sealed_gate["nonblocking_limitations"]:
-            assert f"AF04 limitation: {limitation}" in cell["residuals"]
+    checked_rows = 0
+    checked_limitations = 0
+    for dimension in packet["dimensions"]:
+        for candidate in CANDIDATES:
+            cell = dimension["candidates"][candidate]
+            sealed_gates = {
+                gate["gate"]: gate
+                for gate in sealed(
+                    f"{packet['sealed_evidence_root']}/AF00_AF11_{CANDIDATE_FILES[candidate]}.json"
+                )["gates"]
+            }
+            for gate_id in dimension["backing_af_gates"]:
+                sealed_gate = sealed_gates[gate_id]
+                assert cell["gate_blocking_rows"][gate_id] == sealed_gate["blocking_rows"]
+                for row in sealed_gate["blocking_rows"]:
+                    assert f"{gate_id} blocking row: {row}" in cell["residuals"]
+                    checked_rows += 1
+                for limitation in sealed_gate["nonblocking_limitations"]:
+                    assert f"{gate_id} limitation: {limitation}" in cell["residuals"]
+                    checked_limitations += 1
+    # The carrying path must be exercised: Forge's AF05/AF06/AF08 gates carry
+    # blocking rows in every current epoch.
+    assert checked_rows > 0
+    assert checked_limitations > 0
+    af04_cell = next(item for item in packet["dimensions"] if item["id"] == 2)["candidates"][
+        "forge"
+    ]
+    assert af04_cell["gate_blocking_rows"]["AF04"] == []
 
 
 def test_pass_cells_render_backing_gate_nonblocking_limitations(
@@ -546,7 +686,7 @@ def test_source_lock_binds_epoch_and_pins(packet: dict[str, Any]) -> None:
     assert lock["sealed_epoch"]["manifest"]["mismatches"] == 0
     assert (
         lock["effective_contract"]["effective_manifest_contract_id"]
-        == "commander-lab.full107/1.0.22-successor"
+        == "commander-lab.full107/1.0.24-successor"
     )
     xmage_pin = lock["engine_pins"]["xmage"]["commit"]
     forge_pin = lock["engine_pins"]["forge_rules_core"]["commit"]

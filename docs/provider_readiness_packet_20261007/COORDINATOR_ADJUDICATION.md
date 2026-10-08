@@ -6,12 +6,14 @@ provider. `PRODUCTION_PROVIDER = NOT_SELECTED` · `ARCHITECTURE_FREEZE = NOT_CLA
 
 ## Source lock
 
-- Sealed epoch `qualification/current-boundary-epochs/b1c8f54a999a-2d13b953a82c/` (#593),
-  contract `commander-lab.full107/1.0.22-successor`, pins XMage `b479fe74`, Forge Rules-Core
-  `bb0a740d`, Forge bridge `31cbae12` — all IDENTICAL to the sealed evidence. Since #604 the
-  current contract moved past 1.0.22 (1.0.23: bounded-secondary 6P record; 1.0.24: the
-  NEGATIVE_PARENT_CLASS_FALLBACK Rules erratum; denominator unchanged), so the
-  packet records the fixture contract as `DIFFERS` from the 1.0.22 evidence until the next epoch.
+- Sealed epoch `qualification/current-boundary-epochs/ff688b58359f-42c21a3659cd/` (#614), produced
+  from main `ff688b58359f7ec3cbace344322989c18e58886a` (tree
+  `42c21a3659cdf73ca15d1baaf62bbfed9003c797`), effective contract
+  `commander-lab.full107/1.0.24-successor`, pins XMage `b479fe74`, Forge Rules-Core
+  `bb0a740d`, Forge bridge `31cbae12` — all IDENTICAL to the sealed evidence. The epoch's
+  effective contract equals the current pointer (`qualification/CURRENT_PRE_FREEZE_CONTRACT.json`,
+  1.0.24), so the packet records the fixture contract as IDENTICAL; this epoch executed the
+  1.0.22 → 1.0.24 errata, including the bounded-6P record-declared starting seat.
 - Section-F packet: `docs/provider_readiness_packet_20261007/PROVIDER_READINESS.{json,md}` (#597),
   independently reviewed on #596 (no P0/P1); both P2 findings and three P3 notes fixed in #597.
 
@@ -23,9 +25,9 @@ provider. `PRODUCTION_PROVIDER = NOT_SELECTED` · `ARCHITECTURE_FREEZE = NOT_CLA
 | AF05 hidden information | PASS | UNKNOWN (20 hidden rows unexecuted: HIDDEN_01–19 and the honeycard sentinel) |
 | AF07 actual-card corpus | PASS | UNKNOWN (CARD_02; 29 identities unexecuted) |
 | AF09 Rules RNG / semantic replay | PASS | UNKNOWN (5 replay rows) |
-| AF06 general rules correctness | UNKNOWN — 105/107 PASS, 0 BLOCKED | UNKNOWN — 20/107 PASS, 33 BLOCKED |
-| AF08 commander / multiplayer | UNKNOWN — 1 row (`WS05-CMD-MULL-2`) | UNKNOWN — 21 rows |
-| AF04 decision boundary | UNKNOWN | UNKNOWN |
+| AF06 general rules correctness | UNKNOWN — 106/107 PASS, 1 UNKNOWN (`NEGATIVE_PARENT_CLASS_FALLBACK`) | UNKNOWN — 20/107 PASS, 33 BLOCKED, 54 UNKNOWN |
+| AF08 commander / multiplayer | PASS | UNKNOWN — 21 rows |
+| AF04 decision boundary | PASS | PASS |
 | AF11 interop / licence topology | UNKNOWN | UNKNOWN |
 
 Neither candidate passes AF00–AF11. Neither is freeze-ready.
