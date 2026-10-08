@@ -1,0 +1,40 @@
+{
+  "workstream": "PB03-CHECK-EFFICIENCY-20261009",
+  "issue": 628,
+  "owner": "Codex",
+  "branch": "codex/pb03-check-efficiency-20261009",
+  "source_commit": "f3939d99f575a0e9820a82b9843589c754f8b43a",
+  "source_tree": "69fe9728d83217cf6dc054bd575a8119a81c2c48",
+  "objective": "Fail PB-03 contract defects before expensive engine work and retain the exact live probe in the source-bound packet.",
+  "owned_write": [
+    ".github/workflows/pb03-runtime-qualification.yml",
+    ".github/workflows/pb03-shadow-parallel.yml",
+    ".foundry/pb03-check-efficiency-20261009.json"
+  ],
+  "foreign_read_only": ["Claude #626/#592 runtime, fixture, contract and engine surfaces"],
+  "reuse": "REUSE_AS_IS: existing contract commands, producer, freshness assertions, packet hashing and uploader",
+  "measurements": {
+    "hosted_baseline_jobs": {"37845122855": 2773, "37842313592": 2888},
+    "hosted_last_builds_seconds": 279,
+    "hosted_last_bridge_seconds": 16,
+    "hosted_last_contract_seconds": 4,
+    "hosted_last_probe_seconds": 359,
+    "hosted_last_runner_seconds": 2022,
+    "successful_run_speedup": "NOT_CLAIMED"
+  },
+  "validation": {
+    "same_early_contract_suite_without_engine_checkouts_or_builds": "159 passed in 2.06s",
+    "contracts_triggers_overlap_comparator": "187 passed in 7.58s",
+    "injected_admission_drift": "EXPECTED_FAIL: existing assertion rejected 12/18 instead of 13/17 in 0.13s; mutation restored; valid suite PASS",
+    "workflow_structure": "Both workflows validate before external checkout/build; all producers/assertions preserved; three live-probe references agree on the hashed and uploaded epoch",
+    "diff_check": "PASS",
+    "evidence_class": "DIRECTLY_VERIFIED local controls; no runtime qualification credit"
+  },
+  "status": "IMPLEMENTED_LOCAL_VALIDATED",
+  "pending": ["exact-head required CI", "exact-head PB03", "strict fresh read-only review", "normal PR merge and canonical receipt"],
+  "forbidden_shortcuts": ["coverage reduction", "retry-to-green", "cached PASS", "required-context weakening", "foreign co-writing"],
+  "stop_conditions": "Complete after exact-head gates, admitted review, normal integration and persisted canonical receipt; stop only on a named genuine authority/ownership/source blocker.",
+  "next_action": "Publish the exact tested tree on the owned feature branch and open the bounded PR.",
+  "production_provider": "NOT_SELECTED",
+  "architecture_freeze": "NOT_CLAIMED"
+}
