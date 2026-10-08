@@ -543,6 +543,255 @@ def test_fail_class_bounded_6p_never_renders_benign(generator: Any) -> None:
         )
 
 
+def _claimed_xmage_6p_success() -> dict[str, Any]:
+    """The sealed XMage shape: no start_status, engine-confirmed seat channel."""
+
+    claim = _claimed_6p_success()
+    claim["terminal_facts"]["start_status"] = None
+    claim["terminal_facts"]["starting_player_channel"] = "PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT"
+    claim["terminal_facts"]["declared_starting_seat"] = "p1"
+    claim["terminal_facts"]["starting_player_provider_confirmed_seat"] = "p1"
+    return claim
+
+
+def _clean_af04() -> dict[str, Any]:
+    return {"verdict": "PASS", "blocking_rows": [], "decision_boundary": {"contradictions": []}}
+
+
+def test_bounded_6p_start_fact_required_for_every_candidate(generator: Any) -> None:
+    """Red controls (a): removing the positive start fact of either candidate
+    (Forge start_status, XMage engine-confirmed starting seat) is never PASS.
+
+    Mutation proof: delete the ``_bounded_6p_start_gaps`` check (or Forge's
+    start_status requirement) and the removal controls below turn green, so the
+    test is sensitive to exactly that weakening.
+    """
+
+    clean = _clean_af04()
+
+    forge = _claimed_6p_success()
+    status, _, _ = generator.derive_bounded_6p_status(
+        "forge", forge, af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "PASS"
+    del forge["terminal_facts"]["start_status"]
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "forge", forge, af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "UNKNOWN"
+    assert "FORGE_START_STATUS_NOT_OBSERVED" in basis
+
+    xmage = _claimed_xmage_6p_success()
+    status, _, _ = generator.derive_bounded_6p_status(
+        "xmage", xmage, af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "PASS"
+
+    without_channel = copy.deepcopy(xmage)
+    del without_channel["terminal_facts"]["starting_player_channel"]
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "xmage", without_channel, af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "UNKNOWN"
+    assert "XMAGE_STARTING_PLAYER_CHANNEL" in basis
+
+    mismatched_seat = copy.deepcopy(xmage)
+    mismatched_seat["terminal_facts"]["starting_player_provider_confirmed_seat"] = "p2"
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "xmage", mismatched_seat, af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "UNKNOWN"
+    assert "XMAGE_CONFIRMED_STARTING_SEAT_MISMATCH" in basis
+
+    missing_confirmed_seat = copy.deepcopy(xmage)
+    del missing_confirmed_seat["terminal_facts"]["starting_player_provider_confirmed_seat"]
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "xmage", missing_confirmed_seat, af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "UNKNOWN"
+    assert "XMAGE_CONFIRMED_STARTING_SEAT" in basis
+
+
+def test_bounded_6p_start_status_vocabulary_excludes_completed(generator: Any) -> None:
+    """Red control (e): "completed" is not observed sealed vocabulary.
+
+    Mutation proof: re-add "completed" to ``BOUNDED_6P_SUCCESS_START_STATUS``
+    and this control fails to raise, so the vocabulary tightening is guarded.
+    """
+
+    completed = _claimed_6p_success()
+    completed["terminal_facts"]["start_status"] = "completed"
+    with pytest.raises(generator.FailClosed, match="unknown bounded-6P start_status"):
+        generator.derive_bounded_6p_status(
+            "forge", completed, af02_verdict="PASS", af04_gate=_clean_af04()
+        )
+    with pytest.raises(generator.FailClosed, match="unknown bounded-6P start_status"):
+        generator.derive_bounded_6p_status(
+            "xmage", completed, af02_verdict="PASS", af04_gate=_clean_af04()
+        )
+
+
+def test_bounded_6p_player_count_must_be_six_and_match_created(generator: Any) -> None:
+    """Red controls (b)-(c) and the player-count mismatch control.
+
+    (b) missing player_count with created_player_count=4, (c)
+    player_count=created_player_count=4 in the 6P slot, and a 6-vs-4 mismatch
+    must each be UNKNOWN, never PASS.  Mutation proof: deleting the player-count
+    validation block turns these controls green.
+    """
+
+    clean = _clean_af04()
+
+    missing_declared = _claimed_6p_success()
+    del missing_declared["player_count"]
+    missing_declared["terminal_facts"]["created_player_count"] = 4
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "forge", missing_declared, af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "UNKNOWN"
+    assert "PLAYER_COUNT_FACTS_NOT_INTS" in basis
+
+    four_by_four = _claimed_6p_success()
+    four_by_four["player_count"] = 4
+    four_by_four["terminal_facts"]["created_player_count"] = 4
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "forge", four_by_four, af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "UNKNOWN"
+    assert "PLAYER_COUNT_NOT_BOUNDED_6P" in basis
+
+    mismatch = _claimed_6p_success()
+    mismatch["terminal_facts"]["created_player_count"] = 4
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "forge", mismatch, af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "UNKNOWN"
+    assert "PLAYER_COUNT_MISMATCH" in basis
+
+
+def test_bounded_6p_priority_reached_must_be_literal_true(generator: Any) -> None:
+    """Red control (d): a truthy non-True priority_reached is never PASS.
+
+    Mutation proof: replace ``is not True`` with a truthiness test and this
+    control turns green.
+    """
+
+    truthy = _claimed_6p_success()
+    truthy["terminal_facts"]["priority_reached"] = "false"
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "forge", truthy, af02_verdict="PASS", af04_gate=_clean_af04()
+    )
+    assert status == "UNKNOWN"
+    assert "PRIORITY_NOT_REACHED" in basis
+
+    false_value = _claimed_6p_success()
+    false_value["terminal_facts"]["priority_reached"] = False
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "forge", false_value, af02_verdict="PASS", af04_gate=_clean_af04()
+    )
+    assert status == "UNKNOWN"
+    assert "PRIORITY_NOT_REACHED" in basis
+
+
+def test_bounded_6p_no_bound_external_choice_red_control(generator: Any) -> None:
+    """A 6P success claim with no engine-chosen decision is never PASS.
+
+    Mutation proof: deleting the bound-choice check turns this control green.
+    """
+
+    clean = _clean_af04()
+
+    unbound = _claimed_6p_success()
+    unbound["decision_tape"] = [{"chosen_option_id": None, "offered_option_ids": ["engine-offer"]}]
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "forge", unbound, af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "UNKNOWN"
+    assert "NO_BOUND_EXTERNAL_CHOICE" in basis
+
+    empty = _claimed_6p_success()
+    empty["decision_tape"] = []
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "forge", empty, af02_verdict="PASS", af04_gate=clean
+    )
+    assert status == "UNKNOWN"
+    assert "NO_BOUND_EXTERNAL_CHOICE" in basis
+
+
+def test_bounded_6p_lifecycle_steps_out_of_order_red_control(generator: Any) -> None:
+    """A completed-step set in the wrong order is never PASS.
+
+    Mutation proof: deleting the ordering check turns this control green.
+    """
+
+    out_of_order = _claimed_6p_success()
+    out_of_order["steps_completed"] = [
+        "decision_drive",
+        "handshake",
+        "import_deck",
+        "create_commander_game",
+        "start_game",
+    ]
+    status, basis, _ = generator.derive_bounded_6p_status(
+        "forge", out_of_order, af02_verdict="PASS", af04_gate=_clean_af04()
+    )
+    assert status == "UNKNOWN"
+    assert "LIFECYCLE_STEPS_OUT_OF_ORDER" in basis
+
+
+def test_bounded_6p_xmage_cites_positive_start_fact(packet: dict[str, Any], sealed: Any) -> None:
+    """The sealed XMage cell cites channel, confirmed seat and declared seat."""
+
+    dimension = next(item for item in packet["dimensions"] if item["key"] == "bounded_6p")
+    cell = dimension["candidates"]["xmage"]
+    assert cell["status"] == "PASS"
+    cited = {
+        citation["field"]: citation["value"]
+        for citation in cell["citations"]
+        if citation["kind"] == "BOUNDED_6P_RESULT"
+    }
+    assert (
+        cited["results.6P.terminal_facts.starting_player_channel"]
+        == "PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT"
+    )
+    assert (
+        cited["results.6P.terminal_facts.starting_player_provider_confirmed_seat"]
+        == cited["results.6P.terminal_facts.declared_starting_seat"]
+    )
+    for citation in cell["citations"]:
+        assert citation["value"] == str(_resolve_citation(citation, sealed))
+
+
+def test_non_pass_cells_never_claim_all_pass_status_basis(
+    generator: Any, packet: dict[str, Any]
+) -> None:
+    """An UNKNOWN/FAIL/NOT_RUN cell must not carry the all-PASS basis string."""
+
+    all_pass_basis = "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS"
+    non_pass_cells = 0
+    for dimension in packet["dimensions"]:
+        for candidate in CANDIDATES:
+            cell = dimension["candidates"][candidate]
+            if cell["status"] == "PASS":
+                assert cell["status_basis"] == all_pass_basis or cell["status_basis"].startswith(
+                    "BOUNDED_6P_"
+                )
+                continue
+            non_pass_cells += 1
+            assert cell["status_basis"] != all_pass_basis, f"{dimension['key']}/{candidate}"
+
+    assert non_pass_cells == 31
+    assert generator.derive_status_basis("UNKNOWN", {"AF06": "UNKNOWN"}, ["PASS"]) != all_pass_basis
+    assert (
+        generator.derive_status_basis("FAIL", {"AF06": "FAIL"}, ["PASS"])
+        == "FAIL_CLASS_EVIDENCE_PRESENT:gates=AF06=FAIL:fail_class_fixtures=0"
+    )
+    assert (
+        generator.derive_status_basis("NOT_RUN", {"AF06": "NOT_RUN"}, ["NOT_RUN"])
+        == "ALL_BACKING_GATES_AND_FIXTURES_NOT_RUN"
+    )
+
+
 def test_gate_blocking_rows_reach_dimension_cells(packet: dict[str, Any], sealed: Any) -> None:
     """AF-gate blocking rows are carried into the cells and the residuals."""
 

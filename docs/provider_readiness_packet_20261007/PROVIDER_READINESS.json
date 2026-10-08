@@ -586,7 +586,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=none:unresolved_fixtures=16",
           "backing_af_verdicts": {
             "AF04": "PASS"
           },
@@ -915,7 +915,7 @@
       "candidates": {
         "xmage": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=0",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -1004,7 +1004,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=3",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -1400,7 +1400,7 @@
       "candidates": {
         "xmage": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=0",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -1503,7 +1503,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=4",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -1900,7 +1900,7 @@
       "candidates": {
         "xmage": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=0",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -2115,7 +2115,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=12",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -2662,7 +2662,7 @@
       "candidates": {
         "xmage": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=0",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -2765,7 +2765,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=4",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -3170,7 +3170,7 @@
       "candidates": {
         "xmage": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=0",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -3259,7 +3259,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=3",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -3655,7 +3655,7 @@
       "candidates": {
         "xmage": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=0",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -3730,7 +3730,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=2",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -4117,7 +4117,7 @@
       "candidates": {
         "xmage": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=0",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -4178,7 +4178,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=1",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -4548,7 +4548,7 @@
       "candidates": {
         "xmage": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=0",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -4721,7 +4721,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=3",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -5158,7 +5158,7 @@
       "candidates": {
         "xmage": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=0",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -5247,7 +5247,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=3",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -5635,7 +5635,7 @@
       "candidates": {
         "xmage": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=0",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -5766,7 +5766,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF06=UNKNOWN:unresolved_fixtures=6",
           "backing_af_verdicts": {
             "AF06": "UNKNOWN"
           },
@@ -6518,7 +6518,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF08=UNKNOWN:unresolved_fixtures=10",
           "backing_af_verdicts": {
             "AF08": "UNKNOWN"
           },
@@ -7287,7 +7287,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF08=UNKNOWN:unresolved_fixtures=11",
           "backing_af_verdicts": {
             "AF02": "PASS",
             "AF08": "UNKNOWN"
@@ -7746,7 +7746,7 @@
           },
           "blocking_rows": [],
           "residuals": [
-            "6P bounded secondary evidence is established by the sealed facts: failure_kind=None, sealed start_status=None, lifecycle steps ('handshake', 'import_deck', 'create_commander_game', 'start_game', 'decision_drive'), created_player_count=6, priority_reached=True, AF02=PASS, AF04=PASS, AF04 blocking rows []",
+            "6P bounded secondary evidence is established by the sealed facts: failure_kind=None, sealed start_status=None, positive start fact: channel='PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT', starting_player_provider_confirmed_seat='p1', declared_starting_seat='p1', lifecycle steps ('handshake', 'import_deck', 'create_commander_game', 'start_game', 'decision_drive'), created_player_count=6, priority_reached=True, AF02=PASS, AF04=PASS, AF04 blocking rows []",
             "AF02 limitation: 6P is bounded secondary evidence; 7P is not attempted on this boundary"
           ],
           "citations": [
@@ -7809,6 +7809,24 @@
               "field": "results.6P.terminal_facts.priority_reached",
               "value": "True",
               "kind": "BOUNDED_6P_RESULT"
+            },
+            {
+              "file": "qualification/current-boundary-epochs/ff688b58359f-42c21a3659cd/PLAYER_CARDINALITY_XMAGE.json",
+              "field": "results.6P.terminal_facts.starting_player_channel",
+              "value": "PROVIDER_ENGINE_CONFIRMED_STARTING_SEAT",
+              "kind": "BOUNDED_6P_RESULT"
+            },
+            {
+              "file": "qualification/current-boundary-epochs/ff688b58359f-42c21a3659cd/PLAYER_CARDINALITY_XMAGE.json",
+              "field": "results.6P.terminal_facts.declared_starting_seat",
+              "value": "p1",
+              "kind": "BOUNDED_6P_RESULT"
+            },
+            {
+              "file": "qualification/current-boundary-epochs/ff688b58359f-42c21a3659cd/PLAYER_CARDINALITY_XMAGE.json",
+              "field": "results.6P.terminal_facts.starting_player_provider_confirmed_seat",
+              "value": "p1",
+              "kind": "BOUNDED_6P_RESULT"
             }
           ]
         },
@@ -7832,7 +7850,7 @@
           },
           "blocking_rows": [],
           "residuals": [
-            "6P bounded secondary evidence is established by the sealed facts: failure_kind=None, sealed start_status='started', lifecycle steps ('handshake', 'import_deck', 'create_commander_game', 'start_game', 'decision_drive'), created_player_count=6, priority_reached=True, AF02=PASS, AF04=PASS, AF04 blocking rows []",
+            "6P bounded secondary evidence is established by the sealed facts: failure_kind=None, sealed start_status='started', positive start fact: start_status='started', lifecycle steps ('handshake', 'import_deck', 'create_commander_game', 'start_game', 'decision_drive'), created_player_count=6, priority_reached=True, AF02=PASS, AF04=PASS, AF04 blocking rows []",
             "AF02 limitation: 6P is bounded secondary evidence; 7P is not attempted on this boundary"
           ],
           "citations": [
@@ -8238,7 +8256,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF05=UNKNOWN:unresolved_fixtures=20",
           "backing_af_verdicts": {
             "AF05": "UNKNOWN"
           },
@@ -8733,7 +8751,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF09=UNKNOWN:unresolved_fixtures=2",
           "backing_af_verdicts": {
             "AF09": "UNKNOWN"
           },
@@ -8977,7 +8995,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF09=UNKNOWN:unresolved_fixtures=4",
           "backing_af_verdicts": {
             "AF09": "UNKNOWN"
           },
@@ -9143,7 +9161,7 @@
       "candidates": {
         "xmage": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF11=UNKNOWN:unresolved_fixtures=0",
           "backing_af_verdicts": {
             "AF11": "UNKNOWN"
           },
@@ -9186,7 +9204,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF11=UNKNOWN:unresolved_fixtures=0",
           "backing_af_verdicts": {
             "AF11": "UNKNOWN"
           },
@@ -9246,7 +9264,7 @@
       "candidates": {
         "xmage": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=none:unresolved_fixtures=1",
           "backing_af_verdicts": {
             "AF01": "PASS",
             "AF04": "PASS"
@@ -9383,7 +9401,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=none:unresolved_fixtures=7",
           "backing_af_verdicts": {
             "AF01": "PASS",
             "AF04": "PASS"
@@ -9636,7 +9654,7 @@
         },
         "forge": {
           "status": "UNKNOWN",
-          "status_basis": "ALL_BACKING_GATES_PASS_AND_ALL_FIXTURES_PASS",
+          "status_basis": "NOT_ALL_BACKING_GATES_AND_FIXTURES_PASS:gates=AF07=UNKNOWN:unresolved_fixtures=1",
           "backing_af_verdicts": {
             "AF07": "UNKNOWN"
           },
