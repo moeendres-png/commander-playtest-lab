@@ -112,6 +112,32 @@ jobs:
           VARIANT: max
           OIDC_BASE_URL: ''
 
+      # A run that outlives the action's GitHub token (minted once, valid for one
+      # hour) loses its push, comment and PR, and with them the agent's work
+      # (runs 37662806891, 37672161637, 37672584114). On failure or cancellation,
+      # keep the local work as a short-lived artifact instead: a bundle of every
+      # local ref plus the tracked uncommitted diff. Untracked files are never
+      # collected. The job token stays read-only; nothing is pushed from here.
+      - name: Collect unpublished agent work
+        if: failure() || cancelled()
+        run: |
+          set -uo pipefail
+          out="$RUNNER_TEMP/opencode-rescue"
+          mkdir -p "$out"
+          git -C "$GITHUB_WORKSPACE" log --oneline -20 --all > "$out/log.txt" 2>&1 || true
+          git -C "$GITHUB_WORKSPACE" status --porcelain=v1 --untracked-files=no > "$out/status.txt" 2>&1 || true
+          git -C "$GITHUB_WORKSPACE" diff HEAD > "$out/uncommitted.diff" 2>/dev/null || true
+          git -C "$GITHUB_WORKSPACE" bundle create "$out/work.bundle" --all > "$out/bundle.txt" 2>&1 || true
+
+      - name: Upload unpublished agent work
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: opencode-rescue-${{ github.job }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/opencode-rescue
+          retention-days: 7
+          if-no-files-found: ignore
+
   opencode-bunny:
     # Space Bunny MAX, the explicit secondary profile (ROUTING_AND_EFFORT.md):
     # selected only by an explicit `/bunny` comment, never as a fallback for the
@@ -219,6 +245,32 @@ jobs:
           MENTIONS: '/bunny'
           VARIANT: max
           OIDC_BASE_URL: ''
+
+      # A run that outlives the action's GitHub token (minted once, valid for one
+      # hour) loses its push, comment and PR, and with them the agent's work
+      # (runs 37662806891, 37672161637, 37672584114). On failure or cancellation,
+      # keep the local work as a short-lived artifact instead: a bundle of every
+      # local ref plus the tracked uncommitted diff. Untracked files are never
+      # collected. The job token stays read-only; nothing is pushed from here.
+      - name: Collect unpublished agent work
+        if: failure() || cancelled()
+        run: |
+          set -uo pipefail
+          out="$RUNNER_TEMP/opencode-rescue"
+          mkdir -p "$out"
+          git -C "$GITHUB_WORKSPACE" log --oneline -20 --all > "$out/log.txt" 2>&1 || true
+          git -C "$GITHUB_WORKSPACE" status --porcelain=v1 --untracked-files=no > "$out/status.txt" 2>&1 || true
+          git -C "$GITHUB_WORKSPACE" diff HEAD > "$out/uncommitted.diff" 2>/dev/null || true
+          git -C "$GITHUB_WORKSPACE" bundle create "$out/work.bundle" --all > "$out/bundle.txt" 2>&1 || true
+
+      - name: Upload unpublished agent work
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: opencode-rescue-${{ github.job }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/opencode-rescue
+          retention-days: 7
+          if-no-files-found: ignore
 
   opencode-bunny-review:
     # Mandatory cross-executor review lane (ROUTING_AND_EFFORT.md,

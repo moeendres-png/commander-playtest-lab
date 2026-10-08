@@ -572,3 +572,27 @@ def test_pull_request_target_checkouts_never_persist_credentials() -> None:
                     assert (step.get("with") or {}).get("persist-credentials") is False, path.name
                     checked += 1
     assert checked >= 1, "no pull_request_target checkout found: the check is vacuous"
+
+
+def test_opencode_rescue_runs_only_on_failure_keeps_tokens_read_only_and_skips_untracked_files():
+    # A run that outlives the action's one-hour token keeps its work as an
+    # artifact; that path must not widen the job token or collect untracked files.
+    doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
+    for job_name in ("opencode", "opencode-bunny"):
+        job = doc["jobs"][job_name]
+        assert job["permissions"].get("contents") == "read", job_name
+        names = [step.get("name") for step in job["steps"]]
+        collect = job["steps"][names.index("Collect unpublished agent work")]
+        upload = job["steps"][names.index("Upload unpublished agent work")]
+        assert names.index("Collect unpublished agent work") > names.index("Run opencode")
+        for step in (collect, upload):
+            assert step["if"] == "failure() || cancelled()", job_name
+        script = collect["run"]
+        assert "--untracked-files=no" in script
+        assert "git push" not in script and "GH_TOKEN" not in script and "secrets." not in script
+        assert "env" not in collect
+        assert upload["uses"].startswith("actions/upload-artifact@")
+        assert re.fullmatch(r"actions/upload-artifact@[0-9a-f]{40}", upload["uses"].split()[0])
+        assert upload["with"]["retention-days"] <= 7
+    review = doc["jobs"]["opencode-bunny-review"]
+    assert "Collect unpublished agent work" not in [s.get("name") for s in review["steps"]]

@@ -161,3 +161,35 @@ def test_non_credit_items_are_extracted(body):
 def test_non_credit_items_respect_the_cap():
     body = "\n".join(f"- item {n} is UNKNOWN" for n in range(12))
     assert len(oc_dispatch.non_credit_items(body)) == 5
+
+
+def test_rescue_reports_plainly_when_the_run_left_no_artifact(monkeypatch, capsys, tmp_path):
+    monkeypatch.setattr(oc_dispatch, "api", lambda path, body=None: {"artifacts": []})
+    oc_dispatch.cmd_rescue(argparse.Namespace(run=7, repo=LAB, out=str(tmp_path)))
+    assert "no unexpired opencode-rescue artifact" in capsys.readouterr().out
+
+
+def test_rescue_downloads_only_rescue_artifacts_and_pushes_nothing(monkeypatch, capsys, tmp_path):
+    artifacts = [
+        {"name": "opencode-rescue-opencode-7", "expired": False},
+        {"name": "pb03-packet", "expired": False},
+        {"name": "opencode-rescue-opencode-bunny-7", "expired": True},
+    ]
+    monkeypatch.setattr(oc_dispatch, "api", lambda path, body=None: {"artifacts": artifacts})
+    calls: list[list[str]] = []
+
+    def fake_run(cmd, check):
+        calls.append(cmd)
+        out = Path(cmd[cmd.index("-D") + 1])
+        (out / "log.txt").write_text("abc123 agent work\n", encoding="utf-8")
+        (out / "status.txt").write_text("", encoding="utf-8")
+        (out / "work.bundle").write_bytes(b"bundle")
+        return subprocess.CompletedProcess(cmd, 0)
+
+    monkeypatch.setattr(oc_dispatch.subprocess, "run", fake_run)
+    oc_dispatch.cmd_rescue(argparse.Namespace(run=7, repo=LAB, out=str(tmp_path)))
+    assert [c[c.index("-n") + 1] for c in calls] == ["opencode-rescue-opencode-7"]
+    assert all(c[:3] == ["gh", "run", "download"] for c in calls)
+    out = capsys.readouterr().out
+    assert "abc123 agent work" in out
+    assert "git fetch" in out and "work.bundle" in out
