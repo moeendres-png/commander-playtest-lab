@@ -259,6 +259,8 @@ class _OmissionClient:
         }
 
     def complete_arrival(self) -> dict[str, Any]:
+        # The record's declared checkpoint is turn 2 (P2 active); a turn-1
+        # readback is not that checkpoint.
         return {
             "construction_match": True,
             "mismatches": [],
@@ -266,7 +268,7 @@ class _OmissionClient:
                 "phase": "PRECOMBAT_MAIN",
                 "step": "PRECOMBAT_MAIN",
                 "priority_player": "P1",
-                "turn_number": 1,
+                "turn_number": 2,
             },
         }
 

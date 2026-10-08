@@ -658,15 +658,30 @@ class XmageNativeStateRestorationTest {
 
     @Test
     void rejectsUnqualifiedTemporalPoint() {
-        XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
-                "ws2-neg-temporal", 2, 424242L,
+        // The turn-2 qualification (#441 NEGATIVE_PARENT_CLASS_FALLBACK
+        // erratum) covers only the precombat main; every other turn-2 point
+        // stays fail closed, as does turn 3.
+        XmageNativeStateRestoration.Plan upkeep = new XmageNativeStateRestoration.Plan(
+                "ws2-neg-temporal-upkeep", 2, 424242L,
                 List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
                         new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40)),
-                List.of(), List.of(), 2, mage.constants.TurnPhase.PRECOMBAT_MAIN,
+                List.of(), List.of(), 2, mage.constants.TurnPhase.BEGINNING,
+                mage.constants.PhaseStep.UPKEEP, "P1", "P1");
+        try {
+            restorationFor(upkeep);
+            fail("turn-2 upkeep must remain fail closed in RG-03");
+        } catch (XmageNativeStateRestoration.RestorationException exc) {
+            assertTrue(exc.getMessage().startsWith("UNSUPPORTED_TEMPORAL_POINT"), exc.getMessage());
+        }
+        XmageNativeStateRestoration.Plan turnThree = new XmageNativeStateRestoration.Plan(
+                "ws2-neg-temporal-turn3", 2, 424242L,
+                List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
+                        new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40)),
+                List.of(), List.of(), 3, mage.constants.TurnPhase.PRECOMBAT_MAIN,
                 mage.constants.PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
         try {
-            restorationFor(plan);
-            fail("turn-2 temporal point must remain fail closed in RG-03");
+            restorationFor(turnThree);
+            fail("turn-3 must remain fail closed in RG-03");
         } catch (XmageNativeStateRestoration.RestorationException exc) {
             assertTrue(exc.getMessage().startsWith("UNSUPPORTED_TEMPORAL_POINT"), exc.getMessage());
         }
