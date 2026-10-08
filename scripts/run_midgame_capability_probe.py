@@ -787,6 +787,23 @@ def drive_arrival(
                     client.complete_arrival(),
                     engine_commit=client.engine_commit,
                 )
+            if (
+                decision_class == "declare_attacker"
+                and int(probe.get("turn_number") or 0) < target_turn
+            ):
+                # An earlier turn before a later checkpoint: the record
+                # declares no combat there, so every legal attacker is held.
+                # Holding every legal attacker is the engine's own no-attack
+                # outcome for the record's declared state, never a Lab-chosen
+                # attack; the checkpoint step itself is unaffected.
+                hold = option_of_type(decision, "hold_attacker")
+                if hold is None:
+                    raise ml.MidgameLaneError(
+                        "the engine offered no hold-attacker option on the turn before "
+                        "the record's checkpoint"
+                    )
+                client.submit_options(decision, [hold])
+                continue
             raise ml.MidgameLaneError(
                 f"the engine reached {probe.get('phase')}/{probe.get('step')} before the "
                 f"record's requested {target_phase}/{target_step} checkpoint"
