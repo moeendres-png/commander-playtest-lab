@@ -141,54 +141,7 @@ class XmageMidgameFullyCastStackResumeTest {
                 }
             }
         }
-        appendArrivalTransport(record);
         return record;
-    }
-
-    /**
-     * The record's whole pre-checkpoint history, in the shape the 1.0.26
-     * erratum scripts (the Lab only transports these declarations): one
-     * mulligan KEEP per seat (CR 103.5), the priority pass-through for every
-     * seat on the way to the checkpoint (CR 117.3d), and P1's empty turn-1
-     * attack declaration (CR 508.1/508.8). Without each step the arrival
-     * driver refuses the corresponding frame rather than choosing for a
-     * player.
-     */
-    private static void appendArrivalTransport(JsonObject record) {
-        JsonArray script = record.getAsJsonArray("decision_script");
-        for (String seat : List.of("P1", "P2", "P3", "P4")) {
-            JsonObject keep = new JsonObject();
-            keep.addProperty("actor", seat);
-            keep.addProperty("decision_family", "mulligan");
-            keep.add("selection", failClosedSelection("semantic_action", "keep_opening_hand"));
-            script.add(keep);
-        }
-        JsonObject pass = new JsonObject();
-        pass.addProperty("actor", "ALL");
-        pass.addProperty("decision_family", "priority_pass_through");
-        pass.add("selection", failClosedSelection("semantic_action", "pass_priority"));
-        script.add(pass);
-        JsonObject attack = new JsonObject();
-        attack.addProperty("actor", "P1");
-        attack.addProperty("decision_family", "declare_attackers");
-        attack.addProperty("turn", 1);
-        attack.addProperty("phase", "DECLARE_ATTACKERS");
-        JsonObject attackSelection = failClosedSelection("attacker_assignment", null);
-        attackSelection.add("semantic_value", new JsonObject());
-        attack.add("selection", attackSelection);
-        script.add(attack);
-    }
-
-    private static JsonObject failClosedSelection(String selectorKind, String value) {
-        JsonObject selection = new JsonObject();
-        selection.addProperty("matches_only_provider_offered_legal_options", true);
-        selection.addProperty("on_zero_match", "FAIL_CLOSED");
-        selection.addProperty("on_multiple_match", "FAIL_CLOSED");
-        selection.addProperty("selector_kind", selectorKind);
-        if (value != null) {
-            selection.addProperty("semantic_value", value);
-        }
-        return selection;
     }
 
     /** The requested-state principal the engine names on the pending frame. */
@@ -789,6 +742,43 @@ class XmageMidgameFullyCastStackResumeTest {
         assertEquals(1, stack.size());
         assertEquals("Syphon Mind",
                 stack.get(0).getAsJsonObject().get("card_identity").getAsString());
+    }
+
+    @Test
+    void aProducedGraveyardIdentityWithNoEngineZoneChangeMismatches() {
+        // Contract 1.0.26 marks the declared graveyard Mountain with
+        // produced_by_step cleanup-r1-P1 (CR 514.1): the engine's own scripted
+        // discard is the only source, so the checkpoint never tops it up. The
+        // record's own Mountain stays satisfied by that discard; this control
+        // adds a second produced identity the engine's history does not
+        // produce. The old top-up behavior would inject it and construct
+        // EXACT for the wrong reason; the produced rule leaves it missing and
+        // the exact comparison fails the construction closed.
+        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
+        JsonObject record = effectiveRecord(FIXTURE);
+        JsonObject producedIsland = null;
+        for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
+            JsonObject object = element.getAsJsonObject();
+            if ("graveyard".equals(object.get("zone").getAsString())) {
+                producedIsland = object.deepCopy();
+            }
+        }
+        assertNotNull(producedIsland, "the record declares a produced graveyard object");
+        producedIsland.addProperty("semantic_id", "obj:negative-graveyard-island");
+        producedIsland.addProperty("card_identity", "Island");
+        producedIsland.addProperty("card_lineage_id", "line:obj:negative-graveyard-island");
+        record.getAsJsonArray("semantic_objects").add(producedIsland);
+
+        JsonObject arrival = arriveOn(lane, "produced-no-zone-change", record);
+        assertFalse(arrival.get("construction_match").getAsBoolean(),
+                "a produced identity without the engine's own zone change must mismatch: "
+                        + arrival);
+        String mismatches = arrival.getAsJsonArray("mismatches").toString();
+        assertTrue(mismatches.contains("GRAVEYARD|Island"), mismatches);
+        assertTrue(mismatches.contains("requested 1 observed 0"), mismatches);
+        // The Mountain the engine did discard still matches: the control
+        // isolates the missing produced identity, not the declared history.
+        assertFalse(mismatches.contains("GRAVEYARD|Mountain"), mismatches);
     }
 
     // ------------------------------------------------------------------

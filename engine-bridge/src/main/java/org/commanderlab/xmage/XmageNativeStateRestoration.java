@@ -139,8 +139,27 @@ final class XmageNativeStateRestoration {
             String owner,
             String controller,
             Zone zone,
-            boolean tapped
+            boolean tapped,
+            /**
+             * The record's producing step id when the object's zone change is
+             * caused by the engine's own scripted history (contract 1.0.26's
+             * {@code produced_by_step}); {@code null} when the object is setup
+             * state this lane places. A produced object is never topped up: the
+             * engine's own zone change is the only source and a missing one is
+             * an exact-comparison mismatch (fail closed), never a silent cheat.
+             */
+            String producedByStep
     ) {
+        RequestedObject(
+                String semanticId,
+                String cardIdentity,
+                String owner,
+                String controller,
+                Zone zone,
+                boolean tapped
+        ) {
+            this(semanticId, cardIdentity, owner, controller, zone, tapped, null);
+        }
     }
 
     /**
@@ -365,6 +384,14 @@ final class XmageNativeStateRestoration {
      * to the record, it never duplicates an engine-performed zone change.
      */
     private final Map<String, List<Card>> deferredGraveyardByPlayer = new HashMap<>();
+    /**
+     * The deferred graveyard cards whose record object declares
+     * {@code produced_by_step} (contract 1.0.26): their zone change is the
+     * engine's own scripted history, so the checkpoint never tops them up. A
+     * missing engine zone change stays missing and the exact comparison fails
+     * the construction.
+     */
+    private final Set<UUID> producedByStepGraveyardCardIds = new HashSet<>();
     private final Map<String, UUID> injectedObjectIdsBySemanticId = new HashMap<>();
     private final Map<String, UUID> commanderObjectIdsBySemanticId = new HashMap<>();
     private boolean arrivalRestored;
@@ -710,13 +737,17 @@ final class XmageNativeStateRestoration {
             };
             boolean tapped = object.has("tapped") && !object.get("tapped").isJsonNull()
                     && object.get("tapped").getAsBoolean();
+            String producedByStep = object.has("produced_by_step")
+                    && !object.get("produced_by_step").isJsonNull()
+                    ? object.get("produced_by_step").getAsString() : null;
             objects.add(new RequestedObject(
                     semanticId,
                     canonicalCardIdentity(object.get("card_identity").getAsString()),
                     object.get("owner").getAsString(),
                     object.get("controller").getAsString(),
                     zone,
-                    tapped));
+                    tapped,
+                    producedByStep));
         }
         for (RequestedCommander commander : commanders) {
             if (commander.zone() != Zone.COMMAND && commander.semanticId() == null) {
@@ -1345,10 +1376,16 @@ final class XmageNativeStateRestoration {
                             // Turn-2 checkpoint: the recorded graveyard is
                             // checkpoint state the engine's own turn 1 may
                             // already produce (the scripted cleanup discard);
-                            // place only the shortfall at the checkpoint.
+                            // place only the shortfall at the checkpoint. An
+                            // object the record marks with produced_by_step is
+                            // never placed at all: only the engine's own zone
+                            // change may satisfy it.
                             deferredGraveyardByPlayer
                                     .computeIfAbsent(requested.playerId(), ignored -> new ArrayList<>())
                                     .add(card);
+                            if (object.producedByStep() != null) {
+                                producedByStepGraveyardCardIds.add(card.getId());
+                            }
                         } else {
                             graveyard.add(card);
                         }
@@ -1775,9 +1812,10 @@ final class XmageNativeStateRestoration {
      * state does not already satisfy them: the engine's own turn 1 may have
      * produced the recorded graveyard result itself (P1's scripted cleanup
      * discard), and a construction never duplicates an engine-performed zone
-     * change. The zone is topped up per card identity through the same engine
-     * setup primitive the pre-start placement uses; the comparison afterwards
-     * still checks the exact requested multiset.
+     * change. A requested object the record marks with {@code produced_by_step}
+     * is never topped up, however far the engine's state is from the record:
+     * only the engine's own zone change may satisfy it, and a missing one is
+     * left to the exact comparison (fail closed), never silently injected.
      */
     private void applyDeferredGraveyardAtCheckpoint(
             GameCommanderImpl game, Map<String, Player> playersByPid) {
@@ -1794,6 +1832,13 @@ final class XmageNativeStateRestoration {
             List<Card> toPlace = new ArrayList<>();
             for (Card card : entry.getValue()) {
                 int want = planned.merge(card.getName(), 1, Integer::sum);
+                if (producedByStepGraveyardCardIds.contains(card.getId())) {
+                    // The record's produced object: the engine's own zone change
+                    // is the only source. Never placed here; the exact
+                    // comparison below the checkpoint fails closed when the
+                    // engine's history did not produce it.
+                    continue;
+                }
                 if (present.getOrDefault(card.getName(), 0) < want) {
                     toPlace.add(card);
                 }

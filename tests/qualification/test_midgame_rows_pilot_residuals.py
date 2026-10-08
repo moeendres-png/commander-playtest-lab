@@ -259,8 +259,22 @@ class _OmissionClient:
         }
 
     def complete_arrival(self) -> dict[str, Any]:
-        # The record's declared checkpoint is turn 2 (P2 active); a turn-1
-        # readback is not that checkpoint.
+        # The engine's own turn-1 cleanup discard (CR 514.1) is asked in the
+        # CLEANUP step of turn 1; the record's scripted step declares exactly
+        # that point. The record's declared checkpoint (turn 2, P2 active) is
+        # a different moment and every other readback is that checkpoint.
+        pending = self._decisions[0] if self._decisions else None
+        if pending is not None and pending.get("decision_id") == "d-cleanup":
+            return {
+                "construction_match": True,
+                "mismatches": [],
+                "observation": {
+                    "phase": "CLEANUP",
+                    "step": "CLEANUP",
+                    "priority_player": "P1",
+                    "turn_number": 1,
+                },
+            }
         return {
             "construction_match": True,
             "mismatches": [],
