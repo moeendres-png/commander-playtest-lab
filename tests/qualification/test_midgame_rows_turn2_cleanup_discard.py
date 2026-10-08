@@ -22,6 +22,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from commander_lab.qualification.current_boundary import midgame_rows as mr
 from commander_lab.qualification.current_boundary.materialization import (
     load_effective_materialization,
@@ -38,18 +40,80 @@ def _effective_record() -> dict[str, Any]:
     return load_effective_materialization(REPO_ROOT).record(PARENT_CLASS)
 
 
+def _probe_module(name: str) -> Any:
+    import importlib.util
+
+    probe_path = REPO_ROOT / "scripts" / "run_midgame_capability_probe.py"
+    spec = importlib.util.spec_from_file_location(name, probe_path)
+    assert spec is not None and spec.loader is not None
+    probe = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(probe)
+    return probe
+
+
+_FAIL_CLOSED = {
+    "matches_only_provider_offered_legal_options": True,
+    "on_zero_match": "FAIL_CLOSED",
+    "on_multiple_match": "FAIL_CLOSED",
+}
+
+
 def _turn2_record(value: Any = None, actor: str = "P1") -> dict[str, Any]:
-    """The record with a declared starter and the scripted turn-1 discard."""
+    """The record with a declared starter and its full pre-checkpoint history.
+
+    The test-local copy carries the ruled transport shape (contract 1.0.26 is
+    produced by its own generator): the pregame keeps (CR 103.5), the arrival
+    priority pass-through (CR 117.3d) and P1's empty turn-1 attack declaration
+    (CR 508.1) are the record's own declarations; the Lab transports them and
+    never chooses for a player.
+    """
     if value is None:
         value = {"Mountain": 1}
     record = _effective_record()
     record["starting_player"] = "P1"
     record["decision_script"] = [
         {
+            "actor": seat,
+            "decision_family": "mulligan",
+            "selection": {
+                **_FAIL_CLOSED,
+                "selector_kind": "semantic_action",
+                "semantic_value": "keep_opening_hand",
+            },
+        }
+        for seat in ("P1", "P2", "P3", "P4")
+    ] + [
+        {
+            "actor": "ALL",
+            "decision_family": "priority_pass_through",
+            "selection": {
+                **_FAIL_CLOSED,
+                "selector_kind": "semantic_action",
+                "semantic_value": "pass_priority",
+            },
+        },
+        {
+            "actor": "P1",
+            "decision_family": "declare_attackers",
+            "phase": "DECLARE_ATTACKERS",
+            "turn": 1,
+            "selection": {
+                **_FAIL_CLOSED,
+                "selector_kind": "attacker_assignment",
+                "semantic_value": {},
+            },
+        },
+        {
             "actor": actor,
             "decision_family": "cleanup_discard",
-            "selection": {"selector_kind": "card_identity_multiset", "semantic_value": value},
-        }
+            "phase": "CLEANUP",
+            "turn": 1,
+            "selection": {
+                **_FAIL_CLOSED,
+                "selector_kind": "card_identity_multiset",
+                "semantic_value": value,
+            },
+        },
     ]
     return record
 
@@ -97,6 +161,22 @@ def _priority_frame(
         "actor_id": actor_id,
         "seat": seat,
         "legal_options": [{"option_id": option_id, "option_type": "pass_priority"}],
+    }
+
+
+def _attacker_frame(
+    *,
+    decision_id: str = "d-atk-1",
+    seat: int = 0,
+    actor_id: str = "actor-0",
+    option_id: str = "hold-1",
+) -> dict[str, Any]:
+    return {
+        "decision_id": decision_id,
+        "decision_class": "declare_attacker",
+        "actor_id": actor_id,
+        "seat": seat,
+        "legal_options": [{"option_id": option_id, "option_type": "hold_attacker"}],
     }
 
 
@@ -246,6 +326,82 @@ def test_a_turn_one_checkpoint_active_player_is_the_starter_by_cr_103_1() -> Non
         {"temporal_state": {"turn_number": 1, "active_player": "P3"}}
     )
     assert seat == "p3"
+
+
+def test_a_malformed_explicit_starter_field_is_never_salvaged_from_turn_one() -> None:
+    """Review 5462161504 control (1 of 2 refusals): a malformed explicit
+    ``starting_player`` field is the parser's refusal, not an absent
+    declaration, so it must never fall back to the authorized turn-1
+    active-player shape."""
+    assert midgame_starting_seat(
+        {"starting_player": "INVALID", "temporal_state": {"turn_number": 1, "active_player": "P2"}}
+    ) == (None, None)
+
+
+def test_a_malformed_scripted_starter_step_is_never_salvaged_from_turn_one() -> None:
+    """Review 5462161504 control (2 of 2 refusals): a ``starting_player`` script
+    step without its fail-closed selection contract carries no seat, and a
+    turn-1 active player must never repair that malformed authority."""
+    record = {
+        "decision_script": [
+            {
+                "decision_family": "starting_player",
+                # The selector kind names a seat, but the fail-closed selection
+                # contract is missing: no valid declaration has been read.
+                "selection": {"selector_kind": "seat", "semantic_value": "P1"},
+            }
+        ],
+        "temporal_state": {"turn_number": 1, "active_player": "P2"},
+    }
+    assert midgame_starting_seat(record) == (None, None)
+
+
+def test_an_absent_starter_declaration_at_turn_one_uses_the_authorized_shape() -> None:
+    """Positive control: with no declaration shape at all, the turn-1 active
+    player is the starter (CR 103.1) and the authorized shape is used."""
+    assert midgame_starting_seat({"temporal_state": {"turn_number": 1, "active_player": "P3"}}) == (
+        "p3",
+        "RECORD_TEMPORAL_STATE_TURN_ONE_ACTIVE_PLAYER",
+    )
+
+
+def test_an_explicit_starter_declaration_wins_at_a_later_checkpoint() -> None:
+    """Positive control: a valid explicit declaration is used even when the
+    checkpoint's active player (turn 2, P2) is a different seat."""
+    seat, source = midgame_starting_seat(
+        {
+            "starting_player": "P1",
+            "temporal_state": {"turn_number": 2, "active_player": "P2"},
+        }
+    )
+    assert (seat, source) == ("p1", "RECORD_STARTING_PLAYER_FIELD")
+
+
+def test_drive_arrival_refuses_a_malformed_starter_before_any_label_or_frame() -> None:
+    """Review 5462161504: the arrival driver refuses missing/invalid starting
+    authority before deriving any seat label; the checkpoint's active player
+    (P2) is never used as a fallback. No engine frame is answered."""
+    probe = _probe_module("probe_authority_under_test")
+    record = _turn2_record()
+    record["starting_player"] = "INVALID"
+    client = _SequencedClient([_checkpoint_frame(TURN2_MAIN)])
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_arrival(client, record)
+    assert "no usable starting authority" in str(excinfo.value)
+    assert client.submissions == []
+
+
+def test_drive_arrival_refuses_an_undeclared_starter_for_a_later_checkpoint() -> None:
+    """Review 5462161504: without any starting declaration a turn-2 checkpoint
+    fails closed before the arrival answers anything."""
+    probe = _probe_module("probe_no_authority_under_test")
+    record = _turn2_record()
+    record.pop("starting_player")
+    client = _SequencedClient([_checkpoint_frame(TURN2_MAIN)])
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_arrival(client, record)
+    assert "no usable starting authority" in str(excinfo.value)
+    assert client.submissions == []
 
 
 def test_disagreeing_starter_declarations_are_never_resolved_by_fallback() -> None:
@@ -484,3 +640,153 @@ def test_an_undeclared_cleanup_discard_is_never_answered_by_the_lab() -> None:
     assert not execution.verified
     assert "arrival failed closed" in execution.detail
     assert client.proposals == []
+
+
+# --------------------------------------------------------------------------- #
+# Pre-checkpoint transport is only ever the record's own declaration
+# --------------------------------------------------------------------------- #
+
+
+def test_an_unscripted_turn_one_attacker_frame_fails_closed() -> None:
+    """Review 5462161504 P1 red control: the absence of a combat declaration in
+    the record is not an answer. The frame must be refused before any
+    submission, never auto-held."""
+    record = _turn2_record()
+    record["decision_script"] = [
+        step
+        for step in record["decision_script"]
+        if step.get("decision_family") != "declare_attackers"
+    ]
+    client = _SequencedClient(
+        [
+            (
+                _attacker_frame(),
+                _legal("actor-0", [{"action_id": "hold-1", "metadata": {"seat": 0}}]),
+                _observation(1, "COMBAT", "DECLARE_ATTACKERS", "P1"),
+            ),
+            _checkpoint_frame(TURN2_MAIN),
+        ]
+    )
+    execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
+    assert not execution.verified
+    assert "never holds an unrecorded attack" in execution.detail
+    assert client.submissions == []
+
+
+def test_a_scripted_empty_attack_declaration_answers_each_offered_creature() -> None:
+    """The record's own empty ``declare_attackers`` declaration is transported:
+    each engine attacker frame gets its own offered hold option (CR 508.1)."""
+    probe = _probe_module("probe_attacker_under_test")
+    record = _turn2_record()
+    client = _SequencedClient(
+        [
+            (
+                _attacker_frame(),
+                _legal("actor-0", [{"action_id": "hold-1", "metadata": {"seat": 0}}]),
+                _observation(1, "COMBAT", "DECLARE_ATTACKERS", "P1"),
+            ),
+            (
+                _attacker_frame(decision_id="d-atk-2", option_id="hold-2"),
+                _legal("actor-0", [{"action_id": "hold-2", "metadata": {"seat": 0}}]),
+                _observation(1, "COMBAT", "DECLARE_ATTACKERS", "P1"),
+            ),
+            _checkpoint_frame(TURN2_MAIN),
+        ]
+    )
+    verdict = probe.drive_arrival(client, record)
+    assert verdict is not None and verdict.construction_verdict == "EXACT"
+    assert client.submissions == [["hold-1"], ["hold-2"]]
+
+
+def test_an_attacker_frame_without_a_readable_turn_fails_closed() -> None:
+    """Probe item 2: a turn comparison without an int ``turn_number`` is never
+    guessed; the attacker frame fails closed."""
+    probe = _probe_module("probe_no_turn_under_test")
+    record = _turn2_record()
+    client = _SequencedClient(
+        [
+            (
+                _attacker_frame(),
+                _legal("actor-0", [{"action_id": "hold-1", "metadata": {"seat": 0}}]),
+                {"phase": "COMBAT", "step": "DECLARE_ATTACKERS", "priority_player": "P1"},
+            )
+        ]
+    )
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_arrival(client, record)
+    assert "without a readable turn" in str(excinfo.value)
+    assert client.submissions == []
+
+
+def test_an_unscripted_priority_pass_fails_closed() -> None:
+    """The arrival pilot never passes priority on a player's behalf: a priority
+    frame outside a declared ``priority_pass_through`` scope fails closed."""
+    record = _turn2_record()
+    record["decision_script"] = [
+        step
+        for step in record["decision_script"]
+        if step.get("decision_family") != "priority_pass_through"
+    ]
+    client = _SequencedClient(
+        [
+            _checkpoint_frame(
+                _observation(1, "PRECOMBAT_MAIN", "PRECOMBAT_MAIN", "P1"),
+                seat=0,
+                decision_id="d-turn1",
+                option_id="pass-1",
+            ),
+            _checkpoint_frame(TURN2_MAIN),
+        ]
+    )
+    execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
+    assert not execution.verified
+    assert "scripts no priority pass-through" in execution.detail
+    assert client.submissions == []
+
+
+def test_an_unscripted_mulligan_keep_fails_closed() -> None:
+    """The arrival pilot never keeps an opening hand on a player's behalf: a
+    mulligan frame without the record's own keep step fails closed."""
+    probe = _probe_module("probe_mulligan_under_test")
+    record = _turn2_record()
+    record["decision_script"] = [
+        step for step in record["decision_script"] if step.get("decision_family") != "mulligan"
+    ]
+    client = _SequencedClient(
+        [
+            (
+                {
+                    "decision_id": "d-mull-1",
+                    "decision_class": "mulligan",
+                    "actor_id": "actor-0",
+                    "seat": 0,
+                    "legal_options": [{"option_id": "keep-1", "option_type": "keep"}],
+                },
+                _legal("actor-0", [{"action_id": "keep-1", "metadata": {"seat": 0}}]),
+                {"phase": "UNINITIALIZED", "step": "MULLIGAN", "priority_player": "P1"},
+            )
+        ]
+    )
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_arrival(client, record)
+    assert "scripts no mulligan keep for P1" in str(excinfo.value)
+    assert client.submissions == []
+
+
+def test_a_cleanup_discard_is_bound_to_its_declared_phase_and_turn() -> None:
+    """Probe item 4: the same decision family at another turn's cleanup is not
+    the scripted step; the frame fails closed rather than matching by class."""
+    record = _turn2_record()
+    client = _SequencedClient(
+        [
+            _cleanup_frame(
+                [_card_offer("Mountain", "n-mtn-a", "opt-a")],
+                observation=_observation(2, "CLEANUP", "CLEANUP", "P2"),
+                seat=1,
+            )
+        ]
+    )
+    execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
+    assert not execution.verified
+    assert "cleanup_discard for turn 1" in execution.detail
+    assert client.submissions == []

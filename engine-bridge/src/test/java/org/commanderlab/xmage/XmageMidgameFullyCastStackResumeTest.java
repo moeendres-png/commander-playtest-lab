@@ -141,7 +141,110 @@ class XmageMidgameFullyCastStackResumeTest {
                 }
             }
         }
+        appendArrivalTransport(record);
         return record;
+    }
+
+    /**
+     * The record's whole pre-checkpoint history, in the shape the 1.0.26
+     * erratum scripts (the Lab only transports these declarations): one
+     * mulligan KEEP per seat (CR 103.5), the priority pass-through for every
+     * seat on the way to the checkpoint (CR 117.3d), and P1's empty turn-1
+     * attack declaration (CR 508.1/508.8). Without each step the arrival
+     * driver refuses the corresponding frame rather than choosing for a
+     * player.
+     */
+    private static void appendArrivalTransport(JsonObject record) {
+        JsonArray script = record.getAsJsonArray("decision_script");
+        for (String seat : List.of("P1", "P2", "P3", "P4")) {
+            JsonObject keep = new JsonObject();
+            keep.addProperty("actor", seat);
+            keep.addProperty("decision_family", "mulligan");
+            keep.add("selection", failClosedSelection("semantic_action", "keep_opening_hand"));
+            script.add(keep);
+        }
+        JsonObject pass = new JsonObject();
+        pass.addProperty("actor", "ALL");
+        pass.addProperty("decision_family", "priority_pass_through");
+        pass.add("selection", failClosedSelection("semantic_action", "pass_priority"));
+        script.add(pass);
+        JsonObject attack = new JsonObject();
+        attack.addProperty("actor", "P1");
+        attack.addProperty("decision_family", "declare_attackers");
+        attack.addProperty("turn", 1);
+        attack.addProperty("phase", "DECLARE_ATTACKERS");
+        JsonObject attackSelection = failClosedSelection("attacker_assignment", null);
+        attackSelection.add("semantic_value", new JsonObject());
+        attack.add("selection", attackSelection);
+        script.add(attack);
+    }
+
+    private static JsonObject failClosedSelection(String selectorKind, String value) {
+        JsonObject selection = new JsonObject();
+        selection.addProperty("matches_only_provider_offered_legal_options", true);
+        selection.addProperty("on_zero_match", "FAIL_CLOSED");
+        selection.addProperty("on_multiple_match", "FAIL_CLOSED");
+        selection.addProperty("selector_kind", selectorKind);
+        if (value != null) {
+            selection.addProperty("semantic_value", value);
+        }
+        return selection;
+    }
+
+    /** The requested-state principal the engine names on the pending frame. */
+    private static String principalOf(JsonObject decision) {
+        return "P" + (decision.get("seat").getAsInt() + 1);
+    }
+
+    private static boolean scriptedKeepFor(JsonObject record, String principal) {
+        for (JsonElement element : record.getAsJsonArray("decision_script")) {
+            JsonObject step = element.getAsJsonObject();
+            if (!"mulligan".equals(step.get("decision_family").getAsString())
+                    || !principal.equals(step.get("actor").getAsString())) {
+                continue;
+            }
+            JsonObject selection = step.getAsJsonObject("selection");
+            if ("semantic_action".equals(selection.get("selector_kind").getAsString())
+                    && "keep_opening_hand".equals(selection.get("semantic_value").getAsString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean scriptedPriorityPassFor(JsonObject record, String principal) {
+        for (JsonElement element : record.getAsJsonArray("decision_script")) {
+            JsonObject step = element.getAsJsonObject();
+            if (!"priority_pass_through".equals(step.get("decision_family").getAsString())) {
+                continue;
+            }
+            String actor = step.get("actor").getAsString();
+            if (!"ALL".equals(actor) && !"ANY".equals(actor) && !principal.equals(actor)) {
+                continue;
+            }
+            JsonObject selection = step.getAsJsonObject("selection");
+            if ("semantic_action".equals(selection.get("selector_kind").getAsString())
+                    && "pass_priority".equals(selection.get("semantic_value").getAsString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean scriptedEmptyAttackFor(JsonObject record, String principal) {
+        for (JsonElement element : record.getAsJsonArray("decision_script")) {
+            JsonObject step = element.getAsJsonObject();
+            if (!"declare_attackers".equals(step.get("decision_family").getAsString())
+                    || !principal.equals(step.get("actor").getAsString())) {
+                continue;
+            }
+            JsonObject selection = step.getAsJsonObject("selection");
+            if ("attacker_assignment".equals(selection.get("selector_kind").getAsString())
+                    && selection.getAsJsonObject("semantic_value").isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -378,15 +481,22 @@ class XmageMidgameFullyCastStackResumeTest {
     }
 
     /**
-     * One arrival frame that is not a {@code priority} frame, answered for the
-     * record's own declarations: mulligans keep, a seat choice is answered at
-     * the record's declared starting seat, the cleanup discard comes from the
-     * record's scripted card-name multiset, and turn-1 combat (which the record
-     * declares none of) holds every legal attacker. Anything else fails closed.
+     * One arrival frame that is not a {@code priority} frame, answered only
+     * from the record's own declarations: the mulligan KEEP is scripted per
+     * seat, a seat choice is answered at the record's declared starting seat,
+     * the cleanup discard comes from the record's scripted card-name multiset,
+     * and the pre-checkpoint attack frame is held only from the record's own
+     * empty {@code declare_attackers} step. A missing declaration fails closed
+     * before any submission; the transport never chooses for a player.
      */
     private static void answerArrivalFrame(Lane lane, JsonObject record, JsonObject decision) {
         String decisionClass = decision.get("decision_class").getAsString();
         if ("mulligan".equals(decisionClass)) {
+            String principal = principalOf(decision);
+            if (!scriptedKeepFor(record, principal)) {
+                fail("the record scripts no mulligan keep for " + principal
+                        + ": the arrival transport never keeps an opening hand");
+            }
             submit(lane, decision, option(decision, "keep"));
         } else if ("choice".equals(decisionClass) || "choose_object".equals(decisionClass)) {
             String bySeat = firstOptionLabelled(decision, startingSeatLabel(record));
@@ -396,9 +506,11 @@ class XmageMidgameFullyCastStackResumeTest {
                 submit(lane, decision, scriptedCleanupSelection(record, decision));
             }
         } else if ("declare_attacker".equals(decisionClass)) {
-            // The record declares no turn-1 combat. Holding every legal
-            // attacker is the engine's own no-attack outcome (the only
-            // declaration consistent with the record); no attack is chosen.
+            String principal = principalOf(decision);
+            if (!scriptedEmptyAttackFor(record, principal)) {
+                fail("the record scripts no empty declare_attackers step for " + principal
+                        + ": the arrival transport never holds an unrecorded attack");
+            }
             submit(lane, decision, option(decision, "hold_attacker"));
         } else {
             fail("unexpected decision during arrival: " + decisionClass);
@@ -430,6 +542,7 @@ class XmageMidgameFullyCastStackResumeTest {
                         && "PRECOMBAT_MAIN".equals(observation.get("phase").getAsString())) {
                     return arrival;
                 }
+                requireScriptedPass(record, decision);
                 submit(lane, decision, option(decision, "pass_priority"));
             } else {
                 answerArrivalFrame(lane, record, decision);
@@ -455,6 +568,7 @@ class XmageMidgameFullyCastStackResumeTest {
                 if (!response.get("success").getAsBoolean()) {
                     return response;
                 }
+                requireScriptedPass(record, decision);
                 submit(lane, decision, option(decision, "pass_priority"));
             } else {
                 answerArrivalFrame(lane, record, decision);
@@ -462,6 +576,55 @@ class XmageMidgameFullyCastStackResumeTest {
         }
         fail("the checkpoint was never reached");
         return null;
+    }
+
+    /** A priority answer is authorized only by the record's own pass-through step. */
+    private static void requireScriptedPass(JsonObject record, JsonObject decision) {
+        String principal = principalOf(decision);
+        if (!scriptedPriorityPassFor(record, principal)) {
+            fail("the record scripts no priority pass-through for " + principal
+                    + ": the arrival transport never passes priority on a player's behalf");
+        }
+    }
+
+    private static void removeScriptFamily(JsonObject record, String family) {
+        JsonArray kept = new JsonArray();
+        for (JsonElement element : record.getAsJsonArray("decision_script")) {
+            if (!family.equals(element.getAsJsonObject().get("decision_family").getAsString())) {
+                kept.add(element);
+            }
+        }
+        record.add("decision_script", kept);
+    }
+
+    // ------------------------------------------------------------------
+    // Unscripted arrival frames fail closed before any submission
+    // ------------------------------------------------------------------
+
+    @Test
+    void anUnscriptedMulliganKeepIsRefusedBeforeAnySubmission() {
+        JsonObject record = effectiveRecord(FIXTURE);
+        removeScriptFamily(record, "mulligan");
+        JsonObject decision = new JsonObject();
+        decision.addProperty("decision_class", "mulligan");
+        decision.addProperty("seat", 0);
+        AssertionError failure = assertThrows(AssertionError.class,
+                () -> answerArrivalFrame(null, record, decision));
+        assertTrue(failure.getMessage().contains("never keeps an opening hand"),
+                failure.getMessage());
+    }
+
+    @Test
+    void anUnscriptedAttackDeclarationIsRefusedBeforeAnySubmission() {
+        JsonObject record = effectiveRecord(FIXTURE);
+        removeScriptFamily(record, "declare_attackers");
+        JsonObject decision = new JsonObject();
+        decision.addProperty("decision_class", "declare_attacker");
+        decision.addProperty("seat", 0);
+        AssertionError failure = assertThrows(AssertionError.class,
+                () -> answerArrivalFrame(null, record, decision));
+        assertTrue(failure.getMessage().contains("never holds an unrecorded attack"),
+                failure.getMessage());
     }
 
     // ------------------------------------------------------------------

@@ -147,6 +147,13 @@ def midgame_starting_seat(record: Any) -> tuple[str | None, str | None]:
     active player either.
     """
     declarations = _declarations(record, pre_first_turn_shape=True)
+    if declarations is None:
+        # A declared shape carries no seat at all: that is the parser's refusal
+        # of malformed explicit authority, not the absence of a declaration.
+        # Only an empty list (no declaration shape present) may use the
+        # authorized turn-1 active-player shape below; a malformed explicit
+        # ``starting_player`` field or script must never be salvaged from it.
+        return None, None
     if declarations:
         declared = _one_declaration(declarations)
         if declared[0] is not None:

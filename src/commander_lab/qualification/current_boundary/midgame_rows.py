@@ -524,6 +524,45 @@ def step_decision_class(step: dict[str, Any]) -> str:
     return engine_decision_class(family)
 
 
+# The record's arrival transport steps: answered by the arrival driver itself
+# (the starting-seat declaration CR 103.1, the pregame keeps CR 103.5, the
+# priority pass-through CR 117.3d and the pre-checkpoint empty attack
+# declaration CR 508.1), never by the obligation loop's engine-frame matching.
+ARRIVAL_TRANSPORT_FAMILIES = frozenset(
+    {"starting_player", "mulligan", "priority_pass_through", "declare_attackers"}
+)
+
+
+def _require_scripted_temporal_point(client: ml.MidgameLaneClient, step: dict[str, Any]) -> None:
+    """Refuse a scripted step whose declared phase/turn is not the engine's point.
+
+    A decision family can be asked at more than one point in a game (a cleanup
+    discard happens every turn); a step that declares its own ``phase``/``turn``
+    binds to exactly that point, and the same family at another point is an
+    unscripted extra decision that fails closed.
+    """
+    declared_turn = step.get("turn")
+    declared_phase = str(step.get("phase") or "").upper()
+    if declared_turn is None and not declared_phase:
+        return
+    observation = client.complete_arrival().get("observation") or {}
+    if declared_turn is not None and observation.get("turn_number") != declared_turn:
+        raise ml.MidgameLaneError(
+            f"the record scripts {step.get('decision_family')} for turn {declared_turn}; "
+            f"the engine asked it in turn {observation.get('turn_number')}"
+        )
+    if declared_phase:
+        tokens = {
+            str(observation.get("phase") or "").upper(),
+            str(observation.get("step") or "").upper(),
+        }
+        if declared_phase not in tokens:
+            raise ml.MidgameLaneError(
+                f"the record scripts {step.get('decision_family')} for {declared_phase}; "
+                f"the engine asked it at {observation.get('phase')}/{observation.get('step')}"
+            )
+
+
 def declared_omission_probe(record: dict[str, Any]) -> tuple[str, str] | None:
     """The record's declared intentionally-omitted decision handler, if any.
 
@@ -4578,18 +4617,20 @@ def execute_row(
         """
         position_ = arrival_consumed[0]
         while position_ < len(script) and (
-            str(script[position_].get("decision_family")) == "starting_player"
+            str(script[position_].get("decision_family")) in ARRIVAL_TRANSPORT_FAMILIES
         ):
-            # A starting_player step is the record's setup declaration (CR
-            # 103.1): the lane's own starting-player frame handling answers the
-            # engine's choice before any arrival decision, and that frame is
-            # never an engine choose_object. The cursor therefore steps over it
-            # instead of demanding a same-class engine frame.
+            # The arrival transport steps are not engine choose_object frames:
+            # the starting_player step is the record's setup declaration (CR
+            # 103.1), the mulligan steps are the pregame keeps (CR 103.5), and
+            # the priority_pass_through / declare_attackers steps are answered
+            # by the arrival driver itself. The cursor steps over them instead
+            # of demanding a same-class engine frame.
             position_ += 1
             arrival_consumed[0] = position_
         if position_ < len(script):
             step = script[position_]
             if step_decision_class(step) == decision_class:
+                _require_scripted_temporal_point(client, step)
                 actor = str(step.get("actor"))
                 if actor != principal:
                     raise ml.MidgameLaneError(

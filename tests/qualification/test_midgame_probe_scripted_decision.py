@@ -246,7 +246,22 @@ def _combat_record(step: str, priority: str) -> dict[str, Any]:
             "active_player": "P1",
             "priority_player": priority,
         },
-        "decision_script": [],
+        # The record's own declaration that every priority on the way to the
+        # checkpoint is passed (CR 117.3d); the arrival pilot never passes on a
+        # player's behalf without it.
+        "decision_script": [
+            {
+                "actor": "ALL",
+                "decision_family": "priority_pass_through",
+                "selection": {
+                    "matches_only_provider_offered_legal_options": True,
+                    "on_zero_match": "FAIL_CLOSED",
+                    "on_multiple_match": "FAIL_CLOSED",
+                    "selector_kind": "semantic_action",
+                    "semantic_value": "pass_priority",
+                },
+            }
+        ],
     }
 
 
@@ -278,11 +293,14 @@ def test_a_requested_declaration_before_the_checkpoint_is_answered_by_the_caller
 def test_without_a_caller_answer_a_declaration_before_the_checkpoint_fails_closed(
     probe: Any,
 ) -> None:
+    # The record scripts no attackers for that frame, so the arrival pilot
+    # refuses before any submission; a missing combat declaration is never an
+    # external pilot decision to hold (review 5462161504 P1).
     frames = [("declare_attacker", "COMBAT", "DECLARE_ATTACKERS", "P1")]
-    with pytest.raises(probe.ml.MidgameLaneError, match="before the record's requested"):
+    with pytest.raises(probe.ml.MidgameLaneError, match="never holds an unrecorded attack"):
         probe.drive_arrival(SequencedEngine(frames), _combat_record("declare_blockers", "P2"))
     # A caller that does not determine the declaration fails it closed too.
-    with pytest.raises(probe.ml.MidgameLaneError, match="before the record's requested"):
+    with pytest.raises(probe.ml.MidgameLaneError, match="never holds an unrecorded attack"):
         probe.drive_arrival(
             SequencedEngine(frames),
             _combat_record("declare_blockers", "P2"),
