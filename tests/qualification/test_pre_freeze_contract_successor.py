@@ -17,12 +17,15 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_24.json"
 )
 PREDECESSOR_CONTRACT_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
+)
+V123_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
+V122_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json"
 )
-V122_CONTRACT_PATH = PREDECESSOR_CONTRACT_PATH
 V121_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_21.json"
 )
@@ -183,6 +186,9 @@ CHANGED_FIXTURE_IDS = [
     *REPLAY_LIBRARY_ERRATA_IDS,
     *RESIDUAL_ERRATA_IDS,
     *CLAUDE_LANE_ERRATA_IDS,
+    # Contract 1.0.24 (#441 Coordinator erratum, 2026-10-08): the
+    # NEGATIVE_PARENT_CLASS_FALLBACK cast timing and cost consistency correction.
+    "NEGATIVE_PARENT_CLASS_FALLBACK",
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
@@ -207,7 +213,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_23_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_24_SUCCESSOR.json"
 )
 RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
@@ -275,7 +281,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_24.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -629,7 +635,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.23-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.24-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -641,9 +647,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.23-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.24-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.23-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.24-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -2491,7 +2497,7 @@ def test_contract_1_0_23_adds_only_the_bounded_secondary_6p_record() -> None:
     """1.0.23 (#441 Coordinator erratum, 2026-10-07): everything in 1.0.22 is
     carried byte for byte and the only additions are the bounded-secondary 6P
     record, the version fields, the predecessor binding and the schema note."""
-    contract = _json(SUCCESSOR_PATH)
+    contract = _json(V123_CONTRACT_PATH)
     predecessor = _json(V122_CONTRACT_PATH)
     resolver = _resolver()
 
@@ -2595,14 +2601,21 @@ _TEMP_REPO_FILES: dict[str, Path] = {
     "scripts/resolve_pre_freeze_contract.py": REPO_ROOT / "scripts/resolve_pre_freeze_contract.py",
     "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": AUTHORITY_PATH,
     "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_22.json": (
-        PREDECESSOR_CONTRACT_PATH
+        V122_CONTRACT_PATH
     ),
     "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_22_SUCCESSOR.json": (
         REPO_ROOT
         / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_22_SUCCESSOR.json"
     ),
-    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json": SUCCESSOR_PATH,
+    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json": (
+        V123_CONTRACT_PATH
+    ),
     "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_23_SUCCESSOR.json": (
+        REPO_ROOT
+        / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_23_SUCCESSOR.json"
+    ),
+    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_24.json": SUCCESSOR_PATH,
+    "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_24_SUCCESSOR.json": (
         MATERIALIZATION_SCHEMA_PATH
     ),
     "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json": (
@@ -2638,24 +2651,35 @@ def _resolver_at(root: Path):
 
 
 def _successor_contract_path(root: Path) -> Path:
-    return root / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
+    return root / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_24.json"
 
 
 def test_contract_1_0_23_generator_regenerates_byte_identically(tmp_path: Path) -> None:
     """The 1.0.22 precedent: the contract, schema, pointer and ledger are always
     regenerated from the 1.0.22 bytes, so a second run is byte-identical. The
     regeneration runs against a disposable copy of the inputs (#602 review P3):
-    it writes into the temp root and REPO_ROOT stays byte-identical."""
+    it writes into the temp root and REPO_ROOT stays byte-identical. After 1.0.24
+    the historical generator no longer reproduces the current pointer/ledger
+    (they name 1.0.24), so run-to-run identity is asserted here; the committed
+    contract and schema bytes are checked by the next test."""
     root = _temp_repo(tmp_path)
     targets = {
-        "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json": SUCCESSOR_PATH,
+        "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23.json": V123_CONTRACT_PATH,
         "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_23_SUCCESSOR.json": (
-            MATERIALIZATION_SCHEMA_PATH
+            REPO_ROOT
+            / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_23_SUCCESSOR.json"
         ),
         "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": AUTHORITY_PATH,
         "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json": LEDGER_PATH,
     }
-    before = {relative: target.read_bytes() for relative, target in targets.items()}
+    committed_before = {relative: target.read_bytes() for relative, target in targets.items()}
+    subprocess.run(
+        [sys.executable, str(GENERATOR_1_0_23), str(root)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    first = {relative: (root / relative).read_bytes() for relative in targets}
     subprocess.run(
         [sys.executable, str(GENERATOR_1_0_23), str(root)],
         check=True,
@@ -2663,8 +2687,10 @@ def test_contract_1_0_23_generator_regenerates_byte_identically(tmp_path: Path) 
         text=True,
     )
     for relative, target in targets.items():
-        assert (root / relative).read_bytes() == before[relative]
-        assert target.read_bytes() == before[relative], f"REPO_ROOT was mutated: {relative}"
+        assert (root / relative).read_bytes() == first[relative]
+        assert target.read_bytes() == committed_before[relative], (
+            f"REPO_ROOT was mutated: {relative}"
+        )
 
 
 def test_contract_1_0_23_generator_reproduces_the_committed_bytes(tmp_path: Path) -> None:
@@ -2795,9 +2821,10 @@ def test_the_bounded_secondary_6p_record_is_never_a_denominator_row() -> None:
             for fixture in wrong_wiring
         )
 
-    # The authority pointer and the ledger name the new record and contract.
+    # The authority pointer names the current contract; the bounded record's own
+    # ledger entry keeps its 1.0.23 provenance.
     assert _json(AUTHORITY_PATH)["full107"]["successor_contract"].endswith(
-        "FULL107_SUCCESSOR_CONTRACT_v1_0_23.json"
+        "FULL107_SUCCESSOR_CONTRACT_v1_0_24.json"
     )
     entry = next(
         item for item in _json(LEDGER_PATH)["records"] if item["fixture_id"] == "PLAYER_COUNT_6P"
@@ -2810,7 +2837,7 @@ def test_the_bounded_secondary_6p_record_is_never_a_denominator_row() -> None:
     # bundle (the bounded record is not part of it) and enumerates 1.0.23.
     effective = _resolver().load_effective_materialization()
     Draft202012Validator(_json(MATERIALIZATION_SCHEMA_PATH)).validate(effective)
-    assert effective["contract_id"] == "commander-lab.full107/1.0.23-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.24-successor"
 
 
 def test_the_runner_uses_the_bounded_record_only_as_the_6p_record_argument() -> None:
@@ -2864,3 +2891,455 @@ def test_run_cardinality_uses_the_6p_records_starting_seat_or_fails_closed(
     assert seen["starting_seat_source"] is None
     assert seen["mulligan_plan"] is None
     assert seen["decks"] is None
+
+
+# --------------------------------------------------------------------------- #
+# Contract 1.0.24: the NEGATIVE_PARENT_CLASS_FALLBACK cast timing and cost
+# consistency erratum (#441 Coordinator erratum, 2026-10-08)
+# --------------------------------------------------------------------------- #
+
+GENERATOR_1_0_24 = (
+    REPO_ROOT
+    / "docs/negative_parent_class_fallback_erratum_1_0_24_20261008/generate_contract_1_0_24.py"
+)
+NEGATIVE_PARENT_CLASS_FALLBACK = "NEGATIVE_PARENT_CLASS_FALLBACK"
+CORRECTION_CLASS = "FIXTURE_DEFECT_CORRECTION_CAST_TIMING_AND_COST_CONSISTENCY"
+
+
+def _base_record(fixture_id: str) -> dict:
+    return {
+        item["fixture_id"]: item
+        for item in _json(
+            REPO_ROOT / _json(AUTHORITY_PATH)["full107"]["historical_base_materialization"]
+        )["records"]
+    }[fixture_id]
+
+
+def test_contract_1_0_24_corrects_only_the_negative_parent_class_fallback_record() -> None:
+    """1.0.24: everything in 1.0.23 is carried byte for byte (including the
+    bounded-secondary 6P section); the only corrected record is
+    NEGATIVE_PARENT_CLASS_FALLBACK's cast-timing and cost-consistency
+    declaration (temporal/stack, the paid cost's mana sources, the P3/P4 empty
+    hands), and its obligation keys are the predecessor's byte for byte."""
+    contract = _json(SUCCESSOR_PATH)
+    predecessor = _json(V123_CONTRACT_PATH)
+    resolver = _resolver()
+
+    assert contract["contract_id"] == "commander-lab.full107/1.0.24-successor"
+    assert (
+        contract["effective_materialization_version"]
+        == "commander-lab.semantic-fixture-materialization/1.0.24-successor"
+    )
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_23.json")
+    assert (
+        contract["predecessor"]["sha256"]
+        == hashlib.sha256(V123_CONTRACT_PATH.read_bytes()).hexdigest()
+    )
+    assert contract["predecessor"]["record_count"] == len(predecessor["record_successors"])
+
+    # Every predecessor overlay is carried byte for byte, in order, and the only
+    # appended successor is the one corrected record.
+    assert contract["record_successors"][:-1] == predecessor["record_successors"]
+    patch = contract["record_successors"][-1]
+    assert patch["fixture_id"] == NEGATIVE_PARENT_CLASS_FALLBACK
+    assert patch["correction_class"] == CORRECTION_CLASS
+    assert patch["evidence_survival"] == "REQUALIFICATION_REQUIRED"
+    assert (
+        patch["predecessor_requested_state_digest"]
+        == _base_record(NEGATIVE_PARENT_CLASS_FALLBACK)["requested_state_digest"]
+    )
+
+    # The bounded-secondary PLAYER_COUNT_6P section is carried byte for byte.
+    assert contract["bounded_secondary_records"] == predecessor["bounded_secondary_records"]
+
+    # Every other contract field is the predecessor's, except the version
+    # fields, the predecessor binding and the one record's accounting.
+    changed_keys = {
+        "contract_id",
+        "effective_materialization_version",
+        "materialization_schema_version_note",
+        "predecessor",
+        "change_accounting",
+        "record_successors",
+    }
+    assert set(contract) == set(predecessor)
+    for key, value in predecessor.items():
+        if key not in changed_keys:
+            assert contract[key] == value, key
+    expected_accounting = copy.deepcopy(predecessor["change_accounting"])
+    expected_accounting["changed_fixture_ids"] = [
+        *expected_accounting["changed_fixture_ids"],
+        NEGATIVE_PARENT_CLASS_FALLBACK,
+    ]
+    expected_accounting["per_fixture_correction_class"][NEGATIVE_PARENT_CLASS_FALLBACK] = patch[
+        "correction_class"
+    ]
+    expected_accounting["changed_fixture_count"] = len(expected_accounting["changed_fixture_ids"])
+    # The fixture is a 107-row denominator row: one row moves from unchanged to
+    # changed while the denominator itself stays exactly 107.
+    expected_accounting["unchanged_provider_denominator_rows"] = (
+        predecessor["change_accounting"]["unchanged_provider_denominator_rows"] - 1
+    )
+    assert contract["change_accounting"] == expected_accounting
+
+    # The authority pointer names the corrected fixture and the new contract.
+    authority = _json(AUTHORITY_PATH)
+    assert authority["full107"]["successor_contract"].endswith(
+        "FULL107_SUCCESSOR_CONTRACT_v1_0_24.json"
+    )
+    assert authority["full107"]["changed_fixture_ids"][-1] == NEGATIVE_PARENT_CLASS_FALLBACK
+    assert authority["full107"]["evidence_survival"][NEGATIVE_PARENT_CLASS_FALLBACK] == (
+        "REQUALIFICATION_REQUIRED_" + CORRECTION_CLASS
+    )
+    assert authority["full107"]["unchanged_fixture_count"] == 107 - len(
+        DENOMINATOR_CHANGED_FIXTURE_IDS
+    )
+
+    # Denominator unchanged (evidence c): exactly 107 and no 6P row.
+    assert authority["full107"]["denominator_count"] == 107
+    denominator = _json(REPO_ROOT / "qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json")[
+        "fixture_ids"
+    ]
+    assert len(denominator) == 107
+    assert NEGATIVE_PARENT_CLASS_FALLBACK in denominator
+    assert "PLAYER_COUNT_6P" not in denominator
+    from commander_lab.qualification.current_boundary.materialization import (
+        load_effective_materialization,
+    )
+
+    materialization = load_effective_materialization(REPO_ROOT)
+    assert materialization.receipt()["provider_denominator_count"] == 107
+    assert NEGATIVE_PARENT_CLASS_FALLBACK in materialization.receipt()["changed_fixture_ids"]
+    assert "PLAYER_COUNT_6P" not in [
+        record["fixture_id"] for record in materialization.denominator_records()
+    ]
+
+    # The corrected record: the temporal/stack declaration is reachable, every
+    # obligation field is the predecessor's and the obligation digest is equal.
+    base = _base_record(NEGATIVE_PARENT_CLASS_FALLBACK)
+    record = resolver.effective_record(NEGATIVE_PARENT_CLASS_FALLBACK)
+    assert record["temporal_state"] == {
+        "active_player": "P2",
+        "extra_turn_queue": [],
+        "phase": "precombat_main",
+        "priority_player": "P2",
+        "step": "main",
+        "turn_number": 2,
+    }
+    (stack_entry,) = record["stack_state"]
+    assert stack_entry == {
+        "cast_complete": True,
+        "controller": "P2",
+        "costs_paid": True,
+        "from_zone": "hand",
+        "modes": [],
+        "source_semantic_id": "obj:negative-syphon",
+        "targets": [],
+    }
+    # The expected decision actor stays reachable (it is asked after resolution).
+    assert record["native_procedure"][1]["details"]["expected_decision_actor"] == "P1"
+    assert record["negative_fallback_probe"] == base["negative_fallback_probe"]
+    assert record["expected_events"] == base["expected_events"]
+    assert record["terminal_postconditions"] == base["terminal_postconditions"]
+    assert record["decision_script"] == base["decision_script"] == []
+    assert record["obligation_digest"] == base["obligation_digest"]
+    assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
+    assert record["requested_state_digest"] != base["requested_state_digest"]
+    assert record["repair_provenance"]["correction_class"] == patch["correction_class"]
+    assert record["repair_provenance"]["provider_semantics_used"] is False
+
+    # P2-C: four tapped Swamps controlled by P2 are the declared mana spent on
+    # {3}{B}; P2's pre-existing injected Grizzly Bears is untouched.
+    (p2_bears,) = [
+        obj for obj in record["semantic_objects"] if obj.get("semantic_id") == "obj:p2-bears"
+    ]
+    assert (p2_bears["semantic_id"], p2_bears["controller"]) == ("obj:p2-bears", "P2")
+    swamps = [obj for obj in record["semantic_objects"] if obj["card_identity"] == "Swamp"]
+    assert [obj["semantic_id"] for obj in swamps] == [
+        "obj:neg-swamp-1",
+        "obj:neg-swamp-2",
+        "obj:neg-swamp-3",
+        "obj:neg-swamp-4",
+    ]
+    for swamp in swamps:
+        assert swamp["controller"] == "P2"
+        assert swamp["owner"] == "P2"
+        assert swamp["zone"] == "battlefield"
+        assert swamp["tapped"] is True
+    # P2-A: P3 and P4 declare complete empty checkpoint hands (hand_count 0);
+    # P1's two declared hand cards are kept.
+    assert [
+        (
+            deck["player_id"],
+            deck["checkpoint_hand"]["completeness"],
+            deck["checkpoint_hand"]["template_count"],
+        )
+        for deck in record["deck_state"]
+    ] == [("P3", "COMPLETE", 0), ("P4", "COMPLETE", 0)]
+    assert [
+        (obj["card_identity"], obj["controller"])
+        for obj in record["semantic_objects"]
+        if obj.get("zone") == "hand"
+    ] == [("Mountain", "P1"), ("Island", "P1")]
+
+    # P3: the caster's post-cast priority cites CR 117.3c, not 117.3b, in both
+    # the record field changes and the errata ledger.
+    priority_change = [
+        change
+        for change in record["native_procedure"][2]["details"]["field_changes"]
+        if change["change"] == "temporal_state.priority_player P1 -> P2"
+    ]
+    assert len(priority_change) == 1
+    assert priority_change[0]["comprehensive_rules"] == "117.3c"
+    ledger = _json(LEDGER_PATH)
+    (ledger_entry,) = [
+        entry
+        for entry in ledger["records"]
+        if entry["fixture_id"] == NEGATIVE_PARENT_CLASS_FALLBACK
+    ]
+    assert ledger_entry["correction_class"] == CORRECTION_CLASS
+    assert ledger_entry["denominator_effect"] == "NONE"
+    assert ledger_entry["effective_obligation_digest"] == base["obligation_digest"]
+    assert (
+        ledger_entry["effective_requested_state_digest"]
+        == patch["successor_requested_state_digest"]
+    )
+    ledger_priority = [
+        change
+        for change in ledger_entry["field_changes"]
+        if change["change"] == "temporal_state.priority_player P1 -> P2"
+    ]
+    assert [change["comprehensive_rules"] for change in ledger_priority] == ["117.3c"]
+    assert sorted({change["comprehensive_rules"] for change in ledger_entry["field_changes"]}) == [
+        "101.4",
+        "117.3c",
+        "305.2",
+        "307.1",
+        "601.2a",
+        "601.2g-h",
+    ]
+    # The record is not runnable on the current bridge; the ledger says so
+    # explicitly instead of implying runtime credit.
+    blocker = ledger_entry["known_runtime_blocker"]
+    assert "NOT_RUNNABLE_ON_CURRENT_BRIDGE" in blocker
+    assert "XmageNativeStateRestoration.isSupportedTemporalPoint" in blocker
+    assert "UNSUPPORTED_TEMPORAL_POINT" in blocker
+
+
+def _oracle_type_line(card_identity: str) -> str:
+    catalog = _json(REPO_ROOT / "data/cards/official_precon_oracle_cards.json")
+    for card in catalog["cards"]:
+        if card["oracle_name"] == card_identity:
+            return str(card["type_line"])
+    raise AssertionError(f"no oracle entry for {card_identity}")
+
+
+def _sorcery_speed_timing_violations(record: dict) -> list[str]:
+    """CR 307.1 for every sorcery-speed spell the record declares.
+
+    A sorcery can be cast only in its controller's own main phase while the
+    stack is empty. The declared state must therefore have that controller as
+    the active player and the priority holder in a main phase, with nothing
+    below the spell on the stack. The Oracle type line decides which declared
+    stack spells are sorcery-speed; at least one must be evaluated, so a record
+    that declares no such spell cannot pass vacuously.
+    """
+    objects = {obj["semantic_id"]: obj for obj in record["semantic_objects"]}
+    temporal = record["temporal_state"]
+    violations: list[str] = []
+    evaluated = 0
+    for index, entry in enumerate(record.get("stack_state") or []):
+        source = objects.get(entry.get("source_semantic_id"))
+        assert source is not None, entry
+        if not _oracle_type_line(source["card_identity"]).startswith("Sorcery"):
+            continue
+        evaluated += 1
+        if entry.get("controller") != temporal["active_player"]:
+            violations.append("sorcery_controller_is_not_the_active_player")
+        if entry.get("controller") != temporal["priority_player"]:
+            violations.append("sorcery_controller_does_not_hold_priority")
+        if temporal["phase"] not in ("precombat_main", "postcombat_main") or (
+            temporal["step"] != "main"
+        ):
+            violations.append("sorcery_is_not_in_a_main_phase")
+        if entry.get("cast_complete") is not True or entry.get("costs_paid") is not True:
+            violations.append("sorcery_is_not_fully_cast_and_paid")
+        if index != 0:
+            violations.append("stack_was_not_empty_below_the_sorcery")
+        if entry.get("from_zone") != "hand":
+            violations.append("cast_from_zone_is_not_declared_as_hand")
+    assert evaluated > 0, "the record declares no sorcery-speed stack spell"
+    return violations
+
+
+def test_negative_parent_class_fallback_state_satisfies_cr_307_1_for_its_sorcery() -> None:
+    """The corrected record must satisfy CR 307.1 timing for every
+    sorcery-speed stack spell it declares. Red control: re-injecting the 1.0.23
+    state must fail the same predicate."""
+    resolver = _resolver()
+    record = resolver.effective_record(NEGATIVE_PARENT_CLASS_FALLBACK)
+    assert _sorcery_speed_timing_violations(record) == []
+
+    base = _base_record(NEGATIVE_PARENT_CLASS_FALLBACK)
+    predecessor_state = {
+        **record,
+        "temporal_state": base["temporal_state"],
+        "stack_state": base["stack_state"],
+    }
+    violations = _sorcery_speed_timing_violations(predecessor_state)
+    assert violations == [
+        "sorcery_controller_is_not_the_active_player",
+        "sorcery_controller_does_not_hold_priority",
+        "cast_from_zone_is_not_declared_as_hand",
+    ], violations
+
+
+def _oracle_mana_cost(card_identity: str) -> str:
+    catalog = _json(REPO_ROOT / "data/cards/official_precon_oracle_cards.json")
+    for card in catalog["cards"]:
+        if card["oracle_name"] == card_identity:
+            return str(card.get("mana_cost") or "")
+    raise AssertionError(f"no oracle entry for {card_identity}")
+
+
+def _cost_requirement(cost: str) -> tuple[int, int]:
+    """(total mana, black pips) for the simple generic + mono-colored costs the
+    record's declared stack spells use."""
+    total = 0
+    black = 0
+    for symbol in re.findall(r"\{([^}]+)\}", cost):
+        if symbol.isdigit():
+            total += int(symbol)
+        elif symbol == "B":
+            total += 1
+            black += 1
+        else:  # pragma: no cover - fail loudly on an unhandled symbol
+            raise AssertionError(f"unsupported mana symbol in {cost!r}: {symbol}")
+    return total, black
+
+
+def _paid_cost_violations(record: dict) -> list[str]:
+    """A declared ``costs_paid`` needs declared tapped mana sources controlled by
+    the caster that can produce the spell's cost (CR 305.2, 601.2g-h)."""
+    objects = {obj["semantic_id"]: obj for obj in record["semantic_objects"]}
+    paid = [entry for entry in record.get("stack_state") or [] if entry.get("costs_paid") is True]
+    assert paid, "the record declares no paid stack spell to evaluate"
+    violations: list[str] = []
+    for entry in paid:
+        source = objects[entry["source_semantic_id"]]
+        total, black = _cost_requirement(_oracle_mana_cost(source["card_identity"]))
+        tapped = [
+            obj
+            for obj in record["semantic_objects"]
+            if obj.get("zone") == "battlefield"
+            and obj.get("tapped") is True
+            and obj["controller"] == entry["controller"]
+        ]
+        if len(tapped) < total:
+            violations.append(
+                f"declared_paid_cost_has_no_mana_sources:{entry['source_semantic_id']}"
+            )
+            continue
+        if black and not any("Swamp" in _oracle_type_line(obj["card_identity"]) for obj in tapped):
+            violations.append(
+                f"declared_paid_cost_has_no_black_source:{entry['source_semantic_id']}"
+            )
+    return violations
+
+
+def _declared_hand_counts(record: dict) -> dict[str, int]:
+    """Requested hand sizes that are explicitly declared: complete checkpoint
+    hands plus declared hand objects. A player missing here has no declared
+    hand, which is not the same as a declared empty hand."""
+    declared: dict[str, int] = {}
+    for deck in record.get("deck_state") or ():
+        hand = deck.get("checkpoint_hand") or {}
+        if hand.get("completeness") == "COMPLETE":
+            declared[deck["player_id"]] = int(hand.get("template_count", 0))
+    for obj in record["semantic_objects"]:
+        if obj.get("zone") == "hand":
+            declared[obj["controller"]] = declared.get(obj["controller"], 0) + 1
+    return declared
+
+
+def _apnap_hand_violations(record: dict) -> list[str]:
+    """CR 101.4 for an opponent-discard instruction: in APNAP order from the
+    active player, every player ahead of the expected decision actor must have
+    an explicitly declared empty hand (``hand_count: 0``); otherwise an earlier
+    player would be asked first and the expected actor is unreachable."""
+    order = [player["player_id"] for player in sorted(record["players"], key=lambda p: p["seat"])]
+    active = record["temporal_state"]["active_player"]
+    index = order.index(active)
+    apnap = [*order[index + 1 :], *order[:index]]
+    expected = record["native_procedure"][1]["details"]["expected_decision_actor"]
+    declared = _declared_hand_counts(record)
+    violations: list[str] = []
+    for player in apnap:
+        if player == expected:
+            break
+        if declared.get(player) != 0:
+            violations.append(f"player_ahead_of_expected_actor_has_no_declared_empty_hand:{player}")
+    if declared.get(expected, 0) < 1:
+        violations.append("expected_actor_has_no_declared_card_to_discard")
+    return violations
+
+
+def test_negative_parent_class_fallback_declares_mana_sources_and_apnap_preconditions() -> None:
+    """The corrected record declares the mana for its paid {3}{B} (four tapped
+    P2 Swamps) and the APNAP precondition that lets P1 be the first actor
+    (complete empty P3/P4 checkpoint hands). Red controls: re-injecting the
+    unfixed record must fail each predicate for exactly its reason."""
+    resolver = _resolver()
+    record = resolver.effective_record(NEGATIVE_PARENT_CLASS_FALLBACK)
+    assert _paid_cost_violations(record) == []
+    assert _apnap_hand_violations(record) == []
+
+    base = _base_record(NEGATIVE_PARENT_CLASS_FALLBACK)
+    # Red control 1: without the declared tapped mana sources the paid cost has
+    # nothing that could have paid it.
+    no_mana = {**record, "semantic_objects": copy.deepcopy(base["semantic_objects"])}
+    assert _paid_cost_violations(no_mana) == [
+        "declared_paid_cost_has_no_mana_sources:obj:negative-syphon"
+    ]
+    # Red control 2: without the explicit P3/P4 empty-hand declaration the APNAP
+    # precondition is unproven, so P1 is not known to be the first actor.
+    no_hands = {**record, "deck_state": base.get("deck_state")}
+    assert _apnap_hand_violations(no_hands) == [
+        "player_ahead_of_expected_actor_has_no_declared_empty_hand:P3",
+        "player_ahead_of_expected_actor_has_no_declared_empty_hand:P4",
+    ]
+
+
+def test_contract_1_0_24_generator_regenerates_byte_identically(tmp_path: Path) -> None:
+    """Evidence (a): the 1.0.24 contract, schema, pointer and ledger are always
+    regenerated from the 1.0.23 bytes; a fresh run against a disposable copy of
+    the inputs reproduces the committed bytes, a second run is byte-identical
+    and REPO_ROOT is never mutated."""
+    root = _temp_repo(tmp_path)
+    targets = {
+        "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_24.json": SUCCESSOR_PATH,
+        "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_24_SUCCESSOR.json": (
+            MATERIALIZATION_SCHEMA_PATH
+        ),
+        "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": AUTHORITY_PATH,
+        "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json": LEDGER_PATH,
+    }
+    before = {relative: target.read_bytes() for relative, target in targets.items()}
+    subprocess.run(
+        [sys.executable, str(GENERATOR_1_0_24), str(root)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    first = {relative: (root / relative).read_bytes() for relative in targets}
+    for relative, target in targets.items():
+        assert first[relative] == before[relative]
+        assert target.read_bytes() == before[relative], f"REPO_ROOT was mutated: {relative}"
+    subprocess.run(
+        [sys.executable, str(GENERATOR_1_0_24), str(root)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    for relative in targets:
+        assert (root / relative).read_bytes() == first[relative]

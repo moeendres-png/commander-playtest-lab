@@ -9,7 +9,8 @@ provider. `PRODUCTION_PROVIDER = NOT_SELECTED` · `ARCHITECTURE_FREEZE = NOT_CLA
 - Sealed epoch `qualification/current-boundary-epochs/b1c8f54a999a-2d13b953a82c/` (#593),
   contract `commander-lab.full107/1.0.22-successor`, pins XMage `b479fe74`, Forge Rules-Core
   `bb0a740d`, Forge bridge `31cbae12` — all IDENTICAL to the sealed evidence. Since #604 the
-  current contract is 1.0.23 (bounded-secondary 6P record only; denominator unchanged), so the
+  current contract moved past 1.0.22 (1.0.23: bounded-secondary 6P record; 1.0.24: the
+  NEGATIVE_PARENT_CLASS_FALLBACK Rules erratum; denominator unchanged), so the
   packet records the fixture contract as `DIFFERS` from the 1.0.22 evidence until the next epoch.
 - Section-F packet: `docs/provider_readiness_packet_20261007/PROVIDER_READINESS.{json,md}` (#597),
   independently reviewed on #596 (no P0/P1); both P2 findings and three P3 notes fixed in #597.
