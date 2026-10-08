@@ -159,7 +159,8 @@ final class XmageNativeStateRestoration {
             String semanticId,
             String cardIdentity,
             String owner,
-            String controller
+            String controller,
+            Zone fromZone
     ) {
     }
 
@@ -789,9 +790,11 @@ final class XmageNativeStateRestoration {
             // not this route's to honor.
             return null;
         }
-        if (!record.has("stack_state") || !record.get("stack_state").isJsonArray()) {
-            return null;
-        }
+        // The resume step only binds a genuine construction when its source is
+        // a requested stack-zone semantic object. The causal pre-stack rewrite
+        // keeps the step but rewrites the source out of the stack zone and
+        // empties stack_state; that record is not this route's and falls
+        // through to the causal pre-stack placement exactly as before.
         JsonObject requested = null;
         for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
             JsonObject object = element.getAsJsonObject();
@@ -804,8 +807,36 @@ final class XmageNativeStateRestoration {
         if (requested == null || !"stack".equals(requested.get("zone").getAsString())) {
             return null;
         }
+        if (!record.has("stack_state") || !record.get("stack_state").isJsonArray()) {
+            return null;
+        }
+        JsonArray stackState = record.getAsJsonArray("stack_state");
+        if (stackState.size() != 1) {
+            // One resumed spell is exactly one stack_state entry. A second
+            // entry (a waiting trigger, a second spell) is a different
+            // construction this route never fabricates.
+            throw new RestorationException(
+                    "UNSUPPORTED_RESUME_STACK_AMBIGUITY",
+                    fixtureId + " declares " + stackState.size()
+                            + " stack_state entries for one resumed spell");
+        }
+        int stackObjects = 0;
+        for (JsonElement element : record.getAsJsonArray("semantic_objects")) {
+            if ("stack".equals(element.getAsJsonObject().get("zone").getAsString())) {
+                stackObjects++;
+            }
+        }
+        if (stackObjects != 1) {
+            // The route resumes exactly the one declared stack object; any
+            // other stack-zone semantic object (a second spell or trigger)
+            // is refused instead of being silently dropped from the plan.
+            throw new RestorationException(
+                    "UNSUPPORTED_RESUME_STACK_AMBIGUITY",
+                    fixtureId + " declares " + stackObjects + " stack-zone semantic objects"
+                            + " for one resumed spell");
+        }
         JsonObject declared = null;
-        for (JsonElement element : record.getAsJsonArray("stack_state")) {
+        for (JsonElement element : stackState) {
             JsonObject frame = element.getAsJsonObject();
             if (frame.has("source_semantic_id") && !frame.get("source_semantic_id").isJsonNull()
                     && resumeSource.equals(frame.get("source_semantic_id").getAsString())) {
@@ -840,11 +871,32 @@ final class XmageNativeStateRestoration {
                 || !controller.equals(declared.get("controller").getAsString())) {
             return null;
         }
+        // The record's own declared cast-from zone, or null when it declares
+        // none. There is deliberately no default: the resume refuses an
+        // undeclared zone (CR 601.2a provenance is record content, never
+        // invented by the bridge).
+        Zone fromZone = null;
+        if (declared.has("from_zone") && !declared.get("from_zone").isJsonNull()) {
+            String zoneName = declared.get("from_zone").getAsString().trim();
+            try {
+                fromZone = Zone.valueOf(zoneName.toUpperCase(java.util.Locale.ROOT));
+            } catch (IllegalArgumentException unknownZone) {
+                throw new RestorationException(
+                        "UNSUPPORTED_RESUME_CAST_ZONE",
+                        fixtureId + " " + resumeSource + " from_zone " + zoneName);
+            }
+            if (fromZone == Zone.STACK) {
+                throw new RestorationException(
+                        "UNSUPPORTED_RESUME_CAST_ZONE",
+                        fixtureId + " " + resumeSource + " declares no cast-from zone but stack");
+            }
+        }
         return new RequestedStackSpell(
                 resumeSource,
                 requested.get("card_identity").getAsString(),
                 requested.get("owner").getAsString(),
-                controller);
+                controller,
+                fromZone);
     }
 
     /**
@@ -1456,13 +1508,47 @@ final class XmageNativeStateRestoration {
                 throw new RestorationException(
                         "RESUME_STACK_CARD_MISSING", plan.resumeStackSpell().semanticId());
             }
-            if (card.getSpellAbility() == null) {
+            mage.abilities.SpellAbility spellAbility = card.getSpellAbility();
+            if (spellAbility == null) {
                 throw new RestorationException(
                         "RESUME_STACK_NO_SPELL_ABILITY", plan.resumeStackSpell().semanticId());
             }
+            if (declaresUnsupportedResumeCosts(card)) {
+                // X, kicker and every optional/additional cost need a declared
+                // choice this record does not carry; the resume never invents
+                // one, so the whole construction fails closed.
+                throw new RestorationException(
+                        "UNSUPPORTED_RESUME_COST",
+                        plan.resumeStackSpell().semanticId()
+                                + "; variable/optional/additional costs are not declared");
+            }
             Player controller = requirePlayer(playersByPid, plan.resumeStackSpell().controller());
+            if (!castableAtResumeCheckpoint(game, card, controller)) {
+                // The record's declared temporal state must have been a legal
+                // cast moment for this spell (CR 307.1/307.5): a sorcery can
+                // only have been cast by the active player in a main phase with
+                // an empty stack, an instant or a card with flash any time its
+                // controller had priority. Reconstructing a spell that could
+                // not have been cast there is an unreachable state.
+                throw new RestorationException(
+                        "UNSUPPORTED_RESUME_TIMING",
+                        plan.resumeStackSpell().semanticId() + " (" + card.getName()
+                                + ", controller " + plan.resumeStackSpell().controller()
+                                + ") was not castable at the declared temporal state (active "
+                                + pidOf(game.getState().getActivePlayerId(), playersByPid)
+                                + ", phase " + game.getTurnPhaseType() + ")");
+            }
+            if (plan.resumeStackSpell().fromZone() == null) {
+                // No Zone.HAND default: the record must declare the zone the
+                // spell was cast from, or the construction is refused.
+                throw new RestorationException(
+                        "UNDECLARED_RESUME_CAST_ZONE",
+                        plan.resumeStackSpell().semanticId()
+                                + " declares no cast-from zone in its stack_state entry");
+            }
             Spell spell = new Spell(
-                    card, card.getSpellAbility().copy(), controller.getId(), Zone.HAND, game);
+                    card, spellAbility.copy(), controller.getId(),
+                    plan.resumeStackSpell().fromZone(), game);
             spell.syncZoneChangeCounterOnStack(card, game);
             game.getState().setZone(spell.getId(), Zone.STACK);
             game.getState().setZone(card.getId(), Zone.STACK);
@@ -1495,7 +1581,32 @@ final class XmageNativeStateRestoration {
             entry.addProperty("card_identity", object.getName());
             entry.addProperty("controller", pidOf(object.getControllerId(), playersByPid));
             entry.addProperty("source_bound", bound != null && bound.equals(object.getSourceId()));
+            boolean isSpell = object instanceof Spell;
+            entry.addProperty("is_spell", isSpell);
             observed.add(entry);
+            if (!isSpell) {
+                failures.add("RESUME_STACK_NOT_A_SPELL: " + requested.semanticId());
+            } else {
+                Spell spell = (Spell) object;
+                entry.addProperty("from_zone", String.valueOf(spell.getFromZone()));
+                if (spell.getFromZone() != requested.fromZone()) {
+                    failures.add("RESUME_STACK_FROM_ZONE_MISMATCH: expected "
+                            + requested.fromZone() + " actual " + spell.getFromZone());
+                }
+                boolean boundCard = bound != null && spell.getCard() != null
+                        && bound.equals(spell.getCard().getId());
+                entry.addProperty("bound_card", boundCard);
+                if (!boundCard) {
+                    failures.add("RESUME_STACK_BOUND_CARD_MISMATCH: " + requested.semanticId());
+                }
+                Zone cardZone = spell.getCard() == null
+                        ? null : game.getState().getZone(spell.getCard().getId());
+                entry.addProperty("card_zone", String.valueOf(cardZone));
+                if (cardZone != Zone.STACK) {
+                    failures.add("RESUME_STACK_CARD_ZONE_MISMATCH: expected STACK actual "
+                            + cardZone);
+                }
+            }
             if (bound == null || !bound.equals(object.getSourceId())) {
                 failures.add("RESUME_STACK_SOURCE_MISMATCH: " + requested.semanticId());
             } else if (!requested.cardIdentity().equals(object.getName())) {
@@ -1512,6 +1623,55 @@ final class XmageNativeStateRestoration {
         readback.add("failures", failures);
         readback.addProperty("verified", failures.isEmpty());
         return readback;
+    }
+
+    /**
+     * Whether the spell's real card declares a cost shape this route cannot
+     * resume without inventing an undeclared choice: a variable (X) mana cost,
+     * any additional non-mana cost on the spell ability, or an optional
+     * additional cost source (kicker, multikicker, entwine, ...).
+     */
+    static boolean declaresUnsupportedResumeCosts(Card card) {
+        mage.abilities.SpellAbility ability = card.getSpellAbility();
+        if (ability == null) {
+            return false;
+        }
+        if (ability.getManaCosts().containsX() || card.getManaCost().containsX()) {
+            return true;
+        }
+        if (!ability.getCosts().isEmpty()) {
+            return true;
+        }
+        for (Ability listed : card.getAbilities()) {
+            if (listed instanceof mage.abilities.costs.OptionalAdditionalSourceCosts) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether the declared already-cast spell was castable at the record's
+     * declared temporal state: an instant or a card with flash any time its
+     * controller had priority, or otherwise the controller was the active
+     * player in a main phase with the stack otherwise empty (CR 307.1/307.5,
+     * 117.1a). The stack is empty here by the resume's own precondition; the
+     * check is the declared cast moment, never a real cast.
+     */
+    static boolean castableAtResumeCheckpoint(Game game, Card card, Player controller) {
+        if (card.isInstant()
+                || card.getAbilities(game).containsClass(
+                        mage.abilities.keyword.FlashAbility.class)) {
+            return true;
+        }
+        if (!controller.getId().equals(game.getState().getActivePlayerId())) {
+            return false;
+        }
+        TurnPhase phase = game.getTurnPhaseType();
+        if (phase != TurnPhase.PRECOMBAT_MAIN && phase != TurnPhase.POSTCOMBAT_MAIN) {
+            return false;
+        }
+        return game.getStack().isEmpty();
     }
 
     /**
@@ -1989,6 +2149,24 @@ final class XmageNativeStateRestoration {
             seats.add(seat);
         }
         root.add("seats", seats);
+        // Public stack objects, reported only when the stack is non-empty, so
+        // every other construction's readback and digest are unchanged. The
+        // resumed declared spell is thus part of the constructed-state digest
+        // and the principal-scoped observation, not only of its own readback.
+        List<StackObject> stackObjects = new ArrayList<>();
+        for (StackObject object : game.getStack()) {
+            stackObjects.add(object);
+        }
+        if (!stackObjects.isEmpty()) {
+            JsonArray stack = new JsonArray();
+            for (StackObject object : stackObjects) {
+                JsonObject entry = new JsonObject();
+                entry.addProperty("card_identity", object.getName());
+                entry.addProperty("controller", pidOf(object.getControllerId(), playersByPid));
+                stack.add(entry);
+            }
+            root.add("stack", stack);
+        }
         return root;
     }
 
@@ -2205,9 +2383,12 @@ final class XmageNativeStateRestoration {
         supported.add("a record-declared already-fully-cast stack spell "
                 + "(execution_entry_mode NATIVE_STATE_LOAD with "
                 + "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL, cast_complete and costs_paid "
-                + "declared, no targets/modes) resumed as a real stack object at the record's "
-                + "checkpoint with engine-direct source/identity/controller readback; nothing "
-                + "is cast, paid, targeted or chosen");
+                + "declared, no targets/modes, exactly one stack entry and stack object, a "
+                + "declared cast-from zone, no variable/optional/additional costs, and a "
+                + "declared temporal state in which the spell was castable per CR 307.1/307.5) "
+                + "resumed as a real stack object at the record's "
+                + "checkpoint with engine-direct source/identity/controller/zone readback; "
+                + "nothing is cast, paid, targeted or chosen");
         supported.add("strict native readback with field-level compare and digests");
         supported.add("explicit L7 lossless hidden-state requests: complete live-library "
                 + "identity order plus one explicitly typed face-down battlefield object; "
@@ -2227,6 +2408,14 @@ final class XmageNativeStateRestoration {
         unsupported.add("stack spells without a record declaration of an already-fully-cast "
                 + "spell (NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL with cast_complete and "
                 + "costs_paid; anything else needs real casting costs/timing: executor scope)");
+        unsupported.add("cast events and cast history (SpellsCastWatcher) for a record-declared "
+                + "already-fully-cast stack spell: the resume fabricates neither a cast event "
+                + "nor a cast count, so any row depending on either observation fails closed");
+        unsupported.add("a resumed stack spell that was not castable at the record's declared "
+                + "temporal state (UNSUPPORTED_RESUME_TIMING), an undeclared cast-from zone "
+                + "(UNDECLARED_RESUME_CAST_ZONE), variable/optional/additional costs "
+                + "(UNSUPPORTED_RESUME_COST), or more than one declared stack entry or "
+                + "stack-zone object (UNSUPPORTED_RESUME_STACK_AMBIGUITY)");
         unsupported.add("legacy/frozen partial library identity: no complete permutation, fail closed");
         unsupported.add("legacy/frozen face_down=true without explicit native type: fail closed");
         unsupported.add("revealed-zone restoration");

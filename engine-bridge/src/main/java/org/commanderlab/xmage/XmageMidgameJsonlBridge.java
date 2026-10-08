@@ -879,10 +879,21 @@ final class XmageMidgameJsonlBridge {
                     requireSession().restorationGame(), seats);
             // The record's own declared already-fully-cast stack spell is
             // resumed here, at the record's checkpoint, while the engine thread
-            // is parked. It never casts, pays, targets or chooses; the readback
-            // is engine-direct and a mismatch fails the construction closed.
-            JsonObject resumeReadback = restoration.resumeFullyCastStackSpell(
-                    requireSession().restorationGame(), seats);
+            // is parked. It never casts, pays, targets or chooses. The resume
+            // runs only into a construction that already verifies: a broken
+            // state is never mutated further. Because it runs before the
+            // readback below, the resumed stack object is part of the
+            // constructed-state digest and the principal-scoped observation.
+            JsonObject resumeReadback = null;
+            if (verdict.mismatches().isEmpty() && lossless.mismatches().isEmpty()) {
+                resumeReadback = restoration.resumeFullyCastStackSpell(
+                        requireSession().restorationGame(), seats);
+                if (resumeReadback != null) {
+                    observed = XmageNativeStateRestoration.readback(
+                            requireSession().restorationGame(), seats);
+                    verdict = restoration.compare(observed, seats);
+                }
+            }
             List<String> allMismatches = new ArrayList<>(verdict.mismatches());
             allMismatches.addAll(lossless.mismatches());
             if (resumeReadback != null && !resumeReadback.get("verified").getAsBoolean()) {

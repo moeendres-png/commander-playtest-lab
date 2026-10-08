@@ -9,10 +9,12 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,17 +29,22 @@ import static org.junit.jupiter.api.Assertions.fail;
  * NATIVE_STATE_LOAD} with a {@code NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL}
  * native-procedure step on P2's Syphon Mind, whose {@code stack_state} entry
  * declares {@code cast_complete true} and {@code costs_paid true} with no
- * targets or modes. The engine resumes that declared object as a real stack
- * object at the record's own precombat-main checkpoint: it never casts, pays,
- * targets or chooses. The engine-direct readback must match source card,
- * identity and controller, and any mismatch fails the construction closed.</p>
+ * targets or modes. The record's declared temporal state has P1 active in P1's
+ * precombat main, so a sorcery controlled by P2 could not have been cast there
+ * (CR 307.1/307.5): the resume refuses the unreachable state with
+ * {@code UNSUPPORTED_RESUME_TIMING} and mutates nothing. A timing-reachable
+ * variant (P2 active in its own main, the cast-from zone declared) exercises
+ * the resume itself: it never casts, pays, targets or chooses, the
+ * engine-direct readback must match source card, identity, controller, kind
+ * and card zone, and any mismatch fails the construction closed.</p>
  *
- * <p>The negative itself is the engine's own frame: when the declared spell
- * resolves, XMage asks P1 to discard. The bridge only publishes that
- * {@code choose_object} frame; no parent-class/AI fallback answers it, so the
- * same decision stays pending until an external client answers. A bridge that
- * silently answered through its parent class would have advanced the game and
- * the frame would be gone.</p>
+ * <p>The parent-class-fallback negative runs on the timing-reachable variant:
+ * when the declared spell resolves, XMage asks P1 to discard. The bridge only
+ * publishes that {@code choose_object} frame; no parent-class/AI fallback
+ * answers it, so the same decision stays pending until an external client
+ * answers. The wrong-reason control at the end of that test answers the frame
+ * explicitly and shows the game then advances, which is exactly the condition
+ * the pending-frame equality would detect.</p>
  */
 class XmageMidgameFullyCastStackResumeTest {
 
@@ -129,6 +136,24 @@ class XmageMidgameFullyCastStackResumeTest {
         return record;
     }
 
+    /**
+     * The record with its declared temporal state made timing-reachable: P2 is
+     * active in P2's own precombat main, so P2's declared sorcery could have
+     * been cast there (CR 307.1/307.5), and the stack_state entry declares the
+     * cast-from zone. This approximates the corrected record the contract
+     * erratum owns; the shipped record itself stays refused.
+     */
+    private static JsonObject reachableTimingVariant(boolean declareFromZone) {
+        JsonObject record = effectiveRecord(FIXTURE);
+        record.getAsJsonObject("temporal_state").addProperty("active_player", "P2");
+        record.getAsJsonObject("temporal_state").addProperty("priority_player", "P2");
+        if (declareFromZone) {
+            record.getAsJsonArray("stack_state").get(0).getAsJsonObject()
+                    .addProperty("from_zone", "hand");
+        }
+        return record;
+    }
+
     private static JsonObject pendingDecision(Lane lane) {
         for (int attempt = 0; attempt < 40; attempt++) {
             JsonObject payload = lane.ok("get_midgame_decision", null);
@@ -195,15 +220,20 @@ class XmageMidgameFullyCastStackResumeTest {
         return create;
     }
 
+    /** The engine's choice frames during arrival are answered for the declared starting seat. */
+    private static String startingSeatLabel(JsonObject record) {
+        String seat = record.getAsJsonObject("temporal_state").get("active_player").getAsString();
+        return "Full Game Seat " + seat.substring(1);
+    }
+
     /**
-     * Drives the record's own checkpoint. Completion is queried at every
-     * priority, exactly as the production arrival driver does; the declared
-     * fully-cast stack spell is resumed by the completion that stands at the
-     * record's precombat-main checkpoint.
+     * Drives the record's own checkpoint on the real engine. Completion is
+     * queried at every priority, exactly as the production arrival driver
+     * does. Returns the arrival when the checkpoint is reached, or raises
+     * through the helper when a failure is required.
      */
-    private static JsonObject arriveOn(Lane lane, String fixtureId) {
-        JsonObject create = createRequest(fixtureId, effectiveRecord(fixtureId));
-        lane.ok("create_midgame_game", create);
+    private static JsonObject arriveOn(Lane lane, String gameId, JsonObject record) {
+        lane.ok("create_midgame_game", createRequest(gameId, record));
         lane.ok("start_midgame_game", null);
         for (int step = 0; step < 80; step++) {
             JsonObject decision = pendingDecision(lane);
@@ -212,7 +242,7 @@ class XmageMidgameFullyCastStackResumeTest {
             if ("mulligan".equals(decisionClass)) {
                 submit(lane, decision, option(decision, "keep"));
             } else if ("choice".equals(decisionClass) || "choose_object".equals(decisionClass)) {
-                submit(lane, decision, labelled(decision, "Full Game Seat 1"));
+                submit(lane, decision, labelled(decision, startingSeatLabel(record)));
             } else if ("priority".equals(decisionClass)) {
                 JsonObject arrival = lane.ok("complete_midgame_arrival", new JsonObject());
                 if ("PRECOMBAT_MAIN".equals(
@@ -226,6 +256,28 @@ class XmageMidgameFullyCastStackResumeTest {
         }
         fail("the checkpoint was never reached");
         return null;
+    }
+
+    private static JsonObject actorRequest(String actorId) {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("actor_id", actorId);
+        return payload;
+    }
+
+    /** The P1 seat's own hand identities from a principal-scoped projection. */
+    private static List<String> actorHandNames(JsonObject projection) {
+        List<String> names = new ArrayList<>();
+        for (JsonElement element : projection.getAsJsonObject("view").getAsJsonArray("players")) {
+            JsonObject player = element.getAsJsonObject();
+            if (!player.get("is_actor").getAsBoolean() || !player.has("hand")) {
+                continue;
+            }
+            for (JsonElement card : player.getAsJsonArray("hand")) {
+                names.add(card.getAsJsonObject().get("name").getAsString());
+            }
+        }
+        Collections.sort(names);
+        return names;
     }
 
     // ------------------------------------------------------------------
@@ -242,6 +294,9 @@ class XmageMidgameFullyCastStackResumeTest {
         assertEquals("Syphon Mind", declared.cardIdentity());
         assertEquals("P2", declared.owner());
         assertEquals("P2", declared.controller());
+        // The shipped record declares no cast-from zone; the resume refuses
+        // it (UNDECLARED_RESUME_CAST_ZONE) rather than defaulting to HAND.
+        assertNull(declared.fromZone());
         assertEquals("NATIVE_STATE_LOAD", record.get("execution_entry_mode").getAsString());
     }
 
@@ -290,14 +345,146 @@ class XmageMidgameFullyCastStackResumeTest {
                         wrongController, "t", SEED));
     }
 
+    @Test
+    void anExtraStackStateEntryFailsClosedWithANamedCode() {
+        JsonObject extraEntry = baseRecord(FIXTURE);
+        JsonObject trigger = new JsonObject();
+        trigger.addProperty("source_semantic_id", "obj:p1-bears");
+        trigger.addProperty("kind", "trigger");
+        trigger.addProperty("cast_complete", false);
+        trigger.addProperty("costs_paid", false);
+        extraEntry.getAsJsonArray("stack_state").add(trigger);
+        XmageNativeStateRestoration.RestorationException ambiguity = assertThrows(
+                XmageNativeStateRestoration.RestorationException.class,
+                () -> XmageNativeStateRestoration.planFromFrozenRecord(extraEntry, "t", SEED));
+        assertTrue(ambiguity.getMessage().contains("UNSUPPORTED_RESUME_STACK_AMBIGUITY"),
+                ambiguity.getMessage());
+
+        JsonObject extraStackObject = baseRecord(FIXTURE);
+        JsonObject secondSpell = baseRecord(FIXTURE).getAsJsonArray("semantic_objects")
+                .get(0).getAsJsonObject().deepCopy();
+        secondSpell.addProperty("semantic_id", "obj:extra-stack-spell");
+        secondSpell.addProperty("zone", "stack");
+        extraStackObject.getAsJsonArray("semantic_objects").add(secondSpell);
+        XmageNativeStateRestoration.RestorationException objects = assertThrows(
+                XmageNativeStateRestoration.RestorationException.class,
+                () -> XmageNativeStateRestoration.planFromFrozenRecord(
+                        extraStackObject, "t", SEED));
+        assertTrue(objects.getMessage().contains("UNSUPPORTED_RESUME_STACK_AMBIGUITY"),
+                objects.getMessage());
+    }
+
     // ------------------------------------------------------------------
-    // Real engine: resume + engine-direct readback, then the negative frame.
+    // Real engine: the unreachable record is refused and changes nothing.
     // ------------------------------------------------------------------
 
     @Test
-    void theDeclaredSpellIsResumedAndReadBackOnTheRealEngine() {
+    void theUnreachableTimingResumeIsRefusedAndNothingIsMutated() {
         Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
-        JsonObject arrival = arriveOn(lane, FIXTURE);
+        JsonObject create = createRequest(FIXTURE, effectiveRecord(FIXTURE));
+        lane.ok("create_midgame_game", create);
+        lane.ok("start_midgame_game", null);
+
+        List<String> handBeforeRefusal = new ArrayList<>();
+        int offsetBeforeRefusal = -1;
+        String decisionBeforeRefusal = null;
+        JsonObject refusal = null;
+        for (int step = 0; step < 80; step++) {
+            JsonObject decision = pendingDecision(lane);
+            assertNotNull(decision, "the engine stopped offering decisions before the checkpoint");
+            String decisionClass = decision.get("decision_class").getAsString();
+            if ("mulligan".equals(decisionClass)) {
+                submit(lane, decision, option(decision, "keep"));
+                continue;
+            }
+            if (!"priority".equals(decisionClass)) {
+                submit(lane, decision, labelled(decision, startingSeatLabel(effectiveRecord(FIXTURE))));
+                continue;
+            }
+            // Baselines immediately before the completion attempt: P1's own
+            // hand, the public tape offset and the pending priority frame.
+            handBeforeRefusal.clear();
+            handBeforeRefusal.addAll(
+                    actorHandNames(lane.ok("get_midgame_projection", actorRequest("P1"))));
+            offsetBeforeRefusal = lane.ok("get_midgame_events", new JsonObject())
+                    .get("latest_offset").getAsInt();
+            decisionBeforeRefusal = decision.get("decision_id").getAsString();
+            JsonObject response = lane.call("complete_midgame_arrival", new JsonObject());
+            if (!response.get("success").getAsBoolean()) {
+                refusal = response;
+                break;
+            }
+            submit(lane, decision, option(decision, "pass_priority"));
+        }
+        assertNotNull(refusal, "the unreachable resume must be refused at the checkpoint");
+        String errors = refusal.getAsJsonArray("errors").toString();
+        assertTrue(errors.contains("UNSUPPORTED_RESUME_TIMING"), errors);
+
+        // Nothing was cast, resolved or chosen: the tape did not move, P1's
+        // hand is untouched, and the engine still stands on the same frame.
+        JsonObject events = lane.ok("get_midgame_events", actorRequest("P1"));
+        assertEquals(offsetBeforeRefusal, events.get("latest_offset").getAsInt(),
+                "the refused resume must not emit any event");
+        JsonObject afterEvents = new JsonObject();
+        afterEvents.addProperty("after_offset", offsetBeforeRefusal);
+        assertEquals(0, lane.ok("get_midgame_events", afterEvents)
+                .getAsJsonArray("events").size(), "no event may follow the refusal");
+        assertEquals(handBeforeRefusal,
+                actorHandNames(lane.ok("get_midgame_projection", actorRequest("P1"))),
+                "P1's hand must be unchanged by the refused resume");
+        JsonObject pending = pendingDecision(lane);
+        assertNotNull(pending, "the engine must stay parked after the refusal");
+        assertEquals(decisionBeforeRefusal, pending.get("decision_id").getAsString(),
+                "the refused resume must not advance the engine");
+
+        // A second completion attempt refuses identically: no partial resume.
+        JsonObject again = lane.call("complete_midgame_arrival", new JsonObject());
+        assertTrue(again.getAsJsonArray("errors").toString().contains("UNSUPPORTED_RESUME_TIMING"),
+                again.toString());
+        assertEquals(offsetBeforeRefusal, lane.ok("get_midgame_events", new JsonObject())
+                .get("latest_offset").getAsInt());
+    }
+
+    @Test
+    void anUndeclaredCastZoneIsRefusedOnTheRealEngine() {
+        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
+        JsonObject record = reachableTimingVariant(false);
+        JsonObject create = createRequest(FIXTURE, record);
+        lane.ok("create_midgame_game", create);
+        lane.ok("start_midgame_game", null);
+        JsonObject refusal = null;
+        for (int step = 0; step < 80; step++) {
+            JsonObject decision = pendingDecision(lane);
+            assertNotNull(decision, "the engine stopped offering decisions before the checkpoint");
+            String decisionClass = decision.get("decision_class").getAsString();
+            if ("mulligan".equals(decisionClass)) {
+                submit(lane, decision, option(decision, "keep"));
+                continue;
+            }
+            if (!"priority".equals(decisionClass)) {
+                submit(lane, decision, labelled(decision, startingSeatLabel(record)));
+                continue;
+            }
+            JsonObject response = lane.call("complete_midgame_arrival", new JsonObject());
+            if (!response.get("success").getAsBoolean()) {
+                refusal = response;
+                break;
+            }
+            submit(lane, decision, option(decision, "pass_priority"));
+        }
+        assertNotNull(refusal, "the undeclared cast-from zone must be refused at the checkpoint");
+        assertTrue(refusal.getAsJsonArray("errors").toString()
+                        .contains("UNDECLARED_RESUME_CAST_ZONE"), refusal.toString());
+    }
+
+    // ------------------------------------------------------------------
+    // Real engine: resume + engine-direct readback on a reachable variant.
+    // ------------------------------------------------------------------
+
+    @Test
+    void aReachableVariantResumesAndReadsBackOnTheRealEngine() {
+        Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
+        JsonObject arrival = arriveOn(lane, "reachable-resume", reachableTimingVariant(true));
         assertTrue(arrival.get("construction_match").getAsBoolean(),
                 "the checkpoint must construct exactly: " + arrival.get("mismatches"));
         JsonObject resume = arrival.getAsJsonObject("resume_stack_spell");
@@ -309,12 +496,27 @@ class XmageMidgameFullyCastStackResumeTest {
         assertEquals("P2", observed.get("controller").getAsString());
         assertTrue(observed.get("source_bound").getAsBoolean(),
                 "the stack object must be the record's own materialized source card");
+        assertTrue(observed.get("is_spell").getAsBoolean(),
+                "the resumed stack object must be a real Spell");
+        assertTrue(observed.get("bound_card").getAsBoolean(),
+                "the Spell must be the bound engine card");
+        assertEquals("STACK", observed.get("card_zone").getAsString(),
+                "the bound card's engine zone must be STACK");
+        assertEquals("HAND", observed.get("from_zone").getAsString(),
+                "the declared cast-from zone must be the Spell's from-zone");
+        // The resumed spell is part of the constructed-state observation (and
+        // therefore of the digest), not only of its own readback.
+        JsonArray stack = arrival.getAsJsonObject("observation").getAsJsonArray("stack");
+        assertNotNull(stack, "the observation must carry the public stack");
+        assertEquals(1, stack.size());
+        assertEquals("Syphon Mind",
+                stack.get(0).getAsJsonObject().get("card_identity").getAsString());
     }
 
     @Test
     void theParentClassFallbackNegativeIsTheEngineOwnUnansweredFrame() {
         Lane lane = new Lane(new XmageMidgameJsonlBridge(), new ArrayList<>());
-        JsonObject arrival = arriveOn(lane, FIXTURE);
+        JsonObject arrival = arriveOn(lane, "parent-fallback", reachableTimingVariant(true));
         assertTrue(arrival.getAsJsonObject("resume_stack_spell").get("verified").getAsBoolean());
 
         // Pass the checkpoint priority; the declared spell then resolves and
@@ -348,6 +550,16 @@ class XmageMidgameFullyCastStackResumeTest {
         assertNotNull(again, "the frame must stay pending until an external client answers");
         assertEquals(discardId, again.get("decision_id").getAsString(),
                 "the parent-class fallback must not have answered the discard frame");
+
+        // Wrong-reason control: an answer to this frame (exactly what a
+        // parent-class fallback would have applied) does move the game on —
+        // the pending frame changes — so the equality assertion above cannot
+        // hold for the wrong reason.
+        submit(lane, discard, labelled(discard, "Mountain"));
+        JsonObject afterAnswer = pendingDecision(lane);
+        assertNotNull(afterAnswer, "the game must continue after a real answer");
+        assertNotEquals(discardId, afterAnswer.get("decision_id").getAsString(),
+                "an answered frame must not still be the pending frame");
     }
 
     @Test
