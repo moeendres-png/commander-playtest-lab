@@ -1243,3 +1243,60 @@ def test_a_turn_one_placement_mulligan_answered_twice_fails_closed() -> None:
         probe.drive_to_precombat_main(client, record)
     assert "never answers a mandatory decision twice" in str(excinfo.value)
     assert len(client.submissions) == 1
+
+
+# --------------------------------------------------------------------------- #
+# #632 re-review: exclusive pass-through bound and the answered-keep ledger
+# --------------------------------------------------------------------------- #
+
+
+def test_a_priority_frame_exactly_at_the_scope_until_is_not_passed() -> None:
+    """#632 re-review P2: the pass-through's ``until`` bound is exclusive
+    (``from <= position < until``). The checkpoint step's own priority window is
+    never covered by the declared pass-through, because the row's obligation may
+    cast or activate there (CR 117.1a). Mutation: restoring the inclusive
+    ``start <= position <= end`` makes the at-``until`` assertion fail."""
+    probe = _probe_module("probe_scope_until_exclusive_under_test")
+    record = _turn2_record()
+    at_until = _observation(2, "PRECOMBAT_MAIN", "PRECOMBAT_MAIN", "P2")
+    assert probe._scripted_priority_pass_through(record, "P2", at_until) is False
+    inside = _observation(2, "BEGINNING", "UPKEEP", "P2")
+    assert probe._scripted_priority_pass_through(record, "P2", inside) is True
+
+
+def test_a_declared_pregame_keep_the_engine_never_asked_fails_closed() -> None:
+    """#632 re-review P3: ``drive_to_precombat_main`` fails closed when a
+    declared pregame keep was never asked before precombat main. Mutation:
+    dropping ``_require_pregame_keeps_complete`` lets the arrival report success
+    with an unconsumed declared keep."""
+    probe = _probe_module("probe_placement_keeps_complete_under_test")
+    record = _placement_turn1_record(
+        [
+            {
+                "actor": seat,
+                "decision_family": "mulligan",
+                "selection": {
+                    **_FAIL_CLOSED,
+                    "selector_kind": "semantic_action",
+                    "semantic_value": "keep_opening_hand",
+                },
+            }
+            for seat in ("P1", "P2", "P3", "P4")
+        ]
+    )
+    # The engine asks only P1's and P2's keeps, then holds priority at turn 1's
+    # precombat main: the declared P3/P4 keeps are never answered.
+    client = _SequencedClient(
+        [
+            *_precheckpoint_history_frames()[:2],
+            _checkpoint_frame(
+                _observation(1, "PRECOMBAT_MAIN", "PRECOMBAT_MAIN", "P1"),
+                seat=0,
+                decision_id="d-main",
+            ),
+        ]
+    )
+    with pytest.raises(mr.ml.MidgameLaneError) as excinfo:
+        probe.drive_to_precombat_main(client, record)
+    assert "unconsumed declared keep fails closed" in str(excinfo.value)
+    assert client.submissions == [["keep-0"], ["keep-1"]]

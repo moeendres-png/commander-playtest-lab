@@ -720,6 +720,12 @@ def _scripted_priority_pass_through(
     a step without a readable scope is malformed and a frame without a readable
     turn or phase can never be matched, so the arrival pilot never passes
     priority on a player's behalf outside the record's own declaration.
+
+    The ``until`` bound is exclusive (``from <= position < until``): the
+    declared scope ends before the checkpoint step's own priority window, where
+    the row's obligation may require a cast or activation (CR 117.1a). An
+    inclusive bound would let the pass-through answer the checkpoint's own
+    priority frame and silently consume the obligation.
     """
     matching = [
         step
@@ -760,7 +766,7 @@ def _scripted_priority_pass_through(
                 "the record's priority_pass_through step declares an unreadable scope "
                 "(scope.from/scope.until): the arrival pilot cannot bound its passes"
             )
-        if start_position <= position <= end_position:
+        if start_position <= position < end_position:
             return True
     return False
 
@@ -2074,6 +2080,26 @@ def drive_to_precombat_main(
             )
         consumed_history.add(index)
 
+    def _require_pregame_keeps_complete() -> None:
+        """Every declared pregame mulligan keep must have been answered.
+
+        The engine asks every seat's keep (CR 103.5) before turn 1, so by the
+        time the transport reaches precombat main a declared keep the record
+        scripts but the engine never asked is an unconsumed declaration: the
+        arrival refuses it instead of reporting a completed pregame.
+        """
+        for index, step in enumerate(script):
+            if not isinstance(step, dict):
+                continue
+            if str(step.get("decision_family") or "") != "mulligan":
+                continue
+            if index not in consumed_history:
+                raise ml.MidgameLaneError(
+                    f"the record scripts a mulligan keep for {step.get('actor')} but "
+                    "the engine never asked it before precombat main: an unconsumed "
+                    "declared keep fails closed"
+                )
+
     for _ in range(120):
         decision = client.pending_decision()
         if decision is None:
@@ -2109,6 +2135,7 @@ def drive_to_precombat_main(
                 and observation.get("phase") == "PRECOMBAT_MAIN"
                 and observation.get("step") == "PRECOMBAT_MAIN"
             ):
+                _require_pregame_keeps_complete()
                 return
             principal = _decision_seat_principal(decision)
             if not _scripted_priority_pass_through(record, principal, observation):

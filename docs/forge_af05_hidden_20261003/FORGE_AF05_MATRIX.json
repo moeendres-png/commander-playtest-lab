@@ -1,7 +1,7 @@
 {
  "bridge_commit": "31cbae12640e6066499aa7f17c9bf2dba6a30da6",
  "candidate": "forge",
- "canonical_bundle_digest": "a8ff294679bb8cae9de4d603a0a41def69897f079fb1d7990f1000877e4e7025",
+ "canonical_bundle_digest": "2adef359fcd0c89ed40836b9fd816725cf37a9c8a85607da867d677a1141272e",
  "channels": [
   {
    "absent_tokens": [],

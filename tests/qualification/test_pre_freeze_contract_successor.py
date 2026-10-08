@@ -4033,10 +4033,13 @@ TURN1_ARRIVAL_ERRATA_IDS = ["WS05-MP-TURN-5", "WS05-MP-BLOCK-4", "MICRO_REPLACEM
 
 def test_contract_1_0_27_declares_the_turn1_arrival_history() -> None:
     """1.0.27 (#626 Coordinator ruling): the three turn-1 arrival records declare
-    their whole pre-checkpoint history in ``decision_script`` and the Lab only
-    transports it: four pregame keeps (CR 103.5) and a priority pass-through
-    scope from turn 1's beginning to that row's own declared checkpoint
-    (CR 117.3d/305.1). The obligation keys, the requested state and the 107-row
+    their pre-checkpoint keep and priority history in ``decision_script`` and the
+    Lab only transports it: four pregame keeps (CR 103.5) and a priority
+    pass-through scope from turn 1's beginning to that row's own declared
+    checkpoint (CR 117.3d/305.1). Where the checkpoint follows P1's attack
+    declaration (WS05-MP-BLOCK-4, MICRO_REPLACEMENT), that CR 508.1 attack set is
+    the record's own ``combat_state`` declaration, not a ``decision_script`` step
+    (#632 re-review P2). The obligation keys, the requested state and the 107-row
     denominator are untouched; every other 1.0.26 successor is carried byte for
     byte."""
     contract = _json(SUCCESSOR_PATH)
@@ -4150,6 +4153,29 @@ def test_contract_1_0_27_declares_the_turn1_arrival_history() -> None:
             "decision_script +1 priority_pass_through scope (actor ALL) from "
             "turn 1's beginning to the declared checkpoint",
         }
+
+        # #632 re-review P2: for the rows whose checkpoint follows P1's attack
+        # declaration, the attack set is the record's own combat_state
+        # declaration; no authority/reason/ledger text may claim the whole
+        # pre-checkpoint history lives in decision_script.
+        details = patch["append_native_procedure"][-1]["details"]
+        if fixture_id in {"WS05-MP-BLOCK-4", "MICRO_REPLACEMENT"}:
+            assert "already declared by the record's own combat_state" in details["authority"]
+            assert "not by decision_script" in details["authority"]
+            assert (
+                "with P1's attack declaration before the checkpoint already declared "
+                "by the record's own combat_state (CR 508.1)" in details["reason"]
+            )
+            assert (
+                "combat_state declaration (CR 508.1), not a decision_script step"
+                in ledger_entry["notes"]
+            )
+            assert "whole turn-1 pre-checkpoint history in decision_script" not in (
+                details["authority"] + details["reason"] + ledger_entry["notes"]
+            )
+        else:
+            assert "combat_state" not in details["authority"]
+            assert "in decision_script" in details["reason"]
 
     # The authority names the new contract and the new schema; NEGATIVE keeps the
     # 1.0.26 class and the denominator is untouched.

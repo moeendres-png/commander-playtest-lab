@@ -366,12 +366,12 @@
     {
      "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
      "comprehensive_rules": "117.3d, 305.1",
-     "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
+     "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS (a CR 508.1 attack declaration in scope, where present, is the record's own combat_state declaration and not a priority decision). The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
     }
    ],
    "fixture_id": "WS05-MP-TURN-5",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the turn-1 arrival history is now declared (pregame keeps and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #625 review reproduced",
-   "notes": "#625 review: the turn-1 arrival kept hands and passed priority without a record script. The record now declares its whole turn-1 pre-checkpoint history in decision_script (four pregame keeps, CR 103.5; a priority pass-through scope from turn 1's beginning to the row's checkpoint, CR 117.3d/305.1) and the Lab transports each frame; unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#625 review: the turn-1 arrival kept hands and passed priority without a record script. The record now declares its turn-1 pre-checkpoint keep and priority history in decision_script (four pregame keeps, CR 103.5; a priority pass-through scope from turn 1's beginning to the row's checkpoint, CR 117.3d/305.1) and the Lab transports each frame; unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "cf41ff5b38ad101a5adaf17997b76f35d1391c79532b5306f6c1ec32df58c5d1",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_27.json"
   },
@@ -390,12 +390,12 @@
     {
      "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
      "comprehensive_rules": "117.3d, 305.1",
-     "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
+     "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS (a CR 508.1 attack declaration in scope, where present, is the record's own combat_state declaration and not a priority decision). The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
     }
    ],
    "fixture_id": "WS05-MP-BLOCK-4",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the turn-1 arrival history is now declared (pregame keeps and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #625 review reproduced",
-   "notes": "#625 review: the turn-1 arrival kept hands and passed priority without a record script. The record now declares its whole turn-1 pre-checkpoint history in decision_script (four pregame keeps, CR 103.5; a priority pass-through scope from turn 1's beginning to the row's checkpoint, CR 117.3d/305.1) and the Lab transports each frame; unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#625 review: the turn-1 arrival kept hands and passed priority without a record script. The record now declares its turn-1 pre-checkpoint keep and priority history in decision_script (four pregame keeps, CR 103.5; a priority pass-through scope from turn 1's beginning to the row's checkpoint, CR 117.3d/305.1); P1's attack declaration before this row's checkpoint is the record's own combat_state declaration (CR 508.1), not a decision_script step and the Lab transports each frame; unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "dc9b4247ca1363943130771f6afa2ce81ff4f1168b5c19ae87783271974add89",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_27.json"
   },
@@ -414,12 +414,12 @@
     {
      "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
      "comprehensive_rules": "117.3d, 305.1",
-     "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
+     "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS (a CR 508.1 attack declaration in scope, where present, is the record's own combat_state declaration and not a priority decision). The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
     }
    ],
    "fixture_id": "MICRO_REPLACEMENT",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the turn-1 arrival history is now declared (pregame keeps and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #625 review reproduced",
-   "notes": "#625 review: the turn-1 arrival kept hands and passed priority without a record script. The record now declares its whole turn-1 pre-checkpoint history in decision_script (four pregame keeps, CR 103.5; a priority pass-through scope from turn 1's beginning to the row's checkpoint, CR 117.3d/305.1) and the Lab transports each frame; unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#625 review: the turn-1 arrival kept hands and passed priority without a record script. The record now declares its turn-1 pre-checkpoint keep and priority history in decision_script (four pregame keeps, CR 103.5; a priority pass-through scope from turn 1's beginning to the row's checkpoint, CR 117.3d/305.1); P1's attack declaration before this row's checkpoint is the record's own combat_state declaration (CR 508.1), not a decision_script step and the Lab transports each frame; unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "dda405e286b67c7d5a5ac4c831adc6d13fa14fd5cf4814c664cb9332abd8b0bc",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_27.json"
   }

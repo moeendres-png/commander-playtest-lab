@@ -8,8 +8,8 @@ midgame arrival path ``drive_to_precombat_main`` still kept opening hands and
 passed priority without a record script for these three turn-1 rows. Those are
 Lab choices made for players (CR 103.5 for the keep, CR 117 for the passes).
 
-The ruling is that each record declares its whole turn-1 arrival history in
-``decision_script`` and the Lab only transports it:
+The ruling is that each record declares its turn-1 pre-checkpoint keep and
+priority history in ``decision_script`` and the Lab only transports it:
 
 * pregame: one ``mulligan`` KEEP step per seat P1-P4 (the 6P / START-2 shape;
   CR 103.5);
@@ -19,12 +19,15 @@ The ruling is that each record declares its whole turn-1 arrival history in
   activates anything; any non-priority decision in scope that is not
   separately scripted fails closed.
 
-No other decision is declared: these records' pre-checkpoint history needs no
-attackers, discards or targets before their declared checkpoint. Every other
-field is the 1.0.26 one byte for byte: the superseded patch is kept as lineage
-(``superseded_successor_patch``). The obligation is unchanged key for key and
-the 107-row denominator is untouched (``denominator_effect: NONE``). No runtime
-credit is claimed.
+Where the checkpoint follows P1's attack declaration (WS05-MP-BLOCK-4,
+MICRO_REPLACEMENT), that CR 508.1 attack set is already declared by the
+record's own ``combat_state`` and is not part of ``decision_script``. No other
+decision is added to ``decision_script``: these records' pre-checkpoint history
+needs no additional attackers, discards or targets before their declared
+checkpoint. Every other field is the 1.0.26 one byte for byte: the superseded
+patch is kept as lineage (``superseded_successor_patch``). The obligation is
+unchanged key for key and the 107-row denominator is untouched
+(``denominator_effect: NONE``). No runtime credit is claimed.
 
 Idempotent: always regenerated from the 1.0.26 bytes.
 """
@@ -50,11 +53,16 @@ CORRECTION_CLASS = "FIXTURE_DEFECT_CORRECTION_TURN1_ARRIVAL_HISTORY_DECLARATIONS
 FIXTURES = ("WS05-MP-TURN-5", "WS05-MP-BLOCK-4", "MICRO_REPLACEMENT")
 DECISIONS = (
     "#626 Coordinator ruling 2026-10-08 (contract 1.0.27): the three turn-1 "
-    "arrival records declare their whole pre-checkpoint history explicitly in "
-    "decision_script and the Lab only transports it -- one pregame keep per seat "
-    "(CR 103.5) and a declared priority pass-through scope from turn 1's beginning "
-    "to the row's own checkpoint (CR 117.3d/305.1); no Lab default, first-option or "
-    "positional choice answers an engine frame"
+    "arrival records declare their pre-checkpoint history explicitly and the Lab "
+    "only transports it -- one pregame keep per seat (CR 103.5) and a declared "
+    "priority pass-through scope from turn 1's beginning to the row's own "
+    "checkpoint (CR 117.3d/305.1) in decision_script; no Lab default, first-option "
+    "or positional choice answers an engine frame"
+)
+COMBAT_STATE_AUTHORITY = (
+    ". Where the row's checkpoint follows P1's attack declaration, that CR 508.1 "
+    "attack set is already declared by the record's own combat_state, not by "
+    "decision_script and never by the Lab"
 )
 FORBIDDEN = [
     "first_option",
@@ -170,6 +178,7 @@ def priority_step(fixture_id: str, temporal: dict) -> dict:
 
 
 patches: dict[str, dict] = {}
+attackers_by_fixture: dict[str, bool] = {}
 for fixture_id in FIXTURES:
     prior = existing[fixture_id]
     prior_record = resolver.effective_record(fixture_id)
@@ -202,6 +211,27 @@ for fixture_id in FIXTURES:
     for untouched in ("temporal_state", "stack_state", "deck_state"):
         assert record.get(untouched) == prior_record.get(untouched), untouched
 
+    # The two combat-checkpoint rows already declare P1's CR 508.1 attack set
+    # in ``combat_state``; the wording must never claim that declaration lives
+    # in ``decision_script``. TURN-5's checkpoint follows no attack, so its
+    # pre-checkpoint history really is only the keeps and the passes.
+    attackers_declared = bool(dict((prior_record.get("combat_state") or {}).get("attackers") or {}))
+    attackers_by_fixture[fixture_id] = attackers_declared
+    authority_text = DECISIONS + (COMBAT_STATE_AUTHORITY if attackers_declared else "")
+    if attackers_declared:
+        history_text = (
+            "The record now declares its turn-1 pre-checkpoint history: four pregame "
+            "keeps (CR 103.5) and the scoped priority pass-through (CR 117.3d/305.1) "
+            "in decision_script, with P1's attack declaration before the checkpoint "
+            "already declared by the record's own combat_state (CR 508.1)"
+        )
+    else:
+        history_text = (
+            "The record now declares its turn-1 pre-checkpoint history in "
+            "decision_script: four pregame keeps (CR 103.5) and the scoped priority "
+            "pass-through (CR 117.3d/305.1)"
+        )
+
     field_changes = [
         {
             "change": "decision_script +4 pregame mulligan keep steps (P1-P4)",
@@ -223,16 +253,18 @@ for fixture_id in FIXTURES:
             "reason": (
                 "from turn 1's beginning to the record's own checkpoint no player "
                 "plays a land, casts or activates anything, so every priority decision "
-                "in scope is the record's declared PASS. The 1.0.26 arrival passed "
-                "priority by Lab default; now only the declared scope authorizes it and "
-                "a frame outside it fails closed"
+                "in scope is the record's declared PASS (a CR 508.1 attack "
+                "declaration in scope, where present, is the record's own "
+                "combat_state declaration and not a priority decision). The 1.0.26 "
+                "arrival passed priority by Lab default; now only the declared scope "
+                "authorizes it and a frame outside it fails closed"
             ),
         },
     ]
     erratum = {
         "actor": None,
         "details": {
-            "authority": DECISIONS,
+            "authority": authority_text,
             "comprehensive_rules": "103.5, 117.3d, 305.1",
             "erratum_class": CORRECTION_CLASS,
             "field_changes": copy.deepcopy(field_changes),
@@ -241,12 +273,11 @@ for fixture_id in FIXTURES:
             "reason": (
                 "the #625 review found the row's turn-1 arrival depended on Lab answers "
                 "for players: pregame keeps were answered with a default and priority "
-                "was passed without a record script. The record now declares its whole "
-                "turn-1 pre-checkpoint history in decision_script -- four pregame keeps "
-                "(CR 103.5) and the scoped priority pass-through (CR 117.3d/305.1) -- so "
-                "the Lab only transports what the record declares. No other decision is "
-                "needed before the declared checkpoint. Obligation keys are untouched, "
-                "the denominator is untouched and no runtime credit is claimed"
+                "was passed without a record script. "
+                + history_text
+                + " -- so the Lab only transports what the record declares. No other "
+                "decision is needed before the declared checkpoint. Obligation keys are "
+                "untouched, the denominator is untouched and no runtime credit is claimed"
             ),
             "supersedes_erratum_step": prior["append_native_procedure"][-1]["step_id"],
         },
@@ -325,11 +356,13 @@ contract["materialization_schema_version_note"] = (
     "the record shape is unchanged from the 1.0.8 successor schema; 1.0.27 carries "
     "every 1.0.26 record successor and the bounded-secondary PLAYER_COUNT_6P section "
     "byte for byte, and supersedes in place exactly three records: WS05-MP-TURN-5, "
-    "WS05-MP-BLOCK-4 and MICRO_REPLACEMENT now declare their whole turn-1 "
-    "pre-checkpoint arrival history (four pregame mulligan keeps and the scoped "
-    "priority pass-through), so the Lab transports each frame instead of answering it "
-    "with a default. The obligation keys and the 107-row denominator are untouched and "
-    "no runtime credit is claimed. Per #626 Coordinator ruling 2026-10-08."
+    "WS05-MP-BLOCK-4 and MICRO_REPLACEMENT now declare their turn-1 pre-checkpoint "
+    "keep and priority history in decision_script (four pregame mulligan keeps and "
+    "the scoped priority pass-through); where the checkpoint follows P1's attack "
+    "declaration, that attack set stays declared by the record's own combat_state, "
+    "so the Lab transports each frame instead of answering it with a default. The "
+    "obligation keys and the 107-row denominator are untouched and no runtime credit "
+    "is claimed. Per #626 Coordinator ruling 2026-10-08."
 )
 contract["predecessor"] = {
     "path": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_26.json",
@@ -410,13 +443,21 @@ for fixture_id in FIXTURES:
                     "known_runtime_blocker": KNOWN_RUNTIME_BLOCKER,
                     "notes": (
                         "#625 review: the turn-1 arrival kept hands and passed priority "
-                        "without a record script. The record now declares its whole "
-                        "turn-1 pre-checkpoint history in decision_script (four pregame "
-                        "keeps, CR 103.5; a priority pass-through scope from turn 1's "
-                        "beginning to the row's checkpoint, CR 117.3d/305.1) and the Lab "
-                        "transports each frame; unscripted frames fail closed. The "
-                        "obligation digest is unchanged, the 107-row denominator is "
-                        "untouched and no runtime credit is claimed"
+                        "without a record script. The record now declares its turn-1 "
+                        "pre-checkpoint keep and priority history in decision_script "
+                        "(four pregame keeps, CR 103.5; a priority pass-through scope "
+                        "from turn 1's beginning to the row's checkpoint, "
+                        "CR 117.3d/305.1)"
+                        + (
+                            "; P1's attack declaration before this row's checkpoint is "
+                            "the record's own combat_state declaration (CR 508.1), not a "
+                            "decision_script step"
+                            if attackers_by_fixture[fixture_id]
+                            else ""
+                        )
+                        + " and the Lab transports each frame; unscripted frames fail "
+                        "closed. The obligation digest is unchanged, the 107-row "
+                        "denominator is untouched and no runtime credit is claimed"
                     ),
                     "predecessor_requested_state_digest": existing[fixture_id][
                         "successor_requested_state_digest"

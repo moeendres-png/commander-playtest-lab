@@ -183,7 +183,7 @@
   "successor_contract_creation_is_runtime_credit": false,
   "xmage_predecessor_start2_blocker_is_historical_provenance": true
  },
- "materialization_schema_version_note": "the record shape is unchanged from the 1.0.8 successor schema; 1.0.27 carries every 1.0.26 record successor and the bounded-secondary PLAYER_COUNT_6P section byte for byte, and supersedes in place exactly three records: WS05-MP-TURN-5, WS05-MP-BLOCK-4 and MICRO_REPLACEMENT now declare their whole turn-1 pre-checkpoint arrival history (four pregame mulligan keeps and the scoped priority pass-through), so the Lab transports each frame instead of answering it with a default. The obligation keys and the 107-row denominator are untouched and no runtime credit is claimed. Per #626 Coordinator ruling 2026-10-08.",
+ "materialization_schema_version_note": "the record shape is unchanged from the 1.0.8 successor schema; 1.0.27 carries every 1.0.26 record successor and the bounded-secondary PLAYER_COUNT_6P section byte for byte, and supersedes in place exactly three records: WS05-MP-TURN-5, WS05-MP-BLOCK-4 and MICRO_REPLACEMENT now declare their turn-1 pre-checkpoint keep and priority history in decision_script (four pregame mulligan keeps and the scoped priority pass-through); where the checkpoint follows P1's attack declaration, that attack set stays declared by the record's own combat_state, so the Lab transports each frame instead of answering it with a default. The obligation keys and the 107-row denominator are untouched and no runtime credit is claimed. Per #626 Coordinator ruling 2026-10-08.",
  "predecessor": {
   "path": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_26.json",
   "record_count": 80,
@@ -16289,7 +16289,7 @@
     {
      "actor": null,
      "details": {
-      "authority": "#626 Coordinator ruling 2026-10-08 (contract 1.0.27): the three turn-1 arrival records declare their whole pre-checkpoint history explicitly in decision_script and the Lab only transports it -- one pregame keep per seat (CR 103.5) and a declared priority pass-through scope from turn 1's beginning to the row's own checkpoint (CR 117.3d/305.1); no Lab default, first-option or positional choice answers an engine frame",
+      "authority": "#626 Coordinator ruling 2026-10-08 (contract 1.0.27): the three turn-1 arrival records declare their pre-checkpoint history explicitly and the Lab only transports it -- one pregame keep per seat (CR 103.5) and a declared priority pass-through scope from turn 1's beginning to the row's own checkpoint (CR 117.3d/305.1) in decision_script; no Lab default, first-option or positional choice answers an engine frame. Where the row's checkpoint follows P1's attack declaration, that CR 508.1 attack set is already declared by the record's own combat_state, not by decision_script and never by the Lab",
       "comprehensive_rules": "103.5, 117.3d, 305.1",
       "erratum_class": "FIXTURE_DEFECT_CORRECTION_TURN1_ARRIVAL_HISTORY_DECLARATIONS",
       "field_changes": [
@@ -16301,12 +16301,12 @@
        {
         "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
         "comprehensive_rules": "117.3d, 305.1",
-        "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
+        "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS (a CR 508.1 attack declaration in scope, where present, is the record's own combat_state declaration and not a priority decision). The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
        }
       ],
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "reason": "the #625 review found the row's turn-1 arrival depended on Lab answers for players: pregame keeps were answered with a default and priority was passed without a record script. The record now declares its whole turn-1 pre-checkpoint history in decision_script -- four pregame keeps (CR 103.5) and the scoped priority pass-through (CR 117.3d/305.1) -- so the Lab only transports what the record declares. No other decision is needed before the declared checkpoint. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed",
+      "reason": "the #625 review found the row's turn-1 arrival depended on Lab answers for players: pregame keeps were answered with a default and priority was passed without a record script. The record now declares its turn-1 pre-checkpoint history: four pregame keeps (CR 103.5) and the scoped priority pass-through (CR 117.3d/305.1) in decision_script, with P1's attack declaration before the checkpoint already declared by the record's own combat_state (CR 508.1) -- so the Lab only transports what the record declares. No other decision is needed before the declared checkpoint. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed",
       "supersedes_erratum_step": "erratum-second-defender-ws05-mp-block-4"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
@@ -16770,7 +16770,7 @@
     {
      "actor": null,
      "details": {
-      "authority": "#626 Coordinator ruling 2026-10-08 (contract 1.0.27): the three turn-1 arrival records declare their whole pre-checkpoint history explicitly in decision_script and the Lab only transports it -- one pregame keep per seat (CR 103.5) and a declared priority pass-through scope from turn 1's beginning to the row's own checkpoint (CR 117.3d/305.1); no Lab default, first-option or positional choice answers an engine frame",
+      "authority": "#626 Coordinator ruling 2026-10-08 (contract 1.0.27): the three turn-1 arrival records declare their pre-checkpoint history explicitly and the Lab only transports it -- one pregame keep per seat (CR 103.5) and a declared priority pass-through scope from turn 1's beginning to the row's own checkpoint (CR 117.3d/305.1) in decision_script; no Lab default, first-option or positional choice answers an engine frame. Where the row's checkpoint follows P1's attack declaration, that CR 508.1 attack set is already declared by the record's own combat_state, not by decision_script and never by the Lab",
       "comprehensive_rules": "103.5, 117.3d, 305.1",
       "erratum_class": "FIXTURE_DEFECT_CORRECTION_TURN1_ARRIVAL_HISTORY_DECLARATIONS",
       "field_changes": [
@@ -16782,12 +16782,12 @@
        {
         "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
         "comprehensive_rules": "117.3d, 305.1",
-        "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
+        "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS (a CR 508.1 attack declaration in scope, where present, is the record's own combat_state declaration and not a priority decision). The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
        }
       ],
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "reason": "the #625 review found the row's turn-1 arrival depended on Lab answers for players: pregame keeps were answered with a default and priority was passed without a record script. The record now declares its whole turn-1 pre-checkpoint history in decision_script -- four pregame keeps (CR 103.5) and the scoped priority pass-through (CR 117.3d/305.1) -- so the Lab only transports what the record declares. No other decision is needed before the declared checkpoint. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed",
+      "reason": "the #625 review found the row's turn-1 arrival depended on Lab answers for players: pregame keeps were answered with a default and priority was passed without a record script. The record now declares its turn-1 pre-checkpoint history: four pregame keeps (CR 103.5) and the scoped priority pass-through (CR 117.3d/305.1) in decision_script, with P1's attack declaration before the checkpoint already declared by the record's own combat_state (CR 508.1) -- so the Lab only transports what the record declares. No other decision is needed before the declared checkpoint. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed",
       "supersedes_erratum_step": "erratum-attack-tap-micro_replacement"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
@@ -19928,7 +19928,7 @@
     {
      "actor": null,
      "details": {
-      "authority": "#626 Coordinator ruling 2026-10-08 (contract 1.0.27): the three turn-1 arrival records declare their whole pre-checkpoint history explicitly in decision_script and the Lab only transports it -- one pregame keep per seat (CR 103.5) and a declared priority pass-through scope from turn 1's beginning to the row's own checkpoint (CR 117.3d/305.1); no Lab default, first-option or positional choice answers an engine frame",
+      "authority": "#626 Coordinator ruling 2026-10-08 (contract 1.0.27): the three turn-1 arrival records declare their pre-checkpoint history explicitly and the Lab only transports it -- one pregame keep per seat (CR 103.5) and a declared priority pass-through scope from turn 1's beginning to the row's own checkpoint (CR 117.3d/305.1) in decision_script; no Lab default, first-option or positional choice answers an engine frame",
       "comprehensive_rules": "103.5, 117.3d, 305.1",
       "erratum_class": "FIXTURE_DEFECT_CORRECTION_TURN1_ARRIVAL_HISTORY_DECLARATIONS",
       "field_changes": [
@@ -19940,12 +19940,12 @@
        {
         "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
         "comprehensive_rules": "117.3d, 305.1",
-        "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
+        "reason": "from turn 1's beginning to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS (a CR 508.1 attack declaration in scope, where present, is the record's own combat_state declaration and not a priority decision). The 1.0.26 arrival passed priority by Lab default; now only the declared scope authorizes it and a frame outside it fails closed"
        }
       ],
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "reason": "the #625 review found the row's turn-1 arrival depended on Lab answers for players: pregame keeps were answered with a default and priority was passed without a record script. The record now declares its whole turn-1 pre-checkpoint history in decision_script -- four pregame keeps (CR 103.5) and the scoped priority pass-through (CR 117.3d/305.1) -- so the Lab only transports what the record declares. No other decision is needed before the declared checkpoint. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed",
+      "reason": "the #625 review found the row's turn-1 arrival depended on Lab answers for players: pregame keeps were answered with a default and priority was passed without a record script. The record now declares its turn-1 pre-checkpoint history in decision_script: four pregame keeps (CR 103.5) and the scoped priority pass-through (CR 117.3d/305.1) -- so the Lab only transports what the record declares. No other decision is needed before the declared checkpoint. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed",
       "supersedes_erratum_step": "erratum-causal-extra-turns-ws05-mp-turn-5"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
