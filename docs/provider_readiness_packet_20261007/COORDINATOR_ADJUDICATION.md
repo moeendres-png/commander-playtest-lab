@@ -37,7 +37,9 @@ Neither candidate passes AF00–AF11. Neither is freeze-ready.
 1. **No Rules divergence is established.** All 107 comparison rows are `NON_COMPARABLE`
    (0 `SAME_SEMANTICS`, 0 adjudicated differences). The evidence ranks *measured coverage*, not
    demonstrated Rules quality. Forge's gap is not evidence that Forge is Rules-worse.
-2. **Forge's gap is dominated by unexecuted work, not engine defects.** Of 87 non-PASS Forge rows:
+2. **Forge's gap is dominated by unexecuted work, not engine defects.** Forge's row states are
+   unchanged from epoch `b1c8f54a999a-2d13b953a82c` (20 PASS / 33 BLOCKED / 54 UNKNOWN). Of the 87
+   non-PASS Forge rows:
    grouped by the leading clause of `failure_reason`, 54 are fixtures corrected by the successor
    contract and not yet re-executed on Forge, 23 are `LAB_EXECUTION_GAP` (21 at construction,
    2 at execution), 5 `PROVIDER_ADAPTER_GAP`, 1 `CONTRACT_AUTHORITY_GAP`, 2 missing per-shortcut
@@ -46,28 +48,23 @@ Neither candidate passes AF00–AF11. Neither is freeze-ready.
    example the pinned bridge exports no event log, or the readback lacks the card owner), 31 of
    them among the 54 corrected rows. Forge therefore carries real provider-side work, not only
    Lab execution. Wave 2 (#592) owns these rows.
-3. **XMage is two rows from AF06 and one row from AF08.**
-   - `WS05-CMD-MULL-2`: the generic Protocol2 lane has no London-bottom decision (#595 finding);
-     the bridge projection is in progress (#592). The Lab never chooses the card.
-   - `NEGATIVE_PARENT_CLASS_FALLBACK`: the runner lacked an execution seam for this negative.
-     Building it (#601, #605, #606) showed that the 1.0.22/1.0.23 record itself is unreachable:
-     it puts P2's sorcery Syphon Mind on the stack in turn 1 while P1 is active, which CR 307.1
-     forbids. The bridge now refuses that state fail-closed (`UNSUPPORTED_RESUME_TIMING`, #606).
-     Contract erratum 1.0.24 (#607) corrects the record: turn 2, P2 active, cast from hand, a
-     paid cost, and P3/P4 with empty hands (CR 101.4). The corrected record still needs bridge
-     support for qualified checkpoints after turn 1. Until then the row stays UNKNOWN. This is
-     Lab/bridge work, not an engine capability question.
-4. **AF04 is open for both for one recorded reason: the bounded 6P run.** On 2P–5P every frame
-   is clean and `contradictions` is empty (XMage answers MULLIGAN and PRIORITY externally, Forge
-   additionally STARTING_PLAYER). The only recorded gaps are the three 6P gaps: the 6P record
-   declares no starting seat, XMage's create channel requires one and Forge offers a
-   STARTING_PLAYER decision, and the Lab supplies no seat default, so the run stops before any frame or priority decision
-   (`src/commander_lab/qualification/current_boundary/decision_boundary.py` turns any
-   bounded-secondary gap into UNKNOWN). Closing AF04 needs an authoritative starting seat in the
-   6P record (a contract erratum of the START-2 kind), which is Coordinator qualification design,
-   not an Owner ruling (`owner_ruling` R-2 is already verified for both candidates). Broader
-   decision-class coverage would be a separate, new qualification requirement and is not what
-   keeps AF04 open today.
+3. **XMage is one row from AF06.** MULL-2 now passes on the real engine: the generic Protocol2
+   lane publishes the London bottom as a decision, and the Lab answers it only from the record's
+   script (#603). With that, XMage AF08 passes. The remaining row is `NEGATIVE_PARENT_CLASS_FALLBACK`.
+   Building its execution seam showed that the record itself was unreachable. It put P2's
+   sorcery on the stack in turn 1, which CR 307.1 forbids. Three errata fixed that:
+   - 1.0.24: turn 2, P2 active, cast from hand, a paid cost, and empty hands for P3/P4
+     (CR 101.4).
+   - 1.0.25: P1's forced turn-1 cleanup discard, CR 103.8c / 514.1.
+   - 1.0.26: the whole pre-checkpoint history declared explicitly, so the Lab never chooses
+     for a player (#592). This one is in progress.
+
+   The bridge supports the turn-2 checkpoint and refuses unreachable states fail-closed. The row
+   has run locally on the real engine, but that is LOCAL_OBSERVED and not credit. It needs the
+   1.0.26 round to merge and a new epoch.
+4. **AF04 now passes for both candidates.** The bounded 6P record carries an authoritative starting
+   seat (contract 1.0.23, #604). Both candidates run 6P without a Lab seat default. The sealed
+   decision boundary has no gap and no contradiction.
 5. **AF11 cannot be adjudicated to PASS now.** The observed qualification topology is
    separate-process for both candidates, but the catalog obligation binds the *actual* integration
    topology ("Actual integration topology satisfies WS-09; Forge remains a genuine separate
@@ -83,32 +80,29 @@ Neither candidate passes AF00–AF11. Neither is freeze-ready.
 
 ## Coordinator assessment
 
-On the sealed evidence, **XMage is the evidence-leading candidate** (8/12 AF gates PASS versus
-5/12; 105/107 versus 20/107 FULL107 rows). Its open AF06 and AF08 gates are closable by bounded
-Lab and bridge work, AF04 by a 6P record erratum; AF11 can only be adjudicated after a selection. This is an assessment of measured readiness, not a selection and not a Rules verdict
-against Forge.
+On the sealed evidence, **XMage is the evidence-leading candidate**. It passes 10 of 12 AF gates,
+against 6 of 12 for Forge, and 106 of 107 FULL107 rows, against 20 of 107. Its only open
+qualification gate that a selection does not depend on is AF06. AF06 waits on the single row
+`NEGATIVE_PARENT_CLASS_FALLBACK`, whose remaining work is bounded and in progress. AF11 can only be
+adjudicated after a selection. This is an assessment of measured readiness. It is not a
+selection, and it is not a Rules verdict against Forge.
 
 ## Options for the Owner
 
 | Option | What it means | Consequence |
 | --- | --- | --- |
-| A — select now | Owner selects a provider on current evidence | Freeze still requires AF04/AF06/AF08 and the post-selection AF11 adjudication |
-| B — defer until XMage closes AF04/AF06/AF08 (Coordinator-recommended) | No selection yet; Coordinator drives MULL-2, the parent-class negative and the 6P starting-seat erratum, then re-seals | A decision on a candidate with only AF11 open; no capability is lost by waiting |
-| C — defer until Forge wave 2 completes | Both candidates measured to comparable depth first | Longest path; wave 2 is 87 rows |
+| A — select now | Owner selects a provider on current evidence | Freeze still requires XMage AF06 (one row) and the post-selection AF11 adjudication |
+| B — defer until XMage AF06 closes (Coordinator-recommended) | No selection yet; the Coordinator lands the 1.0.26 round, re-runs PB-03 and seals | A decision on a candidate with only AF11 open; no capability is lost by waiting |
+| C — defer until Forge wave 2 completes | Both candidates are measured to comparable depth first | Longest path: wave 2 covers 87 rows, 36 of them with provider-adapter gaps |
 
-Recommendation: **B**. Selecting now gains nothing, because Freeze needs the same gates anyway, and
-B gives the Owner a decision against a candidate with no open qualification gate other than the
-topology adjudication that only a selection can enable. Forge wave 2 continues bounded to items that
-change a gate, so option C stays available without blocking B.
+Recommendation: **B**. The remaining distance is one row. Selecting now gains nothing, because
+Freeze needs the same gate anyway. Forge wave 2 continues, limited to items that change a gate, so
+option C stays available.
 
 ## What the Coordinator will do next (no Owner action needed)
 
-1. Land the XMage generic-lane London-bottom projection and the Lab answer path (#592), then re-run
-   PB-03 and seal.
-2. Qualify turn-2 resume checkpoints in the XMage bridge so the corrected
-   `NEGATIVE_PARENT_CLASS_FALLBACK` record (1.0.24) can run.
-3. Issue a contract erratum giving the bounded 6P record an authoritative starting seat (AF04, both
-   candidates), executed through the existing starting-player channels (#574).
-4. Re-issue this adjudication against the new epoch.
+1. Land the `NEGATIVE_PARENT_CLASS_FALLBACK` chain (contract 1.0.26, explicit pre-checkpoint
+   history; bridge turn-2 checkpoint; #592) after an independent review.
+2. Re-run PB-03 on that main, seal the epoch, and re-issue this adjudication.
 
 The Owner decision requested in #255 is the choice among A, B and C (or a direct selection).
