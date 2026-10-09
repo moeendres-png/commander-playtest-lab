@@ -774,7 +774,11 @@ def run_causal_route(
     pending_spells = list(plan.spells)
     casting: _Cast | None = None
     used_fuel: set[str] = set()
-    script = list(record.get("decision_script") or ())
+    script = [
+        step
+        for step in record.get("decision_script") or ()
+        if str(step.get("decision_family")) not in ("mulligan", "priority_pass_through")
+    ]
     elimination = plan.elimination
     instrument_lands = (
         []

@@ -408,7 +408,34 @@ _UNSUPPORTED_RECORD_DIMENSIONS: dict[str, str] = {
 # execution-contract blocker owned by an engine-authored selector surface this
 # lane does not reimplement (the shared mid-game selector workstream). A declared
 # family is never silently ignored and no option is ever fabricated.
-_LANE_EXECUTABLE_DECISION_SELECTORS: frozenset[str] = frozenset()
+#
+# The 1.0.28 arrival-history declarations (#634) are engine-authored
+# progression frames the scenario drive already answers on the engine's own
+# MULLIGAN and PRIORITY frames (``resolve_mulligan`` keep and
+# ``pass_priority``); the record's declaration is their authorization. A
+# scripted keep and the scoped priority pass-through are therefore executable
+# here; taking a mulligan (the London tuck) remains an exact provider gap and is
+# classified as an unsupported dimension below.
+_ARRIVAL_HISTORY_FAMILIES: frozenset[str] = frozenset({"mulligan", "priority_pass_through"})
+_LANE_EXECUTABLE_DECISION_SELECTORS: frozenset[str] = frozenset(
+    {"priority_pass_through.semantic_action"}
+)
+
+
+def _causal_script(record: dict[str, Any]) -> list[dict[str, Any]]:
+    """The record's own causal decision steps.
+
+    The 1.0.28 arrival-history prefix (pregame keeps and the scoped priority
+    pass-through) is engine-authored progression, answered on the engine's own
+    MULLIGAN/PRIORITY frames; it is not part of the record's causal route.
+    """
+    return [
+        step
+        for step in record.get("decision_script") or ()
+        if isinstance(step, dict)
+        and str(step.get("decision_family")) not in _ARRIVAL_HISTORY_FAMILIES
+    ]
+
 
 # The causal stack route (#520) answers a record's scripted steps through the
 # shared fail-closed selector (``scripted_selection``) only for the selectors
@@ -804,9 +831,14 @@ def _commander_zone_route(record: dict[str, Any], plan: fcr.CausalPlan) -> bool:
 
 def _scripted_decision_route(record: dict[str, Any], plan: fcr.CausalPlan) -> bool:
     """The script opens with a priority cast and declares obligation tokens."""
-    script = [step for step in record.get("decision_script") or () if isinstance(step, dict)]
+    script = _causal_script(record)
     required = (record.get("expected_events") or {}).get("required_events") or []
-    return bool(plan.spells) and script[0].get("decision_family") == "priority" and bool(required)
+    return (
+        bool(plan.spells)
+        and bool(script)
+        and script[0].get("decision_family") == "priority"
+        and bool(required)
+    )
 
 
 def _stack_controller_eliminated_route(record: dict[str, Any], plan: fcr.CausalPlan) -> bool:
@@ -824,7 +856,7 @@ def _stack_controller_eliminated_route(record: dict[str, Any], plan: fcr.CausalP
         elimination is not None
         and bool(plan.spells)
         and all(spell.controller == elimination.victim for spell in plan.spells)
-        and not record.get("decision_script")
+        and not _causal_script(record)
         and _required_token(required, "player_leaves:") == elimination.victim.upper()
         and _required_token(required, "multiplayer_cleanup:") is not None
         and set(required)
@@ -856,10 +888,12 @@ def lane_causal_plan(record: dict[str, Any]) -> fcr.CausalPlan | None:
     terminal = None if entry is None else str(entry.get("terminal"))
     if entry is None or terminal not in _CAUSAL_ROUTE_TERMINALS:
         return None
-    script = [step for step in record.get("decision_script") or () if isinstance(step, dict)]
+    script = _causal_script(record)
     selectors = _CAUSAL_TERMINAL_SELECTORS[terminal]
     # A terminal with selectors needs the record's script; one without (the
-    # declared elimination) runs only for a record that scripts nothing.
+    # declared elimination) runs only for a record that scripts nothing. The
+    # declared arrival history is engine-authored progression, not a causal
+    # decision, so it is filtered above.
     if bool(script) != bool(selectors) or any(
         f"{step.get('decision_family')}.{(step.get('selection') or {}).get('selector_kind')}"
         not in selectors
@@ -1188,6 +1222,14 @@ def _classify_record_dimensions(
         selector_kind = str(selector.get("selector_kind") or "unknown")
         token = f"{family}.{selector_kind}"
         if token in _LANE_EXECUTABLE_DECISION_SELECTORS:
+            continue
+        # A scripted pregame keep is answered on the engine's own keep-or-
+        # mulligan frame (``resolve_mulligan`` keep) and is engine-authored
+        # progression; taking a mulligan (its London tuck) remains a provider
+        # gap and stays an exact blocker below.
+        if token == "mulligan.semantic_action" and selector.get("semantic_value") == (
+            "keep_opening_hand"
+        ):
             continue
         if plan is not None and token in _CAUSAL_ROUTE_SELECTORS:
             findings.append(
@@ -3679,7 +3721,7 @@ def _route_observer(model: RequestedStateModel) -> str:
     if causal_terminal(model) == "stack_controller_eliminated" and model.causal_plan is not None:
         # The elimination's actor survives the loss and sees its own instruments.
         return model.causal_plan.elimination.actor if model.causal_plan.elimination else ""
-    script = [step for step in model.record.get("decision_script") or () if isinstance(step, dict)]
+    script = _causal_script(model.record)
     return str(script[0].get("actor") or "").lower() if script else ""
 
 
