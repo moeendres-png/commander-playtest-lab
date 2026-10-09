@@ -1897,6 +1897,606 @@
    "notes": "#634 Coordinator ruling 2026-10-09: the midgame arrival's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "e2dc3ae318347404fed0c82c8e2376c2c3c5f8c70c92c86a3e8eb0deeeb0fbc4",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_28.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "b541729ede29455d262e7d8dcee1284bf4469d340f392052554566f14a2552fe",
+   "effective_requested_state_digest": "e7952c7ebe74294bf190dc3873c6fb26d352ffa40fcba2bdd23fefb0703810ca",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_01",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "e7952c7ebe74294bf190dc3873c6fb26d352ffa40fcba2bdd23fefb0703810ca",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "04b2a6d2b840a3d379c3bd12cb088915cb86b8e456b73d019274d00d46fc6078",
+   "effective_requested_state_digest": "4f189f72a920c08d6ca212cf9c3fa7050796a8d04f33b47494e6d2f95aa603ce",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_02",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "4f189f72a920c08d6ca212cf9c3fa7050796a8d04f33b47494e6d2f95aa603ce",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "6bd4eded24f24ac6858c4806cd7ffc0e940059dc0801b40f34c5b48cb292300d",
+   "effective_requested_state_digest": "36f766fedfd04cffa4f9596816f77712e00300a17644e2eec664a73e0d298710",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_03",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "36f766fedfd04cffa4f9596816f77712e00300a17644e2eec664a73e0d298710",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "915063ad9ff0e31fea6f7ca6eba229f7e0d120879232cb086e701bb27fb43f77",
+   "effective_requested_state_digest": "f0d954a3c005f6ec64549c7e0f85c799631af8244b4eaded0d57652c9b6e2ec7",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_04",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "f0d954a3c005f6ec64549c7e0f85c799631af8244b4eaded0d57652c9b6e2ec7",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "7ed78ac50c7b98cd6225f66bd986601fc6ecc2e9b413f38db114ee5643bcc01d",
+   "effective_requested_state_digest": "5567336dd33d4fd848aaf52f1518a7c76d397d746efdab2bd2dd2e9c7ecd91c4",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_05",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "5567336dd33d4fd848aaf52f1518a7c76d397d746efdab2bd2dd2e9c7ecd91c4",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "b7c4ea2fa87375d391c3cd34e43adcb698913a280ddbc5ea5924099a3a6d5586",
+   "effective_requested_state_digest": "6e76fe052384d35fde93725ac46e74b0f999e20d8fdfe5a19732a3d1d5225b00",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_06",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "6e76fe052384d35fde93725ac46e74b0f999e20d8fdfe5a19732a3d1d5225b00",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "a4dabc101ee73d602075a329aec703de414989933a85a1aaa0aac15fb6ebe6cc",
+   "effective_requested_state_digest": "54fc0512a7a368db7c1cbc8b6f95c1dfaf376ba7c38708ff40de3f737072d85a",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_07",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "54fc0512a7a368db7c1cbc8b6f95c1dfaf376ba7c38708ff40de3f737072d85a",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "11272afb470f6f05b1778a4791e08fa28c78d1006979e18a504bcf994d606320",
+   "effective_requested_state_digest": "d3708d743e4791c9d55a6e1c14af9e9f0a6bbb683d48756493890ae481a88f68",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_08",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "d3708d743e4791c9d55a6e1c14af9e9f0a6bbb683d48756493890ae481a88f68",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "2e219e163425473b4d6c7d3e8fda31f8fd8951e98446af81cea4bfbbea3a1fd2",
+   "effective_requested_state_digest": "a1c448459bf451659aedea427f812e91232840a33b31148f791d171612de7854",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_09",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "a1c448459bf451659aedea427f812e91232840a33b31148f791d171612de7854",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "f4a129d9e73db063d95b9cd410e774c25b7addb796249a26f0a8ac32d5e7f245",
+   "effective_requested_state_digest": "8d5ebea042b8f4fdb4c612ae5a8cd63cb2e25a62c6c8bc133d6be273002e3808",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_10",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "8d5ebea042b8f4fdb4c612ae5a8cd63cb2e25a62c6c8bc133d6be273002e3808",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "2336a10ea625ba95a36e819a57af57c205382e39fcd0bed0cf7a75cde360e44b",
+   "effective_requested_state_digest": "b326e480861f33a9aabac35a2ce614725fed48bc7ac5e537fe2c19be0b0f2928",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_11",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "b326e480861f33a9aabac35a2ce614725fed48bc7ac5e537fe2c19be0b0f2928",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "f45e90b5c125a2efe809457e8f2f742a5858c153efd41a720e98f2e14b7943a5",
+   "effective_requested_state_digest": "f630608c9f3fa6f639c50ca6dafa371cc14a22e1a16125dc15536b1389161b89",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_12",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "f630608c9f3fa6f639c50ca6dafa371cc14a22e1a16125dc15536b1389161b89",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "722898b36d6b5ba00be6e1566290eb36cd730e021e2746324be08bd68f7e92d1",
+   "effective_requested_state_digest": "84de906078f71d8430dbff4584a5b4bda33bb467dcfbb732b5cfb15af5c82b6f",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_13",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "84de906078f71d8430dbff4584a5b4bda33bb467dcfbb732b5cfb15af5c82b6f",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "b244f91f40014c959855e7a9516958be0c6688714c502c87682b5e46f6250115",
+   "effective_requested_state_digest": "8cc8579087bded540d4e4d35ae55673790831fda7b7cb29ebeff766e1deffe76",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_14",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "8cc8579087bded540d4e4d35ae55673790831fda7b7cb29ebeff766e1deffe76",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "5ce09655dc485d51df2f3647d4096f01361c518f846739d9ef6aad19f1cecae5",
+   "effective_requested_state_digest": "39b977ecaa4bfdf76dc4aca877b964bc4b1f79e009a0c0752bede5217f10c73e",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_15",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "39b977ecaa4bfdf76dc4aca877b964bc4b1f79e009a0c0752bede5217f10c73e",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "2b2b90d928b634be3a3e78f4772b32718873325c67c72cc6cf37a186c2c050c2",
+   "effective_requested_state_digest": "0007f93ad698e06214086955556d7023fda45115d562c8b1e3ce3bbe87c7594d",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_16",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "0007f93ad698e06214086955556d7023fda45115d562c8b1e3ce3bbe87c7594d",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "155b2dc95a97442270578b6f0935a0e52f8639ea9c5464d31b85cc726de15c47",
+   "effective_requested_state_digest": "01af4a435035c014b702b7514fc4c07a6cbdcf3c19818d736644d8d338b67357",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_17",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "01af4a435035c014b702b7514fc4c07a6cbdcf3c19818d736644d8d338b67357",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "8ae92e9b2f4da6ecd44a87eabf980ad14d10ee9b76b35c51665cc6cb89606372",
+   "effective_requested_state_digest": "57ca0473eea85c7875853cd30a5b1214b87f7fc201163970a1c9931043bbc43b",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_18",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "57ca0473eea85c7875853cd30a5b1214b87f7fc201163970a1c9931043bbc43b",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "3fd311012eb0430981c0b59206edf9c9fdc10afa690edd5f30b968a45ab6976d",
+   "effective_requested_state_digest": "defc3acfc46c6860d4732c05c3c1f09ab54ed19dfab84a91128d8abfc1a58f4f",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_19",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "defc3acfc46c6860d4732c05c3c1f09ab54ed19dfab84a91128d8abfc1a58f4f",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "b1f56da10218cb37d19f45db5770ada4f312a0d60e4d113365cef6ec51324669",
+   "effective_requested_state_digest": "4e62eace44ca69b764d8c45ab3dd3c7f0c9bbb17a11ce7e46d5faaa65e06945e",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "4e62eace44ca69b764d8c45ab3dd3c7f0c9bbb17a11ce7e46d5faaa65e06945e",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "9ec961677b958c28bbd2a83e2113f24a9040464e5ff962a5b9c8a7022247b83e",
+   "effective_requested_state_digest": "9913c8ac73367925d7ce6ed43b38e420fec89f28d5ff1d953e0dc02421ae0b0c",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "9913c8ac73367925d7ce6ed43b38e420fec89f28d5ff1d953e0dc02421ae0b0c",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "557fa17e31546c88344c586dcc9ecc71284a8ef5c59cf16787dcc7190ea7c87b",
+   "effective_requested_state_digest": "9913c8ac73367925d7ce6ed43b38e420fec89f28d5ff1d953e0dc02421ae0b0c",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "9913c8ac73367925d7ce6ed43b38e420fec89f28d5ff1d953e0dc02421ae0b0c",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "6dcaabb9c2f0a58fb05fd2afb34398f1b30bdff05f0c8934635740b6c3fa0b62",
+   "effective_requested_state_digest": "9913c8ac73367925d7ce6ed43b38e420fec89f28d5ff1d953e0dc02421ae0b0c",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "9913c8ac73367925d7ce6ed43b38e420fec89f28d5ff1d953e0dc02421ae0b0c",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "83e98a7c36ba6775c0969ed2f04f433edb7db620398f20ff9144c1ef6cb39b5a",
+   "effective_requested_state_digest": "9913c8ac73367925d7ce6ed43b38e420fec89f28d5ff1d953e0dc02421ae0b0c",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "9913c8ac73367925d7ce6ed43b38e420fec89f28d5ff1d953e0dc02421ae0b0c",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+  },
+  {
+   "correction_class": "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+   "denominator_effect": "NONE",
+   "effective_obligation_digest": "5917283067aadc5f6e68f3ecc5d58701f3c36b6c5b3c4b5a04831657325afd12",
+   "effective_requested_state_digest": "39ba50d3bdf0277c7acf388c67988e652249df63b8ae7861e18eadf77d4c85ad",
+   "evidence_survival": "REQUALIFICATION_REQUIRED",
+   "field_changes": [
+    {
+     "change": "decision_script +4 pregame mulligan keep step(s) (P1, P2, P3, P4)",
+     "comprehensive_rules": "103.5",
+     "reason": "the pregame keep is each seat's own choice (CR 103.5). The 1.0.28 predecessor declared no keep for P1, P2, P3, P4, so the arrival answered the engine's keep with a Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes). The record now scripts one keep per seat in the 6P / START-2 shape; an unscripted mulligan frame fails closed. The record's constructed hands are placed at the checkpoint, so this is a declaration, not a Lab choice"
+    },
+    {
+     "change": "decision_script +1 priority_pass_through scope (actor ALL) from turn 1's beginning to the declared checkpoint",
+     "comprehensive_rules": "117.3d, 305.1",
+     "reason": "from game start to the record's own checkpoint no player plays a land, casts or activates anything, so every priority decision in scope is the record's declared PASS. The predecessor arrival passed priority by Lab default (#637 PB-03 run 37860773242, knowledge-projection / replay-twin lanes); now only the declared scope authorizes it and a frame outside it fails closed"
+    }
+   ],
+   "fixture_id": "RNG_RULES_TAPE",
+   "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: the game-start arrival history is now declared (pregame keeps per seat and the scoped priority pass-through) so the Lab transports each frame instead of answering it with a default. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only removes the Lab-chosen answers the #637 PB-03 run 37860773242 reproduced for the knowledge-projection and replay-twin lanes",
+   "notes": "#634 / #592 Coordinator ruling 2026-10-09: the arrival-using lane's game-start history was undeclared, so the Lab answered pregame keeps and priority with defaults. The record now declares one pregame keep per seat (CR 103.5; P1, P2, P3, P4) and a priority pass-through scope from game start to the row's checkpoint (CR 117.3d); the Lab transports each frame and unscripted frames fail closed. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "predecessor_requested_state_digest": "39ba50d3bdf0277c7acf388c67988e652249df63b8ae7861e18eadf77d4c85ad",
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
   }
  ],
  "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_7.json"

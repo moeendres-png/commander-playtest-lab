@@ -1,7 +1,7 @@
 {
  "bridge_commit": "31cbae12640e6066499aa7f17c9bf2dba6a30da6",
  "candidate": "forge",
- "canonical_bundle_digest": "a0f573f9693eaf209d62515ae7f0d4066282992512db159a30f53282ca72e233",
+ "canonical_bundle_digest": "51ff13494a8cd0e970a85843ce6369643fd8e5420b042261f43aaddf5023b087",
  "channels": [
   {
    "absent_tokens": [],
@@ -570,7 +570,7 @@
    "status": "PRESENT_UNAUDITED"
   }
  ],
- "contract_id": "commander-lab.full107/1.0.28-successor",
+ "contract_id": "commander-lab.full107/1.0.29-successor",
  "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
  "rows": [
   {
@@ -840,7 +840,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "cast-gonti",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "cast",
@@ -856,7 +856,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "gonti-target-opponent",
-      "decision_index": 1,
+      "decision_index": 6,
       "selector_kind": "semantic_player",
       "semantic_value": "P2"
      },
@@ -869,7 +869,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "gonti-exile-face-down",
-      "decision_index": 2,
+      "decision_index": 7,
       "selector_kind": "semantic_object",
       "semantic_value": "obj:hidden-hand"
      },
@@ -882,7 +882,7 @@
      "requested": {
       "actor": "P2",
       "causal_step_id": "bolt-target-gonti",
-      "decision_index": 4,
+      "decision_index": 9,
       "selector_kind": "semantic_object",
       "semantic_value": "obj:hidden05-gonti"
      },
@@ -985,7 +985,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "cast-gonti",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "cast",
@@ -1001,7 +1001,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "gonti-target-opponent",
-      "decision_index": 1,
+      "decision_index": 6,
       "selector_kind": "semantic_player",
       "semantic_value": "P2"
      },
@@ -1014,7 +1014,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "gonti-exile-face-down",
-      "decision_index": 2,
+      "decision_index": 7,
       "selector_kind": "semantic_object",
       "semantic_value": "obj:hidden-hand"
      },
@@ -1111,7 +1111,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "cast-telepathy",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "cast",
@@ -1214,7 +1214,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "activate-spy",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "activate",
@@ -1230,7 +1230,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "target-p2",
-      "decision_index": 1,
+      "decision_index": 6,
       "selector_kind": "semantic_player",
       "semantic_value": "P2"
      },
@@ -1329,7 +1329,7 @@
      "requested": {
       "actor": "P2",
       "causal_step_id": "activate-portal",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "activate",
@@ -1345,7 +1345,7 @@
      "requested": {
       "actor": "P2",
       "causal_step_id": "search-choice",
-      "decision_index": 1,
+      "decision_index": 6,
       "selector_kind": "semantic_object",
       "semantic_value": "obj:hidden-lib-0"
      },
@@ -1443,7 +1443,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "cast-jet",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "cast",
@@ -1459,7 +1459,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "target-jet",
-      "decision_index": 1,
+      "decision_index": 6,
       "selector_kind": "semantic_player",
       "semantic_value": "P2"
      },
@@ -1472,7 +1472,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "scry-keep-both",
-      "decision_index": 2,
+      "decision_index": 7,
       "selector_kind": "semantic_objects",
       "semantic_value": []
      },
@@ -1485,7 +1485,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "order-top",
-      "decision_index": 3,
+      "decision_index": 8,
       "selector_kind": "semantic_object",
       "semantic_value": "obj:hidden10-lib-1"
      },
@@ -1584,7 +1584,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "spy-look",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "activate",
@@ -1600,7 +1600,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "spy-target-p2",
-      "decision_index": 1,
+      "decision_index": 6,
       "selector_kind": "semantic_player",
       "semantic_value": "P2"
      },
@@ -1703,7 +1703,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "activate-mindslaver",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "activate",
@@ -1719,7 +1719,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "mindslaver-target-p2",
-      "decision_index": 1,
+      "decision_index": 6,
       "selector_kind": "semantic_player",
       "semantic_value": "P2"
      },
@@ -1817,7 +1817,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "cast-fof",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "cast",
@@ -1833,7 +1833,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "choose-opponent",
-      "decision_index": 1,
+      "decision_index": 6,
       "selector_kind": "semantic_player",
       "semantic_value": "P2"
      },
@@ -1846,7 +1846,7 @@
      "requested": {
       "actor": "P2",
       "causal_step_id": "split-piles",
-      "decision_index": 2,
+      "decision_index": 7,
       "selector_kind": "semantic_objects",
       "semantic_value": [
        "obj:hidden13-lib-0",
@@ -1862,7 +1862,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "choose-pile",
-      "decision_index": 3,
+      "decision_index": 8,
       "selector_kind": "pile_label",
       "semantic_value": "Pile 1"
      },
@@ -1961,7 +1961,7 @@
      "requested": {
       "actor": "P2",
       "causal_step_id": "manifest",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "activate",
@@ -1977,7 +1977,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "target-face-down",
-      "decision_index": 2,
+      "decision_index": 7,
       "selector_kind": "semantic_face_down_permanent",
       "semantic_value": "P2"
      },
@@ -2071,7 +2071,7 @@
      "requested": {
       "actor": "P2",
       "causal_step_id": "cloak-top-card",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "activate",
@@ -2087,7 +2087,7 @@
      "requested": {
       "actor": "P2",
       "causal_step_id": "cloak-mode",
-      "decision_index": 1,
+      "decision_index": 6,
       "selector_kind": "semantic_mode_key",
       "semantic_value": "cloak_top"
      },
@@ -2100,7 +2100,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "target-cloaked",
-      "decision_index": 3,
+      "decision_index": 8,
       "selector_kind": "semantic_face_down_permanent",
       "semantic_value": "P2"
      },
@@ -2113,7 +2113,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "decline-ward",
-      "decision_index": 4,
+      "decision_index": 9,
       "selector_kind": "boolean",
       "semantic_value": false
      },
@@ -2207,7 +2207,7 @@
      "requested": {
       "actor": "P2",
       "causal_step_id": "cloak-top-card",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "activate",
@@ -2223,7 +2223,7 @@
      "requested": {
       "actor": "P2",
       "causal_step_id": "cloak-mode",
-      "decision_index": 1,
+      "decision_index": 6,
       "selector_kind": "semantic_mode_key",
       "semantic_value": "cloak_top"
      },
@@ -2236,7 +2236,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "target-cloaked",
-      "decision_index": 3,
+      "decision_index": 8,
       "selector_kind": "semantic_face_down_permanent",
       "semantic_value": "P2"
      },
@@ -2249,7 +2249,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "decline-ward",
-      "decision_index": 4,
+      "decision_index": 9,
       "selector_kind": "boolean",
       "semantic_value": false
      },
@@ -2343,7 +2343,7 @@
      "requested": {
       "actor": "P2",
       "causal_step_id": "manifest",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "activate",
@@ -2359,7 +2359,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "use-copy",
-      "decision_index": 2,
+      "decision_index": 7,
       "selector_kind": "boolean",
       "semantic_value": true
      },
@@ -2372,7 +2372,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "copy-face-down",
-      "decision_index": 3,
+      "decision_index": 8,
       "selector_kind": "semantic_face_down_permanent",
       "semantic_value": "P2"
      },
@@ -2467,7 +2467,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "activate-spy",
-      "decision_index": 0,
+      "decision_index": 5,
       "selector_kind": "semantic_action",
       "semantic_value": {
        "action": "activate",
@@ -2483,7 +2483,7 @@
      "requested": {
       "actor": "P1",
       "causal_step_id": "target-p2",
-      "decision_index": 1,
+      "decision_index": 6,
       "selector_kind": "semantic_player",
       "semantic_value": "P2"
      },

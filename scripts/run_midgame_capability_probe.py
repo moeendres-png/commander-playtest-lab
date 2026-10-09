@@ -882,6 +882,58 @@ def _history_step_before_checkpoint(
     return _TURN_STEP_ORDER.index(declared_step) < _TURN_STEP_ORDER.index(target_step)
 
 
+# The record's own arrival transport steps: the driver answers them itself and
+# they never open the checkpoint's own decision window. The first family outside
+# this set is the record's own first scripted decision, wherever in the script
+# the 1.0.28/1.0.29 arrival-history prefix puts it.
+_ARRIVAL_TRANSPORT_FAMILIES = frozenset(
+    {"starting_player", "mulligan", "priority_pass_through", "declare_attackers"}
+)
+
+
+def _first_own_scripted_step(record: dict[str, Any]) -> dict[str, Any] | None:
+    """The record's first scripted decision after its arrival-history prefix.
+
+    A record whose first own decision is asked at the checkpoint (a simultaneous
+    upkeep trigger ordering, CR 603.3b) stops the arrival there: the frame is
+    the record's obligation, not an arrival transport step, so the driver never
+    answers it on a player's behalf.
+    """
+    for step in record.get("decision_script") or ():
+        if not isinstance(step, dict):
+            continue
+        if str(step.get("decision_family") or "") in _ARRIVAL_TRANSPORT_FAMILIES:
+            continue
+        return step
+    return None
+
+
+def _scripted_checkpoint_priority(record: dict[str, Any], wanted: str) -> bool:
+    """Whether the record scripts its own priority decision for ``wanted``.
+
+    A checkpoint inside a declaration step can be held first by another player
+    (CR 117.1a; P1's priority at declare attackers before P2's, 508.1): the
+    record's own ``priority`` step addressed to the checkpoint's declared
+    priority player is where the row's obligation begins. When that step exists
+    the arrival stops at the checkpoint before answering the earlier holder's
+    frame; the caller's obligation loop then reaches the record's own decision.
+    A frame outside the record's declaration is never passed on a player's
+    behalf (CR 117.3d).
+    """
+    wanted_token = _seat_token(wanted)
+    if not wanted_token:
+        return False
+    for step in record.get("decision_script") or ():
+        if not isinstance(step, dict):
+            continue
+        if str(step.get("decision_family") or "") != "priority":
+            continue
+        if _seat_token(step.get("actor")) != wanted_token:
+            continue
+        return True
+    return False
+
+
 def drive_arrival(
     client: ml.MidgameLaneClient,
     record: dict[str, Any],
@@ -945,7 +997,8 @@ def drive_arrival(
     reached_checkpoint_step = False
 
     script = list(record.get("decision_script") or ())
-    first_family = str(script[0].get("decision_family")) if script else None
+    first_own = _first_own_scripted_step(record)
+    first_family = str(first_own.get("decision_family")) if first_own is not None else None
 
     consumed_history: set[int] = set()
 
@@ -1004,14 +1057,23 @@ def drive_arrival(
             break
         decision_class = str(decision.get("decision_class"))
         if decision_class not in {"priority", "declare_attacker", "declare_blocker"} and (
-            decision_class == first_family
+            first_own is not None and decision_class == first_family
         ):
             # The record's own first scripted decision (e.g. ordering the
-            # simultaneous upkeep triggers) is asked before any priority in the
-            # checkpoint step. It is the checkpoint only if the engine is at the
-            # record's temporal point; otherwise it is an unrecognised decision.
+            # simultaneous upkeep triggers, CR 603.3b) is asked before any
+            # priority in the checkpoint step. It is the checkpoint only if the
+            # engine is at the record's temporal point; otherwise it is an
+            # unrecognised decision. It is identity-bound: a frame for another
+            # seat than the record's step declares is never the record's own.
             probe = client.complete_arrival().get("observation") or {}
             if _arrival_at_checkpoint(probe, target_turn, target_phase, target_step):
+                principal = _decision_seat_principal(decision)
+                if _seat_token(first_own.get("actor")) != _seat_token(principal):
+                    raise ml.MidgameLaneError(
+                        f"the engine asked the record's first scripted decision "
+                        f"{decision_class} of {principal}, but the record scripts it for "
+                        f"{first_own.get('actor')}"
+                    )
                 return _checkpoint()
             if str(probe.get("phase")) != "UNINITIALIZED":
                 raise ml.MidgameLaneError(
@@ -1071,6 +1133,18 @@ def drive_arrival(
                 or not wanted_priority
                 or str(probe.get("priority_player")) == wanted_priority
             ):
+                return _checkpoint()
+            if at_checkpoint and _scripted_checkpoint_priority(record, wanted_priority):
+                # The checkpoint step is held first by another player (CR
+                # 117.1a; P1's priority at declare attackers before the
+                # declared P2 checkpoint, 508.1). The record scripts its own
+                # priority decision for the declared priority player, so the
+                # arrival stops at the checkpoint before answering that frame;
+                # the caller's obligation loop then reaches the record's own
+                # step. The earlier holder's priority is never passed on a
+                # player's behalf without a declared scope (CR 117.3d), and
+                # the record's pass-through scope is never widened to cover
+                # the checkpoint's own priority window.
                 return _checkpoint()
             reached_checkpoint_step = reached_checkpoint_step or at_checkpoint
             principal = _decision_seat_principal(decision)
