@@ -39,6 +39,17 @@ from pathlib import Path
 root = Path(sys.argv[1]).resolve()
 touched = set()
 def hook(event, args):
+    if event == "subprocess.Popen" and len(args) > 1 and isinstance(args[1], (list, tuple)):
+        # A child process's own reads are invisible to this hook; a repository
+        # script the child is launched with is still an input of the parent.
+        for arg in args[1]:
+            try:
+                path = Path(os.fsdecode(arg)).resolve()
+                if path.is_file():
+                    touched.add(str(path.relative_to(root)))
+            except Exception:
+                pass
+        return
     if event == "open" and args and isinstance(args[0], (str, bytes, os.PathLike)):
         try:
             raw = os.fsdecode(args[0])
@@ -166,10 +177,55 @@ def test_the_packaging_inputs_include_the_declared_readme() -> None:
     assert "README.md" in _packaging_inputs()
 
 
+def _workflow_steps() -> str:
+    return "\n".join(
+        step.get("run") or "" for job in _workflow()["jobs"].values() for step in job["steps"]
+    )
+
+
+@cache
+def _tracked_files() -> tuple[str, ...]:
+    listed = subprocess.run(
+        ["git", "ls-files", "-z"], cwd=REPO, capture_output=True, text=True, check=True
+    ).stdout
+    return tuple(path for path in listed.split("\0") if path)
+
+
+def _shell_glob(argument: str) -> re.Pattern[str]:
+    """The shell's own glob for one path argument: ``*`` and ``?`` never cross ``/``."""
+    out = ""
+    for char in argument:
+        out += "[^/]*" if char == "*" else "[^/]" if char == "?" else re.escape(char)
+    return re.compile(out + r"\Z")
+
+
+def _expand(arguments: list[str], tracked: tuple[str, ...]) -> list[str]:
+    """Each workflow path argument as the files the shell hands the command.
+
+    A literal argument is itself; a wildcard argument is every tracked file it
+    matches. A wildcard that matches nothing fails closed: the shell would pass
+    the pattern through unchanged and the measurement would silently lose it.
+    """
+    files: set[str] = set()
+    for argument in arguments:
+        if not any(char in argument for char in "*?["):
+            files.add(argument)
+            continue
+        matched = [path for path in tracked if _shell_glob(argument).match(path)]
+        if not matched:
+            raise AssertionError(f"workflow argument {argument!r} selects no tracked file")
+        files.update(matched)
+    return sorted(files)
+
+
+def _workflow_arguments(prefixes: str) -> list[str]:
+    """Every script/test path argument the workflow passes, wildcards included."""
+    return sorted(set(re.findall(rf"(?:{prefixes})/[\w./*?-]+\.py", _workflow_steps())))
+
+
 def test_every_file_the_workflow_runs_triggers_pb03() -> None:
-    steps = [step.get("run") or "" for job in _workflow()["jobs"].values() for step in job["steps"]]
     invoked = sorted(
-        set(re.findall(r"(?:scripts|tests)/[\w./-]+\.py", "\n".join(steps)))
+        set(_expand(_workflow_arguments("scripts|tests"), _tracked_files()))
         | _packaging_inputs()
         | {
             "requirements/lock.txt",
@@ -232,10 +288,7 @@ def test_runner_phases_report_their_duration_on_stdout_only(monkeypatch, capsys,
 @cache
 def _measured_workflow_test_inputs() -> tuple[str, ...]:
     """Execute the workflow's offline tests under the same file-read audit hook."""
-    steps = "\n".join(
-        step.get("run") or "" for job in _workflow()["jobs"].values() for step in job["steps"]
-    )
-    invoked = sorted(set(re.findall(r"tests/[\w./-]+\.py", steps)))
+    invoked = _expand(_workflow_arguments("tests"), _tracked_files())
     assert invoked, "measurement must execute the workflow's actual tests"
     probe = (
         _PROBE[: _PROBE.index("for script in sys.argv[2:]:")]
@@ -261,11 +314,7 @@ print(json.dumps(sorted(touched)))
             text=True,
             check=True,
         )
-    tracked = set(
-        subprocess.run(
-            ["git", "ls-files", "-z"], cwd=REPO, capture_output=True, text=True, check=True
-        ).stdout.split("\0")
-    )
+    tracked = set(_tracked_files())
     # Qualification consumes canonical files. Cache and temporary outputs are
     # neither repository inputs nor evidence, and must not widen the trigger.
     return tuple(
@@ -281,3 +330,47 @@ def test_workflow_test_data_inputs_trigger_pb03() -> None:
     )
     uncovered = [path for path in inputs if not path.startswith(".git/") and not _covered(path)]
     assert not uncovered, f"PB-03 offline test inputs without a trigger: {uncovered}"
+
+
+FAMILY = "tests/qualification/test_midgame_arrival_history_*.py"
+
+
+def test_the_workflow_runs_the_arrival_history_family_by_wildcard() -> None:
+    """#646: the early contract step selects the family by wildcard; the
+    measurement expands it to the real tracked modules and executes them."""
+    assert FAMILY in _workflow_arguments("tests")
+    family = _expand([FAMILY], _tracked_files())
+    assert len(family) >= 2
+    inputs = set(_measured_workflow_test_inputs())
+    assert set(family) <= inputs
+    # The family's deterministic-generator tests launch the generators in a
+    # child process; the script itself is still a measured input.
+    assert any(
+        path.startswith("docs/arrival_history_erratum_") and path.endswith(".py") for path in inputs
+    )
+
+
+def test_red_control_removing_the_family_trigger_leaves_it_uncovered() -> None:
+    family = _expand([FAMILY], _tracked_files())
+    remaining = [glob for glob in _trigger_paths() if glob != FAMILY]
+    uncovered = [
+        path for path in family if not any(_pattern(glob).match(path) for glob in remaining)
+    ]
+    assert uncovered == family
+
+
+def test_red_control_a_new_family_module_is_selected_and_triggers() -> None:
+    added = "tests/qualification/test_midgame_arrival_history_9_9_99.py"
+    tracked = (*_tracked_files(), added)
+    assert added in _expand([FAMILY], tracked)
+    assert _covered(added)
+
+
+def test_red_control_a_wildcard_that_selects_nothing_fails_closed() -> None:
+    with pytest.raises(AssertionError, match="selects no tracked file"):
+        _expand(["tests/qualification/test_no_such_family_*.py"], _tracked_files())
+
+
+def test_the_shell_glob_does_not_cross_directories() -> None:
+    assert _shell_glob("tests/a_*.py").match("tests/a_1.py")
+    assert not _shell_glob("tests/a_*.py").match("tests/a_x/y.py")
