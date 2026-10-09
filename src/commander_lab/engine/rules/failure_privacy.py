@@ -78,8 +78,8 @@ _FULL_GAME_SITES = (
     "semantic tape replay was not verified",
     "semantic tape replay requires",
     "actor-scoped hidden-information audit",
+    "hidden information not actor-scoped",
 )
-_ACTOR_SCOPE_SITE = re.compile(r"^hidden information not actor-scoped at decision [0-9]{1,10}:")
 _PUBLIC_ERROR_REASONS = (
     "wrong vector length",
     "non-integer element",
@@ -101,20 +101,17 @@ _PUBLIC_ERROR_REASONS = (
 def public_full_game_message(message: str, *, code: str | None = None) -> str:
     """Render a public full-game error using only fixed sites and audited codes."""
     site = "full-game diagnostics redacted"
-    actor_scope = _ACTOR_SCOPE_SITE.match(message)
-    if actor_scope is not None:
-        site = actor_scope.group().removesuffix(":")
-    else:
-        for candidate in _FULL_GAME_SITES:
-            if message.startswith(candidate):
-                site = candidate
+    message = _plain_diagnostic(message)
+    for candidate in _FULL_GAME_SITES:
+        if message.startswith(candidate):
+            site = candidate
+            break
+    if site == "full-game diagnostics redacted":
+        for reason in _PUBLIC_ERROR_REASONS:
+            if reason in message:
+                site = reason
                 break
-        if site == "full-game diagnostics redacted":
-            for reason in _PUBLIC_ERROR_REASONS:
-                if reason in message:
-                    site = reason
-                    break
-    label = code if code in PUBLIC_FAILURE_CODES else "ENGINE_FAILURE"
+    label = code if type(code) is str and code in PUBLIC_FAILURE_CODES else "ENGINE_FAILURE"
     return f"{site}: {redacted_summary(label, (message,))}"
 
 
@@ -122,7 +119,7 @@ def machine_codes(texts: Iterable[str]) -> tuple[str, ...]:
     """Distinct audited public codes in first-seen order; raw tokens are untrusted."""
     seen: list[str] = []
     for text in texts:
-        for code in _MACHINE_CODE.findall(text or ""):
+        for code in _MACHINE_CODE.findall(_plain_diagnostic(text)):
             if code in PUBLIC_FAILURE_CODES and code not in seen:
                 seen.append(code)
                 if len(seen) == _MAX_CODES:
@@ -134,7 +131,7 @@ def diagnostics_digest(texts: Iterable[str]) -> str:
     """First 16 hex digits of the SHA-256 over the raw diagnostics."""
     digest = hashlib.sha256()
     for text in texts:
-        digest.update((text or "").encode("utf-8", errors="replace"))
+        digest.update(_plain_diagnostic(text).encode("utf-8", errors="replace"))
         digest.update(b"\0")
     return digest.hexdigest()[:16]
 
@@ -144,7 +141,9 @@ def redacted_summary(code: str, raw: Iterable[str]) -> str:
     raw = tuple(raw)
     codes = machine_codes(raw)
     summary = (
-        code if code in PUBLIC_FAILURE_CODES or code in _EXCEPTION_LABELS else "ENGINE_FAILURE"
+        code
+        if type(code) is str and (code in PUBLIC_FAILURE_CODES or code in _EXCEPTION_LABELS)
+        else "ENGINE_FAILURE"
     )
     if codes:
         summary += " [" + ", ".join(codes) + "]"
@@ -153,11 +152,20 @@ def redacted_summary(code: str, raw: Iterable[str]) -> str:
     return summary
 
 
+def _plain_diagnostic(text: object) -> str:
+    # str() can retain a hostile string subclass returned by __str__. Use the
+    # built-in primitive conversion, never its hash/equality/encoding hooks.
+    if issubclass(type(text), str):
+        return str.__str__(text)
+    return "exception diagnostics unavailable"
+
+
 def _exception_diagnostics(exc: BaseException) -> str:
     try:
-        return str(exc)
-    except Exception:
+        return _plain_diagnostic(str(exc))
+    except BaseException:
         # Formatting is untrusted too; never propagate or stringify its error.
+        # This contains only formatter failures, not real operation interrupts.
         return "exception diagnostics unavailable"
 
 
@@ -178,10 +186,10 @@ def redacted_exception_message(exc: BaseException) -> str:
 
 def public_exception_type(exc: BaseException) -> str:
     """A fixed standard classification, never an arbitrary subclass name."""
-    return next(cls.__name__ for cls in _EXCEPTION_TYPES if isinstance(exc, cls))
+    return next(cls.__name__ for cls in _EXCEPTION_TYPES if issubclass(type(exc), cls))
 
 
 def redacted_exception(exc: Exception) -> Exception:
     """Keep the standard failure family while dropping unsafe subclass metadata."""
-    cls = next(cls for cls in _EXCEPTION_TYPES if isinstance(exc, cls))
+    cls = next(cls for cls in _EXCEPTION_TYPES if issubclass(type(exc), cls))
     return cls(redacted_exception_message(exc))  # type: ignore[return-value]

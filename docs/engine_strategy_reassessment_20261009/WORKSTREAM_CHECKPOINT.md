@@ -58,8 +58,9 @@ Evidence collected:
   and Coordinator takeover in order B, A1, A2, #634 B2. These surfaces remain
   foreign-owned; #665 neither resumes them nor changes the paid-service quota.
 
-Current milestone: implementation candidate ready for clean-tree validation
-and own draft PR; not COMPLETE, PR_READY or qualification PASS.
+Current milestone: existing draft PR #666 recovered; additional exact-candidate
+review findings repaired locally. Final exact-source review, hosted requalification
+and regular integration remain pending; not COMPLETE or qualification PASS.
 Hash regeneration produced byte-identical manifests; no qualification bundle
 or manifest changed.
 
@@ -72,3 +73,56 @@ Stop: scope COMPLETE after normal integration and receipts; otherwise actual
 ownership/authority/required-gate blocker. Remaining #662/#634 surfaces are
 foreign-active; Freeze/release stay separate Owner gates. They are not marked
 COMPLETE by this checkpoint.
+
+## Interrupted-session recovery
+
+The latest direct Owner instruction transfers #665 to the new Codex Work session.
+The previous remote candidate was recovered without a new branch/PR:
+2889f59325edc21168c0ec6182ca00d6a091a08a /
+tree 8ef323890af6b4b5aee5487cac1541faa52c814e. Main remains the original base.
+GitHub PR merge candidate b7970b7306a4d71e916421952ed04043aa23c75c has
+the original base/head as parents and exactly the candidate tree. Hosted quality
+on that merge candidate reports 2863 PASS / 8 SKIP and wheel/packaging PASS.
+Full-game conformance, real 4P smoke, security, infrastructure, H4-XMage and
+mutation detection also succeeded on the original PR generation. PB03 was
+still running at recovery. These do not qualify the subsequent changed candidate.
+
+Fresh-context READ-ONLY Codex adversarial review of the published candidate:
+FAIL, three reproduced P2 findings and one P3 classification regression:
+- str subclasses spoofed the public-code vocabulary through hash/equality;
+- a hostile __class__ property, returned-string encode override, or formatter
+  BaseException escaped redaction and could expose raw diagnostic text;
+- message-derived actor-audit digits were untrusted public diagnostic data;
+- FullGameConformanceError subclasses were changed into protocol failures.
+The previous numeric/conversion/notes repairs remain intact, not reopened.
+
+Recovery repairs use exact primitive code checks, builtin string normalization,
+actual type ancestry without caller-controlled __class__, formatter-only failure
+containment, a static actor-scope reason, and preservation of conformance family.
+True operation interrupts still propagate. Raw diagnostics remain process-local.
+The existing hidden-audit test now matches the static reason; its failure and
+privacy assertions remain. Additive controls on unchanged old production source:
+10 FAIL / 2 PASS (the completed run; earlier formatter probes interrupted pytest
+or its reporter and are not credited). Repaired local focused tests: 80 PASS;
+batch/claims/shutdown/tape/artifact/decision/cardinality compatibility: 100 PASS.
+Scoped Ruff check/format PASS; mypy PASS for all 296 source files. No broad-suite
+rerun or blanket transfer of earlier partial broad results.
+
+CI shadow run 37988115867: trusted validator base 9bd7cbad/tree 89e33bf3,
+39 static invariant results PASS; sole trigger is the new additive test module.
+The reviewer confirmed no gate/denominator weakening. Its informational
+GATE_DEFINITION_CHANGED_REVIEW_REQUIRED classification remains visible, never
+overridden. The adjusted compatibility message test also requires reviewed
+disposition on the final candidate.
+
+The native cross-executor carrier in CURRENT_EXECUTION_AUTHORITY.md is explicitly
+Foundry tooling. This is an Owner-authorized Codex continuation, with independent
+Codex review, not a native Space Bunny receipt or substituted provider identity.
+#654 remains OPEN with real native routing and quota findings; no fix or paid
+service/model fallback is attempted here. #662/#634 ownership is unchanged.
+
+Exact final remote head/tree, final review and hosted results, merge/main-check
+receipts and terminal handoff will be persisted in existing #665/#666. Subsequent
+technical status comments supersede this pre-integration checkpoint; inspect
+GitHub before resuming. New runs are required because privacy code changed;
+existing workflow concurrency cancels superseded same-branch runs automatically.

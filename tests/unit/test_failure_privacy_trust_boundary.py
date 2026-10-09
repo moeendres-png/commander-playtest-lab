@@ -10,6 +10,7 @@ import pytest
 
 from commander_lab.engine.rules.failure_privacy import (
     machine_codes,
+    public_full_game_message,
     redacted_exception_message,
     redacted_summary,
 )
@@ -23,6 +24,144 @@ from commander_lab.engine.rules.full_game import (
 from commander_lab.engine.rules.full_game_batch import XmageFullGameBatchRunner
 from tests.unit.test_full_game_batch_resume_identity import _case
 from tests.unit.test_full_game_failure_privacy import _fake_bridge, _LeakyRunner
+
+
+class _SpoofedPublicCode(str):
+    def __hash__(self) -> int:
+        return hash("ENGINE_FAILURE")
+
+    def __eq__(self, other: object) -> bool:
+        return True
+
+
+@pytest.mark.parametrize("renderer", [redacted_summary, public_full_game_message])
+def test_string_subclasses_cannot_spoof_public_code_membership(renderer: object) -> None:
+    private = "PRIVATE_HAND_CANARY_7E4B"
+    code = _SpoofedPublicCode(private)
+    if renderer is redacted_summary:
+        message = redacted_summary(code, ())
+    else:
+        message = public_full_game_message("engine failed", code=code)
+    assert private not in message
+    assert "ENGINE_FAILURE" in message
+
+
+def test_mutated_exact_public_error_cannot_publish_a_spoofed_code() -> None:
+    private = "PRIVATE_HAND_CANARY_7E4B"
+    error = FullGameProtocolError("engine failed")
+    error.code = _SpoofedPublicCode(private)
+
+    @public_full_game_errors
+    def operation() -> None:
+        raise error
+
+    with pytest.raises(FullGameProtocolError) as caught:
+        operation()
+    assert caught.value.code == "ENGINE_FAILURE"
+    assert type(caught.value.code) is str
+    assert private not in "".join(traceback.format_exception(caught.value))
+
+
+@pytest.mark.parametrize("formatter_error", [KeyboardInterrupt, SystemExit, BaseException])
+def test_formatter_base_exceptions_cannot_escape_redaction(
+    formatter_error: type[BaseException],
+) -> None:
+    private = "PRIVATE_HAND_CANARY_7E4B"
+
+    class Error(RuntimeError):
+        def __str__(self) -> str:
+            raise formatter_error(private)
+
+    @public_full_game_errors
+    def operation() -> None:
+        raise Error()
+
+    with pytest.raises(BaseException) as caught:
+        operation()
+    assert type(caught.value) is RuntimeError
+    assert private not in "".join(traceback.format_exception(caught.value))
+    assert redacted_exception_message(Error()).startswith("RuntimeError")
+
+
+def test_formatter_string_subclass_cannot_execute_custom_encoding() -> None:
+    private = "PRIVATE_HAND_CANARY_7E4B"
+
+    class Text(str):
+        def encode(self, *_args: object, **_kwargs: object) -> bytes:
+            raise ValueError(private)
+
+    class Error(RuntimeError):
+        def __str__(self) -> str:
+            return Text(private)
+
+    @public_full_game_errors
+    def operation() -> None:
+        raise Error()
+
+    with pytest.raises(RuntimeError) as caught:
+        operation()
+    assert private not in "".join(traceback.format_exception(caught.value))
+    assert "sha256:" in str(caught.value)
+    assert private not in redacted_summary("ENGINE_FAILURE", (Text(private),))
+
+
+def test_untrusted_actor_audit_prefix_cannot_publish_numeric_diagnostics() -> None:
+    message = public_full_game_message(
+        "hidden information not actor-scoped at decision 8765432101: private"
+    )
+    assert "8765432101" not in message
+    assert "hidden information not actor-scoped" in message
+
+
+@pytest.mark.parametrize("error_type", [FullGameProtocolError, FullGameConformanceError])
+def test_public_error_subclasses_keep_their_failure_family(error_type: type[Exception]) -> None:
+    private = "PRIVATE_HAND_CANARY_7E4B"
+
+    class Error(error_type):
+        pass
+
+    @public_full_game_errors
+    def operation() -> None:
+        error = Error(private)
+        error.add_note(private)
+        raise error
+
+    with pytest.raises(error_type) as caught:
+        operation()
+    assert type(caught.value) is error_type
+    assert private not in "".join(traceback.format_exception(caught.value))
+
+
+def test_real_interrupt_is_not_reclassified_as_an_ordinary_failure() -> None:
+    @public_full_game_errors
+    def operation() -> None:
+        raise KeyboardInterrupt()
+
+    with pytest.raises(KeyboardInterrupt):
+        operation()
+
+
+def test_exception_class_property_is_not_a_classification_authority() -> None:
+    private = "PRIVATE_HAND_CANARY_7E4B"
+
+    class Error(RuntimeError):
+        @property
+        def __class__(self) -> type:  # type: ignore[override]
+            raise ValueError(private)
+
+    @public_full_game_errors
+    def operation() -> None:
+        raise Error(private)
+
+    caught_error: BaseException | None = None
+    try:
+        operation()
+    except BaseException as error:
+        caught_error = error
+    # Inspect the actual type before asking any formatter to touch the error.
+    assert type(caught_error) is RuntimeError
+    assert private not in "".join(traceback.format_exception(caught_error))
+    assert redacted_exception_message(Error(private)).startswith("RuntimeError")
 
 
 @pytest.mark.parametrize("error_type", [FullGameProtocolError, FullGameConformanceError])

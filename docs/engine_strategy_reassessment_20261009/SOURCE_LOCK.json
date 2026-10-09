@@ -69,5 +69,21 @@
     "commit": "1477564533eef445a21294e3e5bb235e6ee05a68",
     "tree": "cca9f323581c22488f72eac476e079bea7c3e51c",
     "classification": "External source screen; no Lab qualification"
+  },
+  "recovery": {
+    "authority": "Direct Owner transfer of interrupted #665 to Codex Work; no new branch or PR",
+    "branch": "codex/engine-strategy-reassessment-20261009",
+    "pull_request": 666,
+    "recovered_head": "2889f59325edc21168c0ec6182ca00d6a091a08a",
+    "recovered_tree": "8ef323890af6b4b5aee5487cac1541faa52c814e",
+    "prior_pr_merge_candidate": "b7970b7306a4d71e916421952ed04043aa23c75c",
+    "prior_pr_merge_candidate_tree": "8ef323890af6b4b5aee5487cac1541faa52c814e",
+    "unchanged_input_sha256": {
+      "config/rules_engines.json": "1eea3b67946fd93e951af96d9f868268bc6c2616640f590bfd71ce127ad323dd",
+      "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": "116cc693ff36cedeacdbf014975f54307565f4cac6be3021273244fb3632828b",
+      "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json": "3eb742125a07cf3572d8256d685ac10e295df2c7a586055307dcd193a0af3849",
+      "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json": "c9048b0502b9b3b66c656a1512bd0541e46f67d9ad06d03d1c92185166ed248d"
+    },
+    "final_identity_receipt": "Existing GitHub #665/#666 comments; do not infer completion from this pre-integration snapshot"
   }
 }

@@ -255,6 +255,13 @@ Implemented:
   diagnostic channels are retained without copying traceback metadata.
 - Actor-scope violations expose only validated integer seats or “invalid”.
 - Real smoke persists safe classification and rethrows a redacted failure.
+- Interrupted-session adversarial review additionally found spoofed str-subclass
+  codes, unsafe formatting/type hooks and message-derived numeric audit data.
+  Exact primitive codes, builtin text normalization, actual type ancestry and
+  formatter-only failure containment close those routes. Conformance subclasses
+  retain their failure family; the actor-audit public reason is static. Genuine
+  operation interrupts remain interrupts. Recovery controls discriminate the
+  old candidate (10 FAIL / 2 PASS), then pass after repair.
 - Fullgame/smoke push + scope filters include this dependency and new tests;
   their focused tests execute negative and legitimate privacy controls.
 

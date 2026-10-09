@@ -131,7 +131,9 @@ def test_a_leaking_frame_ends_the_game_fail_closed(monkeypatch: pytest.MonkeyPat
     leaking = copy.deepcopy(frames[2])
     leaking["pilot_state"]["players"][1]["hand"] = [{"object_id": "h", "name": SENTINEL}]
     frames[2] = leaking
-    with pytest.raises(FullGameConformanceError, match="not actor-scoped at decision 3") as caught:
+    with pytest.raises(
+        FullGameConformanceError, match="hidden information not actor-scoped"
+    ) as caught:
         _run(monkeypatch, frames)
     assert SENTINEL not in str(caught.value)
 

@@ -84,7 +84,11 @@ class FullGameProtocolError(RuntimeError):
         super().__init__(public)
         self.__suppress_context__ = True
         self.public_message = public
-        self.code = code if code in PUBLIC_FAILURE_CODES or code is None else "ENGINE_FAILURE"
+        self.code = (
+            code
+            if code is None or (type(code) is str and code in PUBLIC_FAILURE_CODES)
+            else "ENGINE_FAILURE"
+        )
         self.diagnostics = diagnostics
 
 
@@ -113,17 +117,18 @@ def public_full_game_errors[**P, T](operation: Callable[P, T]) -> Callable[P, T]
             return operation(*args, **kwargs)
         except Exception as exc:
             if type(exc) is FullGameProtocolError:
-                code = exc.code if isinstance(exc.code, str) else None
+                raw_code = exc.__dict__.get("code")
+                code = raw_code if type(raw_code) is str or raw_code is None else "ENGINE_FAILURE"
                 # A pilot can attach private notes even to the exact public class.
                 # Rebuild the exception; never copy notes or traceback metadata.
                 raise FullGameProtocolError(
                     public_full_game_exception_message(exc, code=code),
                     code=code,
-                    diagnostics=exc.diagnostics,
+                    diagnostics=exc.__dict__.get("diagnostics", ()),
                 ) from None
-            if type(exc) is FullGameConformanceError:
+            if issubclass(type(exc), FullGameConformanceError):
                 raise FullGameConformanceError(public_full_game_exception_message(exc)) from None
-            if isinstance(exc, (FullGameProtocolError, FullGameConformanceError)):
+            if issubclass(type(exc), FullGameProtocolError):
                 raise FullGameProtocolError(redacted_exception_message(exc)) from None
             raise redacted_exception(exc) from None
 
