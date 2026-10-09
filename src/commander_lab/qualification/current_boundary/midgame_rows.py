@@ -5063,9 +5063,11 @@ def execute_row(
                 declaring = False
                 position += 1
                 step = script[position] if position < len(script) else None
-            if paying and decision_class != "mana_payment":
+            if paying and decision_class != "mana_payment" and not delving:
                 # The scripted payment is complete: the engine spent exactly
-                # the record's declared mana, color for color.
+                # the record's declared mana, color for color. A delve card
+                # frame (the graveyard card XMage asks for after delve was
+                # activated on the payment frame) belongs to the same payment.
                 paying = False
                 declared = ((step or {}).get("selection") or {}).get("semantic_value") or {}
                 declared_colors = sorted(
