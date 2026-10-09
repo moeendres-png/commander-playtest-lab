@@ -198,7 +198,13 @@ def test_the_yes_no_refusal_runs_only_on_its_reachable_scenario() -> None:
     (cost,) = record["action_cost_state"]
     spec = mr.ROWS["NEGATIVE_DEFAULT_YES_NO"]
     assert spec.mana_sources == tuple(cost["explicit_payment_sources"])
-    probe = record["decision_script"][-1]
+    # 1.0.30 appends the obligation pass-through after the record's own steps;
+    # the typed refusal is still the last step the record itself declares.
+    probe = next(
+        step
+        for step in record["decision_script"]
+        if (step.get("selection") or {}).get("selector_kind") == "fail_closed_probe"
+    )
     assert probe["selection"]["selector_kind"] == "fail_closed_probe"
     assert mr.step_decision_class(probe) == "choose_use"
 

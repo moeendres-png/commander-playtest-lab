@@ -1271,7 +1271,11 @@ def test_fail_before_shared_runner_blocks_the_wave(monkeypatch):
         # The shared runner credits nothing here: since #459 the reason names the
         # row's first missing Forge mechanism, and only a lane receipt promotes it.
         assert "first missing mechanism" in row.reason, row.reason
-        assert "PASS" not in row.reason, row.reason
+        # The 1.0.30 correction class name itself contains "PASSES"; the check
+        # is that the reason carries no PASS claim for the row.
+        assert "PASS" not in row.reason.replace(
+            "FIXTURE_DEFECT_CORRECTION_DECLARED_PASSES_AND_MANA", "<correction-class>"
+        ), row.reason
 
 
 def test_lane_classifies_the_wave_with_exact_blockers():
