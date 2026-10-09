@@ -1,9 +1,18 @@
 # ADR: Rules-engine strategy — one production Rules Core with a bounded reference
 
-Status: **Coordinator assessment and recommendation. The decision it asks for is Owner-only.**
-`PRODUCTION_PROVIDER = NOT_SELECTED` · `ARCHITECTURE_FREEZE = NOT_CLAIMED` ·
-`PRODUCTION_REPOSITORY = NOT_CREATED`. This record selects no provider and claims no Freeze
-(AGENTS.md §8). It changes no pin, no denominator, no contract and no qualification gate.
+Status: **Owner-accepted 2026-10-09** (#255 comment 6080484727; the Owner's words: "Ja ich stimme
+alle deinen Empfehlungen zu und will sie so übernehmen"). The Owner accepted §4's three decisions:
+1. Option (a): XMage is selected as Production Provider. The selection takes effect at a sealed
+   `main` epoch on which every XMage gate except AF11 passes.
+2. Option D: Forge becomes a bounded reference once the selection takes effect.
+3. No Forge code port.
+
+Until that epoch: `PRODUCTION_PROVIDER = XMAGE_SELECTED_CONDITIONAL`. Freeze remains a separate
+Owner decision. The assessment below is unchanged from its reviewed text.
+At the time of the assessment the status was `PRODUCTION_PROVIDER = NOT_SELECTED`,
+`ARCHITECTURE_FREEZE = NOT_CLAIMED` and `PRODUCTION_REPOSITORY = NOT_CREATED`. The provider decision
+is the Owner's (AGENTS.md §8), recorded above. This record claims no Freeze, and it changes no pin,
+no denominator, no contract and no qualification gate.
 
 Question: which Rules-engine strategy reaches a full-rules, reproducible, four-player Commander
 simulator with the least total engineering effort — one engine, two production engines, or one
