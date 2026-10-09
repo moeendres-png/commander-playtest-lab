@@ -18,7 +18,7 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_31.json"
 )
 V129_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
@@ -340,6 +340,14 @@ CHANGED_FIXTURE_IDS = [
     # record-bound mana sources. CARD_20 is the only record this adds to the
     # changed set (the other 104 are already changed by an earlier erratum).
     "CARD_20",
+    # Contract 1.0.31 (#634): the actual-card campaign's arrival histories and
+    # the campaign/replay-twin mana declarations. These five campaign records are
+    # the ones no earlier erratum had changed.
+    "CARD_14",
+    "CARD_17",
+    "CARD_19",
+    "CARD_24",
+    "CARD_28",
 ]
 # Of those, the rows inside the 107-row provider denominator; the AF07 CARD
 # rows are outside it, so correcting them leaves the denominator untouched.
@@ -357,6 +365,12 @@ DENOMINATOR_CHANGED_FIXTURE_IDS = [
         # CARD_20 is executed by the probe's CAUSAL_ROWS but is not a
         # denominator row; its 1.0.30 declaration leaves the denominator alone.
         "CARD_20",
+        # The 1.0.31 campaign records are AF07 corpus rows outside the denominator.
+        "CARD_14",
+        "CARD_17",
+        "CARD_19",
+        "CARD_24",
+        "CARD_28",
     )
 ]
 AF01_PATH = REPO_ROOT / "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json"
@@ -367,7 +381,7 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_30_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_31_SUCCESSOR.json"
 )
 V129_MATERIALIZATION_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_29_SUCCESSOR.json"
@@ -512,7 +526,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_31.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         # 1.0.29 re-opened every HIDDEN_* record for its arrival history and
@@ -886,7 +900,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.30-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.31-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -898,9 +912,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.30-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.31-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.30-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.31-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -1965,7 +1979,7 @@ def test_card06_obligation_erratum_is_versioned_with_its_predecessor_preserved()
     assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
     # The script answers only what the engine asks: the cast, the Bolt's target
     # and the order of the simultaneous triggers.
-    assert [step["decision_family"] for step in record["decision_script"]] == [
+    assert [step["decision_family"] for step in _own_script(record)] == [
         "priority",
         "target",
         "trigger_order",
@@ -1998,7 +2012,7 @@ def test_card03_script_erratum_answers_the_engine_decisions_and_keeps_the_obliga
     # The predecessor's folded targets become the engine's own decisions, with
     # the same targets: the divided damage and the two tap targets.
     folded = old["decision_script"][0]["selection"]["semantic_value"]
-    steps = record["decision_script"]
+    steps = _own_script(record)
     assert [step["decision_family"] for step in steps] == ["priority", "target_amount", "target"]
     assert steps[0]["selection"]["semantic_value"] == {"action": "cast", "object": folded["object"]}
     assert sorted(steps[1]["selection"]["semantic_value"]) == sorted(folded["damage_targets"])
@@ -2201,15 +2215,15 @@ def test_card25_scenario_erratum_causes_the_attachment_through_the_equip_ability
         "phase": "precombat_main",
         "step": "main",
     }
-    families = [step["decision_family"] for step in record["decision_script"]]
+    families = [step["decision_family"] for step in _own_script(record)]
     assert families == ["priority", "target", "declare_attacker", "declare_blocker"]
-    activate, target = record["decision_script"][:2]
+    activate, target = _own_script(record)[:2]
     assert activate["selection"]["semantic_value"] == {
         "action": "activate",
         "source": "obj:card_25-subject",
     }
     assert target["selection"]["semantic_value"] == "obj:card25-attacker"
-    assert record["decision_script"][2:] == old["decision_script"]
+    assert _own_script(record)[2:] == old["decision_script"]
     (cost,) = record["action_cost_state"]
     assert cost["decision_index"] == 0 and cost["minimum_mana_or_equivalent"] == 2
     assert cost["explicit_payment_sources"] == added
@@ -2929,8 +2943,8 @@ _TEMP_REPO_FILES: dict[str, Path] = {
     "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_29_SUCCESSOR.json": (
         V129_MATERIALIZATION_SCHEMA_PATH
     ),
-    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json": SUCCESSOR_PATH,
-    "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_30_SUCCESSOR.json": (
+    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_31.json": SUCCESSOR_PATH,
+    "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_31_SUCCESSOR.json": (
         MATERIALIZATION_SCHEMA_PATH
     ),
     "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json": (
@@ -2966,7 +2980,7 @@ def _resolver_at(root: Path):
 
 
 def _successor_contract_path(root: Path) -> Path:
-    return root / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
+    return root / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_31.json"
 
 
 def test_contract_1_0_23_generator_regenerates_byte_identically(tmp_path: Path) -> None:
@@ -3139,7 +3153,7 @@ def test_the_bounded_secondary_6p_record_is_never_a_denominator_row() -> None:
     # The authority pointer names the current contract; the bounded record's own
     # ledger entry keeps its 1.0.23 provenance.
     assert _json(AUTHORITY_PATH)["full107"]["successor_contract"].endswith(
-        "FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
+        "FULL107_SUCCESSOR_CONTRACT_v1_0_31.json"
     )
     entry = next(
         item for item in _json(LEDGER_PATH)["records"] if item["fixture_id"] == "PLAYER_COUNT_6P"
@@ -3152,7 +3166,7 @@ def test_the_bounded_secondary_6p_record_is_never_a_denominator_row() -> None:
     # bundle (the bounded record is not part of it) and enumerates 1.0.23.
     effective = _resolver().load_effective_materialization()
     Draft202012Validator(_json(MATERIALIZATION_SCHEMA_PATH)).validate(effective)
-    assert effective["contract_id"] == "commander-lab.full107/1.0.30-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.31-successor"
 
 
 def test_the_runner_uses_the_bounded_record_only_as_the_6p_record_argument() -> None:
@@ -4463,9 +4477,9 @@ def test_contract_1_0_27_declares_the_turn1_arrival_history() -> None:
     # The current authority names the 1.0.30 contract and schema; NEGATIVE keeps
     # the denominator untouched and its current class is the 1.0.30 one (the
     # 1.0.26 class stays in the patch lineage).
-    assert authority["successor_contract"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_30.json")
+    assert authority["successor_contract"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_31.json")
     assert authority["effective_materialization_schema"].endswith(
-        "SEMANTIC_FIXTURE_SCHEMA_v1_0_30_SUCCESSOR.json"
+        "SEMANTIC_FIXTURE_SCHEMA_v1_0_31_SUCCESSOR.json"
     )
     assert authority["changed_fixture_ids"].count("WS05-MP-TURN-5") == 1
     assert authority["evidence_survival"][NEGATIVE_PARENT_CLASS_FALLBACK] == (
@@ -4479,7 +4493,7 @@ def test_contract_1_0_27_declares_the_turn1_arrival_history() -> None:
 
     effective_bundle = resolver.load_effective_materialization()
     Draft202012Validator(_json(MATERIALIZATION_SCHEMA_PATH)).validate(effective_bundle)
-    assert effective_bundle["contract_id"] == "commander-lab.full107/1.0.30-successor"
+    assert effective_bundle["contract_id"] == "commander-lab.full107/1.0.31-successor"
 
 
 def test_contract_1_0_27_generator_regenerates_byte_identically(tmp_path: Path) -> None:

@@ -325,6 +325,13 @@ class _OmissionClient:
             self.submissions.append([payload["proposal"]["legal_action_id"]])
             self._decisions.pop(0)
             return {"success": True, "payload": {}}
+        if message_type == "get_midgame_projection":
+            # The acting principal's own projection carries the engine's
+            # position; the fake serves the same point as its readback.
+            return {
+                "success": True,
+                "payload": {"view": dict(self.complete_arrival()["observation"])},
+            }
         raise AssertionError(f"unexpected lane request {message_type}")
 
     def submit_options(self, decision: dict[str, Any], option_ids: list[str]) -> None:

@@ -11,6 +11,7 @@ path.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import re
@@ -39,6 +40,18 @@ from pathlib import Path
 root = Path(sys.argv[1]).resolve()
 touched = set()
 def hook(event, args):
+    if event == "subprocess.Popen" and len(args) > 1 and isinstance(args[1], (list, tuple)):
+        # A child process's own reads are invisible to this hook; a repository
+        # script the child is launched with is still an input of the parent.
+        base = Path(os.fsdecode(args[2])) if len(args) > 2 and args[2] else Path.cwd()
+        for arg in args[1]:
+            try:
+                path = (base / os.fsdecode(arg)).resolve()
+                if path.is_file():
+                    touched.add(str(path.relative_to(root)))
+            except Exception:
+                pass
+        return
     if event == "open" and args and isinstance(args[0], (str, bytes, os.PathLike)):
         try:
             raw = os.fsdecode(args[0])
@@ -71,6 +84,24 @@ modules = {
     and str(Path(module.__file__).resolve()).startswith(str(root))
 }
 print(json.dumps(sorted(touched | modules)))
+"""
+
+
+# Installed as sitecustomize for every Python process the measured tests start:
+# appends each file the process opens to $PB03_CHILD_READS. The log is opened
+# before the hook exists, so the hook's own writes are not audited.
+_CHILD_HOOK = r"""
+import os, sys
+_log = os.environ.get("PB03_CHILD_READS")
+if _log:
+    _fd = os.open(_log, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+    def _hook(event, args):
+        if event == "open" and args and isinstance(args[0], (str, bytes, os.PathLike)):
+            try:
+                os.write(_fd, (os.path.abspath(os.fsdecode(args[0])) + "\n").encode())
+            except Exception:
+                pass
+    sys.addaudithook(_hook)
 """
 
 
@@ -166,10 +197,117 @@ def test_the_packaging_inputs_include_the_declared_readme() -> None:
     assert "README.md" in _packaging_inputs()
 
 
+def _workflow_steps() -> str:
+    return "\n".join(
+        step.get("run") or "" for job in _workflow()["jobs"].values() for step in job["steps"]
+    )
+
+
+@cache
+def _tracked_files() -> tuple[str, ...]:
+    listed = subprocess.run(
+        ["git", "ls-files", "-z"], cwd=REPO, capture_output=True, text=True, check=True
+    ).stdout
+    return tuple(path for path in listed.split("\0") if path)
+
+
+def _shell_glob(argument: str) -> re.Pattern[str]:
+    """The shell's own glob for one path argument: ``*``, ``?`` and ``[...]``
+    never cross ``/``."""
+    out = ""
+    index = 0
+    while index < len(argument):
+        char = argument[index]
+        if char == "*":
+            out += "[^/]*"
+        elif char == "?":
+            out += "[^/]"
+        elif char == "[" and "]" in argument[index + 2 :]:
+            end = argument.index("]", index + 2)
+            body = argument[index + 1 : end]
+            negate = body[:1] in ("!", "^")
+            body = body[1:] if negate else body
+            out += "(?!/)[" + ("^" if negate else "") + body.replace("\\", "\\\\") + "]"
+            index = end
+        else:
+            out += re.escape(char)
+        index += 1
+    return re.compile(out + r"\Z")
+
+
+def _expand(arguments: list[str], tracked: tuple[str, ...]) -> list[str]:
+    """Each workflow path argument as the files the shell hands the command.
+
+    A literal argument is itself; a wildcard argument is every tracked file it
+    matches. A wildcard that matches nothing fails closed: the shell would pass
+    the pattern through unchanged and the measurement would silently lose it.
+    """
+    files: set[str] = set()
+    for argument in arguments:
+        if not any(char in argument for char in "*?["):
+            files.add(argument)
+            continue
+        matched = [path for path in tracked if _shell_glob(argument).match(path)]
+        if not matched:
+            raise AssertionError(f"workflow argument {argument!r} selects no tracked file")
+        files.update(matched)
+    return sorted(files)
+
+
+_ARGUMENT = r"[\w./*?\[\]!-]+\.py"
+# pytest options that consume the next token as their value.
+_PYTEST_VALUE_OPTIONS = frozenset(
+    {"-k", "-m", "-o", "-p", "-c", "-W", "--rootdir", "--deselect", "--ignore", "--basetemp"}
+)
+
+
+def _pytest_positionals(steps: str) -> list[str]:
+    """Every positional argument of every pytest command in the workflow.
+
+    Each one must be a recognisable test path (a literal file or a wildcard
+    over files); anything else (a directory, a variable, a brace list) fails
+    closed rather than silently leaving the measurement.
+    """
+    import shlex
+
+    positionals: list[str] = []
+    for line in steps.replace("\\\n", " ").splitlines():
+        try:
+            tokens = shlex.split(line, comments=True)
+        except ValueError as exc:
+            raise AssertionError(f"unparseable workflow command {line!r}") from exc
+        if "pytest" not in tokens:
+            continue
+        rest = tokens[tokens.index("pytest") + 1 :]
+        skip = False
+        for token in rest:
+            if skip:
+                skip = False
+                continue
+            if token in _PYTEST_VALUE_OPTIONS:
+                skip = True
+                continue
+            if token.startswith("-"):
+                continue
+            path = token.split("::", 1)[0]
+            if not re.fullmatch(rf"tests/{_ARGUMENT}", path):
+                raise AssertionError(f"pytest argument {token!r} is not a recognisable test path")
+            positionals.append(path)
+    return positionals
+
+
+def _workflow_arguments(prefixes: str) -> list[str]:
+    """Every script/test path argument the workflow passes, wildcards included."""
+    steps = _workflow_steps()
+    found = set(re.findall(rf"(?:{prefixes})/{_ARGUMENT}", steps))
+    if "tests" in prefixes.split("|"):
+        found.update(_pytest_positionals(steps))
+    return sorted(found)
+
+
 def test_every_file_the_workflow_runs_triggers_pb03() -> None:
-    steps = [step.get("run") or "" for job in _workflow()["jobs"].values() for step in job["steps"]]
     invoked = sorted(
-        set(re.findall(r"(?:scripts|tests)/[\w./-]+\.py", "\n".join(steps)))
+        set(_expand(_workflow_arguments("scripts|tests"), _tracked_files()))
         | _packaging_inputs()
         | {
             "requirements/lock.txt",
@@ -232,10 +370,7 @@ def test_runner_phases_report_their_duration_on_stdout_only(monkeypatch, capsys,
 @cache
 def _measured_workflow_test_inputs() -> tuple[str, ...]:
     """Execute the workflow's offline tests under the same file-read audit hook."""
-    steps = "\n".join(
-        step.get("run") or "" for job in _workflow()["jobs"].values() for step in job["steps"]
-    )
-    invoked = sorted(set(re.findall(r"tests/[\w./-]+\.py", steps)))
+    invoked = _expand(_workflow_arguments("tests"), _tracked_files())
     assert invoked, "measurement must execute the workflow's actual tests"
     probe = (
         _PROBE[: _PROBE.index("for script in sys.argv[2:]:")]
@@ -247,7 +382,12 @@ if result != 0:
 print(json.dumps(sorted(touched)))
 """
     )
-    with tempfile.TemporaryDirectory() as empty_cache:
+    with tempfile.TemporaryDirectory() as empty_cache, tempfile.TemporaryDirectory() as hooks:
+        # Child Python processes the tests launch (the generator determinism
+        # tests) inherit this sitecustomize: their own reads are logged too,
+        # so an input a child reads directly cannot leave the measurement.
+        child_log = Path(hooks) / "child-reads.log"
+        (Path(hooks) / "sitecustomize.py").write_text(_CHILD_HOOK, encoding="utf-8")
         completed = subprocess.run(
             [sys.executable, "-c", probe, str(REPO), *invoked],
             cwd=REPO,
@@ -256,21 +396,25 @@ print(json.dumps(sorted(touched)))
                 "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
                 "PYTHONDONTWRITEBYTECODE": "1",
                 "PYTHONPYCACHEPREFIX": empty_cache,
+                "PYTHONPATH": os.pathsep.join(
+                    [hooks, *filter(None, [os.environ.get("PYTHONPATH")])]
+                ),
+                "PB03_CHILD_READS": str(child_log),
             },
             capture_output=True,
             text=True,
             check=True,
         )
-    tracked = set(
-        subprocess.run(
-            ["git", "ls-files", "-z"], cwd=REPO, capture_output=True, text=True, check=True
-        ).stdout.split("\0")
-    )
+        child_reads = set()
+        if child_log.exists():
+            for raw in child_log.read_text(encoding="utf-8").splitlines():
+                with contextlib.suppress(ValueError):
+                    child_reads.add(str(Path(raw).resolve().relative_to(REPO)))
+    tracked = set(_tracked_files())
     # Qualification consumes canonical files. Cache and temporary outputs are
     # neither repository inputs nor evidence, and must not widen the trigger.
-    return tuple(
-        path for path in json.loads(completed.stdout.strip().splitlines()[-1]) if path in tracked
-    )
+    measured = set(json.loads(completed.stdout.strip().splitlines()[-1])) | child_reads
+    return tuple(sorted(path for path in measured if path in tracked))
 
 
 def test_workflow_test_data_inputs_trigger_pb03() -> None:
@@ -281,3 +425,83 @@ def test_workflow_test_data_inputs_trigger_pb03() -> None:
     )
     uncovered = [path for path in inputs if not path.startswith(".git/") and not _covered(path)]
     assert not uncovered, f"PB-03 offline test inputs without a trigger: {uncovered}"
+
+
+FAMILY = "tests/qualification/test_midgame_arrival_history_*.py"
+
+
+def test_the_workflow_runs_the_arrival_history_family_by_wildcard() -> None:
+    """#646: the early contract step selects the family by wildcard; the
+    measurement expands it to the real tracked modules and executes them."""
+    assert FAMILY in _workflow_arguments("tests")
+    family = _expand([FAMILY], _tracked_files())
+    assert len(family) >= 2
+    inputs = set(_measured_workflow_test_inputs())
+    assert set(family) <= inputs
+    # The family's deterministic-generator tests launch the generators in a
+    # child process; every generator script is still a measured input.
+    generators = _expand(
+        ["docs/arrival_history_erratum_*/generate_contract_*.py"], _tracked_files()
+    )
+    assert len(generators) >= 2
+    assert set(generators) <= inputs
+
+
+def test_red_control_removing_the_family_trigger_leaves_it_uncovered() -> None:
+    assert FAMILY in _trigger_paths()
+    family = _expand([FAMILY], _tracked_files())
+    remaining = [glob for glob in _trigger_paths() if glob != FAMILY]
+    uncovered = [
+        path for path in family if not any(_pattern(glob).match(path) for glob in remaining)
+    ]
+    assert uncovered == family
+
+
+def test_red_control_a_new_family_module_is_selected_and_triggers() -> None:
+    added = "tests/qualification/test_midgame_arrival_history_9_9_99.py"
+    tracked = (*_tracked_files(), added)
+    assert added in _expand([FAMILY], tracked)
+    assert _covered(added)
+
+
+def test_red_control_a_wildcard_that_selects_nothing_fails_closed() -> None:
+    with pytest.raises(AssertionError, match="selects no tracked file"):
+        _expand(["tests/qualification/test_no_such_family_*.py"], _tracked_files())
+
+
+def test_the_shell_glob_does_not_cross_directories() -> None:
+    assert _shell_glob("tests/a_*.py").match("tests/a_1.py")
+    assert not _shell_glob("tests/a_*.py").match("tests/a_x/y.py")
+
+
+def test_red_control_an_unrecognisable_pytest_argument_fails_closed() -> None:
+    for step in (
+        "pytest -q tests/qualification/",
+        'pytest -q "$FAMILY"',
+        "pytest -q tests/qualification/test_{a,b}.py",
+    ):
+        with pytest.raises(AssertionError, match="not a recognisable test path"):
+            _pytest_positionals(step)
+    assert _pytest_positionals(
+        "python -m pytest -q -k 'x and y' \\\n  tests/a_[0-9]*.py tests/b.py::test_c"
+    ) == ["tests/a_[0-9]*.py", "tests/b.py"]
+
+
+def test_the_shell_glob_handles_bracket_classes() -> None:
+    assert _shell_glob("tests/a_1_0_2[89].py").match("tests/a_1_0_28.py")
+    assert not _shell_glob("tests/a_1_0_2[89].py").match("tests/a_1_0_27.py")
+    assert not _shell_glob("tests/a_[!0-9].py").match("tests/a_5.py")
+
+
+def test_the_registry_preflight_runs_before_the_engine_builds() -> None:
+    """Efficiency M16: a lane-registry record gap fails in the early contract
+    step, before the ≈5 min of engine builds and the ≈40 min runtime."""
+    steps = [step for job in _workflow()["jobs"].values() for step in job["steps"]]
+    names = [step.get("name") for step in steps]
+    preflight = next(
+        index
+        for index, step in enumerate(steps)
+        if "tests/qualification/test_lane_registry_declarations.py" in (step.get("run") or "")
+    )
+    assert preflight < names.index("Build pinned XMage")
+    assert preflight < names.index("Build and warm admitted Forge exact source")

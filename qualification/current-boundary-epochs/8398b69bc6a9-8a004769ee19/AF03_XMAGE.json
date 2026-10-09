@@ -1,0 +1,142 @@
+{
+ "authority": "ENGINE_ONLY",
+ "candidate": "xmage",
+ "gate": "AF03",
+ "harness_role": "constructs deliberately illegal decks and requires refusal",
+ "legal_control": {
+  "purpose": "an unmodified legal deck must import, so a refusal is evidence about the mutation and not about the deck format",
+  "response": {
+   "engine_event_offset": 0,
+   "payload": {
+    "deck_handle": {
+     "accepted_cards": 100,
+     "backend": "xmage",
+     "commander_names": [
+      "Isamaru, Hound of Konda"
+     ],
+     "deck_hash": "c5d09e25793f500a28c81d9eef45f1db149b8265157f6cbcaf1875e0e4ab2446",
+     "deck_id": "af03-control",
+     "handle_id": "xmage-deck-b659a944-d31b-48eb-8a30-0c616c9f233a",
+     "rejected_cards": [],
+     "warnings": []
+    }
+   },
+   "protocol_version": "2.0.0",
+   "request_id": "77e65e40-a79b-46cd-b1d6-97d79b46c5b1",
+   "status": "ok",
+   "success": true
+  }
+ },
+ "name": "RULES_AUTHORITY",
+ "nonblocking_limitations": [
+  "proves the engine refuses these specific illegality classes at the import boundary; it is not an exhaustive proof of deck legality"
+ ],
+ "probes": [
+  {
+   "detail": "the engine refused the mutated deck at the import boundary",
+   "engine_response": {
+    "engine_event_offset": 0,
+    "errors": [
+     {
+      "code": "deck_import_failed",
+      "message": "UNKNOWN_CARD_NAME: Definitely Not A Real Card Name",
+      "retryable": false
+     }
+    ],
+    "protocol_version": "2.0.0",
+    "request_id": "2bb8f300-0c65-43f7-b755-6085bd37e985",
+    "status": "error",
+    "success": false
+   },
+   "invariant": "deck_import_rejects_unknown_card",
+   "obligation": "a mainboard entry naming a card neither candidate knows",
+   "probe": "unknown_card_name",
+   "verdict": "PASS"
+  },
+  {
+   "detail": "the engine refused the mutated deck at the import boundary",
+   "engine_response": {
+    "engine_event_offset": 0,
+    "errors": [
+     {
+      "code": "deck_import_failed",
+      "message": "COMMANDER_VALIDATION_FAILED: type=PRIMARY,group=Hill Giant,card=Hill Giant,message=Commander invalid (Hill Giant)",
+      "retryable": false
+     }
+    ],
+    "protocol_version": "2.0.0",
+    "request_id": "f3465a08-8f0f-4271-a50e-d38730267b77",
+    "status": "error",
+    "success": false
+   },
+   "invariant": "deck_import_rejects_non_commander",
+   "obligation": "the commander is a real card but is not a legal Commander",
+   "probe": "commander_not_in_pool",
+   "verdict": "PASS"
+  },
+  {
+   "detail": "the engine refused the mutated deck at the import boundary",
+   "engine_response": {
+    "engine_event_offset": 0,
+    "errors": [
+     {
+      "code": "deck_import_failed",
+      "message": "COMMANDER_VALIDATION_FAILED: type=OTHER,group=Shivan Reef,card=Shivan Reef,message=Too many: 99",
+      "retryable": false
+     }
+    ],
+    "protocol_version": "2.0.0",
+    "request_id": "453ddfc3-dd40-4066-97dc-faf27e463ca3",
+    "status": "error",
+    "success": false
+   },
+   "invariant": "deck_import_rejects_colour_identity_violation",
+   "obligation": "the deck's colour identity does not match the commander's, which CR 2.3 and the Commander format require",
+   "probe": "colour_identity_violation",
+   "verdict": "PASS"
+  },
+  {
+   "detail": "the engine refused the mutated deck at the import boundary",
+   "engine_response": {
+    "engine_event_offset": 0,
+    "errors": [
+     {
+      "code": "deck_import_failed",
+      "message": "INVALID_DECK_SIZE: Commander deck must contain exactly 100 cards; observed 51",
+      "retryable": false
+     }
+    ],
+    "protocol_version": "2.0.0",
+    "request_id": "3834e34b-fcb7-458d-b6eb-c88d8754f891",
+    "status": "error",
+    "success": false
+   },
+   "invariant": "deck_import_rejects_wrong_deck_size",
+   "obligation": "a Commander deck with fewer than 100 cards in the mainboard",
+   "probe": "mainboard_short_of_one_hundred",
+   "verdict": "PASS"
+  },
+  {
+   "detail": "the engine refused the mutated deck at the import boundary",
+   "engine_response": {
+    "engine_event_offset": 0,
+    "errors": [
+     {
+      "code": "deck_import_failed",
+      "message": "INVALID_DECK_SIZE: Commander deck must contain exactly 100 cards; observed 1",
+      "retryable": false
+     }
+    ],
+    "protocol_version": "2.0.0",
+    "request_id": "4d61f3db-62e9-4732-92f3-2ff825634527",
+    "status": "error",
+    "success": false
+   },
+   "invariant": "deck_import_rejects_empty_mainboard",
+   "obligation": "a Commander deck with an empty mainboard",
+   "probe": "empty_mainboard",
+   "verdict": "PASS"
+  }
+ ],
+ "verdict": "PASS"
+}

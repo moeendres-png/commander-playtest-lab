@@ -36,7 +36,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
-DEFAULT_EPOCH = "ff688b58359f-42c21a3659cd"
+DEFAULT_EPOCH = "8398b69bc6a9-8a004769ee19"
 PACKET_DIR = REPO_ROOT / "docs" / "provider_readiness_packet_20261007"
 PACKET_JSON = PACKET_DIR / "PROVIDER_READINESS.json"
 PACKET_MD = PACKET_DIR / "PROVIDER_READINESS.md"

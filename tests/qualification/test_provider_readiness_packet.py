@@ -32,7 +32,7 @@ SCRIPT = REPO / "scripts" / "build_provider_readiness_packet.py"
 PACKET_DIR = REPO / "docs" / "provider_readiness_packet_20261007"
 PACKET_JSON = PACKET_DIR / "PROVIDER_READINESS.json"
 PACKET_MD = PACKET_DIR / "PROVIDER_READINESS.md"
-EPOCH_NAME = "ff688b58359f-42c21a3659cd"
+EPOCH_NAME = "8398b69bc6a9-8a004769ee19"
 EPOCH_ROOT = REPO / "qualification" / "current-boundary-epochs" / EPOCH_NAME
 
 EXPECTED_DIMENSION_KEYS = (
@@ -351,9 +351,13 @@ def test_known_residuals_reported_with_current_sealed_state(
         )
         row = next(row for row in document["rows"] if row["fixture_id"] == item["residual"])
         assert item["sealed_state"] == row["exit_state"]
-        if (item["residual"], candidate) == ("WS05-CMD-MULL-2", "xmage"):
-            # Resolved in the new sealed epoch: the row is PASS and the packet
-            # still lists it with its issue-recorded label rather than hiding it.
+        if (item["residual"], candidate) in (
+            ("WS05-CMD-MULL-2", "xmage"),
+            ("NEGATIVE_PARENT_CLASS_FALLBACK", "xmage"),
+        ):
+            # Resolved in a sealed epoch (MULL-2 in ff688b58, the parent-class
+            # negative in 8398b69b): the row is PASS and the packet still lists
+            # it with its issue-recorded label rather than hiding it.
             assert item["sealed_state"] == "PASS"
         else:
             assert item["sealed_state"] != "PASS"
@@ -780,7 +784,9 @@ def test_non_pass_cells_never_claim_all_pass_status_basis(
             non_pass_cells += 1
             assert cell["status_basis"] != all_pass_basis, f"{dimension['key']}/{candidate}"
 
-    assert non_pass_cells == 31
+    # Epoch 8398b69b: XMage's only non-PASS cell is process_isolation (AF11,
+    # sequenced after selection); the other 19 are Forge's.
+    assert non_pass_cells == 20
     assert generator.derive_status_basis("UNKNOWN", {"AF06": "UNKNOWN"}, ["PASS"]) != all_pass_basis
     assert (
         generator.derive_status_basis("FAIL", {"AF06": "FAIL"}, ["PASS"])
@@ -935,7 +941,7 @@ def test_source_lock_binds_epoch_and_pins(packet: dict[str, Any]) -> None:
     assert lock["sealed_epoch"]["manifest"]["mismatches"] == 0
     assert (
         lock["effective_contract"]["effective_manifest_contract_id"]
-        == "commander-lab.full107/1.0.24-successor"
+        == "commander-lab.full107/1.0.31-successor"
     )
     xmage_pin = lock["engine_pins"]["xmage"]["commit"]
     forge_pin = lock["engine_pins"]["forge_rules_core"]["commit"]

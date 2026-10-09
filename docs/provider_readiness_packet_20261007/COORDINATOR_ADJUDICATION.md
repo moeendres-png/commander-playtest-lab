@@ -1,5 +1,42 @@
 # Coordinator adjudication — provider readiness (issue #255)
 
+## Re-issue 2026-10-09: sealed epoch `8398b69bc6a9-8a004769ee19`; the XMage selection is effective
+
+**Sealed epoch** `qualification/current-boundary-epochs/8398b69bc6a9-8a004769ee19/` (#656).
+- Produced by PB-03 run 37947434173 (`workflow_dispatch`) on `main` `8398b69b`, after #645.
+- Effective contract `commander-lab.full107/1.0.31-successor`.
+- Pins: XMage `b479fe74`, Forge Rules Core `bb0a740d`, Forge bridge `31cbae12`.
+- The section-F packet is regenerated from this epoch (`PROVIDER_READINESS.{json,md}`).
+
+| Gate | XMage | Forge |
+| --- | --- | --- |
+| FULL107 | **107/107 PASS** | 20 PASS / 33 BLOCKED / 54 UNKNOWN |
+| AF00–AF04, AF10 | PASS | PASS |
+| AF05, AF06, AF07, AF08, AF09 | **PASS** | UNKNOWN |
+| AF11 | UNKNOWN (sequenced after selection) | UNKNOWN |
+
+**The Owner's condition is met.** The Owner decision on #255 (comment 6080484727; ADR #647, option (a)) selected XMage. The selection takes effect "when a sealed epoch on `main` shows every XMage gate except AF11 PASS". This epoch shows exactly that. In the packet, XMage's only non-PASS cell is `process_isolation`, which rests on AF11.
+
+From the merge of the seal (#656):
+- **Owner selection effective:** XMage is the selected Production Provider candidate, effective at epoch `8398b69bc6a9-8a004769ee19`.
+- **The runtime manifest is unchanged.** `config/rules_engines.json` keeps `provider_decision = NO_PROVIDER_READY` and `current_runtime.provider_selected = false`. Its own rule says no engine is production-selected there "until the provider release gate passes and a Freeze workstream records the decision", and `release-artifacts.yml` enforces this. That flag changes only in the Freeze workstream, after AF11.
+- `ARCHITECTURE_FREEZE = NOT_CLAIMED`. Freeze remains a separate Owner decision after AF11.
+- `PRODUCTION_REPOSITORY = NOT_CREATED`.
+
+**Consequences, per the accepted ADR and decision 2:**
+- **AF11.** It is now adjudicated against the single-provider topology: XMage as a genuine separate process with its adapter, `architecture_freeze_gate_catalog_v2.json` AF11. That is the next Coordinator item. Freeze follows only after it.
+- **Forge becomes a bounded reference.**
+  - #592 closes as not planned, with no completion claim.
+  - The Forge PB-03 phases move off the required path (efficiency M15). That is a separate PR with impact adjudication.
+  - Sealed Forge evidence stays as it is.
+- **No Forge code port.** Missing mechanics are implemented independently from the Comprehensive Rules and Oracle.
+
+The rest of this document is the 2026-10-07 adjudication on epoch `ff688b58`. It is kept unchanged as history.
+
+---
+
+# Coordinator adjudication — provider readiness (issue #255), 2026-10-07
+
 Decision document for the Owner. It adjudicates the section-F evidence; it does **not** select a
 provider. `PRODUCTION_PROVIDER = NOT_SELECTED` · `ARCHITECTURE_FREEZE = NOT_CLAIMED` ·
 `PRODUCTION_REPOSITORY = NOT_CREATED`. Production Provider selection is Owner-only (AGENTS.md §8).
