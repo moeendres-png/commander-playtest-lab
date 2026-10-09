@@ -4890,8 +4890,18 @@ def execute_row(
         cost_obligation = (native_cost_source, cost_base, cost_total)
     required = list((record.get("expected_events") or {}).get("required_events") or ())
     # The arrival already answered its own scripted steps (a turn-1 cleanup
-    # discard); the obligation loop starts at the first unconsumed step.
+    # discard); the obligation loop starts at the first unconsumed step. The
+    # arrival transport declarations (the starting-seat declaration, the
+    # pregame keeps, the priority pass-through and a pre-checkpoint empty attack
+    # declaration) are answered by the arrival driver itself and are never
+    # demanded as engine frames here, even when the driver consumed them
+    # without advancing this cursor.
     position = arrival_consumed[0]
+    while position < len(script) and (
+        str(script[position].get("decision_family")) in ARRIVAL_TRANSPORT_FAMILIES
+    ):
+        position += 1
+    arrival_consumed[0] = position
     ordinal = 0
     declaring = False
     blocking = False
