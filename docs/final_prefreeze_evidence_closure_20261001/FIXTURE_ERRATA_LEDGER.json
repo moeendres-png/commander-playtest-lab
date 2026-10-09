@@ -236,11 +236,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_01",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "e7952c7ebe74294bf190dc3873c6fb26d352ffa40fcba2bdd23fefb0703810ca",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -255,11 +260,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_02",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "4f189f72a920c08d6ca212cf9c3fa7050796a8d04f33b47494e6d2f95aa603ce",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -274,11 +284,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_03",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "36f766fedfd04cffa4f9596816f77712e00300a17644e2eec664a73e0d298710",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -293,11 +308,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_04",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "f0d954a3c005f6ec64549c7e0f85c799631af8244b4eaded0d57652c9b6e2ec7",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -312,11 +332,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_05",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "5567336dd33d4fd848aaf52f1518a7c76d397d746efdab2bd2dd2e9c7ecd91c4",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -331,11 +356,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_06",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "6e76fe052384d35fde93725ac46e74b0f999e20d8fdfe5a19732a3d1d5225b00",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -350,11 +380,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_07",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "54fc0512a7a368db7c1cbc8b6f95c1dfaf376ba7c38708ff40de3f737072d85a",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -369,11 +404,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_08",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "d3708d743e4791c9d55a6e1c14af9e9f0a6bbb683d48756493890ae481a88f68",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -388,11 +428,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_09",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "a1c448459bf451659aedea427f812e91232840a33b31148f791d171612de7854",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -407,11 +452,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_10",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "8d5ebea042b8f4fdb4c612ae5a8cd63cb2e25a62c6c8bc133d6be273002e3808",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -426,11 +476,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_11",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "b326e480861f33a9aabac35a2ce614725fed48bc7ac5e537fe2c19be0b0f2928",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -445,11 +500,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_12",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "f630608c9f3fa6f639c50ca6dafa371cc14a22e1a16125dc15536b1389161b89",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -464,11 +524,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_13",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "84de906078f71d8430dbff4584a5b4bda33bb467dcfbb732b5cfb15af5c82b6f",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -483,11 +548,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_14",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "8cc8579087bded540d4e4d35ae55673790831fda7b7cb29ebeff766e1deffe76",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -502,11 +572,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_15",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "39b977ecaa4bfdf76dc4aca877b964bc4b1f79e009a0c0752bede5217f10c73e",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -521,11 +596,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_16",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "0007f93ad698e06214086955556d7023fda45115d562c8b1e3ce3bbe87c7594d",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -540,11 +620,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_17",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "01af4a435035c014b702b7514fc4c07a6cbdcf3c19818d736644d8d338b67357",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -559,11 +644,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_18",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "57ca0473eea85c7875853cd30a5b1214b87f7fc201163970a1c9931043bbc43b",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -578,11 +668,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_19",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "defc3acfc46c6860d4732c05c3c1f09ab54ed19dfab84a91128d8abfc1a58f4f",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -597,11 +692,16 @@
      "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
+    },
+    {
+     "change": "decision_script +1 declare_attackers empty attack set (actor = the checkpoint turn's active player, turn/phase bound)",
+     "comprehensive_rules": "508.1, 508.8",
+     "reason": "the knowledge lane's transport runs the record's script through its obligation pass-through window, which reaches the active player's declare-attackers step; the record now declares that no creature attacks during the window (an explicit empty attacker_assignment), so the engine's own hold offer answers each declare-attacker frame and the lane never chooses attackers for the player (CR 508.1, 508.8; #634 step A2)"
     }
    ],
    "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope. The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and the knowledge window's explicit empty attack set (CR 508.1, 508.8). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "4e62eace44ca69b764d8c45ab3dd3c7f0c9bbb17a11ce7e46d5faaa65e06945e",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -663,7 +763,7 @@
    ],
    "fixture_id": "MICRO_CONTROL",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 4 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 4 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "f1a7a8565c82bed945bb8b65eed6d97c29c77b05b2401014404e3621543c6987",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -706,7 +806,7 @@
    ],
    "fixture_id": "MICRO_COSTS",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 9 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 9 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "4379ebf8f062938fee0acc09e59834ba10219ab682c3b29565ad63734161d062",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -749,7 +849,7 @@
    ],
    "fixture_id": "MICRO_MANA_PAYMENT",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 2 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 2 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "8c9c0dfdb8c515fd480b60a6526fdd79502774f671ab7eb52b7b737958a13d22",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -773,7 +873,7 @@
    ],
    "fixture_id": "MICRO_MODES",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 5 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 5 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "27617c9207eadaf4e826a03029692c6f3cf562dd148e817c40178cc7feb2ff61",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -797,7 +897,7 @@
    ],
    "fixture_id": "MICRO_PREVENTION",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "bba58afce89b7035dc86d97ed86e6f24acdef63ef64a1c85b7490ca5dd267e94",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -821,7 +921,7 @@
    ],
    "fixture_id": "MICRO_PRIORITY",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "5d400bf883c9abeb3a073e877e94cf6f1c0831023d63d81ad87b2d598f90fccd",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -883,7 +983,7 @@
    ],
    "fixture_id": "MICRO_STACK",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "5d400bf883c9abeb3a073e877e94cf6f1c0831023d63d81ad87b2d598f90fccd",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -926,7 +1026,7 @@
    ],
    "fixture_id": "MICRO_TARGETS",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "a23542bc32a8dacfcf554a4edaff992f5075a62dc5f4b90c4eab8005a1d2e73e",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -950,7 +1050,7 @@
    ],
    "fixture_id": "MICRO_TRIGGERS",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 2 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 2 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "f6415aa0cdb04add614d9c6329d96d253fd4cbc2a1fbf1277f02cb941dec0f57",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1012,7 +1112,7 @@
    ],
    "fixture_id": "NEGATIVE_FIRST_OPTION",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 5 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 5 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "0f94e22b6e738e05764c4f2ede81f15bea438a60d00b220955a1d413a718c1a8",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1036,7 +1136,7 @@
    ],
    "fixture_id": "NEGATIVE_GUI_DEFAULT",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 5 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 5 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "413186d259a0c8dc0daf594a383b2e4467a2e9c68cc56db88f25c2c07debf719",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1098,7 +1198,7 @@
    ],
    "fixture_id": "NEGATIVE_RANDOM_OPTION",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "12182b3f18f0744a72bee410365e57936660063d329d1c31cfb204155d172b2c",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1122,7 +1222,7 @@
    ],
    "fixture_id": "NEGATIVE_SILENT_SKIP",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "f4364ca2a9abb99f82bafe5f860ecb405cab6e9763dcdab0cb4d89e0c84c3543",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1146,7 +1246,7 @@
    ],
    "fixture_id": "PILOT_ANNOUNCE_X",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 5 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 5 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "7e1d2c81f0f6a1a57e2b4e5c86922cd442342fc20847b7b007d71444e7535047",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1208,7 +1308,7 @@
    ],
    "fixture_id": "PILOT_CHOOSE_MODE",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 5 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 5 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "b69ca248fe4c40789032888edeb01b8b90556ec9aecd2406935917a89fc74c26",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1308,7 +1408,7 @@
    ],
    "fixture_id": "PILOT_MANA_PAYMENT",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 2 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 2 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "9e69dbcdb9ef748ac126cb1af7e45cfd8fdf05145a3a3035f0469f4d208272ed",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1332,7 +1432,7 @@
    ],
    "fixture_id": "PILOT_MULTI_AMOUNT",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 8 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 8 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "7e583235871ac9454aeeec1eeeebb6f3bbf7259d3843ddfbf23bf40f87029d24",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1375,7 +1475,7 @@
    ],
    "fixture_id": "PILOT_PRIORITY",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "6cde35b1ecea77ed5e4eef8447eb064173b88a95754224b0223720f364995f8d",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1418,7 +1518,7 @@
    ],
    "fixture_id": "PILOT_TARGET",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "6cde35b1ecea77ed5e4eef8447eb064173b88a95754224b0223720f364995f8d",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1442,7 +1542,7 @@
    ],
    "fixture_id": "PILOT_TARGET_AMOUNT",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 8 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 8 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "90b5374a56a04c19780401c33aa6db95c1db62d2687709018e4796c2d59ddc4d",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1580,7 +1680,7 @@
    ],
    "fixture_id": "WS05-CMD-DMG-CONTROL",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 3 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 3 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "f04417443daf96f0c3e92e244cbcc8cd9eb8fc14568c99b7ed19bee173b5d508",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1680,7 +1780,7 @@
    ],
    "fixture_id": "WS05-CMD-PARTNER-TAX",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 6 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 6 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "7844ce608c3dda5fa2c5cf4184bcbb0f17c1a3a7bf6833c7dd137fdf7e7c1ac5",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1742,7 +1842,7 @@
    ],
    "fixture_id": "WS05-CMD-TAX-2",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 4 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 4 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "4ba590759abb4894e5b5d99d1df856c941c578d30c3748e94980c611bf41762a",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -1766,7 +1866,7 @@
    ],
    "fixture_id": "WS05-CMD-TAX-4",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 4 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 4 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "674b4b12b3f439edd7d024d99f797c87c04370190f21dce39a38309981264eab",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -2113,7 +2213,7 @@
    ],
    "fixture_id": "WS05-MP-PRIO-3",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "3cf0efbc079d38def7eef895d1eb3b5372bd61d23207ac4d70ae59acb88b7f74",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -2137,7 +2237,7 @@
    ],
    "fixture_id": "WS05-MP-PRIO-5",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 1 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "1ead03fb2a0598dff2266abe2d5b6900ee2984f2ef93a0a96608b983812efaf2",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -2161,7 +2261,7 @@
    ],
    "fixture_id": "WS05-MP-TRIG-3",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 2 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 2 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "3c3f9bbccd536ab934f90a37d9b7bf14d90fe71fb667dbef1130113b8c83792a",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },
@@ -2185,7 +2285,7 @@
    ],
    "fixture_id": "WS05-MP-TRIG-5",
    "known_runtime_blocker": "NO_RUNTIME_CREDIT_CLAIMED_BY_THIS_MATERIALIZATION: every Lab-answered pass and mana pick is now declared in decision_script (obligation pass-through scopes, causal preparation scopes, record-bound mana sources), so step B can refuse anything undeclared. The row still requires exact-head runtime requalification after the Lab transport follows these declarations; this erratum only adds the declarations and claims no runtime behavior",
-   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, and 2 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
+   "notes": "#634 Coordinator ruling 2026-10-09: every Lab default the credited midgame/knowledge/replay/probe path answered for a player is now a record declaration -- the obligation pass-through scope, 2 record-bound mana source(s). The Lab transports each declared frame; unscripted frames fail closed in step B. The obligation digest is unchanged, the 107-row denominator is untouched and no runtime credit is claimed",
    "predecessor_requested_state_digest": "484ca8c635becce5427c33c4ec07e195c1c4ebf6207b19fcb628abd255b5c3c2",
    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
   },

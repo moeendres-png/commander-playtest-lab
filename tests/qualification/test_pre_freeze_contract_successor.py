@@ -440,6 +440,11 @@ def _own_script(record: dict) -> list[dict]:
             continue
         if causal_step_id.startswith("mana-payment-"):
             continue
+        if causal_step_id.startswith("declare-attackers-r1-p1"):
+            # The 1.0.30 step A2 declaration: the knowledge lane's empty attack
+            # set, inserted before the obligation pass-through. The dedicated
+            # A2 test asserts it; it is not the record's own erratum step.
+            continue
         own.append(step)
     return own
 

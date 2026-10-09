@@ -48,7 +48,7 @@
       "pointer": "qualification/CURRENT_PRE_FREEZE_CONTRACT.json",
       "pointer_sha256": "24ed515a968ee0be0d0d3e2ee02c2637bbc2a92383ddd9a6b7f57acd898dafb9",
       "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_30.json",
-      "successor_sha256": "d203a51e58108d70e8364c17699aa2eac7e9b760d7a6e0a2d32306cc349f292f",
+      "successor_sha256": "705ac5d9f660f1baefb3ab37d747d6cc34f365d085a761ecf6ad1275c98cef14",
       "successor_id": "commander-lab.full107/1.0.30-successor",
       "schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_30_SUCCESSOR.json",
       "schema_sha256": "9625e605d0127b9c8d2b910fe1bf283251442947902db1bcc0cbed890dac677b",

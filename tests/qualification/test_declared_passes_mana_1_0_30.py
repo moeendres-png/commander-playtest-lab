@@ -573,6 +573,12 @@ def _carried_prior_script(prior_script: list[dict], new_steps: list[dict]) -> li
             continue
         if causal_step_id.startswith("mana-payment-"):
             continue
+        if causal_step_id.startswith("declare-attackers-") and step not in prior_script:
+            # ruling 5 (step A2): the knowledge window's declared empty attack
+            # set, inserted before the obligation pass-through. A record whose
+            # 1.0.29 script already carried its own declare_attackers step
+            # (NEGATIVE_PARENT_CLASS_FALLBACK) keeps that step carried.
+            continue
         carried.append(_without_mana_sources(step))
     return carried
 

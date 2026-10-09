@@ -1037,6 +1037,78 @@ def _binding_controls(
     }
 
 
+# The engine's token for the active player's attack-declaration step; the
+# record's declare_attackers declaration (CR 508.1, 508.8) is bound to its
+# declared turn and this step, never to a frame the record does not name.
+_DECLARE_ATTACKERS_TOKEN = "DECLARE_ATTACKERS"
+
+
+def _engine_observation(client: ml.MidgameLaneClient) -> dict[str, Any]:
+    """The engine's own readback of the point it is parked at (a pure query)."""
+    return client.complete_arrival().get("observation") or {}
+
+
+def _past_declare_attackers(observation: dict[str, Any], step: dict[str, Any]) -> bool:
+    """Whether the engine is already past the step the declaration answers.
+
+    A declared empty attack set answers only the declare-attacker frames of
+    its own turn: once the observed point is later (a later turn, or a later
+    step of the same turn) the declaration can no longer answer anything, so
+    the cursor steps over it and the script can complete. An unreadable
+    readback is never treated as past: the declaration stays pending.
+    """
+    turn = step.get("turn")
+    if not isinstance(turn, int) or isinstance(turn, bool):
+        raise ml.MidgameLaneError("the declared declare-attackers step names no turn")
+    observed_turn = observation.get("turn_number")
+    if not isinstance(observed_turn, int) or isinstance(observed_turn, bool):
+        return False
+    if observed_turn != turn:
+        return observed_turn > turn
+    order = list(midgame_rows_mod.probe_module()._TURN_STEP_ORDER)
+    token = str(observation.get("step") or "").strip().upper()
+    if token not in order:
+        return False
+    return order.index(token) > order.index(_DECLARE_ATTACKERS_TOKEN)
+
+
+def _hold_attacker_offer(legal: dict[str, Any]) -> dict[str, Any]:
+    """The engine's own hold offer on one declare-attacker frame.
+
+    XMage asks one ``declare_attacker`` frame per creature the active player
+    controls: the frame offers exactly one ``hold_attacker`` option and one
+    ``declare_attacker`` option per legal defender. The record's declared
+    empty attack set (CR 508.1, 508.8) selects the hold; any other frame
+    shape fails closed.
+    """
+    actions = list(legal.get("actions") or ())
+    holds = [
+        action
+        for action in actions
+        if (action.get("metadata") or {}).get("option_type") == "hold_attacker"
+    ]
+    if len(holds) != 1:
+        raise ml.MidgameLaneError(
+            f"the declared empty attack set matched {len(holds)} engine hold offers"
+        )
+    return holds[0]
+
+
+def _scope_ends_at_checkpoint(step: dict[str, Any], temporal: dict[str, Any]) -> bool:
+    """Whether a pass-through step is the arrival history's own (already
+    consumed by the arrival driver, ``until`` exclusive at the checkpoint)."""
+    until = (step.get("scope") or {}).get("until")
+    if not isinstance(until, dict):
+        return False
+    return (
+        until.get("turn") == temporal.get("turn_number")
+        and str(until.get("phase") or "").strip().lower()
+        == str(temporal.get("phase") or "").strip().lower()
+        and str(until.get("step") or "").strip().lower()
+        == str(temporal.get("step") or "").strip().lower()
+    )
+
+
 def run_script(
     client: ml.MidgameLaneClient,
     record: dict[str, Any],
@@ -1049,9 +1121,14 @@ def run_script(
     stack is empty (a script declares events, never responses); a scripted
     target or choice step selects the named player, the named library object,
     the one face-down permanent a named player controls, or the named yes/no; a mana payment uses only the record's
-    explicit payment sources; every other priority is passed. The event is
-    complete when every step was answered and the checkpoint's priority player
-    holds priority again with an empty stack. Anything else fails closed.
+    explicit payment sources; every other priority is passed. A declared
+    ``priority_pass_through`` step is answered by its own pass on each frame
+    inside its scope, and a declared empty ``declare_attackers`` set (CR
+    508.1, 508.8) is answered on the active player's declare-attacker frames;
+    a frame of either class the record does not declare fails closed. The
+    event is complete when every step was answered and the checkpoint's
+    priority player holds priority again with an empty stack. Anything else
+    fails closed.
     """
     probe = midgame_rows_mod.probe_module()
     created = next(
@@ -1072,8 +1149,22 @@ def run_script(
         if source in placed
     ]
     holder = str((record.get("temporal_state") or {}).get("priority_player"))
+    temporal = dict(record.get("temporal_state") or {})
     trace: list[dict[str, Any]] = []
     position = 0
+    # The arrival driver answered the record's leading transport steps before
+    # the checkpoint: the setup declaration, every pregame keep and the
+    # arrival pass-through whose scope ends at the checkpoint (until
+    # exclusive). They are not engine frames this script can answer; the
+    # obligation starts at the first step the arrival did not consume.
+    while position < len(script) and (
+        str(script[position].get("decision_family")) in ("starting_player", "mulligan")
+        or (
+            str(script[position].get("decision_family")) == "priority_pass_through"
+            and _scope_ends_at_checkpoint(script[position], temporal)
+        )
+    ):
+        position += 1
     for _ in range(80):
         decision = client.pending_decision(attempts=5)
         if decision is None:
@@ -1083,12 +1174,50 @@ def run_script(
         decision_class = str(decision.get("decision_class"))
         step = script[position] if position < len(script) else None
         scripted = step is not None and step.get("actor") == principal
+        # The declared empty attack set (CR 508.1, 508.8) answers the active
+        # player's declare-attacker frames of its own turn, frame by frame,
+        # bound to the record's own actor/turn/step identity. A frame without
+        # a matching declaration stays unscripted and fails closed below.
+        if decision_class == "declare_attacker":
+            observation = _engine_observation(client)
+            declared = probe._scripted_empty_declare_attackers(record, principal, observation)
+            if declared is None:
+                raise ml.MidgameLaneError(f"unscripted {decision_class} for {principal}")
+            offer = _hold_attacker_offer(legal)
+            probe.submit_proposal(client, legal, offer, f"knowledge-{len(trace)}")
+            trace.append({"decision_class": decision_class, "step": declared})
+            continue
+        # Past its declared turn/step the attack declaration can answer
+        # nothing and the cursor steps over it (the engine may pass through
+        # the attack step without a frame when no creature can attack).
+        if (
+            step is not None
+            and step.get("decision_family") == "declare_attackers"
+            and _past_declare_attackers(_engine_observation(client), step)
+        ):
+            position += 1
+            step = script[position] if position < len(script) else None
+            scripted = step is not None and step.get("actor") == principal
         if decision_class == "priority":
             stack = (decision.get("pilot_state") or {}).get("stack")
             if step is None and principal == holder and stack == []:
                 return trace
-            # A scripted action starts its own event: it waits for the previous
-            # one to resolve, so no step is ever taken as a response.
+            # A declared pass-through answers its own priority frames by the
+            # engine's pass; the step is consumed once, and every later frame
+            # is passed by the loop's own fallback (the scope's remaining
+            # frames authorize the same answer).
+            if (
+                step is not None
+                and step.get("decision_family") == "priority_pass_through"
+                and principal == holder
+            ):
+                passed = probe.option_of_type(decision, "pass_priority")
+                if passed is None:
+                    raise ml.MidgameLaneError("the engine offered no pass")
+                client.submit_options(decision, [passed])
+                trace.append({"decision_class": decision_class, "step": position})
+                position += 1
+                continue
             if (
                 scripted
                 and step is not None

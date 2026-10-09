@@ -292,6 +292,37 @@ MANA_FIXTURES = (
 # gains the missing ``sources`` key and no new step is inserted.
 MANA_SOURCE_COMPLETIONS = ("MICRO_MANA_PAYMENT", "PILOT_MANA_PAYMENT")
 
+# Ruling 5 (2026-10-09, step A2): the knowledge-projection records whose
+# obligation window reaches the active player's declare-attackers step. The
+# knowledge lane's transport runs the record's script past its own steps (the
+# obligation pass-through keeps passing priority through the checkpoint turn),
+# so the active player's attack declaration is a decision the record must make:
+# an explicit empty attack set (CR 508.1: the active player declares; 508.8:
+# a creature that did not attack is not declared). The set is bound to the
+# checkpoint turn's active player and the engine's DECLARE_ATTACKERS step.
+KNOWLEDGE_ATTACK_FIXTURES = (
+    "HIDDEN_01",
+    "HIDDEN_02",
+    "HIDDEN_03",
+    "HIDDEN_04",
+    "HIDDEN_05",
+    "HIDDEN_06",
+    "HIDDEN_07",
+    "HIDDEN_08",
+    "HIDDEN_09",
+    "HIDDEN_10",
+    "HIDDEN_11",
+    "HIDDEN_12",
+    "HIDDEN_13",
+    "HIDDEN_14",
+    "HIDDEN_15",
+    "HIDDEN_16",
+    "HIDDEN_17",
+    "HIDDEN_18",
+    "HIDDEN_19",
+    "HIDDEN_HONEYCARD_SENTINEL",
+)
+
 DECISIONS = (
     "#634 Coordinator ruling 2026-10-09 (contract 1.0.30, step A): every record "
     "an arrival-using qualification lane executes declares in decision_script "
@@ -351,6 +382,20 @@ ENGINE_STEP_BY_POINT = {
     ("combat", "combat_damage"): "COMBAT_DAMAGE",
     ("postcombat_main", "main"): "POSTCOMBAT_MAIN",
 }
+# The engine's own turn order, so a checkpoint's position relative to the
+# declare-attackers step is decided here rather than guessed: a knowledge
+# record's obligation window includes that step exactly when its checkpoint
+# starts at or before it in the same turn (ruling 5).
+_ENGINE_POINT_ORDER = (
+    ("beginning", "upkeep"),
+    ("beginning", "draw"),
+    ("precombat_main", "main"),
+    ("combat", "declare_attackers"),
+    ("combat", "declare_blockers"),
+    ("combat", "combat_damage"),
+    ("postcombat_main", "main"),
+)
+_DECLARE_ATTACKERS_POINT = ("combat", "declare_attackers")
 # The record's own pre-checkpoint transport steps; every other family is the
 # caller's obligation and must not appear before the checkpoint.
 _ARRIVAL_PREFIX_FAMILIES = ("mulligan", "priority_pass_through")
@@ -496,6 +541,43 @@ def obligation_priority_step(fixture_id: str, temporal: dict, causal: bool, unti
     }
 
 
+def declare_attackers_step(fixture_id: str, temporal: dict) -> dict:
+    """Ruling 5: the active player's explicit empty attack set for the
+    checkpoint turn (CR 508.1, 508.8).
+
+    The knowledge lane's transport runs the record's script through the
+    obligation pass-through window, which reaches the declare-attackers step.
+    The record declares that no creature attacks: the set is bound to the
+    checkpoint turn's active player and the engine's own DECLARE_ATTACKERS
+    step, so the transport answers each of the engine's attack frames with its
+    hold offer (the arrival pilot's own declaration shape).
+    """
+    turn = temporal["turn_number"]
+    return {
+        "actor": str(temporal["active_player"]),
+        "causal_step_id": f"declare-attackers-r{turn}-{str(temporal['active_player']).lower()}",
+        "decision_family": "declare_attackers",
+        "forbidden_fallbacks": list(FORBIDDEN),
+        "notes": (
+            "CR 508.1, 508.8: the active player declares its attackers; this "
+            "record declares that no creature attacks during its obligation "
+            "window, so the Lab answers each engine declare-attacker frame "
+            "with the engine's own hold offer and never chooses an attacker "
+            "for the player. The step is bound to the declared turn and the "
+            f"{fixture_id} checkpoint's active player"
+        ),
+        "phase": "DECLARE_ATTACKERS",
+        "selection": {
+            "matches_only_provider_offered_legal_options": True,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
+            "selector_kind": "attacker_assignment",
+            "semantic_value": {},
+        },
+        "turn": turn,
+    }
+
+
 def mana_step(
     fixture_id: str, index: int, actor: str, sources: list[str], mana: list[str] | None
 ) -> dict:
@@ -558,6 +640,7 @@ def object_colors(record: dict) -> dict[str, str]:
 patches: dict[str, dict] = {}
 arrival_added: dict[str, bool] = {}
 obligation_added: dict[str, bool] = {}
+attack_added: dict[str, bool] = {}
 mana_added: dict[str, list[str]] = {}
 obligation_digests: dict[str, str] = {}
 
@@ -729,6 +812,19 @@ for fixture_id in OBLIGATION_FIXTURES:
     obligation_step = obligation_priority_step(
         fixture_id, temporal, causal, {"turn": end_turn, "phase": "ending"}
     )
+    # --- ruling 5: the knowledge lane's declared empty attack set ------------ #
+    attack_step: dict | None = None
+    if fixture_id in KNOWLEDGE_ATTACK_FIXTURES:
+        # The knowledge lane's transport runs the obligation window through the
+        # checkpoint turn's combat, so the checkpoint turn is the only turn the
+        # declaration has to cover (no knowledge record declares an extra turn).
+        assert extra_turns == 0, fixture_id
+        assert point in _ENGINE_POINT_ORDER, (fixture_id, point)
+        if _ENGINE_POINT_ORDER.index(point) <= _ENGINE_POINT_ORDER.index(_DECLARE_ATTACKERS_POINT):
+            attack_step = declare_attackers_step(fixture_id, temporal)
+    attack_added[fixture_id] = attack_step is not None
+    if attack_step is not None:
+        tail.append(attack_step)
     tail.append(obligation_step)
     obligation_added[fixture_id] = True
 
@@ -822,11 +918,30 @@ for fixture_id in OBLIGATION_FIXTURES:
                 ),
             }
         )
+    if attack_added[fixture_id]:
+        field_changes.append(
+            {
+                "change": (
+                    "decision_script +1 declare_attackers empty attack set (actor = "
+                    "the checkpoint turn's active player, turn/phase bound)"
+                ),
+                "comprehensive_rules": "508.1, 508.8",
+                "reason": (
+                    "the knowledge lane's transport runs the record's script through "
+                    "its obligation pass-through window, which reaches the active "
+                    "player's declare-attackers step; the record now declares that no "
+                    "creature attacks during the window (an explicit empty "
+                    "attacker_assignment), so the engine's own hold offer answers each "
+                    "declare-attacker frame and the lane never chooses attackers for "
+                    "the player (CR 508.1, 508.8; #634 step A2)"
+                ),
+            }
+        )
     erratum = {
         "actor": None,
         "details": {
             "authority": DECISIONS,
-            "comprehensive_rules": "103.5, 117.3d, 601.2g-h",
+            "comprehensive_rules": "103.5, 117.3d, 508.1, 508.8, 601.2g-h",
             "erratum_class": CORRECTION_CLASS,
             "field_changes": copy.deepcopy(field_changes),
             "obligation_changed": False,
@@ -836,7 +951,12 @@ for fixture_id in OBLIGATION_FIXTURES:
                 "passes and RowSpec mana picks for players. This record now declares "
                 "its obligation pass-through scope"
                 + (", its game-start arrival history" if added_arrival else "")
-                + (", and its record-bound mana payment sources" if added_sources else "")
+                + (", its record-bound mana payment sources" if added_sources else "")
+                + (
+                    ", and its empty attack set for the obligation window's declare-attackers step"
+                    if attack_added[fixture_id]
+                    else ""
+                )
                 + " in decision_script, so the Lab transports exactly what the record "
                 "declares and step B refuses anything undeclared. Obligation keys are "
                 "untouched, the denominator is untouched and no runtime credit is claimed"
@@ -1068,8 +1188,14 @@ for fixture_id in OBLIGATION_FIXTURES:
                         "pass-through scope"
                         + (", the missing arrival history" if arrival_added[fixture_id] else "")
                         + (
-                            f", and {len(mana_added[fixture_id])} record-bound mana source(s)"
+                            f", {len(mana_added[fixture_id])} record-bound mana source(s)"
                             if mana_added[fixture_id]
+                            else ""
+                        )
+                        + (
+                            ", and the knowledge window's explicit empty attack set "
+                            "(CR 508.1, 508.8)"
+                            if attack_added[fixture_id]
                             else ""
                         )
                         + ". The Lab transports each declared frame; unscripted frames "

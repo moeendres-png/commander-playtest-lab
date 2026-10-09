@@ -1,7 +1,7 @@
 {
  "bridge_commit": "31cbae12640e6066499aa7f17c9bf2dba6a30da6",
  "candidate": "forge",
- "canonical_bundle_digest": "95c82b0e9eddcaa8ab12c1481536031adc8cd04107127cbb7bc4cc3f8ae3e431",
+ "canonical_bundle_digest": "b4d313d5bf1707db04c8ecbc37a0d8aac4adf44b618e9c30f32acdac9cea66bc",
  "channels": [
   {
    "absent_tokens": [],
@@ -577,7 +577,21 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_01",
-   "lab_execution_gaps": [],
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 5,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -617,7 +631,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_hand). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_hand). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.declare_attackers.attacker_assignment. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -637,7 +651,21 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_02",
-   "lab_execution_gaps": [],
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 5,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -677,7 +705,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_library). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (opponent_library). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.declare_attackers.attacker_assignment. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -697,7 +725,21 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_03",
-   "lab_execution_gaps": [],
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 5,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -745,7 +787,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (public_exile). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (public_exile). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.declare_attackers.attacker_assignment. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -765,7 +807,21 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_04",
-   "lab_execution_gaps": [],
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 5,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -813,7 +869,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (face_down_controller). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (face_down_controller). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.declare_attackers.attacker_assignment. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -890,6 +946,19 @@
      "status": "UNSUPPORTED"
     },
     {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 10,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
      "basis": "LAB_EXECUTION_GAP",
      "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
      "dimension": "action_cost_state",
@@ -958,7 +1027,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_persists). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.target.semantic_object, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1017,6 +1086,19 @@
       "decision_index": 7,
       "selector_kind": "semantic_object",
       "semantic_value": "obj:hidden-hand"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 9,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1084,7 +1166,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (exile_permission_invalidates). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_object, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1117,6 +1199,19 @@
        "action": "cast",
        "object": "obj:hidden07-telepathy"
       }
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 6,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1187,7 +1282,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (reveal_audience). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1233,6 +1328,19 @@
       "decision_index": 6,
       "selector_kind": "semantic_player",
       "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 7,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1302,7 +1410,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (look_audience). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, reveal_look_audience, reveal_look_projection. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1348,6 +1456,19 @@
       "decision_index": 6,
       "selector_kind": "semantic_object",
       "semantic_value": "obj:hidden-lib-0"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 7,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1416,7 +1537,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (search_inspection). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_object, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1493,6 +1614,19 @@
      "status": "UNSUPPORTED"
     },
     {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 9,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
      "basis": "LAB_EXECUTION_GAP",
      "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
      "dimension": "action_cost_state",
@@ -1557,7 +1691,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (scry_knowledge). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.target.semantic_objects, decision_execution.choose_object.semantic_object, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1603,6 +1737,19 @@
       "decision_index": 6,
       "selector_kind": "semantic_player",
       "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 8,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1676,7 +1823,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (shuffle_invalidates_order). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1722,6 +1869,19 @@
       "decision_index": 6,
       "selector_kind": "semantic_player",
       "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 7,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -1790,7 +1950,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (controlled_player_authority). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1870,6 +2030,19 @@
      "status": "UNSUPPORTED"
     },
     {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 9,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
      "basis": "LAB_EXECUTION_GAP",
      "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
      "dimension": "action_cost_state",
@@ -1934,7 +2107,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (pile_metadata). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript, library_contents. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.choose_object.semantic_objects, decision_execution.pile.pile_label, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -1980,6 +2153,19 @@
       "decision_index": 7,
       "selector_kind": "semantic_face_down_permanent",
       "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 8,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2044,7 +2230,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (target_metadata). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_face_down_permanent, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2121,6 +2307,19 @@
      "status": "UNSUPPORTED"
     },
     {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 10,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
      "basis": "LAB_EXECUTION_GAP",
      "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
      "dimension": "action_cost_state",
@@ -2180,7 +2379,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (source_metadata). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2257,6 +2456,19 @@
      "status": "UNSUPPORTED"
     },
     {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 10,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
      "basis": "LAB_EXECUTION_GAP",
      "detail": "mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated)",
      "dimension": "action_cost_state",
@@ -2316,7 +2528,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (ability_metadata). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_mode.semantic_mode_key, decision_execution.target.semantic_face_down_permanent, decision_execution.choose_use.boolean, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2375,6 +2587,19 @@
       "decision_index": 8,
       "selector_kind": "semantic_face_down_permanent",
       "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 9,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2440,7 +2665,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (copy_face_down). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.choose_use.boolean, decision_execution.choose_object.semantic_face_down_permanent, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2486,6 +2711,19 @@
       "decision_index": 6,
       "selector_kind": "semantic_player",
       "semantic_value": "P2"
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    },
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 7,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
      },
      "runtime_probe": null,
      "status": "UNSUPPORTED"
@@ -2553,7 +2791,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (transcript_privacy). provider cannot construct: knowledge_state (knowledge_construction); knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.priority.semantic_action, decision_execution.target.semantic_player, decision_execution.declare_attackers.attacker_assignment, action_cost_state. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2573,7 +2811,21 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_19",
-   "lab_execution_gaps": [],
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 5,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -2613,7 +2865,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (no_omniscient_api). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.declare_attackers.attacker_assignment. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
@@ -2633,7 +2885,21 @@
    "af05_effect": "UNKNOWN",
    "classification": "PROVIDER_ADAPTER_GAP",
    "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
-   "lab_execution_gaps": [],
+   "lab_execution_gaps": [
+    {
+     "detail": "this lane implements only engine-authored pass/mulligan/starting-player/cost-order selection; executing this declared decision family and selector requires a selector surface owned by the shared mid-game selector workstream, and this lane must not build a second generic selector or fabricate an option",
+     "dimension": "decision_execution.declare_attackers.attacker_assignment",
+     "requested": {
+      "actor": "P1",
+      "causal_step_id": "declare-attackers-r1-p1",
+      "decision_index": 5,
+      "selector_kind": "attacker_assignment",
+      "semantic_value": {}
+     },
+     "runtime_probe": null,
+     "status": "UNSUPPORTED"
+    }
+   ],
    "missing_principal_channels": [
     "event_log",
     "replay_transcript"
@@ -2673,7 +2939,7 @@
      "status": "UNSUPPORTED"
     }
    ],
-   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
+   "reason": "Forge AF05 PROVIDER_ADAPTER_GAP (honey_sentinel). provider cannot construct: knowledge_state.face_down_look_permissions (knowledge_construction); temporal_checkpoint.exact_hand_after_draw (library_construction); semantic_objects.zone:exile (exile_construction). principal channel absent: event_log, replay_transcript. principal channel present but unaudited (needs row execution): decision_frames, message_surface, transport_diagnostics. Lab Forge lane has no execution for: decision_execution.declare_attackers.attacker_assignment. readback cannot prove: semantic_objects.zone:library. no row execution, no receipt; AF05 effect UNKNOWN (a capability gap is not a demonstrated leak).",
    "unaudited_principal_channels": [
     "decision_frames",
     "message_surface",
