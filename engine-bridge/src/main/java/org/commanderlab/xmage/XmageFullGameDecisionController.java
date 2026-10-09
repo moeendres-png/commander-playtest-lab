@@ -131,6 +131,11 @@ final class XmageFullGameDecisionController {
         if (decisionClass == null || decisionClass.isBlank()) {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: decision_class is blank");
         }
+        if (!DECISION_CLASSES.contains(decisionClass)) {
+            // #662 SLOT-06 L4: only declared classes, each with a matrix row, are
+            // ever published; a new class fails closed until it is proven.
+            throw new DecisionException("UNDECLARED_DECISION_CLASS: " + decisionClass);
+        }
         if (minimumSelections < 0 || maximumSelections < minimumSelections) {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: invalid selection bounds");
         }
@@ -427,6 +432,17 @@ final class XmageFullGameDecisionController {
 
     /** The current frame's caller qualified it to unwind natively for a departed player. */
     private boolean pendingDepartedUnwindQualified;
+
+    /**
+     * #662 SLOT-06 L4: every decision class this lane can publish. Each has a row in
+     * XmageFullGameDecisionClassMatrixTest; XmageFullGameDecisionClassInventoryTest
+     * keeps this set, the matrix and the player source equal.
+     */
+    static final Set<String> DECISION_CLASSES = Set.of(
+            "priority", "target", "choose_object", "target_amount", "mana_payment", "mode",
+            "announce_x", "amount", "multi_amount", "trigger_order", "choice",
+            "replacement_effect", "pile", "choose_use", "mulligan", "declare_attacker",
+            "declare_blocker");
 
     private static final Set<String> DEPARTED_CANCELLABLE = Set.of(
             "target", "choose_object", "mana_payment", "choose_use", "declare_blocker",

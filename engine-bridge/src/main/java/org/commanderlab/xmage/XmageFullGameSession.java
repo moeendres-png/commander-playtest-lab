@@ -200,6 +200,22 @@ final class XmageFullGameSession {
         return game;
     }
 
+    /**
+     * #662 SLOT-06 L1 test oracle: the native callback arguments of the pending
+     * decision's actor. Package-private and test-only; never part of any
+     * protocol payload.
+     */
+    Object[] pendingNativeWitness() {
+        JsonObject pending = controller.pendingDecision();
+        if (pending == null || game == null) {
+            return new Object[0];
+        }
+        mage.players.Player actor = game.getPlayer(
+                java.util.UUID.fromString(pending.get("actor_id").getAsString()));
+        return actor instanceof XmageFullGamePlayer external
+                ? external.nativeWitness() : new Object[0];
+    }
+
     private static List<Integer> seatIndices(int count) {
         List<Integer> indices = new ArrayList<>(count);
         for (int index = 0; index < count; index++) {
@@ -544,7 +560,7 @@ final class XmageFullGameSession {
      * its underlying card), with tapped, face-down, phasing, damage, counters
      * and attachment.
      */
-    private String privilegedStateDigest() {
+    String privilegedStateDigest() {
         List<String> lines = new ArrayList<>();
         mage.game.turn.Step step = game.getStep();
         lines.add("turn:" + game.getTurnNum() + " step:" + (step == null ? "none" : step.getType())

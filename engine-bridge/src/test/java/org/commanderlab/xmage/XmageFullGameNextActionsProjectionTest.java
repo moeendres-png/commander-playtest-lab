@@ -53,15 +53,34 @@ class XmageFullGameNextActionsProjectionTest {
     }
 
     @Test
-    void projectableNextDecisionReportsProjected() {
+    void optionlessNextDecisionReportsProjectionFailed() {
+        // #662 SLOT-06 L3 (fact 8): no options and no numeric domain is not
+        // "complete, nothing to do"; it cannot be answered and fails closed.
         JsonObject minimal = new JsonObject();
         minimal.addProperty("decision_id", "negative-minimal");
         minimal.addProperty("actor_id", "actor-1");
         minimal.addProperty("decision_class", "mulligan");
         minimal.add("legal_options", new JsonArray());
-        // No options and no numeric bounds -> projector legitimately yields [].
         JsonObject fragment = XmageFullGameSession.nextActionsPayload(minimal);
         assertEquals(0, fragment.getAsJsonArray("next_actions").size());
+        assertEquals("projection_failed", fragment.get("next_actions_status").getAsString());
+        assertTrue(fragment.get("next_actions_projection_error").getAsString()
+                .startsWith("UNPROJECTABLE_DECISION"));
+    }
+
+    @Test
+    void projectableNextDecisionReportsProjected() {
+        JsonObject pending = new JsonObject();
+        pending.addProperty("decision_id", "d".repeat(64));
+        pending.addProperty("actor_id", "actor-1");
+        pending.addProperty("decision_class", "mulligan");
+        pending.addProperty("minimum_selections", 1);
+        pending.addProperty("maximum_selections", 1);
+        JsonArray options = new JsonArray();
+        options.add(XmageFullGameDecisionController.option("k".repeat(64), "Keep opening hand", "keep", new JsonObject()));
+        pending.add("legal_options", options);
+        JsonObject fragment = XmageFullGameSession.nextActionsPayload(pending);
+        assertEquals(1, fragment.getAsJsonArray("next_actions").size());
         assertEquals("projected", fragment.get("next_actions_status").getAsString());
         assertFalse(fragment.has("next_actions_projection_error"));
     }

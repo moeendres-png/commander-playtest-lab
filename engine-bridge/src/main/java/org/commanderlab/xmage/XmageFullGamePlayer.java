@@ -179,6 +179,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public SpellAbility chooseAbilityForCast(Card card, Game game, boolean noMana) {
+        witness("cast_ability", card, noMana);
         if (card == null || game == null) {
             fail("BRIDGE_PROTOCOL_ERROR", "cast ability choice requires card and game");
             return null;
@@ -259,6 +260,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public ActivatedAbility chooseLandOrSpellAbility(Card card, Game game, boolean noMana) {
+        witness("land_or_spell", card, noMana);
         if (card == null || game == null) {
             fail("BRIDGE_PROTOCOL_ERROR", "land-or-spell choice requires card and game");
             return null;
@@ -272,6 +274,23 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 legalById.putIfAbsent(abilityId, ability);
             }
         });
+        // #662 L1: this callback is reached from an engine "you may play lands and cast
+        // spells from among them" effect (CardUtil.castSpellWithAttributesForFree with
+        // playLand), where the engine plays a chosen land part without timing checks.
+        // The engine's own component enumeration decides which land parts qualify
+        // (land drop available, active player); the usual playable list filters them
+        // out by stack timing, which left a modal double-faced card's land face unoffered.
+        for (Card component : mage.util.CardUtil.getCastableComponents(
+                card, null, null, this, game, null, true)) {
+            if (!component.isLand(game)) {
+                continue;
+            }
+            for (Ability ability : component.getAbilities(game)) {
+                if (ability instanceof PlayLandAbility playLand) {
+                    legalById.putIfAbsent(playLand.getId(), playLand);
+                }
+            }
+        }
         if (legalById.isEmpty()) {
             fail("NO_LEGAL_ACTION", "XMage supplied no legal land-or-spell ability for " + card.getIdName());
             return null;
@@ -339,6 +358,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public boolean priority(Game game) {
+        witness("priority");
         paymentCancelled = false;
         emptyRequiredTarget = false;
         noViableMode = false;
@@ -401,12 +421,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         || noViableMode
                         || concessionInterruptedAction
                         || leftMidAction()) {
-                    // Graceful abort: pilot cancelled funding mid-payment,
-                    // or a required target choice had zero legal options
-                    // (paper 601.2 rewinds the illegal announcement).
-                    // Pass priority; partial payments are real game state
-                    // and persist.
-                    pass(game);
+                    // Cancelled or uncompletable cast (601.2; illegal actions
+                    // are reversed): XMage's cast() already restored its
+                    // bookmark. The player has not passed, so the engine's
+                    // priority loop asks the same player again (#662 S3).
+                    // Passing here would be the Lab choosing for the player.
                     return false;
                 }
                 fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
@@ -420,11 +439,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     || noViableMode
                     || concessionInterruptedAction
                     || leftMidAction()) {
-                // Graceful abort: pilot cancelled funding mid-payment, or
-                // a required target choice had zero legal options.
-                // Pass priority; partial payments are real game state
-                // and persist.
-                pass(game);
+                // Cancelled or uncompletable activation: the engine reversed
+                // it; the same player receives priority again (#662 S3).
                 return false;
             }
             fail("XMAGE_ACTION_EXECUTION_FAILED", "priority activation failed: " + selected);
@@ -502,6 +518,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Ability source,
             Game game
     ) {
+        witness("target_amount", target, source);
         target.prepareAmount(source, game);
         Set<UUID> possible = target.possibleTargets(getId(), source, game);
         List<UUID> sorted = possible.stream()
@@ -545,6 +562,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public boolean chooseMulligan(Game game) {
+        witness("mulligan");
         JsonArray options = new JsonArray();
         String keep = optionId("mulligan", "keep");
         String mulligan = optionId("mulligan", "mulligan");
@@ -614,6 +632,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public boolean choose(Outcome outcome, Choice choice, Game game) {
+        witness("choice", choice);
         // WS92-D4 key-mode Choice projection (systemic reacquisition).
         // Alternative-cost and modal menus carry items in keyChoices while the
         // plain choice set stays empty; projecting zero options would silently
@@ -739,6 +758,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             List<? extends Card> pile2,
             Game game
     ) {
+        witness("pile", pile1, pile2);
         JsonArray options = new JsonArray();
         String first = optionId("pile", "1");
         String second = optionId("pile", "2");
@@ -775,6 +795,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             String promptText,
             Game game
     ) {
+        witness("mana_payment", ability, unpaid);
         // getPlayable is a UI "playable" list and returns nothing while declare attackers
         // is in its pre-step part (PlayerImpl.SILENT_PHASES_STEPS) - exactly when attack
         // costs such as Ghostly Prison's are paid (CR 508.1h/i). Add the engine's own
@@ -914,6 +935,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Map<String, MageObject> objectsMap,
             Game game
     ) {
+        witness("replacement_effect", effectsMap, objectsMap);
         if (effectsMap == null || effectsMap.isEmpty()) {
             fail("BRIDGE_PROTOCOL_ERROR", "replacement effect choice had no options");
         }
@@ -959,6 +981,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             List<TriggeredAbility> abilities,
             Game game
     ) {
+        witness("trigger_order", abilities);
         if (abilities == null || abilities.isEmpty()) {
             return null;
         }
@@ -1014,6 +1037,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public Mode chooseMode(Modes modes, Ability source, Game game) {
+        witness("mode", modes, source);
         List<Mode> available = new ArrayList<>(modes.getAvailableModes(source, game));
         // Card order (Modes is ordered as printed); mode ids are random per game (F-36).
         if (available.isEmpty()) {
@@ -1176,6 +1200,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public void selectAttackers(Game game, UUID attackingPlayerId) {
+        witness("declare_attacker", attackingPlayerId);
         List<Permanent> attackers = new ArrayList<>(getAvailableAttackers(game));
         // WS92-D5 twin-stable frame sequence (systemic reacquisition): native
         // UUIDs are random per game, so declaration order follows Rules-visible
@@ -1260,6 +1285,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Game game,
             UUID defendingPlayerId
     ) {
+        witness("declare_blocker");
         List<Permanent> blockers = new ArrayList<>(getAvailableBlockers(game));
         // WS92-D5 twin-stable frame sequence (see selectAttackers):
         // declaration order among co-blockers carries no Rules content itself.
@@ -1397,6 +1423,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             MultiAmountType type,
             Game game
     ) {
+        witness("multi_amount", messages, totalMin, totalMax);
         // WS229 joint restoration (F-RULES-02b closed): ONE joint frame with
         // the full legs+totals domain. The pilot makes a single strategic
         // vector choice; per-leg sequential frames never reappear as pilot
@@ -1614,6 +1641,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Cards restrictedCards,
             JsonObject suppliedContext
     ) {
+        witness("target", target, source, restrictedCards);
         Set<UUID> possible;
         if (restrictedCards == null) {
             possible = target.possibleTargets(getId(), source, game);
@@ -1767,6 +1795,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Game game,
             JsonObject context
     ) {
+        witness(decisionClass);
         JsonArray options = new JsonArray();
         String yes = optionId(decisionClass, "true");
         String no = optionId(decisionClass, "false");
@@ -1804,6 +1833,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Ability source,
             Game game
     ) {
+        witness(decisionClass, min, max);
         if (max < min) {
             fail("BRIDGE_PROTOCOL_ERROR", "numeric bounds reversed: " + min + ".." + max);
         }
@@ -2211,6 +2241,22 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * 1.4.61 bytecode). Thread-local because the engine drives each player
      * on its game thread; always cleared in {@code finally}.
      */
+    /**
+     * #662 SLOT-06 L1: the native arguments of the callback that is waiting for
+     * the pilot, kept so a test can compute the engine's own option set from
+     * them (an oracle independent of this player's projection). Read-only for
+     * tests; never serialized, never sent to a pilot or written to evidence.
+     */
+    private volatile Object[] nativeWitness = new Object[0];
+
+    Object[] nativeWitness() {
+        return nativeWitness.clone();
+    }
+
+    private void witness(Object... arguments) {
+        nativeWitness = arguments;
+    }
+
     private static final ThreadLocal<Boolean> BOTTOM_SELECTION =
             ThreadLocal.withInitial(() -> Boolean.FALSE);
 

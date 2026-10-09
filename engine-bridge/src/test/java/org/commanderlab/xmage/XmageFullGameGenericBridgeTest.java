@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * WS204 generic Protocol-2 boundary on the dedicated full-game lane.
  *
  * <p>Decision-scoped {@code get_legal_actions}/{@code submit_action} must fail
- * closed without a game and must keep global promotion flags false.</p>
+ * closed without a game; #662 reports the flags as decision-scoped (SLOT-06 ruling).</p>
  */
 class XmageFullGameGenericBridgeTest {
 
@@ -52,13 +52,15 @@ class XmageFullGameGenericBridgeTest {
     }
 
     @Test
-    void genericCapabilityFlagsRemainUnpromoted() {
+    void decisionScopedCapabilityFlagsAreReportedWithTheirScope() {
         XmageFullGameJsonlBridge bridge = new XmageFullGameJsonlBridge();
         JsonObject capabilities = response(
                 bridge.handle(request("get_capabilities", new JsonObject())).json()
         ).getAsJsonObject("payload").getAsJsonObject("capabilities");
-        assertFalse(capabilities.get("legal_actions_supported").getAsBoolean());
-        assertFalse(capabilities.get("action_submission_supported").getAsBoolean());
+        // #662 SLOT-06 (a): true means decision-scoped and complete per decision.
+        assertTrue(capabilities.get("legal_actions_supported").getAsBoolean());
+        assertTrue(capabilities.get("action_submission_supported").getAsBoolean());
+        assertTrue(capabilities.get("notes").toString().contains("decision-scoped"));
         assertTrue(capabilities.get("notes").toString().contains("WS204"));
     }
 
