@@ -26,6 +26,8 @@ on:
       - "engine-bridge/**"
       - "scripts/run_current_boundary_qualification.py"
       - "scripts/assemble_current_boundary_evidence.py"
+      # The Coordinator AF11 adjudication the assembler validates (Refs #255).
+      - "qualification/af11-single-provider-topology-*/**"
       - "scripts/run_midgame_capability_probe.py"
       - "src/commander_lab/qualification/current_boundary/**"
       - "tests/qualification/test_current_boundary_dimension_admission.py"
