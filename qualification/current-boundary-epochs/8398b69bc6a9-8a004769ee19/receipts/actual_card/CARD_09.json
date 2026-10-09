@@ -1,0 +1,116 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_09",
+  "obligation_exercised": {
+    "obligation_digest": "af9732d8434b07f79e321c13ae094b0f138a305e08aa24e9d1f3ccb22d34d838",
+    "requested_state_digest": "78cb4f05911e88466bf873bd5e913fccc206d28874c77ce97b8f26e4d3af86ca",
+    "required_events": [
+      "damage:P2:2",
+      "damage:obj:card09-p3-creature:2",
+      "tap:obj:card09-p4-a",
+      "tap:obj:card09-p4-b",
+      "token_created:4/4_Elemental",
+      "draw:P1:2"
+    ],
+    "terminal_checks": [
+      "Mountain on P4's battlefield is tapped=True",
+      "P1 moved exactly 2 card(s) from library to hand",
+      "P2 is at 38 life",
+      "Sol Ring on P4's battlefield is tapped=True",
+      "every Elemental Token on P1's battlefield is 4/4",
+      "every Elemental Token on P1's battlefield is blue/red",
+      "exactly 1 Elemental Token token(s) were created"
+    ],
+    "terminal_postconditions": [
+      "P2 lost 2 life.",
+      "Both selected P4 permanents are tapped.",
+      "P1 controls one new 4/4 blue/red Elemental and drew two cards."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "46036485d90bff7413625b66955335d8318dc7144211ecb4213fa62ce14d8465",
+      "size": 7107607
+    },
+    "postcondition_proofs": [
+      {
+        "check": "P2 is at 38 life",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P2 lost 2 life."
+      },
+      {
+        "also": [
+          "Mountain on P4's battlefield is tapped=True"
+        ],
+        "check": "Sol Ring on P4's battlefield is tapped=True",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Both selected P4 permanents are tapped."
+      },
+      {
+        "also": [
+          "every Elemental Token on P1's battlefield is 4/4",
+          "every Elemental Token on P1's battlefield is blue/red",
+          "P1 moved exactly 2 card(s) from library to hand"
+        ],
+        "check": "exactly 1 Elemental Token token(s) were created",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P1 controls one new 4/4 blue/red Elemental and drew two cards."
+      }
+    ],
+    "terminal_facts": {
+      "Mountain on P4's battlefield is tapped=True": true,
+      "P1 moved exactly 2 card(s) from library to hand": true,
+      "P2 is at 38 life": true,
+      "Sol Ring on P4's battlefield is tapped=True": true,
+      "every Elemental Token on P1's battlefield is 4/4": true,
+      "every Elemental Token on P1's battlefield is blue/red": true,
+      "exactly 1 Elemental Token token(s) were created": true
+    },
+    "token_evidence": {
+      "damage:P2:2": {
+        "events": [
+          10
+        ]
+      },
+      "damage:obj:card09-p3-creature:2": {
+        "binding": "at least one DAMAGED_PERMANENT event(s) with target_object=obj:card09-p3-creature, amount=2",
+        "events": [
+          11
+        ]
+      },
+      "draw:P1:2": {
+        "binding": "P1 moved exactly 2 card(s) from library to hand",
+        "observation": "engine terminal observation"
+      },
+      "tap:obj:card09-p4-a": {
+        "binding": "Sol Ring on P4's battlefield is tapped=True",
+        "observation": "engine terminal observation"
+      },
+      "tap:obj:card09-p4-b": {
+        "binding": "Mountain on P4's battlefield is tapped=True",
+        "observation": "engine terminal observation"
+      },
+      "token_created:4/4_Elemental": {
+        "binding": "exactly 1 Elemental Token token(s) were created",
+        "observation": "engine terminal observation"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "dc2b7adae35ff0344105db2e4c183066dac0ca6f6d9d22812ac1a1f1fb39a31e",
+  "runner_digest": "fd234e1ea602330e758b85b1412011a21612b96cb031aa31171b376e0c9285cc",
+  "runtime_receipt_digest": "acb05cf25a11d0ffd4f33cf3c12088b838ceb71c9952d29f15cd3632e76dc4ee",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_09"
+}

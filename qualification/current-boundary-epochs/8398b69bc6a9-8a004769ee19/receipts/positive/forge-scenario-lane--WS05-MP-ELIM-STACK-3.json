@@ -1,0 +1,42 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED_LAB_DECLARED_CAUSAL_SUBSTITUTION",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "forge",
+  "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+  "fixture_id": "WS05-MP-ELIM-STACK-3",
+  "obligation_exercised": {
+    "forbidden_events": [],
+    "obligation_digest": "590b4b4e585066c4f1dbb84fc095f7830cbc445f49ef9259005d3da66ee0ce8a",
+    "requested_state_digest": "a475350db6a191398a35f1641a824f8deb81a07546447030c1d455be320b8bca",
+    "required_events": [
+      "player_leaves:P2",
+      "multiplayer_cleanup:CR800.4"
+    ],
+    "terminal_postconditions": [
+      "P2-owned spell on stack leaves the game and does not resolve."
+    ]
+  },
+  "observed_assertion": {
+    "checkpoint_basis": "PRE_CAUSAL_POSITION_THEN_CAUSED_STACK",
+    "checkpoint_variance_source": "declared causal elimination (run_midgame_capability_probe.CAUSAL_ROWS, shared with XMage): the victim's recorded life is the state-based-action-pending instant (CR 704.3), placed openly as its starting life and reached only by the engine dealing the declared instruments' damage",
+    "checkpoint_verdict": "ALLOWED_VARIANCE",
+    "engine_authored_decision_count": 104,
+    "external_decision_selection_sha256": "6218c5102f08f47bb5de3cb3e89d86e8c754e9ae52cb19121b73d0966c5a42ac",
+    "native_bootstrap_applied": true,
+    "obligation_kind": "stack_controller_eliminated",
+    "requested_checkpoint_verdict": "EXACT",
+    "row_document_sha256": "3b66b78f0d554537045e1f3a7122d45860e16dd61db73d18ede899257ffb177d",
+    "semantic_events": [
+      "player_leaves:P2",
+      "multiplayer_cleanup:CR800.4"
+    ],
+    "terminal_facts_sha256": "b46b4eeb857c583266ac9e49e99ab680c86190502c5ed991329aeaba0db0bd32"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "ea0c8b2e1f361efec1d8a1706c81a1bf5989081e2893eb31f549bacf4e370b47",
+  "runner_digest": "fd234e1ea602330e758b85b1412011a21612b96cb031aa31171b376e0c9285cc",
+  "runtime_receipt_digest": "3b66b78f0d554537045e1f3a7122d45860e16dd61db73d18ede899257ffb177d",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-MP-ELIM-STACK-3"
+}

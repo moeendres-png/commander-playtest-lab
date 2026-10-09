@@ -1,0 +1,42 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "forge",
+  "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+  "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+  "obligation_exercised": {
+    "forbidden_events": [],
+    "obligation_digest": "e825bda74ffd4057ae98fe21ed8ac6dc067d8e5340b00f5d890678476ec2d218",
+    "requested_state_digest": "4ef0d4b710d1471168799afc1c4f4b72ae5b615aae4912bfddd323bbee5c3441",
+    "required_events": [
+      "commander_zone_event:hand",
+      "commander_choice:hand"
+    ],
+    "terminal_postconditions": [
+      "Commander is in hand after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+    ]
+  },
+  "observed_assertion": {
+    "checkpoint_basis": "PRE_CAUSAL_POSITION_THEN_CAUSED_STACK",
+    "checkpoint_variance_source": null,
+    "checkpoint_verdict": "EXACT",
+    "engine_authored_decision_count": 27,
+    "external_decision_selection_sha256": "4fc9482a854a23ed0f77d4a72bf6ca624762dd0c81c563b9837389205d529c5c",
+    "native_bootstrap_applied": true,
+    "obligation_kind": "commander_zone_choice",
+    "requested_checkpoint_verdict": "EXACT",
+    "row_document_sha256": "6c35b4cfd71d3dc748115665bc94cf8949d1439b6ed4f4af2f912404ebe3ba15",
+    "semantic_events": [
+      "commander_zone_event:hand",
+      "commander_choice:hand"
+    ],
+    "terminal_facts_sha256": "4cc6bcb73373220daa5b85506fef1a571c558a2abb1015cd0b520885771d524d"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "f058aad0d258158f27d1c2caaa793999be9613c91ff80dc165a6efbc5cc3d2f9",
+  "runner_digest": "fd234e1ea602330e758b85b1412011a21612b96cb031aa31171b376e0c9285cc",
+  "runtime_receipt_digest": "6c35b4cfd71d3dc748115665bc94cf8949d1439b6ed4f4af2f912404ebe3ba15",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-ZONE-HAND-NO"
+}

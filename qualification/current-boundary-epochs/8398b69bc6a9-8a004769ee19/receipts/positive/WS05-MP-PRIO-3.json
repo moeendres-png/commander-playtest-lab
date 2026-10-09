@@ -1,0 +1,96 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "causal_reconstruction": {
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:mp-bolt"
+    ],
+    "fuel": [
+      "obj:fuel-mountain-p1"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:mp-bolt"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-MP-PRIO-3",
+  "obligation_exercised": {
+    "obligation_digest": "93dfc1adece43a1b457326d4ce8007ab91c938f0c4d2a0311018ed411459c65a",
+    "requested_state_digest": "3cf0efbc079d38def7eef895d1eb3b5372bd61d23207ac4d70ae59acb88b7f74",
+    "required_events": [
+      "priority_ring_live_order",
+      "priority_action_resets_pass_count",
+      "response_on_stack"
+    ],
+    "terminal_checks": [
+      "Grizzly Bears is on P3's battlefield"
+    ],
+    "terminal_postconditions": [
+      "Priority traverses exactly P1..P3 live ring and resets after P3 acts; eliminated/nonexistent seats are absent."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "Grizzly Bears is on P3's battlefield": true
+    },
+    "token_evidence": {
+      "priority_action_resets_pass_count": {
+        "binding": [
+          "the engine's first 6 priority decisions went to ['P1', 'P2', 'P3', 'P3', 'P1', 'P2'] in that order",
+          "every ZONE_CHANGE event with target_object=obj:mp-response, from=STACK, to=GRAVEYARD precedes the first ZONE_CHANGE event with target_object=obj:mp-bolt, from=STACK"
+        ],
+        "parts": [
+          {
+            "binding": "the engine's first 6 priority decisions went to ['P1', 'P2', 'P3', 'P3', 'P1', 'P2'] in that order",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "every ZONE_CHANGE event with target_object=obj:mp-response, from=STACK, to=GRAVEYARD precedes the first ZONE_CHANGE event with target_object=obj:mp-bolt, from=STACK",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "priority_ring_live_order": {
+        "binding": "the engine's first 3 priority decisions went to ['P1', 'P2', 'P3'] in that order",
+        "observation": "engine terminal observation"
+      },
+      "response_on_stack": {
+        "binding": [
+          "exactly 1 SPELL_CAST event(s) with source_object=obj:mp-response, player_player=P3",
+          "every SPELL_CAST event with source_object=obj:mp-response, player_player=P3 precedes the first ZONE_CHANGE event with target_object=obj:mp-bolt, from=STACK"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 SPELL_CAST event(s) with source_object=obj:mp-response, player_player=P3",
+            "events": [
+              9
+            ]
+          },
+          {
+            "binding": "every SPELL_CAST event with source_object=obj:mp-response, player_player=P3 precedes the first ZONE_CHANGE event with target_object=obj:mp-bolt, from=STACK",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "00919eeb0f5cf60d7c941dd053f5d42de02f500128dd64afe4ffce0e9d145584",
+  "runner_digest": "fd234e1ea602330e758b85b1412011a21612b96cb031aa31171b376e0c9285cc",
+  "runtime_receipt_digest": "c91fc3a1df7dbad5c2374bea41d8d225e086b58a4d4b08cdfdac26fa45d9a2e7",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-MP-PRIO-3",
+  "variance_source": null
+}

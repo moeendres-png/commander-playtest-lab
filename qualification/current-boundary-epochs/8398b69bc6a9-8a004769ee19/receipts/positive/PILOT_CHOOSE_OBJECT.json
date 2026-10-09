@@ -1,0 +1,76 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "causal_reconstruction": {
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:syphon"
+    ],
+    "fuel": [
+      "obj:fuel-swamp-p2"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:syphon"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_CHOOSE_OBJECT",
+  "obligation_exercised": {
+    "obligation_digest": "3d259937b3733882e49245565002a452c1cd1b10410f0d57918ea05ac2e91d63",
+    "requested_state_digest": "e64a1660250af8479e8c6a633da0bb737fd0d5608ea7fe2348b88b3bfa68f44d",
+    "required_events": [
+      "choose_object_frame:P1",
+      "object_selected:obj:p1-hand-a"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Only provider-offered selectable objects were eligible; obj:p1-hand-a was selected."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "choose_object_frame:P1": {
+        "decision_frames": [
+          4
+        ]
+      },
+      "object_selected:obj:p1-hand-a": {
+        "binding": [
+          "at least one ZONE_CHANGE event(s) with target_object=obj:p1-hand-a, from=HAND, to=GRAVEYARD",
+          "exactly 0 ZONE_CHANGE event(s) with target_object=obj:p1-hand-b, from=HAND"
+        ],
+        "parts": [
+          {
+            "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:p1-hand-a, from=HAND, to=GRAVEYARD",
+            "events": [
+              9
+            ]
+          },
+          {
+            "binding": "exactly 0 ZONE_CHANGE event(s) with target_object=obj:p1-hand-b, from=HAND",
+            "events": []
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "e5d5005a225a3f682e21ceceb1e043fdc918b530808b2b06fce1427ad274c848",
+  "runner_digest": "fd234e1ea602330e758b85b1412011a21612b96cb031aa31171b376e0c9285cc",
+  "runtime_receipt_digest": "73f7774c00802f469345d56abae5862a5c522b63ca0390a2c0a6c91bc8e2c8f2",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_CHOOSE_OBJECT",
+  "variance_source": null
+}
