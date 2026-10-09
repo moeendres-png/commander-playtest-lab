@@ -44,7 +44,10 @@ Rulings applied (fixed by the Coordinator, #634):
    declaration; the RowSpec registry is not authority). A pre-existing
    ``mana_payment`` step without ``sources`` gains them. New steps are inserted
    after the cast step's own decision sub-sequence (its target/mode/amount
-   steps), the documented position of the existing payment steps.
+   steps), the documented position of the existing payment steps, except where
+   the next scripted step answers a later object (MICRO_TRIGGERS: the payment
+   sits directly after the cast). The six records whose obligation completes
+   inside casting, before payment (MANA_NOT_REACHED), declare no payment.
 3. Causal/elimination scopes as described in 1.
 4. The arrival-history coverage gap: the six causal-only records CARD_07,
    CARD_10, CARD_13, CARD_16, CARD_20 and CARD_22 (CAUSAL_ROWS entries, absent
@@ -268,17 +271,11 @@ MANA_FIXTURES = (
     "MICRO_STACK",
     "MICRO_TARGETS",
     "MICRO_TRIGGERS",
-    "NEGATIVE_FIRST_OPTION",
-    "NEGATIVE_GUI_DEFAULT",
-    "NEGATIVE_RANDOM_OPTION",
-    "NEGATIVE_SILENT_SKIP",
     "PILOT_ANNOUNCE_X",
     "PILOT_CHOOSE_MODE",
     "PILOT_MANA_PAYMENT",
-    "PILOT_MULTI_AMOUNT",
     "PILOT_PRIORITY",
     "PILOT_TARGET",
-    "PILOT_TARGET_AMOUNT",
     "WS05-CMD-DMG-CONTROL",
     "WS05-CMD-PARTNER-TAX",
     "WS05-CMD-TAX-2",
@@ -288,6 +285,30 @@ MANA_FIXTURES = (
     "WS05-MP-TRIG-3",
     "WS05-MP-TRIG-5",
 )
+# The six obligation records whose obligation is observed before the engine
+# asks for payment: a typed refusal of a casting choice (the four
+# NEGATIVE_* records) or the divided-amount announcement (CR 601.2d, the two
+# PILOT_*_AMOUNT records) completes the row inside casting, before costs are
+# paid (CR 601.2g-h). The engine never asks these rows for mana, so a payment
+# declaration would be a step no engine frame answers and would keep the row
+# from its natural stop (PB-03 run 37888112605: zero mana frames on each, the
+# ff688b58 epoch identically). They declare no payment; a later frame asking
+# for mana stays undeclared and fails closed.
+MANA_NOT_REACHED = (
+    "NEGATIVE_FIRST_OPTION",
+    "NEGATIVE_GUI_DEFAULT",
+    "NEGATIVE_RANDOM_OPTION",
+    "NEGATIVE_SILENT_SKIP",
+    "PILOT_MULTI_AMOUNT",
+    "PILOT_TARGET_AMOUNT",
+)
+# The records whose scripted steps after the cast belong to a later object,
+# not to the cast: MICRO_TRIGGERS's target step answers the creature's
+# enters-the-battlefield trigger (CR 603.3d), which the engine asks after the
+# spell was paid for (CR 601.2g-h) and resolved. The payment declaration sits
+# directly after the cast step, in the engine's own order.
+MANA_DIRECTLY_AFTER_CAST = ("MICRO_TRIGGERS",)
+
 # The two records with a pre-existing mana_payment step that declares no
 # sources: the record's own action_cost_state already binds them, so the step
 # gains the missing ``sources`` key and no new step is inserted.
@@ -440,6 +461,9 @@ assert set(ARRIVAL_FIXTURES) <= set(OBLIGATION_FIXTURES)
 assert set(CAUSAL_FIXTURES) <= set(OBLIGATION_FIXTURES)
 assert set(MANA_FIXTURES) <= set(OBLIGATION_FIXTURES)
 assert set(MANA_SOURCE_COMPLETIONS) <= set(MANA_FIXTURES)
+assert not set(MANA_NOT_REACHED) & set(MANA_FIXTURES)
+assert set(MANA_NOT_REACHED) <= set(OBLIGATION_FIXTURES)
+assert set(MANA_DIRECTLY_AFTER_CAST) <= set(MANA_FIXTURES)
 for fixture_id in OBLIGATION_FIXTURES:
     # The six causal-only CARD records are executed by the probe lane but live
     # outside the 107-row provider denominator; their declaration still needs
@@ -785,7 +809,8 @@ for fixture_id in OBLIGATION_FIXTURES:
                 cast = candidates[0]
                 insert_at = cast
                 while (
-                    insert_at + 1 < len(tail)
+                    fixture_id not in MANA_DIRECTLY_AFTER_CAST
+                    and insert_at + 1 < len(tail)
                     and isinstance(tail[insert_at + 1], dict)
                     and str(tail[insert_at + 1].get("decision_family")) in _CAST_TAIL_FAMILIES
                     and str(tail[insert_at + 1].get("actor")) == actor

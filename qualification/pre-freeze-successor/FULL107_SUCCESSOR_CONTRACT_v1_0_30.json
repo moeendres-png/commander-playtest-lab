@@ -1276,16 +1276,11 @@
         "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
         "comprehensive_rules": "117.3d",
         "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
-       },
-       {
-        "change": "decision_script + mana_payment declaration(s) with 5 record-bound source identity/identities",
-        "comprehensive_rules": "601.2g-h",
-        "reason": "the executor's mana-payment branch taps the next source in the Lab's RowSpec mana_sources order (midgame_rows.py:5255-5264), a Lab choice (#634 audit). The record now declares the same sources, bound to its own semantic object identities and in declared order (its action_cost_state explicit_payment_sources), so step B can take the payment from the record only"
        }
       ],
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "reason": "#634 audit: the credited midgame path answered undeclared priority passes and RowSpec mana picks for players. This record now declares its obligation pass-through scope, its record-bound mana payment sources in decision_script, so the Lab transports exactly what the record declares and step B refuses anything undeclared. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed"
+      "reason": "#634 audit: the credited midgame path answered undeclared priority passes and RowSpec mana picks for players. This record now declares its obligation pass-through scope in decision_script, so the Lab transports exactly what the record declares and step B refuses anything undeclared. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
@@ -1674,43 +1669,6 @@
       }
      },
      {
-      "actor": "P1",
-      "causal_step_id": "mana-payment-negative_first_option-0",
-      "decision_family": "mana_payment",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "CR 601.2g-h: the record declares the exact permanents it pays with, in order, bound to its own semantic object identities (the record's action_cost_state declaration); the Lab takes mana only from this step and never from an executor-side registry or offer order",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "mana_payment",
-       "semantic_value": {
-        "sources": [
-         "obj:negative_first_option-mana-0",
-         "obj:negative_first_option-mana-1",
-         "obj:negative_first_option-mana-2",
-         "obj:negative_first_option-mana-3",
-         "obj:negative_first_option-mana-4"
-        ],
-        "mana": [
-         "R",
-         "R",
-         "R",
-         "R",
-         "R"
-        ]
-       }
-      }
-     },
-     {
       "actor": "ALL",
       "causal_step_id": "priority-pass-obligation-negative_first_option",
       "decision_family": "priority_pass_through",
@@ -1893,16 +1851,11 @@
         "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
         "comprehensive_rules": "117.3d",
         "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
-       },
-       {
-        "change": "decision_script + mana_payment declaration(s) with 5 record-bound source identity/identities",
-        "comprehensive_rules": "601.2g-h",
-        "reason": "the executor's mana-payment branch taps the next source in the Lab's RowSpec mana_sources order (midgame_rows.py:5255-5264), a Lab choice (#634 audit). The record now declares the same sources, bound to its own semantic object identities and in declared order (its action_cost_state explicit_payment_sources), so step B can take the payment from the record only"
        }
       ],
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "reason": "#634 audit: the credited midgame path answered undeclared priority passes and RowSpec mana picks for players. This record now declares its obligation pass-through scope, its record-bound mana payment sources in decision_script, so the Lab transports exactly what the record declares and step B refuses anything undeclared. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed"
+      "reason": "#634 audit: the credited midgame path answered undeclared priority passes and RowSpec mana picks for players. This record now declares its obligation pass-through scope in decision_script, so the Lab transports exactly what the record declares and step B refuses anything undeclared. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
@@ -2291,43 +2244,6 @@
       }
      },
      {
-      "actor": "P1",
-      "causal_step_id": "mana-payment-negative_gui_default-0",
-      "decision_family": "mana_payment",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "CR 601.2g-h: the record declares the exact permanents it pays with, in order, bound to its own semantic object identities (the record's action_cost_state declaration); the Lab takes mana only from this step and never from an executor-side registry or offer order",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "mana_payment",
-       "semantic_value": {
-        "sources": [
-         "obj:negative_gui_default-mana-0",
-         "obj:negative_gui_default-mana-1",
-         "obj:negative_gui_default-mana-2",
-         "obj:negative_gui_default-mana-3",
-         "obj:negative_gui_default-mana-4"
-        ],
-        "mana": [
-         "R",
-         "R",
-         "R",
-         "R",
-         "R"
-        ]
-       }
-      }
-     },
-     {
       "actor": "ALL",
       "causal_step_id": "priority-pass-obligation-negative_gui_default",
       "decision_family": "priority_pass_through",
@@ -2510,16 +2426,11 @@
         "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
         "comprehensive_rules": "117.3d",
         "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
-       },
-       {
-        "change": "decision_script + mana_payment declaration(s) with 1 record-bound source identity/identities",
-        "comprehensive_rules": "601.2g-h",
-        "reason": "the executor's mana-payment branch taps the next source in the Lab's RowSpec mana_sources order (midgame_rows.py:5255-5264), a Lab choice (#634 audit). The record now declares the same sources, bound to its own semantic object identities and in declared order (its action_cost_state explicit_payment_sources), so step B can take the payment from the record only"
        }
       ],
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "reason": "#634 audit: the credited midgame path answered undeclared priority passes and RowSpec mana picks for players. This record now declares its obligation pass-through scope, its record-bound mana payment sources in decision_script, so the Lab transports exactly what the record declares and step B refuses anything undeclared. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed"
+      "reason": "#634 audit: the credited midgame path answered undeclared priority passes and RowSpec mana picks for players. This record now declares its obligation pass-through scope in decision_script, so the Lab transports exactly what the record declares and step B refuses anything undeclared. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
@@ -2904,35 +2815,6 @@
       }
      },
      {
-      "actor": "P1",
-      "causal_step_id": "mana-payment-negative_random_option-0",
-      "decision_family": "mana_payment",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "CR 601.2g-h: the record declares the exact permanents it pays with, in order, bound to its own semantic object identities (the record's action_cost_state declaration); the Lab takes mana only from this step and never from an executor-side registry or offer order",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "mana_payment",
-       "semantic_value": {
-        "sources": [
-         "obj:negative_random_option-mana-0"
-        ],
-        "mana": [
-         "R"
-        ]
-       }
-      }
-     },
-     {
       "actor": "ALL",
       "causal_step_id": "priority-pass-obligation-negative_random_option",
       "decision_family": "priority_pass_through",
@@ -3115,16 +2997,11 @@
         "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
         "comprehensive_rules": "117.3d",
         "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
-       },
-       {
-        "change": "decision_script + mana_payment declaration(s) with 1 record-bound source identity/identities",
-        "comprehensive_rules": "601.2g-h",
-        "reason": "the executor's mana-payment branch taps the next source in the Lab's RowSpec mana_sources order (midgame_rows.py:5255-5264), a Lab choice (#634 audit). The record now declares the same sources, bound to its own semantic object identities and in declared order (its action_cost_state explicit_payment_sources), so step B can take the payment from the record only"
        }
       ],
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "reason": "#634 audit: the credited midgame path answered undeclared priority passes and RowSpec mana picks for players. This record now declares its obligation pass-through scope, its record-bound mana payment sources in decision_script, so the Lab transports exactly what the record declares and step B refuses anything undeclared. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed"
+      "reason": "#634 audit: the credited midgame path answered undeclared priority passes and RowSpec mana picks for players. This record now declares its obligation pass-through scope in decision_script, so the Lab transports exactly what the record declares and step B refuses anything undeclared. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
@@ -3509,35 +3386,6 @@
       }
      },
      {
-      "actor": "P1",
-      "causal_step_id": "mana-payment-negative_silent_skip-0",
-      "decision_family": "mana_payment",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "CR 601.2g-h: the record declares the exact permanents it pays with, in order, bound to its own semantic object identities (the record's action_cost_state declaration); the Lab takes mana only from this step and never from an executor-side registry or offer order",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "mana_payment",
-       "semantic_value": {
-        "sources": [
-         "obj:negative_silent_skip-mana-0"
-        ],
-        "mana": [
-         "R"
-        ]
-       }
-      }
-     },
-     {
       "actor": "ALL",
       "causal_step_id": "priority-pass-obligation-negative_silent_skip",
       "decision_family": "priority_pass_through",
@@ -3719,16 +3567,11 @@
         "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
         "comprehensive_rules": "117.3d",
         "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
-       },
-       {
-        "change": "decision_script + mana_payment declaration(s) with 8 record-bound source identity/identities",
-        "comprehensive_rules": "601.2g-h",
-        "reason": "the executor's mana-payment branch taps the next source in the Lab's RowSpec mana_sources order (midgame_rows.py:5255-5264), a Lab choice (#634 audit). The record now declares the same sources, bound to its own semantic object identities and in declared order (its action_cost_state explicit_payment_sources), so step B can take the payment from the record only"
        }
       ],
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "reason": "#634 audit: the credited midgame path answered undeclared priority passes and RowSpec mana picks for players. This record now declares its obligation pass-through scope, its record-bound mana payment sources in decision_script, so the Lab transports exactly what the record declares and step B refuses anything undeclared. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed"
+      "reason": "#634 audit: the credited midgame path answered undeclared priority passes and RowSpec mana picks for players. This record now declares its obligation pass-through scope in decision_script, so the Lab transports exactly what the record declares and step B refuses anything undeclared. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
@@ -4126,49 +3969,6 @@
       }
      },
      {
-      "actor": "P1",
-      "causal_step_id": "mana-payment-pilot_target_amount-0",
-      "decision_family": "mana_payment",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "CR 601.2g-h: the record declares the exact permanents it pays with, in order, bound to its own semantic object identities (the record's action_cost_state declaration); the Lab takes mana only from this step and never from an executor-side registry or offer order",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "mana_payment",
-       "semantic_value": {
-        "sources": [
-         "obj:pilot_target_amount-mountain-0",
-         "obj:pilot_target_amount-mountain-1",
-         "obj:pilot_target_amount-mountain-2",
-         "obj:pilot_target_amount-mountain-3",
-         "obj:pilot_target_amount-mountain-4",
-         "obj:pilot_target_amount-mountain-5",
-         "obj:pilot_target_amount-mountain-6",
-         "obj:pilot_target_amount-island-0"
-        ],
-        "mana": [
-         "R",
-         "R",
-         "R",
-         "R",
-         "R",
-         "R",
-         "R",
-         "U"
-        ]
-       }
-      }
-     },
-     {
       "actor": "ALL",
       "causal_step_id": "priority-pass-obligation-pilot_target_amount",
       "decision_family": "priority_pass_through",
@@ -4348,16 +4148,11 @@
         "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
         "comprehensive_rules": "117.3d",
         "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
-       },
-       {
-        "change": "decision_script + mana_payment declaration(s) with 8 record-bound source identity/identities",
-        "comprehensive_rules": "601.2g-h",
-        "reason": "the executor's mana-payment branch taps the next source in the Lab's RowSpec mana_sources order (midgame_rows.py:5255-5264), a Lab choice (#634 audit). The record now declares the same sources, bound to its own semantic object identities and in declared order (its action_cost_state explicit_payment_sources), so step B can take the payment from the record only"
        }
       ],
       "obligation_changed": false,
       "provider_semantics_used": false,
-      "reason": "#634 audit: the credited midgame path answered undeclared priority passes and RowSpec mana picks for players. This record now declares its obligation pass-through scope, its record-bound mana payment sources in decision_script, so the Lab transports exactly what the record declares and step B refuses anything undeclared. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed"
+      "reason": "#634 audit: the credited midgame path answered undeclared priority passes and RowSpec mana picks for players. This record now declares its obligation pass-through scope in decision_script, so the Lab transports exactly what the record declares and step B refuses anything undeclared. Obligation keys are untouched, the denominator is untouched and no runtime credit is claimed"
      },
      "operation": "FIXTURE_ERRATUM_RECORDED_BY_SUCCESSOR_CONTRACT",
      "source_object": null,
@@ -4751,49 +4546,6 @@
        "semantic_value": {
         "P2": 2,
         "obj:pilot-p3-target": 2
-       }
-      }
-     },
-     {
-      "actor": "P1",
-      "causal_step_id": "mana-payment-pilot_multi_amount-0",
-      "decision_family": "mana_payment",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "CR 601.2g-h: the record declares the exact permanents it pays with, in order, bound to its own semantic object identities (the record's action_cost_state declaration); the Lab takes mana only from this step and never from an executor-side registry or offer order",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "mana_payment",
-       "semantic_value": {
-        "sources": [
-         "obj:pilot_multi_amount-mountain-0",
-         "obj:pilot_multi_amount-mountain-1",
-         "obj:pilot_multi_amount-mountain-2",
-         "obj:pilot_multi_amount-mountain-3",
-         "obj:pilot_multi_amount-mountain-4",
-         "obj:pilot_multi_amount-mountain-5",
-         "obj:pilot_multi_amount-mountain-6",
-         "obj:pilot_multi_amount-island-0"
-        ],
-        "mana": [
-         "R",
-         "R",
-         "R",
-         "R",
-         "R",
-         "R",
-         "R",
-         "U"
-        ]
        }
       }
      },
@@ -50345,28 +50097,6 @@
      },
      {
       "actor": "P1",
-      "causal_step_id": "warstorm-trigger",
-      "decision_family": "target",
-      "forbidden_fallbacks": [
-       "first_option",
-       "random_option",
-       "default_yes_no",
-       "internal_ai",
-       "gui_default",
-       "silent_skip",
-       "parent_class_fallback"
-      ],
-      "notes": "",
-      "selection": {
-       "matches_only_provider_offered_legal_options": true,
-       "on_multiple_match": "FAIL_CLOSED",
-       "on_zero_match": "FAIL_CLOSED",
-       "selector_kind": "semantic_player",
-       "semantic_value": "P2"
-      }
-     },
-     {
-      "actor": "P1",
       "causal_step_id": "mana-payment-micro_triggers-0",
       "decision_family": "mana_payment",
       "forbidden_fallbacks": [
@@ -50394,6 +50124,28 @@
          "G"
         ]
        }
+      }
+     },
+     {
+      "actor": "P1",
+      "causal_step_id": "warstorm-trigger",
+      "decision_family": "target",
+      "forbidden_fallbacks": [
+       "first_option",
+       "random_option",
+       "default_yes_no",
+       "internal_ai",
+       "gui_default",
+       "silent_skip",
+       "parent_class_fallback"
+      ],
+      "notes": "",
+      "selection": {
+       "matches_only_provider_offered_legal_options": true,
+       "on_multiple_match": "FAIL_CLOSED",
+       "on_zero_match": "FAIL_CLOSED",
+       "selector_kind": "semantic_player",
+       "semantic_value": "P2"
       }
      },
      {
