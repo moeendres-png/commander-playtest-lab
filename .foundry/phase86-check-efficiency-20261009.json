@@ -1,0 +1,121 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /workspace/scratch/645aaee2cf0d/phase86-final-check
+branch: opencode/issue638-20261009004143
+audit_base_sha: 063edc0f5b0c00bde7c4538291cd5f962e9c5f3d
+audit_base_tree: cb046bcd7f3e727c5323a24d03ecdad93dce34b7
+state_written_against_head: c7042acffe05e1239c4e6755558070e6aa4816a8
+validated_head: dc3cfa5b3a0741c533889ff0f6f1ed5d75bcf2ef
+validated_tree: f2b796ff6c8d0b8b4849e24f5eef8fe71bfb210d
+materiality: MATERIAL
+objective: 'Issue #638: run the real Phase86 audit once per module in tests/unit/test_audit_e_runtime_hygiene.py
+  so both existing report assertions share one completed run_phase86_audit(root, run_tests=False);
+  preserve both test node IDs, all assertions and test-alone behavior; no production
+  change.'
+in_scope:
+- tests/unit/test_audit_e_runtime_hygiene.py
+- .foundry/phase86-check-efficiency-20261009.json
+- .foundry/reviews/phase86-check-efficiency-20261009.json
+out_of_scope:
+- src/commander_lab/audit/** (read-only production code)
+- all Claude runtime/contract/probe paths (#634/#592)
+- any whole-CI or qualification-speedup claim from this two-test experiment
+ownership: Codex sole integration writer; generated receipt scope and canonical checkpoint
+  worktree explicitly transferred in issue638 comment6072294809; no active delegated
+  writer.
+status: ACTIVE
+files_modified:
+- tests/unit/test_audit_e_runtime_hygiene.py
+tests_run:
+- 'baseline original two tests: python -m pytest tests/unit/test_audit_e_runtime_hygiene.py
+  -q => 2 passed in 48.09s (wall 49.13s), per-test 23.92s + 23.56s, canonical git
+  status unchanged'
+- 'after shared fixture, both tests: 2 passed in 24.07s (wall 24.82s), fixture setup
+  23.93s on first test, second test ~0s, canonical git status unchanged'
+- 'instrumented combined run: exactly 1 real invocation, invocation wall 23.91s (bounded
+  pytest plugin delegates to the real run_phase86_audit; no mocked results)'
+- 'test_phase86_audit_keeps_checkout_clean alone: 1 passed, wall 24.98s, 1 invocation
+  24.11s'
+- 'test_phase86_audit_publishes_runtime_derived_tool_availability alone: 1 passed,
+  wall 24.26s, 1 invocation 23.38s'
+- 'contamination control in disposable clone /tmp/opencode/p86-638/contamination-checkout:
+  1 failed in 23.95s; genuine hygiene assertion detected ''+ ?? CONTAMINATION_PROBE.untracked'';
+  canonical checkout untouched; no runtime credit'
+- ruff check tests/unit/test_audit_e_runtime_hygiene.py => passed; ruff format --check
+  => 1 file already formatted
+- Historical prepublication state command on source063edc0f passed; after native publication64fbccc4
+  the strict head command failed as review6072055162 correctly observed. This checkpoint
+  re-stamps the real validated published implementation without changing tests or
+  adding an exemption.
+- Coordinator independent genuine pytest run on64fbccc4:2passed23.03s; sys.setprofile
+  sees exactly1actual run_phase86_audit call with run_tests=False; checkout status
+  unchanged.
+- Coordinator schema conformance43PASS; locked ruffcheckPASS; whole format1437filesPASS.
+- 'Canonical dc3cfa5b: strict state head/validated checks CHECKPOINT_CLEAN/STATE_OK;
+  actual state conformance43PASS1.18s.'
+- Hosted dc3cfa5b quality2771passed8skipped1warning705.94s, Phase86 setup33.06s once;
+  security/infrastructure/tree PASS. Existing CI02 shadow expected gate-definition
+  review-required exit2, candidate_code_executed=false; fresh reviewer independently
+  verifies assertion preservation.
+evidence:
+- 'environment: python 3.12.3, venv /tmp/opencode/p86venv from requirements/lock.txt
+  (--require-hashes), pytest 9.1.1, ruff 0.16.8, mypy 1.20.2, hypothesis 6.168.0;
+  ruff/mypy on PATH for the audit subprocesses'
+- 'implementation: module-scoped phase86_run fixture runs the real run_phase86_audit(root,
+  run_tests=False) once and shares the completed result plus before/after git status
+  and the ignored .runtime/audit/phase86 output root; no mock, skip, stale baseline
+  or cached PASS'
+- 'assertions preserved: both original node IDs unchanged and every original assertion
+  retained; each test passes when selected alone'
+- No production change; owned material test plus state and canonical generated review
+  receipt only.
+- 'limits: timings are single local controlled runs in one environment (baseline wall
+  49.13s vs after wall 24.82s); no whole-CI or qualification-speedup claim is made
+  from this two-test benchmark'
+- 'Historical prepublication null claim superseded: actual published dc3cfa5b/treef2b796ff
+  validated by required hosted CI, canonical strict state check and fresh admitted
+  Space Bunny review6072169386. Metadata-only checkpoint does not grant global runtime
+  credit.'
+technical_decisions:
+- Module-scoped pytest fixture phase86_run runs the real run_phase86_audit(root, run_tests=False)
+  exactly once and shares the completed result plus the before/after git status and
+  the ignored output root; no mock, skip, or cached PASS.
+- Both original test node IDs and every assertion are preserved; the only structural
+  change is fixture injection, so each test still passes when selected alone.
+- No production audit code was modified; the fixture performs no writes beyond the
+  audit's existing ignored .runtime/audit/phase86 output.
+exact_next_action: 'Publish generated state-only checkpoint after review receipt;
+  verify exact final required CI, actual remote checkpoint and unchanged completion
+  gate, target/ownership freshness; normal merge #641 and terminal #638 receipt. No
+  PR_READY or COMPLETE claim until gates pass.'
+review_repair:
+  comment: 6072055162
+  finding: P2 stale prepublication state head
+  repair: Stamp actual published/locally tested64fbccc4 SHA/TREE, retain immutable
+    audit base; state-only checkpoint, test/production bytes unchanged.
+  pending: Resolved by admitted review6072169386 with0P1/P2; P3 historical prose corrected
+    and explicit state.py worktree rebind here.
+cross_executor_review:
+  required: true
+  logical_profile: space-bunny
+  resolved_model_id: opencode-go/space-bunny
+  model_alias_class: CANONICAL
+  implementation_executor: deepseek
+  review_executor: space-bunny
+  reviewed_sha: dc3cfa5b3a0741c533889ff0f6f1ed5d75bcf2ef
+  reviewed_tree: f2b796ff6c8d0b8b4849e24f5eef8fe71bfb210d
+  verdict: PASS
+  review_record_path: .foundry/reviews/phase86-check-efficiency-20261009.json
+remote_checkpoint:
+  remote: origin
+  branch: opencode/issue638-20261009004143
+  sha: dc3cfa5b3a0741c533889ff0f6f1ed5d75bcf2ef
+  tree: f2b796ff6c8d0b8b4849e24f5eef8fe71bfb210d
+integration_checkpoint:
+  current_head_ci: PENDING on final generated checkpoint; reviewed dc checks all required
+    PASS
+  review_admission: SATISFIED8 unchanged verifier checks using actual GitHub observations
+  delta: Only canonical .foundry/reviews receipt and this explicit state; post-review
+    NON_MATERIAL classification must be independently checked
+  identity_rebind: Explicit state.py --write-from --allow-identity-change; audit base
+    and branch unchanged; coordinator transfer6072294809
