@@ -3,6 +3,12 @@
   "env": {
     "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
+  "permissions": {
+    "allow": [
+      "Bash(gh api -X PUT repos/moeendres-png/commander-playtest-lab/pulls/*/merge *)",
+      "mcp__github__merge_pull_request"
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {
