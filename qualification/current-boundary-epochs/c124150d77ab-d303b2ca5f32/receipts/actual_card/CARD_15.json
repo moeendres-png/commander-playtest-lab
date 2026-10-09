@@ -1,0 +1,147 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_15",
+  "obligation_exercised": {
+    "obligation_digest": "c0fbfe7a3b4b7121f1a9219605c7f12b2611cb61e3b86d2a22446e52f7582c02",
+    "requested_state_digest": "b38d3134ef6213d0dcca5bdf490651c60584dc7f21cceb7a4c0afc167129376d",
+    "required_events": [
+      "shuffle_graveyard_into_library",
+      "draw:10",
+      "untap_lands:5",
+      "grant_no_max_hand_size",
+      "exile_Finale"
+    ],
+    "terminal_checks": [
+      "P1 holds at least 8 cards",
+      "P1 moved exactly 10 card(s) from library to hand",
+      "at least one BEGIN_TURN event(s) with turn=2",
+      "every LIBRARY_SHUFFLED event with source_object=obj:card_15-subject precedes the first ZONE_CHANGE event with from=LIBRARY, to=HAND, player_player=P1",
+      "every ZONE_CHANGE event with source_object=obj:card_15-subject, from=GRAVEYARD precedes the first ZONE_CHANGE event with from=LIBRARY, to=HAND, player_player=P1",
+      "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card_15-subject, from=STACK, to=EXILED",
+      "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_15-subject, from=GRAVEYARD, to=LIBRARY",
+      "exactly 5 Island on P1's battlefield are untapped",
+      "the engine asked no choose_object decision of P1 about 'discard'"
+    ],
+    "terminal_postconditions": [
+      "Pre-resolution graveyard cards were shuffled before draws.",
+      "P1 drew 10, five lands untapped, no maximum hand size for rest of game, Finale exiled."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "58f281f0152fe8fa3580cbcd99be05951ab414b68f47d44d322170b64ea61816",
+      "size": 7107607
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "every LIBRARY_SHUFFLED event with source_object=obj:card_15-subject precedes the first ZONE_CHANGE event with from=LIBRARY, to=HAND, player_player=P1",
+          "every ZONE_CHANGE event with source_object=obj:card_15-subject, from=GRAVEYARD precedes the first ZONE_CHANGE event with from=LIBRARY, to=HAND, player_player=P1"
+        ],
+        "check": "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_15-subject, from=GRAVEYARD, to=LIBRARY",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Pre-resolution graveyard cards were shuffled before draws."
+      },
+      {
+        "also": [
+          "exactly 5 Island on P1's battlefield are untapped",
+          "at least one BEGIN_TURN event(s) with turn=2",
+          "P1 holds at least 8 cards",
+          "the engine asked no choose_object decision of P1 about 'discard'",
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card_15-subject, from=STACK, to=EXILED"
+        ],
+        "check": "P1 moved exactly 10 card(s) from library to hand",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P1 drew 10, five lands untapped, no maximum hand size for rest of game, Finale exiled."
+      }
+    ],
+    "terminal_facts": {
+      "P1 holds at least 8 cards": true,
+      "P1 moved exactly 10 card(s) from library to hand": true,
+      "at least one BEGIN_TURN event(s) with turn=2": true,
+      "every LIBRARY_SHUFFLED event with source_object=obj:card_15-subject precedes the first ZONE_CHANGE event with from=LIBRARY, to=HAND, player_player=P1": true,
+      "every ZONE_CHANGE event with source_object=obj:card_15-subject, from=GRAVEYARD precedes the first ZONE_CHANGE event with from=LIBRARY, to=HAND, player_player=P1": true,
+      "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card_15-subject, from=STACK, to=EXILED": true,
+      "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_15-subject, from=GRAVEYARD, to=LIBRARY": true,
+      "exactly 5 Island on P1's battlefield are untapped": true,
+      "the engine asked no choose_object decision of P1 about 'discard'": true
+    },
+    "token_evidence": {
+      "draw:10": {
+        "binding": "P1 moved exactly 10 card(s) from library to hand",
+        "observation": "engine terminal observation"
+      },
+      "exile_Finale": {
+        "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:card_15-subject, from=STACK, to=EXILED",
+        "events": [
+          23
+        ]
+      },
+      "grant_no_max_hand_size": {
+        "binding": [
+          "at least one BEGIN_TURN event(s) with turn=2",
+          "P1 holds at least 8 cards",
+          "the engine asked no choose_object decision of P1 about 'discard'"
+        ],
+        "parts": [
+          {
+            "binding": "at least one BEGIN_TURN event(s) with turn=2",
+            "events": [
+              24
+            ]
+          },
+          {
+            "binding": "P1 holds at least 8 cards",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "the engine asked no choose_object decision of P1 about 'discard'",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "shuffle_graveyard_into_library": {
+        "binding": [
+          "at least one LIBRARY_SHUFFLED event(s) with source_object=obj:card_15-subject",
+          "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_15-subject, from=GRAVEYARD, to=LIBRARY"
+        ],
+        "parts": [
+          {
+            "binding": "at least one LIBRARY_SHUFFLED event(s) with source_object=obj:card_15-subject",
+            "events": [
+              9
+            ]
+          },
+          {
+            "binding": "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_15-subject, from=GRAVEYARD, to=LIBRARY",
+            "events": [
+              10,
+              11,
+              12
+            ]
+          }
+        ]
+      },
+      "untap_lands:5": {
+        "binding": "exactly 5 Island on P1's battlefield are untapped",
+        "observation": "engine terminal observation"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "5c219e642e560d3c3be171e477f548baba1a5fba3e5db8e8dc74912114857673",
+  "runner_digest": "fdc100aa552955d20d21ea7b933c5f2038acff18d44595d03f4349d519b7c75c",
+  "runtime_receipt_digest": "22b83f4f7473d2ee1d7c680d917c51513112365115adb246cb5dbe7fdf019c8e",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_15"
+}

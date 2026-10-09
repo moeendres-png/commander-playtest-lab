@@ -1,0 +1,67 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "causal_reconstruction": {
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:cmd-zone-source"
+    ],
+    "fuel": [
+      "obj:fuel-swamp-a",
+      "obj:fuel-swamp-b"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:cmd-zone-source"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-ZONE-GY-NO",
+  "obligation_exercised": {
+    "obligation_digest": "85686ca3ad84febd8bf02fea3ce25f6fe070f032e40c0bb5928e1c3807ae1896",
+    "requested_state_digest": "6d902194fb8eeabc9768d3581fbdbc80d26163c27b25d4c0ff7d1fca7b882100",
+    "required_events": [
+      "commander_zone_event:graveyard",
+      "commander_choice:graveyard"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Commander is in graveyard after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "commander_choice:graveyard": {
+        "decision_frames": [
+          4
+        ],
+        "events": [
+          10
+        ]
+      },
+      "commander_zone_event:graveyard": {
+        "events": [
+          10
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "95209e8867ce088af6f72e2c6914f58d7e5e53826b29cddb5add2c28d78041fd",
+  "runner_digest": "fdc100aa552955d20d21ea7b933c5f2038acff18d44595d03f4349d519b7c75c",
+  "runtime_receipt_digest": "246af24e4f45397878846c80dedf3501471332dca0ec5aad6e9e0d39183b69c3",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-ZONE-GY-NO",
+  "variance_source": null
+}

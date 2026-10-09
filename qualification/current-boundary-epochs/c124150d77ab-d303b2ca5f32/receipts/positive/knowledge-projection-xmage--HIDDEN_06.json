@@ -1,0 +1,373 @@
+{
+  "assertion_class": "KNOWLEDGE_BOUNDARY_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+  "fixture_id": "HIDDEN_06",
+  "obligation_exercised": {
+    "forbidden_events": [
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+    ],
+    "obligation_digest": "b7c4ea2fa87375d391c3cd34e43adcb698913a280ddbc5ea5924099a3a6d5586",
+    "requested_state_digest": "6e76fe052384d35fde93725ac46e74b0f999e20d8fdfe5a19732a3d1d5225b00",
+    "required_events": [
+      "knowledge_projection:HIDDEN_06:P1"
+    ],
+    "terminal_postconditions": [
+      "P1 observation exactly respects declared viewer state.",
+      "No prohibited metadata appears in any tested channel.",
+      "Knowledge invalidation/permission persistence follows the declared conditions."
+    ],
+    "viewer_obligation": "face-down exile knowledge invalidates correctly"
+  },
+  "observed_assertion": {
+    "channel_coverage": {
+      "ability_metadata": 410,
+      "context": 58,
+      "event": 40,
+      "log": 216,
+      "option_id": 295,
+      "option_label": 295,
+      "option_metadata": 295,
+      "pile_metadata": 0,
+      "prompt": 58,
+      "source_metadata": 58,
+      "state": 81,
+      "transcript": 294
+    },
+    "checks": [
+      {
+        "detail": "arrival EXACT, construction_match True, mismatches []",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "construction_exact"
+      },
+      {
+        "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 2, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 2, 'face_down': 1}",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "lossless_checks_performed"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P1"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P2"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P3"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P4"
+      },
+      {
+        "detail": "4 distinct principal ids for 4 seats",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "distinct_principals"
+      },
+      {
+        "detail": "0 occurrences of ['Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P1"
+      },
+      {
+        "detail": "every channel carried content",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scan_coverage"
+      },
+      {
+        "detail": "each honey sentinel is found in the harness's own create request",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_sentinel_in_request"
+      },
+      {
+        "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_honey_identity_where_entitled"
+      },
+      {
+        "detail": "24 scripted answers, complete=True",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scripted_event_executed"
+      },
+      {
+        "detail": "1 look permissions; invalidation=['object changes zone or becomes a new object']",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "invalidating_exile_look_declared"
+      },
+      {
+        "detail": "obj:hidden-hand",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "invalidated_object_declared"
+      },
+      {
+        "detail": "1 snapshots immediately before the exile object leaves",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "pre_zone_change_exile_snapshot_observed"
+      },
+      {
+        "detail": "1 matching face-down exile entries in P1's snapshot",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "permission_active_before_zone_change"
+      },
+      {
+        "detail": "0 face-down exile entries shown to P2",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "permission_not_shared_before_zone_change:P2"
+      },
+      {
+        "detail": "0 face-down exile entries shown to P3",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "permission_not_shared_before_zone_change:P3"
+      },
+      {
+        "detail": "0 face-down exile entries shown to P4",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "permission_not_shared_before_zone_change:P4"
+      },
+      {
+        "detail": "1 hidden-zone -> face-down exile moves before snapshot",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "native_face_down_exile_grant_precedes_snapshot"
+      },
+      {
+        "detail": "0 matching moves before snapshot; 1 after scripted event",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "native_exile_zone_change_observed_after_snapshot"
+      },
+      {
+        "detail": "0 stale face-down/private exile entries remain for P1",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_stale_face_down_exile_permission:P1"
+      },
+      {
+        "detail": "0 stale face-down/private exile entries remain for P2",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_stale_face_down_exile_permission:P2"
+      },
+      {
+        "detail": "0 stale face-down/private exile entries remain for P3",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_stale_face_down_exile_permission:P3"
+      },
+      {
+        "detail": "0 stale face-down/private exile entries remain for P4",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_stale_face_down_exile_permission:P4"
+      },
+      {
+        "detail": "0 occurrences of the exile handle before tape 126",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "face_down_handle_withheld_before_zone_change:P2"
+      },
+      {
+        "detail": "0 occurrences of the exile handle before tape 126",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "face_down_handle_withheld_before_zone_change:P3"
+      },
+      {
+        "detail": "0 occurrences of the exile handle before tape 126",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "face_down_handle_withheld_before_zone_change:P4"
+      },
+      {
+        "detail": "0 occurrences of ['Gonti, Lord of Luxury', 'Grizzly Bears', 'Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden06-gonti']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P2"
+      },
+      {
+        "detail": "0 occurrences of ['Gonti, Lord of Luxury', 'Grizzly Bears', 'Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden06-gonti']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P3"
+      },
+      {
+        "detail": "0 occurrences of ['Gonti, Lord of Luxury', 'Grizzly Bears', 'Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden06-gonti']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P4"
+      }
+    ],
+    "forbidden_evidence": {
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+        "ambiguous_tokens_not_scanned": {},
+        "occurrences": [],
+        "tokens_scanned": [
+          "Memnite",
+          "Vampiric Tutor",
+          "WS30_HONEY_P2_PRIVATE_7F3A",
+          "obj:hidden-hand",
+          "obj:hidden-lib-0"
+        ]
+      }
+    },
+    "token_evidence": {
+      "knowledge_projection:HIDDEN_06:P1": [
+        {
+          "detail": "24 scripted answers, complete=True",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "scripted_event_executed"
+        },
+        {
+          "detail": "1 look permissions; invalidation=['object changes zone or becomes a new object']",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "invalidating_exile_look_declared"
+        },
+        {
+          "detail": "obj:hidden-hand",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "invalidated_object_declared"
+        },
+        {
+          "detail": "1 snapshots immediately before the exile object leaves",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "pre_zone_change_exile_snapshot_observed"
+        },
+        {
+          "detail": "1 matching face-down exile entries in P1's snapshot",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "permission_active_before_zone_change"
+        },
+        {
+          "detail": "0 face-down exile entries shown to P2",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "permission_not_shared_before_zone_change:P2"
+        },
+        {
+          "detail": "0 face-down exile entries shown to P3",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "permission_not_shared_before_zone_change:P3"
+        },
+        {
+          "detail": "0 face-down exile entries shown to P4",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "permission_not_shared_before_zone_change:P4"
+        },
+        {
+          "detail": "1 hidden-zone -> face-down exile moves before snapshot",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "native_face_down_exile_grant_precedes_snapshot"
+        },
+        {
+          "detail": "0 matching moves before snapshot; 1 after scripted event",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "native_exile_zone_change_observed_after_snapshot"
+        },
+        {
+          "detail": "0 stale face-down/private exile entries remain for P1",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_stale_face_down_exile_permission:P1"
+        },
+        {
+          "detail": "0 stale face-down/private exile entries remain for P2",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_stale_face_down_exile_permission:P2"
+        },
+        {
+          "detail": "0 stale face-down/private exile entries remain for P3",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_stale_face_down_exile_permission:P3"
+        },
+        {
+          "detail": "0 stale face-down/private exile entries remain for P4",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_stale_face_down_exile_permission:P4"
+        },
+        {
+          "detail": "0 occurrences of the exile handle before tape 126",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "face_down_handle_withheld_before_zone_change:P2"
+        },
+        {
+          "detail": "0 occurrences of the exile handle before tape 126",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "face_down_handle_withheld_before_zone_change:P3"
+        },
+        {
+          "detail": "0 occurrences of the exile handle before tape 126",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "face_down_handle_withheld_before_zone_change:P4"
+        },
+        {
+          "detail": "0 occurrences of ['Gonti, Lord of Luxury', 'Grizzly Bears', 'Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden06-gonti']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P2"
+        },
+        {
+          "detail": "0 occurrences of ['Gonti, Lord of Luxury', 'Grizzly Bears', 'Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden06-gonti']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P3"
+        },
+        {
+          "detail": "0 occurrences of ['Gonti, Lord of Luxury', 'Grizzly Bears', 'Memnite', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden06-gonti']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P4"
+        }
+      ]
+    },
+    "viewer": "P1"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "371fd680cfbd3ce0cc7aa745f1b00fe26e5e4a282c40ce79f8f85725149b6808",
+  "runner_digest": "fdc100aa552955d20d21ea7b933c5f2038acff18d44595d03f4349d519b7c75c",
+  "runtime_receipt_digest": "6e8002dba643bbee08238bd182ef224a57bf540e635cd903d8d5ff9c8ca2b047",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:knowledge-projection#HIDDEN_06"
+}

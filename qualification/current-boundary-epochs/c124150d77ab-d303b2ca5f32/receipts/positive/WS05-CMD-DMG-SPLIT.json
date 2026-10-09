@@ -1,0 +1,65 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-DMG-SPLIT",
+  "obligation_exercised": {
+    "obligation_digest": "83757741ec0456622067e39629c51ad8ba0b89576fb6176ae8b202e0e41b52aa",
+    "requested_state_digest": "e2dc3ae318347404fed0c82c8e2376c2c3c5f8c70c92c86a3e8eb0deeeb0fbc4",
+    "required_events": [
+      "commander_damage_checked_per_commander"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "P2 has 21 aggregate commander damage but no single commander has dealt 21; P2 does not lose for commander damage."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "commander_damage_checked_per_commander": {
+        "binding": [
+          "the engine's commander combat damage from P1's Rograkh, Son of Rohgahh to P2 is 11",
+          "the engine's commander combat damage from P1's Kediss, Emberclaw Familiar to P2 is 10",
+          "the engine asked exactly 1 priority decision(s) of P1 about ''",
+          "exactly 0 LOST event(s) with any fields",
+          "the engine reports P2 neither lost nor left"
+        ],
+        "parts": [
+          {
+            "binding": "the engine's commander combat damage from P1's Rograkh, Son of Rohgahh to P2 is 11",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "the engine's commander combat damage from P1's Kediss, Emberclaw Familiar to P2 is 10",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "the engine asked exactly 1 priority decision(s) of P1 about ''",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "exactly 0 LOST event(s) with any fields",
+            "events": []
+          },
+          {
+            "binding": "the engine reports P2 neither lost nor left",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "a39d9d349d53c1069a1c4cd7dda2f91ddd22565f17243c8554ed171c04fa2d43",
+  "runner_digest": "fdc100aa552955d20d21ea7b933c5f2038acff18d44595d03f4349d519b7c75c",
+  "runtime_receipt_digest": "817e15cafafcc6318a3bdc865622e16f7ea34a81a173388a4802bc908aca26e4",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-DMG-SPLIT",
+  "variance_source": null
+}

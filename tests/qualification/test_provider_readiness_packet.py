@@ -32,7 +32,7 @@ SCRIPT = REPO / "scripts" / "build_provider_readiness_packet.py"
 PACKET_DIR = REPO / "docs" / "provider_readiness_packet_20261007"
 PACKET_JSON = PACKET_DIR / "PROVIDER_READINESS.json"
 PACKET_MD = PACKET_DIR / "PROVIDER_READINESS.md"
-EPOCH_NAME = "8398b69bc6a9-8a004769ee19"
+EPOCH_NAME = "c124150d77ab-d303b2ca5f32"
 EPOCH_ROOT = REPO / "qualification" / "current-boundary-epochs" / EPOCH_NAME
 
 EXPECTED_DIMENSION_KEYS = (
@@ -784,9 +784,9 @@ def test_non_pass_cells_never_claim_all_pass_status_basis(
             non_pass_cells += 1
             assert cell["status_basis"] != all_pass_basis, f"{dimension['key']}/{candidate}"
 
-    # Epoch 8398b69b: XMage's only non-PASS cell is process_isolation (AF11,
-    # sequenced after selection); the other 19 are Forge's.
-    assert non_pass_cells == 20
+    # Epoch c124150d: XMage has no non-PASS cell (AF11 adjudicated for the
+    # selected provider); all 19 are Forge's.
+    assert non_pass_cells == 19
     assert generator.derive_status_basis("UNKNOWN", {"AF06": "UNKNOWN"}, ["PASS"]) != all_pass_basis
     assert (
         generator.derive_status_basis("FAIL", {"AF06": "FAIL"}, ["PASS"])
@@ -858,10 +858,15 @@ def test_process_isolation_mapping_is_explicit(packet: dict[str, Any]) -> None:
     required = dimension["required_gate_evidence"]
     assert required
     assert all(item["gate"] == "AF11" for item in required)
-    for candidate in CANDIDATES:
-        cell = dimension["candidates"][candidate]
-        assert cell["backing_af_verdicts"]["AF11"] != "PASS"
-        assert cell["status"] != "PASS"
+    # XMage passes only because its sealed AF11 carries both process-isolation
+    # facts (checked by the red control below); Forge, not the selected
+    # provider, stays non-PASS.
+    xmage = dimension["candidates"]["xmage"]
+    assert xmage["backing_af_verdicts"]["AF11"] == "PASS"
+    assert xmage["status"] == "PASS"
+    forge = dimension["candidates"]["forge"]
+    assert forge["backing_af_verdicts"]["AF11"] != "PASS"
+    assert forge["status"] != "PASS"
 
 
 def test_process_isolation_pass_requires_process_isolation_evidence(generator: Any) -> None:

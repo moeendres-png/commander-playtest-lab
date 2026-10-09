@@ -1,0 +1,597 @@
+{
+ "PB03_DIMENSION_ADMISSION": "TECHNICALLY_CONFORMANT",
+ "PB03_RUNTIME_EXECUTION": "PASS",
+ "admission_counts": {
+  "admitted": 13,
+  "blocked": 17
+ },
+ "architecture_freeze": "NOT_CLAIMED",
+ "artifact_identity_consistent": true,
+ "engine_artifact": {
+  "kind": "file",
+  "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+  "sha256": "58f281f0152fe8fa3580cbcd99be05951ab414b68f47d44d322170b64ea61816",
+  "size": 7107607
+ },
+ "native_receipt": "FRESH_EXACT",
+ "orthogonality": "Admission is frozen-state restorability; runtime execution is exact native-harness execution. Neither axis promotes FULL107 rows.",
+ "production_provider": "NOT_SELECTED",
+ "rows": [
+  {
+   "admission_verdict": "BLOCKED_UNKNOWN_DIMENSION",
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2StackTest",
+   "harness_method": "microRulesRandomnessStitchFlipsHeadsForExtraTurn",
+   "missing_tokens": [
+    "<unmapped-required-event>"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "<unmapped-required-event>",
+    "battlefield/graveyard/exile placement",
+    "stack spells",
+    "temporal points outside the qualified"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "FAIL_CLOSED_DISCRETION_BLOCKER"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "PILOT_DECLARE_ATTACKER",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03RuntimeGapClosureTest",
+   "harness_method": "pilotDeclareAttackerUsesExactFrozenRecordAndProviderOffer",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "qualified turn-1"
+   ],
+   "route": "TEMPORAL_PROGRESSION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "EXACT_OBLIGATION"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "PILOT_DECLARE_BLOCKER",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03RuntimeGapClosureTest",
+   "harness_method": "pilotDeclareBlockerUsesExactFrozenRecordAndProviderOffer",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "qualified turn-1",
+    "tapped permanents"
+   ],
+   "route": "TEMPORAL_PROGRESSION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "EXACT_OBLIGATION"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "WS05-CMD-DMG-CONTROL",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmageControlDivergenceReconstructionTest",
+   "harness_method": "stolenCommanderCombatDamageUsesOwnerIdentityAfterControlChange",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "commander damage matrices",
+    "hand identity",
+    "life totals"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "CONTROLLED_COMMANDER_COMBAT_PRESERVES_OWNER_DAMAGE_IDENTITY"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "WS05-CMD-DMG-SAME-21",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmageCausalEliminationReconstructionTest",
+   "harness_method": "nineteenCommanderDamagePlusRealHastyCommanderCombatCausesLossAndCleanup",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "commander damage matrices",
+    "life totals"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "GENUINE_COMMANDER_COMBAT_FROM_RESTORED_19_DAMAGE"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "WS05-CMD-DMG-SPLIT",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmageFull107ResidualRequalificationTest",
+   "harness_method": "exactSplitCommanderDamageRemainsPerCommanderAndDigestMatches",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "commander damage matrices"
+   ],
+   "route": "RESTORATION_PLUS_CAUSAL",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "EXACT_OBLIGATION"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "WS05-CMD-ELIM-4",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier1RowsTest",
+   "harness_method": "elim4TwentyOneCommanderDamageEliminatesAndCleansUp",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "commander damage matrices",
+    "life totals"
+   ],
+   "route": "RESTORATION_PLUS_CAUSAL",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "BLOCKER_CHARACTERIZATION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2CmdZoneTest",
+   "harness_method": "cmdZoneExileNoStaysInExile",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "COMMANDER_IDENTITY_BLOCKER_CHARACTERIZATION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2CmdZoneTest",
+   "harness_method": "cmdZoneExileYesChoosesCommandZone",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "COMMANDER_IDENTITY_BLOCKER_CHARACTERIZATION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-CMD-ZONE-GY-NO",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2CmdZoneTest",
+   "harness_method": "cmdZoneGyNoStaysInGraveyard",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "COMMANDER_IDENTITY_BLOCKER_CHARACTERIZATION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-CMD-ZONE-GY-YES",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2CmdZoneTest",
+   "harness_method": "cmdZoneGyYesChoosesCommandZone",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "COMMANDER_IDENTITY_BLOCKER_CHARACTERIZATION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2CmdZoneTest",
+   "harness_method": "cmdZoneHandNoStaysInHand",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "COMMANDER_IDENTITY_BLOCKER_CHARACTERIZATION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2CmdZoneTest",
+   "harness_method": "cmdZoneHandYesChoosesCommandZone",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "COMMANDER_IDENTITY_BLOCKER_CHARACTERIZATION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2CmdZoneTest",
+   "harness_method": "cmdZoneLibNoStaysInLibrary",
+   "missing_tokens": [
+    "partial library identity",
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "partial library identity",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "COMMANDER_IDENTITY_BLOCKER_CHARACTERIZATION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2CmdZoneTest",
+   "harness_method": "cmdZoneLibYesChoosesCommandZone",
+   "missing_tokens": [
+    "partial library identity",
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "partial library identity",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "COMMANDER_IDENTITY_BLOCKER_CHARACTERIZATION"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "WS05-MP-BLOCK-4",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier1RowsTest",
+   "harness_method": "mpBlock4P2BlocksOnlyItsAttacker",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "qualified turn-1",
+    "tapped permanents"
+   ],
+   "route": "RESTORATION_PLUS_CAUSAL",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "EXACT_OBLIGATION"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "WS05-MP-COMBAT-4",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier1RowsTest",
+   "harness_method": "mpCombat4AssignsTwoAttackersToTwoDefenders",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "qualified turn-1"
+   ],
+   "route": "RESTORATION_PLUS_CAUSAL",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "EXACT_OBLIGATION"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "WS05-MP-COMBAT-5",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier1RowsTest",
+   "harness_method": "mpCombat5AssignsThreeAttackersToThreeDefenders",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "qualified turn-1"
+   ],
+   "route": "RESTORATION_PLUS_CAUSAL",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "EXACT_OBLIGATION"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "WS05-MP-ELIM-5",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmageFullGameElimExecutionTest",
+   "harness_method": "elimLifeZeroResetsToStartingLife5P",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "life totals"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "BLOCKER_CHARACTERIZATION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmageCausalEliminationReconstructionTest",
+   "harness_method": "eliminatedOwnersPermanentLeavesEvenWhileControlledByOpponent",
+   "missing_tokens": [
+    "attachments",
+    "controller/owner divergence"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "attachments",
+    "battlefield/graveyard/exile placement",
+    "controller/owner divergence",
+    "life totals"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "GENUINE_CAUSAL_RECONSTRUCTION"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "WS05-MP-ELIM-OWNED-3",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmageFullGameElimExecutionTest",
+   "harness_method": "elimLifeZeroResetsToStartingLife3P",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "life totals"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "BLOCKER_CHARACTERIZATION"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "WS05-MP-ELIM-PRIO-3",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmageCausalEliminationReconstructionTest",
+   "harness_method": "priorityRingExcludesEliminatedPlayerAndSurvivorContinues",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "life totals"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "GENUINE_CAUSAL_RECONSTRUCTION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-MP-ELIM-STACK-3",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmageCausalEliminationReconstructionTest",
+   "harness_method": "departingPlayersOwnedSpellIsRemovedFromStackBeforeItCanResolve",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "life totals",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "GENUINE_CAUSAL_RECONSTRUCTION"
+  },
+  {
+   "admission_verdict": "ADMITTED_TO_NATIVE_RESTORATION",
+   "fixture_id": "WS05-MP-ELIM-TURN-3",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmageCausalEliminationReconstructionTest",
+   "harness_method": "activePlayerSelfLossEndsItsTurnAndNextLivePlayerBecomesActive",
+   "missing_tokens": [],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "life totals"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "GENUINE_CAUSAL_RECONSTRUCTION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-MP-PRIO-3",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2StackTest",
+   "harness_method": "mpPrio3RingOrderWithBoltResponse",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "qualified turn-1",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "GENUINE_CAUSAL_RECONSTRUCTION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-MP-PRIO-5",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2StackTest",
+   "harness_method": "mpPrio5RingOrderWithBoltResponse",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "qualified turn-1",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "GENUINE_CAUSAL_RECONSTRUCTION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-MP-TRIG-3",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmageFullGameTrigExecutionTest",
+   "harness_method": "trig3CastsBearsAndTriggersSoulWardens",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "GENUINE_CAUSAL_RECONSTRUCTION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-MP-TRIG-5",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmageFullGameTrigExecutionTest",
+   "harness_method": "trig5CastsBearsAndTriggersSoulWardens",
+   "missing_tokens": [
+    "stack spells"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "stack spells"
+   ],
+   "route": "GENUINE_CAUSAL_DEVIATION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "GENUINE_CAUSAL_RECONSTRUCTION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-MP-TURN-3",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2ControlTurnTest",
+   "harness_method": "mpTurn3ExtraTurnsRunP3ThenP2",
+   "missing_tokens": [
+    "temporal points outside the qualified"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "temporal points outside the qualified"
+   ],
+   "route": "TEMPORAL_PROGRESSION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "EXACT_OBLIGATION_CAUSAL_RECONSTRUCTION"
+  },
+  {
+   "admission_verdict": "BLOCKED_MISSING_DIMENSION",
+   "fixture_id": "WS05-MP-TURN-5",
+   "full107_credit": "NONE_FROM_PB03_MATRIX",
+   "harness_class": "XmagePb03Tier2ControlTurnTest",
+   "harness_method": "mpTurn5ExtraTurnsRunP3ThenP2",
+   "missing_tokens": [
+    "temporal points outside the qualified"
+   ],
+   "native_receipt": "FRESH_EXACT",
+   "required_tokens": [
+    "battlefield/graveyard/exile placement",
+    "hand identity",
+    "temporal points outside the qualified"
+   ],
+   "route": "TEMPORAL_PROGRESSION",
+   "runtime_credit": "EXECUTED_PASS",
+   "runtime_execution": "PASS",
+   "semantic_relation": "EXACT_OBLIGATION_CAUSAL_RECONSTRUCTION"
+  }
+ ],
+ "rows_total": 30,
+ "runtime_credit": "EXECUTED_PASS",
+ "runtime_credit_reason": "runner digest, engine candidate and loaded engine artifact match the assembling head and the admission handshake",
+ "runtime_executed_pass": 30,
+ "runtime_not_run_or_failed": 0,
+ "schema_version": "commander-lab.pb03-admission-runtime-matrix/2.0.0"
+}

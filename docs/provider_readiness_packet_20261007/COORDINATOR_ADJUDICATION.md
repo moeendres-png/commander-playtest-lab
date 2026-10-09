@@ -1,5 +1,38 @@
 # Coordinator adjudication — provider readiness (issue #255)
 
+## Re-issue 2026-10-09 (2): sealed epoch `c124150d77ab-d303b2ca5f32`; XMage passes AF00–AF11
+
+**Sealed epoch** `qualification/current-boundary-epochs/c124150d77ab-d303b2ca5f32/`.
+- Produced by PB-03 run 37969477430 (`workflow_dispatch`) on `main` `c124150d`, after #658.
+- Same contract (`1.0.31-successor`) and pins as below.
+- The section-F packet is regenerated from this epoch.
+
+| Gate | XMage | Forge |
+| --- | --- | --- |
+| FULL107 | **107/107 PASS** | 20 PASS / 33 BLOCKED / 54 UNKNOWN |
+| AF00–AF10 | **PASS** | AF00–AF04, AF10 PASS; AF05–AF09 UNKNOWN |
+| AF11 | **PASS** | UNKNOWN (not the selected provider) |
+
+**AF11 is derived, not asserted.** The Coordinator adjudication
+`qualification/af11-single-provider-topology-20261009/AF11_COORDINATOR_ADJUDICATION.{json,md}` (#658)
+decides AF11's policy residual for the selected provider. The assembler grants PASS only when:
+- every measured fact holds;
+- the record matches the source lock;
+- the adjudicated engine pin equals the executed engine;
+- the epoch seal verifies;
+- the provider launch's classpath equals the adjudicated licence inventory.
+
+In the packet every XMage dimension is PASS, including `process_isolation`.
+
+**Consequence: XMage meets the all-PASS freeze-eligibility rule of `architecture_freeze_contract_v2`.**
+This is a readiness fact, not a Freeze:
+- `ARCHITECTURE_FREEZE = NOT_CLAIMED`. Freeze is the next decision and it is the Owner's (AGENTS.md §8).
+- `config/rules_engines.json` keeps `provider_decision = NO_PROVIDER_READY` until a Freeze workstream records it.
+- `PRODUCTION_REPOSITORY = NOT_CREATED`.
+
+Since #659 (M15), PB-03 executes XMage alone unless `forge_reference` is dispatched. Later epochs
+carry the Forge column as `CARRIED_FORWARD_NOT_REEXECUTED` provenance.
+
 ## Re-issue 2026-10-09: sealed epoch `8398b69bc6a9-8a004769ee19`; the XMage selection is effective
 
 **Sealed epoch** `qualification/current-boundary-epochs/8398b69bc6a9-8a004769ee19/` (#656).

@@ -1,0 +1,157 @@
+{
+  "assertion_class": "KNOWLEDGE_BOUNDARY_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+  "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+  "obligation_exercised": {
+    "forbidden_events": [
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+    ],
+    "obligation_digest": "b1f56da10218cb37d19f45db5770ada4f312a0d60e4d113365cef6ec51324669",
+    "requested_state_digest": "4e62eace44ca69b764d8c45ab3dd3c7f0c9bbb17a11ce7e46d5faaa65e06945e",
+    "required_events": [
+      "knowledge_projection:HIDDEN_HONEYCARD_SENTINEL:P1"
+    ],
+    "terminal_postconditions": [
+      "P1 observation exactly respects declared viewer state.",
+      "No prohibited metadata appears in any tested channel.",
+      "Knowledge invalidation/permission persistence follows the declared conditions."
+    ],
+    "viewer_obligation": "unique forbidden sentinels scanned across prompt/context/option IDs/labels/metadata/source/state/transcript/logs"
+  },
+  "observed_assertion": {
+    "channel_coverage": {
+      "ability_metadata": 108,
+      "context": 13,
+      "event": 7,
+      "log": 216,
+      "option_id": 72,
+      "option_label": 72,
+      "option_metadata": 72,
+      "pile_metadata": 0,
+      "prompt": 13,
+      "source_metadata": 13,
+      "state": 28,
+      "transcript": 115
+    },
+    "checks": [
+      {
+        "detail": "arrival EXACT, construction_match True, mismatches []",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "construction_exact"
+      },
+      {
+        "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "lossless_checks_performed"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P1"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P2"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P3"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P4"
+      },
+      {
+        "detail": "4 distinct principal ids for 4 seats",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "distinct_principals"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P1"
+      },
+      {
+        "detail": "every channel carried content",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scan_coverage"
+      },
+      {
+        "detail": "each honey sentinel is found in the harness's own create request",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_sentinel_in_request"
+      },
+      {
+        "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_honey_identity_where_entitled"
+      }
+    ],
+    "forbidden_evidence": {
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+        "ambiguous_tokens_not_scanned": {},
+        "occurrences": [],
+        "tokens_scanned": [
+          "Demonic Tutor",
+          "Vampiric Tutor",
+          "WS30_HONEY_P2_PRIVATE_7F3A",
+          "obj:hidden-hand",
+          "obj:hidden-lib-0"
+        ]
+      }
+    },
+    "token_evidence": {
+      "knowledge_projection:HIDDEN_HONEYCARD_SENTINEL:P1": [
+        {
+          "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P1"
+        },
+        {
+          "detail": "every channel carried content",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "scan_coverage"
+        },
+        {
+          "detail": "each honey sentinel is found in the harness's own create request",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "scanner_detects_sentinel_in_request"
+        },
+        {
+          "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "scanner_detects_honey_identity_where_entitled"
+        }
+      ]
+    },
+    "viewer": "P1"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "283ec519f6b6c92b73e5c586d242e7414e7360c4f40c8d1820587f4c5fa2f8b1",
+  "runner_digest": "fdc100aa552955d20d21ea7b933c5f2038acff18d44595d03f4349d519b7c75c",
+  "runtime_receipt_digest": "46d8d923805df920d501b02f32f1569bc1400ddd0f78e087d6a391347e3bbd44",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:knowledge-projection#HIDDEN_HONEYCARD_SENTINEL"
+}

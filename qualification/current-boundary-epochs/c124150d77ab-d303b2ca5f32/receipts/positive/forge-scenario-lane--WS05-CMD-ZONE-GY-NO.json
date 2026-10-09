@@ -1,0 +1,42 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "forge",
+  "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+  "fixture_id": "WS05-CMD-ZONE-GY-NO",
+  "obligation_exercised": {
+    "forbidden_events": [],
+    "obligation_digest": "85686ca3ad84febd8bf02fea3ce25f6fe070f032e40c0bb5928e1c3807ae1896",
+    "requested_state_digest": "6d902194fb8eeabc9768d3581fbdbc80d26163c27b25d4c0ff7d1fca7b882100",
+    "required_events": [
+      "commander_zone_event:graveyard",
+      "commander_choice:graveyard"
+    ],
+    "terminal_postconditions": [
+      "Commander is in graveyard after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+    ]
+  },
+  "observed_assertion": {
+    "checkpoint_basis": "PRE_CAUSAL_POSITION_THEN_CAUSED_STACK",
+    "checkpoint_variance_source": null,
+    "checkpoint_verdict": "EXACT",
+    "engine_authored_decision_count": 28,
+    "external_decision_selection_sha256": "25f2d927ceed63c20be66b8a8f98a75c62215e23b41c724e44499721690dc262",
+    "native_bootstrap_applied": true,
+    "obligation_kind": "commander_zone_choice",
+    "requested_checkpoint_verdict": "EXACT",
+    "row_document_sha256": "f5569b00c7f3a9e92b8182073ed8a04dcdb31f0a7d62c70f628be3f56c573a5d",
+    "semantic_events": [
+      "commander_zone_event:graveyard",
+      "commander_choice:graveyard"
+    ],
+    "terminal_facts_sha256": "c0ea74dfa88eee6fe161a1f23f0a29a96f0077340e50b92fe1f0ea0122963e84"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "99426f3d185b26c79b06f791af81a781308ca3ccfd56465f42407e4a16dc4a72",
+  "runner_digest": "fdc100aa552955d20d21ea7b933c5f2038acff18d44595d03f4349d519b7c75c",
+  "runtime_receipt_digest": "f5569b00c7f3a9e92b8182073ed8a04dcdb31f0a7d62c70f628be3f56c573a5d",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-ZONE-GY-NO"
+}

@@ -1,0 +1,38 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "forge",
+  "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+  "fixture_id": "WS05-CMD-PARTNER-DMG",
+  "obligation_exercised": {
+    "forbidden_events": [],
+    "obligation_digest": "46b1eb6427635dd410069810c308faa9f5486fdba06ce82fd5ff85006ba1afc9",
+    "requested_state_digest": "79c514bca20aff91afc6099f1a6c63b605d74bc1e1e7032a5fdfd7fe0d5143d1",
+    "required_events": [],
+    "terminal_postconditions": [
+      "12 + 9 combat damage from different partner commanders does not pool to cause a 21-damage loss."
+    ]
+  },
+  "observed_assertion": {
+    "checkpoint_basis": "BOOTSTRAP_CHECKPOINT",
+    "checkpoint_variance_source": null,
+    "checkpoint_verdict": "EXACT",
+    "engine_authored_decision_count": 17,
+    "external_decision_selection_sha256": "c6118e4a487af46c19847ae45aa1962b1a9b83076d952f5f6e4bd0b6fe571a3b",
+    "native_bootstrap_applied": true,
+    "obligation_kind": "commander_damage_checked_per_commander",
+    "requested_checkpoint_verdict": null,
+    "row_document_sha256": "ee7b391f475b08f14e9456c77504d31c0e1d349d4aacb7effeae7175502bcac0",
+    "semantic_events": [
+      "commander_damage_per_commander_evaluated:p2"
+    ],
+    "terminal_facts_sha256": "291fc5d7e118a39bf921d1fd324b9572c79eab5ebfc6b36d5aee04c924a5dfa8"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "92201fa2201445a8359c0df73026488f52943020e2730145ed086a542231cf74",
+  "runner_digest": "fdc100aa552955d20d21ea7b933c5f2038acff18d44595d03f4349d519b7c75c",
+  "runtime_receipt_digest": "ee7b391f475b08f14e9456c77504d31c0e1d349d4aacb7effeae7175502bcac0",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-CMD-PARTNER-DMG"
+}
