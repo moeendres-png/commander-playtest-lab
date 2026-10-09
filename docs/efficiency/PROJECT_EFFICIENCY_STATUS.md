@@ -63,11 +63,11 @@ All jobs run in parallel, so wall-clock time is PB-03. About 5800 runner-seconds
 | M1 | Keep a failed OpenCode run's work as a secret-scanned artifact | DONE (#633) | security review SAFE; planted-token control blocks the upload |
 | M2 | Forbid closing keywords in OpenCode commits and PR bodies | DONE (#636) | footer test; #255 and #626 reopened |
 | M3 | Handoff index derives lanes from open issues | DONE (#636) | tests |
-| M4 | Static arrival-history coverage over every arrival-using lane | ACTIVE (1.0.29, #634) | — |
+| M4 | Static arrival-history coverage over every arrival-using lane | DONE (1.0.29, #642) | coverage test over the 99 arrival-using records |
 | M5 | Static decision-script preflight: family transport coverage, seats, scopes, actors, produced-by links | PLANNED (after M4) | — |
 | M6 | Run the mid-game probe in parallel with the Forge build | PROPOSED to the owner (#628) | ≈125–135 s per run, no evidence change |
-| M7 | Early contract phase before builds | ACTIVE (Codex #629) | — |
-| M8 | Atomic correctness remediation of undeclared passes and mana picks | QUEUED (#634, after M4) | — |
+| M7 | Early contract phase before builds | DONE (Codex #629) | — |
+| M8 | Atomic correctness remediation of undeclared passes and mana picks | ACTIVE (#643 = step A data, contract 1.0.30; step B code strictness follows) | PB-03 run 37888112605 on the PR head found two defects before merge (below) |
 | M9 | Parallel XMage phases inside the runner | DEFERRED | about 10–12 min per run (≈25 %), but semantics-adjacent: needs a shadow comparison of 3 paired runs (≈ 5 h of runner time). Revisit once correctness cycles stop dominating. |
 | M10 | Allow `/oc` on bot-authored PRs (fix rounds in place) | NOT_WORTH_IMPLEMENTING | weakens a deliberate trust gate (agent-written text steering the next agent); the saving is bookkeeping, not evidence |
 | M11 | E4 shared engine build artifacts | DEFERRED (#591) | ≈5 min per run; needs provenance-bound shadow validation |
@@ -78,3 +78,12 @@ All jobs run in parallel, so wall-clock time is PB-03. About 5800 runner-seconds
 - A strictness change and the data that satisfies it land in **one** PR, or the data lands first. Proof: a PB-03 run on the PR head.
 - Every record family that a lane executes is covered by a static test before any runtime run.
 - Fix rounds are dispatched with a ≤ 45-minute time box. Superseded PRs are closed immediately with a pointer.
+- A record declaration is never a control command. A declared scope bound (for example an obligation pass-through's `until`) only authorizes; the lane's own stop condition decides when a row ends.
+- A declared step must be one an engine frame answers in engine order. A step no frame reaches keeps a row from its natural stop.
+
+## Lessons from the #643 cycle (2026-10-09)
+
+- **The rescue artifact paid off once.** An OpenCode run that outlived its token left its work in the rescue bundle (M1); the 1.0.30 data commit was recovered from it instead of being redone. A second rescued run held no commit, which the bundle also showed in one command.
+- **PB-03 on the PR head caught both defects before merge.** It found a privacy leak (AF05: a principal-neutral arrival readback on the principal tape during the scripted event) and seven mana declarations placed where no engine frame answers them. Both were found by comparing per-row traces against the sealed epoch's traces, not by rerunning.
+- **Trace diff against the last sealed epoch is the fastest diagnosis.** A row that passed on the epoch and fails on the head differs in its decision trace exactly where the change bites. This took minutes; a rerun would have taken 48.
+- **Candidate for M5.** Both defects are statically detectable: a lane observation call outside the principal-scoped set during the principal phase, and a declared step whose family has no frame before the row's recorded stop on the last sealed epoch's trace. M5 should check the second against sealed traces.
