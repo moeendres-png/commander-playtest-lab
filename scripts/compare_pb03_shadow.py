@@ -11,7 +11,11 @@ Compared, per candidate:
 - the FULL107 outcome counts;
 - the exit state of every FULL107 fixture row;
 - every native receipt's return code, test/failure/error/skip counts and
-  unexecuted-class set.
+  declared/executed/unexecuted class identities and per-class outcome counts.
+
+Both inputs must contain all 12 AF gates, 107 distinct FULL107 rows and all
+four native candidate/group receipts. Equal omissions, duplicate identities,
+malformed fields and internally inconsistent row counts fail closed.
 
 The five raw XMage-only phase documents (PB03_RUNTIME_EXECUTION.json,
 MIDGAME_ROW_EXECUTIONS.json, KNOWLEDGE_PROJECTION_EXECUTIONS.json,
@@ -28,11 +32,180 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
 CANDIDATES: tuple[str, ...] = ("xmage", "forge")
+# Mirrors NATIVE_SUITE_BINDING[candidate]["classes"] in the current-boundary
+# runner. Keep in sync without importing its environment-dependent module setup.
+NATIVE_GROUPS: tuple[str, ...] = ("direct", "mechanism")
+
+
+def _strings(value: Any) -> bool:
+    return (
+        isinstance(value, list)
+        and all(isinstance(item, str) and item for item in value)
+        and len(set(value)) == len(value)
+    )
+
+
+def _count(value: Any) -> bool:
+    return type(value) is int and value >= 0
+
+
+def _source(root: Path) -> dict[str, str] | None:
+    doc = _read_json(root / "EPOCH_IDENTITY.json")
+    source = doc.get("producing_source") if isinstance(doc, dict) else None
+    if not isinstance(source, dict) or not isinstance(source.get("repository"), str):
+        return None
+    if not source["repository"] or not all(
+        isinstance(source.get(field), str) and re.fullmatch(r"[0-9a-f]{40}", source[field])
+        for field in ("commit", "tree")
+    ):
+        return None
+    return {field: source[field] for field in ("repository", "commit", "tree")}
+
+
+def _packet_errors(root: Path, side: str) -> list[str]:
+    """Validate completeness before reducing lists to keyed comparison maps."""
+    errors: list[str] = []
+
+    def invalid(label: str, reason: str) -> None:
+        errors.append(f"{side} {label}: invalid comparison input: {reason}")
+
+    source = _source(root)
+    if source is None:
+        invalid("epoch identity", "missing or malformed producing source")
+    for candidate in CANDIDATES:
+        label = f"{candidate} AF00-AF11"
+        doc = _read_json(root / f"AF00_AF11_{candidate.upper()}.json")
+        if doc is None:
+            errors.append(f"{label}: document missing from the {side} packet")
+        elif not isinstance(doc, dict) or doc.get("candidate") != candidate:
+            invalid(label, "expected a candidate-bound object")
+        else:
+            gates = doc.get("gates")
+            if not isinstance(gates, list) or len(gates) != 12:
+                invalid(label, "exactly 12 gates are required")
+            elif not all(
+                isinstance(gate, dict)
+                and isinstance(gate.get("gate"), str)
+                and isinstance(gate.get("verdict"), str)
+                and bool(gate["verdict"])
+                and _strings(gate.get("blocking_rows"))
+                for gate in gates
+            ):
+                invalid(label, "malformed gate identity, verdict or blocking rows")
+            elif {gate["gate"] for gate in gates} != {f"AF{i:02d}" for i in range(12)}:
+                invalid(label, "missing or duplicate AF00-AF11 gate identities")
+
+        label = f"{candidate} FULL107"
+        doc = _read_json(root / f"FULL107_{candidate.upper()}_RESULTS.json")
+        if doc is None:
+            errors.append(f"{label}: document missing from the {side} packet")
+            continue
+        if not isinstance(doc, dict) or doc.get("candidate") != candidate:
+            invalid(label, "expected a candidate-bound object")
+            continue
+        rows, counts = doc.get("rows"), doc.get("counts")
+        if type(doc.get("total")) is not int or doc["total"] != 107:
+            invalid(label, "total must be exactly 107")
+        if not isinstance(rows, list) or len(rows) != 107:
+            invalid(label, "exactly 107 rows are required")
+            continue
+        if not all(
+            isinstance(row, dict)
+            and isinstance(row.get("fixture_id"), str)
+            and bool(row["fixture_id"])
+            and isinstance(row.get("exit_state"), str)
+            and bool(row["exit_state"])
+            for row in rows
+        ):
+            invalid(label, "malformed fixture identity or exit state")
+            continue
+        if len({row["fixture_id"] for row in rows}) != 107:
+            invalid(label, "duplicate fixture identities")
+        if (
+            not isinstance(counts, dict)
+            or not counts
+            or not all(
+                isinstance(key, str) and key and _count(value) for key, value in counts.items()
+            )
+        ):
+            invalid(label, "malformed outcome counts")
+        elif dict(Counter(row["exit_state"] for row in rows)) != {
+            key: value for key, value in counts.items() if value
+        }:
+            invalid(label, "outcome counts disagree with the 107 row states")
+
+    seen: set[tuple[str, str]] = set()
+    for path in sorted((root / "receipts").glob("native-*.json")):
+        doc = _read_json(path)
+        label = f"native receipt {path.name}"
+        if not isinstance(doc, dict):
+            invalid(label, "expected an object")
+            continue
+        candidate, group = doc.get("candidate"), doc.get("group")
+        if candidate not in CANDIDATES or group not in NATIVE_GROUPS:
+            invalid(label, "unknown candidate/group identity")
+            continue
+        key = (candidate, group)
+        if key in seen:
+            invalid(label, "duplicate candidate/group identity")
+        seen.add(key)
+        if type(doc.get("returncode")) is not int or not all(
+            _count(doc.get(field)) for field in ("tests", "failed", "errors", "skipped")
+        ):
+            invalid(label, "malformed native return code or outcome counts")
+        classes, executed, unexecuted = (
+            doc.get("classes"),
+            doc.get("executed_classes"),
+            doc.get("unexecuted_classes"),
+        )
+        if not _strings(classes) or not classes or not _strings(unexecuted):
+            invalid(label, "missing, malformed or duplicate declared/unexecuted classes")
+            continue
+        if (
+            not isinstance(executed, dict)
+            or set(executed) != set(classes)
+            or not set(unexecuted) <= set(classes)
+        ):
+            invalid(
+                label,
+                "every declared class must have an observation; unexecuted classes must be declared",
+            )
+            continue
+        for name, counts in executed.items():
+            fields = ("tests", "failures", "errors", "skipped")
+            if not isinstance(counts, dict):
+                invalid(label, "malformed per-class execution counts")
+            elif all(_count(counts.get(field)) for field in fields):
+                # observed_class_executions also calls failed, all-skipped and
+                # zero-case classes unexecuted, while retaining their counters.
+                missing = (
+                    counts["tests"] == 0
+                    or counts["skipped"] >= counts["tests"]
+                    or bool(counts["failures"] or counts["errors"])
+                )
+                if (name in unexecuted) != missing:
+                    invalid(label, "unexecuted identity inconsistent with class outcomes")
+            elif not (
+                name in unexecuted
+                and not any(field in counts for field in fields)
+                and _count(counts.get("fresh_reports_scanned"))
+                and isinstance(counts.get("unparseable_reports"), list)
+                and all(isinstance(report, str) for report in counts["unparseable_reports"])
+            ):
+                # No fresh case/report is represented by scan diagnostics in
+                # the real producer's observation map, not by a missing entry.
+                invalid(label, "malformed per-class execution counts")
+    required = {(candidate, group) for candidate in CANDIDATES for group in NATIVE_GROUPS}
+    for candidate, group in sorted(required - seen):
+        invalid(f"native receipt {candidate}:{group}", "required group is missing")
+    return errors
 
 
 def _read_json(path: Path) -> Any:
@@ -98,6 +271,13 @@ def _native_state(root: Path) -> dict[str, dict[str, Any]]:
             "errors": document.get("errors"),
             "skipped": document.get("skipped"),
             "unexecuted_classes": sorted(document.get("unexecuted_classes") or ()),
+            "classes": sorted(document["classes"]),
+            "executed_classes": {
+                name: {
+                    field: counts.get(field) for field in ("tests", "failures", "errors", "skipped")
+                }
+                for name, counts in document["executed_classes"].items()
+            },
         }
     return state
 
@@ -171,6 +351,8 @@ def _compare_native_receipts(differences: list[str], serial_root: Path, shadow_r
             "errors",
             "skipped",
             "unexecuted_classes",
+            "classes",
+            "executed_classes",
         ):
             if left[field] != right[field]:
                 differences.append(
@@ -182,9 +364,16 @@ def compare_packets(serial_root: Path, shadow_root: Path) -> list[str]:
     """Every semantic difference between the two packets, one line each.
 
     Timestamps, durations and run ids are not read at all: only the compared
-    fields above are, so run noise cannot produce a difference.
+    fields above are, so run noise cannot produce a difference. Invalid input
+    returns validation errors only, suppressing subsequent semantic differences.
+    Repository URLs are byte-exact: checkout/clone .git spelling differences
+    require identity adjudication rather than automatic equivalence.
     """
-    differences: list[str] = []
+    differences = _packet_errors(serial_root, "serial") + _packet_errors(shadow_root, "shadow")
+    if differences:
+        return differences
+    if _source(serial_root) != _source(shadow_root):
+        differences.append("epoch identity: producing repository/commit/tree differ")
     for candidate in CANDIDATES:
         _compare_af(differences, serial_root, shadow_root, candidate)
         _compare_full107(differences, serial_root, shadow_root, candidate)
