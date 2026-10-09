@@ -18,6 +18,9 @@ from jsonschema.exceptions import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
 SUCCESSOR_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_27.json"
+)
+V126_CONTRACT_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_26.json"
 )
 V125_CONTRACT_PATH = (
@@ -220,6 +223,9 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_27_SUCCESSOR.json"
+)
+V126_MATERIALIZATION_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_26_SUCCESSOR.json"
 )
 V125_MATERIALIZATION_SCHEMA_PATH = (
@@ -294,7 +300,7 @@ def test_current_authority_preserves_history_and_lists_every_changed_fixture() -
     )
     assert (
         authority["full107"]["successor_contract"]
-        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_26.json"
+        == "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_27.json"
     )
     for fixture_id in HIDDEN_ERRATA_IDS:
         assert authority["full107"]["evidence_survival"][fixture_id] == (
@@ -648,7 +654,7 @@ def test_the_materialization_receipt_names_every_corrected_fixture() -> None:
     receipt = materialization.receipt()
     assert receipt["changed_fixture_ids"] == authority["full107"]["changed_fixture_ids"]
     assert len(receipt["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
-    assert receipt["contract_id"] == "commander-lab.full107/1.0.26-successor"
+    assert receipt["contract_id"] == "commander-lab.full107/1.0.27-successor"
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
@@ -660,9 +666,9 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
 
     assert (
         effective["schema_version"]
-        == "commander-lab.semantic-fixture-materialization/1.0.26-successor"
+        == "commander-lab.semantic-fixture-materialization/1.0.27-successor"
     )
-    assert effective["contract_id"] == "commander-lab.full107/1.0.26-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.27-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
@@ -2129,7 +2135,15 @@ def test_residual_errata_correct_unreachable_requests_and_keep_the_obligation() 
             selection = step["selection"]
             assert selection["matches_only_provider_offered_legal_options"] is True
             assert selection["on_multiple_match"] == selection["on_zero_match"] == "FAIL_CLOSED"
-    assert [s["actor"] for s in effective["WS05-MP-BLOCK-4"]["decision_script"]] == ["P2", "P3"]
+    assert [s["actor"] for s in effective["WS05-MP-BLOCK-4"]["decision_script"]] == [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "ALL",
+        "P2",
+        "P3",
+    ]
 
 
 def test_the_coin_call_is_scripted_and_the_flip_stays_the_rules_rng() -> None:
@@ -2230,8 +2244,13 @@ def test_claude_lane_errata_are_versioned_and_keep_every_obligation() -> None:
         assert randomness["channels"] == ["library_shuffle:P3"]
         assert randomness["rules_seed"] == base[fixture_id]["rules_randomness"]["rules_seed"]
         # The passes are declared by the erratum's native procedure, never left implicit.
-        erratum = effective[fixture_id]["native_procedure"][-1]["details"]
-        assert "priority_passes" in erratum and "nexus_shuffle" in erratum
+        # (Later errata append their own steps after it, so find it by shape.)
+        erratum = next(
+            step["details"]
+            for step in effective[fixture_id]["native_procedure"]
+            if "priority_passes" in (step.get("details") or {})
+        )
+        assert "nexus_shuffle" in erratum
     # Every SLOT-04 library is complete: named objects on top, then 99 - hand templates.
     for fixture_id in ("PILOT_CHOOSE_USE", "NEGATIVE_DEFAULT_YES_NO", "PILOT_PILE"):
         decks = {d["player_id"]: d for d in effective[fixture_id]["deck_state"]}
@@ -2639,8 +2658,14 @@ _TEMP_REPO_FILES: dict[str, Path] = {
     "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_25_SUCCESSOR.json": (
         V125_MATERIALIZATION_SCHEMA_PATH
     ),
-    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_26.json": SUCCESSOR_PATH,
+    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_26.json": (
+        V126_CONTRACT_PATH
+    ),
     "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_26_SUCCESSOR.json": (
+        V126_MATERIALIZATION_SCHEMA_PATH
+    ),
+    "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_27.json": SUCCESSOR_PATH,
+    "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_27_SUCCESSOR.json": (
         MATERIALIZATION_SCHEMA_PATH
     ),
     "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json": (
@@ -2676,7 +2701,7 @@ def _resolver_at(root: Path):
 
 
 def _successor_contract_path(root: Path) -> Path:
-    return root / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_26.json"
+    return root / "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_27.json"
 
 
 def test_contract_1_0_23_generator_regenerates_byte_identically(tmp_path: Path) -> None:
@@ -2849,7 +2874,7 @@ def test_the_bounded_secondary_6p_record_is_never_a_denominator_row() -> None:
     # The authority pointer names the current contract; the bounded record's own
     # ledger entry keeps its 1.0.23 provenance.
     assert _json(AUTHORITY_PATH)["full107"]["successor_contract"].endswith(
-        "FULL107_SUCCESSOR_CONTRACT_v1_0_26.json"
+        "FULL107_SUCCESSOR_CONTRACT_v1_0_27.json"
     )
     entry = next(
         item for item in _json(LEDGER_PATH)["records"] if item["fixture_id"] == "PLAYER_COUNT_6P"
@@ -2862,7 +2887,7 @@ def test_the_bounded_secondary_6p_record_is_never_a_denominator_row() -> None:
     # bundle (the bounded record is not part of it) and enumerates 1.0.23.
     effective = _resolver().load_effective_materialization()
     Draft202012Validator(_json(MATERIALIZATION_SCHEMA_PATH)).validate(effective)
-    assert effective["contract_id"] == "commander-lab.full107/1.0.26-successor"
+    assert effective["contract_id"] == "commander-lab.full107/1.0.27-successor"
 
 
 def test_the_runner_uses_the_bounded_record_only_as_the_6p_record_argument() -> None:
@@ -3827,7 +3852,7 @@ def test_contract_1_0_26_declares_the_whole_pre_checkpoint_history() -> None:
     produced graveyard Mountain is marked with ``produced_by_step``. The shape of
     each transport step is exactly the one #620's arrival driver consumes; the
     obligation keys and the 107-row denominator are untouched."""
-    contract = _json(SUCCESSOR_PATH)
+    contract = _json(V126_CONTRACT_PATH)
     predecessor = _json(V125_CONTRACT_PATH)
     resolver = _resolver()
 
@@ -3895,14 +3920,10 @@ def test_contract_1_0_26_declares_the_whole_pre_checkpoint_history() -> None:
     base = _base_record(NEGATIVE_PARENT_CLASS_FALLBACK)
     assert resolver.obligation_digest(_overlay(base, patch)) == base["obligation_digest"]
 
-    # The authority pointer names the new contract and the corrected class; the
-    # effective record carries the declared history and the produced graveyard
-    # object.
+    # The authority pointer names the current (1.0.27) contract -- asserted by
+    # the 1.0.27 test -- while the corrected NEGATIVE class and denominator are
+    # still the 1.0.26 ones.
     authority = _json(AUTHORITY_PATH)["full107"]
-    assert authority["successor_contract"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_26.json")
-    assert authority["effective_materialization_schema"].endswith(
-        "SEMANTIC_FIXTURE_SCHEMA_v1_0_26_SUCCESSOR.json"
-    )
     assert authority["changed_fixture_ids"].count(NEGATIVE_PARENT_CLASS_FALLBACK) == 1
     assert authority["evidence_survival"][NEGATIVE_PARENT_CLASS_FALLBACK] == (
         "REQUALIFICATION_REQUIRED_" + CORRECTION_CLASS_1_0_26
@@ -3949,23 +3970,25 @@ def test_contract_1_0_26_declares_the_whole_pre_checkpoint_history() -> None:
     }
 
     # The schema accepts the effective bundle, including the declared history.
+    # (1.0.27 keeps NEGATIVE untouched; the current bundle contract id is
+    # asserted by the 1.0.27 test.)
     effective_bundle = resolver.load_effective_materialization()
     Draft202012Validator(_json(MATERIALIZATION_SCHEMA_PATH)).validate(effective_bundle)
-    assert effective_bundle["contract_id"] == "commander-lab.full107/1.0.26-successor"
 
 
 def test_contract_1_0_26_generator_regenerates_byte_identically(tmp_path: Path) -> None:
-    """Evidence (a): the 1.0.26 contract, schema, pointer and ledger are always
-    regenerated from the 1.0.25 bytes; a fresh run against a disposable copy of
-    the inputs reproduces every committed byte, a second run is byte-identical
-    and REPO_ROOT is never mutated."""
+    """Evidence (a): the 1.0.26 contract and schema are always regenerated from
+    the 1.0.25 bytes. After 1.0.27 the historical generator no longer reproduces
+    the current pointer/ledger (they name 1.0.27), so those two are asserted only
+    to be run-to-run identical and never to have mutated REPO_ROOT; the committed
+    1.0.26 contract and schema bytes are exactly the generator's output."""
     root = _temp_repo(tmp_path)
     targets = {
         "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_26.json": (
-            SUCCESSOR_PATH
+            V126_CONTRACT_PATH
         ),
         "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_26_SUCCESSOR.json": (
-            MATERIALIZATION_SCHEMA_PATH
+            V126_MATERIALIZATION_SCHEMA_PATH
         ),
         "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": AUTHORITY_PATH,
         "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json": LEDGER_PATH,
@@ -3978,11 +4001,232 @@ def test_contract_1_0_26_generator_regenerates_byte_identically(tmp_path: Path) 
         text=True,
     )
     first = {relative: (root / relative).read_bytes() for relative in targets}
+    for relative in (
+        "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_26.json",
+        "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_26_SUCCESSOR.json",
+    ):
+        assert first[relative] == before[relative], relative
     for relative, target in targets.items():
-        assert first[relative] == before[relative]
         assert target.read_bytes() == before[relative], f"REPO_ROOT was mutated: {relative}"
     subprocess.run(
         [sys.executable, str(GENERATOR_1_0_26), str(root)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    for relative in targets:
+        assert (root / relative).read_bytes() == first[relative]
+
+
+# --------------------------------------------------------------------------- #
+# Contract 1.0.27: the turn-1 arrival pre-checkpoint history declarations
+# erratum for WS05-MP-TURN-5, WS05-MP-BLOCK-4 and MICRO_REPLACEMENT
+# (#626 Coordinator ruling, 2026-10-08; refs #592)
+# --------------------------------------------------------------------------- #
+
+GENERATOR_1_0_27 = (
+    REPO_ROOT / "docs/turn1_history_erratum_1_0_27_20261008/generate_contract_1_0_27.py"
+)
+CORRECTION_CLASS_1_0_27 = "FIXTURE_DEFECT_CORRECTION_TURN1_ARRIVAL_HISTORY_DECLARATIONS"
+TURN1_ARRIVAL_ERRATA_IDS = ["WS05-MP-TURN-5", "WS05-MP-BLOCK-4", "MICRO_REPLACEMENT"]
+
+
+def test_contract_1_0_27_declares_the_turn1_arrival_history() -> None:
+    """1.0.27 (#626 Coordinator ruling): the three turn-1 arrival records declare
+    their pre-checkpoint keep and priority history in ``decision_script`` and the
+    Lab only transports it: four pregame keeps (CR 103.5) and a priority
+    pass-through scope from turn 1's beginning to that row's own declared
+    checkpoint (CR 117.3d/305.1). Where the checkpoint follows P1's attack
+    declaration (WS05-MP-BLOCK-4, MICRO_REPLACEMENT), that CR 508.1 attack set is
+    the record's own ``combat_state`` declaration, not a ``decision_script`` step
+    (#632 re-review P2). The obligation keys, the requested state and the 107-row
+    denominator are untouched; every other 1.0.26 successor is carried byte for
+    byte."""
+    contract = _json(SUCCESSOR_PATH)
+    predecessor = _json(V126_CONTRACT_PATH)
+    resolver = _resolver()
+    authority = _json(AUTHORITY_PATH)["full107"]
+
+    assert contract["contract_id"] == "commander-lab.full107/1.0.27-successor"
+    assert (
+        contract["effective_materialization_version"]
+        == "commander-lab.semantic-fixture-materialization/1.0.27-successor"
+    )
+    assert contract["predecessor"]["path"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_26.json")
+    assert (
+        contract["predecessor"]["sha256"]
+        == hashlib.sha256(V126_CONTRACT_PATH.read_bytes()).hexdigest()
+    )
+    assert contract["predecessor"]["record_count"] == len(predecessor["record_successors"])
+
+    # Every overlay keeps its place and every other patch is carried byte for
+    # byte; exactly the three ruled fixtures change.
+    assert [p["fixture_id"] for p in contract["record_successors"]] == [
+        p["fixture_id"] for p in predecessor["record_successors"]
+    ]
+    new = {p["fixture_id"]: p for p in contract["record_successors"]}
+    old = {p["fixture_id"]: p for p in predecessor["record_successors"]}
+    changed = set(TURN1_ARRIVAL_ERRATA_IDS)
+    for fixture_id, patch in new.items():
+        if fixture_id not in changed:
+            assert patch == old[fixture_id], fixture_id
+    assert contract["bounded_secondary_records"] == predecessor["bounded_secondary_records"]
+
+    checkpoints = {
+        "WS05-MP-TURN-5": {"turn": 1, "phase": "precombat_main", "step": "main"},
+        "WS05-MP-BLOCK-4": {"turn": 1, "phase": "combat", "step": "declare_blockers"},
+        "MICRO_REPLACEMENT": {"turn": 1, "phase": "combat", "step": "declare_blockers"},
+    }
+    for fixture_id in TURN1_ARRIVAL_ERRATA_IDS:
+        patch = new[fixture_id]
+        prior = old[fixture_id]
+        base = _base_record(fixture_id)
+        assert patch["correction_class"] == CORRECTION_CLASS_1_0_27
+        assert patch["evidence_survival"] == "REQUALIFICATION_REQUIRED"
+        assert patch["predecessor_requested_state_digest"] == base["requested_state_digest"]
+        # The requested state is untouched: a decision-script-only erratum.
+        assert (
+            patch["successor_requested_state_digest"] == prior["successor_requested_state_digest"]
+        )
+        lineage = patch["superseded_successor_patch"]
+        assert lineage["contract"] == "commander-lab.full107/1.0.26-successor"
+        assert lineage["correction_class"] == prior["correction_class"]
+        assert (
+            lineage["patch_sha256"]
+            == hashlib.sha256(resolver.canonical_json(prior).encode("utf-8")).hexdigest()
+        )
+        assert (
+            lineage["successor_requested_state_digest"]
+            == (prior["successor_requested_state_digest"])
+        )
+        assert set(prior["replace"]) <= set(patch["replace"])
+
+        script = patch["replace"]["decision_script"]
+        prior_script = prior["replace"].get("decision_script") or []
+        assert [step["decision_family"] for step in script] == [
+            *(["mulligan"] * 4),
+            "priority_pass_through",
+            *[step["decision_family"] for step in prior_script],
+        ]
+        assert [step["actor"] for step in script[:4]] == ["P1", "P2", "P3", "P4"]
+        for keep in script[:4]:
+            selection = keep["selection"]
+            assert selection["selector_kind"] == "semantic_action"
+            assert selection["semantic_value"] == "keep_opening_hand"
+            assert selection["on_zero_match"] == selection["on_multiple_match"] == "FAIL_CLOSED"
+        pass_through = script[4]
+        assert pass_through["actor"] == "ALL"
+        assert pass_through["scope"] == {
+            "from": {"turn": 1, "phase": "beginning"},
+            "until": checkpoints[fixture_id],
+        }
+        assert pass_through["selection"]["selector_kind"] == "semantic_action"
+        assert pass_through["selection"]["semantic_value"] == "pass_priority"
+        assert pass_through["selection"]["on_zero_match"] == "FAIL_CLOSED"
+        assert pass_through["selection"]["on_multiple_match"] == "FAIL_CLOSED"
+        # The record's own prior steps are carried byte for byte.
+        assert script[5:] == prior_script
+
+        # The obligation keys and the requested state are the prior record's.
+        record = _overlay(base, patch)
+        assert resolver.obligation_digest(record) == base["obligation_digest"]
+        effective = resolver.effective_record(fixture_id)
+        assert resolver.obligation_digest(effective) == base["obligation_digest"]
+        assert (
+            resolver.requested_state_digest(effective) == prior["successor_requested_state_digest"]
+        )
+
+        # The authority carries the new class and the ledger entry names NONE.
+        assert authority["evidence_survival"][fixture_id] == (
+            "REQUALIFICATION_REQUIRED_" + CORRECTION_CLASS_1_0_27
+        )
+        (ledger_entry,) = [
+            entry for entry in _json(LEDGER_PATH)["records"] if entry["fixture_id"] == fixture_id
+        ]
+        assert ledger_entry["correction_class"] == CORRECTION_CLASS_1_0_27
+        assert ledger_entry["denominator_effect"] == "NONE"
+        assert ledger_entry["successor_contract"].endswith(
+            "FULL107_SUCCESSOR_CONTRACT_v1_0_27.json"
+        )
+        assert {change["change"] for change in ledger_entry["field_changes"]} >= {
+            "decision_script +4 pregame mulligan keep steps (P1-P4)",
+            "decision_script +1 priority_pass_through scope (actor ALL) from "
+            "turn 1's beginning to the declared checkpoint",
+        }
+
+        # #632 re-review P2: for the rows whose checkpoint follows P1's attack
+        # declaration, the attack set is the record's own combat_state
+        # declaration; no authority/reason/ledger text may claim the whole
+        # pre-checkpoint history lives in decision_script.
+        details = patch["append_native_procedure"][-1]["details"]
+        if fixture_id in {"WS05-MP-BLOCK-4", "MICRO_REPLACEMENT"}:
+            assert "already declared by the record's own combat_state" in details["authority"]
+            assert "not by decision_script" in details["authority"]
+            assert (
+                "with P1's attack declaration before the checkpoint already declared "
+                "by the record's own combat_state (CR 508.1)" in details["reason"]
+            )
+            assert (
+                "combat_state declaration (CR 508.1), not a decision_script step"
+                in ledger_entry["notes"]
+            )
+            assert "whole turn-1 pre-checkpoint history in decision_script" not in (
+                details["authority"] + details["reason"] + ledger_entry["notes"]
+            )
+        else:
+            assert "combat_state" not in details["authority"]
+            assert "in decision_script" in details["reason"]
+
+    # The authority names the new contract and the new schema; NEGATIVE keeps the
+    # 1.0.26 class and the denominator is untouched.
+    assert authority["successor_contract"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_27.json")
+    assert authority["effective_materialization_schema"].endswith(
+        "SEMANTIC_FIXTURE_SCHEMA_v1_0_27_SUCCESSOR.json"
+    )
+    assert authority["changed_fixture_ids"].count("WS05-MP-TURN-5") == 1
+    assert authority["evidence_survival"][NEGATIVE_PARENT_CLASS_FALLBACK] == (
+        "REQUALIFICATION_REQUIRED_" + CORRECTION_CLASS_1_0_26
+    )
+    assert authority["denominator_count"] == 107
+    for fixture_id in TURN1_ARRIVAL_ERRATA_IDS:
+        assert fixture_id in CHANGED_FIXTURE_IDS
+    assert len(authority["changed_fixture_ids"]) == len(CHANGED_FIXTURE_IDS)
+    assert authority["unchanged_fixture_count"] == 107 - len(DENOMINATOR_CHANGED_FIXTURE_IDS)
+
+    effective_bundle = resolver.load_effective_materialization()
+    Draft202012Validator(_json(MATERIALIZATION_SCHEMA_PATH)).validate(effective_bundle)
+    assert effective_bundle["contract_id"] == "commander-lab.full107/1.0.27-successor"
+
+
+def test_contract_1_0_27_generator_regenerates_byte_identically(tmp_path: Path) -> None:
+    """Evidence (a): the 1.0.27 contract, schema, pointer and ledger are always
+    regenerated from the 1.0.26 bytes; a fresh run against a disposable copy of
+    the inputs reproduces every committed byte, a second run is byte-identical
+    and REPO_ROOT is never mutated."""
+    root = _temp_repo(tmp_path)
+    targets = {
+        "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_27.json": (
+            SUCCESSOR_PATH
+        ),
+        "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_27_SUCCESSOR.json": (
+            MATERIALIZATION_SCHEMA_PATH
+        ),
+        "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": AUTHORITY_PATH,
+        "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json": LEDGER_PATH,
+    }
+    before = {relative: target.read_bytes() for relative, target in targets.items()}
+    subprocess.run(
+        [sys.executable, str(GENERATOR_1_0_27), str(root)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    first = {relative: (root / relative).read_bytes() for relative in targets}
+    for relative, target in targets.items():
+        assert first[relative] == before[relative], relative
+        assert target.read_bytes() == before[relative], f"REPO_ROOT was mutated: {relative}"
+    subprocess.run(
+        [sys.executable, str(GENERATOR_1_0_27), str(root)],
         check=True,
         capture_output=True,
         text=True,

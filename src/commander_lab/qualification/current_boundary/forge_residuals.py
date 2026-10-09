@@ -150,6 +150,10 @@ _DECISION_FAMILIES: dict[str, tuple[str, str]] = {
     "multi_amount": (LAB_EXECUTION_GAP, "AMOUNT_DISTRIBUTION_SELECTION"),
     "pile": (LAB_EXECUTION_GAP, "CARD_LIST"),
     "priority": (LAB_EXECUTION_GAP, "PRIORITY (cast and activate actions)"),
+    # Contract 1.0.27 declares the turn-1 arrival priority pass-through (#626):
+    # every priority frame in the declared scope is a scripted PASS, carried on
+    # the bridge's own priority frames (never a cast or activation action).
+    "priority_pass_through": (LAB_EXECUTION_GAP, "PRIORITY (pass priority)"),
     "replacement_effect": (LAB_EXECUTION_GAP, "REPLACEMENT_EFFECT"),
     # Contract 1.0.22 scripts WS05-CMD-START-2's starter (#441): the scenario
     # lane answers a STARTING_PLAYER frame only from the requested state, never

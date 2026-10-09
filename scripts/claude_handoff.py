@@ -27,7 +27,9 @@ import yaml
 
 LAB = "moeendres-png/commander-playtest-lab"
 REPOS = (LAB, "moeendres-png/mage", "moeendres-png/forge")
-LANE_ISSUES = (441, 479, 561, 572)
+# Fallback only: the lanes are the repository's open issues (see lane_issues).
+LANE_ISSUES = (441, 592, 634)
+MAX_LANES = 8
 MAX_LINES = 80
 BATON_MARKER = re.compile(r"(?i)\b(baton|ownership|owner|owns|handoff)\b")
 OWNER_LINE = re.compile(
@@ -131,9 +133,26 @@ def _state_recency(repo_dir: Path, state: dict[str, Any]) -> int:
     return int(stamp) if stamp and stamp.isdigit() else 0
 
 
-def lane_lines(repo_dir: Path, states: list[dict[str, Any]]) -> list[str]:
+def lane_issues() -> tuple[int, ...]:
+    """The open issues (pull requests excluded), newest first, capped at MAX_LANES.
+
+    A hard-coded list went stale as lanes closed; the open issue set is the live
+    lane index. Falls back to LANE_ISSUES only when the API answers nothing.
+    """
+    issues = api(f"repos/{LAB}/issues?state=open&per_page=50") or []
+    numbers = [
+        int(i["number"])
+        for i in issues
+        if isinstance(i, dict) and "number" in i and "pull_request" not in i
+    ]
+    return tuple(sorted(numbers, reverse=True)[:MAX_LANES]) or LANE_ISSUES
+
+
+def lane_lines(
+    repo_dir: Path, states: list[dict[str, Any]], numbers: tuple[int, ...] = LANE_ISSUES
+) -> list[str]:
     lines: list[str] = []
-    for number in LANE_ISSUES:
+    for number in numbers:
         issue = api(f"repos/{LAB}/issues/{number}")
         comments = api(f"repos/{LAB}/issues/{number}/comments?per_page=100") or []
         markers = [c for c in comments if BATON_MARKER.search(c.get("body") or "")]
@@ -211,10 +230,13 @@ def decision_lines(repo_dir: Path, states: list[dict[str, Any]]) -> list[str]:
 def render(repo_dir: Path, now: str) -> str:
     """The whole HANDOFF.md body, deterministic for fixed git/API/state inputs."""
     states = load_states(repo_dir)
+    lanes = lane_issues()
     sections = [
         (
-            "Lanes and owners (baton comments: " + ", ".join(f"#{n}" for n in LANE_ISSUES) + ")",
-            lane_lines(repo_dir, states),
+            "Lanes and owners (open issues; baton comments: "
+            + ", ".join(f"#{n}" for n in lanes)
+            + ")",
+            lane_lines(repo_dir, states, lanes),
         ),
         ("Branches and heads", repo_head_lines(repo_dir)),
         ("Local worktrees (dirty or unpushed only)", worktree_lines(repo_dir)),

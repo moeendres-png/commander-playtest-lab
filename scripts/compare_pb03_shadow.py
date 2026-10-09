@@ -39,6 +39,8 @@ from pathlib import Path
 from typing import Any
 
 CANDIDATES: tuple[str, ...] = ("xmage", "forge")
+# Mirrors NATIVE_SUITE_BINDING[candidate]["classes"] in the current-boundary
+# runner. Keep in sync without importing its environment-dependent module setup.
 NATIVE_GROUPS: tuple[str, ...] = ("direct", "mechanism")
 
 
@@ -362,7 +364,10 @@ def compare_packets(serial_root: Path, shadow_root: Path) -> list[str]:
     """Every semantic difference between the two packets, one line each.
 
     Timestamps, durations and run ids are not read at all: only the compared
-    fields above are, so run noise cannot produce a difference.
+    fields above are, so run noise cannot produce a difference. Invalid input
+    returns validation errors only, suppressing subsequent semantic differences.
+    Repository URLs are byte-exact: checkout/clone .git spelling differences
+    require identity adjudication rather than automatic equivalence.
     """
     differences = _packet_errors(serial_root, "serial") + _packet_errors(shadow_root, "shadow")
     if differences:

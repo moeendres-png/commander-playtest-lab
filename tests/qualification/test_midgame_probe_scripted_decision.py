@@ -236,7 +236,9 @@ class SequencedEngine:
         return {}
 
 
-def _combat_record(step: str, priority: str) -> dict[str, Any]:
+def _combat_record(
+    step: str, priority: str, *, pass_until_step: str | None = None
+) -> dict[str, Any]:
     return {
         "fixture_id": "COMBAT",
         "temporal_state": {
@@ -249,14 +251,20 @@ def _combat_record(step: str, priority: str) -> dict[str, Any]:
         # The record's own declaration that every priority on the way to the
         # checkpoint is passed (CR 117.3d); the arrival pilot never passes on a
         # player's behalf without it. The declared scope window is part of the
-        # declaration: the frame must lie inside it.
+        # declaration: the frame must lie inside it, and the ``until`` bound is
+        # exclusive (#632 P2), so a record that wants the checkpoint step's own
+        # priority window passed declares its scope beyond that step.
         "decision_script": [
             {
                 "actor": "ALL",
                 "decision_family": "priority_pass_through",
                 "scope": {
                     "from": {"turn": 1, "phase": "beginning"},
-                    "until": {"turn": 1, "phase": "combat", "step": step},
+                    "until": {
+                        "turn": 1,
+                        "phase": "combat",
+                        "step": pass_until_step or step,
+                    },
                 },
                 "selection": {
                     "matches_only_provider_offered_legal_options": True,
@@ -288,7 +296,11 @@ def test_a_requested_declaration_before_the_checkpoint_is_answered_by_the_caller
         engine.index += 1
         return True
 
-    verdict = probe.drive_arrival(engine, _combat_record("declare_attackers", "P2"), declare)
+    verdict = probe.drive_arrival(
+        engine,
+        _combat_record("declare_attackers", "P2", pass_until_step="declare_blockers"),
+        declare,
+    )
     assert verdict is not None and verdict.construction_verdict == "EXACT"
     # The declaration was the caller's; P1's priority was passed to reach P2's.
     assert declared == ["declare_attacker"]
@@ -333,5 +345,7 @@ def test_the_checkpoint_step_never_ends_before_the_requested_priority(probe: Any
     )
     with pytest.raises(probe.ml.MidgameLaneError, match="ended before P3 held priority"):
         probe.drive_arrival(
-            engine, _combat_record("declare_attackers", "P3"), lambda decision, cls: True
+            engine,
+            _combat_record("declare_attackers", "P3", pass_until_step="declare_blockers"),
+            lambda decision, cls: True,
         )

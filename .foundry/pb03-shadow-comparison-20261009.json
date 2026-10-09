@@ -29,7 +29,7 @@
     "Comparator is an experiment control, never qualification credit",
     "Raw XMage phase documents remain indirectly compared through AF/FULL107 derivations",
     "Native aggregate counters may include extra reactor tests; no false requirement that selected per-class sums equal reactor totals",
-    "Epoch repository URLs are compared byte-exactly, as emitted by the paired Actions checkouts; per-receipt engine identities remain upstream runtime binding responsibility."
+    "Epoch repository URLs are compared byte-exactly. Actions checkout and ordinary clone can emit different .git suffixes; a cross-mechanism pair requires identity adjudication. Per-receipt engine identities remain upstream runtime binding responsibility."
   ],
   "status": "ACTIVE",
   "pending": [
@@ -37,21 +37,22 @@
     "strict fresh read-only review",
     "normal merge and canonical receipt"
   ],
-  "next_action": "Publish the exact tested tree, open the bounded PR, obtain gates/review and integrate normally.",
+  "next_action": "Publish the normal target integration and bounded review repairs; obtain fresh exact-head gates and admissible read-only review, then integrate normally and persist the canonical receipt.",
   "production_provider": "NOT_SELECTED",
   "architecture_freeze": "NOT_CLAIMED",
   "review_repairs": {
     "review_comment": 6070180563,
     "formatting": "Applied locked ruff formatter; previous local ruff check did not cover formatting, now explicitly checked",
-    "producer_shape": "Each declared class has an observation; unexecuted is a subset and may carry either failed/skipped/zero-case counters or producer scan metadata. All real shapes are covered through the production parser."
+    "producer_shape": "Each declared class has an observation; unexecuted is a subset and may carry either failed/skipped/zero-case counters or producer scan metadata. All real shapes are covered through the production parser.",
+    "final_observations": "Use real published prior head/tree for the validated checkpoint; disclose URL spelling sensitivity, validation-error precedence, and the native-group source coupling. No comparator behavior change."
   },
   "schema_version": "2.0",
   "repository": "moeendres-png/commander-playtest-lab",
   "worktree": "/workspace/scratch/645aaee2cf0d/pb03-shadow-comparison",
   "audit_base_sha": "f3939d99f575a0e9820a82b9843589c754f8b43a",
   "audit_base_tree": "69fe9728d83217cf6dc054bd575a8119a81c2c48",
-  "state_written_against_head": "3380d100032082edae065990b3d299465f5ad7c6",
-  "validated_head": null,
+  "state_written_against_head": "7c3c03f3355dccf45b15ee55e7868df8e8ebf3d1",
+  "validated_head": "7c3c03f3355dccf45b15ee55e7868df8e8ebf3d1",
   "in_scope": [
     "scripts/compare_pb03_shadow.py",
     "tests/unit/test_compare_pb03_shadow.py",
@@ -63,6 +64,22 @@
     "Coverage reduction, provider selection or Architecture Freeze"
   ],
   "ownership": "PB03-SHADOW-COMPARISON-20261009 (Codex sole writer of in_scope)",
-  "exact_next_action": "Repair the required state-schema gate, publish a normal follow-up, obtain exact-head gates/review and integrate.",
-  "state_schema_repair": "Required conformance gate rejected initial custom state; use existing state.py schema2.0, no exemption or gate change."
+  "exact_next_action": "Publish the normal target integration and bounded review repairs; obtain fresh exact-head gates and admissible read-only review, then integrate normally and persist the canonical receipt.",
+  "state_schema_repair": "Required conformance gate rejected initial custom state; use existing state.py schema2.0, no exemption or gate change.",
+  "validated_tree": "9282b550c5a880310549cfe7d62cad29923d1ebb",
+  "integration_target": {
+    "sha": "4c96319c5d33d85374ad56a15ac05ca3aa06af62",
+    "tree": "a4885a47067b232fa896c5c823445b3e86af5752",
+    "method": "Normal target merge into owned branch; no overlapping owned paths. Contract 1.0.27 requires fresh hosted PB03 for workflow integration; earlier runtime evidence is historical only."
+  },
+  "prior_exact_head_ci": {
+    "head": "7c3c03f3355dccf45b15ee55e7868df8e8ebf3d1",
+    "tree": "9282b550c5a880310549cfe7d62cad29923d1ebb",
+    "required": "PASS",
+    "runs": {
+      "quality_security": 37853282071,
+      "infrastructure": 37853282082
+    },
+    "credit": "No qualification credit transfers across the changed contract."
+  }
 }
