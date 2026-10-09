@@ -613,3 +613,19 @@ def test_opencode_rescue_runs_only_on_failure_keeps_tokens_read_only_and_skips_u
         assert upload["with"]["retention-days"] <= 7
     review = doc["jobs"]["opencode-bunny-review"]
     assert "Collect unpublished agent work" not in [s.get("name") for s in review["steps"]]
+
+
+def test_opencode_runs_have_an_enforced_time_box_within_the_token_lifetime():
+    # A prompt time box is advisory; only a step timeout ends a hung agent, and
+    # it must end before the one-hour action token expires so the failure()
+    # rescue path, not a silent token loss, takes over.
+    doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
+    runs = [
+        (job_name, step)
+        for job_name, job in doc["jobs"].items()
+        for step in job["steps"]
+        if step.get("name") == "Run opencode"
+    ]
+    assert len(runs) == 3
+    for job_name, step in runs:
+        assert 0 < step.get("timeout-minutes", 0) <= 55, job_name

@@ -99,7 +99,12 @@ jobs:
           echo "opencode --version (PATH): ${INSTALLED_PATH}"
           test "${INSTALLED_PATH}" = "1.18.30"
 
+      # Enforced time box. The action's GitHub token lives one hour, so a longer
+      # run loses its push anyway; ending the step at 55 minutes fails it, and
+      # the rescue steps below keep the work (runs 37892171436, 37919745102 and
+      # 37924003093 hung for one to three hours with only a prompt time box).
       - name: Run opencode
+        timeout-minutes: 55
         run: opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
@@ -253,7 +258,12 @@ jobs:
           echo "opencode --version (PATH): ${INSTALLED_PATH}"
           test "${INSTALLED_PATH}" = "1.18.30"
 
+      # Enforced time box. The action's GitHub token lives one hour, so a longer
+      # run loses its push anyway; ending the step at 55 minutes fails it, and
+      # the rescue steps below keep the work (runs 37892171436, 37919745102 and
+      # 37924003093 hung for one to three hours with only a prompt time box).
       - name: Run opencode
+        timeout-minutes: 55
         run: opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
@@ -424,7 +434,12 @@ jobs:
           # Keep native CLI branchIsDirty false; this input survives PR checkout.
           printf '\n/.opencode/review-run-metadata.json\n' >> .git/info/exclude
 
+      # Enforced time box. The action's GitHub token lives one hour, so a longer
+      # run loses its push anyway; ending the step at 55 minutes fails it, and
+      # the rescue steps below keep the work (runs 37892171436, 37919745102 and
+      # 37924003093 hung for one to three hours with only a prompt time box).
       - name: Run opencode
+        timeout-minutes: 55
         run: opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
