@@ -19,9 +19,11 @@ from typing import Any
 from .bridge_launcher import BridgeProcess
 from .game_driver import (
     DECISION_IDENTITY_SHAPES,
+    FULL_GAME_LANE,
     GameDriveError,
     decision_identity_params,
     poll_decision,
+    poll_full_game_decision,
 )
 from .source_lock import (
     CURRENT_QUALIFICATION_BOUNDARY,
@@ -309,6 +311,7 @@ def run_af01(
     game_id: str | None = None,
     runner_root: Path | None = None,
     seat_count: int = 2,
+    lane: str | None = None,
 ) -> AF01Report:
     """Execute the AF01 v2 invariants against a live candidate bridge.
 
@@ -318,6 +321,26 @@ def run_af01(
     nothing to do with decision-time legality, so crediting that as evidence
     would be a pass for the wrong reason.
     """
+    full_game = lane == FULL_GAME_LANE
+
+    def _poll() -> dict[str, Any]:
+        if full_game:
+            return poll_full_game_decision(proc)
+        return poll_decision(proc, str(game_id), seat_count=seat_count, candidate=candidate)
+
+    def _submit(identity: dict[str, Any], proposal: dict[str, Any]) -> dict[str, Any]:
+        if full_game:
+            # The full-game lane binds a proposal to its decision through
+            # ``choices``; the same single wrong field is carried there.
+            choices = {
+                "decision_id": identity.get("decision_id"),
+                "decision_offset": identity.get("decision_offset"),
+            }
+            return proc.request("submit_action", {"proposal": {**proposal, "choices": choices}})
+        return proc.request(
+            "submit_action", {"game_id": game_id, **identity, "proposal": proposal}, game_id=game_id
+        )
+
     if not game_id:
         raise ValueError(
             "run_af01 requires a live game_id. Decision-time invariants must be "
@@ -559,13 +582,13 @@ def run_af01(
     probe_frame: dict[str, Any] | None = None
     probe_error: str | None = None
     try:
-        probe_frame = poll_decision(proc, game_id, seat_count=seat_count, candidate=candidate)
+        probe_frame = _poll()
     except GameDriveError as exc:
         probe_error = str(exc)
 
     def _decision_unchanged(identity: dict[str, Any]) -> bool | None:
         try:
-            again = poll_decision(proc, game_id, seat_count=seat_count, candidate=candidate)
+            again = _poll()
         except GameDriveError:
             return None
         field_name = DECISION_IDENTITY_SHAPES[candidate]["field"]
@@ -605,6 +628,8 @@ def run_af01(
             add(name, "UNKNOWN", f"no pending decision to probe: {probe_error}")
     else:
         identity = decision_identity_params(candidate, probe_frame)
+        if full_game:
+            identity["decision_offset"] = probe_frame["decision"]["revision"]
         actor = probe_frame["decision"]["actor"]
         pass_ids = [
             action.get("action_id")
@@ -612,19 +637,14 @@ def run_af01(
             if action.get("action_type") == "pass_priority"
         ]
 
-        illegal = proc.request(
-            "submit_action",
+        illegal = _submit(
+            identity,
             {
-                "game_id": game_id,
-                **identity,
-                "proposal": {
-                    "proposal_id": str(uuid.uuid4()),
-                    "actor_id": actor,
-                    "legal_action_id": "wsr22-not-a-real-option",
-                    "action_type": "pass_priority",
-                },
+                "proposal_id": str(uuid.uuid4()),
+                "actor_id": actor,
+                "legal_action_id": "wsr22-not-a-real-option",
+                "action_type": "pass_priority",
             },
-            game_id=game_id,
         )
         _probe(
             "fail_closed_illegal_action",
@@ -640,19 +660,14 @@ def run_af01(
         else:
             stale_identity[field_name] = "0" * 64
         if pass_ids:
-            stale = proc.request(
-                "submit_action",
+            stale = _submit(
+                stale_identity,
                 {
-                    "game_id": game_id,
-                    **stale_identity,
-                    "proposal": {
-                        "proposal_id": str(uuid.uuid4()),
-                        "actor_id": actor,
-                        "legal_action_id": pass_ids[0],
-                        "action_type": "pass_priority",
-                    },
+                    "proposal_id": str(uuid.uuid4()),
+                    "actor_id": actor,
+                    "legal_action_id": pass_ids[0],
+                    "action_type": "pass_priority",
                 },
-                game_id=game_id,
             )
             _probe(
                 "fail_closed_stale_or_unknown_decision",

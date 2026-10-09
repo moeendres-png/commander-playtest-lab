@@ -44,10 +44,10 @@ def test_current_xmage_b4d_runtime_truth_is_pinned_and_fail_closed(repo_root: Pa
     assert runtime["provider_selected"] is False
     assert runtime["production_provider"] is None
     assert runtime["xmage_status"] == "PARTIAL_B4D_EVENT_LOG_LIFECYCLE"
-    assert runtime["required_missing_capabilities"] == [
-        "legal_actions_supported",
-        "action_submission_supported",
-    ]
+    # #662: derived from the newest sealed epoch by the freeze-record assembler,
+    # never pinned by hand (tests/unit/test_rules_engines_capability_derivation.py).
+    assert "legal_actions_supported" in runtime["required_missing_capabilities"]
+    assert "action_submission_supported" in runtime["required_missing_capabilities"]
     assert primary["missing_required_capabilities"] == runtime["required_missing_capabilities"]
 
 
@@ -129,7 +129,7 @@ def test_b4d_bridge_is_present_but_provider_remains_fail_closed(repo_root: Path)
     assert config["primary_engine"]["production_ready"] is False
     assert config["primary_engine"]["real_execution"] is True
     assert config["current_runtime"]["provider_selected"] is False
-    assert config["primary_engine"]["missing_required_capabilities"] == [
-        "legal_actions_supported",
-        "action_submission_supported",
-    ]
+    assert "legal_actions_supported" in config["primary_engine"]["missing_required_capabilities"]
+    assert (
+        "action_submission_supported" in config["primary_engine"]["missing_required_capabilities"]
+    )

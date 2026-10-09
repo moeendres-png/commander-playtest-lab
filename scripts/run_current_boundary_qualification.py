@@ -38,6 +38,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from commander_lab.qualification.current_boundary import (  # noqa: E402
+    FULL_GAME_LANE,
     NEGATIVE_ROWS,
     PILOT_ROWS,
     REPLAY_ROWS,
@@ -52,6 +53,7 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     cardinality_row,
     cardinality_row_eligible,
     drive_commander_game,
+    drive_full_game_to_priority,
     export_replay,
     launch,
     load_effective_materialization,
@@ -1333,6 +1335,75 @@ def _validated_provider_identity(provider: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+XMAGE_SOURCE_CHECKOUT = REPO_ROOT / "vendor" / "engine-source" / "xmage"
+
+
+def xmage_engine_source_identity() -> dict[str, str] | None:
+    """Commit and tree of the pinned XMage checkout PB-03 built, or ``None``.
+
+    ``None`` (no checkout, or a checkout that is not exactly the pin) leaves the
+    field absent, and the freeze-record assembler then fails closed on it.
+    """
+    if not (XMAGE_SOURCE_CHECKOUT / ".git").exists():
+        return None
+    try:
+        commit = receipt_mod.git_fact(XMAGE_SOURCE_CHECKOUT, "rev-parse", "HEAD", sha=True)
+        tree = receipt_mod.git_fact(XMAGE_SOURCE_CHECKOUT, "rev-parse", "HEAD^{tree}", sha=True)
+    except Exception:
+        return None
+    if commit != canonical_xmage_engine_pin():
+        return None
+    return {
+        "repository": "https://github.com/moeendres-png/mage",
+        "commit": commit,
+        "tree": tree,
+        "source": "git rev-parse of vendor/engine-source/xmage in this PB-03 run",
+    }
+
+
+def run_production_lane_af01(identity: dict[str, Any]) -> dict[str, Any]:
+    """AF01 v2 on the XMage full-game production lane (#662, SLOT-06 §(b)3).
+
+    One fresh full-game process, one real game driven to its first priority frame
+    under the lane-probe declaration, then the 20 invariants against that game.
+    """
+    plan = build_launch_plan("xmage", lane=FULL_GAME_LANE)
+    with launch(plan) as proc:
+        live = drive_full_game_to_priority(
+            proc, seed=int(identity.get("af01_probe_seed", 20260927)), player_count=2
+        )
+        if live.failure is not None or "priority" not in live.steps_completed:
+            raise SystemExit(
+                "AF01 on the production lane requires a live full-game game at priority; "
+                f"failure={live.failure!r} steps={live.steps_completed!r}. "
+                "AF01 evidence is not produced."
+            )
+        report = run_af01(
+            proc,
+            candidate="xmage",
+            expected_commit=plan.expected_engine_commit,
+            runner_commit=identity["runner_commit"],
+            runner_tree=identity["runner_tree"],
+            game_id=live.game_id,
+            runner_root=REPO_ROOT,
+            seat_count=live.player_count,
+            lane=FULL_GAME_LANE,
+        )
+    document = report.to_document()
+    document["decision_probe_game"] = {
+        "game_id": live.game_id,
+        "player_count": live.player_count,
+        "steps_completed": list(live.steps_completed),
+        "declared_pregame_answers": list(live.decision_tape),
+        "binding": "LIVE_GAME_REQUIRED_FOR_DECISION_TIME_INVARIANTS",
+        "starting_player_declaration": {
+            "seat": LANE_PROBE_STARTING_SEAT,
+            "source": LANE_PROBE_STARTING_SEAT_SOURCE,
+        },
+    }
+    return document
+
+
 def build_xmage_pb03_admission(materialization) -> dict[str, Any]:
     """Build the 30-row frozen-state admission ledger from live capabilities."""
     manifest, provider = _live_xmage_provider_identity()
@@ -1429,8 +1500,19 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             "decisions_observed": len(af01_live.decision_tape),
             "binding": "LIVE_GAME_REQUIRED_FOR_DECISION_TIME_INVARIANTS",
         }
-        write(f"AF01_{candidate.upper()}.json", af01_doc)
-        probes["af01_verdict"] = af01.verdict
+        if candidate == "xmage":
+            # #662 SLOT-06 §(b): AF01 credit and the record's capability set come
+            # from the production (full-game) lane. This compatibility-lane run
+            # stays as supporting evidence under its own name, and its declared
+            # capabilities keep feeding the compatibility-lane probes below.
+            write("AF01_XMAGE_COMPATIBILITY_SUPPORT.json", af01_doc)
+            production_af01 = run_production_lane_af01(identity)
+            write("AF01_XMAGE.json", production_af01)
+            probes["af01_verdict"] = production_af01["verdict"]
+            probes["af01_lane"] = production_af01.get("lane")
+        else:
+            write(f"AF01_{candidate.upper()}.json", af01_doc)
+            probes["af01_verdict"] = af01.verdict
         # Carry the provider's DECLARED capabilities into the run identity. Block
         # attribution must consult what this candidate says it supports, not a
         # hard-coded statement about one candidate applied to all of them.
@@ -2022,6 +2104,11 @@ def execute_xmage_native_phases(
     pb03_runtime["engine_artifact_sha256"] = xmage_provider_identity["engine_artifact_sha256"]
     pb03_runtime["engine_artifact_path"] = xmage_provider_identity["engine_artifact_path"]
     pb03_runtime["engine_artifact_size"] = xmage_provider_identity["engine_artifact_size"]
+    # #662: the freeze record's provider source lock needs the engine source tree,
+    # observed from the pinned checkout this run built, never asserted.
+    engine_source = xmage_engine_source_identity()
+    if engine_source is not None:
+        pb03_runtime["engine_source_identity"] = engine_source
     # Seal the identity block: the assembler rejects any ledger whose content
     # digest, runner digest, candidate commit or engine artifact digest does
     # not match the assembling head, so a stale ledger can never be credited.
