@@ -359,7 +359,7 @@ final class XmageFullGameSession {
     }
 
     /**
-     * #662 (SLOT-06 L3, AF01 unsupported-decision invariant): a request that names
+     * #662 (request binding; AF01 unsupported-decision invariant): a request that names
      * a game, an actor or a decision class is bound to the exact pending decision.
      * Any mismatch fails closed with a typed error and returns no part of the
      * decision, so a request for another actor or an unsupported class never

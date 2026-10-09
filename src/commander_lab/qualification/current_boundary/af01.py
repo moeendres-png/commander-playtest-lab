@@ -78,6 +78,10 @@ REQUIRED_TRUTHFUL_CAPABILITIES = (
     "event_log_supported",
 )
 
+# The full-game lane's typed refusal of a request for a decision class other
+# than the pending one (XmageFullGameSession.legalActionsPayload).
+FULL_GAME_UNSUPPORTED_CODE = "UNSUPPORTED_DECISION_CLASS"
+
 _FAIL_CLOSED_VERDICT = {"FAILED", "UNSUPPORTED", "ERROR", "REJECTED", "TIMEOUT", "PROTOCOL_FAILURE"}
 
 
@@ -695,12 +699,33 @@ def run_af01(
             },
             game_id=game_id,
         )
-        _probe(
-            "fail_closed_unsupported_decision",
-            unsupported,
-            _decision_unchanged(identity),
-            "a request for an unsupported decision class",
-        )
+        unsupported_messages = [
+            str(error.get("message") or "")
+            for error in unsupported.get("errors") or []
+            if isinstance(error, dict)
+        ]
+        if (
+            full_game
+            and _fails_closed(unsupported)
+            and not any(m.startswith(FULL_GAME_UNSUPPORTED_CODE) for m in unsupported_messages)
+        ):
+            # On the full-game lane only the lane's own unsupported-class refusal
+            # demonstrates the invariant; a refusal for another reason (unknown
+            # game, wrong actor) is a pass for the wrong reason.
+            add(
+                "fail_closed_unsupported_decision",
+                "UNKNOWN",
+                "the provider refused the unsupported-class request, but not with "
+                f"{FULL_GAME_UNSUPPORTED_CODE}",
+                {"game_id": game_id, "response": unsupported},
+            )
+        else:
+            _probe(
+                "fail_closed_unsupported_decision",
+                unsupported,
+                _decision_unchanged(identity),
+                "a request for an unsupported decision class",
+            )
 
     # --- rules-authority invariants ------------------------------------
     illegal_invariants = [

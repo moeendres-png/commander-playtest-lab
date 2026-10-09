@@ -529,6 +529,7 @@ NATIVE_SUITE_BINDING = {
                 "XmageFullGameContractTruthTest",
                 "XmageFullGameGenericBridgeTest",
                 "XmageFullGameLegalActionsRequestBindingTest",
+                "XmageFullGameUnprojectableDecisionTest",
             ],
         },
     },
@@ -1357,7 +1358,11 @@ def xmage_engine_source_identity() -> dict[str, str] | None:
     try:
         commit = receipt_mod.git_fact(XMAGE_SOURCE_CHECKOUT, "rev-parse", "HEAD", sha=True)
         tree = receipt_mod.git_fact(XMAGE_SOURCE_CHECKOUT, "rev-parse", "HEAD^{tree}", sha=True)
+        dirty = receipt_mod._git_porcelain(XMAGE_SOURCE_CHECKOUT)
     except Exception:
+        return None
+    if dirty:
+        # A dirty checkout's HEAD tree is not the source that was built.
         return None
     if commit != canonical_xmage_engine_pin():
         return None

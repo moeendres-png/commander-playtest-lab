@@ -21,6 +21,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from commander_lab.qualification.current_boundary.freeze_record import (  # noqa: E402
+    SEAL_MANIFEST,
     assemble_freeze_record,
 )
 
@@ -29,16 +30,22 @@ EPOCHS = REPO_ROOT / "qualification" / "current-boundary-epochs"
 
 
 def newest_epoch_for_pin(pin: str) -> Path:
-    """The newest sealed epoch whose XMage AF01 reports exactly ``pin``."""
+    """The newest sealed epoch whose PB-03 runtime ledger is bound to ``pin``.
+
+    Selection uses the runtime ledger's candidate commit, which PB-03 writes for
+    every run, never AF01's reported commit: a newer epoch whose AF01 failed is
+    still the newest evidence and is judged (not-eligible), not skipped in favour
+    of an older one. Directories without a seal manifest are not epochs.
+    """
     candidates: list[tuple[str, Path]] = []
     for epoch in sorted(EPOCHS.iterdir()):
         identity = epoch / "EPOCH_IDENTITY.json"
-        af01 = epoch / "AF01_XMAGE.json"
-        if not identity.is_file() or not af01.is_file():
+        runtime = epoch / "PB03_RUNTIME_EXECUTION.json"
+        if not (epoch / SEAL_MANIFEST).is_file() or not identity.is_file() or not runtime.is_file():
             continue
         created = json.loads(identity.read_text(encoding="utf-8")).get("created_utc")
-        reported = json.loads(af01.read_text(encoding="utf-8")).get("engine_commit_reported")
-        if reported == pin and isinstance(created, str):
+        bound = json.loads(runtime.read_text(encoding="utf-8")).get("candidate_commit")
+        if bound == pin and isinstance(created, str):
             candidates.append((created, epoch))
     if not candidates:
         raise SystemExit(f"no sealed epoch is bound to the XMage pin {pin}")

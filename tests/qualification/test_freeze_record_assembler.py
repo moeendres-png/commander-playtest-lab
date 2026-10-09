@@ -8,6 +8,7 @@ The real sealed epoch c124150d77ab-d303b2ca5f32 must come out not eligible.
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,8 @@ from commander_lab.qualification.current_boundary.freeze_record import (
     AF01_PROOF,
     CAPABILITY_PROOF,
     LANE_SURFACE_COMPONENTS,
+    TEST_SOURCE_ROOT,
+    FreezeRecordError,
     assemble_freeze_record,
 )
 
@@ -49,11 +52,11 @@ def _write(path: Path, document: dict[str, Any]) -> None:
     path.write_text(json.dumps(document), encoding="utf-8")
 
 
-def _receipt(classes: dict[str, dict[str, Any]]) -> dict[str, Any]:
+def _receipt(classes: dict[str, dict[str, Any]], pin: str = PIN) -> dict[str, Any]:
     doc: dict[str, Any] = {
         "schema_version": receipt_mod.NATIVE_SUITE_RECEIPT_SCHEMA,
         "candidate": "xmage",
-        "candidate_commit": PIN,
+        "candidate_commit": pin,
         "candidate_tree": "c" * 40,
         "command": "mvn test",
         "returncode": 0,
@@ -128,15 +131,42 @@ def _epoch(root: Path, **overrides: Any) -> Path:
         classes.pop(name)
     for name in overrides.get("failing_classes", ()):
         classes[name] = {"tests": 3, "failures": 1, "errors": 0}
-    receipt = _receipt(classes)
+    for name in overrides.get("skipped_classes", ()):
+        classes[name] = {"tests": 3, "failures": 0, "errors": 0, "skipped": 3}
+    receipt = _receipt(classes, overrides.get("receipt_pin", PIN))
     if overrides.get("tamper"):
         receipt["tests"] += 1
     _write(epoch / "receipts" / "native-xmage-mechanism.json", receipt)
+    sources = {
+        f"{TEST_SOURCE_ROOT}{name}.java": "5" * 64
+        for name in PROOF_CLASSES
+        if name not in overrides.get("unsourced_classes", ())
+    }
+    _write(
+        epoch / "NATIVE_SUITE_RECEIPTS.json",
+        {
+            "receipt_digests": {"xmage:mechanism": receipt["receipt_digest"]},
+            "runner": {"input_digests": sources},
+        },
+    )
+    if not overrides.get("unsealed"):
+        _seal(epoch, root)
     return epoch
 
 
+def _seal(epoch: Path, root: Path) -> None:
+    lines = []
+    for path in sorted(epoch.rglob("*")):
+        if path.is_file() and path.name != "CURRENT_BOUNDARY_SHA256SUMS":
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            lines.append(f"{digest}  {path.relative_to(root)}")
+    (epoch / "CURRENT_BOUNDARY_SHA256SUMS").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def _assemble(epoch: Path) -> Any:
-    return assemble_freeze_record(epoch, repo_root=REPO_ROOT, expected_pin=PIN)
+    return assemble_freeze_record(
+        epoch, repo_root=REPO_ROOT, expected_pin=PIN, seal_root=epoch.parent
+    )
 
 
 def test_complete_production_lane_epoch_is_eligible(tmp_path: Path) -> None:
@@ -169,18 +199,20 @@ def test_reported_true_without_executed_proof_counts_missing(
     tmp_path: Path, capability: str
 ) -> None:
     proofs = [name for name in CAPABILITY_PROOF[capability] if name != AF01_PROOF]
-    result = _assemble(_epoch(tmp_path, drop_classes=proofs[:1]))
-    missing = result.record["truthful_capabilities"]["missing_required_capabilities"]
-    assert capability in missing
-    assert result.eligible is False
+    for dropped in proofs:
+        result = _assemble(_epoch(tmp_path / dropped, drop_classes=[dropped]))
+        missing = result.record["truthful_capabilities"]["missing_required_capabilities"]
+        assert capability in missing, dropped
+        assert result.eligible is False
 
 
 def test_af01_proved_capabilities_need_a_passing_production_lane_af01(tmp_path: Path) -> None:
-    epoch = _epoch(tmp_path)
+    epoch = _epoch(tmp_path, unsealed=True)
     af01_path = epoch / "AF01_XMAGE.json"
     af01 = json.loads(af01_path.read_text(encoding="utf-8"))
     af01["verdict"] = "FAIL"
     af01_path.write_text(json.dumps(af01), encoding="utf-8")
+    _seal(epoch, tmp_path)
     result = _assemble(epoch)
     missing = result.record["truthful_capabilities"]["missing_required_capabilities"]
     assert AF01_PROVED and set(AF01_PROVED) <= set(missing)
@@ -259,3 +291,72 @@ def test_sealed_epoch_c124150d_is_not_eligible() -> None:
     assert result.eligible is False
     assert result.record["freeze_eligible"] is False
     assert any("not on the production lane" in reason for reason in result.reasons)
+
+
+def test_unsealed_epoch_is_refused(tmp_path: Path) -> None:
+    with pytest.raises(FreezeRecordError, match="not sealed"):
+        _assemble(_epoch(tmp_path, unsealed=True))
+
+
+def test_edited_sealed_file_is_refused(tmp_path: Path) -> None:
+    epoch = _epoch(tmp_path)
+    af01 = epoch / "AF01_XMAGE.json"
+    af01.write_text(af01.read_text(encoding="utf-8") + " ", encoding="utf-8")
+    with pytest.raises(FreezeRecordError, match="digest mismatch"):
+        _assemble(epoch)
+
+
+def test_unsealed_extra_file_is_refused(tmp_path: Path) -> None:
+    epoch = _epoch(tmp_path)
+    (epoch / "INJECTED.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(FreezeRecordError, match="coverage"):
+        _assemble(epoch)
+
+
+def test_receipt_at_another_pin_gives_no_credit(tmp_path: Path) -> None:
+    result = _assemble(_epoch(tmp_path, receipt_pin="c" * 40))
+    assert result.eligible is False
+    assert any("no credit" in reason for reason in result.reasons)
+    assert (
+        "replay_supported"
+        in result.record["truthful_capabilities"]["missing_required_capabilities"]
+    )
+
+
+def test_all_skipped_class_gives_no_credit(tmp_path: Path) -> None:
+    result = _assemble(_epoch(tmp_path, skipped_classes=["XmageFullGameShutdownGameTest"]))
+    assert (
+        "game_shutdown_supported"
+        in result.record["truthful_capabilities"]["missing_required_capabilities"]
+    )
+
+
+def test_class_without_indexed_source_digest_gives_no_credit(tmp_path: Path) -> None:
+    result = _assemble(_epoch(tmp_path, unsourced_classes=["XmageFullGameEventLogTest"]))
+    assert (
+        "event_log_supported"
+        in result.record["truthful_capabilities"]["missing_required_capabilities"]
+    )
+
+
+def test_production_af01_with_wrong_engine_commit_is_not_eligible(tmp_path: Path) -> None:
+    epoch = _epoch(tmp_path, unsealed=True)
+    af01_path = epoch / "AF01_XMAGE.json"
+    af01 = json.loads(af01_path.read_text(encoding="utf-8"))
+    af01["engine_commit_reported"] = "d" * 40
+    af01_path.write_text(json.dumps(af01), encoding="utf-8")
+    _seal(epoch, tmp_path)
+    result = _assemble(epoch)
+    assert result.eligible is False
+    assert any("is not the pin" in reason for reason in result.reasons)
+
+
+def test_missing_artifact_identity_never_binds_sibling_gates(tmp_path: Path) -> None:
+    epoch = _epoch(tmp_path, unsealed=True, sibling_artifact=None)
+    af01_path = epoch / "AF01_XMAGE.json"
+    af01 = json.loads(af01_path.read_text(encoding="utf-8"))
+    af01["engine_identity"]["get_provider_version_payload"]["engine_artifact_sha256"] = None
+    af01_path.write_text(json.dumps(af01), encoding="utf-8")
+    _seal(epoch, tmp_path)
+    verdicts = {g["gate_id"]: g["verdict"] for g in _assemble(epoch).record["gate_results"]}
+    assert {verdicts["AF00"], verdicts["AF06"], verdicts["AF07"]} == {"PARTIAL"}

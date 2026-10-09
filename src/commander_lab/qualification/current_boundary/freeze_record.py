@@ -19,7 +19,9 @@ Implements ``docs/slot06_capability_ruling_20261009/SLOT06_RULING.md`` §(b):
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -61,7 +63,9 @@ CAPABILITY_PROOF: dict[str, tuple[str, ...]] = {
 
 # Ruling §(b)3: the production-lane component each lane-surface gate needs.
 LANE_SURFACE_COMPONENTS: dict[str, tuple[str, ...]] = {
-    "AF01": (AF01_PROOF,),
+    # AF01's unsupported-decision invariant on this lane also needs the L3 proof
+    # that an unprojectable pending decision fails closed (ruling fact 8).
+    "AF01": (AF01_PROOF, "XmageFullGameUnprojectableDecisionTest"),
     "AF02": ("XmageFullGamePlayerCountTest",),
     "AF03": ("XmageFullGameRulesSeedBindingTest",),
     "AF04": (
@@ -108,6 +112,48 @@ class FreezeRecordError(RuntimeError):
     """The epoch cannot be read as freeze-record input at all."""
 
 
+SEAL_MANIFEST = "CURRENT_BOUNDARY_SHA256SUMS"
+_HEX64 = re.compile(r"[0-9a-f]{64}")
+TEST_SOURCE_ROOT = "engine-bridge/src/test/java/org/commanderlab/xmage/"
+
+
+def verify_epoch_seal(epoch: Path, seal_root: Path) -> int:
+    """Verify the epoch's seal manifest fully before anything in it is read.
+
+    Every file in the epoch must be listed, and every listed digest must match.
+    Paths in the manifest are relative to ``seal_root`` (the repository root).
+    Returns the number of verified entries; any defect raises.
+    """
+    manifest = epoch / SEAL_MANIFEST
+    if not manifest.is_file():
+        raise FreezeRecordError(f"epoch is not sealed: {manifest} is missing")
+    entries: dict[str, str] = {}
+    for raw in manifest.read_text(encoding="utf-8").splitlines():
+        if not raw.strip():
+            continue
+        parts = raw.split("  ", 1)
+        if len(parts) != 2 or not _HEX64.fullmatch(parts[0]) or parts[1] in entries:
+            raise FreezeRecordError(f"malformed or duplicate seal entry: {raw!r}")
+        entries[parts[1]] = parts[0]
+    if not entries:
+        raise FreezeRecordError(f"seal manifest is empty: {manifest}")
+    actual = {
+        str(path.relative_to(seal_root))
+        for path in epoch.rglob("*")
+        if path.is_file() and path != manifest
+    }
+    if actual != set(entries):
+        raise FreezeRecordError(
+            "seal coverage mismatch: "
+            f"unsealed={sorted(actual - set(entries))[:5]} stale={sorted(set(entries) - actual)[:5]}"
+        )
+    for relative, expected in entries.items():
+        digest = hashlib.sha256((seal_root / relative).read_bytes()).hexdigest()
+        if digest != expected:
+            raise FreezeRecordError(f"seal digest mismatch: {relative}")
+    return len(entries)
+
+
 @dataclass
 class FreezeRecordResult:
     record: dict[str, Any]
@@ -140,9 +186,23 @@ def _load(path: Path) -> dict[str, Any]:
     return document
 
 
-def _clean_executed_classes(epoch: Path, reasons: list[str]) -> dict[str, dict[str, Any]]:
-    """Classes that executed failure-free in this epoch's verified XMage receipts."""
+def _clean_executed_classes(
+    epoch: Path, expected_pin: str, reasons: list[str]
+) -> dict[str, dict[str, Any]]:
+    """Classes that executed failure-free in this epoch's verified XMage receipts.
+
+    A receipt counts only when it is for XMage at the expected pin and is listed by
+    digest in the epoch's ``NATIVE_SUITE_RECEIPTS.json`` index. A class counts only
+    when the index's runner input digests name its test source, which binds the
+    credit to the class's source digest, not merely to its name.
+    """
     executed: dict[str, dict[str, Any]] = {}
+    index_path = epoch / "NATIVE_SUITE_RECEIPTS.json"
+    index = _load(index_path) if index_path.is_file() else {}
+    indexed = set((index.get("receipt_digests") or {}).values())
+    input_digests = (index.get("runner") or {}).get("input_digests") or {}
+    if not index:
+        reasons.append("NATIVE_SUITE_RECEIPTS.json is missing; no receipt can be credited")
     receipt_dir = epoch / "receipts"
     paths = sorted(receipt_dir.glob("native-xmage-*.json")) if receipt_dir.is_dir() else []
     if not paths:
@@ -153,18 +213,32 @@ def _clean_executed_classes(epoch: Path, reasons: list[str]) -> dict[str, dict[s
         except ReceiptError as exc:
             reasons.append(f"receipt {path.name} gives no credit: {exc}")
             continue
+        if doc.get("candidate") != CANDIDATE or doc.get("candidate_commit") != expected_pin:
+            reasons.append(
+                f"receipt {path.name} is for {doc.get('candidate')!r}@"
+                f"{doc.get('candidate_commit')!r}, not {CANDIDATE}@{expected_pin}; no credit"
+            )
+            continue
+        if doc["receipt_digest"] not in indexed:
+            reasons.append(f"receipt {path.name} is not listed in NATIVE_SUITE_RECEIPTS.json")
+            continue
         for name, row in (doc.get("executed_classes") or {}).items():
             if not isinstance(row, dict):
                 continue
+            tests = int(row.get("tests") or 0)
             clean = (
-                int(row.get("tests") or 0) > 0 and not row.get("failures") and not row.get("errors")
+                tests > 0
+                and int(row.get("skipped") or 0) < tests
+                and not row.get("failures")
+                and not row.get("errors")
             )
-            if clean:
+            source = input_digests.get(f"{TEST_SOURCE_ROOT}{name}.java")
+            if clean and source:
                 executed[name] = {
                     "receipt": f"receipts/{path.name}",
                     "receipt_digest": doc["receipt_digest"],
-                    "tests": row.get("tests"),
-                    "candidate_commit": doc.get("candidate_commit"),
+                    "tests": tests,
+                    "source_sha256": source,
                 }
     return executed
 
@@ -182,7 +256,10 @@ def _proof_status(
                 missing.append(proof)
         elif proof in executed:
             entry = executed[proof]
-            refs.append(f"{entry['receipt']}#{proof} ({entry['tests']} tests)")
+            refs.append(
+                f"{entry['receipt']}#{proof} ({entry['tests']} tests, source sha256 "
+                f"{entry['source_sha256']})"
+            )
         else:
             missing.append(proof)
     return not missing, refs, missing
@@ -221,9 +298,14 @@ def _schema_errors(record: dict[str, Any], schema_root: Path) -> list[str]:
 
 
 def assemble_freeze_record(
-    epoch: Path, *, repo_root: Path, expected_pin: str
+    epoch: Path, *, repo_root: Path, expected_pin: str, seal_root: Path | None = None
 ) -> FreezeRecordResult:
-    """Assemble and judge the XMage freeze record of one sealed epoch."""
+    """Assemble and judge the XMage freeze record of one sealed epoch.
+
+    The seal is verified before anything is read; an unsealed or altered epoch
+    raises :class:`FreezeRecordError` instead of producing a record.
+    """
+    verify_epoch_seal(epoch, seal_root or repo_root)
     reasons: list[str] = []
     identity = _load(epoch / "EPOCH_IDENTITY.json")
     matrix = _load(epoch / f"AF00_AF11_{CANDIDATE.upper()}.json")
@@ -243,7 +325,7 @@ def assemble_freeze_record(
     if reported_commit != expected_pin:
         reasons.append(f"AF01 engine commit {reported_commit!r} is not the pin {expected_pin!r}")
 
-    executed = _clean_executed_classes(epoch, reasons)
+    executed = _clean_executed_classes(epoch, expected_pin, reasons)
 
     # ---- capabilities: the production lane's own payload, never a union -----------
     reported = af01.get("capabilities_provider_reported")

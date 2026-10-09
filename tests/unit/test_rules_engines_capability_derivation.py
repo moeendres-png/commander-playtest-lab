@@ -50,8 +50,9 @@ def test_newest_epoch_is_bound_to_the_current_pin() -> None:
     config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
     pin = config["primary_engine"]["commit"]
     epoch = module.newest_epoch_for_pin(pin)
-    af01 = json.loads((epoch / "AF01_XMAGE.json").read_text(encoding="utf-8"))
-    assert af01["engine_commit_reported"] == pin
+    runtime = json.loads((epoch / "PB03_RUNTIME_EXECUTION.json").read_text(encoding="utf-8"))
+    assert runtime["candidate_commit"] == pin
+    assert (epoch / "CURRENT_BOUNDARY_SHA256SUMS").is_file()
 
 
 def test_unknown_pin_has_no_epoch() -> None:
