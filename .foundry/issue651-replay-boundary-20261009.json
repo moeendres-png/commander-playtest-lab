@@ -1,0 +1,64 @@
+{
+  "schema_version": "2.0",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "worktree": "/workspace/scratch/645aaee2cf0d/issue651-replay-boundary-20261009",
+  "branch": "codex/issue651-replay-boundary-20261009",
+  "audit_base_sha": "e23533693c84e77cbe829f2ce9050185c178d4c2",
+  "audit_base_tree": "61068e317b2f0d73f8d2a144aa47de287d9047c0",
+  "state_written_against_head": "e23533693c84e77cbe829f2ce9050185c178d4c2",
+  "validated_head": null,
+  "validated_tree": null,
+  "materiality": "MATERIAL",
+  "cross_executor_review": null,
+  "objective": "Issue651: keep arbitrary diagnostics out of public semantic replay failures, and require graceful teardown before publishing a complete tape or returning replay PASS.",
+  "in_scope": [
+    "src/commander_lab/semantic_replay/divergence.py",
+    "src/commander_lab/semantic_replay/recorder.py",
+    "src/commander_lab/semantic_replay/consumer.py",
+    "src/commander_lab/semantic_replay/gate.py",
+    "tests/unit/test_semantic_replay_failure_boundary.py",
+    ".foundry/issue651-replay-boundary-20261009.json",
+    ".foundry/reviews/issue651-replay-boundary-20261009.json"
+  ],
+  "out_of_scope": [
+    "Claude #645/#646/#648/#649/#652 surfaces and branches",
+    "shared failure_privacy.py, engine/bridge, pins, Rules/fixture contracts, workflows",
+    "natural-game replay redesign, Provider selection, Architecture Freeze"
+  ],
+  "ownership": "Codex sole direct implementation/integration writer under explicit Owner exception 2026-10-09 15:00 Europe/Berlin, recorded issue651 comment6081415363. Fresh read-only investigators/reviewers hold no writer lease.",
+  "status": "ACTIVE",
+  "execution_profile": null,
+  "executor_model": "Codex direct Owner-authorized ChatGPT Work session; not DeepSeek or Space Bunny implementation",
+  "native_variant": null,
+  "hard_gates": [
+    "No test weakening, no legal-action/default/provider/pin/workflow changes",
+    "Arbitrary mixed-case/uppercase/Unicode diagnostics absent from public exception fields, formatted tracebacks and gate evidence",
+    "Only confirmed graceful_shutdown permits publication/PASS; older complete output survives failed recording",
+    "Independent fresh candidate review and genuine source-bound native Space Bunny review; no fabricated Foundry certificate under a false implementation identity",
+    "Actual exact-head required CI and affected real-XMage conformance before normal owned PR merge"
+  ],
+  "tests_run": [
+    "New48tests against unmodified replay source:47FAILED1PASS0.60s; positive record/replay still passes",
+    "Candidate focused original suites plus new tests:175PASS11.44s",
+    "Fresh read-only candidate reviewer independently:93PASS, no concrete findings, no edits",
+    "Redaction removed in separate mutation checkout:34FAILED14deselected0.57s",
+    "Both post-context shutdown checks removed:12FAILED36deselected0.37s",
+    "Raw chained traceback suppression removed:5FAILED43deselected0.33s",
+    "Full tests/qualification:2192PASS23SKIP210.13s; existing historical/external skips, no live qualification credit",
+    "ruff check src PASS; whole ruff format1447files PASS; mypy296sourcefiles PASS",
+    "Initial local broad-suite diagnostic in dirty checkout without editable installation:90FAILED2718PASS7SKIP14ERROR328.84s. Includes clean-worktree/wheel source binding, missing installation and managed PID/namespace restrictions; no broad PASS claimed. Editable installation corrected; clean exact-head hosted CI required."
+  ],
+  "evidence": [
+    "Original diagnostic reproducers and hashes preserved issue650 comment6080992534 and issue651 comment6081346878",
+    "Central exception boundary preserves exact vetted public reasons and step N prefix; no arbitrary machine-code extraction",
+    "Existing diagnostic digest helper reused; shared donor's uppercase regex remains unchanged/out of scope",
+    "Synthetic transports only in new unit tests; real-JVM/source-bound CI remains pending",
+    "No Foundry PR_READY/COMPLETE certificate is claimed under the direct Owner exception; actual implementation identity remains honest"
+  ],
+  "remaining_scope": [
+    "Publish owned candidate; verify remote exact SHA/tree",
+    "Genuine native read-only review receipt and exact-head CI/runtime",
+    "Normal merge and source-bound terminal handoff"
+  ],
+  "exact_next_action": "Commit/publish the owned candidate and open an Owner PR. Run genuine native review and required CI; any unfulfilled gate remains BLOCKED/UNKNOWN, never COMPLETE."
+}
