@@ -24,9 +24,21 @@ decides AF11's policy residual for the selected provider. The assembler grants P
 
 In the packet every XMage dimension is PASS, including `process_isolation`.
 
-**Consequence: XMage meets the all-PASS freeze-eligibility rule of `architecture_freeze_contract_v2`.**
-This is a readiness fact, not a Freeze:
-- `ARCHITECTURE_FREEZE = NOT_CLAIMED`. Freeze is the next decision and it is the Owner's (AGENTS.md §8).
+**Consequence: XMage passes all twelve AF gates. It is not yet freeze-eligible.**
+`architecture_freeze_contract_v2` (mirrored by `src/commander_lab/freeze_readiness.py`) has two
+conditions besides twelve PASS gates:
+- every required capability flag is `true`;
+- `missing_required_capabilities` is empty.
+
+Every lane in this epoch fails both conditions. XMage reports `legal_actions_supported`,
+`action_submission_supported` and `replay_supported` as `false`, and `config/rules_engines.json`
+lists the first two as missing. This is the next critical-path item:
+- the XMage bridge must report one truthful capability set on the production lane;
+- each flag may only be `true` when the surface it names is demonstrably complete;
+- a flag must never be flipped to `true` without its proof.
+
+Until then:
+- `ARCHITECTURE_FREEZE = NOT_CLAIMED`. Freeze is the Owner's decision (AGENTS.md §8), and only once XMage is freeze-eligible.
 - `config/rules_engines.json` keeps `provider_decision = NO_PROVIDER_READY` until a Freeze workstream records it.
 - `PRODUCTION_REPOSITORY = NOT_CREATED`.
 
