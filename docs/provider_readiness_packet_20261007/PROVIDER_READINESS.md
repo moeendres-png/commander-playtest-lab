@@ -8,7 +8,7 @@ Evidence summary only. It selects no provider, ranks no candidate and makes no r
 
 - Packet branch: `opencode/issue255-20261008194759` from `ff688b58359f7ec3cbace344322989c18e58886a` (tree `42c21a3659cdf73ca15d1baaf62bbfed9003c797`).
 - Sealed epoch: `ff688b58359f-42c21a3659cd`; manifest `qualification/current-boundary-epochs/ff688b58359f-42c21a3659cd/CURRENT_BOUNDARY_SHA256SUMS` sha256 `3f89f2b9d9044d0f66523addf64c4d302c6d386a2c59bcc7a52df9889a9daa49`; 195/195 digests verified (EXACT_ALL_FILES_EXCEPT_MANIFEST).
-- Effective contract: `commander-lab.full107/1.0.28-successor` (`qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_28.json` sha256 `735857e6de639f4c2474f1b857f3e6015854bdaf731c86365a5222755168af1e`); pointer sha256 `60b2ebe436d44384dfa9192a5b930e3b5128dfd04252c1f01fd9ada8f2a825ae`.
+- Effective contract: `commander-lab.full107/1.0.29-successor` (`qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json` sha256 `09946676b67e7314de55d3cd80e17be89fcc5c7c85e6db1aa2a24c45ae336e53`); pointer sha256 `b33f2e6fa42e604a6c7de60599308bc42bbdd059da9ea5d70240e9114d0f9a08`.
 - Engine pins (`config/rules_engines.json` sha256 `1eea3b67946fd93e951af96d9f868268bc6c2616640f590bfd71ce127ad323dd`): XMage `b479fe74` / tree `1ff64c79`; Forge Rules-Core `bb0a740d` / tree `4989b5bb`; Forge bridge `31cbae12` / tree `b5c19c19`.
 
 ## Drift records
@@ -18,7 +18,7 @@ Evidence summary only. It selects no provider, ranks no candidate and makes no r
 | xmage engine commit | `b479fe74fd1eaf899ff16c6a9203e74a91c0f339` | `b479fe74fd1eaf899ff16c6a9203e74a91c0f339` | IDENTICAL |
 | forge Rules-Core commit | `bb0a740d2bef725194798383c2452213ecdd0b37` | `bb0a740d2bef725194798383c2452213ecdd0b37` | IDENTICAL |
 | forge bridge/materialization commit | `31cbae12640e6066499aa7f17c9bf2dba6a30da6` | `31cbae12640e6066499aa7f17c9bf2dba6a30da6` | IDENTICAL |
-| effective fixture contract | `commander-lab.full107/1.0.28-successor` | `commander-lab.full107/1.0.24-successor` | DIFFERS |
+| effective fixture contract | `commander-lab.full107/1.0.29-successor` | `commander-lab.full107/1.0.24-successor` | DIFFERS |
 
 ## Dimensions
 
