@@ -336,7 +336,11 @@ def run_af01(
                 "decision_id": identity.get("decision_id"),
                 "decision_offset": identity.get("decision_offset"),
             }
-            return proc.request("submit_action", {"proposal": {**proposal, "choices": choices}})
+            return proc.request(
+                "submit_action",
+                {"game_id": game_id, "proposal": {**proposal, "choices": choices}},
+                game_id=game_id,
+            )
         return proc.request(
             "submit_action", {"game_id": game_id, **identity, "proposal": proposal}, game_id=game_id
         )
