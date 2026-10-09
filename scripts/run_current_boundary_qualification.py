@@ -521,6 +521,14 @@ NATIVE_SUITE_BINDING = {
                 "XmagePb03Tier2ControlTurnTest",
                 "XmageFullGameElimExecutionTest",
                 "XmagePb03RuntimeGapClosureTest",
+                # #662 SLOT-06 §(b)3: production-lane (full-game) components that
+                # count only as executed in-epoch receipts, never as source digests.
+                "XmageFullGamePlayerBoundaryTest",
+                "XmageFullGameReplayTwinTest",
+                "XmageFullGameBridgeContractTest",
+                "XmageFullGameContractTruthTest",
+                "XmageFullGameGenericBridgeTest",
+                "XmageFullGameLegalActionsRequestBindingTest",
             ],
         },
     },
