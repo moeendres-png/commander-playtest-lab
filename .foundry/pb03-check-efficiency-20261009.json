@@ -1,114 +1,163 @@
-{
-  "workstream": "PB03-CHECK-EFFICIENCY-20261009",
-  "issue": 628,
-  "owner": "Codex",
-  "branch": "codex/pb03-check-efficiency-20261009",
-  "source_commit": "a05d4e699eae1f30e431bcd108a6a0d90025f12a",
-  "source_tree": "d8e03398403b16212359d94e995df73bfa5bf4e2",
-  "objective": "Fail PB-03 contract defects before expensive engine work, retain the exact live probe in the source-bound packet, and keep the deterministic arrival-history module family in the early contract gate.",
-  "owned_write": [
-    ".github/workflows/pb03-runtime-qualification.yml",
-    ".github/workflows/pb03-shadow-parallel.yml",
-    ".foundry/pb03-check-efficiency-20261009.json"
-  ],
-  "foreign_read_only": [
-    "Claude #626/#592 runtime, fixture, contract and engine surfaces"
-  ],
-  "reuse": "REUSE_AS_IS: existing contract commands, producer, freshness assertions, packet hashing and uploader",
-  "measurements": {
-    "hosted_baseline_jobs": {
-      "37845122855": 2773,
-      "37842313592": 2888
-    },
-    "hosted_last_builds_seconds": 279,
-    "hosted_last_bridge_seconds": 16,
-    "hosted_last_contract_seconds": 4,
-    "hosted_last_probe_seconds": 359,
-    "hosted_last_runner_seconds": 2022,
-    "successful_run_speedup": "NOT_CLAIMED",
-    "hosted_followup_job_seconds": 2326,
-    "hosted_followup_runner_seconds": 1718.5,
-    "hosted_followup_contract_seconds": 4,
-    "prepublication_extended_early_gate_seconds": 18.24,
-    "prepublication_arrival_red_control_seconds": 0.37,
-    "prepublication_state_conformance_seconds": 1.64
-  },
-  "prepublication_controls": {
-    "applies_to": "Local prepublication commit 9573c8b233a96ac0718adf05a26070c938de1cc2/tree e270bf337aacaa17b0031c6aa03e9969dce4ac14 only.",
-    "not_applicable_to": "The native-published head and its hosted runs; no prepublication PASS transfers to a later commit.",
-    "extended_early_gate": "164 passed in 18.24s with no engine checkout or build (vendor/engine-source absent).",
-    "arrival_family_collection": "5 tests collected from tests/qualification/test_midgame_arrival_history_1_0_28.py; the whole module including its red controls ran as part of the 164.",
-    "arrival_red_control": "test_red_control_a_missing_keep_or_pass_through_fails_the_checker collected and executed: 1 passed in 0.37s; the missing-keep/pass-through mutation is rejected by the existing checker.",
-    "fail_closed_glob": "The unexpanded tests/qualification/test_midgame_arrival_history_*.py argument reaches pytest literally; pytest fails collection when no module matches. No skip and no optional guard.",
-    "locked_lint_format": "ruff==0.16.8 locked: ruff check All checks passed; ruff format --check 1437 files already formatted.",
-    "state_conformance": "44 passed in 1.64s (tests/foundry/test_foundry_state_conformance.py); no exemption or gate change.",
-    "engine_builds": "NONE (no vendor/engine-source, no JDK/Maven/Forge build).",
-    "speedup": "NOT_CLAIMED"
-  },
-  "validation": {
-    "same_early_contract_suite_without_engine_checkouts_or_builds": "159 passed in 2.06s",
-    "contracts_triggers_overlap_comparator": "187 passed in 7.58s",
-    "injected_admission_drift": "EXPECTED_FAIL: existing assertion rejected 12/18 instead of 13/17 in 0.13s; mutation restored; valid suite PASS",
-    "workflow_structure": "Both workflows validate before external checkout/build; all producers/assertions preserved; three live-probe references agree on the hashed and uploaded epoch",
-    "diff_check": "PASS",
-    "evidence_class": "DIRECTLY_VERIFIED local controls; no runtime qualification credit",
-    "hosted_exact_head": "HISTORICAL prior head b984f9ed only (Run37853276341 success; 159 tests in 3.07s before all external checkouts); superseded by the 1.0.28 target merge and the arrival-module extension; the native-published head requires fresh PB03."
-  },
-  "status": "ACTIVE",
-  "pending": [
-    "native publication of local commit 9573c8b plus this state checkpoint",
-    "fresh exact-head required CI on the native-published head",
-    "fresh exact-head PB03 on the native-published head",
-    "fresh independent read-only review on the native-published head",
-    "normal PR integration and canonical receipt"
-  ],
-  "forbidden_shortcuts": [
-    "coverage reduction",
-    "retry-to-green",
-    "cached PASS",
-    "required-context weakening",
-    "foreign co-writing"
-  ],
-  "stop_conditions": "Complete after native publication, fresh exact-head gates, admitted review, normal integration and persisted canonical receipt; stop only on a named genuine authority/ownership/source blocker.",
-  "next_action": "Native publication pushes this checkpoint; the Coordinator then obtains fresh exact-head required CI/PB03 and a fresh independent review on the native-published head before integration. No prepublication result transfers.",
-  "production_provider": "NOT_SELECTED",
-  "architecture_freeze": "NOT_CLAIMED",
-  "schema_version": "2.0",
-  "repository": "moeendres-png/commander-playtest-lab",
-  "worktree": "/workspace/scratch/645aaee2cf0d/pb03-check-efficiency",
-  "audit_base_sha": "f3939d99f575a0e9820a82b9843589c754f8b43a",
-  "audit_base_tree": "69fe9728d83217cf6dc054bd575a8119a81c2c48",
-  "state_written_against_head": "9573c8b233a96ac0718adf05a26070c938de1cc2",
-  "validated_head": "9573c8b233a96ac0718adf05a26070c938de1cc2",
-  "in_scope": [
-    ".github/workflows/pb03-runtime-qualification.yml",
-    ".github/workflows/pb03-shadow-parallel.yml",
-    ".foundry/pb03-check-efficiency-20261009.json"
-  ],
-  "out_of_scope": [
-    "Claude #626/#592 runtime, fixture, contract and engine surfaces",
-    "Coverage reduction, provider selection or Architecture Freeze",
-    "Probe/Forge-build parallelism (requires separate shadow validation)"
-  ],
-  "ownership": "PB03-CHECK-EFFICIENCY-20261009 (Codex sole writer of in_scope; bounded DeepSeek MAX prepublication delegation for this run; ownership returned to the Codex coordinator at completion)",
-  "exact_next_action": "Publish the native checkpoint, then obtain fresh exact-head required CI/PB03 and a fresh independent read-only review on that native head; integrate normally with a canonical receipt. Prepublication 9573c8b results never apply to the native commit.",
-  "state_schema_repair": "Required conformance gate rejected initial custom state; use existing state.py schema2.0, no exemption or gate change.",
-  "validated_tree": "e270bf337aacaa17b0031c6aa03e9969dce4ac14",
-  "integration_target": {
-    "sha": "75e4d4a20c6d0a3311e0d0aec764956fd733ae46",
-    "tree": "c7a434f9158ac191548557d78d9ed4966270362e",
-    "merge_commit": "3cc853320a964d6f00adced228fb348418c98776",
-    "method": "Normal merge of origin/main into the owned branch (no rebase/force/history rewrite); preserves the authoritative 1.0.28 arrival module and every target change. Fresh hosted PB03 is required for the merged workflow tree; earlier runtime evidence is historical only."
-  },
-  "prior_exact_head_ci": {
-    "head": "b984f9edaa9d02bc06d7bf3bad3b37cf9874cea8",
-    "tree": "aaa700d4b0002083eda838d79486876bc0960ddd",
-    "required": "PASS",
-    "runs": {
-      "quality_security": 37853276486,
-      "infrastructure": 37853276368,
-      "pb03": 37853276341
-    },
-    "credit": "Historical provenance for b984f9ed only; superseded by target drift and the arrival-module extension. No qualification credit transfers."
-  }
-}
+workstream: PB03-CHECK-EFFICIENCY-20261009
+issue: 628
+owner: Codex
+branch: codex/pb03-check-efficiency-20261009
+source_commit: a05d4e699eae1f30e431bcd108a6a0d90025f12a
+source_tree: d8e03398403b16212359d94e995df73bfa5bf4e2
+objective: Fail PB-03 contract defects before expensive engine work, retain the exact
+  live probe in the source-bound packet, and keep the deterministic arrival-history
+  module family in the early contract gate.
+owned_write:
+- .github/workflows/pb03-runtime-qualification.yml
+- .github/workflows/pb03-shadow-parallel.yml
+- .foundry/pb03-check-efficiency-20261009.json
+foreign_read_only:
+- 'Claude #626/#592 runtime, fixture, contract and engine surfaces'
+reuse: 'REUSE_AS_IS: existing contract commands, producer, freshness assertions, packet
+  hashing and uploader'
+measurements:
+  hosted_baseline_jobs:
+    '37845122855': 2773
+    '37842313592': 2888
+  hosted_last_builds_seconds: 279
+  hosted_last_bridge_seconds: 16
+  hosted_last_contract_seconds: 4
+  hosted_last_probe_seconds: 359
+  hosted_last_runner_seconds: 2022
+  successful_run_speedup: NOT_CLAIMED
+  hosted_followup_job_seconds: 2326
+  hosted_followup_runner_seconds: 1718.5
+  hosted_followup_contract_seconds: 4
+  prepublication_extended_early_gate_seconds: 18.24
+  prepublication_arrival_red_control_seconds: 0.37
+  prepublication_state_conformance_seconds: 1.64
+prepublication_controls:
+  applies_to: Local prepublication commit 9573c8b233a96ac0718adf05a26070c938de1cc2/tree
+    e270bf337aacaa17b0031c6aa03e9969dce4ac14 only.
+  not_applicable_to: The native-published head and its hosted runs; no prepublication
+    PASS transfers to a later commit.
+  extended_early_gate: 164 passed in 18.24s with no engine checkout or build (vendor/engine-source
+    absent).
+  arrival_family_collection: 5 tests collected from tests/qualification/test_midgame_arrival_history_1_0_28.py;
+    the whole module including its red controls ran as part of the 164.
+  arrival_red_control: 'test_red_control_a_missing_keep_or_pass_through_fails_the_checker
+    collected and executed: 1 passed in 0.37s; the missing-keep/pass-through mutation
+    is rejected by the existing checker.'
+  fail_closed_glob: The unexpanded tests/qualification/test_midgame_arrival_history_*.py
+    argument reaches pytest literally; pytest fails collection when no module matches.
+    No skip and no optional guard.
+  locked_lint_format: 'ruff==0.16.8 locked: ruff check All checks passed; ruff format
+    --check 1437 files already formatted.'
+  state_conformance: 44 passed in 1.64s (tests/foundry/test_foundry_state_conformance.py);
+    no exemption or gate change.
+  engine_builds: NONE (no vendor/engine-source, no JDK/Maven/Forge build).
+  speedup: NOT_CLAIMED
+validation:
+  same_early_contract_suite_without_engine_checkouts_or_builds: 159 passed in 2.06s
+  contracts_triggers_overlap_comparator: 187 passed in 7.58s
+  injected_admission_drift: 'EXPECTED_FAIL: existing assertion rejected 12/18 instead
+    of 13/17 in 0.13s; mutation restored; valid suite PASS'
+  workflow_structure: Both workflows validate before external checkout/build; all
+    producers/assertions preserved; three live-probe references agree on the hashed
+    and uploaded epoch
+  diff_check: PASS
+  evidence_class: DIRECTLY_VERIFIED local controls; no runtime qualification credit
+  hosted_exact_head: HISTORICAL prior head b984f9ed only (Run37853276341 success;
+    159 tests in 3.07s before all external checkouts); superseded by the 1.0.28 target
+    merge and the arrival-module extension; the native-published head requires fresh
+    PB03.
+  canonical_published_focused_controls: ea87a4df/tree7ab40470 actual strict head CHECKPOINT_CLEAN/STATE_OK;
+    exact early suite164passed16.73s without external engines. Review independently164passed19.74s,44stateconformancePASS,
+    missingglob exit4, arrival red controlPASS.
+  review_admission: Review6072316392 actual run37869188172/job113623048620; unchanged
+    verifier SATISFIED8 actual connector-observed checks;0P1/P2.
+status: ACTIVE
+pending:
+- fresh exact-final-head required CI
+- fresh exact-final-head complete PB03 runtime, evidence assertions/hash/upload
+- live remote and completion-gate verification
+- normal merge and terminal canonical receipt
+forbidden_shortcuts:
+- coverage reduction
+- retry-to-green
+- cached PASS
+- required-context weakening
+- foreign co-writing
+stop_conditions: Complete after native publication, fresh exact-head gates, admitted
+  review, normal integration and persisted canonical receipt; stop only on a named
+  genuine authority/ownership/source blocker.
+next_action: 'Finish required CI and full PB03 on the final generated checkpoint,
+  independently verify generated-only review preservation, remote proof/completion
+  gate, fresh target/ownership; normal #629 merge then #628 terminal receipt. Partial
+  earlier runs grant no final credit.'
+production_provider: NOT_SELECTED
+architecture_freeze: NOT_CLAIMED
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /workspace/scratch/645aaee2cf0d/pb03-final-check
+audit_base_sha: f3939d99f575a0e9820a82b9843589c754f8b43a
+audit_base_tree: 69fe9728d83217cf6dc054bd575a8119a81c2c48
+state_written_against_head: ddbf3e333849ced46fb9edb621f3d640e1fb84c7
+validated_head: ea87a4df41448a00a013e07b97b8acb7eb12e703
+in_scope:
+- .github/workflows/pb03-runtime-qualification.yml
+- .github/workflows/pb03-shadow-parallel.yml
+- .foundry/pb03-check-efficiency-20261009.json
+- .foundry/reviews/pb03-check-efficiency-20261009.json
+out_of_scope:
+- 'Claude #626/#592 runtime, fixture, contract and engine surfaces'
+- Coverage reduction, provider selection or Architecture Freeze
+- Probe/Forge-build parallelism (requires separate shadow validation)
+ownership: Codex sole integration writer, no active child; scope/checkpoint worktree
+  transfer6072327055, explicit state.py identity rebind; immutable audit base unchanged.
+exact_next_action: 'Finish required CI and full PB03 on the final generated checkpoint,
+  independently verify generated-only review preservation, remote proof/completion
+  gate, fresh target/ownership; normal #629 merge then #628 terminal receipt. Partial
+  earlier runs grant no final credit.'
+state_schema_repair: Required conformance gate rejected initial custom state; use
+  existing state.py schema2.0, no exemption or gate change.
+validated_tree: 7ab40470114bd0c3198926054e1c3d168fd47bfc
+integration_target:
+  sha: 75e4d4a20c6d0a3311e0d0aec764956fd733ae46
+  tree: c7a434f9158ac191548557d78d9ed4966270362e
+  merge_commit: 3cc853320a964d6f00adced228fb348418c98776
+  method: Normal merge of origin/main into the owned branch (no rebase/force/history
+    rewrite); preserves the authoritative 1.0.28 arrival module and every target change.
+    Fresh hosted PB03 is required for the merged workflow tree; earlier runtime evidence
+    is historical only.
+prior_exact_head_ci:
+  head: b984f9edaa9d02bc06d7bf3bad3b37cf9874cea8
+  tree: aaa700d4b0002083eda838d79486876bc0960ddd
+  required: PASS
+  runs:
+    quality_security: 37853276486
+    infrastructure: 37853276368
+    pb03: 37853276341
+  credit: Historical provenance for b984f9ed only; superseded by target drift and
+    the arrival-module extension. No qualification credit transfers.
+cross_executor_review:
+  required: true
+  logical_profile: space-bunny
+  resolved_model_id: opencode-go/space-bunny
+  model_alias_class: CANONICAL
+  implementation_executor: deepseek
+  review_executor: space-bunny
+  reviewed_sha: ea87a4df41448a00a013e07b97b8acb7eb12e703
+  reviewed_tree: 7ab40470114bd0c3198926054e1c3d168fd47bfc
+  verdict: PASS
+  review_record_path: .foundry/reviews/pb03-check-efficiency-20261009.json
+materiality: MATERIAL
+remote_checkpoint:
+  remote: origin
+  branch: codex/pb03-check-efficiency-20261009
+  sha: ea87a4df41448a00a013e07b97b8acb7eb12e703
+  tree: 7ab40470114bd0c3198926054e1c3d168fd47bfc
+integration_checkpoint:
+  identity_rebind: state.py --write-from --allow-identity-change under6072327055,
+    branch/audit base unchanged
+  reviewed_identity: ea87a4df only; receipt+state generated changes do not manufacture
+    a finalhead review
+  runtime: PENDING exact final checkpoint; no inherited/cached qualification PASS
+    or successful-run speedup
+  historical_handoff: Native publication already completed6072214435; obsolete prepublication/pending
+    entries retained as labeled historical controls only.
