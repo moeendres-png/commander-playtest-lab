@@ -80,6 +80,7 @@ class _PriorityClient:
             }
         ]
         self.observation = dict(observation)
+        self.projection_requests: list[dict] = []
         self.seat = seat
         self.stack = list(stack or [])
         self.actions = list(actions or [])
@@ -94,9 +95,6 @@ class _PriorityClient:
             "pilot_state": {"stack": list(self.stack)},
         }
 
-    def complete_arrival(self) -> dict:
-        return {"observation": dict(self.observation)}
-
     def submit_options(self, decision: dict, option_ids: list[str]) -> dict:
         self.passes.append(list(option_ids))
         return {}
@@ -104,8 +102,13 @@ class _PriorityClient:
     def request(self, message_type: str, payload) -> dict:
         if message_type == "get_legal_actions":
             return {"success": True, "payload": {"actor_id": "native-P1", "actions": self.actions}}
+        if message_type == "get_midgame_projection":
+            self.projection_requests.append(dict(payload or {}))
+            return {"success": True, "payload": {"view": dict(self.observation)}}
         if message_type == "complete_midgame_arrival":
-            return {"success": True, "payload": {"observation": dict(self.observation)}}
+            # The construction compare names hidden objects once the event
+            # has begun: the scripted event never reads it (AF05).
+            raise AssertionError("the scripted event requested complete_midgame_arrival")
         if message_type == "submit_action":
             self.proposals.append(payload)
             return {"success": True, "payload": {}}

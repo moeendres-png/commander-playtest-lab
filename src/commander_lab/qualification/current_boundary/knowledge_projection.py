@@ -1037,18 +1037,25 @@ def _binding_controls(
     }
 
 
-def _engine_observation(client: ml.MidgameLaneClient) -> dict[str, Any]:
-    """The engine's own readback of the point it is parked at.
+def _engine_observation(client: ml.MidgameLaneClient, principal: str) -> dict[str, Any]:
+    """The engine's (turn, phase, step) as the acting principal may observe it.
 
-    This is not a pure query: the lane's ``complete_midgame_arrival`` runs the
-    engine's revalidation (``XmageNativeStateRestoration.revalidate``:
-    ``applyEffects`` plus ``checkStateAndTriggered``) on every call, so the
-    readback reflects engine-authoritative layers and state-based actions. The
-    arrival's state-injection steps are guarded to run once (the restoration's
-    own ``arrivalRestored`` latch); later calls only re-apply lossless
-    libraries.
+    Read from the acting principal's own entitled projection
+    (``get_midgame_projection``, ``XmageFullGameStateRedactor.actorView``),
+    never from ``complete_midgame_arrival``: after the scripted event begins
+    the construction compare reports field-level mismatches that name hidden
+    objects, and a principal-neutral arrival response on the principal tape
+    would carry them into every principal's channel (AF05). The projection is
+    addressed to its requester, carries no construction verdict, and has no
+    revalidation side effect. A refused projection fails closed.
     """
-    return client.complete_arrival().get("observation") or {}
+    response = client.request("get_midgame_projection", {"actor_id": principal})
+    if not response.get("success"):
+        raise ml.MidgameLaneError(
+            f"the acting principal's projection failed closed: {_error_code(response)}"
+        )
+    view = _payload(response).get("view")
+    return dict(view) if isinstance(view, dict) else {}
 
 
 # The families a record uses to declare a standing authorization or binding
@@ -1195,7 +1202,7 @@ def run_script(
         # bound to the record's own actor/turn/step identity. A frame without
         # a matching declaration stays unscripted and fails closed below.
         if decision_class == "declare_attacker":
-            observation = _engine_observation(client)
+            observation = _engine_observation(client, principal)
             declared = probe._scripted_empty_declare_attackers(record, principal, observation)
             if declared is None:
                 raise ml.MidgameLaneError(f"unscripted {decision_class} for {principal}")
@@ -1205,7 +1212,7 @@ def run_script(
             continue
         if decision_class == "priority":
             stack = (decision.get("pilot_state") or {}).get("stack")
-            observation = _engine_observation(client)
+            observation = _engine_observation(client, principal)
             # The event completes at the record's declared capture point: every
             # scripted step answered (the cursor is past them) and the
             # checkpoint's priority player holding priority again with an empty

@@ -190,6 +190,7 @@ class _AttackFrameClient:
             "phase": "combat",
             "step": "DECLARE_ATTACKERS",
         }
+        self.projection_requests: list[dict] = []
         self.attack_frames = 0
         self.submissions: list[dict] = []
 
@@ -202,9 +203,6 @@ class _AttackFrameClient:
             "legal_options": [{"option_id": "pass-1", "option_type": "pass_priority"}],
             "pilot_state": {"stack": []},
         }
-
-    def complete_arrival(self) -> dict:
-        return {"observation": dict(self.observation)}
 
     def request(self, message_type: str, payload) -> dict:
         if message_type == "get_legal_actions":
@@ -232,8 +230,13 @@ class _AttackFrameClient:
                     "actions": [{"action_id": "pass-1", "action_type": "priority", "metadata": {}}],
                 },
             }
+        if message_type == "get_midgame_projection":
+            self.projection_requests.append(dict(payload or {}))
+            return {"success": True, "payload": {"view": dict(self.observation)}}
         if message_type == "complete_midgame_arrival":
-            return {"success": True, "payload": {"observation": dict(self.observation)}}
+            # The construction compare names hidden objects once the event
+            # has begun: the scripted event never reads it (AF05).
+            raise AssertionError("the scripted event requested complete_midgame_arrival")
         if message_type == "submit_action":
             self.submissions.append(payload)
             self.attack_frames += 1
@@ -282,6 +285,31 @@ def test_the_transport_answers_the_declared_empty_attack_set_with_the_hold() -> 
             }
         }
     ]
+
+
+def test_the_scripted_event_reads_only_the_acting_principals_projection() -> None:
+    """AF05: the frame's (turn, step) comes from the acting principal's own
+    entitled projection, never from the arrival's construction compare (whose
+    mismatches name hidden objects once the event has begun). The fake raises
+    on any complete_midgame_arrival request."""
+    client = _AttackFrameClient()
+    knowledge_projection.run_script(client, _transport_record(_DECLARE_ATTACKERS_STEP))
+    assert client.projection_requests
+    assert all(request == {"actor_id": "P1"} for request in client.projection_requests)
+
+
+class _RefusedProjectionClient(_AttackFrameClient):
+    def request(self, message_type: str, payload) -> dict:
+        if message_type == "get_midgame_projection":
+            return {"success": False, "errors": [{"code": "midgame_projection_failed"}]}
+        return super().request(message_type, payload)
+
+
+def test_red_control_a_refused_projection_fails_closed() -> None:
+    client = _RefusedProjectionClient()
+    with pytest.raises(MidgameLaneError, match="projection failed closed"):
+        knowledge_projection.run_script(client, _transport_record(_DECLARE_ATTACKERS_STEP))
+    assert client.submissions == []
 
 
 def test_red_control_an_undeclared_attack_frame_still_fails_closed() -> None:
