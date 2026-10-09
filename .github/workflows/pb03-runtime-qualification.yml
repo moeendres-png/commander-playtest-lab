@@ -65,6 +65,28 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Fail cheap contract checks before any external engine checkout/build.
+      - name: Set up Python 3.12
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+
+      - name: Install lab
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+
+      - name: Validate PB-03 Python contracts
+        run: |
+          pytest -q \
+            tests/qualification/test_current_boundary_dimension_admission.py \
+            tests/qualification/test_current_boundary_midgame_lane.py \
+            tests/qualification/test_current_boundary_pb03_runtime.py \
+            tests/qualification/test_current_boundary_receipts.py \
+            tests/qualification/test_midgame_arrival_history_*.py
+
       - name: Resolve current XMage and Forge dual identities
         run: |
           set -euo pipefail
@@ -124,13 +146,6 @@ jobs:
           java-version: "17"
           cache: maven
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: requirements/lock.txt
-
       - name: Verify immutable XMage pin
         working-directory: vendor/engine-source/xmage
         run: |
@@ -176,11 +191,6 @@ jobs:
             package dependency:build-classpath -Dmdep.outputFile=target/cp-wsr22.txt
           test -s forge-protocol2-bridge/target/cp-wsr22.txt
 
-      - name: Install lab
-        run: |
-          python -m pip install --require-hashes -r requirements/lock.txt
-          python -m pip install --no-deps --no-build-isolation -e .
-
       - name: Resolve the runtime evidence epoch
         run: |
           set -euo pipefail
@@ -207,18 +217,10 @@ jobs:
           mvn -B -ntp -DskipTests -Dcheckstyle.skip=true dependency:build-classpath -Dmdep.outputFile=target/cp-wsr22.txt
           test -s target/cp-wsr22.txt
 
-      - name: Validate PB-03 Python contracts
-        run: |
-          pytest -q \
-            tests/qualification/test_current_boundary_dimension_admission.py \
-            tests/qualification/test_current_boundary_midgame_lane.py \
-            tests/qualification/test_current_boundary_pb03_runtime.py \
-            tests/qualification/test_current_boundary_receipts.py
-
       - name: Execute the production-reachable mid-game probe
         run: |
           set -euo pipefail
-          python scripts/run_midgame_capability_probe.py --out "$RUNNER_TEMP/MIDGAME_CAPABILITY_PROBE.json"
+          python scripts/run_midgame_capability_probe.py --out "$CURRENT_BOUNDARY_EVIDENCE_EPOCH/LIVE_MIDGAME_CAPABILITY_PROBE.json"
           python - <<'PY'
           import json
           import os
@@ -228,7 +230,7 @@ jobs:
           from commander_lab.qualification.current_boundary import bridge_launcher
 
           receipt = json.loads(
-              (Path(os.environ["RUNNER_TEMP"]) / "MIDGAME_CAPABILITY_PROBE.json").read_text()
+              (Path(os.environ["CURRENT_BOUNDARY_EVIDENCE_EPOCH"]) / "LIVE_MIDGAME_CAPABILITY_PROBE.json").read_text()
           )
           expected_engine = bridge_launcher.canonical_xmage_engine_pin()
           assert receipt["engine_commit"] == expected_engine, receipt["engine_commit"]
@@ -315,7 +317,7 @@ jobs:
           # loaded artifact as the admission handshake. A well-formed digest of a
           # different artifact is STALE, never fresh.
           live_receipt = json.loads(
-              (Path(os.environ["RUNNER_TEMP"]) / "MIDGAME_CAPABILITY_PROBE.json").read_text()
+              (Path(os.environ["CURRENT_BOUNDARY_EVIDENCE_EPOCH"]) / "LIVE_MIDGAME_CAPABILITY_PROBE.json").read_text()
           )
           assert (
               ml.receipt_freshness(
