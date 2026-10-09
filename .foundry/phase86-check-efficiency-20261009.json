@@ -1,0 +1,51 @@
+{
+  "schema_version": "2.0",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "worktree": "/home/runner/work/commander-playtest-lab/commander-playtest-lab",
+  "branch": "opencode/issue638-20261009004143",
+  "audit_base_sha": "063edc0f5b0c00bde7c4538291cd5f962e9c5f3d",
+  "audit_base_tree": "cb046bcd7f3e727c5323a24d03ecdad93dce34b7",
+  "state_written_against_head": "063edc0f5b0c00bde7c4538291cd5f962e9c5f3d",
+  "validated_head": null,
+  "validated_tree": null,
+  "materiality": "MATERIAL",
+  "objective": "Issue #638: run the real Phase86 audit once per module in tests/unit/test_audit_e_runtime_hygiene.py so both existing report assertions share one completed run_phase86_audit(root, run_tests=False); preserve both test node IDs, all assertions and test-alone behavior; no production change.",
+  "in_scope": [
+    "tests/unit/test_audit_e_runtime_hygiene.py",
+    ".foundry/phase86-check-efficiency-20261009.json"
+  ],
+  "out_of_scope": [
+    "src/commander_lab/audit/** (read-only production code)",
+    "all Claude runtime/contract/probe paths (#634/#592)",
+    "any whole-CI or qualification-speedup claim from this two-test experiment"
+  ],
+  "ownership": "Codex coordinator owns the objective; delegated DeepSeek MAX sole implementation writer of tests/unit/test_audit_e_runtime_hygiene.py and .foundry/phase86-check-efficiency-20261009.json on branch opencode/issue638-20261009004143. Native action owns commit/publication/PR.",
+  "status": "ACTIVE",
+  "files_modified": [
+    "tests/unit/test_audit_e_runtime_hygiene.py"
+  ],
+  "tests_run": [
+    "baseline original two tests: python -m pytest tests/unit/test_audit_e_runtime_hygiene.py -q => 2 passed in 48.09s (wall 49.13s), per-test 23.92s + 23.56s, canonical git status unchanged",
+    "after shared fixture, both tests: 2 passed in 24.07s (wall 24.82s), fixture setup 23.93s on first test, second test ~0s, canonical git status unchanged",
+    "instrumented combined run: exactly 1 real invocation, invocation wall 23.91s (bounded pytest plugin delegates to the real run_phase86_audit; no mocked results)",
+    "test_phase86_audit_keeps_checkout_clean alone: 1 passed, wall 24.98s, 1 invocation 24.11s",
+    "test_phase86_audit_publishes_runtime_derived_tool_availability alone: 1 passed, wall 24.26s, 1 invocation 23.38s",
+    "contamination control in disposable clone /tmp/opencode/p86-638/contamination-checkout: 1 failed in 23.95s; genuine hygiene assertion detected '+ ?? CONTAMINATION_PROBE.untracked'; canonical checkout untouched; no runtime credit",
+    "ruff check tests/unit/test_audit_e_runtime_hygiene.py => passed; ruff format --check => 1 file already formatted",
+    "python tools/foundry/state.py --state .foundry/phase86-check-efficiency-20261009.json --workdir . --fail-on-head-mismatch --check-validated --fail-on-validated-problem => STATE_OK schema=2.0 status=ACTIVE, VALIDATED_NONE (honest null), exit 0"
+  ],
+  "evidence": [
+    "environment: python 3.12.3, venv /tmp/opencode/p86venv from requirements/lock.txt (--require-hashes), pytest 9.1.1, ruff 0.16.8, mypy 1.20.2, hypothesis 6.168.0; ruff/mypy on PATH for the audit subprocesses",
+    "implementation: module-scoped phase86_run fixture runs the real run_phase86_audit(root, run_tests=False) once and shares the completed result plus before/after git status and the ignored .runtime/audit/phase86 output root; no mock, skip, stale baseline or cached PASS",
+    "assertions preserved: both original node IDs unchanged and every original assertion retained; each test passes when selected alone",
+    "no production change: src/commander_lab/audit/** untouched; diff touches only the two in-scope paths",
+    "limits: timings are single local controlled runs in one environment (baseline wall 49.13s vs after wall 24.82s); no whole-CI or qualification-speedup claim is made from this two-test benchmark",
+    "validated_head null is honest: implementation is uncommitted in the owned working tree; native action commits, then exact-head CI and fresh read-only Space Bunny review (MATERIAL) apply"
+  ],
+  "technical_decisions": [
+    "Module-scoped pytest fixture phase86_run runs the real run_phase86_audit(root, run_tests=False) exactly once and shares the completed result plus the before/after git status and the ignored output root; no mock, skip, or cached PASS.",
+    "Both original test node IDs and every assertion are preserved; the only structural change is fixture injection, so each test still passes when selected alone.",
+    "No production audit code was modified; the fixture performs no writes beyond the audit's existing ignored .runtime/audit/phase86 output."
+  ],
+  "exact_next_action": "Coordinator/native action: commit tests/unit/test_audit_e_runtime_hygiene.py and this state file on opencode/issue638-20261009004143, push, open PR with body 'Refs #638, Refs #479' (no closing keywords), then run required exact-head CI, fresh read-only Space Bunny review (MATERIAL) and target-drift adjudication before normal merge."
+}
