@@ -5,7 +5,7 @@
   "branch": "codex/issue651-replay-boundary-20261009",
   "audit_base_sha": "e23533693c84e77cbe829f2ce9050185c178d4c2",
   "audit_base_tree": "61068e317b2f0d73f8d2a144aa47de287d9047c0",
-  "state_written_against_head": "fdb7116fa81116d6beb525c87c92935b038a00b8",
+  "state_written_against_head": "a51a4ff1948e71efe560032bbe39ba99a703f456",
   "validated_head": null,
   "validated_tree": null,
   "materiality": "MATERIAL",
@@ -60,7 +60,8 @@
     "Local normal AF11 integration4e6f5aeaf463f6df8a9abac99a2df9bf84160daf/treee160d97e43463137f87c1a2a7357d4d1559dd33a: focused replay+tape+twins+assembler203PASS3.22s; ruffsrcPASS/format1451PASS/mypy296PASS.",
     "Initial AF11 qualification in historical own checkout:1FAILED2239PASS23SKIP229.08s. Trigger measurement included ignored generatedegg-info/entry_points.txt read by Pydantic plugin discovery; trace confirmed. LogSHA256574b9dffb5e07c80db4db3a795dc4ab1b0afbb443d6fe28f451a7456d6efdae5 preserved, no PASS relabel.",
     "Separate clean detached same4e6f/treee160: unchanged trigger completeness18PASS47.42s; fullqualification2240PASS23existingSKIP229.47s exit0, clean Git tree. LogSHA25605a67c8ecf9bfbba64039f0c61a3de577f8f2bd8541b36283c6b7b86628a1b77. No production test/filter/source edit or local-JVM credit.",
-    "Clean AF11 snapshot existing Foundry state conformance46PASS1.63s. Dedicated current direct-state JSON separately schema-validated; no Foundry readiness/completion claim."
+    "Clean AF11 snapshot existing Foundry state conformance46PASS1.63s. Dedicated current direct-state JSON separately schema-validated; no Foundry readiness/completion claim.",
+    "Exact published AF11-only74ad snapshot new48tests plus existingstateconformance94PASS2.22s; later M15 workflow-base change supersedes hosted74ad CI, no old runtime credit promoted. Fullqualification2240 source snapshot differs only dedicatedstate plus M15 workflow/doc/additiveunit module; fresh final qualification will be collected."
   ],
   "evidence": [
     "Original diagnostic reproducers and hashes preserved issue650 comment6080992534 and issue651 comment6081346878",
@@ -97,14 +98,15 @@
     "Original independent fresh read-only candidate review93PASS/no concrete findings is retained by explicit impact analysis: gitdiffac887..4e6f is empty for all4repairedmodules/new48testmodule/directfull_game/failure_privacy context. No fresh native or new-source reviewer invocation claimed. Current AF11-base changes are disjoint, compatibility203/2240 verified.",
     "Source SHA256 current-reviewed bytes: divergence156a7dbd61c78bcfacab5671cd1804caff072cf6a4addecde815f0cbfc4495b3; recorder6de6037268e9d86d72b08187593236b5111a9068d506f16e3021469b9f58a345; consumer4cfdf86b7f2a3c7779868568fd4f8b3554a91740fe4be33d31ccb8f7b9f24324; gatea4f68d1da7fa813b2dd3976316396ff1eabb47b7a0e822e5f24a139994fb9dc4; tests37cd91129df0d7224bae95e10064c83488b4d75e01f61b89769f1ee42e5a9652.",
     "Issue6546086641891/6086665607 persist actual pinned CLI effective-permission controls: name overlay can retain editallow; deny-default overlay still retains extra python*allow. Synthetic config only, no model/tool-write/runtime-review credit. Handler config-cache provenance unresolved; implementation unclaimed.",
-    "LATEST checkpoint: normal GitHub mainc124 mergefdb7116fa81116d6beb525c87c92935b038a00b8/treebd4e60fde7d852c278b156a59e4292fadda6c331 parents0c6a/c124 verified. Claude659 still OPEN despite terminalPB03; not adopted or merged. Direct route ACTIVE per6086770952, independent-reviewed source/context unchanged and local203/2240PASS. This dedicated metadata publication requires actual new final-head CI; no historical green promotion. Foundry cross_executor_review/validated identities remain null. Canonical merge and closure not yet complete."
+    "HISTORICAL checkpoint (superseded by latest_checkpoint): LATEST checkpoint: normal GitHub mainc124 mergefdb7116fa81116d6beb525c87c92935b038a00b8/treebd4e60fde7d852c278b156a59e4292fadda6c331 parents0c6a/c124 verified. Claude659 still OPEN despite terminalPB03; not adopted or merged. Direct route ACTIVE per6086770952, independent-reviewed source/context unchanged and local203/2240PASS. This dedicated metadata publication requires actual new final-head CI; no historical green promotion. Foundry cross_executor_review/validated identities remain null. Canonical merge and closure not yet complete.",
+    "LATEST checkpoint: Claude659 normally merged into main116225e96e1a71657e36ea8b4738ad731c416802/tree1218de432c566a26984c1ae2c7c48bc9a7c6014d while own74ad CI was active. Impact: exactly3basefiles (PB03workflow, efficiency doc, additive4testmodule); replay repair/tests/direct engine context unchanged. Normal owned GitHub mergea51a4ff1948e71efe560032bbe39ba99a703f456/treea4046a97ab18458d46b4fce80180560c16369f5f parents74ad/116225 verified. Final state publication plus actual new exact-head CI required; older active74ad runs not promoted or manually cancelled. Native/Foundry review remains unavailable separately; direct independent-review route and full CI unchanged."
   ],
   "remaining_scope": [
     "Actual final published-head required CI and affected XMage runtime qualification",
     "Fresh target drift/source/ownership/review check before normal owned653 merge",
     "Canonical HEAD/TREE receipt, direct-exception COMPLETE handoff and651 closure; no Foundry certificate"
   ],
-  "exact_next_action": "Collect actual exact-final-head CI/affected XMage qualification after normal currentmainc124 integration and this owned state publication. Freshly inspect target drift, independent reviewed source/context and unresolved review findings. Normally merge owned653 only after actual direct-exception gates hold; persist canonical receipt, close651 and link completed650. Native tooling remains unavailable; no retry/fallback/false Foundry certificate.",
+  "exact_next_action": "Preserve this final owned M15-main candidate during actual exact-head required CI and affected XMage runtime qualification. Freshly verify target drift/source/ownership/unresolved reviews and independently reviewed repair/context bytes. Normal owned653merge only after actual gates hold; persist canonical HEAD/TREE and direct-exception COMPLETE handoff, close651 and link completed650. No Foundry certificate, native quota retry/fallback or foreign mutation.",
   "validated_gates": [
     "Focused regression and negative mutation controls; fresh independent read-only candidate review, no concrete findings",
     "Source binding: actual CI checkout41e2cac parentsbeb5/ac887 and tree24a09 verified via Git data API",
