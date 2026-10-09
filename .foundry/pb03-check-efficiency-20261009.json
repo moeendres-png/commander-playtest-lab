@@ -25,7 +25,10 @@
     "hosted_last_contract_seconds": 4,
     "hosted_last_probe_seconds": 359,
     "hosted_last_runner_seconds": 2022,
-    "successful_run_speedup": "NOT_CLAIMED"
+    "successful_run_speedup": "NOT_CLAIMED",
+    "hosted_followup_job_seconds": 2326,
+    "hosted_followup_runner_seconds": 1718.5,
+    "hosted_followup_contract_seconds": 4
   },
   "validation": {
     "same_early_contract_suite_without_engine_checkouts_or_builds": "159 passed in 2.06s",
@@ -33,7 +36,8 @@
     "injected_admission_drift": "EXPECTED_FAIL: existing assertion rejected 12/18 instead of 13/17 in 0.13s; mutation restored; valid suite PASS",
     "workflow_structure": "Both workflows validate before external checkout/build; all producers/assertions preserved; three live-probe references agree on the hashed and uploaded epoch",
     "diff_check": "PASS",
-    "evidence_class": "DIRECTLY_VERIFIED local controls; no runtime qualification credit"
+    "evidence_class": "DIRECTLY_VERIFIED local controls; no runtime qualification credit",
+    "hosted_exact_head": "Run37853276341 success;159 tests in3.07s before all external checkouts; probe and every original runtime/assert/hash/upload stage succeed; artifact11584113110,71files. Successful-run speedup still NOT_CLAIMED."
   },
   "status": "ACTIVE",
   "pending": [
@@ -50,7 +54,7 @@
     "foreign co-writing"
   ],
   "stop_conditions": "Complete after exact-head gates, admitted review, normal integration and persisted canonical receipt; stop only on a named genuine authority/ownership/source blocker.",
-  "next_action": "Publish the exact tested tree on the owned feature branch and open the bounded PR.",
+  "next_action": "Publish the normal target integration and bounded review repairs; obtain fresh exact-head gates and admissible read-only review, then integrate normally and persist the canonical receipt.",
   "production_provider": "NOT_SELECTED",
   "architecture_freeze": "NOT_CLAIMED",
   "schema_version": "2.0",
@@ -58,8 +62,8 @@
   "worktree": "/workspace/scratch/645aaee2cf0d/pb03-check-efficiency",
   "audit_base_sha": "f3939d99f575a0e9820a82b9843589c754f8b43a",
   "audit_base_tree": "69fe9728d83217cf6dc054bd575a8119a81c2c48",
-  "state_written_against_head": "0e88bbe5e4a0a7d38e6716cd22f71d39b6fc3e07",
-  "validated_head": null,
+  "state_written_against_head": "b984f9edaa9d02bc06d7bf3bad3b37cf9874cea8",
+  "validated_head": "b984f9edaa9d02bc06d7bf3bad3b37cf9874cea8",
   "in_scope": [
     ".github/workflows/pb03-runtime-qualification.yml",
     ".github/workflows/pb03-shadow-parallel.yml",
@@ -70,6 +74,23 @@
     "Coverage reduction, provider selection or Architecture Freeze"
   ],
   "ownership": "PB03-CHECK-EFFICIENCY-20261009 (Codex sole writer of in_scope)",
-  "exact_next_action": "Repair the required state-schema gate, publish a normal follow-up, obtain exact-head gates/review and integrate.",
-  "state_schema_repair": "Required conformance gate rejected initial custom state; use existing state.py schema2.0, no exemption or gate change."
+  "exact_next_action": "Publish the normal target integration and bounded review repairs; obtain fresh exact-head gates and admissible read-only review, then integrate normally and persist the canonical receipt.",
+  "state_schema_repair": "Required conformance gate rejected initial custom state; use existing state.py schema2.0, no exemption or gate change.",
+  "validated_tree": "aaa700d4b0002083eda838d79486876bc0960ddd",
+  "integration_target": {
+    "sha": "4c96319c5d33d85374ad56a15ac05ca3aa06af62",
+    "tree": "a4885a47067b232fa896c5c823445b3e86af5752",
+    "method": "Normal target merge into owned branch; no overlapping owned paths. Contract 1.0.27 requires fresh hosted PB03 for workflow integration; earlier runtime evidence is historical only."
+  },
+  "prior_exact_head_ci": {
+    "head": "b984f9edaa9d02bc06d7bf3bad3b37cf9874cea8",
+    "tree": "aaa700d4b0002083eda838d79486876bc0960ddd",
+    "required": "PASS",
+    "runs": {
+      "quality_security": 37853276486,
+      "infrastructure": 37853276368,
+      "pb03": 37853276341
+    },
+    "credit": "No qualification credit transfers across the changed contract."
+  }
 }

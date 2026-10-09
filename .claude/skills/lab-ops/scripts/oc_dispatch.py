@@ -3,6 +3,7 @@
 
     oc_dispatch.py post --issue N --lane oc|bunny --task FILE [--branch B] [--dry-run]
     oc_dispatch.py watch RUN | --issue N [--interval 60] [--timeout 7200]
+    oc_dispatch.py rescue RUN [--out DIR]
 
 ``post`` builds the comment from a short task file plus a fixed footer (commit
 trailers, evidence rules, no force-push, and open-PR-never-merge for `/oc`) and
@@ -10,7 +11,10 @@ creates it with `gh api`. ``watch`` waits the way ``gh_ops.py`` does - run it in
 the background, never poll in the foreground - and then prints at most 15 lines:
 outcome, branch, PR, test summary and the UNKNOWN/BLOCKED items from the bot's
 final comment (or from the PR body the action created). It is read-only except
-for the single comment ``post`` creates.
+for the single comment ``post`` creates. ``rescue`` downloads the
+``opencode-rescue-*`` artifact a failed or cancelled run leaves behind (its
+action token expires after an hour, so a long run cannot push) and prints what it
+holds plus the commands to recover the work; it pushes nothing itself.
 """
 
 from __future__ import annotations
@@ -60,7 +64,10 @@ def footer(lane: str) -> str:
     if lane == "oc":
         rules.append(
             "Open a PR against `main` and never merge it. Work only on your own branch and do "
-            "not touch another workstream's files."
+            "not touch another workstream's files. Never write a GitHub closing keyword "
+            "(`Closes`, `Fixes`, `Resolves` followed by an issue number) in a commit message or "
+            "the PR body: merging would close the issue. Use `Refs #N`; the Coordinator closes "
+            "issues."
         )
     else:
         rules.append(
@@ -252,6 +259,41 @@ def cmd_watch(a: argparse.Namespace) -> None:
         print("tests no report comment (the run posted nothing)")
 
 
+RESCUE_ARTIFACT = re.compile(r"^opencode-rescue-")
+
+
+def cmd_rescue(a: argparse.Namespace) -> None:
+    artifacts = api(f"repos/{a.repo}/actions/runs/{a.run}/artifacts").get("artifacts", [])
+    names = [
+        x["name"] for x in artifacts if RESCUE_ARTIFACT.match(x["name"]) and not x.get("expired")
+    ]
+    if not names:
+        print(f"run {a.run}: no unexpired opencode-rescue artifact")
+        return
+    for name in names:
+        out = Path(a.out) / name
+        out.mkdir(parents=True, exist_ok=True)
+        subprocess.run(
+            ["gh", "run", "download", str(a.run), "-R", a.repo, "-n", name, "-D", str(out)],
+            check=True,
+        )
+        print(f"{name} -> {out}")
+        for part in ("log.txt", "status.txt"):
+            path = out / part
+            if path.exists():
+                lines = path.read_text(encoding="utf-8", errors="replace").splitlines()[:10]
+                print(f"  {part}: " + (" | ".join(lines) if lines else "(empty)"))
+        diff = out / "uncommitted.diff"
+        if diff.exists() and diff.stat().st_size:
+            print(f"  uncommitted diff: {diff.stat().st_size} bytes -> git apply {diff}")
+        bundle = out / "work.bundle"
+        if bundle.exists():
+            print(
+                f"  recover (in a full clone; the bundle is cut from a shallow checkout): "
+                f"git fetch {bundle} 'refs/heads/*:refs/remotes/rescue-{a.run}/*'"
+            )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -270,8 +312,12 @@ def main() -> None:
     watch.add_argument("--repo", default=DEFAULT_REPO)
     watch.add_argument("--interval", type=int, default=60)
     watch.add_argument("--timeout", type=int, default=7200)
+    rescue = sub.add_parser("rescue", help="download a failed run's unpublished work")
+    rescue.add_argument("run", type=int, help="workflow run id")
+    rescue.add_argument("--repo", default=DEFAULT_REPO)
+    rescue.add_argument("--out", default="opencode-rescue", help="download directory")
     a = parser.parse_args()
-    {"post": cmd_post, "watch": cmd_watch}[a.command](a)
+    {"post": cmd_post, "watch": cmd_watch, "rescue": cmd_rescue}[a.command](a)
 
 
 if __name__ == "__main__":
