@@ -4456,6 +4456,35 @@ def _mana_offer(legal: dict[str, Any], sources: list[str]) -> dict[str, Any] | N
     return None
 
 
+def _declared_payment_sources(step: dict[str, Any], placed: dict[str, str]) -> list[str]:
+    """The native sources one scripted ``mana_payment`` step declares, in order.
+
+    The record is the only authority for which permanent pays (#634): a source
+    the step names that the construction did not place fails closed.
+    """
+    value = (step.get("selection") or {}).get("semantic_value") or {}
+    declared = [str(source) for source in value.get("sources") or ()]
+    missing = [source for source in declared if source not in placed]
+    if missing:
+        raise ml.MidgameLaneError(f"the declared mana sources {missing} were not placed")
+    return [placed[source] for source in declared]
+
+
+def _principal_position(client: ml.MidgameLaneClient, principal: str) -> dict[str, Any]:
+    """The engine's (turn, phase, step) as the acting principal may observe it.
+
+    Read from that principal's own entitled projection, never from the
+    construction compare; a refused projection fails closed.
+    """
+    response = client.request("get_midgame_projection", {"actor_id": principal})
+    if not response.get("success"):
+        raise ml.MidgameLaneError(
+            f"the acting principal's projection failed closed: {ml._error_code(response)}"
+        )
+    view = (response.get("payload") or {}).get("view")
+    return dict(view) if isinstance(view, dict) else {}
+
+
 def _single_pool_spend(actions: list[dict[str, Any]]) -> dict[str, Any] | None:
     spends = []
     for action in actions:
@@ -4873,8 +4902,7 @@ def execute_row(
         baseline = elimination_baseline
     else:
         baseline = int(client.events(0)["latest_offset"])
-    sources = [placed[s] for s in spec.mana_sources if s in placed]
-    if len(sources) != len(spec.mana_sources):
+    if any(source not in placed for source in spec.mana_sources):
         return row_execution(
             fixture_id, False, construction, "a declared mana source was not placed"
         )
@@ -5035,9 +5063,11 @@ def execute_row(
                 declaring = False
                 position += 1
                 step = script[position] if position < len(script) else None
-            if paying and decision_class != "mana_payment":
+            if paying and decision_class != "mana_payment" and not delving:
                 # The scripted payment is complete: the engine spent exactly
-                # the record's declared mana, color for color.
+                # the record's declared mana, color for color. A delve card
+                # frame (the graveyard card XMage asks for after delve was
+                # activated on the payment frame) belongs to the same payment.
                 paying = False
                 declared = ((step or {}).get("selection") or {}).get("semantic_value") or {}
                 declared_colors = sorted(
@@ -5205,6 +5235,13 @@ def execute_row(
                 passed = probe.option_of_type(decision, "pass_priority")
                 if passed is None:
                     raise ml.MidgameLaneError("the engine offered no pass")
+                # The Lab passes a player's priority only inside the record's
+                # own declared pass-through scope (#634): a pass the record does
+                # not declare is a choice made on the player's behalf.
+                if not probe._scripted_priority_pass_through(
+                    record, principal, _principal_position(client, principal), obligation=True
+                ):
+                    raise ml.MidgameLaneError(f"undeclared priority pass for {principal}")
                 client.submit_options(decision, [passed])
                 continue
             if decision_class == "choice" and pending_alternative is not None:
@@ -5235,11 +5272,23 @@ def execute_row(
                 probe.submit_proposal(client, legal, action, f"{fixture_id}-{len(trace)}")
                 pending_costs = pending_costs[1:]
                 continue
+            payment_step = (
+                step
+                if scripted and step is not None and step.get("decision_family") == "mana_payment"
+                else None
+            )
+            if decision_class == "mana_payment" and payment_step is None:
+                # Which permanent pays is the player's choice: only the
+                # record's own scripted payment step may make it (#634).
+                raise ml.MidgameLaneError(f"undeclared mana payment for {principal}")
+            payment_sources = (
+                _declared_payment_sources(payment_step, placed) if payment_step is not None else []
+            )
             if (
                 decision_class == "mana_payment"
                 and pending_delve
                 and not delving
-                and _mana_offer(legal, sources) is None
+                and _mana_offer(legal, payment_sources) is None
             ):
                 # The record's cast names the graveyard cards it delves. XMage
                 # offers delve as its own special action on the payment frame,
@@ -5270,7 +5319,7 @@ def execute_row(
                 delving = False
                 continue
             if decision_class == "mana_payment":
-                offer = _mana_offer(legal, sources)
+                offer = _mana_offer(legal, payment_sources)
                 if offer is None:
                     raise ml.MidgameLaneError(
                         "no declared mana source or single pool spend was offered"
@@ -5279,14 +5328,13 @@ def execute_row(
                 frame.selected_option_type = str((offer.get("metadata") or {}).get("option_type"))
                 frame.selected_option_ids = _single_option_id(offer)
                 probe.submit_proposal(client, legal, offer, f"{fixture_id}-mana-{len(trace)}")
-                if scripted and step is not None and step.get("decision_family") == "mana_payment":
-                    # The record scripts this payment: the payment frames are
-                    # its step, and the colors the engine spent are checked
-                    # against the step's declared mana when the payment ends.
-                    frame.scripted = True
-                    paying = True
-                    if frame.selected_option_type == "mana_pool":
-                        spent_colors.append(_spent_color(frame.selected_label))
+                # The record scripts this payment: the payment frames are its
+                # step, and the colors the engine spent are checked against the
+                # step's declared mana when the payment ends.
+                frame.scripted = True
+                paying = True
+                if frame.selected_option_type == "mana_pool":
+                    spent_colors.append(_spent_color(frame.selected_label))
                 continue
             if scripted and step is not None and answers_frame(step, decision_class, spec):
                 answer = _scripted_answer(
