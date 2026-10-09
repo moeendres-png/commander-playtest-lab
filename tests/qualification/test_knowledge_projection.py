@@ -300,6 +300,14 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         _entry("complete_midgame_arrival", {"actor_id": "P1"}, _ok(copy.deepcopy(scoped))),
     ]
     script_start = len(tape) if record.get("decision_script") else None
+    # The record's own cast steps, in script order (the 1.0.29 arrival-history
+    # prefix moves them: the fixture must not hard-code their positions).
+    cast_positions = [
+        position
+        for position, step in enumerate(record.get("decision_script") or [])
+        if isinstance((step.get("selection") or {}).get("semantic_value"), dict)
+        and step["selection"]["semantic_value"].get("action") == "cast"
+    ]
     if kind == "copy_face_down":
         # P2's manifested permanent; P1's copy choice offering it without its
         # identity; P1's copy with only the face-down characteristics.
@@ -442,7 +450,7 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
         temporal_snapshots.append(
             {
                 "causal_step_id": "cast-exiled-card",
-                "script_position": 3,
+                "script_position": cast_positions[-1],
                 "tape_index": len(tape),
                 "projection": copy.deepcopy(pre_projections["P1"]),
                 "projections": pre_projections,
@@ -573,7 +581,13 @@ def _capture(record: dict[str, Any]) -> kp.Capture:
             [{"decision_class": "priority", "step": 0}]
             # HIDDEN_06's cast of the exiled card enters the tape at the snapshot.
             + (
-                [{"decision_class": "priority", "step": 3, "tape_index": cast_index}]
+                [
+                    {
+                        "decision_class": "priority",
+                        "step": cast_positions[-1],
+                        "tape_index": cast_index,
+                    }
+                ]
                 if cast_index is not None
                 else []
             )
@@ -1743,11 +1757,10 @@ def _public_event(capture: kp.Capture, at: int, event: dict[str, Any]) -> None:
 
 
 def _cast_at(capture: kp.Capture) -> int:
-    return next(
-        int(entry["tape_index"])
-        for entry in capture.script_trace
-        if entry.get("step") == 3 and "tape_index" in entry
-    )
+    # The record's last scripted decision is its cast (HIDDEN_06's
+    # cast-exiled-card); the 1.0.29 arrival-history prefix moves it later in the
+    # script but never after it.
+    return max(int(entry["tape_index"]) for entry in capture.script_trace if "tape_index" in entry)
 
 
 def test_hidden06_identity_through_a_public_event_before_the_cast_is_a_leak(

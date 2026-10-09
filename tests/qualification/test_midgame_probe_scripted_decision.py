@@ -349,3 +349,113 @@ def test_the_checkpoint_step_never_ends_before_the_requested_priority(probe: Any
             _combat_record("declare_attackers", "P3", pass_until_step="declare_blockers"),
             lambda decision, cls: True,
         )
+
+
+def _prefixed_trigger_order_record(class_name: str = "trigger_order") -> dict[str, Any]:
+    return {
+        "fixture_id": "PILOT_TRIGGER_ORDER",
+        "temporal_state": {
+            "turn_number": 1,
+            "phase": "beginning",
+            "step": "upkeep",
+            "active_player": "P1",
+            "priority_player": "P1",
+        },
+        "decision_script": [
+            {
+                "actor": "P1",
+                "decision_family": "mulligan",
+                "selection": {
+                    "selector_kind": "semantic_action",
+                    "semantic_value": "keep_opening_hand",
+                    "matches_only_provider_offered_legal_options": True,
+                    "on_zero_match": "FAIL_CLOSED",
+                    "on_multiple_match": "FAIL_CLOSED",
+                },
+            },
+            {
+                "actor": "ALL",
+                "decision_family": "priority_pass_through",
+                "scope": {
+                    "from": {"turn": 1, "phase": "beginning"},
+                    "until": {"turn": 1, "phase": "beginning", "step": "upkeep"},
+                },
+                "selection": {
+                    "selector_kind": "semantic_action",
+                    "semantic_value": "pass_priority",
+                    "matches_only_provider_offered_legal_options": True,
+                    "on_zero_match": "FAIL_CLOSED",
+                    "on_multiple_match": "FAIL_CLOSED",
+                },
+            },
+            {
+                "actor": "P1",
+                "decision_family": class_name,
+                "selection": {
+                    "selector_kind": "order",
+                    "semantic_value": ["trigger:Arena", "trigger:Remora"],
+                },
+            },
+        ],
+    }
+
+
+def test_a_scripted_trigger_order_behind_the_arrival_prefix_is_the_checkpoint(probe: Any) -> None:
+    """1.0.29: the record's first own decision behind the arrival-history prefix
+    (here a simultaneous upkeep trigger ordering, CR 603.3b) is where the arrival
+    stops; it never answers the ordering on the controller's behalf."""
+    engine = ParkedEngine("trigger_order", "BEGINNING", "UPKEEP")
+    verdict = probe.drive_arrival(engine, _prefixed_trigger_order_record())
+    assert verdict is not None and verdict.construction_verdict == "EXACT"
+    assert engine.submitted == []
+
+
+def test_a_trigger_order_the_record_scripts_for_another_seat_is_refused(probe: Any) -> None:
+    """Identity-bound: the frame's seat must be the record's declared actor."""
+    engine = ParkedEngine("trigger_order", "BEGINNING", "UPKEEP")
+    engine.decision["seat"] = 1
+    with pytest.raises(probe.ml.MidgameLaneError, match="record scripts it for P1"):
+        probe.drive_arrival(engine, _prefixed_trigger_order_record())
+
+
+def _prevention_record(*, scripted_wanted_step: bool) -> dict[str, Any]:
+    record = _combat_record("declare_attackers", "P2")
+    if scripted_wanted_step:
+        record["decision_script"].append(
+            {
+                "actor": "P2",
+                "decision_family": "priority",
+                "selection": {
+                    "selector_kind": "semantic_action",
+                    "semantic_value": {"action": "cast", "object": "obj:fog"},
+                    "matches_only_provider_offered_legal_options": True,
+                    "on_zero_match": "FAIL_CLOSED",
+                    "on_multiple_match": "FAIL_CLOSED",
+                },
+            }
+        )
+    return record
+
+
+def test_a_checkpoint_priority_held_by_an_earlier_seat_stops_before_the_frame(probe: Any) -> None:
+    """MICRO_PREVENTION: the checkpoint step is held first by the active player
+    (CR 117.1a); when the record scripts its own decision for the checkpoint's
+    declared priority player the arrival stops there and submits nothing."""
+    engine = SequencedEngine([("priority", "COMBAT", "DECLARE_ATTACKERS", "P1")])
+    verdict = probe.drive_arrival(
+        engine, _prevention_record(scripted_wanted_step=True), lambda decision, cls: False
+    )
+    assert verdict is not None and verdict.construction_verdict == "EXACT"
+    assert engine.submitted == []
+
+
+def test_a_checkpoint_priority_without_a_scripted_wanted_step_still_fails_closed(
+    probe: Any,
+) -> None:
+    """Red control: without the record's own wanted-player step the exclusive
+    pass-through scope is not widened and the frame fails closed."""
+    engine = SequencedEngine([("priority", "COMBAT", "DECLARE_ATTACKERS", "P1")])
+    with pytest.raises(probe.ml.MidgameLaneError, match="scripts no priority pass-through"):
+        probe.drive_arrival(
+            engine, _prevention_record(scripted_wanted_step=False), lambda decision, cls: False
+        )
