@@ -575,9 +575,12 @@ def af03_gate(candidate: str) -> dict[str, Any]:
 #
 # The Lab must not decide the policy question: whether the observed separate-
 # process topology and the licence/redistribution consequences satisfy AF11/
-# WS-09 under existing policy is reserved to the Coordinator. Recording that
-# residual as UNKNOWN is the honest state; it is NOT a weakening, because
-# freeze eligibility requires PASS and UNKNOWN is already in NON_PASS_VERDICTS.
+# WS-09 under existing policy is reserved to the Coordinator. The Coordinator
+# records that decision for the selected provider (AF11_ADJUDICATION); the Lab
+# only checks that the record still describes this run (source-lock licences,
+# sealed effective epoch, Forge role, exact provider classpath). Without a
+# record that validates, the residual stays UNKNOWN, which freeze eligibility
+# already treats as non-PASS.
 # ---------------------------------------------------------------------------
 
 # Adapter identities that would mean engine code is compiled INTO the Lab
@@ -586,7 +589,7 @@ _LAB_EMBEDDED_ENGINE_PREFIXES = ("commander_lab.engine", "src/commander_lab/engi
 
 
 def _af11_measure(
-    per_candidate: dict[str, Any], candidate: str, data: dict[str, Any]
+    per_candidate: dict[str, Any], candidate: str, data: dict[str, Any], root: Path = REPO
 ) -> dict[str, Any]:
     """Observe the AF11 technical facts. Returns facts, limitations, verdict."""
 
@@ -603,6 +606,11 @@ def _af11_measure(
     own_adapter = adapters.get(candidate, "")
     if not own_adapter:
         violated.append("no adapter identity was recorded for this candidate")
+    elif len(adapters) == 1:
+        evidence.append(
+            "this run measured one candidate, driven through its own external adapter "
+            f"({candidate}={own_adapter}); no other candidate shares the Lab driver"
+        )
     elif len({a for a in adapters.values() if a}) > 1:
         evidence.append(
             "each candidate was driven through its own distinct external adapter "
@@ -638,7 +646,7 @@ def _af11_measure(
 
     # -- Fact 4: licence topology as recorded metadata (a fact, not a ruling).
     try:
-        cfg = load(REPO / "config" / "rules_engines.json")
+        cfg = load(root / "config" / "rules_engines.json")
         lic = {
             "xmage": (
                 cfg["primary_engine"].get("provider"),
@@ -670,28 +678,159 @@ def _af11_measure(
             "is not measured here"
         )
 
-    # -- The residual question is not the Lab's to answer.
-    limitations.append(
-        "NOT MEASURED BY THE LAB: whether the observed separate-process topology "
-        "satisfies AF11/WS-09 under existing policy, and any "
-        "licence/redistribution consequence. That adjudication is reserved to "
-        "the Coordinator, so the Lab records it as UNKNOWN rather than deciding "
-        "it in either direction"
-    )
+    # -- The policy residual is the Coordinator's. A recorded adjudication for the
+    #    selected provider decides it only when it validates against the source
+    #    lock and this run's provider classpath; otherwise it stays UNKNOWN.
+    issues = [] if violated else _af11_adjudication_issues(candidate, root)
+    if violated or issues:
+        limitations.append(
+            "NOT MEASURED BY THE LAB: whether the observed separate-process topology "
+            "satisfies AF11/WS-09 under existing policy, and any "
+            "licence/redistribution consequence. That adjudication is reserved to "
+            "the Coordinator; without a valid recorded adjudication for this "
+            "candidate the Lab records it as UNKNOWN rather than deciding it in "
+            "either direction"
+        )
 
-    verdict = "FAIL" if violated else "UNKNOWN"
     if violated:
         limitations.extend(violated)
         evidence.append("AF11 technical facts are VIOLATED, hence FAIL")
-    else:
+        return {"verdict": "FAIL", "evidence": evidence, "limitations": limitations}
+    if issues:
+        limitations.extend(issues)
         evidence.append(
             "every observable AF11 technical fact holds (separate external "
             "processes, no embedded engine, shared recorded boundary); the only "
             "residual is the Coordinator-owned policy question, hence UNKNOWN "
             "rather than an invented PASS"
         )
+        return {"verdict": "UNKNOWN", "evidence": evidence, "limitations": limitations}
 
-    return {"verdict": verdict, "evidence": evidence, "limitations": limitations}
+    evidence.append(
+        "every observable AF11 technical fact holds, and the Coordinator adjudication "
+        f"{AF11_ADJUDICATION} validates for the selected provider {candidate}: "
+        "licences match the source lock, the effective epoch passes AF00-AF10, "
+        "Forge stays a separate-process reference with no code port, and this "
+        "run's provider classpath equals the adjudicated licence inventory, hence PASS"
+    )
+    return {"verdict": "PASS", "evidence": evidence, "limitations": limitations}
+
+
+AF11_ADJUDICATION = (
+    "qualification/af11-single-provider-topology-20261009/AF11_COORDINATOR_ADJUDICATION.json"
+)
+AF11_ADJUDICATION_SCHEMA = "commander-lab.af11-coordinator-adjudication/1.0.0"
+_AF11_DECISIONS = (
+    "SEPARATE_PROCESS_TOPOLOGY",
+    "PROVIDER_SPECIFIC_DECISION_IDENTITY_SHIM",
+    "PROVIDER_LICENCE_COMPATIBILITY",
+    "FORGE_SEPARATE_PROCESS",
+)
+_STRONG_COPYLEFT = ("GPL", "SSPL")  # also matches AGPL and LGPL
+
+
+def _af11_adjudication_issues(candidate: str, root: Path) -> list[str]:
+    """Why the recorded AF11 adjudication does not decide this run (empty: it does).
+
+    Every check fails closed: a missing record, a mismatch with the source lock,
+    an unsealed effective epoch or a provider classpath that differs from the
+    adjudicated licence inventory each keep AF11 UNKNOWN until re-adjudicated.
+    """
+    try:
+        record = load(root / AF11_ADJUDICATION)
+    except FileNotFoundError:
+        return ["no Coordinator AF11 adjudication is recorded"]
+    except (OSError, ValueError) as exc:
+        return [f"the Coordinator AF11 adjudication cannot be read: {exc!r}"]
+    if record.get("schema_version") != AF11_ADJUDICATION_SCHEMA or record.get("gate") != "AF11":
+        return ["the recorded AF11 adjudication has an unknown schema or gate"]
+    if record.get("selected_provider") != candidate:
+        return [
+            f"{candidate} is not the provider the AF11 adjudication covers "
+            f"({record.get('selected_provider')!r})"
+        ]
+    issues: list[str] = []
+    decisions = {item.get("id"): item.get("decision") for item in record.get("decisions") or ()}
+    for decision in _AF11_DECISIONS:
+        if decisions.get(decision) != "SATISFIED":
+            issues.append(f"the adjudication does not decide {decision} as SATISFIED")
+
+    licences = record.get("licence_topology") or {}
+    try:
+        cfg = load(root / "config" / "rules_engines.json")
+        engines = [cfg["primary_engine"], cfg["secondary_engine"]]
+    except (OSError, ValueError, KeyError) as exc:
+        engines = []
+        issues.append(f"the source-lock engine config cannot be read: {exc!r}")
+    engine = next((e for e in engines if e.get("provider") == candidate), None)
+    if engine is None or licences.get("provider") != engine.get("license"):
+        issues.append("the adjudicated provider licence does not match config/rules_engines.json")
+    try:
+        pyproject = (root / "pyproject.toml").read_text(encoding="utf-8").splitlines()
+    except OSError:
+        pyproject = []
+    lab_licence = next(
+        (
+            line.split("=", 1)[1].strip().strip('"')
+            for line in pyproject
+            if line.startswith("license =")
+        ),
+        None,
+    )
+    if lab_licence is None or licences.get("lab") != lab_licence:
+        issues.append("the adjudicated Lab licence does not match pyproject.toml")
+    inventory = licences.get("provider_classpath") or {}
+    if not inventory or any(
+        token in str(spdx).upper() for spdx in inventory.values() for token in _STRONG_COPYLEFT
+    ):
+        issues.append("the adjudicated provider classpath is empty or carries strong copyleft")
+    if licences.get("strong_copyleft_on_provider_classpath") is not False:
+        issues.append("the adjudication does not record the classpath as free of strong copyleft")
+
+    topology = record.get("integration_topology") or {}
+    if (
+        topology.get("adapter_serves") != [candidate]
+        or topology.get("lab_process_embeds_engine") is not False
+    ):
+        issues.append("the adjudicated topology does not serve exactly the selected provider")
+    manifest = str(topology.get("provider_classpath_manifest") or "")
+    try:
+        if not manifest:
+            raise OSError("no manifest named")
+        entries = (root / manifest).read_text(encoding="utf-8").strip().split(":")
+    except OSError as exc:
+        issues.append(f"this run's provider classpath manifest is unreadable: {exc}")
+    else:
+        jars = sorted(Path(entry).name for entry in entries if entry)
+        if jars != sorted(inventory):
+            issues.append(
+                "this run's provider classpath differs from the adjudicated inventory: "
+                f"{sorted(set(jars) ^ set(inventory))}"
+            )
+
+    forge = record.get("forge") or {}
+    if (
+        forge.get("role") != "BOUNDED_REFERENCE"
+        or forge.get("code_port") != "NOT_PERMITTED"
+        or forge.get("in_production_distribution") is not False
+        or forge.get("d17_in_jvm_residual_risk") != "NOT_ACCEPTED"
+    ):
+        issues.append("the adjudication does not keep Forge a separate-process reference")
+
+    effective = str((record.get("owner_selection") or {}).get("effective_epoch") or "")
+    try:
+        if not effective:
+            raise OSError("no effective epoch named")
+        sealed = load(root / effective / f"AF00_AF11_{candidate.upper()}.json")
+    except (OSError, ValueError) as exc:
+        issues.append(f"the selection's effective epoch is not sealed here: {exc}")
+    else:
+        gates = {gate.get("gate"): gate.get("verdict") for gate in sealed.get("gates") or ()}
+        if sealed.get("boundary") != "FRESH_CURRENT_BOUNDARY_EXECUTION" or any(
+            gates.get(f"AF{index:02d}") != "PASS" for index in range(11)
+        ):
+            issues.append("the selection's effective epoch does not pass AF00-AF10")
+    return issues
 
 
 def _describe_replay_evidence(
@@ -1238,8 +1377,9 @@ def assemble() -> None:
         )
 
     # ---- AF00-AF11 matrix ------------------------------------------------
-    # AF11 is computed, never asserted: measured technical facts decide between
-    # FAIL (a fact is violated) and UNKNOWN (facts hold, policy unresolved).
+    # AF11 is computed, never asserted: measured technical facts decide FAIL (a
+    # fact is violated); with the facts holding, a recorded Coordinator
+    # adjudication that validates for this run decides PASS, else UNKNOWN.
     af11_by_candidate = {
         cand: _af11_measure(per_candidate, cand, cdata) for cand, cdata in per_candidate.items()
     }
