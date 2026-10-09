@@ -1,13 +1,13 @@
 {
   "schema_version": "2.0",
   "repository": "moeendres-png/commander-playtest-lab",
-  "worktree": "/home/runner/work/commander-playtest-lab/commander-playtest-lab",
+  "worktree": "/workspace/scratch/645aaee2cf0d/phase86-check-efficiency",
   "branch": "opencode/issue638-20261009004143",
   "audit_base_sha": "063edc0f5b0c00bde7c4538291cd5f962e9c5f3d",
   "audit_base_tree": "cb046bcd7f3e727c5323a24d03ecdad93dce34b7",
-  "state_written_against_head": "063edc0f5b0c00bde7c4538291cd5f962e9c5f3d",
-  "validated_head": null,
-  "validated_tree": null,
+  "state_written_against_head": "64fbccc4430c8710b0526b47c103b3bd11a2d563",
+  "validated_head": "64fbccc4430c8710b0526b47c103b3bd11a2d563",
+  "validated_tree": "016537cba8aa38ecd23a11636dd582b2e389fdc3",
   "materiality": "MATERIAL",
   "objective": "Issue #638: run the real Phase86 audit once per module in tests/unit/test_audit_e_runtime_hygiene.py so both existing report assertions share one completed run_phase86_audit(root, run_tests=False); preserve both test node IDs, all assertions and test-alone behavior; no production change.",
   "in_scope": [
@@ -19,7 +19,7 @@
     "all Claude runtime/contract/probe paths (#634/#592)",
     "any whole-CI or qualification-speedup claim from this two-test experiment"
   ],
-  "ownership": "Codex coordinator owns the objective; delegated DeepSeek MAX sole implementation writer of tests/unit/test_audit_e_runtime_hygiene.py and .foundry/phase86-check-efficiency-20261009.json on branch opencode/issue638-20261009004143. Native action owns commit/publication/PR.",
+  "ownership": "PHASE86-CHECK-EFFICIENCY-20261009: Codex coordinator sole integration writer after completed delegated DeepSeek MAX implementation; two in_scope paths; no active child writer.",
   "status": "ACTIVE",
   "files_modified": [
     "tests/unit/test_audit_e_runtime_hygiene.py"
@@ -32,7 +32,9 @@
     "test_phase86_audit_publishes_runtime_derived_tool_availability alone: 1 passed, wall 24.26s, 1 invocation 23.38s",
     "contamination control in disposable clone /tmp/opencode/p86-638/contamination-checkout: 1 failed in 23.95s; genuine hygiene assertion detected '+ ?? CONTAMINATION_PROBE.untracked'; canonical checkout untouched; no runtime credit",
     "ruff check tests/unit/test_audit_e_runtime_hygiene.py => passed; ruff format --check => 1 file already formatted",
-    "python tools/foundry/state.py --state .foundry/phase86-check-efficiency-20261009.json --workdir . --fail-on-head-mismatch --check-validated --fail-on-validated-problem => STATE_OK schema=2.0 status=ACTIVE, VALIDATED_NONE (honest null), exit 0"
+    "Historical prepublication state command on source063edc0f passed; after native publication64fbccc4 the strict head command failed as review6072055162 correctly observed. This checkpoint re-stamps the real validated published implementation without changing tests or adding an exemption.",
+    "Coordinator independent genuine pytest run on64fbccc4:2passed23.03s; sys.setprofile sees exactly1actual run_phase86_audit call with run_tests=False; checkout status unchanged.",
+    "Coordinator schema conformance43PASS; locked ruffcheckPASS; whole format1437filesPASS."
   ],
   "evidence": [
     "environment: python 3.12.3, venv /tmp/opencode/p86venv from requirements/lock.txt (--require-hashes), pytest 9.1.1, ruff 0.16.8, mypy 1.20.2, hypothesis 6.168.0; ruff/mypy on PATH for the audit subprocesses",
@@ -47,5 +49,11 @@
     "Both original test node IDs and every assertion are preserved; the only structural change is fixture injection, so each test still passes when selected alone.",
     "No production audit code was modified; the fixture performs no writes beyond the audit's existing ignored .runtime/audit/phase86 output."
   ],
-  "exact_next_action": "Coordinator/native action: commit tests/unit/test_audit_e_runtime_hygiene.py and this state file on opencode/issue638-20261009004143, push, open PR with body 'Refs #638, Refs #479' (no closing keywords), then run required exact-head CI, fresh read-only Space Bunny review (MATERIAL) and target-drift adjudication before normal merge."
+  "exact_next_action": "Obtain fresh exact-head CI and admitted read-only repair review on Owner-authored PR #641, adjudicate current target drift, merge normally and persist canonical receipt; #639 is superseded unmerged provenance.",
+  "review_repair": {
+    "comment": 6072055162,
+    "finding": "P2 stale prepublication state head",
+    "repair": "Stamp actual published/locally tested64fbccc4 SHA/TREE, retain immutable audit base; state-only checkpoint, test/production bytes unchanged.",
+    "pending": "fresh exact-head CI and bounded fresh read-only repair review before merge"
+  }
 }
