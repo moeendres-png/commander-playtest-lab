@@ -53,7 +53,8 @@ jobs:
             tests/qualification/test_current_boundary_dimension_admission.py \
             tests/qualification/test_current_boundary_midgame_lane.py \
             tests/qualification/test_current_boundary_pb03_runtime.py \
-            tests/qualification/test_current_boundary_receipts.py
+            tests/qualification/test_current_boundary_receipts.py \
+            tests/qualification/test_midgame_arrival_history_*.py
 
       - name: Resolve current XMage and Forge dual identities
         run: |
