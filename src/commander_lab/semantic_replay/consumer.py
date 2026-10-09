@@ -19,11 +19,12 @@ from typing import Any, cast
 
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
+    FULL_GAME_SHUTDOWN_GRACEFUL,
     _RawFullGameClient,
 )
 from commander_lab.models import ENGINE_PROTOCOL_VERSION
 
-from .divergence import DivergenceClass, ReplayDivergence
+from .divergence import DivergenceClass, ReplayDivergence, public_replay_errors
 from .fingerprint import (
     build_object_index,
     internal_checkpoint_digest,
@@ -82,6 +83,7 @@ def _observed_domain(status: dict[str, Any], manifest: Any) -> dict[str, Any]:
     }
 
 
+@public_replay_errors
 def replay_tape(
     tape_path: str | Path,
     *,
@@ -484,12 +486,16 @@ def replay_tape(
                 DivergenceClass.TERMINAL_OUTCOME_MISMATCH,
                 f"terminal outcomes differ: observed={observed} recorded={recorded}",
             )
-        return {
-            "pass": True,
-            "tape_id": tape.tape_id,
-            "steps_verified": len(tape.steps),
-            "terminal": dict(tape.terminal_checkpoint.model_dump(mode="json")),
-        }
+    if getattr(client, "shutdown_disposition", None) != FULL_GAME_SHUTDOWN_GRACEFUL:
+        raise ReplayDivergence(
+            DivergenceClass.EARLY_TERMINATION, "REPLAY_SHUTDOWN_NOT_GRACEFUL (replay)"
+        )
+    return {
+        "pass": True,
+        "tape_id": tape.tape_id,
+        "steps_verified": len(tape.steps),
+        "terminal": dict(tape.terminal_checkpoint.model_dump(mode="json")),
+    }
 
 
 def _replay_concede(

@@ -24,9 +24,7 @@ from commander_lab.engine.rules.full_game import (
 from commander_lab.models import RulesDeckInput
 
 from . import comparator, consumer, recorder
-from .divergence import ReplayDivergence
-
-REPLAY_DIVERGENCE_DETAIL_LIMIT = 500
+from .divergence import REPLAY_DIVERGENCE_DETAIL_LIMIT, ReplayDivergence
 
 
 def _bounded_detail(detail: str) -> str:

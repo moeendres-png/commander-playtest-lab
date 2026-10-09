@@ -20,6 +20,7 @@ from commander_lab.agents import build_pilot
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
+    FULL_GAME_SHUTDOWN_GRACEFUL,
     ExternalPilotDecisionPolicy,
     FullGamePilotBinding,
     _RawFullGameClient,
@@ -28,7 +29,7 @@ from commander_lab.engine.rules.full_game import (
 from commander_lab.models import ENGINE_PROTOCOL_VERSION, RulesDeckInput
 
 from .canonicalization import CANONICALIZATION_VERSION, canonical_hash
-from .divergence import DivergenceClass, ReplayDivergence
+from .divergence import DivergenceClass, ReplayDivergence, public_replay_errors
 from .fingerprint import (
     SEMANTIC_OPTION_IDENTITY_VERSION,
     STATE_DIGEST_VERSION,
@@ -247,6 +248,7 @@ def _seat_uuid_map(status: dict[str, Any], decision: dict[str, Any]) -> dict[int
     return mapping
 
 
+@public_replay_errors
 def record_tape(
     *,
     scenario: FutureXmageScenario,
@@ -840,6 +842,10 @@ def record_tape(
             if output.exists():
                 pass
             raise
+    if getattr(client, "shutdown_disposition", None) != FULL_GAME_SHUTDOWN_GRACEFUL:
+        raise ReplayDivergence(
+            DivergenceClass.EARLY_TERMINATION, "REPLAY_SHUTDOWN_NOT_GRACEFUL (record)"
+        )
     output.parent.mkdir(parents=True, exist_ok=True)
     tmp_write.write_text(
         json.dumps(tape.model_dump(mode="json"), indent=2, sort_keys=True) + "\n",
