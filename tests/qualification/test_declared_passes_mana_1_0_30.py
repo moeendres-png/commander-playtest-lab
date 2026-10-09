@@ -594,9 +594,12 @@ def _without_mana_sources(step: dict) -> dict:
 
 def test_contract_1_0_30_authority_and_ledger_name_the_correction() -> None:
     authority = _json(AUTHORITY_PATH)["full107"]
-    assert authority["successor_contract"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_30.json")
+    # 1.0.31 is the current successor: it continues the same correction class
+    # for the campaign and replay-twin records, so the current authority names
+    # 1.0.31 and a record 1.0.31 re-opened has its ledger entry there.
+    assert authority["successor_contract"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_31.json")
     assert authority["effective_materialization_schema"].endswith(
-        "SEMANTIC_FIXTURE_SCHEMA_v1_0_30_SUCCESSOR.json"
+        "SEMANTIC_FIXTURE_SCHEMA_v1_0_31_SUCCESSOR.json"
     )
     assert authority["denominator_count"] == 107
     contract = _json(SUCCESSOR_PATH)
@@ -623,7 +626,9 @@ def test_contract_1_0_30_authority_and_ledger_name_the_correction() -> None:
         assert ledger_entry["correction_class"] == CORRECTION_CLASS
         assert ledger_entry["denominator_effect"] == "NONE"
         assert ledger_entry["successor_contract"].endswith(
-            "FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
+            "FULL107_SUCCESSOR_CONTRACT_v1_0_31.json"
+            if fixture_id == "RNG_RULES_TAPE"
+            else "FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
         )
     assert authority["denominator_count"] == 107
 
@@ -712,7 +717,10 @@ def test_generator_is_deterministic_and_never_mutates_the_checkout(tmp_path: Pat
         text=True,
     )
     first = {relative: (root / relative).read_bytes() for relative in targets}
-    for relative in targets:
+    # The pointer and the ledger now name 1.0.31, so the historical generator
+    # reproduces only its own contract and schema bytes; the pointer and ledger
+    # it writes are checked for determinism below.
+    for relative in targets[:2]:
         assert first[relative] == before[relative], relative
     subprocess.run(
         [sys.executable, str(GENERATOR), str(root)],

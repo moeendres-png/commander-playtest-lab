@@ -283,12 +283,12 @@ def test_contract_1_0_29_diff_against_1_0_28_is_arrival_history_only() -> None:
 
 def test_contract_1_0_29_authority_and_ledger_name_the_correction() -> None:
     authority = _json(AUTHORITY_PATH)["full107"]
-    # 1.0.30 is the current successor and re-opens every one of these records
-    # for the declared passes/mana; the frozen 1.0.29 bytes above keep the
-    # 1.0.29 class, and the current authority/ledger name the 1.0.30 one.
-    assert authority["successor_contract"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_30.json")
+    # 1.0.30 re-opened every one of these records for the declared passes/mana
+    # and 1.0.31 (the current successor) continues that class; the frozen
+    # 1.0.29 bytes above keep the 1.0.29 class.
+    assert authority["successor_contract"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_31.json")
     assert authority["effective_materialization_schema"].endswith(
-        "SEMANTIC_FIXTURE_SCHEMA_v1_0_30_SUCCESSOR.json"
+        "SEMANTIC_FIXTURE_SCHEMA_v1_0_31_SUCCESSOR.json"
     )
     assert authority["denominator_count"] == 107
     contract = _json(SUCCESSOR_PATH)
@@ -311,7 +311,7 @@ def test_contract_1_0_29_authority_and_ledger_name_the_correction() -> None:
         )
         assert ledger_entry["denominator_effect"] == "NONE"
         assert ledger_entry["successor_contract"].endswith(
-            "FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
+            ("FULL107_SUCCESSOR_CONTRACT_v1_0_30.json", "FULL107_SUCCESSOR_CONTRACT_v1_0_31.json")
         )
 
 
