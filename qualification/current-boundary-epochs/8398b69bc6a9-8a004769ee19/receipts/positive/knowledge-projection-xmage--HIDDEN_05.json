@@ -1,0 +1,267 @@
+{
+  "assertion_class": "KNOWLEDGE_BOUNDARY_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+  "fixture_id": "HIDDEN_05",
+  "obligation_exercised": {
+    "forbidden_events": [
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+    ],
+    "obligation_digest": "7ed78ac50c7b98cd6225f66bd986601fc6ecc2e9b413f38db114ee5643bcc01d",
+    "requested_state_digest": "5567336dd33d4fd848aaf52f1518a7c76d397d746efdab2bd2dd2e9c7ecd91c4",
+    "required_events": [
+      "knowledge_projection:HIDDEN_05:P1"
+    ],
+    "terminal_postconditions": [
+      "P1 observation exactly respects declared viewer state.",
+      "No prohibited metadata appears in any tested channel.",
+      "Knowledge invalidation/permission persistence follows the declared conditions."
+    ],
+    "viewer_obligation": "face-down exile actor-specific permission persists"
+  },
+  "observed_assertion": {
+    "channel_coverage": {
+      "ability_metadata": 404,
+      "context": 58,
+      "event": 21,
+      "log": 216,
+      "option_id": 292,
+      "option_label": 292,
+      "option_metadata": 292,
+      "pile_metadata": 0,
+      "prompt": 58,
+      "source_metadata": 58,
+      "state": 78,
+      "transcript": 295
+    },
+    "checks": [
+      {
+        "detail": "arrival EXACT, construction_match True, mismatches []",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "construction_exact"
+      },
+      {
+        "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 2, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 2, 'face_down': 1}",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "lossless_checks_performed"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P1"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P2"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P3"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P4"
+      },
+      {
+        "detail": "4 distinct principal ids for 4 seats",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "distinct_principals"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Lightning Bolt', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-bolt']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P1"
+      },
+      {
+        "detail": "every channel carried content",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scan_coverage"
+      },
+      {
+        "detail": "each honey sentinel is found in the harness's own create request",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_sentinel_in_request"
+      },
+      {
+        "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_honey_identity_where_entitled"
+      },
+      {
+        "detail": "28 scripted answers, complete=True",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scripted_event_executed"
+      },
+      {
+        "detail": "1 persistent look permissions for P1",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "persistent_exile_look_declared"
+      },
+      {
+        "detail": "1 unnamed moves from a hidden zone into exile",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "face_down_exile_on_public_tape"
+      },
+      {
+        "detail": "the exile's public source obj:hidden05-gonti left the battlefield 1 times after the exile",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "granting_source_left_before_measurement"
+      },
+      {
+        "detail": "P1's view of P2's exile shows the card face down: 1",
+        "holds": true,
+        "kind": "ENTITLEMENT",
+        "name": "face_down_exile_shown_to_viewer:obj:hidden-hand"
+      },
+      {
+        "detail": "P2's view of P2's exile lists 0 face-down cards",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "face_down_exile_withheld_from:obj:hidden-hand:P2"
+      },
+      {
+        "detail": "P3's view of P2's exile lists 0 face-down cards",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "face_down_exile_withheld_from:obj:hidden-hand:P3"
+      },
+      {
+        "detail": "P4's view of P2's exile lists 0 face-down cards",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "face_down_exile_withheld_from:obj:hidden-hand:P4"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Gonti, Lord of Luxury', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-gonti']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P2"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Gonti, Lord of Luxury', 'Grizzly Bears', 'Lightning Bolt', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-bolt', 'obj:hidden05-gonti']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P3"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Gonti, Lord of Luxury', 'Grizzly Bears', 'Lightning Bolt', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-bolt', 'obj:hidden05-gonti']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P4"
+      }
+    ],
+    "forbidden_evidence": {
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+        "ambiguous_tokens_not_scanned": {},
+        "occurrences": [],
+        "tokens_scanned": [
+          "Demonic Tutor",
+          "Lightning Bolt",
+          "Vampiric Tutor",
+          "WS30_HONEY_P2_PRIVATE_7F3A",
+          "obj:hidden-hand",
+          "obj:hidden-lib-0",
+          "obj:hidden05-bolt"
+        ]
+      }
+    },
+    "token_evidence": {
+      "knowledge_projection:HIDDEN_05:P1": [
+        {
+          "detail": "28 scripted answers, complete=True",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "scripted_event_executed"
+        },
+        {
+          "detail": "1 persistent look permissions for P1",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "persistent_exile_look_declared"
+        },
+        {
+          "detail": "1 unnamed moves from a hidden zone into exile",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "face_down_exile_on_public_tape"
+        },
+        {
+          "detail": "the exile's public source obj:hidden05-gonti left the battlefield 1 times after the exile",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "granting_source_left_before_measurement"
+        },
+        {
+          "detail": "P1's view of P2's exile shows the card face down: 1",
+          "holds": true,
+          "kind": "ENTITLEMENT",
+          "name": "face_down_exile_shown_to_viewer:obj:hidden-hand"
+        },
+        {
+          "detail": "P2's view of P2's exile lists 0 face-down cards",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "face_down_exile_withheld_from:obj:hidden-hand:P2"
+        },
+        {
+          "detail": "P3's view of P2's exile lists 0 face-down cards",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "face_down_exile_withheld_from:obj:hidden-hand:P3"
+        },
+        {
+          "detail": "P4's view of P2's exile lists 0 face-down cards",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "face_down_exile_withheld_from:obj:hidden-hand:P4"
+        },
+        {
+          "detail": "0 occurrences of ['Demonic Tutor', 'Gonti, Lord of Luxury', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-gonti']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P2"
+        },
+        {
+          "detail": "0 occurrences of ['Demonic Tutor', 'Gonti, Lord of Luxury', 'Grizzly Bears', 'Lightning Bolt', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-bolt', 'obj:hidden05-gonti']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P3"
+        },
+        {
+          "detail": "0 occurrences of ['Demonic Tutor', 'Gonti, Lord of Luxury', 'Grizzly Bears', 'Lightning Bolt', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'obj:hidden05-bolt', 'obj:hidden05-gonti']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P4"
+        }
+      ]
+    },
+    "viewer": "P1"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "26e9bae56e6b892fcaa6903eac53d422490939af599ed6861c2e38ef960bfe8a",
+  "runner_digest": "fd234e1ea602330e758b85b1412011a21612b96cb031aa31171b376e0c9285cc",
+  "runtime_receipt_digest": "88d524e4f415d95e44a29c768ba632faced21661258697d7934d7d8214e5985d",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:knowledge-projection#HIDDEN_05"
+}

@@ -1,0 +1,41 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED_FIXTURE_DECLARED_CAUSE_VARIANCE",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "forge",
+  "candidate_commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
+  "execution_mode": "FORGE_SCENARIO_BOOTSTRAP_OBLIGATION",
+  "fixture_id": "WS05-MP-ELIM-PRIO-3",
+  "obligation_exercised": {
+    "forbidden_events": [],
+    "obligation_digest": "89735aabd886bf07e06f5c9157e93e29fd67290f9e98c0626bbd8fd7fedcc98c",
+    "requested_state_digest": "d16603d115f0d2b396fb317bf4b415764be5be7574269958635b3defbf0493b0",
+    "required_events": [
+      "player_leaves:P2",
+      "multiplayer_cleanup:CR800.4"
+    ],
+    "terminal_postconditions": [
+      "After P2 leaves, priority ring excludes P2 and next eligible live player is selected."
+    ]
+  },
+  "observed_assertion": {
+    "checkpoint_basis": "BOOTSTRAP_CHECKPOINT",
+    "checkpoint_variance_source": "fixture.native_procedure NATIVE_CAUSE_DECLARED_PLAYER_LOSS + declared terminal_postconditions; the cause transition is declared by the frozen fixture, not invented by this lane",
+    "checkpoint_verdict": "ALLOWED_VARIANCE",
+    "engine_authored_decision_count": 8,
+    "external_decision_selection_sha256": "aa0c1c525124c9727f6df07fb194b81327e675350d9d3e54d09b9d74e4279dcf",
+    "native_bootstrap_applied": true,
+    "obligation_kind": "player_leaves_multiplayer_cleanup",
+    "requested_checkpoint_verdict": null,
+    "row_document_sha256": "311faafa8203bc9c3b7c834c394bed24f22480a18206550732c40a99269038e3",
+    "semantic_events": [
+      "player_leaves:p2"
+    ],
+    "terminal_facts_sha256": "de8f74df9af1e620b8110f19d911f5fbdbd27a1ae360f5cb7f26f8306f7773fa"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "8c08eb766824ef12ec8c4b64829a61ed2095e7af83d0718bb3857d240b3fe456",
+  "runner_digest": "fd234e1ea602330e758b85b1412011a21612b96cb031aa31171b376e0c9285cc",
+  "runtime_receipt_digest": "311faafa8203bc9c3b7c834c394bed24f22480a18206550732c40a99269038e3",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "forge-scenario-lane:FORGE_SCENARIO_BOOTSTRAP_OBLIGATION#WS05-MP-ELIM-PRIO-3"
+}
