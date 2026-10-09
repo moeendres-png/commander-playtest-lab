@@ -36,6 +36,9 @@ on:
       # determinism tests launch and the errata ledger they read (#646, audit
       # measured by tests/qualification/test_pb03_trigger_completeness.py).
       - "tests/qualification/test_midgame_arrival_history_*.py"
+      # The static registry preflight (efficiency M16): a record gap in any
+      # lane registry fails here in seconds, before the engine builds.
+      - "tests/qualification/test_lane_registry_declarations.py"
       - "docs/arrival_history_erratum_*/generate_contract_*.py"
       - "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json"
       - "src/commander_lab/__init__.py"
@@ -91,7 +94,8 @@ jobs:
             tests/qualification/test_current_boundary_midgame_lane.py \
             tests/qualification/test_current_boundary_pb03_runtime.py \
             tests/qualification/test_current_boundary_receipts.py \
-            tests/qualification/test_midgame_arrival_history_*.py
+            tests/qualification/test_midgame_arrival_history_*.py \
+            tests/qualification/test_lane_registry_declarations.py
 
       - name: Resolve current XMage and Forge dual identities
         run: |
