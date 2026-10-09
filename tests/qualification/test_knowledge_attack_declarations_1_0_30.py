@@ -250,7 +250,15 @@ def _transport_record(step: dict | None) -> dict:
     return {
         "fixture_id": "T_A2",
         "decision_script": [copy.deepcopy(step)] if step is not None else [],
-        "temporal_state": {"priority_player": "P1", "turn_number": 1},
+        # The fake client's engine advances past the attack step to the
+        # postcombat main, so this synthetic record declares that point as its
+        # capture point: the event completes only where the record declares.
+        "temporal_state": {
+            "priority_player": "P1",
+            "turn_number": 1,
+            "phase": "postcombat_main",
+            "step": "main",
+        },
         "action_cost_state": [],
     }
 
@@ -281,3 +289,21 @@ def test_red_control_an_undeclared_attack_frame_still_fails_closed() -> None:
     with pytest.raises(MidgameLaneError, match="unscripted declare_attacker for P1"):
         knowledge_projection.run_script(client, _transport_record(None))
     assert client.submissions == []
+
+
+def _hold_offer(action_id: str) -> dict:
+    return {
+        "action_id": action_id,
+        "action_type": "hold_attacker",
+        "metadata": {"option_type": "hold_attacker"},
+    }
+
+
+def test_hold_attacker_offer_requires_exactly_one_engine_hold() -> None:
+    """P3-1: the declared empty set answers the engine's own single hold offer;
+    zero or two hold offers are not an answer and fail closed."""
+    single = _hold_offer("hold-1")
+    assert knowledge_projection._hold_attacker_offer({"actions": [single]}) == single
+    for actions in ([], [_hold_offer("hold-1"), _hold_offer("hold-2")]):
+        with pytest.raises(MidgameLaneError, match="engine hold offers"):
+            knowledge_projection._hold_attacker_offer({"actions": actions})
