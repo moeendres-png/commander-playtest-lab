@@ -11,6 +11,7 @@ path.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import re
@@ -42,9 +43,10 @@ def hook(event, args):
     if event == "subprocess.Popen" and len(args) > 1 and isinstance(args[1], (list, tuple)):
         # A child process's own reads are invisible to this hook; a repository
         # script the child is launched with is still an input of the parent.
+        base = Path(os.fsdecode(args[2])) if len(args) > 2 and args[2] else Path.cwd()
         for arg in args[1]:
             try:
-                path = Path(os.fsdecode(arg)).resolve()
+                path = (base / os.fsdecode(arg)).resolve()
                 if path.is_file():
                     touched.add(str(path.relative_to(root)))
             except Exception:
@@ -82,6 +84,24 @@ modules = {
     and str(Path(module.__file__).resolve()).startswith(str(root))
 }
 print(json.dumps(sorted(touched | modules)))
+"""
+
+
+# Installed as sitecustomize for every Python process the measured tests start:
+# appends each file the process opens to $PB03_CHILD_READS. The log is opened
+# before the hook exists, so the hook's own writes are not audited.
+_CHILD_HOOK = r"""
+import os, sys
+_log = os.environ.get("PB03_CHILD_READS")
+if _log:
+    _fd = os.open(_log, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+    def _hook(event, args):
+        if event == "open" and args and isinstance(args[0], (str, bytes, os.PathLike)):
+            try:
+                os.write(_fd, (os.path.abspath(os.fsdecode(args[0])) + "\n").encode())
+            except Exception:
+                pass
+    sys.addaudithook(_hook)
 """
 
 
@@ -192,10 +212,26 @@ def _tracked_files() -> tuple[str, ...]:
 
 
 def _shell_glob(argument: str) -> re.Pattern[str]:
-    """The shell's own glob for one path argument: ``*`` and ``?`` never cross ``/``."""
+    """The shell's own glob for one path argument: ``*``, ``?`` and ``[...]``
+    never cross ``/``."""
     out = ""
-    for char in argument:
-        out += "[^/]*" if char == "*" else "[^/]" if char == "?" else re.escape(char)
+    index = 0
+    while index < len(argument):
+        char = argument[index]
+        if char == "*":
+            out += "[^/]*"
+        elif char == "?":
+            out += "[^/]"
+        elif char == "[" and "]" in argument[index + 2 :]:
+            end = argument.index("]", index + 2)
+            body = argument[index + 1 : end]
+            negate = body[:1] in ("!", "^")
+            body = body[1:] if negate else body
+            out += "(?!/)[" + ("^" if negate else "") + body.replace("\\", "\\\\") + "]"
+            index = end
+        else:
+            out += re.escape(char)
+        index += 1
     return re.compile(out + r"\Z")
 
 
@@ -218,9 +254,55 @@ def _expand(arguments: list[str], tracked: tuple[str, ...]) -> list[str]:
     return sorted(files)
 
 
+_ARGUMENT = r"[\w./*?\[\]!-]+\.py"
+# pytest options that consume the next token as their value.
+_PYTEST_VALUE_OPTIONS = frozenset(
+    {"-k", "-m", "-o", "-p", "-c", "-W", "--rootdir", "--deselect", "--ignore", "--basetemp"}
+)
+
+
+def _pytest_positionals(steps: str) -> list[str]:
+    """Every positional argument of every pytest command in the workflow.
+
+    Each one must be a recognisable test path (a literal file or a wildcard
+    over files); anything else (a directory, a variable, a brace list) fails
+    closed rather than silently leaving the measurement.
+    """
+    import shlex
+
+    positionals: list[str] = []
+    for line in steps.replace("\\\n", " ").splitlines():
+        try:
+            tokens = shlex.split(line, comments=True)
+        except ValueError as exc:
+            raise AssertionError(f"unparseable workflow command {line!r}") from exc
+        if "pytest" not in tokens:
+            continue
+        rest = tokens[tokens.index("pytest") + 1 :]
+        skip = False
+        for token in rest:
+            if skip:
+                skip = False
+                continue
+            if token in _PYTEST_VALUE_OPTIONS:
+                skip = True
+                continue
+            if token.startswith("-"):
+                continue
+            path = token.split("::", 1)[0]
+            if not re.fullmatch(rf"tests/{_ARGUMENT}", path):
+                raise AssertionError(f"pytest argument {token!r} is not a recognisable test path")
+            positionals.append(path)
+    return positionals
+
+
 def _workflow_arguments(prefixes: str) -> list[str]:
     """Every script/test path argument the workflow passes, wildcards included."""
-    return sorted(set(re.findall(rf"(?:{prefixes})/[\w./*?-]+\.py", _workflow_steps())))
+    steps = _workflow_steps()
+    found = set(re.findall(rf"(?:{prefixes})/{_ARGUMENT}", steps))
+    if "tests" in prefixes.split("|"):
+        found.update(_pytest_positionals(steps))
+    return sorted(found)
 
 
 def test_every_file_the_workflow_runs_triggers_pb03() -> None:
@@ -300,7 +382,12 @@ if result != 0:
 print(json.dumps(sorted(touched)))
 """
     )
-    with tempfile.TemporaryDirectory() as empty_cache:
+    with tempfile.TemporaryDirectory() as empty_cache, tempfile.TemporaryDirectory() as hooks:
+        # Child Python processes the tests launch (the generator determinism
+        # tests) inherit this sitecustomize: their own reads are logged too,
+        # so an input a child reads directly cannot leave the measurement.
+        child_log = Path(hooks) / "child-reads.log"
+        (Path(hooks) / "sitecustomize.py").write_text(_CHILD_HOOK, encoding="utf-8")
         completed = subprocess.run(
             [sys.executable, "-c", probe, str(REPO), *invoked],
             cwd=REPO,
@@ -309,17 +396,25 @@ print(json.dumps(sorted(touched)))
                 "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
                 "PYTHONDONTWRITEBYTECODE": "1",
                 "PYTHONPYCACHEPREFIX": empty_cache,
+                "PYTHONPATH": os.pathsep.join(
+                    [hooks, *filter(None, [os.environ.get("PYTHONPATH")])]
+                ),
+                "PB03_CHILD_READS": str(child_log),
             },
             capture_output=True,
             text=True,
             check=True,
         )
+        child_reads = set()
+        if child_log.exists():
+            for raw in child_log.read_text(encoding="utf-8").splitlines():
+                with contextlib.suppress(ValueError):
+                    child_reads.add(str(Path(raw).resolve().relative_to(REPO)))
     tracked = set(_tracked_files())
     # Qualification consumes canonical files. Cache and temporary outputs are
     # neither repository inputs nor evidence, and must not widen the trigger.
-    return tuple(
-        path for path in json.loads(completed.stdout.strip().splitlines()[-1]) if path in tracked
-    )
+    measured = set(json.loads(completed.stdout.strip().splitlines()[-1])) | child_reads
+    return tuple(sorted(path for path in measured if path in tracked))
 
 
 def test_workflow_test_data_inputs_trigger_pb03() -> None:
@@ -344,13 +439,16 @@ def test_the_workflow_runs_the_arrival_history_family_by_wildcard() -> None:
     inputs = set(_measured_workflow_test_inputs())
     assert set(family) <= inputs
     # The family's deterministic-generator tests launch the generators in a
-    # child process; the script itself is still a measured input.
-    assert any(
-        path.startswith("docs/arrival_history_erratum_") and path.endswith(".py") for path in inputs
+    # child process; every generator script is still a measured input.
+    generators = _expand(
+        ["docs/arrival_history_erratum_*/generate_contract_*.py"], _tracked_files()
     )
+    assert len(generators) >= 2
+    assert set(generators) <= inputs
 
 
 def test_red_control_removing_the_family_trigger_leaves_it_uncovered() -> None:
+    assert FAMILY in _trigger_paths()
     family = _expand([FAMILY], _tracked_files())
     remaining = [glob for glob in _trigger_paths() if glob != FAMILY]
     uncovered = [
@@ -374,3 +472,22 @@ def test_red_control_a_wildcard_that_selects_nothing_fails_closed() -> None:
 def test_the_shell_glob_does_not_cross_directories() -> None:
     assert _shell_glob("tests/a_*.py").match("tests/a_1.py")
     assert not _shell_glob("tests/a_*.py").match("tests/a_x/y.py")
+
+
+def test_red_control_an_unrecognisable_pytest_argument_fails_closed() -> None:
+    for step in (
+        "pytest -q tests/qualification/",
+        'pytest -q "$FAMILY"',
+        "pytest -q tests/qualification/test_{a,b}.py",
+    ):
+        with pytest.raises(AssertionError, match="not a recognisable test path"):
+            _pytest_positionals(step)
+    assert _pytest_positionals(
+        "python -m pytest -q -k 'x and y' \\\n  tests/a_[0-9]*.py tests/b.py::test_c"
+    ) == ["tests/a_[0-9]*.py", "tests/b.py"]
+
+
+def test_the_shell_glob_handles_bracket_classes() -> None:
+    assert _shell_glob("tests/a_1_0_2[89].py").match("tests/a_1_0_28.py")
+    assert not _shell_glob("tests/a_1_0_2[89].py").match("tests/a_1_0_27.py")
+    assert not _shell_glob("tests/a_[!0-9].py").match("tests/a_5.py")
