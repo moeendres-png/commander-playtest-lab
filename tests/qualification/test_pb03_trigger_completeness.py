@@ -491,3 +491,17 @@ def test_the_shell_glob_handles_bracket_classes() -> None:
     assert _shell_glob("tests/a_1_0_2[89].py").match("tests/a_1_0_28.py")
     assert not _shell_glob("tests/a_1_0_2[89].py").match("tests/a_1_0_27.py")
     assert not _shell_glob("tests/a_[!0-9].py").match("tests/a_5.py")
+
+
+def test_the_registry_preflight_runs_before_the_engine_builds() -> None:
+    """Efficiency M16: a lane-registry record gap fails in the early contract
+    step, before the ≈5 min of engine builds and the ≈40 min runtime."""
+    steps = [step for job in _workflow()["jobs"].values() for step in job["steps"]]
+    names = [step.get("name") for step in steps]
+    preflight = next(
+        index
+        for index, step in enumerate(steps)
+        if "tests/qualification/test_lane_registry_declarations.py" in (step.get("run") or "")
+    )
+    assert preflight < names.index("Build pinned XMage")
+    assert preflight < names.index("Build and warm admitted Forge exact source")
