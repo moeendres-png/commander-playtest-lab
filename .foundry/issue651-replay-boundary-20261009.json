@@ -5,7 +5,7 @@
   "branch": "codex/issue651-replay-boundary-20261009",
   "audit_base_sha": "e23533693c84e77cbe829f2ce9050185c178d4c2",
   "audit_base_tree": "61068e317b2f0d73f8d2a144aa47de287d9047c0",
-  "state_written_against_head": "e23533693c84e77cbe829f2ce9050185c178d4c2",
+  "state_written_against_head": "fdb7116fa81116d6beb525c87c92935b038a00b8",
   "validated_head": null,
   "validated_tree": null,
   "materiality": "MATERIAL",
@@ -21,7 +21,7 @@
     ".foundry/reviews/issue651-replay-boundary-20261009.json"
   ],
   "out_of_scope": [
-    "Claude #645/#646/#648/#649/#652 surfaces and branches",
+    "All active Claude workstreams including #646/#658/#659 and their branches; no foreign co-writing",
     "shared failure_privacy.py, engine/bridge, pins, Rules/fixture contracts, workflows",
     "natural-game replay redesign, Provider selection, Architecture Freeze"
   ],
@@ -34,7 +34,7 @@
     "No test weakening, no legal-action/default/provider/pin/workflow changes",
     "Arbitrary mixed-case/uppercase/Unicode diagnostics absent from public exception fields, formatted tracebacks and gate evidence",
     "Only confirmed graceful_shutdown permits publication/PASS; older complete output survives failed recording",
-    "Independent fresh candidate review and genuine source-bound native Space Bunny review; no fabricated Foundry certificate under a false implementation identity",
+    "Independent fresh candidate review under direct Owner exception; source-bound retention only when implementation/tests/direct replay context remain byte-identical. No native/Foundry certificate claimed without its actual required Space Bunny receipt.",
     "Actual exact-head required CI and affected real-XMage conformance before normal owned PR merge"
   ],
   "tests_run": [
@@ -46,19 +46,85 @@
     "Raw chained traceback suppression removed:5FAILED43deselected0.33s",
     "Full tests/qualification:2192PASS23SKIP210.13s; existing historical/external skips, no live qualification credit",
     "ruff check src PASS; whole ruff format1447files PASS; mypy296sourcefiles PASS",
-    "Initial local broad-suite diagnostic in dirty checkout without editable installation:90FAILED2718PASS7SKIP14ERROR328.84s. Includes clean-worktree/wheel source binding, missing installation and managed PID/namespace restrictions; no broad PASS claimed. Editable installation corrected; clean exact-head hosted CI required."
+    "Initial local broad-suite diagnostic in dirty checkout without editable installation:90FAILED2718PASS7SKIP14ERROR328.84s. Includes clean-worktree/wheel source binding, missing installation and managed PID/namespace restrictions; no broad PASS claimed. Editable installation corrected; clean exact-head hosted CI required.",
+    "Exact published ac887 head focused replay/state:118PASS2.12s, clean tree verified",
+    "Corrected clean installed local Unit run:8FAILED1685PASS2SKIP6ERROR319.02s, isolated packaging dependency installs blocked by external package-server DNS/network. Hosted unchanged packaging tests PASS within actual quality2822PASS8SKIP1warning716.85s.",
+    "Actual hosted XMage full-game conformance37936345019/job113839301779 SUCCESS: natural4P4432 decisions plus separate127-step semantic tape/replay; not full natural4432 replay or bit-exact credit",
+    "Actual meta37936345187/job113839247178 SUCCESS: seven targeted mutation classes KILLED; actual real4P/external integration SUCCESS",
+    "Clean exact published integration0c6a focus:136PASS5.29s, replay/new1.0.31/lane-registry suites; ruffsrcPASS/format1450PASS/mypy296PASS. Locked dependency environment rebuilt after former tmp environment disappeared; no test waiver.",
+    "Exact published integration0c6a current-contract full tests/qualification:2215PASS23existingSKIP235.87s exit0; no local-JVM/runtime credit. Log SHA256 persisted with terminal checkpoint.",
+    "Current exact candidate hosted quality113916222359 SUCCESS:2822PASS8SKIP1warning545.19s; security113916222156 and infrastructure113916222646 SUCCESS.",
+    "Current fullgame37958852436/job113916308919 SUCCESS: natural4P4432decisions, separate127step semantic replay, bounded2/3/5/6P smokes,7Pfailclosed, hashes/upload; bit-exact false. Current meta37958852396/job113916222937 SUCCESS:7targetedmutationsKILLED0survived.",
+    "Current exact-candidate PB03 run37958852490/job113916223099 terminalSUCCESS: assembled XMage107PASS0FAIL0UNKNOWN0BLOCKED; Forge20PASS33BLOCKED54UNKNOWN; runtimeEXECUTED_PASS30, dimensions13admitted17blocked, nativeFRESH_EXACT. Assertion/hash/upload steps SUCCESS; no crash/timeout/protocol failures.",
+    "Current exact-candidate H4 run37958852461 all jobsSUCCESS. XMage113916453807 EVIDENCE_COMPLETE, not Coordinator H4 qualification PASS; actual4/4protocol2.0.0 external_rules_engine handshake, source/pin/provenance and both refused-startup negative controls passed; engine-verify degraded informational.",
+    "Local normal AF11 integration4e6f5aeaf463f6df8a9abac99a2df9bf84160daf/treee160d97e43463137f87c1a2a7357d4d1559dd33a: focused replay+tape+twins+assembler203PASS3.22s; ruffsrcPASS/format1451PASS/mypy296PASS.",
+    "Initial AF11 qualification in historical own checkout:1FAILED2239PASS23SKIP229.08s. Trigger measurement included ignored generatedegg-info/entry_points.txt read by Pydantic plugin discovery; trace confirmed. LogSHA256574b9dffb5e07c80db4db3a795dc4ab1b0afbb443d6fe28f451a7456d6efdae5 preserved, no PASS relabel.",
+    "Separate clean detached same4e6f/treee160: unchanged trigger completeness18PASS47.42s; fullqualification2240PASS23existingSKIP229.47s exit0, clean Git tree. LogSHA25605a67c8ecf9bfbba64039f0c61a3de577f8f2bd8541b36283c6b7b86628a1b77. No production test/filter/source edit or local-JVM credit.",
+    "Clean AF11 snapshot existing Foundry state conformance46PASS1.63s. Dedicated current direct-state JSON separately schema-validated; no Foundry readiness/completion claim."
   ],
   "evidence": [
     "Original diagnostic reproducers and hashes preserved issue650 comment6080992534 and issue651 comment6081346878",
     "Central exception boundary preserves exact vetted public reasons and step N prefix; no arbitrary machine-code extraction",
     "Existing diagnostic digest helper reused; shared donor's uppercase regex remains unchanged/out of scope",
-    "Synthetic transports only in new unit tests; real-JVM/source-bound CI remains pending",
-    "No Foundry PR_READY/COMPLETE certificate is claimed under the direct Owner exception; actual implementation identity remains honest"
+    "HISTORICAL checkpoint (superseded by latest_checkpoint): Synthetic transports only in new unit tests; actual source-bound JVM full-game/meta CI succeeded with the scoped limits recorded in tests_run; old PB03/H4 terminal results persisted; new current-head runtime requalification pending",
+    "No Foundry PR_READY/COMPLETE certificate is claimed under the direct Owner exception; actual implementation identity remains honest",
+    "ci_checkout_head: 41e2cac63728ab9e3c1417b71a1b30b0b5d78193",
+    "ci_checkout_tree: 24a09c418e32c3f1c3fafcc608b321fce2b204e9",
+    "native_review_attempt: {\"accepted_receipt\": false, \"declared_agent\": \"foundry-reviewer\", \"error\": \"HTTP429 GoUsageLimitError limitName monthly\", \"job_id\": 113839482326, \"main_model_error_at\": \"2026-10-09T13:23:09Z\", \"model_observed\": \"opencode-go/space-bunny\", \"observed_agent\": \"foundry-implementer\", \"review_verdict\": \"BLOCKED\", \"run_id\": 37936416385, \"status\": \"BLOCKED\", \"terminal_at\": \"2026-10-09T13:39:38Z\", \"terminal_conclusion\": \"cancelled\", \"trigger_comment\": 6081761464}",
+    "artifact_limits: Full-game11619320429/meta11618960640 digest metadata and successful producer logs verified; local ZIP transfer HTTP403, no independent ZIP-byte verification claimed.",
+    "durable_handoff: [\"issue651 comment6082170354\", \"PR653 comment6082170655\", \"Claude Coordinator issue255 comment6082170947\"]",
+    "HISTORICAL checkpoint (superseded by latest_checkpoint): current_remote_candidate_head: 0c6a4cae22b0bbd69f0336409a4fe37a0c88cb1e",
+    "HISTORICAL checkpoint (superseded by latest_checkpoint): current_remote_candidate_tree: 73ff2190f03ac35d5615f2807c26d8c0b70bdc6b",
+    "HISTORICAL checkpoint (superseded by latest_checkpoint): latest_main_observed: bc5d89fb3babe9e4278e17d7b7f8f80c8e6d6d95",
+    "Previous published ac887/tree24a09 and CI checkout41e2cac remain historical exact identities. Terminal PB0337936344996 SUCCESS, assembled XMage107PASS/0FAIL/0UNKNOWN/0BLOCKED, Forge20PASS/33BLOCKED/54UNKNOWN. Artifact11621945747 producer digest7f3fcfe4438f4040e684d30e12e84dc2fa7643ee969c016266bbc694aa732c6a; no independent ZIP verification.",
+    "H4 retry113847916668 terminalSUCCESS/EVIDENCE_COMPLETE, not Coordinator H4 qualification PASS. Container handshake4/4, image/pin/provenance/startup and negative controls passed; engine-verify degraded informational. Historical failed initial job preserved.",
+    "GitHub normal merge0c6a parentsac887/bc5d verified, no force/rebase/history rewrite. Local normal merge72b7e6586570abc4389889f2178c56db1131cc05 preserves prior local checkpoint history and differs only in dedicated metadata. Implementation modules/new48tests unchanged byte-for-byte from ac887.",
+    "HISTORICAL checkpoint (superseded by latest_checkpoint): Current source-bound hosted requalification pending: PB0337958852490, H437958852461, fullgame37958852436, meta37958852396, CI37958852293. Prior green never relabeled onto current candidate.",
+    "Coordinator selection recorded issue255 comment6084402560: XMage Owner-conditional selection now effective on sealed main epoch8398b69bc6a9-8a004769ee19/contract1.0.31. Release manifest unchanged, Architecture Freeze NOT_CLAIMED. Coordinator-owned M15/M16/AF11 untouched.",
+    "Updated durable handoffs: issue651 comment6084953416, PR653 comment6084953663, Coordinator255 comment6084953931.",
+    "Current CI checkout084139896e3f4a643b79a0f8ea2a4d27b2a47274/tree73ff2190f03ac35d5615f2807c26d8c0b70bdc6b parentsbc5d/0c6a verified Git data API.",
+    "Current fullgame11630303111 producer digestea13123fda6a90f1e67189554a1816e7f7d6d6ef667bed79d157bc14d231022a; meta11629967053 producer digest99e1c0316db90cab20b59d56974af697dc5540d94e5e743ec13836ac90303237. Successful producer logs verified; no independent ZIP-byte claim.",
+    "Current local qualification log SHA256be7d8bfb7a6906ece25d5476e4c4af534848ce8ed5ef3faa1d41c641078e7742.",
+    "Issue654 comments6085065804/6085077870 contain real canonical digest-verified CLI1.18.30 offline resolved-config controls: AGENTignored; supported config overlay selects readonlyreviewer definition; no actual GitHub handler/model/runtime-permission review or production remediation claim.",
+    "HISTORICAL checkpoint (superseded by latest_checkpoint): Current PB0337958852490/job113916223099 active authoritative runner; H437958852461/XMage113916453807 active host bridge, Forge/preflight SUCCESS. Exact-current remaining runtime gates pending.",
+    "Current PB03 epoch qualification/current-boundary-epochs/084139896e3f-73ff2190f03a bound to actual CI checkout084139/tree73ff, dirtyfalse, runner259inputs/digestad4fd2086b7f960a77a0738990492b2c3b1277162da2506a7c5fddc9e20c14a5. Artifact11632541786/1064902bytes/producerSHA25627f19bf0ea75ada7b0830b883b4d855740ba93ae75a6e86ae6eb4f8ec372df37; no independent ZIP-byte verification.",
+    "HISTORICAL checkpoint (superseded by latest_checkpoint): Current H4 image sha256:fba4ffa54961110307e16b6f048d68c0854fb282953ebcfd2b1dce4723b93485; artifact11631144008/135004bytes/producerSHA2565acb5a2e42f9993684bd637445eb1a2deb3cae7a3e39c88d534d55baabfedb30. Above pending runtime checkpoints are historical; all current affected runtime workflows are now terminalSUCCESS.",
+    "Current PB03 runner1584.2s versus prior2179.3s, observed difference only, no causal or guaranteed speedup claim. Actual-card output16:58:08.384Z, Forge pool join17:00:07.897Z; telemetry lastXMagephase392.2s includes about119.5s Forge wait, not exclusively XMage card execution. CoordinatorM15 ownership unchanged.",
+    "HISTORICAL checkpoint (superseded by latest_checkpoint): Current targetmainbc5d and publishedcandidate0c6a freshly reverified after terminal CI; no target drift at this checkpoint. Native/Coordinator review still absent; PR remainsDRAFT/BLOCKED.",
+    "Coordinator issue255 comment6085425272 records H4 and precise completion-route adjudication request: canonical native gate expressly Foundry-tooling scoped, direct exception has independent review evidence; no self-granted gate removal or waiver.",
+    "Freshmainc124150d77ab9b3ea0ad0faa8c55b0d74f5d9e02/tree d303b2ca5f32804ec70fca42b7310eb7ee694f2d contains Claude658 AF11; normal owned local merge4e6f parents5fa6/c124. Published0c6a source preserved while Claude659 M15 runs; no foreign branch mutation.",
+    "Completion-route correction 2026-10-09: CURRENT_EXECUTION_AUTHORITY.md33-53 expressly limits Space Bunny exact receipt to Foundry tooling PR_READY/COMPLETE certification. Owner directexception651comment6081415363 instead requires independent candidate review plus unchanged full CI, and explicitly forbids forged Foundry certificate. Earlier parent-authored extra native-as-direct-merge gate was overbroad; applicability corrected, canonical policy untouched, independent review/CI not waived. Native review and Foundry certification remain unavailable; cross_executor_review/validated_head/tree remain null.",
+    "Original independent fresh read-only candidate review93PASS/no concrete findings is retained by explicit impact analysis: gitdiffac887..4e6f is empty for all4repairedmodules/new48testmodule/directfull_game/failure_privacy context. No fresh native or new-source reviewer invocation claimed. Current AF11-base changes are disjoint, compatibility203/2240 verified.",
+    "Source SHA256 current-reviewed bytes: divergence156a7dbd61c78bcfacab5671cd1804caff072cf6a4addecde815f0cbfc4495b3; recorder6de6037268e9d86d72b08187593236b5111a9068d506f16e3021469b9f58a345; consumer4cfdf86b7f2a3c7779868568fd4f8b3554a91740fe4be33d31ccb8f7b9f24324; gatea4f68d1da7fa813b2dd3976316396ff1eabb47b7a0e822e5f24a139994fb9dc4; tests37cd91129df0d7224bae95e10064c83488b4d75e01f61b89769f1ee42e5a9652.",
+    "Issue6546086641891/6086665607 persist actual pinned CLI effective-permission controls: name overlay can retain editallow; deny-default overlay still retains extra python*allow. Synthetic config only, no model/tool-write/runtime-review credit. Handler config-cache provenance unresolved; implementation unclaimed.",
+    "LATEST checkpoint: normal GitHub mainc124 mergefdb7116fa81116d6beb525c87c92935b038a00b8/treebd4e60fde7d852c278b156a59e4292fadda6c331 parents0c6a/c124 verified. Claude659 still OPEN despite terminalPB03; not adopted or merged. Direct route ACTIVE per6086770952, independent-reviewed source/context unchanged and local203/2240PASS. This dedicated metadata publication requires actual new final-head CI; no historical green promotion. Foundry cross_executor_review/validated identities remain null. Canonical merge and closure not yet complete."
   ],
   "remaining_scope": [
-    "Publish owned candidate; verify remote exact SHA/tree",
-    "Genuine native read-only review receipt and exact-head CI/runtime",
-    "Normal merge and source-bound terminal handoff"
+    "Actual final published-head required CI and affected XMage runtime qualification",
+    "Fresh target drift/source/ownership/review check before normal owned653 merge",
+    "Canonical HEAD/TREE receipt, direct-exception COMPLETE handoff and651 closure; no Foundry certificate"
   ],
-  "exact_next_action": "Commit/publish the owned candidate and open an Owner PR. Run genuine native review and required CI; any unfulfilled gate remains BLOCKED/UNKNOWN, never COMPLETE."
+  "exact_next_action": "Collect actual exact-final-head CI/affected XMage qualification after normal currentmainc124 integration and this owned state publication. Freshly inspect target drift, independent reviewed source/context and unresolved review findings. Normally merge owned653 only after actual direct-exception gates hold; persist canonical receipt, close651 and link completed650. Native tooling remains unavailable; no retry/fallback/false Foundry certificate.",
+  "validated_gates": [
+    "Focused regression and negative mutation controls; fresh independent read-only candidate review, no concrete findings",
+    "Source binding: actual CI checkout41e2cac parentsbeb5/ac887 and tree24a09 verified via Git data API",
+    "Hosted exact-candidate quality/security/infrastructure, actual full-game conformance, actual seven meta mutation controls",
+    "HISTORICAL checkpoint: Local exact-current integration compatibility136PASS, qualification2215PASS23SKIP, lint/format1450/mypy296PASS. Hosted exact-current runtime gates remain pending; no native review receipt.",
+    "Current hosted required quality/security/infrastructure SUCCESS; current exact-source fullgame and7mutationclasses SUCCESS; honest bounds retained.",
+    "All current exact0c6a affected runtime workflows including PB03/H4/fullgame/meta are terminalSUCCESS with source-bound producer evidence; local and hosted validation counts remain as recorded."
+  ],
+  "failed_gates": [
+    "Native independent review BLOCKED: actual Space Bunny main-model HTTP429 GoUsageLimitError monthly; no substantive review receipt",
+    "Native identity discrepancy: declared env AGENT=foundry-reviewer, observed main-model agent=foundry-implementer; admission UNKNOWN",
+    "Nonrequired ci-definition-integrity-shadow remains FAILURE/REVIEW_REQUIRED because additive new test definition; never relabeled green"
+  ],
+  "technical_decisions": [
+    "Keep remote candidate ac887 unchanged while PB03 and bounded H4 retry run; do not cancel/restart valuable source-bound CI for a metadata checkpoint.",
+    "Local state-only checkpoint is not a new published/validated implementation SHA and is not a Foundry COMPLETE certificate.",
+    "At prior checkpoint mainfe1 drift was Claude648 workflow/audit-only; superseded by the explicitly recorded current1.0.31 integration.",
+    "No automatic native quota retry, model fallback, routing/policy edit or paid service.",
+    "Old PB03/H4 completed before current-target update. Normal GitHub merge refreshed exclusively owned branch; all6 net PR files preserved, new1.0.31 source requires fresh hosted qualification.",
+    "Latest target drift now includes Claude#645 strictness, contract1.0.31, epoch seal and readiness. No replay module/engine-pin/routing-policy drift; required tests and current candidate CI re-run.",
+    "Correct parent-added overbroad native certificate prerequisite using explicit canonical scope and already granted direct Owner exception. No change to canonical review/tooling policy, no manufactured receipt, no independent-review/CI waiver. Direct work ACTIVE; native tooling remains BLOCKED separately."
+  ]
 }
