@@ -379,6 +379,9 @@ def _af11_identities(**overrides: object) -> dict:
             "results_runtime_identity": {
                 "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
                 "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+                "engine_candidate_commit": json.loads(
+                    (REPO / "config/rules_engines.json").read_text(encoding="utf-8")
+                )["primary_engine"]["commit"],
             }
         },
         "forge": {
@@ -393,11 +396,13 @@ def _af11_identities(**overrides: object) -> dict:
     return base
 
 
-def test_af11_is_unknown_when_technical_facts_hold() -> None:
+def test_af11_is_unknown_when_technical_facts_hold(tmp_path: Path) -> None:
     """Facts hold + policy unresolved must be UNKNOWN, never an asserted FAIL."""
     asm = _assembler_module()
     per_candidate = _af11_identities()
-    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"])
+    root = _af11_root(tmp_path)
+    (root / asm.AF11_ADJUDICATION).unlink()
+    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"], root)
     assert measured["verdict"] == "UNKNOWN"
     assert measured["verdict"] != "PASS"
     joined_evidence = " ".join(measured["evidence"])
@@ -438,6 +443,290 @@ def test_af11_fails_when_engine_code_is_embedded() -> None:
     measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"])
     assert measured["verdict"] == "FAIL"
     assert any("embedded" in line for line in measured["limitations"])
+
+
+def _af11_root(tmp_path: Path) -> Path:
+    """A minimal checkout carrying exactly what the AF11 adjudication is checked against."""
+    import shutil
+
+    asm = _assembler_module()
+    root = tmp_path / "repo"
+    record = json.loads((REPO / asm.AF11_ADJUDICATION).read_text(encoding="utf-8"))
+    epoch = record["owner_selection"]["effective_epoch"]
+    for relative in (
+        asm.AF11_ADJUDICATION,
+        "config/rules_engines.json",
+        "pyproject.toml",
+        f"{epoch}/AF00_AF11_XMAGE.json",
+        f"{epoch}/CURRENT_BOUNDARY_SHA256SUMS",
+    ):
+        (root / relative).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(REPO / relative, root / relative)
+    manifest = root / record["integration_topology"]["provider_classpath_manifest"]
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    manifest.write_text(
+        ":".join(
+            f"/m2/{name}" for name in sorted(record["licence_topology"]["provider_classpath"])
+        ),
+        encoding="utf-8",
+    )
+    return root
+
+
+def _af11_edit(root: Path, relative: str, mutate) -> None:
+    path = root / relative
+    document = json.loads(path.read_text(encoding="utf-8"))
+    mutate(document)
+    path.write_text(json.dumps(document), encoding="utf-8")
+
+
+def test_af11_passes_for_the_adjudicated_provider_on_its_inventoried_classpath(
+    tmp_path: Path,
+) -> None:
+    asm = _assembler_module()
+    per_candidate = _af11_identities()
+    measured = asm._af11_measure(
+        per_candidate, "xmage", per_candidate["xmage"], _af11_root(tmp_path)
+    )
+    assert measured["verdict"] == "PASS", measured["limitations"]
+    assert measured["limitations"] == []
+    assert "hence PASS" in " ".join(measured["evidence"])
+
+
+def test_af11_adjudication_never_decides_another_candidate(tmp_path: Path) -> None:
+    asm = _assembler_module()
+    per_candidate = _af11_identities()
+    measured = asm._af11_measure(
+        per_candidate, "forge", per_candidate["forge"], _af11_root(tmp_path)
+    )
+    assert measured["verdict"] == "UNKNOWN"
+    assert any("not the provider" in line for line in measured["limitations"])
+
+
+def test_af11_a_violated_fact_fails_even_with_a_valid_adjudication(tmp_path: Path) -> None:
+    asm = _assembler_module()
+    per_candidate = _af11_identities(
+        xmage={
+            "adapter": "commander_lab.engine.rules.bridge",
+            "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+        }
+    )
+    measured = asm._af11_measure(
+        per_candidate, "xmage", per_candidate["xmage"], _af11_root(tmp_path)
+    )
+    assert measured["verdict"] == "FAIL"
+
+
+def test_af11_single_candidate_run_is_measured_against_its_own_adapter(tmp_path: Path) -> None:
+    asm = _assembler_module()
+    per_candidate = {"xmage": _af11_identities()["xmage"]}
+    measured = asm._af11_measure(
+        per_candidate, "xmage", per_candidate["xmage"], _af11_root(tmp_path)
+    )
+    assert measured["verdict"] == "PASS", measured["limitations"]
+    assert "measured one candidate" in " ".join(measured["evidence"])
+
+
+def _af11_reseal(root: Path, relative: str) -> None:
+    import hashlib
+
+    epoch = relative.rsplit("/", 1)[0]
+    seal = root / epoch / "CURRENT_BOUNDARY_SHA256SUMS"
+    digest = hashlib.sha256((root / relative).read_bytes()).hexdigest()
+    lines = [
+        f"{digest}  {relative}" if line.split()[1:] == [relative] else line
+        for line in seal.read_text(encoding="utf-8").splitlines()
+    ]
+    seal.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _mutations(asm) -> dict:
+    record = asm.AF11_ADJUDICATION
+    manifest = "engine-bridge/target/cp-wsr22.txt"
+
+    def effective_af(root: Path) -> str:
+        epoch = json.loads((root / record).read_text())["owner_selection"]["effective_epoch"]
+        return f"{epoch}/AF00_AF11_XMAGE.json"
+
+    def demote_af06(document: dict) -> None:
+        next(g for g in document["gates"] if g["gate"] == "AF06")["verdict"] = "UNKNOWN"
+
+    def classpath_extra(root: Path) -> None:
+        path = root / manifest
+        path.write_text(path.read_text() + ":/m2/new-dependency-1.0.jar")
+
+    def no_manifest(root: Path) -> None:
+        (root / manifest).unlink()
+
+    def config_licence(root: Path) -> None:
+        _af11_edit(
+            root,
+            "config/rules_engines.json",
+            lambda d: d["primary_engine"].update(license="GPL-3.0"),
+        )
+
+    def copyleft(root: Path) -> None:
+        _af11_edit(
+            root,
+            record,
+            lambda d: d["licence_topology"]["provider_classpath"].update(
+                {"mage-1.4.61.jar": "LGPL-2.1"}
+            ),
+        )
+
+    def unlisted_licence(root: Path) -> None:
+        _af11_edit(
+            root,
+            record,
+            lambda d: d["licence_topology"]["provider_classpath"].update(
+                {"gson-2.13.2.jar": "EUPL-1.2"}
+            ),
+        )
+
+    def decision(root: Path) -> None:
+        _af11_edit(root, record, lambda d: d["decisions"].pop())
+
+    def malformed(root: Path) -> None:
+        _af11_edit(root, record, lambda d: d.update(decisions=["x"]))
+
+    def forge_port(root: Path) -> None:
+        _af11_edit(root, record, lambda d: d["forge"].update(code_port="PERMITTED"))
+
+    def d17(root: Path) -> None:
+        _af11_edit(root, record, lambda d: d["forge"].update(d17_in_jvm_residual_risk="ACCEPTED"))
+
+    def engine_pin(root: Path) -> None:
+        _af11_edit(root, record, lambda d: d["integration_topology"].update(engine_commit="0" * 40))
+
+    def entry_point(root: Path) -> None:
+        _af11_edit(
+            root,
+            record,
+            lambda d: d["integration_topology"].update(launch_main_class="other.Main"),
+        )
+
+    def manifest_elsewhere(root: Path) -> None:
+        _af11_edit(
+            root,
+            record,
+            lambda d: d["integration_topology"].update(
+                provider_classpath_manifest="/etc/cp-wsr22.txt"
+            ),
+        )
+
+    def epoch_tampered(root: Path) -> None:
+        _af11_edit(root, effective_af(root), demote_af06)
+
+    def epoch_gate(root: Path) -> None:
+        relative = effective_af(root)
+        _af11_edit(root, relative, demote_af06)
+        _af11_reseal(root, relative)
+
+    def unsealed_epoch(root: Path) -> None:
+        _af11_edit(
+            root,
+            record,
+            lambda d: d["owner_selection"].update(effective_epoch="qualification/missing-epoch"),
+        )
+
+    def epoch_traversal(root: Path) -> None:
+        _af11_edit(
+            root,
+            record,
+            lambda d: d["owner_selection"].update(
+                effective_epoch="qualification/current-boundary-epochs/../../tmp"
+            ),
+        )
+
+    def lab_licence(root: Path) -> None:
+        _af11_edit(root, record, lambda d: d["licence_topology"].update(lab="MIT"))
+
+    def schema(root: Path) -> None:
+        _af11_edit(root, record, lambda d: d.update(schema_version="other/9"))
+
+    return {
+        "classpath_extra": (classpath_extra, "differs from the adjudicated inventory"),
+        "no_manifest": (no_manifest, "launch cannot be resolved"),
+        "config_licence": (config_licence, "provider licence does not match"),
+        "copyleft": (copyleft, "outside the adjudicated set"),
+        "unlisted_licence": (unlisted_licence, "EUPL-1.2"),
+        "decision": (decision, "FORGE_SEPARATE_PROCESS"),
+        "malformed": (malformed, "cannot be validated"),
+        "forge_port": (forge_port, "separate-process reference"),
+        "d17": (d17, "separate-process reference"),
+        "engine_pin": (engine_pin, "engine pin does not match"),
+        "entry_point": (entry_point, "entry point"),
+        "manifest_elsewhere": (manifest_elsewhere, "not the one the launch reads"),
+        "epoch_tampered": (epoch_tampered, "does not match its seal"),
+        "epoch_gate": (epoch_gate, "does not pass AF00-AF10"),
+        "unsealed_epoch": (unsealed_epoch, "not a sealed epoch"),
+        "epoch_traversal": (epoch_traversal, "not a sealed epoch"),
+        "lab_licence": (lab_licence, "Lab licence does not match"),
+        "schema": (schema, "unknown schema"),
+    }
+
+
+_AF11_MUTATIONS = (
+    "classpath_extra",
+    "no_manifest",
+    "config_licence",
+    "copyleft",
+    "unlisted_licence",
+    "decision",
+    "malformed",
+    "forge_port",
+    "d17",
+    "engine_pin",
+    "entry_point",
+    "manifest_elsewhere",
+    "epoch_tampered",
+    "epoch_gate",
+    "unsealed_epoch",
+    "epoch_traversal",
+    "lab_licence",
+    "schema",
+)
+
+
+def test_af11_every_mutation_is_exercised() -> None:
+    assert set(_AF11_MUTATIONS) == set(_mutations(_assembler_module()))
+
+
+def test_af11_an_engine_the_run_did_not_pin_is_unknown(tmp_path: Path) -> None:
+    asm = _assembler_module()
+    per_candidate = _af11_identities()
+    per_candidate["xmage"]["results_runtime_identity"]["engine_candidate_commit"] = "f" * 40
+    measured = asm._af11_measure(
+        per_candidate, "xmage", per_candidate["xmage"], _af11_root(tmp_path)
+    )
+    assert measured["verdict"] == "UNKNOWN"
+    assert any("engine pin does not match" in line for line in measured["limitations"])
+
+
+@pytest.mark.parametrize("mutation", _AF11_MUTATIONS)
+def test_af11_red_control_a_stale_or_invalid_adjudication_is_unknown(
+    tmp_path: Path, mutation: str
+) -> None:
+    asm = _assembler_module()
+    root = _af11_root(tmp_path)
+    mutate, expected = _mutations(asm)[mutation]
+    mutate(root)
+    per_candidate = _af11_identities()
+    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"], root)
+    assert measured["verdict"] == "UNKNOWN"
+    assert any(expected in line for line in measured["limitations"]), measured["limitations"]
+
+
+def test_af11_the_recorded_adjudication_matches_the_source_lock() -> None:
+    """The committed record itself: XMage selected, MIT, Forge a reference only."""
+    asm = _assembler_module()
+    record = json.loads((REPO / asm.AF11_ADJUDICATION).read_text(encoding="utf-8"))
+    config = json.loads((REPO / "config/rules_engines.json").read_text(encoding="utf-8"))
+    assert record["selected_provider"] == config["primary_engine"]["provider"] == "xmage"
+    assert record["licence_topology"]["provider"] == config["primary_engine"]["license"]
+    # The runtime manifest is not changed by this adjudication.
+    assert config["provider_decision"] == "NO_PROVIDER_READY"
+    assert "ARCHITECTURE_FREEZE (separate Owner decision)" in record["not_claimed"]
 
 
 def test_af11_unknown_still_blocks_freeze() -> None:
