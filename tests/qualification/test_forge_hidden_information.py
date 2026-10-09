@@ -106,12 +106,14 @@ def test_every_row_needs_the_universal_principal_surface(records) -> None:
 
 def test_scripted_rows_record_the_lab_execution_gap(records) -> None:
     row = fh.classify_row(records["HIDDEN_13"])
-    assert any(gap["dimension"] == "decision_execution.pile.pile_label" for gap in row.lab_gaps)
+    gaps = {gap["dimension"] for gap in row.lab_gaps}
+    assert "decision_execution.pile.pile_label" in gaps
+    # 1.0.30 step A2: the knowledge window's empty attack set is a declared
+    # decision the Forge lane has no attack selector for, so it is a gap too.
+    assert "decision_execution.declare_attackers.attacker_assignment" in gaps
     assert "Lab Forge lane has no execution" in row.reason()
-    assert not any(
-        gap["dimension"].startswith("decision_execution.")
-        for gap in fh.classify_row(records["HIDDEN_01"]).lab_gaps
-    )
+    hidden01 = {gap["dimension"] for gap in fh.classify_row(records["HIDDEN_01"]).lab_gaps}
+    assert hidden01 == {"decision_execution.declare_attackers.attacker_assignment"}
 
 
 def test_the_classification_follows_the_record_not_the_row_id(records) -> None:

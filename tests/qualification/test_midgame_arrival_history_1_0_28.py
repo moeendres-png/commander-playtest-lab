@@ -250,14 +250,18 @@ def test_contract_1_0_28_diff_against_1_0_27_is_arrival_history_only() -> None:
             assert patch["superseded_successor_patch"]["contract"] == (
                 "commander-lab.full107/1.0.27-successor"
             )
-        effective = resolver.effective_record(fixture_id)
-        assert effective["obligation_digest"] == resolver.obligation_digest(effective_1_0_27)
+        effective_current = resolver.effective_record(fixture_id)
+        assert effective_current["obligation_digest"] == resolver.obligation_digest(
+            effective_1_0_27
+        )
         assert (
-            resolver.requested_state_digest(effective)
+            resolver.requested_state_digest(effective_current)
             == (patch["successor_requested_state_digest"])
         )
         projected = {
-            key: effective.get(key) for key in resolver.PROJECTION_KEYS if key in effective
+            key: effective_current.get(key)
+            for key in resolver.PROJECTION_KEYS
+            if key in effective_current
         }
         projected_1_0_27 = {
             key: effective_1_0_27.get(key)
@@ -265,6 +269,16 @@ def test_contract_1_0_28_diff_against_1_0_27_is_arrival_history_only() -> None:
             if key in effective_1_0_27
         }
         assert projected == projected_1_0_27, fixture_id
+        # The historical 1.0.28 effective record, rebuilt from the frozen bytes:
+        # later errata (1.0.29, 1.0.30) re-open some of these records, so the
+        # arrival-prefix diff must be read against the 1.0.28 patch itself.
+        effective = copy.deepcopy(base_records[fixture_id])
+        if prior is not None:
+            for key, value in prior["replace"].items():
+                effective[key] = copy.deepcopy(value)
+        for key, value in patch["replace"].items():
+            effective[key] = copy.deepcopy(value)
+        effective["knowledge_state"]["channel_policy"] = patch["knowledge_state_channel_policy"]
         # The arrival prefix is exactly the record's seats' keeps then one
         # ALL-actor pass-through, and nothing else was inserted.
         seats = [str(player["player_id"]) for player in effective["players"]]
@@ -312,10 +326,21 @@ def test_contract_1_0_28_authority_and_ledger_name_the_correction() -> None:
         (ledger_entry,) = [
             entry for entry in _json(LEDGER_PATH)["records"] if entry["fixture_id"] == fixture_id
         ]
-        assert ledger_entry["correction_class"] == CORRECTION_CLASS
+        # 1.0.29 / 1.0.30 re-open these records again, so the current ledger
+        # entry carries the latest class and contract; the frozen 1.0.28 bytes
+        # above keep the 1.0.28 class for every patch id.
+        assert ledger_entry["correction_class"] in {
+            CORRECTION_CLASS,
+            "FIXTURE_DEFECT_CORRECTION_ARRIVAL_HISTORY_DECLARATIONS",
+            "FIXTURE_DEFECT_CORRECTION_DECLARED_PASSES_AND_MANA",
+        }
         assert ledger_entry["denominator_effect"] == "NONE"
         assert ledger_entry["successor_contract"].endswith(
-            ("FULL107_SUCCESSOR_CONTRACT_v1_0_28.json", "FULL107_SUCCESSOR_CONTRACT_v1_0_29.json")
+            (
+                "FULL107_SUCCESSOR_CONTRACT_v1_0_28.json",
+                "FULL107_SUCCESSOR_CONTRACT_v1_0_29.json",
+                "FULL107_SUCCESSOR_CONTRACT_v1_0_30.json",
+            )
         )
 
 

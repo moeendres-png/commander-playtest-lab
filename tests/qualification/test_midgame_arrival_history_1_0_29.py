@@ -283,9 +283,12 @@ def test_contract_1_0_29_diff_against_1_0_28_is_arrival_history_only() -> None:
 
 def test_contract_1_0_29_authority_and_ledger_name_the_correction() -> None:
     authority = _json(AUTHORITY_PATH)["full107"]
-    assert authority["successor_contract"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_29.json")
+    # 1.0.30 is the current successor and re-opens every one of these records
+    # for the declared passes/mana; the frozen 1.0.29 bytes above keep the
+    # 1.0.29 class, and the current authority/ledger name the 1.0.30 one.
+    assert authority["successor_contract"].endswith("FULL107_SUCCESSOR_CONTRACT_v1_0_30.json")
     assert authority["effective_materialization_schema"].endswith(
-        "SEMANTIC_FIXTURE_SCHEMA_v1_0_29_SUCCESSOR.json"
+        "SEMANTIC_FIXTURE_SCHEMA_v1_0_30_SUCCESSOR.json"
     )
     assert authority["denominator_count"] == 107
     contract = _json(SUCCESSOR_PATH)
@@ -298,15 +301,17 @@ def test_contract_1_0_29_authority_and_ledger_name_the_correction() -> None:
     assert patch_ids == set(authority["changed_fixture_ids"]) & patch_ids
     for fixture_id in ARRIVAL_HISTORY_ERRATA_1_0_29_IDS:
         assert authority["evidence_survival"][fixture_id] == (
-            "REQUALIFICATION_REQUIRED_" + CORRECTION_CLASS
+            "REQUALIFICATION_REQUIRED_FIXTURE_DEFECT_CORRECTION_DECLARED_PASSES_AND_MANA"
         )
         (ledger_entry,) = [
             entry for entry in _json(LEDGER_PATH)["records"] if entry["fixture_id"] == fixture_id
         ]
-        assert ledger_entry["correction_class"] == CORRECTION_CLASS
+        assert (
+            ledger_entry["correction_class"] == "FIXTURE_DEFECT_CORRECTION_DECLARED_PASSES_AND_MANA"
+        )
         assert ledger_entry["denominator_effect"] == "NONE"
         assert ledger_entry["successor_contract"].endswith(
-            "FULL107_SUCCESSOR_CONTRACT_v1_0_29.json"
+            "FULL107_SUCCESSOR_CONTRACT_v1_0_30.json"
         )
 
 
@@ -339,32 +344,50 @@ def _temp_repo(tmp_path: Path) -> Path:
 
 
 def test_generator_is_deterministic_and_never_mutates_the_checkout(tmp_path: Path) -> None:
+    """Evidence (a): the 1.0.29 contract and schema are always regenerated from
+    the 1.0.28 bytes; a fresh run against a disposable copy of the inputs
+    reproduces the committed bytes and a second run is byte-identical. After
+    1.0.30 the historical generator no longer reproduces the current pointer or
+    ledger (they name 1.0.30), so only the contract and schema bytes are
+    asserted; REPO_ROOT is never mutated."""
     root = _temp_repo(tmp_path)
-    targets = (
-        "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json",
-        "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_29_SUCCESSOR.json",
+    targets = {
+        "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_29.json": (
+            SUCCESSOR_PATH
+        ),
+        "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_29_SUCCESSOR.json": (
+            MATERIALIZATION_SCHEMA_PATH
+        ),
+    }
+    before = {relative: target.read_bytes() for relative, target in targets.items()}
+    generated = (
         "qualification/CURRENT_PRE_FREEZE_CONTRACT.json",
         "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json",
     )
-    before = {relative: (REPO_ROOT / relative).read_bytes() for relative in targets}
+    generated_before = {relative: (REPO_ROOT / relative).read_bytes() for relative in generated}
+    all_paths = (*targets, *generated)
     subprocess.run(
         [sys.executable, str(GENERATOR), str(root)],
         check=True,
         capture_output=True,
         text=True,
     )
-    first = {relative: (root / relative).read_bytes() for relative in targets}
-    for relative in targets:
-        assert first[relative] == before[relative], relative
+    first = {relative: (root / relative).read_bytes() for relative in all_paths}
     subprocess.run(
         [sys.executable, str(GENERATOR), str(root)],
         check=True,
         capture_output=True,
         text=True,
     )
-    for relative in targets:
+    for relative in all_paths:
         assert (root / relative).read_bytes() == first[relative], relative
-    for relative in targets:
-        assert (REPO_ROOT / relative).read_bytes() == before[relative], (
+    for relative, target in targets.items():
+        assert first[relative] == before[relative], relative
+        assert target.read_bytes() == before[relative], f"REPO_ROOT was mutated: {relative}"
+    # The historical generator's tamper-target outputs are still deterministic
+    # run to run, even though they no longer name the current contract.
+    for relative in generated:
+        assert (root / relative).read_bytes() != (REPO_ROOT / relative).read_bytes(), relative
+        assert (REPO_ROOT / relative).read_bytes() == generated_before[relative], (
             f"REPO_ROOT was mutated: {relative}"
         )
