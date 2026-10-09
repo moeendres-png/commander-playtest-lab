@@ -10,14 +10,15 @@
   "native_variant": "max",
   "review_mode": "READ_ONLY_FRESH_CONTEXT",
   "review_agent": "foundry-reviewer",
-  "reviewed_sha": "ea87a4df41448a00a013e07b97b8acb7eb12e703",
-  "reviewed_tree": "7ab40470114bd0c3198926054e1c3d168fd47bfc",
+  "reviewed_sha": "62408a0bc17274b90a644a9a78ccb6a45e49d6e5",
+  "reviewed_tree": "7b7bafaf36ae4bc692889118d69ca3e1cfd29bd3",
   "verdict": "PASS",
   "findings": {
     "P1": [],
     "P2": [],
     "P3": [
-      "Pre-existing live probe path divergence lacks early string-pinning test; hosted assertion still fails closed."
+      "Pre-existing live probe path divergence lacks early string-pinning test; hosted assertion still fails closed.",
+      "Historical159/187/prepublication9573 controls need explicit historical labels alongside current1.0.29 measurements."
     ]
   },
   "implementation_executor": "deepseek",
@@ -26,18 +27,18 @@
     "audit_base_sha": "f3939d99f575a0e9820a82b9843589c754f8b43a",
     "audit_base_tree": "69fe9728d83217cf6dc054bd575a8119a81c2c48"
   },
-  "reviewed_utc": "2026-10-09T01:21:34Z",
+  "reviewed_utc": "2026-10-09T01:41:32Z",
   "review_evidence": {
     "schema_version": "1.0",
     "carrier": "DIRECT_REVIEW_LANE",
     "repository": "moeendres-png/commander-playtest-lab",
     "trigger_issue_number": 629,
-    "trigger_comment_id": 6072289962,
-    "result_comment_id": 6072316392,
-    "workflow_run_id": 37869188172,
-    "workflow_job_id": 113623048620,
+    "trigger_comment_id": 6072483428,
+    "result_comment_id": 6072520760,
+    "workflow_run_id": 37870712204,
+    "workflow_job_id": 113627911083,
     "workflow_job_name": "opencode-bunny-review",
-    "workflow_head_sha": "75e4d4a20c6d0a3311e0d0aec764956fd733ae46",
+    "workflow_head_sha": "eda1bbe4c58a5f18ef2ff4cfff8ae193f6795407",
     "workflow_path": ".github/workflows/opencode.yml",
     "marker": "BUNNY_DIRECT_READ_ONLY_REVIEW"
   }
