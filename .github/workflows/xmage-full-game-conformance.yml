@@ -8,6 +8,9 @@ on:
       - "engine-bridge/**"
       - "config/rules_engines.json"
       - "src/commander_lab/engine/rules/full_game.py"
+      - "src/commander_lab/engine/rules/failure_privacy.py"
+      - "tests/unit/test_full_game_failure_privacy.py"
+      - "tests/unit/test_failure_privacy_trust_boundary.py"
       - "src/commander_lab/engine/rules/full_game_batch.py"
       - "src/commander_lab/semantic_replay/**"
       - "src/commander_lab/agents/**"
@@ -59,6 +62,9 @@ jobs:
             engine-bridge/**
             config/rules_engines.json
             src/commander_lab/engine/rules/full_game.py
+            src/commander_lab/engine/rules/failure_privacy.py
+            tests/unit/test_full_game_failure_privacy.py
+            tests/unit/test_failure_privacy_trust_boundary.py
             src/commander_lab/engine/rules/full_game_batch.py
             src/commander_lab/agents/**
             src/commander_lab/models/pilots.py
@@ -122,7 +128,7 @@ jobs:
       - name: Generate versioned full-game contracts
         run: python scripts/generate_full_game_contract_artifacts.py
       - name: Run focused Python full-game tests
-        run: pytest -q tests/unit/test_xmage_full_game.py
+        run: pytest -q tests/unit/test_xmage_full_game.py tests/unit/test_full_game_failure_privacy.py tests/unit/test_failure_privacy_trust_boundary.py
       - name: Build and verify XMage bridge including full-game contract tests
         working-directory: engine-bridge
         run: mvn -B -ntp verify
