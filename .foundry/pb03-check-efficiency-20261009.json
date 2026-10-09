@@ -69,14 +69,18 @@ validation:
   canonical_published_focused_controls: ea87a4df/tree7ab40470 actual strict head CHECKPOINT_CLEAN/STATE_OK;
     exact early suite164passed16.73s without external engines. Review independently164passed19.74s,44stateconformancePASS,
     missingglob exit4, arrival red controlPASS.
-  review_admission: Review6072316392 actual run37869188172/job113623048620; unchanged
-    verifier SATISFIED8 actual connector-observed checks;0P1/P2.
+  review_admission: PENDING fresh exact checkpoint review; earlier admission is source-bound
+    historical only.
+  canonical_1_0_29_controls: 'Published normal merge1c4f14ac/tree3d23cdde: actual
+    complete early gate169passed22.41s including both whole arrival modules (new1.0.29
+    checks all99 registry-derived records), no engines; state conformance45passed1.25s;
+    locked lintPASS/format1440PASS. No final hosted runtime credit.'
 status: ACTIVE
 pending:
-- fresh exact-final-head required CI
-- fresh exact-final-head complete PB03 runtime, evidence assertions/hash/upload
-- live remote and completion-gate verification
-- normal merge and terminal canonical receipt
+- fresh exact-current-head review on this1.0.29 checkpoint
+- canonical actual review receipt and generated state publication
+- fresh exact-final-head required CI and complete PB03
+- actual remote/completion-gate validation and normal merge/terminal receipt
 forbidden_shortcuts:
 - coverage reduction
 - retry-to-green
@@ -86,19 +90,19 @@ forbidden_shortcuts:
 stop_conditions: Complete after native publication, fresh exact-head gates, admitted
   review, normal integration and persisted canonical receipt; stop only on a named
   genuine authority/ownership/source blocker.
-next_action: 'Finish required CI and full PB03 on the final generated checkpoint,
-  independently verify generated-only review preservation, remote proof/completion
-  gate, fresh target/ownership; normal #629 merge then #628 terminal receipt. Partial
-  earlier runs grant no final credit.'
+next_action: Obtain fresh Space Bunny MAX read-only review on published1.0.29 state
+  checkpoint, persist actual canonical review receipt and source-bound state, then
+  complete exact-final-head required CI/PB03, source/target impact adjudication and
+  normal integration. No old-source runtime/review credit transfers.
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /workspace/scratch/645aaee2cf0d/pb03-final-check
+worktree: /workspace/scratch/645aaee2cf0d/pb03-129-check
 audit_base_sha: f3939d99f575a0e9820a82b9843589c754f8b43a
 audit_base_tree: 69fe9728d83217cf6dc054bd575a8119a81c2c48
-state_written_against_head: ddbf3e333849ced46fb9edb621f3d640e1fb84c7
-validated_head: ea87a4df41448a00a013e07b97b8acb7eb12e703
+state_written_against_head: 1c4f14ac08d8656b87b80989b34b9ac2ae70c479
+validated_head: 1c4f14ac08d8656b87b80989b34b9ac2ae70c479
 in_scope:
 - .github/workflows/pb03-runtime-qualification.yml
 - .github/workflows/pb03-shadow-parallel.yml
@@ -108,23 +112,22 @@ out_of_scope:
 - 'Claude #626/#592 runtime, fixture, contract and engine surfaces'
 - Coverage reduction, provider selection or Architecture Freeze
 - Probe/Forge-build parallelism (requires separate shadow validation)
-ownership: Codex sole integration writer, no active child; scope/checkpoint worktree
-  transfer6072327055, explicit state.py identity rebind; immutable audit base unchanged.
-exact_next_action: 'Finish required CI and full PB03 on the final generated checkpoint,
-  independently verify generated-only review preservation, remote proof/completion
-  gate, fresh target/ownership; normal #629 merge then #628 terminal receipt. Partial
-  earlier runs grant no final credit.'
+ownership: Codex sole integration writer, explicit checkpoint transfer to pb03-129-check
+  under629comment6072450618; four owned workflow/metadata paths, all integrated Claude
+  source read-only.
+exact_next_action: Obtain fresh Space Bunny MAX read-only review on published1.0.29
+  state checkpoint, persist actual canonical review receipt and source-bound state,
+  then complete exact-final-head required CI/PB03, source/target impact adjudication
+  and normal integration. No old-source runtime/review credit transfers.
 state_schema_repair: Required conformance gate rejected initial custom state; use
   existing state.py schema2.0, no exemption or gate change.
-validated_tree: 7ab40470114bd0c3198926054e1c3d168fd47bfc
+validated_tree: 3d23cdde67978c14d0b4e3f4d54103320c0dd0fe
 integration_target:
-  sha: 75e4d4a20c6d0a3311e0d0aec764956fd733ae46
-  tree: c7a434f9158ac191548557d78d9ed4966270362e
-  merge_commit: 3cc853320a964d6f00adced228fb348418c98776
-  method: Normal merge of origin/main into the owned branch (no rebase/force/history
-    rewrite); preserves the authoritative 1.0.28 arrival module and every target change.
-    Fresh hosted PB03 is required for the merged workflow tree; earlier runtime evidence
-    is historical only.
+  sha: eda1bbe4c58a5f18ef2ff4cfff8ae193f6795407
+  tree: 839d776c29cc94773840c3e1da9d8ea736ee9bd5
+  merge_commit: 1c4f14ac08d8656b87b80989b34b9ac2ae70c479
+  method: Normal two-parent merge of current main1.0.29+Phase86+efficiency doc into
+    owned branch; no foreign code edits or rewritten history.
 prior_exact_head_ci:
   head: b984f9edaa9d02bc06d7bf3bad3b37cf9874cea8
   tree: aaa700d4b0002083eda838d79486876bc0960ddd
@@ -138,26 +141,28 @@ prior_exact_head_ci:
 cross_executor_review:
   required: true
   logical_profile: space-bunny
-  resolved_model_id: opencode-go/space-bunny
-  model_alias_class: CANONICAL
   implementation_executor: deepseek
   review_executor: space-bunny
-  reviewed_sha: ea87a4df41448a00a013e07b97b8acb7eb12e703
-  reviewed_tree: 7ab40470114bd0c3198926054e1c3d168fd47bfc
-  verdict: PASS
+  verdict: UNKNOWN
   review_record_path: .foundry/reviews/pb03-check-efficiency-20261009.json
 materiality: MATERIAL
 remote_checkpoint:
   remote: origin
   branch: codex/pb03-check-efficiency-20261009
-  sha: ea87a4df41448a00a013e07b97b8acb7eb12e703
-  tree: 7ab40470114bd0c3198926054e1c3d168fd47bfc
+  sha: 1c4f14ac08d8656b87b80989b34b9ac2ae70c479
+  tree: 3d23cdde67978c14d0b4e3f4d54103320c0dd0fe
 integration_checkpoint:
-  identity_rebind: state.py --write-from --allow-identity-change under6072327055,
-    branch/audit base unchanged
+  identity_rebind: Explicit state.py --write-from --allow-identity-change; audit base
+    immutable, branch unchanged; coordinator current snapshot worktree transfer.
   reviewed_identity: ea87a4df only; receipt+state generated changes do not manufacture
     a finalhead review
-  runtime: PENDING exact final checkpoint; no inherited/cached qualification PASS
-    or successful-run speedup
+  runtime: NOT_RUN on final1.0.29 checkpoint; obsolete1.0.28 partial runner has no
+    credit.
   historical_handoff: Native publication already completed6072214435; obsolete prepublication/pending
     entries retained as labeled historical controls only.
+prior_review:
+  comment: 6072316392
+  head: ea87a4df41448a00a013e07b97b8acb7eb12e703
+  credit: STALE for new integrated source; old canonical receipt is historical until
+    replaced by fresh actual review. ACTIVE checkpoint claims no satisfied current
+    review/completion gate.
