@@ -70,6 +70,14 @@ def _turn2_record(value: Any = None, actor: str = "P1") -> dict[str, Any]:
     if value is None:
         value = {"Mountain": 1}
     record = _effective_record()
+    # The record's own obligation pass-through (contract 1.0.30): the Lab
+    # passes a priority after the checkpoint only inside this declaration.
+    (obligation,) = [
+        step
+        for step in record["decision_script"]
+        if step.get("decision_family") == "priority_pass_through"
+        and (step.get("scope") or {}).get("until") == {"event": "OBLIGATION_COMPLETE"}
+    ]
     record["starting_player"] = "P1"
     record["decision_script"] = [
         {
@@ -118,6 +126,7 @@ def _turn2_record(value: Any = None, actor: str = "P1") -> dict[str, Any]:
                 "semantic_value": value,
             },
         },
+        obligation,
     ]
     return record
 
@@ -237,6 +246,13 @@ class _SequencedClient:
             self.tape.append({"message_type": "submit_action"})
             self._frames.pop(0)
             return {"success": True, "payload": {}}
+        if message_type == "get_midgame_projection":
+            # The acting principal's own projection carries the engine's
+            # position; the fake serves the same point as its readback.
+            return {
+                "success": True,
+                "payload": {"view": dict(self.complete_arrival()["observation"])},
+            }
         raise AssertionError(f"unexpected lane request {message_type}")
 
     def submit_options(self, decision: dict[str, Any], option_ids: list[str]) -> None:
@@ -1300,3 +1316,97 @@ def test_a_declared_pregame_keep_the_engine_never_asked_fails_closed() -> None:
         probe.drive_to_precombat_main(client, record)
     assert "unconsumed declared keep fails closed" in str(excinfo.value)
     assert client.submissions == [["keep-0"], ["keep-1"]]
+
+
+def test_red_control_a_pass_the_record_does_not_declare_fails_closed() -> None:
+    """#634 step B: without the record's obligation pass-through the Lab never
+    passes a player's priority after the checkpoint; the row fails closed
+    instead of choosing the pass on the player's behalf."""
+    record = _turn2_record()
+    record["decision_script"] = [
+        step
+        for step in record["decision_script"]
+        if (step.get("scope") or {}).get("until") != {"event": "OBLIGATION_COMPLETE"}
+    ]
+    client = _SequencedClient(
+        [
+            *_precheckpoint_history_frames(),
+            _cleanup_frame(
+                [
+                    _card_offer("Mountain", "n-mtn-b", "opt-b"),
+                    _card_offer("Mountain", "n-mtn-a", "opt-a"),
+                ],
+                observation=TURN1_CLEANUP,
+            ),
+            _checkpoint_frame(TURN2_MAIN),
+            _omission_frame(TURN2_MAIN),
+        ]
+    )
+    execution = mr.execute_row(client, record, {}, mr.ROWS[PARENT_CLASS])
+    assert not execution.verified
+    assert "undeclared priority pass for P2" in execution.detail
+
+
+def _mana_frame(
+    observation: dict[str, Any], *, seat: int = 1
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    actor = f"actor-{seat}"
+    return (
+        {
+            "decision_id": "d-mana",
+            "decision_class": "mana_payment",
+            "actor_id": actor,
+            "seat": seat,
+            "legal_options": [{"option_id": "tap-mtn", "option_type": "mana_ability"}],
+        },
+        _legal(
+            actor,
+            [
+                {
+                    "action_id": "tap-mtn",
+                    "metadata": {
+                        "seat": seat,
+                        "option_type": "mana_ability",
+                        "xmage_option_metadata": {"source_object_id": "n-any-land"},
+                    },
+                }
+            ],
+        ),
+        observation,
+    )
+
+
+def test_red_control_a_mana_frame_the_record_does_not_script_fails_closed() -> None:
+    """#634 step B: which permanent pays is the player's choice. A payment
+    frame with no scripted mana_payment step at the cursor fails closed; the
+    Lab never taps a source the record does not declare."""
+    client = _SequencedClient(
+        [
+            *_precheckpoint_history_frames(),
+            _cleanup_frame(
+                [
+                    _card_offer("Mountain", "n-mtn-b", "opt-b"),
+                    _card_offer("Mountain", "n-mtn-a", "opt-a"),
+                ],
+                observation=TURN1_CLEANUP,
+            ),
+            _checkpoint_frame(TURN2_MAIN),
+            _mana_frame(TURN2_MAIN),
+        ]
+    )
+    execution = mr.execute_row(client, _turn2_record(), {}, mr.ROWS[PARENT_CLASS])
+    assert not execution.verified
+    assert "undeclared mana payment for P2" in execution.detail
+    assert all(
+        proposal["proposal"]["legal_action_id"] != "tap-mtn" for proposal in client.proposals
+    )
+
+
+def test_a_payment_step_pays_only_from_its_own_placed_sources() -> None:
+    step = {
+        "decision_family": "mana_payment",
+        "selection": {"semantic_value": {"sources": ["obj:a", "obj:b"], "mana": ["R", "R"]}},
+    }
+    assert mr._declared_payment_sources(step, {"obj:a": "n-a", "obj:b": "n-b"}) == ["n-a", "n-b"]
+    with pytest.raises(mr.ml.MidgameLaneError, match="were not placed"):
+        mr._declared_payment_sources(step, {"obj:a": "n-a"})
