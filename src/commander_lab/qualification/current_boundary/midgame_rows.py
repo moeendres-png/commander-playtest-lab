@@ -1007,11 +1007,9 @@ ROWS: dict[str, RowSpec] = {
     # 1. The engine then asks for the spell's two tap targets (a required
     # min-2/max-2 frame) which the record does not script; the obligation is
     # already observed and the row stops there rather than inventing targets.
+    # No mana sources: the obligation completes before payment (see the
+    # negatives below).
     "PILOT_TARGET_AMOUNT": RowSpec(
-        mana_sources=tuple(
-            [f"obj:pilot_target_amount-mountain-{index}" for index in range(7)]
-            + ["obj:pilot_target_amount-island-0"]
-        ),
         terminal_checks=(
             TerminalCheck("assignment_total", value=4),
             TerminalCheck("assignment_minimum", value=1),
@@ -1021,10 +1019,6 @@ ROWS: dict[str, RowSpec] = {
     # record; the engine class mapping (multi_amount -> target_amount) is the
     # one already declared above.
     "PILOT_MULTI_AMOUNT": RowSpec(
-        mana_sources=tuple(
-            [f"obj:pilot_multi_amount-mountain-{index}" for index in range(7)]
-            + ["obj:pilot_multi_amount-island-0"]
-        ),
         terminal_checks=(
             TerminalCheck("assignment_total", value=4),
             TerminalCheck("assignment_minimum", value=1),
@@ -1042,18 +1036,16 @@ ROWS: dict[str, RowSpec] = {
     # The fail-closed negatives: reach the decision frame the record names, then
     # refuse it explicitly and with no state mutation. The obligation is the
     # typed refusal itself, never a timeout and never a selected option.
-    "NEGATIVE_FIRST_OPTION": RowSpec(
-        mana_sources=tuple(f"obj:negative_first_option-mana-{index}" for index in range(5)),
-    ),
-    "NEGATIVE_GUI_DEFAULT": RowSpec(
-        mana_sources=tuple(f"obj:negative_gui_default-mana-{index}" for index in range(5)),
-    ),
-    "NEGATIVE_RANDOM_OPTION": RowSpec(
-        mana_sources=("obj:negative_random_option-mana-0",),
-    ),
-    "NEGATIVE_SILENT_SKIP": RowSpec(
-        mana_sources=("obj:negative_silent_skip-mana-0",),
-    ),
+    # The four negatives and the two PILOT_*_AMOUNT rows complete their
+    # obligation inside casting (a typed refusal, or the divided-amount
+    # announcement, CR 601.2c-d), before any cost is paid (CR 601.2g-h): the
+    # engine never asks them for mana, so they carry no mana sources and their
+    # records declare no payment (contract 1.0.30 MANA_NOT_REACHED). A mana
+    # frame on one of them is undeclared and fails closed.
+    "NEGATIVE_FIRST_OPTION": RowSpec(),
+    "NEGATIVE_GUI_DEFAULT": RowSpec(),
+    "NEGATIVE_RANDOM_OPTION": RowSpec(),
+    "NEGATIVE_SILENT_SKIP": RowSpec(),
     # The sibling refusal on the engine's own attack declaration frame.
     "NEGATIVE_INTERNAL_AI": RowSpec(),
     # PILOT_CHOOSE_USE (contract 1.0.21 E1): P1 casts Keldon Marauders with

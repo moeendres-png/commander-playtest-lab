@@ -1,6 +1,6 @@
 {
  "candidate": "forge",
- "canonical_bundle_digest": "c2ccecec0736050e127c03ec56d21f3f391fcaccc16034227d350fc5bec2d623",
+ "canonical_bundle_digest": "1991ba925021d2f616d12bc7131e1a0dfb359038461dc6d02c7e017dbacd912e",
  "contract_id": "commander-lab.full107/1.0.30-successor",
  "note": "classification only: no row was executed and no receipt exists. A row becomes PASS only through a current source-bound execution receipt.",
  "rows": [
@@ -780,14 +780,14 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
-     "dimension": "decision_execution.target.semantic_player",
+     "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
+     "dimension": "decision_execution.mana_payment.mana_payment",
      "stage": "execution"
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
-     "dimension": "decision_execution.mana_payment.mana_payment",
+     "detail": "the record scripts a target decision; the bridge carries it on its TARGETING frames, but the lane has no selector for them",
+     "dimension": "decision_execution.target.semantic_player",
      "stage": "execution"
     },
     {
@@ -805,7 +805,7 @@
      "damage:P2:2"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated). then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated). then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); execution decision_execution.target.semantic_player (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -1366,12 +1366,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
-     "dimension": "decision_execution.mana_payment.mana_payment",
-     "stage": "execution"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the lane has no observation contract for this obligation's readback and decision-frame tokens",
      "dimension": "observation_contract",
      "stage": "observation"
@@ -1384,7 +1378,7 @@
      "amount_assignment:2+2"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated). then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.multi_amount.amount_assignment (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated). then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.multi_amount.amount_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "PROVIDER_ADAPTER_GAP",
@@ -1657,12 +1651,6 @@
     },
     {
      "class": "LAB_EXECUTION_GAP",
-     "detail": "the record scripts a mana_payment decision; the bridge carries it on its MANA or MANA_COMBO frames, but the lane has no selector for them",
-     "dimension": "decision_execution.mana_payment.mana_payment",
-     "stage": "execution"
-    },
-    {
-     "class": "LAB_EXECUTION_GAP",
      "detail": "the lane has no observation contract for this obligation's readback and decision-frame tokens",
      "dimension": "observation_contract",
      "stage": "observation"
@@ -1675,7 +1663,7 @@
      "amount_assignment:2+2"
     ]
    },
-   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated). then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target_amount.amount_assignment (LAB_EXECUTION_GAP); execution decision_execution.mana_payment.mana_payment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
+   "reason": "Forge LAB_EXECUTION_GAP: first missing mechanism at construction (action_cost_state): mid-cast cost state is caused by casting and paying on the engine's own frames (the bootstrap has no cost field); the lane casts only through its causal stack route (#520, #561): complete, modeless spells with declared fuel, either one aimed at a commander for a commander zone choice to the graveyard, exile or hand, a stack the record's scripted priority cast, targets and declared payment answer (scripted_decision_offered), or the victim's own stack before a declared elimination (stack_controller_eliminated). then: construction temporal_checkpoint.exact_hand_after_draw (LAB_EXECUTION_GAP); execution decision_execution.priority.semantic_action (LAB_EXECUTION_GAP); execution decision_execution.target_amount.amount_assignment (LAB_EXECUTION_GAP); observation observation_contract (LAB_EXECUTION_GAP). no receipt; the row stays unestablished."
   },
   {
    "classification": "LAB_EXECUTION_GAP",

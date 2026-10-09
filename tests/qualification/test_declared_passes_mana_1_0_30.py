@@ -397,7 +397,7 @@ def test_every_row_spec_with_mana_sources_has_a_record_bound_declaration() -> No
     RowSpec's sources, bound to the record's own semantic object identities."""
     rows = _row_spec_rows_with_mana()
     records = _effective_records()
-    assert len(rows) == 33
+    assert len(rows) == 27
     assert _mana_declaration_problems(records, rows) == []
     # The 1.0.29 audit's credited set is inside the patched set and now declares
     # its payment in decision_script.
@@ -726,3 +726,35 @@ def test_generator_is_deterministic_and_never_mutates_the_checkout(tmp_path: Pat
         assert (REPO_ROOT / relative).read_bytes() == before[relative], (
             f"REPO_ROOT was mutated: {relative}"
         )
+
+
+_MANA_NOT_REACHED = (
+    "NEGATIVE_FIRST_OPTION",
+    "NEGATIVE_GUI_DEFAULT",
+    "NEGATIVE_RANDOM_OPTION",
+    "NEGATIVE_SILENT_SKIP",
+    "PILOT_MULTI_AMOUNT",
+    "PILOT_TARGET_AMOUNT",
+)
+
+
+def test_rows_completing_inside_casting_declare_and_carry_no_payment() -> None:
+    """The six rows whose obligation completes inside casting, before payment
+    (CR 601.2c-d before 601.2g-h), neither carry RowSpec mana sources nor
+    declare a payment: a payment step no engine frame answers would keep the
+    row from its natural stop (PB-03 run 37888112605)."""
+    from commander_lab.qualification.current_boundary import midgame_rows
+
+    records = _effective_records()
+    for fixture_id in _MANA_NOT_REACHED:
+        assert midgame_rows.ROWS[fixture_id].mana_sources == (), fixture_id
+        assert _declared_mana_sources(records[fixture_id]) == [], fixture_id
+
+
+def test_micro_triggers_pays_before_its_trigger_target() -> None:
+    """MICRO_TRIGGERS's target answers the creature's ETB trigger (CR 603.3d),
+    asked after the spell was paid for: the payment follows the cast directly."""
+    script = _effective_records()["MICRO_TRIGGERS"]["decision_script"]
+    families = [str(step.get("decision_family")) for step in script]
+    cast = families.index("priority")
+    assert families[cast + 1 : cast + 3] == ["mana_payment", "target"]
