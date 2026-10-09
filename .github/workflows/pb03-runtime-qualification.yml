@@ -53,6 +53,15 @@ on:
       - "tests/conftest.py"
       - "src/commander_lab/semantic_replay/**"
   workflow_dispatch:
+    inputs:
+      forge_reference:
+        description: >-
+          Also execute Forge as the bounded differential reference (ADR
+          docs/engine_strategy_20261009, Owner decision 2). Off by default:
+          the required qualification path is XMage-only and the Forge column
+          is carried forward as historical provenance.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -65,6 +74,10 @@ env:
   PYTHONHASHSEED: "0"
   # B12: stream the runner's phase lines as they happen instead of at exit.
   PYTHONUNBUFFERED: "1"
+  # M15 (Owner decision 2): Forge is a bounded reference that runs on demand
+  # only. Every Forge step below is gated on this flag; a pull_request run
+  # never executes Forge.
+  FORGE_REFERENCE: ${{ github.event_name == 'workflow_dispatch' && inputs.forge_reference && 'true' || 'false' }}
 
 jobs:
   pb03-runtime:
@@ -132,6 +145,7 @@ jobs:
           fetch-depth: 1
 
       - name: Checkout admitted Forge bridge/materialization source
+        if: env.FORGE_REFERENCE == 'true'
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           repository: moeendres-png/forge
@@ -149,7 +163,9 @@ jobs:
           set -euo pipefail
           printf '/vendor/engine-source/\n' >> .git/info/exclude
           test -z "$(git status --porcelain -- vendor/engine-source/)"
-          echo "FORGE_WORKSPACE=$GITHUB_WORKSPACE/vendor/engine-source/forge" >> "$GITHUB_ENV"
+          if test "$FORGE_REFERENCE" = true; then
+            echo "FORGE_WORKSPACE=$GITHUB_WORKSPACE/vendor/engine-source/forge" >> "$GITHUB_ENV"
+          fi
 
       - name: Set up JDK 17
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
@@ -165,6 +181,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
 
       - name: Verify immutable Forge dual-source binding
+        if: env.FORGE_REFERENCE == 'true'
         working-directory: vendor/engine-source/forge
         run: |
           set -euo pipefail
@@ -184,6 +201,7 @@ jobs:
           fi
 
       - name: Build and warm admitted Forge exact source
+        if: env.FORGE_REFERENCE == 'true'
         working-directory: vendor/engine-source/forge
         run: |
           set -euo pipefail
@@ -262,7 +280,7 @@ jobs:
           )
           PY
 
-      - name: Execute authoritative two-candidate current-boundary runner
+      - name: Execute authoritative current-boundary runner (XMage; Forge on demand)
         env:
           # #479 E2: overlap the Forge native suites with the XMage-only phases.
           # Promoted after 3 consecutive paired serial/shadow runs with 0
@@ -270,7 +288,13 @@ jobs:
           # 37636020029/37636015934, 37655739220/37655726198). Unset the
           # variable to restore the serial order; receipts are identical.
           PB03_SHADOW_PARALLEL_FORGE_NATIVE: "1"
-        run: python scripts/run_current_boundary_qualification.py --candidate all
+        run: |
+          set -euo pipefail
+          if test "$FORGE_REFERENCE" = true; then
+            python scripts/run_current_boundary_qualification.py --candidate all
+          else
+            python scripts/run_current_boundary_qualification.py --candidate xmage
+          fi
 
       - name: Assemble source-bound current-boundary evidence
         run: python scripts/assemble_current_boundary_evidence.py
@@ -369,7 +393,7 @@ jobs:
           }, sort_keys=True))
           PY
 
-      - name: Assert R-3/R-4 two-candidate current-boundary invariants
+      - name: Assert R-3/R-4 current-boundary invariants
         run: |
           python - <<'PY'
           import json
@@ -377,10 +401,13 @@ jobs:
           from pathlib import Path
 
           root = Path(os.environ["CURRENT_BOUNDARY_EVIDENCE_EPOCH"])
-          expected = {
-              "xmage": os.environ["XMAGE_COMMIT"],
-              "forge": os.environ["FORGE_RULES_COMMIT"],
-          }
+          forge_reference = os.environ["FORGE_REFERENCE"] == "true"
+          # XMage is always executed fresh. Forge is fresh only on a reference
+          # run; otherwise its column must be the marked historical carry-forward,
+          # never a column presented as fresh.
+          expected = {"xmage": os.environ["XMAGE_COMMIT"]}
+          if forge_reference:
+              expected["forge"] = os.environ["FORGE_RULES_COMMIT"]
 
           gate_summary = {}
           for candidate, commit in expected.items():
@@ -432,13 +459,19 @@ jobs:
                   if row["exit_state"] != "PASS"
               ]
 
-          forge_af01 = json.loads((root / "AF01_FORGE.json").read_text())
-          invariants = forge_af01["invariants"]
-          assert len(invariants) == 20, len(invariants)
-          assert all(item["verdict"] == "PASS" for item in invariants), [
-              item for item in invariants if item["verdict"] != "PASS"
-          ]
-          assert forge_af01["verdict"] == "PASS", forge_af01["verdict"]
+          forge_af01 = {"verdict": "NOT_RUN_REFERENCE_ONLY"}
+          if forge_reference:
+              forge_af01 = json.loads((root / "AF01_FORGE.json").read_text())
+              invariants = forge_af01["invariants"]
+              assert len(invariants) == 20, len(invariants)
+              assert all(item["verdict"] == "PASS" for item in invariants), [
+                  item for item in invariants if item["verdict"] != "PASS"
+              ]
+              assert forge_af01["verdict"] == "PASS", forge_af01["verdict"]
+          else:
+              forge_full107 = json.loads((root / "FULL107_FORGE_RESULTS.json").read_text())
+              assert forge_full107.get("carried_forward"), "an unrun Forge column must be marked carried"
+              assert forge_full107["evidence_class"] == "CARRIED_FORWARD_NOT_REEXECUTED"
 
           packet = json.loads((root / "PROVIDER_READINESS_CURRENT.json").read_text())
           assert packet["production_provider"] == "NOT_SELECTED"
@@ -446,9 +479,15 @@ jobs:
           assert packet["ranking"] == "NONE"
           assert set(packet["candidates"]) == {"xmage", "forge"}
           assert all(
-              data["column_provenance"]["class"] == "FRESH_CURRENT_BOUNDARY_EXECUTION"
-              for data in packet["candidates"].values()
+              packet["candidates"][candidate]["column_provenance"]["class"]
+              == "FRESH_CURRENT_BOUNDARY_EXECUTION"
+              for candidate in expected
           )
+          if not forge_reference:
+              assert (
+                  packet["candidates"]["forge"]["column_provenance"]["class"]
+                  != "FRESH_CURRENT_BOUNDARY_EXECUTION"
+              )
 
           print(json.dumps({
               "xmage_full107": packet["candidates"]["xmage"]["full107_counts"],
