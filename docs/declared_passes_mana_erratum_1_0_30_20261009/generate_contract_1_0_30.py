@@ -31,10 +31,11 @@ Rulings applied (fixed by the Coordinator, #634):
    passed by the player holding priority (CR 117.3d). The scope starts at the
    record's own checkpoint, inclusive; for the causal-stack and elimination
    rows it starts at the causal preparation start (turn 1's beginning) so it
-   also covers the construction passes (ruling 3). The scope ends at the end of
-   the record's obligation turn: the checkpoint turn plus one turn per declared
-   ``next_turn:`` required event (the extra-turn rows need their extra turns
-   covered).
+   also covers the construction passes (ruling 3). The scope ends at the lane's
+   own obligation completion point, declared symbolically as
+   ``{"event": "OBLIGATION_COMPLETE"}``: the obligation pass-through is a
+   declaration only, it never drives execution forward and never extends a row
+   past its natural stop (the #643 PB-03 regression repair ruling, 2026-10-09).
 2. Mana payment. For every RowSpec record whose executor pays mana from the
    Lab's ``mana_sources`` list, the record declares the sources in
    ``decision_script`` as ``mana_payment`` steps: the source object identities
@@ -523,11 +524,14 @@ def obligation_priority_step(fixture_id: str, temporal: dict, causal: bool, unti
         "decision_family": "priority_pass_through",
         "forbidden_fallbacks": list(FORBIDDEN),
         "notes": (
-            f"CR 117.3d: from {origins} to the end of {fixture_id}'s obligation, any "
+            f"CR 117.3d: from {origins} to the lane's own obligation completion "
+            "point (declared symbolically as the event OBLIGATION_COMPLETE), any "
             "priority frame that no explicitly scripted step of this record answers is "
             "passed by the player holding priority (the midgame lane's obligation loop "
             "and the probe's causal helpers). Scripted steps take precedence: this "
-            "declaration only authorizes the pass, it never consumes an obligation"
+            "declaration only authorizes the pass, it never consumes an obligation, "
+            "never drives execution forward and never extends a row past its natural "
+            "stop (the #643 regression repair ruling)"
         ),
         "precedence": "SCRIPTED_STEPS_FIRST",
         "scope": {"from": start, "until": until},
@@ -808,9 +812,12 @@ for fixture_id in OBLIGATION_FIXTURES:
     # --- ruling 1: the obligation-phase pass-through declaration --------------- #
     required = list((record.get("expected_events") or {}).get("required_events") or ())
     extra_turns = sum(1 for event in required if str(event).startswith("next_turn:"))
-    end_turn = int(temporal["turn_number"]) + extra_turns
+    # The scope's ``until`` is the lane's own obligation completion point,
+    # declared symbolically: the pass-through authorizes passes on frames no
+    # scripted step answers, and it never drives execution forward or extends
+    # a row past its natural stop (#643 regression repair ruling).
     obligation_step = obligation_priority_step(
-        fixture_id, temporal, causal, {"turn": end_turn, "phase": "ending"}
+        fixture_id, temporal, causal, {"event": "OBLIGATION_COMPLETE"}
     )
     # --- ruling 5: the knowledge lane's declared empty attack set ------------ #
     attack_step: dict | None = None
@@ -883,9 +890,11 @@ for fixture_id in OBLIGATION_FIXTURES:
                 "decision_script +1 obligation priority_pass_through scope (actor ALL, "
                 "precedence SCRIPTED_STEPS_FIRST) from "
                 + (
-                    "the causal preparation start to the end of the obligation"
+                    "the causal preparation start to the lane's own obligation "
+                    "completion point (symbolic event OBLIGATION_COMPLETE)"
                     if causal
-                    else "the record's checkpoint (inclusive) to the end of the obligation"
+                    else "the record's checkpoint (inclusive) to the lane's own "
+                    "obligation completion point (symbolic event OBLIGATION_COMPLETE)"
                 )
             ),
             "comprehensive_rules": "117.3d",

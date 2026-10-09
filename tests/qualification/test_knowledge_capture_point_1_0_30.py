@@ -1,12 +1,14 @@
-"""P2-1 controls: the knowledge transport's capture point and pass-through scope.
+"""#643 regression-repair controls: the knowledge transport's capture point.
 
-The #643 review P2-1: the obligation pass-through is a standing declaration,
-not a cursor step. It may answer only priority frames whose engine-observed
-(turn, step) lie inside its declared ``[scope.from, scope.until)`` window, and
-only after every pending scripted step has had its own frame (the record's
-``SCRIPTED_STEPS_FIRST`` precedence). The knowledge projection capture happens
-at the record's own declared capture point (``temporal_state``), never at
-"wherever the pass-through stops".
+The A3 binding to ``temporal_state`` moved the capture ahead of the record's own
+scripted obligation events (the PB-03 AF05 regression). The restored capture
+point is the pre-1.0.30 point the epoch ff688b58 qualified: the first
+empty-stack priority of the checkpoint's priority player after every scripted
+step has been answered. The obligation pass-through is a standing declaration,
+not a cursor step: it may answer only priority frames inside its declared scope
+(a temporal ``[scope.from, scope.until)`` window or the symbolic
+``{"event": "OBLIGATION_COMPLETE"}`` obligation bound), and it never transits
+past the capture point.
 
 Each control is a red control: the mutation of one assumption must fail closed.
 """
@@ -23,20 +25,17 @@ from commander_lab.qualification.current_boundary.midgame_lane import MidgameLan
 _CAPTURE = {"turn_number": 1, "phase": "precombat_main", "step": "main"}
 
 
-def _pass_through_scope() -> dict:
-    return {
-        "from": {"turn": 1, "phase": "precombat_main", "step": "main"},
-        "until": {"turn": 1, "phase": "ending"},
-    }
-
-
-def _pass_through_step() -> dict:
+def _pass_through_step(*, symbolic: bool = True) -> dict:
+    until = {"event": "OBLIGATION_COMPLETE"} if symbolic else {"turn": 1, "phase": "ending"}
     return {
         "actor": "ALL",
         "causal_step_id": "priority-pass-obligation-t-capture",
         "decision_family": "priority_pass_through",
         "precedence": "SCRIPTED_STEPS_FIRST",
-        "scope": _pass_through_scope(),
+        "scope": {
+            "from": {"turn": 1, "phase": "precombat_main", "step": "main"},
+            "until": until,
+        },
         "selection": {
             "matches_only_provider_offered_legal_options": True,
             "on_multiple_match": "FAIL_CLOSED",
@@ -156,9 +155,9 @@ def test_red_control_a_pass_through_before_a_scripted_step_cannot_consume_its_fr
 
 
 def test_red_control_a_frame_outside_the_declared_scope_fails_closed() -> None:
-    """A priority frame whose engine point is outside every declared scope is
+    """A priority frame whose engine point is outside the declared scope is
     never passed by the Lab, even while a scripted step is pending."""
-    record = _record([_activation_step("P2"), _pass_through_step()])
+    record = _record([_activation_step("P2"), _pass_through_step(symbolic=False)])
     client = _PriorityClient(
         {"turn_number": 2, "phase": "precombat_main", "step": "PRECOMBAT_MAIN"}
     )
@@ -168,17 +167,31 @@ def test_red_control_a_frame_outside_the_declared_scope_fails_closed() -> None:
     assert client.proposals == []
 
 
-def test_red_control_the_capture_point_is_the_declared_one() -> None:
-    """The event completes only where the record declares; an engine parked at
-    another step fails closed instead of capturing there."""
-    record = _record([])
-    at_capture = _PriorityClient(
-        {"turn_number": 1, "phase": "precombat_main", "step": "PRECOMBAT_MAIN"}
+def test_red_control_capture_follows_the_last_scripted_step() -> None:
+    """The capture is the first empty-stack holder priority AFTER the record's
+    scripted steps: the scripted activation is answered first, then the holder
+    frame captures. A pass-through transit past that point would submit a pass
+    (and loop until the bound) instead of returning the trace."""
+    record = _record([_activation_step(), _pass_through_step()])
+    client = _PriorityClient(
+        {"turn_number": 1, "phase": "precombat_main", "step": "PRECOMBAT_MAIN"},
+        actions=[_ACTIVATION_OFFER],
+        placed={"obj:source": "native-source"},
     )
-    assert knowledge_projection.run_script(at_capture, record) == []
-    away = _PriorityClient(
-        {"turn_number": 1, "phase": "postcombat_main", "step": "POSTCOMBAT_MAIN"}
-    )
-    with pytest.raises(MidgameLaneError, match="away from the record's declared capture point"):
-        knowledge_projection.run_script(away, record)
-    assert away.passes == []
+    trace = knowledge_projection.run_script(client, record)
+    assert trace == [{"decision_class": "priority", "step": 0, "tape_index": 1}]
+    # The capture frame itself was never passed by the declaration.
+    assert client.passes == []
+    assert [payload["proposal"]["action_type"] for payload in client.proposals] == [
+        "activate_ability"
+    ]
+
+
+def test_red_control_a_symbolic_scope_never_authorizes_before_its_from() -> None:
+    """The obligation declaration's symbolic bound still enforces ``scope.from``:
+    a frame before the checkpoint fails closed instead of being passed."""
+    record = _record([_activation_step("P2"), _pass_through_step()])
+    client = _PriorityClient({"turn_number": 1, "phase": "beginning", "step": "UPKEEP"})
+    with pytest.raises(MidgameLaneError, match="outside the record's declared pass-through scope"):
+        knowledge_projection.run_script(client, record)
+    assert client.passes == []

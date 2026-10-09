@@ -1059,32 +1059,6 @@ def _engine_observation(client: ml.MidgameLaneClient) -> dict[str, Any]:
 _DECLARATION_FAMILIES = frozenset({"priority_pass_through", "declare_attackers"})
 
 
-def _declared_capture_point(record: dict[str, Any]) -> tuple[int, int] | None:
-    """The record's declared capture point as (turn, engine step index), or None.
-
-    The record declares where its projections are captured through the
-    checkpoint itself: ``temporal_state``'s turn and phase/step, bound through
-    the probe's own engine-step mapping (the same point the arrival driver
-    parks at). The knowledge projection capture is bound to this point, never
-    to wherever a pass-through happens to stop.
-    """
-    temporal = dict(record.get("temporal_state") or {})
-    bound = {
-        "turn": temporal.get("turn_number"),
-        "phase": temporal.get("phase"),
-        "step": temporal.get("step"),
-    }
-    position = midgame_rows_mod.probe_module()._scope_bound_position(bound, last=False)
-    return cast("tuple[int, int] | None", position)
-
-
-def _at_declared_capture_point(observation: dict[str, Any], record: dict[str, Any]) -> bool:
-    """Whether the engine's readback stands exactly at the record's capture point."""
-    declared = _declared_capture_point(record)
-    observed = midgame_rows_mod.probe_module()._observed_scope_position(observation)
-    return declared is not None and observed == declared
-
-
 def _scripted_cursor(script: list[dict[str, Any]], position: int) -> int:
     """The next scripted step index, stepping over declaration-only steps.
 
@@ -1155,16 +1129,18 @@ def run_script(
     ``priority_pass_through`` step is a standing authorization, not a cursor
     step: it answers a priority frame only when the engine's own observed
     (turn, step) lies inside its declared ``[scope.from, scope.until)`` window
-    and only after every pending scripted step has had its own frame (the
-    declared ``SCRIPTED_STEPS_FIRST`` precedence); a frame outside every
-    declared scope fails closed. A declared empty ``declare_attackers`` set
-    (CR 508.1, 508.8) answers the active player's declare-attacker frames
-    bound to its own actor/turn/step; a frame of either class the record does
-    not declare fails closed. The event is complete when every scripted step
-    was answered and the engine stands at the record's own declared capture
-    point (``temporal_state``'s turn and phase/step) with the checkpoint's
-    priority player holding priority again and an empty stack; a holder
-    priority anywhere else, or anything else, fails closed.
+    (or, for the obligation declaration's symbolic
+    ``{"event": "OBLIGATION_COMPLETE"}`` bound, at or after its ``from`` bound
+    while the obligation is still incomplete) and only after every pending
+    scripted step has had its own frame (the declared
+    ``SCRIPTED_STEPS_FIRST`` precedence); a frame outside every declared scope
+    fails closed. A declared empty ``declare_attackers`` set (CR 508.1, 508.8)
+    answers the active player's declare-attacker frames bound to its own
+    actor/turn/step; a frame of either class the record does not declare fails
+    closed. The event is complete at the record's declared capture point: the
+    first empty-stack priority of the checkpoint's priority player after every
+    scripted step has been answered (the pre-1.0.30 point the epoch qualified;
+    the pass-through never transits past it). Anything else fails closed.
     """
     probe = midgame_rows_mod.probe_module()
     created = next(
@@ -1230,21 +1206,15 @@ def run_script(
         if decision_class == "priority":
             stack = (decision.get("pilot_state") or {}).get("stack")
             observation = _engine_observation(client)
-            # The event completes only at the record's declared capture point:
-            # every scripted step answered (the cursor is past them) and the
-            # checkpoint's priority player holds priority with an empty stack.
-            # Anywhere else the capture point has moved, and the event fails
-            # closed rather than capturing the projections at the wrong point.
+            # The event completes at the record's declared capture point: every
+            # scripted step answered (the cursor is past them) and the
+            # checkpoint's priority player holding priority again with an empty
+            # stack. This is the pre-1.0.30 capture point (the epoch ff688b58
+            # point), not a temporal_state binding: the pass-through never
+            # transits past it, and the capture is never taken wherever the
+            # pass-through happens to stop.
             if principal == holder and stack == [] and step is None:
-                if _declared_capture_point(record) is None:
-                    raise ml.MidgameLaneError(
-                        "the record declares no readable capture point (temporal_state)"
-                    )
-                if _at_declared_capture_point(observation, record):
-                    return trace
-                raise ml.MidgameLaneError(
-                    "the holder's priority arrived away from the record's declared capture point"
-                )
+                return trace
             # Scripted steps first (the declared SCRIPTED_STEPS_FIRST
             # precedence): a scripted priority step answers its own frame
             # before any declaration may answer it.
@@ -1281,10 +1251,14 @@ def run_script(
                 position += 1
                 continue
             # Only the record's own declared pass-through may answer any other
-            # priority frame, and only inside its declared scope
-            # ([scope.from, scope.until), until exclusive): the Lab never
-            # passes a player's priority outside the record's declaration.
-            if not probe._scripted_priority_pass_through(record, principal, observation):
+            # priority frame, and only inside its declared scope (the arrival
+            # scope's ``[from, until)`` window or the obligation declaration's
+            # symbolic completion bound): the Lab never passes a player's
+            # priority outside the record's declaration, and the declaration
+            # never drives execution forward.
+            if not probe._scripted_priority_pass_through(
+                record, principal, observation, obligation=True
+            ):
                 raise ml.MidgameLaneError(
                     f"the priority frame for {principal} is outside the record's "
                     "declared pass-through scope"

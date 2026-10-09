@@ -532,6 +532,13 @@ ARRIVAL_TRANSPORT_FAMILIES = frozenset(
     {"starting_player", "mulligan", "priority_pass_through", "declare_attackers"}
 )
 
+# The declaration-only families the 1.0.30 erratum appends (the standing
+# obligation priority pass-through and the knowledge lane's empty attack set).
+# They authorize or bind frames; they are never cursor steps. The obligation
+# loop steps over them so the row's natural stop is exactly the pre-1.0.30
+# stop (the #643 regression repair ruling: a declaration never extends a row).
+DECLARATION_ONLY_FAMILIES = frozenset({"priority_pass_through", "declare_attackers"})
+
 
 def _require_scripted_temporal_point(client: ml.MidgameLaneClient, step: dict[str, Any]) -> None:
     """Refuse a scripted step whose declared phase/turn is not the engine's point.
@@ -4980,6 +4987,14 @@ def execute_row(
     try:
         for _ in range(spec.max_decisions):
             tape = client.events(baseline)["events"]
+            # The appended obligation declaration (pass-through, empty attack
+            # set) is never a cursor step: stepping over it restores the
+            # pre-1.0.30 natural stop, so the declaration can never drive the
+            # row forward past its obligation (#643 regression repair ruling).
+            while position < len(script) and (
+                str(script[position].get("decision_family")) in DECLARATION_ONLY_FAMILIES
+            ):
+                position += 1
             if (
                 position >= len(script)
                 and observed_all(tape)

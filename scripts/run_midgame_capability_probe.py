@@ -708,8 +708,27 @@ def _observed_scope_position(observation: dict[str, Any]) -> tuple[int, int] | N
     return turn, _TURN_STEP_ORDER.index(step)
 
 
+# The symbolic scope bound a declaration-only obligation pass-through carries:
+# the lane's own obligation completion point (#643 regression repair ruling).
+_OBLIGATION_COMPLETE_EVENT = "OBLIGATION_COMPLETE"
+
+
+def _symbolic_scope_event(bound: object) -> str | None:
+    """The symbolic event a scope bound names, or None when it is not symbolic."""
+    if not isinstance(bound, dict):
+        return None
+    event = bound.get("event")
+    if not isinstance(event, str) or not event.strip():
+        return None
+    return event.strip().upper()
+
+
 def _scripted_priority_pass_through(
-    record: dict[str, Any], principal: str, observation: dict[str, Any]
+    record: dict[str, Any],
+    principal: str,
+    observation: dict[str, Any],
+    *,
+    obligation: bool = False,
 ) -> bool:
     """Whether the record declares its priority passes for this principal's point.
 
@@ -721,11 +740,21 @@ def _scripted_priority_pass_through(
     turn or phase can never be matched, so the arrival pilot never passes
     priority on a player's behalf outside the record's own declaration.
 
-    The ``until`` bound is exclusive (``from <= position < until``): the
-    declared scope ends before the checkpoint step's own priority window, where
+    The ``until`` bound is exclusive (``from <= position < until``): a temporal
+    arrival scope ends before the checkpoint step's own priority window, where
     the row's obligation may require a cast or activation (CR 117.1a). An
     inclusive bound would let the pass-through answer the checkpoint's own
     priority frame and silently consume the obligation.
+
+    The obligation pass-through declares its upper bound symbolically as the
+    lane's own completion point (``{"event": "OBLIGATION_COMPLETE"}``): it is a
+    declaration only and never drives execution forward. With
+    ``obligation=True`` (the obligation loop's own call) such a scope
+    authorizes a pass on any frame at or after its ``from`` bound while the
+    caller's obligation is incomplete; the caller's own stop/capture condition
+    is the completion point, so the declaration can never extend a row past its
+    natural stop. In the arrival context (``obligation=False``) a symbolic
+    scope is never an arrival authorization and is skipped.
     """
     matching = [
         step
@@ -760,8 +789,23 @@ def _scripted_priority_pass_through(
         start_position = (
             _scope_bound_position(start, last=False) if isinstance(start, dict) else None
         )
+        if start_position is None:
+            raise ml.MidgameLaneError(
+                "the record's priority_pass_through step declares an unreadable scope "
+                "(scope.from/scope.until): the arrival pilot cannot bound its passes"
+            )
+        event = _symbolic_scope_event(end)
+        if event is not None:
+            if event != _OBLIGATION_COMPLETE_EVENT:
+                raise ml.MidgameLaneError(
+                    "the record's priority_pass_through step declares an unreadable "
+                    f"symbolic scope bound event {event!r}"
+                )
+            if obligation and start_position <= position:
+                return True
+            continue
         end_position = _scope_bound_position(end, last=True) if isinstance(end, dict) else None
-        if start_position is None or end_position is None:
+        if end_position is None:
             raise ml.MidgameLaneError(
                 "the record's priority_pass_through step declares an unreadable scope "
                 "(scope.from/scope.until): the arrival pilot cannot bound its passes"

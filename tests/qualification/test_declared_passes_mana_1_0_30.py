@@ -247,6 +247,7 @@ def _obligation_pass_through(record: dict, causal: bool) -> dict | None:
         scope = step.get("scope") or {}
         if (
             scope.get("from") == expected_from
+            and scope.get("until") == {"event": "OBLIGATION_COMPLETE"}
             and selection.get("selector_kind") == "semantic_action"
             and selection.get("semantic_value") == "pass_priority"
             and selection.get("on_zero_match") == "FAIL_CLOSED"
@@ -254,8 +255,7 @@ def _obligation_pass_through(record: dict, causal: bool) -> dict | None:
             and selection.get("matches_only_provider_offered_legal_options") is True
         ):
             start = _scope_position(scope["from"], last=False)
-            end = _scope_position(scope["until"], last=True)
-            if start is None or end is None or end <= start:
+            if start is None:
                 return None
             return step
     return None

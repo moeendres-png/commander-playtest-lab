@@ -70,7 +70,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -94,7 +94,7 @@
      "reason": "the record is executed by run_midgame_capability_probe.CAUSAL_ROWS, which the 1.0.28 / 1.0.29 coverage did not enumerate, so its game-start arrival history was undeclared and the strict arrival answered the keeps and priority with Lab defaults (#642 review P2-2). The record now declares one pregame keep per seat present in it and the arrival pass-through to its own checkpoint, until exclusive"
     },
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -118,7 +118,7 @@
      "reason": "the record is executed by run_midgame_capability_probe.CAUSAL_ROWS, which the 1.0.28 / 1.0.29 coverage did not enumerate, so its game-start arrival history was undeclared and the strict arrival answered the keeps and priority with Lab defaults (#642 review P2-2). The record now declares one pregame keep per seat present in it and the arrival pass-through to its own checkpoint, until exclusive"
     },
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -142,7 +142,7 @@
      "reason": "the record is executed by run_midgame_capability_probe.CAUSAL_ROWS, which the 1.0.28 / 1.0.29 coverage did not enumerate, so its game-start arrival history was undeclared and the strict arrival answered the keeps and priority with Lab defaults (#642 review P2-2). The record now declares one pregame keep per seat present in it and the arrival pass-through to its own checkpoint, until exclusive"
     },
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -166,7 +166,7 @@
      "reason": "the record is executed by run_midgame_capability_probe.CAUSAL_ROWS, which the 1.0.28 / 1.0.29 coverage did not enumerate, so its game-start arrival history was undeclared and the strict arrival answered the keeps and priority with Lab defaults (#642 review P2-2). The record now declares one pregame keep per seat present in it and the arrival pass-through to its own checkpoint, until exclusive"
     },
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -190,7 +190,7 @@
      "reason": "the record is executed by run_midgame_capability_probe.CAUSAL_ROWS, which the 1.0.28 / 1.0.29 coverage did not enumerate, so its game-start arrival history was undeclared and the strict arrival answered the keeps and priority with Lab defaults (#642 review P2-2). The record now declares one pregame keep per seat present in it and the arrival pass-through to its own checkpoint, until exclusive"
     },
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -214,7 +214,7 @@
      "reason": "the record is executed by run_midgame_capability_probe.CAUSAL_ROWS, which the 1.0.28 / 1.0.29 coverage did not enumerate, so its game-start arrival history was undeclared and the strict arrival answered the keeps and priority with Lab defaults (#642 review P2-2). The record now declares one pregame keep per seat present in it and the arrival pass-through to its own checkpoint, until exclusive"
     },
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -233,7 +233,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -257,7 +257,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -281,7 +281,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -305,7 +305,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -329,7 +329,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -353,7 +353,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -377,7 +377,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -401,7 +401,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -425,7 +425,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -449,7 +449,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -473,7 +473,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -497,7 +497,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -521,7 +521,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -545,7 +545,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -569,7 +569,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -593,7 +593,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -617,7 +617,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -641,7 +641,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -665,7 +665,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -689,7 +689,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -713,7 +713,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -732,7 +732,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -751,7 +751,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -775,7 +775,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -794,7 +794,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -818,7 +818,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -837,7 +837,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -861,7 +861,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -885,7 +885,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -909,7 +909,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -933,7 +933,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -952,7 +952,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -971,7 +971,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -995,7 +995,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1014,7 +1014,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1038,7 +1038,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1062,7 +1062,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1081,7 +1081,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1100,7 +1100,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1124,7 +1124,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1148,7 +1148,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1167,7 +1167,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1186,7 +1186,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1210,7 +1210,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1234,7 +1234,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1258,7 +1258,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1277,7 +1277,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1296,7 +1296,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1320,7 +1320,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1339,7 +1339,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1358,7 +1358,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1377,7 +1377,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1396,7 +1396,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1420,7 +1420,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1444,7 +1444,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1463,7 +1463,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1487,7 +1487,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1506,7 +1506,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1530,7 +1530,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1554,7 +1554,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1573,7 +1573,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1592,7 +1592,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1611,7 +1611,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1630,7 +1630,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1649,7 +1649,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1668,7 +1668,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1692,7 +1692,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1711,7 +1711,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1730,7 +1730,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1749,7 +1749,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1768,7 +1768,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1792,7 +1792,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1811,7 +1811,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1830,7 +1830,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1854,7 +1854,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -1878,7 +1878,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1897,7 +1897,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1916,7 +1916,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1935,7 +1935,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1954,7 +1954,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1973,7 +1973,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -1992,7 +1992,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -2011,7 +2011,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -2030,7 +2030,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -2049,7 +2049,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -2068,7 +2068,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -2087,7 +2087,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -2106,7 +2106,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -2125,7 +2125,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -2144,7 +2144,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -2163,7 +2163,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -2182,7 +2182,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -2201,7 +2201,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -2225,7 +2225,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the causal preparation start to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -2249,7 +2249,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -2273,7 +2273,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     },
@@ -2297,7 +2297,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
@@ -2316,7 +2316,7 @@
    "evidence_survival": "REQUALIFICATION_REQUIRED",
    "field_changes": [
     {
-     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the end of the obligation",
+     "change": "decision_script +1 obligation priority_pass_through scope (actor ALL, precedence SCRIPTED_STEPS_FIRST) from the record's checkpoint (inclusive) to the lane's own obligation completion point (symbolic event OBLIGATION_COMPLETE)",
      "comprehensive_rules": "117.3d",
      "reason": "the midgame obligation loop passes any priority frame that no scripted step answers (midgame_rows.py:5188-5201), and the probe's causal helpers pass through construction; both were Lab choices made for the player holding priority (#634 audit). The record now declares that scope: scripted steps take precedence and every priority frame they do not consume inside this window is passed (CR 117.3d), so step B can refuse an undeclared pass"
     }
