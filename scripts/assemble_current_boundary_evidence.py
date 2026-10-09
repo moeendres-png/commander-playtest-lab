@@ -12,6 +12,7 @@ executed inside this workstream at the recorded runtime identity.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -681,7 +682,7 @@ def _af11_measure(
     # -- The policy residual is the Coordinator's. A recorded adjudication for the
     #    selected provider decides it only when it validates against the source
     #    lock and this run's provider classpath; otherwise it stays UNKNOWN.
-    issues = [] if violated else _af11_adjudication_issues(candidate, root)
+    issues = [] if violated else _af11_adjudication_issues(candidate, root, data)
     if violated or issues:
         limitations.append(
             "NOT MEASURED BY THE LAB: whether the observed separate-process topology "
@@ -726,22 +727,36 @@ _AF11_DECISIONS = (
     "PROVIDER_LICENCE_COMPATIBILITY",
     "FORGE_SEPARATE_PROCESS",
 )
-_STRONG_COPYLEFT = ("GPL", "SSPL")  # also matches AGPL and LGPL
+# An allowlist, not a denylist: a licence nobody adjudicated is never compatible.
+_AF11_ADJUDICATED_LICENCES = frozenset(
+    {"MIT", "Apache-2.0", "BSD-3-Clause", "ISC", "MPL-2.0 OR EPL-1.0", "EPL-2.0"}
+)
+_AF11_EPOCH_PREFIX = "qualification/current-boundary-epochs/"
 
 
-def _af11_adjudication_issues(candidate: str, root: Path) -> list[str]:
+def _af11_adjudication_issues(
+    candidate: str, root: Path, data: dict[str, Any] | None = None
+) -> list[str]:
     """Why the recorded AF11 adjudication does not decide this run (empty: it does).
 
-    Every check fails closed: a missing record, a mismatch with the source lock,
-    an unsealed effective epoch or a provider classpath that differs from the
-    adjudicated licence inventory each keep AF11 UNKNOWN until re-adjudicated.
+    Every check fails closed: a missing or malformed record, a mismatch with
+    the source lock or the run's engine pin, an effective epoch that is not
+    sealed, or a provider launch whose classpath differs from the adjudicated
+    licence inventory each keep AF11 UNKNOWN until re-adjudicated.
     """
+    try:
+        return _af11_adjudication_checks(candidate, root, data or {})
+    except Exception as exc:  # a malformed record never crashes the assembly
+        return [f"the Coordinator AF11 adjudication cannot be validated: {exc!r}"]
+
+
+def _af11_adjudication_checks(candidate: str, root: Path, data: dict[str, Any]) -> list[str]:
+    from commander_lab.qualification.current_boundary import bridge_launcher
+
     try:
         record = load(root / AF11_ADJUDICATION)
     except FileNotFoundError:
         return ["no Coordinator AF11 adjudication is recorded"]
-    except (OSError, ValueError) as exc:
-        return [f"the Coordinator AF11 adjudication cannot be read: {exc!r}"]
     if record.get("schema_version") != AF11_ADJUDICATION_SCHEMA or record.get("gate") != "AF11":
         return ["the recorded AF11 adjudication has an unknown schema or gate"]
     if record.get("selected_provider") != candidate:
@@ -750,65 +765,85 @@ def _af11_adjudication_issues(candidate: str, root: Path) -> list[str]:
             f"({record.get('selected_provider')!r})"
         ]
     issues: list[str] = []
-    decisions = {item.get("id"): item.get("decision") for item in record.get("decisions") or ()}
+    decisions = {item["id"]: item["decision"] for item in record.get("decisions") or ()}
     for decision in _AF11_DECISIONS:
         if decisions.get(decision) != "SATISFIED":
             issues.append(f"the adjudication does not decide {decision} as SATISFIED")
 
-    licences = record.get("licence_topology") or {}
-    try:
-        cfg = load(root / "config" / "rules_engines.json")
-        engines = [cfg["primary_engine"], cfg["secondary_engine"]]
-    except (OSError, ValueError, KeyError) as exc:
-        engines = []
-        issues.append(f"the source-lock engine config cannot be read: {exc!r}")
-    engine = next((e for e in engines if e.get("provider") == candidate), None)
+    # Source lock: provider licence and pin, Lab licence.
+    cfg = load(root / "config" / "rules_engines.json")
+    engine = next(
+        (
+            cfg[key]
+            for key in ("primary_engine", "secondary_engine")
+            if cfg[key].get("provider") == candidate
+        ),
+        None,
+    )
+    licences = record["licence_topology"]
     if engine is None or licences.get("provider") != engine.get("license"):
         issues.append("the adjudicated provider licence does not match config/rules_engines.json")
-    try:
-        pyproject = (root / "pyproject.toml").read_text(encoding="utf-8").splitlines()
-    except OSError:
-        pyproject = []
+    pinned = str(record["integration_topology"].get("engine_commit") or "")
+    executed = str(
+        (data.get("results_runtime_identity") or {}).get("engine_candidate_commit") or ""
+    )
+    if not pinned or engine is None or pinned != engine.get("commit") or executed != pinned:
+        issues.append(
+            "the adjudicated engine pin does not match both the source lock and the "
+            f"engine this run executed (adjudicated {pinned[:12]!r}, executed {executed[:12]!r})"
+        )
     lab_licence = next(
         (
             line.split("=", 1)[1].strip().strip('"')
-            for line in pyproject
+            for line in (root / "pyproject.toml").read_text(encoding="utf-8").splitlines()
             if line.startswith("license =")
         ),
         None,
     )
     if lab_licence is None or licences.get("lab") != lab_licence:
         issues.append("the adjudicated Lab licence does not match pyproject.toml")
-    inventory = licences.get("provider_classpath") or {}
-    if not inventory or any(
-        token in str(spdx).upper() for spdx in inventory.values() for token in _STRONG_COPYLEFT
-    ):
-        issues.append("the adjudicated provider classpath is empty or carries strong copyleft")
+    inventory = dict(licences.get("provider_classpath") or {})
+    unadjudicated = sorted(
+        f"{jar}={spdx}" for jar, spdx in inventory.items() if spdx not in _AF11_ADJUDICATED_LICENCES
+    )
+    if not inventory or unadjudicated:
+        issues.append(
+            "the adjudicated provider classpath is empty or carries a licence outside the "
+            f"adjudicated set: {unadjudicated}"
+        )
     if licences.get("strong_copyleft_on_provider_classpath") is not False:
         issues.append("the adjudication does not record the classpath as free of strong copyleft")
 
-    topology = record.get("integration_topology") or {}
+    # The provider launch: the classpath and entry point the runner's own
+    # launch contract uses, not a path the record names.
+    topology = record["integration_topology"]
     if (
         topology.get("adapter_serves") != [candidate]
         or topology.get("lab_process_embeds_engine") is not False
     ):
         issues.append("the adjudicated topology does not serve exactly the selected provider")
-    manifest = str(topology.get("provider_classpath_manifest") or "")
     try:
-        if not manifest:
-            raise OSError("no manifest named")
-        entries = (root / manifest).read_text(encoding="utf-8").strip().split(":")
-    except OSError as exc:
-        issues.append(f"this run's provider classpath manifest is unreadable: {exc}")
+        plan = bridge_launcher.build_launch_plan(candidate, xmage_workspace=root / "engine-bridge")
+    except bridge_launcher.BridgeLaunchError as exc:
+        issues.append(f"this run's provider launch cannot be resolved: {exc}")
     else:
-        jars = sorted(Path(entry).name for entry in entries if entry)
+        manifest = Path(plan.build_identity["classpath_manifest"])
+        if manifest != root / str(topology.get("provider_classpath_manifest") or ""):
+            issues.append("the adjudicated classpath manifest is not the one the launch reads")
+        if topology.get("launch_main_class") not in plan.argv:
+            issues.append("the adjudicated entry point is not the one the launch executes")
+        jars = sorted(
+            Path(entry).name
+            for entry in manifest.read_text(encoding="utf-8").strip().split(":")
+            if entry
+        )
         if jars != sorted(inventory):
             issues.append(
                 "this run's provider classpath differs from the adjudicated inventory: "
                 f"{sorted(set(jars) ^ set(inventory))}"
             )
 
-    forge = record.get("forge") or {}
+    forge = record["forge"]
     if (
         forge.get("role") != "BOUNDED_REFERENCE"
         or forge.get("code_port") != "NOT_PERMITTED"
@@ -817,19 +852,38 @@ def _af11_adjudication_issues(candidate: str, root: Path) -> list[str]:
     ):
         issues.append("the adjudication does not keep Forge a separate-process reference")
 
-    effective = str((record.get("owner_selection") or {}).get("effective_epoch") or "")
-    try:
-        if not effective:
-            raise OSError("no effective epoch named")
-        sealed = load(root / effective / f"AF00_AF11_{candidate.upper()}.json")
-    except (OSError, ValueError) as exc:
-        issues.append(f"the selection's effective epoch is not sealed here: {exc}")
-    else:
-        gates = {gate.get("gate"): gate.get("verdict") for gate in sealed.get("gates") or ()}
-        if sealed.get("boundary") != "FRESH_CURRENT_BOUNDARY_EXECUTION" or any(
-            gates.get(f"AF{index:02d}") != "PASS" for index in range(11)
-        ):
-            issues.append("the selection's effective epoch does not pass AF00-AF10")
+    # The selection's effective epoch: a sealed epoch directory, verified by
+    # its own seal, whose AF00-AF10 all pass for this candidate.
+    effective = str(record["owner_selection"].get("effective_epoch") or "")
+    name = f"AF00_AF11_{candidate.upper()}.json"
+    relative = f"{effective}/{name}"
+    seal = root / effective / "CURRENT_BOUNDARY_SHA256SUMS"
+    if (
+        not effective.startswith(_AF11_EPOCH_PREFIX)
+        or "/" in effective[len(_AF11_EPOCH_PREFIX) :]
+        or ".." in effective
+        or not seal.is_file()
+    ):
+        issues.append(f"the selection's effective epoch is not a sealed epoch: {effective!r}")
+        return issues
+    sealed_digest = next(
+        (
+            line.split()[0]
+            for line in seal.read_text(encoding="utf-8").splitlines()
+            if line.split()[1:] == [relative]
+        ),
+        None,
+    )
+    raw = (root / relative).read_bytes()
+    if sealed_digest != hashlib.sha256(raw).hexdigest():
+        issues.append(f"the effective epoch's {name} does not match its seal")
+        return issues
+    sealed = json.loads(raw)
+    gates = {gate["gate"]: gate.get("verdict") for gate in sealed.get("gates") or ()}
+    if sealed.get("boundary") != "FRESH_CURRENT_BOUNDARY_EXECUTION" or any(
+        gates.get(f"AF{index:02d}") != "PASS" for index in range(11)
+    ):
+        issues.append("the selection's effective epoch does not pass AF00-AF10")
     return issues
 
 

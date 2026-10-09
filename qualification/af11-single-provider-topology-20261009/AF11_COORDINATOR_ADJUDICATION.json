@@ -16,6 +16,8 @@
   "integration_topology": {
     "provider_process": "external JVM running the XMage bridge (engine-bridge JsonlBridge), driven over stdin/stdout JSONL",
     "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+    "launch_main_class": "org.commanderlab.xmage.Main",
+    "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
     "adapter_serves": [
       "xmage"
     ],
@@ -89,7 +91,7 @@
   ],
   "conditions": [
     "Any distribution of the production artifact ships the XMage MIT copyright and permission notice and the third-party notices of every jar on the provider classpath (Apache-2.0 NOTICE files; MPL-2.0/EPL source availability for unmodified jars).",
-    "A new or changed jar on the provider classpath invalidates this adjudication: the assembler then reports AF11 UNKNOWN until the inventory is re-adjudicated.",
+    "A change to the provider classpath jar set or to the XMage engine pin invalidates this adjudication: the assembler then reports AF11 UNKNOWN until the Coordinator re-adjudicates the inventory and pin.",
     "No Forge code enters the Lab, the XMage fork or any production artifact without a new Owner licence decision."
   ],
   "not_claimed": [
@@ -98,5 +100,5 @@
     "runtime manifest provider_decision change (stays NO_PROVIDER_READY until the Freeze workstream records it)",
     "a legal opinion; an external legal review before commercial distribution is an Owner decision"
   ],
-  "verdict_rule": "The assembler derives AF11 PASS for the selected provider only when every measured technical fact holds, this record validates against the source lock (licences, effective epoch, Forge role), and the run's provider classpath equals the inventoried classpath. A violated fact is FAIL; anything else is UNKNOWN."
+  "verdict_rule": "The assembler derives AF11 PASS for the selected provider only when every measured technical fact holds, this record validates against the source lock (provider and Lab licences, engine pin equal to the engine the run executed, Forge role), the effective epoch is a sealed epoch whose seal verifies and whose AF00-AF10 pass, every classpath licence is in the adjudicated allowlist, and the classpath manifest and entry point the runner's launch contract uses match this record. A violated fact is FAIL; anything else, including a malformed record, is UNKNOWN."
 }

@@ -51,7 +51,7 @@ selection took effect at sealed epoch `8398b69bc6a9-8a004769ee19`, where XMage p
 
 - Any distribution of the production artifact ships the XMage MIT notice and the third-party
   notices of every jar on the provider classpath.
-- Any classpath change invalidates this adjudication. The assembler reports AF11 UNKNOWN until
+- Any change to the classpath jar set or to the XMage engine pin invalidates this adjudication. The assembler reports AF11 UNKNOWN until
   the inventory is re-adjudicated.
 - No Forge code enters the Lab, the XMage fork or a production artifact without a new Owner
   licence decision.
@@ -65,9 +65,16 @@ selection took effect at sealed epoch `8398b69bc6a9-8a004769ee19`, where XMage p
   - every fact holds;
   - this record validates against the source lock: provider and Lab licences, the four
     decisions, the Forge role, D17 not accepted;
-  - the effective epoch is sealed with AF00–AF10 PASS;
-  - this run's provider classpath equals the inventory exactly.
-- **UNKNOWN** in every other case, including Forge.
+  - the adjudicated engine pin equals both `config/rules_engines.json` and the engine the run
+    executed;
+  - every classpath licence is in the adjudicated allowlist (MIT, Apache-2.0, BSD-3-Clause,
+    ISC, MPL-2.0 OR EPL-1.0, EPL-2.0);
+  - the classpath manifest and entry point the runner's launch contract uses
+    (`bridge_launcher.build_launch_plan`) are the ones recorded, and the jar set equals the
+    inventory exactly;
+  - the effective epoch lies under `qualification/current-boundary-epochs/`, its
+    `AF00_AF11_<C>.json` matches the epoch seal, and AF00–AF10 pass.
+- **UNKNOWN** in every other case, including Forge and a malformed record.
 
 Red controls: `tests/qualification/test_current_boundary_assembler_integrity.py`.
 
