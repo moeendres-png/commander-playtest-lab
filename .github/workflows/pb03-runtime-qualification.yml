@@ -32,6 +32,12 @@ on:
       - "tests/qualification/test_current_boundary_midgame_lane.py"
       - "tests/qualification/test_current_boundary_pb03_runtime.py"
       - "tests/qualification/test_current_boundary_receipts.py"
+      # The early contract step's wildcard family, the generators its
+      # determinism tests launch and the errata ledger they read (#646, audit
+      # measured by tests/qualification/test_pb03_trigger_completeness.py).
+      - "tests/qualification/test_midgame_arrival_history_*.py"
+      - "docs/arrival_history_erratum_*/generate_contract_*.py"
+      - "docs/final_prefreeze_evidence_closure_20261001/FIXTURE_ERRATA_LEDGER.json"
       - "src/commander_lab/__init__.py"
       - "src/commander_lab/agents/**"
       - "src/commander_lab/candidates/**"
