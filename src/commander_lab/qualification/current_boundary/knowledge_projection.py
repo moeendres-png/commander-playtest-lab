@@ -31,7 +31,7 @@ import json
 from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from . import midgame_lane as ml
 from . import midgame_rows as midgame_rows_mod
@@ -1074,7 +1074,8 @@ def _declared_capture_point(record: dict[str, Any]) -> tuple[int, int] | None:
         "phase": temporal.get("phase"),
         "step": temporal.get("step"),
     }
-    return midgame_rows_mod.probe_module()._scope_bound_position(bound, last=False)
+    position = midgame_rows_mod.probe_module()._scope_bound_position(bound, last=False)
+    return cast("tuple[int, int] | None", position)
 
 
 def _at_declared_capture_point(observation: dict[str, Any], record: dict[str, Any]) -> bool:
@@ -1120,7 +1121,7 @@ def _hold_attacker_offer(legal: dict[str, Any]) -> dict[str, Any]:
         raise ml.MidgameLaneError(
             f"the declared empty attack set matched {len(holds)} engine hold offers"
         )
-    return holds[0]
+    return cast("dict[str, Any]", holds[0])
 
 
 def _scope_ends_at_checkpoint(step: dict[str, Any], temporal: dict[str, Any]) -> bool:
@@ -1295,10 +1296,10 @@ def run_script(
             trace.append({"decision_class": decision_class, "step": position, "pass_through": True})
             continue
         if decision_class == "mana_payment":
-            offer = midgame_rows_mod._mana_offer(legal, sources)
-            if offer is None:
+            mana_offer = midgame_rows_mod._mana_offer(legal, sources)
+            if mana_offer is None:
                 raise ml.MidgameLaneError("no declared mana source was offered")
-            probe.submit_proposal(client, legal, offer, f"knowledge-mana-{len(trace)}")
+            probe.submit_proposal(client, legal, mana_offer, f"knowledge-mana-{len(trace)}")
             trace.append({"decision_class": decision_class, "step": None})
             continue
         if (
