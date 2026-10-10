@@ -55,6 +55,21 @@ public final class XmageDeckImporter {
     private final Map<String, Deck> decksByHandle =
             new ConcurrentHashMap<>();
 
+    /** #662 replay export: the exact import request behind each handle. */
+    record ImportRequest(String deckId, String deckHash, List<String> mainboard, List<String> commanders) {
+    }
+
+    private final Map<String, ImportRequest> requestsByHandle =
+            new ConcurrentHashMap<>();
+
+    ImportRequest requireRequest(String deckHandle) {
+        ImportRequest request = requestsByHandle.get(deckHandle);
+        if (request == null) {
+            throw new ImportException("UNKNOWN_DECK_HANDLE: " + deckHandle);
+        }
+        return request;
+    }
+
     public ImportResult importCommanderDeck(
             String deckId,
             String deckHash,
@@ -207,6 +222,10 @@ public final class XmageDeckImporter {
                         realDeck
                 ) != null
         );
+
+        requestsByHandle.put(deckHandle, new ImportRequest(
+                validatedDeckId, validatedDeckHash,
+                List.copyOf(requestedMainboard), List.copyOf(requestedCommanders)));
 
         return new ImportResult(
                 deckHandle,

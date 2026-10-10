@@ -580,7 +580,68 @@ final class XmageFullGameDecisionController {
                 numerics == null ? null : List.copyOf(numerics)
         );
         recordDecisionAccepted(pendingRequest, selected, numeric, numerics);
+        recordReplayDecision(pendingRequest, selected, numeric, numerics);
         notifyAll();
+    }
+
+    // ---- #662 replay record and game shutdown ---------------------------------
+
+    private final JsonArray replayRecord = new JsonArray();
+    private boolean shutDown;
+
+    /** The ordered semantic decision record (orchestration-only; see export_replay). */
+    synchronized JsonArray replayRecord() {
+        return replayRecord.deepCopy();
+    }
+
+    private void recordReplayDecision(
+            JsonObject request, List<String> selected, Integer numeric, List<Integer> numerics) {
+        List<String> keys = XmageFullGameReplay.semanticKeys(request.getAsJsonArray("legal_options"));
+        List<String> ids = XmageFullGameReplay.optionIds(request.getAsJsonArray("legal_options"));
+        JsonObject entry = new JsonObject();
+        entry.addProperty("kind", "decision");
+        entry.addProperty("index", replayRecord.size());
+        entry.addProperty("decision_class", request.get("decision_class").getAsString());
+        entry.addProperty("actor_seat", request.get("seat").getAsInt());
+        entry.addProperty("offered_digest", XmageFullGameReplay.offeredDigest(request));
+        JsonArray chosen = new JsonArray();
+        for (String id : selected) {
+            int position = ids.indexOf(id);
+            chosen.add(position < 0 ? "<unknown>" : keys.get(position));
+        }
+        entry.add("chosen_keys", chosen);
+        if (numeric != null) {
+            entry.addProperty("numeric_choice", numeric);
+        }
+        if (numerics != null) {
+            JsonArray vector = new JsonArray();
+            numerics.forEach(vector::add);
+            entry.add("numeric_choices", vector);
+        }
+        replayRecord.add(entry);
+    }
+
+    synchronized void recordReplayConcession(int seat) {
+        JsonObject entry = new JsonObject();
+        entry.addProperty("kind", "concede");
+        entry.addProperty("index", replayRecord.size());
+        entry.addProperty("actor_seat", seat);
+        replayRecord.add(entry);
+    }
+
+    /**
+     * Ends decision intake for good: the waiting request (if any) returns without
+     * a response and every later request is refused. The session ends the game
+     * natively before calling this.
+     */
+    synchronized void shutDown() {
+        shutDown = true;
+        terminal = true;
+        notifyAll();
+    }
+
+    synchronized boolean isShutDown() {
+        return shutDown;
     }
 
     synchronized void failClosed(String failureCode, String detail) {

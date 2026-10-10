@@ -66,6 +66,9 @@ final class XmageFullGameJsonlBridge {
             case "submit_action" -> submitAction(requestId, request);
             case "get_concede_offer" -> getConcedeOffer(requestId, request);
             case "submit_concede" -> submitConcede(requestId, request);
+            case "export_event_log", "get_event_log" -> exportEventLog(requestId, request);
+            case "shutdown_game" -> shutdownGame(requestId);
+            case "export_replay" -> exportReplay(requestId);
             case "shutdown_engine" -> success(requestId, shutdownPayload(), true);
             default -> error(
                     requestId,
@@ -457,6 +460,37 @@ final class XmageFullGameJsonlBridge {
                     exceptionMessage(exc),
                     false
             );
+        }
+    }
+
+    /** #662: the public event log after an optional {@code after_offset}. */
+    private Result exportEventLog(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = request.has("payload") && request.get("payload").isJsonObject()
+                    ? request.getAsJsonObject("payload") : new JsonObject();
+            int after = payload.has("after_offset") && !payload.get("after_offset").isJsonNull()
+                    ? payload.get("after_offset").getAsInt() : 0;
+            return success(requestId, requireSession().eventLogPayload(after), false);
+        } catch (Exception exc) {
+            return error(requestId, "full_game_event_log_failed", exceptionMessage(exc), false);
+        }
+    }
+
+    /** #662: end the game; later decisions are refused, the engine stays up. */
+    private Result shutdownGame(String requestId) {
+        try {
+            return success(requestId, requireSession().shutdownGame(), false);
+        } catch (Exception exc) {
+            return error(requestId, "full_game_shutdown_failed", exceptionMessage(exc), false);
+        }
+    }
+
+    /** #662: the orchestration-only replay export (ruling (c) R1, R4). */
+    private Result exportReplay(String requestId) {
+        try {
+            return success(requestId, requireSession().replayExportPayload(), false);
+        } catch (Exception exc) {
+            return error(requestId, "full_game_replay_export_failed", exceptionMessage(exc), false);
         }
     }
 
