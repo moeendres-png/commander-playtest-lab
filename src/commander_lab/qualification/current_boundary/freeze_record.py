@@ -22,6 +22,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -37,11 +38,31 @@ SCHEMA_PATH = Path("qualification/pre-freeze-successor/architecture_freeze_contr
 PROTOCOL_SCHEMA_PATH = Path("schemas/engine_adapter_protocol.schema.json")
 
 
-def git_blob_identity(path: Path) -> str:
-    """``git-blob:<sha1>`` of a text file, as ``git hash-object`` computes it.
+def producing_protocol_identity(repo_root: Path, tree: object) -> str | None:
+    """The protocol schema blob in the epoch's producing source tree, or None.
 
-    Line endings are normalized to LF first, as git stores text, so a CRLF checkout
-    names the same blob.
+    The record names the protocol the epoch actually ran: the blob is read from the
+    producing tree in the repository's object store, never from the current checkout.
+    """
+    if not isinstance(tree, str) or not re.fullmatch(r"[0-9a-f]{40}", tree):
+        return None
+    completed = subprocess.run(
+        ["git", "-C", str(repo_root), "rev-parse", f"{tree}:{PROTOCOL_SCHEMA_PATH.as_posix()}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    blob = completed.stdout.strip()
+    if completed.returncode != 0 or not re.fullmatch(r"[0-9a-f]{40}", blob):
+        return None
+    return f"git-blob:{blob}"
+
+
+def git_blob_identity(path: Path) -> str:
+    """``git-blob:<sha1>`` of an LF-committed text file, as ``git hash-object`` names it.
+
+    CRLF is folded to LF first so a Windows checkout of an LF-committed file names the
+    committed blob. Not for binary files or files committed with CRLF.
     """
     data = path.read_bytes().replace(b"\r\n", b"\n")
     return "git-blob:" + hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
@@ -352,15 +373,6 @@ def assemble_freeze_record(
     reported = af01.get("capabilities_provider_reported")
     reported = reported if isinstance(reported, dict) else {}
     schema = json.loads((repo_root / SCHEMA_PATH).read_text(encoding="utf-8"))
-    # The record names the protocol schema the frozen protocol uses: the contract's
-    # const must be the real blob of that file, or the record cannot be eligible.
-    declared_protocol = schema["properties"]["protocol_schema_identity"]["const"]
-    actual_protocol = git_blob_identity(repo_root / PROTOCOL_SCHEMA_PATH)
-    if declared_protocol != actual_protocol:
-        reasons.append(
-            f"protocol_schema_identity {declared_protocol} is not the blob of "
-            f"{PROTOCOL_SCHEMA_PATH} ({actual_protocol})"
-        )
     capability_keys = schema["properties"]["truthful_capabilities"]["properties"]["capabilities"][
         "properties"
     ].keys()
@@ -449,6 +461,20 @@ def assemble_freeze_record(
         )
 
     producing = identity.get("producing_source") or {}
+    # The contract const must name the protocol schema the epoch's producing source
+    # carried; an unresolvable producing tree is not evidence of either.
+    declared_protocol = schema["properties"]["protocol_schema_identity"]["const"]
+    produced_protocol = producing_protocol_identity(repo_root, producing.get("tree"))
+    if produced_protocol is None:
+        reasons.append(
+            f"the producing tree {producing.get('tree')!r} does not resolve to a protocol "
+            f"schema in this repository: protocol_schema_identity is unbound"
+        )
+    elif produced_protocol != declared_protocol:
+        reasons.append(
+            f"protocol_schema_identity {declared_protocol} is not the protocol schema the "
+            f"epoch ran ({produced_protocol} in its producing tree)"
+        )
     record: dict[str, Any] = {
         "schema_version": "architecture-freeze-result/2.0.0",
         "architecture_winner": False,
