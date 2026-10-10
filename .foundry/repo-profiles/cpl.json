@@ -20,7 +20,7 @@
     "docs/foundry-execution/**",
     "docs/qualification/**"
   ],
-  "notes": "Canonical two-executor Foundry control plane. Current OpenCode authority is exactly DeepSeek v4.1 Flash MAX as default/primary and Space Bunny MAX as explicit secondary, with no automatic fallback. Historical model references are provenance only and are not migration targets; changing this allowlist requires a new direct user instruction.",
+  "notes": "Canonical Foundry control plane. Current OpenCode authority (Owner directive 2026-10-10) is Space Bunny MAX as the default and only active executor; DeepSeek v4.1 Flash MAX is SUSPENDED; no automatic fallback. Historical model references are provenance only and are not migration targets; changing this allowlist requires a new direct user instruction.",
   "profile": "cpl",
   "qualification_conventions": [
     "source lock + WORKSTREAM_STATE + sealed evidence; contract-required tests override impact optimization"

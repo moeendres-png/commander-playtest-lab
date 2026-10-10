@@ -113,13 +113,14 @@ requalification.
   reservations are defined in §8.
 - OpenCode Foundry: primary execution tier for implementation, repository edits, builds,
   tests, debugging, CI, qualification execution, evidence generation, deterministic tooling
-  and long autonomous workstreams. The committed/default and preferred executor is
-  `deepseek`: `opencode-go/deepseek-v4.1-flash` at native `max` for the main model,
-  small model, primary implementer, and reachable project agents. Space Bunny is an
-  explicit secondary only: `opencode-go/space-bunny` at native `max`, for bounded,
-  mechanical, token-heavy, bulk and background work. No other OpenCode execution profile is
-  authorized or reachable through the canonical launcher/config. Executor selection is explicit
-  per run, recorded, never inferred from quota or failure, and never falls back silently.
+  and long autonomous workstreams. Since the Owner directive of 2026-10-10 the only
+  active executor is Space Bunny: `opencode-go/space-bunny` at native `max` for the main
+  model, small model, every lane (`/oc`, `/bunny`, `/bunny-review`), every project agent and
+  every subagent. DeepSeek (`opencode-go/deepseek-v4.1-flash`) is SUSPENDED: refused by the
+  launcher, absent from `opencode.json`, never a fallback. No other OpenCode execution
+  profile is authorized or reachable through the canonical launcher/config. The executor is
+  recorded per run, never inferred from quota or failure, and never falls back silently.
+  Write prompts for it per `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md`.
 - Claude Opus 5.5: explicitly authorized direct engineering/campaign executor when the session prompt declares the campaign objective and writable ownership surface. Claude may execute large autonomous campaigns under the same Rules, evidence, privacy, ownership, Git and merge gates defined here. By owner delegation it also holds the Coordinator tier's decision authority (§8 "Claude Opus 5.5 Coordinator authority"); the Owner-only decisions listed there stay reserved.
 - ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
   capability identified; Sol High insufficient; OpenCode Foundry and any available
@@ -130,21 +131,20 @@ Technical autonomy within those tiers is defined in §8.
 
 ## 7. Execution effort
 
-Active OpenCode Foundry execution has exactly two allowed launcher identities:
+Active OpenCode Foundry execution has exactly one allowed launcher identity:
 
-- DeepSeek: native `max` only. This is the default and preferred execution path for
-  implementation, debugging, qualification, integration, CI remediation, evidence and
-  long-running campaigns.
-- Space Bunny: native `max` only. An explicit secondary for bounded, mechanical,
-  token-heavy, bulk and background work, and for deliberately authorized cross-model
-  checks.
+- Space Bunny: native `max` only. The default and only execution path for
+  implementation, debugging, qualification, integration, CI remediation, evidence,
+  audits, reviews and long-running campaigns.
+- DeepSeek: SUSPENDED since 2026-10-10 (OpenCode Go monthly quota exhausted). Only a new
+  direct Owner instruction re-activates it.
 
 No other OpenCode executor is selectable under current authority. Historical model references
 are provenance only, are not migration targets, and must not generate routing/governance work
 without a new direct user instruction. There is no active-work `high`, `medium`, `low`,
 `minimal`, `none`, or `off` native lane. The project-level
 `--effort` field describes task and authority routing only and never lowers either
-executor below its native level. Do not relabel DeepSeek MAX or Space Bunny MAX as
+executor below its native level. Do not relabel Space Bunny MAX (or historical DeepSeek MAX) as
 XHIGH; record the actual native identity.
 
 ## 8. Technical decision authority
@@ -159,11 +159,9 @@ can resolve it.
 
 Routing distinction:
 
-- DeepSeek MAX: committed/default and preferred execution profile for active engineering.
-  It is autonomous within the workstream contract and always runs at native `max`.
-- Space Bunny MAX: explicit secondary execution profile for bounded, mechanical,
-  token-heavy, bulk and background work, and for deliberately authorized cross-model
-  checks. It never runs below native `max`.
+- Space Bunny MAX: default and only active OpenCode execution profile (Owner directive
+  2026-10-10). It is autonomous within the workstream contract and always runs at native
+  `max`. DeepSeek MAX is SUSPENDED and never selected.
 - Claude Opus 5.5: direct campaign executor when explicitly authorized by the session
   contract. It may own campaign-sized technical execution and continuous task selection
   inside declared ownership, but does not inherit Foundry-specific launcher permissions.
@@ -486,7 +484,7 @@ Cross-workstream child execution uses Bubblewrap with the host filesystem mounte
 read-only and only the explicitly writable standalone surfaces, unique runtime directory,
 and narrow tool caches rebound read-write. Missing/unusable Bubblewrap is a launch refusal,
 never a silent downgrade. Agents must not use sudo or bypass the sandbox to install it.
-DeepSeek MAX and Space Bunny MAX use the same access contract.
+Every OpenCode executor profile, active or suspended, uses the same access contract.
 
 ## 12. Privacy
 

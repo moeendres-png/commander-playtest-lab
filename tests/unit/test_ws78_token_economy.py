@@ -322,16 +322,15 @@ def test_safety_permissions_intact(repo_root: Path):
 
 def test_model_provider_and_v2_instruction_source_intact(repo_root: Path):
     config = _config(repo_root)
-    # DeepSeek MAX is primary; Space Bunny MAX stays selectable as the documented
-    # secondary. The legacy space-bunny-free row is admitted only as a runtime
-    # identity of the SAME logical space-bunny profile (canonical first), so no
-    # third logical executor and no other model/provider is whitelisted.
-    assert config["model"] == "opencode-go/deepseek-v4.1-flash"
+    # Space Bunny MAX is the only executor (DeepSeek SUSPENDED 2026-10-10). The
+    # legacy space-bunny-free row is admitted only as a runtime identity of the
+    # SAME logical space-bunny profile (canonical first); no other model/provider
+    # is whitelisted.
+    assert config["model"] == "opencode-go/space-bunny"
     assert config["enabled_providers"] == ["opencode-go"]
     provider = config["provider"]["opencode-go"]
-    assert provider["whitelist"] == ["deepseek-v4.1-flash", "space-bunny", "space-bunny-free"]
+    assert provider["whitelist"] == ["space-bunny", "space-bunny-free"]
     assert set(provider["models"]) == {
-        "deepseek-v4.1-flash",
         "space-bunny",
         "space-bunny-free",
     }
@@ -389,9 +388,11 @@ def test_launcher_bundle_passes_tool_output(repo_root: Path):
         import launcher as launcher_mod
     finally:
         sys.path.remove(str(repo_root / "tools" / "foundry"))
-    bundle = launcher_mod.build_content_bundle(str(repo_root), [])
+    bundle = launcher_mod.build_content_bundle(
+        str(repo_root), [], catalog=list(launcher_mod.ADMITTED_BUNNY_MODELS)
+    )
     assert bundle["tool_output"] == {"max_lines": 2000, "max_bytes": 51200}
-    assert bundle["model"] == "opencode-go/deepseek-v4.1-flash"
+    assert bundle["model"] == "opencode-go/space-bunny"
 
 
 def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path: Path):

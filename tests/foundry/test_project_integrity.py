@@ -21,7 +21,9 @@ def test_config_ci_agents_and_durable_state_agree():
     config = json.loads((ROOT / "opencode.json").read_text())
     models = config["provider"][launcher.CANONICAL_PROVIDER]["models"]
     schema = json.loads((ROOT / ".foundry/WORKSTREAM_STATE.schema.json").read_text())
-    for model in launcher.PROFILE_MODELS.values():
+    # A SUSPENDED profile's model is absent from opencode.json by design.
+    assert "deepseek-v4.1-flash" not in models
+    for model in launcher.ADMITTED_RUNTIME_MODELS:
         short = model.split("/", 1)[1]
         native = models[short]["options"]["reasoningEffort"]
         assert launcher.AUTHORIZED_NATIVE_VARIANT[short] == native
@@ -46,8 +48,13 @@ def test_config_ci_agents_and_durable_state_agree():
 
 def test_launcher_exposes_exactly_the_two_routed_executors():
     """No retired executor may be reachable through the canonical launcher."""
-    assert launcher.EXECUTION_PROFILES == ("deepseek", "space-bunny")
-    assert launcher.DEFAULT_EXECUTION_PROFILE == "deepseek"
+    assert launcher.EXECUTION_PROFILES == ("space-bunny", "deepseek")
+    assert launcher.ACTIVE_EXECUTION_PROFILES == ("space-bunny",)
+    assert launcher.DEFAULT_EXECUTION_PROFILE == "space-bunny"
+    assert launcher.ADMITTED_RUNTIME_MODELS == (
+        "opencode-go/space-bunny",
+        "opencode-go/space-bunny-free",
+    )
     assert launcher.PROFILE_MODELS == {
         "deepseek": "opencode-go/deepseek-v4.1-flash",
         "space-bunny": "opencode-go/space-bunny",
@@ -58,6 +65,8 @@ def test_launcher_exposes_exactly_the_two_routed_executors():
             launcher.execution_identity(None, "high", retired)
     with pytest.raises(ValueError, match="retired"):
         launcher.execution_identity("zen", "high")
+    with pytest.raises(ValueError, match="SUSPENDED"):
+        launcher.execution_identity(None, "high", "deepseek")
 
 
 def test_launcher_native_pair_gap_deferral_is_preserved_and_superseded():
@@ -88,7 +97,9 @@ def test_launcher_native_pair_gap_deferral_is_preserved_and_superseded():
 def test_documented_native_pairs_match_policy_not_runtime_claims():
     doc = (ROOT / "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md").read_text()
     pairs = re.findall(r"--execution-profile (deepseek|space-bunny) --effort (\w+)", doc)
-    assert set(pairs) == {("deepseek", "high"), ("space-bunny", "high")}
+    # Only the ACTIVE profile has a documented launch pair; DeepSeek is SUSPENDED.
+    assert set(pairs) == {("space-bunny", "high")}
+    assert "`--execution-profile deepseek` is refused" in doc
     for profile, effort in pairs:
         model = launcher.PROFILE_MODELS[profile]
         # The documented --effort is project/authority routing, NOT the native variant.
@@ -104,7 +115,7 @@ def test_documented_native_pairs_match_policy_not_runtime_claims():
         text = (ROOT / "docs/foundry-execution" / name).read_text()
         assert "Primary long-running worker (HIGH)" not in text
     authority = (ROOT / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text()
-    assert "DeepSeek v4.1 Flash MAX" in authority
+    assert "DeepSeek v4.1 Flash MAX** (SUSPENDED)" in authority
     assert "Space Bunny MAX" in authority
     assert "requires a new direct user instruction" in authority
 

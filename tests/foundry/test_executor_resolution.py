@@ -29,15 +29,29 @@ def _registry() -> ep.ExecutorRegistry:
     return ep.load_registry()
 
 
-def test_deepseek_is_default_and_resolves_only_to_the_pinned_identity() -> None:
+def test_space_bunny_is_default_and_deepseek_is_suspended() -> None:
     registry = _registry()
-    assert registry.default_profile == "deepseek"
-    assert registry.logical_profiles == ("deepseek", "space-bunny")
-    resolved = ep.resolve_executor("deepseek", registry=registry)
-    assert resolved.resolved_model_id == DEEPSEEK
+    assert registry.default_profile == "space-bunny"
+    assert registry.logical_profiles == ("space-bunny", "deepseek")
+    assert registry.active_profiles == ("space-bunny",)
+    assert registry.active_runtime_ids == (BUNNY, BUNNY_LEGACY)
+    resolved = ep.resolve_executor("space-bunny", registry=registry, catalog=[DEEPSEEK, BUNNY])
+    assert resolved.resolved_model_id == BUNNY
     assert resolved.model_alias_class == "CANONICAL"
     assert resolved.native_variant == "max"
-    assert resolved.catalog_checked is False  # no live inspection needed for the default
+    assert resolved.catalog_checked is True
+    # A SUSPENDED profile never resolves, even when its model is listed.
+    with pytest.raises(ep.ExecutorResolutionError, match="SUSPENDED"):
+        ep.resolve_executor("deepseek", registry=registry, catalog=[DEEPSEEK, BUNNY])
+
+
+def test_suspended_default_or_unknown_status_fails_closed() -> None:
+    doc = _drifted_registry_doc()
+    doc["profiles"]["space-bunny"]["runtime_status"] = "SUSPENDED"
+    assert any("must be ACTIVE" in error for error in ep.validate_registry(doc))
+    doc = _drifted_registry_doc()
+    doc["profiles"]["deepseek"]["runtime_status"] = "PAUSED"
+    assert any("runtime_status 'PAUSED'" in error for error in ep.validate_registry(doc))
 
 
 def test_both_logical_profiles_are_pinned_to_native_max() -> None:
@@ -208,8 +222,8 @@ def test_no_third_logical_executor_can_be_reachable(tmp_path: Path) -> None:
 
 def test_registry_default_drift_and_alias_on_unknown_profile_fail_closed() -> None:
     doc = _drifted_registry_doc()
-    doc["current_runtime_default"] = "space-bunny"
-    assert any("default must remain deepseek" in error for error in ep.validate_registry(doc))
+    doc["current_runtime_default"] = "deepseek"
+    assert any("default must be space-bunny" in error for error in ep.validate_registry(doc))
 
     doc = _drifted_registry_doc()
     doc["runtime_identity"]["longcat/model"] = {

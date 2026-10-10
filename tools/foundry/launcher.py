@@ -77,34 +77,39 @@ import workspace_access as workspace_access_mod
 import writer_lock as writer_lock_mod
 
 CANONICAL_PROVIDER = executor_mod.CANONICAL_PROVIDER
-# Operator authority (2026-09-29) and durable cross-executor policy (2026-10-06):
-# exactly two LOGICAL executors are reachable, each pinned to one native
-# reasoning level. DeepSeek MAX is the primary/default autonomous engineering
-# executor; Space Bunny MAX is the explicitly selected secondary and the
-# mandatory independent fresh-context read-only reviewer for MATERIAL
-# implementation workstreams. The logical `space-bunny` profile admits one
+# Operator authority (2026-09-29), durable cross-executor policy (2026-10-06)
+# and Owner directive (2026-10-10): the registry holds exactly two LOGICAL
+# executors, each pinned to one native reasoning level, but only ACTIVE ones are
+# reachable. Space Bunny MAX is the default and only ACTIVE executor and the
+# mandatory fresh-context read-only reviewer for MATERIAL implementation
+# workstreams; DeepSeek MAX is SUSPENDED (OpenCode Go monthly quota exhausted)
+# and is refused at resolution. The logical `space-bunny` profile admits one
 # canonical runtime id plus one legacy alias runtime id for the SAME profile
 # (see .foundry/executor-profiles.json); no third executor exists. A
 # runtime/quota/auth/catalog failure after selection is fail-closed and never
 # re-resolves to another executor family.
-PRIMARY_EXECUTION_PROFILE = "deepseek"
-SECONDARY_EXECUTION_PROFILE = "space-bunny"
-EXECUTION_PROFILES = (PRIMARY_EXECUTION_PROFILE, SECONDARY_EXECUTION_PROFILE)
-DEFAULT_EXECUTION_PROFILE = PRIMARY_EXECUTION_PROFILE
+SPACE_BUNNY_PROFILE = "space-bunny"
+DEEPSEEK_PROFILE = "deepseek"
 # Single generic profile->canonical-runtime table, loaded from the validated
 # registry so code and durable policy cannot drift.
 EXECUTOR_REGISTRY = executor_mod.load_registry()
+PRIMARY_EXECUTION_PROFILE = EXECUTOR_REGISTRY.default_profile
+EXECUTION_PROFILES = EXECUTOR_REGISTRY.logical_profiles
+ACTIVE_EXECUTION_PROFILES = EXECUTOR_REGISTRY.active_profiles
+DEFAULT_EXECUTION_PROFILE = PRIMARY_EXECUTION_PROFILE
 PROFILE_MODELS = {
     name: spec.canonical_runtime_id for name, spec in EXECUTOR_REGISTRY.profiles.items()
 }
-DEEPSEEK_MODEL = PROFILE_MODELS[PRIMARY_EXECUTION_PROFILE]
-SPACE_BUNNY_MODEL = PROFILE_MODELS[SECONDARY_EXECUTION_PROFILE]
+DEEPSEEK_MODEL = PROFILE_MODELS[DEEPSEEK_PROFILE]
+SPACE_BUNNY_MODEL = PROFILE_MODELS[SPACE_BUNNY_PROFILE]
 CANONICAL_MODEL = PROFILE_MODELS[PRIMARY_EXECUTION_PROFILE]
-ALTERNATE_MODEL = PROFILE_MODELS[SECONDARY_EXECUTION_PROFILE]
 # Canonical runtime id first, then the admitted legacy alias for the same
-# logical profile. The root opencode.json whitelist must match exactly this set.
-ADMITTED_BUNNY_MODELS = EXECUTOR_REGISTRY.profiles[SECONDARY_EXECUTION_PROFILE].admitted_runtime_ids
-ADMITTED_RUNTIME_MODELS = tuple(EXECUTOR_REGISTRY.runtime_identity)
+# logical profile.
+ADMITTED_BUNNY_MODELS = EXECUTOR_REGISTRY.profiles[SPACE_BUNNY_PROFILE].admitted_runtime_ids
+# Only ACTIVE profiles' runtime ids are reachable; the root opencode.json
+# whitelist must match exactly this set, so a SUSPENDED model is not even
+# selectable by a plain `opencode` invocation.
+ADMITTED_RUNTIME_MODELS = EXECUTOR_REGISTRY.active_runtime_ids
 ADMITTED_MODEL_SHORTS = tuple(model.split("/", 1)[1] for model in ADMITTED_RUNTIME_MODELS)
 AUTHORIZED_NATIVE_VARIANT = {
     model.split("/", 1)[1]: EXECUTOR_REGISTRY.profiles[
@@ -609,9 +614,9 @@ def build_content_bundle(
         raise ValueError(f"canonical provider drift: {providers!r}")
     # NOTE: provider.models is keyed by SHORT model name (verified against the
     # resolved config); the provider/model pair lives in top-level "model".
-    # The whitelist admits exactly the canonical deepseek id, the canonical
-    # Space Bunny id, and the legacy Space Bunny alias runtime identity
-    # (same logical profile). No third executor is admitted.
+    # The whitelist admits exactly the ACTIVE runtime identities: the canonical
+    # Space Bunny id and its legacy alias (same logical profile). A SUSPENDED
+    # profile (DeepSeek) and any third executor are not admitted.
     try:
         models = config["provider"][CANONICAL_PROVIDER]["models"]
     except KeyError as exc:
@@ -670,7 +675,7 @@ def build_content_bundle(
     if "default_agent" in config:
         bundle["default_agent"] = config["default_agent"]
     # Narrow the bundle to the RESOLVED profile/model, never the raw flag. An
-    # omitted flag resolves to the DeepSeek default, so branching on the flag
+    # omitted flag resolves to the registry default, so branching on the flag
     # would let a default launch fall through to the wrong executor block.
     # For Space Bunny the model is the resolved runtime identity (canonical or
     # admitted legacy alias), already provenance-recorded in `execution`.
@@ -947,7 +952,7 @@ def init(
     effective_catalog = model_catalog
     catalog_source: str | None = None
     active_profile = execution_profile or DEFAULT_EXECUTION_PROFILE
-    if effective_catalog is None and active_profile == SECONDARY_EXECUTION_PROFILE:
+    if effective_catalog is None and active_profile == SPACE_BUNNY_PROFILE:
         # Space Bunny resolution must inspect the live pinned-CLI catalog
         # before selection. Load it once here and pass the exact snapshot to
         # every internal resolver call so no second, possibly different,
@@ -1492,9 +1497,9 @@ def main(argv: list[str] | None = None) -> int:
         choices=EXECUTION_PROFILES,
         default=None,
         help=(
-            "Explicit OpenCode Go executor profile. Omitted selects the DeepSeek MAX "
-            "primary; 'space-bunny' explicitly selects the Space Bunny MAX "
-            "secondary. Any other execution profile is unauthorized and rejected."
+            "Explicit OpenCode Go executor profile. Omitted selects the Space Bunny MAX "
+            "default, the only ACTIVE profile; 'deepseek' is SUSPENDED (Owner directive "
+            "2026-10-10) and refused. Any other execution profile is unauthorized."
         ),
     )
     parser.add_argument(

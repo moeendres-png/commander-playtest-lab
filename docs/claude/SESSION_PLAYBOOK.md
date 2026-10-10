@@ -85,13 +85,14 @@ Use this decision order for each new unit of work:
 
 1. **Deterministic first.** Prefer `lab-ops`, focused grep/git queries, packet readers and exact
    test commands when they can answer the question without model judgement.
-2. **Execution → DeepSeek MAX.** Implementation, bugfixes, debugging, CI repair, test/fix loops,
-   qualification execution, evidence production, deterministic tooling, multi-file refactors and
-   long Forge/Mage/Lab campaigns go to `/oc` (DeepSeek V4.1 Flash, native `max`) by default.
-3. **Independent secondary → Space Bunny MAX.** Select Space Bunny only for a documented
-   cross-model/adversarial/bounded-secondary reason. Never fall back automatically because
-   DeepSeek failed or quota changed. `/bunny` is the current read-only GitHub audit lane; a
-   separately contracted `space-bunny` Foundry profile is governed by its own workstream.
+2. **Execution → Space Bunny MAX.** Implementation, bugfixes, debugging, CI repair, test/fix
+   loops, qualification execution, evidence production, deterministic tooling, multi-file
+   refactors and long Forge/Mage/Lab campaigns go to `/oc`, which runs Space Bunny
+   (`opencode-go/space-bunny`, native `max`) since 2026-10-10. `/bunny` (verifier) and
+   `/bunny-review` (read-only reviewer) run the same model with other agents. Write each
+   dispatch per `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md`.
+3. **DeepSeek is SUSPENDED.** Its OpenCode Go monthly quota is exhausted. Never select it, never
+   fall back to it, and do not re-enable it without a new direct Owner instruction.
 4. **Read-only helper.** Use `log-scanner` (Sonnet `low`) for mechanical extraction and
    `ci-triage` (Sonnet `medium`) for one red-check classification. Use built-in `Explore` only
    for a scoped read-only lookup when deterministic search is insufficient. Never use

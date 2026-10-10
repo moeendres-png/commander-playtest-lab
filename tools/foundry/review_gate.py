@@ -124,7 +124,14 @@ def validate_review_record(
         errors.append(
             f"implementation_executor {implementation_executor!r} is not an admitted logical profile"
         )
-    if implementation_executor == "space-bunny":
+    # Cross-model review is required whenever another executor is ACTIVE. While
+    # Space Bunny is the only ACTIVE profile (DeepSeek SUSPENDED; Owner directive
+    # and explicit Owner approval of same-model review, 2026-10-10) a Space Bunny
+    # implementation may be reviewed by Space Bunny; its independence then rests
+    # on the fresh context and the read-only /bunny-review lane, which stay
+    # mandatory.
+    cross_model_available = any(name != "space-bunny" for name in reg.active_profiles)
+    if implementation_executor == "space-bunny" and cross_model_available:
         errors.append("review_executor must differ from implementation_executor (self-review)")
     if record.get("resolved_provider") != reg.provider:
         errors.append(f"review resolved_provider must be {reg.provider!r}")

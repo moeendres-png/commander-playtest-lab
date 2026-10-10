@@ -37,13 +37,14 @@ HANDOFF instead of preserving one giant coordinator conversation.
    can answer the question without model judgement.
 2. Route implementation, debugging, test/fix loops, CI remediation, qualification execution,
    evidence production, multi-file edits and long autonomous engineering work to OpenCode
-   Foundry. The default executor is DeepSeek V4.1 Flash at native `max` (`/oc`).
-3. Space Bunny at native `max` is an explicit secondary profile only: use it for a documented
-   independent cross-model check, fresh-context adversarial audit, bounded mechanical/bulk task
-   or another explicitly justified secondary run. There is **no automatic fallback** from
-   DeepSeek to Space Bunny for failure, quota or convenience. The GitHub `/bunny` workflow is
-   specifically a read-only audit lane; it is not the definition of every authorized
-   `space-bunny` Foundry workstream.
+   Foundry. Since 2026-10-10 the only executor is Space Bunny at native `max`
+   (`opencode-go/space-bunny`) on every lane: `/oc` (implementer), `/bunny` (verifier),
+   `/bunny-review` (read-only reviewer) and the `opencode-subagent` MCP tools, which this
+   project's `.claude/settings.json` pins to Space Bunny via `OPENCODE_SUBAGENT_MODEL`.
+   Always pass `model: "opencode-go/space-bunny"` explicitly when calling those MCP tools.
+3. DeepSeek V4.1 Flash is SUSPENDED (OpenCode Go monthly quota exhausted). Never select it,
+   never fall back to it, and do not re-enable it without a new direct Owner instruction.
+   Write every Space Bunny prompt per `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md`.
 4. Use Claude subagents only for bounded read-only side work that would pollute the main context:
    `log-scanner` = Sonnet `low`; `ci-triage` = Sonnet `medium`; built-in `Explore` only for a
    scoped read-only repository lookup after deterministic search is insufficient. Do not use
@@ -81,5 +82,5 @@ changes, the packet was objectively incomplete, or the run terminates without re
   Do not add a custom cache TTL without benchmark evidence; the short helpers use Claude Code's
   normal cache policy.
 
-The native-`max` requirement above applies to the two OpenCode profiles only. It does not imply
+The native-`max` requirement above applies to the OpenCode profiles only. It does not imply
 Claude `max` effort.

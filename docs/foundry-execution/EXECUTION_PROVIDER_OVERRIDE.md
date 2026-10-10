@@ -1,50 +1,46 @@
 # Explicit execution profile and provider overrides
 
-The committed/default and preferred executor is `opencode-go/deepseek-v4.1-flash` at native `max`.
-The explicitly selectable secondary executor is `opencode-go/space-bunny` at native `max`.
+Since the Owner directive of 2026-10-10 the default and only active executor is
+`opencode-go/space-bunny` at native `max`. `opencode-go/deepseek-v4.1-flash` is SUSPENDED: its
+OpenCode Go monthly quota is exhausted, and Space Bunny does not consume that quota.
 
-## DeepSeek Max profile
+## Space Bunny Max profile (default, only active)
 
-DeepSeek MAX is the default. An explicit `--execution-profile deepseek` is equivalent and may be
-used for clarity in Foundry `init` or `launch` invocation:
+Omission selects Space Bunny MAX. An explicit `--execution-profile space-bunny` is equivalent
+and may be used for clarity in Foundry `init` or `launch` invocation:
 
 ```text
-python3 tools/foundry/launcher.py launch <existing workstream arguments> --effort high --execution-profile deepseek
+python3 tools/foundry/launcher.py launch <existing workstream arguments> --effort high --execution-profile space-bunny
 ```
 
-The required policy selects `opencode-go/deepseek-v4.1-flash` at native `max`. The launcher pins
-that exact `--model` on the child argv, so the committed default cannot drift at run time. Do not
-substitute a different model or a lower native level. The selected profile/model/native variant are
-recorded in launch context/environment and existing model/provider telemetry.
+The launcher inspects the live pinned-CLI catalog, selects the canonical
+`opencode-go/space-bunny` (else the admitted legacy alias `opencode-go/space-bunny-free`, else
+fails closed) and pins that exact `--model` on the child argv, so the identity cannot drift at run
+time. Do not substitute a different model or a lower native level. The selected
+profile/model/native variant are recorded in launch context/environment and existing
+model/provider telemetry.
 
-No automatic model fallback exists. A DeepSeek runtime, quota, auth or catalog failure is
-fail-closed and ends that run. Selecting another executor afterwards is an explicit task-rerouting
-decision, never a silent retry. A later Space Bunny run may resume the same branch and explicit
-workstream state only after the first writer exits and releases the lock. Parallel DeepSeek +
-Space Bunny writers are allowed only on independently owned worktrees/surfaces under the normal
-Foundry ownership gates.
+No automatic model fallback exists. A Space Bunny runtime, quota, auth or catalog failure is
+fail-closed and ends that run; it never re-resolves to DeepSeek or any other model.
 
-The committed config defaults to DeepSeek MAX. Each launch narrows the bundle to its explicitly
-selected executor; caller model/variant passthrough is refused.
+The committed config whitelists only Space Bunny MAX. Each launch narrows the bundle to the
+resolved runtime identity; caller model/variant passthrough is refused.
+
+## DeepSeek Max profile (SUSPENDED)
+
+`--execution-profile deepseek` is refused with a `SUSPENDED` launch error. The profile stays in
+`.foundry/executor-profiles.json` with its suspension reason and authority so that a later direct
+Owner instruction can re-activate it by setting `runtime_status` back to `ACTIVE`; quota recovery
+alone does not re-activate it. Its model is absent from `opencode.json` and from every lane.
 
 ### Qualified CLI compatibility
 
-The qualified Foundry CLI remains OpenCode `1.18.30`. Direct verification of the live `opencode-go`
-catalog on 2026-09-29 lists `deepseek-v4.1-flash` exactly, and an authenticated bounded smoke under
-the exact launcher-injected bundle resolved `providerID=opencode-go modelID=deepseek-v4.1-flash`
-with the `foundry-implementer` agent and exit 0.
+The qualified Foundry CLI remains OpenCode `1.18.30`. The 2026-09-29 DeepSeek smoke
+(`providerID=opencode-go modelID=deepseek-v4.1-flash`, `foundry-implementer`, exit 0) is
+historical provenance for the suspended profile. Requalification is required if the CLI pin,
+catalog contract, provider protocol, or Space Bunny reasoning contract changes.
 
-If the catalog/model/auth path is unavailable, the selected DeepSeek run fails closed; it must
-never fall back silently to Space Bunny. Requalification is required if the CLI pin, catalog
-contract, provider protocol, or DeepSeek reasoning contract changes.
-
-## Space Bunny Max secondary profile
-
-Space Bunny MAX is the explicit secondary executor:
-
-```text
---execution-profile space-bunny --effort high
-```
+### Space Bunny runtime evidence
 
 The authorized Space Bunny identity is `opencode-go/space-bunny` with main model, small model
 and reachable agents at native `max`. After the catalog-ID rebind landed in PR #576, a fresh
@@ -57,26 +53,27 @@ immutable receipt is `.foundry/space-bunny-rebind-runtime-activation-20261006.js
 
 The 2026-09-29 authenticated smoke resolved the then-current
 `opencode-go/space-bunny-free` identity. That receipt remains historical provenance only and is
-not activation evidence for the rebound model ID. Use Space Bunny for bounded, mechanical,
-token-heavy, bulk and background work, or where a workstream contract explicitly selects it.
-There is no silent fallback between DeepSeek MAX and Space Bunny MAX in either direction.
+not activation evidence for the rebound model ID. The 2026-10-06 smoke ran the `/bunny` lane
+(`bunny-verifier`); the `/oc` lane (`foundry-implementer`) runs the same pinned model since
+2026-10-10, and its first authenticated run after this change is its own runtime observation.
 
 ## Non-authorized executors
 
-The current OpenCode authority contains exactly two execution profiles: `deepseek` and
-`space-bunny`, both at native `max`. Any other profile or provider override is rejected.
+The registry holds exactly two execution profiles, `space-bunny` (ACTIVE) and `deepseek`
+(SUSPENDED), both at native `max`. Only the ACTIVE one resolves; any other profile or provider
+override is rejected.
 
 Historical receipts that name earlier executor experiments remain valid provenance of their
 own runs. They do not authorize future routing changes, are not migration targets, and must
 not by themselves trigger a new governance/routing issue. Expanding or replacing the active
-two-profile allowlist requires a new direct user instruction.
+allowlist, including re-activating DeepSeek, requires a new direct user instruction.
 
 ## Effort resolution
 
-`--execution-profile deepseek --effort high` and `--execution-profile space-bunny --effort high`
-are the active pairs; `--effort xhigh` is also accepted and describes task/authority routing only.
-Omission selects DeepSeek MAX. `--effort` must be `high` or `xhigh`; below-`high` values are
-rejected. The project effort field never lowers either executor's native `max` level and never
+`--execution-profile space-bunny --effort high` is the active pair; `--effort xhigh` is also
+accepted and describes task/authority routing only. Omission selects Space Bunny MAX. `--effort`
+must be `high` or `xhigh`; below-`high` values are rejected. The project effort field never
+lowers the executor's native `max` level and never
 opens a second native variant. Direct OpenCode root configuration already pins the native variants.
 Use explicit session IDs or a fresh TUI `/work`; blind continuation is refused.
 
