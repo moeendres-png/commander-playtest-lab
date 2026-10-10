@@ -1,0 +1,100 @@
+{
+  "schema_version": "engine-strategy-source-lock/1.0.0",
+  "workstream": 665,
+  "observed_at": "2026-10-09T20:08:14Z",
+  "executor": "Codex",
+  "authority": "Latest direct Owner campaign request; AGENTS.md; existing Owner receipts preserved",
+  "lab": {
+    "branch": "main",
+    "commit": "9bd7cbad30d65f379cedfbaa63dedf81c2fd9061",
+    "tree": "89e33bf342b111fadd79047d49278e32cb11484b"
+  },
+  "mage": {
+    "branch": "master",
+    "commit": "10a739229aa470a42720a5f57082ac61f1486fc6",
+    "tree": "2e8ffffb3846046f4849078c309fd7278f98e767",
+    "pin": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+    "pin_tree": "1ff64c794b1f992a8596c0b1b9952055520ccd10"
+  },
+  "forge": {
+    "branch": "master",
+    "commit": "5f95bd4651e5f692c95e637bd739615b77acfe94",
+    "tree": "02f41d016d71047427532cfe42f823676cec0f00",
+    "core_pin": "bb0a740d2bef725194798383c2452213ecdd0b37",
+    "core_tree": "4989b5bb35b8279e82f79c1ca99dc698d63d093a",
+    "bridge_pin": "31cbae12640e6066499aa7f17c9bf2dba6a30da6",
+    "bridge_tree": "b5c19c19de37ca7976059e1a9fd6295a30534c06"
+  },
+  "manifest_provider_decision": "NO_PROVIDER_READY",
+  "sealed_epoch": "c124150d77ab-d303b2ca5f32",
+  "contract": "1.0.31",
+  "production_lane": "Main full-game",
+  "code_derived_fullgame_missing_capabilities": [
+    "legal_actions_supported",
+    "action_submission_supported",
+    "event_log_supported",
+    "replay_supported",
+    "game_shutdown_supported"
+  ],
+  "freeze": "NOT_CLAIMED",
+  "production_repository": "NOT_CREATED",
+  "owner_decision_receipts": [
+    6080484727,
+    6084402560
+  ],
+  "open_issues_at_start": [
+    255,
+    441,
+    634,
+    654,
+    662
+  ],
+  "open_prs_at_start": [],
+  "active_ownership": {
+    "Claude": [
+      "#662 A1 Java decision matrix/cancellation",
+      "#662 A2 Java event/shutdown/replay",
+      "#662 B production-lane qualification/capability derivation/freeze-record",
+      "#634 remaining probe helpers"
+    ],
+    "Codex": [
+      "#665 strategy supplement and Python diagnostic boundary with focused CI coverage"
+    ],
+    "OpenCode": [
+      "#662 A1/A2/B dispatched by Claude; delivery pending"
+    ]
+  },
+  "evidence_semantics": "Static capabilities are CODE_DERIVED; old sealed gate verdicts remain epoch/lane bounded. No fresh qualification or Freeze eligibility credit.",
+  "alternative_phase": {
+    "commit": "1477564533eef445a21294e3e5bb235e6ee05a68",
+    "tree": "cca9f323581c22488f72eac476e079bea7c3e51c",
+    "classification": "External source screen; no Lab qualification"
+  },
+  "recovery": {
+    "authority": "Direct Owner transfer of interrupted #665 to Codex Work; no new branch or PR",
+    "branch": "codex/engine-strategy-reassessment-20261009",
+    "pull_request": 666,
+    "recovered_head": "2889f59325edc21168c0ec6182ca00d6a091a08a",
+    "recovered_tree": "8ef323890af6b4b5aee5487cac1541faa52c814e",
+    "prior_pr_merge_candidate": "b7970b7306a4d71e916421952ed04043aa23c75c",
+    "prior_pr_merge_candidate_tree": "8ef323890af6b4b5aee5487cac1541faa52c814e",
+    "unchanged_input_sha256": {
+      "config/rules_engines.json": "1eea3b67946fd93e951af96d9f868268bc6c2616640f590bfd71ce127ad323dd",
+      "qualification/CURRENT_PRE_FREEZE_CONTRACT.json": "116cc693ff36cedeacdbf014975f54307565f4cac6be3021273244fb3632828b",
+      "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json": "3eb742125a07cf3572d8256d685ac10e295df2c7a586055307dcd193a0af3849",
+      "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json": "c9048b0502b9b3b66c656a1512bd0541e46f67d9ad06d03d1c92185166ed248d"
+    },
+    "final_identity_receipt": "Existing GitHub #665/#666 comments; do not infer completion from this pre-integration snapshot",
+    "diagnostic_correlation_adjudication": {
+      "prior_head": "2d1bc6cb9e6a5c928b505fa257894a10045ef80d",
+      "prior_tree": "d74fe23e34a44f4a10699c3c9a0083991d830c3e",
+      "finding": "CODE_DERIVED P2: offline private diagnostic dictionary disclosure",
+      "boundary": "failure_privacy.diagnostics_digest; full-game and replay consumers",
+      "correlation": "process-local memory-only HMAC-SHA-256; legacy marker/16-hex width",
+      "rules_rng_impact": "NONE: cryptographic privacy entropy only",
+      "coordinator_takeover_authority": "Direct Owner exception after cancelled clean-rescue OC attempt38012145472 and single retry38012697112; issue665 comment6092333180",
+      "native_review_certificate": "NOT_CLAIMED; separate issue654 BLOCKED_SERVICE",
+      "final_source_receipts": "Inspect subsequent issue665/PR666 comments for exact published identity, review and hosted results"
+    }
+  }
+}
