@@ -562,8 +562,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * the engine activated (see {@link #xAnnouncedAbility}), not the
      * pre-activation copy the bridge holds. Any activation failure without
      * this evidence still fails closed with XMAGE_ACTION_EXECUTION_FAILED.
+     *
+     * <p>Package-visible for the #703 boundary test, which drives this
+     * predicate with real engine objects rather than asserting the flag
+     * through a synthetic failure.
      */
-    private boolean reversedRequiredXTarget(Game game) {
+    boolean reversedRequiredXTarget(Game game) {
         Ability announced = xAnnouncedAbility;
         if (announced == null || game == null || targetChoiceRequested) {
             return false;
