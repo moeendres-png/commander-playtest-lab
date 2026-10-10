@@ -422,6 +422,8 @@ class _ResolvingClient:
 def _priority_decision(stack: list[str] | None) -> dict[str, Any]:
     decision: dict[str, Any] = {
         "decision_class": "priority",
+        "decision_id": "d",
+        "seat": 0,
         "legal_options": [{"option_type": "pass_priority", "option_id": "pass"}],
     }
     if stack is not None:
@@ -434,8 +436,11 @@ def test_resolving_the_stack_only_passes_priority_until_it_is_empty() -> None:
     client = _ResolvingClient(
         [_priority_decision(["aura"]), _priority_decision(["aura"]), _priority_decision([])]
     )
-    probe.resolve_stack(client, "t")
+    authority = probe.PassAuthority({"decision_script": []})
+    probe.resolve_stack(client, "t", authority)
     assert client.submitted == [["pass"], ["pass"]]
+    # A pass-only frame leaves no choice; each pass is still traced (#634 B2).
+    assert [entry["scope"] for entry in authority.trace] == ["single_option", "single_option"]
     # Any other decision, a frame without a stack, or the engine going
     # terminal fails closed instead of being answered.
     for decisions in (
@@ -444,7 +449,9 @@ def test_resolving_the_stack_only_passes_priority_until_it_is_empty() -> None:
         [None],
     ):
         with pytest.raises(probe.ml.MidgameLaneError):
-            probe.resolve_stack(_ResolvingClient(decisions), "t")
+            probe.resolve_stack(
+                _ResolvingClient(decisions), "t", probe.PassAuthority({"decision_script": []})
+            )
 
 
 def test_the_victims_own_cards_are_never_elimination_instruments() -> None:
