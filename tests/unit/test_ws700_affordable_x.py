@@ -12,11 +12,13 @@ visible mana and the announced cost, and the pilot strategy picks inside
 [min, min(max, affordable_max)]. Membership is still validated against the
 authoritative domain, which is never clamped, narrowed or rewritten here.
 
-Limitation, stated rather than papered over: the pinned bridge sends neither
-the non-X mana value nor the X count on an ``announce_x`` frame, so real
-engine traffic keeps the pre-existing whole-domain behaviour. The Lab reads
-those two facts when the Core supplies them and never invents a cost; the
-controls below pin that silence explicitly.
+Where the cost comes from: the pinned bridge sends neither the non-X mana
+value nor the X count on an ``announce_x`` frame, so the Lab takes the non-X
+value off the priority option that started the same cast or activation, where
+the bridge's own ``enrichAbilityCostFacts`` summary already reported it, and
+takes the X count from the engine's own prompt. Which prompts are a mana X at
+all, and the count, both come from that same prompt; the Lab never invents a
+cost. The controls below pin the unreadable and non-mana cases explicitly.
 """
 
 from __future__ import annotations
@@ -357,6 +359,8 @@ SHELOB_COST_FACTS: dict[str, int] = {
     "mana_cost_colorless": 0,
 }
 
+ZERO_COST_FACTS: dict[str, int] = {key: 0 for key in SHELOB_COST_FACTS}
+
 
 def _activated_ability_x() -> int:
     """Seat 2 announces the X of the {X}{1}{B} ability it just activated.
@@ -508,24 +512,64 @@ def test_unreadable_priority_cost_never_becomes_a_number() -> None:
     assert choice == 5
 
 
-def test_multi_symbol_x_is_budgeted_as_a_single_symbol() -> None:
-    # {X}{X} with nothing else costs nothing but its own X symbols, so five
-    # untapped sources still leaves X <= 5. The bridge publishes no X count,
-    # so the assumed count of one is what the Lab can honestly budget.
+def test_x_symbol_count_comes_from_the_engine_prompt() -> None:
+    # {X}{X}{1}{B}: XMage's VariableManaCost.getText() prints each symbol on
+    # its own, so the engine prompt is "Announce the value for {X}{X}" and
+    # holds the count the bridge never publishes. Five untapped sources less
+    # the {1}{B} leaves 3 mana to share between the two symbols: X <= 1.
     policy = _policy()
-    facts = dict(SHELOB_COST_FACTS)
-    facts["mana_cost_generic"] = 0
-    facts["mana_cost_black"] = 0
-    policy.decide(_priority_request(source_id="obj-twox", mana_cost=facts))
+    policy.decide(_priority_request(source_id="obj-twox", mana_cost=SHELOB_COST_FACTS))
     choice = _announced(
         policy,
         _announce_x_request(
             context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
             source_object={"source_object_id": "obj-twox"},
-            prompt="Announce the value for 2{X}",
+            prompt="Announce the value for {X}{X}",
         ),
     )
-    assert choice == 5
+    assert choice == 1
+
+
+def test_every_x_symbol_of_a_wider_cost_shares_the_same_budget() -> None:
+    # Three symbols on a cost with nothing else in it: five untapped sources
+    # over three symbols is X <= 1, and the prompt is what says three.
+    policy = _policy()
+    policy.decide(_priority_request(source_id="obj-threex", mana_cost=ZERO_COST_FACTS))
+    choice = _announced(
+        policy,
+        _announce_x_request(
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+            source_object={"source_object_id": "obj-threex"},
+            prompt="Announce the value for {X}{X}{X}",
+        ),
+    )
+    assert choice == 1
+
+
+def test_the_remembered_cost_is_consumed_by_the_announce_that_used_it() -> None:
+    # One cost is announced once. The remembered value is taken, not copied,
+    # so a second announce_x for the same source before the next priority
+    # decision of that seat cannot answer from the same cost again: it falls
+    # back to the visible budget, 5 instead of 3.
+    policy = _policy()
+    policy.decide(_priority_request(source_id="obj-shelob", mana_cost=SHELOB_COST_FACTS))
+    first = _announced(
+        policy,
+        _announce_x_request(
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+            source_object={"source_object_id": "obj-shelob"},
+        ),
+    )
+    assert first == 3
+    second = _announced(
+        policy,
+        _announce_x_request(
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+            source_object={"source_object_id": "obj-shelob"},
+            offset=3,
+        ),
+    )
+    assert second == 5
 
 
 def test_a_cost_stated_on_the_announce_frame_wins_over_the_memory() -> None:
@@ -603,12 +647,15 @@ def test_unreadable_cost_falls_back_to_the_budget_alone(context: dict[str, Any])
 
 
 def test_budget_fallback_is_not_a_mana_budget_for_a_non_mana_x() -> None:
-    # Player.announceX also serves the engine's non-mana announceXCost, where
-    # the prompt prints no mana symbol. A power/toughness or counter X is not
-    # paid in mana, so the pool must not bound it.
+    # Player.announceX also serves the engine's non-mana VariableCostImpl
+    # prompt, which prints its own "{X}" and then the action's own text:
+    # "Announce the value for {X} (remove X counters)". A power/toughness or
+    # counter X is not paid in mana, so the pool must not bound it. Only the
+    # engine's whole mana prompt, the prefix plus nothing but "{X}" symbols,
+    # is a mana X.
     response = _policy().decide(
         _announce_x_request(
-            prompt="Announce the value for X",
+            prompt="Announce the value for {X} (remove X counters)",
             context={
                 "numeric_min": 0,
                 "numeric_max": INT_MAX,
@@ -617,6 +664,23 @@ def test_budget_fallback_is_not_a_mana_budget_for_a_non_mana_x() -> None:
         )
     )
     assert response["numeric_choice"] == INT_MAX
+
+
+def test_a_non_mana_x_is_not_budgeted_even_with_a_remembered_mana_cost() -> None:
+    # The same source id and the same remembered cost, but the engine is now
+    # asking for a counter, not mana. The cost is not consumed as mana either:
+    # only a mana announcement is a use of it.
+    policy = _policy()
+    policy.decide(_priority_request(source_id="obj-shelob", mana_cost=SHELOB_COST_FACTS))
+    choice = _announced(
+        policy,
+        _announce_x_request(
+            prompt="Announce the value for {X} (remove X counters)",
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+            source_object={"source_object_id": "obj-shelob"},
+        ),
+    )
+    assert choice == INT_MAX
 
 
 def test_untapped_lands_without_readable_mana_ability_text_do_not_raise_the_budget() -> None:
