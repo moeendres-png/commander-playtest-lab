@@ -1620,8 +1620,14 @@ def render_markdown(packet: dict[str, Any]) -> str:
     lines.append(packet["authority"])
     lines.append("")
     lines.append(
+        "This packet's own non-claims, as of its sealed epoch: "
         "`PRODUCTION_PROVIDER = NOT_SELECTED` | `ARCHITECTURE_FREEZE = NOT_CLAIMED` | "
         "`PRODUCTION_REPOSITORY = NOT_CREATED`"
+    )
+    lines.append("")
+    lines.append(
+        "Current project state: `config/rules_engines.json` → `architecture_freeze` "
+        "(the Architecture Freeze was claimed on 2026-10-10 by the Owner's signature)."
     )
     lines.append("")
     lines.append("## Source lock")

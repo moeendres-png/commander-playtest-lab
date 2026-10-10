@@ -427,7 +427,7 @@ def test_freeze_basis_epoch_f881d56f_is_eligible_and_matches_the_final_adr_recor
     assert "- [x] `ARCHITECTURE_FREEZE = CLAIMED`, signed by the Owner, date: 2026-10-10" in adr
     freeze = config["architecture_freeze"]
     assert freeze["status"] == "CLAIMED" and freeze["date"] == "2026-10-10"
-    assert freeze["rules_core"] == freeze["production_provider"] == "xmage"
+    assert freeze["rules_core"] == freeze["selected_provider"] == "xmage"
     assert freeze["engine_commit"] == config["primary_engine"]["commit"]
     assert (
         freeze["engine_artifact_sha256"] == result.record["source_lock"]["build"]["artifact_sha256"]

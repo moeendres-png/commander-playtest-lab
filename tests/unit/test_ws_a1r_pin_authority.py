@@ -18,9 +18,15 @@ def test_manifest_declares_sole_pin_authority(repo_root: Path) -> None:
     assert "primary_engine.commit" in note["pin_authority"]
     assert "secondary_engine.commit" in note["pin_authority"]
     terminology = note["role_terminology"]
-    assert "NOT a Production Provider" in terminology["primary_engine"]
-    assert "NOT SELECTED" in terminology["selection_truth"]
+    # After the Freeze (2026-10-10): XMage is selected at the architecture level, the
+    # launched runtime is not a production-ready provider until the D5 switch.
+    assert "NOT yet a production-ready Production Provider runtime" in terminology["primary_engine"]
+    assert "ARCHITECTURE_FREEZE = CLAIMED" in terminology["selection_truth"]
+    assert "NOT SELECTED as a production runtime" in terminology["selection_truth"]
     assert "NO_PROVIDER_READY" in terminology["selection_truth"]
+    manifest = _manifest(repo_root)
+    assert manifest["architecture_freeze"]["status"] == "CLAIMED"
+    assert manifest["provider_decision"] == "NO_PROVIDER_READY"
 
 
 def test_manifest_pins_unchanged_by_authority_repair(repo_root: Path) -> None:

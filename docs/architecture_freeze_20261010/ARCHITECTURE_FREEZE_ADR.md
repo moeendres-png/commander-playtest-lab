@@ -48,9 +48,10 @@ Forge stays a reference column only.
 
 ## 2. PRODUCTION_PROVIDER
 
-**XMage** (D1; equal to RULES_CORE). It takes effect with the Owner's signature. Until
-then `config/rules_engines.json` keeps `production_provider: null` and
-`provider_selected: false`.
+**XMage** (D1; equal to RULES_CORE), selected at the architecture level with the
+Owner's signature (`config/rules_engines.json` → `architecture_freeze.selected_provider`).
+The runtime fields `current_runtime.production_provider: null` and
+`provider_selected: false` describe the launched runtime and stay until D5.
 
 The application still launches the B4-D compatibility bridge
 (`production_bridge: b4d_event_log_lifecycle_bridge`). The compatibility-lane AF01 of
@@ -308,7 +309,7 @@ The Freeze is claimed only by the Owner's signature below.
 
 Recorded by the Coordinator:
 1. The Freeze is recorded in `config/rules_engines.json` → `architecture_freeze`
-   (status, date, ADR, rules core and production provider XMage).
+   (status, date, ADR, rules core and `selected_provider` XMage).
    `provider_decision = NO_PROVIDER_READY` and `current_runtime` are unchanged until D5.
 2. D5 is next: switch the application runtime to the full-game lane. Its gate is
    `engine-verify` healthy, the derived runtime missing list empty, and H4 green. Only

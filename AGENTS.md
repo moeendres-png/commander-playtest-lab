@@ -38,7 +38,8 @@ The application runtime still launches the B4-D compatibility bridge, so
 full-game lane (Owner decision D5). The Freeze binds the Owner decisions in
 `docs/architecture_freeze_20261010/OWNER_DECISIONS_20261010.md`. That includes D17, which
 is accepted only as a bounded limitation: pilots run out of process, and no foreign code
-runs in the engine JVM.
+runs in the engine JVM. Stronger isolation is a post-Freeze gate that must hold before any
+untrusted pilot is admitted.
 
 Do not create the Production Repository: that stays Owner-only. Do not change the Rules
 Core or the pin without a new Owner decision and re-qualification.
