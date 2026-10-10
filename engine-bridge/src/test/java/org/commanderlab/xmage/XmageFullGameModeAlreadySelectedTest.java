@@ -3,6 +3,8 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import mage.abilities.Ability;
+import mage.abilities.Mode;
 import mage.abilities.Modes;
 import mage.constants.Zone;
 import mage.game.Game;
@@ -56,6 +58,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * &lt;4&gt;"). The other two are controls that must stay green across the fix:
  * they prove the CR 700.2 exception still re-offers a mode, and that the
  * corrected frame still resolves the spell on the mode the pilot chose.</p>
+ *
+ * <p>The class also pins the CR 700.2a half of the rule on
+ * {@link #collectiveBrutalityStopsChoosingWhenOnlyTheUntargetableModeIsLeft()}:
+ * once the minimum is met and no remaining mode has a legal target, no frame may
+ * be asked at all. That test is red on the 1bdc099e bridge head, which kept every
+ * remaining mode listed in exactly that state while {@code noViableMode} stayed
+ * false (the doomed-cast rewind is a {@code min > 0} case).</p>
  */
 class XmageFullGameModeAlreadySelectedTest {
 
@@ -66,6 +75,13 @@ class XmageFullGameModeAlreadySelectedTest {
 
     /** "You may choose the same mode more than once" (paw prints). */
     private static final String SEASON_OF_THE_BOLD = "Season of the Bold";
+
+    /**
+     * Collective Brutality ({1}{B}, "Choose one or more", min 1 max 3). Its second
+     * mode targets a creature permanent, so with no creature in play it is the one
+     * mode the rules forbid choosing (CR 700.2a).
+     */
+    private static final String COLLECTIVE_BRUTALITY = "Collective Brutality";
 
     private record Started(XmageFullGameSession session, Map<String, Player> seats) {
         Game game() {
@@ -358,6 +374,123 @@ class XmageFullGameModeAlreadySelectedTest {
     }
 
     // ---------------------------------------------------------------- helpers
+
+    // ------------------- Collective Brutality: nothing choosable, minimum met
+
+    /**
+     * Red control for CR 700.2a on a real registered card: Collective Brutality
+     * ("Choose one or more", min 1, max 3) with no creature in play. Its creature
+     * mode cannot be chosen at all, so the two opponent modes are the only legal
+     * ones. After the pilot has taken both -- minimum met -- nothing is left to
+     * choose and no further frame may ask for the untargetable mode.
+     *
+     * <p>Observed red on 1bdc099e (the PR #711 head): the bridge kept every
+     * remaining mode listed while the minimum was already met, so a third
+     * {@code mode} frame offered the single untargetable mode ("Target creature
+     * gets -2/-2"), {@code noViableMode} stayed false because {@code min} is 0, and
+     * taking it failed the cast. Here the third decision is the spell's
+     * {@code target} frame and the spell resolves on the two chosen modes.</p>
+     */
+    @Test
+    void collectiveBrutalityStopsChoosingWhenOnlyTheUntargetableModeIsLeft() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(obj("P1", COLLECTIVE_BRUTALITY, 0, Zone.HAND));
+        for (int i = 0; i < 6; i++) {
+            objects.add(obj("P1", "Swamp", i, Zone.BATTLEFIELD));
+        }
+        Started s = start("mode709-brutality", objects);
+        assertEquals(0, creaturesInPlay(s),
+                "the scenario must have no creature in play, or the creature mode is choosable");
+
+        take(s, "activate_ability", "Cast " + COLLECTIVE_BRUTALITY);
+        payWith(s, "Swamp");
+
+        assertEquals("mode", decisionClass(s), "the caster chooses the modes");
+        Modes modes = modesOnStack(s);
+        assertEquals(3, modes.size(), "Collective Brutality is a three-mode spell at the pin");
+        assertEquals(1, modes.getMinModes(), "\"choose one or more\": at least one mode");
+        assertEquals(3, modes.getMaxModes(s.game(), null), "at most all three modes");
+        String untargetable = untargetableModeId(s);
+
+        // First frame: the two opponent modes only (CR 700.2a).
+        List<String> firstFrame = offeredModeIds(s);
+        assertEquals(2, firstFrame.size(), "only the two modes with a legal target are offered");
+        assertFalse(firstFrame.contains(untargetable),
+                "the creature mode has no legal target and must not be offered");
+        chooseMode(s, 0);
+
+        // Second frame: the taken mode is gone, and only one choosable mode is left.
+        assertEquals("mode", decisionClass(s));
+        List<String> secondFrame = offeredModeIds(s);
+        assertEquals(1, secondFrame.size(), "only the remaining choosable mode is offered");
+        assertFalse(secondFrame.contains(untargetable),
+                "the creature mode has no legal target and must not be offered");
+        chooseMode(s, 0);
+
+        // The minimum is met and the only remaining mode is untargetable: the choice
+        // is over, exactly as HumanPlayer.chooseMode (b479fe74 :2560-2564) ends it.
+        assertEquals("target", decisionClass(s),
+                "no third mode frame may offer the untargetable mode; the cast continues "
+                        + "with the two chosen modes");
+        assertEquals(2, modesOnStack(s).getSelectedModes().size(),
+                "the spell is left with exactly the two modes the pilot chose");
+
+        finishStack(s);
+        assertEquals(0, s.game().getStack().size(),
+                "Collective Brutality resolved on the chosen modes instead of aborting");
+        assertEquals(38, s.p("P2").getLife(),
+                "the chosen life-loss mode resolved: the targeted opponent lost 2");
+        assertEquals(42, s.p("P1").getLife(),
+                "the chosen life-loss mode resolved: the controller gained 2");
+    }
+
+    /** The one Collective Brutality mode whose targets cannot be chosen here. */
+    private static String untargetableModeId(Started s) {
+        Spell spell = (Spell) s.game().getStack().getFirst();
+        Ability source = spell.getSpellAbility();
+        List<String> ids = new ArrayList<>();
+        for (Mode mode : source.getModes().values()) {
+            if (!mode.getTargets().canChoose(s.p("P1").getId(), source, s.game())) {
+                ids.add(mode.getId().toString());
+            }
+        }
+        assertEquals(1, ids.size(), "exactly one Collective Brutality mode is unchoosable");
+        return ids.get(0);
+    }
+
+    private static int creaturesInPlay(Started s) {
+        int count = 0;
+        for (Permanent permanent : s.game().getBattlefield().getAllPermanents()) {
+            if (permanent.isCreature()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /** Answers whatever is asked until the stack is empty, refusing any mode frame. */
+    private static void finishStack(Started s) {
+        for (int i = 0; i < 30 && s.game().getStack().size() > 0; i++) {
+            String pending = decisionClass(s);
+            if ("priority".equals(pending)) {
+                take(s, "pass_priority", "Pass");
+            } else if ("mana_payment".equals(pending)) {
+                payWith(s, "Swamp");
+            } else if ("mode".equals(pending)) {
+                throw new AssertionError("no further mode frame may be asked: " + labels(s));
+            } else {
+                takeFirst(s);
+            }
+        }
+    }
+
+    private static void takeFirst(Started s) {
+        JsonArray actions = s.session().legalActionsPayload().getAsJsonArray("actions");
+        assertFalse(actions.isEmpty(),
+                "every pending decision must offer at least one engine option");
+        XmageFullGameTaxExecutionTest.submit(s.session(), "mode709-" + (step++),
+                actions.get(0).getAsJsonObject());
+    }
 
     private static int bearsOnBattlefield(Started s, String pid) {
         int count = 0;

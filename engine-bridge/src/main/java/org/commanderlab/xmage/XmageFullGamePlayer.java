@@ -1087,6 +1087,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (available.isEmpty()) {
             return null;
         }
+        int min = modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
         JsonArray options = new JsonArray();
         Map<String, Mode> byId = new LinkedHashMap<>();
         Map<Mode, Boolean> targetsAvailableByMode = new LinkedHashMap<>();
@@ -1094,12 +1095,40 @@ final class XmageFullGamePlayer extends PlayerImpl {
             targetsAvailableByMode.put(mode, modeTargetsAvailable(mode, source, game));
         }
         boolean anyModeTargetsAvailable = targetsAvailableByMode.containsValue(true);
+        if (!anyModeTargetsAvailable) {
+            if (min > 0) {
+                // No mode has choosable required targets: the cast is doomed
+                // whatever the pilot picks (601.2 rewind shape). Keep every remaining
+                // mode listed so the pilot still answers, and mark it so the answer
+                // fails the cast (F-35).
+                noViableMode = true;
+            } else {
+                // The minimum is already met and nothing is left to choose, so the
+                // choice is over. HumanPlayer.chooseMode (b479fe74 :2560-2564) ends it
+                // the same way: with no choosable mode left it returns null outright
+                // when the card may not choose none, and when the card may choose
+                // none the dialog it shows holds no mode entries at all -- only "Done"
+                // and "Cancel" (:2572-2575) -- so it cannot select a mode either. Both
+                // ways the choice ends with no mode added, so the bridge returns null
+                // rather than ask a question with no legal answer.
+                //
+                // Offering the remaining untargetable modes here is what made a
+                // "choose one or more" spell re-offer a mode with no legal target
+                // once the minimum was met: Collective Brutality with no creature in
+                // play reached a third frame whose only mode was "Target creature gets
+                // -2/-2". Nothing marked that cast doomed (min is 0, so noViableMode
+                // stayed false), the pilot picked it, and the pick failed the cast
+                // (F-35). Return null so the spell resolves on the modes actually
+                // chosen, exactly as XMage's own player does.
+                return null;
+            }
+        }
         for (Mode mode : available) {
             boolean targetsAvailable = targetsAvailableByMode.get(mode);
             // CR 700.2a/b: a mode that would be illegal (no legal targets) can't be
             // chosen. Offering it made the pilot's choice fail the cast and abort the
-            // game (F-35). Only when no mode is choosable do all modes stay listed, for
-            // the no-viable-mode rewind below.
+            // game (F-35). Only when no mode is choosable and one is still mandatory
+            // do all modes stay listed, for the doomed-cast rewind above.
             if (anyModeTargetsAvailable && !targetsAvailable) {
                 continue;
             }
@@ -1115,12 +1144,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     metadata
             ));
             byId.put(optionId, mode);
-        }
-        int min = modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
-        if (min > 0 && !available.isEmpty() && !anyModeTargetsAvailable) {
-            // No mode has choosable required targets: the cast is doomed
-            // whatever the pilot picks (601.2 rewind shape).
-            noViableMode = true;
         }
         XmageFullGameDecisionController.DecisionResponse response;
         try {

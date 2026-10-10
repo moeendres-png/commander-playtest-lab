@@ -697,12 +697,23 @@ class XmageFullGameDecisionClassMatrixTest {
                     available.removeIf(mode -> alreadySelected.contains(mode.getId()));
                 }
                 // CR 700.2a: a mode whose required targets cannot be chosen cannot be chosen,
-                // unless no mode can (then the cast rewinds, and all stay listed).
+                // unless no mode can *and* one is still mandatory (then the cast rewinds, and
+                // all stay listed). Once the minimum is already met and nothing is choosable
+                // the choice is over: HumanPlayer.chooseMode (b479fe74 :2560-2564) returns
+                // null there, so the bridge asks nothing and no option is offered.
                 List<mage.abilities.Mode> choosable = available.stream()
                         .filter(mode -> mode.getTargets().canChoose(actor.getId(), source, game))
                         .toList();
-                (choosable.isEmpty() ? available : choosable)
-                        .forEach(mode -> expected.add(mode.getId().toString()));
+                int min = modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
+                if (choosable.isEmpty() && min == 0) {
+                    // No frame at all: HumanPlayer.chooseMode returns null there, so the
+                    // bridge asks nothing and no option is expected. Any frame that did
+                    // reach here would project options against an empty expected set.
+                    expected.add("<no mode frame is offered>");
+                } else {
+                    (choosable.isEmpty() ? available : choosable)
+                            .forEach(mode -> expected.add(mode.getId().toString()));
+                }
                 actions(frame).forEach(action -> projected.add(optionId(action)));
             }
             case "announce_x", "amount" -> {
