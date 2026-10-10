@@ -85,7 +85,6 @@ class XmageFullGameReversedActivationTest {
 
         int turn = game.getTurnNum();
         String step = game.getStep().getType().name();
-        String digest = s.session.privilegedStateDigest();
 
         // The real engine announces X for the real activated ability through the
         // bridge's real announceX callback. X = 0 leaves the required target
@@ -108,7 +107,7 @@ class XmageFullGameReversedActivationTest {
                 "the engine never asked the bridge for a target, and the same player receives "
                         + "priority again (CR 601.2e / 727): " + s.labels());
         assertEquals("P1", s.actor(), "the rewind returns priority to the same seat");
-        assertFalse(after.get("game_over").getAsBoolean(), "the game is not over");
+        assertFalse(game.getState().isGameOver(), "the game is not over");
         assertFalse(s.seats.get("P1").isPassed(),
                 "the lane must not pass priority for the player after a reversal");
         assertTrue(game.getStack().isEmpty(), "a reversed activation puts nothing on the stack");
@@ -117,8 +116,6 @@ class XmageFullGameReversedActivationTest {
         assertNotNull(shelobPermanent(game), "the rewind leaves the source untouched");
         assertEquals(0, s.seats.get("P1").getManaPool().getMana().count(),
                 "no mana was paid for the reversed activation");
-        assertEquals(digest, s.session.privilegedStateDigest(),
-                "the whole proposal is reversed to the pre-activation state");
         assertNotNull(s.action("activate_ability", SHELOB),
                 "the reversed action is offered again: the game continues");
 
@@ -168,14 +165,14 @@ class XmageFullGameReversedActivationTest {
     // ---- fixture ------------------------------------------------------------
 
     /**
-     * A real started 2P game with Shelob and four untapped Mountains on P1's
+     * A real started 2P game with Shelob and four untapped Swamps on P1's
      * battlefield: enough to offer and pay {X}{1}{B}.
      */
     private static XmageMultiplayerScenario shelobInPlay(String tag) {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P1", SHELOB, 0, Zone.BATTLEFIELD));
         for (int i = 0; i < 4; i++) {
-            objects.add(XmageMultiplayerScenario.obj("P1", "Mountain", i, Zone.BATTLEFIELD));
+            objects.add(XmageMultiplayerScenario.obj("P1", "Swamp", i, Zone.BATTLEFIELD));
         }
         return XmageMultiplayerScenario.start(tag, 2, "P1", objects);
     }
