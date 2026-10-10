@@ -6,10 +6,13 @@ invents a model identity and never falls back across executor families.
 Logical profiles
 ----------------
 
-- ``deepseek``: the default and primary implementation executor, always
-  ``opencode-go/deepseek-v4.1-flash`` at native ``max``.
-- ``space-bunny``: the explicit secondary, resolved only after live catalog
-  inspection of the pinned OpenCode CLI (``opencode models opencode-go``).
+- ``space-bunny``: the default and only ACTIVE executor (Owner directive
+  2026-10-10), resolved only after live catalog inspection of the pinned
+  OpenCode CLI (``opencode models opencode-go``).
+- ``deepseek``: ``opencode-go/deepseek-v4.1-flash`` at native ``max``; kept in
+  the registry with ``runtime_status: SUSPENDED`` (its OpenCode Go monthly
+  quota is exhausted). A suspended profile never resolves; only a new direct
+  Owner instruction flips it back to ACTIVE.
 
 Space Bunny runtime preference is deterministic:
 
@@ -41,6 +44,9 @@ CANONICAL_ALIAS_CLASS = "CANONICAL"
 LEGACY_ALIAS_CLASS = "LEGACY_ALIAS"
 ALIAS_CLASSES = (CANONICAL_ALIAS_CLASS, LEGACY_ALIAS_CLASS)
 NATIVE_VARIANT = "max"
+ACTIVE = "ACTIVE"
+SUSPENDED = "SUSPENDED"
+RUNTIME_STATUSES = (ACTIVE, SUSPENDED)
 CATALOG_COMMAND = ("opencode", "models", "opencode-go")
 CATALOG_TIMEOUT_SECONDS = 60
 OPENCODE_BIN_ENV = "FOUNDRY_OPENCODE_BIN"
@@ -66,6 +72,11 @@ class ProfileSpec:
     native_variant: str
     role: str
     admitted: tuple[AdmittedRuntime, ...]
+    runtime_status: str = ACTIVE
+
+    @property
+    def active(self) -> bool:
+        return self.runtime_status == ACTIVE
 
     @property
     def admitted_runtime_ids(self) -> tuple[str, ...]:
@@ -92,6 +103,19 @@ class ExecutorRegistry:
     @property
     def logical_profiles(self) -> tuple[str, ...]:
         return tuple(self.profiles)
+
+    @property
+    def active_profiles(self) -> tuple[str, ...]:
+        return tuple(name for name, spec in self.profiles.items() if spec.active)
+
+    @property
+    def active_runtime_ids(self) -> tuple[str, ...]:
+        """Admitted runtime ids of ACTIVE profiles only, in registry order."""
+        return tuple(
+            runtime_id
+            for runtime_id, item in self.runtime_identity.items()
+            if self.profiles[item.logical_profile].active
+        )
 
     def admitted_for(self, logical_profile: str) -> tuple[AdmittedRuntime, ...]:
         return self.profiles[logical_profile].admitted
@@ -172,9 +196,18 @@ def validate_registry(doc: dict, *, path: str = "<memory>") -> list[str]:
         return [*errors, "registry profiles must be a mapping"]
     if set(profiles) != {"deepseek", "space-bunny"}:
         errors.append(f"registry must expose exactly deepseek+space-bunny, got {sorted(profiles)}")
+    for name, spec in profiles.items():
+        status = spec.get("runtime_status") if isinstance(spec, dict) else None
+        if status not in RUNTIME_STATUSES:
+            errors.append(
+                f"profiles[{name!r}] runtime_status {status!r} not in {list(RUNTIME_STATUSES)}"
+            )
     default = str(doc.get("current_runtime_default", ""))
-    if default != "deepseek":
-        errors.append(f"registry default must remain deepseek, got {default!r}")
+    if default != "space-bunny":
+        errors.append(f"registry default must be space-bunny, got {default!r}")
+    bunny_spec = profiles.get("space-bunny")
+    if isinstance(bunny_spec, dict) and bunny_spec.get("runtime_status") != ACTIVE:
+        errors.append("the space-bunny default profile must be ACTIVE")
     identity = doc.get("runtime_identity")
     if not isinstance(identity, dict) or not identity:
         errors.append("registry runtime_identity must be a non-empty mapping")
@@ -277,6 +310,7 @@ def load_registry(path: str | Path = DEFAULT_REGISTRY_PATH) -> ExecutorRegistry:
             native_variant=str(spec["native_variant"]),
             role="PRIMARY" if name == doc["current_runtime_default"] else "SECONDARY",
             admitted=admitted,
+            runtime_status=str(spec["runtime_status"]),
         )
     return ExecutorRegistry(
         path=str(registry_path),
@@ -350,7 +384,8 @@ def resolve_executor(
 ) -> ResolvedExecutor:
     """Resolve one logical profile to its exact pinned runtime identity.
 
-    DeepSeek uses the pinned canonical identity; when a catalog is supplied its
+    A SUSPENDED profile is refused before anything else. DeepSeek (when ACTIVE)
+    uses the pinned canonical identity; when a catalog is supplied its
     presence is still verified. Space Bunny requires catalog inspection and
     selects the canonical id, else the admitted legacy alias, else fails closed.
     """
@@ -360,6 +395,11 @@ def resolve_executor(
             f"unknown execution profile {logical_profile!r} (known: {list(reg.logical_profiles)})"
         )
     spec = reg.profiles[logical_profile]
+    if not spec.active:
+        raise ExecutorResolutionError(
+            f"execution profile {logical_profile!r} is {spec.runtime_status} "
+            "(Owner directive 2026-10-10: Space Bunny MAX only); fail closed, no fallback"
+        )
     catalog_checked = False
     source = "not_inspected"
     listed: tuple[str, ...] | None = None
