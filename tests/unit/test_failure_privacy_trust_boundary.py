@@ -62,6 +62,46 @@ def test_mutated_exact_public_error_cannot_publish_a_spoofed_code() -> None:
     assert private not in "".join(traceback.format_exception(caught.value))
 
 
+@pytest.mark.parametrize("hook", ["get", "items", "key_equality"])
+def test_exact_public_error_metadata_cannot_execute_lookup_hooks(hook: str) -> None:
+    private = "PRIVATE_HAND_CANARY_METADATA"
+
+    class Metadata(dict):
+        def get(self, *_args: object, **_kwargs: object) -> object:
+            raise ValueError(private)
+
+        def items(self) -> object:
+            raise ValueError(private)
+
+    class Key:
+        def __hash__(self) -> int:
+            return hash("code")
+
+        def __eq__(self, other: object) -> bool:
+            raise ValueError(private)
+
+    error = FullGameProtocolError("engine failed", code="BRIDGE_TIMEOUT")
+    diagnostics = (private,)
+    if hook == "key_equality":
+        error.__dict__ = {Key(): private, "diagnostics": diagnostics}
+    else:
+        error.__dict__ = Metadata(code="BRIDGE_TIMEOUT", diagnostics=diagnostics)
+
+    @public_full_game_errors
+    def operation() -> None:
+        raise error
+
+    caught_error: BaseException | None = None
+    try:
+        operation()
+    except BaseException as caught:
+        caught_error = caught
+    assert type(caught_error) is FullGameProtocolError
+    assert private not in "".join(traceback.format_exception(caught_error))
+    assert caught_error.diagnostics == diagnostics
+    assert caught_error.code == (None if hook == "key_equality" else "BRIDGE_TIMEOUT")
+
+
 @pytest.mark.parametrize("formatter_error", [KeyboardInterrupt, SystemExit, BaseException])
 def test_formatter_base_exceptions_cannot_escape_redaction(
     formatter_error: type[BaseException],

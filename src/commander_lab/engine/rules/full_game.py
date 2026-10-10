@@ -117,14 +117,19 @@ def public_full_game_errors[**P, T](operation: Callable[P, T]) -> Callable[P, T]
             return operation(*args, **kwargs)
         except Exception as exc:
             if type(exc) is FullGameProtocolError:
-                raw_code = exc.__dict__.get("code")
+                # Even an exact public exception can carry a dict subclass or
+                # hostile keys. Never invoke its lookup/iteration/equality hooks.
+                metadata = {
+                    key: value for key, value in dict.items(exc.__dict__) if type(key) is str
+                }
+                raw_code = metadata.get("code")
                 code = raw_code if type(raw_code) is str or raw_code is None else "ENGINE_FAILURE"
                 # A pilot can attach private notes even to the exact public class.
                 # Rebuild the exception; never copy notes or traceback metadata.
                 raise FullGameProtocolError(
                     public_full_game_exception_message(exc, code=code),
                     code=code,
-                    diagnostics=exc.__dict__.get("diagnostics", ()),
+                    diagnostics=metadata.get("diagnostics", ()),
                 ) from None
             if issubclass(type(exc), FullGameConformanceError):
                 raise FullGameConformanceError(public_full_game_exception_message(exc)) from None

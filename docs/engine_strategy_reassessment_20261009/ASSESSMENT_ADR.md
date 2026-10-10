@@ -262,6 +262,10 @@ Implemented:
   retain their failure family; the actor-audit public reason is static. Genuine
   operation interrupts remain interrupts. Recovery controls discriminate the
   old candidate (10 FAIL / 2 PASS), then pass after repair.
+- Further independent review reproduced exact-exception dictionary lookup hooks.
+  Builtin item enumeration with exact string keys now preserves intended local
+  metadata without invoking subclass lookup or hostile-key equality. Three
+  discriminating controls fail on the prior candidate and pass after repair.
 - Fullgame/smoke push + scope filters include this dependency and new tests;
   their focused tests execute negative and legitimate privacy controls.
 

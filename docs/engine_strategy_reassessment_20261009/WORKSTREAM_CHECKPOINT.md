@@ -126,3 +126,39 @@ receipts and terminal handoff will be persisted in existing #665/#666. Subsequen
 technical status comments supersede this pre-integration checkpoint; inspect
 GitHub before resuming. New runs are required because privacy code changed;
 existing workflow concurrency cancels superseded same-branch runs automatically.
+
+## Second recovery: exact exception metadata hooks
+
+Fresh main remains 9bd7cbad/tree89e33bf3. The existing remote candidate was
+995ed8a29047d4c1810533a02a2e570e022ab83f/tree36cf15eb779606699c6cacc2e4c4409941879b49.
+PR #667 is Claude's #662 Batch B; its implementation remains read-only here.
+
+Fresh-context READ-ONLY Codex review of that candidate is FAIL: one additional
+P2 diagnostic bypass. An exact FullGameProtocolError can carry an assigned
+dictionary subclass or a hostile dictionary key. Calling its get() or comparing
+that key executes caller code outside the operation guard and exposes a raw
+private exception. Builtin dict.get alone does not close the hostile-key route.
+Three additive controls FAIL on that candidate. The repair iterates builtin
+dict.items and admits only exact primitive string keys into a plain metadata
+dictionary before lookup, preserving the code and process-local diagnostics.
+Repaired privacy/hidden-audit/smoke controls: 76 PASS. No rules, action, RNG,
+pins, contracts, qualification producer or foreign-owned source changes.
+
+Hosted evidence for the superseded generation: CI run37991043793 quality
+2875 PASS / 8 SKIP, wheel/packaging, security PASS; infrastructure and applicable
+PB03 run37991043848, fullgame run37991043821, real4P run37991043855 PASS.
+GitHub merge candidate 5417d758f0b7df4c6f6f9854e71c0921a3ae00c8 carries the
+same tree as the locked head. H4 run37991043743 failed at Docker Hub manifest
+retrieval with HTTP429 on both providers; subsequent runtime steps NOT_RUN.
+Only failed H4 jobs were retried, preserving pins and all gate assertions.
+These runs do not qualify the newly changed implementation.
+
+Trusted shadow run37991041087 inspects the locked base validator: all bounded
+invariants PASS; both the additive privacy module and the static hidden-audit
+message expectation require review. The independent reviewer confirms no
+substantive privacy assertion, required context or denominator weakening.
+GATE_DEFINITION_CHANGED_REVIEW_REQUIRED remains visible; no override.
+
+Final exact-source review and applicable hosted gates must complete on the new
+remote candidate, then normal integration and terminal receipts in #665/#666.
+No native Foundry certificate, provider release, Freeze or COMPLETE is claimed.
