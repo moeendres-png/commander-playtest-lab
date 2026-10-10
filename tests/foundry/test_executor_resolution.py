@@ -1,8 +1,8 @@
 """Wrong-reason / regression controls for two-profile executor resolution.
 
-Policy: DeepSeek is the default implementation executor; Space Bunny resolves
-only after live pinned-CLI catalog inspection (canonical first, admitted legacy
-alias second, otherwise fail closed). No cross-family substitute and no
+Policy: Space Bunny (OpenCode Zen ``opencode/space-bunny-free``) is the default
+and only active executor; it resolves only after live pinned-CLI catalog
+inspection, otherwise fail closed. DeepSeek is SUSPENDED. No cross-family substitute and no
 post-selection fallback exists.
 """
 
@@ -21,8 +21,10 @@ sys.path.insert(0, str(REPO_ROOT / "tools"))
 from foundry import executor_profiles as ep  # noqa: E402
 
 DEEPSEEK = "opencode-go/deepseek-v4.1-flash"
-BUNNY = "opencode-go/space-bunny"
-BUNNY_LEGACY = "opencode-go/space-bunny-free"
+BUNNY = "opencode/space-bunny-free"
+# Go ids share the exhausted Go monthly quota and are no longer admitted.
+BUNNY_GO = "opencode-go/space-bunny"
+BUNNY_GO_FREE = "opencode-go/space-bunny-free"
 
 
 def _registry() -> ep.ExecutorRegistry:
@@ -34,7 +36,7 @@ def test_space_bunny_is_default_and_deepseek_is_suspended() -> None:
     assert registry.default_profile == "space-bunny"
     assert registry.logical_profiles == ("space-bunny", "deepseek")
     assert registry.active_profiles == ("space-bunny",)
-    assert registry.active_runtime_ids == (BUNNY, BUNNY_LEGACY)
+    assert registry.active_runtime_ids == (BUNNY,)
     resolved = ep.resolve_executor("space-bunny", registry=registry, catalog=[DEEPSEEK, BUNNY])
     assert resolved.resolved_model_id == BUNNY
     assert resolved.model_alias_class == "CANONICAL"
@@ -71,23 +73,23 @@ def test_canonical_bunny_available_selects_canonical() -> None:
     assert resolved.catalog_checked is True
 
 
-def test_both_bunny_ids_present_selects_canonical_and_records_no_legacy() -> None:
+def test_zen_bunny_selected_even_when_go_ids_are_listed_first() -> None:
     resolved = ep.resolve_executor(
-        "space-bunny", registry=_registry(), catalog=[BUNNY_LEGACY, BUNNY]
+        "space-bunny", registry=_registry(), catalog=[BUNNY_GO, BUNNY_GO_FREE, BUNNY]
     )
     assert resolved.resolved_model_id == BUNNY
     assert resolved.model_alias_class == "CANONICAL"
-
-
-def test_only_legacy_bunny_present_selects_legacy_alias() -> None:
-    resolved = ep.resolve_executor(
-        "space-bunny", registry=_registry(), catalog=[DEEPSEEK, BUNNY_LEGACY]
-    )
-    assert resolved.resolved_model_id == BUNNY_LEGACY
-    assert resolved.model_alias_class == "LEGACY_ALIAS"
     assert resolved.logical_executor_profile == "space-bunny"
-    assert resolved.resolved_provider == "opencode-go"
+    assert resolved.resolved_provider == "opencode"
     assert resolved.native_variant == "max"
+
+
+def test_only_go_bunny_ids_present_fails_closed() -> None:
+    """The Go ids are not a fallback for the Zen id (shared exhausted quota)."""
+    with pytest.raises(ep.ExecutorResolutionError, match="no admitted space-bunny"):
+        ep.resolve_executor(
+            "space-bunny", registry=_registry(), catalog=[DEEPSEEK, BUNNY_GO, BUNNY_GO_FREE]
+        )
 
 
 def test_neither_bunny_id_present_fails_closed() -> None:
@@ -120,11 +122,12 @@ def test_catalog_parse_ignores_foreign_rows_and_malformed_lines() -> None:
         "longcat/longcat-flash\n"
         "\n"
         "AUTH_REQUIRED\n"
-        "opencode-go/space-bunny\n"
+        "opencode/space-bunny-free\n"
         "other/provider/model extra metadata\n"
-        "opencode-go/space-bunny-free\n"
+        "opencode-go/space-bunny\n"
+        "opencode/space-bunny-free\n"
     )
-    assert ep.parse_catalog_output(stdout) == (BUNNY, BUNNY_LEGACY)
+    assert ep.parse_catalog_output(stdout) == (BUNNY,)
 
 
 class _Completed:
@@ -142,9 +145,10 @@ def test_load_live_catalog_uses_the_pinned_models_mechanism() -> None:
         return _Completed(0, f"{DEEPSEEK}\n{BUNNY}\n")
 
     models, source = ep.load_live_catalog("pinned-opencode", runner=runner)
-    assert calls == [["pinned-opencode", "models", "opencode-go"]]
-    assert models == (DEEPSEEK, BUNNY)
-    assert source == "cli:opencode-go"
+    assert calls == [["pinned-opencode", "models", "opencode"]]
+    # Only Zen rows survive: the Go DeepSeek id is never parsed as a Zen model.
+    assert models == (BUNNY,)
+    assert source == "cli:opencode"
 
 
 def test_load_live_catalog_failure_is_fail_closed() -> None:
@@ -182,13 +186,13 @@ def test_post_selection_runtime_failure_can_only_block_never_fallback() -> None:
 
 
 def test_resolved_exact_model_id_is_persisted_in_provenance() -> None:
-    resolved = ep.resolve_executor("space-bunny", registry=_registry(), catalog=[BUNNY_LEGACY])
+    resolved = ep.resolve_executor("space-bunny", registry=_registry(), catalog=[BUNNY])
     provenance = resolved.to_provenance()
     assert provenance == {
         "logical_executor_profile": "space-bunny",
-        "resolved_provider": "opencode-go",
-        "resolved_model_id": BUNNY_LEGACY,
-        "model_alias_class": "LEGACY_ALIAS",
+        "resolved_provider": "opencode",
+        "resolved_model_id": BUNNY,
+        "model_alias_class": "CANONICAL",
         "native_variant": "max",
         "catalog_checked": True,
         "catalog_source": "provided",
@@ -236,9 +240,20 @@ def test_registry_default_drift_and_alias_on_unknown_profile_fail_closed() -> No
 
 def test_registry_rejects_alias_drift_and_canonical_reclassification() -> None:
     doc = _drifted_registry_doc()
-    doc["runtime_identity"][BUNNY_LEGACY]["alias_class"] = "CANONICAL"
+    doc["runtime_identity"]["opencode/space-bunny"] = {
+        "logical_profile": "space-bunny",
+        "alias_class": "LEGACY_ALIAS",
+    }
     errors = ep.validate_registry(doc)
-    assert any("legacy alias" in error for error in errors)
+    assert any("admits no legacy alias" in error for error in errors)
+
+    doc = _drifted_registry_doc()
+    doc["runtime_identity"][BUNNY_GO] = {
+        "logical_profile": "space-bunny",
+        "alias_class": "LEGACY_ALIAS",
+    }
+    errors = ep.validate_registry(doc)
+    assert any("must use 'opencode' (Zen)" in error for error in errors)
 
     doc = _drifted_registry_doc()
     doc["runtime_identity"][BUNNY]["alias_class"] = "LEGACY_ALIAS"
@@ -253,7 +268,7 @@ def test_registry_rejects_bunny_alias_pointing_at_another_family() -> None:
         "alias_class": "LEGACY_ALIAS",
     }
     errors = ep.validate_registry(doc)
-    assert any("provider is not 'opencode-go'" in error for error in errors)
+    assert any("provider is not one of" in error for error in errors)
 
 
 def test_live_catalog_inspection_matches_the_pinned_cli_when_available() -> None:
@@ -266,10 +281,9 @@ def test_live_catalog_inspection_matches_the_pinned_cli_when_available() -> None
     if not binary.exists():
         pytest.skip("qualified opencode CLI unavailable")
     result = subprocess.run(
-        [str(binary), "models", "opencode-go"], capture_output=True, text=True, check=False
+        [str(binary), "models", "opencode"], capture_output=True, text=True, check=False
     )
     if result.returncode != 0:  # pragma: no cover - environment dependent
         pytest.skip("live catalog unavailable in this environment")
     models = ep.parse_catalog_output(result.stdout)
-    assert DEEPSEEK in models
     assert BUNNY in models

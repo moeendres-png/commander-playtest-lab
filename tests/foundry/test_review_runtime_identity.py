@@ -39,10 +39,10 @@ REAL_IMPLEMENTER_RECORD = """\
 """
 
 
-def _record(agent: str, *, small: str = "false", model: str = "space-bunny") -> str:
+def _record(agent: str, *, small: str = "false", model: str = "space-bunny-free") -> str:
     return (
         "[13:23:08.884] INFO (#8297): stream {\n"
-        '  providerID: "opencode-go",\n'
+        '  providerID: "opencode",\n'
         f'  modelID: "{model}",\n'
         '  "session.id": "ses_x",\n'
         f'  small: "{small}",\n'
@@ -177,7 +177,7 @@ def _resolved_reviewer() -> dict:
     return {
         "name": "foundry-reviewer",
         "mode": "all",
-        "model": {"providerID": "opencode-go", "modelID": "space-bunny"},
+        "model": {"providerID": "opencode", "modelID": "space-bunny-free"},
         "variant": "max",
         "permission": rules,
         "tools": {"read": True, "edit": False, "write": False, "task": False},

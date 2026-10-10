@@ -14,14 +14,15 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
 
 1. Normal ChatGPT with GPT-5.6 Sol High — Coordinator and adjudication tier.
 2. OpenCode Foundry — primary execution tier with one executor per run. Since the Owner
-   directive of 2026-10-10 that executor is always `space-bunny` =
-   `opencode-go/space-bunny` at native `max` (every lane, agent and subagent). `deepseek` =
+   directives of 2026-10-10 that executor is always `space-bunny` =
+   `opencode/space-bunny-free` on OpenCode Zen at native `max` (every lane, agent and
+   subagent). `deepseek` =
    `opencode-go/deepseek-v4.1-flash` is SUSPENDED (OpenCode Go monthly quota exhausted) and
    refused by the launcher.
    Logical `space-bunny` resolves only after live pinned-CLI catalog inspection
-   (`opencode models opencode-go`): canonical `opencode-go/space-bunny` first, else the
-   admitted legacy runtime alias `opencode-go/space-bunny-free` (`LEGACY_ALIAS`, the
-   SAME logical profile), else fail closed. No Longcat, DeepSeek or other
+   (`opencode models opencode`): the Zen id `opencode/space-bunny-free` must be listed,
+   else fail closed. The OpenCode Go Space Bunny ids share the exhausted Go monthly quota
+   and are not admitted. No Longcat, DeepSeek or other
    provider/model may substitute, and there is no third logical executor. A runtime,
    auth, quota or catalog failure after selection is a blocked run, never a re-resolution.
    No other OpenCode executor is selectable under current authority.
@@ -50,7 +51,7 @@ DeepSeek, requires a new direct user instruction. See `EXECUTION_PROVIDER_OVERRI
 
 Active OpenCode Foundry work has exactly one supported launcher execution identity:
 
-- `space-bunny` → `opencode-go/space-bunny` → native `max`.
+- `space-bunny` → `opencode/space-bunny-free` → native `max`.
   The default and only executor for implementation, debugging, qualification,
   integration, CI remediation, evidence generation, audits, reviews and long campaigns.
 - `deepseek` → `opencode-go/deepseek-v4.1-flash` → native `max` stays in the registry as
@@ -67,8 +68,8 @@ frontmatter (`log-scanner` Sonnet `low`, `ci-triage` Sonnet `medium`, `evidence-
 Opus `high`); never Haiku. Those subagents are read-only helpers inside the campaign, not
 Foundry executors, and hold no write, adjudication or merge authority.
 
-Root `opencode.json` whitelists only Space Bunny MAX (canonical id plus its legacy alias) for
-`model` and `small_model`. All three GitHub OpenCode lanes pin `MODEL=opencode-go/space-bunny`
+Root `opencode.json` enables only the Zen provider `opencode` and whitelists only
+`space-bunny-free` at native `max` for `model` and `small_model`. All three GitHub OpenCode lanes pin `MODEL=opencode/space-bunny-free`
 and `VARIANT=max`; they differ by agent: `/oc` and `/opencode` run `foundry-implementer`, `/bunny`
 runs `bunny-verifier`, `/bunny-review` runs the read-only `foundry-reviewer`. The Claude-side
 `opencode-subagent` MCP is pinned through `OPENCODE_SUBAGENT_MODEL` in `.claude/settings.json`.
@@ -121,9 +122,9 @@ production-provider evidence or Architecture Freeze.
   the record and the pinned run, but they are not themselves independent observation.
   The independently observed facts are the run/job identity and conclusions, the
   workflow and agent files fetched at the run's `head_sha`, and the comment/run
-  binding. The runtime alias is declared by the record and never observed: the
-  workflow pin verified at `head_sha` must be canonical `opencode-go/space-bunny`, so
-  a review that merely claims the legacy alias cannot satisfy the evidence gate.
+  binding. The workflow pin verified at `head_sha` must be canonical
+  `opencode/space-bunny-free`, so a review recorded on another id (including the retired
+  OpenCode Go ids) cannot satisfy the evidence gate.
 - Issue-comment lanes are evaluated from the default branch, so the `/bunny-review`
   lane is only reachable after it is merged to main.
 - Any MATERIAL change after the review (including an evidenced P1/P2 repair) makes the

@@ -44,8 +44,9 @@ from collections.abc import Iterable, Mapping, Sequence
 from typing import Any
 
 REVIEW_AGENT = "foundry-reviewer"
-REVIEW_PROVIDER = "opencode-go"
-REVIEW_MODEL = "space-bunny"
+# Space Bunny MAX on OpenCode Zen (#682); the same id review_evidence.py pins.
+REVIEW_PROVIDER = "opencode"
+REVIEW_MODEL = "space-bunny-free"
 REVIEW_VARIANT = "max"
 # The only accepted value of OPENCODE_CONFIG_CONTENT in the review job.
 REVIEW_CONFIG_OVERRIDE = {"default_agent": REVIEW_AGENT}

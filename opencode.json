@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/space-bunny",
+  "model": "opencode/space-bunny-free",
   "default_agent": "foundry-implementer",
   "share": "disabled",
   "tool_output": {
@@ -8,7 +8,7 @@
     "max_bytes": 51200
   },
   "enabled_providers": [
-    "opencode-go"
+    "opencode"
   ],
   "permission": {
     "read": {
@@ -182,41 +182,11 @@
     }
   },
   "provider": {
-    "opencode-go": {
+    "opencode": {
       "whitelist": [
-        "space-bunny",
         "space-bunny-free"
       ],
       "models": {
-        "space-bunny": {
-          "options": {
-            "reasoningEffort": "max"
-          },
-          "variants": {
-            "none": {
-              "disabled": true
-            },
-            "off": {
-              "disabled": true
-            },
-            "minimal": {
-              "disabled": true
-            },
-            "low": {
-              "disabled": true
-            },
-            "medium": {
-              "disabled": true
-            },
-            "high": {
-              "disabled": true
-            },
-            "xhigh": {
-              "disabled": true
-            },
-            "max": {}
-          }
-        },
         "space-bunny-free": {
           "options": {
             "reasoningEffort": "max"
@@ -264,9 +234,9 @@
       {
         "action": "provider.use",
         "effect": "allow",
-        "resource": "opencode-go"
+        "resource": "opencode"
       }
     ]
   },
-  "small_model": "opencode-go/space-bunny"
+  "small_model": "opencode/space-bunny-free"
 }

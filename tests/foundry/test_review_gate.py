@@ -52,8 +52,8 @@ def _satisfied() -> _StaticVerifier:
     return _StaticVerifier()
 
 
-BUNNY = "opencode-go/space-bunny"
-BUNNY_LEGACY = "opencode-go/space-bunny-free"
+BUNNY = "opencode/space-bunny-free"
+BUNNY_GO = "opencode-go/space-bunny"
 DEEPSEEK = "opencode-go/deepseek-v4.1-flash"
 
 
@@ -158,7 +158,7 @@ def _record(repo: dict, *, reviewed_sha: str | None = None, verdict: str = "PASS
         "required": True,
         "materiality": "MATERIAL",
         "logical_profile": "space-bunny",
-        "resolved_provider": "opencode-go",
+        "resolved_provider": "opencode",
         "resolved_model_id": BUNNY,
         "model_alias_class": "CANONICAL",
         "native_variant": "max",
@@ -272,12 +272,16 @@ def test_pass_verdict_cannot_carry_blocking_findings(repo: dict) -> None:
         assert any("blocking findings" in error for error in errors), key
 
 
-def test_alias_class_must_match_admitted_mapping(repo: dict) -> None:
+def test_go_bunny_review_is_no_longer_admitted(repo: dict) -> None:
+    """A review recorded on the retired Go id needs a fresh Zen re-review."""
     record = _record(repo)
-    record["resolved_model_id"] = BUNNY_LEGACY
-    assert any("model_alias_class" in error for error in review_mod.validate_review_record(record))
+    record["resolved_provider"] = "opencode-go"
+    record["resolved_model_id"] = BUNNY_GO
+    errors = review_mod.validate_review_record(record)
+    assert any("resolved_provider" in error for error in errors)
+    assert any("not an admitted space-bunny runtime id" in error for error in errors)
     record["model_alias_class"] = "LEGACY_ALIAS"
-    assert review_mod.validate_review_record(record) == []
+    assert review_mod.validate_review_record(record) != []
 
 
 def test_unknown_record_fields_fail_closed(repo: dict) -> None:
@@ -471,7 +475,7 @@ def test_mirror_mismatch_is_unsatisfied(repo: dict) -> None:
     record = _record(repo)
     path = _write_record(repo, record)
     mirror = _mirror_passed(repo, record, path)
-    mirror["resolved_model_id"] = BUNNY_LEGACY
+    mirror["resolved_model_id"] = BUNNY_GO
     doc = _state_doc(
         repo["base"],
         repo["impl"],

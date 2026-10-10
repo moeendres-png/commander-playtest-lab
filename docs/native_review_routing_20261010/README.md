@@ -21,7 +21,7 @@ job 113839482326 logged `agent: "foundry-implementer"` while the workflow said
   from `${GITHUB_SHA}`, before the run): asks the pinned CLI for its resolved
   config and reviewer (`opencode debug config`, `opencode debug agent
   foundry-reviewer`) and fails unless the default agent is the reviewer on
-  `opencode-go/space-bunny` variant `max`, no write tool is offered, and the
+  `opencode/space-bunny-free` (Space Bunny on OpenCode Zen since #682) variant `max`, no write tool is offered, and the
   merged ruleset refuses all 40 write probes (edit, task, push/commit/add,
   `--output`, redirects, `difftool -x`, `--ext-diff`, gh writes, arbitrary exec).
 - **Audit** (after the run): the watchdog copies the output (`--log`); every

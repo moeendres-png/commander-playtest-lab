@@ -400,7 +400,7 @@
         "string",
         "null"
       ],
-      "description": "Exact provider/model runtime identity selected for the run, e.g. opencode-go/space-bunny or the admitted legacy alias."
+      "description": "Exact provider/model runtime identity selected for the run, e.g. opencode/space-bunny-free (historical states may carry opencode-go ids or a legacy alias)."
     },
     "model_alias_class": {
       "type": [

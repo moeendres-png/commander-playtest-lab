@@ -1,7 +1,7 @@
 ---
 description: Mandatory read-only fresh-context Space Bunny MAX cross-executor reviewer for MATERIAL Foundry implementation workstreams
 mode: all
-model: opencode-go/space-bunny
+model: opencode/space-bunny-free
 variant: max
 permission:
   edit: deny
@@ -81,7 +81,7 @@ prefixes. The code fence below is documentation only; do not include it in your 
 ```
 BUNNY_DIRECT_READ_ONLY_REVIEW
 
-REVIEWER_MODEL: opencode-go/space-bunny
+REVIEWER_MODEL: opencode/space-bunny-free
 REVIEWER_VARIANT: max
 REVIEW_AGENT: foundry-reviewer
 REVIEWED_SHA: <exact 40-hex reviewed commit>
@@ -112,5 +112,5 @@ are not independent observation. The independently observed facts are the run/jo
 identity and conclusions, the workflow and agent files fetched at the run's exact
 `head_sha`, the run/comment timing, and the comment/run link binding. The runtime alias is
 never observed: the workflow pin at `head_sha` must be canonical
-`opencode-go/space-bunny`, so a review that merely claims a legacy alias cannot satisfy
-the evidence gate.
+`opencode/space-bunny-free` (OpenCode Zen), so a review that merely claims another id cannot
+satisfy the evidence gate.

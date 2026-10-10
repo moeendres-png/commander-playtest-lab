@@ -114,7 +114,8 @@ requalification.
 - OpenCode Foundry: primary execution tier for implementation, repository edits, builds,
   tests, debugging, CI, qualification execution, evidence generation, deterministic tooling
   and long autonomous workstreams. Since the Owner directive of 2026-10-10 the only
-  active executor is Space Bunny: `opencode-go/space-bunny` at native `max` for the main
+  active executor is Space Bunny on OpenCode Zen: `opencode/space-bunny-free` at native `max`
+  (the OpenCode Go ids are retired, Owner directive 2026-10-10) for the main
   model, small model, every lane (`/oc`, `/bunny`, `/bunny-review`), every project agent and
   every subagent. DeepSeek (`opencode-go/deepseek-v4.1-flash`) is SUSPENDED: refused by the
   launcher, absent from `opencode.json`, never a fallback. No other OpenCode execution

@@ -2,7 +2,7 @@
   "effortLevel": "medium",
   "env": {
     "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
-    "OPENCODE_SUBAGENT_MODEL": "opencode-go/space-bunny"
+    "OPENCODE_SUBAGENT_MODEL": "opencode/space-bunny-free"
   },
   "permissions": {
     "allow": [

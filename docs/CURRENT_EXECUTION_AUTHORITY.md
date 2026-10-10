@@ -10,27 +10,29 @@ historical workstream state, donor reports, chats and superseded governance reco
 
 ## Authorized OpenCode executors
 
-By direct Owner instruction of **2026-10-10** exactly one OpenCode execution profile is
-ACTIVE, for every lane: `/oc`, `/bunny`, `/bunny-review`, the Foundry launcher, the
+By direct Owner instructions of **2026-10-10** exactly one OpenCode execution profile is
+ACTIVE, served by **OpenCode Zen** (provider `opencode`), for every lane: `/oc`, `/bunny`, `/bunny-review`, the Foundry launcher, the
 Claude-side `opencode-subagent` MCP and every OpenCode subagent.
 
 1. **Space Bunny MAX** (ACTIVE, default, only executor)
    - profile: `space-bunny`
-   - model: `opencode-go/space-bunny`
+   - model: `opencode/space-bunny-free`
    - native variant: `max`
-   - resolves only after live pinned-CLI catalog inspection; if the canonical id is
-     absent, the admitted legacy runtime alias `opencode-go/space-bunny-free`
-     (`LEGACY_ALIAS`, the same logical `space-bunny` profile) may be selected. Neither
-     present => fail closed. The alias is a runtime identity, never a third executor.
+   - resolves only after live pinned-CLI catalog inspection (`opencode models opencode`);
+     the Zen id absent => fail closed. Zen serves this model at no charge and its provider
+     keeps zero retention and does not train on the data (Zen docs, checked 2026-10-10).
+   - the OpenCode Go ids `opencode-go/space-bunny` and `opencode-go/space-bunny-free` are
+     no longer admitted: on 2026-10-10 (workflow run 38049493597) `opencode-go/space-bunny`
+     was refused by the exhausted Go monthly limit (HTTP 429 `GoUsageLimitError`), and the
+     Owner directed the switch to Zen. A Zen refusal is `BLOCKED_SERVICE`, never a fallback
+     to Go.
 
 2. **DeepSeek v4.1 Flash MAX** (SUSPENDED)
    - profile: `deepseek`
    - model: `opencode-go/deepseek-v4.1-flash`
    - native variant: `max`
-   - suspended by Owner directive after the OpenCode Go monthly quota was exhausted. Note:
-     on 2026-10-10 (workflow run 38049493597) `opencode-go/space-bunny` calls were refused by
-     the same monthly limit (HTTP 429 `GoUsageLimitError`), so Space Bunny runs stay
-     `BLOCKED_SERVICE` until the quota resets or the Owner restores it. The launcher refuses the profile, it is absent from
+   - suspended by Owner directive after the OpenCode Go monthly quota was exhausted. The
+     launcher refuses the profile, it is absent from
      `opencode.json`, and no lane pins it. Only a new direct Owner instruction sets it
      back to ACTIVE in `.foundry/executor-profiles.json`; quota recovery alone does not.
 

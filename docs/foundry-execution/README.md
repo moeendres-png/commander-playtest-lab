@@ -9,7 +9,7 @@ Single coherent entry point for the OpenCode Foundry execution system on
 | Machine config | `opencode.json` (root) | Space Bunny MAX only (DeepSeek SUSPENDED 2026-10-10); permissions; sharing off |
 | Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, effort, Work gate |
 | Workspace access | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` + launcher `--workspace-access` | Unique verified reference snapshots + standalone current-workstream owned-write surfaces + Bubblewrap read-only-root boundary |
-| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Space Bunny MAX default and only active profile, DeepSeek SUSPENDED, retired Zen, no fallback |
+| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Space Bunny MAX on OpenCode Zen (`opencode/space-bunny-free`) default and only active profile, DeepSeek SUSPENDED, retired `--execution-provider zen` override flag, no fallback |
 | Space Bunny prompting | `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md` | How to write `/oc`, `/bunny`, `/bunny-review` and subagent prompts for Space Bunny MAX |
 | Technical authority | `docs/CURRENT_EXECUTION_AUTHORITY.md` | Sol / Space Bunny MAX (DeepSeek SUSPENDED) / Astra authority model |
 | Contract template | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` | Task fields incl. decision authority |

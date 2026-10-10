@@ -69,13 +69,15 @@ def test_active_claude_routing_has_only_current_executor_policy():
     assert "no automatic fallback" in joined.lower()
     assert "muse-spark" not in joined.lower()
     assert "glm-5.3" not in joined.lower()
-    # Durable cross-executor policy admits exactly one legacy runtime alias for the
-    # SAME logical space-bunny profile. It may appear only where explicitly labeled
-    # as a legacy alias, never as a selectable executor or a second profile.
+    # Since 2026-10-10 Space Bunny runs on OpenCode Zen (opencode/space-bunny-free).
+    # The OpenCode Go ids may appear only where explicitly labeled as retired,
+    # never as a selectable executor.
     for path in ACTIVE_ROUTING:
         text = read(path).lower()
-        if "space-bunny-free" in text:
-            assert "legacy_alias" in text or "legacy runtime alias" in text, path.name
+        if "space-bunny" in text:
+            assert "opencode/space-bunny-free" in text or "zen" in text, path.name
+        if "opencode-go/space-bunny" in text:
+            assert "retired" in text, path.name
             assert "same logical profile" in text or "same profile" in text, path.name
     assert "third logical executor" in joined.lower()
 

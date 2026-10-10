@@ -322,18 +322,13 @@ def test_safety_permissions_intact(repo_root: Path):
 
 def test_model_provider_and_v2_instruction_source_intact(repo_root: Path):
     config = _config(repo_root)
-    # Space Bunny MAX is the only executor (DeepSeek SUSPENDED 2026-10-10). The
-    # legacy space-bunny-free row is admitted only as a runtime identity of the
-    # SAME logical space-bunny profile (canonical first); no other model/provider
-    # is whitelisted.
-    assert config["model"] == "opencode-go/space-bunny"
-    assert config["enabled_providers"] == ["opencode-go"]
-    provider = config["provider"]["opencode-go"]
-    assert provider["whitelist"] == ["space-bunny", "space-bunny-free"]
-    assert set(provider["models"]) == {
-        "space-bunny",
-        "space-bunny-free",
-    }
+    # Space Bunny MAX on OpenCode Zen is the only executor (DeepSeek SUSPENDED,
+    # Go ids retired 2026-10-10); no other model/provider is whitelisted.
+    assert config["model"] == "opencode/space-bunny-free"
+    assert config["enabled_providers"] == ["opencode"]
+    provider = config["provider"]["opencode"]
+    assert provider["whitelist"] == ["space-bunny-free"]
+    assert set(provider["models"]) == {"space-bunny-free"}
     assert config["default_agent"] == "foundry-implementer"
     assert "instructions" not in config, (
         "OpenCode V2 accepts config.instructions but does not resolve its entries; "
@@ -392,7 +387,7 @@ def test_launcher_bundle_passes_tool_output(repo_root: Path):
         str(repo_root), [], catalog=list(launcher_mod.ADMITTED_BUNNY_MODELS)
     )
     assert bundle["tool_output"] == {"max_lines": 2000, "max_bytes": 51200}
-    assert bundle["model"] == "opencode-go/space-bunny"
+    assert bundle["model"] == "opencode/space-bunny-free"
 
 
 def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path: Path):
@@ -406,9 +401,9 @@ def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path
     config = {
         "model": "opencode-go/deepseek-v4.1-flash",
         "share": "disabled",
-        "enabled_providers": ["opencode-go"],
+        "enabled_providers": ["opencode"],
         "provider": {
-            "opencode-go": {
+            "opencode": {
                 "whitelist": ["deepseek-v4.1-flash", "space-bunny", "space-bunny-free"],
                 "models": {
                     "deepseek-v4.1-flash": {
