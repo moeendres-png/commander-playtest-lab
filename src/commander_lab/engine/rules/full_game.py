@@ -160,6 +160,39 @@ _PRIORITY_MANACOST_KEYS: tuple[str, ...] = (
 _MANA_X_PROMPT = re.compile(r"\AAnnounce the value for (?P<symbols>(?:\{X\})+)\Z", re.IGNORECASE)
 _X_SYMBOL_TOKEN = re.compile(r"\{X\}", re.IGNORECASE)
 
+# XMage's per-game object short id, in the form the pinned engine emits.
+#
+# Provenance (pinned XMage commit b479fe74fd1eaf899ff16c6a9203e74a91c0f339):
+#   Mage/src/main/java/mage/MageObjectImpl.java:108-110  getIdName()
+#       return getName() + " [" + getId().toString().substring(0, 3) + ']';
+#   Mage/src/main/java/mage/util/GameLog.java:70-78  getColoredObjectIdName()
+#       passes String.format("[%s]", mageObject.getId().toString().substring(0, 3))
+#   and GameLog.java:103-116 appends that tag AFTER the closing "</font>", so the
+#   engine prints "...<font ...>Name</font> [3a4]" (worked examples in the
+#   injectPopupSupport javadoc, GameLog.java:125-132). getLogName() delegates
+#   there (MageObjectImpl.java:112-115, CardImpl.java:888-895), so EVERY prompt
+#   that names an object carries the tag wherever the engine printed it: at the
+#   end of the text, before </div>, or before the message's own punctuation,
+#   e.g. "Change this 1 of 1 target: Siege-Gang Commander [3a4]?".
+#
+# The tag is a prefix of a per-process object UUID, so it carries no Rules
+# content and must never enter a twin semantic digest. The 3-8 hex width is the
+# width this file's existing tag stripping and the `redact_text` lineage
+# already accept (UUID prefix plus the wider face-down/toString forms), not a
+# new guess at the shape.
+#
+# Only an APPENDED tag is removed. It must sit where the engine puts one:
+# directly after a closing HTML tag it wrote next to the name, or after the
+# whitespace that follows an object name, and it must be followed by a message
+# boundary (end of text, a closing tag, punctuation or whitespace). Genuine
+# bracketed Rules text does not have that shape, so it survives.
+_XMAGE_SHORT_ID_TAG = r"\[[0-9a-fA-F]{3,8}\]"
+# Written by the engine right after the name it just closed: "</font> [3a4]".
+# Keep the closing tag so the prompt's HTML shape is preserved.
+_XMAGE_SHORT_ID_AFTER_CLOSE_RE = re.compile(rf"(</[a-zA-Z][^>]*>)\s*{_XMAGE_SHORT_ID_TAG}")
+# Appended after the object name and followed by the rest of the message.
+_XMAGE_SHORT_ID_APPENDED_RE = re.compile(rf"\s+{_XMAGE_SHORT_ID_TAG}(?=[^\w]|\Z)")
+
 
 def mana_x_prompt_symbols(prompt: str) -> int | None:
     """How many X symbols the engine's own mana-X prompt prints, else None.
@@ -3605,7 +3638,12 @@ class XmageFullGameRunner:
             text,
         )
         text = re.sub(r"(</font>)\s*\[[0-9a-fA-F]{3,8}\]", r"\1", text)
-        text = re.sub(r"\s*\[[0-9a-fA-F]{3,8}\](?=</div>|$)", "", text)
+        # #710: the engine appends the short id after the object NAME, so it
+        # survives whenever the message continues past it (punctuation, further
+        # words, another closing tag) instead of ending the text. Strip it
+        # wherever it is appended, not only before </div>/end-of-text.
+        text = _XMAGE_SHORT_ID_AFTER_CLOSE_RE.sub(r"\1", text)
+        text = _XMAGE_SHORT_ID_APPENDED_RE.sub("", text)
         return text
 
     @staticmethod
