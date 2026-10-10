@@ -294,15 +294,271 @@ def test_detriment_and_neutral_announce_x_stay_inside_the_band() -> None:
         assert response["numeric_choice"] == expected
 
 
-# --- Control: unreadable affordability keeps the pre-existing behaviour ------
+def _priority_request(
+    *,
+    source_id: str,
+    mana_cost: dict[str, int],
+    source_name: str = "Shelob, Dread Weaver",
+    option_type: str = "activated_ability",
+    label: str = "{X}{1}{B}",
+    offset: int = 1,
+    state: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """A priority window whose option carries the bridge's own cost facts.
+
+    Exactly what ``XmageFullGamePlayer.priority`` builds for one playable
+    ability: ``abilityMetadata`` -> ``enrichAbilityCostFacts``, so the seven
+    ``mana_cost_*`` integers are the engine's translation of
+    ``ManaCostsImpl.getMana()``.
+    """
+    return {
+        "decision_id": "opaque-priority",
+        "decision_offset": offset,
+        "actor_id": "actor",
+        "decision_class": "priority",
+        "pilot_state": state if state is not None else _state(),
+        "context": {},
+        "minimum_selections": 1,
+        "maximum_selections": 1,
+        "legal_options": [
+            {
+                "option_id": "priority-pass",
+                "option_type": "pass_priority",
+                "label": "Pass priority",
+                "metadata": {},
+            },
+            {
+                "option_id": "priority:activated",
+                "option_type": option_type,
+                "label": label,
+                "metadata": {
+                    "source_object_id": source_id,
+                    "source_name": source_name,
+                    "ability_type": "activated",
+                    "mana_ability": False,
+                    "requires_tap_source": True,
+                    "requires_untap_source": False,
+                    "requires_sacrifice_source": False,
+                    **mana_cost,
+                },
+            },
+        ],
+        "prompt": "Choose priority action",
+    }
+
+
+SHELOB_COST_FACTS: dict[str, int] = {
+    "mana_cost_white": 0,
+    "mana_cost_blue": 0,
+    "mana_cost_black": 1,
+    "mana_cost_red": 0,
+    "mana_cost_green": 0,
+    "mana_cost_generic": 1,
+    "mana_cost_colorless": 0,
+}
+
+
+def _activated_ability_x() -> int:
+    """Seat 2 announces the X of the {X}{1}{B} ability it just activated.
+
+    Two consecutive frames on one policy: the priority window that started the
+    activation, then the ``announce_x`` the engine raises inside it. Five
+    untapped Swamps less the {1}{B} leaves X <= 3.
+    """
+    policy = _policy()
+    chosen = policy.decide(_priority_request(source_id="obj-shelob", mana_cost=SHELOB_COST_FACTS))
+    assert chosen["selected_option_ids"] != ["priority-pass"], "the ability must be selected"
+    return _announced(
+        policy,
+        _announce_x_request(
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+            source_object={"source_object_id": "obj-shelob", "source_name": "Shelob, Dread Weaver"},
+        ),
+    )
+
+
+def test_activated_ability_x_is_budgeted_from_the_chosen_priority_cost() -> None:
+    # Fails at 00c81d51: nothing remembers the chosen option, the announce_x
+    # frame carries no cost, and the benefit bias returns 2147483647.
+    assert _activated_ability_x() == 3
+
+
+def test_spell_x_is_budgeted_from_the_chosen_priority_cost() -> None:
+    # Same two frames for a spell cast at priority; the engine offers a
+    # SpellAbility through the same priority option list, so it carries the
+    # same cost facts under the same key.
+    policy = _policy()
+    state = _state()
+    chosen = policy.decide(
+        _priority_request(
+            source_id="obj-spell",
+            source_name="Shelob, Dread Weaver",
+            option_type="activated_ability",
+            label="Cast Shelob, Dread Weaver",
+            mana_cost=SHELOB_COST_FACTS,
+            state=state,
+        )
+    )
+    assert chosen["selected_option_ids"] != ["priority-pass"]
+    choice = _announced(
+        policy,
+        _announce_x_request(
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+            source_object={"source_object_id": "obj-spell"},
+            state=state,
+        ),
+    )
+    assert choice == 3
+
+
+def test_announced_x_from_another_source_gets_the_budget_alone() -> None:
+    # The remembered cost is keyed by the engine's own source id: an announce
+    # for a different source cannot borrow it, so the bounded fallback applies.
+    policy = _policy()
+    policy.decide(_priority_request(source_id="obj-shelob", mana_cost=SHELOB_COST_FACTS))
+    choice = _announced(
+        policy,
+        _announce_x_request(
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+            source_object={"source_object_id": "obj-other"},
+        ),
+    )
+    assert choice == 5
+
+
+def test_another_seats_cost_is_never_borrowed() -> None:
+    # Memory is per seat: seat 2's selection says nothing about seat 3's X.
+    policy = _policy()
+    policy.decide(_priority_request(source_id="obj-shelob", mana_cost=SHELOB_COST_FACTS))
+    other_seat = dict(_state())
+    other_seat["seat"] = 2
+    other_seat["actor_id"] = "actor-3"
+    other_seat["priority_player_id"] = "actor-3"
+    other_seat["active_player_id"] = "actor-3"
+    other_seat["players"] = [
+        {**other_seat["players"][0], "player_id": "actor-3", "seat": 2},
+        *other_seat["players"][1:],
+    ]
+    choice = _announced(
+        policy,
+        _announce_x_request(
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+            source_object={"source_object_id": "obj-shelob"},
+            state=other_seat,
+        ),
+    )
+    assert choice == 5
+
+
+def test_the_next_priority_decision_of_a_seat_invalidates_its_memory() -> None:
+    # A remembered cost must never outlive the action it described: one more
+    # priority window for the same seat drops it before choosing again.
+    policy = _policy()
+    policy.decide(_priority_request(source_id="obj-shelob", mana_cost=SHELOB_COST_FACTS))
+    policy.decide(
+        _priority_request(
+            source_id="obj-shelob",
+            mana_cost=SHELOB_COST_FACTS,
+            offset=2,
+        )
+    )
+    choice = _announced(
+        policy,
+        _announce_x_request(
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+            source_object={"source_object_id": "obj-shelob"},
+            offset=3,
+        ),
+    )
+    assert choice == 3
+
+
+def test_passing_priority_remembers_nothing() -> None:
+    # Only the pass option is on offer: no cost is remembered, so the bounded
+    # fallback applies to any later announce rather than a borrowed cost.
+    policy = _policy()
+    request = _priority_request(source_id="obj-shelob", mana_cost=SHELOB_COST_FACTS)
+    request["legal_options"] = [request["legal_options"][0]]
+    response = policy.decide(request)
+    assert response["selected_option_ids"] == ["priority-pass"]
+    choice = _announced(
+        policy,
+        _announce_x_request(
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+            source_object={"source_object_id": "obj-shelob"},
+        ),
+    )
+    assert choice == 5
+
+
+def test_unreadable_priority_cost_never_becomes_a_number() -> None:
+    # A cost breakdown the Lab cannot read is dropped whole, not partially
+    # summed: the announce falls back to the budget rather than to a number
+    # built out of whichever fields happened to parse.
+    policy = _policy()
+    broken = {**SHELOB_COST_FACTS, "mana_cost_generic": "1"}
+    policy.decide(_priority_request(source_id="obj-shelob", mana_cost=broken))
+    choice = _announced(
+        policy,
+        _announce_x_request(
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+            source_object={"source_object_id": "obj-shelob"},
+        ),
+    )
+    assert choice == 5
+
+
+def test_multi_symbol_x_is_budgeted_as_a_single_symbol() -> None:
+    # {X}{X} with nothing else costs nothing but its own X symbols, so five
+    # untapped sources still leaves X <= 5. The bridge publishes no X count,
+    # so the assumed count of one is what the Lab can honestly budget.
+    policy = _policy()
+    facts = dict(SHELOB_COST_FACTS)
+    facts["mana_cost_generic"] = 0
+    facts["mana_cost_black"] = 0
+    policy.decide(_priority_request(source_id="obj-twox", mana_cost=facts))
+    choice = _announced(
+        policy,
+        _announce_x_request(
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+            source_object={"source_object_id": "obj-twox"},
+            prompt="Announce the value for 2{X}",
+        ),
+    )
+    assert choice == 5
+
+
+def test_a_cost_stated_on_the_announce_frame_wins_over_the_memory() -> None:
+    # A cost read directly off the announce frame is the engine's own latest
+    # statement and is used in preference to what priority reported earlier.
+    policy = _policy()
+    policy.decide(_priority_request(source_id="obj-shelob", mana_cost=SHELOB_COST_FACTS))
+    choice = _announced(
+        policy,
+        _announce_x_request(
+            context={
+                "numeric_min": 0,
+                "numeric_max": INT_MAX,
+                "outcome": "benefit",
+                "numeric_non_x_mana_value": 4,
+                "numeric_x_symbols": 1,
+            },
+            source_object={"source_object_id": "obj-shelob"},
+        ),
+    )
+    assert choice == 1
+
+
+# --- Control: unreadable cost falls back to the budget alone -----------------
 
 
 @pytest.mark.parametrize(
     "context",
     [
-        # No cost facts at all: today's pinned bridge shape for announce_x.
+        # No cost facts on the announce frame: what the pinned bridge sends.
         {"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
-        # Present but unusable. None of these may become a guess.
+        # Present but unusable. None of these may become a guess: the answer is
+        # the budget, which none of these values could have produced.
         {
             "numeric_min": 0,
             "numeric_max": INT_MAX,
@@ -340,8 +596,27 @@ def test_detriment_and_neutral_announce_x_stay_inside_the_band() -> None:
     ],
     ids=["absent", "non-integer", "zero-symbols", "negative", "boolean", "symbols-absent"],
 )
-def test_unreadable_cost_keeps_the_pre_fix_domain(context: dict[str, Any]) -> None:
-    assert _announced(_policy(), _announce_x_request(context=context)) == INT_MAX
+def test_unreadable_cost_falls_back_to_the_budget_alone(context: dict[str, Any]) -> None:
+    # The bounded fallback: non-X cost 0 over a single X symbol, so the whole
+    # visible budget is the ceiling. Five untapped Swamps, not 2147483647.
+    assert _announced(_policy(), _announce_x_request(context=context)) == 5
+
+
+def test_budget_fallback_is_not_a_mana_budget_for_a_non_mana_x() -> None:
+    # Player.announceX also serves the engine's non-mana announceXCost, where
+    # the prompt prints no mana symbol. A power/toughness or counter X is not
+    # paid in mana, so the pool must not bound it.
+    response = _policy().decide(
+        _announce_x_request(
+            prompt="Announce the value for X",
+            context={
+                "numeric_min": 0,
+                "numeric_max": INT_MAX,
+                "outcome": "benefit",
+            },
+        )
+    )
+    assert response["numeric_choice"] == INT_MAX
 
 
 def test_untapped_lands_without_readable_mana_ability_text_do_not_raise_the_budget() -> None:

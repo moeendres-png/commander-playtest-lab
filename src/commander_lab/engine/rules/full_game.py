@@ -75,6 +75,31 @@ DECLINE_ALIGNED_BOOLEAN_OUTCOMES = frozenset(
 _MANA_SYMBOL = re.compile(r"\{([^}]*)\}")
 _COLOR_LETTERS = frozenset("wubrgc")
 
+# The bridge's ``enrichAbilityCostFacts`` mana breakdown, as the engine
+# publishes it on every ability option. Summing them is the cost's non-X mana
+# value: XMage builds an ``X`` symbol as a ``VariableManaCost`` whose own
+# ``cost`` Mana is empty, so the announced value never appears in any of
+# these numbers. The bridge never publishes an X count, so it is not readable
+# here either and is assumed to be one symbol (#700).
+_PRIORITY_MANACOST_KEYS: tuple[str, ...] = (
+    "mana_cost_white",
+    "mana_cost_blue",
+    "mana_cost_black",
+    "mana_cost_red",
+    "mana_cost_green",
+    "mana_cost_generic",
+    "mana_cost_colorless",
+)
+
+# ``Player.announceX`` serves two engine call sites, and only one of them is a
+# mana cost: ``AbilityImpl.handleManaXCosts`` prompts "Announce the value for "
+# + ``VariableManaCost.getText()``, which prints the mana symbol itself ("{X}",
+# or "2{X}" for ``{X}{X}``), while ``Player.announceXCost`` for a non-mana X
+# prompts with text carrying no mana symbol ("... for X"). A mana budget is
+# only a statement about a mana X, so the engine's own printed prompt is the
+# discriminator between them; it is engine text, never a Lab-invented one.
+_MANA_X_PROMPT_SYMBOL = re.compile(r"\{\d*X\}", re.IGNORECASE)
+
 
 def mana_payment_fit(label: str, unpaid_mana: str) -> int:
     """Order mana abilities inside a payment by what their mana can pay.
@@ -112,6 +137,30 @@ def mana_payment_fit(label: str, unpaid_mana: str) -> int:
     if produced & needed:
         return 2
     return 1 if generic else 0
+
+
+def _option_cost_facts(metadata: dict[str, Any]) -> tuple[int, int] | None:
+    """A priority option's engine-reported cost as ``(non_x, x_symbols)``.
+
+    ``non_x`` is the sum of the bridge's ``mana_cost_*`` breakdown. XMage holds
+    an ``{X}`` symbol as a ``VariableManaCost`` whose own ``cost`` Mana is
+    empty and whose value is only fixed once the player announces it, so the
+    announced X is absent from every one of those numbers and the sum is the
+    rest of the cost alone (CR 107.3b, 601.2b). ``mana_cost_generic`` counts
+    generic symbols only, never the colored ones alongside them.
+
+    The bridge publishes no X count, so ``x_symbols`` is 1 whenever the
+    breakdown is readable at all. ``None`` means the bridge reported no
+    breakdown, or one the Lab cannot read as a non-negative integer: an
+    unknown cost is never turned into a number.
+    """
+    non_x = 0
+    for key in _PRIORITY_MANACOST_KEYS:
+        raw = metadata.get(key)
+        if isinstance(raw, bool) or not isinstance(raw, int) or raw < 0:
+            return None
+        non_x += raw
+    return non_x, 1
 
 
 def offers_mana_ability(rule_text: str) -> bool:
@@ -858,6 +907,11 @@ class ExternalPilotDecisionPolicy:
             ],
         ] = {}
         self._priority_repeat_count: dict[int, int] = {}
+        # #700: what the seat's last priority selection cost, keyed by that
+        # option's engine ``source_object_id``. The ``announce_x`` frame the
+        # engine raises for the cast or activation that follows carries no
+        # cost at all, so this is where that cost survives the hop.
+        self._priority_cost_facts: dict[int, dict[str, tuple[int, int]]] = {}
         # Latch: once tripped, the seat keeps passing while the window
         # stays identical (a single forced pass would just resume the
         # loop). Any window change unlatches and resumes normal choice.
@@ -929,7 +983,12 @@ class ExternalPilotDecisionPolicy:
         elif decision_class == "mode":
             selected = [self._decide_mode(runtime, pilot_state, options, rng)]
         elif decision_class == "priority":
+            # #700: this seat's remembered cost describes the action it chose
+            # last time, and the next priority decision of this seat is a
+            # different action, so it is dropped before a new one is picked.
+            self._priority_cost_facts.pop(seat, None)
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
+            self._remember_priority_cost_facts(seat, options, selected)
         elif decision_class in {"target", "choose_object", "target_amount"}:
             selected = self._decide_targets(
                 runtime,
@@ -1191,6 +1250,54 @@ class ExternalPilotDecisionPolicy:
             return raw_by_stable_id[decision.selected_action_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable priority action") from None
+
+    def _remember_priority_cost_facts(
+        self, seat: int, options: list[dict[str, Any]], selected: list[str]
+    ) -> None:
+        """Keep the cost the engine reported for the priority option just chosen.
+
+        The engine answers a priority window with the full legal set, each
+        option carrying the bridge's own ``enrichAbilityCostFacts`` summary of
+        what activating or casting it costs. When the pilot then chooses one,
+        the engine immediately asks for the X in that action's cost — and that
+        ``announce_x`` frame carries no cost whatsoever, only the source it
+        belongs to. Holding the chosen option's reported cost here, keyed by
+        the engine's own ``source_object_id``, is what lets the later
+        ``announce_x`` budget against a cost the engine stated rather than one
+        the Lab inferred.
+
+        Last selection only, per seat, and dropped again on that seat's next
+        priority decision, so a remembered cost can never be reused for a
+        later or different action. The key is used for equality against the
+        ``source_object`` of the announce frame and for nothing else: it never
+        orders, ranks, counts or sorts anything, so it cannot make same-seed
+        fresh-process twins diverge the way an ordering key could.
+        """
+        if len(selected) != 1:
+            return
+        chosen = selected[0]
+        for option in options:
+            if self._required_text(option, "option_id") != chosen:
+                continue
+            metadata = option.get("metadata")
+            if not isinstance(metadata, dict):
+                return
+            source = str(metadata.get("source_object_id") or "")
+            facts = _option_cost_facts(metadata)
+            if source and facts is not None:
+                self._priority_cost_facts[seat] = {source: facts}
+            return
+
+    def _remembered_priority_cost_facts(
+        self, seat: int, source_object: Any
+    ) -> tuple[int, int] | None:
+        """This seat's remembered cost for this exact announce source, if any."""
+        if not isinstance(source_object, dict):
+            return None
+        source = str(source_object.get("source_object_id") or "")
+        if not source:
+            return None
+        return self._priority_cost_facts.get(seat, {}).get(source)
 
     def _priority_action_affordable(self, option: dict[str, Any], state: dict[str, Any]) -> bool:
         """Pilot-side discretionary ranking among engine-authorized options.
@@ -1766,7 +1873,10 @@ class ExternalPilotDecisionPolicy:
         strategy hint (see ``_announce_x_affordable_max``). That hint narrows
         the band the pilot strategy picks inside; it never narrows, moves or
         re-derives the authoritative domain, which is still the only thing
-        validated here and the only thing the bridge accepts.
+        validated here and the only thing the bridge accepts. It is derived
+        from the cost the engine itself reported on the priority option that
+        started this action, or, failing that, from the budget alone; it never
+        costs the Lab anything to compute and never leaves the domain.
         """
         minimum = self._required_bound(context, "numeric_min")
         maximum = self._required_bound(context, "numeric_max")
@@ -1781,7 +1891,9 @@ class ExternalPilotDecisionPolicy:
             "prompt": prompt,
         }
         if decision_class == "announce_x":
-            affordable_max = self._announce_x_affordable_max(state, context, source_object)
+            affordable_max = self._announce_x_affordable_max(
+                runtime, state, context, source_object, prompt
+            )
             if affordable_max is not None:
                 domain["affordable_max"] = affordable_max
         chosen = runtime.pilot.choose_number(self._pilot_state(runtime, state), domain, rng)
@@ -1797,17 +1909,27 @@ class ExternalPilotDecisionPolicy:
         return chosen
 
     @staticmethod
-    def _x_cost_facts(context: dict[str, Any], source_object: Any) -> tuple[int, int] | None:
+    def _x_cost_facts(
+        context: dict[str, Any],
+        source_object: Any,
+        remembered: tuple[int, int] | None = None,
+    ) -> tuple[int, int] | None:
         """The announced X's non-X cost and how many X symbols carry it.
 
         Read from the Core-supplied request context, or from the bridge's
         ``source_object`` metadata for the ability being announced. Both are
         engine-supplied facts; the Lab never derives a mana cost itself.
 
+        When neither names a cost at all, ``remembered`` is used: the cost the
+        engine reported on the priority option this seat chose, which is the
+        same action's cost reached by the other half of the frame pair. It is
+        consulted only when both direct reads are absent, so a cost stated on
+        the frame itself always wins.
+
         Returns ``(non_x_mana_value, x_symbols)`` or ``None`` when the cost is
         not readable. ``None`` is the conservative answer for every shape that
         is absent, non-integer, boolean, negative, or zero-symbol: no cost
-        facts means no affordability hint, never a fabricated one.
+        facts means no cost guess, only the bounded budget fallback.
         """
         sources: list[dict[str, Any]] = [context]
         if isinstance(source_object, dict):
@@ -1823,6 +1945,8 @@ class ExternalPilotDecisionPolicy:
 
         non_x = read("numeric_non_x_mana_value")
         symbols = read("numeric_x_symbols")
+        if non_x is None and symbols is None:
+            return remembered
         if non_x is None or symbols is None:
             return None
         if non_x < 0 or symbols < 1:
@@ -1860,29 +1984,49 @@ class ExternalPilotDecisionPolicy:
 
     def _announce_x_affordable_max(
         self,
+        runtime: _RuntimePilot,
         state: dict[str, Any],
         context: dict[str, Any],
         source_object: Any,
+        prompt: str,
     ) -> int | None:
         """Largest announced X the pilot's visible mana could pay (#700).
 
         ``budget // x_symbols - non_x_mana_value``: the announced X cannot
         exceed the mana the pilot can see it producing minus the rest of the
         cost, and a cost carrying several X symbols shares the budget between
-        them. ``None`` means affordability could not be read, and the pilot
-        then keeps the pre-existing whole-domain behaviour.
+        them.
 
-        Known limitation, not repaired here: the pinned bridge sends neither
-        the non-X cost nor the X count on an ``announce_x`` frame, so on real
-        engine traffic this hint is absent and the domain is used unchanged.
-        Supplying those two facts is a bridge change outside this
-        workstream; until then the Lab never guesses a cost. The budget also
-        ignores the announced ability's own tap or sacrifice cost, so a source
-        that spends itself can leave this an over-estimate by one.
+        Only a mana X is budgeted at all. ``Player.announceX`` also serves the
+        engine's non-mana ``announceXCost``, and a power/toughness or counter
+        X is not paid in mana, so budgeting it against the pool would bound a
+        value by a resource that never had anything to do with it. The engine
+        prints the mana symbol in its own prompt for the mana case
+        (``_MANA_X_PROMPT_SYMBOL``) and nothing of the sort otherwise, so that
+        prompt is the discriminator.
+
+        When the cost itself is unreadable, the bounded fallback is the whole
+        visible budget: a non-X cost of 0 over a single X symbol. That still
+        keeps the choice inside the mana the pilot can see instead of the
+        engine's ``Integer.MAX_VALUE`` ceiling, and it stays conservative in
+        the safe direction — it can only announce a smaller X than the domain
+        allows, never one the domain forbids.
+
+        Residual, not repaired here: the budget ignores the announced
+        ability's own tap or sacrifice cost, so a source that spends itself
+        can leave this an over-estimate by one, and one permanent is counted
+        as one mana. Both are already documented on ``_mana_budget``.
         """
-        facts = self._x_cost_facts(context, source_object)
-        if facts is None:
+        if not _MANA_X_PROMPT_SYMBOL.search(prompt or ""):
             return None
+        seat = runtime.binding.seat
+        facts = self._x_cost_facts(
+            context,
+            source_object,
+            self._remembered_priority_cost_facts(seat, source_object),
+        )
+        if facts is None:
+            facts = (0, 1)
         non_x, symbols = facts
         return self._mana_budget(state) // symbols - non_x
 
