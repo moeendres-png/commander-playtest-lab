@@ -109,6 +109,8 @@ Owner-only reservations and the non-relaxable invariants are defined in `AGENTS.
 "Claude Opus 5.5 Coordinator authority". It does not change the OpenCode executor
 allowlist or the native `max` pinning above.
 
-`PRODUCTION_PROVIDER = NOT_SELECTED`
+`PRODUCTION_PROVIDER = XMAGE` (selected at the Freeze. The application runtime switch, D5,
+is pending, and `provider_decision = NO_PROVIDER_READY` holds until it is done.)
 
-`ARCHITECTURE_FREEZE = NOT_CLAIMED`
+`ARCHITECTURE_FREEZE = CLAIMED` (2026-10-10, Owner-signed:
+`docs/architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md`)

@@ -157,5 +157,20 @@
   "source_archive": "https://github.com/moeendres-png/forge/archive/bb0a740d2bef725194798383c2452213ecdd0b37.tar.gz",
   "status": "PARTIAL_R1_ADMITTED_CURRENT_QUALIFICATION_CANDIDATE"
  },
- "truth_boundary": "B4-D is external_rules_engine evidence for real pinned XMage deck import, Commander construction/start, live state observation, current-priority decision/legal-action handoff, real priority passing, stale decision/action rejection, bounded submission-ready targetless/nonmodal action execution including a real Rograkh commander cast, an externally exportable monotonic bridge audit event stream with action/decision identity and pre/post state hashes, and explicit per-game XMage lifecycle cleanup/reuse. The audit stream covers real bridge/XMage lifecycle and externally controlled action boundaries; it is not claimed to be an exhaustive raw internal XMage GameEvent tap. Globally complete legal-action enumeration and action submission remain unproven because target, mode, choice and combat classes are incomplete. Mulligan, seed-control, replay and complete production game-loop coverage remain unproven. This is not win-rate evidence and does not make XMage a production-ready provider."
+ "truth_boundary": "B4-D is external_rules_engine evidence for real pinned XMage deck import, Commander construction/start, live state observation, current-priority decision/legal-action handoff, real priority passing, stale decision/action rejection, bounded submission-ready targetless/nonmodal action execution including a real Rograkh commander cast, an externally exportable monotonic bridge audit event stream with action/decision identity and pre/post state hashes, and explicit per-game XMage lifecycle cleanup/reuse. The audit stream covers real bridge/XMage lifecycle and externally controlled action boundaries; it is not claimed to be an exhaustive raw internal XMage GameEvent tap. Globally complete legal-action enumeration and action submission remain unproven because target, mode, choice and combat classes are incomplete. Mulligan, seed-control, replay and complete production game-loop coverage remain unproven. This is not win-rate evidence and does not make XMage a production-ready provider.",
+ "architecture_freeze": {
+  "status": "CLAIMED",
+  "date": "2026-10-10",
+  "signed_by": "Owner",
+  "adr": "docs/architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md",
+  "owner_decisions": "docs/architecture_freeze_20261010/OWNER_DECISIONS_20261010.md",
+  "freeze_record": "docs/architecture_freeze_20261010/FREEZE_RECORD_XMAGE.json",
+  "evidence_epoch": "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4",
+  "rules_core": "xmage",
+  "production_provider": "xmage",
+  "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
+  "runtime_switch": "PENDING_D5",
+  "note": "provider_decision and current_runtime describe the launched B4-D runtime and change only with the D5 runtime switch"
+ }
 }
