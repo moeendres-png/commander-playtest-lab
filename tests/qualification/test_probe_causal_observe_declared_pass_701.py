@@ -125,7 +125,9 @@ class _Client:
             {"option_type": "pass_priority", "option_id": f"pass-{frame['seat']}"}
         ]
         if frame.get("multi", frame["class"] == "priority"):
-            options.append({"option_type": "activate_ability", "option_id": f"cast-{frame['seat']}"})
+            options.append(
+                {"option_type": "activate_ability", "option_id": f"cast-{frame['seat']}"}
+            )
         return {
             "decision_class": frame["class"],
             "decision_id": f"d-{frame['seat']}-{'m' if len(options) > 1 else 's'}",
@@ -355,9 +357,12 @@ def test_the_scripted_terminal_still_passes_a_single_option_frame_for_a_non_acto
     client = _Client(
         [
             _priority(1, _position(step="POSTCOMBAT_MAIN"), multi=False),
-            {"class": "choice", "seat": 0, "view": _position(), "actions": [
-                {"action_id": "red", "metadata": {"label": "Red"}}
-            ]},
+            {
+                "class": "choice",
+                "seat": 0,
+                "view": _position(),
+                "actions": [{"action_id": "red", "metadata": {"label": "Red"}}],
+            },
         ]
     )
     authority = probe.PassAuthority(record)
@@ -365,5 +370,7 @@ def test_the_scripted_terminal_still_passes_a_single_option_frame_for_a_non_acto
     assert client.submitted == [["pass-1"]]
     assert [entry["scope"] for entry in authority.trace] == ["single_option"]
     assert authority.trace[0]["actor"] == "P2"
-    assert terminal["observed"] is False  # the engine asked ``choice``, the record scripts a choice for P1
+    assert (
+        terminal["observed"] is False
+    )  # the engine asked ``choice``, the record scripts a choice for P1
     assert "choice:P1" in terminal["detail"]

@@ -71,6 +71,19 @@ def _record(actor: str, family: str, value: Any) -> dict[str, Any]:
     }
 
 
+def _observe(
+    probe: Any, engine: RecordedEngine, record: dict[str, Any], placed: dict[str, str]
+) -> Any:
+    """Run the scripted terminal under #701: every pass travels through ``declared_pass``.
+
+    These frames are all single-option (the engine offers only the pass), so they
+    leave no choice and pass under the ``single_option`` scope; the record's
+    ``priority_pass_through`` declaration and checkpoint are exercised by
+    ``test_probe_causal_observe_declared_pass_701.py``.
+    """
+    return probe.observe_scripted_decision(engine, "t", record, placed, probe.PassAuthority(record))
+
+
 def _offer(native_id: str) -> dict[str, Any]:
     return {"action_id": native_id, "metadata": {"xmage_option_metadata": {"object_id": native_id}}}
 
@@ -79,9 +92,7 @@ def test_the_scripted_object_choice_after_engine_passes_is_observed(probe: Any) 
     engine = RecordedEngine(
         [_priority(1), _priority(0), _frame("choose_object", 0, [_offer("n-a"), _offer("n-b")])]
     )
-    terminal = probe.observe_scripted_decision(
-        engine, "t", _record("P1", "choose_object", "obj:a"), {"obj:a": "n-a"}
-    )
+    terminal = _observe(probe, engine, _record("P1", "choose_object", "obj:a"), {"obj:a": "n-a"})
     assert terminal["observed"] is True
     assert engine.submitted == ["pass-1", "pass-0"]
 
@@ -89,9 +100,7 @@ def test_the_scripted_object_choice_after_engine_passes_is_observed(probe: Any) 
 def test_a_different_engine_class_is_reported_not_aliased(probe: Any) -> None:
     boolean = [{"action_id": "y", "metadata": {"xmage_option_metadata": {"value": True}}}]
     engine = RecordedEngine([_frame("choose_use", 0, boolean)])
-    terminal = probe.observe_scripted_decision(
-        engine, "t", _record("P1", "replacement_effect", True), {}
-    )
+    terminal = _observe(probe, engine, _record("P1", "replacement_effect", True), {})
     assert terminal["observed"] is False
     assert "replacement_effect:P1" in terminal["detail"]
     assert "choose_use:P1" in terminal["detail"]
@@ -99,9 +108,7 @@ def test_a_different_engine_class_is_reported_not_aliased(probe: Any) -> None:
 
 def test_the_scripted_decision_asked_of_another_player_is_not_observed(probe: Any) -> None:
     engine = RecordedEngine([_frame("choose_object", 3, [_offer("n-a")])])
-    terminal = probe.observe_scripted_decision(
-        engine, "t", _record("P2", "choose_object", "obj:a"), {"obj:a": "n-a"}
-    )
+    terminal = _observe(probe, engine, _record("P2", "choose_object", "obj:a"), {"obj:a": "n-a"})
     assert terminal["observed"] is False
     assert "choose_object:P4" in terminal["detail"]
 
@@ -112,7 +119,7 @@ def test_an_ambiguous_choice_fails_closed(probe: Any) -> None:
         for i, label in enumerate(["Red", "red"])
     ]
     engine = RecordedEngine([_frame("choice", 0, labels)])
-    terminal = probe.observe_scripted_decision(engine, "t", _record("P1", "choice", "RED"), {})
+    terminal = _observe(probe, engine, _record("P1", "choice", "RED"), {})
     assert terminal["observed"] is False
 
 
@@ -126,9 +133,9 @@ def test_the_scripted_caster_holding_priority_is_never_passed(probe: Any) -> Non
     }
     decision, _ = _priority(0)
     engine = RecordedEngine([_priority(1), (decision, {"actions": [cast]})])
-    terminal = probe.observe_scripted_decision(
+    terminal = _observe(
+        probe,
         engine,
-        "t",
         _record("P1", "priority", {"action": "cast", "object": "obj:spell"}),
         {"obj:spell": "n-spell"},
     )
