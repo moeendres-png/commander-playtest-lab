@@ -61,6 +61,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class XmageFullGameReversedActivationTest {
 
     private static final String SHELOB = "Shelob, Dread Weaver";
+    private static final String SNARE = "Selective Snare";
+
+    /**
+     * The creature type the harness is told to filter on. No permanent the
+     * fixture creates carries it: the only thing {@link XmageMultiplayerScenario}
+     * puts on a battlefield by itself is that seat's Rograkh commander, a Goblin
+     * Warrior. The test asserts the empty legal set rather than trusting that.
+     */
+    private static final String CREATURE_TYPE = "Zombie";
 
     /**
      * Red before the fix ({@code XMAGE_ACTION_EXECUTION_FAILED} /
@@ -163,7 +172,138 @@ class XmageFullGameReversedActivationTest {
                         + "XMAGE_ACTION_EXECUTION_FAILED");
     }
 
+    /**
+     * P3-2, cast branch: the SAME engine-evidenced reversal must also be read on
+     * the spell path, not only on the activated-ability path.
+     *
+     * <p>{@code AbilityImpl.activate} runs one code path for a spell and for an
+     * activated ability alike (pinned XMage 1.4.61, AbilityImpl.java:419/432):
+     * {@code adjustX}, then {@code handleManaXCosts} (the only caller of
+     * {@code announceX} for an {X} mana cost), then {@code getModes().choose},
+     * then {@code adjustTargets(game)} and {@code getTargets().chooseTargets} —
+     * all before any cost is paid. Selective Snare (Oracle: "{X}{U}: Return X
+     * target creatures of the creature type of your choice to their owner's
+     * hand.") is the spell at this pin whose REQUIRED target depends on the
+     * announced X: {@code SelectiveSnareAdjuster} asks a non-target
+     * {@code ChoiceCreatureType}, then clears the targets and adds
+     * {@code new TargetPermanent(xValue, filter)} — a target whose minimum IS
+     * the announced X. With X = 2 and no creature of that type in play,
+     * {@code canChooseFromPossibleTargets} is false, so
+     * {@code Targets.makeChoice} skips it at Targets.java:103 WITHOUT calling
+     * the player, returns {@code isChosen(game)} = false, and
+     * {@code activate} returns false. {@code PlayerImpl.cast} then runs
+     * {@code restoreState(bookmark, ...)} — the same 601.2e rewind as
+     * {@code playAbility}.
+     *
+     * <p>Because the adjuster's menu is a {@code Choice} and not a
+     * {@code Target}, the bridge's own target callback still never runs, so
+     * {@code emptyRequiredTarget} stays false and this is precisely the state
+     * {@code reversedRequiredXTarget} exists to identify.
+     *
+     * <p>Red before the cast-branch hunk ({@code XMAGE_ACTION_EXECUTION_FAILED}
+     * / "priority cast failed"), green after: no failure is recorded, the Lab
+     * never passes priority on the player's behalf, and the same seat is asked
+     * again with the spell back in its hand.
+     */
+    @Test
+    void castWithNoLegalXTargetIsReversedNotFailed() {
+        XmageMultiplayerScenario s = snareInHand("issue703-cast-x");
+        Game game = s.session.restorationGame();
+
+        // Precondition: the filter the adjuster builds from CREATURE_TYPE has an
+        // empty legal set, which is what makes canChoose false for every value.
+        assertTrue(noPermanentOfType(game, CREATURE_TYPE),
+                "precondition: no " + CREATURE_TYPE + " is in play, so the X-dependent "
+                        + "target the card's own adjuster builds has no legal choice: "
+                        + battlefieldSummary(game));
+        assertEquals("P1", s.actor(), "control: P1 holds priority at turn 1 precombat main");
+
+        JsonObject castOffer = XmageExternalRiskSignalTest.spellOffer(
+                s.session.legalActionsPayload(), SNARE);
+        assertNotNull(castOffer, "P1 is offered the {X}{U} sorcery: " + s.labels());
+
+        int turn = game.getTurnNum();
+        String step = game.getStep().getType().name();
+
+        // The real engine announces X for the real spell ability through the
+        // bridge's real announceX callback, then the card's own adjuster asks
+        // for the creature type through the lane's non-target Choice dialog.
+        s.submit(castOffer);
+        assertEquals("announce_x", s.decisionClass(),
+                "the {X} cost is announced before targets are chosen: " + s.prompt());
+        assertEquals("P1", s.actor(), "the same seat announces the value");
+        announceX(s, "issue703-cast-x-announce", 2);
+
+        assertEquals("choice", s.decisionClass(),
+                "SelectiveSnareAdjuster asks for the creature type through the engine's own "
+                        + "non-target Choice dialog: " + s.labels());
+        assertTrue(s.labels().stream().anyMatch(label -> label.contains(CREATURE_TYPE)),
+                "the engine's own creature-type menu is what the pilot is offered: "
+                        + s.labels());
+        assertEquals("P1", s.actor(), "the same seat answers the creature type");
+        s.submit(s.action("choice", CREATURE_TYPE));
+
+        JsonObject after = s.session.pendingDecisionPayload();
+        assertTrue(after.get("failure").isJsonNull(),
+                "REGRESSION GUARD: before the cast-branch hunk this frame ended the game with "
+                        + "XMAGE_ACTION_EXECUTION_FAILED / 'priority cast failed'. An "
+                        + "engine-reversed cast must not fail the game. Observed lane failure: "
+                        + after.get("failure"));
+        // The lane blocks on the next pending decision, so a target frame would
+        // have surfaced here. Seeing priority proves the engine itself skipped
+        // the unchoosable required target without ever asking the bridge for one.
+        assertEquals("priority", s.decisionClass(),
+                "the engine never asked the bridge for a target, and the same player receives "
+                        + "priority again: " + s.labels());
+        assertEquals("P1", s.actor(), "the rewind returns priority to the same seat");
+        assertFalse(game.getState().isGameOver(), "the game is not over");
+        assertFalse(s.seats.get("P1").isPassed(),
+                "the lane must not pass priority for the player after a reversal");
+        assertTrue(game.getStack().isEmpty(), "a reversed cast puts nothing on the stack");
+        assertEquals(turn, game.getTurnNum(), "the rewind returns to the same turn");
+        assertEquals(step, game.getStep().getType().name(), "the rewind returns to the same step");
+        assertTrue(inHand(game, s, SNARE),
+                "PlayerImpl.cast ran restoreState(bookmark, ...): the spell is back in hand");
+        assertEquals(0, s.seats.get("P1").getManaPool().getMana().count(),
+                "targets are chosen before any cost is paid, so no mana was paid");
+        assertNotNull(XmageExternalRiskSignalTest.spellOffer(
+                        s.session.legalActionsPayload(), SNARE),
+                "the spell is still castable: the game continues");
+    }
+
     // ---- fixture ------------------------------------------------------------
+
+    /**
+     * A real started 2P game with Selective Snare in P1's hand and three
+     * untapped Islands: enough to offer and pay {X}{U} at X = 2.
+     */
+    private static XmageMultiplayerScenario snareInHand(String tag) {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(XmageMultiplayerScenario.obj("P1", SNARE, 0, Zone.HAND));
+        for (int i = 0; i < 3; i++) {
+            objects.add(XmageMultiplayerScenario.obj("P1", "Island", i, Zone.BATTLEFIELD));
+        }
+        return XmageMultiplayerScenario.start(tag, 2, "P1", objects);
+    }
+
+    /** True when nothing on the battlefield carries {@code subtype}. */
+    private static boolean noPermanentOfType(Game game, String subtype) {
+        return game.getBattlefield().getAllActivePermanents().stream()
+                .noneMatch(permanent -> permanent.getSubtype(game).stream()
+                        .anyMatch(type -> subtype.equals(type.toString())));
+    }
+
+    private static String battlefieldSummary(Game game) {
+        List<String> names = game.getBattlefield().getAllActivePermanents().stream()
+                .map(permanent -> permanent.getName() + permanent.getSubtype(game))
+                .toList();
+        return String.join(", ", names);
+    }
+
+    private static boolean inHand(Game game, XmageMultiplayerScenario s, String name) {
+        return s.seats.get("P1").getHand().getCards(game).stream()
+                .anyMatch(card -> name.equals(card.getName()));
+    }
 
     /**
      * A real started 2P game with Shelob and four untapped Swamps on P1's
