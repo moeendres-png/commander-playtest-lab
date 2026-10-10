@@ -67,30 +67,33 @@ def test_hand_edited_missing_list_fails_the_check(
 def test_runtime_list_fails_closed_without_its_evidence(tmp_path: Path) -> None:
     module = _derive_module()
     everything = sorted(module.REQUIRED_CAPABILITIES)
+    pin = "b" * 40
+    bridge = "b4d_event_log_lifecycle_bridge"
+    path = tmp_path / "AF01_XMAGE_COMPATIBILITY_SUPPORT.json"
+
+    def missing_with(**changes: object) -> list[str]:
+        report: dict[str, object] = {
+            "verdict": "PASS",
+            "lane": "compatibility",
+            "engine_commit_reported": pin,
+            "capabilities_provider_reported": {name: True for name in everything},
+        }
+        report.update(changes)
+        path.write_text(json.dumps(report), encoding="utf-8")
+        return list(module.runtime_missing(tmp_path, bridge, pin))
+
     # No compatibility-lane AF01 in the epoch: every required capability is missing.
-    assert module.runtime_missing(tmp_path, "b4d_event_log_lifecycle_bridge") == everything
-    report = {
-        "verdict": "FAIL",
-        "lane": "compatibility",
-        "capabilities_provider_reported": {name: True for name in everything},
-    }
-    (tmp_path / "AF01_XMAGE_COMPATIBILITY_SUPPORT.json").write_text(
-        json.dumps(report), encoding="utf-8"
-    )
-    assert module.runtime_missing(tmp_path, "b4d_event_log_lifecycle_bridge") == everything
-    report["verdict"] = "PASS"
-    report["lane"] = "full-game"
-    (tmp_path / "AF01_XMAGE_COMPATIBILITY_SUPPORT.json").write_text(
-        json.dumps(report), encoding="utf-8"
-    )
-    assert module.runtime_missing(tmp_path, "b4d_event_log_lifecycle_bridge") == everything
-    report["lane"] = "compatibility"
-    (tmp_path / "AF01_XMAGE_COMPATIBILITY_SUPPORT.json").write_text(
-        json.dumps(report), encoding="utf-8"
-    )
-    assert module.runtime_missing(tmp_path, "b4d_event_log_lifecycle_bridge") == []
+    assert module.runtime_missing(tmp_path, bridge, pin) == everything
+    assert missing_with() == []
+    assert missing_with(verdict="FAIL") == everything
+    assert missing_with(lane="full-game") == everything
+    assert missing_with(engine_commit_reported="c" * 40) == everything
+    assert missing_with(capabilities_provider_reported=["legal_actions_supported"]) == everything
+    truthy = {name: True for name in everything}
+    truthy["replay_supported"] = "true"
+    assert missing_with(capabilities_provider_reported=truthy) == ["replay_supported"]
     with pytest.raises(SystemExit):
-        module.runtime_missing(tmp_path, "an_unmapped_bridge")
+        module.runtime_missing(tmp_path, "an_unmapped_bridge", pin)
 
 
 def test_newest_epoch_is_bound_to_the_current_pin() -> None:

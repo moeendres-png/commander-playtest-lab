@@ -67,11 +67,12 @@ def newest_epoch_for_pin(pin: str) -> Path:
     return max(candidates)[1]
 
 
-def runtime_missing(epoch: Path, bridge: str) -> list[str]:
+def runtime_missing(epoch: Path, bridge: str, pin: str) -> list[str]:
     """Required capabilities the launched runtime does not report true in this epoch.
 
-    Fail closed: an unmapped bridge stops the derivation; an absent, non-PASS or
-    wrong-lane AF01 for that runtime counts every required capability missing.
+    Fail closed: an unmapped bridge stops the derivation; an absent, non-PASS,
+    wrong-lane or other-engine AF01 for that runtime counts every required
+    capability missing, and only a literal ``true`` counts as reported.
     """
     if bridge not in RUNTIME_EVIDENCE:
         raise SystemExit(f"no runtime evidence is mapped for production_bridge {bridge!r}")
@@ -84,6 +85,7 @@ def runtime_missing(epoch: Path, bridge: str) -> list[str]:
     if (
         report.get("verdict") != "PASS"
         or report.get("lane") != lane
+        or report.get("engine_commit_reported") != pin
         or not isinstance(capabilities, dict)
     ):
         return sorted(REQUIRED_CAPABILITIES)
@@ -98,7 +100,7 @@ def derive(epoch: Path | None = None) -> tuple[Path, list[str], list[str]]:
     # The assembler verifies the epoch seal before anything in it is read.
     result = assemble_freeze_record(chosen, repo_root=REPO_ROOT, expected_pin=pin)
     engine = list(result.record["truthful_capabilities"]["missing_required_capabilities"])
-    return chosen, engine, runtime_missing(chosen, str(config.get("production_bridge")))
+    return chosen, engine, runtime_missing(chosen, str(config.get("production_bridge")), pin)
 
 
 def main(argv: list[str] | None = None) -> int:
