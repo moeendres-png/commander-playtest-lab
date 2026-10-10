@@ -5,9 +5,9 @@
   "branch": "fix/700-affordable-x",
   "audit_base_sha": "f881d56fb33fab3fc58c08de51b732614a1457c1",
   "audit_base_tree": "aef9f7f660b47739df92ba8c19028e1067b6614f",
-  "state_written_against_head": "db41c8ae7fcf55d0d62f8468356d13a4ee7dca3b",
-  "validated_head": "db41c8ae7fcf55d0d62f8468356d13a4ee7dca3b",
-  "validated_tree": "c78a90fc495e26b177c9fe535ecd4c8661b2e8be",
+  "state_written_against_head": "92195cb8236ff8528ad21b8ba57a318d020093eb",
+  "validated_head": "92195cb8236ff8528ad21b8ba57a318d020093eb",
+  "validated_tree": "346c66242fd50c31f7be51988bc43286ac3fd74d",
   "materiality": "MATERIAL",
   "cross_executor_review": null,
   "objective": "Issue #700: when the pilot announces a mana X (announce_x), it chooses an X its pilot-visible mana can pay, in both deterministic and stochastic modes. The authoritative domain stays untouched and is still validated (WS229 Design B).",
@@ -25,7 +25,7 @@
     "Every other branch and issue"
   ],
   "ownership": "OpenCode Foundry Space Bunny MAX (opencode/space-bunny-free, native max) implementing issue #700 under the Claude autonomous-engineering thread. Single owned writable surface: branch fix/700-affordable-x.",
-  "status": "COMPLETE",
+  "status": "WAITING",
   "execution_profile": "space-bunny",
   "executor_model": "Space Bunny MAX (opencode/space-bunny-free) at native max",
   "native_variant": "max",
@@ -51,16 +51,25 @@
     "Whole tests/unit at db41c8ae -> 1863 passed, 2 skipped in 498.22s, exit 0.",
     "ruff check on the three changed files -> All checks passed, exit 0. ruff format --check -> 3 files already formatted, exit 0.",
     "git merge-tree --write-tree origin/fix/692-pilot-review-findings db41c8ae -> exit 0, no conflict.",
-    "NOT_RUN: no JVM/engine-bridge run, no real-deck rerun, no CI on this head, no qualification credit."
+    "NOT_RUN: no JVM/engine-bridge run, no real-deck rerun, no CI on this head, no qualification credit.",
+    "REVIEW-FINDING REPAIR (92195cb8). RED at 8df3d452 with only the test file kept (src/commander_lab/engine/rules/full_game.py reverted to the committed source): tests/unit/test_ws700_affordable_x.py -> 5 failed, 29 passed in 0.10s, exit 1, each for its asserted reason: test_x_symbol_count_comes_from_the_engine_prompt 'assert 3 == 1'; test_every_x_symbol_of_a_wider_cost_shares_the_same_budget 'assert 5 == 1'; test_the_remembered_cost_is_consumed_by_the_announce_that_used_it 'assert 3 == 5'; test_budget_fallback_is_not_a_mana_budget_for_a_non_mana_x 'assert 5 == 2147483647'; test_a_non_mana_x_is_not_budgeted_even_with_a_remembered_mana_cost 'assert 3 == 2147483647'.",
+    "GREEN at 92195cb8: tests/unit/test_ws700_affordable_x.py + test_ws229_numeric_domain.py + test_full_game_pilot_mana_and_may.py + test_priority_affordability_gate.py -> 118 passed in 0.17s, exit 0. tests/unit/test_ws700_affordable_x.py alone -> 34 passed in 0.07s, exit 0.",
+    "Wider pilot/full-game sweep at 92195cb8 (14 files: test_pilots, test_xmage_full_game, test_xmage_full_game_decision_matrix, test_priority_workflows, test_full_game_hidden_audit, test_full_game_failure_privacy, test_full_game_shutdown, test_full_game_semantic_tape_gate, test_semantic_replay_tape, test_multi_pilot_ensembles and the four required files) -> 240 passed in 14.39s, exit 0.",
+    "ruff check -> All checks passed, exit 0. ruff format --check -> 3 files already formatted, exit 0, both at 92195cb8.",
+    "git merge-tree --write-tree origin/fix/692-pilot-review-findings 92195cb8 -> exit 0, no conflict.",
+    "ENVIRONMENT: this runtime had no pytest/ruff installed; pytest 9.1.1 and ruff 0.17.0 plus the direct runtime pins (pydantic 2.13.4, openpyxl 3.1.5, PyYAML 6.0.3) were installed from the index to run these suites. The full lock (requirements/lock.txt) targets Python 3.14 and was not installed. Repo-wide lint/tests on this head: NOT_RUN.",
+    "NOT_RUN at 92195cb8: no JVM/engine-bridge run, no real-deck rerun, no CI on this head, no qualification credit."
   ],
   "remaining_scope": [
-    "Fresh-context /bunny-review of db41c8ae (MATERIAL workstream, not run here).",
-    "Real-deck 4P seed 4 rerun on this head (LOCAL_OBSERVED at best); NOT_RUN.",
+    "Fresh-context /bunny-review of 92195cb8 (MATERIAL workstream, not run here).",
+    "The real-deck 4P seed-4 rerun. Per the Coordinator's report a rerun on 8df3d452 announced X=1, which is no longer 2147483647, but the run still aborted for a DIFFERENT cause. That remaining abort is tracked as a separate issue and is NOT fixed by this branch.",
+    "Any older seeded record containing a mana X no longer replays identically (see technical_decisions).",
     "Exact-head CI on the PR; NOT_RUN at write time."
   ],
-  "exact_next_action": "Review PR for fix/700-affordable-x (head db41c8ae) and dispatch /bunny-review. The seed-4 end-to-end abort is now bounded on real engine traffic, but proving it needs a real-deck 4P seed-4 rerun, which this workstream did not run.",
+  "exact_next_action": "Coordinator: open the PR for fix/700-affordable-x (head 92195cb8) against main with 'Refs #700' and the Claude Code footer, do not merge, then dispatch /bunny-review on that head. The seed-4 abort is NOT claimed fixed here: the rerun on 8df3d452 announced X=1, which is no longer 2147483647, so the affordable-X defect no longer drives it, but that run still aborted for a different cause that is tracked as a separate issue and out of this workstream's scope.",
   "validated_gates": [
     "RED run observed at base",
+    "RED run observed again at 8df3d452 for every test added or rewritten by the review-finding repair",
     "Targeted unit suites green at head",
     "ruff check and ruff format --check clean",
     "No new mypy error",
@@ -70,11 +79,15 @@
   "technical_decisions": [
     "The cost is already in the Lab; it is missing from one frame only. XMage's priority() builds every option through abilityMetadata -> enrichAbilityCostFacts, and the announce_x frame raised inside that same action carries no cost at all. Remembering the chosen priority option's reported cost per seat bridges the hop with no bridge, protocol or pin change.",
     "X is EXCLUDED from mana_cost_*: XMage holds {X} as a VariableManaCost whose own cost Mana is empty (cost = new Mana()) and whose value is fixed only after the announce (AbilityImpl.handleManaXCosts announces before expanding the cost). So the sum of the seven mana_cost_* components is the non-X mana value, which for {X}{1}{B} is 2. Corroborated by the repo's own JVM test XmageCausalStackMechanicsTest, where Sagu Mauler's {3} morph offer reads mana_cost_generic == 3 with green/blue 0 -- mana_cost_generic counts generic symbols only.",
-    "X count is not published by the bridge, so it is assumed to be 1 (as the contract directs). {X}{X} therefore budgets as a single symbol: conservative in the announcing-too-little direction, which is the safe one.",
-    "Mana budgeting is gated on _MANA_X_PROMPT_SYMBOL matching the engine's own prompt. Player.announceX serves BOTH handleManaXCosts (prompt prints {X} / 2{X}) and the non-mana announceXCost (prompt prints no mana symbol). A power/toughness or counter X is not paid in mana, so bounding it by the mana pool would be wrong. This gate is also what keeps the synthetic WS229 announce_x frames (prompt 'announce_x') on their full domain, so no WS229 assertion was relaxed.",
-    "Bounded fallback when nothing is readable: non-X cost 0 over one X symbol, i.e. the whole visible budget. Still far below 2147483647 and only ever lower than the domain allows, so the authoritative domain stays the sole validation target.",
-    "The memory is keyed on the engine's own source_object_id for EQUALITY only; it never orders, ranks or counts anything, so it cannot make same-seed fresh-process twins diverge. Last selection only, per seat, dropped on that seat's next priority decision.",
-    "A cost stated directly on the announce frame wins over the remembered one, so an engine statement is never overridden by an older one.",
-    "Merge hygiene: fix/692-pilot-review-findings and this branch both inserted new module-level helpers at the same anchor after mana_payment_fit, and both inserted __init__ state on the line after _priority_repeat_count, which made git merge-tree conflict (verified: the conflict already existed at 00c81d51, before this change). This branch's new anchors were moved to places fix/692 does not touch. No fix/692 region was edited."
+    "SUPERSEDED at 92195cb8: the bridge publishes no X count, so it used to be assumed to be 1. The engine's own prompt carries it instead: VariableManaCost.getText() prints each symbol separately, '{X}{X}' for {X}{X} and never '2{X}', so the X count is read off the prompt whenever no frame states one. {X}{X} now budgets as two symbols over what the rest of the cost leaves.",
+    "Mana budgeting is gated on mana_x_prompt_symbols matching the engine's WHOLE prompt: 'Announce the value for ' followed by one or more '{X}' and nothing else. Player.announceX serves BOTH handleManaXCosts (VariableManaCost.getText()) and the non-mana VariableCostImpl.announce with isManaPay == false, which prints 'Announce the value for {X} (' + actionText + ')' -- a '{X}' token followed by more text. Searching the prompt for a '{X}' token classified that non-mana X as a mana X; matching the whole prompt does not. The same whole-prompt match supplies the X count. This gate also keeps the synthetic WS229 announce_x frames (prompt 'announce_x') on their full domain, so no WS229 assertion was relaxed.",
+    "X announcement is CR 601.2b with 107.3a; the earlier record cited 107.3b, which is not the announcement rule. The same correction is in _option_non_x_mana_value and mana_x_prompt_symbols.",
+    "The ceiling is (budget - non_x) // x_symbols, clamped at 0: the rest of the cost is paid out of the same visible mana, and several X symbols share what is left. The previous budget // symbols - non_x subtracted the whole rest of the cost from each symbol's share.",
+    "REPLAY NOTE: a seeded mana-X decision now draws from a narrower band than the same seed drew from before this repair, so an older seeded record containing a mana X does NOT replay identically against this head. Every seeded record without a mana X is unaffected: the hint is gated on the engine's mana prompt and on decision_class == 'announce_x'.",
+    "Bounded fallback when nothing is readable: non-X cost 0 over the prompt's own symbol count, i.e. the whole visible budget for the ordinary single-X cost. Still far below 2147483647 and only ever lower than the domain allows, so the authoritative domain stays the sole validation target.",
+    "A remembered cost is TAKEN, not copied. One cost is announced once, so a second announce_x naming the same source before that seat's next priority decision falls back to the budget instead of answering twice from the same cost. The take happens only after the prompt gate, so a non-mana announce never consumes a mana cost it is not the use of.",
+    "A cost stated directly on the announce frame wins over the remembered one, so an engine statement is never overridden by an older one. A frame that states only half a cost (a non-X value with no count) stays unusable as it was: the prompt count is not filled into a statement the engine left incomplete, so the pre-existing symbols-absent control still falls back to the budget.",
+    "The memory is keyed on the engine's own source_object_id for EQUALITY only; it never orders, ranks or counts anything, so it cannot make same-seed fresh-process twins diverge. Last selection only, per seat, dropped on that seat's next priority decision or by the announce that uses it.",
+    "Merge hygiene: fix/692-pilot-review-findings and this branch both inserted new module-level helpers at the same anchor after mana_payment_fit, and both inserted __init__ state on the line after _priority_repeat_count, which made git merge-tree conflict (verified: the conflict already existed at 00c81d51, before this change). This branch's new anchors were moved to places fix/692 does not touch. No fix/692 region was edited. git merge-tree --write-tree origin/fix/692-pilot-review-findings 92195cb8 -> exit 0."
   ]
 }
