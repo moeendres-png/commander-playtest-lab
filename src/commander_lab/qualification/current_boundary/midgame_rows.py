@@ -4766,6 +4766,10 @@ def execute_row(
     composed = mode == probe.CAUSAL_STACK_ELIMINATION
     # A composed entry builds the victim's stack first (and requires the stack
     # verifier's match), then eliminates the victim with that stack intact.
+    # #634 B2: every transport answer the causal helpers give on a player's
+    # behalf (a priority pass, a held attack, an empty block) must be declared
+    # by the record or leave no choice; each is traced into the reconstruction.
+    authority = probe.PassAuthority(record) if causal is not None else None
     if causal is not None and mode in ("causal_stack", probe.CAUSAL_STACK_ELIMINATION):
         declared_fuel = [str(card["semantic_id"]) for card in causal.get("fuel") or ()]
         fuel = [placed[semantic] for semantic in declared_fuel if semantic in placed]
@@ -4784,7 +4788,14 @@ def execute_row(
                 causal_reconstruction=unbuilt,
             )
         try:
-            probe.causal_stack_frames(client, f"{fixture_id}-causal", causal_plan, placed, fuel)
+            probe.causal_stack_frames(
+                client,
+                f"{fixture_id}-causal",
+                causal_plan,
+                placed,
+                fuel,
+                authority,
+            )
             verdict = probe.complete_causal(client, "stack").get("verdict") or {}
         except ml.MidgameLaneError as exc:
             return row_execution(
@@ -4802,6 +4813,7 @@ def execute_row(
                 for frame in causal_plan.get("frames_bottom_to_top") or ()
             ],
             "verdict": verdict,
+            "declared_transport": list(authority.trace) if authority is not None else [],
         }
         if not verdict.get("causal_match") or verdict.get("mismatches"):
             return row_execution(
@@ -4823,7 +4835,7 @@ def execute_row(
         # Caused permanents exist once their casts resolve; the verifier then
         # compares attachment and control with the record before the loss.
         try:
-            probe.resolve_stack(client, f"{fixture_id}-causal-resolve")
+            probe.resolve_stack(client, f"{fixture_id}-causal-resolve", authority)
             permanents = probe.complete_causal(client, "permanents").get("verdict") or {}
         except ml.MidgameLaneError as exc:
             return row_execution(
@@ -4870,7 +4882,9 @@ def execute_row(
         # inside the causal cause, so the obligation window opens before it.
         elimination_baseline = int(client.events(0)["latest_offset"])
         try:
-            verdict = probe.eliminate_causally(client, f"{fixture_id}-causal", created, causal)
+            verdict = probe.eliminate_causally(
+                client, f"{fixture_id}-causal", created, causal, authority
+            )
         except ml.MidgameLaneError as exc:
             return row_execution(
                 fixture_id,
@@ -4886,6 +4900,7 @@ def execute_row(
                 "victim": str(causal.get("elimination_victim")),
                 "bolt_count": int(causal.get("bolt_count") or 0),
                 "verdict": verdict,
+                "declared_transport": list(authority.trace) if authority is not None else [],
             }
         )
         if not (verdict.get("victim_lost") is True or verdict.get("victim_left") is True):
