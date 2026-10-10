@@ -256,12 +256,30 @@ final class DecisionClassMatrixHarness {
             }
             JsonObject chosen = FIRST.equals(next.description())
                     ? actions(frame).get(0)
+                    : TAP_LAND.equals(next.description())
+                    ? firstMatching(frame, next.pick(), scenario.id() + " step " + cursor)
                     : single(frame, next.pick(), scenario.id() + " step " + cursor);
             live.session().submitAction(proposal(frame, chosen));
             cursor++;
         }
         throw new AssertionError(scenario.id() + ": no target frame within 200 frames; trace "
                 + trace.subList(0, Math.min(40, trace.size())));
+    }
+
+    /**
+ * The first offered action matching {@code pick}, failing when none matches.
+ * Used where several actions of the same class are equally valid answers and
+ * the script names the kind rather than a unique label (several untapped
+ * lands are all correct answers to "tap a land for mana").
+ */
+    static JsonObject firstMatching(JsonObject frame, Predicate<JsonObject> pick, String where) {
+        for (JsonElement element : frame.getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            if (pick.test(action)) {
+                return action;
+            }
+        }
+        return fail(where + ": no offered action matched " + labels(frame));
     }
 
     static JsonObject single(JsonObject frame, Predicate<JsonObject> pick, String where) {
@@ -308,6 +326,25 @@ final class DecisionClassMatrixHarness {
     static Step selectNone(String decisionClass, String seat) {
         return new Step(decisionClass, seat, "select none", null);
     }
+
+    /**
+     * Declared payment step that floats mana: tap the first offered mana ability
+     * of this payment frame and answer nothing else.
+     *
+     * <p>{@code autoPayment} is off for this player
+     * ({@code userData.setManaPoolAutomatic(false)}), so
+     * {@code ManaCostsImpl.pay} keeps asking {@code playMana} after a land is
+     * tapped: the engine's own {@code assignPayment} returns immediately while
+     * no mana type is unlocked. The second {@code playMana} frame therefore
+     * carries the tapped mana in the pool and offers it as {@code mana_pool}
+     * options — the only shape in which the pool branch is reachable at all.</p>
+     */
+    static Step tapLand(String decisionClass, String seat) {
+        return new Step(decisionClass, seat, TAP_LAND,
+                action -> "mana_ability".equals(optionType(action)));
+    }
+
+    static final String TAP_LAND = "tap a land for mana";
 
     static JsonObject emptySelection(JsonObject frame) {
         JsonObject proposal = new JsonObject();
