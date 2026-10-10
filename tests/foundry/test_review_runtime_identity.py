@@ -325,6 +325,23 @@ def test_review_job_selects_and_checks_the_reviewer() -> None:
     names = [step["name"] for step in job["steps"]]
     assert names.index("Preflight reviewer runtime identity") < names.index("Run opencode")
     assert names.index("Run opencode") < names.index("Audit reviewer runtime identity")
-    # The implementation lanes keep their own default agent.
-    for lane in ("opencode", "opencode-bunny"):
-        assert "OPENCODE_CONFIG_CONTENT" not in (workflow["jobs"][lane].get("env") or {})
+
+
+def test_every_named_lane_agent_is_selected_through_the_config() -> None:
+    """AGENT is never read by the pinned CLI (#654, #685): a lane that names an
+    agent must select it as default_agent, and the /oc lane keeps the config's."""
+    workflow = yaml.safe_load(
+        (REPO_ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8")
+    )
+    lanes = {}
+    for name, job in workflow["jobs"].items():
+        run = next(s for s in job["steps"] if s.get("name") == "Run opencode")
+        content = (job.get("env") or {}).get("OPENCODE_CONFIG_CONTENT")
+        lanes[name] = (run["env"]["AGENT"], json.loads(content) if content else None)
+    assert lanes == {
+        "opencode": ("", None),
+        "opencode-bunny": ("bunny-verifier", {"default_agent": "bunny-verifier"}),
+        "opencode-bunny-review": ("foundry-reviewer", {"default_agent": "foundry-reviewer"}),
+    }
+    verifier = _frontmatter("bunny-verifier.md")
+    assert verifier["mode"] == "primary" and not verifier.get("hidden")
