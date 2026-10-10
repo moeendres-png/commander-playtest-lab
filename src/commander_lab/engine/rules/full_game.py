@@ -12,7 +12,9 @@ import shlex
 import subprocess
 import threading
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
+from functools import wraps
 from pathlib import Path
 from typing import Any, Literal, cast
 
@@ -21,7 +23,14 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from commander_lab.agents import BasePilot, build_pilot
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.base import resolve_engine_working_directory
-from commander_lab.engine.rules.failure_privacy import redacted_summary
+from commander_lab.engine.rules.failure_privacy import (
+    PUBLIC_FAILURE_CODES,
+    public_full_game_exception_message,
+    public_full_game_message,
+    redacted_exception,
+    redacted_exception_message,
+    redacted_summary,
+)
 from commander_lab.models import (
     ENGINE_PROTOCOL_VERSION,
     CardRole,
@@ -71,9 +80,15 @@ class FullGameProtocolError(RuntimeError):
         code: str | None = None,
         diagnostics: tuple[str, ...] = (),
     ) -> None:
-        super().__init__(message)
-        self.public_message = message
-        self.code = code
+        public = public_full_game_message(message, code=code)
+        super().__init__(public)
+        self.__suppress_context__ = True
+        self.public_message = public
+        self.code = (
+            code
+            if code is None or (type(code) is str and code in PUBLIC_FAILURE_CODES)
+            else "ENGINE_FAILURE"
+        )
         self.diagnostics = diagnostics
 
 
@@ -84,9 +99,45 @@ class FullGameConformanceError(RuntimeError):
     ``redacted_summary`` before it is interpolated (C4).
     """
 
+    def __init__(self, message: str) -> None:
+        super().__init__(public_full_game_message(message))
+        self.__suppress_context__ = True
+
     @property
     def public_message(self) -> str:
         return str(self)
+
+
+def public_full_game_errors[**P, T](operation: Callable[P, T]) -> Callable[P, T]:
+    """Keep engine parsing and pilot errors behind the shared public boundary."""
+
+    @wraps(operation)
+    def guarded(*args: P.args, **kwargs: P.kwargs) -> T:
+        try:
+            return operation(*args, **kwargs)
+        except Exception as exc:
+            if type(exc) is FullGameProtocolError:
+                # Even an exact public exception can carry a dict subclass or
+                # hostile keys. Never invoke its lookup/iteration/equality hooks.
+                metadata = {
+                    key: value for key, value in dict.items(exc.__dict__) if type(key) is str
+                }
+                raw_code = metadata.get("code")
+                code = raw_code if type(raw_code) is str or raw_code is None else "ENGINE_FAILURE"
+                # A pilot can attach private notes even to the exact public class.
+                # Rebuild the exception; never copy notes or traceback metadata.
+                raise FullGameProtocolError(
+                    public_full_game_exception_message(exc, code=code),
+                    code=code,
+                    diagnostics=metadata.get("diagnostics", ()),
+                ) from None
+            if issubclass(type(exc), FullGameConformanceError):
+                raise FullGameConformanceError(public_full_game_exception_message(exc)) from None
+            if issubclass(type(exc), FullGameProtocolError):
+                raise FullGameProtocolError(redacted_exception_message(exc)) from None
+            raise redacted_exception(exc) from None
+
+    return guarded
 
 
 class _StrictModel(BaseModel):
@@ -197,7 +248,9 @@ def audit_actor_scoped_frame(decision: dict[str, Any]) -> tuple[int, int, list[s
             continue
         for key in _PRIVATE_ROW_KEYS:
             if key in player:
-                violations.append(f"seat {player.get('seat')} exposes {key} to another principal")
+                seat = player.get("seat")
+                public_seat = seat if type(seat) is int and 0 <= seat <= 5 else "invalid"
+                violations.append(f"seat {public_seat} exposes {key} to another principal")
     return rows, visible, violations
 
 
@@ -516,7 +569,7 @@ class _RawFullGameClient:
                 redacted_summary("BRIDGE_START_FAILED", (str(exc),)),
                 code="BRIDGE_START_FAILED",
                 diagnostics=(str(exc),),
-            ) from exc
+            ) from None
         assert self._process.stdout is not None
         assert self._process.stderr is not None
         self._stdout_thread = threading.Thread(
@@ -532,6 +585,7 @@ class _RawFullGameClient:
         self._stdout_thread.start()
         self._stderr_thread.start()
 
+    @public_full_game_errors
     def request(self, message_type: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
         self.start()
         process = self._process
@@ -553,23 +607,23 @@ class _RawFullGameClient:
         process.stdin.flush()
         try:
             line = self._stdout_queue.get(timeout=self.request_timeout_seconds)
-        except queue.Empty as exc:
+        except queue.Empty:
             raise self._transport_error(
                 "BRIDGE_TIMEOUT", f"full-game bridge timeout for {message_type!r}"
-            ) from exc
+            ) from None
         if line is None:
             raise self._transport_error(
                 "BRIDGE_CLOSED", f"full-game bridge closed before replying to {message_type!r}"
             )
         try:
             response = EngineProtocolResponse.from_wire(json.loads(line))
-        except Exception as exc:
+        except Exception:
             raise FullGameProtocolError(
                 f"invalid full-game bridge response for {message_type!r}: "
                 + redacted_summary("INVALID_RESPONSE", (line,)),
                 code="INVALID_RESPONSE",
                 diagnostics=(line,),
-            ) from exc
+            ) from None
         if response.protocol_version != ENGINE_PROTOCOL_VERSION:
             raise FullGameProtocolError(
                 f"protocol mismatch: expected {ENGINE_PROTOCOL_VERSION}, "
@@ -743,6 +797,7 @@ class ExternalPilotDecisionPolicy:
             ],
         ] = {}
 
+    @public_full_game_errors
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
         decision_id = self._required_text(request, "decision_id")
         actor_id = self._required_text(request, "actor_id")
@@ -1055,8 +1110,8 @@ class ExternalPilotDecisionPolicy:
             return pass_id
         try:
             return raw_by_stable_id[decision.selected_action_id]
-        except KeyError as exc:
-            raise FullGameProtocolError("pilot returned unknown stable priority action") from exc
+        except KeyError:
+            raise FullGameProtocolError("pilot returned unknown stable priority action") from None
 
     def _priority_action_affordable(self, option: dict[str, Any], state: dict[str, Any]) -> bool:
         """Pilot-side discretionary ranking among engine-authorized options.
@@ -1210,8 +1265,8 @@ class ExternalPilotDecisionPolicy:
         take = max(min_selections, min(max_selections, take))
         try:
             return [raw_by_stable_id[stable_id] for _score, _label, stable_id in ranked[:take]]
-        except KeyError as exc:
-            raise FullGameProtocolError("pilot returned unknown stable target action") from exc
+        except KeyError:
+            raise FullGameProtocolError("pilot returned unknown stable target action") from None
 
     def _decide_semantic_option(
         self,
@@ -1241,8 +1296,8 @@ class ExternalPilotDecisionPolicy:
             raise FullGameProtocolError("Commander Lab pilot returned no semantic option")
         try:
             raw_id = raw_by_stable_id[decision.selected_action_id]
-        except KeyError as exc:
-            raise FullGameProtocolError("pilot returned unknown stable semantic option") from exc
+        except KeyError:
+            raise FullGameProtocolError("pilot returned unknown stable semantic option") from None
         return self._require_offered(raw_id, options, "semantic option")
 
     def _decide_mode(
@@ -1312,8 +1367,8 @@ class ExternalPilotDecisionPolicy:
             raise FullGameProtocolError("Commander Lab pilot returned no boolean decision")
         try:
             raw_id = raw_by_stable_id[decision.selected_action_id]
-        except KeyError as exc:
-            raise FullGameProtocolError("pilot returned unknown stable boolean option") from exc
+        except KeyError:
+            raise FullGameProtocolError("pilot returned unknown stable boolean option") from None
         return self._require_offered(raw_id, options, "boolean decision")
 
     def _decide_pile(
@@ -1367,8 +1422,8 @@ class ExternalPilotDecisionPolicy:
             raise FullGameProtocolError("Commander Lab pilot returned no pile decision")
         try:
             raw_id = raw_by_stable_id[decision.selected_action_id]
-        except KeyError as exc:
-            raise FullGameProtocolError("pilot returned unknown stable pile option") from exc
+        except KeyError:
+            raise FullGameProtocolError("pilot returned unknown stable pile option") from None
         return self._require_offered(raw_id, options, "pile decision")
 
     def _decide_mana(
@@ -1503,10 +1558,10 @@ class ExternalPilotDecisionPolicy:
                     raise FullGameProtocolError("Commander Lab pilot returned no mana decision")
                 try:
                     return raw_by_pool_view[pool_decision.selected_action_id]
-                except KeyError as exc:
+                except KeyError:
                     raise FullGameProtocolError(
                         "pilot returned unknown stable pool-mana action"
-                    ) from exc
+                    ) from None
 
         non_pool = [
             option
@@ -1568,8 +1623,8 @@ class ExternalPilotDecisionPolicy:
             raise FullGameProtocolError("Commander Lab pilot returned no mana decision")
         try:
             return raw_by_stable_id[decision.selected_action_id]
-        except KeyError as exc:
-            raise FullGameProtocolError("pilot returned unknown stable mana action") from exc
+        except KeyError:
+            raise FullGameProtocolError("pilot returned unknown stable mana action") from None
 
     @staticmethod
     def _required_bound(mapping: dict[str, Any], key: str) -> int:
@@ -1740,8 +1795,8 @@ class ExternalPilotDecisionPolicy:
             raise FullGameProtocolError("Commander Lab pilot returned no attack decision")
         try:
             return raw_by_stable_id[decision.selected_action_id]
-        except KeyError as exc:
-            raise FullGameProtocolError("pilot returned unknown stable attack action") from exc
+        except KeyError:
+            raise FullGameProtocolError("pilot returned unknown stable attack action") from None
 
     def _decide_blocks(
         self,
@@ -2138,6 +2193,7 @@ class XmageFullGameRunner:
         raw = os.getenv(XMAGE_FULL_GAME_COMMAND_ENV)
         return tuple(shlex.split(raw)) if raw else None
 
+    @public_full_game_errors
     def run(
         self,
         *,
@@ -2175,6 +2231,7 @@ class XmageFullGameRunner:
             scenario, provider, result, shutdown_disposition=disposition, hidden_audit=audit
         )
 
+    @public_full_game_errors
     def run_smoke(
         self,
         *,

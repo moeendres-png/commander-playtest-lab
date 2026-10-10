@@ -7,6 +7,9 @@ on:
     paths:
       - "engine-bridge/**"
       - "src/commander_lab/engine/rules/full_game.py"
+      - "src/commander_lab/engine/rules/failure_privacy.py"
+      - "tests/unit/test_full_game_failure_privacy.py"
+      - "tests/unit/test_failure_privacy_trust_boundary.py"
       # full_game.py fingerprints responses with semantic_replay helpers.
       - "src/commander_lab/semantic_replay/**"
       - "src/commander_lab/agents/**"
@@ -62,6 +65,9 @@ jobs:
             .github/actions/**
             engine-bridge/**
             src/commander_lab/engine/rules/full_game.py
+            src/commander_lab/engine/rules/failure_privacy.py
+            tests/unit/test_full_game_failure_privacy.py
+            tests/unit/test_failure_privacy_trust_boundary.py
             src/commander_lab/agents/**
             src/commander_lab/models/**
             src/commander_lab/storage/**
@@ -133,7 +139,7 @@ jobs:
 
       - name: Run real-deck setup and loader tests
         run: |
-          pytest -q tests/unit/test_rules_project_loader.py tests/unit/test_real_4p_full_game_smoke.py
+          pytest -q tests/unit/test_rules_project_loader.py tests/unit/test_real_4p_full_game_smoke.py tests/unit/test_full_game_failure_privacy.py tests/unit/test_failure_privacy_trust_boundary.py
 
       - name: Preflight exact real 4P deck inputs
         run: python scripts/run_real_4p_full_game_smoke.py --preflight-only
