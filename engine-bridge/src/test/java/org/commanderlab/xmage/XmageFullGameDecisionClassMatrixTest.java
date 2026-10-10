@@ -32,6 +32,8 @@ import static org.commanderlab.xmage.DecisionClassMatrixHarness.step;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -450,6 +452,45 @@ class XmageFullGameDecisionClassMatrixTest {
     }
 
 
+    /**
+     * #689 red control that stays in the suite: the native return of one
+     * accepted option must not satisfy the S1 native-return check for another
+     * offered option, and an offset no callback answered must read as no
+     * return. Without this, an assertion that never fires would pass S1
+     * vacuously.
+     */
+    @Test
+    void nativeReturnAssertionRejectsAnOptionThePilotDidNotSelect() {
+        Scenario scenario = SCENARIOS.get("choose_use");
+        DecisionClassMatrixHarness.Live live = DecisionClassMatrixHarness.open(scenario);
+        JsonObject frame = DecisionClassMatrixHarness.driveToTarget(live, scenario);
+        List<JsonObject> offered = actions(frame);
+        JsonObject selected = offered.get(0);
+        JsonObject other = offered.get(1);
+        assertNotEquals(selected.get("action_id").getAsString(),
+                other.get("action_id").getAsString(), "two distinct choose_use options");
+        JsonObject proposal = proposal(frame, selected);
+        live.session().submitAction(proposal);
+        String where = "native return red control";
+        assertThrows(AssertionError.class,
+                () -> assertNativeReturn(EXPECTED_CALLBACK.get("choose_use"), live.session(), other,
+                        proposal, "", where),
+                "the native return of the accepted option must not satisfy the option not chosen");
+        // The offset discipline: a decision no callback answered has no return.
+        Game game = live.session().restorationGame();
+        XmageFullGamePlayer actor = (XmageFullGamePlayer) game.getPlayer(
+                UUID.fromString(selected.get("actor_id").getAsString()));
+        long offset = proposal.getAsJsonObject("choices").get("decision_offset").getAsLong();
+        assertEquals(1, actor.nativeReturn(offset).length,
+                "the answered decision must record exactly one native return");
+        // Offset discipline: a decision no callback answered has no return, so a
+        // mis-addressed read fails closed instead of borrowing another one.
+        assertEquals(0, actor.nativeReturn(offset + 1L).length,
+                "an unanswered decision must have no native return");
+        assertEquals(0, actor.nativeReturn(offset + 1000L).length,
+                "a native return must never be served for an unrelated decision");
+    }
+
     // ---- matrix core ----------------------------------------------------------
 
     static void runClass(String key) {
@@ -503,9 +544,12 @@ class XmageFullGameDecisionClassMatrixTest {
                 JsonObject routed = actions(run == fresh ? same : run.session().legalActionsPayload())
                         .stream().filter(candidate -> candidate.get("action_id").getAsString().equals(routedId))
                         .findFirst().orElseThrow();
+                String poolBefore = manaPoolSignature(run.session(), routed);
                 JsonObject result = run.session().submitAction(proposal);
                 assertEquals(before, result.get("executed_decision_id").getAsString());
                 assertRouted(run.session(), routed, proposal, decisionClass + " S1 " + optionKey);
+                assertNativeReturn(EXPECTED_CALLBACK.get(key), run.session(), routed, proposal,
+                        poolBefore, decisionClass + " S1 " + optionKey);
                 JsonObject after = run.session().pendingDecisionPayload();
                 if (!after.get("decision").isJsonNull()) {
                     assertNotEquals(before, after.getAsJsonObject("decision").get("decision_id").getAsString(),
@@ -544,6 +588,243 @@ class XmageFullGameDecisionClassMatrixTest {
             assertEquals(DecisionClassMatrixHarness.label(action),
                     labels.get(0).getAsString(), where + ": routed to a different native option");
         }
+    }
+
+    /**
+     * #689 S1 native return: the value the native callback handed back to (or
+     * applied in) XMage for the answered decision must be the value derived from
+     * the option the pilot selected.
+     *
+     * <p>{@link #assertRouted} proves the controller recorded the selected
+     * option; a callback that recorded the right option and returned or applied
+     * a different value still satisfied it. This closes that hole: the expected
+     * native value is derived here from the routed option's own id or metadata
+     * (never from the transcript) and compared with
+     * {@link XmageFullGamePlayer#nativeReturn(long)} for the exact decision
+     * offset the answer closed. A callback that returns void
+     * ({@code selectAttackers}/{@code selectBlockers}) is witnessed by the
+     * identifiers it applied plus the live applied engine state, named in the
+     * branch below; nothing else in the matrix is void.</p>
+     *
+     * @param poolBefore the answering player's mana pool before the answer, or
+     *                   {@code ""} when it was not observed
+     */
+    static void assertNativeReturn(String callback, XmageFullGameSession session,
+                                   JsonObject action, JsonObject proposal,
+                                   String poolBefore, String where) {
+        Game game = session.restorationGame();
+        UUID actorId = UUID.fromString(action.get("actor_id").getAsString());
+        Player actorPlayer = game.getPlayer(actorId);
+        assertTrue(actorPlayer instanceof XmageFullGamePlayer,
+                where + ": the answered decision has no external player");
+        long offset = proposal.getAsJsonObject("choices").get("decision_offset").getAsLong();
+        Object[] returned = ((XmageFullGamePlayer) actorPlayer).nativeReturn(offset);
+        assertTrue(returned.length > 0,
+                where + ": no native return recorded for the answered decision " + offset);
+        switch (callback) {
+            case "priority" -> {
+                if ("pass_priority".equals(optionType(action))) {
+                    assertNull(returned[0], where + ": passing priority must hand XMage no ability");
+                } else {
+                    assertTrue(returned[0] instanceof ActivatedAbility,
+                            where + ": a priority option must hand XMage its own ability");
+                    assertEquals(actionAbilityKey(action), abilityKey((Ability) returned[0]), where);
+                }
+            }
+            case "target" -> {
+                @SuppressWarnings("unchecked")
+                List<String> added = (List<String>) returned[0];
+                assertEquals(List.of(optionId(action)), added,
+                        where + ": the ids handed to the native target must be the selected option");
+                assertEquals(Boolean.TRUE, returned[1],
+                        where + ": XMage reads a non-empty selection as true");
+            }
+            case "target_amount" -> {
+                assertEquals(optionId(action), String.valueOf(returned[0]), where);
+                assertEquals(numericChoice(proposal), returned[1],
+                        where + ": the amount handed to the native target must be the selected one");
+            }
+            case "declare_attacker" -> {
+                // Void callback: the witness is the pair handed to the engine
+                // plus the combat state that declaration applied (CR 508.1).
+                String attackerId = nativeField(action, "object_id");
+                assertEquals(attackerId, String.valueOf(returned[0]), where);
+                if ("hold_attacker".equals(optionType(action))) {
+                    assertNull(returned[1], where + ": holding must declare no defender");
+                    assertFalse(game.getCombat().getAttackers().contains(UUID.fromString(attackerId)),
+                            where + ": a held attacker must not be attacking in XMage");
+                } else {
+                    String defenderId = nativeField(action, "defender_id");
+                    assertEquals(defenderId, String.valueOf(returned[1]), where);
+                    mage.game.combat.CombatGroup group =
+                            game.getCombat().findGroup(UUID.fromString(attackerId));
+                    assertNotNull(group, where + ": the declared attacker is in no combat group");
+                    assertEquals(defenderId, group.getDefenderId().toString(),
+                            where + ": the engine must attack the selected defender");
+                }
+            }
+            case "declare_blocker" -> {
+                // Void callback: the witness is the blocks handed to the engine
+                // plus the combat state that declaration applied (CR 509.1).
+                String blockerId = nativeField(action, "blocker_id");
+                String attackerId = nativeField(action, "attacker_id");
+                @SuppressWarnings("unchecked")
+                List<UUID> declared = (List<UUID>) returned[1];
+                assertEquals(blockerId, String.valueOf(returned[0]), where);
+                assertEquals(List.of(UUID.fromString(attackerId)), declared,
+                        where + ": the blocks handed to the engine must be the selected option");
+                mage.game.combat.CombatGroup group =
+                        game.getCombat().findGroup(UUID.fromString(attackerId));
+                assertNotNull(group, where + ": the blocked attacker is in no combat group");
+                assertTrue(group.getBlockers().contains(UUID.fromString(blockerId)),
+                        where + ": the engine must block with the selected blocker");
+            }
+            case "mana_payment" -> {
+                String type = optionType(action);
+                if ("cancel_mana_payment".equals(type)) {
+                    assertEquals("cancel", returned[0], where);
+                } else if ("mana_pool".equals(type)) {
+                    assertEquals("pool", returned[0], where);
+                    assertEquals(nativeField(action, "mana_type"), String.valueOf(returned[1]), where);
+                    assertManaPoolSpent(actorPlayer, nativeField(action, "mana_type"), poolBefore, where);
+                } else {
+                    assertEquals("ability", returned[0], where);
+                    assertEquals(actionAbilityKey(action), abilityKey((Ability) returned[1]), where);
+                    // The applied payment state: a tapping mana ability left its
+                    // permanent tapped in the engine (CR 508.1d / 111.3).
+                    if (returned[1] instanceof Ability ability && ability.getSourceId() != null
+                            && tapsSource(ability)) {
+                        mage.game.permanent.Permanent source = game.getPermanent(ability.getSourceId());
+                        if (source != null) {
+                            assertTrue(source.isTapped(),
+                                    where + ": the selected mana ability was not applied in XMage");
+                        }
+                    }
+                }
+            }
+            case "announce_x", "amount" ->
+                    assertEquals(numericChoice(proposal), returned[0],
+                            where + ": the number handed to XMage must be the selected one");
+            case "multi_amount" -> {
+                @SuppressWarnings("unchecked")
+                List<Integer> vector = (List<Integer>) returned[0];
+                assertEquals(numericVector(proposal), vector,
+                        where + ": the amount vector handed to XMage must be the selected one");
+            }
+            case "replacement_effect" ->
+                    assertEquals(Integer.valueOf(nativeField(action, "index")), returned[0],
+                            where + ": the applied replacement must be the selected index");
+            case "choose_use" ->
+                    assertEquals(Boolean.valueOf(nativeField(action, "value")), returned[0],
+                            where + ": the boolean handed to XMage must be the selected option's value");
+            case "mulligan" ->
+                    assertEquals(Boolean.valueOf("mulligan".equals(optionType(action))), returned[0],
+                            where + ": the mulligan boolean must be the selected option");
+            case "pile" ->
+                    assertEquals(Boolean.valueOf("Pile 1".equals(label(action))), returned[0],
+                            where + ": XMage reads pile 1 as true, pile 2 as false");
+            case "choice" -> {
+                String choiceKey = nativeField(action, "choice_key");
+                if (choiceKey != null) {
+                    assertEquals(Boolean.TRUE, returned[0],
+                            where + ": a key choice must hand XMage its own key");
+                    assertEquals(choiceKey, returned[1], where);
+                } else {
+                    assertEquals(Boolean.FALSE, returned[0], where);
+                    assertEquals(nativeField(action, "choice"), returned[1],
+                            where + ": the choice handed to XMage must be the selected value");
+                }
+            }
+            case "mode" -> {
+                assertTrue(returned[0] instanceof mage.abilities.Mode,
+                        where + ": a mode option must hand XMage its own mode");
+                assertEquals(optionId(action), ((mage.abilities.Mode) returned[0]).getId().toString(),
+                        where);
+            }
+            case "trigger_order" -> {
+                assertTrue(returned[0] instanceof mage.abilities.TriggeredAbility,
+                        where + ": a trigger option must hand XMage its own ability");
+                assertEquals(actionAbilityKey(action), abilityKey((Ability) returned[0]), where);
+            }
+            case "cast_ability", "land_or_spell" -> {
+                assertTrue(returned[0] instanceof Ability,
+                        where + ": a cast option must hand XMage its own ability");
+                assertEquals(actionAbilityKey(action), abilityKey((Ability) returned[0]), where);
+            }
+            default -> throw new AssertionError(
+                    "no native-return expectation for native callback " + callback);
+        }
+    }
+
+    /** Whether activating this ability taps its source permanent (CR 111.3). */
+    private static boolean tapsSource(Ability ability) {
+        for (mage.abilities.costs.Cost cost : ability.getCosts()) {
+            if (cost instanceof mage.abilities.costs.common.TapSourceCost) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The applied payment state of a pool spend: exactly one mana of the
+     * selected type left the pool and nothing else did.
+     */
+    private static void assertManaPoolSpent(
+            Player payer, String manaType, String poolBefore, String where) {
+        Map<String, Integer> before = parseManaPool(poolBefore);
+        assertEquals(before.getOrDefault(manaType, 0) - 1,
+                payer.getManaPool().get(mage.constants.ManaType.valueOf(manaType)),
+                where + ": the selected pool mana must be the mana XMage spent");
+        for (Map.Entry<String, Integer> entry : before.entrySet()) {
+            if (entry.getKey().equals(manaType)) {
+                continue;
+            }
+            assertEquals(entry.getValue().intValue(),
+                    payer.getManaPool().get(mage.constants.ManaType.valueOf(entry.getKey())),
+                    where + ": payment must spend only the selected pool mana");
+        }
+    }
+
+    /** The answering player's mana pool, as observed before the answer. */
+    static String manaPoolSignature(XmageFullGameSession session, JsonObject action) {
+        Player actorPlayer = session.restorationGame()
+                .getPlayer(UUID.fromString(action.get("actor_id").getAsString()));
+        if (actorPlayer == null) {
+            return "";
+        }
+        StringBuilder signature = new StringBuilder();
+        for (mage.constants.ManaType type : mage.constants.ManaType.getTrueManaTypes()) {
+            signature.append(type.name()).append('=').append(actorPlayer.getManaPool().get(type))
+                    .append(';');
+        }
+        return signature.toString();
+    }
+
+    private static Map<String, Integer> parseManaPool(String signature) {
+        Map<String, Integer> pool = new LinkedHashMap<>();
+        for (String entry : signature.split(";")) {
+            int equals = entry.indexOf('=');
+            if (equals > 0) {
+                pool.put(entry.substring(0, equals), Integer.parseInt(entry.substring(equals + 1)));
+            }
+        }
+        return pool;
+    }
+
+    private static Integer numericChoice(JsonObject proposal) {
+        JsonObject choices = proposal.getAsJsonObject("choices");
+        return choices.has("numeric_choice") && !choices.get("numeric_choice").isJsonNull()
+                ? choices.get("numeric_choice").getAsInt() : null;
+    }
+
+    private static List<Integer> numericVector(JsonObject proposal) {
+        JsonObject choices = proposal.getAsJsonObject("choices");
+        List<Integer> vector = new ArrayList<>();
+        if (choices.has("numeric_choices") && !choices.get("numeric_choices").isJsonNull()) {
+            choices.getAsJsonArray("numeric_choices").forEach(element -> vector.add(element.getAsInt()));
+        }
+        return vector;
     }
 
     /**
