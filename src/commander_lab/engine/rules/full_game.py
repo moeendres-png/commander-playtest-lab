@@ -831,6 +831,14 @@ class ExternalPilotDecisionPolicy:
             ],
         ] = {}
         self._priority_repeat_count: dict[int, int] = {}
+        # #703 engine-reversed activation memory (per seat). The last action
+        # this pilot submitted and the window it was submitted in, plus the
+        # options XMage has since reversed in the current window. A window is
+        # (turn_number, phase, step, stack names); any change clears the
+        # reversed set, so an option is de-ranked only while the engine keeps
+        # re-offering the very frame it already reversed.
+        self._priority_last_selected: dict[int, tuple[tuple[object, ...], str]] = {}
+        self._priority_reversed_window: dict[int, tuple[tuple[object, ...], set[str]]] = {}
         # Latch: once tripped, the seat keeps passing while the window
         # stays identical (a single forced pass would just resume the
         # loop). Any window change unlatches and resumes normal choice.
@@ -1016,6 +1024,25 @@ class ExternalPilotDecisionPolicy:
             if isinstance(stack, list)
             else ()
         )
+        # #703 engine-reversed activation memory. XMage answers an activation
+        # it cannot complete — e.g. an announced X that leaves a required
+        # target with no legal choice (CR 601.2e / 727) — by rewinding and
+        # re-offering priority to the same seat with the same stack and the
+        # same option still on offer. That is the engine's own rewind
+        # (601.2/727), not a pilot error, but re-picking the identical option
+        # in the identical window would loop. The Lab never decides for the
+        # player: the option stays engine-offered and the pilot simply stops
+        # selecting it in this window. The memory is dropped the moment the
+        # window changes (stack, turn, phase or step) or the engine moves on,
+        # so a later legal frame can select it again.
+        window = (
+            state.get("turn_number"),
+            state.get("phase"),
+            state.get("step"),
+            stack_names,
+        )
+        offered_ids = {self._required_text(option, "option_id") for option in options}
+        reversed_ids = self._priority_reversed_options(seat, window, offered_ids)
         pool = self._actor(state).get("mana_pool")
         pool_tuple = (
             tuple(sorted((str(key), str(value)) for key, value in pool.items()))
@@ -1153,15 +1180,92 @@ class ExternalPilotDecisionPolicy:
         if len(action_views) == 1:
             _LOG.info("forced priority pass: no discretionary action offered")
             return pass_id
+        # #703: a reversed option stays engine-offered, but the pilot is not
+        # offered it as a candidate in this window, so the engine-reversed
+        # action is never re-picked. This is de-ranking inside the pilot's own
+        # selection set — the Lab does not answer for the player, it only
+        # stops re-proposing an action the engine has already reversed.
+        if reversed_ids:
+            withheld_stable = {
+                stable for stable, raw in raw_by_stable_id.items() if raw in reversed_ids
+            }
+            if withheld_stable:
+                _LOG.info(
+                    "engine reversed %d priority option(s) in this window; "
+                    "withholding them from pilot selection",
+                    len(withheld_stable),
+                )
+                action_views = [
+                    view for view in action_views if view.action_id not in withheld_stable
+                ]
         decision = runtime.pilot.choose_action(pilot_state, action_views, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no priority action")
         if decision.selected_action_id == pass_id:
+            self._priority_forget_selection(seat)
             return pass_id
         try:
-            return raw_by_stable_id[decision.selected_action_id]
+            selected = raw_by_stable_id[decision.selected_action_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable priority action") from None
+        self._priority_remember_selection(seat, window, selected)
+        return selected
+
+    def _priority_remember_selection(
+        self,
+        seat: int,
+        window: tuple[object, ...],
+        option_id: str,
+    ) -> None:
+        """Record the raw action this pilot submitted for the seat's window.
+
+        The next priority frame for the same seat compares this against its
+        own window: the same stack/turn/step with the same option still on
+        offer is XMage's own 601.2e / 727 rewind of the previous proposal,
+        not a fresh opportunity. A pass is not remembered — a seat that
+        passes and is asked again is ordinary priority traffic.
+        """
+        self._priority_last_selected[seat] = (window, option_id)
+
+    def _priority_forget_selection(self, seat: int) -> None:
+        self._priority_last_selected.pop(seat, None)
+
+    def _priority_reversed_options(
+        self,
+        seat: int,
+        window: tuple[object, ...],
+        offered_ids: set[str],
+    ) -> frozenset[str]:
+        """Option ids the engine reversed for this seat in this window.
+
+        A selection counts as reversed only when the engine answered it with
+        a new priority frame for the same seat whose stack, turn, phase and
+        step are unchanged and which still offers that exact option. The
+        memory is cleared whenever the window changes, so a later frame with
+        a different stack or step re-opens the option normally.
+        """
+        remembered = self._priority_reversed_window.get(seat)
+        if remembered is not None and remembered[0] != window:
+            del self._priority_reversed_window[seat]
+            remembered = None
+        last = self._priority_last_selected.get(seat)
+        if last is not None:
+            last_window, last_option = last
+            if last_window != window or last_option not in offered_ids:
+                # The engine moved on (window changed, or the option is no
+                # longer offered): this was a real action, not a rewind.
+                self._priority_forget_selection(seat)
+            elif remembered is None:
+                remembered = (window, {last_option})
+                self._priority_reversed_window[seat] = remembered
+                _LOG.info(
+                    "engine reversed priority option %s for seat %d in this window",
+                    last_option,
+                    seat,
+                )
+        if remembered is None:
+            return frozenset()
+        return frozenset(option for option in remembered[1] if option in offered_ids)
 
     def _priority_action_affordable(self, option: dict[str, Any], state: dict[str, Any]) -> bool:
         """Pilot-side discretionary ranking among engine-authorized options.
