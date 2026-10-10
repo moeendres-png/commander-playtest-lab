@@ -51,13 +51,10 @@ def test_launcher_exposes_exactly_the_two_routed_executors():
     assert launcher.EXECUTION_PROFILES == ("space-bunny", "deepseek")
     assert launcher.ACTIVE_EXECUTION_PROFILES == ("space-bunny",)
     assert launcher.DEFAULT_EXECUTION_PROFILE == "space-bunny"
-    assert launcher.ADMITTED_RUNTIME_MODELS == (
-        "opencode-go/space-bunny",
-        "opencode-go/space-bunny-free",
-    )
+    assert launcher.ADMITTED_RUNTIME_MODELS == ("opencode/space-bunny-free",)
     assert launcher.PROFILE_MODELS == {
         "deepseek": "opencode-go/deepseek-v4.1-flash",
-        "space-bunny": "opencode-go/space-bunny",
+        "space-bunny": "opencode/space-bunny-free",
     }
     assert not hasattr(launcher, "ZEN_MODEL"), "retired provider override must stay removed"
     for retired in ("glm", "openai", "other"):
@@ -127,7 +124,7 @@ def test_current_executor_authority_is_exactly_two_profiles():
     routing = (ROOT / "docs/foundry-execution/ROUTING_AND_EFFORT.md").read_text()
     routing_flat = " ".join(routing.split())
     assert "opencode-go/deepseek-v4.1-flash" in agents
-    assert "opencode-go/space-bunny" in agents
+    assert "opencode/space-bunny-free" in agents
     assert "No other OpenCode executor is selectable" in agents
     assert "No other OpenCode model/profile is currently authorized" in current
     assert "CLAUDE_OPUS_COORDINATOR_AUTHORITY = DELEGATED_BY_OWNER" in agents

@@ -70,7 +70,7 @@ READ_ONLY_AGENT_FILES = {"foundry-reviewer": ".opencode/agents/foundry-reviewer.
 TRUSTED_ASSOCIATIONS = frozenset({"OWNER", "MEMBER", "COLLABORATOR"})
 OPENCODE_BOT_LOGINS = frozenset({"opencode-agent[bot]", "opencode-agent"})
 TRUSTED_WORKFLOW_PATH = ".github/workflows/opencode.yml"
-TRUSTED_MODEL_ID = "opencode-go/space-bunny"
+TRUSTED_MODEL_ID = "opencode/space-bunny-free"
 NATIVE_VARIANT = "max"
 PASS_VERDICT = "PASS"
 

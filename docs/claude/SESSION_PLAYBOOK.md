@@ -88,7 +88,7 @@ Use this decision order for each new unit of work:
 2. **Execution → Space Bunny MAX.** Implementation, bugfixes, debugging, CI repair, test/fix
    loops, qualification execution, evidence production, deterministic tooling, multi-file
    refactors and long Forge/Mage/Lab campaigns go to `/oc`, which runs Space Bunny
-   (`opencode-go/space-bunny`, native `max`) since 2026-10-10. `/bunny` (verifier) and
+   (`opencode/space-bunny-free`, native `max`) since 2026-10-10. `/bunny` (verifier) and
    `/bunny-review` (read-only reviewer) run the same model with other agents. Write each
    dispatch per `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md`.
 3. **DeepSeek is SUSPENDED.** Its OpenCode Go monthly quota is exhausted. Never select it, never

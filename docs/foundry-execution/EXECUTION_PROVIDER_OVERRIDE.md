@@ -1,10 +1,11 @@
 # Explicit execution profile and provider overrides
 
-Since the Owner directive of 2026-10-10 the default and only active executor is
-`opencode-go/space-bunny` at native `max`. `opencode-go/deepseek-v4.1-flash` is SUSPENDED: its
-OpenCode Go monthly quota is exhausted. Space Bunny draws on the same OpenCode Go monthly limit
-(its calls were refused with HTTP 429 `GoUsageLimitError` in workflow run 38049493597), so runs on
-it end as `BLOCKED_SERVICE` until the quota resets or the Owner restores it.
+Since the Owner directives of 2026-10-10 the default and only active executor is Space Bunny
+on OpenCode Zen, `opencode/space-bunny-free`, at native `max`. `opencode-go/deepseek-v4.1-flash`
+is SUSPENDED: its OpenCode Go monthly quota is exhausted. The Go Space Bunny id
+`opencode-go/space-bunny` draws on the same Go monthly limit (refused with HTTP 429
+`GoUsageLimitError` in workflow run 38049493597) and is no longer admitted; Zen serves Space
+Bunny at no charge under the same `OPENCODE_API_KEY` variable.
 
 ## Space Bunny Max profile (default, only active)
 
@@ -15,9 +16,8 @@ and may be used for clarity in Foundry `init` or `launch` invocation:
 python3 tools/foundry/launcher.py launch <existing workstream arguments> --effort high --execution-profile space-bunny
 ```
 
-The launcher inspects the live pinned-CLI catalog, selects the canonical
-`opencode-go/space-bunny` (else the admitted legacy alias `opencode-go/space-bunny-free`, else
-fails closed) and pins that exact `--model` on the child argv, so the identity cannot drift at run
+The launcher inspects the live pinned-CLI catalog (`opencode models opencode`), selects
+`opencode/space-bunny-free` (else fails closed; Go ids never substitute) and pins that exact `--model` on the child argv, so the identity cannot drift at run
 time. Do not substitute a different model or a lower native level. The selected
 profile/model/native variant are recorded in launch context/environment and existing
 model/provider telemetry.
@@ -44,8 +44,13 @@ catalog contract, provider protocol, or Space Bunny reasoning contract changes.
 
 ### Space Bunny runtime evidence
 
-The authorized Space Bunny identity is `opencode-go/space-bunny` with main model, small model
-and reachable agents at native `max`. After the catalog-ID rebind landed in PR #576, a fresh
+The authorized Space Bunny identity is `opencode/space-bunny-free` (OpenCode Zen) with main
+model, small model and reachable agents at native `max`. The first trusted lane run after the
+2026-10-10 Zen switch is its runtime observation; until then the Zen identity is
+`DIRECTLY_VERIFIED` only as present in the live Zen model list
+(`activation_evidence_2026_10_10` in `.foundry/executor-profiles.json`).
+
+Earlier Go evidence: after the catalog-ID rebind landed in PR #576, a fresh
 authenticated trusted `/bunny` smoke on 2026-10-06 ran the pinned OpenCode CLI with
 `MODEL=opencode-go/space-bunny` and `VARIANT=max`, the DeepSeek lane was skipped, and the Bunny
 job completed successfully. The agent result reported `providerID=opencode-go modelID=space-bunny`;
@@ -55,9 +60,8 @@ immutable receipt is `.foundry/space-bunny-rebind-runtime-activation-20261006.js
 
 The 2026-09-29 authenticated smoke resolved the then-current
 `opencode-go/space-bunny-free` identity. That receipt remains historical provenance only and is
-not activation evidence for the rebound model ID. The 2026-10-06 smoke ran the `/bunny` lane
-(`bunny-verifier`); the `/oc` lane (`foundry-implementer`) runs the same pinned model since
-2026-10-10, and its first authenticated run after this change is its own runtime observation.
+not activation evidence for the rebound model ID. Both Go receipts are provenance only and
+do not establish the Zen identity.
 
 ## Non-authorized executors
 

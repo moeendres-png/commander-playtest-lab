@@ -37,11 +37,11 @@ HANDOFF instead of preserving one giant coordinator conversation.
    can answer the question without model judgement.
 2. Route implementation, debugging, test/fix loops, CI remediation, qualification execution,
    evidence production, multi-file edits and long autonomous engineering work to OpenCode
-   Foundry. Since 2026-10-10 the only executor is Space Bunny at native `max`
-   (`opencode-go/space-bunny`) on every lane: `/oc` (implementer), `/bunny` (verifier),
+   Foundry. Since 2026-10-10 the only executor is Space Bunny at native `max` on OpenCode Zen
+   (`opencode/space-bunny-free`; the Go id is retired) on every lane: `/oc` (implementer), `/bunny` (verifier),
    `/bunny-review` (read-only reviewer) and the `opencode-subagent` MCP tools, which this
    project's `.claude/settings.json` pins to Space Bunny via `OPENCODE_SUBAGENT_MODEL`.
-   Always pass `model: "opencode-go/space-bunny"` explicitly when calling those MCP tools.
+   Always pass `model: "opencode/space-bunny-free"` explicitly when calling those MCP tools.
 3. DeepSeek V4.1 Flash is SUSPENDED (OpenCode Go monthly quota exhausted). Never select it and
    do not re-enable it without a new direct Owner instruction.
    There is no automatic fallback to it or any other model for failure, quota or convenience.

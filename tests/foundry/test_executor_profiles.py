@@ -24,7 +24,7 @@ def test_selected_profiles_and_highest_native_efforts_are_exact() -> None:
     doc = _registry()
     expected = {
         "deepseek": ("opencode-go/deepseek-v4.1-flash", "max"),
-        "space-bunny": ("opencode-go/space-bunny", "max"),
+        "space-bunny": ("opencode/space-bunny-free", "max"),
     }
     actual = {
         name: (spec["model"], spec["native_variant"]) for name, spec in doc["profiles"].items()
@@ -124,10 +124,16 @@ def test_activation_evidence_records_authenticated_runtime_verification() -> Non
     assert "profile change" in no_fallback.lower()
 
     active = doc["profiles"]["space-bunny"]
-    assert active["model"] == "opencode-go/space-bunny"
+    assert active["model"] == "opencode/space-bunny-free"
     assert active["runtime_status"] == "ACTIVE"
-    assert current["current_model_identity"] == active["model"]
+    # 2026-10-06 evidence is provenance for the Go identity; the Zen identity
+    # active since 2026-10-10 carries its own (pending) runtime observation.
+    assert current["current_model_identity"] == "opencode-go/space-bunny"
     assert current["runtime_status"] == active["runtime_status"]
+    zen = doc["activation_gate"]["activation_evidence_2026_10_10"]
+    assert zen["current_model_identity"] == active["model"]
+    assert zen["authenticated_runtime_smoke"].startswith("PENDING")
+    assert "space-bunny-free" in zen["live_catalog_identity"]
     assert (
         current["evidence_classification"]["configured_pins_job_outcome_and_provider_policy"]
         == "DIRECTLY_VERIFIED"
@@ -143,37 +149,33 @@ def test_activation_evidence_records_authenticated_runtime_verification() -> Non
     assert receipt["source_lock"]["main_sha"] == "84c17f9d0fb768812e00ecaef5cb2dcd4db57676"
     assert receipt["trigger"]["workflow_run_id"] == 37522166205
     assert receipt["trigger"]["job_id"] == 112470057434
-    assert receipt["execution"]["reported_resolved_model"] == active["model"]
+    assert receipt["execution"]["reported_resolved_model"] == current["current_model_identity"]
     assert receipt["execution"]["configured_variant"] == active["native_variant"]
     assert receipt["execution"]["primary_deepseek_job_conclusion"] == "skipped"
     assert receipt["observation"]["workflow_job_conclusion"] == "success"
     assert receipt["observation"]["opencode_step_conclusion"] == "success"
 
 
-def test_runtime_identity_admits_one_canonical_and_one_legacy_bunny_alias() -> None:
-    """The legacy runtime id is an alias of the SAME logical profile only."""
+def test_runtime_identity_admits_only_the_zen_bunny_id() -> None:
+    """Space Bunny admits exactly its Zen id; no Go id or legacy alias."""
     doc = _registry()
     identity = doc["runtime_identity"]
     assert identity["opencode-go/deepseek-v4.1-flash"] == {
         "logical_profile": "deepseek",
         "alias_class": "CANONICAL",
     }
-    assert identity["opencode-go/space-bunny"] == {
+    assert identity["opencode/space-bunny-free"] == {
         "logical_profile": "space-bunny",
         "alias_class": "CANONICAL",
     }
-    assert identity["opencode-go/space-bunny-free"] == {
-        "logical_profile": "space-bunny",
-        "alias_class": "LEGACY_ALIAS",
-    }
+    assert "opencode-go/space-bunny" not in identity
+    assert "opencode-go/space-bunny-free" not in identity
+    assert len(identity) == 2
     logical_profiles = {entry["logical_profile"] for entry in identity.values()}
     assert logical_profiles == {"deepseek", "space-bunny"}
     policy = doc["resolution_policy"]
     assert policy["logical_profiles"] == ["deepseek", "space-bunny"]
-    assert policy["space_bunny_preference"] == [
-        "opencode-go/space-bunny",
-        "opencode-go/space-bunny-free",
-    ]
+    assert policy["space_bunny_preference"] == ["opencode/space-bunny-free"]
     assert policy["automatic_fallback"] is False
     assert policy["post_selection_failure"] == "FAIL_CLOSED_NO_RE_RESOLUTION"
 

@@ -1,7 +1,8 @@
 # Writing prompts for Space Bunny MAX
 
 Status: CANONICAL guidance (Owner directive 2026-10-10). Space Bunny MAX
-(`opencode-go/space-bunny`, native `max`) is the only active OpenCode executor. It runs every
+(`opencode/space-bunny-free` on OpenCode Zen, native `max`) is the only active OpenCode executor;
+the OpenCode Go ids are retired because they share the exhausted Go monthly quota. It runs every
 lane: `/oc` (`foundry-implementer`), `/bunny` (`bunny-verifier`), `/bunny-review` (read-only
 `foundry-reviewer`), the Foundry launcher and the Claude-side `opencode-subagent` MCP tools.
 DeepSeek is SUSPENDED; never name it as a target, a fallback or a "cheaper" option.
@@ -79,8 +80,8 @@ With DeepSeek suspended the reviewer is the same model as the implementer (expli
 
 ## 5. `opencode-subagent` MCP calls from Claude
 
-`.claude/settings.json` sets `OPENCODE_SUBAGENT_MODEL=opencode-go/space-bunny`, the plugin
-default. Still pass `model: "opencode-go/space-bunny"` on every `agent` call so a stale plugin
+`.claude/settings.json` sets `OPENCODE_SUBAGENT_MODEL=opencode/space-bunny-free`, the plugin
+default. Still pass `model: "opencode/space-bunny-free"` on every `agent` call so a stale plugin
 default can never select another model. Brief it like a dispatch: objective, files, exact
 validation command, stop condition, and "do not call `mcp__hearthbot__` tools".
 

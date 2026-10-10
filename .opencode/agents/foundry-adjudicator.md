@@ -1,7 +1,7 @@
 ---
 description: Read/test-first technical adjudicator for difficult root cause, evidence provenance, and repair ordering
 mode: subagent
-model: opencode-go/space-bunny
+model: opencode/space-bunny-free
 variant: max
 permission:
   edit: deny

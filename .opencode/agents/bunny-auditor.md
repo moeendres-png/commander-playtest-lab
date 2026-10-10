@@ -1,7 +1,7 @@
 ---
 description: Read-only fresh-context adversarial auditor (Space Bunny MAX) for qualification, construction-proof, row, receipt, lock and contract diffs
 mode: subagent
-model: opencode-go/space-bunny
+model: opencode/space-bunny-free
 variant: max
 permission:
   edit: deny
