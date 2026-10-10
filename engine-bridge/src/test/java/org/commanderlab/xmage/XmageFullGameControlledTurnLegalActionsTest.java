@@ -574,7 +574,7 @@ class XmageFullGameControlledTurnLegalActionsTest {
         assertTrue(hexproof.canBeTargetedBy(sourceObject, frame.controllerId, source, game),
                 "CR 702.11b: hexproof here only bars the spell's controller (still " + CONTROLLED
                         + "), so the same creature is targetable from " + CONTROLLER + "'s own "
-                        + "principle. This is why this check proves spell control only and is "
+                        + "principal. This is why this check proves spell control only and is "
                         + "not the actor witness");
         assertFalse(target.possibleTargets(frame.controllerId, source, game).contains(hexproofId),
                 "this target type applies hexproof against the source's own controller, so "
@@ -955,9 +955,9 @@ class XmageFullGameControlledTurnLegalActionsTest {
                 "CR 723.5: the engine must name the controller as controlling this player's turn");
         assertFalse(controlledPlayer.isGameUnderControl(),
                 "XMage PlayerImpl.isGameUnderControl() is true when a player controls themselves "
-                        + "and false when another player controls them; this frame must be turn "
-                        + "control only (CR 723.5), so no other player may control this player's "
-                        + "game, or the CR 723.5 actor boundary would not be observable here");
+                        + "and false when another player controls them, so it must be false here: "
+                        + "the engine records that another player controls this player during the "
+                        + "controlled turn (CR 723.5; set by controlPlayersTurn)");
         long offset = payload.get("decision_offset").getAsLong();
         // Oracle transport: the native callback ran on the controlled player's own
         // XmageFullGamePlayer instance (see the class javadoc).
