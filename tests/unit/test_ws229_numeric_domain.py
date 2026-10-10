@@ -507,8 +507,19 @@ def test_mulligan_cap_forces_keep_with_record() -> None:
     assert response["selected_option_ids"] == ["keep"]
 
 
-def test_priority_mana_abilities_are_offered_to_pilot() -> None:
-    # Old code auto-passed here, hiding two discretionary mana abilities.
+def test_priority_mana_abilities_are_offered_to_pilot(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Old code auto-passed here, hiding two discretionary mana abilities. The
+    # pilot must see them and decide; floating mana with nothing to spend it on
+    # is worth less than passing, so the pilot's own decision is the pass.
+    seen: list[list[str]] = []
+    original = GenericCommanderPilot.choose_action
+
+    def spy(self, state, actions, rng):  # type: ignore[no-untyped-def]
+        actions = list(actions)
+        seen.append([action.action_id for action in actions])
+        return original(self, state, actions, rng)
+
+    monkeypatch.setattr(GenericCommanderPilot, "choose_action", spy)
     response = _policy().decide(
         _request(
             "priority",
@@ -521,7 +532,9 @@ def test_priority_mana_abilities_are_offered_to_pilot() -> None:
             maximum=1,
         )
     )
-    assert response["selected_option_ids"] in (["mana-a"], ["mana-b"])
+    assert len(seen) == 1
+    assert len(seen[0]) == 3
+    assert response["selected_option_ids"] == ["pass"]
 
 
 def test_priority_lone_pass_is_forced() -> None:

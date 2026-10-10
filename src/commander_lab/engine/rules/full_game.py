@@ -63,6 +63,15 @@ FULL_GAME_SHUTDOWN_ALREADY_EXITED = "already_exited"
 # are never hidden from the pilot.
 _LOG = logging.getLogger(__name__)
 
+# Boolean outcomes whose "No" answer the pilot treats as aligned. The engine's
+# Outcome on a may-prompt is its own polarity hint: AIDontUseIt marks a prompt
+# the engine's AI always declines because accepting cannot be judged safely,
+# e.g. the repeatable multikicker offer, whose affordability check covers one
+# payment only and so re-offers "Pay N times" without bound.
+DECLINE_ALIGNED_BOOLEAN_OUTCOMES = frozenset(
+    {"detriment", "detriment_to_controller", "aidontuseit"}
+)
+
 
 class FullGameProtocolError(RuntimeError):
     """Fail-closed full-game bridge or external-pilot protocol error.
@@ -1156,6 +1165,9 @@ class ExternalPilotDecisionPolicy:
             metadata={
                 "xmage_option_type": "mana_ability",
                 "is_mana_ability": True,
+                # Offered in a priority window, not inside a payment: activating
+                # it only floats mana (see STANDALONE_MANA_ABILITY_UTILITY).
+                "floats_mana_only": True,
             },
         )
 
@@ -1347,7 +1359,7 @@ class ExternalPilotDecisionPolicy:
             if not isinstance(value, bool):
                 raise FullGameProtocolError("boolean option is missing explicit boolean value")
             aligned = (value and outcome in {"benefit", "benefit_to_controller"}) or (
-                not value and outcome in {"detriment", "detriment_to_controller"}
+                not value and outcome in DECLINE_ALIGNED_BOOLEAN_OUTCOMES
             )
             # Twin-stable: boolean value words are Rules-visible content.
             stable_id = f"boolean:{value}"
