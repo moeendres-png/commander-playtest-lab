@@ -479,17 +479,34 @@ class XmageFullGameModeAlreadySelectedTest {
             } else if ("mode".equals(pending)) {
                 throw new AssertionError("no further mode frame may be asked: " + labels(s));
             } else {
-                takeFirst(s);
+                takeLowestLabel(s);
             }
         }
     }
 
-    private static void takeFirst(Started s) {
+    /**
+     * Answers a non-mode decision (Escalate discard, targets) with the offered
+     * option whose label sorts lowest, ties broken by the full JSON text. The
+     * choice is explicit and independent of the order the bridge lists options.
+     */
+    private static void takeLowestLabel(Started s) {
         JsonArray actions = s.session().legalActionsPayload().getAsJsonArray("actions");
         assertFalse(actions.isEmpty(),
                 "every pending decision must offer at least one engine option");
-        XmageFullGameTaxExecutionTest.submit(s.session(), "mode709-" + (step++),
-                actions.get(0).getAsJsonObject());
+        JsonObject chosen = null;
+        for (JsonElement element : actions) {
+            JsonObject action = element.getAsJsonObject();
+            if (chosen == null || compareByLabel(action, chosen) < 0) {
+                chosen = action;
+            }
+        }
+        XmageFullGameTaxExecutionTest.submit(s.session(), "mode709-" + (step++), chosen);
+    }
+
+    private static int compareByLabel(JsonObject a, JsonObject b) {
+        int byLabel = a.getAsJsonObject("metadata").get("label").getAsString()
+                .compareTo(b.getAsJsonObject("metadata").get("label").getAsString());
+        return byLabel != 0 ? byLabel : a.toString().compareTo(b.toString());
     }
 
     private static int bearsOnBattlefield(Started s, String pid) {
