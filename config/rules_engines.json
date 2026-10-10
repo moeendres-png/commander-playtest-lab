@@ -21,8 +21,17 @@
   "production_provider": null,
   "provider_selected": false,
   "required_missing_capabilities": [
+   "action_submission_supported",
+   "commander_supported",
+   "deck_import_supported",
+   "engine_shutdown_supported",
+   "event_log_supported",
+   "game_shutdown_supported",
+   "headless_supported",
    "legal_actions_supported",
-   "action_submission_supported"
+   "multiplayer_supported",
+   "replay_supported",
+   "seed_supported"
   ],
   "source_of_truth": "real_b4d_process_regression_on_pinned_xmage_plus_current_pr_head",
   "status": "external_rules_engine_b4d_event_log_lifecycle_degraded",
@@ -47,8 +56,17 @@
   "commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
   "license": "MIT",
   "missing_required_capabilities": [
+   "action_submission_supported",
+   "commander_supported",
+   "deck_import_supported",
+   "engine_shutdown_supported",
+   "event_log_supported",
+   "game_shutdown_supported",
+   "headless_supported",
    "legal_actions_supported",
-   "action_submission_supported"
+   "multiplayer_supported",
+   "replay_supported",
+   "seed_supported"
   ],
   "production_ready": false,
   "provider": "xmage",

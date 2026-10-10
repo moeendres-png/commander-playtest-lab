@@ -44,7 +44,7 @@ class XmageFullGameDecisionClassInventoryTest {
     static {
         CALLBACK_ROWS.put("priority", List.of("priority"));
         CALLBACK_ROWS.put("choose", List.of("choose_object", "ring_bearer", "starting_player", "choice"));
-        CALLBACK_ROWS.put("chooseTarget", List.of("target", "london_bottom"));
+        CALLBACK_ROWS.put("chooseTarget", List.of("target", "london_bottom", "london_bottom_two"));
         CALLBACK_ROWS.put("chooseTargetAmount", List.of("target_amount"));
         CALLBACK_ROWS.put("chooseMulligan", List.of("mulligan"));
         CALLBACK_ROWS.put("chooseUse", List.of("choose_use"));

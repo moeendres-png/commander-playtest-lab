@@ -127,3 +127,89 @@ def test_serving_an_unsupported_decision_class_fails() -> None:
 @pytest.mark.parametrize("name", ["fail_closed_illegal_action"])
 def test_a_rejection_that_still_mutates_the_game_fails(name: str) -> None:
     assert _verdicts("mutating")[name] == "FAIL"
+
+
+class FullGameScriptedProvider(ScriptedProvider):
+    """The full-game lane: one decision-scoped frame, identity inside ``choices``."""
+
+    def __init__(self, unsupported_refusal: str | None) -> None:
+        super().__init__("strict")
+        self.unsupported_refusal = unsupported_refusal
+        self.plan = SimpleNamespace(lane="full-game")
+
+    def _error_message(self, message: str) -> dict[str, Any]:
+        return {
+            "success": False,
+            "status": "error",
+            "protocol_version": "2.0.0",
+            "errors": [
+                {"code": "external_pilot_decision_rejected", "message": message, "retryable": False}
+            ],
+        }
+
+    def _frame(self) -> dict[str, Any]:
+        return self._ok(
+            {
+                "decision_class": "priority",
+                "actor_id": "actor-1",
+                "decision_id": self.decision_id,
+                "decision_offset": 4,
+                "complete": True,
+                "actions": [{"action_id": f"{self.decision_id}:p", "action_type": "pass_priority"}],
+            }
+        )
+
+    def request(
+        self,
+        message_type: str,
+        params: dict[str, Any] | None = None,
+        *,
+        game_id: str | None = None,
+        protocol_version: str = "2.0.0",
+        request_id: str | None = None,
+        timeout_s: float = 0.0,
+    ) -> dict[str, Any]:
+        params = params or {}
+        if message_type == "get_legal_actions" and "decision_class" in params:
+            if self.unsupported_refusal is None:
+                return self._frame()
+            return self._error_message(f"{self.unsupported_refusal}: decision_class mismatch")
+        if message_type == "submit_action" and protocol_version == "2.0.0":
+            choices = (params.get("proposal") or {}).get("choices") or {}
+            if choices.get("decision_id") != self.decision_id:
+                return self._error_message("STALE_DECISION: expected decision")
+            return self._error_message("ILLEGAL_ACTION: option not offered by XMage")
+        return super().request(
+            message_type,
+            params,
+            game_id=game_id,
+            protocol_version=protocol_version,
+            request_id=request_id,
+            timeout_s=timeout_s,
+        )
+
+
+@pytest.mark.parametrize(
+    ("refusal", "expected"),
+    [
+        ("UNSUPPORTED_DECISION_CLASS", "PASS"),
+        ("UNKNOWN_GAME", "UNKNOWN"),
+        ("WRONG_ACTOR", "UNKNOWN"),
+        (None, "FAIL"),
+    ],
+)
+def test_full_game_unsupported_decision_credits_only_the_typed_refusal(
+    refusal: str | None, expected: str
+) -> None:
+    """#662: on the full-game lane a refusal for another reason is UNKNOWN, not PASS."""
+    report = run_af01(
+        FullGameScriptedProvider(refusal),  # type: ignore[arg-type]
+        candidate="xmage",
+        expected_commit="e" * 40,
+        runner_commit="c" * 40,
+        runner_tree="d" * 40,
+        game_id="g-full",
+        lane="full-game",
+    )
+    verdicts = {item.name: item.verdict for item in report.invariants}
+    assert verdicts["fail_closed_unsupported_decision"] == expected

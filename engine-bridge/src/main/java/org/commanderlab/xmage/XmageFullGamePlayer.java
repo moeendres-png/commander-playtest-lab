@@ -258,11 +258,36 @@ final class XmageFullGamePlayer extends PlayerImpl {
         return chosen;
     }
 
+    /**
+     * The declared engine caller of the land-or-spell callback. At the pin the
+     * callback has two callers: this one, and
+     * {@code Vault112SadisticSimulationChapterEffect.apply} (Vault 112: Sadistic
+     * Simulation), whose legality is not declared on this lane. That caller, and
+     * any other, fails closed (UNSUPPORTED_DECISION_CLASS); it never receives a
+     * legality this player built.
+     */
+    static final String LAND_OR_SPELL_CALLER = "mage.util.CardUtil#castSpellWithAttributesForFree";
+
+    /** The immediate engine frame that called into this player, not any frame below. */
+    private static boolean calledFromCastWithAttributesForFree() {
+        return StackWalker.getInstance().walk(frames -> frames
+                .filter(frame -> !frame.getClassName().equals(XmageFullGamePlayer.class.getName()))
+                .findFirst()
+                .map(frame -> LAND_OR_SPELL_CALLER.equals(frame.getClassName() + "#" + frame.getMethodName()))
+                .orElse(false));
+    }
+
     @Override
     public ActivatedAbility chooseLandOrSpellAbility(Card card, Game game, boolean noMana) {
         witness("land_or_spell", card, noMana);
         if (card == null || game == null) {
             fail("BRIDGE_PROTOCOL_ERROR", "land-or-spell choice requires card and game");
+            return null;
+        }
+        if (!calledFromCastWithAttributesForFree()) {
+            // #662 L1: the land components below follow the declared engine caller.
+            // Any other caller (Vault 112 at the pin) has no declared legality: fail closed.
+            fail("UNSUPPORTED_DECISION_CLASS", "land-or-spell choice from an undeclared engine caller");
             return null;
         }
         Zone zone = game.getState().getZone(card.getMainCard().getId());
@@ -2247,13 +2272,24 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * them (an oracle independent of this player's projection). Read-only for
      * tests; never serialized, never sent to a pilot or written to evidence.
      */
-    private volatile Object[] nativeWitness = new Object[0];
+    private transient volatile Object[] nativeWitness = new Object[0];
+    private transient volatile long nativeWitnessOffset = -1L;
 
-    Object[] nativeWitness() {
-        return nativeWitness.clone();
+    /**
+     * The witness of the callback that raised decision {@code decisionOffset}, or
+     * an empty array. A callback records its arguments just before it requests its
+     * decision, so the witness belongs to the pending decision only when that
+     * decision is the very next one the controller issued. A witness left by an
+     * earlier callback, or by an outer callback whose decision was raised by a
+     * delegated inner one, never matches, and the test oracle fails closed.
+     */
+    Object[] nativeWitness(long decisionOffset) {
+        Object[] arguments = nativeWitness;
+        return nativeWitnessOffset + 1 == decisionOffset ? arguments.clone() : new Object[0];
     }
 
     private void witness(Object... arguments) {
+        nativeWitnessOffset = decisionController.decisionCount();
         nativeWitness = arguments;
     }
 

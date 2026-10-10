@@ -51,9 +51,11 @@ class XmageFullGameContractTruthTest {
      */
     static final Map<String, List<String>> CAPABILITY_PROOF = Map.of(
             "legal_actions_supported", List.of(
-                    "XmageFullGameDecisionClassMatrixTest", "XmageFullGameDecisionClassInventoryTest"),
+                    "XmageFullGameDecisionClassMatrixTest", "XmageFullGameDecisionClassInventoryTest",
+                    "XmageFullGameUnprojectableDecisionTest", "XmageFullGameCancelRewindTest"),
             "action_submission_supported", List.of(
-                    "XmageFullGameDecisionClassMatrixTest", "XmageFullGameDecisionClassInventoryTest"),
+                    "XmageFullGameDecisionClassMatrixTest", "XmageFullGameDecisionClassInventoryTest",
+                    "XmageFullGameCancelRewindTest"),
             "event_log_supported", List.of("XmageFullGameEventLogTest"),
             "game_shutdown_supported", List.of("XmageFullGameShutdownGameTest"),
             "replay_supported", List.of("XmageFullGameReplayExportTest"),
