@@ -1,0 +1,55 @@
+workstream: issue-689-s1-native-return-witness
+repository: moeendres-png/commander-playtest-lab
+source_lock:
+  sha: c1fc8faaa5e5d13b8d44773617d282e7a566de5f
+  branch: feat/689-s1-native-return-witness
+xmage_pin: b479fe74fd1eaf899ff16c6a9203e74a91c0f339
+executor: opencode/space-bunny-free at native max (Space Bunny MAX)
+owner: autonomous engineering (Claude coordinator thread), issue #689
+
+objective:
+  Close #689: S1 in the decision-class matrix must prove that the value each
+  native callback returned to (or applied in) XMage is the option the pilot
+  selected. Add a transient, test-only native-return witness and a red control.
+
+completed:
+  - XmageFullGamePlayer: transient bounded native-return ring (32 entries)
+    keyed by the answered decision offset; package-private nativeReturn(long);
+    recordNativeReturn in 17 callback paths (chooseAbilityForCast,
+    chooseLandOrSpellAbility, priority, chooseTargetInternal, chooseTargetAmount,
+    chooseMulligan, chooseUse via chooseBoolean, choose(Outcome,Choice,Game),
+    choosePile, playMana, announceX/getAmount via chooseNumber,
+    chooseReplacementEffect, chooseTriggeredAbility, chooseMode,
+    getMultiAmountWithIndividualConstraints, selectAttackers, selectBlockers).
+  - XmageFullGameDecisionClassMatrixTest: assertNativeReturn per native callback,
+    called from the S1 loop beside assertRouted; expected value derived from the
+    routed option's own id/metadata, never from the transcript. default branch
+    throws, so an uncovered callback fails closed.
+  - Permanent red control test nativeReturnAssertionRejectsAnOptionThePilotDidNotSelect.
+
+evidence:
+  - mvn -B -ntp -Dtest='XmageFullGameDecisionClass*' test: exit 0, Tests run: 30,
+    Failures: 0, Errors: 0, Skipped: 0 (matrix 26, inventory 4).
+  - mvn -B -ntp verify: exit 0, Tests run: 1036, Failures: 0, Errors: 0,
+    Skipped: 1 (pre-existing @Disabled XmageFullGameStart2ExecutionTest),
+    BUILD SUCCESS.
+  - Red control 1 chooseUse returns !value: exit 1, choose_use turns red in
+    assertNativeReturn ("the boolean handed to XMage must be the selected
+    option's value ==> expected: <true> but was: <false>"); collateral in
+    castAbilityMatrix/landOrSpellMatrix scenario script drift plus the permanent
+    red control, all downstream of the global mis-route.
+  - Red control 2 target callback adds a different offered target: exit 1, all 6
+    failures in assertNativeReturn ("the ids handed to the native target must be
+    the selected option"), no failure elsewhere.
+  - Red control 3 chooseTriggeredAbility returns the first offered ability:
+    exit 1, exactly 1 failure, in assertNativeReturn for trigger_order.
+
+production_impact:
+  None. Additive transient test-only fields plus recordNativeReturn calls; no
+  change to frames, options, transcript, replay or event-log output. The only
+  non-additive edit is binding the requireNumericChoice result to a local before
+  recording it; the returned value is unchanged.
+
+next_action:
+  Commit on feat/689-s1-native-return-witness, push, open the PR against main
+  with Refs #689 (never a closing keyword), and do not merge.

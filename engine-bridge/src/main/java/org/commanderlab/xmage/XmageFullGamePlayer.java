@@ -255,6 +255,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (chosen == null) {
             fail("ILLEGAL_ACTION", "cast ability option disappeared: " + selected);
         }
+        // #689: the SpellAbility handed to XMage is the selected option's.
+        recordNativeReturn(answeredDecisionOffset(), chosen);
         return chosen;
     }
 
@@ -378,6 +380,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (chosen == null) {
             fail("ILLEGAL_ACTION", "land-or-spell option disappeared: " + selected);
         }
+        // #689: the ActivatedAbility handed to XMage is the selected option's.
+        recordNativeReturn(answeredDecisionOffset(), chosen);
         return chosen;
     }
 
@@ -422,7 +426,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
         String selected = requireSingle(
                 request(game, "priority", "Choose priority action", 1, 1, options, new JsonObject(), null)
         );
+        // #689: priority answers with an ability or with passing priority
+        // (recorded as a null ability). Recorded before the engine work the
+        // answer starts, so the value is exactly the option the pilot chose.
+        long answered = answeredDecisionOffset();
         if (passId.equals(selected)) {
+            recordNativeReturn(answered, (ActivatedAbility) null);
             pass(game);
             return false;
         }
@@ -430,6 +439,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (ability == null) {
             fail("ILLEGAL_ACTION", "priority option disappeared: " + selected);
         }
+        recordNativeReturn(answered, ability);
         // Spell abilities enumerated by getPlayable are cast, never
         // "activated": the engine owns timing, costs (incl. commander tax),
         // payment (pool auto-spend, bookmark rollback on failure), targets,
@@ -582,6 +592,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
         int amount = requireNumericChoice(response, "target_amount");
         UUID targetId = UUID.fromString(selected);
         target.addTarget(targetId, amount, source, game);
+        // #689: the target id and amount handed to XMage are the selected ones.
+        recordNativeReturn(answeredDecisionOffset(), targetId, amount);
         return true;
     }
 
@@ -614,6 +626,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
             // keeps once it cannot respond; its hand left the game with it.
             return false;
         }
+        // #689: the boolean handed to XMage is the selected option's value.
+        recordNativeReturn(answeredDecisionOffset(), mulligan.equals(selected));
         return mulligan.equals(selected);
     }
 
@@ -700,6 +714,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 fail("ILLEGAL_ACTION", "choice option disappeared: " + selected);
             }
             choice.setChoiceByKey(key, false);
+            // #689: the key handed to XMage is the selected option's.
+            recordNativeReturn(answeredDecisionOffset(), true, key);
             return true;
         }
         List<String> values = new ArrayList<>(choice.getChoices());
@@ -740,6 +756,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
             fail("ILLEGAL_ACTION", "choice option disappeared: " + selected);
         }
         choice.setChoice(value);
+        // #689: the value handed to XMage is the selected option's.
+        recordNativeReturn(answeredDecisionOffset(), false, value);
         return true;
     }
 
@@ -810,6 +828,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
             // piles' cards belong to the departed player and left with it.
             return false;
         }
+        // #689: XMage reads pile 1 as true, pile 2 as false.
+        recordNativeReturn(answeredDecisionOffset(), first.equals(selected));
         return first.equals(selected);
     }
 
@@ -917,11 +937,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
             return false;
         }
         if (cancel.equals(selected)) {
+            // #689: a cancelled payment hands XMage "this step paid nothing".
+            recordNativeReturn(answeredDecisionOffset(), "cancel");
             paymentCancelled = true;
             return false;
         }
         ManaType poolManaType = poolManaById.get(selected);
         if (poolManaType != null) {
+            // #689: the pool type unlocked in XMage is the selected option's.
+            recordNativeReturn(answeredDecisionOffset(), "pool", poolManaType);
             getManaPool().unlockManaType(poolManaType);
             return true;
         }
@@ -929,6 +953,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (manaAbility == null) {
             fail("ILLEGAL_ACTION", "mana option disappeared: " + selected);
         }
+        // #689: the ability handed to XMage is the selected option's; the
+        // applied payment state is the pool/mana the engine then paid.
+        recordNativeReturn(answeredDecisionOffset(), "ability", manaAbility);
         boolean activated = activateAbility(manaAbility, game);
         if (!activated) {
             if (leftMidAction()) {
@@ -998,6 +1025,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (selectedIndex == null) {
             fail("ILLEGAL_ACTION", "replacement option disappeared: " + selected);
         }
+        // #689: XMage reads the applied effect by its own index in the native
+        // map, so the index handed back is the selected option's index.
+        recordNativeReturn(answeredDecisionOffset(), selectedIndex);
         return selectedIndex;
     }
 
@@ -1057,6 +1087,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (result == null) {
             fail("ILLEGAL_ACTION", "trigger option disappeared: " + selected);
         }
+        // #689: the TriggeredAbility put on the stack is the selected one.
+        recordNativeReturn(answeredDecisionOffset(), result);
         return result;
     }
 
@@ -1127,6 +1159,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (selected == null) {
             fail("ILLEGAL_ACTION", "mode option disappeared");
         }
+        // #689: the Mode handed to XMage is the selected option's.
+        recordNativeReturn(answeredDecisionOffset(), selected);
         return selected;
     }
 
@@ -1294,12 +1328,18 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 return;
             }
             if (hold.equals(selected)) {
+                // #689: holding declares nothing; the applied combat state is
+                // the witness (see selectAttackers' void return).
+                recordNativeReturn(answeredDecisionOffset(), attacker.getId(), (UUID) null);
                 continue;
             }
             UUID defenderId = defenderByOption.get(selected);
             if (defenderId == null) {
                 fail("ILLEGAL_ACTION", "attack option disappeared: " + selected);
             }
+            // #689: this callback returns void, so the native identifiers it
+            // declares are the witness of the option the pilot selected.
+            recordNativeReturn(answeredDecisionOffset(), attacker.getId(), defenderId);
             declareAttacker(attacker.getId(), defenderId, game, false);
         }
     }
@@ -1372,13 +1412,20 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 // "no block" is the only outcome, not a choice made for it.
                 return;
             }
+            List<UUID> declared = new ArrayList<>();
+            long answered = answeredDecisionOffset();
             for (String selected : response.selectedOptionIds()) {
                 UUID attackerId = attackerByOption.get(selected);
                 if (attackerId == null) {
                     fail("ILLEGAL_ACTION", "block option disappeared: " + selected);
                 }
+                declared.add(attackerId);
                 declareBlocker(defendingPlayerId, blocker.getId(), attackerId, game, false);
             }
+            // #689: this callback returns void, so the blocks it declares are
+            // the witness of the option set the pilot selected (empty = no
+            // block, which XMage reads as an empty selection).
+            recordNativeReturn(answered, blocker.getId(), List.copyOf(declared));
         }
     }
 
@@ -1523,6 +1570,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
             fail("PILOT_RESPONSE_INVALID",
                     "multi amount vector rejected by native isGoodValues gate");
         }
+        // #689: the vector handed to XMage is the selected one, unchanged.
+        recordNativeReturn(answeredDecisionOffset(), List.copyOf(chosen));
         return chosen;
     }
 
@@ -1743,6 +1792,14 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     target.add(id, game);
                 }
             }
+            // #689: the ids added to the native target are the selected ones,
+            // and the boolean XMage reads is "at least one was added".
+            long answered = answeredDecisionOffset();
+            recordNativeReturn(
+                    answered,
+                    List.copyOf(response.selectedOptionIds()),
+                    (Boolean) !response.selectedOptionIds().isEmpty()
+            );
             return !response.selectedOptionIds().isEmpty();
         } finally {
             if (lookGranted) {
@@ -1847,6 +1904,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
             // cannot respond once it left, it does not choose "yes".
             return false;
         }
+        // #689: the boolean handed to XMage is the selected option's value.
+        recordNativeReturn(answeredDecisionOffset(), yes.equals(selected));
         return yes.equals(selected);
     }
 
@@ -1882,7 +1941,10 @@ final class XmageFullGamePlayer extends PlayerImpl {
             // minimum once it cannot respond (announceX / getAmount).
             return min;
         }
-        return requireNumericChoice(response, decisionClass);
+        int chosen = requireNumericChoice(response, decisionClass);
+        // #689: the int handed to XMage is the selected one.
+        recordNativeReturn(answeredDecisionOffset(), chosen);
+        return chosen;
     }
 
     int requireNumericChoice(
@@ -2291,6 +2353,77 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private void witness(Object... arguments) {
         nativeWitnessOffset = decisionController.decisionCount();
         nativeWitness = arguments;
+    }
+
+    /**
+     * #689 S1: the value each native callback handed back to (or applied in)
+     * XMage for the pilot's answer to one decision, keyed by that decision's
+     * offset.
+     *
+     * <p>The counterpart of {@link #nativeWitness}: the native-argument witness
+     * proves which callback asked, this proves what that callback did with the
+     * answer. A callback records its value under {@link #answeredDecisionOffset}
+     * — taken immediately after its response was applied and before it can
+     * raise another decision — so an entry belongs to exactly the decision it
+     * answers and to no other, and a callback that returned nothing (a
+     * declined frame, a left player) leaves that decision unrecorded.</p>
+     *
+     * <p>Transient, bounded, and read only by tests through
+     * {@link #nativeReturn(long)}: never serialized with the player, never
+     * projected into a frame, observation, transcript, event log, receipt or
+     * artifact, and never reachable by a pilot. An unrecorded or evicted offset
+     * reads as an empty array, so the test oracle fails closed instead of
+     * assuming a return.</p>
+     */
+    private static final int NATIVE_RETURN_RING = 32;
+    private transient Object[] nativeReturnValues;
+    private transient long[] nativeReturnOffsets;
+    private transient int nativeReturnCursor;
+
+    /**
+     * The offset of the decision whose response the calling callback is
+     * applying. The controller binds (and counts) a decision frame when it
+     * raises it, so the last bound frame is the one just answered. Taken
+     * immediately after the response was applied and before this callback can
+     * raise another frame, it names exactly that decision.
+     */
+    private long answeredDecisionOffset() {
+        return decisionController.decisionCount();
+    }
+
+    /**
+     * Records what the callback hands to XMage for the decision it just
+     * answered. The recorded shape is the callback's native return (or the
+     * native identifiers it applied for a void callback) and is read back by
+     * the class that owns that callback; see {@link #nativeReturn(long)}.
+     */
+    private synchronized void recordNativeReturn(long decisionOffset, Object... returned) {
+        if (nativeReturnOffsets == null) {
+            nativeReturnOffsets = new long[NATIVE_RETURN_RING];
+            nativeReturnValues = new Object[NATIVE_RETURN_RING];
+        }
+        nativeReturnOffsets[nativeReturnCursor] = decisionOffset;
+        nativeReturnValues[nativeReturnCursor] = returned;
+        nativeReturnCursor = (nativeReturnCursor + 1) % NATIVE_RETURN_RING;
+    }
+
+    /**
+     * The #689 S1 test oracle: the value the callback that raised decision
+     * {@code decisionOffset} handed back to (or applied in) XMage, or an empty
+     * array when that exact decision recorded nothing.
+     */
+    synchronized Object[] nativeReturn(long decisionOffset) {
+        if (nativeReturnOffsets == null) {
+            return new Object[0];
+        }
+        for (int back = 0; back < NATIVE_RETURN_RING; back++) {
+            int slot = Math.floorMod(nativeReturnCursor - 1 - back, NATIVE_RETURN_RING);
+            if (nativeReturnOffsets[slot] == decisionOffset) {
+                Object[] returned = (Object[]) nativeReturnValues[slot];
+                return returned == null ? new Object[0] : returned.clone();
+            }
+        }
+        return new Object[0];
     }
 
     private static final ThreadLocal<Boolean> BOTTOM_SELECTION =
