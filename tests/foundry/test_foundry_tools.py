@@ -267,32 +267,27 @@ def test_repo_root_state_absent_schema_kept() -> None:
 def test_opencode_config_schema_conformance() -> None:
     """Exactly two logical executors; admitted runtime ids pinned to one variant.
 
-    Operator authority (2026-09-29) plus durable policy (2026-10-06): only
-    DeepSeek MAX and Space Bunny MAX are reachable logically. Space Bunny admits
-    the canonical runtime id and one legacy alias runtime id for the SAME
-    logical profile; there is no third executor. This pins the shape and the
+    Owner directive (2026-10-10): only Space Bunny MAX is reachable; DeepSeek
+    MAX stays in the registry as SUSPENDED and is absent from the config. Space
+    Bunny admits the canonical runtime id and one legacy alias runtime id for
+    the SAME logical profile; there is no other executor. This pins the shape and the
     pinning, not just the presence of a model field, so a retired effort level
     cannot quietly reopen.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    assert config["model"] == "opencode-go/deepseek-v4.1-flash"
-    assert config["small_model"] == "opencode-go/deepseek-v4.1-flash"
+    assert config["model"] == "opencode-go/space-bunny"
+    assert config["small_model"] == "opencode-go/space-bunny"
     assert config["share"] == "disabled"
     assert config["enabled_providers"] == ["opencode-go"]
     provider = config["provider"]["opencode-go"]
     registry = executor_mod.load_registry()
-    # No silent fallback: primary first, canonical Space Bunny second, and the
-    # legacy Space Bunny alias last as a runtime identity of the same profile.
+    # No silent fallback: canonical Space Bunny first, then the legacy alias as
+    # a runtime identity of the same profile. The suspended DeepSeek is absent.
     assert provider["whitelist"] == list(
-        model.split("/", 1)[1] for model in registry.runtime_identity
+        model.split("/", 1)[1] for model in registry.active_runtime_ids
     )
-    assert provider["whitelist"] == [
-        "deepseek-v4.1-flash",
-        "space-bunny",
-        "space-bunny-free",
-    ]
+    assert provider["whitelist"] == ["space-bunny", "space-bunny-free"]
     authorized = {
-        "deepseek-v4.1-flash": ("max", {"reasoningEffort": "max"}),
         "space-bunny": ("max", {"reasoningEffort": "max"}),
         "space-bunny-free": ("max", {"reasoningEffort": "max"}),
     }
@@ -304,7 +299,7 @@ def test_opencode_config_schema_conformance() -> None:
         assert enabled == [variant], f"{short}: {enabled}"
         for retired in ("none", "off", "minimal", "low", "medium", "high", "xhigh"):
             assert entry["variants"][retired] == {"disabled": True}, f"{short}:{retired}"
-    # DeepSeek is the primary executor, so the build agent defaults to its level.
+    # Space Bunny is the only executor, so the build agent defaults to its level.
     assert config["agent"]["build"] == {"variant": "max"}
     assert "permissions" not in config
     assert isinstance(config["permission"], dict)
@@ -313,14 +308,14 @@ def test_opencode_config_schema_conformance() -> None:
 def test_only_authorized_executors_present_in_canonical_config() -> None:
     """The canonical config exposes exactly the admitted runtime identities.
 
-    Exactly two LOGICAL executors exist; the only extra row is the legacy
-    Space Bunny alias bound to the same logical profile. No third executor,
-    and no other provider/model, may appear.
+    Only ACTIVE profiles are admitted (Space Bunny; DeepSeek is SUSPENDED); the
+    only extra row is the legacy Space Bunny alias bound to the same logical
+    profile. No other provider/model may appear.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     provider = config["provider"]["opencode-go"]
     registry = executor_mod.load_registry()
-    admitted = list(registry.runtime_identity)
+    admitted = list(registry.active_runtime_ids)
     assert provider["whitelist"] == [model.split("/", 1)[1] for model in admitted]
     assert set(provider["models"]) == {model.split("/", 1)[1] for model in admitted}
     assert set(registry.runtime_identity) == {
@@ -346,16 +341,19 @@ def test_high_default_retained() -> None:
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     models = config["provider"]["opencode-go"]["models"]
-    assert models["deepseek-v4.1-flash"]["options"] == {"reasoningEffort": "max"}
+    assert "deepseek-v4.1-flash" not in models
     assert models["space-bunny"]["options"] == {"reasoningEffort": "max"}
-    # The on-disk agent snapshot carries the DeepSeek primary for implementation
-    # agents; the mandatory cross-executor reviewer is rebound to Space Bunny
-    # (read-only) and the launcher pins the explicitly selected profile inline
-    # for every run.
+    # Every on-disk agent runs Space Bunny MAX (DeepSeek SUSPENDED 2026-10-10);
+    # the launcher also pins the resolved profile inline for every run.
     expected = {
-        "foundry-implementer.md": ("opencode-go/deepseek-v4.1-flash", "max"),
-        "foundry-adjudicator.md": ("opencode-go/deepseek-v4.1-flash", "max"),
-        "foundry-reviewer.md": ("opencode-go/space-bunny", "max"),
+        name: ("opencode-go/space-bunny", "max")
+        for name in (
+            "foundry-implementer.md",
+            "foundry-adjudicator.md",
+            "foundry-reviewer.md",
+            "bunny-verifier.md",
+            "bunny-auditor.md",
+        )
     }
     for name, (model, variant) in expected.items():
         front = _agent_frontmatter(name)
@@ -366,7 +364,7 @@ def test_high_default_retained() -> None:
 def test_adjudicator_exists_and_configured() -> None:
     adjudicator = _agent_frontmatter("foundry-adjudicator.md")
     assert adjudicator["mode"] == "subagent"
-    assert adjudicator["model"] == "opencode-go/deepseek-v4.1-flash"
+    assert adjudicator["model"] == "opencode-go/space-bunny"
     assert adjudicator["variant"] == "max"
     assert adjudicator["permission"]["edit"] == "deny"
     bash = adjudicator["permission"]["bash"]
@@ -1041,8 +1039,8 @@ def test_cpl_profile_points_to_current_dual_executor_authority() -> None:
     assert "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md" in canonical
     assert "docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md" not in canonical
     notes = profile["notes"].lower()
-    assert "two-executor" in notes
-    assert "space bunny max" in notes
+    assert "space bunny max as the default and only active executor" in notes
+    assert "deepseek v4.1 flash max is suspended" in notes
     assert "historical model references are provenance only" in notes
 
 
@@ -1064,7 +1062,8 @@ def test_current_routing_is_executor_neutral_and_bunny_preferred() -> None:
         encoding="utf-8"
     )
     flat = " ".join(routing.lower().split())
-    assert "default and preferred executor" in flat
+    assert "the default and only executor" in flat
+    assert "suspended" in flat
     assert "space-bunny" in flat
     assert "native `max`" in flat
     assert "no other opencode executor is selectable" in flat

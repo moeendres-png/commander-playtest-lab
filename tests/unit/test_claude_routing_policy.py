@@ -103,8 +103,10 @@ def test_claude_policy_forbids_general_purpose_implementation_and_duplicate_read
     assert "Do not use" in text and "`general-purpose`" in text
     assert "must not\nspawn children" in text
     assert "Do not automatically re-read" in text
-    assert "DeepSeek V4.1 Flash at native `max`" in text
-    assert "Space Bunny at native `max` is an explicit secondary profile only" in text
+    # Owner directive 2026-10-10: Space Bunny is the only executor, DeepSeek SUSPENDED.
+    assert "the only executor is Space Bunny at native `max`" in text
+    assert "DeepSeek V4.1 Flash is SUSPENDED" in text
+    assert "Space Bunny at native `max` is an explicit secondary profile only" not in text
 
 
 def test_helper_effort_policy_is_per_agent_not_a_blanket_high_rule():

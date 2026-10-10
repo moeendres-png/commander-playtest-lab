@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.2",
+  "schema_version": "1.3",
   "status": "ACTIVE",
-  "authority_date": "2026-10-06",
+  "authority_date": "2026-10-10",
   "provider": "opencode-go",
   "policy": {
     "highest_supported_effort_only": true,
@@ -12,25 +12,33 @@
     "repository_prescribes_task_routing": false,
     "live_catalog_reverification_required_at_activation": true
   },
-  "current_runtime_default": "deepseek",
+  "current_runtime_default": "space-bunny",
   "profiles": {
-    "deepseek": {
-      "model": "opencode-go/deepseek-v4.1-flash",
-      "native_variant": "max",
-      "runtime_status": "ACTIVE"
-    },
     "space-bunny": {
       "model": "opencode-go/space-bunny",
       "native_variant": "max",
       "runtime_status": "ACTIVE"
+    },
+    "deepseek": {
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "native_variant": "max",
+      "runtime_status": "SUSPENDED",
+      "suspension": {
+        "since": "2026-10-10",
+        "reason": "Owner directive after the OpenCode Go monthly quota was exhausted (HTTP 429 GoUsageLimitError, limitName=monthly). Observed 2026-10-10 (opencode workflow run 38049493597): opencode-go/space-bunny calls are refused by the same monthly limit, so this suspension does not restore OpenCode capacity by itself.",
+        "authority": "Direct Owner instruction 2026-10-10: use only Space Bunny MAX in OpenCode, subagents included.",
+        "reactivation": "Only a new direct Owner instruction sets runtime_status back to ACTIVE; quota recovery alone does not."
+      }
     }
   },
   "routing_policy": {
-    "note": "Canonical executor policy: exactly DeepSeek v4.1 Flash MAX primary and Space Bunny MAX explicit secondary. Historical references to other models are provenance only and must not create migration work without a new direct user instruction.",
-    "primary": "deepseek",
-    "secondary": "space-bunny",
+    "note": "Owner directive 2026-10-10: Space Bunny MAX is the default and only active OpenCode executor for every lane (/oc, /bunny, /bunny-review, the launcher, the opencode-subagent MCP and every OpenCode subagent). DeepSeek v4.1 Flash MAX is SUSPENDED and never selected, not even as a fallback. Historical references to DeepSeek are provenance only.",
+    "primary": "space-bunny",
+    "suspended": [
+      "deepseek"
+    ],
     "automatic_fallback": false,
-    "selection_authority": "Coordinator or workstream contract selects the secondary explicitly; otherwise the primary is the default. The repository does not classify tasks automatically."
+    "selection_authority": "Every run resolves the space-bunny profile. Re-activating DeepSeek needs a new direct Owner instruction recorded in this registry."
   },
   "runtime_identity": {
     "opencode-go/deepseek-v4.1-flash": {
@@ -61,9 +69,9 @@
     "automatic_fallback": false
   },
   "cross_executor_review_policy": {
-    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY Space Bunny MAX review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. Only the top-level read-only /bunny-review lane (foundry-reviewer) can carry verifiable review evidence; a writable top-level run or a subagent it dispatches never satisfies the gate. A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed.",
+    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY Space Bunny MAX review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. Only the top-level read-only /bunny-review lane (foundry-reviewer) can carry verifiable review evidence; a writable top-level run or a subagent it dispatches never satisfies the gate. While DeepSeek is SUSPENDED the implementation executor is also Space Bunny, so the review is same-model and its independence rests on the fresh context and read-only lane alone (review_independence). A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed.",
     "required_for_material": true,
-    "implementation_executor": "deepseek",
+    "implementation_executor": "space-bunny",
     "review_executor": "space-bunny",
     "review_mode": "READ_ONLY_FRESH_CONTEXT",
     "review_agents": [
@@ -88,7 +96,8 @@
       "deepseek"
     ],
     "non_material_closeout": "GENERATED_STATE_ONLY",
-    "remote_resumability": "REQUIRES_REMOTE_CHECKPOINT_EQUALITY"
+    "remote_resumability": "REQUIRES_REMOTE_CHECKPOINT_EQUALITY",
+    "review_independence": "FRESH_CONTEXT_SAME_MODEL_WHILE_NO_OTHER_PROFILE_IS_ACTIVE"
   },
   "activation_gate": {
     "required_surfaces": [

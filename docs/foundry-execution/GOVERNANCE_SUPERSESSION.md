@@ -1,7 +1,7 @@
-> **Current routing authority update — 2026-10-02:** Historical executor/model
-> adjudications below are provenance only. Current OpenCode routing is exactly DeepSeek
-> v4.1 Flash MAX as default/primary and Space Bunny MAX as explicit secondary, with no
-> automatic fallback. Historical references to any other executor are not migration targets
+> **Current routing authority update — 2026-10-10:** Historical executor/model
+> adjudications below are provenance only. Current OpenCode routing is Space Bunny MAX as
+> the default and only active executor; DeepSeek v4.1 Flash MAX is SUSPENDED (Owner
+> directive 2026-10-10), with no automatic fallback. Historical references to any other executor are not migration targets
 > and must not create new routing work without a new direct user instruction.
 > See `ROUTING_AND_EFFORT.md` and `../CURRENT_EXECUTION_AUTHORITY.md`.
 

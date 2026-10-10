@@ -6,15 +6,16 @@ Single coherent entry point for the OpenCode Foundry execution system on
 | Surface | Canonical path | Role |
 |---|---|---|
 | Durable agent rules | `AGENTS.md` (root) | Non-negotiable invariants for every session |
-| Machine config | `opencode.json` (root) | DeepSeek MAX default; explicit Space Bunny MAX secondary; permissions; sharing off |
+| Machine config | `opencode.json` (root) | Space Bunny MAX only (DeepSeek SUSPENDED 2026-10-10); permissions; sharing off |
 | Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, effort, Work gate |
 | Workspace access | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` + launcher `--workspace-access` | Unique verified reference snapshots + standalone current-workstream owned-write surfaces + Bubblewrap read-only-root boundary |
-| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | DeepSeek MAX default, Space Bunny MAX secondary, retired Zen, no fallback |
-| Technical authority | `docs/CURRENT_EXECUTION_AUTHORITY.md` | Sol / DeepSeek MAX / Space Bunny MAX / Astra authority model |
+| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Space Bunny MAX default and only active profile, DeepSeek SUSPENDED, retired Zen, no fallback |
+| Space Bunny prompting | `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md` | How to write `/oc`, `/bunny`, `/bunny-review` and subagent prompts for Space Bunny MAX |
+| Technical authority | `docs/CURRENT_EXECUTION_AUTHORITY.md` | Sol / Space Bunny MAX (DeepSeek SUSPENDED) / Astra authority model |
 | Contract template | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` | Task fields incl. decision authority |
 | Governance supersession | `docs/foundry-execution/GOVERNANCE_SUPERSESSION.md` | PR #161/#166/#167 dispositions |
 | Governance propagation | `docs/foundry-execution/GOVERNANCE_PROPAGATION.md` | PR #172 governance-line propagation; `RETAINED_EVIDENCE_IMPACT = NO_SEMANTIC_IMPACT` when governance-only |
-| Implementer agent | `.opencode/agents/foundry-implementer.md` | Primary long-running worker (DeepSeek MAX primary executor) |
+| Implementer agent | `.opencode/agents/foundry-implementer.md` | Primary long-running worker (Space Bunny MAX) |
 | Adjudicator agent | `.opencode/agents/foundry-adjudicator.md` | Read/test-first technical adjudicator (native `max`) |
 | Reviewer agent | `.opencode/agents/foundry-reviewer.md` | Fresh-context read-only review |
 | Skills | `.opencode/skills/*/SKILL.md` | workstream-bootstrap, failure-classification, test-impact, evidence-seal, continuation, component-change-review, rules-authority-escalation |

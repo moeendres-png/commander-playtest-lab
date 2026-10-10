@@ -92,7 +92,7 @@ def init_state(
         "cross_executor_review": {
             "required": True,
             "logical_profile": "space-bunny",
-            "implementation_executor": "deepseek",
+            "implementation_executor": "space-bunny",
             "review_executor": "space-bunny",
             "reviewed_sha": None,
             "reviewed_tree": None,

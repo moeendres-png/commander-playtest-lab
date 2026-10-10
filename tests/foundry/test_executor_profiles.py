@@ -60,8 +60,10 @@ def test_registry_does_not_prescribe_task_routing_or_model_preference() -> None:
 def test_prepared_profiles_do_not_falsely_claim_runtime_activation() -> None:
     doc = _registry()
     assert doc["status"] == "ACTIVE"
-    assert doc["current_runtime_default"] == "deepseek"
-    assert doc["profiles"]["deepseek"]["runtime_status"] == "ACTIVE"
+    # Owner directive 2026-10-10: Space Bunny MAX only; DeepSeek is SUSPENDED.
+    assert doc["current_runtime_default"] == "space-bunny"
+    assert doc["profiles"]["deepseek"]["runtime_status"] == "SUSPENDED"
+    assert doc["profiles"]["deepseek"]["suspension"]["since"] == "2026-10-10"
     assert doc["profiles"]["space-bunny"]["runtime_status"] == "ACTIVE"
     assert set(doc["profiles"]) == {"deepseek", "space-bunny"}
 
@@ -69,8 +71,9 @@ def test_prepared_profiles_do_not_falsely_claim_runtime_activation() -> None:
 def test_routing_policy_is_stable_and_fallback_free() -> None:
     doc = _registry()
     routing = doc["routing_policy"]
-    assert routing["primary"] == "deepseek"
-    assert routing["secondary"] == "space-bunny"
+    assert routing["primary"] == "space-bunny"
+    assert routing["suspended"] == ["deepseek"]
+    assert "secondary" not in routing
     assert "inactive" not in routing
     assert routing["automatic_fallback"] is False
     assert doc["policy"]["automatic_fallback"] is False
@@ -89,7 +92,10 @@ def test_routing_policy_is_stable_and_fallback_free() -> None:
     ):
         assert forbidden not in blob, forbidden
     for profile in doc["profiles"].values():
-        assert set(profile) == {"model", "native_variant", "runtime_status"}, profile
+        keys = {"model", "native_variant", "runtime_status"}
+        if profile["runtime_status"] == "SUSPENDED":
+            keys.add("suspension")  # durable reason and Owner authority, no quota data
+        assert set(profile) == keys, profile
 
 
 def test_activation_evidence_records_authenticated_runtime_verification() -> None:
@@ -176,7 +182,12 @@ def test_cross_executor_review_policy_is_declared_and_strict() -> None:
     """Durable registry declares the mandatory read-only cross-executor gate."""
     policy = _registry()["cross_executor_review_policy"]
     assert policy["required_for_material"] is True
-    assert policy["implementation_executor"] == "deepseek"
+    # While DeepSeek is SUSPENDED Space Bunny implements and reviews (Owner
+    # approval 2026-10-10); the review stays fresh-context and read-only.
+    assert policy["implementation_executor"] == "space-bunny"
+    assert policy["review_independence"] == (
+        "FRESH_CONTEXT_SAME_MODEL_WHILE_NO_OTHER_PROFILE_IS_ACTIVE"
+    )
     assert policy["review_executor"] == "space-bunny"
     assert policy["review_mode"] == "READ_ONLY_FRESH_CONTEXT"
     assert set(policy["review_agents"]) == {"foundry-reviewer"}
