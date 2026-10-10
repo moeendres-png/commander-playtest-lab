@@ -22,7 +22,10 @@ The SLOT-06 ruling (`docs/slot06_capability_ruling_20261009/SLOT06_RULING.md`) d
 how this is judged:
 - **capability set:** exactly one, the production lane `full-game` (AF01 on that lane);
 - **capabilities:** every one of the 11 required capabilities is credited only from
-  executed in-epoch native receipts of its proof classes (`freeze_record.CAPABILITY_PROOF`);
+  executed in-epoch evidence of its proofs (`freeze_record.CAPABILITY_PROOF`): 9 from
+  native receipts alone, `engine_shutdown_supported` from the production-lane AF01 run
+  plus the native `XmageFullGameShutdownGameTest` receipt, and `headless_supported` from
+  the production-lane AF01 run (a headless launch);
 - **gates:** every lane-surface gate has its production-lane component.
 
 An eligible record is a decision input for the Owner, not a Freeze.
@@ -69,8 +72,12 @@ checkout at Freeze.
 
 ## 9. PROTOCOL_SCHEMA_IDENTITY
 
-`git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5`
-(`schemas/engine_adapter_protocol.schema.json`). Re-verify at Freeze.
+**NOT BOUND: mismatch to resolve.** The freeze record carries
+`git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5`, a `const` of the freeze contract
+schema. `schemas/engine_adapter_protocol.schema.json` is
+`git-blob:9818d20ee1309e4fde522ffbfe5340eea5145d73` at `85dbcb1a`; it was regenerated
+after that const was fixed. At Freeze, bind the schema blob that the frozen protocol
+actually uses and update the contract const together with it.
 
 ## 10. BRIDGE_ARCHITECTURE
 
@@ -223,7 +230,8 @@ component (`LANE_SURFACE_COMPONENTS`).
 
 `freeze_eligible: true` for the XMage record:
 - `missing_required_capabilities: []`;
-- 11/11 required capabilities are credited from in-epoch receipts;
+- 11/11 required capabilities are credited from in-epoch evidence: 9 from native
+  receipts, engine shutdown from AF01 plus its receipt, headless from AF01;
 - `architecture_winner: false`.
 
 **The Freeze itself is the Owner's decision and is not claimed by this draft.**
@@ -237,5 +245,5 @@ component (`LANE_SURFACE_COMPONENTS`).
 - [ ] SLOT-03 shim reference confirmed (§10)
 - [ ] D17 in-JVM residual risk decision (§11). It is currently NOT accepted.
 - [ ] Process isolation mechanism (§22) and license topology (§25)
-- [ ] Contract schema pins (§15–18)
+- [ ] Protocol schema identity resolved (§9); contract schema pins (§15–18)
 - [ ] `ARCHITECTURE_FREEZE = CLAIMED`, recorded by the Owner with date

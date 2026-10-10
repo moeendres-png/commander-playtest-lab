@@ -49,11 +49,13 @@
       "engine_shutdown_supported": {
         "counts_true": true,
         "proof_classes": [
-          "AF01:full-game"
+          "AF01:full-game",
+          "XmageFullGameShutdownGameTest"
         ],
         "proof_missing": [],
         "proof_refs": [
-          "AF01_XMAGE.json (lane=full-game, verdict=PASS)"
+          "AF01_XMAGE.json (lane=full-game, verdict=PASS)",
+          "receipts/native-xmage-mechanism.json#XmageFullGameShutdownGameTest (2 tests, source sha256 5ad9b338956a38cf15e906a11351967d5d8af61f5768f24e0d4db7daa8c7d9d3)"
         ],
         "reported": true
       },

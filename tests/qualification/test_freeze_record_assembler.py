@@ -217,6 +217,8 @@ RULING_MINIMUM_PROOFS = {
         "XmageFullGameUnprojectableDecisionTest",  # L3 fails closed
         "XmageFullGameCancelRewindTest",  # L4 frame after rewind
     },
+    # AF01 never sends shutdown_engine: the executed shutdown test must prove it.
+    "engine_shutdown_supported": {"XmageFullGameShutdownGameTest"},
     "action_submission_supported": {
         "XmageFullGameDecisionClassMatrixTest",  # S1/S2
         "XmageFullGameDecisionClassInventoryTest",
