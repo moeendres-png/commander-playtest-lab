@@ -25,7 +25,14 @@ def post_args(
     )
 
 
-def test_oc_post_has_prefix_branch_and_the_fixed_footer(capsys, tmp_path):
+@pytest.fixture(autouse=True)
+def _no_ambient_session(monkeypatch):
+    monkeypatch.delenv("CLAUDE_SESSION_URL", raising=False)
+    monkeypatch.delenv("CLAUDE_CODE_REMOTE_SESSION_ID", raising=False)
+
+
+def test_oc_post_has_prefix_branch_and_the_fixed_footer(capsys, tmp_path, monkeypatch):
+    monkeypatch.setenv("CLAUDE_CODE_REMOTE_SESSION_ID", "cse_01TestSession")
     task = tmp_path / "task.md"
     task.write_text("**Objective.** Fix the thing.\n", encoding="utf-8")
     oc_dispatch.cmd_post(post_args(task, branch="ci/fix-20261006"))
@@ -38,7 +45,44 @@ def test_oc_post_has_prefix_branch_and_the_fixed_footer(capsys, tmp_path):
     assert "NOT_RUN != PASS" in out
     assert "never weaken an" in out
     assert "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" in out
-    assert "Claude-Session: https://claude.ai/code/session_01XoAKQUxcwkMyLLNvET1KVq" in out
+    assert "Claude-Session: https://claude.ai/code/session_01TestSession" in out
+    # The stale hard-coded session (#662 follow-up) is never credited again.
+    assert "session_01XoAKQUxcwkMyLLNvET1KVq" not in out
+
+
+def test_trailer_names_the_dispatching_session_or_nothing(capsys, tmp_path, monkeypatch):
+    task = tmp_path / "task.md"
+    task.write_text("**Objective.** Fix the thing.\n", encoding="utf-8")
+    explicit = argparse.Namespace(
+        **vars(post_args(task)),
+        trailer="claude",
+        session_url="https://claude.ai/code/session_01Explicit",
+    )
+    monkeypatch.setenv("CLAUDE_CODE_REMOTE_SESSION_ID", "cse_01FromEnv")
+    oc_dispatch.cmd_post(explicit)
+    out = capsys.readouterr().out
+    assert "Claude-Session: https://claude.ai/code/session_01Explicit" in out
+    assert "01FromEnv" not in out
+
+    monkeypatch.delenv("CLAUDE_CODE_REMOTE_SESSION_ID")
+    oc_dispatch.cmd_post(post_args(task))
+    captured = capsys.readouterr()
+    assert "Co-Authored-By: Claude Opus 5.5" in captured.out
+    assert "Claude-Session" not in captured.out
+    assert "no Claude session URL known" in captured.err
+
+    none = argparse.Namespace(**vars(post_args(task)), trailer="none", session_url=None)
+    oc_dispatch.cmd_post(none)
+    out = capsys.readouterr().out
+    assert "Co-Authored-By" not in out and "Claude-Session" not in out
+    assert "add no Claude co-author" in out
+    assert "No force-push" in out and "UNKNOWN != PASS" in out
+
+    bad = argparse.Namespace(
+        **vars(post_args(task)), trailer="claude", session_url="https://x.test/s"
+    )
+    with pytest.raises(SystemExit, match="session-url"):
+        oc_dispatch.cmd_post(bad)
 
 
 def test_bunny_post_is_read_only_and_does_not_duplicate_the_prefix(capsys, tmp_path):
@@ -199,3 +243,33 @@ def test_oc_footer_forbids_closing_keywords():
     text = oc_dispatch.footer("oc")
     assert "Never write a GitHub closing keyword" in text
     assert "Refs #N" in text
+
+
+def test_watch_names_a_quota_blocked_run(monkeypatch, capsys):
+    def blocked_api(path: str):
+        if path.endswith("/actions/runs/42"):
+            return {**STARTED, "status": "completed", "conclusion": "failure"}
+        if path.endswith("/jobs?per_page=50"):
+            return {
+                "jobs": [
+                    {"id": 77, "name": "opencode", "status": "completed", "conclusion": "failure"}
+                ]
+            }
+        if path.endswith("/check-runs/77/annotations"):
+            return [
+                {
+                    "title": "BLOCKED_SERVICE",
+                    "message": "OpenCode Go usage limit reached "
+                    "(HTTP 429 GoUsageLimitError, limitName=monthly).",
+                }
+            ]
+        if "issues/comments" in path:
+            return []
+        raise AssertionError(f"unexpected api path: {path}")
+
+    monkeypatch.setattr(oc_dispatch, "api", blocked_api)
+    oc_dispatch.cmd_watch(argparse.Namespace(run=42, issue=None, repo=LAB, interval=60, timeout=10))
+    lines = capsys.readouterr().out.splitlines()
+    assert lines[0] == "run 42 oc failure"
+    assert lines[1].startswith("BLOCKED_SERVICE OpenCode Go usage limit reached")
+    assert "limitName=monthly" in lines[1]

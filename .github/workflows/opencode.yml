@@ -103,9 +103,18 @@ jobs:
       # run loses its push anyway; ending the step at 55 minutes fails it, and
       # the rescue steps below keep the work (runs 37892171436, 37919745102 and
       # 37924003093 hung for one to three hours with only a prompt time box).
+      # A provider quota refusal (HTTP 429 GoUsageLimitError) is not retryable
+      # inside a run, yet the CLI hangs after it (runs 37981118028, 38012159229,
+      # 38012694554): tools/foundry/quota_watchdog.py, copied from the triggering
+      # commit like the rescue scanner, stops it at once and fails the step as
+      # BLOCKED_SERVICE so the rescue steps below still run.
       - name: Run opencode
         timeout-minutes: 55
-        run: opencode github run
+        run: |
+          set -euo pipefail
+          watchdog="$RUNNER_TEMP/quota_watchdog.py"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:tools/foundry/quota_watchdog.py" > "$watchdog"
+          python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           MODEL: opencode-go/deepseek-v4.1-flash
@@ -262,9 +271,18 @@ jobs:
       # run loses its push anyway; ending the step at 55 minutes fails it, and
       # the rescue steps below keep the work (runs 37892171436, 37919745102 and
       # 37924003093 hung for one to three hours with only a prompt time box).
+      # A provider quota refusal (HTTP 429 GoUsageLimitError) is not retryable
+      # inside a run, yet the CLI hangs after it (runs 37981118028, 38012159229,
+      # 38012694554): tools/foundry/quota_watchdog.py, copied from the triggering
+      # commit like the rescue scanner, stops it at once and fails the step as
+      # BLOCKED_SERVICE so the rescue steps below still run.
       - name: Run opencode
         timeout-minutes: 55
-        run: opencode github run
+        run: |
+          set -euo pipefail
+          watchdog="$RUNNER_TEMP/quota_watchdog.py"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:tools/foundry/quota_watchdog.py" > "$watchdog"
+          python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           MODEL: opencode-go/space-bunny
@@ -438,9 +456,18 @@ jobs:
       # run loses its push anyway; ending the step at 55 minutes fails it, and
       # the rescue steps below keep the work (runs 37892171436, 37919745102 and
       # 37924003093 hung for one to three hours with only a prompt time box).
+      # A provider quota refusal (HTTP 429 GoUsageLimitError) is not retryable
+      # inside a run, yet the CLI hangs after it (runs 37981118028, 38012159229,
+      # 38012694554): tools/foundry/quota_watchdog.py, copied from the triggering
+      # commit like the rescue scanner, stops it at once and fails the step as
+      # BLOCKED_SERVICE so the rescue steps below still run.
       - name: Run opencode
         timeout-minutes: 55
-        run: opencode github run
+        run: |
+          set -euo pipefail
+          watchdog="$RUNNER_TEMP/quota_watchdog.py"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:tools/foundry/quota_watchdog.py" > "$watchdog"
+          python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           MODEL: opencode-go/space-bunny

@@ -26,7 +26,11 @@ change GitHub state. Run them from the Lab worktree root.
 
 Dispatch task skeletons live in `oc_tasks/`: `implement-batch.md`, `fix-review-findings.md`,
 `ci-fix.md`, `tooling.md`. Fill only the 5–10 task-specific lines; `oc_dispatch.py` appends
-the rules footer.
+the rules footer. Its commit trailer names the dispatching Claude session (`--session-url`,
+`CLAUDE_SESSION_URL` or the cloud session id); a non-Claude dispatcher passes `--trailer none`.
+A run the provider refuses for quota (HTTP 429 `GoUsageLimitError`) is stopped at once by
+`tools/foundry/quota_watchdog.py`; `watch` then prints `BLOCKED_SERVICE …`. That is an Owner
+gate (paid service), never a reason to re-dispatch or switch provider.
 
 `gh_ops.py` uses `gh api`: REST plus the CCR thread route
 `repos/{o}/{r}/pulls/{n}/ccr/review_threads`. GraphQL is not available in Claude
