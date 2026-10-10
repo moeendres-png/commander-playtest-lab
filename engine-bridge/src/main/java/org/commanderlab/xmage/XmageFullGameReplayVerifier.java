@@ -38,11 +38,12 @@ final class XmageFullGameReplayVerifier {
             JsonObject export = JsonParser.parseString(
                     Files.readString(exportPath, StandardCharsets.UTF_8)).getAsJsonObject();
             verdict = verify(export);
-            code = "REPLAY_MATCH".equals(verdict.get("verdict").getAsString()) ? 0 : 1;
+            String result = verdict.get("verdict").getAsString();
+            code = "REPLAY_MATCH".equals(result) ? 0 : "DIVERGED".equals(result) ? 1 : 2;
         } catch (Exception exc) {
             verdict = new JsonObject();
             verdict.addProperty("verdict", "ERROR");
-            verdict.addProperty("error", exc.getClass().getSimpleName() + ": " + exc.getMessage());
+            verdict.addProperty("error", redactedError(exc));
             code = 2;
         }
         out.println(verdict);
@@ -76,20 +77,53 @@ final class XmageFullGameReplayVerifier {
                 export.get("starting_life").getAsInt(),
                 export.get("seed").getAsLong(),
                 importer);
-        session.start();
+        JsonObject verdict;
+        try {
+            session.start();
+            verdict = replay(session, export, decisions);
+        } catch (RuntimeException exc) {
+            shutdownQuietly(session);
+            throw exc;
+        }
+        // The verifier owns its game: end it and join the engine thread instead
+        // of leaving that to process exit.
+        boolean clean = shutdownQuietly(session);
+        verdict.addProperty("shutdown_clean", clean);
+        if (!clean) {
+            // A replay whose engine could not be ended proves nothing: fail closed.
+            verdict.addProperty("replay_verdict", verdict.get("verdict").getAsString());
+            verdict.addProperty("verdict", "ERROR");
+            verdict.addProperty("error", "FULL_GAME_SHUTDOWN_TIMEOUT");
+        }
+        return verdict;
+    }
 
+    private static boolean shutdownQuietly(XmageFullGameSession session) {
+        try {
+            session.shutdownGame();
+            return true;
+        } catch (RuntimeException shutdownFailure) {
+            return false;
+        }
+    }
+
+    private static JsonObject replay(XmageFullGameSession session, JsonObject export, JsonArray decisions) {
         for (int index = 0; index < decisions.size(); index++) {
             JsonObject entry = decisions.get(index).getAsJsonObject();
             JsonObject status = session.pendingDecisionPayload();
             if ("concede".equals(text(entry, "kind"))) {
-                int seat = entry.get("actor_seat").getAsInt();
-                String principal = status.getAsJsonArray("outcomes").get(seat)
-                        .getAsJsonObject().get("player_id").getAsString();
-                JsonObject concede = new JsonObject();
-                concede.addProperty("proposal_id", "replay-" + index);
-                concede.addProperty("actor_id", principal);
-                concede.addProperty("player_id", principal);
-                session.submitConcede(concede);
+                try {
+                    int seat = entry.get("actor_seat").getAsInt();
+                    String principal = status.getAsJsonArray("outcomes").get(seat)
+                            .getAsJsonObject().get("player_id").getAsString();
+                    JsonObject concede = new JsonObject();
+                    concede.addProperty("proposal_id", "replay-" + index);
+                    concede.addProperty("actor_id", principal);
+                    concede.addProperty("player_id", principal);
+                    session.submitConcede(concede);
+                } catch (RuntimeException rejected) {
+                    return diverged(index, "concession", "accepted", "rejected: " + redactedError(rejected));
+                }
                 continue;
             }
             if (status.get("decision") == null || status.get("decision").isJsonNull()) {
@@ -103,6 +137,11 @@ final class XmageFullGameReplayVerifier {
                 return diverged(index, "actor_seat", entry.get("actor_seat").getAsString(),
                         pending.get("seat").getAsString());
             }
+            if (!entry.has("decision_offset")
+                    || entry.get("decision_offset").getAsLong() != pending.get("decision_offset").getAsLong()) {
+                return diverged(index, "decision_offset", text(entry, "decision_offset"),
+                        pending.get("decision_offset").getAsString());
+            }
             String offered = XmageFullGameReplay.offeredDigest(pending);
             if (!offered.equals(text(entry, "offered_digest"))) {
                 return diverged(index, "offered_digest", text(entry, "offered_digest"), offered);
@@ -114,22 +153,55 @@ final class XmageFullGameReplayVerifier {
             for (JsonElement chosen : entry.getAsJsonArray("chosen_keys")) {
                 int position = keys.indexOf(chosen.getAsString());
                 if (position < 0) {
-                    return diverged(index, "chosen_key", chosen.getAsString(), "not offered");
+                    return diverged(index, "chosen_key", "recorded key", "not offered");
                 }
                 selected.add(ids.get(position));
+            }
+            JsonArray ordering = new JsonArray();
+            JsonArray orderingKeys = entry.has("ordering_keys") ? entry.getAsJsonArray("ordering_keys") : null;
+            if (orderingKeys == null) {
+                // Schema 1.1.0 records the ordering of every decision; a missing
+                // field is a broken record, never "no ordering".
+                return diverged(index, "ordering_keys", "present", "missing");
+            }
+            for (JsonElement ordered : orderingKeys) {
+                int position = keys.indexOf(ordered.getAsString());
+                if (position < 0) {
+                    return diverged(index, "ordering_key", "recorded key", "not offered");
+                }
+                ordering.add(ids.get(position));
             }
             JsonObject response = new JsonObject();
             response.addProperty("decision_id", text(pending, "decision_id"));
             response.addProperty("actor_id", text(pending, "actor_id"));
             response.add("selected_option_ids", selected);
-            response.add("ordering", new JsonArray());
+            response.add("ordering", ordering);
             response.add("numeric_choice", entry.has("numeric_choice") ? entry.get("numeric_choice") : JsonNull.INSTANCE);
             response.add("numeric_choices", entry.has("numeric_choices") ? entry.get("numeric_choices") : JsonNull.INSTANCE);
             try {
                 session.submit(response);
             } catch (RuntimeException rejected) {
-                return diverged(index, "submission", "accepted", "rejected: " + rejected.getMessage());
+                return diverged(index, "submission", "accepted", "rejected: " + redactedError(rejected));
             }
+        }
+        // R3: the engine must now be on exactly the frame the export ended on. A
+        // further frame is one the tape does not cover; nothing is defaulted.
+        JsonObject finalStatus = session.pendingDecisionPayload();
+        JsonObject finalPending = finalStatus.get("decision") == null || finalStatus.get("decision").isJsonNull()
+                ? null : finalStatus.getAsJsonObject("decision");
+        JsonElement observedFrame = XmageFullGameReplay.pendingFrame(finalPending);
+        JsonElement expectedFrame = export.has("final_pending") ? export.get("final_pending") : null;
+        if (expectedFrame == null) {
+            return diverged(decisions.size(), "final_pending", "present", "missing");
+        }
+        if (!expectedFrame.equals(observedFrame)) {
+            return diverged(decisions.size(), "unrecorded_frame", frameLabel(expectedFrame), frameLabel(observedFrame));
+        }
+        String observedState = session.replayEngineState();
+        if (!text(export, "final_engine_state").equals(observedState)) {
+            // A replay that ends FAILED (or anywhere but the exported state) never
+            // matches, even with equal public digests.
+            return diverged(decisions.size(), "engine_state", text(export, "final_engine_state"), observedState);
         }
         String finalDigest = session.semanticStateDigest();
         if (!finalDigest.equals(text(export, "final_state_digest"))) {
@@ -156,6 +228,26 @@ final class XmageFullGameReplayVerifier {
         verdict.addProperty("expected", expected);
         verdict.addProperty("observed", observed);
         return verdict;
+    }
+
+    /** Class and frame only: digests stay out of the label, the record index locates it. */
+    private static String frameLabel(JsonElement frame) {
+        if (frame == null || frame.isJsonNull()) {
+            return "none";
+        }
+        JsonObject object = frame.getAsJsonObject();
+        return text(object, "decision_class") + "@seat" + text(object, "actor_seat");
+    }
+
+    /**
+     * R4: an error names the exception class and, when the message starts with
+     * one, its typed code (e.g. {@code ILLEGAL_ACTION}); the free-text rest may
+     * carry option ids, card names or paths and is dropped.
+     */
+    static String redactedError(Throwable exc) {
+        String message = exc.getMessage() == null ? "" : exc.getMessage();
+        java.util.regex.Matcher code = java.util.regex.Pattern.compile("^([A-Z][A-Z0-9_]{2,})(:|$)").matcher(message);
+        return exc.getClass().getSimpleName() + (code.find() ? ": " + code.group(1) : "");
     }
 
     private static String text(JsonObject object, String field) {

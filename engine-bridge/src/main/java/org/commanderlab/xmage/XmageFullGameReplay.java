@@ -25,7 +25,7 @@ import java.util.Map;
  */
 final class XmageFullGameReplay {
 
-    static final String SCHEMA_VERSION = "xmage-full-game-replay/1.0.0";
+    static final String SCHEMA_VERSION = "xmage-full-game-replay/1.1.0";
 
     private XmageFullGameReplay() {
     }
@@ -95,6 +95,23 @@ final class XmageFullGameReplay {
         keys.forEach(sorted::add);
         basis.add("keys", sorted);
         return sha256(basis.toString());
+    }
+
+    /**
+     * The identity of a pending decision frame without its option ids: the
+     * engine's own decision offset, class, seat and offered-option digest, or
+     * JSON null when nothing is pending.
+     */
+    static JsonElement pendingFrame(JsonObject pending) {
+        if (pending == null) {
+            return com.google.gson.JsonNull.INSTANCE;
+        }
+        JsonObject frame = new JsonObject();
+        frame.addProperty("decision_offset", pending.get("decision_offset").getAsLong());
+        frame.addProperty("decision_class", pending.get("decision_class").getAsString());
+        frame.addProperty("actor_seat", pending.get("seat").getAsInt());
+        frame.addProperty("offered_digest", offeredDigest(pending));
+        return frame;
     }
 
     static String sha256(String text) {

@@ -580,7 +580,7 @@ final class XmageFullGameDecisionController {
                 numerics == null ? null : List.copyOf(numerics)
         );
         recordDecisionAccepted(pendingRequest, selected, numeric, numerics);
-        recordReplayDecision(pendingRequest, selected, numeric, numerics);
+        recordReplayDecision(pendingRequest, selected, ordering, numeric, numerics);
         notifyAll();
     }
 
@@ -595,21 +595,21 @@ final class XmageFullGameDecisionController {
     }
 
     private void recordReplayDecision(
-            JsonObject request, List<String> selected, Integer numeric, List<Integer> numerics) {
+            JsonObject request, List<String> selected, List<String> ordering,
+            Integer numeric, List<Integer> numerics) {
         List<String> keys = XmageFullGameReplay.semanticKeys(request.getAsJsonArray("legal_options"));
         List<String> ids = XmageFullGameReplay.optionIds(request.getAsJsonArray("legal_options"));
         JsonObject entry = new JsonObject();
         entry.addProperty("kind", "decision");
         entry.addProperty("index", replayRecord.size());
+        entry.addProperty("decision_offset", request.get("decision_offset").getAsLong());
         entry.addProperty("decision_class", request.get("decision_class").getAsString());
         entry.addProperty("actor_seat", request.get("seat").getAsInt());
         entry.addProperty("offered_digest", XmageFullGameReplay.offeredDigest(request));
-        JsonArray chosen = new JsonArray();
-        for (String id : selected) {
-            int position = ids.indexOf(id);
-            chosen.add(position < 0 ? "<unknown>" : keys.get(position));
-        }
-        entry.add("chosen_keys", chosen);
+        entry.add("chosen_keys", semanticKeysOf(selected, ids, keys));
+        // The response carries the ordering, so the record does too; the
+        // full-game player does not read it today.
+        entry.add("ordering_keys", semanticKeysOf(ordering, ids, keys));
         if (numeric != null) {
             entry.addProperty("numeric_choice", numeric);
         }
@@ -619,6 +619,19 @@ final class XmageFullGameDecisionController {
             entry.add("numeric_choices", vector);
         }
         replayRecord.add(entry);
+    }
+
+    /** Option ids to semantic keys; every id was validated against the offer before. */
+    private static JsonArray semanticKeysOf(List<String> optionIds, List<String> ids, List<String> keys) {
+        JsonArray mapped = new JsonArray();
+        for (String id : optionIds) {
+            int position = ids.indexOf(id);
+            if (position < 0) {
+                throw new IllegalStateException("REPLAY_RECORD_INVALID: option outside the offered set");
+            }
+            mapped.add(keys.get(position));
+        }
+        return mapped;
     }
 
     synchronized void recordReplayConcession(int seat) {

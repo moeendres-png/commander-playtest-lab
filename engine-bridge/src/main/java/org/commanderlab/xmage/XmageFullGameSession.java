@@ -360,6 +360,10 @@ final class XmageFullGameSession {
         export.add("decisions", decisions);
         export.addProperty("decisions_digest", XmageFullGameReplay.sha256(decisions.toString()));
         export.addProperty("final_state_digest", semanticStateDigest());
+        // R3: the frame the engine was parked on when the export was taken. A
+        // replay that ends on any other frame asked for one the tape lacks.
+        export.add("final_pending", XmageFullGameReplay.pendingFrame(controller.pendingDecision()));
+        export.addProperty("final_engine_state", state);
         return export;
     }
 
@@ -748,6 +752,12 @@ final class XmageFullGameSession {
      * RUNNING: anything else. Thread liveness is sampled first, so a thread that
      * fails and ends between two reads is never taken for a clean end.
      */
+    /** #662 replay verifier: the engine state after a replay (see {@link #engineState()}). */
+    synchronized String replayEngineState() {
+        awaitSettled(controller, engineThread, SETTLE_TIMEOUT);
+        return engineState();
+    }
+
     private String engineState() {
         boolean alive = engineThread != null && engineThread.isAlive();
         if (controller.terminalFailure() != null) {
