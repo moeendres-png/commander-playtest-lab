@@ -32,9 +32,7 @@ def test_config_ci_agents_and_durable_state_agree():
         ]
     assert config["model"] == config["small_model"] == launcher.CANONICAL_MODEL
     workflow = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text())
-    step = next(
-        s for s in workflow["jobs"]["opencode"]["steps"] if s.get("run") == "opencode github run"
-    )
+    step = next(s for s in workflow["jobs"]["opencode"]["steps"] if s.get("name") == "Run opencode")
     assert step["env"]["MODEL"] == config["model"]
     assert (
         step["env"]["VARIANT"]
