@@ -143,7 +143,7 @@ class XmageFullGameReversedActivationTest {
     // White-box controls on the production predicate itself. They run on the
     // REAL started game with the REAL ability instance of the real
     // battlefield permanent, run through the card's OWN TargetAdjuster (the
-    // engine code AbilityImpl.adjustTargets calls, AbilityImpl.java:419) after
+    // engine code AbilityImpl.adjustTargets calls, AbilityImpl.java:423) after
     // the engine's own setCostsTag("X", ...) has recorded an announced value —
     // so the Targets the predicate reads are the ones the engine builds, not a
     // hand-constructed stand-in. Only the bridge's two bookkeeping fields are
@@ -362,7 +362,7 @@ class XmageFullGameReversedActivationTest {
      * the spell path, not only on the activated-ability path.
      *
      * <p>{@code AbilityImpl.activate} runs one code path for a spell and for an
-     * activated ability alike (pinned XMage 1.4.61, AbilityImpl.java:419/432):
+     * activated ability alike (pinned XMage 1.4.61, AbilityImpl.java:423/432):
      * {@code adjustX}, then {@code handleManaXCosts} (the only caller of
      * {@code announceX} for an {X} mana cost), then {@code getModes().choose},
      * then {@code adjustTargets(game)} and {@code getTargets().chooseTargets} —
@@ -374,7 +374,7 @@ class XmageFullGameReversedActivationTest {
      * {@code new TargetPermanent(xValue, filter)} — a target whose minimum IS
      * the announced X. With X = 2 and no creature of that type in play,
      * {@code canChooseFromPossibleTargets} is false, so
-     * {@code Targets.makeChoice} skips it at Targets.java:103 WITHOUT calling
+     * {@code Targets.makeChoice} skips it at Targets.java:105 WITHOUT calling
      * the player, returns {@code isChosen(game)} = false, and
      * {@code activate} returns false. {@code PlayerImpl.cast} then runs
      * {@code restoreState(bookmark, ...)} — the same 601.2e rewind as

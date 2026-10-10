@@ -559,11 +559,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
      *
      * <p>Engine evidence, not a bridge guess. {@code AbilityImpl.activate}
      * calls {@code adjustTargets} and then {@code getTargets().chooseTargets}
-     * (pinned XMage 1.4.61, AbilityImpl.java:419/432) for a spell and for an
+     * (pinned XMage 1.4.61, AbilityImpl.java:423/432) for a spell and for an
      * activated ability alike, both before any cost is paid. A target whose
      * legality depends on the announced X narrows to an empty legal set;
      * {@code Targets.makeChoice} then skips it outright when {@code canChoose}
-     * is false (Targets.java:103) WITHOUT calling the player, so the bridge's
+     * is false (Targets.java:105) WITHOUT calling the player, so the bridge's
      * own target callback never runs and {@link #emptyRequiredTarget} — only
      * ever set from that callback — stays false. {@code makeChoice} returns
      * {@code isChosen(game)}, false for a required target, so {@code activate}
