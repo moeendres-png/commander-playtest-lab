@@ -477,11 +477,14 @@ final class XmageFullGameJsonlBridge {
         capabilities.addProperty("seed_supported", true);
         capabilities.addProperty("deck_import_supported", true);
 
-        // Generic B4-style legal-action flags deliberately remain false. This
-        // lane uses blocking typed decision callbacks, not a globally complete
-        // free-standing legal-actions API.
-        capabilities.addProperty("legal_actions_supported", false);
-        capabilities.addProperty("action_submission_supported", false);
+        // #662 SLOT-06 ruling (a): decision-scoped get_legal_actions/submit_action
+        // are complete per decision for every declared decision class, proven by
+        // XmageFullGameDecisionClassMatrixTest (engine-API oracle, every offered
+        // action accepted, typed rejection without mutation) and
+        // XmageFullGameDecisionClassInventoryTest (L4). XmageFullGameContractTruthTest
+        // keeps each flag bound to its proof classes.
+        capabilities.addProperty("legal_actions_supported", true);
+        capabilities.addProperty("action_submission_supported", true);
         capabilities.addProperty("event_log_supported", false);
         capabilities.addProperty("replay_supported", false);
         capabilities.addProperty("stack_visible", true);
@@ -516,7 +519,7 @@ final class XmageFullGameJsonlBridge {
         notes.add("One isolated JVM process is required per game as defense in depth for credited runs");
         notes.add("Full-game runs are technical conformance only and may not consume gameplay evidence or holdouts");
         notes.add("Bit-exact replay remains unclaimed until a duplicate-run gate proves it");
-        notes.add("WS204 B4-D decision-scoped get_legal_actions/submit_action project only the exact current pending native decision; global legal_actions/action_submission promotion remains false");
+        notes.add("WS204 B4-D decision-scoped get_legal_actions/submit_action project only the exact current pending native decision; #662 SLOT-06: legal_actions/action_submission are decision-scoped and complete per decision for every declared decision class");
         capabilities.add("notes", notes);
 
         JsonObject lane = new JsonObject();

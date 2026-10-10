@@ -161,3 +161,26 @@ def test_lanes_are_the_open_issues_without_pull_requests(fake_env):
 def test_lanes_fall_back_when_the_api_answers_nothing(monkeypatch):
     monkeypatch.setattr(handoff, "api", lambda url: None)
     assert handoff.lane_issues() == handoff.LANE_ISSUES
+
+
+def test_an_unreachable_engine_fork_is_reported_not_fatal(tmp_path, monkeypatch, fake_env):
+    def scoped_api(url: str):
+        if "moeendres-png/mage" in url:
+            raise handoff.ApiUnavailable(f"gh api {url}: HTTP 403")
+        return fake_api(url)
+
+    monkeypatch.setattr(handoff, "api", scoped_api)
+    lines = handoff.repo_head_lines(tmp_path)
+    assert "mage unavailable (no GitHub access from this session)" in lines
+    assert any(line.startswith("forge ") and "unavailable" not in line for line in lines)
+
+
+def test_an_unreachable_lab_still_aborts(tmp_path, monkeypatch, fake_env):
+    def no_lab(url: str):
+        if handoff.LAB in url:
+            raise handoff.ApiUnavailable(f"gh api {url}: HTTP 403")
+        return fake_api(url)
+
+    monkeypatch.setattr(handoff, "api", no_lab)
+    with pytest.raises(SystemExit, match="HTTP 403"):
+        handoff.repo_head_lines(tmp_path)

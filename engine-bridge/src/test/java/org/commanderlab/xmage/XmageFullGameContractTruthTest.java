@@ -4,11 +4,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * The full-game lane states its player range once: the session's own
@@ -38,5 +41,44 @@ class XmageFullGameContractTruthTest {
             }
         }
         assertTrue(ranges > 0, "the lane states its operational range in a note");
+    }
+
+    /**
+     * #662 SLOT-06: a required capability may be reported {@code true} only while the
+     * test classes that prove its surface exist (the freeze record additionally needs
+     * their executed in-epoch receipts). Mirrors freeze_record.CAPABILITY_PROOF; the
+     * AF01-proved flags (headless, engine shutdown) are proven by the run itself.
+     */
+    static final Map<String, List<String>> CAPABILITY_PROOF = Map.of(
+            "legal_actions_supported", List.of(
+                    "XmageFullGameDecisionClassMatrixTest", "XmageFullGameDecisionClassInventoryTest",
+                    "XmageFullGameUnprojectableDecisionTest", "XmageFullGameCancelRewindTest"),
+            "action_submission_supported", List.of(
+                    "XmageFullGameDecisionClassMatrixTest", "XmageFullGameDecisionClassInventoryTest",
+                    "XmageFullGameCancelRewindTest"),
+            "event_log_supported", List.of("XmageFullGameEventLogTest"),
+            "game_shutdown_supported", List.of("XmageFullGameShutdownGameTest"),
+            "replay_supported", List.of("XmageFullGameReplayExportTest"),
+            "seed_supported", List.of("XmageFullGameRulesSeedBindingTest"),
+            "multiplayer_supported", List.of("XmageFullGamePlayerCountTest"),
+            "deck_import_supported", List.of("XmageFullGamePlayerCountTest"),
+            "commander_supported", List.of(
+                    "XmageFullGameTaxExecutionTest", "XmageFullGamePartnerExecutionTest"));
+
+    @Test
+    void everyTrueRequiredCapabilityHasItsProofClass() {
+        JsonObject capabilities = XmageFullGameJsonlBridge.capabilitiesPayload().getAsJsonObject("capabilities");
+        CAPABILITY_PROOF.forEach((flag, classes) -> {
+            if (!capabilities.get(flag).getAsBoolean()) {
+                return;
+            }
+            for (String name : classes) {
+                try {
+                    Class.forName("org.commanderlab.xmage." + name);
+                } catch (ClassNotFoundException missing) {
+                    fail(flag + " is reported true without its proof class " + name);
+                }
+            }
+        });
     }
 }
