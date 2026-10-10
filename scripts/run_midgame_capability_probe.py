@@ -1787,7 +1787,8 @@ def answer_fuel_mana(
                 "not declared"
             )
         if spends:
-            submit_proposal(client, legal, spends[0], f"{tag}-spend")
+            (spend,) = spends
+            submit_proposal(client, legal, spend, f"{tag}-spend")
             authority.note("pool_spend", principal, decision, "single_advancing_spend", tag)
             continue
         index = next(
@@ -1804,7 +1805,8 @@ def answer_fuel_mana(
                 f"{tag}: declared fuel offers {len(abilities)} mana abilities; "
                 "which one is not declared"
             )
-        submit_proposal(client, legal, abilities[0], f"{tag}-tap")
+        (ability,) = abilities
+        submit_proposal(client, legal, ability, f"{tag}-tap")
         authority.note("mana_tap", principal, decision, f"declared_fuel[{index}]", tag)
     raise ml.MidgameLaneError(f"{tag}: the payment never completed")
 
