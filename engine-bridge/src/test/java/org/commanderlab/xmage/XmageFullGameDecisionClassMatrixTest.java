@@ -61,6 +61,37 @@ class XmageFullGameDecisionClassMatrixTest {
 
     static final Map<String, Scenario> SCENARIOS = new LinkedHashMap<>();
 
+    /**
+     * The native callback each scenario's target decision must come from; the
+     * oracle is chosen by it. "ring_bearer" is the delegation case: the ring-bearer
+     * prompt raises its decision through the target callback.
+     */
+    static final Map<String, String> EXPECTED_CALLBACK = Map.ofEntries(
+            Map.entry("priority", "priority"),
+            Map.entry("target", "target"),
+            Map.entry("mana_payment", "mana_payment"),
+            Map.entry("target_amount", "target_amount"),
+            Map.entry("mode", "mode"),
+            Map.entry("announce_x", "announce_x"),
+            Map.entry("trigger_order", "trigger_order"),
+            Map.entry("choice", "choice"),
+            Map.entry("replacement_effect", "replacement_effect"),
+            Map.entry("choose_object", "target"),
+            Map.entry("pile", "pile"),
+            Map.entry("declare_attacker", "declare_attacker"),
+            Map.entry("declare_blocker", "declare_blocker"),
+            Map.entry("multi_amount_combat", "multi_amount"),
+            Map.entry("amount", "amount"),
+            Map.entry("choose_use", "choose_use"),
+            Map.entry("multi_amount", "multi_amount"),
+            Map.entry("ring_bearer", "target"),
+            Map.entry("cast_ability", "cast_ability"),
+            Map.entry("land_or_spell", "land_or_spell"),
+            Map.entry("starting_player", "target"),
+            Map.entry("mulligan", "mulligan"),
+            Map.entry("london_bottom", "target"),
+            Map.entry("london_bottom_two", "target"));
+
     static {
         SCENARIOS.put("priority", new Scenario("matrix-priority", 66201L,
                 List.of(Placed.hand("P1", "Lightning Bolt"),
@@ -245,6 +276,25 @@ class XmageFullGameDecisionClassMatrixTest {
                         step("mulligan", "P1", "Take mulligan"),
                         step("mulligan", "P2", "Keep opening hand")),
                 "target", "P1"));
+        // Two mulligans: the London bottom of two cards (the engine asks one at a time).
+        SCENARIOS.put("london_bottom_two", new Scenario("matrix-london-two", 66218L, null,
+                List.of(step("choose_object", "P1", "Full Game Seat 1"),
+                        step("mulligan", "P1", "Take mulligan"),
+                        step("mulligan", "P2", "Keep opening hand"),
+                        DecisionClassMatrixHarness.chooseFirst("target", "P1"),
+                        step("mulligan", "P1", "Take mulligan")),
+                "target", "P1"));
+    }
+
+    /** S2 compares the privileged (keyed) state digest; the test launch carries a key. */
+    @org.junit.jupiter.api.BeforeEach
+    void orchestrationLaunch() {
+        XmageRulesRngResultTape.keyForTests(new byte[32]);
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void principalLaunch() {
+        XmageRulesRngResultTape.keyForTests(null);
     }
 
     private static String label(JsonObject action) {
@@ -351,6 +401,26 @@ class XmageFullGameDecisionClassMatrixTest {
         runClass("land_or_spell");
     }
 
+    /**
+     * Red control for the land-or-spell callback: its land components follow the
+     * one engine caller at the pin; reached from anywhere else, it fails closed
+     * instead of building a legality of its own.
+     */
+    @Test
+    void landOrSpellFromAnUndeclaredCallerFailsClosed() {
+        Scenario scenario = SCENARIOS.get("priority");
+        DecisionClassMatrixHarness.Live live = DecisionClassMatrixHarness.open(scenario);
+        JsonObject frame = DecisionClassMatrixHarness.driveToTarget(live, scenario);
+        Game game = live.session().restorationGame();
+        XmageFullGamePlayer actor = (XmageFullGamePlayer) game.getPlayer(
+                UUID.fromString(frame.get("actor_id").getAsString()));
+        mage.cards.Card bolt = actor.getHand().getCards(game).iterator().next();
+        XmageFullGameDecisionController.DecisionException failure = assertThrows(
+                XmageFullGameDecisionController.DecisionException.class,
+                () -> actor.chooseLandOrSpellAbility(bolt, game, false));
+        assertTrue(failure.getMessage().contains("undeclared engine caller"), failure.getMessage());
+    }
+
     @Test
     void startingPlayerMatrix() {
         runClass("starting_player");
@@ -366,6 +436,18 @@ class XmageFullGameDecisionClassMatrixTest {
         runClass("london_bottom");
     }
 
+    @Test
+    void londonBottomTwoCardsMatrix() {
+        Scenario scenario = SCENARIOS.get("london_bottom_two");
+        JsonObject frame = DecisionClassMatrixHarness.driveToTarget(DecisionClassMatrixHarness.open(scenario), scenario);
+        // XMage asks a two-card bottom as successive single selections.
+        JsonObject decision = frame.getAsJsonObject("decision");
+        assertTrue(decision.get("prompt").getAsString().contains("(2 more)"), decision.get("prompt").getAsString());
+        assertEquals(1, decision.get("minimum_selections").getAsInt());
+        assertEquals(1, decision.get("maximum_selections").getAsInt());
+        runClass("london_bottom_two");
+    }
+
 
     // ---- matrix core ----------------------------------------------------------
 
@@ -379,7 +461,14 @@ class XmageFullGameDecisionClassMatrixTest {
         assertFalse(actions(frame).isEmpty(), decisionClass + ": empty projection");
         assertTrue(frame.get("complete").getAsBoolean());
         Object[] witness = live.session().pendingNativeWitness();
-        assertTrue(witness.length > 0, key + ": no native witness");
+        assertTrue(witness.length > 0, key + ": no native witness bound to the pending decision");
+        assertEquals(EXPECTED_CALLBACK.get(key), String.valueOf(witness[0]),
+                key + ": the pending decision was raised by another native callback");
+        XmageFullGamePlayer actorPlayer = (XmageFullGamePlayer) live.session().restorationGame()
+                .getPlayer(UUID.fromString(frame.get("actor_id").getAsString()));
+        long offset = frame.get("decision_offset").getAsLong();
+        assertEquals(0, actorPlayer.nativeWitness(offset - 1).length, key + ": witness served for another decision");
+        assertEquals(0, actorPlayer.nativeWitness(offset + 1).length, key + ": witness served for another decision");
         Oracle oracle = oracleFor(String.valueOf(witness[0]), live, frame, witness);
         assertEquals(oracle.expected(), oracle.projected(),
                 decisionClass + ": projection must equal the engine option set; frame " + labels(frame));
@@ -409,14 +498,50 @@ class XmageFullGameDecisionClassMatrixTest {
                     proposal = rebind(proposal, again, actions(again).get(semanticKeys(again).indexOf(optionKey)));
                 }
                 String before = proposal.getAsJsonObject("choices").get("decision_id").getAsString();
+                String routedId = proposal.get("legal_action_id").getAsString();
+                JsonObject routed = actions(run == fresh ? same : run.session().legalActionsPayload())
+                        .stream().filter(candidate -> candidate.get("action_id").getAsString().equals(routedId))
+                        .findFirst().orElseThrow();
                 JsonObject result = run.session().submitAction(proposal);
                 assertEquals(before, result.get("executed_decision_id").getAsString());
+                assertRouted(run.session(), routed, proposal, decisionClass + " S1 " + optionKey);
                 JsonObject after = run.session().pendingDecisionPayload();
                 if (!after.get("decision").isJsonNull()) {
                     assertNotEquals(before, after.getAsJsonObject("decision").get("decision_id").getAsString(),
                             decisionClass + " S1: decision must advance after " + optionKey);
                 }
             }
+        }
+    }
+
+    /**
+     * S1 routing: the engine-side record of the accepted decision names the option
+     * the pilot chose (by its native label) and the numeric value it sent, so an
+     * accepted proposal cannot have been routed to a different native choice.
+     */
+    static void assertRouted(XmageFullGameSession session, JsonObject action, JsonObject proposal, String where) {
+        com.google.gson.JsonArray transcript = session.controllerTranscript();
+        JsonObject accepted = null;
+        for (int index = transcript.size() - 1; index >= 0; index--) {
+            JsonObject event = transcript.get(index).getAsJsonObject();
+            if ("decision_accepted".equals(event.has("kind") ? event.get("kind").getAsString() : "")) {
+                accepted = event;
+                break;
+            }
+        }
+        assertTrue(accepted != null, where + ": no accepted decision recorded");
+        JsonObject choices = proposal.getAsJsonObject("choices");
+        if (choices.has("numeric_choice")) {
+            assertEquals(choices.get("numeric_choice").getAsInt(), accepted.get("numeric_choice").getAsInt(), where);
+        }
+        if (choices.has("numeric_choices")) {
+            assertEquals(choices.get("numeric_choices"), accepted.get("numeric_choices"), where);
+        }
+        com.google.gson.JsonArray labels = accepted.getAsJsonArray("selected_option_labels");
+        if (!labels.isEmpty() && !choices.has("selected_option_ids")) {
+            assertEquals(1, labels.size(), where + ": one native option routed");
+            assertEquals(DecisionClassMatrixHarness.label(action),
+                    labels.get(0).getAsString(), where + ": routed to a different native option");
         }
     }
 
@@ -742,44 +867,111 @@ class XmageFullGameDecisionClassMatrixTest {
 
     // ---- S2 -------------------------------------------------------------------
 
+    /** A corrupted proposal and the typed error code it must be rejected with. */
+    record Bad(String name, JsonObject proposal, String code) {
+    }
+
+    /**
+     * Every corruption starts from a proposal S1 accepts on this frame (with its
+     * numeric field where the frame is numeric), so a rejection is caused by the
+     * one corrupted field only.
+     */
     static void rejectWithoutMutation(DecisionClassMatrixHarness.Live live, JsonObject frame) {
         XmageFullGameSession session = live.session();
         JsonObject action = actions(frame).get(0);
-        String digest = XmageNativeStateRestoration.readback(session.restorationGame(), live.seats()).toString();
+        JsonObject base = acceptedProposals(frame, action).get(0);
+        String readback = XmageNativeStateRestoration.readback(session.restorationGame(), live.seats()).toString();
+        String privileged = session.privilegedStateDigest();
+        int transcriptSize = session.controllerTranscript().size();
         long count = session.pendingDecisionPayload().get("decision_count").getAsLong();
         String decisionId = frame.get("decision_id").getAsString();
+        JsonObject decision = frame.getAsJsonObject("decision");
+        JsonObject context = decision.getAsJsonObject("context");
 
-        List<JsonObject> bad = new ArrayList<>();
-        JsonObject staleOffset = proposal(frame, action);
+        List<Bad> bad = new ArrayList<>();
+        JsonObject staleOffset = base.deepCopy();
         staleOffset.getAsJsonObject("choices").addProperty("decision_offset",
                 frame.get("decision_offset").getAsLong() + 1);
-        bad.add(staleOffset);
-        JsonObject staleId = proposal(frame, action);
+        bad.add(new Bad("stale offset", staleOffset, "STALE_DECISION"));
+        JsonObject staleId = base.deepCopy();
         staleId.getAsJsonObject("choices").addProperty("decision_id", "0".repeat(64));
-        bad.add(staleId);
-        JsonObject wrongActor = proposal(frame, action);
+        bad.add(new Bad("stale decision id", staleId, "STALE_DECISION"));
+        JsonObject wrongActor = base.deepCopy();
         String other = live.seats().values().stream()
                 .map(player -> player.getId().toString())
                 .filter(id -> !id.equals(frame.get("actor_id").getAsString()))
                 .findFirst().orElseThrow();
         wrongActor.addProperty("actor_id", other);
-        bad.add(wrongActor);
-        JsonObject unoffered = proposal(frame, action);
+        bad.add(new Bad("wrong actor", wrongActor, "PILOT_RESPONSE_INVALID: wrong actor"));
+        JsonObject unoffered = base.deepCopy();
         unoffered.addProperty("legal_action_id", decisionId + ":" + "f".repeat(64));
-        bad.add(unoffered);
-        JsonObject malformed = proposal(frame, action);
+        bad.add(new Bad("unoffered action", unoffered, "ILLEGAL_ACTION"));
+        JsonObject malformed = base.deepCopy();
         malformed.remove("actor_id");
-        bad.add(malformed);
+        bad.add(new Bad("missing actor", malformed, "PILOT_RESPONSE_INVALID"));
+        if (context.has("numeric_min") && context.has("numeric_max") && !context.has("numeric_legs")) {
+            for (int value : new int[] {context.get("numeric_min").getAsInt() - 1,
+                    context.get("numeric_max").getAsInt() + 1}) {
+                JsonObject outOfRange = base.deepCopy();
+                outOfRange.getAsJsonObject("choices").addProperty("numeric_choice", value);
+                bad.add(new Bad("numeric " + value, outOfRange, "PILOT_RESPONSE_INVALID"));
+            }
+        }
+        if (context.has("numeric_legs")) {
+            com.google.gson.JsonArray legs = context.getAsJsonArray("numeric_legs");
+            com.google.gson.JsonArray over = base.getAsJsonObject("choices")
+                    .getAsJsonArray("numeric_choices").deepCopy();
+            over.set(0, new com.google.gson.JsonPrimitive(
+                    legs.get(0).getAsJsonObject().get("max").getAsInt() + 1));
+            JsonObject legOut = base.deepCopy();
+            legOut.getAsJsonObject("choices").add("numeric_choices", over);
+            bad.add(new Bad("joint leg above max", legOut, "PILOT_RESPONSE_INVALID"));
+            com.google.gson.JsonArray shorter = new com.google.gson.JsonArray();
+            for (int index = 0; index < legs.size() - 1; index++) {
+                shorter.add(0);
+            }
+            JsonObject legCount = base.deepCopy();
+            legCount.getAsJsonObject("choices").add("numeric_choices", shorter);
+            bad.add(new Bad("joint vector short", legCount, "PILOT_RESPONSE_INVALID"));
+        }
+        int max = decision.get("maximum_selections").getAsInt();
+        if (max >= 1 && actions(frame).size() > max) {
+            JsonObject tooMany = base.deepCopy();
+            com.google.gson.JsonArray selected = new com.google.gson.JsonArray();
+            for (int index = 0; index <= max; index++) {
+                selected.add(optionId(actions(frame).get(index)));
+            }
+            tooMany.getAsJsonObject("choices").add("selected_option_ids", selected);
+            bad.add(new Bad("selections above max", tooMany, "PILOT_RESPONSE_INVALID"));
+        }
+        if (max > 1) {
+            JsonObject duplicate = base.deepCopy();
+            com.google.gson.JsonArray selected = new com.google.gson.JsonArray();
+            selected.add(optionId(action));
+            selected.add(optionId(action));
+            duplicate.getAsJsonObject("choices").add("selected_option_ids", selected);
+            bad.add(new Bad("duplicate selection", duplicate, "PILOT_RESPONSE_INVALID"));
+        }
 
-        for (JsonObject proposal : bad) {
-            assertThrows(XmageFullGameDecisionController.DecisionException.class,
-                    () -> session.submitAction(proposal), "must reject " + proposal);
+        for (Bad entry : bad) {
+            XmageFullGameDecisionController.DecisionException rejected = assertThrows(
+                    XmageFullGameDecisionController.DecisionException.class,
+                    () -> session.submitAction(entry.proposal()), "must reject " + entry.name());
+            assertTrue(rejected.getMessage() != null && rejected.getMessage().startsWith(entry.code()),
+                    entry.name() + ": expected " + entry.code() + ", got " + rejected.getMessage());
             JsonObject now = session.pendingDecisionPayload();
-            assertEquals(digest, XmageNativeStateRestoration.readback(session.restorationGame(), live.seats()).toString(),
-                    "a rejected submission must not mutate the game: " + proposal);
+            assertEquals(readback, XmageNativeStateRestoration.readback(session.restorationGame(), live.seats()).toString(),
+                    "a rejected submission must not mutate the game: " + entry.name());
+            assertEquals(privileged, session.privilegedStateDigest(),
+                    "a rejected submission must not change the privileged state: " + entry.name());
+            assertEquals(transcriptSize, session.controllerTranscript().size(),
+                    "a rejected submission must not append an event: " + entry.name());
             assertEquals(count, now.get("decision_count").getAsLong());
             assertEquals(decisionId, now.getAsJsonObject("decision").get("decision_id").getAsString());
         }
+        // The unmodified base is still accepted here: the rejections left the frame usable.
+        JsonObject result = session.submitAction(base);
+        assertEquals(decisionId, result.get("executed_decision_id").getAsString());
     }
 
     static Set<String> keys(Iterable<String> values) {

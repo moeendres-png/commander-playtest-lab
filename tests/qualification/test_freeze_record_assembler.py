@@ -206,6 +206,44 @@ def test_reported_true_without_executed_proof_counts_missing(
         assert result.eligible is False
 
 
+# Ruling definitions pinned independently of the map: shrinking a capability's proof
+# set below its L/S definitions must fail here, not silently lower the bar.
+RULING_MINIMUM_PROOFS = {
+    "legal_actions_supported": {
+        "XmageFullGameDecisionClassMatrixTest",  # L1/L2 per class
+        "XmageFullGameDecisionClassInventoryTest",  # every callback declared
+        "XmageFullGameUnprojectableDecisionTest",  # L3 fails closed
+        "XmageFullGameCancelRewindTest",  # L4 frame after rewind
+    },
+    "action_submission_supported": {
+        "XmageFullGameDecisionClassMatrixTest",  # S1/S2
+        "XmageFullGameDecisionClassInventoryTest",
+        "XmageFullGameCancelRewindTest",  # S3
+    },
+}
+
+
+@pytest.mark.parametrize("capability", sorted(RULING_MINIMUM_PROOFS))
+def test_capability_proof_covers_the_ruling_definitions(capability: str) -> None:
+    assert RULING_MINIMUM_PROOFS[capability] <= set(CAPABILITY_PROOF[capability])
+
+
+@pytest.mark.parametrize(
+    ("capability", "dropped"),
+    [
+        (cap, name)
+        for cap, names in sorted(RULING_MINIMUM_PROOFS.items())
+        for name in sorted(names)
+    ],
+)
+def test_ruling_proof_dropped_counts_capability_missing(
+    tmp_path: Path, capability: str, dropped: str
+) -> None:
+    result = _assemble(_epoch(tmp_path, drop_classes=[dropped]))
+    assert capability in result.record["truthful_capabilities"]["missing_required_capabilities"]
+    assert result.eligible is False
+
+
 def test_af01_proved_capabilities_need_a_passing_production_lane_af01(tmp_path: Path) -> None:
     epoch = _epoch(tmp_path, unsealed=True)
     af01_path = epoch / "AF01_XMAGE.json"

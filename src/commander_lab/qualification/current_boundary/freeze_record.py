@@ -42,9 +42,11 @@ SCHEMA_PATH = Path("qualification/pre-freeze-successor/architecture_freeze_contr
 # production-lane AF01 run itself (headless launch, handshake, clean shutdown).
 AF01_PROOF = "AF01:full-game"
 CAPABILITY_PROOF: dict[str, tuple[str, ...]] = {
+    # S1/S2 (matrix, inventory) plus S3: a cancelled or failed submission rewinds.
     "action_submission_supported": (
         "XmageFullGameDecisionClassMatrixTest",
         "XmageFullGameDecisionClassInventoryTest",
+        "XmageFullGameCancelRewindTest",
     ),
     "commander_supported": ("XmageFullGameTaxExecutionTest", "XmageFullGamePartnerExecutionTest"),
     "deck_import_supported": ("XmageFullGamePlayerCountTest",),
@@ -52,9 +54,12 @@ CAPABILITY_PROOF: dict[str, tuple[str, ...]] = {
     "event_log_supported": ("XmageFullGameEventLogTest",),
     "game_shutdown_supported": ("XmageFullGameShutdownGameTest",),
     "headless_supported": (AF01_PROOF,),
+    # L1/L2 (matrix, inventory), L3 (unprojectable fails closed), L4 (rewound frames).
     "legal_actions_supported": (
         "XmageFullGameDecisionClassMatrixTest",
         "XmageFullGameDecisionClassInventoryTest",
+        "XmageFullGameUnprojectableDecisionTest",
+        "XmageFullGameCancelRewindTest",
     ),
     "multiplayer_supported": ("XmageFullGamePlayerCountTest",),
     "replay_supported": ("XmageFullGameReplayExportTest",),

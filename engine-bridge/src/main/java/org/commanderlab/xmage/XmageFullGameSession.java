@@ -213,7 +213,7 @@ final class XmageFullGameSession {
         mage.players.Player actor = game.getPlayer(
                 java.util.UUID.fromString(pending.get("actor_id").getAsString()));
         return actor instanceof XmageFullGamePlayer external
-                ? external.nativeWitness() : new Object[0];
+                ? external.nativeWitness(pending.get("decision_offset").getAsLong()) : new Object[0];
     }
 
     private static List<Integer> seatIndices(int count) {
@@ -588,6 +588,11 @@ final class XmageFullGameSession {
             return clean ? "CLEAN_TERMINAL" : "FAILED";
         }
         return "RUNNING";
+    }
+
+    /** The controller's decision transcript (orchestration-side; tests and receipts). */
+    JsonArray controllerTranscript() {
+        return controller.transcript();
     }
 
     /**
