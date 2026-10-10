@@ -195,6 +195,11 @@ jobs:
       contents: read
       pull-requests: read
       issues: read
+    # #654/#685: the pinned `opencode github run` ignores AGENT and prompts the
+    # config's `default_agent` (foundry-implementer). OPENCODE_CONFIG_CONTENT is
+    # merged after every project config file, so it selects bunny-verifier.
+    env:
+      OPENCODE_CONFIG_CONTENT: '{"default_agent":"bunny-verifier"}'
     steps:
       # The agent reads the target issue/PR text and, on a PR, its head. The
       # target's author must be trusted (job `if:`) and a PR head must live in
@@ -287,6 +292,7 @@ jobs:
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           MODEL: opencode/space-bunny-free
+          # Not read by the pinned CLI (#685); the job env selects bunny-verifier.
           AGENT: bunny-verifier
           SHARE: 'false'
           PROMPT: ''
