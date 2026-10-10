@@ -1288,11 +1288,19 @@ class ExternalPilotDecisionPolicy:
         another source may still fail, which is exactly why the pilot -- not
         the Lab -- decides whether to try; the engine re-validates the
         activation and the priority no-progress guard bounds any repetition.
+        A tap cost on an already tapped source, or an untap cost on an
+        already untapped one, is impossible whatever mana exists and never
+        reaches this route.
         """
         metadata = option.get("metadata")
         if not isinstance(metadata, dict):
             return False
         if metadata.get("pool_covers_mana_cost") is not False:
+            return False
+        source_tapped = metadata.get("source_tapped")
+        if metadata.get("requires_tap_source") is True and source_tapped is True:
+            return False
+        if metadata.get("requires_untap_source") is True and source_tapped is False:
             return False
         return any(
             metadata.get(key) is True
@@ -1335,12 +1343,14 @@ class ExternalPilotDecisionPolicy:
         metadata = deferred.get("metadata")
         meta = metadata if isinstance(metadata, dict) else {}
         cost_text = _mana_cost_text(meta)
+        # Twin-stable ordering: content-derived keys only. Equal fit and equal
+        # label mean interchangeable sources, so the engine's own offered order
+        # breaks the tie -- never a per-process engine UUID.
         ranked = sorted(
             (option for option in funding if not self._same_source(deferred, option)),
             key=lambda option: (
                 -mana_payment_fit(str(option.get("label", "")), cost_text),
                 str(option.get("label", "")).casefold(),
-                self._required_text(option, "option_id"),
             ),
         )
         if not ranked:

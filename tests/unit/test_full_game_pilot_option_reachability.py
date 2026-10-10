@@ -305,6 +305,38 @@ def test_pool_shortfall_action_view_is_marked_needing_mana_first() -> None:
     assert len(marked) == 1
 
 
+def test_action_impossible_for_its_own_sake_is_never_re_offered() -> None:
+    """An untap cost on an already untapped source cannot be paid at all.
+
+    Only a pool shortfall is worth re-offering as needs-mana-first; this one
+    stays withheld whatever the pool holds.
+    """
+    untap = _option(
+        "untap",
+        "activated_ability",
+        "Wild Growth Walker — {1}, Untap target creature.",
+        source_name="Wild Growth Walker",
+        source_object_id="walker-1",
+        ability_type="activated",
+        mana_cost_generic=1,
+        mana_cost_white=0,
+        mana_cost_blue=0,
+        mana_cost_black=0,
+        mana_cost_red=0,
+        mana_cost_green=0,
+        mana_cost_colorless=0,
+        pool_covers_mana_cost=False,
+        requires_tap_source=False,
+        requires_untap_source=True,
+        requires_sacrifice_source=False,
+        source_tapped=False,
+    )
+    policy, pilot = _policy(_RecordingPilot)
+    response = policy.decide(_request("priority", [_PASS, *_PLAINS_TAPS, untap], offset=1))
+    assert response["selected_option_ids"] == ["pass"]
+    assert not any("Wild Growth Walker" in view.card_name for view in pilot.seen)
+
+
 def test_pool_covering_the_cost_selects_the_action_itself() -> None:
     """With the cost already in the pool the Archive is affordable outright."""
     response = _default_policy().decide(
