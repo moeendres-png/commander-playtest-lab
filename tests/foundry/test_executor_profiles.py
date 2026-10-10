@@ -132,7 +132,8 @@ def test_activation_evidence_records_authenticated_runtime_verification() -> Non
     assert current["runtime_status"] == active["runtime_status"]
     zen = doc["activation_gate"]["activation_evidence_2026_10_10"]
     assert zen["current_model_identity"] == active["model"]
-    assert zen["authenticated_runtime_smoke"].startswith("PENDING")
+    assert zen["authenticated_runtime_smoke"].startswith("RUNTIME_VERIFIED")
+    assert "38053801098" in zen["authenticated_runtime_smoke"]
     assert "space-bunny-free" in zen["live_catalog_identity"]
     assert (
         current["evidence_classification"]["configured_pins_job_outcome_and_provider_policy"]
