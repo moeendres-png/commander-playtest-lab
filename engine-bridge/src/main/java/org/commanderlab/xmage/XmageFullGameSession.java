@@ -355,6 +355,17 @@ final class XmageFullGameSession {
      * not a globally complete free-standing legal-actions API.</p>
      */
     synchronized JsonObject legalActionsPayload() {
+        return legalActionsPayload(new JsonObject());
+    }
+
+    /**
+     * #662 (request binding; AF01 unsupported-decision invariant): a request that names
+     * a game, an actor or a decision class is bound to the exact pending decision.
+     * Any mismatch fails closed with a typed error and returns no part of the
+     * decision, so a request for another actor or an unsupported class never
+     * receives this actor's options.
+     */
+    synchronized JsonObject legalActionsPayload(JsonObject request) {
         ensureStarted();
         controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
         JsonObject pending = controller.pendingDecision();
@@ -366,6 +377,14 @@ final class XmageFullGameSession {
                     "STALE_DECISION: no pending decision"
             );
         }
+        requireRequestMatches(request, "game_id", protocolGameId, "UNKNOWN_GAME");
+        requireRequestMatches(
+                request, "actor_id", pending.get("actor_id").getAsString(), "WRONG_ACTOR");
+        requireRequestMatches(
+                request,
+                "decision_class",
+                pending.get("decision_class").getAsString(),
+                "UNSUPPORTED_DECISION_CLASS");
         JsonArray actions;
         try {
             actions = XmageFullGameActionProjection.project(pending);
@@ -383,6 +402,24 @@ final class XmageFullGameSession {
         payload.add("actions", actions);
         payload.add("decision", pending);
         return payload;
+    }
+
+    private static void requireRequestMatches(
+            JsonObject request, String field, String expected, String code) {
+        if (request == null || !request.has(field) || request.get(field).isJsonNull()) {
+            return;
+        }
+        String requested;
+        try {
+            requested = request.get(field).getAsString();
+        } catch (RuntimeException exc) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    code + ": " + field + " must be a string");
+        }
+        if (!expected.equals(requested)) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    code + ": " + field + " does not match the pending decision");
+        }
     }
 
     /**

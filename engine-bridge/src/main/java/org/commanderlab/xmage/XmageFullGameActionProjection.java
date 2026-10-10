@@ -108,7 +108,12 @@ final class XmageFullGameActionProjection {
         if (legalOptions.size() == 0) {
             if ((!context.has("numeric_min") || !context.has("numeric_max"))
                     && !hasJointLegs(context)) {
-                return actions;
+                // #662 SLOT-06 L3 (fact 8): a pending decision with no offered option
+                // and no numeric or joint domain cannot be answered through this API.
+                // An empty list would read as "complete, nothing to do"; fail closed.
+                throw new ProjectionException(
+                        "UNPROJECTABLE_DECISION: " + decisionClass
+                                + " offers no option and no numeric domain");
             }
             actions.add(numericAction(
                     pending, decisionId, actorId, decisionClass, prompt, min, max, offset,

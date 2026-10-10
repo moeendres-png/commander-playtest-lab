@@ -62,7 +62,7 @@ final class XmageFullGameJsonlBridge {
             case "get_full_game_decision" -> getDecision(requestId);
             case "submit_full_game_decision" -> submitDecision(requestId, request);
             case "get_full_game_result" -> getResult(requestId);
-            case "get_legal_actions" -> getLegalActions(requestId);
+            case "get_legal_actions" -> getLegalActions(requestId, request);
             case "submit_action" -> submitAction(requestId, request);
             case "get_concede_offer" -> getConcedeOffer(requestId, request);
             case "submit_concede" -> submitConcede(requestId, request);
@@ -319,9 +319,11 @@ final class XmageFullGameJsonlBridge {
      * currently pending native decision as generic actions. Flags remain
      * unpromoted: this is not a globally complete free-standing API.
      */
-    private Result getLegalActions(String requestId) {
+    private Result getLegalActions(String requestId, JsonObject request) {
         try {
-            return success(requestId, requireSession().legalActionsPayload(), false);
+            JsonObject payload = request.has("payload") && request.get("payload").isJsonObject()
+                    ? request.getAsJsonObject("payload") : new JsonObject();
+            return success(requestId, requireSession().legalActionsPayload(payload), false);
         } catch (XmageFullGameDecisionController.DecisionException exc) {
             return error(
                     requestId,

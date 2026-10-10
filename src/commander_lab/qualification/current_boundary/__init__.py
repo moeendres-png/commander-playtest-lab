@@ -59,8 +59,10 @@ from .full107 import (
 )
 from .game_driver import (
     DECISION_IDENTITY_SHAPES,
+    FULL_GAME_LANE,
     build_deck,
     drive_commander_game,
+    drive_full_game_to_priority,
 )
 from .materialization import (
     EffectiveMaterialization,
@@ -91,6 +93,7 @@ __all__ = [
     "FORGE_CANDIDATE_TREE",
     "FORGE_WSR20_EVIDENCE_TIP",
     "FULL107_FROZEN_SOURCE",
+    "FULL_GAME_LANE",
     "NEGATIVE_ROWS",
     "OUTCOMES",
     "PILOT_ROWS",
@@ -114,6 +117,7 @@ __all__ = [
     "cardinality_row",
     "cardinality_row_eligible",
     "drive_commander_game",
+    "drive_full_game_to_priority",
     "export_replay",
     "launch",
     "load_effective_materialization",
