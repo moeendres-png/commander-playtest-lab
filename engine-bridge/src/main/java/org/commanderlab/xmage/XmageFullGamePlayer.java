@@ -1064,6 +1064,25 @@ final class XmageFullGamePlayer extends PlayerImpl {
     public Mode chooseMode(Modes modes, Ability source, Game game) {
         witness("mode", modes, source);
         List<Mode> available = new ArrayList<>(modes.getAvailableModes(source, game));
+        // CR 700.2: a mode already selected for this spell or ability may not be
+        // selected again unless the card says it may be ("You may choose the same
+        // mode more than once"). Modes.getAvailableModes only applies the
+        // once-per-turn filter ("isLimitUsageByOnce"), so an already-selected mode
+        // still comes back from it -- its own javadoc says the caller must filter.
+        // Both of XMage's players do that filter themselves before offering a
+        // mode: HumanPlayer.chooseMode skips every mode in getSelectedModes()
+        // unless isMayChooseSameModeMoreThanOnce(), and ComputerPlayer.chooseMode
+        // carries the same condition. Offering the mode again made a "choose one
+        // or more" spell (Farewell) re-offer the mode the pilot had just taken;
+        // picking it again reached Modes.addSelectedMode, which throws
+        // "Wrong call of addSelectedMode: mode already selected" and aborted the
+        // game (F-75). Filter here so the offered set is exactly the engine's
+        // legal set: the pilot is never handed, and never has to reject, an option
+        // the rules forbid.
+        if (!modes.isMayChooseSameModeMoreThanOnce()) {
+            List<UUID> alreadySelected = modes.getSelectedModes();
+            available.removeIf(mode -> alreadySelected.contains(mode.getId()));
+        }
         // Card order (Modes is ordered as printed); mode ids are random per game (F-36).
         if (available.isEmpty()) {
             return null;

@@ -687,6 +687,15 @@ class XmageFullGameDecisionClassMatrixTest {
                 mage.abilities.Modes modes = (mage.abilities.Modes) witness[1];
                 Ability source = (Ability) witness[2];
                 List<mage.abilities.Mode> available = new ArrayList<>(modes.getAvailableModes(source, game));
+                // CR 700.2: an already-selected mode is not offered again unless the card may
+                // choose the same mode more than once. getAvailableModes applies only the
+                // once-per-turn filter; both XMage players (HumanPlayer.chooseMode,
+                // ComputerPlayer.chooseMode) apply this one themselves, so the oracle must
+                // too or it would agree with the bridge on a set the rules forbid.
+                if (!modes.isMayChooseSameModeMoreThanOnce()) {
+                    List<UUID> alreadySelected = modes.getSelectedModes();
+                    available.removeIf(mode -> alreadySelected.contains(mode.getId()));
+                }
                 // CR 700.2a: a mode whose required targets cannot be chosen cannot be chosen,
                 // unless no mode can (then the cast rewinds, and all stay listed).
                 List<mage.abilities.Mode> choosable = available.stream()
