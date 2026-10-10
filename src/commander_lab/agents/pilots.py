@@ -258,6 +258,15 @@ class _NumericStrategyMixin:
         return stochastic_numbers(domain, rng)
 
 
+# A standalone mana activation in a priority window only floats mana. The Rules
+# Core already offers every spell and ability payable from untapped sources and
+# asks for payment through its own mana-payment decisions, so floated mana buys
+# nothing the window does not already offer, and it empties at the end of the
+# step (CR 106.4). It scores below passing (pass is never negative), so the
+# pilot keeps its sources untapped for those payments instead of wasting them.
+STANDALONE_MANA_ABILITY_UTILITY = -1.0
+
+
 class BasePilot:
     """Pure structural action evaluator.
 
@@ -399,6 +408,8 @@ class BasePilot:
     def evaluate_action(
         self, state: PilotStateView, action: PilotActionView
     ) -> PilotUtilityBreakdown:
+        if action.metadata.get("floats_mana_only") is True:
+            return PilotUtilityBreakdown(total_utility=STANDALONE_MANA_ABILITY_UTILITY)
         components = self._base_components(state, action)
         specialist_bonus = self.specialist_bonus(state, action, components)
         weighted = sum(components[name] * weight for name, weight in self.weights.as_dict().items())

@@ -63,6 +63,56 @@ FULL_GAME_SHUTDOWN_ALREADY_EXITED = "already_exited"
 # are never hidden from the pilot.
 _LOG = logging.getLogger(__name__)
 
+# Boolean outcomes whose "No" answer the pilot treats as aligned. The engine's
+# Outcome on a may-prompt is its own polarity hint: AIDontUseIt marks a prompt
+# the engine's AI always declines because accepting cannot be judged safely,
+# e.g. the repeatable multikicker offer, whose affordability check covers one
+# payment only and so re-offers "Pay N times" without bound.
+DECLINE_ALIGNED_BOOLEAN_OUTCOMES = frozenset(
+    {"detriment", "detriment_to_controller", "aidontuseit"}
+)
+
+_MANA_SYMBOL = re.compile(r"\{([^}]*)\}")
+_COLOR_LETTERS = frozenset("wubrgc")
+
+
+def mana_payment_fit(label: str, unpaid_mana: str) -> int:
+    """Order mana abilities inside a payment by what their mana can pay.
+
+    2: the ability makes mana of a color the unpaid cost names, or any color;
+    1: it can only pay a generic part; 0: the unpaid cost has no generic part
+    and none of its colors. This reads the engine's own ability text
+    ("{T}: Add {U}.") and the unpaid cost the engine reports. It only orders
+    the pilot's options and never removes one: an unreadable label ranks 1,
+    and the engine still applies (or refuses) whatever mana is produced.
+    Without it the pilot broke the tie by label order, tapping a Plains-side
+    {W} for a {U/R} cost and stranding the payment.
+    """
+    text = label.casefold()
+    produced_text = text.partition(": add ")[2]
+    if not produced_text:
+        return 1
+    if "any color" in produced_text or "any type" in produced_text:
+        return 2
+    produced = {
+        letter
+        for symbol in _MANA_SYMBOL.findall(produced_text)
+        for letter in symbol
+        if letter in _COLOR_LETTERS
+    }
+    if not produced:
+        return 1
+    needed: set[str] = set()
+    generic = False
+    for symbol in _MANA_SYMBOL.findall(unpaid_mana.casefold()):
+        letters = {part for part in symbol.split("/") if part in _COLOR_LETTERS}
+        needed |= letters
+        if not letters or any(part.isdigit() or part == "x" for part in symbol.split("/")):
+            generic = True
+    if produced & needed:
+        return 2
+    return 1 if generic else 0
+
 
 class FullGameProtocolError(RuntimeError):
     """Fail-closed full-game bridge or external-pilot protocol error.
@@ -1121,7 +1171,15 @@ class ExternalPilotDecisionPolicy:
         tapped source, an untap cost on an untapped source, or mana costs
         the current pool cannot cover (``pool_covers_mana_cost`` is the
         engine's own ``Mana.enough`` verdict, projected losslessly by the
-        bridge). Anything unknown means affordable.
+        bridge) on an action that also taps or sacrifices its own source.
+        That last case is the one a pool shortfall proves: paying the mana
+        can consume the very source the tap/sacrifice cost needs (a fetch
+        with ``{1}, {T}, Sacrifice`` and one untapped land). Any other
+        action is paid through the engine's own mana-payment decisions from
+        untapped sources, which the engine already counted when it offered
+        the action, so an empty pool proves nothing there; withholding it
+        kept every spell with a mana cost out of the pilot's reach unless
+        mana had been floated first. Anything unknown means affordable.
 
         This is pilot choice, not a legality verdict: withheld options stay
         engine-offered, the pilot simply selects pass/another legal action
@@ -1137,7 +1195,12 @@ class ExternalPilotDecisionPolicy:
             return False
         if metadata.get("requires_untap_source") is True and metadata.get("source_tapped") is False:
             return False
-        return metadata.get("pool_covers_mana_cost") is not False
+        if metadata.get("pool_covers_mana_cost") is not False:
+            return True
+        return not (
+            metadata.get("requires_tap_source") is True
+            or metadata.get("requires_sacrifice_source") is True
+        )
 
     def _priority_mana_action(
         self, option: dict[str, Any], state: dict[str, Any]
@@ -1156,6 +1219,9 @@ class ExternalPilotDecisionPolicy:
             metadata={
                 "xmage_option_type": "mana_ability",
                 "is_mana_ability": True,
+                # Offered in a priority window, not inside a payment: activating
+                # it only floats mana (see STANDALONE_MANA_ABILITY_UTILITY).
+                "floats_mana_only": True,
             },
         )
 
@@ -1347,7 +1413,7 @@ class ExternalPilotDecisionPolicy:
             if not isinstance(value, bool):
                 raise FullGameProtocolError("boolean option is missing explicit boolean value")
             aligned = (value and outcome in {"benefit", "benefit_to_controller"}) or (
-                not value and outcome in {"detriment", "detriment_to_controller"}
+                not value and outcome in DECLINE_ALIGNED_BOOLEAN_OUTCOMES
             )
             # Twin-stable: boolean value words are Rules-visible content.
             stable_id = f"boolean:{value}"
@@ -1600,6 +1666,7 @@ class ExternalPilotDecisionPolicy:
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
         occurrences: dict[tuple[str, str], int] = {}
+        unpaid_mana = str(context.get("unpaid_mana", ""))
         for option in options:
             option_type = self._required_text(option, "option_type")
             label = str(option.get("label", option_type))
@@ -1608,12 +1675,18 @@ class ExternalPilotDecisionPolicy:
             occurrences[key] = occurrence + 1
             stable_id = f"mana:{option_type}:{label.casefold()}:{occurrence}"
             raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+            if option_type == "cancel_mana_payment":
+                floor_value = 0.1
+            elif option_type == "mana_ability":
+                floor_value = 0.65 + 0.1 * mana_payment_fit(label, unpaid_mana)
+            else:
+                floor_value = 0.75
             actions.append(
                 PilotActionView(
                     action_id=stable_id,
                     action_kind="pass" if option_type == "cancel_mana_payment" else "card",
                     card_name=label,
-                    floor_value=0.1 if option_type == "cancel_mana_payment" else 0.75,
+                    floor_value=floor_value,
                     immediate_impact=0.0 if option_type == "cancel_mana_payment" else 0.55,
                     metadata={"xmage_option_type": option_type},
                 )
