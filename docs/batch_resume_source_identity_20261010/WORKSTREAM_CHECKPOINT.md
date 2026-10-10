@@ -37,7 +37,11 @@ the immutable GitHub issue/PR receipts. An initial adjacent privacy run without
 inherited PYTHONPATH had 87 PASS/2 FAIL due to child import setup; corrected
 environment rerun is required, no assertion changed.
 
-Status: implementation candidate; not COMPLETE until normal integration and
-actual merge source/check receipts. UNKNOWN/NOT_RUN != PASS. No native Foundry
+Status: COMPLETE (2026-10-10). PR #673, head
+`ed0de7a3c59d56c8b8700056cf59c57780b2eae2`, merged normally as main
+`f0e7af9116adf8446d0fd006fa80933cc0784f30`. Required quality/security/
+infrastructure PASS on the exact head and on that main commit; integration with
+main `93cf55af` plus #673 ran the affected tests (269 passed). #668 closed with the
+merge receipt (issue comment 6097210908). UNKNOWN/NOT_RUN != PASS. No native Foundry
 certificate, provider release or Freeze claimed. Required handoff is persisted
 in #668, including exact reviewed source, tests, CI, merge and remaining limits.
