@@ -577,6 +577,22 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * game cannot complete is reversed to the moment before it was proposed,
      * so the same player is asked again.
      *
+     * <p>{@link #targetChoiceRequested} is defence in depth and keeps its
+     * literal meaning: "some bridge target callback ran during this action".
+     * It cannot be made a per-target signal and it does not need to be. Read
+     * off this bridge's own code, {@code chooseTargetInternal} publishes
+     * {@code minimum_selections = min} and
+     * {@code XmageFullGameDecisionController} rejects a proposal whose
+     * {@code selected.size() < min}, so a pilot cannot decline a REQUIRED
+     * target through the lane at all; and {@code Targets.makeChoice} only
+     * calls {@code target.chooseTarget} when {@code canChoose} is true, which
+     * requires at least one legal option. The flag therefore never excludes a
+     * genuine #703 reversal — the engine's silent skip is precisely the case in
+     * which no callback ran — and it only ever NARROWS acceptance towards
+     * fail-closed: if the bridge was asked for a target and the action still
+     * failed, something other than the silent skip failed it, and the correct
+     * answer is XMAGE_ACTION_EXECUTION_FAILED.
+     *
      * <p>Package-visible for the #703 boundary test, which drives this
      * predicate with real engine objects rather than asserting the flag
      * through a synthetic failure.
@@ -596,6 +612,26 @@ final class XmageFullGamePlayer extends PlayerImpl {
             }
         }
         return false;
+    }
+
+    /**
+     * #703 boundary tests only: package-private, no production behaviour
+     * change and no production caller. Mirrors exactly what
+     * {@link #announceX} records, so a test can reproduce on real engine
+     * objects the post-announcement bridge state that
+     * {@link #reversedRequiredXTarget} reads.
+     */
+    void recordAnnouncedAbilityForBoundaryTest(Ability ability) {
+        xAnnouncedAbility = ability;
+    }
+
+    /**
+     * #703 boundary tests only: package-private, no production behaviour
+     * change and no production caller. Mirrors exactly what
+     * {@link #chooseTargetInternal} records on its first line.
+     */
+    void recordTargetChoiceRequestedForBoundaryTest(boolean requested) {
+        targetChoiceRequested = requested;
     }
 
     @Override

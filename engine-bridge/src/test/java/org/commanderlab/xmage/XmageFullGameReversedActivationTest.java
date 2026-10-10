@@ -1,17 +1,15 @@
 package org.commanderlab.xmage;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import mage.abilities.Ability;
 import mage.abilities.ActivatedAbility;
-import mage.constants.ComparisonType;
+import mage.cards.Card;
+import mage.MageObject;
 import mage.constants.Zone;
-import mage.filter.common.FilterCreatureCard;
-import mage.filter.predicate.mageobject.ManaValuePredicate;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 import mage.target.Target;
-import mage.target.Targets;
-import mage.target.common.TargetCardInExile;
 import mage.util.CardUtil;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +19,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -139,37 +138,223 @@ class XmageFullGameReversedActivationTest {
         assertEquals("P1", s.actor());
     }
 
+    // ---- predicate controls (P2-1) ------------------------------------------
+    //
+    // White-box controls on the production predicate itself. They run on the
+    // REAL started game with the REAL ability instance of the real
+    // battlefield permanent, run through the card's OWN TargetAdjuster (the
+    // engine code AbilityImpl.adjustTargets calls, AbilityImpl.java:419) after
+    // the engine's own setCostsTag("X", ...) has recorded an announced value —
+    // so the Targets the predicate reads are the ones the engine builds, not a
+    // hand-constructed stand-in. Only the bridge's two bookkeeping fields are
+    // set, and each is set to exactly what the real callback leaves:
+    // announceX()'s `xAnnouncedAbility = source` (XmageFullGamePlayer:1111) and
+    // chooseTargetInternal()'s `targetChoiceRequested = true` (:1854).
+    //
+    // The link back to the real lane is
+    // activationWithNoLegalXTargetIsReversedNotFailed above: priority() returns
+    // false WITHOUT recording a failure only when this predicate is true, so
+    // the executed lane run proves these are the field values a real action
+    // leaves behind, and these controls prove each guard discriminates.
+    //
+    // Each control is proved discriminating by neutering the matching guard
+    // and observing it go red; the proof is in the #703 handoff.
+
+    /** The announced X the controls record. Its target set is empty. */
+    private static final int ANNOUNCED_X = 2;
+
     /**
-     * Fail-closed control on the production predicate, driven with real engine
-     * objects on the real started game.
-     *
-     * <p>The #703 flag is engine-evidenced only when BOTH halves hold: an X was
-     * announced for the ability the engine activated, AND that ability still
-     * carries a required target with nothing chosen, AND the bridge's own target
-     * callback never ran. This control keeps the real post-attempt target state
-     * a real activation produces — a required exile target with a
-     * {@code ManaValuePredicate} and nothing chosen — and removes only the
-     * cost-announcement half, so {@code priority()} keeps its pre-#703 behaviour
-     * and the activation still fails closed with XMAGE_ACTION_EXECUTION_FAILED
-     * instead of being silently rewound.
+     * Control 1, positive: X announced, the required target the engine built is
+     * empty, and no bridge target callback ran -> the engine-evidenced
+     * reversal. RED if the min&gt;0 / size==0 scan is removed.
      */
     @Test
-    void anActivationWithoutTheAnnouncedXEvidenceIsNotReadAsAReversal() {
-        XmageMultiplayerScenario s = shelobInPlay("issue703-fail-closed");
+    void reversedRequiredXTargetIsTrueWhenAnAnnouncedXLeftTheRequiredTargetEmpty() {
+        XmageMultiplayerScenario s = shelobInPlay("issue703-predicate-positive");
         Game game = s.session.restorationGame();
         XmageFullGamePlayer player = (XmageFullGamePlayer) s.seats.get("P1");
-        ActivatedAbility ability = shelobXAbility(shelobPermanent(game), game);
 
-        setTargets(ability, new Targets(requiredExileTarget(game, ability, 0)));
-        assertTrue(isUnchosenRequired(ability),
-                "precondition: the engine's own required target is left unchosen");
-        assertFalse(ability.getTargets().isChosen(game),
+        ActivatedAbility announced = announcedAbilityCopy(game);
+        assertUnchosenRequiredExileTarget(game, announced);
+
+        player.recordAnnouncedAbilityForBoundaryTest(announced);
+        player.recordTargetChoiceRequestedForBoundaryTest(false);
+
+        assertTrue(player.reversedRequiredXTarget(game),
+                "an announced X that left the engine-built required target with nothing "
+                        + "chosen, and no bridge target callback, IS the engine-evidenced "
+                        + "reversal #703 exists to recognise");
+    }
+
+    /**
+     * Control 2: exactly the same engine state, but the bridge's own target
+     * callback DID run during this action. RED if the targetChoiceRequested
+     * guard is removed from the predicate.
+     */
+    @Test
+    void reversedRequiredXTargetIsFalseWhenTheBridgeWasAskedForATarget() {
+        XmageMultiplayerScenario s = shelobInPlay("issue703-predicate-target-callback");
+        Game game = s.session.restorationGame();
+        XmageFullGamePlayer player = (XmageFullGamePlayer) s.seats.get("P1");
+
+        ActivatedAbility announced = announcedAbilityCopy(game);
+        assertUnchosenRequiredExileTarget(game, announced);
+
+        player.recordAnnouncedAbilityForBoundaryTest(announced);
+        // chooseTargetInternal() sets this on its first line, before it looks
+        // at anything else. Through the lane the controller then rejects any
+        // selection short of the target's minimum, so a pilot cannot decline a
+        // REQUIRED target this way; the flag therefore only ever means "the
+        // bridge was asked, and something else afterwards failed".
+        player.recordTargetChoiceRequestedForBoundaryTest(true);
+
+        assertFalse(player.reversedRequiredXTarget(game),
+                "DEFENCE IN DEPTH: the bridge WAS asked for a target during this action, so "
+                        + "an empty required target is not evidence of the engine's silent "
+                        + "skip. priority() must keep failing closed with "
+                        + "XMAGE_ACTION_EXECUTION_FAILED rather than rewind");
+    }
+
+    /**
+     * Control 3: X announced, but the required target WAS chosen, so
+     * {@code Targets.makeChoice} returned true and the engine's silent skip
+     * cannot be what failed. RED if the target-state inspection (the
+     * {@code isChosen} guard and the min&gt;0 / size==0 scan) is removed.
+     */
+    @Test
+    void reversedRequiredXTargetIsFalseWhenTheRequiredTargetWasChosen() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(XmageMultiplayerScenario.obj("P1", SHELOB, 0, Zone.BATTLEFIELD));
+        objects.add(XmageMultiplayerScenario.obj("P1", "Grizzly Bears", 0, Zone.HAND));
+        for (int i = 0; i < 4; i++) {
+            objects.add(XmageMultiplayerScenario.obj("P1", "Swamp", i, Zone.BATTLEFIELD));
+        }
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start(
+                "issue703-predicate-target-chosen", 2, "P1", objects);
+        Game game = s.session.restorationGame();
+        XmageFullGamePlayer player = (XmageFullGamePlayer) s.seats.get("P1");
+
+        ActivatedAbility announced = announcedAbilityCopy(game);
+        // Put a REAL creature card of the announced mana value into the real
+        // source exile zone through the engine's own API, then choose it into
+        // the engine's own Target. No id is invented and no state fabricated.
+        Card bears = handCard(s, game, "Grizzly Bears");
+        assertTrue(s.seats.get("P1").moveCardsToExile(bears, announced, game, true,
+                        CardUtil.getExileZoneId(game, announced), SHELOB),
+                "precondition: the real creature card is exiled with the source");
+        Target required = announced.getTargets().iterator().next();
+        assertTrue(required.canChoose(s.seats.get("P1").getId(), announced, game),
+                "precondition: with that card exiled the engine-built target IS choosable, "
+                        + "which is why the engine would have asked the player");
+        required.add(bears.getId(), game);
+        assertTrue(announced.getTargets().isChosen(game),
+                "precondition: Targets.makeChoice returns isChosen(game) == true, so this is "
+                        + "NOT the state AbilityImpl.activate returns false on");
+
+        player.recordAnnouncedAbilityForBoundaryTest(announced);
+        player.recordTargetChoiceRequestedForBoundaryTest(false);
+
+        assertFalse(player.reversedRequiredXTarget(game),
+                "a CHOSEN required target is not an engine-evidenced reversal, however the "
+                        + "action failed; priority() must keep failing closed with "
+                        + "XMAGE_ACTION_EXECUTION_FAILED");
+    }
+
+    /**
+     * Control 4: no X was ever announced, so the engine never reached
+     * {@code adjustTargets} on this ability and the unchosen required target
+     * carries no announcement evidence at all. RED if the {@code announced ==
+     * null} guard is removed (the predicate then dereferences null instead of
+     * failing closed).
+     *
+     * <p>This replaces the former
+     * {@code anActivationWithoutTheAnnouncedXEvidenceIsNotReadAsAReversal}, which
+     * was vacuous: it drove the predicate with the same state the other three
+     * controls reach, so deleting the {@code targetChoiceRequested} guard or the
+     * min&gt;0 / size==0 scan left every test green.
+     */
+    @Test
+    void reversedRequiredXTargetIsFalseWithoutAnAnnouncedX() {
+        XmageMultiplayerScenario s = shelobInPlay("issue703-predicate-no-announce");
+        Game game = s.session.restorationGame();
+        XmageFullGamePlayer player = (XmageFullGamePlayer) s.seats.get("P1");
+
+        ActivatedAbility announced = announcedAbilityCopy(game);
+        assertUnchosenRequiredExileTarget(game, announced);
+
+        // The engine rebuilt this ability's targets with no announcement having
+        // been recorded for it: the pre-#703 shape, where an unchosen required
+        // target alone must never be read as a reversal.
+        player.recordTargetChoiceRequestedForBoundaryTest(false);
+
+        assertFalse(player.reversedRequiredXTarget(game),
+                "without an announced X for the ability the engine activated there is no "
+                        + "engine evidence of a reversal; priority() must keep failing closed "
+                        + "with XMAGE_ACTION_EXECUTION_FAILED");
+    }
+
+    /**
+     * The real ability copy the engine activates for the real battlefield
+     * permanent, with the engine's own announced-X tag recorded and the card's
+     * own adjuster run.
+     */
+    private static ActivatedAbility announcedAbilityCopy(Game game) {
+        Permanent shelob = shelobPermanent(game);
+        // PlayerImpl.activateAbility activates ability.copy(): the predicate
+        // reads that copy, not the object the bridge holds on the permanent.
+        ActivatedAbility copy = shelobXAbility(shelob, game).copy();
+        copy.setControllerId(shelob.getControllerId());
+        copy.setSourceId(shelob.getId());
+        // Exactly what AbilityImpl.handleManaXCosts records once the player has
+        // answered announceX (AbilityImpl.java:875).
+        copy.setCostsTag("X", ANNOUNCED_X);
+        // The card's own TargetAdjuster, run by the engine before
+        // chooseTargets. Nothing is exiled with the source, so the target it
+        // builds has an empty legal set whatever the announced value.
+        copy.adjustTargets(game);
+        return copy;
+    }
+
+    private static void assertUnchosenRequiredExileTarget(Game game, Ability announced) {
+        assertFalse(announced.getTargets().isEmpty(),
+                "precondition: the card's own adjuster built a target");
+        assertTrue(isUnchosenRequired(announced),
+                "precondition: the engine-built required target is left unchosen: "
+                        + announced.getTargets());
+        assertFalse(announced.getTargets().isChosen(game),
                 "precondition: Targets.makeChoice returns isChosen(game) == false, which is "
                         + "exactly what makes AbilityImpl.activate return false");
-        assertFalse(player.reversedRequiredXTarget(game),
-                "an unchosen required target with no announced X is not an engine-reversed "
-                        + "activation; priority() must keep failing closed with "
-                        + "XMAGE_ACTION_EXECUTION_FAILED");
+    }
+
+    private static Card handCard(XmageMultiplayerScenario s, Game game, String name) {
+        return s.seats.get("P1").getHand().getCards(game).stream()
+                .filter(card -> name.equals(card.getName()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError(
+                        name + " is not in P1's hand: "
+                                + s.seats.get("P1").getHand().getCards(game).stream()
+                                        .map(MageObject::getName).toList()));
+    }
+
+    /**
+     * The unique option in the current frame whose label contains
+     * {@code fragment}. Choice options are published with the engine's own
+     * text and no stable action_type to key on, so the corpus tests match
+     * these by label too.
+     */
+    private static JsonObject optionLabelled(XmageMultiplayerScenario s, String fragment) {
+        JsonObject match = null;
+        for (JsonElement element : s.session.legalActionsPayload().getAsJsonArray("actions")) {
+            JsonObject candidate = element.getAsJsonObject();
+            if (candidate.getAsJsonObject("metadata").get("label").getAsString()
+                    .contains(fragment)) {
+                assertNull(match, "exactly one option labelled *" + fragment + "* is expected: "
+                        + s.labels());
+                match = candidate;
+            }
+        }
+        assertNotNull(match, "no option labelled *" + fragment + "*: " + s.labels());
+        return match;
     }
 
     /**
@@ -241,7 +426,7 @@ class XmageFullGameReversedActivationTest {
                 "the engine's own creature-type menu is what the pilot is offered: "
                         + s.labels());
         assertEquals("P1", s.actor(), "the same seat answers the creature type");
-        s.submit(s.action("choice", CREATURE_TYPE));
+        s.submit(optionLabelled(s, CREATURE_TYPE));
 
         JsonObject after = s.session.pendingDecisionPayload();
         assertTrue(after.get("failure").isJsonNull(),
@@ -336,20 +521,6 @@ class XmageFullGameReversedActivationTest {
             }
         }
         throw new AssertionError(SHELOB + " exposes no X-cost activated ability");
-    }
-
-    /** The adjuster's own target shape for the announced X, left unchosen. */
-    private static Target requiredExileTarget(Game game, Ability ability, int manaValue) {
-        FilterCreatureCard filter = new FilterCreatureCard("creature card with mana value " + manaValue);
-        filter.add(new ManaValuePredicate(ComparisonType.EQUAL_TO, manaValue));
-        return new TargetCardInExile(filter, CardUtil.getExileZoneId(game, ability));
-    }
-
-    private static void setTargets(Ability ability, Targets targets) {
-        ability.getModes().clear();
-        for (Target target : List.copyOf(targets)) {
-            ability.addTarget(target);
-        }
     }
 
     private static boolean isUnchosenRequired(Ability ability) {
