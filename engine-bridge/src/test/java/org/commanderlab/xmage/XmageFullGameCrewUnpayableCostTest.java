@@ -1,5 +1,6 @@
 package org.commanderlab.xmage;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import mage.constants.Zone;
@@ -9,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -67,7 +67,6 @@ class XmageFullGameCrewUnpayableCostTest {
     private static final String CARAVAN = "Cultivator's Caravan";
     private static final String TOR = "Tor Wauki the Younger";
     private static final String BEARS = "Grizzly Bears";
-    private static final String COMMANDER = "Rograkh, Son of Rohgahh";
     private static final String CREW = "Crew 3";
 
     /**
@@ -95,9 +94,9 @@ class XmageFullGameCrewUnpayableCostTest {
         assertTrue(caravan(game).isCreature(game),
                 "precondition: " + CARAVAN + " is already crewed, so it is a creature "
                         + "and canPay counts its own power against its crew cost");
-        assertTrue(anyTappedP1CreatureApartFromCaravan(s, game),
-                "precondition: every other creature P1 controls is tapped, so the crew "
-                        + "cost's legal set is empty: " + battlefieldSummary(game));
+        assertTrue(noOtherUntappedP1Creature(game),
+                "precondition: nothing but the crewed Vehicle is an untapped creature, so "
+                        + "the crew cost's legal set is empty: " + battlefieldSummary(game));
 
         int turn = game.getTurnNum();
         String step = game.getStep().getType().name();
@@ -164,7 +163,6 @@ class XmageFullGameCrewUnpayableCostTest {
         XmageMultiplayerScenario s = XmageMultiplayerScenario.start(
                 "issue715-crew-succeeds", 2, "P1", battlefield(CARAVAN, TOR));
         Game game = s.session.restorationGame();
-        tapCommander(s, game);
 
         assertFalse(caravan(game).isCreature(game),
                 "precondition: " + CARAVAN + " is not a creature yet");
@@ -180,6 +178,8 @@ class XmageFullGameCrewUnpayableCostTest {
         assertTrue(s.labels().stream().anyMatch(label -> label.contains(TOR)),
                 "the only crew option is the 3-power creature: " + s.labels());
         s.submit(optionLabelled(s, TOR));
+        endCrewCost(s);
+        resolveStackThroughTheLane(s);
 
         assertTrue(s.session.pendingDecisionPayload().get("failure").isJsonNull(),
                 "a payable crew cost never fails: " + s.session.pendingDecisionPayload());
@@ -247,15 +247,13 @@ class XmageFullGameCrewUnpayableCostTest {
 
     /**
      * A started 2P game in which the Vehicle has been GENUINELY crewed through
-     * the lane (a real {@code choose_object} frame, a real tap, the engine's own
-     * {@code AddCardTypeSourceEffect}), with the seat's commander tapped so that
-     * nothing but the Vehicle is an untapped creature.
+     * the lane (a real {@code choose_object} frame, a real tap chosen by label,
+     * the engine's own {@code AddCardTypeSourceEffect}), leaving the crewed
+     * Vehicle as the only untapped creature P1 controls.
      *
-     * <p>The commander tap is fixture setup performed through the engine's own
-     * {@code Permanent.tap}, the same call {@code CrewCost.pay} makes when it
-     * pays. It is not a decision the Lab makes: it happens before the action
-     * under test and is asserted explicitly, so a reader can see exactly what
-     * the battlefield was.
+     * <p>The commander is deliberately not used: the harness seats the seat's
+     * commander outside the battlefield at this step, so P1 controls exactly
+     * the objects the fixture puts down.
      */
     private static XmageMultiplayerScenario crewedCaravan(
             String tag, List<XmageNativeStateRestoration.RequestedObject> others) {
@@ -272,13 +270,33 @@ class XmageFullGameCrewUnpayableCostTest {
         assertEquals("choose_object", s.decisionClass(),
                 "precondition: the crew cost asks which creatures tap: " + s.labels());
         s.submit(optionLabelled(s, TOR));
+        endCrewCost(s);
+        resolveStackThroughTheLane(s);
         assertTrue(s.session.pendingDecisionPayload().get("failure").isJsonNull(),
                 "precondition: the crew succeeded: " + s.session.pendingDecisionPayload());
         assertTrue(caravan(game).isCreature(game),
-                "precondition: the Vehicle became a creature: " + battlefieldSummary(game));
+                "precondition: the Vehicle became a creature: " + battlefieldSummary(game)
+                        + " | decision=" + s.decisionClass()
+                        + " | labels=" + s.labels()
+                        + " | stack=" + game.getStack());
 
-        tapCommander(s, game);
         return s;
+    }
+
+    /**
+     * A crewed ability sits on the stack until every seat has passed since it
+     * was put there, and only then does its continuous effect apply. The
+     * fixture resolves it the way a game does: through the lane, by passing.
+     */
+    private static void resolveStackThroughTheLane(XmageMultiplayerScenario s) {
+        Game game = s.session.restorationGame();
+        for (int i = 0; i < 6 && !game.getStack().isEmpty(); i++) {
+            assertEquals("priority", s.decisionClass(),
+                    "the stack resolves by priority passing: " + s.labels());
+            s.submit(optionLabelled(s, "Pass priority"));
+        }
+        assertTrue(game.getStack().isEmpty(),
+                "the crewed ability resolved: " + game.getStack());
     }
 
     private static List<XmageNativeStateRestoration.RequestedObject> battlefield(String... names) {
@@ -290,33 +308,45 @@ class XmageFullGameCrewUnpayableCostTest {
     }
 
     /**
-     * Fixture setup: tap the seat's commander so that "another untapped
-     * creature you control" has no member. Done through the engine's own
-     * {@code Permanent.tap}, never through a lane decision.
+     * {@code TargetImpl.choose} loops after a pick (it only stops when the set
+     * stops growing or the choice is complete), and the crew target's minimum
+     * is zero, so the engine asks again for more creatures to tap. The pilot
+     * ends the cost by answering with an empty selection, which is legal
+     * exactly because {@code minimum_selections} is 0.
      */
-    private static void tapCommander(XmageMultiplayerScenario s, Game game) {
-        Permanent commander = permanent(game, COMMANDER);
-        if (!commander.isTapped()) {
-            commander.tap(null, game);
+    private static void endCrewCost(XmageMultiplayerScenario s) {
+        for (int i = 0; i < 4 && "choose_object".equals(s.decisionClass()); i++) {
+            JsonObject pending = s.session.pendingDecisionPayload().getAsJsonObject("decision");
+            assertEquals(0, pending.get("minimum_selections").getAsInt(),
+                    "precondition: ending the crew cost is legal (minimum_selections 0)");
+            JsonObject proposal = new JsonObject();
+            proposal.addProperty("proposal_id", "crew-cost-end-" + i);
+            proposal.addProperty("actor_id", pending.get("actor_id").getAsString());
+            proposal.addProperty("action_type", "structural_decision");
+            proposal.add("target_ids", new JsonArray());
+            proposal.add("selected_modes", new JsonArray());
+            JsonObject choices = new JsonObject();
+            choices.addProperty("decision_id", pending.get("decision_id").getAsString());
+            choices.addProperty("decision_offset", pending.get("decision_offset").getAsLong());
+            choices.add("selected_option_ids", new JsonArray());
+            choices.add("ordering", new JsonArray());
+            proposal.add("choices", choices);
+            s.session.submitAction(proposal);
         }
-        assertTrue(commander.isTapped(),
-                "fixture: " + COMMANDER + " is tapped, so it cannot crew or be crewed");
     }
 
     /**
-     * Every P1 creature other than the Vehicle is tapped: the precondition the
-     * upstream canPay overcount and the real crew target disagree about.
+     * The Vehicle is the only untapped creature P1 controls: the state in
+     * which the crew cost's legal set ("another untapped creature you
+     * control") is empty and {@code CrewCost.canPay} nevertheless returns true
+     * because it counts the Vehicle's own power.
      */
-    private static boolean anyTappedP1CreatureApartFromCaravan(
-            XmageMultiplayerScenario s, Game game) {
-        List<UUID> controller = List.of(s.seats.get("P1").getId());
+    private static boolean noOtherUntappedP1Creature(Game game) {
         for (Permanent permanent : game.getBattlefield().getAllActivePermanents()) {
             if (CARAVAN.equals(permanent.getName())) {
                 continue;
             }
-            if (controller.contains(permanent.getControllerId())
-                    && permanent.isCreature(game)
-                    && !permanent.isTapped()) {
+            if (permanent.isCreature(game) && !permanent.isTapped()) {
                 return false;
             }
         }
