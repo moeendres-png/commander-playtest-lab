@@ -365,6 +365,14 @@ jobs:
       contents: read
       pull-requests: read
       issues: read
+    # #654: the pinned `opencode github run` ignores AGENT and prompts the
+    # config's `default_agent` (writable foundry-implementer in opencode.json).
+    # OPENCODE_CONFIG_CONTENT is merged after every project config file, so it
+    # is the supported way to make the read-only reviewer the agent that runs.
+    # tools/foundry/review_runtime_identity.py checks the result before and
+    # after the run; review_evidence.py admits only this exact value.
+    env:
+      OPENCODE_CONFIG_CONTENT: '{"default_agent":"foundry-reviewer"}'
     steps:
       # The agent reads the target issue/PR text and, on a PR, its head. The
       # target's author must be trusted (job `if:`) and a PR head must live in
@@ -462,16 +470,29 @@ jobs:
       # 38012694554): tools/foundry/quota_watchdog.py, copied from the triggering
       # commit like the rescue scanner, stops it at once and fails the step as
       # BLOCKED_SERVICE so the rescue steps below still run.
+      # Fail before any model call unless the pinned CLI itself resolves the
+      # read-only reviewer as default agent with no write-capable permission.
+      # The checker is copied from the triggering commit, like the watchdog.
+      - name: Preflight reviewer runtime identity
+        run: |
+          set -euo pipefail
+          checker="$RUNNER_TEMP/review_runtime_identity.py"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:tools/foundry/review_runtime_identity.py" > "$checker"
+          python3 -I "$checker" preflight
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+
       - name: Run opencode
         timeout-minutes: 55
         run: |
           set -euo pipefail
           watchdog="$RUNNER_TEMP/quota_watchdog.py"
           git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:tools/foundry/quota_watchdog.py" > "$watchdog"
-          python3 -I "$watchdog" -- opencode github run
+          python3 -I "$watchdog" --log "$RUNNER_TEMP/opencode-review.log" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           MODEL: opencode/space-bunny-free
+          # Not read by the pinned CLI (#654); kept as the declared lane agent.
           AGENT: foundry-reviewer
           SHARE: 'false'
           PROMPT: ''
@@ -481,3 +502,17 @@ jobs:
           MENTIONS: '/bunny-review'
           VARIANT: max
           OIDC_BASE_URL: ''
+
+      # The run's own model-call records must all name the reviewer on Space
+      # Bunny; none recorded means UNKNOWN and fails the job. The preflight is
+      # repeated on the reviewed tree the run checked out. The checker is copied
+      # again from the triggering commit, never reused from a path the agent saw.
+      - name: Audit reviewer runtime identity
+        run: |
+          set -euo pipefail
+          checker="$RUNNER_TEMP/review_runtime_identity.py"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:tools/foundry/review_runtime_identity.py" > "$checker"
+          python3 -I "$checker" audit "$RUNNER_TEMP/opencode-review.log"
+          python3 -I "$checker" preflight
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}

@@ -7,12 +7,23 @@ permission:
   edit: deny
   bash:
     "*": deny
-    "git status*": allow
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git rev-parse*": allow
-    "git ls-files*": allow
+    # Exact subcommands: "git diff*" also matched "git difftool -x CMD" (#654).
+    "git status": allow
+    "git status *": allow
+    "git diff": allow
+    "git diff *": allow
+    "git log": allow
+    "git log *": allow
+    "git show": allow
+    "git show *": allow
+    "git rev-parse": allow
+    "git rev-parse *": allow
+    "git ls-files": allow
+    "git ls-files *": allow
+    # Read-only Git commands can still write a file or run a program (#654).
+    "*--output*": deny
+    "*>*": deny
+    "*--ext-diff*": deny
   task: deny
 ---
 
