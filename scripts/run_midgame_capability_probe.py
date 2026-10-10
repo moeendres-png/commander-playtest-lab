@@ -870,6 +870,39 @@ def _scripted_empty_declare_attackers(
     return None
 
 
+def _record_checkpoint_position(record: dict[str, Any]) -> tuple[int, int] | None:
+    """The (turn, step index) the record's own ``temporal_state`` checkpoint names.
+
+    #695 ruling: causal reconstruction rebuilds the requested state at that
+    checkpoint, so this is the inclusive upper bound of the causal pass window
+    (CR 117.3d, 500.1). ``temporal_state`` names the turn as ``turn_number`` and
+    the point as the record's own ``(phase, step)`` pair, which is exactly the
+    shape :func:`_scope_bound_position` reads. A checkpoint that names no step
+    spans its whole phase, so ``last=True`` places the bound at that phase's own
+    final step. A record whose checkpoint is unreadable returns None and the
+    caller fails closed: without it the Lab cannot prove a pass rebuilds the
+    requested state rather than advancing the game.
+    """
+    temporal = record.get("temporal_state")
+    if not isinstance(temporal, dict):
+        return None
+    return _scope_bound_position(
+        {
+            "turn": temporal.get("turn_number"),
+            "phase": temporal.get("phase"),
+            "step": temporal.get("step"),
+        },
+        last=True,
+    )
+
+
+def _position_text(position: tuple[int, int] | None) -> str:
+    """A (turn, step index) rendered for an error message, or its unreadable name."""
+    if position is None:
+        return "an unreadable turn/step"
+    return f"turn {position[0]} step {_TURN_STEP_ORDER[position[1]]}"
+
+
 class PassAuthority:
     """The record whose declarations authorize the Lab's transport answers.
 
@@ -879,6 +912,10 @@ class PassAuthority:
     117.3d; the empty attack set, CR 508.1). Every such answer is appended to
     ``trace`` with the acting principal, the engine's decision id and the
     declaring scope, so the row's evidence names each answer the Lab gave.
+
+    #695: a declared multi-option pass is bounded above by the record's own
+    ``temporal_state`` checkpoint (see :func:`declared_pass`); a record whose
+    checkpoint is unreadable answers no multi-option priority frame at all.
     """
 
     def __init__(self, record: dict[str, Any]) -> None:
@@ -920,6 +957,17 @@ def declared_pass(
 
     A multi-option priority frame outside every declared pass-through scope stops
     the row: passing it would be the Lab choosing for the player.
+
+    #695 ruling: a declared multi-option pass is additionally bounded above, and
+    inclusively, by the record's own ``temporal_state`` checkpoint. Causal
+    reconstruction rebuilds the requested state at that checkpoint, so a declared
+    pass standing at a later turn or a later step of the same turn would advance
+    the game instead of rebuilding it (CR 117.3d, 500.1) and stops the row. The
+    obligation loop's own ``OBLIGATION_COMPLETE`` scope (midgame_rows,
+    knowledge_projection) is bounded by the row's stop and ``max_decisions`` and
+    is not narrowed here. A single-option frame leaves no choice and passes
+    wherever the engine offers only the pass; a record whose ``temporal_state``
+    position is unreadable answers no multi-option frame at all.
     """
     principal = _decision_seat_principal(decision)
     passed = option_of_type(decision, "pass_priority")
@@ -928,13 +976,23 @@ def declared_pass(
     if len(decision.get("legal_options") or ()) == 1:
         scope = "single_option"
     else:
+        observation = principal_position(client, principal)
         index = _priority_pass_through_scope(
-            authority.record, principal, principal_position(client, principal), obligation=True
+            authority.record, principal, observation, obligation=True
         )
         if index is None:
             raise ml.MidgameLaneError(
                 f"{tag}: undeclared priority pass for {principal}: the record declares no "
                 "pass-through scope for this frame, so the Lab never passes on the player's behalf"
+            )
+        checkpoint = _record_checkpoint_position(authority.record)
+        observed = _observed_scope_position(observation)
+        if checkpoint is None or observed is None or observed > checkpoint:
+            raise ml.MidgameLaneError(
+                f"{tag}: the declared pass for {principal} stands at {_position_text(observed)}, "
+                f"which is not at or before the record's own checkpoint at "
+                f"{_position_text(checkpoint)}: causal reconstruction rebuilds the requested "
+                "state at its checkpoint, so the Lab never passes on the player's behalf past it"
             )
         scope = f"decision_script[{index}]"
     client.submit_options(decision, [str(passed)])
