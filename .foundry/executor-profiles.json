@@ -139,8 +139,9 @@
       "authority": "Direct Owner instruction 2026-10-10: switch to OpenCode Zen with Space Bunny MAX.",
       "live_catalog_identity": "DIRECTLY_VERIFIED 2026-10-10: GET https://opencode.ai/zen/v1/models lists space-bunny-free and does not list space-bunny; models.dev lists opencode/space-bunny-free with reasoning efforts up to max at 0 USD.",
       "configured_pins": "Every lane (/oc, /bunny, /bunny-review), opencode.json (provider opencode, whitelist [space-bunny-free]), every OpenCode agent file and OPENCODE_SUBAGENT_MODEL pin opencode/space-bunny-free at native max.",
-      "authenticated_runtime_smoke": "PENDING: the first trusted lane run after merge is the runtime observation for the Zen identity and the existing OPENCODE_API_KEY secret. A refusal there is BLOCKED_SERVICE, never a fallback to OpenCode Go.",
-      "runtime_status": "ACTIVE"
+      "authenticated_runtime_smoke": "RUNTIME_VERIFIED 2026-10-10: trusted /bunny run 38053801098 on main c0f9e35e30c2c4d8f6bd32c7a2073be0928b8253 (issue #684) completed with the existing OPENCODE_API_KEY; the agent read its own OpenCode session store and reported providerID=opencode modelID=space-bunny-free variant=max on all 14 assistant messages (result comment 6097737983). The provider/model identity is agent self-report from the session store (CODE_DERIVED for this receipt); the configured pins and job success are DIRECTLY_VERIFIED.",
+      "runtime_status": "ACTIVE",
+      "observed_agent_note": "The same run reported agent=foundry-implementer although the /bunny lane pins AGENT=bunny-verifier; tracked in issue #685; it does not change the model identity."
     }
   }
 }

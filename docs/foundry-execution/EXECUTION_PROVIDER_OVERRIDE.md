@@ -45,9 +45,9 @@ catalog contract, provider protocol, or Space Bunny reasoning contract changes.
 ### Space Bunny runtime evidence
 
 The authorized Space Bunny identity is `opencode/space-bunny-free` (OpenCode Zen) with main
-model, small model and reachable agents at native `max`. The first trusted lane run after the
-2026-10-10 Zen switch is its runtime observation; until then the Zen identity is
-`DIRECTLY_VERIFIED` only as present in the live Zen model list
+model, small model and reachable agents at native `max`. The trusted `/bunny` run 38053801098
+(issue #684, 2026-10-10) completed with the existing `OPENCODE_API_KEY` and its session store
+reported `providerID=opencode modelID=space-bunny-free variant=max`
 (`activation_evidence_2026_10_10` in `.foundry/executor-profiles.json`).
 
 Earlier Go evidence: after the catalog-ID rebind landed in PR #576, a fresh
