@@ -121,7 +121,8 @@ def _package_ids(action: PilotActionView) -> frozenset[str]:
 #
 # Scalar descriptor shape (provider-neutral, ints only):
 #   {"kind": "contiguous_inclusive_int", "min": int, "max": int,
-#    "outcome": str, "prompt": str}
+#    "outcome": str, "prompt": str,
+#    "affordable_max": int}          # optional strategy hint, see _strategy_band
 # Joint vector descriptor shape:
 #   {"kind": "joint_bounded_int_vector",
 #    "legs": [{"min": int, "max": int, "prompt": str}, ...],
@@ -137,10 +138,27 @@ def _numeric_bias(outcome: object) -> int:
     return 0
 
 
-def deterministic_number(domain: Mapping[str, Any]) -> int:
-    """Outcome-aligned scalar strategy: extreme toward benefit, midpoint when neutral."""
+def _strategy_band(domain: Mapping[str, Any]) -> tuple[int, int]:
+    """The band a scalar strategy picks inside: [min, min(max, affordable)].
+
+    The Rules Core's [min, max] is the whole domain and the Lab still
+    validates membership against it; ``affordable_max`` is a strategy hint the
+    Lab adds from the actor's own visible mana, so an outcome-biased X stops
+    asking for mana it cannot see itself producing (#700). The hint only ever
+    lowers the ceiling and never below ``min``; an absent or malformed hint
+    leaves the authoritative domain as the band.
+    """
     minimum = int(domain["min"])
     maximum = int(domain["max"])
+    hint = domain.get("affordable_max")
+    if isinstance(hint, bool) or not isinstance(hint, int):
+        return minimum, maximum
+    return minimum, max(minimum, min(maximum, hint))
+
+
+def deterministic_number(domain: Mapping[str, Any]) -> int:
+    """Outcome-aligned scalar strategy: extreme toward benefit, midpoint when neutral."""
+    minimum, maximum = _strategy_band(domain)
     bias = _numeric_bias(domain.get("outcome", "neutral"))
     if bias > 0:
         return maximum
@@ -151,7 +169,8 @@ def deterministic_number(domain: Mapping[str, Any]) -> int:
 
 def stochastic_number(domain: Mapping[str, Any], rng: random.Random) -> int:
     """Seeded scalar strategy: uniform draw inside the authoritative domain."""
-    return rng.randint(int(domain["min"]), int(domain["max"]))
+    minimum, maximum = _strategy_band(domain)
+    return rng.randint(minimum, maximum)
 
 
 def _repair_vector_to_band(
