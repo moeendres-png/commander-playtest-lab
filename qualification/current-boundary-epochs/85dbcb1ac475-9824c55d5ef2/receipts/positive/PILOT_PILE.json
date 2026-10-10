@@ -1,0 +1,92 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_PILE",
+  "obligation_exercised": {
+    "obligation_digest": "1d38278f6c63896df8237acc96599b3d00e0306af7c253ddf25106b0b4f27acf",
+    "requested_state_digest": "b3100c1cf9cb9da5446292958be6497cd357cf95e77f12a39f3ec27ecac36ec2",
+    "required_events": [
+      "pile_frame:P2",
+      "partition_created:2/3"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Every revealed object appears in exactly one pile; no hidden identity is added to pile metadata."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "partition_created:2/3": {
+        "binding": [
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:fof-2, from=LIBRARY, to=GRAVEYARD, source_object=obj:fof",
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:fof-3, from=LIBRARY, to=GRAVEYARD, source_object=obj:fof",
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:fof-4, from=LIBRARY, to=GRAVEYARD, source_object=obj:fof",
+          "exactly 3 ZONE_CHANGE event(s) with from=LIBRARY, to=GRAVEYARD, source_object=obj:fof",
+          "exactly 2 ZONE_CHANGE event(s) with from=LIBRARY, to=HAND, source_object=obj:fof",
+          "a scripted pile frame selected an engine offer naming 'Pile 1'"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:fof-2, from=LIBRARY, to=GRAVEYARD, source_object=obj:fof",
+            "events": [
+              11
+            ]
+          },
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:fof-3, from=LIBRARY, to=GRAVEYARD, source_object=obj:fof",
+            "events": [
+              12
+            ]
+          },
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:fof-4, from=LIBRARY, to=GRAVEYARD, source_object=obj:fof",
+            "events": [
+              13
+            ]
+          },
+          {
+            "binding": "exactly 3 ZONE_CHANGE event(s) with from=LIBRARY, to=GRAVEYARD, source_object=obj:fof",
+            "events": [
+              11,
+              12,
+              13
+            ]
+          },
+          {
+            "binding": "exactly 2 ZONE_CHANGE event(s) with from=LIBRARY, to=HAND, source_object=obj:fof",
+            "events": [
+              9,
+              10
+            ]
+          },
+          {
+            "binding": "a scripted pile frame selected an engine offer naming 'Pile 1'",
+            "decision_frames": [
+              15
+            ]
+          }
+        ]
+      },
+      "pile_frame:P2": {
+        "binding": "the engine asked P2 a choose_object frame whose prompt names 'first pile', and the record's script answered it",
+        "decision_frames": [
+          14
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "d888cbf2ff4f00e70d0e9932a0d434c9a2242ff63dcb14988afe248c3dcd179c",
+  "runner_digest": "f39304fc538e16dc996b1c53e6adf3ab53f11f2e3ce1442cc9081fa7988489d1",
+  "runtime_receipt_digest": "8a348746c8179e53c2d12c8d55867e674efb221744722f01e8af15f648365c6d",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_PILE",
+  "variance_source": null
+}

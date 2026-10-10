@@ -1,0 +1,842 @@
+{
+ "boundary": "CARRIED_FORWARD_FROM_HISTORICAL_EPOCH",
+ "candidate": "forge",
+ "column_provenance": {
+  "class": "CARRIED_FORWARD_FROM_HISTORICAL_EPOCH",
+  "copied_utc": "2026-10-10T12:11:10+00:00",
+  "reason": "candidate forge was not selected in this run, so this column is the historical record that the current assembly compares against; it is not a fresh execution",
+  "source_epoch": "/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927",
+  "source_epoch_id": "final-current-boundary-20260927"
+ },
+ "full107_counts": {
+  "BLOCKED": 44,
+  "CRASH": 0,
+  "FAIL": 0,
+  "PASS": 0,
+  "PROTOCOL_FAILURE": 0,
+  "TIMEOUT": 0,
+  "UNKNOWN": 63
+ },
+ "gate_catalog": "architecture_freeze_gate_catalog_v2.json (AF00-AF11, all required)",
+ "gates": [
+  {
+   "blocking_rows": [],
+   "bridge_identity_proof": {},
+   "build_provenance": {
+    "af00_credit": false,
+    "build_commit": null,
+    "build_dirty": "false",
+    "build_source": "build:bridge.properties:git",
+    "build_tree": null,
+    "engine_commit_verified": false,
+    "expected_source_commit": null,
+    "expected_tree": "",
+    "findings": [
+     "no expected source commit was supplied"
+    ],
+    "pb05_credit": false,
+    "rule": "no exact expected build source means no AF00 or PB-05 credit"
+   },
+   "evidence": [
+    "provider/build source commit: ",
+    "provider/build source tree: ",
+    "provider reported commit: ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+    "provider build provenance verified: False",
+    "R-1 Rules-Core candidate commit: ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+    "R-1 Rules-Core candidate tree: ",
+    "Rules-Core equivalence: None",
+    "bridge identity binding: None",
+    "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json"
+   ],
+   "gate": "AF00",
+   "name": "SOURCE_AND_BUILD_LOCK",
+   "nonblocking_limitations": [
+    "no expected source commit was supplied",
+    "Rules-Core tree equivalence to the admitted R-1 candidate is not established",
+    "executing forge-protocol2-bridge module is not proven identical to the bound source",
+    "This gate was assembled from the historical record carried forward into this epoch (/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927); it records what that run observed, not a fresh execution."
+   ],
+   "rules_core_identity_proof": {},
+   "verdict": "FAIL"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "20 AF01 v2 invariants executed under Protocol 2.0.0 on the protocol2-jsonl lane",
+    "AF01_*_FORGE.json"
+   ],
+   "gate": "AF01",
+   "name": "PROTOCOL_HANDSHAKE",
+   "nonblocking_limitations": [
+    "This gate was assembled from the historical record carried forward into this epoch (/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927); it records what that run observed, not a fresh execution."
+   ],
+   "verdict": "FAIL"
+  },
+  {
+   "all_or_nothing": true,
+   "blocking_rows": [],
+   "evidence": [
+    "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+    "counts with a complete lifecycle: [2, 3, 4, 5]",
+    "counts without one: []",
+    "bounded 6P lifecycle recorded: True"
+   ],
+   "gate": "AF02",
+   "historical_verdict": "PASS",
+   "lifecycle_assessment": {
+    "all_or_nothing": true,
+    "complete_counts": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "detail": {
+     "2P": {
+      "bound_external_choices": 2,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "3P": {
+      "bound_external_choices": 2,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "4P": {
+      "bound_external_choices": 2,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "5P": {
+      "bound_external_choices": 2,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     }
+    },
+    "incomplete_counts": [],
+    "reason": "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+    "required_counts": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "verdict": "PASS"
+   },
+   "name": "PLAYER_CARDINALITY",
+   "nonblocking_limitations": [
+    "6P is bounded secondary evidence; 7P is not attempted on this boundary",
+    "This gate was assembled from the historical record carried forward into this epoch (/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927); it records what that run observed, not a fresh execution."
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "authority": "ENGINE_ONLY",
+   "blocking_rows": [],
+   "evidence": [
+    "deck_import_rejects_unknown_card: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_non_commander: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_colour_identity_violation: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_wrong_deck_size: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_empty_mainboard: PASS (the engine refused the mutated deck at the import boundary)"
+   ],
+   "gate": "AF03",
+   "historical_verdict": "PASS",
+   "name": "RULES_AUTHORITY",
+   "nonblocking_limitations": [
+    "proves the engine refuses these specific illegality classes at the import boundary; it is not an exhaustive proof of deck legality",
+    "This gate was assembled from the historical record carried forward into this epoch (/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927); it records what that run observed, not a fresh execution."
+   ],
+   "observed_probe_count": 5,
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "PLAYER_COUNT_2P",
+    "PLAYER_COUNT_3P",
+    "PLAYER_COUNT_4P",
+    "PLAYER_COUNT_5P"
+   ],
+   "decision_boundary": {
+    "bounded_secondary_cardinalities_checked": [
+     "6P"
+    ],
+    "candidate": "forge",
+    "contradictions": [
+     {
+      "actor": null,
+      "cardinality": "-",
+      "detail": "the cardinality artifact is classed 'CARRIED_FORWARD_NOT_REEXECUTED', not a fresh current-boundary execution",
+      "kind": "IDENTITY",
+      "severity": "CONTRADICTION"
+     }
+    ],
+    "externally_answered_decision_classes": [
+     "MULLIGAN",
+     "PRIORITY",
+     "STARTING_PLAYER"
+    ],
+    "frame_count": 30,
+    "frames": [
+     {
+      "actor": "p1",
+      "cardinality": "2P",
+      "chosen_option_id": "opt-f9ee85b7-d0f3-455e-bfc3-d2815f0b7990",
+      "detail": "STARTING_PLAYER answered by p1 at revision 1; 2 engine-offered option(s); chosen='opt-f9ee85b7-d0f3-455e-bfc3-d2815f0b7990'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "STARTING_PLAYER",
+      "offered_count": 2,
+      "revision": 1
+     },
+     {
+      "actor": "p1",
+      "cardinality": "2P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "p2",
+      "cardinality": "2P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "p1",
+      "cardinality": "2P",
+      "chosen_option_id": "opt-25ca2882-0219-481f-8d01-c074f5bafa91",
+      "detail": "PRIORITY answered by p1 at revision 4; 2 engine-offered option(s); chosen='opt-25ca2882-0219-481f-8d01-c074f5bafa91'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "PRIORITY",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "p2",
+      "cardinality": "3P",
+      "chosen_option_id": "opt-4d9cacfc-661c-4fa9-8841-c7c12e67a03e",
+      "detail": "STARTING_PLAYER answered by p2 at revision 1; 3 engine-offered option(s); chosen='opt-4d9cacfc-661c-4fa9-8841-c7c12e67a03e'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "STARTING_PLAYER",
+      "offered_count": 3,
+      "revision": 1
+     },
+     {
+      "actor": "p1",
+      "cardinality": "3P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "p2",
+      "cardinality": "3P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "p3",
+      "cardinality": "3P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "p1",
+      "cardinality": "3P",
+      "chosen_option_id": "opt-3e9f2655-f648-4424-8cc0-a77b654ea1c8",
+      "detail": "PRIORITY answered by p1 at revision 5; 2 engine-offered option(s); chosen='opt-3e9f2655-f648-4424-8cc0-a77b654ea1c8'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "PRIORITY",
+      "offered_count": 2,
+      "revision": 5
+     },
+     {
+      "actor": "p3",
+      "cardinality": "4P",
+      "chosen_option_id": "opt-2c5a5190-656a-492e-bbaf-162f1ada368d",
+      "detail": "STARTING_PLAYER answered by p3 at revision 1; 4 engine-offered option(s); chosen='opt-2c5a5190-656a-492e-bbaf-162f1ada368d'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "STARTING_PLAYER",
+      "offered_count": 4,
+      "revision": 1
+     },
+     {
+      "actor": "p1",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "p2",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "p3",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "p4",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 5
+     },
+     {
+      "actor": "p1",
+      "cardinality": "4P",
+      "chosen_option_id": "opt-4c3b7239-8e53-46c8-90e0-728318a51e46",
+      "detail": "PRIORITY answered by p1 at revision 6; 2 engine-offered option(s); chosen='opt-4c3b7239-8e53-46c8-90e0-728318a51e46'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "PRIORITY",
+      "offered_count": 2,
+      "revision": 6
+     },
+     {
+      "actor": "p3",
+      "cardinality": "5P",
+      "chosen_option_id": "opt-e39ff002-a0b0-4ebb-a2b3-d354c027a9cb",
+      "detail": "STARTING_PLAYER answered by p3 at revision 1; 5 engine-offered option(s); chosen='opt-e39ff002-a0b0-4ebb-a2b3-d354c027a9cb'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "STARTING_PLAYER",
+      "offered_count": 5,
+      "revision": 1
+     },
+     {
+      "actor": "p1",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "p2",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "p3",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "p4",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 5
+     },
+     {
+      "actor": "p5",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p5 at revision 6; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 6
+     },
+     {
+      "actor": "p1",
+      "cardinality": "5P",
+      "chosen_option_id": "opt-1f8c9320-5da2-449f-8003-701c72422c40",
+      "detail": "PRIORITY answered by p1 at revision 7; 2 engine-offered option(s); chosen='opt-1f8c9320-5da2-449f-8003-701c72422c40'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "PRIORITY",
+      "offered_count": 2,
+      "revision": 7
+     },
+     {
+      "actor": "p2",
+      "cardinality": "6P",
+      "chosen_option_id": "opt-9836a6da-252a-4943-afc9-2b1b95d44766",
+      "detail": "STARTING_PLAYER answered by p2 at revision 1; 6 engine-offered option(s); chosen='opt-9836a6da-252a-4943-afc9-2b1b95d44766'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "STARTING_PLAYER",
+      "offered_count": 6,
+      "revision": 1
+     },
+     {
+      "actor": "p1",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p1 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "p2",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p2 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "p3",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p3 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "p4",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p4 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 5
+     },
+     {
+      "actor": "p5",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p5 at revision 6; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 6
+     },
+     {
+      "actor": "p6",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by p6 at revision 7; 2 engine-offered option(s); chosen=None; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 7
+     },
+     {
+      "actor": "p1",
+      "cardinality": "6P",
+      "chosen_option_id": "opt-6f2f46c8-9041-4cbb-9c51-6bdb06515230",
+      "detail": "PRIORITY answered by p1 at revision 8; 2 engine-offered option(s); chosen='opt-6f2f46c8-9041-4cbb-9c51-6bdb06515230'; engine reported the decision executed",
+      "engine_accepted": true,
+      "engine_executed_option_id": null,
+      "kind": "PRIORITY",
+      "offered_count": 2,
+      "revision": 8
+     }
+    ],
+    "gaps": [
+     {
+      "actor": null,
+      "cardinality": "-",
+      "detail": "R-2 provenance was not measured on a live frame in this epoch",
+      "kind": "R-2_PROVENANCE",
+      "severity": "GAP"
+     }
+    ],
+    "gate": "AF04",
+    "limitations": [],
+    "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+    "required_cardinalities": [
+     "2P",
+     "3P",
+     "4P",
+     "5P"
+    ],
+    "required_frame_counts": {
+     "2P": 4,
+     "3P": 5,
+     "4P": 6,
+     "5P": 7
+    },
+    "schema_version": "commander-lab.af04-decision-boundary/1.0.0",
+    "statement": "a recorded submission contradicts the engine-offered option domain",
+    "verdict": "FAIL"
+   },
+   "evidence": [
+    "AF04 derived from this epoch's external decision frames (30 frame(s) across 2P, 3P, 4P, 5P); externally answered classes: MULLIGAN, PRIORITY, STARTING_PLAYER",
+    "decision identity provenance on the live AF01 frame (R-2): {}",
+    "a recorded submission contradicts the engine-offered option domain"
+   ],
+   "gate": "AF04",
+   "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+   "nonblocking_limitations": [
+    "CONTRADICTION -/IDENTITY: the cardinality artifact is classed 'CARRIED_FORWARD_NOT_REEXECUTED', not a fresh current-boundary execution",
+    "GAP -/R-2_PROVENANCE: R-2 provenance was not measured on a live frame in this epoch",
+    "This gate was assembled from the historical record carried forward into this epoch (/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927); it records what that run observed, not a fresh execution."
+   ],
+   "owner_ruling": "R-2",
+   "verdict": "FAIL"
+  },
+  {
+   "blocking_rows": [
+    "HIDDEN_01",
+    "HIDDEN_02",
+    "HIDDEN_03",
+    "HIDDEN_04",
+    "HIDDEN_05",
+    "HIDDEN_06",
+    "HIDDEN_07",
+    "HIDDEN_08",
+    "HIDDEN_09",
+    "HIDDEN_10",
+    "HIDDEN_11",
+    "HIDDEN_12",
+    "HIDDEN_13",
+    "HIDDEN_14",
+    "HIDDEN_15",
+    "HIDDEN_16",
+    "HIDDEN_17",
+    "HIDDEN_18",
+    "HIDDEN_19",
+    "HIDDEN_HONEYCARD_SENTINEL"
+   ],
+   "evidence": [
+    "0 of 20 HIDDEN_* rows PASS in this epoch",
+    "principal-scoping audit: no artifact exists for this candidate"
+   ],
+   "gate": "AF05",
+   "name": "HIDDEN_INFORMATION",
+   "nonblocking_limitations": [
+    "no HIDDEN_INFO artifact exists for this candidate in this epoch",
+    "the mandatory per-scenario hidden channels remain unexecuted: HIDDEN_01: UNKNOWN, HIDDEN_02: UNKNOWN, HIDDEN_03: UNKNOWN, HIDDEN_04: UNKNOWN, HIDDEN_05: UNKNOWN, HIDDEN_06: UNKNOWN, HIDDEN_07: UNKNOWN, HIDDEN_08: UNKNOWN, HIDDEN_09: UNKNOWN, HIDDEN_10: UNKNOWN, HIDDEN_11: UNKNOWN, HIDDEN_12: UNKNOWN, HIDDEN_13: UNKNOWN, HIDDEN_14: UNKNOWN, HIDDEN_15: UNKNOWN, HIDDEN_16: UNKNOWN, HIDDEN_17: UNKNOWN, HIDDEN_18: UNKNOWN, HIDDEN_19: UNKNOWN, HIDDEN_HONEYCARD_SENTINEL: UNKNOWN",
+    "This gate was assembled from the historical record carried forward into this epoch (/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927); it records what that run observed, not a fresh execution."
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "MICRO_COMBAT",
+    "MICRO_CONTINUOUS_EFFECTS",
+    "MICRO_CONTROL",
+    "MICRO_COPY",
+    "MICRO_COSTS",
+    "MICRO_MANA_PAYMENT",
+    "MICRO_MODES",
+    "MICRO_PREVENTION",
+    "MICRO_PRIORITY",
+    "MICRO_REPLACEMENT",
+    "MICRO_RULES_RANDOMNESS",
+    "MICRO_STACK",
+    "MICRO_STATE_BASED_ACTIONS",
+    "MICRO_TRIGGERS",
+    "MICRO_ZONE_CHANGES",
+    "PILOT_DECLARE_ATTACKER",
+    "PILOT_DECLARE_BLOCKER",
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-DMG-SAME-21",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-ELIM-4",
+    "WS05-CMD-ZONE-EXILE-NO",
+    "WS05-CMD-ZONE-EXILE-YES",
+    "WS05-CMD-ZONE-GY-NO",
+    "WS05-CMD-ZONE-GY-YES",
+    "WS05-CMD-ZONE-HAND-NO",
+    "WS05-CMD-ZONE-HAND-YES",
+    "WS05-CMD-ZONE-LIB-NO",
+    "WS05-CMD-ZONE-LIB-YES",
+    "WS05-MP-BLOCK-4",
+    "WS05-MP-COMBAT-4",
+    "WS05-MP-COMBAT-5",
+    "WS05-MP-ELIM-5",
+    "WS05-MP-ELIM-CONTROL-3",
+    "WS05-MP-ELIM-OWNED-3",
+    "WS05-MP-ELIM-PRIO-3",
+    "WS05-MP-ELIM-STACK-3",
+    "WS05-MP-ELIM-TURN-3",
+    "WS05-MP-PRIO-3",
+    "WS05-MP-PRIO-5",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
+    "WS05-MP-TURN-3",
+    "WS05-MP-TURN-5"
+   ],
+   "evidence": [
+    "0 of 107 rows PASS under the effective contract; 44 BLOCKED; 63 UNKNOWN"
+   ],
+   "gate": "AF06",
+   "name": "GENERAL_RULES_CORRECTNESS",
+   "nonblocking_limitations": [
+    "107 of 107 denominator obligations are not PASS on this boundary; every one of them is an unexecuted or unproven mechanism, not a PASS",
+    "This gate was assembled from the historical record carried forward into this epoch (/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927); it records what that run observed, not a fresh execution."
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "CARD_02"
+   ],
+   "evidence": [
+    "0 of 29 frozen corpus identities have their own mandatory CARD_* row PASS in this epoch",
+    "no same-epoch actual-card campaign credit was supplied",
+    "no actual-card artifact exists for this candidate"
+   ],
+   "gate": "AF07",
+   "name": "ACTUAL_CARD_BEHAVIOR",
+   "nonblocking_limitations": [
+    "the effective 29-card actual-card corpus is not fully executed on this boundary; import/construction is not behaviour proof",
+    "29 corpus identities are unexecuted: Basilisk Collar, Bolt Bend, Boseiju Reaches Skyward // Branch of Boseiju, Burn Down the House, Butcher of Malakir, Dig Through Time, Esior, Wardwing Familiar, Finale of Revelation, Find // Finality, Flare of Duplication and 19 more",
+    "This gate was assembled from the historical record carried forward into this epoch (/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927); it records what that run observed, not a fresh execution."
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-DMG-SAME-21",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-ELIM-4",
+    "WS05-CMD-MULL-2",
+    "WS05-CMD-MULL-4",
+    "WS05-CMD-PARTNER-DMG",
+    "WS05-CMD-PARTNER-TAX",
+    "WS05-CMD-PARTNER-ZONE",
+    "WS05-CMD-START-2",
+    "WS05-CMD-START-3",
+    "WS05-CMD-TAX-2",
+    "WS05-CMD-TAX-4",
+    "WS05-CMD-ZONE-EXILE-NO",
+    "WS05-CMD-ZONE-EXILE-YES",
+    "WS05-CMD-ZONE-GY-NO",
+    "WS05-CMD-ZONE-GY-YES",
+    "WS05-CMD-ZONE-HAND-NO",
+    "WS05-CMD-ZONE-HAND-YES",
+    "WS05-CMD-ZONE-LIB-NO",
+    "WS05-CMD-ZONE-LIB-YES",
+    "WS05-MP-BLOCK-4",
+    "WS05-MP-COMBAT-4",
+    "WS05-MP-COMBAT-5",
+    "WS05-MP-ELIM-5",
+    "WS05-MP-ELIM-CONTROL-3",
+    "WS05-MP-ELIM-OWNED-3",
+    "WS05-MP-ELIM-PRIO-3",
+    "WS05-MP-ELIM-STACK-3",
+    "WS05-MP-ELIM-TURN-3",
+    "WS05-MP-PRIO-3",
+    "WS05-MP-PRIO-5",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
+    "WS05-MP-TURN-3",
+    "WS05-MP-TURN-5"
+   ],
+   "evidence": [
+    "0 of 36 WS05 multiplayer/Commander obligations PASS",
+    "cardinality lifecycle: PASS (every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0)"
+   ],
+   "gate": "AF08",
+   "name": "MULTIPLAYER_COMMANDER",
+   "nonblocking_limitations": [
+    "36 WS05 obligations are not PASS: WS05-CMD-DMG-CONTROL: BLOCKED, WS05-CMD-DMG-SAME-21: BLOCKED, WS05-CMD-DMG-SPLIT: BLOCKED, WS05-CMD-ELIM-4: BLOCKED, WS05-CMD-MULL-2: UNKNOWN, WS05-CMD-MULL-4: UNKNOWN, WS05-CMD-PARTNER-DMG: UNKNOWN, WS05-CMD-PARTNER-TAX: UNKNOWN, WS05-CMD-PARTNER-ZONE: UNKNOWN, WS05-CMD-START-2: UNKNOWN, WS05-CMD-START-3: UNKNOWN, WS05-CMD-TAX-2: UNKNOWN, WS05-CMD-TAX-4: UNKNOWN, WS05-CMD-ZONE-EXILE-NO: BLOCKED, WS05-CMD-ZONE-EXILE-YES: BLOCKED and 21 more",
+    "This gate was assembled from the historical record carried forward into this epoch (/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927); it records what that run observed, not a fresh execution."
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [
+    "REPLAY_CLEAN_PROCESS",
+    "REPLAY_DECISION_TAPE",
+    "REPLAY_EVENT_TAPE",
+    "REPLAY_STATE_HASHES",
+    "RNG_RULES_TAPE"
+   ],
+   "evidence": [
+    "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, never a demonstrated Rules RNG tape",
+    "replay export was refused by the engine (codes: unknown_message)",
+    "replay export attempted in a live game and refused by the engine (RNG_REPLAY_FORGE.json; refusal codes: unknown_message)",
+    "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, not a demonstrated Rules RNG tape"
+   ],
+   "gate": "AF09",
+   "name": "RNG_REPLAY",
+   "nonblocking_limitations": [
+    "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+    "deterministic setup alone (deck import, game creation, seed acknowledgement) is not semantic replay proof",
+    "the clean-process twin half of each replay obligation is not proven per fixture",
+    "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+    "the clean-process semantic replay twin is not proven for this candidate: the artifact does not carry the required twin evidence (fixture_identity, process_identity, decisions, rules_rng, semantic_events, checkpoint_state_hashes, terminal_outcome)",
+    "5 replay/RNG obligations are not PASS: REPLAY_CLEAN_PROCESS: UNKNOWN, REPLAY_DECISION_TAPE: UNKNOWN, REPLAY_EVENT_TAPE: UNKNOWN, REPLAY_STATE_HASHES: UNKNOWN, RNG_RULES_TAPE: UNKNOWN",
+    "This gate was assembled from the historical record carried forward into this epoch (/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927); it records what that run observed, not a fresh execution."
+   ],
+   "verdict": "UNKNOWN"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "denominator accounting complete: 107 explicit outcomes for 107 rows",
+    "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
+    "native suites: 0 tests, all green"
+   ],
+   "gate": "AF10",
+   "name": "RUNTIME_EVIDENCE_RELIABILITY",
+   "nonblocking_limitations": [
+    "This gate was assembled from the historical record carried forward into this epoch (/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927); it records what that run observed, not a fresh execution."
+   ],
+   "verdict": "FAIL"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "each candidate was driven through its own distinct external adapter (forge=forge-protocol2-bridge (read-only reference checkout), xmage=engine-bridge/src/main/java/org/commanderlab/xmage) by one and the same Lab driver column, so no single engine is reached in-process",
+    "no adapter identity resolves to the Lab's in-tree engine package, so no engine code is embedded in the Lab process",
+    "qualification boundary recorded for this run: commander-lab.pre-freeze-qualification/2.0.0",
+    "recorded licence topology: forge forge GPL-3.0, xmage xmage MIT (recorded metadata; no legal conclusion is drawn here)",
+    "the candidates publish different request-body and decision-identity conventions (recorded in the AF04 evidence); whether a candidate-scoped mapping satisfies AF11/WS-09 under existing policy is not measured here",
+    "every observable AF11 technical fact holds (separate external processes, no embedded engine, shared recorded boundary); the only residual is the Coordinator-owned policy question, hence UNKNOWN rather than an invented PASS"
+   ],
+   "gate": "AF11",
+   "name": "INTEROP_LICENSE_TOPOLOGY",
+   "nonblocking_limitations": [
+    "NOT MEASURED BY THE LAB: whether the observed separate-process topology satisfies AF11/WS-09 under existing policy, and any licence/redistribution consequence. That adjudication is reserved to the Coordinator; without a valid recorded adjudication for this candidate the Lab records it as UNKNOWN rather than deciding it in either direction",
+    "forge is not the provider the AF11 adjudication covers ('xmage')",
+    "This gate was assembled from the historical record carried forward into this epoch (/home/runner/work/commander-playtest-lab/commander-playtest-lab/qualification/final-current-boundary-20260927); it records what that run observed, not a fresh execution."
+   ],
+   "verdict": "UNKNOWN"
+  }
+ ],
+ "native_runs": {},
+ "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+ "schema_version": "wsr22.af-matrix/1.0.0"
+}

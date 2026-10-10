@@ -1,0 +1,528 @@
+{
+ "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+ "candidate": "xmage",
+ "capabilities_provider_reported": {
+  "action_submission_supported": true,
+  "commander_damage_visible": false,
+  "commander_supported": true,
+  "commander_tax_visible": false,
+  "concede_supported": true,
+  "deck_import_supported": true,
+  "engine_shutdown_supported": true,
+  "event_log_supported": true,
+  "full_game_lane.bit_exact_replay_validated": false,
+  "full_game_lane.decision_protocol_version": "xmage-external-decision-protocol-1.0.0",
+  "full_game_lane.evidence_class": "technical_conformance_only",
+  "full_game_lane.generic_capability_promotion": false,
+  "full_game_lane.lane": "xmage_full_game_external_pilots",
+  "full_game_lane.max_players": 6,
+  "full_game_lane.min_players": 2,
+  "full_game_lane.one_game_per_process": true,
+  "full_game_lane.state_restoration_dimensions": {
+   "schema_version": "native-state-restoration-dimensions-1.1.0",
+   "starting_state_injection_supported": false,
+   "supported_dimensions": [
+    "commanders with prior cast counts (native game-load restore path)",
+    "genuine commanders on the battlefield (engine command-zone removal plus the silent battlefield primitive; never a generic setup copy)",
+    "commander damage matrices through exact live CommanderInfoWatcher bindings (native game-load restore; no synthetic damage events)",
+    "battlefield/graveyard/exile placement of real cards (silent setup primitive)",
+    "hand identity via the same setup primitive (principal-scoped; pilot observation stays counts-only through the redactor; honeycard non-leakage proven per fixture)",
+    "owner-equals-controller attribution with 1:1 readback",
+    "life totals equal to the player's recorded starting life (set once after game start without a life event; any other total must be caused and is only compared; state-based actions stay authoritative)",
+    "qualified turn-1 temporal targets: upkeep, draw, precombat main, declare attackers, declare blockers, combat damage, postcombat main; arrival requires XmageTemporalProgressionDriver native progression",
+    "the qualified turn-2 precombat-main temporal target (P2 active and holding priority after the engine's own turn 1 and turn-based actions), reached only through the engine's own turn structure",
+    "explicit Rules-seed binding with replay determinism",
+    "a record-declared already-fully-cast stack spell (execution_entry_mode NATIVE_STATE_LOAD with NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL, cast_complete and costs_paid declared, no targets/modes, exactly one stack entry and stack object, a declared cast-from zone, no variable/optional/additional costs, and a declared temporal state in which the spell was castable per CR 307.1/307.5) resumed as a real stack object at the record's checkpoint with engine-direct source/identity/controller/zone readback; nothing is cast, paid, targeted or chosen",
+    "strict native readback with field-level compare and digests",
+    "explicit L7 lossless hidden-state requests: complete live-library identity order plus one explicitly typed face-down battlefield object; delegated to native RG-06A game-load APIs",
+    "frozen requested_state_digest equality for constructed states in the v1 subset (canonical projection per the recovered spec, verified per fixture; see requestedDigest/constructedDigest)",
+    "tapped permanents and +1/+1 or -1/-1 counters on requested battlefield permanents, set at the requested checkpoint through the game-load path and verified engine-direct",
+    "loyalty counters on a requested battlefield planeswalker, set exactly as it enters at the first-turn placement (before the first state-based action check, CR 704.5i) and verified engine-direct at the checkpoint",
+    "SLOT-04 lossless successor records: complete checkpoint library per declared player (requested library objects at exact positions plus the scaffolding template remainder), placed after the opening hands and ordered by the native game-load API",
+    "SLOT-04 lossless successor records: one face-down battlefield object with an explicit native FaceDownType (MANIFESTED, CLOAKED, MORPHED, MEGAMORPHED, DISGUISED)",
+    "SLOT-04 lossless successor records: complete checkpoint hand (requested hand objects plus an exact count of template cards)"
+   ],
+   "unsupported_dimensions": [
+    "stack spells without a record declaration of an already-fully-cast spell (NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL with cast_complete and costs_paid; anything else needs real casting costs/timing: executor scope)",
+    "cast events and cast history (SpellsCastWatcher) for a record-declared already-fully-cast stack spell: the resume fabricates neither a cast event nor a cast count, so any row depending on either observation fails closed",
+    "a resumed stack spell that was not castable at the record's declared temporal state (UNSUPPORTED_RESUME_TIMING), an undeclared cast-from zone (UNDECLARED_RESUME_CAST_ZONE), variable/optional/additional costs (UNSUPPORTED_RESUME_COST), or more than one declared stack entry or stack-zone object (UNSUPPORTED_RESUME_STACK_AMBIGUITY)",
+    "legacy/frozen partial library identity: no complete permutation, fail closed",
+    "legacy/frozen face_down=true without explicit native type: fail closed",
+    "revealed-zone restoration",
+    "controller/owner divergence (engine layers re-derive control)",
+    "battlefield commanders whose permanent is another face or part (modal double-faced, transforming): refused before game start (UNSUPPORTED_COMMANDER_FACE)",
+    "attachments (aura/equipment attachment relations)",
+    "counters other than +1/+1, -1/-1 and loyalty, counters on commanders or on objects off the battlefield, and loyalty on a permanent that is not a first-turn placement",
+    "commander relations other than validated Partner linkage",
+    "poison counters",
+    "temporal points outside the qualified RG-03 checkpoint allow-list (turn 1 as declared, or the turn-2 precombat main)",
+    "frozen requested_state_digest reproduction (no canonicalization spec in repo)"
+   ]
+  },
+  "game_shutdown_supported": true,
+  "headless_supported": true,
+  "healthcheck_supported": true,
+  "legal_actions_supported": true,
+  "max_players": 6,
+  "min_players": 2,
+  "mode_selection_supported": true,
+  "mulligan_supported": true,
+  "multiplayer_supported": true,
+  "notes": [
+   "Dedicated full-game lane; existing B3/B4 JsonlBridge capability truth is unchanged",
+   "Operational scope is 2..6-player Commander Free-for-All with one authoritative cardinality contract",
+   "XMage is rules authority; Commander Lab external pilots are discretionary decision authority",
+   "No Tactical, Structural, XMage-AI, random or default discretionary fallback is permitted",
+   "Rules randomness remains XMage-owned and uses the explicit per-game Rules seed bound before start (setRulesSeed + requireExplicitSeed; RandomUtil retired as authority)",
+   "One isolated JVM process is required per game as defense in depth for credited runs",
+   "Full-game runs are technical conformance only and may not consume gameplay evidence or holdouts",
+   "Semantic replay: export_replay (orchestration-only) is verified by a clean-process replay (Main full-game-replay); bit-exact replay remains unclaimed",
+   "WS204 B4-D decision-scoped get_legal_actions/submit_action project only the exact current pending native decision; #662 SLOT-06: legal_actions/action_submission are decision-scoped and complete per decision for every declared decision class"
+  ],
+  "partner_supported": true,
+  "priority_visible": true,
+  "replay_supported": true,
+  "runtime_kind": "external_rules_engine",
+  "scenario_injection_supported": false,
+  "seed_supported": true,
+  "stack_visible": true,
+  "starting_state_injection_supported": false,
+  "target_selection_supported": true,
+  "trigger_order_supported": true
+ },
+ "decision_identity_provenance": {
+  "byte_matched": {
+   "action_id": true,
+   "actor_id": true,
+   "decision_id": true
+  },
+  "identity_field": "decision_id",
+  "pass_identity_offered": true,
+  "submitted_fields": [
+   "action_id",
+   "actor_id",
+   "decision_id"
+  ],
+  "verified": true
+ },
+ "decision_probe_game": {
+  "binding": "LIVE_GAME_REQUIRED_FOR_DECISION_TIME_INVARIANTS",
+  "declared_pregame_answers": [
+   {
+    "actor": "7f7f2eee-0811-4110-897e-923581c8579c",
+    "decision_id": "e387fdc5828fc58554675601783792967bf2cfd6ce1cc5c44f35084b65bf2220",
+    "declaration": "LANE_PROBE_STARTING_SEAT",
+    "option_id": "7f7f2eee-0811-4110-897e-923581c8579c",
+    "step": "choose_object"
+   },
+   {
+    "actor": "7f7f2eee-0811-4110-897e-923581c8579c",
+    "decision_id": "5f7af0f2a7688bc06cdae8c5f103c5c739058a4fc79f702e6e524c0e96b2543a",
+    "declaration": "keep_all",
+    "option_id": "fdac37efc985aea51abbb0519789241efa416087c6ea92c9ac6a14006f6c8866",
+    "step": "mulligan"
+   },
+   {
+    "actor": "27856b4c-9439-4b39-86f3-6d67ca60bbed",
+    "decision_id": "9f4a85b8c74cb2d669d2f04194349d68dc974306c8896b295266dd1d723b1e3c",
+    "declaration": "keep_all",
+    "option_id": "fdac37efc985aea51abbb0519789241efa416087c6ea92c9ac6a14006f6c8866",
+    "step": "mulligan"
+   },
+   {
+    "kind": "PRIORITY",
+    "step": "priority_reached"
+   }
+  ],
+  "game_id": "af01-full-game-probe:20260927",
+  "player_count": 2,
+  "starting_player_declaration": {
+   "seat": "p1",
+   "source": "LANE_PROBE_LAB_SELECTED"
+  },
+  "steps_completed": [
+   "import_deck",
+   "create_full_game",
+   "start_full_game",
+   "priority"
+  ]
+ },
+ "engine_commit_provenance": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+ "engine_commit_reported": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+ "engine_identity": {
+  "engine_commit_source": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+  "get_provider_version_payload": {
+   "engine": "xmage",
+   "engine_artifact_kind": "file",
+   "engine_artifact_path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+   "engine_artifact_sha256": "3bede866e142de66631e04bfc611424e835ed2c95e2b736cd5f638615c2dc660",
+   "engine_artifact_size": 7107605,
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "engine_version": "1.4.61",
+   "protocol_version": "2.0.0",
+   "xmage_code_source": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar"
+  },
+  "reported_engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "reported_engine_version": "1.4.61",
+  "reported_protocol_version": "2.0.0",
+  "reported_provider": "xmage",
+  "start_engine_payload": {
+   "engine": "xmage",
+   "evidence_class": "technical_conformance_only",
+   "lane": "xmage_full_game_external_pilots",
+   "max_players": 6,
+   "min_players": 2,
+   "one_game_per_process": true,
+   "started": true
+  }
+ },
+ "invariant_count": 20,
+ "invariants": [
+  {
+   "af01_v2_clause": "required_handshake.messages[0]=start_engine",
+   "detail": "start_engine succeeded under protocol 2.0.0",
+   "evidence": {
+    "status": "ok"
+   },
+   "invariant": "canonical_handshake_start_engine",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.messages[1]=get_provider_version",
+   "detail": "get_provider_version succeeded under protocol 2.0.0",
+   "evidence": {
+    "status": "ok"
+   },
+   "invariant": "canonical_handshake_get_provider_version",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.messages[2]=get_capabilities",
+   "detail": "get_capabilities succeeded under protocol 2.0.0",
+   "evidence": {
+    "status": "ok"
+   },
+   "invariant": "canonical_handshake_get_capabilities",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.matching_request_id",
+   "detail": "every response echoed the exact request_id",
+   "evidence": {
+    "request_ids": {
+     "get_capabilities": "44c389eb-7e3a-4814-b616-28f963b6db5b",
+     "get_provider_version": "3f3036cd-540b-4ed3-9166-3778b6fa34a3",
+     "start_engine": "58811664-b73f-405a-964f-0f7ca75c3859"
+    }
+   },
+   "invariant": "request_id_matches",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.exact_request_response_protocol_version",
+   "detail": "every response reported protocol_version=2.0.0",
+   "evidence": {
+    "observed": {
+     "get_capabilities": "2.0.0",
+     "get_provider_version": "2.0.0",
+     "start_engine": "2.0.0"
+    }
+   },
+   "invariant": "protocol_version_exact",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.exact_provider_identity",
+   "detail": "provider reported as 'xmage'",
+   "evidence": {
+    "reported": "xmage"
+   },
+   "invariant": "provider_identity_exact",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.exact_engine_version_or_commit_identity",
+   "detail": "provider reported the exact candidate commit b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "evidence": {
+    "reported": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339"
+   },
+   "invariant": "engine_version_or_commit_exact",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.explicit_capability_payload",
+   "detail": "provider reported 37 capability fields",
+   "evidence": {
+    "capability_keys": [
+     "action_submission_supported",
+     "commander_damage_visible",
+     "commander_supported",
+     "commander_tax_visible",
+     "concede_supported",
+     "deck_import_supported",
+     "engine_shutdown_supported",
+     "event_log_supported",
+     "full_game_lane.bit_exact_replay_validated",
+     "full_game_lane.decision_protocol_version",
+     "full_game_lane.evidence_class",
+     "full_game_lane.generic_capability_promotion",
+     "full_game_lane.lane",
+     "full_game_lane.max_players",
+     "full_game_lane.min_players",
+     "full_game_lane.one_game_per_process",
+     "full_game_lane.state_restoration_dimensions",
+     "game_shutdown_supported",
+     "headless_supported",
+     "healthcheck_supported",
+     "legal_actions_supported",
+     "max_players",
+     "min_players",
+     "mode_selection_supported",
+     "mulligan_supported",
+     "multiplayer_supported",
+     "notes",
+     "partner_supported",
+     "priority_visible",
+     "replay_supported",
+     "runtime_kind",
+     "scenario_injection_supported",
+     "seed_supported",
+     "stack_visible",
+     "starting_state_injection_supported",
+     "target_selection_supported",
+     "trigger_order_supported"
+    ]
+   },
+   "invariant": "capabilities_explicitly_reported",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "truthful_capability_requirements.capability_values_must_be_provider_reported",
+   "detail": "every capability value was read from the provider get_capabilities payload; no value was derived from the provider name",
+   "evidence": {
+    "sampled": {
+     "action_submission_supported": true,
+     "commander_supported": true,
+     "deck_import_supported": true,
+     "event_log_supported": true,
+     "headless_supported": true,
+     "legal_actions_supported": true,
+     "multiplayer_supported": true,
+     "seed_supported": true
+    }
+   },
+   "invariant": "capabilities_provider_reported_not_inferred",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "required_handshake.runtime_kind_external_rules_engine",
+   "detail": "provider reported runtime_kind",
+   "evidence": {
+    "runtime_kind": "external_rules_engine"
+   },
+   "invariant": "runtime_kind_external_rules_engine",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "transport.legacy_alias_only_handshake_satisfies_af01=false",
+   "detail": "the legacy alias handshake was probed and its response recorded, and the credit-bearing payload set contains only the canonical protocol-2 responses",
+   "evidence": {
+    "credit_bearing_messages": [
+     "get_capabilities",
+     "get_provider_version",
+     "start_engine"
+    ],
+    "engine_hello": {
+     "engine_event_offset": 0,
+     "errors": [
+      {
+       "code": "unsupported_message",
+       "message": "Full-game XMage lane does not support message type: engine_hello",
+       "retryable": false
+      }
+     ],
+     "protocol_version": "2.0.0",
+     "request_id": "a773941f-4327-4488-844d-2dc4a1bfec6e",
+     "status": "error",
+     "success": false
+    },
+    "legacy_alias_in_credit_set": false,
+    "legacy_alias_responded": false
+   },
+   "invariant": "legacy_alias_handshake_not_accepted",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.protocol_mismatch",
+   "detail": "provider rejected a wrong protocol_version without success",
+   "evidence": {
+    "engine_event_offset": 0,
+    "errors": [
+     {
+      "code": "protocol_version_mismatch",
+      "message": "Expected protocol 2.0.0 but received 1.1.0",
+      "retryable": false
+     }
+    ],
+    "protocol_version": "2.0.0",
+    "request_id": "8d5f25fe-1253-4414-8b2d-f008c66ff292",
+    "status": "error",
+    "success": false
+   },
+   "invariant": "fail_closed_protocol_mismatch",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.unknown_message",
+   "detail": "provider rejected an unknown message type",
+   "evidence": {
+    "engine_event_offset": 0,
+    "errors": [
+     {
+      "code": "unsupported_message",
+      "message": "Full-game XMage lane does not support message type: wsr22_definitely_not_a_message",
+      "retryable": false
+     }
+    ],
+    "protocol_version": "2.0.0",
+    "request_id": "9113acd1-44b9-4374-ad91-44b2a1f12df6",
+    "status": "error",
+    "success": false
+   },
+   "invariant": "fail_closed_unknown_message",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.illegal_action",
+   "detail": "provider rejected an unrecognised legal_action_id for a live game, no mutation",
+   "evidence": {
+    "decision_unchanged": true,
+    "game_id": "af01-full-game-probe:20260927",
+    "response": {
+     "engine_event_offset": 0,
+     "errors": [
+      {
+       "code": "external_pilot_decision_rejected",
+       "message": "PILOT_RESPONSE_INVALID: malformed legal_action_id",
+       "retryable": false
+      }
+     ],
+     "protocol_version": "2.0.0",
+     "request_id": "5ce34169-b545-4830-a734-0d0239157990",
+     "status": "error",
+     "success": false
+    }
+   },
+   "invariant": "fail_closed_illegal_action",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.stale_or_unknown_decision",
+   "detail": "provider rejected a real option under an unknown decision identity for a live game, no mutation",
+   "evidence": {
+    "decision_unchanged": true,
+    "game_id": "af01-full-game-probe:20260927",
+    "response": {
+     "engine_event_offset": 0,
+     "errors": [
+      {
+       "code": "external_pilot_decision_rejected",
+       "message": "STALE_DECISION: expected 6ca6178ad2c0618bbae7dda3a49979726d09387d872ad1cd575ecbc8b749b20e",
+       "retryable": false
+      }
+     ],
+     "protocol_version": "2.0.0",
+     "request_id": "bea05f95-18ed-4965-8fea-b245e23c2b7d",
+     "status": "error",
+     "success": false
+    }
+   },
+   "invariant": "fail_closed_stale_or_unknown_decision",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "fail_closed_invariants.unsupported_production_reachable_decision",
+   "detail": "provider rejected a request for an unsupported decision class for a live game, no mutation",
+   "evidence": {
+    "decision_unchanged": true,
+    "game_id": "af01-full-game-probe:20260927",
+    "response": {
+     "engine_event_offset": 0,
+     "errors": [
+      {
+       "code": "external_pilot_decision_rejected",
+       "message": "UNSUPPORTED_DECISION_CLASS: decision_class does not match the pending decision",
+       "retryable": false
+      }
+     ],
+     "protocol_version": "2.0.0",
+     "request_id": "c4883acf-c7a2-4c28-8a61-76b6b3f4bed1",
+     "status": "error",
+     "success": false
+    }
+   },
+   "invariant": "fail_closed_unsupported_decision",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "rules_authority_invariants.rules_core_sole_legality_authority",
+   "detail": "an out-of-scope submission produced no fabricated legal option",
+   "evidence": {
+    "fabricated_options": 0
+   },
+   "invariant": "rules_core_sole_legality_authority",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "rules_authority_invariants.adapter_or_pilot_legality_reconstruction_forbidden",
+   "detail": "a scan of 32 bound runner source files found no legality-reconstruction pattern. This is absence of a second legality source, which is weaker than positive demonstration, and it does not extend to code outside the scanned path",
+   "evidence": {
+    "runner_commit": "85dbcb1ac475f9b9dba56f4aa5634bb2997ac5c9",
+    "runner_tree": "9824c55d5ef2fe391f9a302c2035290ebb31a0ca",
+    "scan": {
+     "complete": true,
+     "hits": [],
+     "scanned_files": 32
+    }
+   },
+   "invariant": "no_adapter_legality_reconstruction",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "rules_authority_invariants.fabricated_legal_options_forbidden",
+   "detail": "the same bound-source scan is the evidence; option sets are only ever read from provider payloads, and the live illegal-action probe returned no options",
+   "evidence": {
+    "fabricated_options": 0,
+    "scan": {
+     "complete": true,
+     "hits": [],
+     "scanned_files": 32
+    }
+   },
+   "invariant": "no_fabricated_legal_options",
+   "verdict": "PASS"
+  },
+  {
+   "af01_v2_clause": "rules_authority_invariants.rules_randomness_core_owned",
+   "detail": "provider reports seed_supported and any RNG binding stays inside the engine",
+   "evidence": {
+    "rules_seed_binding": null,
+    "seed_supported": true
+   },
+   "invariant": "rules_randomness_core_owned",
+   "verdict": "PASS"
+  }
+ ],
+ "lane": "full-game",
+ "nonclaims": [
+  "AF01 PASS does not imply AF04 decision completeness",
+  "AF01 PASS does not imply provider release eligibility",
+  "AF01 PASS does not select a provider or claim Architecture Freeze"
+ ],
+ "protocol_transcript_digest": "ee86a2c9f728760121fca2a34e1a6e6b51b90f9eea8734ec99bf030e2963f83c",
+ "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+ "schema_version": "wsr22.af01-current-boundary/1.0.0",
+ "superseded_rules_service_boundary": "commander-lab.rules-service/1.1.0",
+ "transport_protocol": "2.0.0",
+ "verdict": "PASS"
+}

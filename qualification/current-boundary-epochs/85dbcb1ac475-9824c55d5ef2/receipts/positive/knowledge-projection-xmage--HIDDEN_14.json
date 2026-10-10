@@ -1,0 +1,193 @@
+{
+  "assertion_class": "KNOWLEDGE_BOUNDARY_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+  "fixture_id": "HIDDEN_14",
+  "obligation_exercised": {
+    "forbidden_events": [
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+    ],
+    "obligation_digest": "b244f91f40014c959855e7a9516958be0c6688714c502c87682b5e46f6250115",
+    "requested_state_digest": "8cc8579087bded540d4e4d35ae55673790831fda7b7cb29ebeff766e1deffe76",
+    "required_events": [
+      "knowledge_projection:HIDDEN_14:P1"
+    ],
+    "terminal_postconditions": [
+      "P1 observation exactly respects declared viewer state.",
+      "No prohibited metadata appears in any tested channel.",
+      "Knowledge invalidation/permission persistence follows the declared conditions."
+    ],
+    "viewer_obligation": "target option metadata does not leak"
+  },
+  "observed_assertion": {
+    "channel_coverage": {
+      "ability_metadata": 248,
+      "context": 28,
+      "event": 9,
+      "log": 216,
+      "option_id": 175,
+      "option_label": 175,
+      "option_metadata": 175,
+      "pile_metadata": 0,
+      "prompt": 28,
+      "source_metadata": 28,
+      "state": 48,
+      "transcript": 212
+    },
+    "checks": [
+      {
+        "detail": "arrival EXACT, construction_match True, mismatches []",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "construction_exact"
+      },
+      {
+        "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "lossless_checks_performed"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P1"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P2"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P3"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P4"
+      },
+      {
+        "detail": "4 distinct principal ids for 4 seats",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "distinct_principals"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P1"
+      },
+      {
+        "detail": "every channel carried content",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scan_coverage"
+      },
+      {
+        "detail": "each honey sentinel is found in the harness's own create request",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_sentinel_in_request"
+      },
+      {
+        "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_honey_identity_where_entitled"
+      },
+      {
+        "detail": "20 scripted answers, complete=True",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scripted_event_executed"
+      },
+      {
+        "detail": "1 face-down permanents the viewer does not control; 3 target offers of them",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "hidden_target_offered:P1"
+      },
+      {
+        "detail": "label/name ['', '']; 0 denied tokens",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "hidden_target_option_carries_no_identity:662231b3-efad-410b-89f1-cd416ee2347a"
+      },
+      {
+        "detail": "label/name ['', '']; 0 denied tokens",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "hidden_target_option_carries_no_identity:662231b3-efad-410b-89f1-cd416ee2347a"
+      },
+      {
+        "detail": "label/name ['', '']; 0 denied tokens",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "hidden_target_option_carries_no_identity:662231b3-efad-410b-89f1-cd416ee2347a"
+      }
+    ],
+    "forbidden_evidence": {
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+        "ambiguous_tokens_not_scanned": {},
+        "occurrences": [],
+        "tokens_scanned": [
+          "Demonic Tutor",
+          "Vampiric Tutor",
+          "WS30_HONEY_P2_PRIVATE_7F3A",
+          "obj:hidden-hand",
+          "obj:hidden-lib-0"
+        ]
+      }
+    },
+    "token_evidence": {
+      "knowledge_projection:HIDDEN_14:P1": [
+        {
+          "detail": "20 scripted answers, complete=True",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "scripted_event_executed"
+        },
+        {
+          "detail": "1 face-down permanents the viewer does not control; 3 target offers of them",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "hidden_target_offered:P1"
+        },
+        {
+          "detail": "label/name ['', '']; 0 denied tokens",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "hidden_target_option_carries_no_identity:662231b3-efad-410b-89f1-cd416ee2347a"
+        },
+        {
+          "detail": "label/name ['', '']; 0 denied tokens",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "hidden_target_option_carries_no_identity:662231b3-efad-410b-89f1-cd416ee2347a"
+        },
+        {
+          "detail": "label/name ['', '']; 0 denied tokens",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "hidden_target_option_carries_no_identity:662231b3-efad-410b-89f1-cd416ee2347a"
+        }
+      ]
+    },
+    "viewer": "P1"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "eaff57096ed883248f8802e3670423958bc77fc3461384937342f8de0e87398f",
+  "runner_digest": "f39304fc538e16dc996b1c53e6adf3ab53f11f2e3ce1442cc9081fa7988489d1",
+  "runtime_receipt_digest": "51a1662fde1ccaa1ed8826555f4b5dc2119136239436e44ef5d97677808c762c",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:knowledge-projection#HIDDEN_14"
+}

@@ -36,7 +36,17 @@ def test_hand_edited_missing_list_fails_the_check(
 ) -> None:
     module = _derive_module()
     config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
-    for edited in ([], ["legal_actions_supported", "action_submission_supported"]):
+    derived = config["primary_engine"]["missing_required_capabilities"]
+    # Any list other than the derived one is a hand edit: removing entries, adding
+    # a credited capability back, or clearing a non-empty list.
+    candidates = (
+        [],
+        ["legal_actions_supported", "action_submission_supported"],
+        sorted(set(derived) | {"replay_supported"}),
+    )
+    edits = [edited for edited in candidates if sorted(edited) != sorted(derived)]
+    assert len(edits) >= 2
+    for edited in edits:
         config["primary_engine"]["missing_required_capabilities"] = edited
         config["current_runtime"]["required_missing_capabilities"] = edited
         fake = tmp_path / "rules_engines.json"

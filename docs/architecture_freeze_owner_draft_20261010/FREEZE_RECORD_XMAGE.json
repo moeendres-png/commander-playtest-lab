@@ -1,0 +1,372 @@
+{
+  "freeze_eligible": true,
+  "nonclaims": [
+    "an eligible record is a decision input for the Owner, not a Freeze",
+    "provider_decision stays NO_PROVIDER_READY until the Owner's Freeze decision"
+  ],
+  "production_lane": "full-game",
+  "proof_ledger": {
+    "capabilities": {
+      "action_submission_supported": {
+        "counts_true": true,
+        "proof_classes": [
+          "XmageFullGameDecisionClassMatrixTest",
+          "XmageFullGameDecisionClassInventoryTest",
+          "XmageFullGameCancelRewindTest"
+        ],
+        "proof_missing": [],
+        "proof_refs": [
+          "receipts/native-xmage-mechanism.json#XmageFullGameDecisionClassMatrixTest (25 tests, source sha256 756ff4f3bbe1d5ba3c2a6df0ff3a856fcc2144fa65cf1ae8615a648ae2a10ab1)",
+          "receipts/native-xmage-mechanism.json#XmageFullGameDecisionClassInventoryTest (4 tests, source sha256 fc306fb3c89b6f00df02a9cfc904386b21d701c7f73c1b9da4149cd957055d48)",
+          "receipts/native-xmage-mechanism.json#XmageFullGameCancelRewindTest (4 tests, source sha256 5ebe5fa9307ec38dc936ce5d53c6eb2b9954b9d8ec6b40df3e62ea7e7af1d2ac)"
+        ],
+        "reported": true
+      },
+      "commander_supported": {
+        "counts_true": true,
+        "proof_classes": [
+          "XmageFullGameTaxExecutionTest",
+          "XmageFullGamePartnerExecutionTest"
+        ],
+        "proof_missing": [],
+        "proof_refs": [
+          "receipts/native-xmage-direct.json#XmageFullGameTaxExecutionTest (2 tests, source sha256 6da9d9b7cf3adce4bd07b2ca8f1b6f5a681d84e9408924ed3cc30af09d6e0efe)",
+          "receipts/native-xmage-direct.json#XmageFullGamePartnerExecutionTest (6 tests, source sha256 72407d16745394916145f575d8b665a3d51a2283211096200963f0aff23f049c)"
+        ],
+        "reported": true
+      },
+      "deck_import_supported": {
+        "counts_true": true,
+        "proof_classes": [
+          "XmageFullGamePlayerCountTest"
+        ],
+        "proof_missing": [],
+        "proof_refs": [
+          "receipts/native-xmage-mechanism.json#XmageFullGamePlayerCountTest (7 tests, source sha256 e25b32533260e38be132805095ceafb47b7169009631dadd73fb7b232e3914b3)"
+        ],
+        "reported": true
+      },
+      "engine_shutdown_supported": {
+        "counts_true": true,
+        "proof_classes": [
+          "AF01:full-game"
+        ],
+        "proof_missing": [],
+        "proof_refs": [
+          "AF01_XMAGE.json (lane=full-game, verdict=PASS)"
+        ],
+        "reported": true
+      },
+      "event_log_supported": {
+        "counts_true": true,
+        "proof_classes": [
+          "XmageFullGameEventLogTest"
+        ],
+        "proof_missing": [],
+        "proof_refs": [
+          "receipts/native-xmage-mechanism.json#XmageFullGameEventLogTest (2 tests, source sha256 3e961f5c23588ec01b0160dec2332e1d1563cc1b1215f8a23fecedc7b1d325c7)"
+        ],
+        "reported": true
+      },
+      "game_shutdown_supported": {
+        "counts_true": true,
+        "proof_classes": [
+          "XmageFullGameShutdownGameTest"
+        ],
+        "proof_missing": [],
+        "proof_refs": [
+          "receipts/native-xmage-mechanism.json#XmageFullGameShutdownGameTest (2 tests, source sha256 5ad9b338956a38cf15e906a11351967d5d8af61f5768f24e0d4db7daa8c7d9d3)"
+        ],
+        "reported": true
+      },
+      "headless_supported": {
+        "counts_true": true,
+        "proof_classes": [
+          "AF01:full-game"
+        ],
+        "proof_missing": [],
+        "proof_refs": [
+          "AF01_XMAGE.json (lane=full-game, verdict=PASS)"
+        ],
+        "reported": true
+      },
+      "legal_actions_supported": {
+        "counts_true": true,
+        "proof_classes": [
+          "XmageFullGameDecisionClassMatrixTest",
+          "XmageFullGameDecisionClassInventoryTest",
+          "XmageFullGameUnprojectableDecisionTest",
+          "XmageFullGameCancelRewindTest"
+        ],
+        "proof_missing": [],
+        "proof_refs": [
+          "receipts/native-xmage-mechanism.json#XmageFullGameDecisionClassMatrixTest (25 tests, source sha256 756ff4f3bbe1d5ba3c2a6df0ff3a856fcc2144fa65cf1ae8615a648ae2a10ab1)",
+          "receipts/native-xmage-mechanism.json#XmageFullGameDecisionClassInventoryTest (4 tests, source sha256 fc306fb3c89b6f00df02a9cfc904386b21d701c7f73c1b9da4149cd957055d48)",
+          "receipts/native-xmage-mechanism.json#XmageFullGameUnprojectableDecisionTest (2 tests, source sha256 1ffe2aabe81065c3072500d23c4a6b06ffa3af2260be712316c1cd11ad33c049)",
+          "receipts/native-xmage-mechanism.json#XmageFullGameCancelRewindTest (4 tests, source sha256 5ebe5fa9307ec38dc936ce5d53c6eb2b9954b9d8ec6b40df3e62ea7e7af1d2ac)"
+        ],
+        "reported": true
+      },
+      "multiplayer_supported": {
+        "counts_true": true,
+        "proof_classes": [
+          "XmageFullGamePlayerCountTest"
+        ],
+        "proof_missing": [],
+        "proof_refs": [
+          "receipts/native-xmage-mechanism.json#XmageFullGamePlayerCountTest (7 tests, source sha256 e25b32533260e38be132805095ceafb47b7169009631dadd73fb7b232e3914b3)"
+        ],
+        "reported": true
+      },
+      "replay_supported": {
+        "counts_true": true,
+        "proof_classes": [
+          "XmageFullGameReplayExportTest"
+        ],
+        "proof_missing": [],
+        "proof_refs": [
+          "receipts/native-xmage-mechanism.json#XmageFullGameReplayExportTest (6 tests, source sha256 22679733b0b255caeb3b51bef03b5f1b41dd7b9c5050aecfa8c2db7eb57d7f48)"
+        ],
+        "reported": true
+      },
+      "seed_supported": {
+        "counts_true": true,
+        "proof_classes": [
+          "XmageFullGameRulesSeedBindingTest"
+        ],
+        "proof_missing": [],
+        "proof_refs": [
+          "receipts/native-xmage-mechanism.json#XmageFullGameRulesSeedBindingTest (4 tests, source sha256 b38eff13413a88063a519f100ead4d1c22450fbcbe337d94d2d9edd6adf15278)"
+        ],
+        "reported": true
+      }
+    },
+    "gates": {
+      "AF00": {
+        "sibling_argument": "source/build identity of the one engine artifact and the Lab adapter; the lane's player callbacks do not take part in it"
+      },
+      "AF01": {
+        "production_lane_missing": []
+      },
+      "AF02": {
+        "production_lane_missing": []
+      },
+      "AF03": {
+        "production_lane_missing": []
+      },
+      "AF04": {
+        "production_lane_missing": []
+      },
+      "AF05": {
+        "production_lane_missing": []
+      },
+      "AF06": {
+        "sibling_argument": "general Rules correctness rows assert Rules-Core outcomes of scripted inputs; lane player callbacks only route the declared answers"
+      },
+      "AF07": {
+        "sibling_argument": "actual-card behaviour rows assert Rules-Core card outcomes of scripted inputs; lane player callbacks only route the declared answers"
+      },
+      "AF08": {
+        "production_lane_missing": []
+      },
+      "AF09": {
+        "production_lane_missing": []
+      },
+      "AF10": {
+        "production_lane_missing": []
+      },
+      "AF11": {
+        "production_lane_missing": []
+      }
+    }
+  },
+  "reasons": [],
+  "record": {
+    "architecture_winner": false,
+    "candidate": "xmage",
+    "freeze_eligible": true,
+    "gate_results": [
+      {
+        "evidence_refs": [
+          "85dbcb1ac475-9824c55d5ef2/AF00_AF11_XMAGE.json#AF00",
+          "engine_artifact_sha256:3bede866e142de66631e04bfc611424e835ed2c95e2b736cd5f638615c2dc660"
+        ],
+        "gate_id": "AF00",
+        "reason": "sealed AF00 PASS; sibling-lane evidence admitted: source/build identity of the one engine artifact and the Lab adapter; the lane's player callbacks do not take part in it. First sealed evidence line: candidate commit reported by the provider at handshake: b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "85dbcb1ac475-9824c55d5ef2/AF00_AF11_XMAGE.json#AF01",
+          "lane:full-game AF01_XMAGE.json (lane=full-game, verdict=PASS)",
+          "lane:full-game receipts/native-xmage-mechanism.json#XmageFullGameUnprojectableDecisionTest (2 tests, source sha256 1ffe2aabe81065c3072500d23c4a6b06ffa3af2260be712316c1cd11ad33c049)"
+        ],
+        "gate_id": "AF01",
+        "reason": "sealed AF01 PASS; production-lane component: ['AF01_XMAGE.json (lane=full-game, verdict=PASS)', 'receipts/native-xmage-mechanism.json#XmageFullGameUnprojectableDecisionTest (2 tests, source sha256 1ffe2aabe81065c3072500d23c4a6b06ffa3af2260be712316c1cd11ad33c049)']. First sealed evidence line: 20 AF01 v2 invariants executed under Protocol 2.0.0 on the full-game lane",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "85dbcb1ac475-9824c55d5ef2/AF00_AF11_XMAGE.json#AF02",
+          "lane:full-game receipts/native-xmage-mechanism.json#XmageFullGamePlayerCountTest (7 tests, source sha256 e25b32533260e38be132805095ceafb47b7169009631dadd73fb7b232e3914b3)"
+        ],
+        "gate_id": "AF02",
+        "reason": "sealed AF02 PASS; production-lane component: ['receipts/native-xmage-mechanism.json#XmageFullGamePlayerCountTest (7 tests, source sha256 e25b32533260e38be132805095ceafb47b7169009631dadd73fb7b232e3914b3)']. First sealed evidence line: every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "85dbcb1ac475-9824c55d5ef2/AF00_AF11_XMAGE.json#AF03",
+          "lane:full-game receipts/native-xmage-mechanism.json#XmageFullGameRulesSeedBindingTest (4 tests, source sha256 b38eff13413a88063a519f100ead4d1c22450fbcbe337d94d2d9edd6adf15278)"
+        ],
+        "gate_id": "AF03",
+        "reason": "sealed AF03 PASS; production-lane component: ['receipts/native-xmage-mechanism.json#XmageFullGameRulesSeedBindingTest (4 tests, source sha256 b38eff13413a88063a519f100ead4d1c22450fbcbe337d94d2d9edd6adf15278)']. First sealed evidence line: deck_import_rejects_unknown_card: PASS (the engine refused the mutated deck at the import boundary)",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "85dbcb1ac475-9824c55d5ef2/AF00_AF11_XMAGE.json#AF04",
+          "lane:full-game receipts/native-xmage-mechanism.json#XmageFullGameDecisionClassMatrixTest (25 tests, source sha256 756ff4f3bbe1d5ba3c2a6df0ff3a856fcc2144fa65cf1ae8615a648ae2a10ab1)",
+          "lane:full-game receipts/native-xmage-mechanism.json#XmageFullGameDecisionClassInventoryTest (4 tests, source sha256 fc306fb3c89b6f00df02a9cfc904386b21d701c7f73c1b9da4149cd957055d48)"
+        ],
+        "gate_id": "AF04",
+        "reason": "sealed AF04 PASS; production-lane component: ['receipts/native-xmage-mechanism.json#XmageFullGameDecisionClassMatrixTest (25 tests, source sha256 756ff4f3bbe1d5ba3c2a6df0ff3a856fcc2144fa65cf1ae8615a648ae2a10ab1)', 'receipts/native-xmage-mechanism.json#XmageFullGameDecisionClassInventoryTest (4 tests, source sha256 fc306fb3c89b6f00df02a9cfc904386b21d701c7f73c1b9da4149cd957055d48)']. First sealed evidence line: AF04 derived from this epoch's external decision frames (25 frame(s) across 2P, 3P, 4P, 5P); externally answered classes: MULLIGAN, PRIORITY",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "85dbcb1ac475-9824c55d5ef2/AF00_AF11_XMAGE.json#AF05",
+          "lane:full-game receipts/native-xmage-mechanism.json#XmageFullGameHiddenInformationTest (2 tests, source sha256 9a03bed503322b3981db97407305840592b70c1720d3d9e63032be000dc41de9)",
+          "lane:full-game receipts/native-xmage-mechanism.json#XmageFullGameLegalActionsPrincipalTest (1 tests, source sha256 3eb952a29e4ecf445450013eff6d99f683efadaf4d0259d85458e0e1ec0546e8)"
+        ],
+        "gate_id": "AF05",
+        "reason": "sealed AF05 PASS; production-lane component: ['receipts/native-xmage-mechanism.json#XmageFullGameHiddenInformationTest (2 tests, source sha256 9a03bed503322b3981db97407305840592b70c1720d3d9e63032be000dc41de9)', 'receipts/native-xmage-mechanism.json#XmageFullGameLegalActionsPrincipalTest (1 tests, source sha256 3eb952a29e4ecf445450013eff6d99f683efadaf4d0259d85458e0e1ec0546e8)']. First sealed evidence line: 20 of 20 HIDDEN_* rows PASS in this epoch",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "85dbcb1ac475-9824c55d5ef2/AF00_AF11_XMAGE.json#AF06",
+          "engine_artifact_sha256:3bede866e142de66631e04bfc611424e835ed2c95e2b736cd5f638615c2dc660"
+        ],
+        "gate_id": "AF06",
+        "reason": "sealed AF06 PASS; sibling-lane evidence admitted: general Rules correctness rows assert Rules-Core outcomes of scripted inputs; lane player callbacks only route the declared answers. First sealed evidence line: 107 of 107 rows PASS under the effective contract; 0 BLOCKED; 0 UNKNOWN",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "85dbcb1ac475-9824c55d5ef2/AF00_AF11_XMAGE.json#AF07",
+          "engine_artifact_sha256:3bede866e142de66631e04bfc611424e835ed2c95e2b736cd5f638615c2dc660"
+        ],
+        "gate_id": "AF07",
+        "reason": "sealed AF07 PASS; sibling-lane evidence admitted: actual-card behaviour rows assert Rules-Core card outcomes of scripted inputs; lane player callbacks only route the declared answers. First sealed evidence line: 29 of 29 frozen corpus identities have their own mandatory CARD_* row PASS in this epoch",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "85dbcb1ac475-9824c55d5ef2/AF00_AF11_XMAGE.json#AF08",
+          "lane:full-game receipts/native-xmage-direct.json#XmageFullGameWs05MulliganTest (2 tests, source sha256 1954575e1abe28c45943b76edff1646c83b9a6a3cb9c9d1c5ffd0e859ca623b7)",
+          "lane:full-game receipts/native-xmage-direct.json#XmageFullGameTaxExecutionTest (2 tests, source sha256 6da9d9b7cf3adce4bd07b2ca8f1b6f5a681d84e9408924ed3cc30af09d6e0efe)",
+          "lane:full-game receipts/native-xmage-direct.json#XmageFullGamePartnerExecutionTest (6 tests, source sha256 72407d16745394916145f575d8b665a3d51a2283211096200963f0aff23f049c)",
+          "lane:full-game receipts/native-xmage-mechanism.json#XmageFullGameElimExecutionTest (2 tests, source sha256 99cbf75857c951858ecb3889bcacf2507bff565ce717b6ea0ea220a1efe5e979)",
+          "lane:full-game receipts/native-xmage-mechanism.json#XmageFullGameCombatDamageTest (4 tests, source sha256 dadadd37de0b1c33a44b62c0bf6201c38939d478f433e433fa32a13b241b06f5)"
+        ],
+        "gate_id": "AF08",
+        "reason": "sealed AF08 PASS; production-lane component: ['receipts/native-xmage-direct.json#XmageFullGameWs05MulliganTest (2 tests, source sha256 1954575e1abe28c45943b76edff1646c83b9a6a3cb9c9d1c5ffd0e859ca623b7)', 'receipts/native-xmage-direct.json#XmageFullGameTaxExecutionTest (2 tests, source sha256 6da9d9b7cf3adce4bd07b2ca8f1b6f5a681d84e9408924ed3cc30af09d6e0efe)', 'receipts/native-xmage-direct.json#XmageFullGamePartnerExecutionTest (6 tests, source sha256 72407d16745394916145f575d8b665a3d51a2283211096200963f0aff23f049c)', 'receipts/native-xmage-mechanism.json#XmageFullGameElimExecutionTest (2 tests, source sha256 99cbf75857c951858ecb3889bcacf2507bff565ce717b6ea0ea220a1efe5e979)', 'receipts/native-xmage-mechanism.json#XmageFullGameCombatDamageTest (4 tests, source sha256 dadadd37de0b1c33a44b62c0bf6201c38939d478f433e433fa32a13b241b06f5)']. First sealed evidence line: 36 of 36 WS05 multiplayer/Commander obligations PASS",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "85dbcb1ac475-9824c55d5ef2/AF00_AF11_XMAGE.json#AF09",
+          "lane:full-game receipts/native-xmage-mechanism.json#XmageFullGameReplayExportTest (6 tests, source sha256 22679733b0b255caeb3b51bef03b5f1b41dd7b9c5050aecfa8c2db7eb57d7f48)",
+          "lane:full-game receipts/native-xmage-mechanism.json#XmageFullGameReplayTwinTest (4 tests, source sha256 ba28b11a0d544274fb0fa0ddd8179b2ebe59f8739786bce7d9404f17df83a39c)"
+        ],
+        "gate_id": "AF09",
+        "reason": "sealed AF09 PASS; production-lane component: ['receipts/native-xmage-mechanism.json#XmageFullGameReplayExportTest (6 tests, source sha256 22679733b0b255caeb3b51bef03b5f1b41dd7b9c5050aecfa8c2db7eb57d7f48)', 'receipts/native-xmage-mechanism.json#XmageFullGameReplayTwinTest (4 tests, source sha256 ba28b11a0d544274fb0fa0ddd8179b2ebe59f8739786bce7d9404f17df83a39c)']. First sealed evidence line: seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, never a demonstrated Rules RNG tape",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "85dbcb1ac475-9824c55d5ef2/AF00_AF11_XMAGE.json#AF10",
+          "lane:full-game AF01_XMAGE.json (lane=full-game, verdict=PASS)",
+          "lane:full-game receipts/native-xmage-mechanism.json#XmageFullGameBridgeContractTest (4 tests, source sha256 7770d2ec51f1709b89fb152855432756e8b8d36f633a5bb9599bbaab161a81a9)"
+        ],
+        "gate_id": "AF10",
+        "reason": "sealed AF10 PASS; production-lane component: ['AF01_XMAGE.json (lane=full-game, verdict=PASS)', 'receipts/native-xmage-mechanism.json#XmageFullGameBridgeContractTest (4 tests, source sha256 7770d2ec51f1709b89fb152855432756e8b8d36f633a5bb9599bbaab161a81a9)']. First sealed evidence line: denominator accounting complete: 107 explicit outcomes for 107 rows",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "85dbcb1ac475-9824c55d5ef2/AF00_AF11_XMAGE.json#AF11",
+          "lane:full-game AF01_XMAGE.json (lane=full-game, verdict=PASS)"
+        ],
+        "gate_id": "AF11",
+        "reason": "sealed AF11 PASS; production-lane component: ['AF01_XMAGE.json (lane=full-game, verdict=PASS)']. First sealed evidence line: each candidate was driven through its own distinct external adapter (forge=forge-protocol2-bridge (read-only reference checkout), xmage=engine-bridge/src/main/java/org/commanderlab/xmage) by one and the same Lab driver column, so no single ",
+        "verdict": "PASS"
+      }
+    ],
+    "protocol_schema_identity": "git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5",
+    "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+    "schema_version": "architecture-freeze-result/2.0.0",
+    "source_lock": {
+      "adapter_source": {
+        "commit": "85dbcb1ac475f9b9dba56f4aa5634bb2997ac5c9",
+        "repository": "https://github.com/moeendres-png/commander-playtest-lab",
+        "tree": "9824c55d5ef2fe391f9a302c2035290ebb31a0ca"
+      },
+      "build": {
+        "artifact_identity": "org.mage:mage@b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+        "artifact_sha256": "3bede866e142de66631e04bfc611424e835ed2c95e2b736cd5f638615c2dc660"
+      },
+      "provider_source": {
+        "commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+        "repository": "https://github.com/moeendres-png/mage",
+        "tree": "1ff64c794b1f992a8596c0b1b9952055520ccd10"
+      }
+    },
+    "transport_protocol_version": "2.0.0",
+    "truthful_capabilities": {
+      "capabilities": {
+        "action_submission_supported": true,
+        "commander_damage_visible": false,
+        "commander_supported": true,
+        "commander_tax_visible": false,
+        "concede_supported": true,
+        "deck_import_supported": true,
+        "engine_shutdown_supported": true,
+        "event_log_supported": true,
+        "game_shutdown_supported": true,
+        "headless_supported": true,
+        "legal_actions_supported": true,
+        "mode_selection_supported": true,
+        "mulligan_supported": true,
+        "multiplayer_supported": true,
+        "priority_visible": true,
+        "replay_supported": true,
+        "scenario_injection_supported": false,
+        "seed_supported": true,
+        "stack_visible": true,
+        "starting_state_injection_supported": false,
+        "target_selection_supported": true,
+        "trigger_order_supported": true
+      },
+      "missing_required_capabilities": [],
+      "reported_by_provider": true,
+      "required_capabilities": [
+        "action_submission_supported",
+        "commander_supported",
+        "deck_import_supported",
+        "engine_shutdown_supported",
+        "event_log_supported",
+        "game_shutdown_supported",
+        "headless_supported",
+        "legal_actions_supported",
+        "multiplayer_supported",
+        "replay_supported",
+        "seed_supported"
+      ],
+      "runtime_kind": "external_rules_engine"
+    }
+  },
+  "ruling": "docs/slot06_capability_ruling_20261009/SLOT06_RULING.md",
+  "schema_version": "commander-lab.freeze-record-assembly/1.0.0"
+}

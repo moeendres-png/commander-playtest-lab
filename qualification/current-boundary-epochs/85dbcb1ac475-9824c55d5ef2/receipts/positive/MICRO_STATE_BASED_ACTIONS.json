@@ -1,0 +1,81 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+  "obligation_exercised": {
+    "obligation_digest": "f11e01a5a7c61e38d9bb250e1ae0dff240e1ea171febe722f318f5d17b0328ab",
+    "requested_state_digest": "9b3b702f9db0d81aaa4a94d1f2a6dfbc4c118101bbf80ff19a7b9a5312dd67d7",
+    "required_events": [
+      "continuous_pt:obj:micro-zero:0/0",
+      "state_based_actions",
+      "move_to_graveyard:obj:micro-zero"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "The 0/0 creature is in its owner graveyard before any player receives priority."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "continuous_pt:obj:micro-zero:0/0": {
+        "binding": [
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-zero, from=BATTLEFIELD, last_power=0, last_toughness=0",
+          "every Grizzly Bears on P1's battlefield is 1/1"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-zero, from=BATTLEFIELD, last_power=0, last_toughness=0",
+            "events": [
+              10
+            ]
+          },
+          {
+            "binding": "every Grizzly Bears on P1's battlefield is 1/1",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "move_to_graveyard:obj:micro-zero": {
+        "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-zero, from=BATTLEFIELD, to=GRAVEYARD, source_object=None",
+        "events": [
+          10
+        ]
+      },
+      "state_based_actions": {
+        "binding": [
+          "exactly 0 DESTROYED_PERMANENT event(s) with target_object=obj:micro-zero",
+          "exactly 0 DAMAGED_PERMANENT event(s) with target_object=obj:micro-zero",
+          "every ZONE_CHANGE event with target_object=obj:micro-zero, to=BATTLEFIELD precedes the first ZONE_CHANGE event with target_object=obj:micro-zero, from=BATTLEFIELD, to=GRAVEYARD"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 0 DESTROYED_PERMANENT event(s) with target_object=obj:micro-zero",
+            "events": []
+          },
+          {
+            "binding": "exactly 0 DAMAGED_PERMANENT event(s) with target_object=obj:micro-zero",
+            "events": []
+          },
+          {
+            "binding": "every ZONE_CHANGE event with target_object=obj:micro-zero, to=BATTLEFIELD precedes the first ZONE_CHANGE event with target_object=obj:micro-zero, from=BATTLEFIELD, to=GRAVEYARD",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "088abc28008f3e29229dd7da18063c0465843799f6011ded3e5115404ab21390",
+  "runner_digest": "f39304fc538e16dc996b1c53e6adf3ab53f11f2e3ce1442cc9081fa7988489d1",
+  "runtime_receipt_digest": "de14861d712485974ac2fb5e1ad7e68c48509d3276c69b4ffdf17c75e3878652",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_STATE_BASED_ACTIONS",
+  "variance_source": null
+}

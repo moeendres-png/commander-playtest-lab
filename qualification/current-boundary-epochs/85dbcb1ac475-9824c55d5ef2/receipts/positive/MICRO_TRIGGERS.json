@@ -1,0 +1,57 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_TRIGGERS",
+  "obligation_exercised": {
+    "obligation_digest": "eadb28132b2215f3e3a1bfb87392fc209e2a24c99b999f2233647f7d5a2f3c42",
+    "requested_state_digest": "f6415aa0cdb04add614d9c6329d96d253fd4cbc2a1fbf1277f02cb941dec0f57",
+    "required_events": [
+      "creature_enters:obj:micro-enter",
+      "trigger:Warstorm_Surge",
+      "damage:P2:2"
+    ],
+    "terminal_checks": [
+      "P2 is at 38 life",
+      "Warstorm Surge triggered exactly 1 time(s)"
+    ],
+    "terminal_postconditions": [
+      "Warstorm Surge triggers exactly once and entering creature deals 2 to P2 on resolution."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "P2 is at 38 life": true,
+      "Warstorm Surge triggered exactly 1 time(s)": true
+    },
+    "token_evidence": {
+      "creature_enters:obj:micro-enter": {
+        "events": [
+          9
+        ]
+      },
+      "damage:P2:2": {
+        "events": [
+          12
+        ]
+      },
+      "trigger:Warstorm_Surge": {
+        "events": [
+          10
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "16bc2844f8fd42cf835aa946c8f2cd34dd394cc16b609a4231c73e9e16fcc3fb",
+  "runner_digest": "f39304fc538e16dc996b1c53e6adf3ab53f11f2e3ce1442cc9081fa7988489d1",
+  "runtime_receipt_digest": "ac8882077026e4aebb528660f76a4625b0462100d51c4dd9d5665ffc93c6ac35",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_TRIGGERS",
+  "variance_source": null
+}
