@@ -139,6 +139,50 @@ def mana_payment_fit(label: str, unpaid_mana: str) -> int:
     return 1 if generic else 0
 
 
+class FullGameProtocolError(RuntimeError):
+    """Fail-closed full-game bridge or external-pilot protocol error.
+
+    ``str(exc)`` is the public message and is safe to persist: Lab-authored
+    text plus, for transport failures, a stable ``code``. Raw bridge output
+    (protocol lines, engine error text, stderr) lives only in
+    ``diagnostics`` in memory and never reaches the message (C4).
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str | None = None,
+        diagnostics: tuple[str, ...] = (),
+    ) -> None:
+        public = public_full_game_message(message, code=code)
+        super().__init__(public)
+        self.__suppress_context__ = True
+        self.public_message = public
+        self.code = (
+            code
+            if code is None or (type(code) is str and code in PUBLIC_FAILURE_CODES)
+            else "ENGINE_FAILURE"
+        )
+        self.diagnostics = diagnostics
+
+
+class FullGameConformanceError(RuntimeError):
+    """A run violated a full-game conformance invariant.
+
+    Every message is Lab-authored; engine-supplied text is reduced with
+    ``redacted_summary`` before it is interpolated (C4).
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(public_full_game_message(message))
+        self.__suppress_context__ = True
+
+    @property
+    def public_message(self) -> str:
+        return str(self)
+
+
 def _option_cost_facts(metadata: dict[str, Any]) -> tuple[int, int] | None:
     """A priority option's engine-reported cost as ``(non_x, x_symbols)``.
 
@@ -188,50 +232,6 @@ def offers_mana_ability(rule_text: str) -> bool:
         for symbol in _MANA_SYMBOL.findall(produced)
         for part in symbol.split("/")
     )
-
-
-class FullGameProtocolError(RuntimeError):
-    """Fail-closed full-game bridge or external-pilot protocol error.
-
-    ``str(exc)`` is the public message and is safe to persist: Lab-authored
-    text plus, for transport failures, a stable ``code``. Raw bridge output
-    (protocol lines, engine error text, stderr) lives only in
-    ``diagnostics`` in memory and never reaches the message (C4).
-    """
-
-    def __init__(
-        self,
-        message: str,
-        *,
-        code: str | None = None,
-        diagnostics: tuple[str, ...] = (),
-    ) -> None:
-        public = public_full_game_message(message, code=code)
-        super().__init__(public)
-        self.__suppress_context__ = True
-        self.public_message = public
-        self.code = (
-            code
-            if code is None or (type(code) is str and code in PUBLIC_FAILURE_CODES)
-            else "ENGINE_FAILURE"
-        )
-        self.diagnostics = diagnostics
-
-
-class FullGameConformanceError(RuntimeError):
-    """A run violated a full-game conformance invariant.
-
-    Every message is Lab-authored; engine-supplied text is reduced with
-    ``redacted_summary`` before it is interpolated (C4).
-    """
-
-    def __init__(self, message: str) -> None:
-        super().__init__(public_full_game_message(message))
-        self.__suppress_context__ = True
-
-    @property
-    def public_message(self) -> str:
-        return str(self)
 
 
 def public_full_game_errors[**P, T](operation: Callable[P, T]) -> Callable[P, T]:
@@ -907,11 +907,6 @@ class ExternalPilotDecisionPolicy:
             ],
         ] = {}
         self._priority_repeat_count: dict[int, int] = {}
-        # #700: what the seat's last priority selection cost, keyed by that
-        # option's engine ``source_object_id``. The ``announce_x`` frame the
-        # engine raises for the cast or activation that follows carries no
-        # cost at all, so this is where that cost survives the hop.
-        self._priority_cost_facts: dict[int, dict[str, tuple[int, int]]] = {}
         # Latch: once tripped, the seat keeps passing while the window
         # stays identical (a single forced pass would just resume the
         # loop). Any window change unlatches and resumes normal choice.
@@ -927,6 +922,11 @@ class ExternalPilotDecisionPolicy:
                 tuple[tuple[str, str], ...],
             ],
         ] = {}
+        # #700: what the seat's last priority selection cost, keyed by that
+        # option's engine ``source_object_id``. The ``announce_x`` frame the
+        # engine raises for the cast or activation that follows carries no
+        # cost at all, so this is where that cost survives the hop.
+        self._priority_cost_facts: dict[int, dict[str, tuple[int, int]]] = {}
 
     @public_full_game_errors
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
@@ -1250,54 +1250,6 @@ class ExternalPilotDecisionPolicy:
             return raw_by_stable_id[decision.selected_action_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable priority action") from None
-
-    def _remember_priority_cost_facts(
-        self, seat: int, options: list[dict[str, Any]], selected: list[str]
-    ) -> None:
-        """Keep the cost the engine reported for the priority option just chosen.
-
-        The engine answers a priority window with the full legal set, each
-        option carrying the bridge's own ``enrichAbilityCostFacts`` summary of
-        what activating or casting it costs. When the pilot then chooses one,
-        the engine immediately asks for the X in that action's cost — and that
-        ``announce_x`` frame carries no cost whatsoever, only the source it
-        belongs to. Holding the chosen option's reported cost here, keyed by
-        the engine's own ``source_object_id``, is what lets the later
-        ``announce_x`` budget against a cost the engine stated rather than one
-        the Lab inferred.
-
-        Last selection only, per seat, and dropped again on that seat's next
-        priority decision, so a remembered cost can never be reused for a
-        later or different action. The key is used for equality against the
-        ``source_object`` of the announce frame and for nothing else: it never
-        orders, ranks, counts or sorts anything, so it cannot make same-seed
-        fresh-process twins diverge the way an ordering key could.
-        """
-        if len(selected) != 1:
-            return
-        chosen = selected[0]
-        for option in options:
-            if self._required_text(option, "option_id") != chosen:
-                continue
-            metadata = option.get("metadata")
-            if not isinstance(metadata, dict):
-                return
-            source = str(metadata.get("source_object_id") or "")
-            facts = _option_cost_facts(metadata)
-            if source and facts is not None:
-                self._priority_cost_facts[seat] = {source: facts}
-            return
-
-    def _remembered_priority_cost_facts(
-        self, seat: int, source_object: Any
-    ) -> tuple[int, int] | None:
-        """This seat's remembered cost for this exact announce source, if any."""
-        if not isinstance(source_object, dict):
-            return None
-        source = str(source_object.get("source_object_id") or "")
-        if not source:
-            return None
-        return self._priority_cost_facts.get(seat, {}).get(source)
 
     def _priority_action_affordable(self, option: dict[str, Any], state: dict[str, Any]) -> bool:
         """Pilot-side discretionary ranking among engine-authorized options.
@@ -1907,6 +1859,54 @@ class ExternalPilotDecisionPolicy:
                 f"{minimum}..{maximum} for {decision_class}"
             )
         return chosen
+
+    def _remember_priority_cost_facts(
+        self, seat: int, options: list[dict[str, Any]], selected: list[str]
+    ) -> None:
+        """Keep the cost the engine reported for the priority option just chosen.
+
+        The engine answers a priority window with the full legal set, each
+        option carrying the bridge's own ``enrichAbilityCostFacts`` summary of
+        what activating or casting it costs. When the pilot then chooses one,
+        the engine immediately asks for the X in that action's cost — and that
+        ``announce_x`` frame carries no cost whatsoever, only the source it
+        belongs to. Holding the chosen option's reported cost here, keyed by
+        the engine's own ``source_object_id``, is what lets the later
+        ``announce_x`` budget against a cost the engine stated rather than one
+        the Lab inferred.
+
+        Last selection only, per seat, and dropped again on that seat's next
+        priority decision, so a remembered cost can never be reused for a
+        later or different action. The key is used for equality against the
+        ``source_object`` of the announce frame and for nothing else: it never
+        orders, ranks, counts or sorts anything, so it cannot make same-seed
+        fresh-process twins diverge the way an ordering key could.
+        """
+        if len(selected) != 1:
+            return
+        chosen = selected[0]
+        for option in options:
+            if self._required_text(option, "option_id") != chosen:
+                continue
+            metadata = option.get("metadata")
+            if not isinstance(metadata, dict):
+                return
+            source = str(metadata.get("source_object_id") or "")
+            facts = _option_cost_facts(metadata)
+            if source and facts is not None:
+                self._priority_cost_facts[seat] = {source: facts}
+            return
+
+    def _remembered_priority_cost_facts(
+        self, seat: int, source_object: Any
+    ) -> tuple[int, int] | None:
+        """This seat's remembered cost for this exact announce source, if any."""
+        if not isinstance(source_object, dict):
+            return None
+        source = str(source_object.get("source_object_id") or "")
+        if not source:
+            return None
+        return self._priority_cost_facts.get(seat, {}).get(source)
 
     @staticmethod
     def _x_cost_facts(
