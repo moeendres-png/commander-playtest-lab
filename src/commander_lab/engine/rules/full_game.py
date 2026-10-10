@@ -162,7 +162,7 @@ _X_SYMBOL_TOKEN = re.compile(r"\{X\}", re.IGNORECASE)
 
 # XMage's per-game object short id, in the form the pinned engine emits.
 #
-# Provenance (pinned XMage commit b479fe74fd1eaf899ff16c6a9203e74a91c0f339):
+# Provenance (the canonical XMage pin in config/rules_engines.json):
 #   Mage/src/main/java/mage/MageObjectImpl.java:108-110  getIdName()
 #       return getName() + " [" + getId().toString().substring(0, 3) + ']';
 #   Mage/src/main/java/mage/util/GameLog.java:70-78  getColoredObjectIdName()
