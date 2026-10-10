@@ -38,8 +38,10 @@ SCHEMA_PATH = Path("qualification/pre-freeze-successor/architecture_freeze_contr
 # Each required capability names the native test classes that prove the surface the
 # flag names on the production lane (ruling §(a) L1-L4/S1-S3, §(c) R1-R4). A flag
 # counts only if every listed class ran in this epoch without failures.
-# ``headless_supported`` and ``engine_shutdown_supported`` are proven by the
-# production-lane AF01 run itself (headless launch, handshake, clean shutdown).
+# ``headless_supported`` is proven by the production-lane AF01 run itself (headless
+# launch and handshake). ``engine_shutdown_supported`` also needs the executed
+# full-game test that sends ``shutdown_engine`` to the lane's bridge: AF01's
+# invariants never call it, and a reported flag proves nothing by itself.
 AF01_PROOF = "AF01:full-game"
 CAPABILITY_PROOF: dict[str, tuple[str, ...]] = {
     # S1/S2 (matrix, inventory) plus S3: a cancelled or failed submission rewinds.
@@ -50,7 +52,7 @@ CAPABILITY_PROOF: dict[str, tuple[str, ...]] = {
     ),
     "commander_supported": ("XmageFullGameTaxExecutionTest", "XmageFullGamePartnerExecutionTest"),
     "deck_import_supported": ("XmageFullGamePlayerCountTest",),
-    "engine_shutdown_supported": (AF01_PROOF,),
+    "engine_shutdown_supported": (AF01_PROOF, "XmageFullGameShutdownGameTest"),
     "event_log_supported": ("XmageFullGameEventLogTest",),
     "game_shutdown_supported": ("XmageFullGameShutdownGameTest",),
     "headless_supported": (AF01_PROOF,),

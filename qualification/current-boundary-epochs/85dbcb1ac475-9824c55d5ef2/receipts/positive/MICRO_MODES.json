@@ -1,0 +1,53 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_MODES",
+  "obligation_exercised": {
+    "obligation_digest": "a929690e371dfefa301917acab91a45c008f82e4715ab371ba58126f56098850",
+    "requested_state_digest": "27617c9207eadaf4e826a03029692c6f3cf562dd148e817c40178cc7feb2ff61",
+    "required_events": [
+      "mode_selected:create_devils",
+      "create_Devil_token:3"
+    ],
+    "terminal_checks": [
+      "exactly 3 Devil token(s) were created",
+      "no permanent was dealt damage"
+    ],
+    "terminal_postconditions": [
+      "Exactly the selected mode resolves; damage mode does not also occur."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "exactly 3 Devil token(s) were created": true,
+      "no permanent was dealt damage": true
+    },
+    "token_evidence": {
+      "create_Devil_token:3": {
+        "events": [
+          10,
+          12,
+          14
+        ]
+      },
+      "mode_selected:create_devils": {
+        "decision_frames": [
+          1
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "fdb69ed61c3c8ecc853ef882c55438c00d004e0297f2200483449be36d636b41",
+  "runner_digest": "f39304fc538e16dc996b1c53e6adf3ab53f11f2e3ce1442cc9081fa7988489d1",
+  "runtime_receipt_digest": "84ebcbcd5c80707b8054857d163a47357735c91be91ef008321c77d78e664a22",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_MODES",
+  "variance_source": null
+}

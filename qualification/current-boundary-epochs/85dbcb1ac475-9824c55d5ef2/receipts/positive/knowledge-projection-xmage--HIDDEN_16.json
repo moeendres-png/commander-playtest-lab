@@ -1,0 +1,200 @@
+{
+  "assertion_class": "KNOWLEDGE_BOUNDARY_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+  "fixture_id": "HIDDEN_16",
+  "obligation_exercised": {
+    "forbidden_events": [
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+    ],
+    "obligation_digest": "2b2b90d928b634be3a3e78f4772b32718873325c67c72cc6cf37a186c2c050c2",
+    "requested_state_digest": "0007f93ad698e06214086955556d7023fda45115d562c8b1e3ce3bbe87c7594d",
+    "required_events": [
+      "knowledge_projection:HIDDEN_16:P1"
+    ],
+    "terminal_postconditions": [
+      "P1 observation exactly respects declared viewer state.",
+      "No prohibited metadata appears in any tested channel.",
+      "Knowledge invalidation/permission persistence follows the declared conditions."
+    ],
+    "viewer_obligation": "ability metadata does not leak"
+  },
+  "observed_assertion": {
+    "channel_coverage": {
+      "ability_metadata": 336,
+      "context": 31,
+      "event": 12,
+      "log": 216,
+      "option_id": 225,
+      "option_label": 225,
+      "option_metadata": 225,
+      "pile_metadata": 0,
+      "prompt": 31,
+      "source_metadata": 31,
+      "state": 51,
+      "transcript": 212
+    },
+    "checks": [
+      {
+        "detail": "arrival EXACT, construction_match True, mismatches []",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "construction_exact"
+      },
+      {
+        "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "lossless_checks_performed"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P1"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P2"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P3"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P4"
+      },
+      {
+        "detail": "4 distinct principal ids for 4 seats",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "distinct_principals"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0', 'then shuffle and put that card on top']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P1"
+      },
+      {
+        "detail": "every channel carried content",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scan_coverage"
+      },
+      {
+        "detail": "each honey sentinel is found in the harness's own create request",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_sentinel_in_request"
+      },
+      {
+        "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_honey_identity_where_entitled"
+      },
+      {
+        "detail": "each declared rules-text fragment is found in the harness's own create request",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_ability_text_in_request"
+      },
+      {
+        "detail": "18 scripted answers, complete=True",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scripted_event_executed"
+      },
+      {
+        "detail": "1 face-down permanents the viewer does not control; 3 pieces of ability metadata about them",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "hidden_ability_metadata_reached:P1"
+      },
+      {
+        "detail": "4 documents; 0 denied tokens (including 1 declared rules-text fragments)",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "hidden_ability_metadata_carries_nothing_hidden:P1"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'then shuffle and put that card on top']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P3"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'then shuffle and put that card on top']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P4"
+      }
+    ],
+    "forbidden_evidence": {
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+        "ambiguous_tokens_not_scanned": {},
+        "occurrences": [],
+        "tokens_scanned": [
+          "Demonic Tutor",
+          "Vampiric Tutor",
+          "WS30_HONEY_P2_PRIVATE_7F3A",
+          "obj:hidden-hand",
+          "obj:hidden-lib-0",
+          "then shuffle and put that card on top"
+        ]
+      }
+    },
+    "token_evidence": {
+      "knowledge_projection:HIDDEN_16:P1": [
+        {
+          "detail": "18 scripted answers, complete=True",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "scripted_event_executed"
+        },
+        {
+          "detail": "1 face-down permanents the viewer does not control; 3 pieces of ability metadata about them",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "hidden_ability_metadata_reached:P1"
+        },
+        {
+          "detail": "4 documents; 0 denied tokens (including 1 declared rules-text fragments)",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "hidden_ability_metadata_carries_nothing_hidden:P1"
+        },
+        {
+          "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'then shuffle and put that card on top']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P3"
+        },
+        {
+          "detail": "0 occurrences of ['Demonic Tutor', 'Grizzly Bears', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:facedown', 'obj:hidden-hand', 'obj:hidden-lib-0', 'then shuffle and put that card on top']",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "no_forbidden_token_in_channels_of:P4"
+        }
+      ]
+    },
+    "viewer": "P1"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "4519a78271e417fcd8428ea3f458bdf0631d15368c0fd076172671046a64c0b8",
+  "runner_digest": "f39304fc538e16dc996b1c53e6adf3ab53f11f2e3ce1442cc9081fa7988489d1",
+  "runtime_receipt_digest": "b5982159b07c5d2ac64245bdfcecc138d2033a04a89c857f5a94f2a0c449e8dd",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:knowledge-projection#HIDDEN_16"
+}

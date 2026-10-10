@@ -1,0 +1,65 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "causal_reconstruction": {
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:micro-stitch"
+    ],
+    "fuel": [
+      "obj:fuel-island-p1",
+      "obj:fuel-mountain-p1",
+      "obj:fuel-plains-p1"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:micro-stitch"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_RULES_RANDOMNESS",
+  "obligation_exercised": {
+    "obligation_digest": "c40577b42b4d5957aad85a1d34795c94301690aea987da7f26a972e91964ffec",
+    "requested_state_digest": "2762365a5424db5e8788ee0ad4da211ef3d873b72eb5ccd1af2a9467dd026640",
+    "required_events": [
+      "rules_rng:coin_flip:HEADS",
+      "extra_turn_created:P1"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Rules randomness came only from RulesRng channel and the predetermined semantic HEADS result created an extra turn."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "extra_turn_created:P1": {
+        "binding": "the engine's pending extra turns are ['P1'], in the order taken",
+        "observation": "engine terminal observation"
+      },
+      "rules_rng:coin_flip:HEADS": {
+        "binding": "exactly 1 COIN_FLIPPED event(s) with source_object=obj:micro-stitch, coin_result=HEADS, coin_won=True",
+        "events": [
+          9
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "6f997a8fad2457e3cb9dc06c7a94f57493af74fbb72124c60e4cfb7d6c3a2ff7",
+  "runner_digest": "f39304fc538e16dc996b1c53e6adf3ab53f11f2e3ce1442cc9081fa7988489d1",
+  "runtime_receipt_digest": "7c6170491c991c06f482b2083785bcc0374e0dfae5a4dfcc728bb7364d55a5f1",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_RULES_RANDOMNESS",
+  "variance_source": null
+}

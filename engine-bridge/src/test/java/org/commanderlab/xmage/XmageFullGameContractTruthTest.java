@@ -47,7 +47,8 @@ class XmageFullGameContractTruthTest {
      * #662 SLOT-06: a required capability may be reported {@code true} only while the
      * test classes that prove its surface exist (the freeze record additionally needs
      * their executed in-epoch receipts). Mirrors freeze_record.CAPABILITY_PROOF; the
-     * AF01-proved flags (headless, engine shutdown) are proven by the run itself.
+     * headless flag is proven by the production-lane AF01 run itself, engine shutdown
+     * by that run plus the shutdown test.
      */
     static final Map<String, List<String>> CAPABILITY_PROOF = Map.of(
             "legal_actions_supported", List.of(
@@ -58,6 +59,7 @@ class XmageFullGameContractTruthTest {
                     "XmageFullGameCancelRewindTest"),
             "event_log_supported", List.of("XmageFullGameEventLogTest"),
             "game_shutdown_supported", List.of("XmageFullGameShutdownGameTest"),
+            "engine_shutdown_supported", List.of("XmageFullGameShutdownGameTest"),
             "replay_supported", List.of("XmageFullGameReplayExportTest"),
             "seed_supported", List.of("XmageFullGameRulesSeedBindingTest"),
             "multiplayer_supported", List.of("XmageFullGamePlayerCountTest"),

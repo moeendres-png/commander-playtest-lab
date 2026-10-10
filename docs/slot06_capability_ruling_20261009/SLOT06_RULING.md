@@ -139,6 +139,22 @@ Binding rules for the Freeze record:
    writes `config/rules_engines.json` (`primary_engine.missing_required_capabilities` and
    `current_runtime.required_missing_capabilities`). A check mode fails CI on any
    difference.
+
+   *Amendment 2026-10-10 (Coordinator ruling, #662 step 4).* The two fields describe
+   different things and are derived separately, both from the same sealed epoch and
+   never by hand:
+   - `primary_engine.missing_required_capabilities` is the engine's truth on the
+     production lane, computed as above;
+   - `current_runtime.required_missing_capabilities` is the truth of the runtime the
+     application launches (`production_bridge`, today the B4-D compatibility bridge).
+     It is computed the same way from that runtime's own AF01 in the epoch (lane
+     `compatibility`, verdict PASS, engine commit equal to the pin). It fails closed to
+     every required capability when that evidence is absent or does not match.
+
+   They diverged for the first time with epoch `85dbcb1ac475-9824c55d5ef2`, and H4
+   (`engine-verify` must be degraded while the launched runtime lacks a capability)
+   caught it. Moving the application to the full-game lane is a production integration
+   step.
 3. **Lane-surface gates** need a production-lane component from the same epoch, because
    each lane has its own player callbacks, its own seed binding, its own JSONL loop and
    its own observation filter:

@@ -9,7 +9,7 @@ Evidence summary only. It selects no provider, ranks no candidate and makes no r
 - Packet branch: `opencode/issue255-20261008194759` from `ff688b58359f7ec3cbace344322989c18e58886a` (tree `42c21a3659cdf73ca15d1baaf62bbfed9003c797`).
 - Sealed epoch: `c124150d77ab-d303b2ca5f32`; manifest `qualification/current-boundary-epochs/c124150d77ab-d303b2ca5f32/CURRENT_BOUNDARY_SHA256SUMS` sha256 `a98e4f1c435d620b812da8be95e269d344e3cd1e4e55b86f792d35c0e12d9498`; 197/197 digests verified (EXACT_ALL_FILES_EXCEPT_MANIFEST).
 - Effective contract: `commander-lab.full107/1.0.31-successor` (`qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_31.json` sha256 `494b5dbc8942a0ab4662ad313a95dc0a7e08f8908d7eb05d7d7580b6406b83c7`); pointer sha256 `116cc693ff36cedeacdbf014975f54307565f4cac6be3021273244fb3632828b`.
-- Engine pins (`config/rules_engines.json` sha256 `27147c640a5bcf4d3e7c63d7f403437fd2a2695a7b118f636300488aef936697`): XMage `b479fe74` / tree `1ff64c79`; Forge Rules-Core `bb0a740d` / tree `4989b5bb`; Forge bridge `31cbae12` / tree `b5c19c19`.
+- Engine pins (`config/rules_engines.json` sha256 `be11cee4cc16fe5c49e43ffac9d0c95241ee940597a3b7b2005a191f0e4d8652`): XMage `b479fe74` / tree `1ff64c79`; Forge Rules-Core `bb0a740d` / tree `4989b5bb`; Forge bridge `31cbae12` / tree `b5c19c19`.
 
 ## Drift records
 
