@@ -114,6 +114,33 @@ def mana_payment_fit(label: str, unpaid_mana: str) -> int:
     return 1 if generic else 0
 
 
+def offers_mana_ability(rule_text: str) -> bool:
+    """Whether a public permanent's own ability text reads as a mana ability.
+
+    Same public text convention ``mana_payment_fit`` already orders by: the
+    engine prints a mana ability as "``{T}: Add {W}.``", so the produced part
+    after ": add " names what it adds. This is a pilot-side affordability
+    reading over the actor's own board, never a legality verdict: the Rules
+    Core still decides whether any payment succeeds.
+
+    It is deliberately conservative. Text that does not literally read "add"
+    followed by a color/type letter in braces ("Add {W}", "Add {C}{C}",
+    "Add {G/W}") is not recognised, so an unrecognised mana source lowers the
+    pilot's own budget estimate and it announces a smaller value rather than
+    one it may not be able to pay.
+    """
+    produced = str(rule_text).casefold().partition(": add ")[2]
+    if not produced:
+        return False
+    if "any color" in produced or "any type" in produced:
+        return True
+    return any(
+        part in _COLOR_LETTERS
+        for symbol in _MANA_SYMBOL.findall(produced)
+        for part in symbol.split("/")
+    )
+
+
 class FullGameProtocolError(RuntimeError):
     """Fail-closed full-game bridge or external-pilot protocol error.
 
@@ -885,6 +912,7 @@ class ExternalPilotDecisionPolicy:
                 rng,
                 decision_class=decision_class,
                 prompt=prompt,
+                source_object=request.get("source_object"),
             )
         elif decision_class == "multi_amount":
             numeric_choices = self._decide_multi_amount(
@@ -920,6 +948,7 @@ class ExternalPilotDecisionPolicy:
                     rng,
                     decision_class=decision_class,
                     prompt=prompt,
+                    source_object=request.get("source_object"),
                 )
         elif decision_class == "declare_attacker":
             selected = [self._decide_attack(runtime, pilot_state, options, rng)]
@@ -1722,6 +1751,7 @@ class ExternalPilotDecisionPolicy:
         *,
         decision_class: str,
         prompt: str = "",
+        source_object: Any = None,
     ) -> int:
         """Range-native scalar decision (WS229 Design B).
 
@@ -1731,6 +1761,12 @@ class ExternalPilotDecisionPolicy:
         {min,mid,max} collapse, no clamp, no nearest-value mapping, no
         default, no fallback. Malformed, non-integer, and out-of-domain
         pilot returns fail closed.
+
+        For a mana X the descriptor also carries an ``affordable_max``
+        strategy hint (see ``_announce_x_affordable_max``). That hint narrows
+        the band the pilot strategy picks inside; it never narrows, moves or
+        re-derives the authoritative domain, which is still the only thing
+        validated here and the only thing the bridge accepts.
         """
         minimum = self._required_bound(context, "numeric_min")
         maximum = self._required_bound(context, "numeric_max")
@@ -1744,6 +1780,10 @@ class ExternalPilotDecisionPolicy:
             "outcome": outcome,
             "prompt": prompt,
         }
+        if decision_class == "announce_x":
+            affordable_max = self._announce_x_affordable_max(state, context, source_object)
+            if affordable_max is not None:
+                domain["affordable_max"] = affordable_max
         chosen = runtime.pilot.choose_number(self._pilot_state(runtime, state), domain, rng)
         if isinstance(chosen, bool) or not isinstance(chosen, int):
             raise FullGameProtocolError(
@@ -1755,6 +1795,96 @@ class ExternalPilotDecisionPolicy:
                 f"{minimum}..{maximum} for {decision_class}"
             )
         return chosen
+
+    @staticmethod
+    def _x_cost_facts(context: dict[str, Any], source_object: Any) -> tuple[int, int] | None:
+        """The announced X's non-X cost and how many X symbols carry it.
+
+        Read from the Core-supplied request context, or from the bridge's
+        ``source_object`` metadata for the ability being announced. Both are
+        engine-supplied facts; the Lab never derives a mana cost itself.
+
+        Returns ``(non_x_mana_value, x_symbols)`` or ``None`` when the cost is
+        not readable. ``None`` is the conservative answer for every shape that
+        is absent, non-integer, boolean, negative, or zero-symbol: no cost
+        facts means no affordability hint, never a fabricated one.
+        """
+        sources: list[dict[str, Any]] = [context]
+        if isinstance(source_object, dict):
+            sources.append(source_object)
+
+        def read(key: str) -> int | None:
+            for source in sources:
+                raw = source.get(key)
+                if isinstance(raw, bool) or not isinstance(raw, int):
+                    continue
+                return raw
+            return None
+
+        non_x = read("numeric_non_x_mana_value")
+        symbols = read("numeric_x_symbols")
+        if non_x is None or symbols is None:
+            return None
+        if non_x < 0 or symbols < 1:
+            return None
+        return non_x, symbols
+
+    def _mana_budget(self, state: dict[str, Any]) -> int:
+        """Mana the actor can see it could produce right now.
+
+        Its own floating pool plus each untapped permanent on its own
+        battlefield whose public ability text reads as a mana ability. One
+        permanent counts once: a "tap for two" rock is budgeted as one, which
+        under-states rather than over-states what the pilot believes it has.
+        Only the acting principal's own zones are read, so this is
+        pilot-visible by construction.
+        """
+        actor = self._actor(state)
+        budget = int(self._actor_mana(actor))
+        battlefield = actor.get("battlefield")
+        if not isinstance(battlefield, list):
+            return budget
+        for item in battlefield:
+            if not isinstance(item, dict):
+                continue
+            if item.get("tapped") is not False:
+                continue
+            if item.get("face_down") is True:
+                continue
+            rules = item.get("abilities")
+            if not isinstance(rules, list):
+                continue
+            if any(offers_mana_ability(str(rule)) for rule in rules):
+                budget += 1
+        return budget
+
+    def _announce_x_affordable_max(
+        self,
+        state: dict[str, Any],
+        context: dict[str, Any],
+        source_object: Any,
+    ) -> int | None:
+        """Largest announced X the pilot's visible mana could pay (#700).
+
+        ``budget // x_symbols - non_x_mana_value``: the announced X cannot
+        exceed the mana the pilot can see it producing minus the rest of the
+        cost, and a cost carrying several X symbols shares the budget between
+        them. ``None`` means affordability could not be read, and the pilot
+        then keeps the pre-existing whole-domain behaviour.
+
+        Known limitation, not repaired here: the pinned bridge sends neither
+        the non-X cost nor the X count on an ``announce_x`` frame, so on real
+        engine traffic this hint is absent and the domain is used unchanged.
+        Supplying those two facts is a bridge change outside this
+        workstream; until then the Lab never guesses a cost. The budget also
+        ignores the announced ability's own tap or sacrifice cost, so a source
+        that spends itself can leave this an over-estimate by one.
+        """
+        facts = self._x_cost_facts(context, source_object)
+        if facts is None:
+            return None
+        non_x, symbols = facts
+        return self._mana_budget(state) // symbols - non_x
 
     def _decide_multi_amount(
         self,
