@@ -96,17 +96,11 @@ def _workflow_yaml(
         "steps": [
             {
                 "name": "Preflight reviewer runtime identity",
-                "run": (
-                    'git show "${GITHUB_SHA}:tools/foundry/review_runtime_identity.py" > "$c"\n'
-                    'python3 -I "$c" preflight\n'
-                ),
+                "run": evidence_mod.PREFLIGHT_SCRIPT + "\n",
             },
             {
                 "name": "Run opencode",
-                "run": (
-                    'python3 -I "$watchdog" --log "$RUNNER_TEMP/opencode-review.log" '
-                    "-- opencode github run\n"
-                ),
+                "run": evidence_mod.RUN_SCRIPT + "\n",
                 "env": {
                     "MODEL": model,
                     "VARIANT": variant,
@@ -115,10 +109,7 @@ def _workflow_yaml(
             },
             {
                 "name": "Audit reviewer runtime identity",
-                "run": (
-                    'python3 -I "$c" audit "$RUNNER_TEMP/opencode-review.log"\n'
-                    'python3 -I "$c" preflight\n'
-                ),
+                "run": evidence_mod.AUDIT_SCRIPT + "\n",
             },
         ],
     }
@@ -873,8 +864,24 @@ def test_github_env_write_or_continue_on_error_is_refused() -> None:
     assert "REVIEW_EVIDENCE_WORKFLOW_RUNTIME_CHECK_MISSING" in _reason(_workflow_with(soft_audit))
 
 
-@pytest.mark.parametrize("missing", ["preflight", "log", "audit", "late_preflight", "skippable"])
+@pytest.mark.parametrize(
+    "missing",
+    [
+        "preflight",
+        "log",
+        "audit",
+        "late_preflight",
+        "skippable",
+        "or_true",
+        "commented_audit",
+        "echoed_log",
+        "reused_checker",
+        "no_errexit",
+    ],
+)
 def test_missing_runtime_identity_check_is_refused(missing: str) -> None:
+    """Only the exact scripts count: mentioning the checker is not running it."""
+
     def mutate(_workflow: dict, job: dict) -> None:
         steps = job["steps"]
         if missing == "preflight":
@@ -885,8 +892,23 @@ def test_missing_runtime_identity_check_is_refused(missing: str) -> None:
             del steps[2]
         elif missing == "late_preflight":
             steps.append(steps.pop(0))
-        else:
+        elif missing == "skippable":
             steps[2]["if"] = "always() && false"
+        elif missing == "or_true":
+            steps[0]["run"] = evidence_mod.PREFLIGHT_SCRIPT + " || true\n"
+        elif missing == "commented_audit":
+            steps[2]["run"] = (
+                '# audit "$RUNNER_TEMP/opencode-review.log" preflight\n'
+                + evidence_mod.AUDIT_SCRIPT.replace('python3 -I "$checker"', "# python3")
+            )
+        elif missing == "echoed_log":
+            steps[1]["run"] = 'echo --log "$RUNNER_TEMP/opencode-review.log"; opencode github run\n'
+        elif missing == "reused_checker":
+            steps[2]["run"] = "\n".join(
+                line for line in evidence_mod.AUDIT_SCRIPT.splitlines() if "GITHUB_SHA" not in line
+            )
+        else:
+            steps[0]["run"] = evidence_mod.PREFLIGHT_SCRIPT.replace("set -euo pipefail\n", "")
 
     reason = _reason(_workflow_with(mutate))
     assert "REVIEW_EVIDENCE_WORKFLOW_RUNTIME_CHECK_MISSING" in reason

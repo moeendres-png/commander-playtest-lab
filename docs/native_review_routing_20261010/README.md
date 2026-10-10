@@ -22,21 +22,25 @@ job 113839482326 logged `agent: "foundry-implementer"` while the workflow said
   config and reviewer (`opencode debug config`, `opencode debug agent
   foundry-reviewer`) and fails unless the default agent is the reviewer on
   `opencode-go/space-bunny` variant `max`, no write tool is offered, and the
-  merged ruleset refuses all 38 write probes (edit, task, push/commit/add,
-  `--output`, redirects, gh writes, arbitrary exec).
+  merged ruleset refuses all 40 write probes (edit, task, push/commit/add,
+  `--output`, redirects, `difftool -x`, `--ext-diff`, gh writes, arbitrary exec).
 - **Audit** (after the run): the watchdog copies the output (`--log`); every
   logged model call must be the reviewer on Space Bunny (only the tool-less
-  `title` agent may appear, on the small model). No reviewer call recorded is
-  UNKNOWN and fails the job. The preflight is repeated on the tree the run
-  checked out.
+  `title` agent on the small model and `compaction` on Space Bunny may
+  appear besides it). No reviewer call recorded is
+  UNKNOWN and fails the job. The checker is copied again from `${GITHUB_SHA}`
+  and the preflight repeated on the tree the run checked out.
 - **Admission** (`review_evidence.py`): a workflow pin is admitted only with
-  that exact override, the preflight/log/audit steps in order and unskippable,
+  that exact override and the preflight, run and audit steps byte-for-byte equal
+  to the canonical scripts, in order and unskippable,
   no `OPENCODE_CONFIG*`/`OPENCODE_PERMISSION`/`GITHUB_ENV` bypass and no
   `continue-on-error`; the committed `opencode.json` merged with the reviewer's
   rules (last match wins, as `permission/index.ts`) must refuse every write
   probe. `AGENT` alone is refused.
-- **Reviewer surface.** `foundry-reviewer.md` now also denies `*--output*` and
-  `*>*`: `git diff/log/show` could write files through them.
+- **Reviewer surface.** `foundry-reviewer.md` allows only exact read-only Git
+  subcommands (`git diff` / `git diff *`): the old `git diff*` also matched
+  `git difftool -y -x CMD`, which runs CMD (found by the fresh-context review).
+  It also denies `*--output*`, `*>*` and `*--ext-diff*`.
 
 ## Evidence
 
@@ -44,7 +48,7 @@ PASS (local, real pinned CLI 1.18.30, sha256-verified release asset):
 
 - `opencode debug config` resolves `default_agent` to `foundry-implementer`
   without the override and to `foundry-reviewer` with it;
-- preflight with the override: PASS (38 write probes refused, read-only Git
+- preflight with the override: PASS (40 write probes refused, read-only Git
   allowed); env-only `AGENT`: BLOCKED;
 - preflight against the previous reviewer file: BLOCKED on the five
   `--output`/redirect probes.

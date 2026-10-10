@@ -123,6 +123,30 @@ def test_read_only_git_cannot_write_files_through_output_or_redirects() -> None:
     assert any(">" in problem for problem in problems)
 
 
+def test_prefix_rules_would_reach_difftool_exec() -> None:
+    """``git diff*`` also matches ``git difftool -x CMD`` (fresh review of #654)."""
+    reviewer = _frontmatter("foundry-reviewer.md")
+    reviewer["permission"]["bash"] = {"*": "deny", "git diff*": "allow"}
+    problems = rid.static_problems(_project_config(), reviewer)
+    assert any("difftool" in problem for problem in problems)
+
+
+@pytest.mark.parametrize(
+    ("where", "patch", "needle"),
+    [
+        ("config", {"mode": {"foundry-reviewer": {}}}, "defines mode"),
+        ("agent", {"mode": "subagent"}, "subagent"),
+        ("agent", {"hidden": True}, "hidden"),
+        ("agent", {"disable": True}, "disabled"),
+    ],
+)
+def test_reviewer_that_cannot_be_default_is_refused(where: str, patch: dict, needle: str) -> None:
+    config = _project_config()
+    reviewer = _frontmatter("foundry-reviewer.md")
+    (config if where == "config" else reviewer).update(patch)
+    assert any(needle in problem for problem in rid.static_problems(config, reviewer))
+
+
 @pytest.mark.parametrize(
     ("value", "ok"),
     [
@@ -229,8 +253,9 @@ def test_real_implementer_record_is_refused() -> None:
     assert any("'foundry-implementer'" in problem for problem in problems)
 
 
-def test_reviewer_records_pass_and_titles_are_tolerated() -> None:
-    assert _audit(_record("title", small="true") + _record("foundry-reviewer")) == []
+def test_reviewer_records_pass_and_tool_less_helpers_are_tolerated() -> None:
+    text = _record("title", small="true") + _record("foundry-reviewer") + _record("compaction")
+    assert _audit(text) == []
 
 
 @pytest.mark.parametrize(
@@ -239,7 +264,8 @@ def test_reviewer_records_pass_and_titles_are_tolerated() -> None:
         "",
         _record("title", small="true"),
         _record("foundry-reviewer", small="true"),
-        _record("foundry-reviewer") + _record("compaction"),
+        _record("foundry-reviewer") + _record("compaction", model="deepseek-v4.1-flash"),
+        _record("foundry-reviewer") + _record("build"),
         _record("foundry-reviewer") + _record("title"),
         _record("foundry-reviewer", model="deepseek-v4.1-flash"),
     ],

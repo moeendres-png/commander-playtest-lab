@@ -674,6 +674,19 @@ def test_bunny_reviewer_agents_are_structurally_mutation_denied() -> None:
     # The bash allowlist must stay read-only Git inspection: no write, push,
     # edit, package-management or arbitrary-exec prefix may appear.
     read_only_prefixes = (
+        # foundry-reviewer: exact subcommands, so `git diff*` cannot reach difftool (#654).
+        "git status",
+        "git status *",
+        "git diff",
+        "git diff *",
+        "git log",
+        "git log *",
+        "git show",
+        "git show *",
+        "git rev-parse",
+        "git rev-parse *",
+        "git ls-files",
+        "git ls-files *",
         "git status*",
         "git diff*",
         "git log*",

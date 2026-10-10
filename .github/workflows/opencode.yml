@@ -504,11 +504,13 @@ jobs:
 
       # The run's own model-call records must all name the reviewer on Space
       # Bunny; none recorded means UNKNOWN and fails the job. The preflight is
-      # repeated on the reviewed tree the run checked out.
+      # repeated on the reviewed tree the run checked out. The checker is copied
+      # again from the triggering commit, never reused from a path the agent saw.
       - name: Audit reviewer runtime identity
         run: |
           set -euo pipefail
           checker="$RUNNER_TEMP/review_runtime_identity.py"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:tools/foundry/review_runtime_identity.py" > "$checker"
           python3 -I "$checker" audit "$RUNNER_TEMP/opencode-review.log"
           python3 -I "$checker" preflight
         env:

@@ -20,7 +20,8 @@ the reviewer, and a declaration alone is never trusted:
 - ``audit LOG`` (after the run) reads the run's own ``stream`` records, copied by
   ``quota_watchdog.py --log``, and fails unless at least one main-model record
   exists and every record names the reviewer (only the tool-less native
-  ``title`` agent may appear besides it, on the small model).
+  ``title`` agent on the small model and ``compaction`` on Space Bunny may
+  appear besides it).
 
 A failed check fails the job, so ``review_evidence.py`` (which requires a
 successful job) never admits that run. Missing evidence is BLOCKED, never PASS.
@@ -55,9 +56,10 @@ FORBIDDEN_CONFIG_ENV = (
     "OPENCODE_PERMISSION",
     "OPENCODE_DISABLE_PROJECT_CONFIG",
 )
-# Native agents that run without tools and never review; allowed only on the
-# small model (session titles).
+# Native agents that run without tools and never review: session titles on the
+# small model, and context compaction of a long review on the reviewer's model.
 TOOLLESS_SMALL_AGENTS = frozenset({"title"})
+TOOLLESS_MAIN_AGENTS = frozenset({"compaction"})
 
 # Every probe must NOT be allowed for the reviewer. ``ask`` counts as refused:
 # nobody answers a prompt in a GitHub run.
@@ -87,6 +89,8 @@ WRITE_PROBES: tuple[tuple[str, str], ...] = (
     ("bash", "git show HEAD --output=x.txt"),
     ("bash", "git diff > x.txt"),
     ("bash", "git log >> x.txt"),
+    ("bash", "git difftool -y -x 'touch x' HEAD"),
+    ("bash", "git diff --ext-diff"),
     ("bash", "gh pr comment 1 --body x"),
     ("bash", "gh api -X POST repos/x/y/issues/1/comments"),
     ("bash", "python3 -c pass"),
@@ -288,7 +292,9 @@ def audit_problems(records: Sequence[Mapping[str, str]]) -> list[str]:
                 problems.append(f"reviewer ran on {model}")
             if not small:
                 reviewer_calls += 1
-        elif agent in TOOLLESS_SMALL_AGENTS and small:
+        elif (agent in TOOLLESS_SMALL_AGENTS and small) or (
+            agent in TOOLLESS_MAIN_AGENTS and model == f"{REVIEW_PROVIDER}/{REVIEW_MODEL}"
+        ):
             continue
         else:
             problems.append(f"model call by agent {agent!r} (small={record.get('small')})")

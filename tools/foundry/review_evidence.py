@@ -82,6 +82,29 @@ PROJECT_CONFIG_PATH = "opencode.json"
 # Run log the watchdog copies for the runtime audit (review_runtime_identity.py).
 RUNTIME_LOG = '"$RUNNER_TEMP/opencode-review.log"'
 RUNTIME_CHECKER = "tools/foundry/review_runtime_identity.py"
+# The exact scripts of the three steps that select and check the reviewer. Text
+# that merely mentions the checker (``|| true``, a comment, an ``echo``) is not
+# a check, so admission compares whole scripts. Both checker steps copy the
+# checker from the trusted commit; the agent never touches the copy it runs.
+_COPY_CHECKER = (
+    'checker="$RUNNER_TEMP/review_runtime_identity.py"\n'
+    'git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:tools/foundry/review_runtime_identity.py"'
+    ' > "$checker"\n'
+)
+PREFLIGHT_SCRIPT = "set -euo pipefail\n" + _COPY_CHECKER + 'python3 -I "$checker" preflight'
+RUN_SCRIPT = (
+    "set -euo pipefail\n"
+    'watchdog="$RUNNER_TEMP/quota_watchdog.py"\n'
+    'git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:tools/foundry/quota_watchdog.py"'
+    ' > "$watchdog"\n'
+    f'python3 -I "$watchdog" --log {RUNTIME_LOG} -- opencode github run'
+)
+AUDIT_SCRIPT = (
+    "set -euo pipefail\n"
+    + _COPY_CHECKER
+    + f'python3 -I "$checker" audit {RUNTIME_LOG}\n'
+    + 'python3 -I "$checker" preflight'
+)
 
 TRUSTED_ASSOCIATIONS = frozenset({"OWNER", "MEMBER", "COLLABORATOR"})
 OPENCODE_BOT_LOGINS = frozenset({"opencode-agent[bot]", "opencode-agent"})
@@ -761,16 +784,12 @@ class _Verifier:
             )
         run_index = steps.index(run_step)
 
-        def runs(step: dict[str, Any], *needles: str) -> bool:
-            script = str(step.get("run") or "")
-            return "if" not in step and all(needle in script for needle in needles)
+        def runs(step: dict[str, Any], script: str) -> bool:
+            return "if" not in step and str(step.get("run") or "").strip() == script
 
-        copied = f'"${{GITHUB_SHA}}:{RUNTIME_CHECKER}"'
-        preflight = any(runs(step, copied, "preflight") for step in steps[:run_index])
-        logged = runs(run_step, f"--log {RUNTIME_LOG}")
-        audited = any(
-            runs(step, f"audit {RUNTIME_LOG}", "preflight") for step in steps[run_index + 1 :]
-        )
+        preflight = any(runs(step, PREFLIGHT_SCRIPT) for step in steps[:run_index])
+        logged = runs(run_step, RUN_SCRIPT)
+        audited = any(runs(step, AUDIT_SCRIPT) for step in steps[run_index + 1 :])
         if not (preflight and logged and audited):
             raise _EvidenceFailure(
                 "REVIEW_EVIDENCE_WORKFLOW_RUNTIME_CHECK_MISSING",
