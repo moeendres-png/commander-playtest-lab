@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 from pathlib import Path
 
@@ -9,6 +10,16 @@ XMAGE_REPOSITORY = "https://github.com/moeendres-png/mage.git"
 XMAGE_ACTIONS_REPOSITORY = "moeendres-png/mage"
 # G1: the live pin is read from config/rules_engines.json, never restated here.
 XMAGE_COMMIT = canonical_xmage_engine_pin()
+
+
+def _derived_missing(repo_root: Path) -> list[str]:
+    """The missing capabilities the newest sealed epoch for the pin derives (#662)."""
+    path = repo_root / "scripts" / "derive_rules_engines_capabilities.py"
+    spec = importlib.util.spec_from_file_location("derive_rules_engines_capabilities", path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return list(module.derive()[1])
 
 
 def test_current_xmage_b4d_runtime_truth_is_pinned_and_fail_closed(repo_root: Path) -> None:
@@ -46,9 +57,11 @@ def test_current_xmage_b4d_runtime_truth_is_pinned_and_fail_closed(repo_root: Pa
     assert runtime["xmage_status"] == "PARTIAL_B4D_EVENT_LOG_LIFECYCLE"
     # #662: derived from the newest sealed epoch by the freeze-record assembler,
     # never pinned by hand (tests/unit/test_rules_engines_capability_derivation.py).
-    assert "legal_actions_supported" in runtime["required_missing_capabilities"]
-    assert "action_submission_supported" in runtime["required_missing_capabilities"]
+    # An empty list is evidence of eligibility, not a provider selection: the
+    # provider stays unselected and not production ready until the Owner decides.
+    assert runtime["required_missing_capabilities"] == _derived_missing(repo_root)
     assert primary["missing_required_capabilities"] == runtime["required_missing_capabilities"]
+    assert primary["production_ready"] is False
 
 
 def test_current_bootstraps_use_compatibility_candidate(repo_root: Path) -> None:
@@ -129,7 +142,5 @@ def test_b4d_bridge_is_present_but_provider_remains_fail_closed(repo_root: Path)
     assert config["primary_engine"]["production_ready"] is False
     assert config["primary_engine"]["real_execution"] is True
     assert config["current_runtime"]["provider_selected"] is False
-    assert "legal_actions_supported" in config["primary_engine"]["missing_required_capabilities"]
-    assert (
-        "action_submission_supported" in config["primary_engine"]["missing_required_capabilities"]
-    )
+    assert config["current_runtime"]["production_provider"] is None
+    assert config["primary_engine"]["missing_required_capabilities"] == _derived_missing(repo_root)
