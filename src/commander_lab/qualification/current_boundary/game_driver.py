@@ -1666,3 +1666,191 @@ def self_choice_pass(actions: list[dict[str, Any]], actor: str, revision: Any) -
             value = action.get("action_id")
             return str(value) if value else None
     return None
+
+
+# ---- XMage full-game production lane (#662, SLOT-06 §(b)) -----------------------
+#
+# The full-game lane hosts exactly one game per JVM process and speaks its own
+# lifecycle messages (``create_full_game``/``start_full_game``). Its decision frame is
+# the decision-scoped ``get_legal_actions`` payload. The probe answers only the two
+# pregame decisions that the lane-probe declaration covers, exactly as the
+# compatibility probe does: the declared starting seat, and ``MULLIGAN_POLICY`` (keep).
+# Any other decision class before priority fails closed. The probe never picks an
+# option of its own.
+
+FULL_GAME_LANE = "full-game"
+FULL_GAME_STARTING_PLAYER_PROMPT = "Select a starting player"
+
+
+@dataclass
+class FullGameProbeResult:
+    game_id: str
+    player_count: int
+    seed: int
+    player_ids: list[str] = field(default_factory=list)
+    decision_tape: list[dict[str, Any]] = field(default_factory=list)
+    steps_completed: list[str] = field(default_factory=list)
+    failure: str | None = None
+
+
+def normalize_full_game_frame(payload: dict[str, Any]) -> dict[str, Any] | None:
+    """Field-map the full-game lane's decision-scoped frame; never infer an option."""
+    decision_class = payload.get("decision_class")
+    if not decision_class:
+        return None
+    actions = payload.get("actions")
+    return {
+        "seat": None,
+        "decision": {
+            "kind": str(decision_class).upper(),
+            "actor": payload.get("actor_id"),
+            "revision": payload.get("decision_offset"),
+            "decision_id": payload.get("decision_id"),
+            "status": "SUPPORTED" if payload.get("complete") else "INCOMPLETE",
+        },
+        "actions": actions if isinstance(actions, list) else [],
+        "context": None,
+        "raw": payload,
+    }
+
+
+def poll_full_game_decision(proc: BridgeProcess) -> dict[str, Any]:
+    """Read the one pending full-game decision; never invents one."""
+    last: str | None = None
+    for _ in range(POLL_ATTEMPTS):
+        response = proc.request("get_legal_actions", {}, timeout_s=60.0)
+        if _first_ok(response):
+            frame = normalize_full_game_frame(_payload(response))
+            if frame is not None:
+                return frame
+            last = "no pending decision"
+        else:
+            last = _failure_detail(response)
+        time.sleep(POLL_INTERVAL_S)
+    raise GameDriveError(f"no pending full-game decision observed (last: {last})")
+
+
+def full_game_proposal(frame: dict[str, Any], action: dict[str, Any]) -> dict[str, Any]:
+    """The full-game ``submit_action`` proposal for one engine-offered action.
+
+    The decision identity travels inside ``choices``: the lane binds a proposal to
+    the exact pending decision and offset there.
+    """
+    decision = frame["decision"]
+    return {
+        "proposal_id": str(uuid.uuid4()),
+        "actor_id": action.get("actor_id"),
+        "legal_action_id": action.get("action_id"),
+        "action_type": action.get("action_type"),
+        "choices": {
+            "decision_id": decision.get("decision_id"),
+            "decision_offset": decision.get("revision"),
+        },
+    }
+
+
+def drive_full_game_to_priority(
+    proc: BridgeProcess,
+    *,
+    seed: int,
+    player_count: int = 2,
+    starting_seat_index: int = 0,
+    max_pregame_decisions: int = 16,
+) -> FullGameProbeResult:
+    """Open one real full-game Commander game and stop at its first priority frame."""
+    game_id = f"af01-full-game-probe:{seed}"
+    result = FullGameProbeResult(game_id=game_id, player_count=player_count, seed=seed)
+    try:
+        _require_ok(proc.request("start_engine", {}), "start_engine")
+        handles: list[str] = []
+        for index in range(player_count):
+            imported = _require_ok(
+                proc.request("import_deck", {"deck": build_deck(f"af01-fg-{index}")}),
+                "import_deck",
+            )
+            handle = imported.get("deck_handle") or {}
+            handle_id = str(handle.get("handle_id") or "")
+            if not handle_id:
+                raise GameDriveError("import_deck returned no deck handle")
+            handles.append(handle_id)
+        result.steps_completed.append("import_deck")
+        created = _require_ok(
+            proc.request(
+                "create_full_game",
+                {
+                    "game_id": game_id,
+                    "deck_handles": handles,
+                    "seed": seed,
+                    "starting_player_seat": starting_seat_index,
+                    "starting_life": 40,
+                },
+            ),
+            "create_full_game",
+        )
+        if created.get("seed") != seed or created.get("player_count") != player_count:
+            raise GameDriveError("create_full_game did not preserve the seed/player-count contract")
+        result.steps_completed.append("create_full_game")
+        started = _require_ok(proc.request("start_full_game", {}), "start_full_game")
+        result.player_ids = [str(row.get("player_id")) for row in started.get("outcomes") or []]
+        if len(result.player_ids) != player_count:
+            raise GameDriveError("start_full_game did not report one player id per seat")
+        result.steps_completed.append("start_full_game")
+        declared_starter = result.player_ids[starting_seat_index]
+
+        for _ in range(max_pregame_decisions):
+            frame = poll_full_game_decision(proc)
+            kind = frame["decision"]["kind"]
+            if kind == "PRIORITY":
+                result.decision_tape.append({"step": "priority_reached", "kind": kind})
+                result.steps_completed.append("priority")
+                return result
+            chosen: dict[str, Any] | None = None
+            declaration: str
+            if kind == "CHOOSE_OBJECT" and any(
+                str((a.get("metadata") or {}).get("prompt", "")).startswith(
+                    FULL_GAME_STARTING_PLAYER_PROMPT
+                )
+                for a in frame["actions"]
+            ):
+                declaration = "LANE_PROBE_STARTING_SEAT"
+                matches = [
+                    a
+                    for a in frame["actions"]
+                    if (a.get("metadata") or {}).get("option_id") == declared_starter
+                ]
+                chosen = matches[0] if len(matches) == 1 else None
+            elif kind == "MULLIGAN" and MULLIGAN_POLICY == "keep_all":
+                declaration = MULLIGAN_POLICY
+                matches = [
+                    a
+                    for a in frame["actions"]
+                    if (a.get("metadata") or {}).get("option_type") == "keep"
+                ]
+                chosen = matches[0] if len(matches) == 1 else None
+            else:
+                raise DecisionUnsatisfied(
+                    f"pregame decision {kind} is not covered by the lane-probe declaration"
+                )
+            if chosen is None:
+                raise DecisionUnsatisfied(
+                    f"the engine offered no unique option matching declaration {declaration}"
+                )
+            response = proc.request(
+                "submit_action", {"proposal": full_game_proposal(frame, chosen)}
+            )
+            _require_ok(response, f"submit_action {kind}")
+            result.decision_tape.append(
+                {
+                    "step": kind.lower(),
+                    "actor": frame["decision"]["actor"],
+                    "decision_id": frame["decision"]["decision_id"],
+                    "declaration": declaration,
+                    "option_id": (chosen.get("metadata") or {}).get("option_id"),
+                }
+            )
+        raise GameDriveError(
+            f"no priority frame within {max_pregame_decisions} declared pregame decisions"
+        )
+    except (GameDriveError, DecisionUnsatisfied, BridgeLaunchError) as exc:
+        result.failure = f"{type(exc).__name__}: {exc}"
+    return result
