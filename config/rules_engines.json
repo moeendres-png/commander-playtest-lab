@@ -20,7 +20,11 @@
   "forge_status": "PARTIAL",
   "production_provider": null,
   "provider_selected": false,
-  "required_missing_capabilities": [],
+  "required_missing_capabilities": [
+   "action_submission_supported",
+   "legal_actions_supported",
+   "replay_supported"
+  ],
   "source_of_truth": "real_b4d_process_regression_on_pinned_xmage_plus_current_pr_head",
   "status": "external_rules_engine_b4d_event_log_lifecycle_degraded",
   "tactical_oracle_substitution_allowed": false,

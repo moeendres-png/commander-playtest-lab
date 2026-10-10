@@ -38,6 +38,14 @@ reference column only (Owner decision 2, `docs/engine_strategy_20261009`).
 ## 2. PRODUCTION_PROVIDER
 
 **OWNER-DECISION** (must equal RULES_CORE). `PRODUCTION_PROVIDER = NOT SELECTED`.
+
+The application still launches the B4-D compatibility bridge
+(`production_bridge: b4d_event_log_lifecycle_bridge`). Its own capability truth comes
+from the compatibility-lane AF01 of the same epoch and is still incomplete:
+`current_runtime.required_missing_capabilities` lists `action_submission_supported`,
+`legal_actions_supported` and `replay_supported`, so `engine-verify` stays `degraded`.
+Switching the application runtime to the proven full-game lane is a production
+integration step, not part of this evidence.
 `config/rules_engines.json` keeps `production_provider: null` and
 `provider_selected: false`.
 
