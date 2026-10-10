@@ -1746,51 +1746,21 @@ def answer_mode(
     raise ml.MidgameLaneError(f"{tag}: the mode was never offered")
 
 
-# The one mana type a basic land's mana ability produces (CR 305.6).
-BASIC_LAND_MANA = {
-    "Plains": "WHITE",
-    "Island": "BLUE",
-    "Swamp": "BLACK",
-    "Mountain": "RED",
-    "Forest": "GREEN",
-    "Wastes": "COLORLESS",
-}
-
-
-def fuel_spend_order(fuel: object) -> list[str] | None:
-    """The pool spend order a row's fuel declaration implies, or None.
-
-    The declared fuel is tapped in declared order; when more than one pool spend
-    advances the payment, the mana of the earliest declared fuel card is spent
-    first. Only basic-land fuel has one produced type; any other fuel makes no
-    spend order, so an ambiguous pool stops the row.
-    """
-    order: list[str] = []
-    for card in fuel if isinstance(fuel, list) else ():
-        identity = card.get("card_identity") if isinstance(card, dict) else None
-        mana = BASIC_LAND_MANA.get(str(identity))
-        if mana is None:
-            return None
-        if mana not in order:
-            order.append(mana)
-    return order or None
-
-
 def answer_fuel_mana(
     client: ml.MidgameLaneClient,
     tag: str,
     fuel_native_ids: list[str],
-    spend_order: list[str] | None = None,
+    authority: PassAuthority,
 ) -> None:
-    """Pay from the declared fuel, in declared order, then from the resulting pool.
+    """Pay with the declared fuel, one card at a time, spending each mana as it comes.
 
     The fuel list is the row's declaration (``CAUSAL_ROWS``), placed through the
-    engine seam: the first declared fuel card the engine offers a mana ability
-    for is tapped, never a position in the engine's list. When more than one
-    pool spend advances the payment, the declared ``spend_order``
-    (:func:`fuel_spend_order`) names which mana goes first. A fuel card with more
-    than one offered mana ability, or an ambiguous pool without a declared
-    order, is a choice no declaration makes, so the row stops (CR 601.2g-h).
+    engine seam. While exactly one pool spend advances the payment it is spent;
+    only when none does is the next declared fuel card the engine offers tapped
+    (declared order, never the engine's list position). So the pool never holds
+    two advancing spends from this route; if it ever does, or a fuel card offers
+    more than one mana ability, the row stops: which mana pays is the player's
+    choice (CR 601.2g-h). Every tap and spend is traced.
     """
     for _ in range(60):
         decision = client.pending_decision()
@@ -1798,6 +1768,7 @@ def answer_fuel_mana(
             raise ml.MidgameLaneError(f"{tag}: the engine went terminal seeking mana")
         if str(decision.get("decision_class")) != "mana_payment":
             return
+        principal = _decision_seat_principal(decision)
         legal = legal_actions(client)
         by_source: dict[str, list[dict[str, Any]]] = {}
         spends: list[dict[str, Any]] = []
@@ -1810,32 +1781,31 @@ def answer_fuel_mana(
                 engine.get("advances_payment") is None or bool(engine.get("advances_payment"))
             ):
                 spends.append(action)
-        source = next((fuel for fuel in fuel_native_ids if fuel in by_source), None)
-        if source is not None:
-            if len(by_source[source]) != 1:
-                raise ml.MidgameLaneError(
-                    f"{tag}: declared fuel offers {len(by_source[source])} mana abilities; "
-                    "which one is not declared"
-                )
-            submit_proposal(client, legal, by_source[source][0], f"{tag}-tap")
-            continue
-        spend = spends[0] if len(spends) == 1 else None
-        if spend is None and spends and spend_order:
-            by_type = {
-                str(
-                    ((action.get("metadata") or {}).get("xmage_option_metadata") or {}).get(
-                        "mana_type"
-                    )
-                ).upper(): action
-                for action in spends
-            }
-            spend = next((by_type[mana] for mana in spend_order if mana in by_type), None)
-        if spend is None:
+        if len(spends) > 1:
             raise ml.MidgameLaneError(
-                f"{tag}: {len(spends)} advancing pool spends offered; exactly one is required "
-                "without a declared spend order"
+                f"{tag}: {len(spends)} advancing pool spends offered; which mana pays is "
+                "not declared"
             )
-        submit_proposal(client, legal, spend, f"{tag}-spend")
+        if spends:
+            submit_proposal(client, legal, spends[0], f"{tag}-spend")
+            authority.note("pool_spend", principal, decision, "single_advancing_spend", tag)
+            continue
+        index = next(
+            (position for position, fuel in enumerate(fuel_native_ids) if fuel in by_source),
+            None,
+        )
+        if index is None:
+            raise ml.MidgameLaneError(
+                f"{tag}: no declared fuel is offered and no pool spend advances"
+            )
+        abilities = by_source[fuel_native_ids[index]]
+        if len(abilities) != 1:
+            raise ml.MidgameLaneError(
+                f"{tag}: declared fuel offers {len(abilities)} mana abilities; "
+                "which one is not declared"
+            )
+        submit_proposal(client, legal, abilities[0], f"{tag}-tap")
+        authority.note("mana_tap", principal, decision, f"declared_fuel[{index}]", tag)
     raise ml.MidgameLaneError(f"{tag}: the payment never completed")
 
 
@@ -1857,7 +1827,6 @@ def causal_stack_frames(
     placed: dict[str, str],
     fuel_native_ids: list[str],
     authority: PassAuthority,
-    spend_order: list[str] | None = None,
 ) -> None:
     """Cast every causal frame bottom-to-top through the engine."""
     for frame in causal_plan.get("frames_bottom_to_top") or ():
@@ -1871,7 +1840,7 @@ def causal_stack_frames(
             else:
                 answer_player_target(client, f"{frame_tag}-target", seat_label(str(target)))
         if fuel_native_ids:
-            answer_fuel_mana(client, f"{frame_tag}-mana", fuel_native_ids, spend_order)
+            answer_fuel_mana(client, f"{frame_tag}-mana", fuel_native_ids, authority)
 
 
 def observe_priority_ring(
@@ -2535,7 +2504,6 @@ def drive_causal_stack(
         placed,
         fuel_native_ids,
         authority,
-        fuel_spend_order(spec.get("fuel")),
     )
     stack_verdict = complete_causal(client, "stack").get("verdict") or {}
     terminal_kind = str(spec.get("terminal"))
@@ -2769,7 +2737,7 @@ def eliminate_causally(
     for index in range(bolt_count):
         cast_frame_source(client, f"{tag}-cast-{index}", bolt_ids[index], authority)
         answer_player_target(client, f"{tag}-target-{index}", victim_seat)
-        answer_fuel_mana(client, f"{tag}-mana-{index}", mountain_ids)
+        answer_fuel_mana(client, f"{tag}-mana-{index}", mountain_ids, authority)
         expected_life = resolve_until_life_drops(
             client,
             f"{tag}-resolve-{index}",
@@ -2806,7 +2774,6 @@ def build_and_eliminate(
         placed,
         fuel,
         authority,
-        fuel_spend_order(spec.get("fuel")),
     )
     stack_verdict = complete_causal(client, "stack").get("verdict") or {}
     if not stack_verdict.get("causal_match") or stack_verdict.get("mismatches"):

@@ -4795,7 +4795,6 @@ def execute_row(
                 placed,
                 fuel,
                 authority,
-                probe.fuel_spend_order(causal.get("fuel")),
             )
             verdict = probe.complete_causal(client, "stack").get("verdict") or {}
         except ml.MidgameLaneError as exc:
@@ -4814,7 +4813,7 @@ def execute_row(
                 for frame in causal_plan.get("frames_bottom_to_top") or ()
             ],
             "verdict": verdict,
-            "declared_transport": authority.trace,
+            "declared_transport": list(authority.trace),
         }
         if not verdict.get("causal_match") or verdict.get("mismatches"):
             return row_execution(
@@ -4901,7 +4900,7 @@ def execute_row(
                 "victim": str(causal.get("elimination_victim")),
                 "bolt_count": int(causal.get("bolt_count") or 0),
                 "verdict": verdict,
-                "declared_transport": authority.trace,
+                "declared_transport": list(authority.trace),
             }
         )
         if not (verdict.get("victim_lost") is True or verdict.get("victim_left") is True):

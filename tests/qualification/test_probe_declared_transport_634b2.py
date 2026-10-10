@@ -196,30 +196,44 @@ def _spend(action_id: str) -> dict[str, Any]:
     }
 
 
-def test_fuel_is_tapped_in_declared_order_not_engine_order() -> None:
+def test_fuel_is_tapped_in_declared_order_and_each_mana_spent_as_it_comes() -> None:
     probe = mr.probe_module()
-    legal = {
+    tap_frame = {
         "actor_id": "p1",
         "actions": [_ability("tap-a", "fuel-a"), _ability("tap-b", "fuel-b")],
     }
-    client = _Client([_mana_frame(), {"decision_class": "priority"}], legal=[legal])
-    probe.answer_fuel_mana(client, "t", ["fuel-b", "fuel-a"])
-    assert [proposal["legal_action_id"] for proposal in client.proposals] == ["tap-b"]
+    spend_frame = {"actor_id": "p1", "actions": [_spend("blue"), _ability("tap-a", "fuel-a")]}
+    authority = probe.PassAuthority({"decision_script": []})
+    client = _Client(
+        [_mana_frame(), _mana_frame(), {"decision_class": "priority"}],
+        legal=[tap_frame, spend_frame],
+    )
+    probe.answer_fuel_mana(client, "t", ["fuel-b", "fuel-a"], authority)
+    # Declared order (b before a), not the engine's list order; the produced mana
+    # is spent before any further fuel is tapped.
+    assert [proposal["legal_action_id"] for proposal in client.proposals] == ["tap-b", "blue"]
+    assert [(entry["kind"], entry["scope"]) for entry in authority.trace] == [
+        ("mana_tap", "declared_fuel[0]"),
+        ("pool_spend", "single_advancing_spend"),
+    ]
 
 
 def test_ambiguous_fuel_ability_or_pool_spend_is_refused() -> None:
     probe = mr.probe_module()
+    authority = probe.PassAuthority({"decision_script": []})
     two_abilities = {
         "actor_id": "p1",
         "actions": [_ability("tap-a1", "fuel-a"), _ability("tap-a2", "fuel-a")],
     }
     with pytest.raises(probe.ml.MidgameLaneError, match="2 mana abilities"):
-        probe.answer_fuel_mana(_Client([_mana_frame()], legal=[two_abilities]), "t", ["fuel-a"])
+        probe.answer_fuel_mana(
+            _Client([_mana_frame()], legal=[two_abilities]), "t", ["fuel-a"], authority
+        )
     two_spends = {"actor_id": "p1", "actions": [_spend("red"), _spend("black")]}
     client = _Client([_mana_frame()], legal=[two_spends])
     with pytest.raises(probe.ml.MidgameLaneError, match="2 advancing pool spends"):
-        probe.answer_fuel_mana(client, "t", ["fuel-a"])
-    assert client.proposals == []
+        probe.answer_fuel_mana(client, "t", ["fuel-a"], authority)
+    assert client.proposals == [] and authority.trace == []
 
 
 def _combat(decision_class: str, seat: int, option_type: str) -> dict[str, Any]:
@@ -295,26 +309,3 @@ def test_trace_names_every_lab_answer() -> None:
         "p1",
         "p2",
     ]
-
-
-def _typed_spend(action_id: str, mana_type: str) -> dict[str, Any]:
-    action = _spend(action_id)
-    action["metadata"]["xmage_option_metadata"]["mana_type"] = mana_type
-    return action
-
-
-def test_ambiguous_pool_follows_the_declared_fuel_order() -> None:
-    probe = mr.probe_module()
-    fuel = [{"card_identity": "Mountain"}, {"card_identity": "Island"}]
-    order = probe.fuel_spend_order(fuel)
-    assert order == ["RED", "BLUE"]
-    # The engine lists its pool alphabetically (Blue before Red); the declared order wins.
-    legal = {
-        "actor_id": "p1",
-        "actions": [_typed_spend("blue", "Blue"), _typed_spend("red", "Red")],
-    }
-    client = _Client([_mana_frame(), {"decision_class": "priority"}], legal=[legal])
-    probe.answer_fuel_mana(client, "t", ["fuel-a"], order)
-    assert [proposal["legal_action_id"] for proposal in client.proposals] == ["red"]
-    # Non-basic fuel declares no order.
-    assert probe.fuel_spend_order([{"card_identity": "Command Tower"}]) is None
