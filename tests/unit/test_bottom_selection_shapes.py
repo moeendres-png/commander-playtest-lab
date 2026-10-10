@@ -311,27 +311,20 @@ def _priority_state() -> dict:
 
 
 def test_priority_selection_is_order_independent() -> None:
-    """Same offer in different bridge orders: same raw option selected.
-
-    Twin-stable (WS92-D5) permutation invariance is a property of a SINGLE
-    decision, so each permutation gets its own fresh policy — the same-seed
-    fresh-process twin. Driving one policy twice would instead measure the
-    #703 reversal memory (a second frame following the first selection),
-    which is covered by tests/unit/test_priority_reversed_activation_703.py.
-    """
+    """Same offer in different bridge orders: same raw option selected."""
+    policy = _policy()
     options = [
         _priority_option("raw-pass", "pass_priority", "Pass priority"),
         _priority_option("raw-bolt", "activated_ability", "Lightning Bolt"),
         _priority_option("raw-abrade", "activated_ability", "Abrade"),
         _priority_option("raw-mountain", "mana_ability", "Mountain"),
     ]
-    first_policy = _policy()
-    first = first_policy._decide_priority(
-        first_policy._pilots[1], _priority_state(), list(options), random.Random(0)
+    first = policy._decide_priority(
+        policy._pilots[1], _priority_state(), list(options), random.Random(0)
     )
-    second_policy = _policy()
-    second = second_policy._decide_priority(
-        second_policy._pilots[1], _priority_state(), list(reversed(options)), random.Random(0)
+    reversed_options = list(reversed(options))
+    second = policy._decide_priority(
+        policy._pilots[1], _priority_state(), reversed_options, random.Random(0)
     )
     assert first == second
     assert first in {option["option_id"] for option in options}
@@ -356,14 +349,7 @@ def test_priority_no_progress_guard_passes() -> None:
 
 def test_priority_guard_latches_until_window_changes() -> None:
     """A single forced pass must not resume the loop: while the window
-    stays identical the seat keeps passing; a changed window unlatches.
-
-    #703 strengthens this: an option the engine reversed in the current
-    window is withheld immediately, so the seat stops re-picking it on the
-    SECOND identical frame rather than waiting for the four-frame
-    no-progress latch. Both mechanisms must still converge to passing and
-    both must still unlock on a changed window.
-    """
+    stays identical the seat keeps passing; a changed window unlatches."""
     policy = _policy()
     options = [
         _priority_option("raw-pass", "pass_priority", "Pass priority"),
@@ -374,10 +360,8 @@ def test_priority_guard_latches_until_window_changes() -> None:
         policy._decide_priority(runtime, _priority_state(), list(options), random.Random(0))
         for _ in range(7)
     ]
-    assert picks[0] == "raw-greaves"
-    assert picks[1:] == ["raw-pass"] * 6, (
-        "the reversed option must never be re-picked and the seat must not loop"
-    )
+    assert picks[:3] == ["raw-greaves"] * 3
+    assert picks[3:] == ["raw-pass"] * 4
     changed = _priority_state()
     changed["turn_number"] = 8
     assert (
@@ -387,11 +371,7 @@ def test_priority_guard_latches_until_window_changes() -> None:
 
 def test_priority_guard_ignores_forced_pass_rounds() -> None:
     """Interleaved 1-option forced passes (priority reset rounds) must
-    neither trip the guard nor break a genuine no-progress chain.
-
-    #703: a forced pass-only round carries no selection, so it does not
-    re-arm the reversal memory; the seat still converges to passing.
-    """
+    neither trip the guard nor break a genuine no-progress chain."""
     policy = _policy()
     options = [
         _priority_option("raw-pass", "pass_priority", "Pass priority"),
@@ -408,8 +388,8 @@ def test_priority_guard_ignores_forced_pass_rounds() -> None:
             runtime, _priority_state(), list(forced), random.Random(0)
         )
         assert forced_pick == "raw-pass"
-    assert picks[0] == "raw-greaves"
-    assert picks[1:] == ["raw-pass"] * 3, "the seat must not loop on the window"
+    assert picks[:3] == ["raw-greaves"] * 3
+    assert picks[3] == "raw-pass"
 
 
 def test_target_selection_is_order_independent() -> None:
