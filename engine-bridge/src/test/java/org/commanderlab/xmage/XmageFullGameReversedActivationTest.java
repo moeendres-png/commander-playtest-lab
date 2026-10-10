@@ -99,7 +99,8 @@ class XmageFullGameReversedActivationTest {
         assertTrue(after.get("failure").isJsonNull(),
                 "REGRESSION GUARD: before #703 this frame ended the game with "
                         + "XMAGE_ACTION_EXECUTION_FAILED / 'priority activation failed'. "
-                        + "An engine-reversed activation must not fail the game.");
+                        + "An engine-reversed activation must not fail the game. "
+                        + "Observed lane failure: " + after.get("failure"));
         // The lane blocks on the next pending decision, so a target frame would
         // have surfaced here. Seeing priority proves the engine itself skipped
         // the unchoosable required target without ever asking the bridge for one.
