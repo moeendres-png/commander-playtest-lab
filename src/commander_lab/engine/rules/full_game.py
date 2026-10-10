@@ -72,6 +72,47 @@ DECLINE_ALIGNED_BOOLEAN_OUTCOMES = frozenset(
     {"detriment", "detriment_to_controller", "aidontuseit"}
 )
 
+_MANA_SYMBOL = re.compile(r"\{([^}]*)\}")
+_COLOR_LETTERS = frozenset("wubrgc")
+
+
+def mana_payment_fit(label: str, unpaid_mana: str) -> int:
+    """Order mana abilities inside a payment by what their mana can pay.
+
+    2: the ability makes mana of a color the unpaid cost names, or any color;
+    1: it can only pay a generic part; 0: the unpaid cost has no generic part
+    and none of its colors. This reads the engine's own ability text
+    ("{T}: Add {U}.") and the unpaid cost the engine reports. It only orders
+    the pilot's options and never removes one: an unreadable label ranks 1,
+    and the engine still applies (or refuses) whatever mana is produced.
+    Without it the pilot broke the tie by label order, tapping a Plains-side
+    {W} for a {U/R} cost and stranding the payment.
+    """
+    text = label.casefold()
+    produced_text = text.partition(": add ")[2]
+    if not produced_text:
+        return 1
+    if "any color" in produced_text or "any type" in produced_text:
+        return 2
+    produced = {
+        letter
+        for symbol in _MANA_SYMBOL.findall(produced_text)
+        for letter in symbol
+        if letter in _COLOR_LETTERS
+    }
+    if not produced:
+        return 1
+    needed: set[str] = set()
+    generic = False
+    for symbol in _MANA_SYMBOL.findall(unpaid_mana.casefold()):
+        letters = {part for part in symbol.split("/") if part in _COLOR_LETTERS}
+        needed |= letters
+        if not letters or any(part.isdigit() or part == "x" for part in symbol.split("/")):
+            generic = True
+    if produced & needed:
+        return 2
+    return 1 if generic else 0
+
 
 class FullGameProtocolError(RuntimeError):
     """Fail-closed full-game bridge or external-pilot protocol error.
@@ -1625,6 +1666,7 @@ class ExternalPilotDecisionPolicy:
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
         occurrences: dict[tuple[str, str], int] = {}
+        unpaid_mana = str(context.get("unpaid_mana", ""))
         for option in options:
             option_type = self._required_text(option, "option_type")
             label = str(option.get("label", option_type))
@@ -1633,12 +1675,18 @@ class ExternalPilotDecisionPolicy:
             occurrences[key] = occurrence + 1
             stable_id = f"mana:{option_type}:{label.casefold()}:{occurrence}"
             raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+            if option_type == "cancel_mana_payment":
+                floor_value = 0.1
+            elif option_type == "mana_ability":
+                floor_value = 0.65 + 0.1 * mana_payment_fit(label, unpaid_mana)
+            else:
+                floor_value = 0.75
             actions.append(
                 PilotActionView(
                     action_id=stable_id,
                     action_kind="pass" if option_type == "cancel_mana_payment" else "card",
                     card_name=label,
-                    floor_value=0.1 if option_type == "cancel_mana_payment" else 0.75,
+                    floor_value=floor_value,
                     immediate_impact=0.0 if option_type == "cancel_mana_payment" else 0.55,
                     metadata={"xmage_option_type": option_type},
                 )

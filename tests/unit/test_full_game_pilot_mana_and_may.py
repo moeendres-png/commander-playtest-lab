@@ -26,6 +26,7 @@ from commander_lab.engine.rules.full_game import (
     ExternalPilotDecisionPolicy,
     FullGamePilotBinding,
     _RuntimePilot,
+    mana_payment_fit,
 )
 from commander_lab.models import (
     PilotActionView,
@@ -270,3 +271,58 @@ def test_repeated_multikicker_offer_is_declined() -> None:
 def test_boolean_outcome_polarity(outcome: str, expected: str) -> None:
     response = _policy().decide(_boolean(outcome, "Use the ability?"))
     assert response["selected_option_ids"] == [expected]
+
+
+@pytest.mark.parametrize(
+    ("label", "unpaid", "fit"),
+    [
+        ("Glacial Fortress — {T}: Add {W}.", "{U/R}", 0),
+        ("Island — {T}: Add {U}.", "{U/R}", 2),
+        ("Mountain — {T}: Add {R}.", "{2}", 1),
+        ("Mountain — {T}: Add {R}.", "{B}", 0),
+        ("Sol Ring — {T}: Add {C}{C}.", "{1}{B}", 1),
+        ("Swamp — {T}: Add {B}.", "{2/B}", 2),
+        (
+            "Command Tower — {T}: Add one mana of any color in your commander's color identity.",
+            "{G}",
+            2,
+        ),
+        ("Unreadable engine text", "{B}", 1),
+    ],
+)
+def test_mana_payment_fit(label: str, unpaid: str, fit: int) -> None:
+    assert mana_payment_fit(label, unpaid) == fit
+
+
+def test_payment_taps_the_source_that_pays_the_unpaid_color() -> None:
+    # Real-deck game: for Magma Opus's {U/R}{U/R} the pilot tapped Glacial
+    # Fortress for {W} (label order), the payment stalled and was cancelled,
+    # and the turn's mana was wasted on every later turn too.
+    response = _policy().decide(
+        _request(
+            "mana_payment",
+            [
+                _option("cancel", "cancel_mana_payment", "Cancel mana payment"),
+                _option("fortress-u", "mana_ability", "Glacial Fortress — {T}: Add {U}."),
+                _option("fortress-w", "mana_ability", "Glacial Fortress — {T}: Add {W}."),
+            ],
+            context={"unpaid_mana": "{U/R}"},
+        )
+    )
+    assert response["selected_option_ids"] == ["fortress-u"]
+
+
+def test_payment_never_drops_an_unfitting_source() -> None:
+    # Ordering only: with nothing that fits, a source is still tapped rather
+    # than the pilot inventing a cancel; the engine judges the result.
+    response = _policy().decide(
+        _request(
+            "mana_payment",
+            [
+                _option("cancel", "cancel_mana_payment", "Cancel mana payment"),
+                _option("mountain", "mana_ability", "Mountain — {T}: Add {R}."),
+            ],
+            context={"unpaid_mana": "{B}"},
+        )
+    )
+    assert response["selected_option_ids"] == ["mountain"]
