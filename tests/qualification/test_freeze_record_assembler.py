@@ -232,11 +232,7 @@ def test_capability_proof_covers_the_ruling_definitions(capability: str) -> None
 
 @pytest.mark.parametrize(
     ("capability", "dropped"),
-    [
-        (cap, name)
-        for cap, names in sorted(RULING_MINIMUM_PROOFS.items())
-        for name in sorted(names)
-    ],
+    [(cap, name) for cap, names in sorted(RULING_MINIMUM_PROOFS.items()) for name in sorted(names)],
 )
 def test_ruling_proof_dropped_counts_capability_missing(
     tmp_path: Path, capability: str, dropped: str
@@ -372,9 +368,7 @@ def test_all_skipped_class_gives_no_credit(tmp_path: Path) -> None:
 
 
 def test_partly_skipped_class_gives_no_credit(tmp_path: Path) -> None:
-    result = _assemble(
-        _epoch(tmp_path, partly_skipped_classes=["XmageFullGameCancelRewindTest"])
-    )
+    result = _assemble(_epoch(tmp_path, partly_skipped_classes=["XmageFullGameCancelRewindTest"]))
     missing = result.record["truthful_capabilities"]["missing_required_capabilities"]
     assert "action_submission_supported" in missing
     assert "legal_actions_supported" in missing
