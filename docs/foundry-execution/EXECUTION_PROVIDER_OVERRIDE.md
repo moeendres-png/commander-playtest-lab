@@ -2,7 +2,9 @@
 
 Since the Owner directive of 2026-10-10 the default and only active executor is
 `opencode-go/space-bunny` at native `max`. `opencode-go/deepseek-v4.1-flash` is SUSPENDED: its
-OpenCode Go monthly quota is exhausted, and Space Bunny does not consume that quota.
+OpenCode Go monthly quota is exhausted. Space Bunny draws on the same OpenCode Go monthly limit
+(its calls were refused with HTTP 429 `GoUsageLimitError` in workflow run 38049493597), so runs on
+it end as `BLOCKED_SERVICE` until the quota resets or the Owner restores it.
 
 ## Space Bunny Max profile (default, only active)
 

@@ -27,8 +27,10 @@ Claude-side `opencode-subagent` MCP and every OpenCode subagent.
    - profile: `deepseek`
    - model: `opencode-go/deepseek-v4.1-flash`
    - native variant: `max`
-   - suspended because its OpenCode Go monthly quota is exhausted; Space Bunny MAX does
-     not consume that quota. The launcher refuses the profile, it is absent from
+   - suspended by Owner directive after the OpenCode Go monthly quota was exhausted. Note:
+     on 2026-10-10 (workflow run 38049493597) `opencode-go/space-bunny` calls were refused by
+     the same monthly limit (HTTP 429 `GoUsageLimitError`), so Space Bunny runs stay
+     `BLOCKED_SERVICE` until the quota resets or the Owner restores it. The launcher refuses the profile, it is absent from
      `opencode.json`, and no lane pins it. Only a new direct Owner instruction sets it
      back to ACTIVE in `.foundry/executor-profiles.json`; quota recovery alone does not.
 

@@ -25,7 +25,7 @@
       "runtime_status": "SUSPENDED",
       "suspension": {
         "since": "2026-10-10",
-        "reason": "OpenCode Go monthly quota exhausted (HTTP 429 GoUsageLimitError, limitName=monthly); Space Bunny MAX does not consume that quota.",
+        "reason": "Owner directive after the OpenCode Go monthly quota was exhausted (HTTP 429 GoUsageLimitError, limitName=monthly). Observed 2026-10-10 (opencode workflow run 38049493597): opencode-go/space-bunny calls are refused by the same monthly limit, so this suspension does not restore OpenCode capacity by itself.",
         "authority": "Direct Owner instruction 2026-10-10: use only Space Bunny MAX in OpenCode, subagents included.",
         "reactivation": "Only a new direct Owner instruction sets runtime_status back to ACTIVE; quota recovery alone does not."
       }
