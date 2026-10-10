@@ -2,12 +2,20 @@ package org.commanderlab.xmage;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import mage.MageObject;
+import mage.abilities.Ability;
+import mage.abilities.keyword.HexproofBaseAbility;
+import mage.cards.Card;
 import mage.constants.Zone;
 import mage.game.Game;
+import mage.game.permanent.Permanent;
 import mage.players.Player;
+import mage.target.Target;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,13 +57,24 @@ import static org.junit.jupiter.api.Assertions.fail;
  *   <li><b>Addressing</b> (CR 723.5): the frame is addressed to the controller
  *       (P1), names the controlled seat, and the controlled player's own
  *       principal is refused outright with no part of the decision.</li>
+ *   <li><b>Engine-witnessed control relationship</b>: the engine itself names the
+ *       controller of the controlled player's turn, and still reports turn control
+ *       rather than game control, on every asserted frame. The bridge's own
+ *       {@code acting_for_seat} is not the only witness of the relationship.</li>
+ *   <li><b>CR 723.5 actor boundary</b>: on the controlled player's own targeted
+ *       spell the controller's hexproof creature is absent from both the projection
+ *       and the engine oracle, while the engine's own CR 509.1b predicate allows
+ *       that very creature to that very source object when the controller is the
+ *       deciding actor, so the difference is the actor relation and not the card
+ *       list.</li>
  * </ul>
  *
  * <h2>Red controls</h2>
  * <p>Two mutated projections must fail the <em>same</em> assertion helper the
  * healthy frame passes, so a weakened helper cannot pass: one frame with a
- * single engine-offered option dropped, and one frame re-addressed to the
- * controlled player's own principal. Each is asserted to raise.</p>
+ * single engine-offered option dropped (run over the priority, target and
+ * choice classes) and one frame re-addressed to the controlled player's own
+ * principal. Each is asserted to raise.</p>
  *
  * <h2>Oracle transport finding (CODE_DERIVED, observed by this test)</h2>
  * <p>{@link XmageFullGameSession#pendingNativeWitness()} resolves the witness
@@ -68,8 +87,12 @@ import static org.junit.jupiter.api.Assertions.fail;
  * a limitation of the test-only oracle transport under turn control, not a
  * bridge defect: the bridge never reads the witness and no production behaviour
  * depends on it. The matrix oracle remains the only source of the expected set.
- * The same empty-witness behaviour on the non-controlled frames of this same
- * game is asserted, so the claim is tied to this run and not to the pin alone.</p>
+ * The accessor is separately asserted to serve a frame of the controlled player's
+ * <em>own</em> turn in this same game, so the claim is tied to this run and not
+ * to the pin alone. The drive runs past the end of the controlled turn and the
+ * number of controlled frames checked is counted and asserted to be greater than
+ * one, so the empty-accessor behaviour is asserted on the whole controlled turn
+ * and not merely on its first frame.</p>
  */
 class XmageFullGameControlledTurnLegalActionsTest {
 
@@ -80,6 +103,16 @@ class XmageFullGameControlledTurnLegalActionsTest {
     private static final String CALLBACK_PRIORITY = "priority";
     private static final String CALLBACK_TARGET = "target";
     private static final String CALLBACK_CHOICE = "choice";
+
+    /** The controlled player's own targeted spell, cast by the controller. */
+    private static final String TARGETED_SPELL = "Lightning Bolt";
+    /**
+     * A real hexproof creature at the pin (Carnage Tyrant, {4}{G}{G}, trample,
+     * hexproof) on the controller's battlefield. CR 509.1b keeps it out of the
+     * controlled player's option set and nothing else does, so it witnesses that
+     * the actor relation and not the card list decides the option set.
+     */
+    private static final String HEXPROOF_CREATURE = "Carnage Tyrant";
 
     @BeforeEach
     void orchestrationLaunch() {
@@ -115,18 +148,29 @@ class XmageFullGameControlledTurnLegalActionsTest {
 
     /**
      * Red control 1: a projection that drops one engine-offered option must fail
-     * the same L1 helper the healthy frame passes.
+     * the same L1 helper the healthy frame passes. Run over every class this test
+     * witnesses, so the helper cannot be weakened for one of them and stay green
+     * for the others.
      */
-    @Test
-    void aProjectionThatDropsAnEngineOfferedOptionFailsTheSameHelper() {
-        Frame frame = driveToControlledClass(CALLBACK_TARGET, 1);
+    @ParameterizedTest(name = "{0}: a projection that drops an engine-offered option fails the same helper")
+    @CsvSource({"priority, 0", "target, 1", "choice, 2"})
+    void aProjectionThatDropsAnEngineOfferedOptionFailsTheSameHelper(
+            String callback, int skipControlled) {
+        Frame frame = driveToControlledClass(callback, skipControlled);
         assertControlledTurnL1(frame);
 
         JsonObject mutated = frame.frame.deepCopy();
         JsonArray offered = mutated.getAsJsonArray("actions");
         assertTrue(offered.size() > 1,
                 "the red control needs a controlled-turn class with more than one engine option");
+        Set<String> healthy = oracleForFrame(frame).projected();
         offered.remove(offered.size() - 1);
+        // The dropped option must actually shrink the projection. If it did not,
+        // this would be a no-op mutation and the control would prove nothing.
+        Set<String> mutatedProjection = oracleForFrame(frame.withFrame(mutated)).projected();
+        assertTrue(mutatedProjection.size() < healthy.size(),
+                callback + ": dropping the last offered option must shrink the projection; "
+                        + "labels " + DecisionClassMatrixHarness.labels(mutated));
         AssertionError dropped = assertThrows(
                 AssertionError.class,
                 () -> assertL1SetEquality(frame.withFrame(mutated)),
@@ -192,10 +236,14 @@ class XmageFullGameControlledTurnLegalActionsTest {
         boolean controlledWithAccessorWitness = false;
         boolean controlledWithoutAccessorWitness = false;
         boolean sawControlled = false;
+        boolean controlledTurnEnded = false;
         boolean mindslaverActivated = false;
         int[] castsDone = {0};
+        int[] controlledFramesChecked = {0};
         List<String> trace = new ArrayList<>();
-        for (int guard = 0; guard < 200 && !(sawControlled && controlledWithoutAccessorWitness
+        // Driven past the end of the controlled turn, so the consistency claim
+        // below covers every controlled frame of that turn and not just the first.
+        for (int guard = 0; guard < 300 && !(sawControlled && controlledTurnEnded
                 && sawUncontrolledWitness); guard++) {
             JsonObject payload = scenario.session.legalActionsPayload();
             String cls = payload.get("decision_class").getAsString();
@@ -207,6 +255,7 @@ class XmageFullGameControlledTurnLegalActionsTest {
             long offset = payload.get("decision_offset").getAsLong();
             if (controlledNow) {
                 sawControlled = true;
+                controlledFramesChecked[0]++;
                 Object[] viaAccessor = scenario.session.pendingNativeWitness();
                 Object[] viaControlled = ((XmageFullGamePlayer) scenario.seats.get(CONTROLLED))
                         .nativeWitness(offset);
@@ -217,7 +266,7 @@ class XmageFullGameControlledTurnLegalActionsTest {
                     assertTrue(viaControlled.length > 0,
                             "the engine must still hold the pending decision's witness "
                                     + "on the controlled player at offset " + offset);
-                    assertEquals(cls, String.valueOf(viaControlled[0]),
+                    assertEquals(nativeCallbackFor(cls), String.valueOf(viaControlled[0]),
                             "the controlled player's witness must be this decision's own callback");
                 } else {
                     controlledWithAccessorWitness = true;
@@ -226,6 +275,9 @@ class XmageFullGameControlledTurnLegalActionsTest {
                     .equals(scenario.seats.get(CONTROLLED).getId().toString())
                     && scenario.session.pendingNativeWitness().length > 0) {
                 sawUncontrolledWitness = true;
+            }
+            if (sawControlled && !controlledNow && !CONTROLLED.equals(active)) {
+                controlledTurnEnded = true;
             }
             if (!mindslaverActivated && "priority".equals(cls) && CONTROLLER.equals(active)
                     && !controlledNow) {
@@ -238,14 +290,22 @@ class XmageFullGameControlledTurnLegalActionsTest {
             answerControlledFrame(scenario, game, cls, active, controlledNow, castsDone);
         }
         assertTrue(sawControlled, "the real controlled turn must be reached; trace " + trace);
+        assertTrue(controlledTurnEnded,
+                "the drive must run past the end of the controlled turn so the accessor "
+                        + "behaviour is checked on the whole turn, not on its first frames; trace "
+                        + trace);
+        assertTrue(controlledFramesChecked[0] > 1,
+                "the accessor behaviour must be checked on more than the first controlled frame; "
+                        + "checked " + controlledFramesChecked[0] + ", trace " + trace);
         assertTrue(controlledWithoutAccessorWitness,
                 "pendingNativeWitness() resolves through the controller's actor_id and so "
                         + "cannot serve a controlled-turn decision");
         assertFalse(controlledWithAccessorWitness,
                 "the accessor behaviour must be consistent across the controlled turn");
         assertTrue(sawUncontrolledWitness,
-                "the same accessor does serve an uncontrolled frame of this same game, so the "
-                        + "empty witness is specific to turn control and not a broken accessor");
+                "the same accessor does serve a frame of the controlled player's own turn in "
+                        + "this same game, so the empty witness is specific to turn control and "
+                        + "not a broken accessor");
     }
 
     // ---- the L1 helper the controls share -----------------------------------
@@ -259,7 +319,7 @@ class XmageFullGameControlledTurnLegalActionsTest {
         assertAddressedToController(frame);
         assertBoundToDecisionIdentityAndRevision(frame);
         assertExactBounds(frame);
-        assertL1SetEquality(frame);
+        assertHexproofIsActorRelative(frame, assertL1SetEquality(frame));
     }
 
     /** CR 723.5 addressing: the controller decides, and the controlled seat is named. */
@@ -374,18 +434,91 @@ class XmageFullGameControlledTurnLegalActionsTest {
      * addressed to the controlled player, because the engine callback that
      * offered these options ran on that player's own object; the option set is a
      * property of that callback, not of the principal the frame is served to.
+     *
+     * @return the oracle, so a caller can assert against the engine's own option
+     *         set without recomputing it from the projection
      */
-    private static void assertL1SetEquality(Frame frame) {
-        JsonObject oracleFrame = frame.frame.deepCopy();
-        oracleFrame.addProperty("actor_id", frame.controlledId.toString());
-        XmageFullGameDecisionClassMatrixTest.Oracle oracle =
-                XmageFullGameDecisionClassMatrixTest.oracleFor(
-                        frame.callback, frame.live, oracleFrame, frame.witness);
+    private static XmageFullGameDecisionClassMatrixTest.Oracle assertL1SetEquality(Frame frame) {
+        XmageFullGameDecisionClassMatrixTest.Oracle oracle = oracleForFrame(frame);
         Set<String> projected = oracle.projected();
         assertFalse(projected.isEmpty(),
                 frame.callback + ": get_legal_actions must not be empty during a controlled turn");
         assertEquals(oracle.expected(), projected,
                 frame.callback + ": projection must equal the engine option set");
+        return oracle;
+    }
+
+    /** The matrix oracle for this frame, computed only from the engine API. */
+    private static XmageFullGameDecisionClassMatrixTest.Oracle oracleForFrame(Frame frame) {
+        JsonObject oracleFrame = frame.frame.deepCopy();
+        oracleFrame.addProperty("actor_id", frame.controlledId.toString());
+        return XmageFullGameDecisionClassMatrixTest.oracleFor(
+                frame.callback, frame.live, oracleFrame, frame.witness);
+    }
+
+    /**
+     * CR 723.5 actor boundary, engine-witnessed: on the controlled player's own
+     * targeted spell the controller's hexproof creature is in neither the
+     * projection nor the engine oracle, while the engine's own CR 509.1b
+     * predicate says that very creature is targetable by the very same source
+     * object when the controller is the deciding actor. So what separates the two
+     * option sets is the actor relation and not the card list.
+     *
+     * <p>The actor-relative instrument is {@link Permanent#canBeTargetedBy}, not
+     * {@code Target.possibleTargets} with another actor: for this target type
+     * {@code TargetPermanentOrPlayer.canTarget(playerId, id, source, game)}
+     * discards {@code playerId} and applies hexproof against
+     * {@code source.getControllerId()}, so passing a different actor to
+     * {@code possibleTargets} does not widen the set. That is asserted below, so
+     * this test cannot be quietly "simplified" into a probe that proves nothing.</p>
+     */
+    private static void assertHexproofIsActorRelative(
+            Frame frame, XmageFullGameDecisionClassMatrixTest.Oracle oracle) {
+        if (!CALLBACK_TARGET.equals(frame.callback)) {
+            return;
+        }
+        Game game = frame.live.session().restorationGame();
+        Target target = (Target) frame.witness[1];
+        Ability source = (Ability) frame.witness[2];
+        Card sourceCard = game.getCard(source.getSourceId());
+        assertNotNull(sourceCard, "the target frame must be raised by a real card");
+        assertEquals(TARGETED_SPELL, sourceCard.getName(),
+                "this frame must be the controlled player's own targeted spell");
+        Permanent hexproof = hexproofPermanent(game);
+        String hexproofId = hexproof.getId().toString();
+        assertFalse(oracle.expected().contains(hexproofId),
+                "CR 509.1b: the controller's hexproof creature must be absent from the engine oracle");
+        assertFalse(oracle.projected().contains(hexproofId),
+                "CR 509.1b: the controller's hexproof creature must be absent from the projection");
+        MageObject sourceObject = game.getObject(source.getId());
+        assertFalse(hexproof.canBeTargetedBy(sourceObject, frame.controlledId, source, game),
+                "CR 509.1b: the controlled player's own spell must not be able to target "
+                        + "the controller's hexproof creature");
+        assertTrue(hexproof.canBeTargetedBy(sourceObject, frame.controllerId, source, game),
+                "CR 509.1b with CR 723.5: the same source object may target the same creature "
+                        + "when the controller is the deciding actor, so the option sets differ "
+                        + "because of the actor relation and not the card list");
+        assertFalse(target.possibleTargets(frame.controllerId, source, game).contains(hexproofId),
+                "this target type applies hexproof against the source's own controller, so "
+                        + "possibleTargets is not the actor-relative instrument here");
+    }
+
+    /**
+     * The controller's hexproof creature on the battlefield, as the permanent.
+     * Its hexproof is asserted on the permanent itself, so this cannot pass by
+     * naming a card that has lost the ability at the pin.
+     */
+    private static Permanent hexproofPermanent(Game game) {
+        for (Permanent permanent : game.getBattlefield().getAllPermanents()) {
+            if (HEXPROOF_CREATURE.equals(permanent.getName())) {
+                assertTrue(permanent.getAbilities().stream()
+                                .anyMatch(HexproofBaseAbility.class::isInstance),
+                        "CR 509.1b: the set-up creature must really have hexproof at this pin");
+                return permanent;
+            }
+        }
+        throw new AssertionError("the controller's " + HEXPROOF_CREATURE
+                + " must be on the battlefield for the CR 723.5 actor-boundary witness");
     }
 
     // ---- the controlled-turn drive -------------------------------------------
@@ -491,7 +624,7 @@ class XmageFullGameControlledTurnLegalActionsTest {
             // once and its own decisions resolve before the next.
             if (controlledNow && game.getStack().isEmpty() && castsDone[0] < 2) {
                 String wanted = castsDone[0] == 0
-                        ? "Cast Lightning Bolt" : "Cast Painter's Servant";
+                        ? "Cast " + TARGETED_SPELL : "Cast Painter's Servant";
                 JsonObject cast = scenario.action("activate_ability", wanted);
                 if (cast != null) {
                     scenario.submit(cast);
@@ -589,6 +722,19 @@ class XmageFullGameControlledTurnLegalActionsTest {
     private static Frame buildFrame(
             DecisionClassMatrixHarness.Live live, JsonObject payload, String callback,
             UUID controllerId, UUID controlledId, int controllerSeat, int controlledSeat) {
+        // CR 723.5 engine-witnessed, not only bridge-witnessed. The bridge's own
+        // acting_for_seat proves how the bridge routed the frame; these assertions
+        // prove the engine itself holds the control relationship on this frame.
+        Game game = live.session().restorationGame();
+        Player controlledPlayer = game.getPlayer(controlledId);
+        assertNotNull(controlledPlayer, callback + ": the controlled player must still be in play");
+        assertEquals(controlledId, game.getActivePlayerId(),
+                callback + ": this frame must be pending on the controlled player's own turn");
+        assertEquals(controllerId, controlledPlayer.getTurnControlledBy(),
+                "CR 723.5: the engine must name the controller as controlling this player's turn");
+        assertFalse(controlledPlayer.isGameUnderControl(),
+                "this is turn control, not game control: a game-under-control relationship "
+                        + "would make the CR 723.5 actor boundary unobservable here");
         long offset = payload.get("decision_offset").getAsLong();
         // Oracle transport: the native callback ran on the controlled player's own
         // XmageFullGamePlayer instance (see the class javadoc).
@@ -596,10 +742,27 @@ class XmageFullGameControlledTurnLegalActionsTest {
                 .nativeWitness(offset);
         assertTrue(witness.length > 0,
                 callback + ": the controlled player's native witness must be bound to this decision");
-        assertEquals(callback, String.valueOf(witness[0]),
+        assertEquals(nativeCallbackFor(callback), String.valueOf(witness[0]),
                 callback + ": the controlled-turn decision was raised by another native callback");
         return new Frame(live, payload, callback, witness,
                 controllerId, controlledId, controllerSeat, controlledSeat);
+    }
+
+    /**
+     * The native callback kind a projected decision class is raised by. The
+     * bridge's {@code choose_object} frames, for instance, are raised by the
+     * native {@code chooseTarget} callback whose witness kind is {@code "target"};
+     * comparing the projected class name against the witness directly would be
+     * wrong for those. The mapping is the matrix test's own, reused unchanged, and
+     * an unmapped class fails closed rather than being compared blindly.
+     */
+    private static String nativeCallbackFor(String decisionClass) {
+        String nativeCallback =
+                XmageFullGameDecisionClassMatrixTest.EXPECTED_CALLBACK.get(decisionClass);
+        assertNotNull(nativeCallback,
+                "every decision class this drive meets must name its native callback kind: "
+                        + decisionClass);
+        return nativeCallback;
     }
 
     /**
@@ -607,7 +770,9 @@ class XmageFullGameControlledTurnLegalActionsTest {
      * with the four Islands its {4} needs, and on P2's side a Lightning Bolt (a
      * targeted spell) and a Painter's Servant (an AsEntersBattlefieldAbility
      * colour choice) to cast during the controlled turn, plus the lands to pay
-     * them.
+     * them. P1 also controls a real hexproof creature, which CR 509.1b keeps out
+     * of P2's own option set while leaving that same permanent targetable by the
+     * same Lightning Bolt once P1 is the deciding actor.
      */
     private static XmageMultiplayerScenario controlledGame() {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
@@ -615,11 +780,12 @@ class XmageFullGameControlledTurnLegalActionsTest {
         for (int index = 1; index <= 4; index++) {
             objects.add(XmageMultiplayerScenario.obj(CONTROLLER, "Island", index, Zone.BATTLEFIELD));
         }
-        objects.add(XmageMultiplayerScenario.obj(CONTROLLED, "Lightning Bolt", 0, Zone.HAND));
+        objects.add(XmageMultiplayerScenario.obj(CONTROLLED, TARGETED_SPELL, 0, Zone.HAND));
         objects.add(XmageMultiplayerScenario.obj(CONTROLLED, "Painter's Servant", 1, Zone.HAND));
         objects.add(XmageMultiplayerScenario.obj(CONTROLLED, "Mountain", 0, Zone.BATTLEFIELD));
         objects.add(XmageMultiplayerScenario.obj(CONTROLLED, "Plains", 1, Zone.BATTLEFIELD));
         objects.add(XmageMultiplayerScenario.obj(CONTROLLED, "Plains", 2, Zone.BATTLEFIELD));
+        objects.add(XmageMultiplayerScenario.obj(CONTROLLER, HEXPROOF_CREATURE, 5, Zone.BATTLEFIELD));
         return XmageMultiplayerScenario.start("controlled-turn-l1-" + SEATS + "p",
                 SEATS, CONTROLLER, objects);
     }
