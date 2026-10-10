@@ -80,7 +80,8 @@ final class FullGameTestPilot {
         legal.getAsJsonArray("actions").forEach(element -> actions.add(element.getAsJsonObject()));
         actions.sort(Comparator.comparing(FullGameTestPilot::key));
         JsonObject context = legal.getAsJsonObject("decision").getAsJsonObject("context");
-        JsonObject first = actions.get(0);
+        // The smallest semantic key, never a position among the engine's options.
+        JsonObject first = actions.stream().min(Comparator.comparing(FullGameTestPilot::key)).orElseThrow();
         JsonObject proposal = proposal(legal, first);
         if (context.has("numeric_legs")) {
             JsonArray vector = new JsonArray();
