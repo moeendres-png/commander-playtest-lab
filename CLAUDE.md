@@ -42,8 +42,9 @@ HANDOFF instead of preserving one giant coordinator conversation.
    `/bunny-review` (read-only reviewer) and the `opencode-subagent` MCP tools, which this
    project's `.claude/settings.json` pins to Space Bunny via `OPENCODE_SUBAGENT_MODEL`.
    Always pass `model: "opencode-go/space-bunny"` explicitly when calling those MCP tools.
-3. DeepSeek V4.1 Flash is SUSPENDED (OpenCode Go monthly quota exhausted). Never select it,
-   never fall back to it, and do not re-enable it without a new direct Owner instruction.
+3. DeepSeek V4.1 Flash is SUSPENDED (OpenCode Go monthly quota exhausted). Never select it and
+   do not re-enable it without a new direct Owner instruction.
+   There is no automatic fallback to it or any other model for failure, quota or convenience.
    Write every Space Bunny prompt per `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md`.
 4. Use Claude subagents only for bounded read-only side work that would pollute the main context:
    `log-scanner` = Sonnet `low`; `ci-triage` = Sonnet `medium`; built-in `Explore` only for a
