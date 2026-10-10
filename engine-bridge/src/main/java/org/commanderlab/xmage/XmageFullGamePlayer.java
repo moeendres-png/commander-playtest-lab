@@ -107,37 +107,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private boolean concessionInterruptedAction;
 
     /**
-     * #703: set when an activation announced an X that left a REQUIRED
-     * target with no legal choice, so XMage reversed the activation itself.
-     *
-     * <p>Engine evidence, not a bridge guess. {@code AbilityImpl.activate}
-     * calls {@code adjustTargets} and then {@code getTargets().chooseTargets}
-     * (pinned XMage 1.4.61, AbilityImpl.java:426-435). A card whose target
-     * filter depends on the announced X (Shelob, Dread Weaver's
-     * {@code {X}{1}{B}} ability and its relatives) narrows to an empty legal
-     * set; {@code Targets.makeChoice} then skips the target outright when
-     * {@code canChoose} is false (Targets.java:105) WITHOUT calling the
-     * player, so the bridge's own target callback never runs and
-     * {@link #emptyRequiredTarget} stays false. {@code makeChoice} returns
-     * {@code isChosen(game)} — false for a required target — so
-     * {@code activate} returns false, and {@code PlayerImpl.playAbility}
-     * restores its bookmark (PlayerImpl.java:1610/1620).
-     *
-     * <p>The engine-held fact that distinguishes this reversal from an
-     * unexplained activation failure is read off the ability the engine
-     * actually activated, not the pre-activation copy the bridge holds: the
-     * activated ability's own targets carry a non-zero minimum and zero
-     * chosen objects. Nothing here recomputes the filter or re-derives
-     * legality; it only reads the engine's post-attempt target state.
-     *
-     * <p>CR 601.2e / 727: an announcement the game cannot complete is
-     * reversed to the moment before it was proposed, so the same player is
-     * asked again — the same shape as the existing reversed-action flags.
-     * Reset on every priority entry.
-     */
-    private boolean xCostRequiredTargetReversed;
-
-    /**
      * The ability instance XMage handed to {@code announceX} during the
      * current priority action. That is the ability the engine is activating
      * <em>right now</em> — {@code PlayerImpl.activateAbility} activates
@@ -156,6 +125,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * unchosen AND no target callback is the engine's own skip. If the
      * callback did run, the unchosen target is a decision the pilot itself
      * declined, which is a different shape and keeps failing closed.
+     *
+     * <p>Only a {@code Target} choice sets it. The engine's non-target
+     * {@code Choice} dialogs (a modal or creature-type menu) go through
+     * {@link #choose(Outcome, Choice, Game)}, which does not set this flag:
+     * such a dialog is not the declaration of a target under CR 601.2c, so an
+     * engine skip that follows one is still the engine's own skip.
      */
     private boolean targetChoiceRequested;
 
@@ -445,7 +420,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
         emptyRequiredTarget = false;
         noViableMode = false;
         concessionInterruptedAction = false;
-        xCostRequiredTargetReversed = false;
         xAnnouncedAbility = null;
         targetChoiceRequested = false;
         JsonArray options = new JsonArray();
@@ -511,12 +485,20 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         || emptyRequiredTarget
                         || noViableMode
                         || concessionInterruptedAction
-                        || leftMidAction()) {
-                    // Cancelled or uncompletable cast (601.2; illegal actions
-                    // are reversed): XMage's cast() already restored its
-                    // bookmark. The player has not passed, so the engine's
-                    // priority loop asks the same player again (#662 S3).
-                    // Passing here would be the Lab choosing for the player.
+                        || leftMidAction()
+                        || reversedRequiredXTarget(game)) {
+                    // Cancelled or uncompletable cast: the engine reversed it
+                    // and restored its bookmark; the player has not passed, so
+                    // the engine's priority loop asks the same player again
+                    // (#662 S3). Passing here would be the Lab choosing for
+                    // the player. #703's predicate applies here for the same
+                    // reason it applies to activation: AbilityImpl.activate
+                    // announces X (601.2b), chooses targets (601.2c) and then
+                    // returns false before paying, and 601.2e's handling of
+                    // illegal actions reverses the proposal to the moment
+                    // before it was made. The engine ordering is identical for
+                    // a spell and an activated ability, so the evidence that
+                    // identifies the reversal is identical too.
                     return false;
                 }
                 fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
@@ -535,8 +517,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 // it; the same player receives priority again (#662 S3).
                 // #703 adds the engine-reversed X-target case: the announced
                 // X left a required target with no legal choice, so XMage
-                // skipped the target without asking the player and rewound
-                // the activation (CR 601.2e / 727).
+                // skipped the target without asking the player (601.2c) and
+                // reversed the proposal under 601.2e's handling of illegal
+                // actions, returning the game to the moment before it.
                 return false;
             }
             fail("XMAGE_ACTION_EXECUTION_FAILED", "priority activation failed: " + selected);
@@ -570,8 +553,29 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * <p>No legality is recomputed here: no filter is re-evaluated, no X is
      * re-derived, and no option is reconstructed. The ability is the instance
      * the engine activated (see {@link #xAnnouncedAbility}), not the
-     * pre-activation copy the bridge holds. Any activation failure without
-     * this evidence still fails closed with XMAGE_ACTION_EXECUTION_FAILED.
+     * pre-activation copy the bridge holds. Any activation or cast failure
+     * without this evidence still fails closed with
+     * XMAGE_ACTION_EXECUTION_FAILED.
+     *
+     * <p>Engine evidence, not a bridge guess. {@code AbilityImpl.activate}
+     * calls {@code adjustTargets} and then {@code getTargets().chooseTargets}
+     * (pinned XMage 1.4.61, AbilityImpl.java:419/432) for a spell and for an
+     * activated ability alike, both before any cost is paid. A target whose
+     * legality depends on the announced X narrows to an empty legal set;
+     * {@code Targets.makeChoice} then skips it outright when {@code canChoose}
+     * is false (Targets.java:103) WITHOUT calling the player, so the bridge's
+     * own target callback never runs and {@link #emptyRequiredTarget} — only
+     * ever set from that callback — stays false. {@code makeChoice} returns
+     * {@code isChosen(game)}, false for a required target, so {@code activate}
+     * returns false and {@code PlayerImpl.playAbility} restores its bookmark.
+     *
+     * <p>Governing chain: CR 602.2b (an activated ability on the stack is
+     * activated/put on the stack under 601.2b-i, so an {X} in its cost is
+     * announced and its targets chosen under 601.2), CR 601.2c (the player
+     * announces their choice of a player, object or zone for each required
+     * target), and CR 601.2e's handling of illegal actions: a proposal the
+     * game cannot complete is reversed to the moment before it was proposed,
+     * so the same player is asked again.
      *
      * <p>Package-visible for the #703 boundary test, which drives this
      * predicate with real engine objects rather than asserting the flag
@@ -588,7 +592,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         for (Target target : targets) {
             if (target.getMinNumberOfTargets() > 0 && target.getSize() == 0) {
-                xCostRequiredTargetReversed = true;
                 return true;
             }
         }
