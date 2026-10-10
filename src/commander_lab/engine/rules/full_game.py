@@ -64,13 +64,65 @@ FULL_GAME_SHUTDOWN_ALREADY_EXITED = "already_exited"
 _LOG = logging.getLogger(__name__)
 
 # Boolean outcomes whose "No" answer the pilot treats as aligned. The engine's
-# Outcome on a may-prompt is its own polarity hint: AIDontUseIt marks a prompt
-# the engine's AI always declines because accepting cannot be judged safely,
-# e.g. the repeatable multikicker offer, whose affordability check covers one
-# payment only and so re-offers "Pay N times" without bound.
-DECLINE_ALIGNED_BOOLEAN_OUTCOMES = frozenset(
-    {"detriment", "detriment_to_controller", "aidontuseit"}
+# Outcome on a may-prompt is a polarity hint about the choice itself:
+# DETRIMENT means accepting hurts the controller. AIDontUseIt is deliberately
+# NOT one of them. In XMage that outcome is a label for the engine's own AI
+# declining a prompt whose acceptance cannot be judged safely (the repeatable
+# multikicker offer, whose affordability check covers one payment only); it is
+# not a statement about a player's preference. Reading it as "decline" made
+# this Lab refuse every single kicker, buyback, dredge, replicate and squad
+# prompt, which is an engine-AI label deciding for a player (F-RULES-03). Its
+# loop is bounded instead by the consecutive-Yes guard in _decide_boolean.
+DECLINE_ALIGNED_BOOLEAN_OUTCOMES = frozenset({"detriment", "detriment_to_controller"})
+
+# Liveness bound for a repeatable may-offer (multikicker "Pay N times"), the
+# same shape as the mana-payment and priority no-progress guards: consecutive
+# Yes answers by the same actor to boolean offers from the SAME source with
+# the SAME outcome are capped, then the affirmative option is withheld so the
+# pilot can only decline. When the prompt states its own cost the cap is what
+# the pilot's own visible resources can fund; otherwise this fixed small
+# constant applies, consistent with the other two guards.
+BOOLEAN_YES_REPEAT_LIMIT = 3
+_BOOLEAN_TIMES_RE = re.compile(r"pay\s+(\d+)\s+times?\b", re.IGNORECASE)
+
+# Bridge cost-fact keys (enrichAbilityCostFacts) rendered back into the mana
+# symbol text mana_payment_fit already parses. This translates the engine's own
+# numbers; it never invents a cost, and an absent fact renders as nothing.
+_MANA_COST_COLORS: tuple[tuple[str, str], ...] = (
+    ("mana_cost_white", "W"),
+    ("mana_cost_blue", "U"),
+    ("mana_cost_black", "B"),
+    ("mana_cost_red", "R"),
+    ("mana_cost_green", "G"),
+    ("mana_cost_colorless", "C"),
 )
+
+
+def _cost_amount(metadata: dict[str, Any], key: str) -> float | None:
+    """One engine cost fact, or None when the bridge did not report it."""
+    value = metadata.get(key)
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return float(value)
+
+
+def _mana_cost_text(metadata: dict[str, Any]) -> str:
+    """Render the bridge's mana-cost facts as the symbols the engine printed.
+
+    Used only to order the pilot's mana sources against an action's cost
+    (``mana_payment_fit``); the engine remains the authority on what a payment
+    actually costs and on whether it can be made at all.
+    """
+    parts: list[str] = []
+    for key, letter in _MANA_COST_COLORS:
+        amount = _cost_amount(metadata, key)
+        if amount is not None and amount > 0:
+            parts.extend([f"{{{letter}}}"] * int(amount))
+    generic = _cost_amount(metadata, "mana_cost_generic")
+    if generic is not None and generic > 0:
+        parts.append(f"{{{int(generic)}}}")
+    return "".join(parts)
+
 
 _MANA_SYMBOL = re.compile(r"\{([^}]*)\}")
 _COLOR_LETTERS = frozenset("wubrgc")
@@ -831,6 +883,13 @@ class ExternalPilotDecisionPolicy:
             ],
         ] = {}
         self._priority_repeat_count: dict[int, int] = {}
+        # Liveness guard memory for repeatable may-offers (per seat): a
+        # "Pay N times" prompt the engine re-offers after each payment.
+        # Consecutive Yes answers from the same source with the same outcome
+        # are counted; past the cap the affirmative option is withheld so the
+        # pilot can only decline. A different source or outcome starts over.
+        self._boolean_repeat_key: dict[int, tuple[str, str]] = {}
+        self._boolean_repeat_count: dict[int, int] = {}
         # Latch: once tripped, the seat keeps passing while the window
         # stays identical (a single forced pass would just resume the
         # loop). Any window change unlatches and resumes normal choice.
@@ -893,7 +952,17 @@ class ExternalPilotDecisionPolicy:
         elif decision_class == "mana_payment":
             selected = [self._decide_mana(runtime, pilot_state, options, context, rng)]
         elif decision_class == "choose_use":
-            selected = [self._decide_boolean(runtime, pilot_state, options, context, rng)]
+            selected = [
+                self._decide_boolean(
+                    runtime,
+                    pilot_state,
+                    options,
+                    context,
+                    rng,
+                    prompt=prompt,
+                    source_object=request.get("source_object"),
+                )
+            ]
         elif decision_class == "pile":
             selected = [self._decide_pile(runtime, pilot_state, options, context, rng)]
         elif decision_class in {"choice", "replacement_effect", "trigger_order"}:
@@ -1067,21 +1136,41 @@ class ExternalPilotDecisionPolicy:
         ]
         # Affordability-aware pilot judgment: an activated ability whose
         # engine-reported costs provably exceed the actor's free resources
-        # (pool mana plus, for tap costs, an untapped source) is withheld
-        # from the pilot's selection set so the pilot passes or acts
-        # elsewhere instead of spending a shared resource mid-payment and
-        # failing activation. Withheld options stay engine-offered; the
-        # pilot simply does not select them. Unknown/absent cost facts mean
-        # no gating: the engine remains the authority.
-        affordable = [
-            option for option in non_mana if self._priority_action_affordable(option, state)
-        ]
-        if len(affordable) != len(non_mana):
+        # (pool mana plus, for tap costs, an untapped source) is not offered
+        # for immediate selection. Withheld options stay engine-offered.
+        # Unknown/absent cost facts mean no gating: the engine remains the
+        # authority.
+        #
+        # An action withheld ONLY for a pool shortfall on an ability that
+        # spends its own source (Hedron Archive's {2}, {T}, Sacrifice) is still
+        # offered, marked needs_mana_first: the pilot chooses the intent and
+        # the Lab answers with a mana ability from another source. Withholding
+        # it outright, while every priority mana ability scores below passing
+        # because activating one there only floats mana, made the pool
+        # impossible to fill and left that activation unreachable
+        # (F-RULES-03). An action withheld for any other reason (a tap cost on
+        # an already tapped source) is impossible whatever mana exists and
+        # stays withheld.
+        affordable: list[dict[str, Any]] = []
+        needs_mana_first: list[dict[str, Any]] = []
+        unreachable = 0
+        for option in non_mana:
+            if self._priority_action_affordable(option, state):
+                affordable.append(option)
+            elif self._priority_awaits_mana(option):
+                needs_mana_first.append(option)
+            else:
+                unreachable += 1
+        if unreachable:
             _LOG.info(
-                "withheld %d unaffordable priority action(s) from pilot selection",
-                len(non_mana) - len(affordable),
+                "withheld %d priority action(s) the actor cannot fund from free resources at all",
+                unreachable,
             )
-            non_mana = affordable
+        if needs_mana_first:
+            _LOG.info(
+                "offered %d pool-shortfall priority action(s) as needing mana first",
+                len(needs_mana_first),
+            )
         # WS229 F-RULES-03 disposition: Core-authorized mana abilities were
         # withheld from the pilot. Mana abilities are discretionary actions,
         # so they are offered to the pilot with explicit mana metadata
@@ -1114,9 +1203,10 @@ class ExternalPilotDecisionPolicy:
         # counting is keyed by content, never by bridge order, so input
         # permutation cannot change the outcome.
         raw_by_stable_id: dict[str, str] = {}
+        deferred_by_stable_id: dict[str, dict[str, Any]] = {}
         occurrences: dict[str, int] = {}
         action_views: list[PilotActionView] = []
-        for option in non_mana:
+        for option in affordable:
             base = (
                 "priority:"
                 f"{self._required_text(option, 'option_type')}:"
@@ -1129,6 +1219,29 @@ class ExternalPilotDecisionPolicy:
                 self._priority_action(option, state).model_copy(update={"action_id": stable_id})
             )
             raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+        for option in needs_mana_first:
+            base = (
+                "priority:"
+                f"{self._required_text(option, 'option_type')}:"
+                f"{str(option.get('label', 'action')).casefold()}"
+            )
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            view = self._priority_action(option, state).model_copy(
+                update={
+                    "action_id": stable_id,
+                    "metadata": {
+                        "xmage_option_type": self._required_text(option, "option_type"),
+                        # The pilot is choosing the intent, not an immediate
+                        # activation: selecting this answers with a mana
+                        # ability from another source first.
+                        "needs_mana_first": True,
+                    },
+                }
+            )
+            action_views.append(view)
+            deferred_by_stable_id[stable_id] = option
         for option in affordable_mana:
             base = f"priority:mana:{str(option.get('label', 'mana')).casefold()}"
             occurrence = occurrences.get(base, 0)
@@ -1158,10 +1271,92 @@ class ExternalPilotDecisionPolicy:
             raise FullGameProtocolError("Commander Lab pilot returned no priority action")
         if decision.selected_action_id == pass_id:
             return pass_id
+        deferred = deferred_by_stable_id.get(decision.selected_action_id)
+        if deferred is not None:
+            return self._priority_mana_for(deferred, affordable_mana, pass_id)
         try:
             return raw_by_stable_id[decision.selected_action_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable priority action") from None
+
+    @staticmethod
+    def _priority_awaits_mana(option: dict[str, Any]) -> bool:
+        """True when the only proven obstacle to an action is the actor's pool.
+
+        Engine-native cost facts only: the engine's own ``Mana.enough`` verdict
+        is False and the activation also spends its own source. Paying from
+        another source may still fail, which is exactly why the pilot -- not
+        the Lab -- decides whether to try; the engine re-validates the
+        activation and the priority no-progress guard bounds any repetition.
+        """
+        metadata = option.get("metadata")
+        if not isinstance(metadata, dict):
+            return False
+        if metadata.get("pool_covers_mana_cost") is not False:
+            return False
+        return any(
+            metadata.get(key) is True
+            for key in (
+                "requires_tap_source",
+                "requires_sacrifice_source",
+                "requires_untap_source",
+            )
+        )
+
+    @staticmethod
+    def _same_source(left: dict[str, Any], right: dict[str, Any]) -> bool:
+        """Whether two engine options are activations of the same permanent."""
+        left_meta = left.get("metadata")
+        right_meta = right.get("metadata")
+        left_meta = left_meta if isinstance(left_meta, dict) else {}
+        right_meta = right_meta if isinstance(right_meta, dict) else {}
+        for key in ("source_object_id", "source_name"):
+            left_value = str(left_meta.get(key) or "")
+            right_value = str(right_meta.get(key) or "")
+            if left_value and left_value == right_value:
+                return True
+        return False
+
+    def _priority_mana_for(
+        self,
+        deferred: dict[str, Any],
+        funding: list[dict[str, Any]],
+        pass_id: str,
+    ) -> str:
+        """Answer a needs-mana-first intent with one mana ability from elsewhere.
+
+        The funding source must not be the action's own permanent: paying
+        Hedron Archive's ``{2}`` by tapping Hedron Archive would consume the
+        source its own ``{T}, Sacrifice`` cost needs. Ranking is
+        ``mana_payment_fit`` against the action's own mana cost, so the pilot's
+        intent is answered with the mana that cost actually names; the engine
+        alone decides whether the resulting activation succeeds.
+        """
+        metadata = deferred.get("metadata")
+        meta = metadata if isinstance(metadata, dict) else {}
+        cost_text = _mana_cost_text(meta)
+        ranked = sorted(
+            (option for option in funding if not self._same_source(deferred, option)),
+            key=lambda option: (
+                -mana_payment_fit(str(option.get("label", "")), cost_text),
+                str(option.get("label", "")).casefold(),
+                self._required_text(option, "option_id"),
+            ),
+        )
+        if not ranked:
+            _LOG.info(
+                "pilot chose %s, which needs mana first, but no other source can "
+                "pay for it; passing priority",
+                str(meta.get("source_name") or deferred.get("label") or "action"),
+            )
+            return pass_id
+        chosen = self._required_text(ranked[0], "option_id")
+        _LOG.info(
+            "pilot chose %s, which needs mana first; paying with %s",
+            str(meta.get("source_name") or deferred.get("label") or "action"),
+            str(ranked[0].get("label", "mana ability")),
+        )
+        return chosen
 
     def _priority_action_affordable(self, option: dict[str, Any], state: dict[str, Any]) -> bool:
         """Pilot-side discretionary ranking among engine-authorized options.
@@ -1185,7 +1380,9 @@ class ExternalPilotDecisionPolicy:
         engine-offered, the pilot simply selects pass/another legal action
         instead, and the engine re-validates whatever is selected (a
         mid-payment cancel aborts to pass natively). No card names, no
-        label parsing, no invented actions.
+        label parsing, no invented actions. A False result is a pool shortfall
+        on an action that spends its own source; _priority_awaits_mana
+        decides which of those are re-offered as needs-mana-first intent.
         """
         del state
         metadata = option.get("metadata")
@@ -1200,6 +1397,36 @@ class ExternalPilotDecisionPolicy:
         return not (
             metadata.get("requires_tap_source") is True
             or metadata.get("requires_sacrifice_source") is True
+        )
+
+    @staticmethod
+    def _floats_mana_only(meta: dict[str, Any]) -> bool:
+        """Whether activating this in a priority window only floats mana.
+
+        True when the bridge's cost facts prove the ability costs nothing
+        beyond tapping its own source: that activation merely adds mana to the
+        pool, which the step will empty (CR 106.4) without the window offering
+        anything new to spend it on. A mana ability carrying its own mana cost
+        (Agent of Stromgald's ``{R}: Add {B}``) or a non-tap cost (Ashnod's
+        Altar, "Sacrifice a creature: Add {C}{C}", answered in response to a
+        removal spell) is a real use of the window, not idling, so it must not
+        be scored below passing. Absent cost facts are unknown, and unknown
+        keeps the conservative flag.
+        """
+        amounts: list[float] = []
+        for key, _ in _MANA_COST_COLORS:
+            amount = _cost_amount(meta, key)
+            if amount is None:
+                return True
+            amounts.append(amount)
+        generic = _cost_amount(meta, "mana_cost_generic")
+        if generic is None:
+            return True
+        if generic > 0 or any(amount > 0 for amount in amounts):
+            return False
+        return not (
+            meta.get("requires_sacrifice_source") is True
+            or meta.get("requires_untap_source") is True
         )
 
     def _priority_mana_action(
@@ -1219,9 +1446,11 @@ class ExternalPilotDecisionPolicy:
             metadata={
                 "xmage_option_type": "mana_ability",
                 "is_mana_ability": True,
-                # Offered in a priority window, not inside a payment: activating
-                # it only floats mana (see STANDALONE_MANA_ABILITY_UTILITY).
-                "floats_mana_only": True,
+                # Offered in a priority window, not inside a payment. True only
+                # when the bridge's cost facts show the activation costs
+                # nothing beyond tapping its own source (see
+                # _floats_mana_only and STANDALONE_MANA_ABILITY_UTILITY).
+                "floats_mana_only": self._floats_mana_only(meta),
             },
         )
 
@@ -1401,17 +1630,56 @@ class ExternalPilotDecisionPolicy:
         options: list[dict[str, Any]],
         context: dict[str, Any],
         rng: random.Random,
+        *,
+        prompt: str = "",
+        source_object: Any = None,
     ) -> str:
         if not options:
             raise FullGameProtocolError("boolean decision has no legal options")
+        offered = list(options)
         outcome = str(context.get("outcome", "neutral")).casefold()
-        actions: list[PilotActionView] = []
-        raw_by_stable_id: dict[str, str] = {}
+        values: dict[str, bool] = {}
         for option in options:
             metadata = option.get("metadata")
             value = metadata.get("value") if isinstance(metadata, dict) else None
             if not isinstance(value, bool):
                 raise FullGameProtocolError("boolean option is missing explicit boolean value")
+            values[self._required_text(option, "option_id")] = value
+        # Repeatable-offer guard (liveness only, no may-semantics): a "Pay N
+        # times" offer the engine's own AI declines because its affordability
+        # check covers one payment re-offers identically after each payment.
+        # Consecutive Yes answers from the same source with the same outcome
+        # are counted; past the cap the affirmative option is withheld, so the
+        # pilot can only decline. A different source, a different outcome or
+        # any No restarts the count, and the guard memory is keyed only on the
+        # Rules-visible source name, never an engine UUID.
+        seat = runtime.binding.seat
+        cap = self._boolean_yes_cap(prompt, state)
+        repeat_key = (self._boolean_source_key(source_object), outcome)
+        if self._boolean_repeat_key.get(seat) == repeat_key:
+            answered_yes = self._boolean_repeat_count.get(seat, 0)
+        else:
+            answered_yes = 0
+            self._boolean_repeat_key[seat] = repeat_key
+        selectable = [
+            option
+            for option in options
+            if not (values[self._required_text(option, "option_id")] and answered_yes >= cap)
+        ]
+        if selectable and len(selectable) != len(options):
+            _LOG.info(
+                "repeatable-offer guard: %d consecutive yes answers to %s/%s reached the "
+                "cap %d; declining",
+                answered_yes,
+                repeat_key[0] or "<unlabelled source>",
+                outcome,
+                cap,
+            )
+            options = selectable
+        actions: list[PilotActionView] = []
+        raw_by_stable_id: dict[str, str] = {}
+        for option in options:
+            value = values[self._required_text(option, "option_id")]
             aligned = (value and outcome in {"benefit", "benefit_to_controller"}) or (
                 not value and outcome in DECLINE_ALIGNED_BOOLEAN_OUTCOMES
             )
@@ -1435,7 +1703,56 @@ class ExternalPilotDecisionPolicy:
             raw_id = raw_by_stable_id[decision.selected_action_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable boolean option") from None
-        return self._require_offered(raw_id, options, "boolean decision")
+        self._boolean_repeat_count[seat] = answered_yes + 1 if values[raw_id] else 0
+        return self._require_offered(raw_id, offered, "boolean decision")
+
+    @staticmethod
+    def _boolean_source_key(source_object: Any) -> str:
+        """Rules-visible identity of the ability a may-prompt came from.
+
+        The bridge's ``source_object`` block names the source when the engine
+        has it. Only that Rules-visible name is used, so the guard's memory
+        never depends on a per-process engine UUID (twin-stable selection).
+        An unnamed source collapses to a single key, which is the conservative
+        direction: the repeat guard still applies.
+        """
+        if not isinstance(source_object, dict):
+            return ""
+        name = str(source_object.get("source_name") or "").casefold()
+        if name:
+            return name
+        return str(source_object.get("source_object_id") or "")
+
+    def _boolean_yes_cap(self, prompt: str, state: dict[str, Any]) -> int:
+        """How many times this prompt may be answered Yes in a row.
+
+        When the prompt states its own cost ("Pay 3 times Multikicker {2}"),
+        the cap is the lesser of that cost and what the pilot can see it could
+        fund: pool mana plus its untapped permanents. Otherwise there is no
+        parseable cost and a fixed small constant applies, consistent with the
+        mana-payment and priority no-progress guards.
+        """
+        match = _BOOLEAN_TIMES_RE.search(prompt or "")
+        if match is None:
+            return BOOLEAN_YES_REPEAT_LIMIT
+        try:
+            declared = int(match.group(1))
+        except ValueError:  # pragma: no cover - the regex admits only digits
+            return BOOLEAN_YES_REPEAT_LIMIT
+        if declared <= 0:
+            return BOOLEAN_YES_REPEAT_LIMIT
+        actor = self._actor(state)
+        battlefield = actor.get("battlefield")
+        untapped = (
+            sum(
+                1
+                for item in battlefield
+                if isinstance(item, dict) and item.get("tapped") is not True
+            )
+            if isinstance(battlefield, list)
+            else 0
+        )
+        return max(1, min(declared, int(self._actor_mana(actor)) + untapped))
 
     def _decide_pile(
         self,
