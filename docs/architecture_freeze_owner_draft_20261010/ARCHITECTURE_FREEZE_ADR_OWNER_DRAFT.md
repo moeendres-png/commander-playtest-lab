@@ -80,12 +80,11 @@ checkout at Freeze.
 
 ## 9. PROTOCOL_SCHEMA_IDENTITY
 
-**NOT BOUND: mismatch to resolve.** The freeze record carries
-`git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5`, a `const` of the freeze contract
-schema. `schemas/engine_adapter_protocol.schema.json` is
-`git-blob:9818d20ee1309e4fde522ffbfe5340eea5145d73` at `85dbcb1a`; it was regenerated
-after that const was fixed. At Freeze, bind the schema blob that the frozen protocol
-actually uses and update the contract const together with it.
+`git-blob:9818d20ee1309e4fde522ffbfe5340eea5145d73`
+(`schemas/engine_adapter_protocol.schema.json`). The freeze contract's const is bound
+to the real file blob, and the assembler refuses eligibility on any mismatch (drift
+guard). The pre-freeze source lock's `ea8651f7` stays as provenance. It differs only by
+the additive `get_constructed_state` message type.
 
 ## 10. BRIDGE_ARCHITECTURE
 
@@ -253,5 +252,6 @@ component (`LANE_SURFACE_COMPONENTS`).
 - [ ] SLOT-03 shim reference confirmed (§10)
 - [ ] D17 in-JVM residual risk decision (§11). It is currently NOT accepted.
 - [ ] Process isolation mechanism (§22) and license topology (§25)
-- [ ] Protocol schema identity resolved (§9); contract schema pins (§15–18)
+- [x] Protocol schema identity bound (§9)
+- [ ] Contract schema pins (§15–18)
 - [ ] `ARCHITECTURE_FREEZE = CLAIMED`, recorded by the Owner with date

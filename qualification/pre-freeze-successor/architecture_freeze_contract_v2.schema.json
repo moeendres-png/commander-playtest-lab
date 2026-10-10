@@ -22,7 +22,7 @@
       "const": "2.0.0"
     },
     "protocol_schema_identity": {
-      "const": "git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5"
+      "const": "git-blob:9818d20ee1309e4fde522ffbfe5340eea5145d73"
     },
     "source_lock": {
       "type": "object",

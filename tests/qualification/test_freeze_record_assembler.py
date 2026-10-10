@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,14 @@ from commander_lab.qualification.current_boundary.freeze_record import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+# The synthetic epochs are "produced" by the current checkout's tree, so their
+# protocol schema is the one this repository carries now.
+HEAD_TREE = subprocess.run(
+    ["git", "-C", str(REPO_ROOT), "rev-parse", "HEAD^{tree}"],
+    capture_output=True,
+    text=True,
+    check=True,
+).stdout.strip()
 PIN = "b" * 40
 ARTIFACT = "a" * 64
 SCHEMA = json.loads(
@@ -84,7 +93,7 @@ def _epoch(root: Path, **overrides: Any) -> Path:
             "producing_source": {
                 "repository": "https://github.com/moeendres-png/commander-playtest-lab",
                 "commit": "d" * 40,
-                "tree": "e" * 40,
+                "tree": HEAD_TREE,
             },
         },
     )
@@ -353,6 +362,44 @@ def test_sealed_epoch_85dbcb1a_is_eligible_and_matches_the_owner_draft_record() 
     assert draft["freeze_eligible"] is True
     assert config["primary_engine"]["production_ready"] is False
     assert config["current_runtime"]["provider_selected"] is False
+
+
+@pytest.mark.parametrize("produced", ["git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5", None])
+def test_protocol_schema_identity_must_be_the_producing_trees(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, produced: str | None
+) -> None:
+    from commander_lab.qualification.current_boundary import freeze_record as fr
+
+    # The pre-freeze source-lock blob, or an unresolvable producing tree.
+    monkeypatch.setattr(fr, "producing_protocol_identity", lambda root, tree: produced)
+    result = _assemble(_epoch(tmp_path))
+    assert result.eligible is False
+    assert any("protocol_schema_identity" in reason for reason in result.reasons)
+
+
+def test_producing_protocol_identity_reads_the_tree_not_the_checkout() -> None:
+    from commander_lab.qualification.current_boundary.freeze_record import (
+        git_blob_identity,
+        producing_protocol_identity,
+    )
+
+    assert producing_protocol_identity(REPO_ROOT, HEAD_TREE) == git_blob_identity(
+        REPO_ROOT / "schemas/engine_adapter_protocol.schema.json"
+    )
+    assert producing_protocol_identity(REPO_ROOT, "0" * 40) is None
+    assert producing_protocol_identity(REPO_ROOT, "not-a-tree") is None
+
+
+def test_git_blob_identity_matches_git_and_ignores_crlf(tmp_path: Path) -> None:
+    from commander_lab.qualification.current_boundary.freeze_record import git_blob_identity
+
+    lf = tmp_path / "lf.txt"
+    lf.write_bytes(b"a\nb\n")
+    crlf = tmp_path / "crlf.txt"
+    crlf.write_bytes(b"a\r\nb\r\n")
+    # git hash-object of "a\nb\n"
+    assert git_blob_identity(lf) == "git-blob:422c2b7ab3b3c668038da977e4e93a5fc623169c"
+    assert git_blob_identity(crlf) == git_blob_identity(lf)
 
 
 def test_unsealed_epoch_is_refused(tmp_path: Path) -> None:

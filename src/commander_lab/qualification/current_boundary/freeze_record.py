@@ -22,6 +22,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -34,6 +35,38 @@ PRODUCTION_LANE = "full-game"
 CANDIDATE = "xmage"
 
 SCHEMA_PATH = Path("qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json")
+PROTOCOL_SCHEMA_PATH = Path("schemas/engine_adapter_protocol.schema.json")
+
+
+def producing_protocol_identity(repo_root: Path, tree: object) -> str | None:
+    """The protocol schema blob in the epoch's producing source tree, or None.
+
+    The record names the protocol the epoch actually ran: the blob is read from the
+    producing tree in the repository's object store, never from the current checkout.
+    """
+    if not isinstance(tree, str) or not re.fullmatch(r"[0-9a-f]{40}", tree):
+        return None
+    completed = subprocess.run(
+        ["git", "-C", str(repo_root), "rev-parse", f"{tree}:{PROTOCOL_SCHEMA_PATH.as_posix()}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    blob = completed.stdout.strip()
+    if completed.returncode != 0 or not re.fullmatch(r"[0-9a-f]{40}", blob):
+        return None
+    return f"git-blob:{blob}"
+
+
+def git_blob_identity(path: Path) -> str:
+    """``git-blob:<sha1>`` of an LF-committed text file, as ``git hash-object`` names it.
+
+    CRLF is folded to LF first so a Windows checkout of an LF-committed file names the
+    committed blob. Not for binary files or files committed with CRLF.
+    """
+    data = path.read_bytes().replace(b"\r\n", b"\n")
+    return "git-blob:" + hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
+
 
 # Each required capability names the native test classes that prove the surface the
 # flag names on the production lane (ruling §(a) L1-L4/S1-S3, §(c) R1-R4). A flag
@@ -428,6 +461,20 @@ def assemble_freeze_record(
         )
 
     producing = identity.get("producing_source") or {}
+    # The contract const must name the protocol schema the epoch's producing source
+    # carried; an unresolvable producing tree is not evidence of either.
+    declared_protocol = schema["properties"]["protocol_schema_identity"]["const"]
+    produced_protocol = producing_protocol_identity(repo_root, producing.get("tree"))
+    if produced_protocol is None:
+        reasons.append(
+            f"the producing tree {producing.get('tree')!r} does not resolve to a protocol "
+            f"schema in this repository: protocol_schema_identity is unbound"
+        )
+    elif produced_protocol != declared_protocol:
+        reasons.append(
+            f"protocol_schema_identity {declared_protocol} is not the protocol schema the "
+            f"epoch ran ({produced_protocol} in its producing tree)"
+        )
     record: dict[str, Any] = {
         "schema_version": "architecture-freeze-result/2.0.0",
         "architecture_winner": False,
