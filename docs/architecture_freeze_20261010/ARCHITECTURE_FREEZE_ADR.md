@@ -74,12 +74,20 @@ of `moeendres-png/mage@b479fe74`.
 
 ## 7. ENGINE_BUILD_SHA256
 
-`3bede866e142de66631e04bfc611424e835ed2c95e2b736cd5f638615c2dc660` (AF01
-`engine_identity.get_provider_version_payload.engine_artifact_sha256`).
+`ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d`. Sources: AF01 `engine_identity.get_provider_version_payload.engine_artifact_sha256`
+and `source_lock.build.artifact_sha256` of this epoch's record.
+
+The jar build of `b479fe74` is **not byte-reproducible**. Two PB-03 builds of the same
+commit gave jars of identical size but different SHA-256: `3bede866…` in epoch
+`85dbcb1ac475-9824c55d5ef2`, and this one. The pin therefore binds exactly the bytes this
+epoch built and qualified. The production base must keep that artifact. Any rebuild is
+a new artifact and must be re-qualified (PB-03) before use.
 
 ## 8. PROTOCOL_VERSION
 
-`2.0.0` (`commander-lab.pre-freeze-qualification/2.0.0`).
+`2.0.0`: the record's `transport_protocol_version` and the protocol schema's
+`protocol_version`, under the qualification boundary
+`commander-lab.pre-freeze-qualification/2.0.0`.
 
 ## 9. PROTOCOL_SCHEMA_IDENTITY
 
@@ -203,7 +211,8 @@ XMage is MIT (Owner decision D3):
 - **Provider:** `moeendres-png/mage@b479fe74fd1eaf899ff16c6a9203e74a91c0f339`, tree
   `1ff64c794b1f992a8596c0b1b9952055520ccd10`.
 - **Artifact:** `mage-1.4.61.jar` (7,107,605 bytes), sha256
-  `3bede866e142de66631e04bfc611424e835ed2c95e2b736cd5f638615c2dc660`.
+  `ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d` (the bytes this epoch built and qualified; see §7, the build is not
+  reproducible).
 - **Protocol schema:** `git-blob:9818d20ee1309e4fde522ffbfe5340eea5145d73`.
 - **Epoch seal:** `CURRENT_BOUNDARY_SHA256SUMS` of `f881d56fb33f-aef9f7f660b4`.
 
@@ -231,11 +240,13 @@ Each item names its proof in `FREEZE_RECORD_XMAGE.json` → `proof_ledger`.
 
 ## 29. KNOWN_BOUNDED_LIMITATIONS
 
-These are tracked as follow-ups (#675, #681) and do not block the Freeze. Each fails
-closed or is outside credit:
-- S1 routing is checked against the accepted record, not the native return;
-- the causal pass window has no upper position bound;
-- the hold and empty-block causal paths have not been exercised on credited rows.
+These are tracked as follow-ups (#675, #681) and do not block the Freeze:
+- S1 routing is checked against the accepted record, not the native return. This is a
+  known weakness of the credited S1 proof, not a fail-closed path;
+- the causal pass window has no upper position bound (outside the decision, bounded
+  by the row's own stop);
+- the hold and empty-block causal paths have not been exercised on credited rows
+  (they fail closed on any undeclared combat frame).
 
 ## 30. QUALIFICATION_EVIDENCE
 

@@ -425,6 +425,25 @@ def test_freeze_basis_epoch_f881d56f_is_eligible_and_matches_the_final_adr_recor
         encoding="utf-8"
     )
     assert "- [ ] `ARCHITECTURE_FREEZE = CLAIMED`" in adr
+    # Every identity the ADR and the decisions record pin is the shipped record's.
+    decisions = (
+        REPO_ROOT / "docs/architecture_freeze_20261010/OWNER_DECISIONS_20261010.md"
+    ).read_text(encoding="utf-8")
+    lock = result.record["source_lock"]
+    for value in (
+        lock["build"]["artifact_sha256"],
+        lock["provider_source"]["commit"],
+        lock["adapter_source"]["commit"],
+        lock["adapter_source"]["tree"],
+        result.record["protocol_schema_identity"],
+    ):
+        assert value in adr, value
+    assert lock["build"]["artifact_sha256"] in decisions
+    for stale in ("85dbcb1ac475f9b9dba56f4aa5634bb2997ac5c9",):
+        assert stale not in adr
+    # The superseded epoch's jar hash is never pinned (only named, abbreviated, as history).
+    stale_jar = "3bede866e142de66631e04bfc611424e835ed2c95e2b736cd5f638615c2dc660"
+    assert stale_jar not in adr and stale_jar not in decisions
 
 
 def test_unsealed_epoch_is_refused(tmp_path: Path) -> None:

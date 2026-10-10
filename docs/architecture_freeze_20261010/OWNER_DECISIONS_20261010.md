@@ -34,8 +34,13 @@ admitted.
 ## D3. Production base: fork pin
 
 - Engine: `moeendres-png/mage@b479fe74fd1eaf899ff16c6a9203e74a91c0f339` (MIT).
-- Artifact: `mage-1.4.61.jar` pinned by SHA-256
-  `3bede866e142de66631e04bfc611424e835ed2c95e2b736cd5f638615c2dc660`.
+- Artifact: `mage-1.4.61.jar`, SHA-256
+  `ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d`. These are the exact bytes the Freeze-basis epoch `f881d56fb33f-aef9f7f660b4`
+  built and qualified.
+  - *Coordinator correction:* the decision was stated with `3bede866…`, the jar of the
+    earlier epoch `85dbcb1ac475-9824c55d5ef2`.
+  - The jar build of `b479fe74` is not byte-reproducible. The production base keeps
+    this artifact, and any rebuild is re-qualified before use.
 - Production code lives in a private production repository. The fork is kept minimal,
   and its diff to upstream is documented so that repins stay feasible.
 
