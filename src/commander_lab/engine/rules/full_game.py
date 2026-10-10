@@ -1746,14 +1746,16 @@ class ExternalPilotDecisionPolicy:
         offer = _multikicker_offer(prompt)
         chain_key = (self._boolean_source_key(source_object), outcome)
         prior = self._boolean_repeat.get(seat)
-        in_chain = (
+        answered_yes = 0
+        cap: int | None = None
+        if (
             offer is not None
             and prior is not None
             and prior[0] == chain_key
             and prior[1] == offer.ordinal - 1
-        )
-        answered_yes = prior[2] if in_chain else 0
-        cap = self._boolean_yes_cap(offer, self._actor(state)) if in_chain else None
+        ):
+            answered_yes = prior[2]
+            cap = self._boolean_yes_cap(offer, self._actor(state))
         selectable = [
             option
             for option in options
