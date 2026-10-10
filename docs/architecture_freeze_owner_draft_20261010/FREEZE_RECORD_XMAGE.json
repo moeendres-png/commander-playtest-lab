@@ -306,7 +306,7 @@
         "verdict": "PASS"
       }
     ],
-    "protocol_schema_identity": "git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5",
+    "protocol_schema_identity": "git-blob:9818d20ee1309e4fde522ffbfe5340eea5145d73",
     "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
     "schema_version": "architecture-freeze-result/2.0.0",
     "source_lock": {

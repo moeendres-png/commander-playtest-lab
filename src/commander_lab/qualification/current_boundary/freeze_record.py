@@ -34,6 +34,18 @@ PRODUCTION_LANE = "full-game"
 CANDIDATE = "xmage"
 
 SCHEMA_PATH = Path("qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json")
+PROTOCOL_SCHEMA_PATH = Path("schemas/engine_adapter_protocol.schema.json")
+
+
+def git_blob_identity(path: Path) -> str:
+    """``git-blob:<sha1>`` of a text file, as ``git hash-object`` computes it.
+
+    Line endings are normalized to LF first, as git stores text, so a CRLF checkout
+    names the same blob.
+    """
+    data = path.read_bytes().replace(b"\r\n", b"\n")
+    return "git-blob:" + hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
+
 
 # Each required capability names the native test classes that prove the surface the
 # flag names on the production lane (ruling §(a) L1-L4/S1-S3, §(c) R1-R4). A flag
@@ -340,6 +352,15 @@ def assemble_freeze_record(
     reported = af01.get("capabilities_provider_reported")
     reported = reported if isinstance(reported, dict) else {}
     schema = json.loads((repo_root / SCHEMA_PATH).read_text(encoding="utf-8"))
+    # The record names the protocol schema the frozen protocol uses: the contract's
+    # const must be the real blob of that file, or the record cannot be eligible.
+    declared_protocol = schema["properties"]["protocol_schema_identity"]["const"]
+    actual_protocol = git_blob_identity(repo_root / PROTOCOL_SCHEMA_PATH)
+    if declared_protocol != actual_protocol:
+        reasons.append(
+            f"protocol_schema_identity {declared_protocol} is not the blob of "
+            f"{PROTOCOL_SCHEMA_PATH} ({actual_protocol})"
+        )
     capability_keys = schema["properties"]["truthful_capabilities"]["properties"]["capabilities"][
         "properties"
     ].keys()

@@ -991,7 +991,14 @@ def test_freeze_schema_binds_current_boundary_without_claiming_freeze() -> None:
     assert props["transport_protocol_version"]["const"] == "2.0.0"
     assert (
         props["protocol_schema_identity"]["const"]
-        == "git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5"
+        == "git-blob:9818d20ee1309e4fde522ffbfe5340eea5145d73"
+    )
+    # Drift guard: the const names the protocol schema file as it is now, so a
+    # regenerated protocol schema must move the const (and the Freeze evidence) with it.
+    from commander_lab.qualification.current_boundary.freeze_record import git_blob_identity
+
+    assert props["protocol_schema_identity"]["const"] == git_blob_identity(
+        REPO_ROOT / "schemas/engine_adapter_protocol.schema.json"
     )
     assert props["architecture_winner"]["const"] is False
     assert props["gate_results"]["minItems"] == props["gate_results"]["maxItems"] == 12
@@ -1010,7 +1017,7 @@ def _freeze_result(verdict: str = "PASS", freeze_eligible: bool = True) -> dict:
         "candidate": "fixture-candidate",
         "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
         "transport_protocol_version": "2.0.0",
-        "protocol_schema_identity": "git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5",
+        "protocol_schema_identity": "git-blob:9818d20ee1309e4fde522ffbfe5340eea5145d73",
         "source_lock": {
             "provider_source": {
                 "repository": "example/provider",
