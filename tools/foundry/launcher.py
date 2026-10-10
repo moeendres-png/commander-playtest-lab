@@ -1494,7 +1494,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--effort", default="high")
     parser.add_argument(
         "--execution-profile",
-        choices=EXECUTION_PROFILES,
+        choices=ACTIVE_EXECUTION_PROFILES,
         default=None,
         help=(
             "Explicit OpenCode Go executor profile. Omitted selects the Space Bunny MAX "

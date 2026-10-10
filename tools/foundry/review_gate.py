@@ -8,6 +8,9 @@ TREE and returned PASS.
 Fail-closed semantics:
 
 - DeepSeek implementation + DeepSeek review stays unsatisfied.
+- Space Bunny implementation + Space Bunny review is self-review and stays
+  unsatisfied, except while Space Bunny is the only ACTIVE registry profile
+  (DeepSeek SUSPENDED; explicit Owner approval 2026-10-10);
 - a PASS record is only admitted with independently verified external evidence
   (``review_evidence``): a self-declared record the implementation executor
   writes can never fabricate a Space Bunny run;

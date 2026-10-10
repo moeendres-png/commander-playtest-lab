@@ -1039,8 +1039,8 @@ def test_cpl_profile_points_to_current_dual_executor_authority() -> None:
     assert "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md" in canonical
     assert "docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md" not in canonical
     notes = profile["notes"].lower()
-    assert "two-executor" in notes
-    assert "space bunny max" in notes
+    assert "space bunny max as the default and only active executor" in notes
+    assert "deepseek v4.1 flash max is suspended" in notes
     assert "historical model references are provenance only" in notes
 
 
@@ -1062,7 +1062,8 @@ def test_current_routing_is_executor_neutral_and_bunny_preferred() -> None:
         encoding="utf-8"
     )
     flat = " ".join(routing.lower().split())
-    assert "default and preferred executor" in flat
+    assert "the default and only executor" in flat
+    assert "suspended" in flat
     assert "space-bunny" in flat
     assert "native `max`" in flat
     assert "no other opencode executor is selectable" in flat

@@ -110,10 +110,12 @@ Sanitized string identity/provenance fields are machine-token constrained (no wh
 The same comparator is the measurement surface for quota-routing experiments; do not create a
 second benchmark harness. Representative campaigns may compare identity-equivalent arms such as:
 
-- Claude main direct execution versus Claude coordinator → DeepSeek MAX;
+- Claude main direct execution versus Claude coordinator → Space Bunny MAX (DeepSeek MAX while it
+  was active);
 - Claude main raw-log analysis versus `log-scanner` (Sonnet low);
 - Claude main CI analysis versus `ci-triage` (Sonnet medium);
-- DeepSeek MAX primary execution versus an explicitly justified Space Bunny MAX secondary audit.
+- Space Bunny MAX `/oc` execution versus a fresh-context Space Bunny MAX `/bunny` audit (historical
+  arms compared DeepSeek MAX primary execution with a Space Bunny MAX secondary audit).
 
 Each pair still binds the same case/task class/source SHA/fixture digest/evidence requirement and
 must pass the existing quality gate. Claude-derived metrics may enter the JSON arm only from a

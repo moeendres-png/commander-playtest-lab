@@ -141,8 +141,9 @@ def test_current_executor_authority_is_exactly_two_profiles():
     assert "must not generate a" in routing
     assert "routing/governance issue by themselves" in routing
     index = (ROOT / "docs/foundry-execution/README.md").read_text()
-    assert "DeepSeek MAX default" in index, "Foundry index omits the current default executor"
-    assert "Space Bunny MAX default" not in index, "Foundry index still names a retired default"
+    assert "Space Bunny MAX only" in index, "Foundry index omits the current only executor"
+    assert "DeepSeek SUSPENDED" in index, "Foundry index omits the DeepSeek suspension"
+    assert "DeepSeek MAX default" not in index, "Foundry index still names a suspended default"
 
 
 def test_external_content_boundary_survives_policy_edits():
