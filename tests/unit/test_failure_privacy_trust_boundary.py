@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import os
+import subprocess
+import sys
 import traceback
 from pathlib import Path
 
 import pytest
 
 from commander_lab.engine.rules.failure_privacy import (
+    diagnostics_digest,
     machine_codes,
     public_full_game_message,
     redacted_exception_message,
@@ -339,6 +344,91 @@ def test_stable_known_codes_and_digest_remain_correlatable() -> None:
     assert first == redacted_summary("BRIDGE_ERROR", (raw,))
     assert first != redacted_summary("BRIDGE_ERROR", (raw + " private detail",))
     assert redacted_exception_message(ValueError("private detail")).startswith("ValueError")
+
+
+def test_public_diagnostic_token_cannot_be_matched_to_an_offline_card_dictionary() -> None:
+    def diagnostic(card: str, suffix: int) -> str:
+        return json.dumps(
+            {
+                "type": "IllegalStateException",
+                "message": "NO_LEGAL_ACTION: XMage supplied no castable spell ability for "
+                + f"{card} [{suffix:03x}]",
+            },
+            sort_keys=True,
+        )
+
+    raw = diagnostic("Sol Ring", 7)
+    public_token = diagnostics_digest((raw,))
+    guesses = {
+        hashlib.sha256((diagnostic(card, suffix) + "\0").encode()).hexdigest()[:16]
+        for card in ("Sol Ring", "Lightning Bolt")
+        for suffix in range(4096)
+    }
+    assert public_token not in guesses
+    assert public_token in redacted_summary("ENGINE_FAILURE", (raw,))
+    assert diagnostics_digest((raw,)) == public_token
+
+
+def test_diagnostic_correlation_is_stable_locally_and_isolated_between_processes() -> None:
+    script = (
+        "import json; "
+        "from commander_lab.engine.rules.failure_privacy import diagnostics_digest; "
+        "raw = ('NO_LEGAL_ACTION: private card [007]',); "
+        "print(json.dumps([diagnostics_digest(raw), diagnostics_digest(raw)]))"
+    )
+    outputs = [
+        json.loads(subprocess.check_output([sys.executable, "-c", script], text=True))
+        for _ in range(2)
+    ]
+    assert outputs[0][0] == outputs[0][1]
+    assert outputs[1][0] == outputs[1][1]
+    assert outputs[0][0] != outputs[1][0]
+
+
+@pytest.mark.skipif(not hasattr(os, "fork"), reason="POSIX fork isolation")
+def test_forked_process_does_not_inherit_diagnostic_correlation_key() -> None:
+    script = """
+import json, os
+from commander_lab.engine.rules.failure_privacy import diagnostics_digest
+raw = ('NO_LEGAL_ACTION: private card [007]',)
+parent = diagnostics_digest(raw)
+read_fd, write_fd = os.pipe()
+pid = os.fork()
+if pid == 0:
+    os.close(read_fd)
+    with os.fdopen(write_fd, 'w') as pipe:
+        json.dump([diagnostics_digest(raw), diagnostics_digest(raw)], pipe)
+    os._exit(0)
+os.close(write_fd)
+with os.fdopen(read_fd) as pipe:
+    child = json.load(pipe)
+_, status = os.waitpid(pid, 0)
+assert status == 0
+print(json.dumps([parent, diagnostics_digest(raw), child]))
+"""
+    parent, repeated_parent, child = json.loads(
+        subprocess.check_output([sys.executable, "-c", script], text=True)
+    )
+    assert parent == repeated_parent
+    assert child[0] == child[1]
+    assert parent != child[0]
+
+
+def test_failed_key_rotation_cannot_fall_back_to_an_unkeyed_digest(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from commander_lab.engine.rules import failure_privacy
+
+    def entropy_unavailable(_length: int) -> bytes:
+        raise OSError("entropy unavailable")
+
+    # Restore the parent key after deliberately exercising a failed child reset.
+    monkeypatch.setattr(failure_privacy, "_DIAGNOSTIC_KEY", failure_privacy._DIAGNOSTIC_KEY)
+    monkeypatch.setattr(failure_privacy.secrets, "token_bytes", entropy_unavailable)
+    with pytest.raises(OSError, match="entropy unavailable"):
+        failure_privacy._reset_diagnostic_key()
+    with pytest.raises(RuntimeError, match="diagnostic correlation unavailable"):
+        diagnostics_digest(("NO_LEGAL_ACTION: private card [007]",))
 
 
 def test_unknown_tokens_cannot_exhaust_the_public_code_budget() -> None:

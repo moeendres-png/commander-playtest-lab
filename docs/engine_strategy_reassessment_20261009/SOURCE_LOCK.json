@@ -84,6 +84,17 @@
       "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json": "3eb742125a07cf3572d8256d685ac10e295df2c7a586055307dcd193a0af3849",
       "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json": "c9048b0502b9b3b66c656a1512bd0541e46f67d9ad06d03d1c92185166ed248d"
     },
-    "final_identity_receipt": "Existing GitHub #665/#666 comments; do not infer completion from this pre-integration snapshot"
+    "final_identity_receipt": "Existing GitHub #665/#666 comments; do not infer completion from this pre-integration snapshot",
+    "diagnostic_correlation_adjudication": {
+      "prior_head": "2d1bc6cb9e6a5c928b505fa257894a10045ef80d",
+      "prior_tree": "d74fe23e34a44f4a10699c3c9a0083991d830c3e",
+      "finding": "CODE_DERIVED P2: offline private diagnostic dictionary disclosure",
+      "boundary": "failure_privacy.diagnostics_digest; full-game and replay consumers",
+      "correlation": "process-local memory-only HMAC-SHA-256; legacy marker/16-hex width",
+      "rules_rng_impact": "NONE: cryptographic privacy entropy only",
+      "coordinator_takeover_authority": "Direct Owner exception after cancelled clean-rescue OC attempt38012145472 and single retry38012697112; issue665 comment6092333180",
+      "native_review_certificate": "NOT_CLAIMED; separate issue654 BLOCKED_SERVICE",
+      "final_source_receipts": "Inspect subsequent issue665/PR666 comments for exact published identity, review and hosted results"
+    }
   }
 }

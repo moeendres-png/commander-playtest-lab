@@ -11,18 +11,37 @@ What survives is structural and safe:
 * a stable failure code chosen by the Lab (``BRIDGE_TIMEOUT`` ...);
 * exact audited machine codes from a fixed public vocabulary; uppercase
   spelling alone does not make an engine or pilot diagnostic public;
-* a short digest of the raw diagnostics, so an operator holding the local log
-  can correlate a record with it without the record carrying the text.
+* a short keyed correlation token of the raw diagnostics. Operators can
+  recompute it only while the originating process/key is alive; saved raw logs
+  alone cannot reproduce it after exit. The legacy ``diagnostics sha256:``
+  marker denotes HMAC-SHA-256, not a publicly reproducible content hash.
 """
 
 from __future__ import annotations
 
-import hashlib
+import hmac
+import os
 import re
+import secrets
 from collections.abc import Iterable
 
 _MACHINE_CODE = re.compile(r"\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b")
 _MAX_CODES = 8
+
+# Diagnostic privacy entropy is separate from Rules RNG, seeds and replay.
+# Never export/persist this key or derive it from any public game identity.
+_DIAGNOSTIC_KEY: bytes | None = secrets.token_bytes(32)
+
+
+def _reset_diagnostic_key() -> None:
+    global _DIAGNOSTIC_KEY
+    # Invalidate first: a child must fail closed if fresh entropy is unavailable.
+    _DIAGNOSTIC_KEY = None
+    _DIAGNOSTIC_KEY = secrets.token_bytes(32)
+
+
+if hasattr(os, "register_at_fork"):
+    os.register_at_fork(after_in_child=_reset_diagnostic_key)
 
 # Lab transport sites and the full-game Player/DecisionController failure sites.
 # New unregistered bridge failures still fail closed, retaining their digest.
@@ -128,8 +147,10 @@ def machine_codes(texts: Iterable[str]) -> tuple[str, ...]:
 
 
 def diagnostics_digest(texts: Iterable[str]) -> str:
-    """First 16 hex digits of the SHA-256 over the raw diagnostics."""
-    digest = hashlib.sha256()
+    """Process-local 16-hex HMAC token; never an offline diagnostic oracle."""
+    if _DIAGNOSTIC_KEY is None:
+        raise RuntimeError("diagnostic correlation unavailable")
+    digest = hmac.new(_DIAGNOSTIC_KEY, digestmod="sha256")
     for text in texts:
         digest.update(_plain_diagnostic(text).encode("utf-8", errors="replace"))
         digest.update(b"\0")
@@ -137,7 +158,7 @@ def diagnostics_digest(texts: Iterable[str]) -> str:
 
 
 def redacted_summary(code: str, raw: Iterable[str]) -> str:
-    """``code [codes=...] (diagnostics sha256:...)`` without any raw text."""
+    """Safe classification and keyed token, retaining the legacy wire marker."""
     raw = tuple(raw)
     codes = machine_codes(raw)
     summary = (

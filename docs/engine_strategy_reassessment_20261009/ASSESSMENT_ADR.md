@@ -266,6 +266,20 @@ Implemented:
   Builtin item enumeration with exact string keys now preserves intended local
   metadata without invoking subclass lookup or hostile-key equality. Three
   discriminating controls fail on the prior candidate and pass after repair.
+- Final security adjudication found an inherited offline dictionary disclosure:
+  native cast/land-or-spell failures can identify a still-private card by its
+  name and three hexadecimal ID characters. An unkeyed diagnostic hash exposes
+  this low-entropy value even without publishing its text. The shared digest
+  now uses HMAC-SHA-256 with a random memory-only 256-bit process key, rotated
+  after fork; entropy failure has no unkeyed fallback. The legacy
+  `diagnostics sha256:` marker and 16-hex token width remain compatible.
+  All full-game and replay diagnostic consumers receive the keyed token.
+  Correlation is stable only within the originating process, not across
+  independent processes or after exit using saved raw logs alone. This
+  protects exported-record readers against offline enumeration; arbitrary
+  code with access to the Python process/key is outside this boundary.
+  This cryptographic privacy entropy never participates in Rules RNG,
+  legal options, pilot selection or canonical semantic replay hashes.
 - Fullgame/smoke push + scope filters include this dependency and new tests;
   their focused tests execute negative and legitimate privacy controls.
 

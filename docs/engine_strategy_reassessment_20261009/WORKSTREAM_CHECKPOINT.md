@@ -162,3 +162,47 @@ GATE_DEFINITION_CHANGED_REVIEW_REQUIRED remains visible; no override.
 Final exact-source review and applicable hosted gates must complete on the new
 remote candidate, then normal integration and terminal receipts in #665/#666.
 No native Foundry certificate, provider release, Freeze or COMPLETE is claimed.
+
+## Final recovery: diagnostic dictionary disclosure
+
+Fresh main remains 9bd7cbad/tree89e33bf3; recovered remote head is
+2d1bc6cb9e6a5c928b505fa257894a10045ef80d/treed74fe23e34a44f4a10699c3c9a0083991d830c3e.
+Final independent privacy adjudication supersedes the earlier unqualified
+confidentiality PASS: an inherited P2, CODE_DERIVED, exposes low-entropy
+private card diagnostics through unkeyed hashes. Native cast/land-or-spell
+callbacks can fail before a public cast with card name plus only three hex
+ID characters. Status failure contains only type/message; deterministic
+wrappers add no secrecy. No natural-game exploit is claimed.
+
+The Owner-mandated DeepSeek execution attempt (run38012145472) and exactly
+one narrower retry (run38012697112) both hit the monthly service quota before
+any model work. Both were cancelled, clean rescue bundles saved and hashed,
+and dispatch watch consumed. The direct Owner exception therefore authorizes
+coordinator takeover solely for this Python privacy repair; see #665 comment
+6092333180. The separate #654 attempts are BLOCKED_SERVICE, not a native
+review certificate, and no alternate provider is used.
+
+Fresh read-only boundary investigation confirmed full-game/batch/smoke and
+semantic replay divergence consume diagnostics_digest. It now returns
+HMAC-SHA-256 with a memory-only random 256-bit process key, refreshed after
+fork; no unkeyed fallback. Existing legacy marker and 16-hex width remain.
+Within-process correlation survives; independent-process/post-exit raw-log
+recomputation deliberately does not. No key export, raw cache, public-seed
+key derivation, Rules randomness or semantic replay hash change.
+
+Three negative regression controls fail on the unchanged prior boundary:
+offline card dictionary matching, independent-process equality and fork
+inheritance. Repair plus an entropy-failure fail-closed control: 128 scoped
+privacy/full-game/smoke/replay tests PASS; Ruff check/format PASS and mypy
+all 296 source files PASS. Additional batch/source-identity, successful
+full-game/semantic-tape and artifact compatibility controls: 42 PASS.
+Fresh candidate review and exact-head hosted
+requalification remain required before integration.
+
+All applicable hosted technical jobs on head2d1/merge-candidatec588/tree d74
+completed successfully, including PB03 run38012024721. Its downloaded ZIP
+SHA256 is 004869fa6718827c13b28fffe86cd02d05fe67d8b34948a9259d58c3520e8a14.
+These receipts are historical after the correlation change, not final-source
+PASS. Informational shadow still requires reviewed disposition; no gate or
+test denominator was weakened. Final remote identity, fresh review/Actions,
+merge/main-checks and terminal handoff belong in existing #665/#666.
