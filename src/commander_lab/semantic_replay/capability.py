@@ -3,9 +3,11 @@
 ``replay_supported`` is True ONLY for the versioned tape lane after the
 full record/export/fresh-consume/semantic-compare/fail-closed contract is
 qualified (positive 2-5P plus tamper matrix). A mere exporter or a
-same-seed twin never flips this flag. The generic bridge
-``replay_supported`` stays False (no ``export_replay`` on the full-game
-lane); this module is the single truthful advertisement for tape replay.
+same-seed twin never flips this flag. Since #662 (SLOT-06 ruling (c)) the
+full-game bridge also reports ``replay_supported`` for its own provider
+surface: ``export_replay`` plus a clean-process verifier
+(``Main full-game-replay``). That bridge flag and this tape lane are separate
+surfaces; neither stands in for the other.
 
 Qualification: WS218 2026-09-15 — 2P(611)/3P(155)/4P(257)/5P(158) Lions
 tapes, each dual fresh-process replay PASS, 19-case tamper matrix all

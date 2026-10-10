@@ -517,8 +517,11 @@ final class XmageFullGameJsonlBridge {
         // keeps each flag bound to its proof classes.
         capabilities.addProperty("legal_actions_supported", true);
         capabilities.addProperty("action_submission_supported", true);
-        capabilities.addProperty("event_log_supported", false);
-        capabilities.addProperty("replay_supported", false);
+        // #662 SLOT-06: export_event_log (public tape, XmageFullGameEventLogTest) and
+        // export_replay + clean-process verifier (ruling (c) R1-R4,
+        // XmageFullGameReplayExportTest). Semantic replay, not bit-exact replay.
+        capabilities.addProperty("event_log_supported", true);
+        capabilities.addProperty("replay_supported", true);
         capabilities.addProperty("stack_visible", true);
         capabilities.addProperty("priority_visible", true);
         capabilities.addProperty("commander_damage_visible", false);
@@ -536,7 +539,8 @@ final class XmageFullGameJsonlBridge {
         // exact principal. Every status payload carries the live per-player
         // can_concede vector as proof.
         capabilities.addProperty("concede_supported", true);
-        capabilities.addProperty("game_shutdown_supported", false);
+        // #662 SLOT-06: shutdown_game, XmageFullGameShutdownGameTest.
+        capabilities.addProperty("game_shutdown_supported", true);
         capabilities.addProperty("engine_shutdown_supported", true);
         capabilities.addProperty("runtime_kind", "external_rules_engine");
 
@@ -550,7 +554,7 @@ final class XmageFullGameJsonlBridge {
         notes.add("Rules randomness remains XMage-owned and uses the explicit per-game Rules seed bound before start (setRulesSeed + requireExplicitSeed; RandomUtil retired as authority)");
         notes.add("One isolated JVM process is required per game as defense in depth for credited runs");
         notes.add("Full-game runs are technical conformance only and may not consume gameplay evidence or holdouts");
-        notes.add("Bit-exact replay remains unclaimed until a duplicate-run gate proves it");
+        notes.add("Semantic replay: export_replay (orchestration-only) is verified by a clean-process replay (Main full-game-replay); bit-exact replay remains unclaimed");
         notes.add("WS204 B4-D decision-scoped get_legal_actions/submit_action project only the exact current pending native decision; #662 SLOT-06: legal_actions/action_submission are decision-scoped and complete per decision for every declared decision class");
         capabilities.add("notes", notes);
 

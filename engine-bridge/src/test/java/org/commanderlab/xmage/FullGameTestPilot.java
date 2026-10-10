@@ -40,15 +40,16 @@ final class FullGameTestPilot {
             JsonObject root = JsonParser.parseString(Files.readString(
                     XmageNativeStateRestorationTest.repoRoot().resolve(DECKS.get(seat % DECKS.size())),
                     StandardCharsets.UTF_8)).getAsJsonObject();
+            if (root.has("deck") && root.get("deck").isJsonObject()) {
+                root = root.getAsJsonObject("deck");
+            }
             List<String> main = new ArrayList<>();
             List<String> commanders = new ArrayList<>();
             for (JsonElement element : root.getAsJsonArray("cards")) {
                 JsonObject card = element.getAsJsonObject();
-                String name = card.get("oracle_name").getAsString();
-                boolean commander = card.has("is_commander") && card.get("is_commander").getAsBoolean()
-                        || card.has("section") && "commander".equals(card.get("section").getAsString());
+                List<String> target = "commander".equals(card.get("zone").getAsString()) ? commanders : main;
                 for (int copy = 0; copy < card.get("quantity").getAsInt(); copy++) {
-                    (commander ? commanders : main).add(name);
+                    target.add(card.get("oracle_name").getAsString());
                 }
             }
             handles.add(importer.importCommanderDeck(
