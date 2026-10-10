@@ -31,8 +31,12 @@ class XmageFullGameShutdownGameTest {
         assertFalse(result.get("engine_thread_alive").getAsBoolean());
         assertTrue(result.get("game_over").getAsBoolean());
 
+        JsonObject bound = new JsonObject();
+        bound.addProperty("actor_id", frame.get("actor_id").getAsString());
+        bound.addProperty("decision_class", frame.get("decision_class").getAsString());
         for (Runnable refused : new Runnable[] {
                 session::legalActionsPayload,
+                () -> session.legalActionsPayload(bound),
                 () -> session.submitAction(proposal),
                 () -> session.concedeOfferPayload(frame.get("actor_id").getAsString()),
                 session::shutdownGame}) {

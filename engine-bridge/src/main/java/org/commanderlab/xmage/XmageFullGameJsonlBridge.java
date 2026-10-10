@@ -319,8 +319,9 @@ final class XmageFullGameJsonlBridge {
 
     /**
      * WS204 B4-D decision-scoped generic projection. Returns only the exact
-     * currently pending native decision as generic actions. Flags remain
-     * unpromoted: this is not a globally complete free-standing API.
+     * currently pending native decision as generic actions. #662 SLOT-06 (a):
+     * legal_actions_supported means decision-scoped and complete per decision,
+     * not a globally complete free-standing legal-actions API.
      */
     private Result getLegalActions(String requestId, JsonObject request) {
         try {

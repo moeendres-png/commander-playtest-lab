@@ -75,6 +75,28 @@ class XmageFullGameEventLogTest {
             }
         }
         assertTrue(hiddenNames.size() > 0);
+        // A name that only exists in hidden zones right now (no copy in any public
+        // zone) is named by no event. The test pilot only plays lands and passes, so
+        // no card went from a public zone back to a hidden one.
+        Set<String> publicNames = new HashSet<>();
+        game.getBattlefield().getAllPermanents().forEach(permanent -> publicNames.add(permanent.getName()));
+        game.getExile().getAllCards(game).forEach(card -> publicNames.add(card.getName()));
+        game.getStack().forEach(object -> publicNames.add(object.getName()));
+        game.getState().getCommand().forEach(object -> publicNames.add(object.getName()));
+        game.getPlayers().values().forEach(player ->
+                player.getGraveyard().getCards(game).forEach(card -> publicNames.add(card.getName())));
+        Set<String> hiddenOnly = new HashSet<>(hiddenNames);
+        hiddenOnly.removeAll(publicNames);
+        assertTrue(hiddenOnly.size() > 0, "the control is not vacuous");
+        for (JsonElement element : events) {
+            JsonObject event = element.getAsJsonObject();
+            for (String field : new String[] {"source_name", "target_name"}) {
+                if (event.has(field) && !event.get(field).isJsonNull()) {
+                    assertFalse(hiddenOnly.contains(event.get(field).getAsString()),
+                            "the public log names a card that is only in hidden zones: " + event);
+                }
+            }
+        }
     }
 
     @Test
