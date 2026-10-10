@@ -329,6 +329,30 @@ def test_sealed_epoch_c124150d_is_not_eligible() -> None:
     assert any("not on the production lane" in reason for reason in result.reasons)
 
 
+def test_sealed_epoch_85dbcb1a_is_eligible_and_matches_the_owner_draft_record() -> None:
+    """The first eligible sealed epoch (#662 step 4): an Owner decision input, not a Freeze."""
+    epoch = REPO_ROOT / "qualification/current-boundary-epochs/85dbcb1ac475-9824c55d5ef2"
+    config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    result = assemble_freeze_record(
+        epoch, repo_root=REPO_ROOT, expected_pin=config["primary_engine"]["commit"]
+    )
+    assert result.reasons == []
+    assert result.eligible is True
+    record = result.record
+    assert record["architecture_winner"] is False
+    assert record["truthful_capabilities"]["missing_required_capabilities"] == []
+    assert [gate["verdict"] for gate in record["gate_results"]] == ["PASS"] * 12
+    draft = json.loads(
+        (
+            REPO_ROOT / "docs/architecture_freeze_owner_draft_20261010/FREEZE_RECORD_XMAGE.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert draft["record"] == record
+    assert draft["freeze_eligible"] is True
+    assert config["primary_engine"]["production_ready"] is False
+    assert config["current_runtime"]["provider_selected"] is False
+
+
 def test_unsealed_epoch_is_refused(tmp_path: Path) -> None:
     with pytest.raises(FreezeRecordError, match="not sealed"):
         _assemble(_epoch(tmp_path, unsealed=True))
