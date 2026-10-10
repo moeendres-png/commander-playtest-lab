@@ -166,6 +166,14 @@ def test_pilot_still_takes_a_real_action_over_passing() -> None:
         "Savannah Lions — Cast Savannah Lions",
         source_name="Savannah Lions",
         source_object_id="hand-0",
+        ability_type="spell",
+        mana_cost_white=1,
+        mana_cost_generic=0,
+        # The engine's verdict over the empty pool; untapped Plains pay it.
+        pool_covers_mana_cost=False,
+        requires_tap_source=False,
+        requires_untap_source=False,
+        requires_sacrifice_source=False,
     )
     response = _policy().decide(
         _request("priority", [_PASS, *_TAPS, cast], state=_state(step="precombat_main"))

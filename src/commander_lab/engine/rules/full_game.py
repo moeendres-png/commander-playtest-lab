@@ -1130,7 +1130,15 @@ class ExternalPilotDecisionPolicy:
         tapped source, an untap cost on an untapped source, or mana costs
         the current pool cannot cover (``pool_covers_mana_cost`` is the
         engine's own ``Mana.enough`` verdict, projected losslessly by the
-        bridge). Anything unknown means affordable.
+        bridge) on an action that also taps or sacrifices its own source.
+        That last case is the one a pool shortfall proves: paying the mana
+        can consume the very source the tap/sacrifice cost needs (a fetch
+        with ``{1}, {T}, Sacrifice`` and one untapped land). Any other
+        action is paid through the engine's own mana-payment decisions from
+        untapped sources, which the engine already counted when it offered
+        the action, so an empty pool proves nothing there; withholding it
+        kept every spell with a mana cost out of the pilot's reach unless
+        mana had been floated first. Anything unknown means affordable.
 
         This is pilot choice, not a legality verdict: withheld options stay
         engine-offered, the pilot simply selects pass/another legal action
@@ -1146,7 +1154,12 @@ class ExternalPilotDecisionPolicy:
             return False
         if metadata.get("requires_untap_source") is True and metadata.get("source_tapped") is False:
             return False
-        return metadata.get("pool_covers_mana_cost") is not False
+        if metadata.get("pool_covers_mana_cost") is not False:
+            return True
+        return not (
+            metadata.get("requires_tap_source") is True
+            or metadata.get("requires_sacrifice_source") is True
+        )
 
     def _priority_mana_action(
         self, option: dict[str, Any], state: dict[str, Any]

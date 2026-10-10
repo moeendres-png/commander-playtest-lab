@@ -161,3 +161,38 @@ def test_pure_mana_ability_always_affordable() -> None:
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))
+
+
+SPELL_METADATA = {
+    "ability_type": "spell",
+    "source_name": "Guttersnipe",
+    "mana_cost_generic": 2,
+    "mana_cost_white": 0,
+    "mana_cost_blue": 0,
+    "mana_cost_black": 0,
+    "mana_cost_red": 1,
+    "mana_cost_green": 0,
+    "mana_cost_colorless": 0,
+    "pool_covers_mana_cost": False,
+    "requires_tap_source": False,
+    "requires_untap_source": False,
+    "requires_sacrifice_source": False,
+}
+
+
+def test_spell_with_empty_pool_is_not_withheld() -> None:
+    """A spell is paid from untapped sources through mana-payment decisions.
+
+    Real-deck 4P games: withholding every spell the pool could not cover kept
+    the pilots from casting almost anything unless mana had been floated.
+    """
+    policy = _policy()
+    state = _state({"white": 0, "blue": 0, "black": 0, "red": 0, "green": 0, "colorless": 0})
+    assert policy._priority_action_affordable(_option(dict(SPELL_METADATA)), state) is True
+
+
+def test_sacrifice_source_with_pool_shortfall_withheld() -> None:
+    policy = _policy()
+    metadata = dict(SPELL_METADATA, ability_type="activated", requires_sacrifice_source=True)
+    state = _state({"white": 0, "blue": 0, "black": 0, "red": 0, "green": 0, "colorless": 0})
+    assert policy._priority_action_affordable(_option(metadata), state) is False
