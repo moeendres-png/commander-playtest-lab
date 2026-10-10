@@ -402,6 +402,31 @@ def test_git_blob_identity_matches_git_and_ignores_crlf(tmp_path: Path) -> None:
     assert git_blob_identity(crlf) == git_blob_identity(lf)
 
 
+def test_freeze_basis_epoch_f881d56f_is_eligible_and_matches_the_final_adr_record() -> None:
+    """The Freeze ADR's evidence basis: eligible, and its record is the one shipped."""
+    epoch = REPO_ROOT / "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4"
+    config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    result = assemble_freeze_record(
+        epoch, repo_root=REPO_ROOT, expected_pin=config["primary_engine"]["commit"]
+    )
+    assert result.reasons == []
+    assert result.eligible is True
+    assert [gate["verdict"] for gate in result.record["gate_results"]] == ["PASS"] * 12
+    shipped = json.loads(
+        (REPO_ROOT / "docs/architecture_freeze_20261010/FREEZE_RECORD_XMAGE.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert shipped["record"] == result.record
+    # Unsigned: nothing selects the provider before the Owner signs.
+    assert config["provider_decision"] == "NO_PROVIDER_READY"
+    assert config["current_runtime"]["provider_selected"] is False
+    adr = (REPO_ROOT / "docs/architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md").read_text(
+        encoding="utf-8"
+    )
+    assert "- [ ] `ARCHITECTURE_FREEZE = CLAIMED`" in adr
+
+
 def test_unsealed_epoch_is_refused(tmp_path: Path) -> None:
     with pytest.raises(FreezeRecordError, match="not sealed"):
         _assemble(_epoch(tmp_path, unsealed=True))
