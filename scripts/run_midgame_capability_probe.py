@@ -1906,9 +1906,15 @@ def causal_stack_frames(
 def observe_priority_ring(
     client: ml.MidgameLaneClient,
     tag: str,
+    authority: PassAuthority,
     passes: int = 3,
 ) -> dict[str, Any]:
-    """Pass priority and record the ring order. Every pass is engine-offered."""
+    """Pass priority and record the ring order. Every pass is engine-offered.
+
+    #701: each pass travels through :func:`declared_pass`, so this helper answers
+    a frame on any player's behalf only when the frame leaves no choice or the
+    record itself declares the pass, and never past the record's own checkpoint.
+    """
     actors: list[str] = []
     for _ in range(12):
         decision = client.pending_decision()
@@ -1917,10 +1923,7 @@ def observe_priority_ring(
         if str(decision.get("decision_class")) != "priority":
             break
         actors.append(str(decision.get("actor_id")))
-        passed = option_of_type(decision, "pass_priority")
-        if passed is None:
-            raise ml.MidgameLaneError(f"{tag}: the engine offered no pass")
-        client.submit_options(decision, [passed])
+        declared_pass(client, decision, authority, tag)
         if len(actors) >= passes:
             break
     distinct = sorted(set(actors))
@@ -2569,7 +2572,7 @@ def drive_causal_stack(
     terminal_kind = str(spec.get("terminal"))
     terminal: dict[str, Any] | None = None
     if terminal_kind == "priority_ring_with_live_response":
-        terminal = observe_priority_ring(client, f"probe-{fixture_id}")
+        terminal = observe_priority_ring(client, f"probe-{fixture_id}", authority)
     elif terminal_kind == "commander_zone_choice":
         resolution = resolve_and_record_classes(client, f"probe-{fixture_id}", authority)
         trace = resolution["trace"]
@@ -2589,7 +2592,9 @@ def drive_causal_stack(
                 + f" with no zone-choice decision; trace={trace}",
             }
     elif terminal_kind == "scripted_decision_offered":
-        terminal = observe_scripted_decision(client, f"probe-{fixture_id}", record, placed)
+        terminal = observe_scripted_decision(
+            client, f"probe-{fixture_id}", record, placed, authority
+        )
     elif terminal_kind == "spell_resolves_to_graveyard":
         before = graveyard_count(client, record)
         resolve_and_record_classes(client, f"probe-{fixture_id}", authority)
@@ -2661,6 +2666,7 @@ def observe_scripted_decision(
     tag: str,
     record: dict[str, Any],
     placed: dict[str, str],
+    authority: PassAuthority,
 ) -> dict[str, Any]:
     """After the causal stack, the row's first scripted decision must be offered.
 
@@ -2668,6 +2674,11 @@ def observe_scripted_decision(
     scripted actor when the scripted decision is itself a priority action.
     The family must equal the engine's decision class exactly; a different
     class is reported, not aliased.
+
+    #701: every non-terminal pass on this path travels through
+    :func:`declared_pass`, so a non-actor holding a live response stops the row
+    unless the record declares the pass and the observed position is at or
+    before the record's own checkpoint.
     """
     script = record.get("decision_script") or []
     if not script:
@@ -2704,10 +2715,7 @@ def observe_scripted_decision(
                 "detail": f"scripted {family}:{actor}, engine asked {decision_class}:"
                 f"{principal}; {why}; trace={trace}",
             }
-        passed = option_of_type(decision, "pass_priority")
-        if passed is None:
-            raise ml.MidgameLaneError(f"{tag}: the engine offered no pass")
-        client.submit_options(decision, [passed])
+        declared_pass(client, decision, authority, tag)
     return {
         "kind": "scripted_decision_offered",
         "observed": False,
