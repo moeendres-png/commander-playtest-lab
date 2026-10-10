@@ -732,6 +732,23 @@ def _scripted_priority_pass_through(
 ) -> bool:
     """Whether the record declares its priority passes for this principal's point.
 
+    See :func:`_priority_pass_through_scope`, which also names the declaring step.
+    """
+    return (
+        _priority_pass_through_scope(record, principal, observation, obligation=obligation)
+        is not None
+    )
+
+
+def _priority_pass_through_scope(
+    record: dict[str, Any],
+    principal: str,
+    observation: dict[str, Any],
+    *,
+    obligation: bool = False,
+) -> int | None:
+    """The ``decision_script`` index of the step that declares this pass, or None.
+
     The record's ``priority_pass_through`` step (actor ``ALL`` or the seat)
     declares that every priority inside its own ``scope.from``/``scope.until``
     window is passed: no land is played and no spell or ability is activated
@@ -757,8 +774,8 @@ def _scripted_priority_pass_through(
     scope is never an arrival authorization and is skipped.
     """
     matching = [
-        step
-        for step in record.get("decision_script") or ()
+        (index, step)
+        for index, step in enumerate(record.get("decision_script") or ())
         if isinstance(step, dict)
         and step.get("decision_family") == "priority_pass_through"
         and (
@@ -770,14 +787,14 @@ def _scripted_priority_pass_through(
         and (step.get("selection") or {}).get("semantic_value") == "pass_priority"
     ]
     if not matching:
-        return False
+        return None
     position = _observed_scope_position(observation)
     if position is None:
         raise ml.MidgameLaneError(
             "a priority frame arrived without a readable turn or phase: the record's "
             "pass-through scope cannot be evaluated, so the arrival pilot never passes"
         )
-    for step in matching:
+    for index, step in matching:
         scope = step.get("scope")
         if not isinstance(scope, dict):
             raise ml.MidgameLaneError(
@@ -802,7 +819,7 @@ def _scripted_priority_pass_through(
                     f"symbolic scope bound event {event!r}"
                 )
             if obligation and start_position <= position:
-                return True
+                return index
             continue
         end_position = _scope_bound_position(end, last=True) if isinstance(end, dict) else None
         if end_position is None:
@@ -811,8 +828,8 @@ def _scripted_priority_pass_through(
                 "(scope.from/scope.until): the arrival pilot cannot bound its passes"
             )
         if start_position <= position < end_position:
-            return True
-    return False
+            return index
+    return None
 
 
 def _scripted_empty_declare_attackers(
@@ -851,6 +868,117 @@ def _scripted_empty_declare_attackers(
         ):
             return index
     return None
+
+
+class PassAuthority:
+    """The record whose declarations authorize the Lab's transport answers.
+
+    #634 step B2: a helper on the causal path answers a frame on a player's
+    behalf only when the frame leaves no choice (one offered option) or the
+    record itself declares the answer (a ``priority_pass_through`` scope, CR
+    117.3d; the empty attack set, CR 508.1). Every such answer is appended to
+    ``trace`` with the acting principal, the engine's decision id and the
+    declaring scope, so the row's evidence names each answer the Lab gave.
+    """
+
+    def __init__(self, record: dict[str, Any]) -> None:
+        self.record = record
+        self.trace: list[dict[str, Any]] = []
+
+    def note(
+        self, kind: str, principal: str, decision: dict[str, Any], scope: str, tag: str
+    ) -> None:
+        self.trace.append(
+            {
+                "kind": kind,
+                "actor": principal,
+                "decision_id": str(decision.get("decision_id")),
+                "scope": scope,
+                "tag": tag,
+            }
+        )
+
+
+def principal_position(client: ml.MidgameLaneClient, principal: str) -> dict[str, Any]:
+    """The engine's (turn, phase, step) from the acting principal's own projection."""
+    response = client.request("get_midgame_projection", {"actor_id": principal})
+    if not response.get("success"):
+        raise ml.MidgameLaneError(
+            f"the acting principal's projection failed closed: {ml._error_code(response)}"
+        )
+    view = (response.get("payload") or {}).get("view")
+    return dict(view) if isinstance(view, dict) else {}
+
+
+def declared_pass(
+    client: ml.MidgameLaneClient,
+    decision: dict[str, Any],
+    authority: PassAuthority,
+    tag: str,
+) -> None:
+    """Pass this priority frame only when nothing else is offered or the record declares it.
+
+    A multi-option priority frame outside every declared pass-through scope stops
+    the row: passing it would be the Lab choosing for the player.
+    """
+    principal = _decision_seat_principal(decision)
+    passed = option_of_type(decision, "pass_priority")
+    if passed is None:
+        raise ml.MidgameLaneError(f"{tag}: the engine offered no pass")
+    if len(decision.get("legal_options") or ()) == 1:
+        scope = "single_option"
+    else:
+        index = _priority_pass_through_scope(
+            authority.record, principal, principal_position(client, principal), obligation=True
+        )
+        if index is None:
+            raise ml.MidgameLaneError(
+                f"{tag}: undeclared priority pass for {principal}: the record declares no "
+                "pass-through scope for this frame, so the Lab never passes on the player's behalf"
+            )
+        scope = f"decision_script[{index}]"
+    client.submit_options(decision, [str(passed)])
+    authority.note("priority_pass", principal, decision, scope, tag)
+
+
+def _scripted_empty_declare_blockers(
+    record: dict[str, Any], principal: str, observation: dict[str, Any]
+) -> int | None:
+    """Whether the record declares the empty block set for this frame (CR 509.1a).
+
+    Mirrors :func:`_scripted_empty_declare_attackers`: a ``declare_blockers``
+    step of the frame's actor on the observed turn whose fail-closed
+    ``blocker_assignment`` selection is the empty assignment.
+    """
+    turn = observation.get("turn_number")
+    if not isinstance(turn, int) or isinstance(turn, bool):
+        return None
+    for index, step in enumerate(record.get("decision_script") or ()):
+        if not isinstance(step, dict) or step.get("decision_family") != "declare_blockers":
+            continue
+        if _seat_token(step.get("actor")) != _seat_token(principal):
+            continue
+        if step.get("turn") != turn:
+            continue
+        selection = step.get("selection") or {}
+        if (
+            _fail_closed_selection(selection)
+            and selection.get("selector_kind") == "blocker_assignment"
+            and selection.get("semantic_value") == {}
+        ):
+            return index
+    return None
+
+
+def engine_empty_block(client: ml.MidgameLaneClient, decision: dict[str, Any], tag: str) -> None:
+    """Submit the engine's own empty block: an empty selection on a frame whose
+    minimum is zero. No option id the engine did not offer is ever sent."""
+    minimum = decision.get("minimum_selections")
+    if not isinstance(minimum, int) or isinstance(minimum, bool) or minimum != 0:
+        raise ml.MidgameLaneError(
+            f"{tag}: the engine's blocker frame does not offer an empty block (minimum {minimum!r})"
+        )
+    client.submit_options(decision, [])
 
 
 def _decision_seat_principal(decision: dict[str, Any]) -> str:
@@ -1451,8 +1579,17 @@ def find_native_offer(legal: dict[str, Any], native_id: str) -> dict[str, Any] |
     return None
 
 
-def drain_combat_to_priority(client: ml.MidgameLaneClient, tag: str) -> None:
-    """Answer combat declarations with holds/empties until priority is pending."""
+def drain_combat_to_priority(
+    client: ml.MidgameLaneClient, tag: str, authority: PassAuthority
+) -> None:
+    """Answer combat declarations until priority is pending, only as the record declares.
+
+    An attacker frame is held only under the record's empty ``declare_attackers``
+    step for that seat and turn (CR 508.1); a blocker frame gets the engine's own
+    empty block only under the record's empty ``declare_blockers`` step (CR
+    509.1a). Anything else stops the row: not attacking or not blocking is the
+    player's choice, never the Lab's.
+    """
     for _ in range(60):
         decision = client.pending_decision()
         if decision is None:
@@ -1460,36 +1597,31 @@ def drain_combat_to_priority(client: ml.MidgameLaneClient, tag: str) -> None:
         decision_class = str(decision.get("decision_class"))
         if decision_class == "priority":
             return
-        legal = legal_actions(client)
+        if decision_class not in {"declare_attacker", "declare_blocker"}:
+            raise ml.MidgameLaneError(
+                f"{tag}: expected combat or priority while draining, observed {decision_class}"
+            )
+        principal = _decision_seat_principal(decision)
+        observation = principal_position(client, principal)
         if decision_class == "declare_attacker":
-            # The hold lives in the action projection, not the decision frame.
-            for action in legal.get("actions") or ():
-                metadata = action.get("metadata") or {}
-                if metadata.get("option_type") == "hold_attacker":
-                    submit_proposal(client, legal, action, f"{tag}-hold")
-                    break
-            else:
-                raise ml.MidgameLaneError(f"{tag}: the engine offered no hold")
+            index = _scripted_empty_declare_attackers(authority.record, principal, observation)
+            held = option_of_type(decision, "hold_attacker")
+            if index is None or held is None:
+                raise ml.MidgameLaneError(
+                    f"{tag}: undeclared attack frame for {principal}: the record declares no "
+                    "empty attack set here (or the engine offered no hold)"
+                )
+            client.submit_options(decision, [held])
+            authority.note("hold_attacker", principal, decision, f"decision_script[{index}]", tag)
             continue
-        if decision_class == "declare_blocker":
-            proposal = {
-                "proposal_id": f"{tag}-noblock",
-                "actor_id": legal["actor_id"],
-                "legal_action_id": "empty-block",
-                "action_type": "declare_blockers",
-                "target_ids": [],
-                "selected_modes": [],
-                "choices": {"ordering": []},
-                "decision_tier": 1,
-                "policy_name": "midgame-causal-external-pilot",
-            }
-            response = client.request("submit_action", {"proposal": proposal})
-            if not response.get("success"):
-                raise ml.MidgameLaneError(f"{tag}: empty block rejected")
-            continue
-        raise ml.MidgameLaneError(
-            f"{tag}: expected combat or priority while draining, observed {decision_class}"
-        )
+        index = _scripted_empty_declare_blockers(authority.record, principal, observation)
+        if index is None:
+            raise ml.MidgameLaneError(
+                f"{tag}: undeclared blocker frame for {principal}: the record declares no "
+                "empty block set here"
+            )
+        engine_empty_block(client, decision, tag)
+        authority.note("empty_block", principal, decision, f"decision_script[{index}]", tag)
     raise ml.MidgameLaneError(f"{tag}: the engine never returned to priority")
 
 
@@ -1497,8 +1629,9 @@ def cast_frame_source(
     client: ml.MidgameLaneClient,
     tag: str,
     native_source_id: str,
+    authority: PassAuthority,
 ) -> None:
-    drain_combat_to_priority(client, tag)
+    drain_combat_to_priority(client, tag, authority)
     for _ in range(40):
         decision = client.pending_decision()
         if decision is None:
@@ -1512,10 +1645,8 @@ def cast_frame_source(
         if cast is not None:
             submit_proposal(client, legal, cast, tag)
             return
-        passed = option_of_type(decision, "pass_priority")
-        if passed is None:
-            raise ml.MidgameLaneError(f"{tag}: the engine offered no pass")
-        client.submit_options(decision, [passed])
+        # Another player holds priority before the caster: its pass must be declared.
+        declared_pass(client, decision, authority, tag)
     raise ml.MidgameLaneError(f"{tag}: the engine never offered the requested source cast")
 
 
@@ -1615,19 +1746,52 @@ def answer_mode(
     raise ml.MidgameLaneError(f"{tag}: the mode was never offered")
 
 
+# The one mana type a basic land's mana ability produces (CR 305.6).
+BASIC_LAND_MANA = {
+    "Plains": "WHITE",
+    "Island": "BLUE",
+    "Swamp": "BLACK",
+    "Mountain": "RED",
+    "Forest": "GREEN",
+    "Wastes": "COLORLESS",
+}
+
+
+def fuel_spend_order(fuel: object) -> list[str] | None:
+    """The pool spend order a row's fuel declaration implies, or None.
+
+    The declared fuel is tapped in declared order; when more than one pool spend
+    advances the payment, the mana of the earliest declared fuel card is spent
+    first. Only basic-land fuel has one produced type; any other fuel makes no
+    spend order, so an ambiguous pool stops the row.
+    """
+    order: list[str] = []
+    for card in fuel if isinstance(fuel, list) else ():
+        identity = card.get("card_identity") if isinstance(card, dict) else None
+        mana = BASIC_LAND_MANA.get(str(identity))
+        if mana is None:
+            return None
+        if mana not in order:
+            order.append(mana)
+    return order or None
+
+
 def answer_fuel_mana(
     client: ml.MidgameLaneClient,
     tag: str,
     fuel_native_ids: list[str],
+    spend_order: list[str] | None = None,
 ) -> None:
-    """Pay from declared fuel abilities, then from the resulting pool.
+    """Pay from the declared fuel, in declared order, then from the resulting pool.
 
-    Any offered ability whose source is a declared fuel card may be used; the
-    engine offers its untapped fuel in its own order and never re-offers a
-    tapped land, so matching the set (not a position) consumes fuel exactly
-    once each. A fuel card the engine never offers is never touched.
+    The fuel list is the row's declaration (``CAUSAL_ROWS``), placed through the
+    engine seam: the first declared fuel card the engine offers a mana ability
+    for is tapped, never a position in the engine's list. When more than one
+    pool spend advances the payment, the declared ``spend_order``
+    (:func:`fuel_spend_order`) names which mana goes first. A fuel card with more
+    than one offered mana ability, or an ambiguous pool without a declared
+    order, is a choice no declaration makes, so the row stops (CR 601.2g-h).
     """
-    fuel_set = set(fuel_native_ids)
     for _ in range(60):
         decision = client.pending_decision()
         if decision is None:
@@ -1635,39 +1799,44 @@ def answer_fuel_mana(
         if str(decision.get("decision_class")) != "mana_payment":
             return
         legal = legal_actions(client)
-        tapped = False
+        by_source: dict[str, list[dict[str, Any]]] = {}
+        spends: list[dict[str, Any]] = []
         for action in legal.get("actions") or ():
             metadata = action.get("metadata") or {}
             engine = metadata.get("xmage_option_metadata") or {}
-            if (
-                metadata.get("option_type") == "mana_ability"
-                and engine.get("source_object_id") in fuel_set
+            if metadata.get("option_type") == "mana_ability":
+                by_source.setdefault(str(engine.get("source_object_id")), []).append(action)
+            elif metadata.get("option_type") == "mana_pool" and (
+                engine.get("advances_payment") is None or bool(engine.get("advances_payment"))
             ):
-                submit_proposal(client, legal, action, f"{tag}-tap")
-                tapped = True
-                break
-        if tapped:
+                spends.append(action)
+        source = next((fuel for fuel in fuel_native_ids if fuel in by_source), None)
+        if source is not None:
+            if len(by_source[source]) != 1:
+                raise ml.MidgameLaneError(
+                    f"{tag}: declared fuel offers {len(by_source[source])} mana abilities; "
+                    "which one is not declared"
+                )
+            submit_proposal(client, legal, by_source[source][0], f"{tag}-tap")
             continue
-        # Spend pool mana the engine marks as advancing the payment. The
-        # engine withdraws spent mana from later offers, so a repeated color
-        # across polls is fresh mana, not a repeat.
-        spend = None
-        for action in legal.get("actions") or ():
-            metadata = action.get("metadata") or {}
-            if metadata.get("option_type") != "mana_pool":
-                continue
-            engine = metadata.get("xmage_option_metadata") or {}
-            advances = (
-                "advances_payment" not in engine
-                or engine.get("advances_payment") is None
-                or bool(engine.get("advances_payment"))
-            )
-            if advances:
-                spend = action
-                break
+        spend = spends[0] if len(spends) == 1 else None
+        if spend is None and spends and spend_order:
+            by_type = {
+                str(
+                    ((action.get("metadata") or {}).get("xmage_option_metadata") or {}).get(
+                        "mana_type"
+                    )
+                ).upper(): action
+                for action in spends
+            }
+            spend = next((by_type[mana] for mana in spend_order if mana in by_type), None)
         if spend is None:
-            raise ml.MidgameLaneError(f"{tag}: the engine offered no advancing pool spend")
+            raise ml.MidgameLaneError(
+                f"{tag}: {len(spends)} advancing pool spends offered; exactly one is required "
+                "without a declared spend order"
+            )
         submit_proposal(client, legal, spend, f"{tag}-spend")
+    raise ml.MidgameLaneError(f"{tag}: the payment never completed")
 
 
 def complete_causal(
@@ -1687,11 +1856,13 @@ def causal_stack_frames(
     causal_plan: dict[str, Any],
     placed: dict[str, str],
     fuel_native_ids: list[str],
+    authority: PassAuthority,
+    spend_order: list[str] | None = None,
 ) -> None:
     """Cast every causal frame bottom-to-top through the engine."""
     for frame in causal_plan.get("frames_bottom_to_top") or ():
         frame_tag = f"{tag}-{frame.get('semantic_id')}"
-        cast_frame_source(client, frame_tag, str(frame.get("native_source_id")))
+        cast_frame_source(client, frame_tag, str(frame.get("native_source_id")), authority)
         for mode in frame.get("modes") or ():
             answer_mode(client, f"{frame_tag}-mode", str(mode))
         for target in frame.get("targets") or ():
@@ -1700,7 +1871,7 @@ def causal_stack_frames(
             else:
                 answer_player_target(client, f"{frame_tag}-target", seat_label(str(target)))
         if fuel_native_ids:
-            answer_fuel_mana(client, f"{frame_tag}-mana", fuel_native_ids)
+            answer_fuel_mana(client, f"{frame_tag}-mana", fuel_native_ids, spend_order)
 
 
 def observe_priority_ring(
@@ -1739,6 +1910,7 @@ def observe_priority_ring(
 def resolve_and_record_classes(
     client: ml.MidgameLaneClient,
     tag: str,
+    authority: PassAuthority,
     bound: int = 120,
 ) -> dict[str, Any]:
     """Resolve fully, recording every decision class the engine offers."""
@@ -1756,34 +1928,14 @@ def resolve_and_record_classes(
                 reached_cleanup_discard = True
                 break
             raise ml.MidgameLaneError(f"{tag}: unexpected non-discard choose_object")
-        if decision_class == "declare_attacker":
-            drain_combat_to_priority(client, f"{tag}-hold")
-            continue
-        if decision_class == "declare_blocker":
-            legal = legal_actions(client)
-            proposal = {
-                "proposal_id": f"{tag}-noblock",
-                "actor_id": legal["actor_id"],
-                "legal_action_id": "empty-block",
-                "action_type": "declare_blockers",
-                "target_ids": [],
-                "selected_modes": [],
-                "choices": {"ordering": []},
-                "decision_tier": 1,
-                "policy_name": "midgame-causal-external-pilot",
-            }
-            response = client.request("submit_action", {"proposal": proposal})
-            if not response.get("success"):
-                raise ml.MidgameLaneError(f"{tag}: empty block rejected")
+        if decision_class in {"declare_attacker", "declare_blocker"}:
+            drain_combat_to_priority(client, f"{tag}-combat", authority)
             continue
         if decision_class != "priority":
             # Any other class (choice, choose_use, replacement_effect, ...) is
             # an obligation, not resolution transport: stop and report.
             break
-        passed = option_of_type(decision, "pass_priority")
-        if passed is None:
-            raise ml.MidgameLaneError(f"{tag}: the engine offered no pass")
-        client.submit_options(decision, [passed])
+        declared_pass(client, decision, authority, tag)
     return {
         "trace": trace,
         "reached_cleanup_discard": reached_cleanup_discard,
@@ -1964,21 +2116,14 @@ def execute_block_partition(
 
 
 def submit_empty_block(client: ml.MidgameLaneClient, tag: str) -> None:
-    legal = legal_actions(client)
-    proposal = {
-        "proposal_id": f"{tag}-noblock",
-        "actor_id": legal["actor_id"],
-        "legal_action_id": None,
-        "action_type": "structural_decision",
-        "target_ids": [],
-        "selected_modes": [],
-        "choices": {"ordering": []},
-        "decision_tier": 1,
-        "policy_name": "midgame-causal-external-pilot",
-    }
-    response = client.request("submit_action", {"proposal": proposal})
-    if not response.get("success"):
-        raise ml.MidgameLaneError(f"{tag}: empty block rejected")
+    """The engine's own empty block on the pending blocker frame (probe CLI only).
+
+    Never a synthetic option id: the frame must allow zero selections.
+    """
+    decision = client.pending_decision()
+    if decision is None or str(decision.get("decision_class")) != "declare_blocker":
+        raise ml.MidgameLaneError(f"{tag}: no blocker frame is pending")
+    engine_empty_block(client, decision, tag)
 
 
 def execute_damage_observation(
@@ -2382,14 +2527,23 @@ def drive_causal_stack(
     )
     if withheld is not None:
         return withheld
-    causal_stack_frames(client, f"probe-{fixture_id}", causal_plan, placed, fuel_native_ids)
+    authority = PassAuthority(record)
+    causal_stack_frames(
+        client,
+        f"probe-{fixture_id}",
+        causal_plan,
+        placed,
+        fuel_native_ids,
+        authority,
+        fuel_spend_order(spec.get("fuel")),
+    )
     stack_verdict = complete_causal(client, "stack").get("verdict") or {}
     terminal_kind = str(spec.get("terminal"))
     terminal: dict[str, Any] | None = None
     if terminal_kind == "priority_ring_with_live_response":
         terminal = observe_priority_ring(client, f"probe-{fixture_id}")
     elif terminal_kind == "commander_zone_choice":
-        resolution = resolve_and_record_classes(client, f"probe-{fixture_id}")
+        resolution = resolve_and_record_classes(client, f"probe-{fixture_id}", authority)
         trace = resolution["trace"]
         choice_seen = any(c in {"choice", "choose_use", "replacement_effect"} for c in trace)
         if choice_seen:
@@ -2410,7 +2564,7 @@ def drive_causal_stack(
         terminal = observe_scripted_decision(client, f"probe-{fixture_id}", record, placed)
     elif terminal_kind == "spell_resolves_to_graveyard":
         before = graveyard_count(client, record)
-        resolve_and_record_classes(client, f"probe-{fixture_id}")
+        resolve_and_record_classes(client, f"probe-{fixture_id}", authority)
         after = graveyard_count(client, record)
         terminal = {
             "kind": terminal_kind,
@@ -2598,6 +2752,7 @@ def eliminate_causally(
     tag: str,
     created: dict[str, Any],
     spec: dict[str, object],
+    authority: PassAuthority,
 ) -> dict[str, Any]:
     """Cast every declared bolt at the victim through the engine; the engine's
     own elimination verdict afterwards. Every answer is an engine offer; the
@@ -2612,7 +2767,7 @@ def eliminate_causally(
         )
     expected_life: int | None = None
     for index in range(bolt_count):
-        cast_frame_source(client, f"{tag}-cast-{index}", bolt_ids[index])
+        cast_frame_source(client, f"{tag}-cast-{index}", bolt_ids[index], authority)
         answer_player_target(client, f"{tag}-target-{index}", victim_seat)
         answer_fuel_mana(client, f"{tag}-mana-{index}", mountain_ids)
         expected_life = resolve_until_life_drops(
@@ -2620,6 +2775,7 @@ def eliminate_causally(
             f"{tag}-resolve-{index}",
             str(spec["elimination_victim"]),
             expected_life,
+            authority,
         )
     return complete_causal(client, "elimination").get("verdict") or {}
 
@@ -2629,6 +2785,7 @@ def build_and_eliminate(
     tag: str,
     created: dict[str, Any],
     spec: dict[str, object],
+    authority: PassAuthority,
 ) -> dict[str, Any]:
     """The composed route: cast the victim's stack, verify it, then eliminate.
 
@@ -2642,7 +2799,15 @@ def build_and_eliminate(
     fuel = [placed[semantic] for semantic in declared_fuel if semantic in placed]
     if len(fuel) != len(declared_fuel):
         raise ml.MidgameLaneError(f"{tag}: a declared fuel card was not placed")
-    causal_stack_frames(client, f"{tag}-stack", causal_plan, placed, fuel)
+    causal_stack_frames(
+        client,
+        f"{tag}-stack",
+        causal_plan,
+        placed,
+        fuel,
+        authority,
+        fuel_spend_order(spec.get("fuel")),
+    )
     stack_verdict = complete_causal(client, "stack").get("verdict") or {}
     if not stack_verdict.get("causal_match") or stack_verdict.get("mismatches"):
         return {"stack": stack_verdict, "permanents": None, "elimination": None}
@@ -2651,19 +2816,22 @@ def build_and_eliminate(
         # The caused permanents exist only once their casts resolve: the engine
         # resolves the stack, and the verifier compares attachment and control
         # with the record before anything else happens.
-        resolve_stack(client, f"{tag}-resolve")
+        resolve_stack(client, f"{tag}-resolve", authority)
         permanents = complete_causal(client, "permanents").get("verdict") or {}
         if not permanents.get("causal_match") or permanents.get("mismatches"):
             return {"stack": stack_verdict, "permanents": permanents, "elimination": None}
-    elimination = eliminate_causally(client, f"{tag}-elimination", created, spec)
+    elimination = eliminate_causally(client, f"{tag}-elimination", created, spec, authority)
     return {"stack": stack_verdict, "permanents": permanents, "elimination": elimination}
 
 
-def resolve_stack(client: ml.MidgameLaneClient, tag: str, limit: int = 30) -> None:
+def resolve_stack(
+    client: ml.MidgameLaneClient, tag: str, authority: PassAuthority, limit: int = 30
+) -> None:
     """Pass priority until the engine's own stack is empty at a priority frame.
 
-    Only priority passes are submitted; any other decision while resolving is
-    not something this route answers, so it fails closed.
+    Only declared (or single-option) priority passes are submitted; any other
+    decision while resolving is not something this route answers, so it fails
+    closed.
     """
     for _ in range(limit):
         decision = client.pending_decision()
@@ -2678,10 +2846,7 @@ def resolve_stack(client: ml.MidgameLaneClient, tag: str, limit: int = 30) -> No
             raise ml.MidgameLaneError(f"{tag}: the engine's priority frame exposes no stack")
         if not stack:
             return
-        passed = option_of_type(decision, "pass_priority")
-        if passed is None:
-            raise ml.MidgameLaneError(f"{tag}: the engine offered no pass")
-        client.submit_options(decision, [passed])
+        declared_pass(client, decision, authority, tag)
     raise ml.MidgameLaneError(f"{tag}: the stack never emptied")
 
 
@@ -2700,7 +2865,9 @@ def drive_causal_stack_elimination(
     )
     if withheld is not None:
         return withheld
-    verdicts = build_and_eliminate(client, f"probe-{fixture_id}", created, spec)
+    verdicts = build_and_eliminate(
+        client, f"probe-{fixture_id}", created, spec, PassAuthority(record)
+    )
     stack = verdicts["stack"]
     elimination = verdicts["elimination"] or {}
     # The obligation, not only the elimination: the victim left (lost and
@@ -2792,7 +2959,9 @@ def drive_causal_elimination(
     )
     if withheld is not None:
         return withheld
-    verdict = eliminate_causally(client, f"probe-{fixture_id}", created, spec)
+    verdict = eliminate_causally(
+        client, f"probe-{fixture_id}", created, spec, PassAuthority(record)
+    )
     victim_lost = verdict.get("victim_lost") is True
     victim_left = verdict.get("victim_left") is True
     eliminated = victim_lost or victim_left
@@ -2825,6 +2994,7 @@ def resolve_until_life_drops(
     tag: str,
     victim_pid: str,
     previous_life: int | None,
+    authority: PassAuthority,
 ) -> int:
     """Pass priority until the victim's life drops, then stop immediately.
 
@@ -2850,13 +3020,10 @@ def resolve_until_life_drops(
             raise ml.MidgameLaneError(f"{tag}: the engine went terminal while resolving")
         decision_class = str(decision.get("decision_class"))
         if decision_class == "priority":
-            passed = option_of_type(decision, "pass_priority")
-            if passed is None:
-                raise ml.MidgameLaneError(f"{tag}: the engine offered no pass")
-            client.submit_options(decision, [passed])
+            declared_pass(client, decision, authority, tag)
             continue
         if decision_class in {"declare_attacker", "declare_blocker"}:
-            drain_combat_to_priority(client, tag)
+            drain_combat_to_priority(client, tag, authority)
             continue
         raise ml.MidgameLaneError(f"{tag}: unexpected {decision_class} while resolving")
     raise ml.MidgameLaneError(f"{tag}: the victim's life never dropped")
