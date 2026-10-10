@@ -9,7 +9,6 @@ REAL_CARD_TECHNICAL_USABILITY_GATE -- never matchup evidence.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import sys
 import tempfile
@@ -33,6 +32,7 @@ from commander_lab.models import (
 )
 from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
 from commander_lab.semantic_replay.gate import run_semantic_tape_replay
+from commander_lab.semantic_replay.tape_helpers import deck_content_digest
 
 ROOT = Path(__file__).resolve().parents[1]
 # G1: the live pin is read from config/rules_engines.json, never restated here.
@@ -46,12 +46,7 @@ BASE_SEED = 20260923
 
 
 def _material_hash(deck_id: str, commanders: tuple[str, ...], mainboard: tuple[str, ...]) -> str:
-    material = json.dumps(
-        {"deck_id": deck_id, "commander_names": commanders, "mainboard": mainboard},
-        sort_keys=True,
-        separators=(",", ":"),
-    ).encode()
-    return hashlib.sha256(material).hexdigest()
+    return deck_content_digest(deck_id=deck_id, commander_names=commanders, mainboard=mainboard)
 
 
 def load_gate_decks(root: Path) -> dict[str, RulesDeckInput]:
@@ -181,7 +176,7 @@ def cmd_single(args: argparse.Namespace) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2, sort_keys=True))
-    return 0
+    return 0 if result.terminal else 1
 
 
 def cmd_replay(args: argparse.Namespace) -> int:
@@ -201,12 +196,18 @@ def cmd_replay(args: argparse.Namespace) -> int:
             runner, scenario=scenario, decks=decks, pilots=pilots, tape_dir=tape_dir
         )
     semantic_match = tape.passed
+    natural_terminal_runs_verified = all(run["terminal"] is True for run in runs)
+    gate_passed = semantic_match and natural_terminal_runs_verified
     twin_match = runs[0]["semantic_transcript_sha256"] == runs[1]["semantic_transcript_sha256"]
     raw_match = runs[0]["raw_result_sha256"] == runs[1]["raw_result_sha256"]
     payload = {
         "gate": GATE_LABEL,
         "seed": args.seed,
         "semantic_replay_match": semantic_match,
+        "usability_gate_passed": gate_passed,
+        "natural_terminal_runs_verified": natural_terminal_runs_verified,
+        "semantic_replay_scope": "bounded_decision_tape_with_native_concessions",
+        "full_natural_terminal_replay_validated": False,
         "semantic_tape": tape.model_dump(mode="json"),
         "twin_transcript_hash_match": twin_match,
         "raw_result_match": raw_match,
@@ -217,10 +218,13 @@ def cmd_replay(args: argparse.Namespace) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(payload, indent=2, sort_keys=True))
-    return 0 if semantic_match else 1
+    return 0 if gate_passed else 1
 
 
 def cmd_batch(args: argparse.Namespace) -> int:
+    if type(args.count) is not int or args.count < 1:
+        print("batch count must be a positive integer", file=sys.stderr)
+        return 2
     root = Path(args.root)
     runner = XmageFullGameRunner()
     batch = XmageFullGameBatchRunner(runner, Path(args.out_dir))
@@ -237,8 +241,26 @@ def cmd_batch(args: argparse.Namespace) -> int:
             )
         )
     report = batch.run(tuple(cases), resume=True, retry_failed=False)
+    gate_passed = (
+        report.total_cases == args.count
+        and report.completed_cases == args.count
+        and report.failed_cases == 0
+        and [record.case_id for record in report.records] == [case.case_id for case in cases]
+        and all(
+            record.status == "completed"
+            and record.result is not None
+            and record.result.terminal is True
+            and record.result.scenario == case.scenario
+            and record.result.result_payload.get("terminal") is True
+            and type(record.result.result_payload.get("seed")) is int
+            and record.result.result_payload.get("seed") == case.scenario.seed
+            for record, case in zip(report.records, cases, strict=True)
+        )
+    )
     summary = {
         "gate": GATE_LABEL,
+        "usability_gate_passed": gate_passed,
+        "evidence_scope": "terminal_results_with_content_addressed_completed_reuse",
         "total_cases": report.total_cases,
         "completed_cases": report.completed_cases,
         "failed_cases": report.failed_cases,
@@ -264,7 +286,14 @@ def cmd_batch(args: argparse.Namespace) -> int:
         ],
     }
     print(json.dumps(summary, indent=2, sort_keys=True))
-    return 0 if report.failed_cases == 0 else 1
+    return 0 if gate_passed else 1
+
+
+def _positive_count(value: str) -> int:
+    count = int(value)
+    if count < 1:
+        raise argparse.ArgumentTypeError("batch count must be positive")
+    return count
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -281,7 +310,7 @@ def main(argv: list[str] | None = None) -> int:
     replay.set_defaults(func=cmd_replay)
     batch = sub.add_parser("batch")
     batch.add_argument("--base-seed", type=int, default=BASE_SEED)
-    batch.add_argument("--count", type=int, default=10)
+    batch.add_argument("--count", type=_positive_count, default=10)
     batch.add_argument("--out-dir", required=True)
     batch.set_defaults(func=cmd_batch)
     args = parser.parse_args(argv)
