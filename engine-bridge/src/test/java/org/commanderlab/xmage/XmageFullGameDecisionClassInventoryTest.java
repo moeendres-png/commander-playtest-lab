@@ -135,7 +135,7 @@ class XmageFullGameDecisionClassInventoryTest {
         assertTrue(guard > 0, "the land-or-spell caller guard is present");
         String body = source.substring(guard, source.indexOf("public ActivatedAbility chooseLandOrSpellAbility",
                 guard));
-        assertEquals(1, count(body, XmageFullGamePlayer.LAND_OR_SPELL_CALLER),
+        assertEquals(1, count(body, "LAND_OR_SPELL_CALLER"),
                 "exactly one accepted caller is named: " + body);
         assertEquals(0, count(body, VAULT_112_CALLER),
                 "no second caller is accepted by the guard: " + body);
