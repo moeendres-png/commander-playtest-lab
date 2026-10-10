@@ -1,55 +1,168 @@
-workstream: issue-689-s1-native-return-witness
+schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-source_lock:
-  sha: c1fc8faaa5e5d13b8d44773617d282e7a566de5f
-  branch: feat/689-s1-native-return-witness
-xmage_pin: b479fe74fd1eaf899ff16c6a9203e74a91c0f339
-executor: opencode/space-bunny-free at native max (Space Bunny MAX)
-owner: autonomous engineering (Claude coordinator thread), issue #689
-
-objective:
-  Close #689: S1 in the decision-class matrix must prove that the value each
-  native callback returned to (or applied in) XMage is the option the pilot
-  selected. Add a transient, test-only native-return witness and a red control.
-
-completed:
-  - XmageFullGamePlayer: transient bounded native-return ring (32 entries)
-    keyed by the answered decision offset; package-private nativeReturn(long);
-    recordNativeReturn in 17 callback paths (chooseAbilityForCast,
-    chooseLandOrSpellAbility, priority, chooseTargetInternal, chooseTargetAmount,
-    chooseMulligan, chooseUse via chooseBoolean, choose(Outcome,Choice,Game),
-    choosePile, playMana, announceX/getAmount via chooseNumber,
-    chooseReplacementEffect, chooseTriggeredAbility, chooseMode,
-    getMultiAmountWithIndividualConstraints, selectAttackers, selectBlockers).
-  - XmageFullGameDecisionClassMatrixTest: assertNativeReturn per native callback,
-    called from the S1 loop beside assertRouted; expected value derived from the
-    routed option's own id/metadata, never from the transcript. default branch
-    throws, so an uncovered callback fails closed.
-  - Permanent red control test nativeReturnAssertionRejectsAnOptionThePilotDidNotSelect.
-
+worktree: /home/runner/work/commander-playtest-lab/commander-playtest-lab
+branch: opencode/issue689-20261010155027
+audit_base_sha: c1fc8faaa5e5d13b8d44773617d282e7a566de5f
+audit_base_tree: 1cd7efedca4e7de40859d677305c5ba70dfdfd3e
+state_written_against_head: acbd76e65486a61bf214538da4fd0d51bb15b65c
+validated_head: null
+validated_tree: null
+materiality: MATERIAL
+objective: >-
+  Issue #689 follow-up repair. S1 in the decision-class matrix must prove that the
+  value each native callback returned to, or applied in, XMage is the value
+  derived from the option the pilot actually selected, and the branch must pass
+  CI. Close the blocking review findings on feat/689-s1-native-return-witness:
+  P1 the target witness recorded response.selectedOptionIds() instead of the ids
+  XMage actually applied (a callback adding a different offered id, or an add
+  vetoed by replaceEvent(TargetEvent), passed S1); P1 the workstream state file
+  did not parse and carried no schema 2.0 fields; P2 assertManaPoolSpent never
+  ran because the only mana_payment scenario reaches the frame with an empty
+  pool; P2 cardinalityAccepted skipped assertNativeReturn for the empty and
+  multi-selection S1 acceptances; P3 the answered offset was read after engine
+  work that can raise a nested frame; P3 the pile expectation read the display
+  label and the tapped-source check silently skipped on a null source.
+in_scope:
+- engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java
+- engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameDecisionClassMatrixTest.java
+- engine-bridge/src/test/java/org/commanderlab/xmage/DecisionClassMatrixHarness.java
+- .foundry/issue689-s1-native-return-witness-20261010.yaml
+out_of_scope:
+- Every other branch and issue in the repository.
+- config/rules_engines.json and the XMage engine pin b479fe74fd1eaf899ff16c6a9203e74a91c0f339.
+- Schema identity, PB-03 evidence, the seal and freeze ADR, the runtime switch.
+- Branches fix/662-freeze-prep-*, evidence/pb03-epoch-*, docs/architecture_freeze_*.
+- Frames, options, transcript, replay and event-log output, and every production
+  behaviour outside the repaired witness call sites.
+- Denominator, expected-value and assertion relaxation of any kind.
+ownership: >-
+  Issue #689 workstream, Claude "autonomous engineering" thread. This session
+  (Space Bunny MAX, opencode/space-bunny-free) owns the single branch
+  opencode/issue689-20261010155027, created from origin/main c96b7a730f46752434b8ff3ab7b957cec3fc83a9
+  with a normal merge of origin/feat/689-s1-native-return-witness
+  (8002ea2e7afc8d818e7a839807ac3954b96db46c). No other workstream's branch or
+  worktree is modified; no force push, no history rewrite, no push to main.
+dependencies:
+- XMage pinned at b479fe74fd1eaf899ff16c6a9203e74a91c0f339, built from source into
+  the local Maven repository for the Java validation runs.
+- The previous session's commit 8002ea2 on feat/689-s1-native-return-witness,
+  merged here without rewriting its history.
+hard_gates:
+- The native-return witness stays transient, private, bounded and never serialized,
+  never projected into a frame, observation, transcript, event log or artifact, and
+  never reachable by a pilot.
+- No change to frames, options, transcript, replay or event output.
+- XMage pin unchanged.
+- No expected value, denominator, assertion or check is weakened to obtain green.
+- Each P1/P2 repair carries an observed red control.
+forbidden_shortcuts:
+- Reading the controller response as a substitute for what the engine applied.
+- Defaulting the pool branch, the cardinality paths or the pile key to a value that
+  keeps the assertion green without running it.
+technical_decisions:
+- The target witness records the ids the engine actually applied, derived by
+  snapshotting target.getTargets() before the add loop and diffing after it, so a
+  vetoed add (TargetImpl.addTarget runs game.replaceEvent first and puts nothing when
+  it is vetoed) or an add of a different offered id is visible to S1.
+- The answered offset is read immediately after request() returns, before
+  addTarget/add can run game.replaceEvent and bind a nested frame.
+- chooseMode records its null return, so an empty-selection acceptance is witnessed
+  rather than reading as "no callback answered".
+- The pool-delta check runs through a scenario that actually floats mana, because
+  the pool branch was previously unreachable.
+authority_gates: []
+files_modified:
+- engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java
+- engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameDecisionClassMatrixTest.java
+- engine-bridge/src/test/java/org/commanderlab/xmage/DecisionClassMatrixHarness.java
+- .foundry/issue689-s1-native-return-witness-20261010.yaml
+tests_run:
+- >-
+  cd engine-bridge && mvn -B -ntp -Dtest='XmageFullGameDecisionClass*' test: exit 0,
+  Tests run 28 (matrix) + 4 (inventory) = 32, Failures 0, Errors 0, Skipped 0.
+  Baseline at the source lock was 26+4=30; the two new tests are the permanent
+  red controls.
+- >-
+  cd engine-bridge && mvn -B -ntp verify: exit 0, BUILD SUCCESS, total 10:19 min,
+  Tests run 1038, Failures 0, Errors 0, Skipped 1. The single skip is the
+  pre-existing @Disabled XmageFullGameStart2ExecutionTest (SUPERSEDED frozen
+  v1.0.5 START-2 record). Baseline was 1036; +2 are the new red controls.
+- >-
+  PYTHONPATH=$PWD/src python3 -m pytest -q -p no:cacheprovider tests/foundry: exit 0,
+  1045 passed, 2 skipped. The 2 skips are machine-local (no mage checkout;
+  Bubblewrap unavailable). Before the repair this was a collection error.
+- python3 -m ruff check .: exit 0, All checks passed.
+- python3 -m ruff format --check .: exit 0, 1475 files already formatted.
 evidence:
-  - mvn -B -ntp -Dtest='XmageFullGameDecisionClass*' test: exit 0, Tests run: 30,
-    Failures: 0, Errors: 0, Skipped: 0 (matrix 26, inventory 4).
-  - mvn -B -ntp verify: exit 0, Tests run: 1036, Failures: 0, Errors: 0,
-    Skipped: 1 (pre-existing @Disabled XmageFullGameStart2ExecutionTest),
-    BUILD SUCCESS.
-  - Red control 1 chooseUse returns !value: exit 1, choose_use turns red in
-    assertNativeReturn ("the boolean handed to XMage must be the selected
-    option's value ==> expected: <true> but was: <false>"); collateral in
-    castAbilityMatrix/landOrSpellMatrix scenario script drift plus the permanent
-    red control, all downstream of the global mis-route.
-  - Red control 2 target callback adds a different offered target: exit 1, all 6
-    failures in assertNativeReturn ("the ids handed to the native target must be
-    the selected option"), no failure elsewhere.
-  - Red control 3 chooseTriggeredAbility returns the first offered ability:
-    exit 1, exactly 1 failure, in assertNativeReturn for trigger_order.
-
-production_impact:
-  None. Additive transient test-only fields plus recordNativeReturn calls; no
-  change to frames, options, transcript, replay or event-log output. The only
-  non-additive edit is binding the requireNumericChoice result to a local before
-  recording it; the returned value is unchanged.
-
-next_action:
-  Commit on feat/689-s1-native-return-witness, push, open the PR against main
-  with Refs #689 (never a closing keyword), and do not merge.
+- >-
+  classification LOCAL_OBSERVED (local run, not CI credit). Every entry below is
+  a local observation on this machine against the pinned engine built from
+  b479fe74fd1eaf899ff16c6a9203e74a91c0f339 into the local Maven repository.
+- >-
+  classification LOCAL_OBSERVED, P1-b red: before the repair,
+  tests/foundry/test_foundry_state_conformance.py errored at collection,
+  yaml.parser.ParserError expected <block end> but found '<scalar>' line 12
+  column 3, EXIT_CODE=2, 1 error during collection. After the rewrite to
+  schema 2.0 the same command is 1045 passed, EXIT_CODE=0, and
+  foundry.state.validate returns an empty error list.
+- >-
+  classification LOCAL_OBSERVED, P1-a paired red control (the decisive one). The
+  identical deliberate mis-route (the target callback additionally applies a
+  different offered id; nothing else changed) was run against both recordings.
+  With the 8002ea2 recording (response.selectedOptionIds() recorded as the
+  applied set) the matrix was EXIT=0, Tests run 28, Failures 0 - the hole the
+  finding describes, observed directly. With the repaired recording the same
+  mis-route is EXIT=1, exactly 1 failure, all of it in the new assertion:
+  "choose_object S1 empty selection: the ids applied to the native target must
+  be the selected options ==> expected: <[]> but was: <[9b7ab86e-...]>".
+- >-
+  classification LOCAL_OBSERVED, P1-a permanent control non-vacuity: with the
+  applied-ids comparison removed, targetNativeReturnRejectsIdsTheEngineNeverApplied
+  is EXIT=1, "a callback that applied a different offered id must fail S1 ==>
+  Expected java.lang.AssertionError to be thrown, but nothing was thrown."
+- >-
+  classification LOCAL_OBSERVED, P2 pool branch reachability. The only
+  mana_payment scenario reached the frame with an empty pool. A temporary probe
+  in the pool branch proved the repaired scenario really executes it:
+  "PROBE-POOL-BRANCH-RAN red before=BLACK=0;BLUE=0;GREEN=0;RED=1;WHITE=0;COLORLESS=0;",
+  EXIT=1 by the probe itself; probe reverted. Mechanism: userData
+  .setManaPoolAutomatic(false) leaves XMage's ManaCostsImpl.pay asking playMana
+  again after a land is tapped, and ManaCostsImpl.assignPayment returns early
+  while no mana type is unlocked, so the tapped mana reaches the next frame as
+  a pool option.
+- >-
+  classification LOCAL_OBSERVED, P2 permanent control non-vacuity: with the
+  pool-delta comparison removed, manaPoolDeltaRejectsASpendThatDidNotHappen is
+  EXIT=1, "an unspent pool must fail the delta check ==> Expected
+  java.lang.AssertionError to be thrown, but nothing was thrown."
+- >-
+  classification LOCAL_OBSERVED, P2 latent defect found by making the branch
+  reachable: assertManaPoolSpent compared the option's mana_type
+  (ManaType.toString(), "red") against a signature keyed by ManaType.name()
+  ("RED"), so it threw IllegalArgument "No enum constant
+  mage.constants.ManaType.red" instead of comparing anything. Repaired by
+  resolving both sides to the ManaType enum. This is a real defect the finding's
+  scenario exposed; it could not have been observed while the branch was dead.
+- >-
+  classification LOCAL_OBSERVED, P3 pile: the selected pile's engine card ids
+  are recorded beside the boolean and compared to the offered pile. Probe of the
+  live matrix: "Pile 2 offered=[d34e09b1-..., 085a6896-..., 3fc58c43-...,
+  9022fcf5-..., 05752dfb-...] chosen=[same five ids]" - a 5-card pile, so the
+  comparison is substantive, and Pile 1 is legitimately empty because the
+  scripted separating player selects nothing.
+- >-
+  classification LOCAL_OBSERVED, red controls that turned red OUTSIDE the new
+  assertion are recorded as collateral and were not used as evidence: replacing
+  the selected id instead of adding one derails the whole game (24-27 failures),
+  vetoing every add ends the engine terminal, and unlocking a different pool
+  type loops payment. The accepted controls are the paired applied-ids control
+  above and the two non-vacuity neuterings.
+failure_class: NONE
+current_reasoning_tier: max
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+logical_executor_profile: space-bunny
+model_alias_class: CANONICAL
+status: ACTIVE
+exact_next_action: >-
+  Open the PR against main with Refs #689 (never a closing keyword) and let
+  exact-head CI adjudicate; do not merge.

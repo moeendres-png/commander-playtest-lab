@@ -110,9 +110,14 @@ class XmageFullGameDecisionClassMatrixTest {
                 List.of(Placed.hand("P1", "Lightning Bolt"),
                         Placed.battlefield("P1", "Mountain"),
                         Placed.battlefield("P1", "Plains")),
+                // Float first, then reach the payment frame that offers the
+                // pool: the tapped Mountain's mana sits in the pool and XMage
+                // offers it as mana_pool options (autoPayment is off, so the
+                // engine only spends the pool once a type is unlocked).
                 List.of(step("priority", "P1", "Cast Lightning Bolt"),
                         new Step("target", "P1", "target P2",
-                                action -> label(action).equals("Full Game Seat 2"))),
+                                action -> label(action).equals("Full Game Seat 2")),
+                        DecisionClassMatrixHarness.tapLand("mana_payment", "P1")),
                 "mana_payment", "P1"));
         SCENARIOS.put("target_amount", new Scenario("matrix-target-amount", 66204L,
                 List.of(Placed.hand("P1", "Forked Bolt"),
@@ -491,6 +496,95 @@ class XmageFullGameDecisionClassMatrixTest {
                 "a native return must never be served for an unrelated decision");
     }
 
+    /**
+     * #689 P1 red control that stays in the suite: the target assertion reads
+     * the ids XMage actually applied, so a callback that adds a different
+     * offered id — or whose add never landed because
+     * {@code replaceEvent(TargetEvent)} vetoed it — must be rejected, exactly
+     * as it would be if the mis-route happened in the callback itself.
+     *
+     * <p>Driving the real engine for each shape would need a replacement
+     * effect that vetoes a TARGETED event mid-cast; the comparison is the same
+     * one {@link #assertNativeReturn} runs, so the mis-route is applied to the
+     * witness rather than to the callback, and the control still fails if the
+     * assertion ever stops reading the applied ids.</p>
+     */
+    @Test
+    void targetNativeReturnRejectsIdsTheEngineNeverApplied() {
+        String where = "target applied-ids red control";
+        String selected = "11111111-1111-4111-8111-111111111111";
+        String otherOffered = "22222222-2222-4222-8222-222222222222";
+
+        // The mis-route: the callback added a different offered id than the
+        // pilot selected. Recorded, but not the selected one.
+        assertThrows(AssertionError.class,
+                () -> assertAppliedTargetIds(where, List.of(otherOffered), List.of(selected), Boolean.TRUE),
+                "a callback that applied a different offered id must fail S1");
+
+        // The vetoed add: the callback's response named an id, but
+        // replaceEvent(TargetEvent) vetoed it, so the engine applied nothing.
+        assertThrows(AssertionError.class,
+                () -> assertAppliedTargetIds(where, List.of(), List.of(selected), Boolean.TRUE),
+                "a vetoed add must fail S1 even though the response named an id");
+
+        // And the honest answer still passes, so the control is not merely
+        // asserting that everything throws.
+        assertAppliedTargetIds(where, List.of(selected), List.of(selected), Boolean.TRUE);
+        assertAppliedTargetIds(where, List.of(), List.of(), Boolean.FALSE);
+    }
+
+    /**
+     * #689 P2 red control that stays in the suite: the pool-delta check must
+     * reject a spend of the wrong amount, of the wrong type, and of nothing.
+     * Before the floating-mana scenario the branch was unreachable, so a
+     * mis-spent pool could not have been caught.
+     */
+    @Test
+    void manaPoolDeltaRejectsASpendThatDidNotHappen() {
+        DecisionClassMatrixHarness.Live live =
+                DecisionClassMatrixHarness.open(SCENARIOS.get("mana_payment"));
+        JsonObject frame = DecisionClassMatrixHarness.driveToTarget(live, SCENARIOS.get("mana_payment"));
+        JsonObject poolOption = null;
+        for (JsonObject action : actions(frame)) {
+            if ("mana_pool".equals(optionType(action))) {
+                poolOption = action;
+                break;
+            }
+        }
+        assertNotNull(poolOption, "the payment frame must offer a pool option for this control");
+        String poolBefore = manaPoolSignature(live.session(), poolOption);
+        final JsonObject offered = poolOption;
+        Player payer = live.session().restorationGame()
+                .getPlayer(UUID.fromString(offered.get("actor_id").getAsString()));
+        String where = "mana pool delta red control";
+
+        // Nothing was spent: the pool is exactly as it was before the answer, so
+        // the expected "one less than before" delta does not hold.
+        assertThrows(AssertionError.class,
+                () -> assertManaPoolSpent(payer, nativeField(offered, "mana_type"), poolBefore, where),
+                "an unspent pool must fail the delta check");
+
+        // A spend of a type that was never in the pool: the delta expects -1
+        // and the engine still holds 0.
+        Map<mage.constants.ManaType, Integer> before = parseManaPool(poolBefore, where);
+        for (mage.constants.ManaType type : mage.constants.ManaType.getTrueManaTypes()) {
+            if (before.getOrDefault(type, 0) == 0) {
+                final mage.constants.ManaType absent = type;
+                assertThrows(AssertionError.class,
+                        () -> assertManaPoolSpent(payer, absent.name(), poolBefore, where),
+                        "a spend of a mana type that was not in the pool must fail the delta check");
+                break;
+            }
+        }
+
+        // The honest case on the live engine: spend the selected pool option
+        // for real, then assert the delta holds. Without this the control
+        // would only prove the check can throw.
+        JsonObject proposal = proposal(frame, offered);
+        live.session().submitAction(proposal);
+        assertManaPoolSpent(payer, nativeField(offered, "mana_type"), poolBefore, where);
+    }
+
     // ---- matrix core ----------------------------------------------------------
 
     static void runClass(String key) {
@@ -521,7 +615,7 @@ class XmageFullGameDecisionClassMatrixTest {
         // S1: every offered action is accepted at the same frame in a fresh session.
         // Option ids are fresh per game, so the same option in a fresh identical
         // session is named by its semantic key: type, label and ordinal among equals.
-        cardinalityAccepted(scenario, frame);
+        cardinalityAccepted(scenario, frame, key);
         List<String> keys = semanticKeys(frame);
         for (String optionKey : keys) {
             DecisionClassMatrixHarness.Live fresh = DecisionClassMatrixHarness.open(scenario);
@@ -609,6 +703,7 @@ class XmageFullGameDecisionClassMatrixTest {
      * @param poolBefore the answering player's mana pool before the answer, or
      *                   {@code ""} when it was not observed
      */
+    @SuppressWarnings("unchecked")
     static void assertNativeReturn(String callback, XmageFullGameSession session,
                                    JsonObject action, JsonObject proposal,
                                    String poolBefore, String where) {
@@ -631,14 +726,8 @@ class XmageFullGameDecisionClassMatrixTest {
                     assertEquals(actionAbilityKey(action), abilityKey((Ability) returned[0]), where);
                 }
             }
-            case "target" -> {
-                @SuppressWarnings("unchecked")
-                List<String> added = (List<String>) returned[0];
-                assertEquals(List.of(optionId(action)), added,
-                        where + ": the ids handed to the native target must be the selected option");
-                assertEquals(Boolean.TRUE, returned[1],
-                        where + ": XMage reads a non-empty selection as true");
-            }
+            case "target" -> assertAppliedTargetIds(
+                    where, (List<String>) returned[0], selectedOptionIds(proposal), returned[1]);
             case "target_amount" -> {
                 assertEquals(optionId(action), String.valueOf(returned[0]), where);
                 assertEquals(numericChoice(proposal), returned[1],
@@ -691,14 +780,17 @@ class XmageFullGameDecisionClassMatrixTest {
                     assertEquals("ability", returned[0], where);
                     assertEquals(actionAbilityKey(action), abilityKey((Ability) returned[1]), where);
                     // The applied payment state: a tapping mana ability left its
-                    // permanent tapped in the engine (CR 508.1d / 111.3).
-                    if (returned[1] instanceof Ability ability && ability.getSourceId() != null
-                            && tapsSource(ability)) {
+                    // permanent tapped in the engine (CR 508.1d / 111.3). A
+                    // tapping ability whose permanent is gone is a failure, not
+                    // a reason to skip: the check must not pass vacuously.
+                    if (returned[1] instanceof Ability ability && tapsSource(ability)) {
+                        assertNotNull(ability.getSourceId(),
+                                where + ": a tapping mana ability must name its source permanent");
                         mage.game.permanent.Permanent source = game.getPermanent(ability.getSourceId());
-                        if (source != null) {
-                            assertTrue(source.isTapped(),
-                                    where + ": the selected mana ability was not applied in XMage");
-                        }
+                        assertNotNull(source,
+                                where + ": the tapped permanent of the selected mana ability is not in XMage");
+                        assertTrue(source.isTapped(),
+                                where + ": the selected mana ability was not applied in XMage");
                     }
                 }
             }
@@ -720,9 +812,27 @@ class XmageFullGameDecisionClassMatrixTest {
             case "mulligan" ->
                     assertEquals(Boolean.valueOf("mulligan".equals(optionType(action))), returned[0],
                             where + ": the mulligan boolean must be the selected option");
-            case "pile" ->
-                    assertEquals(Boolean.valueOf("Pile 1".equals(label(action))), returned[0],
-                            where + ": XMage reads pile 1 as true, pile 2 as false");
+            case "pile" -> {
+                // XMage reads pile 1 as true and pile 2 as false. The branch is
+                // keyed on the option id the callback built
+                // (stableId("pile", "1"/"2")) and cross-checked against the
+                // selected pile's own card ids, never on the display label, so
+                // a relabelled projection cannot silently satisfy it.
+                String pileOne = XmageFullGameDecisionController.stableId("pile", "1");
+                String pileTwo = XmageFullGameDecisionController.stableId("pile", "2");
+                boolean first = pileOne.equals(optionId(action));
+                assertTrue(first ^ pileTwo.equals(optionId(action)),
+                        where + ": a pile option id must be pile 1 or pile 2");
+                assertEquals(Boolean.valueOf(first), returned[0],
+                        where + ": XMage reads pile 1 as true, pile 2 as false");
+                // The chosen pile's engine card ids, recorded beside the boolean.
+                // An empty pile is a legal answer and is compared as such, not
+                // skipped: the option id selects the pile, never the label.
+                @SuppressWarnings("unchecked")
+                List<String> chosenPile = (List<String>) returned[1];
+                assertEquals(pileCardIds(action), chosenPile,
+                        where + ": the ids handed to XMage must be the selected pile's own cards");
+            }
             case "choice" -> {
                 String choiceKey = nativeField(action, "choice_key");
                 if (choiceKey != null) {
@@ -756,6 +866,46 @@ class XmageFullGameDecisionClassMatrixTest {
         }
     }
 
+/**
+ * The engine's card ids for one offered pile, from its native metadata.
+ */
+    static List<String> pileCardIds(JsonObject action) {
+        List<String> ids = new ArrayList<>();
+        com.google.gson.JsonArray cards = DecisionClassMatrixHarness.nativeMetadata(action)
+                .getAsJsonArray("cards");
+        if (cards != null) {
+            cards.forEach(element -> ids.add(element.getAsJsonObject().get("object_id").getAsString()));
+        }
+        return ids;
+    }
+
+    /**
+     * The option ids the pilot's proposal actually selects, resolved the way
+     * {@link XmageFullGameActionProjection#toDecisionResponse} resolves them:
+     * the explicit {@code selected_option_ids} when the proposal carries one,
+     * otherwise the single option named by {@code legal_action_id}. An empty
+     * array is a real answer (a frame whose minimum is 0), not a missing field.
+     */
+    static List<String> selectedOptionIds(JsonObject proposal) {
+        JsonObject choices = proposal.getAsJsonObject("choices");
+        if (choices.has("selected_option_ids") && !choices.get("selected_option_ids").isJsonNull()) {
+            List<String> selected = new ArrayList<>();
+            choices.getAsJsonArray("selected_option_ids")
+                    .forEach(element -> selected.add(element.getAsString()));
+            return selected;
+        }
+        String legalActionId = proposal.has("legal_action_id")
+                && !proposal.get("legal_action_id").isJsonNull()
+                ? proposal.get("legal_action_id").getAsString().trim() : "";
+        if (legalActionId.isEmpty()) {
+            return List.of();
+        }
+        int separator = legalActionId.indexOf(':');
+        assertTrue(separator > 0 && separator < legalActionId.length() - 1,
+                "malformed legal_action_id in the proposal under test: " + legalActionId);
+        return List.of(legalActionId.substring(separator + 1));
+    }
+
     /** Whether activating this ability taps its source permanent (CR 111.3). */
     private static boolean tapsSource(Ability ability) {
         for (mage.abilities.costs.Cost cost : ability.getCosts()) {
@@ -769,21 +919,40 @@ class XmageFullGameDecisionClassMatrixTest {
     /**
      * The applied payment state of a pool spend: exactly one mana of the
      * selected type left the pool and nothing else did.
+     *
+     * <p>Both sides are keyed on the {@link mage.constants.ManaType} enum, not
+     * on a string: the option's {@code mana_type} is {@code ManaType.toString()}
+     * (lower case, "red") while the signature is written with
+     * {@code ManaType.name()} (upper case, "RED"), so a string-keyed comparison
+     * would miss every entry. Resolving the enum keeps the delta exact.</p>
      */
     private static void assertManaPoolSpent(
             Player payer, String manaType, String poolBefore, String where) {
-        Map<String, Integer> before = parseManaPool(poolBefore);
-        assertEquals(before.getOrDefault(manaType, 0) - 1,
-                payer.getManaPool().get(mage.constants.ManaType.valueOf(manaType)),
+        assertFalse(poolBefore.isEmpty(),
+                where + ": the answering player's mana pool was not observed before the spend");
+        mage.constants.ManaType selected = manaType(manaType, where);
+        Map<mage.constants.ManaType, Integer> before = parseManaPool(poolBefore, where);
+        assertEquals(before.getOrDefault(selected, 0) - 1,
+                payer.getManaPool().get(selected),
                 where + ": the selected pool mana must be the mana XMage spent");
-        for (Map.Entry<String, Integer> entry : before.entrySet()) {
-            if (entry.getKey().equals(manaType)) {
+        for (Map.Entry<mage.constants.ManaType, Integer> entry : before.entrySet()) {
+            if (entry.getKey() == selected) {
                 continue;
             }
             assertEquals(entry.getValue().intValue(),
-                    payer.getManaPool().get(mage.constants.ManaType.valueOf(entry.getKey())),
+                    payer.getManaPool().get(entry.getKey()),
                     where + ": payment must spend only the selected pool mana");
         }
+    }
+
+    /** The engine {@link mage.constants.ManaType} an option's native name denotes. */
+    private static mage.constants.ManaType manaType(String value, String where) {
+        for (mage.constants.ManaType type : mage.constants.ManaType.getTrueManaTypes()) {
+            if (type.name().equalsIgnoreCase(value) || type.toString().equalsIgnoreCase(value)) {
+                return type;
+            }
+        }
+        throw new AssertionError(where + ": unknown native mana type " + value);
     }
 
     /** The answering player's mana pool, as observed before the answer. */
@@ -801,12 +970,13 @@ class XmageFullGameDecisionClassMatrixTest {
         return signature.toString();
     }
 
-    private static Map<String, Integer> parseManaPool(String signature) {
-        Map<String, Integer> pool = new LinkedHashMap<>();
+    private static Map<mage.constants.ManaType, Integer> parseManaPool(String signature, String where) {
+        Map<mage.constants.ManaType, Integer> pool = new LinkedHashMap<>();
         for (String entry : signature.split(";")) {
             int equals = entry.indexOf('=');
             if (equals > 0) {
-                pool.put(entry.substring(0, equals), Integer.parseInt(entry.substring(equals + 1)));
+                pool.put(manaType(entry.substring(0, equals), where),
+                        Integer.parseInt(entry.substring(equals + 1)));
             }
         }
         return pool;
@@ -875,16 +1045,89 @@ class XmageFullGameDecisionClassMatrixTest {
         return copy;
     }
 
+    /**
+     * The ids the engine actually applied to the native target must be exactly
+     * the ids the pilot selected, and the boolean XMage read must be their
+     * emptiness.
+     *
+     * <p>This is the P1 comparison, isolated so a permanent red control can
+     * drive it with a deliberately mis-routed witness: a callback that added a
+     * different offered id, or whose add was vetoed by
+     * {@code replaceEvent(TargetEvent)}, must be rejected here rather than
+     * passing on the controller's response.</p>
+     */
+    static void assertAppliedTargetIds(String where, List<String> applied,
+                                       List<String> selected, Object returnedFlag) {
+        assertEquals(selected, applied,
+                where + ": the ids applied to the native target must be the selected options");
+        assertEquals(Boolean.valueOf(!selected.isEmpty()), returnedFlag,
+                where + ": XMage reads a non-empty selection as true, an empty one as false");
+    }
+
+    /**
+     * #689 P2: the native-return binding for the cardinality S1 acceptances,
+     * where the answer is a set of option ids rather than one option.
+     *
+     * <p>The empty selection is a real answer the engine applies, not the
+     * absence of one: an empty target selection must add nothing and hand
+     * XMage {@code false}, and an empty block must declare no block. The
+     * maximal selection must apply exactly the ids the pilot named. The
+     * expectation is read off the proposal, never off the transcript.</p>
+     */
+    @SuppressWarnings("unchecked")
+    static void assertNativeReturnForSelection(String callback, XmageFullGameSession session,
+                                               JsonObject frame, JsonObject proposal, String where) {
+        Game game = session.restorationGame();
+        UUID actorId = UUID.fromString(frame.get("actor_id").getAsString());
+        Player actorPlayer = game.getPlayer(actorId);
+        assertTrue(actorPlayer instanceof XmageFullGamePlayer,
+                where + ": the answered decision has no external player");
+        long offset = proposal.getAsJsonObject("choices").get("decision_offset").getAsLong();
+        Object[] returned = ((XmageFullGamePlayer) actorPlayer).nativeReturn(offset);
+        assertTrue(returned.length > 0,
+                where + ": no native return recorded for the answered decision " + offset);
+        List<String> selected = selectedOptionIds(proposal);
+        switch (callback) {
+            case "target" ->
+                    assertAppliedTargetIds(where, (List<String>) returned[0], selected, returned[1]);
+            case "declare_blocker" -> {
+                String blockerId = nativeField(actions(frame).get(0), "blocker_id");
+                assertEquals(blockerId, String.valueOf(returned[0]), where + ": the blocker asked");
+                @SuppressWarnings("unchecked")
+                List<UUID> declared = (List<UUID>) returned[1];
+                assertEquals(selected.stream().map(UUID::fromString).toList(), declared,
+                        where + ": the blocks handed to the engine must be the selected options");
+                if (selected.isEmpty()) {
+                    // CR 509.1a: an empty selection declares no block, so the
+                    // blocker must appear in no combat group.
+                    for (UUID attackerId : game.getCombat().getAttackers()) {
+                        mage.game.combat.CombatGroup group = game.getCombat().findGroup(attackerId);
+                        if (group != null) {
+                            assertFalse(group.getBlockers().contains(UUID.fromString(blockerId)),
+                                    where + ": an empty selection must declare no block in XMage");
+                        }
+                    }
+                }
+            }
+            default -> throw new AssertionError(
+                    "no selection-cardinality native-return expectation for native callback " + callback);
+        }
+    }
+
     /** S1 for selection cardinality: the empty selection (min 0) and a maximal one. */
-    static void cardinalityAccepted(Scenario scenario, JsonObject frame) {
+    static void cardinalityAccepted(Scenario scenario, JsonObject frame, String key) {
         JsonObject decision = frame.getAsJsonObject("decision");
         int min = decision.get("minimum_selections").getAsInt();
         int max = decision.get("maximum_selections").getAsInt();
+        String callback = EXPECTED_CALLBACK.get(key);
         if (min == 0 && max > 0) {
             DecisionClassMatrixHarness.Live fresh = DecisionClassMatrixHarness.open(scenario);
             JsonObject same = DecisionClassMatrixHarness.driveToTarget(fresh, scenario);
-            JsonObject result = fresh.session().submitAction(DecisionClassMatrixHarness.emptySelection(same));
+            JsonObject proposal = DecisionClassMatrixHarness.emptySelection(same);
+            JsonObject result = fresh.session().submitAction(proposal);
             assertEquals(same.get("decision_id").getAsString(), result.get("executed_decision_id").getAsString());
+            assertNativeReturnForSelection(callback, fresh.session(), same, proposal,
+                    key + " S1 empty selection");
         }
         if (max > 1 && actions(frame).size() > 1) {
             DecisionClassMatrixHarness.Live fresh = DecisionClassMatrixHarness.open(scenario);
@@ -899,6 +1142,8 @@ class XmageFullGameDecisionClassMatrixTest {
             proposal.getAsJsonObject("choices").add("selected_option_ids", selected);
             JsonObject result = fresh.session().submitAction(proposal);
             assertEquals(same.get("decision_id").getAsString(), result.get("executed_decision_id").getAsString());
+            assertNativeReturnForSelection(callback, fresh.session(), same, proposal,
+                    key + " S1 selection of " + count);
         }
     }
 

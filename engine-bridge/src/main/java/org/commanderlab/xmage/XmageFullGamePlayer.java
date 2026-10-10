@@ -591,9 +591,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
         String selected = requireSingle(response);
         int amount = requireNumericChoice(response, "target_amount");
         UUID targetId = UUID.fromString(selected);
+        // #689 P3: the answered offset is taken before addTarget, which runs
+        // game.replaceEvent(TargetEvent) first and can raise a nested frame.
+        long answered = answeredDecisionOffset();
         target.addTarget(targetId, amount, source, game);
         // #689: the target id and amount handed to XMage are the selected ones.
-        recordNativeReturn(answeredDecisionOffset(), targetId, amount);
+        recordNativeReturn(answered, targetId, amount);
         return true;
     }
 
@@ -828,8 +831,14 @@ final class XmageFullGamePlayer extends PlayerImpl {
             // piles' cards belong to the departed player and left with it.
             return false;
         }
-        // #689: XMage reads pile 1 as true, pile 2 as false.
-        recordNativeReturn(answeredDecisionOffset(), first.equals(selected));
+        // #689 P3: XMage reads pile 1 as true, pile 2 as false. The selected pile's
+        // own card ids are recorded beside the boolean, so the test binds the
+        // answer to the engine's pile rather than to the display label (the
+        // argument witness is a single slot and is overwritten by the next
+        // frame long before S1 reads it).
+        List<? extends Card> chosen = first.equals(selected) ? pile1 : pile2;
+        recordNativeReturn(answeredDecisionOffset(), first.equals(selected),
+                List.copyOf(chosen.stream().map(card -> card.getId().toString()).toList()));
         return first.equals(selected);
     }
 
@@ -1153,6 +1162,10 @@ final class XmageFullGamePlayer extends PlayerImpl {
             return null;
         }
         if (response.selectedOptionIds().isEmpty()) {
+            // #689 P2: the decline is a real native return (XMage reads null as
+            // "no mode chosen"). Recording it keeps the empty-selection S1
+            // acceptance witnessed instead of leaving the decision unrecorded.
+            recordNativeReturn(answeredDecisionOffset(), (Mode) null);
             return null;
         }
         Mode selected = byId.get(response.selectedOptionIds().get(0));
@@ -1784,6 +1797,19 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 concessionInterruptedAction = true;
                 return false;
             }
+            // #689 P3: the answered offset is taken here, before any engine work.
+            // TargetImpl.addTarget runs game.replaceEvent(TargetEvent) first, and a
+            // replacement effect can raise a nested decision frame, which moves
+            // decisionCount() onto that nested decision (an offset this callback
+            // never answered).
+            long answered = answeredDecisionOffset();
+            // #689 P1: the witness is what XMage actually applied, not what the
+            // controller answered. addTarget/add can drop a selection entirely:
+            // TargetImpl.addTarget runs the TARGETED replacement event first and
+            // puts nothing when it is vetoed, and both overloads no-op once the
+            // target is full. Snapshot the target so the ids actually added are
+            // recoverable after the loop.
+            List<UUID> beforeAdd = List.copyOf(target.getTargets());
             for (String selected : response.selectedOptionIds()) {
                 UUID id = UUID.fromString(selected);
                 if (targeted) {
@@ -1792,12 +1818,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     target.add(id, game);
                 }
             }
-            // #689: the ids added to the native target are the selected ones,
-            // and the boolean XMage reads is "at least one was added".
-            long answered = answeredDecisionOffset();
+            List<String> applied = target.getTargets().stream()
+                    .filter(id -> !beforeAdd.contains(id))
+                    .map(UUID::toString)
+                    .toList();
+            // The boolean XMage reads is "the controller was given something",
+            // unchanged; returned[1] stays exactly the value handed back.
             recordNativeReturn(
                     answered,
-                    List.copyOf(response.selectedOptionIds()),
+                    applied,
                     (Boolean) !response.selectedOptionIds().isEmpty()
             );
             return !response.selectedOptionIds().isEmpty();
@@ -2363,10 +2392,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * <p>The counterpart of {@link #nativeWitness}: the native-argument witness
      * proves which callback asked, this proves what that callback did with the
      * answer. A callback records its value under {@link #answeredDecisionOffset}
-     * — taken immediately after its response was applied and before it can
-     * raise another decision — so an entry belongs to exactly the decision it
-     * answers and to no other, and a callback that returned nothing (a
-     * declined frame, a left player) leaves that decision unrecorded.</p>
+     * — read straight after {@code request()} returned, before any engine work
+     * that could raise a nested decision — so an entry belongs to exactly the
+     * decision it answers and to no other. Every callback records on each of
+     * its return paths, including a null or empty return, so the absence of an
+     * entry means the decision was never answered, not that it was declined.</p>
      *
      * <p>Transient, bounded, and read only by tests through
      * {@link #nativeReturn(long)}: never serialized with the player, never
@@ -2381,11 +2411,17 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private transient int nativeReturnCursor;
 
     /**
-     * The offset of the decision whose response the calling callback is
-     * applying. The controller binds (and counts) a decision frame when it
-     * raises it, so the last bound frame is the one just answered. Taken
-     * immediately after the response was applied and before this callback can
-     * raise another frame, it names exactly that decision.
+     * The offset of the decision this callback just answered.
+     *
+     * <p>The controller increments and binds a decision offset when it raises a
+     * frame, so {@code decisionCount()} names the last bound frame. It must be
+     * read immediately after {@code request()} returns, while that decision is
+     * still the last one bound, and never after engine work that can raise a
+     * nested frame — {@code TargetImpl.addTarget} and {@code addTarget(id,
+     * amount, ...)} both call {@code game.replaceEvent} first, and a
+     * replacement effect answering inside it binds and counts a decision this
+     * callback never answered. Read too late, the record is filed under that
+     * nested offset and the answered decision reads as having no return.</p>
      */
     private long answeredDecisionOffset() {
         return decisionController.decisionCount();
