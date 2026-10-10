@@ -117,7 +117,7 @@ jobs:
           python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode-go/space-bunny
+          MODEL: opencode/space-bunny-free
           AGENT: ''
           SHARE: 'false'
           PROMPT: ''
@@ -286,7 +286,7 @@ jobs:
           python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode-go/space-bunny
+          MODEL: opencode/space-bunny-free
           AGENT: bunny-verifier
           SHARE: 'false'
           PROMPT: ''
@@ -471,7 +471,7 @@ jobs:
           python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode-go/space-bunny
+          MODEL: opencode/space-bunny-free
           AGENT: foundry-reviewer
           SHARE: 'false'
           PROMPT: ''

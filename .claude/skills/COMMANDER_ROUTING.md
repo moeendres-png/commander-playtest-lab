@@ -10,7 +10,7 @@ This is routing guidance only; `AGENTS.md` remains authority. For each task choo
 lane that preserves required correctness and evidence:
 
 1. deterministic script/tool when judgement is unnecessary;
-2. Space Bunny native `max` (`opencode-go/space-bunny`) as the only OpenCode executor for
+2. Space Bunny native `max` (`opencode/space-bunny-free`) as the only OpenCode executor for
    implementation, debugging, tests, qualification execution, evidence production, audits,
    reviews and long engineering work (`/oc`, `/bunny`, `/bunny-review`, `opencode-subagent` MCP);
    prompts follow `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md`;

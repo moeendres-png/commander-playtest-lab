@@ -83,9 +83,9 @@ CANONICAL_PROVIDER = executor_mod.CANONICAL_PROVIDER
 # reachable. Space Bunny MAX is the default and only ACTIVE executor and the
 # mandatory fresh-context read-only reviewer for MATERIAL implementation
 # workstreams; DeepSeek MAX is SUSPENDED (OpenCode Go monthly quota exhausted)
-# and is refused at resolution. The logical `space-bunny` profile admits one
-# canonical runtime id plus one legacy alias runtime id for the SAME profile
-# (see .foundry/executor-profiles.json); no third executor exists. A
+# and is refused at resolution. The logical `space-bunny` profile admits exactly
+# its OpenCode Zen runtime id (see .foundry/executor-profiles.json); the Go ids
+# are retired and no third executor exists. A
 # runtime/quota/auth/catalog failure after selection is fail-closed and never
 # re-resolves to another executor family.
 SPACE_BUNNY_PROFILE = "space-bunny"
@@ -103,8 +103,7 @@ PROFILE_MODELS = {
 DEEPSEEK_MODEL = PROFILE_MODELS[DEEPSEEK_PROFILE]
 SPACE_BUNNY_MODEL = PROFILE_MODELS[SPACE_BUNNY_PROFILE]
 CANONICAL_MODEL = PROFILE_MODELS[PRIMARY_EXECUTION_PROFILE]
-# Canonical runtime id first, then the admitted legacy alias for the same
-# logical profile.
+# The admitted Space Bunny runtime ids (only the Zen id since 2026-10-10).
 ADMITTED_BUNNY_MODELS = EXECUTOR_REGISTRY.profiles[SPACE_BUNNY_PROFILE].admitted_runtime_ids
 # Only ACTIVE profiles' runtime ids are reachable; the root opencode.json
 # whitelist must match exactly this set, so a SUSPENDED model is not even
@@ -614,9 +613,9 @@ def build_content_bundle(
         raise ValueError(f"canonical provider drift: {providers!r}")
     # NOTE: provider.models is keyed by SHORT model name (verified against the
     # resolved config); the provider/model pair lives in top-level "model".
-    # The whitelist admits exactly the ACTIVE runtime identities: the canonical
-    # Space Bunny id and its legacy alias (same logical profile). A SUSPENDED
-    # profile (DeepSeek) and any third executor are not admitted.
+    # The whitelist admits exactly the ACTIVE runtime identities: the Zen Space
+    # Bunny id. A SUSPENDED profile (DeepSeek), the retired Go ids and any third
+    # executor are not admitted.
     try:
         models = config["provider"][CANONICAL_PROVIDER]["models"]
     except KeyError as exc:
@@ -677,8 +676,8 @@ def build_content_bundle(
     # Narrow the bundle to the RESOLVED profile/model, never the raw flag. An
     # omitted flag resolves to the registry default, so branching on the flag
     # would let a default launch fall through to the wrong executor block.
-    # For Space Bunny the model is the resolved runtime identity (canonical or
-    # admitted legacy alias), already provenance-recorded in `execution`.
+    # For Space Bunny the model is the resolved Zen runtime identity, already
+    # provenance-recorded in `execution`.
     selected_model = execution["model"]
     short = selected_model.split("/", 1)[1]
     bundle["model"] = selected_model

@@ -75,7 +75,7 @@ class ExplodingTransport:
 
 def _workflow_yaml(
     *,
-    model: str = "opencode-go/space-bunny",
+    model: str = "opencode/space-bunny-free",
     variant: str = "max",
     agent: str | None = None,
     trust_gate: bool = True,
@@ -120,7 +120,7 @@ def _agent_markdown(*, read_only: bool = True) -> str:
     else:
         permission = {"edit": "allow", "bash": {"*": "allow"}, "task": "allow"}
     frontmatter = {
-        "model": "opencode-go/space-bunny",
+        "model": "opencode/space-bunny-free",
         "variant": "max",
         "permission": permission,
     }
@@ -134,7 +134,7 @@ def _result_body(
     **overrides: str,
 ) -> str:
     fields = {
-        "REVIEWER_MODEL": "opencode-go/space-bunny",
+        "REVIEWER_MODEL": "opencode/space-bunny-free",
         "REVIEWER_VARIANT": "max",
         "REVIEW_AGENT": "foundry-reviewer",
         "REVIEWED_SHA": IMPL,
@@ -300,8 +300,8 @@ def _record(**overrides: object) -> dict:
         "required": True,
         "materiality": "MATERIAL",
         "logical_profile": "space-bunny",
-        "resolved_provider": "opencode-go",
-        "resolved_model_id": "opencode-go/space-bunny",
+        "resolved_provider": "opencode",
+        "resolved_model_id": "opencode/space-bunny-free",
         "model_alias_class": "CANONICAL",
         "native_variant": "max",
         "review_mode": "READ_ONLY_FRESH_CONTEXT",

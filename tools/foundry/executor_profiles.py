@@ -6,20 +6,19 @@ invents a model identity and never falls back across executor families.
 Logical profiles
 ----------------
 
-- ``space-bunny``: the default and only ACTIVE executor (Owner directive
-  2026-10-10), resolved only after live catalog inspection of the pinned
-  OpenCode CLI (``opencode models opencode-go``).
+- ``space-bunny``: the default and only ACTIVE executor (Owner directives
+  2026-10-10), served by OpenCode Zen as ``opencode/space-bunny-free`` and
+  resolved only after live catalog inspection of the pinned OpenCode CLI
+  (``opencode models opencode``).
 - ``deepseek``: ``opencode-go/deepseek-v4.1-flash`` at native ``max``; kept in
   the registry with ``runtime_status: SUSPENDED`` (its OpenCode Go monthly
   quota is exhausted). A suspended profile never resolves; only a new direct
   Owner instruction flips it back to ACTIVE.
 
-Space Bunny runtime preference is deterministic:
-
-1. ``opencode-go/space-bunny`` = CANONICAL;
-2. else ``opencode-go/space-bunny-free`` = LEGACY_ALIAS (the same logical
-   profile, admitted only as a runtime identity);
-3. neither present => explicit fail-closed resolution error.
+Space Bunny runtime selection is deterministic: the canonical Zen id must be
+present in the inspected catalog, else resolution fails closed. The OpenCode Go
+ids (``opencode-go/space-bunny``, ``opencode-go/space-bunny-free``) are no
+longer admitted: they share the exhausted Go monthly quota.
 
 No other provider/model (Longcat, DeepSeek, another family, or the first
 available catalog row) may ever substitute. A runtime/auth/quota/API/tool
@@ -39,7 +38,12 @@ from pathlib import Path
 
 DEFAULT_REGISTRY_PATH = Path(__file__).resolve().parents[2] / ".foundry" / "executor-profiles.json"
 
-CANONICAL_PROVIDER = "opencode-go"
+CANONICAL_PROVIDER = "opencode"
+# Providers a registry runtime id may name: Zen (active Space Bunny) and Go
+# (the suspended DeepSeek record only).
+ADMITTED_PROVIDERS = (CANONICAL_PROVIDER, "opencode-go")
+SPACE_BUNNY_RUNTIME_ID = "opencode/space-bunny-free"
+DEEPSEEK_RUNTIME_ID = "opencode-go/deepseek-v4.1-flash"
 CANONICAL_ALIAS_CLASS = "CANONICAL"
 LEGACY_ALIAS_CLASS = "LEGACY_ALIAS"
 ALIAS_CLASSES = (CANONICAL_ALIAS_CLASS, LEGACY_ALIAS_CLASS)
@@ -47,7 +51,7 @@ NATIVE_VARIANT = "max"
 ACTIVE = "ACTIVE"
 SUSPENDED = "SUSPENDED"
 RUNTIME_STATUSES = (ACTIVE, SUSPENDED)
-CATALOG_COMMAND = ("opencode", "models", "opencode-go")
+CATALOG_COMMAND = ("opencode", "models", CANONICAL_PROVIDER)
 CATALOG_TIMEOUT_SECONDS = 60
 OPENCODE_BIN_ENV = "FOUNDRY_OPENCODE_BIN"
 
@@ -233,9 +237,14 @@ def validate_registry(doc: dict, *, path: str = "<memory>") -> list[str]:
         except ExecutorResolutionError as exc:
             errors.append(str(exc))
             continue
-        if provider != CANONICAL_PROVIDER:
+        if provider not in ADMITTED_PROVIDERS:
             errors.append(
-                f"runtime_identity[{runtime_id!r}] provider is not {CANONICAL_PROVIDER!r}"
+                f"runtime_identity[{runtime_id!r}] provider is not one of {list(ADMITTED_PROVIDERS)}"
+            )
+        elif profile_name == "space-bunny" and provider != CANONICAL_PROVIDER:
+            errors.append(
+                f"runtime_identity[{runtime_id!r}] space-bunny runtime ids must use "
+                f"{CANONICAL_PROVIDER!r} (Zen)"
             )
     for name, spec in profiles.items():
         if not isinstance(spec, dict):
@@ -259,18 +268,13 @@ def validate_registry(doc: dict, *, path: str = "<memory>") -> list[str]:
             and spec.get("logical_profile") == "space-bunny"
             and spec.get("alias_class") == LEGACY_ALIAS_CLASS
         ]
-        if model != "opencode-go/space-bunny":
-            errors.append("space-bunny canonical runtime id must be opencode-go/space-bunny")
-        if legacy != ["opencode-go/space-bunny-free"]:
-            errors.append(
-                "space-bunny must admit exactly the legacy alias "
-                f"opencode-go/space-bunny-free, got {legacy!r}"
-            )
+        if model != SPACE_BUNNY_RUNTIME_ID:
+            errors.append(f"space-bunny canonical runtime id must be {SPACE_BUNNY_RUNTIME_ID}")
+        if legacy:
+            errors.append(f"space-bunny admits no legacy alias, got {legacy!r}")
     deepseek = profiles.get("deepseek")
-    if isinstance(deepseek, dict) and str(deepseek.get("model", "")) != (
-        "opencode-go/deepseek-v4.1-flash"
-    ):
-        errors.append("deepseek runtime id must remain opencode-go/deepseek-v4.1-flash")
+    if isinstance(deepseek, dict) and str(deepseek.get("model", "")) != DEEPSEEK_RUNTIME_ID:
+        errors.append(f"deepseek runtime id must remain {DEEPSEEK_RUNTIME_ID}")
     return errors
 
 
@@ -369,7 +373,9 @@ def load_live_catalog(
         )
     models = parse_catalog_output(proc.stdout or "")
     if not models:
-        raise ExecutorResolutionError("live catalog listed no opencode-go models; fail closed")
+        raise ExecutorResolutionError(
+            f"live catalog listed no {CANONICAL_PROVIDER} models; fail closed"
+        )
     return models, f"cli:{CANONICAL_PROVIDER}"
 
 
@@ -387,7 +393,7 @@ def resolve_executor(
     A SUSPENDED profile is refused before anything else. DeepSeek (when ACTIVE)
     uses the pinned canonical identity; when a catalog is supplied its
     presence is still verified. Space Bunny requires catalog inspection and
-    selects the canonical id, else the admitted legacy alias, else fails closed.
+    selects its admitted Zen id, else fails closed.
     """
     reg = registry or load_registry()
     if logical_profile not in reg.profiles:

@@ -269,26 +269,26 @@ def test_opencode_config_schema_conformance() -> None:
 
     Owner directive (2026-10-10): only Space Bunny MAX is reachable; DeepSeek
     MAX stays in the registry as SUSPENDED and is absent from the config. Space
-    Bunny admits the canonical runtime id and one legacy alias runtime id for
-    the SAME logical profile; there is no other executor. This pins the shape and the
+    Bunny admits exactly its OpenCode Zen runtime id (no Go id, no legacy
+    alias); there is no other executor. This pins the shape and the
     pinning, not just the presence of a model field, so a retired effort level
     cannot quietly reopen.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    assert config["model"] == "opencode-go/space-bunny"
-    assert config["small_model"] == "opencode-go/space-bunny"
+    assert config["model"] == "opencode/space-bunny-free"
+    assert config["small_model"] == "opencode/space-bunny-free"
     assert config["share"] == "disabled"
-    assert config["enabled_providers"] == ["opencode-go"]
-    provider = config["provider"]["opencode-go"]
+    assert config["enabled_providers"] == ["opencode"]
+    provider = config["provider"]["opencode"]
     registry = executor_mod.load_registry()
-    # No silent fallback: canonical Space Bunny first, then the legacy alias as
-    # a runtime identity of the same profile. The suspended DeepSeek is absent.
+    # No silent fallback: only the Zen Space Bunny id. The suspended DeepSeek
+    # and the Go Space Bunny ids are absent.
     assert provider["whitelist"] == list(
         model.split("/", 1)[1] for model in registry.active_runtime_ids
     )
-    assert provider["whitelist"] == ["space-bunny", "space-bunny-free"]
+    assert provider["whitelist"] == ["space-bunny-free"]
+    assert "opencode-go" not in config["provider"]
     authorized = {
-        "space-bunny": ("max", {"reasoningEffort": "max"}),
         "space-bunny-free": ("max", {"reasoningEffort": "max"}),
     }
     assert set(provider["models"]) == set(authorized)
@@ -308,20 +308,18 @@ def test_opencode_config_schema_conformance() -> None:
 def test_only_authorized_executors_present_in_canonical_config() -> None:
     """The canonical config exposes exactly the admitted runtime identities.
 
-    Only ACTIVE profiles are admitted (Space Bunny; DeepSeek is SUSPENDED); the
-    only extra row is the legacy Space Bunny alias bound to the same logical
-    profile. No other provider/model may appear.
+    Only ACTIVE profiles are admitted (Space Bunny on Zen; DeepSeek is
+    SUSPENDED). No other provider/model may appear.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    provider = config["provider"]["opencode-go"]
+    provider = config["provider"]["opencode"]
     registry = executor_mod.load_registry()
     admitted = list(registry.active_runtime_ids)
     assert provider["whitelist"] == [model.split("/", 1)[1] for model in admitted]
     assert set(provider["models"]) == {model.split("/", 1)[1] for model in admitted}
     assert set(registry.runtime_identity) == {
         "opencode-go/deepseek-v4.1-flash",
-        "opencode-go/space-bunny",
-        "opencode-go/space-bunny-free",
+        "opencode/space-bunny-free",
     }
     profiles_for_aliases = {spec.logical_profile for spec in registry.runtime_identity.values()}
     assert profiles_for_aliases == {"deepseek", "space-bunny"}
@@ -340,13 +338,13 @@ def test_high_default_retained() -> None:
     agent definition. No agent may sit on a retired level.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    models = config["provider"]["opencode-go"]["models"]
+    models = config["provider"]["opencode"]["models"]
     assert "deepseek-v4.1-flash" not in models
-    assert models["space-bunny"]["options"] == {"reasoningEffort": "max"}
+    assert models["space-bunny-free"]["options"] == {"reasoningEffort": "max"}
     # Every on-disk agent runs Space Bunny MAX (DeepSeek SUSPENDED 2026-10-10);
     # the launcher also pins the resolved profile inline for every run.
     expected = {
-        name: ("opencode-go/space-bunny", "max")
+        name: ("opencode/space-bunny-free", "max")
         for name in (
             "foundry-implementer.md",
             "foundry-adjudicator.md",
@@ -364,7 +362,7 @@ def test_high_default_retained() -> None:
 def test_adjudicator_exists_and_configured() -> None:
     adjudicator = _agent_frontmatter("foundry-adjudicator.md")
     assert adjudicator["mode"] == "subagent"
-    assert adjudicator["model"] == "opencode-go/space-bunny"
+    assert adjudicator["model"] == "opencode/space-bunny-free"
     assert adjudicator["variant"] == "max"
     assert adjudicator["permission"]["edit"] == "deny"
     bash = adjudicator["permission"]["bash"]
@@ -436,7 +434,7 @@ def test_reviewer_remains_high_and_read_only() -> None:
     """
     reviewer = _agent_frontmatter("foundry-reviewer.md")
     assert reviewer["mode"] == "all"
-    assert reviewer["model"] == "opencode-go/space-bunny"
+    assert reviewer["model"] == "opencode/space-bunny-free"
     assert reviewer["variant"] == "max"
     assert reviewer["permission"]["edit"] == "deny"
     assert reviewer["permission"]["bash"]["*"] == "deny"
@@ -519,7 +517,7 @@ def test_reviewer_bash_default_deny() -> None:
 
 def test_provider_lock_and_sharing() -> None:
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    assert config["enabled_providers"] == ["opencode-go"]
+    assert config["enabled_providers"] == ["opencode"]
     assert config["share"] == "disabled"
     assert config["default_agent"] == "foundry-implementer"
 
@@ -1021,7 +1019,7 @@ def test_dual_executor_current_authority_is_canonical() -> None:
         "deepseek v4.1 flash max",
         "opencode-go/deepseek-v4.1-flash",
         "space bunny max",
-        "opencode-go/space-bunny",
+        "opencode/space-bunny-free",
         "no other opencode model/profile is currently authorized",
         "no automatic fallback",
         "production provider",
