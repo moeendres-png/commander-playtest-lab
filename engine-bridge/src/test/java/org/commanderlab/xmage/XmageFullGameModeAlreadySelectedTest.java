@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * F-75 / CR 700.2: an already-selected mode is not offered again.
+ * F-75 / CR 700.2d: an already-selected mode is not offered again.
  *
  * <p>{@code Modes.getAvailableModes} applies only the once-per-turn filter
  * ("isLimitUsageByOnce"); its own javadoc says the caller must filter
@@ -56,13 +56,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * only test here that fails on the pre-fix bridge (observed: exit 1,
  * "one fewer mode is offered the second time ==&gt; expected: &lt;3&gt; but was:
  * &lt;4&gt;"). The other two are controls that must stay green across the fix:
- * they prove the CR 700.2 exception still re-offers a mode, and that the
+ * they prove the CR 700.2d exception still re-offers a mode, and that the
  * corrected frame still resolves the spell on the mode the pilot chose.</p>
  *
  * <p>The class also pins the CR 700.2a half of the rule on
  * {@link #collectiveBrutalityStopsChoosingWhenOnlyTheUntargetableModeIsLeft()}:
  * once the minimum is met and no remaining mode has a legal target, no frame may
- * be asked at all. That test is red on the 1bdc099e bridge head, which kept every
+ * be asked at all. That test is red on the previous bridge revision of this PR, which kept every
  * remaining mode listed in exactly that state while {@code noViableMode} stayed
  * false (the doomed-cast rewind is a {@code min > 0} case).</p>
  */
@@ -259,7 +259,7 @@ class XmageFullGameModeAlreadySelectedTest {
         String chosen = firstFrame.get(1);
         chooseMode(s, 1);
 
-        // Second "choose one or more" frame: the taken mode is gone (CR 700.2).
+        // Second "choose one or more" frame: the taken mode is gone (CR 700.2d).
         assertEquals("mode", decisionClass(s), "a second mode frame is asked");
         List<String> secondFrame = offeredModeIds(s);
         assertEquals(3, secondFrame.size(), "one fewer mode is offered the second time");
@@ -337,7 +337,7 @@ class XmageFullGameModeAlreadySelectedTest {
     // ------------------------------- Season of the Bold: the rule must not apply
 
     /**
-     * Control for the CR 700.2 exception: "You may choose the same mode more
+     * Control for the CR 700.2d exception: "You may choose the same mode more
      * than once". The engine reports
      * {@code Modes.isMayChooseSameModeMoreThanOnce()} and both XMage players
      * honour it, so a taken mode must still be offered in the second frame.
@@ -384,7 +384,7 @@ class XmageFullGameModeAlreadySelectedTest {
      * ones. After the pilot has taken both -- minimum met -- nothing is left to
      * choose and no further frame may ask for the untargetable mode.
      *
-     * <p>Observed red on 1bdc099e (the PR #711 head): the bridge kept every
+     * <p>Observed red on the previous bridge revision of this PR (#711): the bridge kept every
      * remaining mode listed while the minimum was already met, so a third
      * {@code mode} frame offered the single untargetable mode ("Target creature
      * gets -2/-2"), {@code noViableMode} stayed false because {@code min} is 0, and
@@ -428,7 +428,7 @@ class XmageFullGameModeAlreadySelectedTest {
         chooseMode(s, 0);
 
         // The minimum is met and the only remaining mode is untargetable: the choice
-        // is over, exactly as HumanPlayer.chooseMode (b479fe74 :2560-2564) ends it.
+        // is over, exactly as HumanPlayer.chooseMode (pinned XMage) ends it.
         assertEquals("target", decisionClass(s),
                 "no third mode frame may offer the untargetable mode; the cast continues "
                         + "with the two chosen modes");

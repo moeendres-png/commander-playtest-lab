@@ -687,7 +687,7 @@ class XmageFullGameDecisionClassMatrixTest {
                 mage.abilities.Modes modes = (mage.abilities.Modes) witness[1];
                 Ability source = (Ability) witness[2];
                 List<mage.abilities.Mode> available = new ArrayList<>(modes.getAvailableModes(source, game));
-                // CR 700.2: an already-selected mode is not offered again unless the card may
+                // CR 700.2d: an already-selected mode is not offered again unless the card may
                 // choose the same mode more than once. getAvailableModes applies only the
                 // once-per-turn filter; both XMage players (HumanPlayer.chooseMode,
                 // ComputerPlayer.chooseMode) apply this one themselves, so the oracle must
@@ -699,7 +699,7 @@ class XmageFullGameDecisionClassMatrixTest {
                 // CR 700.2a: a mode whose required targets cannot be chosen cannot be chosen,
                 // unless no mode can *and* one is still mandatory (then the cast rewinds, and
                 // all stay listed). Once the minimum is already met and nothing is choosable
-                // the choice is over: HumanPlayer.chooseMode (b479fe74 :2560-2564) returns
+                // the choice is over: HumanPlayer.chooseMode (pinned XMage) returns
                 // null there, so the bridge asks nothing and no option is offered.
                 List<mage.abilities.Mode> choosable = available.stream()
                         .filter(mode -> mode.getTargets().canChoose(actor.getId(), source, game))

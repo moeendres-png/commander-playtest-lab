@@ -1064,7 +1064,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
     public Mode chooseMode(Modes modes, Ability source, Game game) {
         witness("mode", modes, source);
         List<Mode> available = new ArrayList<>(modes.getAvailableModes(source, game));
-        // CR 700.2: a mode already selected for this spell or ability may not be
+        // CR 700.2d: a mode already selected for this spell or ability may not be
         // selected again unless the card says it may be ("You may choose the same
         // mode more than once"). Modes.getAvailableModes only applies the
         // once-per-turn filter ("isLimitUsageByOnce"), so an already-selected mode
@@ -1104,7 +1104,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 noViableMode = true;
             } else {
                 // The minimum is already met and nothing is left to choose, so the
-                // choice is over. HumanPlayer.chooseMode (b479fe74 :2560-2564) ends it
+                // choice is over. HumanPlayer.chooseMode (pinned XMage) ends it
                 // the same way: with no choosable mode left it returns null outright
                 // when the card may not choose none, and when the card may choose
                 // none the dialog it shows holds no mode entries at all -- only "Done"
