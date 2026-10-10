@@ -402,6 +402,50 @@ def test_git_blob_identity_matches_git_and_ignores_crlf(tmp_path: Path) -> None:
     assert git_blob_identity(crlf) == git_blob_identity(lf)
 
 
+def test_freeze_basis_epoch_f881d56f_is_eligible_and_matches_the_final_adr_record() -> None:
+    """The Freeze ADR's evidence basis: eligible, and its record is the one shipped."""
+    epoch = REPO_ROOT / "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4"
+    config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    result = assemble_freeze_record(
+        epoch, repo_root=REPO_ROOT, expected_pin=config["primary_engine"]["commit"]
+    )
+    assert result.reasons == []
+    assert result.eligible is True
+    assert [gate["verdict"] for gate in result.record["gate_results"]] == ["PASS"] * 12
+    shipped = json.loads(
+        (REPO_ROOT / "docs/architecture_freeze_20261010/FREEZE_RECORD_XMAGE.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert shipped["record"] == result.record
+    # Unsigned: nothing selects the provider before the Owner signs.
+    assert config["provider_decision"] == "NO_PROVIDER_READY"
+    assert config["current_runtime"]["provider_selected"] is False
+    adr = (REPO_ROOT / "docs/architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md").read_text(
+        encoding="utf-8"
+    )
+    assert "- [ ] `ARCHITECTURE_FREEZE = CLAIMED`" in adr
+    # Every identity the ADR and the decisions record pin is the shipped record's.
+    decisions = (
+        REPO_ROOT / "docs/architecture_freeze_20261010/OWNER_DECISIONS_20261010.md"
+    ).read_text(encoding="utf-8")
+    lock = result.record["source_lock"]
+    for value in (
+        lock["build"]["artifact_sha256"],
+        lock["provider_source"]["commit"],
+        lock["adapter_source"]["commit"],
+        lock["adapter_source"]["tree"],
+        result.record["protocol_schema_identity"],
+    ):
+        assert value in adr, value
+    assert lock["build"]["artifact_sha256"] in decisions
+    for stale in ("85dbcb1ac475f9b9dba56f4aa5634bb2997ac5c9",):
+        assert stale not in adr
+    # The superseded epoch's jar hash is never pinned (only named, abbreviated, as history).
+    stale_jar = "3bede866e142de66631e04bfc611424e835ed2c95e2b736cd5f638615c2dc660"
+    assert stale_jar not in adr and stale_jar not in decisions
+
+
 def test_unsealed_epoch_is_refused(tmp_path: Path) -> None:
     with pytest.raises(FreezeRecordError, match="not sealed"):
         _assemble(_epoch(tmp_path, unsealed=True))
