@@ -685,7 +685,8 @@ def test_bunny_reviewer_agents_are_structurally_mutation_denied() -> None:
     )
     for agent in (reviewer, auditor):
         for rule, action in agent["permission"]["bash"].items():
-            if rule == "*":
+            # Extra deny rules only narrow the surface (#654: --output, redirects).
+            if rule == "*" or action == "deny":
                 continue
             assert action == "allow", (agent, rule)
             assert rule in read_only_prefixes, (agent, rule)

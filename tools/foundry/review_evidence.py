@@ -20,6 +20,12 @@ The receipt is bound to the run, not merely embedded in its text:
 - the result comment's last ``/actions/runs/{id}`` link must be the cited run,
   so a quoted or foreign run link elsewhere in the body is never credited.
 
+The pinned CLI ignores ``AGENT`` (#654), so the workflow pin is admitted only
+when the job selects the reviewer through ``OPENCODE_CONFIG_CONTENT`` and runs
+the trusted ``review_runtime_identity.py`` preflight and post-run audit, and the
+committed config merged with the reviewer's rules leaves no write-capable
+permission allowed.
+
 Only ``DIRECT_REVIEW_LANE`` (``opencode-bunny-review`` / ``foundry-reviewer``)
 is admitted. The former writable ``opencode-bunny``/``bunny-verifier``
 attestation carrier is removed: a review that can write is not review evidence.
@@ -34,6 +40,7 @@ Every network/API/parse failure is ``UNVERIFIABLE`` or ``UNSATISFIED``, never
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import urllib.error
@@ -42,6 +49,11 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, Protocol
+
+try:
+    from . import review_runtime_identity as runtime_identity
+except ImportError:  # loaded as a top-level module from tools/foundry
+    import review_runtime_identity as runtime_identity  # type: ignore[no-redef,import-not-found]
 
 SATISFIED = "SATISFIED"
 UNSATISFIED = "UNSATISFIED"
@@ -66,6 +78,10 @@ CARRIER_REVIEW_AGENTS = {CARRIER_DIRECT: "foundry-reviewer"}
 # Lanes that must NOT be the successful lane for the carrier to count.
 INCOMPATIBLE_LANE_JOBS = ("opencode", "opencode-bunny")
 READ_ONLY_AGENT_FILES = {"foundry-reviewer": ".opencode/agents/foundry-reviewer.md"}
+PROJECT_CONFIG_PATH = "opencode.json"
+# Run log the watchdog copies for the runtime audit (review_runtime_identity.py).
+RUNTIME_LOG = '"$RUNNER_TEMP/opencode-review.log"'
+RUNTIME_CHECKER = "tools/foundry/review_runtime_identity.py"
 
 TRUSTED_ASSOCIATIONS = frozenset({"OWNER", "MEMBER", "COLLABORATOR"})
 OPENCODE_BOT_LOGINS = frozenset({"opencode-agent[bot]", "opencode-agent"})
@@ -701,8 +717,69 @@ class _Verifier:
                 "REVIEW_EVIDENCE_WORKFLOW_AGENT_MISMATCH",
                 f"workflow pins AGENT={agent!r} (expected one of {allowed_agents})",
             )
+        self._verify_agent_selection(workflow, job, env_steps[0])
         self.checks.append(
             f"workflow_pin:{head_sha}:{job_name}:{model}:{variant}:{agent}:trust_gate"
+        )
+
+    def _verify_agent_selection(
+        self, workflow: dict[str, Any], job: dict[str, Any], run_step: dict[str, Any]
+    ) -> None:
+        """The reviewer must be selected and checked at runtime, not just declared."""
+        job_name = str(self.evidence["workflow_job_name"])
+        raw_env = job.get("env")
+        job_env: dict[str, Any] = raw_env if isinstance(raw_env, dict) else {}
+        problems = runtime_identity.override_problems(job_env.get("OPENCODE_CONFIG_CONTENT"))
+        if problems:
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_WORKFLOW_AGENT_SELECTION_MISSING",
+                f"job {job_name!r}: {problems[0]}",
+            )
+        steps = [step for step in job.get("steps") or [] if isinstance(step, dict)]
+        scopes: list[tuple[str, Any]] = [("workflow", workflow.get("env")), ("job", job_env)]
+        scopes += [(f"step {step.get('name')!r}", step.get("env")) for step in steps]
+        for scope, env in scopes:
+            if not isinstance(env, dict):
+                continue
+            names = [name for name in runtime_identity.FORBIDDEN_CONFIG_ENV if name in env]
+            if scope.startswith("step") and "OPENCODE_CONFIG_CONTENT" in env:
+                names.append("OPENCODE_CONFIG_CONTENT")
+            if names:
+                raise _EvidenceFailure(
+                    "REVIEW_EVIDENCE_WORKFLOW_CONFIG_OVERRIDE",
+                    f"{scope} sets {', '.join(names)}",
+                )
+        if any("GITHUB_ENV" in str(step.get("run") or "") for step in steps):
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_WORKFLOW_CONFIG_OVERRIDE",
+                f"job {job_name!r} writes GITHUB_ENV, which can change the agent config",
+            )
+        if job.get("continue-on-error") or any(step.get("continue-on-error") for step in steps):
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_WORKFLOW_RUNTIME_CHECK_MISSING",
+                f"job {job_name!r} lets a failed step pass (continue-on-error)",
+            )
+        run_index = steps.index(run_step)
+
+        def runs(step: dict[str, Any], *needles: str) -> bool:
+            script = str(step.get("run") or "")
+            return "if" not in step and all(needle in script for needle in needles)
+
+        copied = f'"${{GITHUB_SHA}}:{RUNTIME_CHECKER}"'
+        preflight = any(runs(step, copied, "preflight") for step in steps[:run_index])
+        logged = runs(run_step, f"--log {RUNTIME_LOG}")
+        audited = any(
+            runs(step, f"audit {RUNTIME_LOG}", "preflight") for step in steps[run_index + 1 :]
+        )
+        if not (preflight and logged and audited):
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_WORKFLOW_RUNTIME_CHECK_MISSING",
+                f"job {job_name!r} lacks the trusted reviewer runtime preflight/log/audit "
+                f"(preflight={preflight}, log={logged}, audit={audited})",
+            )
+        self.checks.append(
+            f"agent_selection:{job_name}:OPENCODE_CONFIG_CONTENT=default_agent:"
+            f"{runtime_identity.REVIEW_AGENT}:preflight+audit"
         )
 
     def verify_read_only_agent(self) -> None:
@@ -746,9 +823,27 @@ class _Verifier:
                 "REVIEW_EVIDENCE_AGENT_NOT_READ_ONLY",
                 f"{path} at {head_sha[:12]}: {', '.join(problems)}",
             )
+        # The CLI appends the agent's rules to the project's; the last match wins.
+        raw_config = self._get_raw(
+            f"/repos/{self.repository}/contents/{PROJECT_CONFIG_PATH}?ref={head_sha}",
+            "REVIEW_EVIDENCE_PROJECT_CONFIG_MISSING",
+        )
+        try:
+            project_config = json.loads(raw_config)
+        except json.JSONDecodeError as exc:
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_PROJECT_CONFIG_MISSING",
+                f"{PROJECT_CONFIG_PATH} at {head_sha[:12]} is not JSON ({exc.msg})",
+            ) from exc
+        surface = runtime_identity.static_problems(project_config, frontmatter)
+        if surface:
+            raise _EvidenceFailure(
+                "REVIEW_EVIDENCE_AGENT_NOT_READ_ONLY",
+                f"effective reviewer permissions at {head_sha[:12]}: {', '.join(surface[:4])}",
+            )
         self.checks.append(
             f"read_only_agent:{path}@{head_sha}:{TRUSTED_MODEL_ID}:{NATIVE_VARIANT}:"
-            "edit=deny,bash=deny,task=deny"
+            f"edit=deny,bash=deny,task=deny:effective:{len(runtime_identity.WRITE_PROBES)}_write_probes_refused"
         )
 
     def run(self) -> ReviewEvidenceResult:

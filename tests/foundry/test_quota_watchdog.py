@@ -169,6 +169,12 @@ def test_every_opencode_run_goes_through_the_trusted_watchdog_copy():
         assert "set -euo pipefail" in script
         # Copied from the triggering commit, never from the workspace the agent may change.
         assert '"${GITHUB_SHA}:tools/foundry/quota_watchdog.py"' in script
-        assert script.rstrip().endswith('python3 -I "$watchdog" -- opencode github run')
+        assert script.rstrip().endswith('python3 -I "$watchdog" -- opencode github run') or (
+            # The review lane also copies the output for its runtime-identity audit (#654).
+            script.rstrip().endswith(
+                'python3 -I "$watchdog" --log "$RUNNER_TEMP/opencode-review.log" '
+                "-- opencode github run"
+            )
+        )
         assert "OPENCODE_API_KEY" in step["env"]
         assert 0 < step["timeout-minutes"] <= 55

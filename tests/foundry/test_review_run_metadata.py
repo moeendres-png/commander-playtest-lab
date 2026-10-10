@@ -77,7 +77,13 @@ def test_launcher_uses_own_run_context_and_preserves_native_prompt_and_permissio
     }
     job = yaml.safe_load(WORKFLOW.read_text())["jobs"]["opencode-bunny-review"]
     run = next(s for s in job["steps"] if s["name"] == "Run opencode")
-    assert run["run"].rstrip().endswith('python3 -I "$watchdog" -- opencode github run')
+    assert (
+        run["run"]
+        .rstrip()
+        .endswith(
+            'python3 -I "$watchdog" --log "$RUNNER_TEMP/opencode-review.log" -- opencode github run'
+        )
+    )
     assert run["env"]["PROMPT"] == ""
     agent = (ROOT / ".opencode/agents/foundry-reviewer.md").read_text()
     assert "read tool" in agent and "LAST absolute Actions run link" in agent

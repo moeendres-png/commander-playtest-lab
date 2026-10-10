@@ -13,6 +13,9 @@ permission:
     "git show*": allow
     "git rev-parse*": allow
     "git ls-files*": allow
+    # Read-only Git commands can still write a file (#654): --output and redirects.
+    "*--output*": deny
+    "*>*": deny
   task: deny
 ---
 

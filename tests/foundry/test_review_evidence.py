@@ -92,15 +92,34 @@ def _workflow_yaml(
         condition = "true"
     job = {
         "if": condition,
+        "env": {"OPENCODE_CONFIG_CONTENT": '{"default_agent":"foundry-reviewer"}'},
         "steps": [
             {
+                "name": "Preflight reviewer runtime identity",
+                "run": (
+                    'git show "${GITHUB_SHA}:tools/foundry/review_runtime_identity.py" > "$c"\n'
+                    'python3 -I "$c" preflight\n'
+                ),
+            },
+            {
                 "name": "Run opencode",
+                "run": (
+                    'python3 -I "$watchdog" --log "$RUNNER_TEMP/opencode-review.log" '
+                    "-- opencode github run\n"
+                ),
                 "env": {
                     "MODEL": model,
                     "VARIANT": variant,
                     "AGENT": "foundry-reviewer" if agent is None else agent,
                 },
-            }
+            },
+            {
+                "name": "Audit reviewer runtime identity",
+                "run": (
+                    'python3 -I "$c" audit "$RUNNER_TEMP/opencode-review.log"\n'
+                    'python3 -I "$c" preflight\n'
+                ),
+            },
         ],
     }
     return yaml.safe_dump(
@@ -125,6 +144,17 @@ def _agent_markdown(*, read_only: bool = True) -> str:
         "permission": permission,
     }
     return "---\n" + yaml.safe_dump(frontmatter) + "---\n\nReview read-only.\n"
+
+
+def _project_config(**permission: object) -> str:
+    """A project config whose global rules allow writes, as opencode.json does."""
+    rules: dict[str, object] = {
+        "edit": {"*": "allow"},
+        "bash": {"*": "allow", "git push*": "allow", "git commit*": "allow"},
+        "task": {"*": "ask", "foundry-reviewer": "allow"},
+    }
+    rules.update(permission)
+    return json.dumps({"default_agent": "foundry-implementer", "permission": rules})
 
 
 def _result_body(
@@ -187,6 +217,7 @@ def _graph(
     implementation_lane: str = "skipped",
     workflow_yaml: str | None = None,
     agent_markdown: str | None = None,
+    project_config: str | None = None,
     extra_comments: list[dict] | None = None,
 ) -> FakeGitHub:
     trigger = trigger_body if trigger_body is not None else "/bunny-review review this"
@@ -269,6 +300,10 @@ def _graph(
     fake.add_raw(
         f"/repos/{REPO}/contents/.opencode/agents/foundry-reviewer.md?ref={WORKFLOW_HEAD}",
         agent_markdown if agent_markdown is not None else _agent_markdown(),
+    )
+    fake.add_raw(
+        f"/repos/{REPO}/contents/opencode.json?ref={WORKFLOW_HEAD}",
+        project_config if project_config is not None else _project_config(),
     )
     return fake
 
@@ -760,3 +795,142 @@ def test_fake_external_identifier_fails_closed(mutate) -> None:
     mutate(record)
     result = _verify(record, _graph())
     assert not result.ok
+
+
+# --- #654: the reviewer must be selected and checked at runtime ---------------
+
+
+def _workflow_with(mutate) -> str:
+    workflow = yaml.safe_load(_workflow_yaml())
+    mutate(workflow, workflow["jobs"]["opencode-bunny-review"])
+    return yaml.safe_dump(workflow, sort_keys=False)
+
+
+def _reason(workflow_yaml: str | None = None, **graph: object) -> str:
+    fake = _graph(workflow_yaml=workflow_yaml, **graph)  # type: ignore[arg-type]
+    result = _verify(_record(), fake)
+    assert not result.ok
+    return result.reasons[0]
+
+
+def test_env_only_agent_with_writable_default_agent_is_refused() -> None:
+    """AGENT alone never selected the reviewer in the pinned CLI (run 37936416385)."""
+
+    def drop(_workflow: dict, job: dict) -> None:
+        del job["env"]
+
+    reason = _reason(_workflow_with(drop))
+    assert "REVIEW_EVIDENCE_WORKFLOW_AGENT_SELECTION_MISSING" in reason
+    assert "AGENT alone" in reason
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        '{"default_agent":"foundry-implementer"}',
+        '{"default_agent":"foundry-reviewer","permission":{"bash":"allow"}}',
+        "not json",
+        "",
+    ],
+)
+def test_wrong_agent_selection_override_is_refused(content: str) -> None:
+    def set_content(_workflow: dict, job: dict) -> None:
+        job["env"]["OPENCODE_CONFIG_CONTENT"] = content
+
+    reason = _reason(_workflow_with(set_content))
+    assert "REVIEW_EVIDENCE_WORKFLOW_AGENT_SELECTION_MISSING" in reason
+
+
+@pytest.mark.parametrize(
+    ("scope", "name"),
+    [
+        ("workflow", "OPENCODE_PERMISSION"),
+        ("job", "OPENCODE_CONFIG"),
+        ("run", "OPENCODE_CONFIG_DIR"),
+        ("run", "OPENCODE_CONFIG_CONTENT"),
+        ("run", "OPENCODE_DISABLE_PROJECT_CONFIG"),
+    ],
+)
+def test_config_bypass_environment_is_refused(scope: str, name: str) -> None:
+    def add(workflow: dict, job: dict) -> None:
+        target = {"workflow": workflow, "job": job, "run": job["steps"][1]}[scope]
+        target.setdefault("env", {})[name] = '{"default_agent":"foundry-reviewer"}'
+
+    assert "REVIEW_EVIDENCE_WORKFLOW_CONFIG_OVERRIDE" in _reason(_workflow_with(add))
+
+
+def test_github_env_write_or_continue_on_error_is_refused() -> None:
+    def github_env(_workflow: dict, job: dict) -> None:
+        job["steps"].insert(
+            0, {"name": "x", "run": 'echo "OPENCODE_PERMISSION={}" >> "$GITHUB_ENV"'}
+        )
+
+    assert "REVIEW_EVIDENCE_WORKFLOW_CONFIG_OVERRIDE" in _reason(_workflow_with(github_env))
+
+    def soft_audit(_workflow: dict, job: dict) -> None:
+        job["steps"][2]["continue-on-error"] = True
+
+    assert "REVIEW_EVIDENCE_WORKFLOW_RUNTIME_CHECK_MISSING" in _reason(_workflow_with(soft_audit))
+
+
+@pytest.mark.parametrize("missing", ["preflight", "log", "audit", "late_preflight", "skippable"])
+def test_missing_runtime_identity_check_is_refused(missing: str) -> None:
+    def mutate(_workflow: dict, job: dict) -> None:
+        steps = job["steps"]
+        if missing == "preflight":
+            del steps[0]
+        elif missing == "log":
+            steps[1]["run"] = 'python3 -I "$watchdog" -- opencode github run\n'
+        elif missing == "audit":
+            del steps[2]
+        elif missing == "late_preflight":
+            steps.append(steps.pop(0))
+        else:
+            steps[2]["if"] = "always() && false"
+
+    reason = _reason(_workflow_with(mutate))
+    assert "REVIEW_EVIDENCE_WORKFLOW_RUNTIME_CHECK_MISSING" in reason
+
+
+def test_reviewer_rules_merged_with_project_config_must_stay_read_only() -> None:
+    """A deny-default name is not enough: the merged ruleset decides (#654)."""
+    markdown = (
+        "---\n"
+        + yaml.safe_dump(
+            {
+                "model": "opencode-go/space-bunny",
+                "variant": "max",
+                "permission": {
+                    "edit": "deny",
+                    "bash": {"*": "deny", "git diff*": "allow", "git push*": "allow"},
+                    "task": "deny",
+                },
+            }
+        )
+        + "---\n"
+    )
+    reason = _reason(agent_markdown=markdown)
+    assert "REVIEW_EVIDENCE_AGENT_NOT_READ_ONLY" in reason
+    assert "git push" in reason
+
+    config = json.loads(_project_config())
+    config["agent"] = {"foundry-reviewer": {"permission": {"bash": {"*": "allow"}}}}
+    reason = _reason(project_config=json.dumps(config))
+    assert "REVIEW_EVIDENCE_AGENT_NOT_READ_ONLY" in reason
+    assert "overrides agent" in reason
+
+    assert "REVIEW_EVIDENCE_PROJECT_CONFIG_MISSING" in _reason(project_config="{broken")
+
+
+def test_committed_lane_files_are_admitted() -> None:
+    """Positive control: the repository's own workflow, reviewer and config pass."""
+    fake = _graph(
+        workflow_yaml=(REPO_ROOT / WORKFLOW_PATH).read_text(encoding="utf-8"),
+        agent_markdown=(REPO_ROOT / ".opencode/agents/foundry-reviewer.md").read_text(
+            encoding="utf-8"
+        ),
+        project_config=(REPO_ROOT / "opencode.json").read_text(encoding="utf-8"),
+    )
+    result = _verify(_record(), fake)
+    assert result.ok, result.reasons
+    assert any(check.startswith("agent_selection:") for check in result.checks)

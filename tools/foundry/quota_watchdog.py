@@ -10,7 +10,10 @@ hides the real cause behind a generic timeout.
 
 Usage (the workflow runs a copy taken from the triggering commit)::
 
-    python3 -I quota_watchdog.py -- opencode github run
+    python3 -I quota_watchdog.py [--log FILE] -- opencode github run
+
+``--log FILE`` also copies the output to FILE, so a later step can audit the
+run's own runtime records (``review_runtime_identity.py audit``).
 
 The watchdog runs the command in its own process group and copies its combined
 stdout/stderr through unchanged. It stops the group, and exits with
@@ -132,8 +135,8 @@ def _report(refusal: QuotaRefusal, out: IO[str]) -> None:
             handle.write(f"**BLOCKED_SERVICE** - {refusal.message()}\n")
 
 
-def run(command: list[str], *, out: IO[bytes] | None = None) -> int:
-    """Run ``command``, copy its output to ``out`` and stop it on a quota refusal."""
+def run(command: list[str], *, out: IO[bytes] | None = None, log: IO[bytes] | None = None) -> int:
+    """Run ``command``, copy its output to ``out`` (and ``log``) and stop it on a quota refusal."""
     sink = out if out is not None else sys.stdout.buffer
     proc = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True
@@ -150,6 +153,9 @@ def run(command: list[str], *, out: IO[bytes] | None = None) -> int:
         for raw in proc.stdout:
             sink.write(raw)
             sink.flush()
+            if log is not None:
+                log.write(raw)
+                log.flush()
             refusal = scanner.feed(raw.decode("utf-8", errors="replace").rstrip("\r\n"))
             if refusal is not None:
                 break
@@ -168,12 +174,21 @@ def run(command: list[str], *, out: IO[bytes] | None = None) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
+    log_path: str | None = None
+    if args[:1] == ["--log"]:
+        if len(args) < 2:
+            sys.stderr.write("usage: quota_watchdog.py [--log FILE] -- COMMAND [ARG...]\n")
+            return 2
+        log_path, args = args[1], args[2:]
     if args[:1] == ["--"]:
         args = args[1:]
     if not args:
-        sys.stderr.write("usage: quota_watchdog.py -- COMMAND [ARG...]\n")
+        sys.stderr.write("usage: quota_watchdog.py [--log FILE] -- COMMAND [ARG...]\n")
         return 2
-    return run(args)
+    if log_path is None:
+        return run(args)
+    with open(log_path, "wb") as log:
+        return run(args, log=log)
 
 
 if __name__ == "__main__":
