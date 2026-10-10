@@ -1,0 +1,123 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_13",
+  "obligation_exercised": {
+    "obligation_digest": "b32b85ea9ff2b789c24a53f5de976bf817206825c7d17026e084b68976dfcdec",
+    "requested_state_digest": "daa83d4be8163eb66111dff94f025c89e0895e79c85b821e90c9943b2e1176d7",
+    "required_events": [
+      "alternative_cost_sacrifice",
+      "copy_spell",
+      "choose_new_target"
+    ],
+    "terminal_checks": [
+      "exactly 0 SPELL_CAST event(s) with source_name=Lightning Bolt",
+      "exactly 1 COPIED_STACKOBJECT event(s) with source_name=Lightning Bolt",
+      "exactly 1 DAMAGED_PLAYER event(s) with source_name=Lightning Bolt, target_player=P3, amount=3",
+      "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:card13-bolt, target_player=P1",
+      "exactly 1 SPELL_CAST event(s) with any fields",
+      "exactly 1 SPELL_CAST event(s) with source_object=obj:card_13-subject"
+    ],
+    "terminal_postconditions": [
+      "The copy exists on stack/resolution path with P3 target.",
+      "Creating the copy did not create a cast event."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "3bede866e142de66631e04bfc611424e835ed2c95e2b736cd5f638615c2dc660",
+      "size": 7107605
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 1 DAMAGED_PLAYER event(s) with source_name=Lightning Bolt, target_player=P3, amount=3",
+          "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:card13-bolt, target_player=P1"
+        ],
+        "check": "exactly 1 COPIED_STACKOBJECT event(s) with source_name=Lightning Bolt",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "The copy exists on stack/resolution path with P3 target."
+      },
+      {
+        "also": [
+          "exactly 1 SPELL_CAST event(s) with source_object=obj:card_13-subject",
+          "exactly 1 SPELL_CAST event(s) with any fields"
+        ],
+        "check": "exactly 0 SPELL_CAST event(s) with source_name=Lightning Bolt",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Creating the copy did not create a cast event."
+      }
+    ],
+    "terminal_facts": {
+      "exactly 0 SPELL_CAST event(s) with source_name=Lightning Bolt": true,
+      "exactly 1 COPIED_STACKOBJECT event(s) with source_name=Lightning Bolt": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with source_name=Lightning Bolt, target_player=P3, amount=3": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:card13-bolt, target_player=P1": true,
+      "exactly 1 SPELL_CAST event(s) with any fields": true,
+      "exactly 1 SPELL_CAST event(s) with source_object=obj:card_13-subject": true
+    },
+    "token_evidence": {
+      "alternative_cost_sacrifice": {
+        "binding": [
+          "a scripted choice frame selected an engine offer naming 'Cast with alternative cost'",
+          "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card13-red-creature"
+        ],
+        "parts": [
+          {
+            "binding": "a scripted choice frame selected an engine offer naming 'Cast with alternative cost'",
+            "decision_frames": [
+              4
+            ]
+          },
+          {
+            "binding": "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card13-red-creature",
+            "events": [
+              10
+            ]
+          }
+        ]
+      },
+      "choose_new_target": {
+        "binding": [
+          "a scripted choose_use frame selected an engine offer naming 'Yes'",
+          "exactly 1 DAMAGED_PLAYER event(s) with source_name=Lightning Bolt, target_player=P3"
+        ],
+        "parts": [
+          {
+            "binding": "a scripted choose_use frame selected an engine offer naming 'Yes'",
+            "decision_frames": [
+              8
+            ]
+          },
+          {
+            "binding": "exactly 1 DAMAGED_PLAYER event(s) with source_name=Lightning Bolt, target_player=P3",
+            "events": [
+              16
+            ]
+          }
+        ]
+      },
+      "copy_spell": {
+        "binding": "exactly 1 COPIED_STACKOBJECT event(s) with source_name=Lightning Bolt",
+        "events": [
+          13
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "ef6d38f20633825e3494839448e3e7f44890d5fafe6ab1a6bdb613013f130cae",
+  "runner_digest": "f39304fc538e16dc996b1c53e6adf3ab53f11f2e3ce1442cc9081fa7988489d1",
+  "runtime_receipt_digest": "0617c3087f4d0581a00b81209ce2e89ceee9c582529ae15f94de357bbc90caca",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_13"
+}

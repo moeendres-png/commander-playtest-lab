@@ -1,0 +1,45 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_CHOOSE_ABILITY",
+  "obligation_exercised": {
+    "obligation_digest": "62a75a5f472daf1deb58f09faf3f50462b71492fd2f685cd17d6165a68df5e07",
+    "requested_state_digest": "7d40a30c03b0e24ec55538512dcf9e9901701f027bb9e1a8d0ed63e3e4a390f9",
+    "required_events": [
+      "choose_ability_frame:P1",
+      "ability_selected:loyalty_0_triple_damage"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "The provider-selected legal activated ability is Jeska 0 ability."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "ability_selected:loyalty_0_triple_damage": {
+        "decision_frames": [
+          0
+        ]
+      },
+      "choose_ability_frame:P1": {
+        "decision_frames": [
+          0
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "89e250c7b7abbe20582f95852919a1e89ae203d863b334de17140dec537410a9",
+  "runner_digest": "f39304fc538e16dc996b1c53e6adf3ab53f11f2e3ce1442cc9081fa7988489d1",
+  "runtime_receipt_digest": "c9e991bec8fef9b3689b29b30691dfe554b441451ff48918c0373785581c965b",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_CHOOSE_ABILITY",
+  "variance_source": null
+}

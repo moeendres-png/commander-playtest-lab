@@ -1,0 +1,52 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_CONTROL",
+  "obligation_exercised": {
+    "obligation_digest": "5776e3dba7d7d79228fba6fa078674cc49149ef82bb9f25162a6a9cbf766ff34",
+    "requested_state_digest": "f1a7a8565c82bed945bb8b65eed6d97c29c77b05b2401014404e3621543c6987",
+    "required_events": [
+      "control_effect_applied:P2->P1"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Grizzly Bears owner remains P2 while controller is P1; if Control Magic leaves, control reverts according to rules."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "control_effect_applied:P2->P1": {
+        "binding": [
+          "exactly 1 GAINED_CONTROL event(s) with target_object=obj:micro-controlled, player_player=P1",
+          "every ZONE_CHANGE event with target_object=obj:micro-controlmagic, to=BATTLEFIELD precedes the first GAINED_CONTROL event with target_object=obj:micro-controlled"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 GAINED_CONTROL event(s) with target_object=obj:micro-controlled, player_player=P1",
+            "events": [
+              10
+            ]
+          },
+          {
+            "binding": "every ZONE_CHANGE event with target_object=obj:micro-controlmagic, to=BATTLEFIELD precedes the first GAINED_CONTROL event with target_object=obj:micro-controlled",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "d9320ea3a815c01af1d68c322ec5b3337ae41cfffb5e2ce8262033c65ff20003",
+  "runner_digest": "f39304fc538e16dc996b1c53e6adf3ab53f11f2e3ce1442cc9081fa7988489d1",
+  "runtime_receipt_digest": "406072d9ac3ca2839cbf8f424723b9a7ed04f5d6c75daa721fc761e4a490ed1d",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_CONTROL",
+  "variance_source": null
+}

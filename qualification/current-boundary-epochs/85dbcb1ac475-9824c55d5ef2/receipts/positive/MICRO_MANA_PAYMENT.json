@@ -1,0 +1,106 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "causal_reconstruction": {
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:micro-bolt"
+    ],
+    "fuel": [
+      "obj:fuel-mountain-p2"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:micro-bolt"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_MANA_PAYMENT",
+  "obligation_exercised": {
+    "obligation_digest": "186ffd3cfe82b2eb5701f9e41bcc2ca5ba173bb391c31b77968dfefaee503518",
+    "requested_state_digest": "8c9c0dfdb8c515fd480b60a6526fdd79502774f671ab7eb52b7b737958a13d22",
+    "required_events": [
+      "mana_abilities_activated:2",
+      "mana_paid:UU",
+      "Counterspell_cast"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Counterspell cost is paid with exactly two blue mana from selected Islands; payment legality is provider-owned."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "Counterspell_cast": {
+        "binding": [
+          "exactly 1 SPELL_CAST event(s) with source_object=obj:micro-counterspell, player_player=P1",
+          "exactly 1 COUNTERED event(s) with source_object=obj:micro-counterspell",
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-bolt, source_object=obj:micro-counterspell, from=STACK, to=GRAVEYARD"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 SPELL_CAST event(s) with source_object=obj:micro-counterspell, player_player=P1",
+            "events": [
+              10
+            ]
+          },
+          {
+            "binding": "exactly 1 COUNTERED event(s) with source_object=obj:micro-counterspell",
+            "events": [
+              11
+            ]
+          },
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-bolt, source_object=obj:micro-counterspell, from=STACK, to=GRAVEYARD",
+            "events": [
+              12
+            ]
+          }
+        ]
+      },
+      "mana_abilities_activated:2": {
+        "binding": "engine-verified mana_paid:2",
+        "decision_frames": [
+          6,
+          8
+        ]
+      },
+      "mana_paid:UU": {
+        "binding": [
+          "a mana payment spent blue mana from the pool",
+          "exactly 1 SPELL_CAST event(s) with source_object=obj:micro-counterspell, player_player=P1"
+        ],
+        "parts": [
+          {
+            "binding": "a mana payment spent blue mana from the pool",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "exactly 1 SPELL_CAST event(s) with source_object=obj:micro-counterspell, player_player=P1",
+            "events": [
+              10
+            ]
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "fc75f8e0abba952ecbe368763c8b8408113de2b1d09cc4aa82b6d94b6b751583",
+  "runner_digest": "f39304fc538e16dc996b1c53e6adf3ab53f11f2e3ce1442cc9081fa7988489d1",
+  "runtime_receipt_digest": "02f83c836b213dbc92b6c6be47a1b7a10001d83d2cf7e315c6bdefa4b6644aec",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_MANA_PAYMENT",
+  "variance_source": null
+}

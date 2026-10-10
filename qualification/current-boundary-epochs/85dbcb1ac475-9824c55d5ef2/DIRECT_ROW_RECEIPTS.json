@@ -1,0 +1,26 @@
+{
+ "candidates": {
+  "xmage": {
+   "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "eligible_execution_modes": [
+    "PROTOCOL2_LIFECYCLE",
+    "PROTOCOL2_SCRIPTED_PREGAME",
+    "PROTOCOL2_START2_V1_0_6"
+   ],
+   "receipt_count": 8,
+   "receipts_written": [
+    "PILOT_MULLIGAN",
+    "PLAYER_COUNT_2P",
+    "PLAYER_COUNT_3P",
+    "PLAYER_COUNT_4P",
+    "PLAYER_COUNT_5P",
+    "WS05-CMD-MULL-2",
+    "WS05-CMD-MULL-4",
+    "WS05-CMD-START-2"
+   ],
+   "runner_digest": "f39304fc538e16dc996b1c53e6adf3ab53f11f2e3ce1442cc9081fa7988489d1"
+  }
+ },
+ "credit_rule": "R-4: only exact per-fixture direct producer receipts earn FULL107 credit; native-suite and adjacent mechanism evidence remain supporting only",
+ "schema_version": "commander-lab.direct-full107-receipts/1.0.0"
+}
