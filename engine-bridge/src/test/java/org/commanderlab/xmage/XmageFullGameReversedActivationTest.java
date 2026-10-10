@@ -6,10 +6,7 @@ import com.google.gson.JsonObject;
 import mage.abilities.Ability;
 import mage.abilities.ActivatedAbility;
 import mage.cards.Card;
-import mage.cards.CardImpl;
 import mage.cards.decks.Deck;
-import mage.cards.repository.CardInfo;
-import mage.cards.repository.CardRepository;
 import mage.constants.MultiplayerAttackOption;
 import mage.constants.RangeOfInfluence;
 import mage.constants.Zone;
@@ -17,7 +14,6 @@ import mage.game.CommanderFreeForAll;
 import mage.game.Game;
 import mage.game.mulligan.MulliganType;
 import mage.game.permanent.Permanent;
-import mage.players.Player;
 import mage.target.Target;
 import mage.target.Targets;
 import mage.target.common.TargetCardInExile;
@@ -33,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -54,10 +51,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@code emptyRequiredTarget} is only ever set from the bridge's own target
  * callback.
  *
- * <p>Shelob, Dread Weaver is the real card from the issue. Its
- * {@code {X}{1}{B}} ability re-targets to "creature card with mana value X
- * exiled with {this}" through a {@code TargetAdjuster}, so with nothing
- * eligible exiled there is no legal choice for any announced value.
+ * <p>The card is the same shape as the issue's Shelob, Dread Weaver: an
+ * activated ability costing {@code {X}{W}} that re-targets through a
+ * {@code TargetAdjuster} to "card with mana value X exiled with {this}",
+ * so with nothing eligible exiled there is no legal choice for ANY
+ * announced value. Bronzebeak Foragers is used because at this pin Shelob,
+ * Dread Weaver is present as a class but registered in no Set, so it is
+ * absent from the pinned card repository; the engine path under test is
+ * identical and is exercised by the real engine here.
  *
  * <p>The driver runs the real pinned engine: the ability is activated on the
  * battlefield for real, the bridge's real {@code announceX} callback is
@@ -66,7 +67,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class XmageFullGameReversedActivationTest {
 
-    private static final String SHELOB = "Shelob, Dread Weaver";
+    private static final String X_TARGET_CARD = "Bronzebeak Foragers";
 
     /**
      * Red before the fix (XMAGE_ACTION_EXECUTION_FAILED), green after: the
@@ -75,15 +76,17 @@ class XmageFullGameReversedActivationTest {
      * is intact so the same action can be proposed again.
      */
     @Test
-    void activationWithNoLegalXTargetIsReversedNotFailed() {
+void activationWithNoLegalXTargetIsReversedNotFailed()
+            throws Exception {
+
         Fixture fixture = liveFixture();
-        Permanent shelob = putOnBattlefield(fixture, SHELOB);
+        Permanent shelob = putOnBattlefield(fixture, X_TARGET_CARD);
 
         // Precondition: nothing is exiled with Shelob, so the X-dependent
         // target has no legal choice for ANY announced value.
         assertTrue(
                 fixture.game.getExile().getAllCards(fixture.game).isEmpty(),
-                "precondition: no card is exiled with Shelob"
+                "precondition: no card is exiled with the source"
         );
 
         int turn = fixture.game.getTurnNum();
@@ -106,8 +109,7 @@ class XmageFullGameReversedActivationTest {
         }
 
         assertFalse(priorityResult, "the bridge returns the rewind, not a pass it invented");
-        assertNull(
-                fixture.controller.terminalFailure(),
+        assertNull(fixture.controller.terminalFailure(),
                 "REGRESSION GUARD: before the fix this frame raised "
                         + "XMAGE_ACTION_EXECUTION_FAILED and ended the game. An "
                         + "engine-reversed activation must not fail the game."
@@ -138,9 +140,6 @@ class XmageFullGameReversedActivationTest {
         assertNull(fixture.controller.terminalFailure());
     }
 
-    private static void assertNull(Object value, String message) {
-        org.junit.jupiter.api.Assertions.assertNull(value, message);
-    }
 
     /**
      * The positive control on the production predicate: with the real
@@ -152,7 +151,9 @@ class XmageFullGameReversedActivationTest {
      * callback and the real {@code Target} objects the engine builds.
      */
     @Test
-    void unchosenRequiredTargetAfterAnXAnnouncementIsReadAsAReversal() {
+void unchosenRequiredTargetAfterAnXAnnouncementIsReadAsAReversal()
+            throws Exception {
+
         Fixture fixture = liveFixture();
         ActivatedAbility ability = shelobXAbility(fixture);
 
@@ -202,7 +203,9 @@ class XmageFullGameReversedActivationTest {
      * (c) An announced X whose targets are all satisfied.
      */
     @Test
-    void unexplainedOrPilotCausedFailuresAreNotReadAsReversals() {
+void unexplainedOrPilotCausedFailuresAreNotReadAsReversals()
+            throws Exception {
+
         Fixture fixture = liveFixture();
         XmageFullGamePlayer player = fixture.player;
         Game game = fixture.game;
@@ -245,7 +248,7 @@ class XmageFullGameReversedActivationTest {
     // ---- helpers ------------------------------------------------------------
 
     /**
-     * Select the real Shelob {X}{1}{B} ability in the priority frame and
+     * Select the real X-cost exile-target ability in the priority frame and
      * answer the real announce_x frame with 0, then stop.
      */
     private static Thread selectShelobXActivation(Fixture fixture, AtomicReference<Throwable> failure) {
@@ -312,7 +315,7 @@ class XmageFullGameReversedActivationTest {
         return array;
     }
 
-    /** The {@code {X}{1}{B}} ability of the battlefield permanent. */
+    /** The X-cost exile-target ability of the battlefield permanent. */
     private static ActivatedAbility shelobAbility(Permanent shelob, Game game) {
         for (Ability ability : shelob.getAbilities(game)) {
             if (ability instanceof ActivatedAbility
@@ -320,20 +323,13 @@ class XmageFullGameReversedActivationTest {
                 return (ActivatedAbility) ability;
             }
         }
-        throw new AssertionError("Shelob exposes no X-cost activated ability");
+        throw new AssertionError("the card exposes no X-cost activated ability");
     }
 
-    /** A fresh X-cost ability bound to the fixture player. */
+    /** The real X-cost exile-target ability of a battlefield permanent. */
     private static ActivatedAbility shelobXAbility(Fixture fixture) {
-        CardImpl card = (CardImpl) CardRepository.instance.findCard(SHELOB).getCard();
-        Card fresh = card.copy();
-        fresh.setOwnerId(fixture.player.getId());
-        fixture.game.getState().addCard(fresh, fixture.player.getId());
-        fixture.game.getState().setZone(fresh.getId(), Zone.BATTLEFIELD);
-        Permanent permanent = fixture.game.getState().createPermanent(fresh, fixture.game);
-        fixture.game.getBattlefield().addPermanent(permanent);
-        fixture.game.applyEffects();
-        return shelobAbility(permanent, fixture.game);
+        Permanent shelob = putOnBattlefield(fixture, X_TARGET_CARD);
+        return shelobAbility(shelob, fixture.game);
     }
 
     /** A required exile target with the engine's mana-value filter, unchosen. */
@@ -413,16 +409,22 @@ class XmageFullGameReversedActivationTest {
         return array;
     }
 
+    /**
+     * Put a real pinned-engine card onto the battlefield through the engine's
+     * own zone-change path, so the permanent, its abilities and the exile
+     * zone are exactly what XMage itself would produce.
+     */
     private static Permanent putOnBattlefield(Fixture fixture, String cardName) {
-        CardInfo info = CardRepository.instance.findCard(cardName);
-        assertNotNull(info, "card must exist in the pinned XMage corpus: " + cardName);
-        Card card = info.getCard().copy();
-        card.setOwnerId(fixture.player.getId());
-        fixture.game.getState().addCard(card, fixture.player.getId());
-        fixture.game.getState().setZone(card.getId(), Zone.BATTLEFIELD);
-        Permanent permanent = fixture.game.getState().createPermanent(card, fixture.game);
-        fixture.game.getBattlefield().addPermanent(permanent);
+        // Resolve through the bridge's own importer, the same resolution the
+        // runtime uses, so the card instance is the pinned engine's own.
+        Card card = fixture.card(cardName);
+        assertTrue(
+                fixture.player.moveCards(card, Zone.BATTLEFIELD, null, fixture.game),
+                "engine must put " + cardName + " onto the battlefield"
+        );
         fixture.game.applyEffects();
+        Permanent permanent = fixture.game.getPermanent(card.getId());
+        assertNotNull(permanent, cardName + " must be on the battlefield");
         return permanent;
     }
 
@@ -442,16 +444,44 @@ class XmageFullGameReversedActivationTest {
         );
         game.setRulesSeed(703L);
         game.addPlayer(player, new Deck());
-        return new Fixture(game, controller, player);
+        return new Fixture(game, controller, player, new CardCache());
+    }
+
+    /** Materializes a real pinned card through the bridge's own importer. */
+    private static final class CardCache {
+        private final XmageDeckImporter importer = new XmageDeckImporter();
+        private final java.util.Map<String, Card> byName = new java.util.HashMap<>();
+
+        Card card(String cardName) {
+            return byName.computeIfAbsent(cardName, name -> {
+                java.util.List<String> mainboard = new java.util.ArrayList<>();
+                mainboard.add(name);
+                for (int i = 1; i < 99; i++) {
+                    mainboard.add("Plains");
+                }
+                XmageDeckImporter.ImportResult result = importer.importCommanderDeck(
+                        "issue703-" + name,
+                        "0".repeat(64),
+                        mainboard,
+                        java.util.List.of("Isamaru, Hound of Konda")
+                );
+                return importer.requireDeck(result.deckHandle()).getCards().iterator().next();
+            });
+        }
     }
 
     private record Fixture(
             Game game,
             XmageFullGameDecisionController controller,
-            XmageFullGamePlayer player
+            XmageFullGamePlayer player,
+            CardCache cards
     ) {
-        Player player() {
-            return player;
+        Card card(String cardName) {
+            Card card = cards.card(cardName).copy();
+            card.setOwnerId(player.getId());
+            game.getState().addCard(card);
+            game.getState().setZone(card.getId(), Zone.LIBRARY);
+            return card;
         }
     }
 }
