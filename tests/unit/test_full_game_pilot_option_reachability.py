@@ -25,7 +25,6 @@ from typing import Any
 
 from commander_lab.agents.pilots import STANDALONE_MANA_ABILITY_UTILITY, BasePilot, build_pilot
 from commander_lab.engine.rules.full_game import (
-    BOOLEAN_YES_REPEAT_LIMIT,
     ExternalPilotDecisionPolicy,
     FullGamePilotBinding,
     _RuntimePilot,
@@ -411,6 +410,37 @@ def test_funding_prefers_the_mana_the_action_cost_names() -> None:
     assert response["selected_option_ids"] == ["tap-plain"]
 
 
+def test_a_second_archive_can_fund_the_first() -> None:
+    """Two permanents of one card are two sources.
+
+    Matching on the Rules-visible name alone made a second Hedron Archive
+    invisible as funding for the first, so the Lab passed a payment it could
+    plainly make.
+    """
+    other_archive = _mana_source("archive-mana-2", "Hedron Archive", "C", object_id="archive-2")
+    response = _default_policy().decide(
+        _request("priority", [_PASS, _ARCHIVE_MANA, other_archive, ARCHIVE], offset=1)
+    )
+    assert response["selected_option_ids"] == ["archive-mana-2"]
+
+
+def test_funding_is_skipped_when_no_source_can_pay_any_of_the_cost() -> None:
+    """A {W}{W} action is not funded by tapping a Mountain.
+
+    Spending mana that cannot pay any part of the cost wastes the tap for
+    nothing, so when nothing fits the Lab passes instead.
+    """
+    mountain = _mana_source("tap-mountain", "Mountain", "R", object_id="mountain-1")
+    response = _policy(_NeedsManaPilot)[0].decide(
+        _request(
+            "priority",
+            [_PASS, mountain, _archive(mana_cost_white=2, mana_cost_generic=0)],
+            offset=1,
+        )
+    )
+    assert response["selected_option_ids"] == ["pass"]
+
+
 # ---------------------------------------------------------------------------
 # P2-2: AIDontUseIt is the engine's own AI label, not a player preference
 # ---------------------------------------------------------------------------
@@ -422,6 +452,7 @@ def _boolean(
     *,
     offset: int = 1,
     source_name: str = "Kicked Card",
+    state: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     return _request(
         "choose_use",
@@ -432,7 +463,7 @@ def _boolean(
         context={"outcome": outcome},
         prompt=prompt,
         offset=offset,
-        state=_state(),
+        state=state or _state(),
         source_object={
             "source_object_id": f"src-{source_name}",
             "ability_original_id": f"ability-{source_name}",
@@ -453,37 +484,116 @@ def test_buyback_prompt_is_answered_yes() -> None:
     assert response["selected_option_ids"] == ["yes"]
 
 
+def _multikicker_prompt(offer: int, *, cost: str = "{2}") -> str:
+    """The offer exactly as ``KickerAbility.addOptionalAdditionalCosts`` writes it.
+
+    ``"Pay " + (activatedCount + 1) + (" time "|" times ") + cost + " ?"`` --
+    so the number names the offer being made, not a total, and a source that
+    read it as a total would answer the wrong questions.
+    """
+    return f"Pay {offer} {'time' if offer == 1 else 'times'} Multikicker {cost} ?"
+
+
 def test_repeated_multikicker_sequence_ends_with_no_within_the_cap() -> None:
-    """Pay "N times" is parseable, so the cap is what the pilot can fund."""
+    """Three untapped Plains and a {2} multikicker fund exactly one payment."""
     policy = _default_policy()
     answers = [
-        policy.decide(_boolean("aidontuseit", "Pay 2 times Multikicker {2} ?", offset=index))[
+        policy.decide(_boolean("aidontuseit", _multikicker_prompt(offer), offset=offer))[
             "selected_option_ids"
         ][0]
-        for index in (1, 2, 3)
+        for offer in (1, 2, 3)
     ]
-    assert answers == ["yes", "yes", "no"]
+    assert answers[:2] == ["yes", "no"]
+    # The engine stops re-offering once the pilot says No; a third entry only
+    # pins that the No reset the chain rather than leaving a spent count.
+    assert answers[2] == "yes"
 
 
-def test_unparseable_repeat_cap_is_a_fixed_small_constant() -> None:
-    """No parseable cost: the fixed guard constant bounds consecutive yeses.
+def test_multikicker_cap_counts_the_per_payment_cost_not_the_offer_ordinal() -> None:
+    """N is the offer ordinal, so the cap must come from what one payment costs.
 
-    A "No" is a real answer the engine acts on (it stops re-offering), so the
-    count restarts afterwards; the invariant is that no run of consecutive
-    yeses ever exceeds the cap.
+    Reading N as a declared total would let the pilot answer Yes while N only
+    counts offers -- with three untapped Plains and {2} that is one payment.
+    """
+    policy = _default_policy()
+    assert [
+        policy.decide(_boolean("aidontuseit", _multikicker_prompt(1), offset=1))[
+            "selected_option_ids"
+        ][0],
+        policy.decide(_boolean("aidontuseit", _multikicker_prompt(2), offset=2))[
+            "selected_option_ids"
+        ][0],
+    ] == ["yes", "no"]
+
+
+def test_multikicker_pool_mana_funds_further_payments() -> None:
+    """Six mana of pool and lands with a {2} cost funds three payments."""
+    policy = _default_policy()
+    answers = [
+        policy.decide(
+            _boolean(
+                "aidontuseit", _multikicker_prompt(offer), offset=offer, state=_state(pool_white=3)
+            )
+        )["selected_option_ids"][0]
+        for offer in (1, 2, 3, 4)
+    ]
+    assert answers == ["yes", "yes", "yes", "no"]
+
+
+def test_ordinary_may_trigger_prompt_is_never_capped() -> None:
+    """Mentor of the Meek asks "Pay {1}?" once per creature entering.
+
+    Same source, same outcome, four times in one turn. It is four separate
+    discretionary questions, not one repeating offer: a guard that cannot
+    parse the prompt must not answer the fourth for the player.
     """
     policy = _default_policy()
     answers = [
-        policy.decide(_boolean("aidontuseit", "Use the ability?", offset=index))[
+        policy.decide(
+            _boolean(
+                "benefit",
+                "Pay {1}?",
+                offset=offer,
+                source_name="Mentor of the Meek",
+            )
+        )["selected_option_ids"][0]
+        for offer in (1, 2, 3, 4)
+    ]
+    assert answers == ["yes", "yes", "yes", "yes"]
+
+
+def test_unparseable_prompt_is_never_capped() -> None:
+    """No ordinal means no cap: the Lab does not bound a choice it cannot read."""
+    policy = _default_policy()
+    answers = [
+        policy.decide(_boolean("aidontuseit", "Use the ability?", offset=offer))[
             "selected_option_ids"
         ][0]
-        for index in (1, 2, 3, 4, 5)
+        for offer in (1, 2, 3, 4, 5)
     ]
-    assert answers[:BOOLEAN_YES_REPEAT_LIMIT] == ["yes"] * BOOLEAN_YES_REPEAT_LIMIT
-    assert answers[BOOLEAN_YES_REPEAT_LIMIT] == "no"
+    assert answers == ["yes"] * 5
+
+
+def test_an_ordinary_prompt_between_offers_resets_the_chain() -> None:
+    """Only consecutive re-offers of one ability are counted."""
+    policy = _default_policy()
     assert (
-        max(len(run) for run in "".join("Y" if a == "yes" else "N" for a in answers).split("N"))
-        <= BOOLEAN_YES_REPEAT_LIMIT
+        policy.decide(_boolean("aidontuseit", _multikicker_prompt(1), offset=1))[
+            "selected_option_ids"
+        ][0]
+        == "yes"
+    )
+    assert (
+        policy.decide(_boolean("aidontuseit", "Pay {2}?", offset=2, source_name="Buyback Spell"))[
+            "selected_option_ids"
+        ][0]
+        == "yes"
+    )
+    assert (
+        policy.decide(_boolean("aidontuseit", _multikicker_prompt(2), offset=3))[
+            "selected_option_ids"
+        ][0]
+        == "yes"
     )
 
 
@@ -491,17 +601,38 @@ def test_different_source_resets_the_repeat_count() -> None:
     policy = _default_policy()
     first = [
         policy.decide(
-            _boolean(
-                "aidontuseit", "Pay 2 times Multikicker {2} ?", offset=index, source_name="First"
-            )
+            _boolean("aidontuseit", _multikicker_prompt(offer), offset=offer, source_name="First")
         )["selected_option_ids"][0]
-        for index in (1, 2, 3)
+        for offer in (1, 2)
     ]
-    assert first == ["yes", "yes", "no"]
+    assert first == ["yes", "no"]
     second = policy.decide(
-        _boolean("aidontuseit", "Pay 2 times Multikicker {2} ?", offset=4, source_name="Second")
+        _boolean("aidontuseit", _multikicker_prompt(1), offset=3, source_name="Second")
     )["selected_option_ids"]
     assert second == ["yes"]
+
+
+def test_boolean_source_key_prefers_the_ability_original_id() -> None:
+    """Chain memory keys on the engine's card-definition identity."""
+    policy = _default_policy()
+    # Two instances of one ability agree, whatever the engine calls them: the
+    # key must not move when a per-instance object id differs between processes.
+    assert policy._boolean_source_key(
+        {"ability_original_id": "orig-1", "source_object_id": "inst-a"}
+    ) == policy._boolean_source_key({"ability_original_id": "orig-1", "source_object_id": "inst-b"})
+    # The Rules-visible name only decides when no original id is reported.
+    assert policy._boolean_source_key(
+        {"source_name": "Hedron Archive", "source_object_id": "inst-a"}
+    ) == policy._boolean_source_key({"source_name": "Hedron Archive", "source_object_id": "inst-b"})
+    assert policy._boolean_source_key({"source_name": "Archive A"}) != policy._boolean_source_key(
+        {"source_name": "Archive B"}
+    )
+    # An instance id is the last resort, and it is the engine's own.
+    assert policy._boolean_source_key({"source_object_id": "inst-a"}) == "instance:inst-a"
+    assert policy._boolean_source_key({"source_name": "X"}) != policy._boolean_source_key(
+        {"source_object_id": "inst-a"}
+    )
+    assert policy._boolean_source_key(None) == ""
 
 
 def test_detriment_polarity_is_unchanged() -> None:
@@ -517,6 +648,27 @@ def test_detriment_polarity_is_unchanged() -> None:
 # ---------------------------------------------------------------------------
 
 _SOL_RING = _mana_source("sol-ring", "Sol Ring", "C", object_id="sol-ring-1")
+_TREASURE = _option(
+    "treasure",
+    "mana_ability",
+    "Treasure — {T}, Sacrifice this: Add one mana.",
+    source_name="Treasure",
+    source_object_id="treasure-1",
+    ability_type="mana",
+    mana_cost_generic=0,
+    mana_cost_white=0,
+    mana_cost_blue=0,
+    mana_cost_black=0,
+    mana_cost_red=0,
+    mana_cost_green=0,
+    mana_cost_colorless=0,
+    pool_covers_mana_cost=True,
+    requires_tap_source=True,
+    requires_untap_source=False,
+    # What the bridge really reports: SacrificeSourceCost is the source itself.
+    requires_sacrifice_source=True,
+    source_tapped=False,
+)
 _AGENT_OF_STROMGALD = _option(
     "agent",
     "mana_ability",
@@ -537,6 +689,29 @@ _AGENT_OF_STROMGALD = _option(
     requires_sacrifice_source=False,
     source_tapped=False,
 )
+# Ashnod's Altar, "Sacrifice a creature: Add {C}{C}", with the facts the bridge
+# really emits for it: no mana cost, and requires_sacrifice_source False,
+# because it sacrifices a *target*, not the source (SacrificeSourceCost only).
+_ASHNODS_ALTAR = _option(
+    "altar",
+    "mana_ability",
+    "Ashnod's Altar — Sacrifice a creature: Add {C}{C}.",
+    source_name="Ashnod's Altar",
+    source_object_id="altar-1",
+    ability_type="mana",
+    mana_cost_generic=0,
+    mana_cost_white=0,
+    mana_cost_blue=0,
+    mana_cost_black=0,
+    mana_cost_red=0,
+    mana_cost_green=0,
+    mana_cost_colorless=0,
+    pool_covers_mana_cost=True,
+    requires_tap_source=False,
+    requires_untap_source=False,
+    requires_sacrifice_source=False,
+    source_tapped=False,
+)
 
 
 def test_pure_mana_ability_still_floats_only() -> None:
@@ -551,34 +726,36 @@ def test_costed_mana_ability_is_not_float_only() -> None:
     assert view.metadata.get("floats_mana_only") is not True
 
 
-def test_sacrificing_mana_ability_in_response_is_reachable() -> None:
-    """Ashnod's Altar answered against removal is a real use, not floating."""
-    altar = _option(
-        "altar",
-        "mana_ability",
-        "Ashnod's Altar — Sacrifice a creature: Add {C}{C}.",
-        source_name="Ashnod's Altar",
-        source_object_id="altar-1",
-        ability_type="mana",
-        mana_cost_generic=0,
-        mana_cost_white=0,
-        mana_cost_blue=0,
-        mana_cost_black=0,
-        mana_cost_red=0,
-        mana_cost_green=0,
-        mana_cost_colorless=0,
-        pool_covers_mana_cost=True,
-        requires_tap_source=False,
-        requires_untap_source=False,
-        requires_sacrifice_source=True,
-        source_tapped=False,
-    )
-    state = _state()
-    state["stack"] = [{"name": "Doom Blade"}]
+def test_self_sacrificing_mana_ability_still_floats_only() -> None:
+    """Treasure/Lotus Petal spend their own source to produce mana.
+
+    Spending the source is part of producing the mana, not something the
+    window could have spent the mana on: the pool empties at the end of the
+    step (CR 106.4) and the Treasure is gone. So [pass, Treasure] in a main
+    phase with an empty stack must pass, not burn the Treasure.
+    """
+    view = _default_policy()._priority_mana_action(_TREASURE, _state())
+    assert view.metadata["floats_mana_only"] is True
     response = _default_policy().decide(
-        _request("priority", [_PASS, *_PLAINS_TAPS, altar], state=state, offset=1)
+        _request("priority", [_PASS, _TREASURE], state=_state(), offset=1)
     )
-    assert response["selected_option_ids"] == ["altar"]
+    assert response["selected_option_ids"] == ["pass"]
+
+
+def test_sacrifice_another_permanent_ability_reports_no_bridge_fact() -> None:
+    """Known limitation, pinned rather than faked: see the finding.
+
+    ``enrichAbilityCostFacts`` sets ``requires_sacrifice_source`` only for
+    ``SacrificeSourceCost``. Ashnod's Altar sacrifices a *creature* (a target),
+    so the bridge reports no cost fact that distinguishes it from a Treasure,
+    and the Lab keeps the conservative float-only flag even when answering it
+    against a removal spell is the right play. Closing this needs the bridge
+    to emit a fact for a sacrificed-another-permanent cost; the pilot must not
+    invent one by reading the label.
+    """
+    assert _ASHNODS_ALTAR["metadata"]["requires_sacrifice_source"] is False
+    view = _default_policy()._priority_mana_action(_ASHNODS_ALTAR, _state())
+    assert view.metadata["floats_mana_only"] is True
 
 
 def test_mana_ability_without_cost_facts_keeps_the_float_only_flag() -> None:

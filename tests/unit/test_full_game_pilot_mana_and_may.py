@@ -243,6 +243,11 @@ def test_float_only_utility_ranks_below_pass() -> None:
     assert pilot.evaluate_action(state, unflagged).total_utility > pass_value
 
 
+def _multikicker_prompt(offer: int, cost: str = "{2}") -> str:
+    """The offer exactly as ``KickerAbility.addOptionalAdditionalCosts`` writes it."""
+    return f"Pay {offer} {'time' if offer == 1 else 'times'} Multikicker {cost} ?"
+
+
 def _boolean(outcome: str, prompt: str, offset: int = 1) -> dict[str, Any]:
     return _request(
         "choose_use",
@@ -259,17 +264,37 @@ def _boolean(outcome: str, prompt: str, offset: int = 1) -> dict[str, Any]:
 
 def test_repeated_multikicker_offer_is_declined() -> None:
     # Still bounded, now for the right reason: AIDontUseIt is the engine's own
-    # AI label, not a player preference, so the pilot answers Yes while it can
-    # fund the payment and the consecutive-Yes cap ends the loop with a No.
-    # Before #692 this test asserted an unconditional No on every offer.
+    # AI label, not a player preference, so the pilot pays while its own
+    # visible mana can fund another payment. #692 narrowed the guard to the
+    # engine's real multikicker shape; before that this test asserted an
+    # unconditional No on every offer, which refused every kicker too.
+    #
+    # KickerAbility phrases the offer "Pay (activatedCount + 1) time(s)
+    # <cost> ?", so 1/2/3 are offer ordinals, not a declared total. Three
+    # untapped Plains and a {2} cost fund exactly one payment.
     policy = _policy()
     answers = [
-        policy.decide(_boolean("aidontuseit", "Pay 2 times Multikicker {2} ?", offset=count))[
+        policy.decide(_boolean("aidontuseit", _multikicker_prompt(count), offset=count))[
             "selected_option_ids"
         ][0]
+        for count in (1, 2, 3)
+    ]
+    assert answers[:2] == ["yes", "no"]
+    # The engine stops re-offering after a No; the third entry only pins that
+    # the No reset the chain instead of leaving a spent count behind.
+    assert answers[2] == "yes"
+
+
+def test_repeated_may_trigger_prompt_is_answered_yes_every_time() -> None:
+    # Mentor of the Meek asks "Pay {1}?" once per creature entering: same
+    # source, same outcome, four times. Four separate discretionary questions,
+    # not one repeating offer, so no liveness guard may answer the fourth.
+    policy = _policy()
+    answers = [
+        policy.decide(_boolean("benefit", "Pay {1}?", offset=count))["selected_option_ids"][0]
         for count in (1, 2, 3, 4)
     ]
-    assert answers == ["yes", "yes", "no", "yes"]
+    assert answers == ["yes", "yes", "yes", "yes"]
 
 
 @pytest.mark.parametrize(

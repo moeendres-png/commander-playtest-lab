@@ -16,7 +16,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from functools import wraps
 from pathlib import Path
-from typing import Any, Literal, cast
+from typing import Any, Literal, NamedTuple, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -72,18 +72,20 @@ _LOG = logging.getLogger(__name__)
 # not a statement about a player's preference. Reading it as "decline" made
 # this Lab refuse every single kicker, buyback, dredge, replicate and squad
 # prompt, which is an engine-AI label deciding for a player (F-RULES-03). Its
-# loop is bounded instead by the consecutive-Yes guard in _decide_boolean.
+# loop is bounded instead by the multikicker-chain guard in _decide_boolean.
 DECLINE_ALIGNED_BOOLEAN_OUTCOMES = frozenset({"detriment", "detriment_to_controller"})
 
-# Liveness bound for a repeatable may-offer (multikicker "Pay N times"), the
-# same shape as the mana-payment and priority no-progress guards: consecutive
-# Yes answers by the same actor to boolean offers from the SAME source with
-# the SAME outcome are capped, then the affirmative option is withheld so the
-# pilot can only decline. When the prompt states its own cost the cap is what
-# the pilot's own visible resources can fund; otherwise this fixed small
-# constant applies, consistent with the other two guards.
-BOOLEAN_YES_REPEAT_LIMIT = 3
-_BOOLEAN_TIMES_RE = re.compile(r"pay\s+(\d+)\s+times?\b", re.IGNORECASE)
+# Liveness bound for the one may-offer the engine actually repeats.
+# ``KickerAbility.addOptionalAdditionalCosts`` phrases it as
+# ``"Pay " + (activatedCount + 1) + (" time "|" times ") + cost + " ?"``, so
+# "Pay N times" names the ORDINAL of the offer being made -- not a declared
+# total -- and N grows by exactly one each time the engine re-offers inside a
+# single cast. That ordinal is the only thing that distinguishes the repeating
+# offer from an ordinary "Pay {1}?" may-trigger (Mentor of the Meek asks that
+# once per creature entering), so the guard in _decide_boolean counts only
+# while one ability re-offers with N = previous N + 1, and never caps a prompt
+# it cannot parse.
+_BOOLEAN_MULTIKICKER_RE = re.compile(r"\bpay\s+(\d+)\s+times?\b", re.IGNORECASE)
 
 # Bridge cost-fact keys (enrichAbilityCostFacts) rendered back into the mana
 # symbol text mana_payment_fit already parses. This translates the engine's own
@@ -164,6 +166,59 @@ def mana_payment_fit(label: str, unpaid_mana: str) -> int:
     if produced & needed:
         return 2
     return 1 if generic else 0
+
+
+class _MultikickerOffer(NamedTuple):
+    """One "Pay N times" offer, as the pinned engine phrased it.
+
+    ``ordinal`` is ``activatedCount + 1`` in
+    ``KickerAbility.addOptionalAdditionalCosts``: the number of the offer
+    being made, which advances by one per payment. ``per_payment`` is the
+    mana value of the cost the prompt prints ("{2}"), or None when the prompt
+    prints no mana symbol the pilot could divide by.
+    """
+
+    ordinal: int
+    per_payment: int | None
+
+
+def _prompt_mana_value(prompt: str) -> int | None:
+    """Mana value of the symbols a prompt prints, or None if it prints none.
+
+    "{2}" is two and a colored symbol is one (CR 106.4c). A prompt that
+    prints no symbol states no per-payment cost, so it returns None rather
+    than inventing one.
+    """
+    total = 0
+    for symbol in _MANA_SYMBOL.findall(prompt or ""):
+        text = symbol.strip()
+        if not text:
+            continue
+        try:
+            total += max(1, int(text))
+        except ValueError:
+            total += 1
+    return total or None
+
+
+def _multikicker_offer(prompt: str) -> _MultikickerOffer | None:
+    """The engine's repeatable multikicker offer, or None for any other prompt.
+
+    Anything the engine phrases without a "Pay N times" ordinal -- a plain
+    kicker, buyback, dredge, replicate, squad or "Pay {1}?" may-trigger -- is
+    a single discretionary question and returns None, so no liveness guard can
+    ever cap it.
+    """
+    match = _BOOLEAN_MULTIKICKER_RE.search(prompt or "")
+    if match is None:
+        return None
+    try:
+        ordinal = int(match.group(1))
+    except ValueError:  # pragma: no cover - the regex admits only digits
+        return None
+    if ordinal < 1:
+        return None
+    return _MultikickerOffer(ordinal=ordinal, per_payment=_prompt_mana_value(prompt))
 
 
 class FullGameProtocolError(RuntimeError):
@@ -883,13 +938,12 @@ class ExternalPilotDecisionPolicy:
             ],
         ] = {}
         self._priority_repeat_count: dict[int, int] = {}
-        # Liveness guard memory for repeatable may-offers (per seat): a
-        # "Pay N times" prompt the engine re-offers after each payment.
-        # Consecutive Yes answers from the same source with the same outcome
-        # are counted; past the cap the affirmative option is withheld so the
-        # pilot can only decline. A different source or outcome starts over.
-        self._boolean_repeat_key: dict[int, tuple[str, str]] = {}
-        self._boolean_repeat_count: dict[int, int] = {}
+        # Liveness guard memory for the repeating multikicker offer (per seat):
+        # (source key, outcome, ordinal of the offer last answered, consecutive
+        # Yes answers paid for it). A prompt with no "Pay N times" ordinal is
+        # never capped and clears this memory, so an ordinary may-trigger
+        # cannot inherit a chain it never took part in.
+        self._boolean_repeat: dict[int, tuple[tuple[str, str], int, int]] = {}
         # Latch: once tripped, the seat keeps passing while the window
         # stays identical (a single forced pass would just resume the
         # loop). Any window change unlatches and resumes normal choice.
@@ -1313,17 +1367,24 @@ class ExternalPilotDecisionPolicy:
 
     @staticmethod
     def _same_source(left: dict[str, Any], right: dict[str, Any]) -> bool:
-        """Whether two engine options are activations of the same permanent."""
+        """Whether two engine options are activations of the same permanent.
+
+        Two permanents of the same card are two different sources: a second
+        Hedron Archive can pay for the first one's ``{2}``. So object ids
+        decide whenever both sides report one, and the Rules-visible name is
+        consulted only when at least one side does not.
+        """
         left_meta = left.get("metadata")
         right_meta = right.get("metadata")
         left_meta = left_meta if isinstance(left_meta, dict) else {}
         right_meta = right_meta if isinstance(right_meta, dict) else {}
-        for key in ("source_object_id", "source_name"):
-            left_value = str(left_meta.get(key) or "")
-            right_value = str(right_meta.get(key) or "")
-            if left_value and left_value == right_value:
-                return True
-        return False
+        left_id = str(left_meta.get("source_object_id") or "")
+        right_id = str(right_meta.get("source_object_id") or "")
+        if left_id and right_id:
+            return left_id == right_id
+        left_name = str(left_meta.get("source_name") or "")
+        right_name = str(right_meta.get("source_name") or "")
+        return bool(left_name) and left_name == right_name
 
     def _priority_mana_for(
         self,
@@ -1337,8 +1398,10 @@ class ExternalPilotDecisionPolicy:
         Hedron Archive's ``{2}`` by tapping Hedron Archive would consume the
         source its own ``{T}, Sacrifice`` cost needs. Ranking is
         ``mana_payment_fit`` against the action's own mana cost, so the pilot's
-        intent is answered with the mana that cost actually names; the engine
-        alone decides whether the resulting activation succeeds.
+        intent is answered with the mana that cost actually names; a source
+        that cannot pay any part of that cost is not spent on it, and when no
+        source can the Lab passes instead. The engine alone decides whether
+        the resulting activation succeeds.
         """
         metadata = deferred.get("metadata")
         meta = metadata if isinstance(metadata, dict) else {}
@@ -1346,8 +1409,14 @@ class ExternalPilotDecisionPolicy:
         # Twin-stable ordering: content-derived keys only. Equal fit and equal
         # label mean interchangeable sources, so the engine's own offered order
         # breaks the tie -- never a per-process engine UUID.
+        usable = [
+            option
+            for option in funding
+            if not self._same_source(deferred, option)
+            and mana_payment_fit(str(option.get("label", "")), cost_text) > 0
+        ]
         ranked = sorted(
-            (option for option in funding if not self._same_source(deferred, option)),
+            usable,
             key=lambda option: (
                 -mana_payment_fit(str(option.get("label", "")), cost_text),
                 str(option.get("label", "")).casefold(),
@@ -1414,14 +1483,24 @@ class ExternalPilotDecisionPolicy:
         """Whether activating this in a priority window only floats mana.
 
         True when the bridge's cost facts prove the ability costs nothing
-        beyond tapping its own source: that activation merely adds mana to the
-        pool, which the step will empty (CR 106.4) without the window offering
-        anything new to spend it on. A mana ability carrying its own mana cost
-        (Agent of Stromgald's ``{R}: Add {B}``) or a non-tap cost (Ashnod's
-        Altar, "Sacrifice a creature: Add {C}{C}", answered in response to a
-        removal spell) is a real use of the window, not idling, so it must not
-        be scored below passing. Absent cost facts are unknown, and unknown
-        keeps the conservative flag.
+        beyond spending its own source: that activation merely adds mana to
+        the pool, which the step will empty (CR 106.4) without the window
+        offering anything new to spend it on. Spending the source is part of
+        producing the mana, not something the window could have spent it on:
+        Treasure and Lotus Petal ("{T}, Sacrifice this: Add one mana") are
+        pure floaters and must keep the flag, or every window spends the
+        board's Treasures for mana that empties at the end of the step. A mana
+        ability carrying its own mana cost (Agent of Stromgald's
+        ``{R}: Add {B}``) buys something and is not scored below passing.
+        Absent cost facts are unknown, and unknown keeps the conservative
+        flag.
+
+        Known limitation, not fixed here: ``requires_sacrifice_source`` is
+        reported only for ``SacrificeSourceCost`` (see
+        ``enrichAbilityCostFacts``), so an ability that sacrifices *another*
+        permanent (Ashnod's Altar, "Sacrifice a creature: Add {C}{C}",
+        answered in response to removal) reports no cost fact at all and keeps
+        the float-only flag until the bridge emits a fact for it.
         """
         amounts: list[float] = []
         for key, _ in _MANA_COST_COLORS:
@@ -1434,10 +1513,7 @@ class ExternalPilotDecisionPolicy:
             return True
         if generic > 0 or any(amount > 0 for amount in amounts):
             return False
-        return not (
-            meta.get("requires_sacrifice_source") is True
-            or meta.get("requires_untap_source") is True
-        )
+        return meta.get("requires_untap_source") is not True
 
     def _priority_mana_action(
         self, option: dict[str, Any], state: dict[str, Any]
@@ -1655,33 +1731,44 @@ class ExternalPilotDecisionPolicy:
             if not isinstance(value, bool):
                 raise FullGameProtocolError("boolean option is missing explicit boolean value")
             values[self._required_text(option, "option_id")] = value
-        # Repeatable-offer guard (liveness only, no may-semantics): a "Pay N
-        # times" offer the engine's own AI declines because its affordability
-        # check covers one payment re-offers identically after each payment.
-        # Consecutive Yes answers from the same source with the same outcome
-        # are counted; past the cap the affirmative option is withheld, so the
-        # pilot can only decline. A different source, a different outcome or
-        # any No restarts the count, and the guard memory is keyed only on the
-        # Rules-visible source name, never an engine UUID.
+        # Multikicker-chain guard (liveness only, no may-semantics). Only the
+        # engine's multikicker offer repeats: its own affordability check
+        # covers one payment, so KickerAbility re-asks "Pay N times ..." with
+        # N = previous N + 1 for as long as the pilot says Yes. Counting is
+        # therefore scoped to that chain -- same ability, same outcome, the
+        # next ordinal -- and the affirmative option is withheld only once the
+        # pilot's own visible mana cannot fund another payment. Every other
+        # decision (a different ability, outcome, ordinal, a No, or a prompt
+        # with no ordinal at all) resets the count, and a prompt the Lab cannot
+        # parse is never capped: the Lab never decides a discretionary choice
+        # for a player (F-RULES-03).
         seat = runtime.binding.seat
-        cap = self._boolean_yes_cap(prompt, state)
-        repeat_key = (self._boolean_source_key(source_object), outcome)
-        if self._boolean_repeat_key.get(seat) == repeat_key:
-            answered_yes = self._boolean_repeat_count.get(seat, 0)
-        else:
-            answered_yes = 0
-            self._boolean_repeat_key[seat] = repeat_key
+        offer = _multikicker_offer(prompt)
+        chain_key = (self._boolean_source_key(source_object), outcome)
+        prior = self._boolean_repeat.get(seat)
+        in_chain = (
+            offer is not None
+            and prior is not None
+            and prior[0] == chain_key
+            and prior[1] == offer.ordinal - 1
+        )
+        answered_yes = prior[2] if in_chain else 0
+        cap = self._boolean_yes_cap(offer, self._actor(state)) if in_chain else None
         selectable = [
             option
             for option in options
-            if not (values[self._required_text(option, "option_id")] and answered_yes >= cap)
+            if not (
+                values[self._required_text(option, "option_id")]
+                and cap is not None
+                and answered_yes >= cap
+            )
         ]
         if selectable and len(selectable) != len(options):
             _LOG.info(
-                "repeatable-offer guard: %d consecutive yes answers to %s/%s reached the "
-                "cap %d; declining",
+                "multikicker guard: %d consecutive yes payments for %s/%s reached the "
+                "cap %d funded by the pilot's visible mana; declining",
                 answered_yes,
-                repeat_key[0] or "<unlabelled source>",
+                chain_key[0] or "<unidentified source>",
                 outcome,
                 cap,
             )
@@ -1713,56 +1800,96 @@ class ExternalPilotDecisionPolicy:
             raw_id = raw_by_stable_id[decision.selected_action_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable boolean option") from None
-        self._boolean_repeat_count[seat] = answered_yes + 1 if values[raw_id] else 0
+        if offer is None:
+            # Not a repeating offer: it is a single discretionary question, so
+            # it clears any chain and is never capped.
+            self._boolean_repeat.pop(seat, None)
+        else:
+            self._boolean_repeat[seat] = (
+                chain_key,
+                offer.ordinal,
+                (answered_yes + 1) if values[raw_id] else 0,
+            )
         return self._require_offered(raw_id, offered, "boolean decision")
 
     @staticmethod
     def _boolean_source_key(source_object: Any) -> str:
-        """Rules-visible identity of the ability a may-prompt came from.
+        """Identity of the ability a may-prompt came from.
 
-        The bridge's ``source_object`` block names the source when the engine
-        has it. Only that Rules-visible name is used, so the guard's memory
-        never depends on a per-process engine UUID (twin-stable selection).
-        An unnamed source collapses to a single key, which is the conservative
-        direction: the repeat guard still applies.
+        ``ability_original_id`` is the engine's original (card-definition)
+        identity, identical in every process that casts the same card, so
+        chain memory does not depend on a per-instance object id. A source
+        reporting no original id falls back to its Rules-visible name, and
+        only when neither is reported to the engine's per-instance
+        ``source_object_id``; that last fallback only ever discriminates a
+        chain against the immediately preceding decision in this same
+        process, so it cannot desynchronize twins.
         """
         if not isinstance(source_object, dict):
             return ""
-        name = str(source_object.get("source_name") or "").casefold()
+        original = str(source_object.get("ability_original_id") or "").strip()
+        if original:
+            return f"original:{original}"
+        name = str(source_object.get("source_name") or "").strip()
         if name:
-            return name
-        return str(source_object.get("source_object_id") or "")
+            return f"name:{name.casefold()}"
+        instance = str(source_object.get("source_object_id") or "").strip()
+        return f"instance:{instance}" if instance else ""
 
-    def _boolean_yes_cap(self, prompt: str, state: dict[str, Any]) -> int:
-        """How many times this prompt may be answered Yes in a row.
+    def _boolean_yes_cap(self, offer: _MultikickerOffer, actor: dict[str, Any]) -> int:
+        """How many further multikicker payments the pilot's mana can fund.
 
-        When the prompt states its own cost ("Pay 3 times Multikicker {2}"),
-        the cap is the lesser of that cost and what the pilot can see it could
-        fund: pool mana plus its untapped permanents. Otherwise there is no
-        parseable cost and a fixed small constant applies, consistent with the
-        mana-payment and priority no-progress guards.
+        The engine's affordability check covers a single payment, so the Lab
+        reads the pilot-visible total instead: available mana divided by what
+        one payment of the cost the prompt prints is worth. A prompt that
+        prints no mana symbol states no per-payment value to divide by, so one
+        further payment is assumed -- the minimum a bound needs to hold.
         """
-        match = _BOOLEAN_TIMES_RE.search(prompt or "")
-        if match is None:
-            return BOOLEAN_YES_REPEAT_LIMIT
-        try:
-            declared = int(match.group(1))
-        except ValueError:  # pragma: no cover - the regex admits only digits
-            return BOOLEAN_YES_REPEAT_LIMIT
-        if declared <= 0:
-            return BOOLEAN_YES_REPEAT_LIMIT
-        actor = self._actor(state)
+        return max(1, self._available_mana(actor) // (offer.per_payment or 1))
+
+    def _available_mana(self, actor: dict[str, Any]) -> int:
+        """Mana the pilot can see it could pay with right now.
+
+        The pool, plus one payment for every untapped permanent that offers a
+        mana ability. A permanent entry that reports no machine-readable mana
+        fact at all is read as a land when its name says so, which is the
+        conservative fallback; a permanent that reports nothing readable and
+        is not a land contributes nothing rather than a guess.
+        """
+        total = int(self._actor_mana(actor))
         battlefield = actor.get("battlefield")
-        untapped = (
-            sum(
-                1
-                for item in battlefield
-                if isinstance(item, dict) and item.get("tapped") is not True
+        if not isinstance(battlefield, list):
+            return total
+        for item in battlefield:
+            if not isinstance(item, dict) or item.get("tapped") is True:
+                continue
+            offers = self._permanent_offers_mana(item)
+            if offers is None:
+                offers = self._looks_like_basic_land(str(item.get("name") or ""))
+            if offers:
+                total += 1
+        return total
+
+    @staticmethod
+    def _permanent_offers_mana(permanent: dict[str, Any]) -> bool | None:
+        """Whether a battlefield entry states that it offers mana.
+
+        True/False when the entry carries a machine-readable fact, None when
+        it carries none and the caller must fall back.
+        """
+        for key in ("is_mana_ability", "mana_ability"):
+            value = permanent.get(key)
+            if isinstance(value, bool):
+                return value
+        rules = permanent.get("abilities")
+        if isinstance(rules, list):
+            return any(
+                isinstance(rule, str)
+                and "add" in rule.casefold()
+                and ("{" in rule or "mana" in rule.casefold())
+                for rule in rules
             )
-            if isinstance(battlefield, list)
-            else 0
-        )
-        return max(1, min(declared, int(self._actor_mana(actor)) + untapped))
+        return None
 
     def _decide_pile(
         self,
