@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.models import RulesDeckInput
 
+from .base import resolve_engine_working_directory
 from .failure_privacy import redacted_exception_message
 from .full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
@@ -138,7 +139,6 @@ class XmageFullGameBatchRunner:
     def __init__(self, runner: XmageFullGameRunner, output_directory: str | Path) -> None:
         self.runner = runner
         self.output_directory = Path(output_directory)
-        self._execution_identity: dict[str, Any] | None = None
 
     def execution_identity(self) -> dict[str, Any]:
         """What executes a case beyond its own inputs (D2).
@@ -147,26 +147,62 @@ class XmageFullGameBatchRunner:
         same bytes: the decision protocol, the result schema and the SHA-256 of
         every bridge artifact file named by the runner's command. A rebuilt
         bridge jar therefore invalidates earlier completed records instead of
-        silently lending them to a different build. Computed once per batch.
+        silently lending them to a different build. Recomputed at each lookup
+        and checked again before a newly executed result may be completed.
+
+        Command and cwd are digested, never copied into public records. Artifact
+        keys are command positions so equal basenames cannot overwrite each
+        other. This binds explicit .jar/.py tokens, not an arbitrary JVM's whole
+        environment or transitive classpath. Executed artifacts must stay stable
+        throughout a game; before/after checks detect persistent drift, not a
+        malicious change-and-restore between checks.
         """
-        if self._execution_identity is None:
-            artifacts: dict[str, str] = {}
-            for token in getattr(self.runner, "command", None) or ():
+        artifacts: dict[str, str] = {}
+        identity_unavailable = False
+        configuration = b""
+        try:
+            cwd = Path(
+                resolve_engine_working_directory(getattr(self.runner, "cwd", None)) or "."
+            ).resolve()
+            command = tuple(getattr(self.runner, "command", None) or ())
+            for position, token in enumerate(command):
                 path = Path(token)
-                if path.suffix in {".jar", ".py"} and path.is_file():
+                if path.suffix in {".jar", ".py"}:
+                    if not path.is_absolute():
+                        path = cwd / path
                     digest = hashlib.sha256()
                     with path.open("rb") as handle:
                         for chunk in iter(lambda: handle.read(1 << 20), b""):
                             digest.update(chunk)
-                    artifacts[path.name] = digest.hexdigest()
-            self._execution_identity = {
-                "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
-                "result_schema_version": FullGameConformanceResult.model_fields[
-                    "schema_version"
-                ].default,
-                "bridge_artifacts": dict(sorted(artifacts.items())),
-            }
-        return self._execution_identity
+                    artifacts[str(position)] = digest.hexdigest()
+            configuration = json.dumps(
+                {
+                    "command": command,
+                    "cwd": str(cwd),
+                    "max_decisions": getattr(self.runner, "max_decisions", None),
+                    "request_timeout_seconds": getattr(
+                        self.runner, "request_timeout_seconds", None
+                    ),
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=True,
+            ).encode()
+        except (OSError, ValueError, TypeError, RuntimeError):
+            identity_unavailable = True
+        if identity_unavailable:
+            # Raise outside the handler: even implicit exception context must
+            # not retain an engine-local path, diagnostic, notes or traceback.
+            raise ValueError("full-game batch execution identity unavailable")
+        return {
+            "execution_identity_version": 2,
+            "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
+            "result_schema_version": FullGameConformanceResult.model_fields[
+                "schema_version"
+            ].default,
+            "runner_configuration_sha256": hashlib.sha256(configuration).hexdigest(),
+            "bridge_artifacts": artifacts,
+        }
 
     def run(
         self,
@@ -178,7 +214,8 @@ class XmageFullGameBatchRunner:
         self.output_directory.mkdir(parents=True, exist_ok=True)
         records: list[FullGameBatchRecord] = []
         for case in cases:
-            run_key = self.run_key(case)
+            execution = self.execution_identity()
+            run_key = self._run_key(case, execution)
             path = self.output_directory / f"{run_key}.json"
             existing = self._read_record(path) if resume and path.exists() else None
             if (
@@ -186,12 +223,19 @@ class XmageFullGameBatchRunner:
                 and existing.case_id == case.case_id
                 and existing.run_key == run_key
             ):
-                if existing.status == "completed":
+                if existing.status == "completed" and (
+                    existing.result is not None
+                    and existing.result.scenario == case.scenario
+                    and existing.result.terminal is True
+                    and existing.result.result_payload.get("terminal") is True
+                    and type(existing.result.result_payload.get("seed")) is int
+                    and existing.result.result_payload.get("seed") == case.scenario.seed
+                ):
                     records.append(
                         existing.model_copy(update={"resumed_from_completed_record": True})
                     )
                     continue
-                if not retry_failed:
+                if existing.status == "failed" and not retry_failed:
                     records.append(existing)
                     continue
 
@@ -202,6 +246,8 @@ class XmageFullGameBatchRunner:
                     decks=case.decks,
                     pilots=case.pilots,
                 )
+                if self.execution_identity() != execution:
+                    raise ValueError("full-game batch execution identity changed during game")
                 record = FullGameBatchRecord(
                     case_id=case.case_id,
                     run_key=run_key,
@@ -244,8 +290,12 @@ class XmageFullGameBatchRunner:
         )
 
     def run_key(self, case: FullGameBatchCase) -> str:
+        return self._run_key(case, self.execution_identity())
+
+    @staticmethod
+    def _run_key(case: FullGameBatchCase, execution: dict[str, Any]) -> str:
         payload = json.dumps(
-            {"case": case.model_dump(mode="json"), "execution": self.execution_identity()},
+            {"case": case.model_dump(mode="json"), "execution": execution},
             sort_keys=True,
             separators=(",", ":"),
             ensure_ascii=True,
