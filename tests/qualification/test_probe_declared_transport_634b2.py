@@ -29,6 +29,10 @@ FAIL_CLOSED = {
     "on_multiple_match": "FAIL_CLOSED",
 }
 DECLARED = {
+    # The record's own checkpoint (#695): the causal path answers a declared
+    # multi-option pass only at or before this position. The fake projection
+    # below reads exactly this point, so the declared pass stays allowed.
+    "temporal_state": {"turn_number": 1, "phase": "precombat_main", "step": "main"},
     "decision_script": [
         {"decision_family": "mulligan", "actor": "P1"},
         {
@@ -44,7 +48,7 @@ DECLARED = {
                 "until": {"event": "OBLIGATION_COMPLETE"},
             },
         },
-    ]
+    ],
 }
 EMPTY_COMBAT = {
     "decision_script": [
@@ -298,7 +302,10 @@ def test_trace_names_every_lab_answer() -> None:
         _priority([], cast=True),
     ]
     authority = probe.PassAuthority(
-        {"decision_script": EMPTY_COMBAT["decision_script"] + DECLARED["decision_script"]}
+        {
+            "temporal_state": DECLARED["temporal_state"],
+            "decision_script": EMPTY_COMBAT["decision_script"] + DECLARED["decision_script"],
+        }
     )
     client = _Client(frames)
     probe.drain_combat_to_priority(client, "t", authority)
