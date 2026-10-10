@@ -231,9 +231,11 @@ def _clean_executed_classes(
             if not isinstance(row, dict):
                 continue
             tests = int(row.get("tests") or 0)
+            # A proof class counts only when every test in it ran: a skipped
+            # method (e.g. a disabled S3 partial-payment case) withdraws the credit.
             clean = (
                 tests > 0
-                and int(row.get("skipped") or 0) < tests
+                and int(row.get("skipped") or 0) == 0
                 and not row.get("failures")
                 and not row.get("errors")
             )

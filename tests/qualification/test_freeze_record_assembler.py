@@ -133,6 +133,8 @@ def _epoch(root: Path, **overrides: Any) -> Path:
         classes[name] = {"tests": 3, "failures": 1, "errors": 0}
     for name in overrides.get("skipped_classes", ()):
         classes[name] = {"tests": 3, "failures": 0, "errors": 0, "skipped": 3}
+    for name in overrides.get("partly_skipped_classes", ()):
+        classes[name] = {"tests": 4, "failures": 0, "errors": 0, "skipped": 2}
     receipt = _receipt(classes, overrides.get("receipt_pin", PIN))
     if overrides.get("tamper"):
         receipt["tests"] += 1
@@ -367,6 +369,16 @@ def test_all_skipped_class_gives_no_credit(tmp_path: Path) -> None:
         "game_shutdown_supported"
         in result.record["truthful_capabilities"]["missing_required_capabilities"]
     )
+
+
+def test_partly_skipped_class_gives_no_credit(tmp_path: Path) -> None:
+    result = _assemble(
+        _epoch(tmp_path, partly_skipped_classes=["XmageFullGameCancelRewindTest"])
+    )
+    missing = result.record["truthful_capabilities"]["missing_required_capabilities"]
+    assert "action_submission_supported" in missing
+    assert "legal_actions_supported" in missing
+    assert result.eligible is False
 
 
 def test_class_without_indexed_source_digest_gives_no_credit(tmp_path: Path) -> None:

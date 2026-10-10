@@ -418,7 +418,8 @@ class XmageFullGameDecisionClassMatrixTest {
         XmageFullGameDecisionController.DecisionException failure = assertThrows(
                 XmageFullGameDecisionController.DecisionException.class,
                 () -> actor.chooseLandOrSpellAbility(bolt, game, false));
-        assertTrue(failure.getMessage().contains("undeclared engine caller"), failure.getMessage());
+        assertTrue(failure.getMessage().startsWith("UNSUPPORTED_DECISION_CLASS: land-or-spell choice from an undeclared engine caller"),
+                failure.getMessage());
     }
 
     @Test
@@ -908,13 +909,13 @@ class XmageFullGameDecisionClassMatrixTest {
         bad.add(new Bad("unoffered action", unoffered, "ILLEGAL_ACTION"));
         JsonObject malformed = base.deepCopy();
         malformed.remove("actor_id");
-        bad.add(new Bad("missing actor", malformed, "PILOT_RESPONSE_INVALID"));
+        bad.add(new Bad("missing actor", malformed, "PILOT_RESPONSE_INVALID: missing actor_id"));
         if (context.has("numeric_min") && context.has("numeric_max") && !context.has("numeric_legs")) {
             for (int value : new int[] {context.get("numeric_min").getAsInt() - 1,
                     context.get("numeric_max").getAsInt() + 1}) {
                 JsonObject outOfRange = base.deepCopy();
                 outOfRange.getAsJsonObject("choices").addProperty("numeric_choice", value);
-                bad.add(new Bad("numeric " + value, outOfRange, "PILOT_RESPONSE_INVALID"));
+                bad.add(new Bad("numeric " + value, outOfRange, "PILOT_RESPONSE_INVALID: numeric choice out of range"));
             }
         }
         if (context.has("numeric_legs")) {
@@ -925,14 +926,14 @@ class XmageFullGameDecisionClassMatrixTest {
                     legs.get(0).getAsJsonObject().get("max").getAsInt() + 1));
             JsonObject legOut = base.deepCopy();
             legOut.getAsJsonObject("choices").add("numeric_choices", over);
-            bad.add(new Bad("joint leg above max", legOut, "PILOT_RESPONSE_INVALID"));
+            bad.add(new Bad("joint leg above max", legOut, "PILOT_RESPONSE_INVALID: joint leg 0"));
             com.google.gson.JsonArray shorter = new com.google.gson.JsonArray();
             for (int index = 0; index < legs.size() - 1; index++) {
                 shorter.add(0);
             }
             JsonObject legCount = base.deepCopy();
             legCount.getAsJsonObject("choices").add("numeric_choices", shorter);
-            bad.add(new Bad("joint vector short", legCount, "PILOT_RESPONSE_INVALID"));
+            bad.add(new Bad("joint vector short", legCount, "PILOT_RESPONSE_INVALID: joint vector length"));
         }
         int max = decision.get("maximum_selections").getAsInt();
         if (max >= 1 && actions(frame).size() > max) {
@@ -942,7 +943,7 @@ class XmageFullGameDecisionClassMatrixTest {
                 selected.add(optionId(actions(frame).get(index)));
             }
             tooMany.getAsJsonObject("choices").add("selected_option_ids", selected);
-            bad.add(new Bad("selections above max", tooMany, "PILOT_RESPONSE_INVALID"));
+            bad.add(new Bad("selections above max", tooMany, "PILOT_RESPONSE_INVALID: selected " + (max + 1) + " options"));
         }
         if (max > 1) {
             JsonObject duplicate = base.deepCopy();
@@ -950,7 +951,7 @@ class XmageFullGameDecisionClassMatrixTest {
             selected.add(optionId(action));
             selected.add(optionId(action));
             duplicate.getAsJsonObject("choices").add("selected_option_ids", selected);
-            bad.add(new Bad("duplicate selection", duplicate, "PILOT_RESPONSE_INVALID"));
+            bad.add(new Bad("duplicate selection", duplicate, "PILOT_RESPONSE_INVALID: duplicate option id"));
         }
 
         for (Bad entry : bad) {

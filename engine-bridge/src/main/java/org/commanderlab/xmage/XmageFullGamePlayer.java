@@ -258,12 +258,23 @@ final class XmageFullGamePlayer extends PlayerImpl {
         return chosen;
     }
 
-    /** The engine's only caller of the land-or-spell callback at the pin. */
+    /**
+     * The declared engine caller of the land-or-spell callback. At the pin the
+     * callback has two callers: this one, and
+     * {@code Vault112SadisticSimulationChapterEffect.apply} (Vault 112: Sadistic
+     * Simulation), whose legality is not declared on this lane. That caller, and
+     * any other, fails closed (UNSUPPORTED_DECISION_CLASS); it never receives a
+     * legality this player built.
+     */
     static final String LAND_OR_SPELL_CALLER = "mage.util.CardUtil#castSpellWithAttributesForFree";
 
+    /** The immediate engine frame that called into this player, not any frame below. */
     private static boolean calledFromCastWithAttributesForFree() {
-        return StackWalker.getInstance().walk(frames -> frames.anyMatch(frame ->
-                LAND_OR_SPELL_CALLER.equals(frame.getClassName() + "#" + frame.getMethodName())));
+        return StackWalker.getInstance().walk(frames -> frames
+                .filter(frame -> !frame.getClassName().equals(XmageFullGamePlayer.class.getName()))
+                .findFirst()
+                .map(frame -> LAND_OR_SPELL_CALLER.equals(frame.getClassName() + "#" + frame.getMethodName()))
+                .orElse(false));
     }
 
     @Override
@@ -274,9 +285,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
             return null;
         }
         if (!calledFromCastWithAttributesForFree()) {
-            // #662 L1: the land components below follow the one engine caller at the
-            // pin. Any other caller has no declared legality here: fail closed.
-            fail("BRIDGE_PROTOCOL_ERROR", "land-or-spell choice from an undeclared engine caller");
+            // #662 L1: the land components below follow the declared engine caller.
+            // Any other caller (Vault 112 at the pin) has no declared legality: fail closed.
+            fail("UNSUPPORTED_DECISION_CLASS", "land-or-spell choice from an undeclared engine caller");
             return null;
         }
         Zone zone = game.getState().getZone(card.getMainCard().getId());
