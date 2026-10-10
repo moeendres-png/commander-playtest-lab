@@ -13,12 +13,11 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
 ## Execution paths
 
 1. Normal ChatGPT with GPT-5.6 Sol High — Coordinator and adjudication tier.
-2. OpenCode Foundry — primary execution tier with one explicit executor per run:
-   - committed/default and preferred: `deepseek` =
-     `opencode-go/deepseek-v4.1-flash` at native `max`;
-   - explicit secondary only: `space-bunny` =
-     `opencode-go/space-bunny` at native `max`, for bounded, mechanical,
-     token-heavy, bulk and background work.
+2. OpenCode Foundry — primary execution tier with one executor per run. Since the Owner
+   directive of 2026-10-10 that executor is always `space-bunny` =
+   `opencode-go/space-bunny` at native `max` (every lane, agent and subagent). `deepseek` =
+   `opencode-go/deepseek-v4.1-flash` is SUSPENDED (OpenCode Go monthly quota exhausted) and
+   refused by the launcher.
    Logical `space-bunny` resolves only after live pinned-CLI catalog inspection
    (`opencode models opencode-go`): canonical `opencode-go/space-bunny` first, else the
    admitted legacy runtime alias `opencode-go/space-bunny-free` (`LEGACY_ALIAS`, the
@@ -35,8 +34,8 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
 4. ChatGPT Work / Astra — exceptional only, after `WORK_NECESSITY = PASS`.
 
 Executor choice is explicit and auditable. The launcher never changes model because of
-quota, credentials, catalog availability, child failure, or retry. A DeepSeek failure is
-fail-closed; running another executor afterwards is an explicit task-rerouting decision.
+quota, credentials, catalog availability, child failure, or retry. A Space Bunny failure is
+fail-closed and never falls back to the suspended DeepSeek profile.
 A completed/terminated writer releases the existing writer lock, after which the other
 profile may resume the same workstream from the same branch + explicit state + evidence.
 Concurrent writers on the same worktree, branch, or semantic surface remain forbidden;
@@ -44,24 +43,23 @@ parallel profiles require independent worktrees/ownership.
 
 Legacy provider overrides are retired and always refused. Historical executor/model
 receipts remain provenance only. They are not migration targets and must not generate a
-routing/governance issue by themselves. Changing the two-profile allowlist requires a new
-direct user instruction. See `EXECUTION_PROVIDER_OVERRIDE.md`.
+routing/governance issue by themselves. Changing the allowlist, including re-activating
+DeepSeek, requires a new direct user instruction. See `EXECUTION_PROVIDER_OVERRIDE.md`.
 
 ## Execution identity policy
 
-Active OpenCode Foundry work has exactly two supported launcher execution identities:
+Active OpenCode Foundry work has exactly one supported launcher execution identity:
 
-- `deepseek` → `opencode-go/deepseek-v4.1-flash` → native `max`.
-  This is the default and preferred executor for implementation, debugging,
-  qualification, integration, CI remediation, evidence generation and long campaigns.
 - `space-bunny` → `opencode-go/space-bunny` → native `max`.
-  This is the explicit secondary for bounded, mechanical, token-heavy, bulk and
-  background work, and for deliberately authorized cross-model checks.
+  The default and only executor for implementation, debugging, qualification,
+  integration, CI remediation, evidence generation, audits, reviews and long campaigns.
+- `deepseek` → `opencode-go/deepseek-v4.1-flash` → native `max` stays in the registry as
+  SUSPENDED; selecting it is a launch refusal, not a fallback trigger.
 
-The launcher rejects any profile outside this set, and rejects every provider override,
+The launcher rejects any profile outside the ACTIVE set, and rejects every provider override,
 so no mismatched or retired pair is reachable. There is no active-work native lane below
 `max`; the project-level `--effort` field describes task/authority routing only and never
-lowers either executor's native level.
+lowers the executor's native level.
 
 This native-`max` rule binds the OpenCode profiles only. A Claude Opus 5.5 campaign runs
 at `medium` or `high` effort, and its read-only helpers use the effort pinned in their own
@@ -69,17 +67,18 @@ frontmatter (`log-scanner` Sonnet `low`, `ci-triage` Sonnet `medium`, `evidence-
 Opus `high`); never Haiku. Those subagents are read-only helpers inside the campaign, not
 Foundry executors, and hold no write, adjudication or merge authority.
 
-Root `opencode.json` is DeepSeek MAX by default and exposes Space Bunny MAX as the only
-other whitelisted model. The GitHub OpenCode lane is also DeepSeek MAX by default (`/oc`,
-`/opencode`); an explicit `/bunny` comment from a trusted author starts the separate Space Bunny MAX
-job with the `bunny-verifier` agent. That is an explicit selection of the secondary profile, never a
-fallback: a failed DeepSeek run is not retried on Space Bunny.
+Root `opencode.json` whitelists only Space Bunny MAX (canonical id plus its legacy alias) for
+`model` and `small_model`. All three GitHub OpenCode lanes pin `MODEL=opencode-go/space-bunny`
+and `VARIANT=max`; they differ by agent: `/oc` and `/opencode` run `foundry-implementer`, `/bunny`
+runs `bunny-verifier`, `/bunny-review` runs the read-only `foundry-reviewer`. The Claude-side
+`opencode-subagent` MCP is pinned through `OPENCODE_SUBAGENT_MODEL` in `.claude/settings.json`.
+How to write prompts for this model: `SPACE_BUNNY_PROMPTING.md`.
 
-Profile postures (both at native `max`):
-- DeepSeek MAX spends reasoning freely but economises input: capsule first, the shared `lab-ops`
-  scripts for status and logs, bounded reads, narrow validation while iterating and the full
-  required suites once before a push.
-- Space Bunny MAX spends tokens on assurance: every reported claim is established by two
+Lane postures (all Space Bunny at native `max`):
+- `/oc` (`foundry-implementer`) spends reasoning freely but economises input: capsule first, the
+  shared `lab-ops` scripts for status and logs, bounded reads, narrow validation while iterating
+  and the full required suites once before a push.
+- `/bunny` (`bunny-verifier`) spends tokens on assurance: every reported claim is established by two
   independent routes with a wrong-reason control, the complete affected validation runs, and a
   fresh-context `bunny-auditor` reviews the diff. It saves wall-clock time by running long checks
   first and independent checks in parallel subagents. No executor
@@ -98,7 +97,10 @@ production-provider evidence or Architecture Freeze.
   records live under `.foundry/reviews/`.
 - The only admissible reviewer is the top-level `foundry-reviewer` agent of the
   `/bunny-review` lane: Space Bunny MAX, structurally read-only (`mode: all`,
-  `edit: deny`, bash default-deny, `task: deny`). A DeepSeek review, a writable
+  `edit: deny`, bash default-deny, `task: deny`). While DeepSeek is SUSPENDED it may
+  review Space Bunny implementation work (same-model review, explicit Owner approval
+  2026-10-10); its independence then rests on the fresh context and the read-only lane.
+  As soon as another profile is ACTIVE again that counts as self-review. A DeepSeek review, a writable
   top-level verifier (`bunny-verifier`), a subagent attestation (`bunny-auditor`),
   a self-review, or an unknown/blocked/partial/fail/stale verdict never satisfies the
   gate.
@@ -145,12 +147,10 @@ production-provider evidence or Architecture Freeze.
 Authoritative model:
 `docs/CURRENT_EXECUTION_AUTHORITY.md`. Summary:
 
-- DeepSeek MAX: preferred new-work execution profile. Autonomous implementation,
-  debugging, qualification, evidence generation, tool use and technical decisions
-  within the bounded workstream contract. Native reasoning remains `max`.
-- Space Bunny MAX: explicit secondary execution profile for bounded, mechanical,
-  token-heavy and background work, and for deliberately authorized cross-model
-  technical adjudication within already-defined policy.
+- Space Bunny MAX: the only active OpenCode execution profile. Autonomous implementation,
+  debugging, qualification, evidence generation, tool use and technical decisions within
+  the bounded workstream contract. Native reasoning remains `max`.
+- DeepSeek MAX: SUSPENDED since 2026-10-10; no work is routed to it.
 - Claude Opus 5.5: direct campaign executor when explicitly authorized. It may challenge
   technical assumptions, take adjacent high-value work inside the same objective and
   continue selecting unowned milestones without routine user round-trips. A bounded

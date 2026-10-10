@@ -66,6 +66,9 @@ final class XmageFullGameJsonlBridge {
             case "submit_action" -> submitAction(requestId, request);
             case "get_concede_offer" -> getConcedeOffer(requestId, request);
             case "submit_concede" -> submitConcede(requestId, request);
+            case "export_event_log", "get_event_log" -> exportEventLog(requestId, request);
+            case "shutdown_game" -> shutdownGame(requestId);
+            case "export_replay" -> exportReplay(requestId);
             case "shutdown_engine" -> success(requestId, shutdownPayload(), true);
             default -> error(
                     requestId,
@@ -316,8 +319,9 @@ final class XmageFullGameJsonlBridge {
 
     /**
      * WS204 B4-D decision-scoped generic projection. Returns only the exact
-     * currently pending native decision as generic actions. Flags remain
-     * unpromoted: this is not a globally complete free-standing API.
+     * currently pending native decision as generic actions. #662 SLOT-06 (a):
+     * legal_actions_supported means decision-scoped and complete per decision,
+     * not a globally complete free-standing legal-actions API.
      */
     private Result getLegalActions(String requestId, JsonObject request) {
         try {
@@ -462,6 +466,37 @@ final class XmageFullGameJsonlBridge {
         }
     }
 
+    /** #662: the public event log after an optional {@code after_offset}. */
+    private Result exportEventLog(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = request.has("payload") && request.get("payload").isJsonObject()
+                    ? request.getAsJsonObject("payload") : new JsonObject();
+            int after = payload.has("after_offset") && !payload.get("after_offset").isJsonNull()
+                    ? payload.get("after_offset").getAsInt() : 0;
+            return success(requestId, requireSession().eventLogPayload(after), false);
+        } catch (Exception exc) {
+            return error(requestId, "full_game_event_log_failed", exceptionMessage(exc), false);
+        }
+    }
+
+    /** #662: end the game; later decisions are refused, the engine stays up. */
+    private Result shutdownGame(String requestId) {
+        try {
+            return success(requestId, requireSession().shutdownGame(), false);
+        } catch (Exception exc) {
+            return error(requestId, "full_game_shutdown_failed", exceptionMessage(exc), false);
+        }
+    }
+
+    /** #662: the orchestration-only replay export (ruling (c) R1, R4). */
+    private Result exportReplay(String requestId) {
+        try {
+            return success(requestId, requireSession().replayExportPayload(), false);
+        } catch (Exception exc) {
+            return error(requestId, "full_game_replay_export_failed", exceptionMessage(exc), false);
+        }
+    }
+
     static JsonObject capabilitiesPayload() {
         JsonObject capabilities = new JsonObject();
         capabilities.addProperty("commander_supported", true);
@@ -477,13 +512,19 @@ final class XmageFullGameJsonlBridge {
         capabilities.addProperty("seed_supported", true);
         capabilities.addProperty("deck_import_supported", true);
 
-        // Generic B4-style legal-action flags deliberately remain false. This
-        // lane uses blocking typed decision callbacks, not a globally complete
-        // free-standing legal-actions API.
-        capabilities.addProperty("legal_actions_supported", false);
-        capabilities.addProperty("action_submission_supported", false);
-        capabilities.addProperty("event_log_supported", false);
-        capabilities.addProperty("replay_supported", false);
+        // #662 SLOT-06 ruling (a): decision-scoped get_legal_actions/submit_action
+        // are complete per decision for every declared decision class, proven by
+        // XmageFullGameDecisionClassMatrixTest (engine-API oracle, every offered
+        // action accepted, typed rejection without mutation) and
+        // XmageFullGameDecisionClassInventoryTest (L4). XmageFullGameContractTruthTest
+        // keeps each flag bound to its proof classes.
+        capabilities.addProperty("legal_actions_supported", true);
+        capabilities.addProperty("action_submission_supported", true);
+        // #662 SLOT-06: export_event_log (public tape, XmageFullGameEventLogTest) and
+        // export_replay + clean-process verifier (ruling (c) R1-R4,
+        // XmageFullGameReplayExportTest). Semantic replay, not bit-exact replay.
+        capabilities.addProperty("event_log_supported", true);
+        capabilities.addProperty("replay_supported", true);
         capabilities.addProperty("stack_visible", true);
         capabilities.addProperty("priority_visible", true);
         capabilities.addProperty("commander_damage_visible", false);
@@ -501,7 +542,8 @@ final class XmageFullGameJsonlBridge {
         // exact principal. Every status payload carries the live per-player
         // can_concede vector as proof.
         capabilities.addProperty("concede_supported", true);
-        capabilities.addProperty("game_shutdown_supported", false);
+        // #662 SLOT-06: shutdown_game, XmageFullGameShutdownGameTest.
+        capabilities.addProperty("game_shutdown_supported", true);
         capabilities.addProperty("engine_shutdown_supported", true);
         capabilities.addProperty("runtime_kind", "external_rules_engine");
 
@@ -515,8 +557,8 @@ final class XmageFullGameJsonlBridge {
         notes.add("Rules randomness remains XMage-owned and uses the explicit per-game Rules seed bound before start (setRulesSeed + requireExplicitSeed; RandomUtil retired as authority)");
         notes.add("One isolated JVM process is required per game as defense in depth for credited runs");
         notes.add("Full-game runs are technical conformance only and may not consume gameplay evidence or holdouts");
-        notes.add("Bit-exact replay remains unclaimed until a duplicate-run gate proves it");
-        notes.add("WS204 B4-D decision-scoped get_legal_actions/submit_action project only the exact current pending native decision; global legal_actions/action_submission promotion remains false");
+        notes.add("Semantic replay: export_replay (orchestration-only) is verified by a clean-process replay (Main full-game-replay); bit-exact replay remains unclaimed");
+        notes.add("WS204 B4-D decision-scoped get_legal_actions/submit_action project only the exact current pending native decision; #662 SLOT-06: legal_actions/action_submission are decision-scoped and complete per decision for every declared decision class");
         capabilities.add("notes", notes);
 
         JsonObject lane = new JsonObject();

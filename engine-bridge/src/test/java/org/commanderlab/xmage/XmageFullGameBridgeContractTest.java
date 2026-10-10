@@ -40,8 +40,10 @@ class XmageFullGameBridgeContractTest {
         assertTrue(capabilities.get("mode_selection_supported").getAsBoolean());
         assertTrue(capabilities.get("trigger_order_supported").getAsBoolean());
         assertTrue(capabilities.get("mulligan_supported").getAsBoolean());
-        assertFalse(capabilities.get("legal_actions_supported").getAsBoolean());
-        assertFalse(capabilities.get("action_submission_supported").getAsBoolean());
+        // #662 SLOT-06: decision-scoped and complete per decision, proven by the
+        // decision-class matrix (XmageFullGameContractTruthTest binds the flags).
+        assertTrue(capabilities.get("legal_actions_supported").getAsBoolean());
+        assertTrue(capabilities.get("action_submission_supported").getAsBoolean());
         assertFalse(capabilities.get("starting_state_injection_supported").getAsBoolean());
         assertFalse(capabilities.get("scenario_injection_supported").getAsBoolean());
 

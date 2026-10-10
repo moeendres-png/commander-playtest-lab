@@ -131,6 +131,11 @@ final class XmageFullGameDecisionController {
         if (decisionClass == null || decisionClass.isBlank()) {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: decision_class is blank");
         }
+        if (!DECISION_CLASSES.contains(decisionClass)) {
+            // #662 SLOT-06 L4: only declared classes, each with a matrix row, are
+            // ever published; a new class fails closed until it is proven.
+            throw new DecisionException("UNDECLARED_DECISION_CLASS: " + decisionClass);
+        }
         if (minimumSelections < 0 || maximumSelections < minimumSelections) {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: invalid selection bounds");
         }
@@ -428,6 +433,17 @@ final class XmageFullGameDecisionController {
     /** The current frame's caller qualified it to unwind natively for a departed player. */
     private boolean pendingDepartedUnwindQualified;
 
+    /**
+     * #662 SLOT-06 L4: every decision class this lane can publish. Each has a row in
+     * XmageFullGameDecisionClassMatrixTest; XmageFullGameDecisionClassInventoryTest
+     * keeps this set, the matrix and the player source equal.
+     */
+    static final Set<String> DECISION_CLASSES = Set.of(
+            "priority", "target", "choose_object", "target_amount", "mana_payment", "mode",
+            "announce_x", "amount", "multi_amount", "trigger_order", "choice",
+            "replacement_effect", "pile", "choose_use", "mulligan", "declare_attacker",
+            "declare_blocker");
+
     private static final Set<String> DEPARTED_CANCELLABLE = Set.of(
             "target", "choose_object", "mana_payment", "choose_use", "declare_blocker",
             "declare_attacker", "mode", "announce_x", "amount", "choice",
@@ -564,7 +580,81 @@ final class XmageFullGameDecisionController {
                 numerics == null ? null : List.copyOf(numerics)
         );
         recordDecisionAccepted(pendingRequest, selected, numeric, numerics);
+        recordReplayDecision(pendingRequest, selected, ordering, numeric, numerics);
         notifyAll();
+    }
+
+    // ---- #662 replay record and game shutdown ---------------------------------
+
+    private final JsonArray replayRecord = new JsonArray();
+    private boolean shutDown;
+
+    /** The ordered semantic decision record (orchestration-only; see export_replay). */
+    synchronized JsonArray replayRecord() {
+        return replayRecord.deepCopy();
+    }
+
+    private void recordReplayDecision(
+            JsonObject request, List<String> selected, List<String> ordering,
+            Integer numeric, List<Integer> numerics) {
+        List<String> keys = XmageFullGameReplay.semanticKeys(request.getAsJsonArray("legal_options"));
+        List<String> ids = XmageFullGameReplay.optionIds(request.getAsJsonArray("legal_options"));
+        JsonObject entry = new JsonObject();
+        entry.addProperty("kind", "decision");
+        entry.addProperty("index", replayRecord.size());
+        entry.addProperty("decision_offset", request.get("decision_offset").getAsLong());
+        entry.addProperty("decision_class", request.get("decision_class").getAsString());
+        entry.addProperty("actor_seat", request.get("seat").getAsInt());
+        entry.addProperty("offered_digest", XmageFullGameReplay.offeredDigest(request));
+        entry.add("chosen_keys", semanticKeysOf(selected, ids, keys));
+        // The response carries the ordering, so the record does too; the
+        // full-game player does not read it today.
+        entry.add("ordering_keys", semanticKeysOf(ordering, ids, keys));
+        if (numeric != null) {
+            entry.addProperty("numeric_choice", numeric);
+        }
+        if (numerics != null) {
+            JsonArray vector = new JsonArray();
+            numerics.forEach(vector::add);
+            entry.add("numeric_choices", vector);
+        }
+        replayRecord.add(entry);
+    }
+
+    /** Option ids to semantic keys; every id was validated against the offer before. */
+    private static JsonArray semanticKeysOf(List<String> optionIds, List<String> ids, List<String> keys) {
+        JsonArray mapped = new JsonArray();
+        for (String id : optionIds) {
+            int position = ids.indexOf(id);
+            if (position < 0) {
+                throw new IllegalStateException("REPLAY_RECORD_INVALID: option outside the offered set");
+            }
+            mapped.add(keys.get(position));
+        }
+        return mapped;
+    }
+
+    synchronized void recordReplayConcession(int seat) {
+        JsonObject entry = new JsonObject();
+        entry.addProperty("kind", "concede");
+        entry.addProperty("index", replayRecord.size());
+        entry.addProperty("actor_seat", seat);
+        replayRecord.add(entry);
+    }
+
+    /**
+     * Ends decision intake for good: the waiting request (if any) returns without
+     * a response and every later request is refused. The session ends the game
+     * natively before calling this.
+     */
+    synchronized void shutDown() {
+        shutDown = true;
+        terminal = true;
+        notifyAll();
+    }
+
+    synchronized boolean isShutDown() {
+        return shutDown;
     }
 
     synchronized void failClosed(String failureCode, String detail) {

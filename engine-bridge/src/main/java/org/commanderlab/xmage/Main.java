@@ -24,6 +24,11 @@ public final class Main {
             Phase6DifferentialAdapter.run(Path.of(args[1]), Path.of(args[2]));
             return;
         }
+        if (args.length == 2 && "full-game-replay".equals(args[0])) {
+            // #662: clean-process replay of a full-game replay export.
+            System.exit(XmageFullGameReplayVerifier.run(Path.of(args[1]), System.out));
+            return;
+        }
         if (args.length == 2) {
             // Backward-compatible B4-F file-mode form introduced before the explicit subcommand.
             Phase6DifferentialAdapter.run(Path.of(args[0]), Path.of(args[1]));

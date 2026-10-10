@@ -10,11 +10,12 @@ This is routing guidance only; `AGENTS.md` remains authority. For each task choo
 lane that preserves required correctness and evidence:
 
 1. deterministic script/tool when judgement is unnecessary;
-2. DeepSeek V4.1 Flash native `max` as the default OpenCode executor for implementation,
-   debugging, tests, qualification execution, evidence production and long engineering work;
-3. Space Bunny native `max` only as an explicitly justified secondary/cross-model lane — never
-   an automatic failure/quota fallback. The `/bunny` GitHub command is specifically a read-only
-   audit workflow, not a claim that every authorized Space Bunny workstream is read-only;
+2. Space Bunny native `max` (`opencode-go/space-bunny`) as the only OpenCode executor for
+   implementation, debugging, tests, qualification execution, evidence production, audits,
+   reviews and long engineering work (`/oc`, `/bunny`, `/bunny-review`, `opencode-subagent` MCP);
+   prompts follow `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md`;
+3. DeepSeek V4.1 Flash is SUSPENDED since 2026-10-10 (monthly quota exhausted): never select it
+   and never fall back to it;
 4. bounded Claude read-only helpers: `log-scanner` = Sonnet `low`, `ci-triage` = Sonnet
    `medium`, built-in `Explore` only for a scoped lookup after deterministic search is
    insufficient;

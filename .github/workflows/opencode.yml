@@ -117,7 +117,7 @@ jobs:
           python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode-go/deepseek-v4.1-flash
+          MODEL: opencode-go/space-bunny
           AGENT: ''
           SHARE: 'false'
           PROMPT: ''
@@ -175,9 +175,10 @@ jobs:
           if-no-files-found: ignore
 
   opencode-bunny:
-    # Space Bunny MAX, the explicit secondary profile (ROUTING_AND_EFFORT.md):
-    # selected only by an explicit `/bunny` comment, never as a fallback for the
-    # DeepSeek job above. Same trust gate and hardening as that job.
+    # Space Bunny MAX maximum-assurance lane (bunny-verifier agent), started only
+    # by an explicit `/bunny` comment. Since the Owner directive of 2026-10-10
+    # every lane, `/oc` above included, runs Space Bunny MAX; DeepSeek is
+    # SUSPENDED. Same trust gate and hardening as the job above.
     # The repository is public: only principals with write-level association
     # may start an agent run that holds OPENCODE_API_KEY and an OIDC token.
     # A comment's text is its prompt, so an unrestricted trigger would let any
@@ -396,7 +397,7 @@ jobs:
           persist-credentials: false
 
       # Hardened OpenCode CLI execution lane (same pin/verification as the
-      # DeepSeek and Space Bunny execution jobs above).
+      # two Space Bunny execution jobs above).
       - name: Install pinned OpenCode CLI v1.18.30
         env:
           VERSION: 1.18.30

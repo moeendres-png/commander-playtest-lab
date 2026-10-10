@@ -52,11 +52,17 @@ final class XmageFullGameSession {
     private final int startingPlayerSeat;
     private final XmageNativeStateRestoration restoration;
     private final AtomicReference<Throwable> engineFailure = new AtomicReference<>();
+    private final AtomicReference<String> shutdownUnwind = new AtomicReference<>();
     private final List<String> engineErrorDiagnostics =
             Collections.synchronizedList(new ArrayList<>());
 
     private Thread engineThread;
     private boolean started;
+    /** #662: set once by {@link #shutdownGame()}; every later decision request is refused. */
+    private volatile boolean shutDown;
+    private final int startingLife;
+    /** #662 replay export: per seat, the exact deck import request. */
+    private final JsonArray replayDecks = new JsonArray();
 
     XmageFullGameSession(
             String protocolGameId,
@@ -116,9 +122,22 @@ final class XmageFullGameSession {
         this.startingPlayerSeat = startingPlayerSeat;
         this.controller = new XmageFullGameDecisionController(Duration.ofMinutes(2));
 
+        this.startingLife = startingLife;
         List<Deck> decks = new ArrayList<>(playerCount);
         for (String deckHandle : deckHandles) {
             decks.add(deckImporter.requireDeck(deckHandle));
+            XmageDeckImporter.ImportRequest request = deckImporter.requireRequest(deckHandle);
+            JsonObject deck = new JsonObject();
+            deck.addProperty("seat", replayDecks.size());
+            deck.addProperty("deck_id", request.deckId());
+            deck.addProperty("deck_hash", request.deckHash());
+            JsonArray mainboard = new JsonArray();
+            request.mainboard().forEach(mainboard::add);
+            deck.add("mainboard", mainboard);
+            JsonArray commanders = new JsonArray();
+            request.commanders().forEach(commanders::add);
+            deck.add("commanders", commanders);
+            replayDecks.add(deck);
         }
 
         // FULL107 WS05-CMD-MULL-2/4 fixture-faithful free mulligan: the free
@@ -189,6 +208,11 @@ final class XmageFullGameSession {
         if (restoration != null) {
             restoration.applyPreStart(game, restorationSeats());
         }
+        // #662 export_event_log: the public semantic event tape is part of every
+        // full game's state (restoration registers its own before start).
+        if (game.getState().getWatcher(XmagePublicEventWatcher.class) == null) {
+            game.getState().addWatcher(new XmagePublicEventWatcher());
+        }
     }
 
     /**
@@ -198,6 +222,210 @@ final class XmageFullGameSession {
      */
     GameCommanderImpl restorationGame() {
         return game;
+    }
+
+    // ---- #662 SLOT-06: event log, game shutdown, replay export -----------------
+
+    private void ensureNotShutDown() {
+        if (shutDown) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "FULL_GAME_SHUT_DOWN: the game was shut down; no further decision is accepted");
+        }
+    }
+
+    boolean isShutDown() {
+        return shutDown;
+    }
+
+    /**
+     * Ends the game on request: the native game is ended, decision intake stops,
+     * and the engine thread is joined. Every later decision, submission or
+     * concession is refused with {@code FULL_GAME_SHUT_DOWN}.
+     */
+    JsonObject shutdownGame() {
+        ensureStarted();
+        synchronized (this) {
+            if (shutDown) {
+                throw new XmageFullGameDecisionController.DecisionException(
+                        "FULL_GAME_SHUT_DOWN: the game was already shut down");
+            }
+            shutDown = true;
+        }
+        game.end();
+        controller.shutDown();
+        try {
+            if (engineThread != null) {
+                engineThread.join(SETTLE_TIMEOUT.toMillis());
+            }
+        } catch (InterruptedException exc) {
+            Thread.currentThread().interrupt();
+        }
+        boolean alive = engineThread != null && engineThread.isAlive();
+        if (alive) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "FULL_GAME_SHUTDOWN_TIMEOUT: the engine thread did not end");
+        }
+        JsonObject payload = new JsonObject();
+        payload.addProperty("game_id", protocolGameId);
+        payload.addProperty("shut_down", true);
+        payload.addProperty("engine_thread_alive", false);
+        payload.addProperty("game_over", game.getState().isGameOver());
+        String unwind = shutdownUnwind.get();
+        payload.addProperty("shutdown_unwind", unwind == null ? "none" : unwind);
+        return payload;
+    }
+
+    /**
+     * The public semantic event log after {@code afterOffset}: the engine's own
+     * events recorded by {@link XmagePublicEventWatcher}, players named by seat
+     * ({@code P1..PN}), hidden objects unnamed. Monotonic {@code sequence}; the
+     * decision count links the log to the decision stream.
+     */
+    synchronized JsonObject eventLogPayload(int afterOffset) {
+        ensureStarted();
+        XmagePublicEventWatcher watcher = game.getState().getWatcher(XmagePublicEventWatcher.class);
+        if (watcher == null) {
+            throw new IllegalStateException("EVENT_LOG_UNAVAILABLE: no public event tape");
+        }
+        if (afterOffset < 0 || afterOffset > watcher.size()) {
+            throw new IllegalArgumentException(
+                    "INVALID_EVENT_OFFSET: after_offset must be between 0 and " + watcher.size());
+        }
+        if (parkedDecisionClass() != null) {
+            watcher.settle(game);
+        }
+        Map<String, String> seatByPlayer = new java.util.HashMap<>();
+        restorationSeats().forEach((label, player) -> seatByPlayer.put(player.getId().toString(), label));
+        JsonArray events = new JsonArray();
+        for (JsonObject raw : watcher.eventsAfter(afterOffset)) {
+            events.add(publicEvent(raw, seatByPlayer));
+        }
+        JsonObject payload = new JsonObject();
+        payload.addProperty("game_id", protocolGameId);
+        payload.addProperty("after_offset", afterOffset);
+        payload.addProperty("latest_offset", watcher.size());
+        payload.addProperty("decision_count", controller.decisionCount());
+        payload.addProperty("observation_scope", "public");
+        payload.add("events", events);
+        return payload;
+    }
+
+    private static JsonObject publicEvent(JsonObject raw, Map<String, String> seatByPlayer) {
+        JsonObject event = new JsonObject();
+        for (String key : List.of("sequence", "type", "turn", "step", "amount", "flag", "data",
+                "from", "to", "combat", "last_power", "last_toughness", "coin_result", "coin_won",
+                "public_identity", "target_name", "source_name")) {
+            if (raw.has(key)) {
+                event.add(key, raw.get(key));
+            }
+        }
+        for (String key : List.of("player", "target", "source")) {
+            if (!raw.has(key)) {
+                continue;
+            }
+            String seat = seatByPlayer.get(raw.get(key).getAsString());
+            if (seat != null) {
+                event.addProperty(key + "_player", seat);
+            } else if (!"player".equals(key)) {
+                // Only that an object has this role; never its engine id.
+                event.addProperty(key + "_present", true);
+            }
+        }
+        return event;
+    }
+
+    /**
+     * #662 SLOT-06 (c) R1: the replay export. Orchestration-only (R4): it carries
+     * the seed and the decklists, so it holds hidden information and is never
+     * part of a pilot frame. Only while the engine is parked or has ended.
+     */
+    synchronized JsonObject replayExportPayload() {
+        ensureStarted();
+        String state = engineState();
+        if (!"PARKED".equals(state) && !"CLEAN_TERMINAL".equals(state)) {
+            throw new IllegalStateException("REPLAY_EXPORT_UNAVAILABLE: engine state " + state);
+        }
+        JsonArray decisions = controller.replayRecord();
+        JsonObject export = new JsonObject();
+        export.addProperty("schema_version", XmageFullGameReplay.SCHEMA_VERSION);
+        export.addProperty("protocol_version", XmageProvider.PROTOCOL_VERSION);
+        export.add("engine", XmageProvider.providerVersion());
+        export.addProperty("scope", "orchestration_only");
+        export.addProperty("seed", seed);
+        export.addProperty("player_count", playerCount);
+        export.addProperty("starting_player_seat", startingPlayerSeat);
+        export.addProperty("starting_life", startingLife);
+        export.add("decks", replayDecks.deepCopy());
+        export.addProperty("decision_count", decisions.size());
+        export.add("decisions", decisions);
+        export.addProperty("decisions_digest", XmageFullGameReplay.sha256(decisions.toString()));
+        export.addProperty("final_state_digest", semanticStateDigest());
+        // R3: the frame the engine was parked on when the export was taken. A
+        // replay that ends on any other frame asked for one the tape lacks.
+        export.add("final_pending", XmageFullGameReplay.pendingFrame(controller.pendingDecision()));
+        export.addProperty("final_engine_state", state);
+        return export;
+    }
+
+    /**
+     * A semantic digest of the game state (names and seats, never engine ids):
+     * turn, step, per seat life, zone sizes and contents of public zones, and the
+     * stack. Two games that made the same semantic choices have equal digests.
+     */
+    synchronized String semanticStateDigest() {
+        JsonObject state = new JsonObject();
+        state.addProperty("turn", game.getTurnNum());
+        state.addProperty("step", game.getStep() == null ? "" : game.getStep().getType().name());
+        state.addProperty("game_over", game.getState().isGameOver());
+        JsonArray seats = new JsonArray();
+        for (XmageFullGamePlayer player : players) {
+            JsonObject seat = new JsonObject();
+            seat.addProperty("life", player.getLife());
+            seat.addProperty("hand", player.getHand().size());
+            seat.addProperty("library", player.getLibrary().size());
+            seat.addProperty("in_game", player.isInGame());
+            seat.addProperty("lost", player.hasLost());
+            seat.add("graveyard", sortedNames(player.getGraveyard().getCards(game)));
+            seat.add("battlefield", sortedNames(game.getBattlefield().getAllActivePermanents(player.getId()).stream()
+                    .map(permanent -> permanent.getName() + (permanent.isTapped() ? "(T)" : ""))
+                    .toList()));
+            seat.add("command", sortedNames(game.getState().getCommand().stream()
+                    .filter(object -> player.getId().equals(object.getControllerId()))
+                    .map(object -> object.getName())
+                    .toList()));
+            seats.add(seat);
+        }
+        state.add("seats", seats);
+        state.add("stack", sortedNames(game.getStack().stream().map(object -> object.getName()).toList()));
+        state.add("exile", sortedNames(game.getExile().getAllCards(game)));
+        return XmageFullGameReplay.sha256(state.toString());
+    }
+
+    private static JsonArray sortedNames(java.util.Collection<?> items) {
+        List<String> names = new ArrayList<>();
+        for (Object item : items) {
+            names.add(item instanceof mage.MageObject object ? object.getName() : String.valueOf(item));
+        }
+        names.sort(String::compareTo);
+        JsonArray array = new JsonArray();
+        names.forEach(array::add);
+        return array;
+    }
+
+    /**
+     * #662 SLOT-06 L1 test oracle: the native callback arguments of the pending
+     * decision's actor. Package-private and test-only; never part of any
+     * protocol payload.
+     */
+    Object[] pendingNativeWitness() {
+        JsonObject pending = controller.pendingDecision();
+        if (pending == null || game == null) {
+            return new Object[0];
+        }
+        mage.players.Player actor = game.getPlayer(
+                java.util.UUID.fromString(pending.get("actor_id").getAsString()));
+        return actor instanceof XmageFullGamePlayer external
+                ? external.nativeWitness(pending.get("decision_offset").getAsLong()) : new Object[0];
     }
 
     private static List<Integer> seatIndices(int count) {
@@ -260,6 +488,7 @@ final class XmageFullGameSession {
     }
 
     JsonObject submit(JsonObject response) {
+        ensureNotShutDown();
         ensureStarted();
         controller.submit(response);
         String submittedDecisionId = response.get("decision_id").getAsString();
@@ -366,6 +595,7 @@ final class XmageFullGameSession {
      * receives this actor's options.
      */
     synchronized JsonObject legalActionsPayload(JsonObject request) {
+        ensureNotShutDown();
         ensureStarted();
         controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
         JsonObject pending = controller.pendingDecision();
@@ -434,6 +664,7 @@ final class XmageFullGameSession {
      * observationally distinct from no offered next actions.</p>
      */
     JsonObject submitAction(JsonObject proposal) {
+        ensureNotShutDown();
         ensureStarted();
         controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
         JsonObject pending = controller.pendingDecision();
@@ -558,6 +789,12 @@ final class XmageFullGameSession {
      * RUNNING: anything else. Thread liveness is sampled first, so a thread that
      * fails and ends between two reads is never taken for a clean end.
      */
+    /** #662 replay verifier: the engine state after a replay (see {@link #engineState()}). */
+    synchronized String replayEngineState() {
+        awaitSettled(controller, engineThread, SETTLE_TIMEOUT);
+        return engineState();
+    }
+
     private String engineState() {
         boolean alive = engineThread != null && engineThread.isAlive();
         if (controller.terminalFailure() != null) {
@@ -574,6 +811,11 @@ final class XmageFullGameSession {
         return "RUNNING";
     }
 
+    /** The controller's decision transcript (orchestration-side; tests and receipts). */
+    JsonArray controllerTranscript() {
+        return controller.transcript();
+    }
+
     /**
      * Every player's zones in seating order (library order included), the
      * command zone, the stack and the turn position, each object written as its
@@ -581,7 +823,7 @@ final class XmageFullGameSession {
      * its underlying card), with tapped, face-down, phasing, damage, counters
      * and attachment.
      */
-    private String privilegedStateDigest() {
+    String privilegedStateDigest() {
         List<String> lines = new ArrayList<>();
         mage.game.turn.Step step = game.getStep();
         lines.add("turn:" + game.getTurnNum() + " step:" + (step == null ? "none" : step.getType())
@@ -673,6 +915,7 @@ final class XmageFullGameSession {
      * stack, step or turn-control requirement (CR 104.3a, CR 723.6).</p>
      */
     synchronized JsonObject concedeOfferPayload(String principalId) {
+        ensureNotShutDown();
         ensureStarted();
         UUID principal = requireSessionPlayer(principalId);
         boolean available = game.canConcede(principal);
@@ -712,6 +955,7 @@ final class XmageFullGameSession {
      * exact native concede path; no Lab-side outcome is synthesized).</p>
      */
     synchronized JsonObject submitConcede(JsonObject proposal) {
+        ensureNotShutDown();
         ensureStarted();
         if (proposal == null) {
             throw new XmageFullGameDecisionController.DecisionException(
@@ -743,6 +987,7 @@ final class XmageFullGameSession {
         } finally {
             player.disarmConcession(principal);
         }
+        controller.recordReplayConcession(players.indexOf(player));
         // F-34: a frame the conceder was making for a player whose turn it
         // controlled follows the engine's control state after the leave.
         // F-42: a stale own frame of the conceder that the native signal did not reach.
@@ -919,11 +1164,18 @@ final class XmageFullGameSession {
                 );
             }
         } catch (Throwable exc) {
-            engineFailure.compareAndSet(null, exc);
-            controller.failClosed(
-                    "XMAGE_FULL_GAME_FAILED",
-                    exc.getClass().getSimpleName() + ": " + safeMessage(exc)
-            );
+            if (shutDown) {
+                // #662: an orchestrator-ordered shutdown unwinds the engine thread
+                // through the refused decision; that is the requested end, not a
+                // Rules failure. The unwind is still recorded for the result.
+                shutdownUnwind.compareAndSet(null, exc.getClass().getSimpleName() + ": " + safeMessage(exc));
+            } else {
+                engineFailure.compareAndSet(null, exc);
+                controller.failClosed(
+                        "XMAGE_FULL_GAME_FAILED",
+                        exc.getClass().getSimpleName() + ": " + safeMessage(exc)
+                );
+            }
         } finally {
             controller.markTerminal();
             afterTerminalMarked.run();

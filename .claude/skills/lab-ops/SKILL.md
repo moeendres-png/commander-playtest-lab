@@ -24,7 +24,8 @@ change GitHub state. Run them from the Lab worktree root.
 | Seal an epoch (packet + manifests + the required secret scan, before any push) | `scripts/seal.py RUN_ID [--replace OLD_EPOCH]` on a fresh branch from main |
 | Real-engine rows | `scripts/real_rows.py build` then `midgame FIX…`, `cardinality CAND`, `pregame CAND`, `af04 CAND PKG` (Forge: `--forge PATH`, `xvfb-run -a`) |
 
-Dispatch task skeletons live in `oc_tasks/`: `implement-batch.md`, `fix-review-findings.md`,
+Every lane runs Space Bunny MAX (DeepSeek SUSPENDED 2026-10-10); write the task per
+`docs/foundry-execution/SPACE_BUNNY_PROMPTING.md`. Dispatch task skeletons live in `oc_tasks/`: `implement-batch.md`, `fix-review-findings.md`,
 `ci-fix.md`, `tooling.md`. Fill only the 5–10 task-specific lines; `oc_dispatch.py` appends
 the rules footer. Its commit trailer names the dispatching Claude session (`--session-url`,
 `CLAUDE_SESSION_URL` or the cloud session id); a non-Claude dispatcher passes `--trailer none`.

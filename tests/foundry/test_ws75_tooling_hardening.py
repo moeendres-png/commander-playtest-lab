@@ -199,6 +199,9 @@ def _plan(target: dict, canon: Path, **over: object) -> dict:
         # WS75R: no ambient binary default; the autouse hermetic stub serves
         # FOUNDRY_OPENCODE_BIN (explicit opencode_bin= overrides still win).
     }
+    # The Space Bunny default resolves from a catalog; these tests cover the
+    # version gate and bundle, so they supply it instead of a live inspection.
+    kwargs.setdefault("model_catalog", list(launcher_mod.ADMITTED_BUNNY_MODELS))
     kwargs.update(over)
     return launcher_mod.init(**kwargs)
 

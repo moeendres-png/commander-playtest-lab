@@ -219,7 +219,9 @@ def test_well_formed_bunny_pass_record_validates(repo: dict) -> None:
     assert review_mod.validate_review_record(record) == []
 
 
-def test_deepseek_review_or_self_review_is_never_admitted(repo: dict) -> None:
+def test_deepseek_review_is_never_admitted_and_self_review_only_without_cross_model(
+    repo: dict, tmp_path: Path
+) -> None:
     record = _record(repo)
     record["resolved_model_id"] = DEEPSEEK
     record["model_alias_class"] = "CANONICAL"
@@ -231,9 +233,20 @@ def test_deepseek_review_or_self_review_is_never_admitted(repo: dict) -> None:
     errors = review_mod.validate_review_record(record)
     assert any("review_executor must be the logical space-bunny" in error for error in errors)
 
+    # Owner approval 2026-10-10: while DeepSeek is SUSPENDED (Space Bunny the only
+    # ACTIVE profile) a Space Bunny implementation may be reviewed by Space Bunny.
     record = _record(repo)
     record["implementation_executor"] = "space-bunny"
-    errors = review_mod.validate_review_record(record)
+    assert review_mod.validate_review_record(record) == []
+
+    # As soon as another executor is ACTIVE again, self-review is refused.
+    doc = json.loads(executor_mod.DEFAULT_REGISTRY_PATH.read_text(encoding="utf-8"))
+    doc["profiles"]["deepseek"]["runtime_status"] = "ACTIVE"
+    del doc["profiles"]["deepseek"]["suspension"]
+    reactivated = tmp_path / "registry-deepseek-active.json"
+    reactivated.write_text(json.dumps(doc), encoding="utf-8")
+    registry = executor_mod.load_registry(reactivated)
+    errors = review_mod.validate_review_record(record, registry=registry)
     assert any("self-review" in error for error in errors)
 
 

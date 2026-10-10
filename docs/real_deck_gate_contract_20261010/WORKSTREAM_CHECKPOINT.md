@@ -31,7 +31,11 @@ Hosted required native gates, source-bound tests and fresh-context independent
 Codex evidence review are recorded in issue/PR receipts. Existing #654 native
 Foundry review tooling remains separate; no fake certificate.
 
-Status: implementation candidate, not COMPLETE before normal integration and
-actual merge/check receipts. Engine rules, legal options, principal information,
+Status: COMPLETE (2026-10-10). PR #674, head
+`8a65743f03f0b1556e49578d8a16972468cc9a62`, merged normally as main
+`14f6215b7f30201ce4fa576e7c72e3b7f395ef46`. Required quality/security/
+infrastructure PASS on the exact head and on that main commit (the red `opencode`
+runs on it are comment-triggered quota BLOCKED_SERVICE runs, not this change).
+#669 closed. Engine rules, legal options, principal information,
 Rules RNG, native replay/cancellation/event semantics and qualification contract
 are unchanged. Historical old-pin10/10 evidence receives no current credit.
