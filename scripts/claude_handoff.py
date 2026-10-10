@@ -43,8 +43,12 @@ NEXT_LINE = re.compile(
 def api(path: str) -> Any:
     out = subprocess.run(["gh", "api", path], capture_output=True, text=True, check=False)
     if out.returncode != 0:
-        raise SystemExit(f"gh api {path}: {out.stderr.strip() or out.stdout.strip()}")
+        raise ApiUnavailable(f"gh api {path}: {out.stderr.strip() or out.stdout.strip()}")
     return json.loads(out.stdout or "null")
+
+
+class ApiUnavailable(SystemExit):
+    """A ``gh api`` call failed (no access, network, rate limit)."""
 
 
 def git(repo_dir: Path, *args: str) -> str | None:
@@ -103,10 +107,20 @@ def repo_head_lines(repo_dir: Path) -> list[str]:
     ]
     for repo in REPOS:
         short = repo.split("/")[1]
-        default = api(f"repos/{repo}").get("default_branch", "main")
-        sha = (api(f"repos/{repo}/commits/{default}").get("sha") or "?")[:8]
+        try:
+            default = api(f"repos/{repo}").get("default_branch", "main")
+            sha = (api(f"repos/{repo}/commits/{default}").get("sha") or "?")[:8]
+            pulls = api(f"repos/{repo}/pulls?state=open&per_page=20") or []
+        except ApiUnavailable:
+            # A session scoped to the Lab cannot read the engine forks; one
+            # unreachable sibling must not cost the whole index. The Lab stays
+            # fail-closed: its own failure still aborts.
+            if repo == LAB:
+                raise
+            lines.append(f"{short} unavailable (no GitHub access from this session)")
+            continue
         lines.append(f"{short} {default}@{sha}")
-        for pull in api(f"repos/{repo}/pulls?state=open&per_page=20") or []:
+        for pull in pulls:
             lines.append(
                 f"{short} PR #{pull['number']} {pull['head']['ref']} -> {pull['head']['sha'][:8]}"
             )
