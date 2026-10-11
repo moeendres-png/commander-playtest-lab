@@ -170,12 +170,12 @@
   "runtime_switch": "DONE_D5",
   "note": "selected_provider is the architecture-level selection made at the Freeze. The D5 runtime switch moved the launched runtime (production_bridge) to the full-game lane; provider_decision, current_runtime and primary_engine.production_ready record that switch. D17 stays a bounded limitation: pilots out of process, no third-party code in the engine JVM; stronger isolation is a gate before any untrusted pilot.",
   "current_qualification": {
-   "evidence_epoch": "qualification/current-boundary-epochs/ed8d865f638a-b35d54b8752c",
-   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
-   "engine_artifact_sha256": "73bc66905fef9d6e8f9924b56e6a042031389a138c49d4ec084430a1c924fe8d",
-   "lab_commit": "ed8d865f638a43eab6e0fb0ca746c22e0f4f2d60",
+   "evidence_epoch": "qualification/current-boundary-epochs/e8a20b5fbcaa-52946bcde04a",
+   "engine_commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+   "engine_artifact_sha256": "d7211fe1e35abb32871dfeecd91518e81a6b067d1a476d059798aa273e88e0b0",
+   "lab_commit": "e8a20b5fbcaa227151298c1b41ca47378274ae60",
    "freeze_eligible": true,
-   "note": "Post-D5 requalification on main ed8d865f; current_qualification always names the newest sealed epoch bound to the pin (the one the capability derivation selects) (bridge changes merged after the Freeze basis epoch). The jar build is not byte-reproducible, so each rebuild is requalified by PB-03; the signed Freeze identities above (evidence_epoch, engine_artifact_sha256) stay the Owner-signed basis and are never rewritten."
+   "note": "Requalification on XMage pin 3cbf7741 (repin v5, #720) on main e8a20b5f, AF11 re-adjudicated for that pin (#727); current_qualification always names the newest sealed epoch bound to the pin (the one the capability derivation selects) (bridge changes merged after the Freeze basis epoch). The jar build is not byte-reproducible, so each rebuild is requalified by PB-03; the signed Freeze identities above (evidence_epoch, engine_artifact_sha256) stay the Owner-signed basis and are never rewritten."
   }
  }
 }

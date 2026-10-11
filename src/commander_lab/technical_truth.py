@@ -65,6 +65,26 @@ def _string_list(payload: dict[str, Any], key: str) -> list[str]:
     return [str(value) for value in raw]
 
 
+def _live_pin_requalification_pending(engine_config: dict[str, Any]) -> bool:
+    """Whether a repin moved the live pin past its last freeze-eligible qualification.
+
+    Until PB-03 runs on the new pin and is re-bound, the capability truth is the
+    prior pin's. Without a freeze-eligible requalification, the signed Freeze pin is
+    the only qualified pin.
+    """
+    primary = engine_config.get("primary_engine")
+    freeze = engine_config.get("architecture_freeze")
+    if not isinstance(primary, dict) or not isinstance(freeze, dict):
+        return False
+    current = freeze.get("current_qualification")
+    if isinstance(current, dict) and current.get("freeze_eligible") is True:
+        # An eligible record without a commit qualifies nothing beyond the signed pin.
+        qualified = current.get("engine_commit") or freeze.get("engine_commit")
+    else:
+        qualified = freeze.get("engine_commit")
+    return bool(qualified) and primary.get("commit") != qualified
+
+
 def _official_run_truth(root: Path, context: ProjectContextSnapshot) -> dict[str, Any]:
     path = root / _OFFICIAL_RUN_RELATIVE_PATH
     if not path.is_file():
@@ -173,11 +193,7 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
     documented_limitations: list[str] = []
     if not external_ready:
         documented_limitations.append("external_rules_engine_validation_pending")
-    freeze = engine_config.get("architecture_freeze")
-    freeze_commit = freeze.get("engine_commit") if isinstance(freeze, dict) else None
-    if freeze_commit and primary_engine_payload.get("commit") != freeze_commit:
-        # A repin moved the live pin past the Freeze epoch: its capability truth is
-        # still the Freeze epoch's until PB-03 runs on the new pin and it is re-bound.
+    if _live_pin_requalification_pending(engine_config):
         documented_limitations.append("live_pin_requalification_pending")
     if unresolved:
         documented_limitations.append("unresolved_operational_own_deck_baseline")

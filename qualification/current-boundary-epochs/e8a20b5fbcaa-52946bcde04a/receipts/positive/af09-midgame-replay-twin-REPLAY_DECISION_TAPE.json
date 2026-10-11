@@ -1,0 +1,38 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+  "execution_mode": "AF09_MIDGAME_CLEAN_PROCESS_REPLAY_TWIN",
+  "fixture_id": "REPLAY_DECISION_TAPE",
+  "obligation_exercised": {
+    "obligation_digest": "557fa17e31546c88344c586dcc9ecc71284a8ef5c59cf16787dcc7190ea7c87b",
+    "requested_state_digest": "9913c8ac73367925d7ce6ed43b38e420fec89f28d5ff1d953e0dc02421ae0b0c",
+    "required_events": [
+      "rules_rng:library_shuffle:P1",
+      "decision:choose_mode:create_devils",
+      "create_Devil_token:3"
+    ],
+    "terminal_postconditions": [
+      "Three Devil tokens exist under P1 after resolution.",
+      "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+      "DecisionTape records exact discretionary semantic selections."
+    ]
+  },
+  "observed_assertion": {
+    "comparison_verdict": "PASS",
+    "row_properties": {
+      "clean_replay_equal_checkpoints": true,
+      "decision_tape_records_semantic_selections": true,
+      "mode_choice_taped": true,
+      "scenario_obligation_observed": true
+    },
+    "twin_digest": "385207d475504d7757a29583e9335946ac8296ac8e3b02e0494474e16f0de0c6"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "e424ead4c7b8fe55b0dbacfdc5fa1c6e5f474c72a98ef555b38c877282f2fb06",
+  "runner_digest": "5a42a883fb02d48469d14e3ba996df7a79975e7687dee85c078c043edac31b87",
+  "runtime_receipt_digest": "385207d475504d7757a29583e9335946ac8296ac8e3b02e0494474e16f0de0c6",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af09-midgame-replay-twin#REPLAY_DECISION_TAPE"
+}

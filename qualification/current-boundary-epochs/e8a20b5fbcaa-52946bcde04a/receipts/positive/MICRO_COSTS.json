@@ -1,0 +1,80 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_COSTS",
+  "obligation_exercised": {
+    "obligation_digest": "4533236c1233a944e7de7eb540c1c4142d47169e858179aa8bdd7c0eba3b0fb8",
+    "requested_state_digest": "4379ebf8f062938fee0acc09e59834ba10219ab682c3b29565ad63734161d062",
+    "required_events": [
+      "cost_determined:base_plus_3_generic"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Targeting two P1 commanders while Esior is controlled adds exactly {3} total, once."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "cost_determined:base_plus_3_generic": {
+        "base_mana": "{4}{B}{B}",
+        "charged_mana": 9,
+        "decision_ids": [
+          "19cc6f3e0ec8c1fe906497a256f8cccf84e4714b3aea267ed8d2e8e5bb8e81df",
+          "f378f5283a2596d2d60109d829ac40c3da3cc0ea39921a87cfd1f67b56089fbb",
+          "8ab66361c93fc86b61b7d6465d9abddc0fff88ba720757f81098228d81678a60",
+          "e60dc0d592ce7fdcc8c8134c66f4849069d46ce0cf40e093437d20381f32171d",
+          "cf18c8cf9c8ed86df8f24b786457f7cfc00f9032c5279f45cb657a19b19ef940",
+          "95fade30b237dd0cf89805d035fd14089c614199804c24580e0b317443e7a996",
+          "f1255c163262d30c0e2ef5a086e7ba1db10b432a2047470bad4dfb00a34079fe",
+          "1eeacd7fff9ab86f9433cae270064ec0c18d01273f85a30cbcae5635a17caf00",
+          "1a549f3bdf283a897386836853a79dfeb109a90203403a61dbe3490e8d974564",
+          "d470e05cce991d266471087440079710a899050e924e111914b126f21dea7a29",
+          "6802c069e1d19f9ddf901bc35ce48012962aa5c46d33004776700ad9a33e6cf0",
+          "889402861d42745d2236b35887547e1d654d6c02bbf9adde7e9f6dc7ebbe07bb",
+          "03f345b932cc7713cd45971d29e49188c6ef5d299ecc7119071e9eaf5eb89cc7",
+          "307601f394ad270289d7fb5b87902866c530c3584e22d3c04873a758d92bf5b5",
+          "90932dab67dce49b1eb34ff50795db769927e0a9fee628e55a82f7c4d6d817d8",
+          "0e7d1194d77b687a103d97072602ffac8b1155c9ba720c319cf41cbe4b242172",
+          "a6b3e745b113d8b8052f8a9e96e02f6b6bc3d139bc46ca6c0af99c4739de3da8",
+          "57271cdb2b2ea4c97a47c491bb56a20d3c3f08d528a040a5559afdce664dbeb7"
+        ],
+        "determined_mana": "{7}{B}{B}",
+        "payment_frames": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "unpaid_mana": "{7}{B}{B}"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "1376ad5ec3a3b30f5c37f4603ef318248aa7efcf4f4e604b80e7b79fd001b6ba",
+  "runner_digest": "5a42a883fb02d48469d14e3ba996df7a79975e7687dee85c078c043edac31b87",
+  "runtime_receipt_digest": "830d4edccbade2566b996db38966fb3f7c7854a9befae52f9f2ed6ffc4a5e4ee",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_COSTS",
+  "variance_source": null
+}

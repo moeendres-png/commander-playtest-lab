@@ -163,10 +163,18 @@ def test_epochs_bind_only_the_pin_they_ran_on() -> None:
     assert (epoch / "CURRENT_BOUNDARY_SHA256SUMS").is_file()
     current = config["architecture_freeze"]["current_qualification"]
     assert epoch != live_epoch or prior == pin
-    # current_qualification stays on the signed Freeze pin until it follows the live
-    # pin, and it may follow only once AF11 has been re-adjudicated for that pin.
-    assert current["engine_commit"] in {prior, pin}
-    if current["engine_commit"] != prior:
+    # current_qualification names a freeze-eligible sealed epoch that ran on its own
+    # pin (the signed pin or a later one; after a repin it lags until PB-03 re-binds
+    # it). Moving it onto the live pin requires AF11 re-adjudicated for that pin.
+    assert current["freeze_eligible"] is True
+    current_runtime = json.loads(
+        (REPO_ROOT / current["evidence_epoch"] / "PB03_RUNTIME_EXECUTION.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert current_runtime["candidate_commit"] == current["engine_commit"]
+    assert (REPO_ROOT / current["evidence_epoch"] / "CURRENT_BOUNDARY_SHA256SUMS").is_file()
+    if current["engine_commit"] == pin != prior:
         assembler = (REPO_ROOT / "scripts/assemble_current_boundary_evidence.py").read_text(
             encoding="utf-8"
         )
