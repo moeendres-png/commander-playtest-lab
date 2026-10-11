@@ -776,6 +776,25 @@ def test_af11_the_recorded_adjudication_matches_the_source_lock() -> None:
     assert "ARCHITECTURE_FREEZE (separate Owner decision)" in record["not_claimed"]
 
 
+def test_af11_adjudication_covers_the_live_pin_and_keeps_the_prior_record() -> None:
+    """A repin needs its own adjudication; the prior one stays the record of its own pin."""
+    asm = _assembler_module()
+    record = json.loads((REPO / asm.AF11_ADJUDICATION).read_text(encoding="utf-8"))
+    config = json.loads((REPO / "config/rules_engines.json").read_text(encoding="utf-8"))
+    assert record["integration_topology"]["engine_commit"] == config["primary_engine"]["commit"]
+    prior_path = record["supersedes"]["record"]
+    assert prior_path != asm.AF11_ADJUDICATION
+    prior = json.loads((REPO / prior_path).read_text(encoding="utf-8"))
+    assert prior["integration_topology"]["engine_commit"] == record["supersedes"]["engine_commit"]
+    assert prior["integration_topology"]["engine_commit"] != config["primary_engine"]["commit"]
+    # Only the pin and its effective epoch moved; licences and topology are unchanged.
+    assert prior["licence_topology"] == record["licence_topology"]
+    assert prior["forge"] == record["forge"]
+    assert prior["decisions"] == record["decisions"]
+    for key in ("adapter", "launch_main_class", "provider_classpath_manifest"):
+        assert prior["integration_topology"][key] == record["integration_topology"][key]
+
+
 def test_af11_unknown_still_blocks_freeze() -> None:
     """UNKNOWN must remain a freeze-blocking verdict: this is not a weakening."""
     from commander_lab.freeze_readiness import NON_PASS_VERDICTS

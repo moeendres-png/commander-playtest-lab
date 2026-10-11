@@ -725,7 +725,7 @@ def _af11_measure(
 
 
 AF11_ADJUDICATION = (
-    "qualification/af11-single-provider-topology-20261009/AF11_COORDINATOR_ADJUDICATION.json"
+    "qualification/af11-single-provider-topology-20261011/AF11_COORDINATOR_ADJUDICATION.json"
 )
 AF11_ADJUDICATION_SCHEMA = "commander-lab.af11-coordinator-adjudication/1.0.0"
 _AF11_DECISIONS = (
