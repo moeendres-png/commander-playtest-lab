@@ -36,7 +36,7 @@ from commander_lab.storage.hashing import sha256_value
 
 from .base import RulesEngineAdapter, RulesEngineError
 
-TACTICAL_RULES_VERSION = "tactical-0.8.1"
+TACTICAL_RULES_VERSION = "tactical-0.8.2"
 
 
 class TacticalRuleError(RulesEngineError):
@@ -44,7 +44,38 @@ class TacticalRuleError(RulesEngineError):
 
 
 def _bool(value: Any) -> bool:
-    return bool(value)
+    # #734: a tactical input flag is a JSON boolean. Anything else (the
+    # string "false", 0, null) is a malformed fixture, not a truthy guess.
+    # An absent flag (None) keeps meaning False.
+    if value is None:
+        return False
+    if not isinstance(value, bool):
+        raise TacticalRuleError(f"tactical input flag must be a boolean, got {value!r}")
+    return value
+
+
+class _TrackedInput(dict[str, Any]):
+    """Input mapping that remembers which keys a rule primitive consulted."""
+
+    def __init__(self, payload: dict[str, Any]) -> None:
+        super().__init__(payload)
+        self.consulted: set[str] = set()
+
+    def __getitem__(self, key: str) -> Any:
+        self.consulted.add(key)
+        try:
+            return super().__getitem__(key)
+        except KeyError:
+            raise TacticalRuleError(f"tactical input is missing required key: {key}") from None
+
+    def get(self, key: str, default: Any = None) -> Any:
+        self.consulted.add(key)
+        return super().get(key, default)
+
+    def __contains__(self, key: object) -> bool:
+        if isinstance(key, str):
+            self.consulted.add(key)
+        return super().__contains__(key)
 
 
 def _commander_damage_result(damage: dict[str, int]) -> dict[str, Any]:
@@ -143,7 +174,20 @@ class TacticalRuleOracle:
             handler = self._handlers[rule]
         except KeyError as exc:
             raise TacticalRuleError(f"unsupported tactical rule primitive: {rule}") from exc
-        return handler(dict(input_state))
+        # #734: fail closed on malformed inputs. A key the primitive never
+        # consults is a typo or a fact the model does not represent; silently
+        # falling back to a default would turn a wrong fixture into a PASS.
+        tracked = _TrackedInput(dict(input_state))
+        try:
+            observed = handler(tracked)
+        except (TypeError, ValueError, AttributeError) as exc:
+            raise TacticalRuleError(f"malformed tactical input for {rule}: {exc}") from exc
+        unused = sorted(set(tracked) - tracked.consulted)
+        if unused:
+            raise TacticalRuleError(
+                f"tactical input keys not modelled by {rule}: {', '.join(unused)}"
+            )
+        return observed
 
     def validate(self, spec: InteractionSpec) -> InteractionValidation:
         observed = self.evaluate(spec.rule, spec.input_state)
@@ -270,7 +314,7 @@ class TacticalRuleOracle:
             "first_strike_damage": first,
             "regular_damage": regular,
             "total_damage": total,
-            "commander_damage": total if s.get("is_commander") else 0,
+            "commander_damage": total if _bool(s.get("is_commander")) else 0,
         }
 
     @staticmethod
@@ -366,11 +410,18 @@ class TacticalRuleOracle:
     @staticmethod
     def _farewell(s: dict[str, Any]) -> dict[str, Any]:
         modes = set(s["modes"])
+        unknown = modes - {"creatures", "artifacts", "enchantments", "graveyards"}
+        if unknown:
+            raise TacticalRuleError(f"unknown Farewell modes: {sorted(unknown)}")
+        creatures = int(s.get("creatures", 0))
+        artifacts = int(s.get("artifacts", 0))
+        enchantments = int(s.get("enchantments", 0))
+        graveyard_cards = int(s.get("graveyard_cards", 0))
         return {
-            "creatures_exiled": int(s.get("creatures", 0)) if "creatures" in modes else 0,
-            "artifacts_exiled": int(s.get("artifacts", 0)) if "artifacts" in modes else 0,
-            "enchantments_exiled": int(s.get("enchantments", 0)) if "enchantments" in modes else 0,
-            "graveyards_exiled": int(s.get("graveyard_cards", 0)) if "graveyards" in modes else 0,
+            "creatures_exiled": creatures if "creatures" in modes else 0,
+            "artifacts_exiled": artifacts if "artifacts" in modes else 0,
+            "enchantments_exiled": enchantments if "enchantments" in modes else 0,
+            "graveyards_exiled": graveyard_cards if "graveyards" in modes else 0,
             "indestructible_relevant": False,
         }
 
@@ -378,6 +429,9 @@ class TacticalRuleOracle:
     def _vandalblast(s: dict[str, Any]) -> dict[str, Any]:
         overloaded = _bool(s.get("overloaded"))
         opponent_artifacts = int(s.get("opponent_artifacts", 0))
+        # Either mode only ever destroys artifacts the caster doesn't control.
+        if int(s.get("own_artifacts", 0)) < 0:
+            raise TacticalRuleError("own_artifacts cannot be negative")
         return {
             "destroyed": opponent_artifacts if overloaded else min(1, opponent_artifacts),
             "own_artifacts_destroyed": 0,
@@ -403,7 +457,10 @@ class TacticalRuleOracle:
             "spell_countered": True,
             "graveyard_entry": True,
             "final_zone": "command" if move_to_command else "graveyard",
-            "commander_tax_increments": False,
+            # CR 903.8: the tax counts every previous cast from the command
+            # zone. A countered commander was still cast, so its next cast
+            # from the command zone costs {2} more (#734).
+            "commander_tax_increments": True,
         }
 
     @staticmethod
@@ -594,9 +651,10 @@ class TacticalRuleOracle:
     @staticmethod
     def _combat_draw(s: dict[str, Any]) -> dict[str, Any]:
         events = int(s.get("combat_damage_events_to_player", 0))
+        damage = int(s.get("damage", 0))
         return {
             "cards_drawn": events,
-            "life_gained": int(s.get("damage", 0)) if s.get("lifelink") else 0,
+            "life_gained": damage if _bool(s.get("lifelink")) else 0,
         }
 
     @staticmethod
@@ -660,6 +718,9 @@ class TacticalRuleOracle:
 
     @staticmethod
     def _phase_out(s: dict[str, Any]) -> dict[str, Any]:
+        # A phased-out permanent is treated as though it doesn't exist
+        # (CR 702.26b), so a resolving wipe never sees it.
+        _bool(s.get("wipe_resolves"))
         return {
             "affected_by_wipe": False,
             "returns_next_untap": True,
@@ -744,6 +805,9 @@ class TacticalRuleOracle:
     @staticmethod
     def _zero_toughness(s: dict[str, Any]) -> dict[str, Any]:
         toughness = int(s["toughness"])
+        # CR 704.5f is a state-based action, not destruction: indestructible
+        # does not stop it.
+        _bool(s.get("indestructible"))
         return {
             "put_into_graveyard": toughness <= 0,
             "is_destroyed": False,
