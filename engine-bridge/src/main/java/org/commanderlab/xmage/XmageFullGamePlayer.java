@@ -1841,7 +1841,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 .thenComparingInt(permanent -> permanent.getPower().getValue())
                 .thenComparingInt(permanent -> permanent.getToughness().getValue())
                 .thenComparing(permanent -> permanent.isTapped())
-                .thenComparingInt(Permanent::getDamage);
+                .thenComparingInt(Permanent::getDamage)
+                // #735: timestamp order, counters and rules tell otherwise equal tokens apart.
+                .thenComparing(permanent -> XmageStableOrder.permanentContent(permanent, game));
     }
 
     @Override
@@ -2599,7 +2601,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
     /** Twin-stable ability order (F-36): source object's stable key, then rule text, then ids. */
     private static String abilitySortKey(Ability ability, Game game) {
         return (ability.getSourceId() == null ? "" : XmageStableOrder.objectKey(ability.getSourceId(), game))
-                + "#" + ability.getRule() + "#" + ability.getSourceId() + ":" + ability.getOriginalId();
+                + "#" + ability.getRule() + "#"
+                + (ability.getSourceId() == null ? "" : XmageStableOrder.contentKey(ability.getSourceId(), game))
+                + "#" + ability.getSourceId() + ":" + ability.getOriginalId();
     }
 
     private String objectLabel(UUID id, Game game) {
