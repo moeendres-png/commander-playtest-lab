@@ -27,8 +27,9 @@ import pytest
 
 STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
-# Live pin: multiplayer candidate after F-44 (mage#33), F-43 (mage#29) and F-45 (mage#35), repin v3.
-CANONICAL_XMAGE_PIN = "b479fe74fd1eaf899ff16c6a9203e74a91c0f339"
+# Live pin: multiplayer candidate after the CR 117.5/800.4a priority repair (mage#41)
+# and the deterministic commander-zone ask order (mage#57; Lab #720), repin v5.
+CANONICAL_XMAGE_PIN = "3cbf7741d29a2fe820725456b90f305f9f793ad1"
 CANONICAL_FORGE_PIN = "bb0a740d2bef725194798383c2452213ecdd0b37"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
 _BASE_IMAGE_DIGEST = re.compile(r"sha256:[0-9a-f]{64}")

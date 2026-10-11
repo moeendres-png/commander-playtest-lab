@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Successor-repin identity guard (2026-09-29, successor v2 2026-09-30, v3 2026-10-01,
- * v4 2026-10-03): the bridge
+ * v4 2026-10-03, v5 2026-10-11): the bridge
  * declares the XMage multiplayer candidate as its engine commit, and the engine
  * classes actually loaded at runtime are that candidate's.
  *
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class XmageCandidateEngineFingerprintTest {
 
-    static final String CANDIDATE = "b479fe74fd1eaf899ff16c6a9203e74a91c0f339";
+    static final String CANDIDATE = "3cbf7741d29a2fe820725456b90f305f9f793ad1";
 
     @Test
     void declaredEngineCommitIsTheCandidate() {
@@ -81,6 +81,15 @@ class XmageCandidateEngineFingerprintTest {
      * signature. Its native regression PriorityEliminationTest runs in the
      * candidate's Mage.Tests; the declared commit and the artifact digest below
      * bind the loaded engine.</p>
+     *
+     * <p>Successor v5 (2026-10-11): the deterministic commander-zone ask order
+     * (mage#57) replaces the identity-hash Set with a LinkedHashSet and sorts the
+     * exile path by card name inside GameImpl.checkStateBasedActions only, so it
+     * has no structural signature either. Its native regressions are the partner
+     * ask-order scenarios CommanderZoneApnap3PTest, CommanderZoneApnap4PTest,
+     * CommanderZoneApnap5PTest and CommanderZoneApnap6PTest in the candidate's
+     * Mage.Tests; until those run on this exact commit the declared commit and
+     * the artifact digest below are the whole identity claim.</p>
      */
     @Test
     void loadedEngineCarriesTheF43Revalidation() throws Exception {
