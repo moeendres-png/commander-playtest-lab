@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import importlib.util
 import json
 import subprocess
 from pathlib import Path
@@ -552,6 +553,27 @@ def test_current_qualification_matches_its_sealed_epoch_and_keeps_the_signed_bas
     lock = result.record["source_lock"]
     assert current["engine_artifact_sha256"] == lock["build"]["artifact_sha256"]
     assert current["engine_commit"] == lock["provider_source"]["commit"] == freeze["engine_commit"]
+    # Every recorded identity is the sealed packet's own: the runner commit PB-03 bound,
+    # and the epoch the capability derivation selects for the pin (no stale pointer).
+    runtime = json.loads((epoch / "PB03_RUNTIME_EXECUTION.json").read_text(encoding="utf-8"))
+    assert current["lab_commit"] == runtime["runner_commit"]
+    assert runtime["candidate_commit"] == current["engine_commit"]
+    assert set(current) == {
+        "evidence_epoch",
+        "engine_commit",
+        "engine_artifact_sha256",
+        "lab_commit",
+        "freeze_eligible",
+        "note",
+    }
+    derive = importlib.util.spec_from_file_location(
+        "derive_rules_engines_capabilities",
+        REPO_ROOT / "scripts" / "derive_rules_engines_capabilities.py",
+    )
+    assert derive and derive.loader
+    module = importlib.util.module_from_spec(derive)
+    derive.loader.exec_module(module)
+    assert module.newest_epoch_for_pin(current["engine_commit"]) == epoch
     # The signed basis is unchanged: a rebuilt jar is a requalification, not a re-signature.
     assert freeze["evidence_epoch"].endswith("f881d56fb33f-aef9f7f660b4")
     assert freeze["engine_artifact_sha256"] != current["engine_artifact_sha256"]

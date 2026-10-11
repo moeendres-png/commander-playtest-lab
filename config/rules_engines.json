@@ -173,10 +173,9 @@
    "evidence_epoch": "qualification/current-boundary-epochs/ed8d865f638a-b35d54b8752c",
    "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
    "engine_artifact_sha256": "73bc66905fef9d6e8f9924b56e6a042031389a138c49d4ec084430a1c924fe8d",
-   "pb03_run": 38135768197,
    "lab_commit": "ed8d865f638a43eab6e0fb0ca746c22e0f4f2d60",
    "freeze_eligible": true,
-   "note": "Post-D5 requalification on main ed8d865f (bridge changes merged after the Freeze basis epoch). The jar build is not byte-reproducible, so each rebuild is requalified by PB-03; the signed Freeze identities above (evidence_epoch, engine_artifact_sha256) stay the Owner-signed basis and are never rewritten."
+   "note": "Post-D5 requalification on main ed8d865f; current_qualification always names the newest sealed epoch bound to the pin (the one the capability derivation selects) (bridge changes merged after the Freeze basis epoch). The jar build is not byte-reproducible, so each rebuild is requalified by PB-03; the signed Freeze identities above (evidence_epoch, engine_artifact_sha256) stay the Owner-signed basis and are never rewritten."
   }
  }
 }
