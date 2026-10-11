@@ -1213,13 +1213,33 @@ class XmageFullGameDecisionClassMatrixTest {
                 mage.abilities.Modes modes = (mage.abilities.Modes) witness[1];
                 Ability source = (Ability) witness[2];
                 List<mage.abilities.Mode> available = new ArrayList<>(modes.getAvailableModes(source, game));
+                // CR 700.2d: an already-selected mode is not offered again unless the card may
+                // choose the same mode more than once. getAvailableModes applies only the
+                // once-per-turn filter; both XMage players (HumanPlayer.chooseMode,
+                // ComputerPlayer.chooseMode) apply this one themselves, so the oracle must
+                // too or it would agree with the bridge on a set the rules forbid.
+                if (!modes.isMayChooseSameModeMoreThanOnce()) {
+                    List<UUID> alreadySelected = modes.getSelectedModes();
+                    available.removeIf(mode -> alreadySelected.contains(mode.getId()));
+                }
                 // CR 700.2a: a mode whose required targets cannot be chosen cannot be chosen,
-                // unless no mode can (then the cast rewinds, and all stay listed).
+                // unless no mode can *and* one is still mandatory (then the cast rewinds, and
+                // all stay listed). Once the minimum is already met and nothing is choosable
+                // the choice is over: HumanPlayer.chooseMode (pinned XMage) returns
+                // null there, so the bridge asks nothing and no option is offered.
                 List<mage.abilities.Mode> choosable = available.stream()
                         .filter(mode -> mode.getTargets().canChoose(actor.getId(), source, game))
                         .toList();
-                (choosable.isEmpty() ? available : choosable)
-                        .forEach(mode -> expected.add(mode.getId().toString()));
+                int min = modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
+                if (choosable.isEmpty() && min == 0) {
+                    // No frame at all: HumanPlayer.chooseMode returns null there, so the
+                    // bridge asks nothing and no option is expected. Any frame that did
+                    // reach here would project options against an empty expected set.
+                    expected.add("<no mode frame is offered>");
+                } else {
+                    (choosable.isEmpty() ? available : choosable)
+                            .forEach(mode -> expected.add(mode.getId().toString()));
+                }
                 actions(frame).forEach(action -> projected.add(optionId(action)));
             }
             case "announce_x", "amount" -> {
