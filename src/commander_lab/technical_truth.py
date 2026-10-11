@@ -78,7 +78,8 @@ def _live_pin_requalification_pending(engine_config: dict[str, Any]) -> bool:
         return False
     current = freeze.get("current_qualification")
     if isinstance(current, dict) and current.get("freeze_eligible") is True:
-        qualified = current.get("engine_commit")
+        # An eligible record without a commit qualifies nothing beyond the signed pin.
+        qualified = current.get("engine_commit") or freeze.get("engine_commit")
     else:
         qualified = freeze.get("engine_commit")
     return bool(qualified) and primary.get("commit") != qualified

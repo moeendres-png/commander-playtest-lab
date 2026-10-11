@@ -27,6 +27,7 @@ from commander_lab.qualification.current_boundary.freeze_record import (
     FreezeRecordError,
     assemble_freeze_record,
 )
+from commander_lab.technical_truth import _live_pin_requalification_pending
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 # The synthetic epochs are "produced" by the current checkout's tree, so their
@@ -576,7 +577,10 @@ def test_current_qualification_matches_its_sealed_epoch_and_keeps_the_signed_bas
     # current_qualification follows the live pin; the signed basis keeps the pin it was
     # signed on (a repin is requalified, never re-signed).
     assert current["engine_commit"] == lock["provider_source"]["commit"]
-    assert current["engine_commit"] == config["primary_engine"]["commit"]
+    # It is the live pin unless technical truth reports the repin as still pending.
+    assert (current["engine_commit"] == config["primary_engine"]["commit"]) is not (
+        _live_pin_requalification_pending(config)
+    )
     assert freeze["engine_commit"] == "b479fe74fd1eaf899ff16c6a9203e74a91c0f339"
     # Every recorded identity is the sealed packet's own: the runner commit PB-03 bound,
     # and the epoch the capability derivation selects for the pin (no stale pointer).

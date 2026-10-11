@@ -188,6 +188,8 @@ def test_requalification_is_pending_until_an_eligible_qualification_covers_the_l
         )
         is True
     )
+    # An eligible record without a commit falls back to the signed pin.
+    assert _live_pin_requalification_pending(config({"freeze_eligible": True})) is True
     # An ineligible qualification on the live pin does not count.
     assert (
         _live_pin_requalification_pending(config({"engine_commit": live, "freeze_eligible": False}))
