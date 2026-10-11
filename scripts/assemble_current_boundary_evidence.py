@@ -725,7 +725,7 @@ def _af11_measure(
 
 
 AF11_ADJUDICATION = (
-    "qualification/af11-single-provider-topology-20261009/AF11_COORDINATOR_ADJUDICATION.json"
+    "qualification/af11-single-provider-topology-20261011/AF11_COORDINATOR_ADJUDICATION.json"
 )
 AF11_ADJUDICATION_SCHEMA = "commander-lab.af11-coordinator-adjudication/1.0.0"
 _AF11_DECISIONS = (
@@ -863,7 +863,6 @@ def _af11_adjudication_checks(candidate: str, root: Path, data: dict[str, Any]) 
     # its own seal, whose AF00-AF10 all pass for this candidate.
     effective = str(record["owner_selection"].get("effective_epoch") or "")
     name = f"AF00_AF11_{candidate.upper()}.json"
-    relative = f"{effective}/{name}"
     seal = root / effective / "CURRENT_BOUNDARY_SHA256SUMS"
     if (
         not effective.startswith(_AF11_EPOCH_PREFIX)
@@ -873,19 +872,34 @@ def _af11_adjudication_checks(candidate: str, root: Path, data: dict[str, Any]) 
     ):
         issues.append(f"the selection's effective epoch is not a sealed epoch: {effective!r}")
         return issues
-    sealed_digest = next(
-        (
-            line.split()[0]
-            for line in seal.read_text(encoding="utf-8").splitlines()
-            if line.split()[1:] == [relative]
-        ),
-        None,
-    )
-    raw = (root / relative).read_bytes()
-    if sealed_digest != hashlib.sha256(raw).hexdigest():
-        issues.append(f"the effective epoch's {name} does not match its seal")
+    sealed_lines = seal.read_text(encoding="utf-8").splitlines()
+
+    def sealed_document(file_name: str) -> dict[str, Any] | None:
+        member = f"{effective}/{file_name}"
+        digest = next(
+            (line.split()[0] for line in sealed_lines if line.split()[1:] == [member]),
+            None,
+        )
+        path = root / member
+        raw = path.read_bytes() if path.is_file() else b""
+        if digest is None or digest != hashlib.sha256(raw).hexdigest():
+            issues.append(f"the effective epoch's {file_name} does not match its seal")
+            return None
+        return json.loads(raw)
+
+    sealed = sealed_document(name)
+    if sealed is None:
         return issues
-    sealed = json.loads(raw)
+    # The epoch must have executed the very engine commit the adjudication covers;
+    # an epoch from another pin cannot vouch for this one.
+    runtime = sealed_document("PB03_RUNTIME_EXECUTION.json")
+    if runtime is None:
+        return issues
+    if str(runtime.get("candidate_commit") or "") != str(topology.get("engine_commit") or ""):
+        issues.append(
+            "the selection's effective epoch ran another engine pin: "
+            f"{runtime.get('candidate_commit')!r} vs {topology.get('engine_commit')!r}"
+        )
     gates = {gate["gate"]: gate.get("verdict") for gate in sealed.get("gates") or ()}
     if sealed.get("boundary") != "FRESH_CURRENT_BOUNDARY_EXECUTION" or any(
         gates.get(f"AF{index:02d}") != "PASS" for index in range(11)

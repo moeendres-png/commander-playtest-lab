@@ -163,15 +163,15 @@ def test_signed_freeze_stays_bound_to_the_prior_pin_until_pb03() -> None:
 def test_current_boundary_requires_requalification() -> None:
     lock = _lock()
     assert lock["current_boundary"]["status"] == "REQUALIFICATION_REQUIRED"
-    # No current-boundary epoch is bound to the new pin, and none may be
-    # invented here: qualification credit for 3cbf7741 requires a PB-03 run.
+    # The lock itself never claims an epoch. An epoch for 3cbf7741 exists only as
+    # a sealed PB-03 run, named after the Lab commit that ran it.
     root = REPO_ROOT / EPOCH_ROOT
-    bound = [
-        path.parent.name
-        for path in sorted(root.glob("*/PB03_RUNTIME_EXECUTION.json"))
-        if json.loads(path.read_text()).get("candidate_commit") == CURRENT_PIN
-    ]
-    assert bound == []
+    for path in sorted(root.glob("*/PB03_RUNTIME_EXECUTION.json")):
+        runtime = json.loads(path.read_text())
+        if runtime.get("candidate_commit") != CURRENT_PIN:
+            continue
+        assert (path.parent / "CURRENT_BOUNDARY_SHA256SUMS").is_file(), path.parent.name
+        assert path.parent.name.startswith(runtime["runner_commit"][:12]), path.parent.name
 
 
 def test_all_active_literal_pin_consumers_migrated() -> None:

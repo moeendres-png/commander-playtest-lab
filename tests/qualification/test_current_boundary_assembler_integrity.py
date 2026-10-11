@@ -481,6 +481,7 @@ def _af11_root(tmp_path: Path, *, adjudicated: bool = True) -> Path:
         "config/rules_engines.json",
         "pyproject.toml",
         f"{epoch}/AF00_AF11_XMAGE.json",
+        f"{epoch}/PB03_RUNTIME_EXECUTION.json",
         f"{epoch}/CURRENT_BOUNDARY_SHA256SUMS",
     ):
         (root / relative).parent.mkdir(parents=True, exist_ok=True)
@@ -525,15 +526,27 @@ def test_af11_passes_for_the_adjudicated_provider_on_its_inventoried_classpath(
 
 
 def test_af11_is_unknown_for_a_pin_the_adjudication_does_not_cover(tmp_path: Path) -> None:
-    """An adjudication is bound to one engine commit and does not follow a repin."""
+    """An adjudication is bound to one engine commit and does not follow a repin.
+
+    The record this one supersedes covers the prior pin; measured against the live
+    pin it must stay UNKNOWN, however valid it was for the pin it was made on.
+    """
+    import shutil
+
     asm = _assembler_module()
+    record = json.loads((REPO / asm.AF11_ADJUDICATION).read_text(encoding="utf-8"))
+    prior = record["supersedes"]["record"]
+    root = _af11_root(tmp_path, adjudicated=False)
+    shutil.copyfile(REPO / prior, root / asm.AF11_ADJUDICATION)
     live = json.loads((REPO / "config/rules_engines.json").read_text(encoding="utf-8"))
-    if live["primary_engine"]["commit"] == _af11_adjudicated_pin():
-        pytest.skip("the live pin is still the adjudicated one; nothing to separate")
-    per_candidate = _af11_identities()
-    measured = asm._af11_measure(
-        per_candidate, "xmage", per_candidate["xmage"], _af11_root(tmp_path, adjudicated=False)
+    assert (
+        live["primary_engine"]["commit"]
+        != json.loads((REPO / prior).read_text(encoding="utf-8"))["integration_topology"][
+            "engine_commit"
+        ]
     )
+    per_candidate = _af11_identities()
+    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"], root)
     assert measured["verdict"] == "UNKNOWN"
     assert any("adjudicated engine pin does not match" in line for line in measured["limitations"])
 
@@ -667,6 +680,11 @@ def _mutations(asm) -> dict:
         _af11_edit(root, relative, demote_af06)
         _af11_reseal(root, relative)
 
+    def epoch_other_pin(root: Path) -> None:
+        relative = effective_af(root).rsplit("/", 1)[0] + "/PB03_RUNTIME_EXECUTION.json"
+        _af11_edit(root, relative, lambda d: d.update(candidate_commit="e" * 40))
+        _af11_reseal(root, relative)
+
     def unsealed_epoch(root: Path) -> None:
         _af11_edit(
             root,
@@ -704,6 +722,7 @@ def _mutations(asm) -> dict:
         "manifest_elsewhere": (manifest_elsewhere, "not the one the launch reads"),
         "epoch_tampered": (epoch_tampered, "does not match its seal"),
         "epoch_gate": (epoch_gate, "does not pass AF00-AF10"),
+        "epoch_other_pin": (epoch_other_pin, "ran another engine pin"),
         "unsealed_epoch": (unsealed_epoch, "not a sealed epoch"),
         "epoch_traversal": (epoch_traversal, "not a sealed epoch"),
         "lab_licence": (lab_licence, "Lab licence does not match"),
@@ -726,6 +745,7 @@ _AF11_MUTATIONS = (
     "manifest_elsewhere",
     "epoch_tampered",
     "epoch_gate",
+    "epoch_other_pin",
     "unsealed_epoch",
     "epoch_traversal",
     "lab_licence",
@@ -774,6 +794,25 @@ def test_af11_the_recorded_adjudication_matches_the_source_lock() -> None:
     assert config["provider_decision"] == "XMAGE_SELECTED"
     assert config["architecture_freeze"]["selected_provider"] == record["selected_provider"]
     assert "ARCHITECTURE_FREEZE (separate Owner decision)" in record["not_claimed"]
+
+
+def test_af11_adjudication_covers_the_live_pin_and_keeps_the_prior_record() -> None:
+    """A repin needs its own adjudication; the prior one stays the record of its own pin."""
+    asm = _assembler_module()
+    record = json.loads((REPO / asm.AF11_ADJUDICATION).read_text(encoding="utf-8"))
+    config = json.loads((REPO / "config/rules_engines.json").read_text(encoding="utf-8"))
+    assert record["integration_topology"]["engine_commit"] == config["primary_engine"]["commit"]
+    prior_path = record["supersedes"]["record"]
+    assert prior_path != asm.AF11_ADJUDICATION
+    prior = json.loads((REPO / prior_path).read_text(encoding="utf-8"))
+    assert prior["integration_topology"]["engine_commit"] == record["supersedes"]["engine_commit"]
+    assert prior["integration_topology"]["engine_commit"] != config["primary_engine"]["commit"]
+    # Only the pin and its effective epoch moved; licences and topology are unchanged.
+    assert prior["licence_topology"] == record["licence_topology"]
+    assert prior["forge"] == record["forge"]
+    assert prior["decisions"] == record["decisions"]
+    for key in ("adapter", "launch_main_class", "provider_classpath_manifest"):
+        assert prior["integration_topology"][key] == record["integration_topology"][key]
 
 
 def test_af11_unknown_still_blocks_freeze() -> None:
