@@ -173,6 +173,12 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
     documented_limitations: list[str] = []
     if not external_ready:
         documented_limitations.append("external_rules_engine_validation_pending")
+    freeze = engine_config.get("architecture_freeze")
+    freeze_commit = freeze.get("engine_commit") if isinstance(freeze, dict) else None
+    if freeze_commit and primary_engine_payload.get("commit") != freeze_commit:
+        # A repin moved the live pin past the Freeze epoch: its capability truth is
+        # still the Freeze epoch's until PB-03 runs on the new pin and it is re-bound.
+        documented_limitations.append("live_pin_requalification_pending")
     if unresolved:
         documented_limitations.append("unresolved_operational_own_deck_baseline")
 

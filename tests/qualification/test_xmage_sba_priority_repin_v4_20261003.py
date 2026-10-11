@@ -14,6 +14,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CURRENT_PIN = "b479fe74fd1eaf899ff16c6a9203e74a91c0f339"
 CURRENT_TREE = "1ff64c794b1f992a8596c0b1b9952055520ccd10"
@@ -43,6 +45,24 @@ ACTIVE_LITERAL_CONSUMERS = (
 )
 
 
+def _live_pin() -> str:
+    manifest = json.loads((REPO_ROOT / "config/rules_engines.json").read_text())
+    return manifest["primary_engine"]["commit"]
+
+
+# This file proves the 2026-10-03 repin EVENT. Its current-pin assertions hold only while
+# this repin's pin is live; after a later forward repin they are superseded by that repin's
+# successor guard (tests/qualification/test_xmage_commander_zone_order_repin_v5_20261011.py)
+# and are skipped, never rewritten. Its historical assertions stay active.
+superseded_by_later_repin = pytest.mark.skipif(
+    _live_pin() != CURRENT_PIN,
+    reason=(
+        "superseded: live XMage pin moved forward "
+        "(see test_xmage_commander_zone_order_repin_v5_20261011.py)"
+    ),
+)
+
+
 def _manifest() -> dict:
     return json.loads((REPO_ROOT / "config/rules_engines.json").read_text())
 
@@ -51,6 +71,7 @@ def _lock() -> dict:
     return json.loads((REPO_ROOT / SUCCESSOR_LOCK).read_text())
 
 
+@superseded_by_later_repin
 def test_live_pin_is_the_successor_candidate() -> None:
     primary = _manifest()["primary_engine"]
     assert primary["commit"] == CURRENT_PIN
@@ -71,7 +92,12 @@ def test_successor_lock_binds_the_candidate_its_donor_and_the_prior_pin() -> Non
     assert lock["new_live_pin"]["commit"] == CURRENT_PIN
     assert lock["new_live_pin"]["tree"] == CURRENT_TREE
     assert lock["new_live_pin"]["parents"] == [PRIOR_PIN, DONOR_HEAD]
-    assert lock["new_live_pin"]["source_archive"] == _manifest()["primary_engine"]["source_archive"]
+    assert lock["new_live_pin"]["source_archive"].endswith(f"/{CURRENT_PIN}.tar.gz")
+    if _live_pin() == CURRENT_PIN:
+        assert (
+            lock["new_live_pin"]["source_archive"]
+            == _manifest()["primary_engine"]["source_archive"]
+        )
     assert lock["prior_live_pin"]["commit"] == PRIOR_PIN
     assert lock["prior_live_pin"]["successor_locks"] == list(PRIOR_LOCKS)
     (donor,) = lock["donors"]
@@ -104,6 +130,7 @@ def test_native_and_lab_runs_bind_the_exact_pin() -> None:
     assert lock["lineage"]["donor_head"]["commit"] == DONOR_HEAD
 
 
+@superseded_by_later_repin
 def test_all_active_literal_pin_consumers_migrated() -> None:
     for rel in ACTIVE_LITERAL_CONSUMERS:
         text = (REPO_ROOT / rel).read_text()
@@ -111,6 +138,7 @@ def test_all_active_literal_pin_consumers_migrated() -> None:
         assert PRIOR_PIN not in text, rel
 
 
+@superseded_by_later_repin
 def test_prior_pin_stays_historical() -> None:
     from commander_lab.qualification.current_boundary import source_lock
 

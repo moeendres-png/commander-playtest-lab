@@ -44,6 +44,10 @@ NON_CLAIM_SCOPE = (
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 DEFAULT_EPOCH = "c124150d77ab-d303b2ca5f32"
+# The successor source lock of the live XMage pin; its tree is printed and cited from here.
+XMAGE_PIN_LOCK = (
+    "qualification/xmage-commander-zone-order-repin-v5-20261011/SUCCESSOR_SOURCE_LOCK.json"
+)
 PACKET_DIR = REPO_ROOT / "docs" / "provider_readiness_packet_20261007"
 PACKET_JSON = PACKET_DIR / "PROVIDER_READINESS.json"
 PACKET_MD = PACKET_DIR / "PROVIDER_READINESS.md"
@@ -667,12 +671,7 @@ def _read_pin_section(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
 
 
 def _xmage_pin_tree(repo_root: Path = REPO_ROOT) -> dict[str, str]:
-    lock = _load_json(
-        repo_root
-        / "qualification"
-        / "xmage-sba-priority-repin-v4-20261003"
-        / "SUCCESSOR_SOURCE_LOCK.json"
-    )
+    lock = _load_json(repo_root / XMAGE_PIN_LOCK)
     candidate = lock["lineage"]["final_integrated_candidate"]
     return {"commit": candidate["commit"], "tree": candidate["tree"]}
 
@@ -1458,10 +1457,7 @@ def build_packet(repo_root: Path = REPO_ROOT, epoch_name: str = DEFAULT_EPOCH) -
                 "xmage": {
                     **pin_section["pins"]["xmage"],
                     "tree": xmage_lock["tree"],
-                    "tree_source": (
-                        "qualification/xmage-sba-priority-repin-v4-20261003/"
-                        "SUCCESSOR_SOURCE_LOCK.json#lineage.final_integrated_candidate.tree"
-                    ),
+                    "tree_source": f"{XMAGE_PIN_LOCK}#lineage.final_integrated_candidate.tree",
                 },
             },
             "evidence_identity_bindings": {
@@ -1531,7 +1527,7 @@ def build_packet(repo_root: Path = REPO_ROOT, epoch_name: str = DEFAULT_EPOCH) -
                 f"{epoch_root}/PB03_RUNTIME_EXECUTION.json",
                 "config/rules_engines.json",
                 "qualification/CURRENT_PRE_FREEZE_CONTRACT.json",
-                "qualification/xmage-sba-priority-repin-v4-20261003/SUCCESSOR_SOURCE_LOCK.json",
+                XMAGE_PIN_LOCK,
             ],
         },
     }

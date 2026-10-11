@@ -29,9 +29,45 @@ def _derive_module() -> ModuleType:
     return module
 
 
+def _signed_epoch() -> tuple[Path, str]:
+    """The sealed epoch and engine commit the manifest's derived lists were signed on.
+
+    ``--check`` derives from the live pin, so it can only run once PB-03 has sealed an
+    epoch on that pin. These tests address the signed epoch explicitly instead; the
+    live refusal is asserted separately, never papered over.
+    """
+    config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    freeze = config["architecture_freeze"]
+    return REPO_ROOT / freeze["evidence_epoch"], str(freeze["engine_commit"])
+
+
 def test_rules_engines_missing_capabilities_are_derived_from_newest_epoch() -> None:
     module = _derive_module()
-    assert module.main(["--check"]) == 0
+    live = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    try:
+        module.newest_epoch_for_pin(live["primary_engine"]["commit"])
+    except SystemExit:
+        pass
+    else:
+        # Once PB-03 has sealed an epoch on the live pin, the live check is back.
+        assert module.main(["--check"]) == 0
+    epoch, pin = _signed_epoch()
+    chosen, engine, runtime = module.derive(epoch, pin)
+    assert chosen == epoch
+    config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    assert engine == config["primary_engine"]["missing_required_capabilities"] == []
+    assert runtime == config["current_runtime"]["required_missing_capabilities"] == []
+
+
+def test_check_refuses_while_no_sealed_epoch_is_bound_to_the_live_pin() -> None:
+    """A repin moves the pin before PB-03 reruns: --check must not pass on the old epoch."""
+    module = _derive_module()
+    live = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    _, pin = _signed_epoch()
+    if live["primary_engine"]["commit"] == pin:
+        pytest.skip("the live pin is the signed one; --check is already covered above")
+    with pytest.raises(SystemExit, match="no sealed epoch is bound to the XMage pin"):
+        module.main(["--check"])
 
 
 @pytest.mark.parametrize(
@@ -46,6 +82,7 @@ def test_hand_edited_missing_list_fails_the_check(
 ) -> None:
     module = _derive_module()
     config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    _, pin = _signed_epoch()
     derived = config[section][field]
     # Any list other than the derived one is a hand edit: removing entries, adding
     # a credited capability back, or clearing a non-empty list.
@@ -59,6 +96,8 @@ def test_hand_edited_missing_list_fails_the_check(
     for edited in edits:
         changed = json.loads(json.dumps(config))
         changed[section][field] = edited
+        # --check derives from the manifest's own pin, so address the sealed epoch.
+        changed["primary_engine"]["commit"] = pin
         fake = tmp_path / "rules_engines.json"
         fake.write_text(json.dumps(changed), encoding="utf-8")
         monkeypatch.setattr(module, "CONFIG", fake)
@@ -97,14 +136,35 @@ def test_runtime_list_fails_closed_without_its_evidence(tmp_path: Path) -> None:
         module.runtime_missing(tmp_path, "an_unmapped_bridge", pin)
 
 
-def test_newest_epoch_is_bound_to_the_current_pin() -> None:
+def test_no_sealed_epoch_is_bound_to_the_live_pin_until_pb03_reruns_on_it() -> None:
+    """A repin moves the pin before PB-03 reruns: the derivation must refuse, not reuse."""
     module = _derive_module()
     config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
     pin = config["primary_engine"]["commit"]
-    epoch = module.newest_epoch_for_pin(pin)
+    with pytest.raises(SystemExit, match="no sealed epoch is bound to the XMage pin"):
+        module.newest_epoch_for_pin(pin)
+    # The newest sealed epoch is still the prior pin's current qualification (the
+    # Freeze pin): no epoch evidence is transferred to the newer pin.
+    prior = config["architecture_freeze"]["engine_commit"]
+    epoch = module.newest_epoch_for_pin(prior)
+    current = config["architecture_freeze"]["current_qualification"]
+    assert current["engine_commit"] == prior
+    assert epoch == REPO_ROOT / current["evidence_epoch"]
     runtime = json.loads((epoch / "PB03_RUNTIME_EXECUTION.json").read_text(encoding="utf-8"))
-    assert runtime["candidate_commit"] == pin
+    assert runtime["candidate_commit"] == prior
     assert (epoch / "CURRENT_BOUNDARY_SHA256SUMS").is_file()
+
+
+def test_the_live_pin_derivation_fails_closed_rather_than_borrowing_the_prior_epoch() -> None:
+    module = _derive_module()
+    config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    with pytest.raises(SystemExit, match="no sealed epoch is bound to the XMage pin"):
+        module.derive()
+    # The same derivation over the Freeze epoch is reproducible and still empty.
+    epoch, pin = _signed_epoch()
+    _, engine, runtime = module.derive(epoch, pin)
+    assert engine == config["primary_engine"]["missing_required_capabilities"] == []
+    assert runtime == config["current_runtime"]["required_missing_capabilities"] == []
 
 
 def test_unknown_pin_has_no_epoch() -> None:

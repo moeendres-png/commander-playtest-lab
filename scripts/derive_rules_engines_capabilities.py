@@ -5,6 +5,12 @@
 the current XMage pin and are never edited by hand. ``--check`` fails when the file
 differs from the derivation; ``--write`` rewrites only the two derived fields.
 
+After a repin and before PB-03 has sealed an epoch on the new pin, ``--check`` fails
+closed (no epoch is bound to the live pin). In that window the lists are still the
+derivation over the Freeze pair (``architecture_freeze.evidence_epoch`` /
+``engine_commit``), not the live pin's own truth; technical truth reports
+``live_pin_requalification_pending`` until the re-bind.
+
 * ``primary_engine.missing_required_capabilities`` is the engine's truth on the
   production lane (``full-game``), judged by the same freeze-record assembler that
   decides Freeze eligibility.
@@ -93,10 +99,18 @@ def runtime_missing(epoch: Path, bridge: str, pin: str) -> list[str]:
     return sorted(name for name in REQUIRED_CAPABILITIES if capabilities.get(name) is not True)
 
 
-def derive(epoch: Path | None = None) -> tuple[Path, list[str], list[str]]:
-    """The epoch, the production-lane engine missing list and the launched-runtime list."""
+def derive(epoch: Path | None = None, pin: str | None = None) -> tuple[Path, list[str], list[str]]:
+    """The epoch, the production-lane engine missing list and the launched-runtime list.
+
+    ``epoch``/``pin`` address one specific sealed (epoch, engine commit) pair instead
+    of the live pin, so a pin that has no epoch yet can still be derived from the epoch
+    it was signed against. The assembler verifies the epoch seal and that the epoch's
+    evidence really is about ``pin`` before anything in it is read, so an explicit pair
+    can never smuggle a mismatch past the live default: with neither argument the
+    derivation is the live pin and fails closed when no sealed epoch is bound to it.
+    """
     config = json.loads(CONFIG.read_text(encoding="utf-8"))
-    pin = config["primary_engine"]["commit"]
+    pin = pin or config["primary_engine"]["commit"]
     chosen = epoch or newest_epoch_for_pin(pin)
     # The assembler verifies the epoch seal before anything in it is read.
     result = assemble_freeze_record(chosen, repo_root=REPO_ROOT, expected_pin=pin)

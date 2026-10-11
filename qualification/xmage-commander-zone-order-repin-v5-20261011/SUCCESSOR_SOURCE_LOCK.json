@@ -1,0 +1,130 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-commander-zone-order-repin-v5-20261011",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "native and Lab runtime qualification are bound to exact-commit runs below; current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "ARCHITECTURE_FREEZE_REBIND",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "prior_live_pin": {
+  "commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "tree": "1ff64c794b1f992a8596c0b1b9952055520ccd10",
+  "role": "prior live XMage pin (F-43 + F-44 + F-45 + the CR 117.5/800.4a priority repair); stays historical and remains the engine the Owner-signed Architecture Freeze is bound to",
+  "successor_locks": [
+   "qualification/xmage-sba-priority-repin-v4-20261003/SUCCESSOR_SOURCE_LOCK.json"
+  ]
+ },
+ "lineage": {
+  "prior_pin": {
+   "commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "tree": "1ff64c794b1f992a8596c0b1b9952055520ccd10"
+  },
+  "donor_head": {
+   "commit": "69b33b3b80084e04f63323e7d4518117f1f71048",
+   "tree": "94a9f78331cbb619fe1443ccf43088f7f193e120",
+   "parent": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339"
+  },
+  "final_integrated_candidate": {
+   "commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+   "tree": "94a9f78331cbb619fe1443ccf43088f7f193e120",
+   "content": "F-43 + F-44 + F-45 + the CR 117.5/800.4a priority repair + the deterministic commander-zone ask order"
+  },
+  "identity_rule": "each runtime receipt is bound to the commit it ran on. Here the donor head and the integrated merge commit share a tree, so tree identity proves nothing here: only the commit separates mage#57 from the prior pin."
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/xmage-mp-candidate-20260929",
+  "commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+  "tree": "94a9f78331cbb619fe1443ccf43088f7f193e120",
+  "parents": [
+   "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "69b33b3b80084e04f63323e7d4518117f1f71048"
+  ],
+  "committed_at": "2026-10-11T13:28:18+02:00",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/3cbf7741d29a2fe820725456b90f305f9f793ad1.tar.gz",
+  "fork_ref_verified": "git ls-remote https://github.com/moeendres-png/mage.git claude/xmage-mp-candidate-20260929 = 3cbf7741d29a2fe820725456b90f305f9f793ad1"
+ },
+ "donors": [
+  {
+   "finding": "COMMANDER-ZONE-ASK-ORDER (CR 704.3 / 903.9a)",
+   "tracker": "Lab #720",
+   "pr": "moeendres-png/mage#57",
+   "head": "69b33b3b80084e04f63323e7d4518117f1f71048",
+   "observation": "one owner's campaign commanders were collected into Set<Card> commanders = new HashSet<>() inside GameImpl.checkStateBasedActions and asked once per card while iterating that set. CardImpl does not override hashCode and commander ids are random UUIDs, so the order of the 'move to the command zone?' questions varied from JVM to JVM whenever one owner had two commanders and both died in the same state-based-action check. The answers and the resulting game were unchanged; only the order of the questions differed, and twin replay of an otherwise identical game therefore produced two different semantic transcripts.",
+   "fix": "LinkedHashSet plus Comparator.comparing(Card::getName) on the exile stream: one owner's commanders are asked in graveyard order, then exiled commanders in name order. Ordering only; no Rules outcome changes.",
+   "git_hash_object": {
+    "Mage/src/main/java/mage/game/GameImpl.java": "dbcfb71584f1c5a5c2b1941340eb8879b96fec5f",
+    "Mage.Tests/src/test/java/org/mage/test/commander/multiplayer/CommanderZoneApnapTestBase.java": "9aee21c6e2977c2fb635b8bfd672099bcf5a29eb"
+   },
+   "git_hash_object_method": "git ls-tree 3cbf7741 in the fork; blob ids of the two files the merge b479fe74..3cbf7741 changes",
+   "diff_vs_prior_pin": "git diff --stat b479fe74 3cbf7741 = exactly these two files, 45 insertions and 1 deletion",
+   "lab_may_not_reorder": "the Lab cannot reproduce this by ordering its own observations: it would have to compute Rules semantics. The fix therefore lives in the engine, and no Lab-side workaround was added."
+  }
+ ],
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on branch claude/xmage-mp-candidate-20260929",
+   "run_id": 38136235677,
+   "job": 114460561203,
+   "commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+   "run": 7042,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "status": "COMPLETE",
+   "donor_regressions_in_run": "CommanderZoneApnap3PTest, CommanderZoneApnap4PTest, CommanderZoneApnap5PTest and CommanderZoneApnap6PTest appear in the Mage.Tests per-class listing of this run; the partner ask-order assertion lives in their shared CommanderZoneApnapTestBase",
+   "source": "Mage Actions run 38136235677 (maven.yml workflow_dispatch, head 3cbf7741), job 114460561203, Mage.Tests module summary line 'Tests run: 7042, Failures: 0, Errors: 0, Skipped: 125'",
+   "baseline_at_prior_pin": "7042 run / 125 skipped at b479fe74 (run 37141776698); the donor adds assertions to existing tests, not new test methods"
+  },
+  "mage_verify": {
+   "result": "FAIL (pre-existing, baseline-attributed)",
+   "detail": "VerifyCardDataTest.test_checkMissingSetData:1230 'Found set errors: 3' and VerifyCardDataTest.test_verifyCards:361 'found 15 errors in 91085 cards verify'; the same two failure lines appear in run 37141776698 on b479fe74. The donor changes no card or set data."
+  }
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run below; no local isolated m2 cross-check was made for this pin",
+  "installed_artifacts_commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.61": "sha256 c567b6533267b1bec1e8d85e0624a7db0ff8ea4af5acca44adfcf6a625632928",
+   "org.mage:mage-sets:1.4.61": "sha256 bc973e813d811cc702511d61b79e3588346fb82a1d6c069dd3c90ee582846b71"
+  },
+  "bridge_suite": {
+   "command": "XMage Full Game Conformance workflow_dispatch on the repin branch head fef9d626 (XMAGE_COMMIT=3cbf7741): engine-bridge mvn verify against XMage built from exact 3cbf7741",
+   "run": 1067,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 38142486874,
+   "job": 114479045714,
+   "artifact": {
+    "id": 11703344470,
+    "zip_sha256": "ed69019b5affbf23d9baf04c06b7e37f12dd9b04afed5d0370ff520cd745f616"
+   },
+   "supporting_run": "pull_request run 38142484164 of the same workflow on the same head fef9d626: success",
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "baseline_at_prior_pin": "950 run / 1 skipped at b479fe74 (run 37150350091); the bridge suite has grown since, so counts are not comparable across pins"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit. The repair has no structural signature (a collection ordering inside GameImpl.checkStateBasedActions); identity rests on the declared commit, the native CommanderZoneApnap*Test regressions in maven.yml run 38136235677 on this exact commit, and the bridge suite run 38142486874 against XMage built from this exact commit.",
+  "installed_artifacts_note": "the conformance job checks out XMage at exactly 3cbf7741 (git rev-parse HEAD == XMAGE_COMMIT gate, cache-hit=false) and installs org.mage:mage / mage-sets 1.4.61 built from it into the runner's m2; the digests above are the sha256 lines that job 114479045714 printed after the install"
+ },
+ "architecture_freeze_binding": {
+  "status": "UNCHANGED_BY_THIS_REPIN",
+  "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
+  "evidence_epoch": "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4",
+  "why": "the Owner-signed Architecture Freeze (2026-10-10) is bound to the epoch it was signed against. Moving the live pin is not a re-signing, so config/rules_engines.json architecture_freeze keeps engine_commit, engine_artifact_sha256 and evidence_epoch on b479fe74. The two values differ from primary_engine.commit until PB-03 runs on the Lab main merge commit of this repin and the Coordinator persists a new epoch; the freeze record is re-bound then, by the Coordinator, not by a pin move."
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "PB-03 workflow_dispatch on the exact Lab main merge commit of this repin, persisted as a new epoch. No current-boundary epoch exists for 3cbf7741 yet, and none may be written by this repin. Until that epoch exists no FULL107/AF credit is claimed for this pin and the signed Freeze above stays bound to b479fe74. Expected effect to verify: replay of a game in which two commanders of one owner die in the same state-based-action check stops producing two different semantic_transcript_sha256 values (Lab #720). AF11 is UNKNOWN for 3cbf7741 because the AF11 adjudication covers b479fe74 only; the new epoch is not Freeze-eligible until AF11 is re-adjudicated for this pin, so the re-bind needs PB-03 plus that adjudication."
+ }
+}

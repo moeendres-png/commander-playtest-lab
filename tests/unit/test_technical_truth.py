@@ -67,6 +67,9 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
     assert truth["current_blockers"] == []
     assert "external_rules_engine_validation_pending" not in truth["documented_limitations"]
     assert "unresolved_operational_own_deck_baseline" not in truth["documented_limitations"]
+    rules = json.loads((ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    pending = rules["primary_engine"]["commit"] != rules["architecture_freeze"]["engine_commit"]
+    assert ("live_pin_requalification_pending" in truth["documented_limitations"]) is pending
     readiness = truth["first_run_readiness"]
     assert readiness["preparation_surface_present"] is True
     assert readiness["authorized_runner_surface_present"] is True

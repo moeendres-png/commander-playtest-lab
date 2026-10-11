@@ -57,12 +57,12 @@
     },
     "engine_pins": {
       "config_file": "config/rules_engines.json",
-      "config_sha256": "90d41b790eb3bd2a1eb78e936d5c28121691d84bdbfabadcb1d9ac766d43a8ac",
+      "config_sha256": "bf983f66f545acb5c8e442ff5375c67dde36fd9174db1f333f76e590ad46917e",
       "xmage": {
-        "commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+        "commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
         "pin_source": "config/rules_engines.json#primary_engine.commit",
-        "tree": "1ff64c794b1f992a8596c0b1b9952055520ccd10",
-        "tree_source": "qualification/xmage-sba-priority-repin-v4-20261003/SUCCESSOR_SOURCE_LOCK.json#lineage.final_integrated_candidate.tree"
+        "tree": "94a9f78331cbb619fe1443ccf43088f7f193e120",
+        "tree_source": "qualification/xmage-commander-zone-order-repin-v5-20261011/SUCCESSOR_SOURCE_LOCK.json#lineage.final_integrated_candidate.tree"
       },
       "forge_rules_core": {
         "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
@@ -91,12 +91,12 @@
     "drift_records": [
       {
         "subject": "xmage engine commit",
-        "pin": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+        "pin": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
         "sealed_evidence": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
-        "verdict": "IDENTICAL",
+        "verdict": "DIFFERS",
         "pin_source": "config#primary_engine.commit",
         "evidence_source": "AF00_AF11_XMAGE.json#gates[AF00].evidence",
-        "note": "no drift: the sealed epoch was produced from this exact pin"
+        "note": "PIN_ADVANCED_AFTER_SEALED_EPOCH: the sealed evidence is not promoted and no credit is transferred to the newer pin"
       },
       {
         "subject": "forge Rules-Core commit",
@@ -9866,7 +9866,7 @@
       "qualification/current-boundary-epochs/c124150d77ab-d303b2ca5f32/PB03_RUNTIME_EXECUTION.json",
       "config/rules_engines.json",
       "qualification/CURRENT_PRE_FREEZE_CONTRACT.json",
-      "qualification/xmage-sba-priority-repin-v4-20261003/SUCCESSOR_SOURCE_LOCK.json"
+      "qualification/xmage-commander-zone-order-repin-v5-20261011/SUCCESSOR_SOURCE_LOCK.json"
     ]
   }
 }
