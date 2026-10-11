@@ -31,7 +31,7 @@ from commander_lab.engine.rules.full_game_comparison import (
 )
 from commander_lab.models import RulesDeckInput
 
-XMAGE_COMMIT = "3cbf7741d29a2fe820725456b90f305f9f793ad1"
+XMAGE_COMMIT = "0" * 40  # any engine commit; not the live pin
 
 
 def _deck(deck_id: str, index: int) -> RulesDeckInput:
