@@ -49,6 +49,7 @@ on:
       - "src/commander_lab/workflow_identity.py"
       - "src/commander_lab/workflow_session.py"
       - "src/commander_lab/semantic_replay/**"
+      - "src/commander_lab/freeze_readiness.py"
   workflow_dispatch:
 
 permissions:

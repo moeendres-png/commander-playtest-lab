@@ -70,6 +70,13 @@ import zipfile
 from pathlib import Path
 from typing import Any, NoReturn
 
+# Packet-scoped: these fields say what this evidence itself claims, never project state.
+NON_CLAIM_SCOPE = (
+    "This packet's own non-claims: the evidence in it selects no provider and claims no "
+    "Freeze. Current project state (Owner-signed Freeze, D5 runtime selection) is "
+    "config/rules_engines.json architecture_freeze and provider_decision."
+)
+
 SCHEMA_VERSION = "packaging-smoke-1.1.0"
 GENERATED_BY = "scripts/verify_packaging_smoke.py"
 
@@ -999,6 +1006,7 @@ def build_evidence(
         "hidden_information": "none_no_game_state_or_player_data_collected",
         "production_provider": "NOT_SELECTED",
         "architecture_freeze": "NOT_CLAIMED",
+        "non_claim_scope": NON_CLAIM_SCOPE,
     }
 
 

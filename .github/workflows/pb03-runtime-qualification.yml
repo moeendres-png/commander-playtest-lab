@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/pb03-runtime-qualification.yml"
       - "config/rules_engines.json"
+      - "src/commander_lab/freeze_readiness.py"
       # B12: the effective contract, fixture manifests and install inputs the
       # producer reads (tests/qualification/test_pb03_trigger_completeness.py).
       - "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
