@@ -168,6 +168,15 @@
   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
   "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
   "runtime_switch": "DONE_D5",
-  "note": "selected_provider is the architecture-level selection made at the Freeze. The D5 runtime switch moved the launched runtime (production_bridge) to the full-game lane; provider_decision, current_runtime and primary_engine.production_ready record that switch. D17 stays a bounded limitation: pilots out of process, no third-party code in the engine JVM; stronger isolation is a gate before any untrusted pilot."
+  "note": "selected_provider is the architecture-level selection made at the Freeze. The D5 runtime switch moved the launched runtime (production_bridge) to the full-game lane; provider_decision, current_runtime and primary_engine.production_ready record that switch. D17 stays a bounded limitation: pilots out of process, no third-party code in the engine JVM; stronger isolation is a gate before any untrusted pilot.",
+  "current_qualification": {
+   "evidence_epoch": "qualification/current-boundary-epochs/ed8d865f638a-b35d54b8752c",
+   "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+   "engine_artifact_sha256": "73bc66905fef9d6e8f9924b56e6a042031389a138c49d4ec084430a1c924fe8d",
+   "pb03_run": 38135768197,
+   "lab_commit": "ed8d865f638a43eab6e0fb0ca746c22e0f4f2d60",
+   "freeze_eligible": true,
+   "note": "Post-D5 requalification on main ed8d865f (bridge changes merged after the Freeze basis epoch). The jar build is not byte-reproducible, so each rebuild is requalified by PB-03; the signed Freeze identities above (evidence_epoch, engine_artifact_sha256) stay the Owner-signed basis and are never rewritten."
+  }
  }
 }
