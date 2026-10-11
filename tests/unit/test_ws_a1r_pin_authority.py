@@ -18,15 +18,16 @@ def test_manifest_declares_sole_pin_authority(repo_root: Path) -> None:
     assert "primary_engine.commit" in note["pin_authority"]
     assert "secondary_engine.commit" in note["pin_authority"]
     terminology = note["role_terminology"]
-    # After the Freeze (2026-10-10): XMage is selected at the architecture level, the
-    # launched runtime is not a production-ready provider until the D5 switch.
-    assert "NOT yet a production-ready Production Provider runtime" in terminology["primary_engine"]
+    # After the Freeze (2026-10-10) and the D5 runtime switch: XMage is selected and
+    # the launched runtime is the full-game lane.
+    assert "launched runtime is the full-game lane" in terminology["primary_engine"]
     assert "ARCHITECTURE_FREEZE = CLAIMED" in terminology["selection_truth"]
-    assert "NOT SELECTED as a production runtime" in terminology["selection_truth"]
-    assert "NO_PROVIDER_READY" in terminology["selection_truth"]
+    assert "D5 done" in terminology["selection_truth"]
+    assert "XMAGE_SELECTED" in terminology["selection_truth"]
     manifest = _manifest(repo_root)
     assert manifest["architecture_freeze"]["status"] == "CLAIMED"
-    assert manifest["provider_decision"] == "NO_PROVIDER_READY"
+    assert manifest["architecture_freeze"]["runtime_switch"] == "DONE_D5"
+    assert manifest["provider_decision"] == "XMAGE_SELECTED"
 
 
 def test_manifest_pins_unchanged_by_authority_repair(repo_root: Path) -> None:
@@ -34,9 +35,9 @@ def test_manifest_pins_unchanged_by_authority_repair(repo_root: Path) -> None:
     assert config["secondary_engine"]["commit"] == "bb0a740d2bef725194798383c2452213ecdd0b37"
     # Live pin: multiplayer candidate after F-44 (mage#33), F-43 (mage#29) and F-45 (mage#35), repin v3.
     assert config["primary_engine"]["commit"] == "b479fe74fd1eaf899ff16c6a9203e74a91c0f339"
-    assert config["provider_decision"] == "NO_PROVIDER_READY"
-    assert config["current_runtime"]["provider_selected"] is False
-    assert config["current_runtime"]["production_provider"] is None
+    assert config["provider_decision"] == "XMAGE_SELECTED"
+    assert config["current_runtime"]["provider_selected"] is True
+    assert config["current_runtime"]["production_provider"] == "xmage"
 
 
 def test_forge_readme_defers_to_manifest(repo_root: Path) -> None:
@@ -51,4 +52,4 @@ def test_engine_setup_doc_defers_to_manifest(repo_root: Path) -> None:
     assert MANIFEST in text
     assert STALE_FORGE_PIN not in text
     assert STALE_XMAGE_PIN not in text
-    assert "NO_PROVIDER_READY" in text
+    assert "XMAGE_SELECTED" in text

@@ -23,16 +23,16 @@ def _derived_missing(repo_root: Path) -> tuple[list[str], list[str]]:
     return list(engine), list(runtime)
 
 
-def test_current_xmage_b4d_runtime_truth_is_pinned_and_fail_closed(repo_root: Path) -> None:
+def test_current_xmage_runtime_truth_is_pinned_and_derived(repo_root: Path) -> None:
     config = json.loads((repo_root / "config/rules_engines.json").read_text(encoding="utf-8"))
     primary = config["primary_engine"]
     runtime = config["current_runtime"]
 
     assert primary["repository"] == XMAGE_REPOSITORY
     assert primary["commit"] == XMAGE_COMMIT
-    assert primary["production_ready"] is False
     assert primary["real_execution"] is True
-    assert primary["status"] == "B4D_EVENT_LOG_LIFECYCLE_VALIDATED_DEGRADED"
+    assert primary["status"] == "FULL_GAME_LANE_PRODUCTION_PROVIDER"
+    # The B4-D surfaces stay validated history; the production runtime is the full-game lane.
     assert {
         "game_state_observation",
         "priority_visible",
@@ -51,21 +51,19 @@ def test_current_xmage_b4d_runtime_truth_is_pinned_and_fail_closed(repo_root: Pa
         "repeated_game_lifecycle_cleanup",
     }.issubset(primary["validated_capabilities"])
 
-    assert config["provider_decision"] == "NO_PROVIDER_READY"
-    assert config["production_bridge"] == "b4d_event_log_lifecycle_bridge"
-    assert runtime["provider_selected"] is False
-    assert runtime["production_provider"] is None
-    assert runtime["xmage_status"] == "PARTIAL_B4D_EVENT_LOG_LIFECYCLE"
+    assert config["provider_decision"] == "XMAGE_SELECTED"
+    assert config["production_bridge"] == "xmage_full_game_lane_bridge"
+    assert runtime["provider_selected"] is True
+    assert runtime["production_provider"] == "xmage"
+    assert runtime["xmage_status"] == "FULL_GAME_LANE_PRODUCTION_RUNTIME"
     # #662: derived from the newest sealed epoch by the freeze-record assembler,
     # never pinned by hand (tests/unit/test_rules_engines_capability_derivation.py).
-    # The engine list is the production lane's truth; the runtime list is the
-    # launched B4-D bridge's. An empty engine list is evidence of eligibility, not
-    # a provider selection: the provider stays unselected and not production ready.
+    # Since D5 the launched runtime is the production lane, so both lists are that
+    # lane's truth. production_ready holds only while both derive empty.
     engine_missing, runtime_missing = _derived_missing(repo_root)
-    assert primary["missing_required_capabilities"] == engine_missing
-    assert runtime["required_missing_capabilities"] == runtime_missing
-    assert "legal_actions_supported" in runtime["required_missing_capabilities"]
-    assert primary["production_ready"] is False
+    assert primary["missing_required_capabilities"] == engine_missing == []
+    assert runtime["required_missing_capabilities"] == runtime_missing == []
+    assert primary["production_ready"] is True
 
 
 def test_current_bootstraps_use_compatibility_candidate(repo_root: Path) -> None:
@@ -98,7 +96,7 @@ def test_current_external_workflow_uses_compatibility_candidate(repo_root: Path)
     assert "scripts/run_external_b4d_regression.py" in workflow
 
 
-def test_b4d_bridge_is_present_but_provider_remains_fail_closed(repo_root: Path) -> None:
+def test_b4d_bridge_is_present_and_runtime_selection_is_derived(repo_root: Path) -> None:
     bridge_root = repo_root / "engine-bridge"
 
     assert (bridge_root / "pom.xml").is_file()
@@ -141,15 +139,15 @@ def test_b4d_bridge_is_present_but_provider_remains_fail_closed(repo_root: Path)
 
     config = json.loads((repo_root / "config/rules_engines.json").read_text(encoding="utf-8"))
 
-    assert config["provider_decision"] == "NO_PROVIDER_READY"
-    assert config["production_bridge"] == "b4d_event_log_lifecycle_bridge"
-    assert config["primary_engine"]["production_ready"] is False
+    assert config["provider_decision"] == "XMAGE_SELECTED"
+    assert config["production_bridge"] == "xmage_full_game_lane_bridge"
+    assert config["primary_engine"]["production_ready"] is True
     assert config["primary_engine"]["real_execution"] is True
-    assert config["current_runtime"]["provider_selected"] is False
-    assert config["current_runtime"]["production_provider"] is None
+    assert config["current_runtime"]["provider_selected"] is True
+    assert config["current_runtime"]["production_provider"] == "xmage"
     engine_missing, runtime_missing = _derived_missing(repo_root)
     assert config["primary_engine"]["missing_required_capabilities"] == engine_missing
-    # engine-verify launches the B4-D bridge: it stays degraded while that bridge
-    # lacks a required capability (H4 gates the same consistency).
+    # engine-verify launches the full-game lane: H4 requires it healthy exactly when
+    # the derived runtime list is empty, and degraded otherwise.
     assert config["current_runtime"]["required_missing_capabilities"] == runtime_missing
-    assert runtime_missing
+    assert runtime_missing == []

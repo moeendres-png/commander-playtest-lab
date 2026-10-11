@@ -68,7 +68,10 @@ def test_release_truth_includes_real_p3_feasibility_evidence() -> None:
     assert "xmage_real_execution" in workflow
     assert "forge_real_execution" in workflow
     assert "structural_tactical_and_real_external_feasibility_evidence" in workflow
-    assert 'external_engine_production_ready": False' in workflow
+    # D5: readiness is reported from the guarded config record, never hard-coded.
+    assert 'external_engine_production_ready": production_ready' in workflow
+    assert 'external_engine_production_ready": False' not in workflow
+    assert "release refuses an inconsistent XMAGE_SELECTED provider record" in workflow
     assert 'wheel-verify/bin/commander-lab" --help' in workflow
     assert "XMage/Forge observations = 0" not in workflow
     assert '"validation_level": "structural_and_tactical_only"' not in workflow

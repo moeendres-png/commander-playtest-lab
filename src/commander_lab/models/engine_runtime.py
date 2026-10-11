@@ -87,6 +87,7 @@ class EngineCapabilityHandshake(FrozenModel):
     commander_supported: bool = False
     partner_supported: bool = False
     multiplayer_supported: bool = False
+    min_players: int | None = Field(default=None, ge=2)
     max_players: int | None = Field(default=None, ge=1)
     headless_supported: bool = False
     seed_supported: bool = False
@@ -114,6 +115,16 @@ class EngineCapabilityHandshake(FrozenModel):
     engine_shutdown_supported: bool = False
     runtime_kind: Literal["external_rules_engine", "tactical_oracle", "unknown"] = "unknown"
     notes: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def player_range_is_ordered(self) -> EngineCapabilityHandshake:
+        if (
+            self.min_players is not None
+            and self.max_players is not None
+            and self.min_players > self.max_players
+        ):
+            raise ValueError("min_players must not exceed max_players")
+        return self
 
     def supports(self, capability: str) -> bool:
         if not hasattr(self, capability):

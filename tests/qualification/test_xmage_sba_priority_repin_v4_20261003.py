@@ -60,9 +60,10 @@ def test_live_pin_is_the_successor_candidate() -> None:
 
 def test_selection_truth_unchanged() -> None:
     cfg = _manifest()
-    assert cfg["provider_decision"] == "NO_PROVIDER_READY"
-    assert cfg["current_runtime"]["provider_selected"] is False
-    assert cfg["current_runtime"]["production_provider"] is None
+    # The repin never changed selection; the Owner-signed Freeze and D5 did.
+    assert cfg["provider_decision"] == "XMAGE_SELECTED"
+    assert cfg["current_runtime"]["provider_selected"] is True
+    assert cfg["current_runtime"]["production_provider"] == "xmage"
 
 
 def test_successor_lock_binds_the_candidate_its_donor_and_the_prior_pin() -> None:

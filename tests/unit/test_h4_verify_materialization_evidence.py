@@ -89,9 +89,18 @@ def _emit(verifier, manifest_path, provider: str, tmp_path: Path, tag: str):
     return requests
 
 
-def _responses(provider: str, protocol: str, commit: str, requests: list) -> list:
+FULL_GAME_LANE = "xmage_full_game_external_pilots"
+
+
+def _responses(
+    provider: str, protocol: str, commit: str, requests: list, *, full_game: bool = True
+) -> list:
+    """Bridge responses; XMage answers as the full-game lane unless full_game=False (B4-D)."""
+    lane = full_game and provider == "xmage"
     payloads = [
-        {"engine": provider, "started": True, "phase": "B4D_EVENT_LOG_LIFECYCLE"},
+        {"engine": provider, "started": True, "lane": FULL_GAME_LANE}
+        if lane
+        else {"engine": provider, "started": True, "phase": "B4D_EVENT_LOG_LIFECYCLE"},
         {
             "engine": provider,
             "engine_version": "test-version",
@@ -107,9 +116,10 @@ def _responses(provider: str, protocol: str, commit: str, requests: list) -> lis
                 "action_submission_supported": False,
                 "event_log_supported": True,
                 "runtime_kind": "external_rules_engine",
-            }
+            },
+            **({"full_game_lane": {"lane": FULL_GAME_LANE}} if lane else {}),
         },
-        {"engine": provider, "shutdown": True},
+        {"engine": provider, "shutdown": True, **({"lane": FULL_GAME_LANE} if lane else {})},
     ]
     return [
         {
@@ -234,6 +244,7 @@ def test_verify_complete_xmage_evidence(verifier, resolver, manifest_path, tmp_p
     decisive = {k: v for k, v in verdict["boundaries"].items() if k != "engine_verify"}
     assert all(v["status"] == "PASS" for v in decisive.values())
     assert verdict["boundaries"]["bridge_handshake"]["observed"]["engine_commit"] == pin.commit
+    assert verdict["boundaries"]["bridge_handshake"]["observed"]["lane"] == FULL_GAME_LANE
 
 
 def _forge_responses(protocol: str, commit: str, requests: list) -> list:
@@ -887,3 +898,58 @@ def test_verify_missing_manifest_fails_closed(verifier, tmp_path):
         ]
     )
     assert rc == 3
+
+
+def _run_xmage_transcript(verifier, resolver, manifest_path, tmp_path, responses, tag):
+    pin = _expected(resolver, manifest_path, "xmage")
+    transcript = _write(
+        tmp_path,
+        f"{tag}-transcript.jsonl",
+        "\n".join(json.dumps(r, sort_keys=True) for r in responses) + "\n",
+    )
+    args = _verify_args(manifest_path, "xmage", tmp_path, pin)
+    args.extend(
+        [
+            "--handshake-requests",
+            str(tmp_path / f"{tag}-requests.jsonl"),
+            "--handshake-transcript",
+            str(transcript),
+        ]
+    )
+    return verifier.main(args)
+
+
+def test_manifest_production_bridge_requires_the_full_game_lane(verifier, manifest_path):
+    """D5: the live manifest launches the full-game lane, so H4 demands its identity."""
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert verifier.expected_xmage_lane(manifest) == FULL_GAME_LANE
+    assert (
+        verifier.expected_xmage_lane({"production_bridge": "b4d_event_log_lifecycle_bridge"})
+        is None
+    )
+
+
+def test_verify_b4d_transcript_fails_under_full_game_production_bridge(
+    verifier, resolver, manifest_path, tmp_path
+):
+    """Negative control: a compatibility bridge reporting the same flags is not the lane."""
+    pin = _expected(resolver, manifest_path, "xmage")
+    requests = _emit(verifier, manifest_path, "xmage", tmp_path, "b4d")
+    responses = _responses("xmage", pin.protocol_version, pin.commit, requests, full_game=False)
+    responses[2]["payload"]["capabilities"]["legal_actions_supported"] = True
+    responses[2]["payload"]["capabilities"]["action_submission_supported"] = True
+    assert _run_xmage_transcript(verifier, resolver, manifest_path, tmp_path, responses, "b4d") == 3
+
+
+@pytest.mark.parametrize("step", [0, 2, 3])
+def test_verify_each_missing_lane_marker_fails(verifier, resolver, manifest_path, tmp_path, step):
+    pin = _expected(resolver, manifest_path, "xmage")
+    tag = f"nolane{step}"
+    requests = _emit(verifier, manifest_path, "xmage", tmp_path, tag)
+    responses = _responses("xmage", pin.protocol_version, pin.commit, requests)
+    payload = responses[step]["payload"]
+    if step == 2:
+        payload["full_game_lane"]["lane"] = "xmage_compatibility"
+    else:
+        payload["lane"] = "xmage_compatibility"
+    assert _run_xmage_transcript(verifier, resolver, manifest_path, tmp_path, responses, tag) == 3

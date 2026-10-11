@@ -104,9 +104,14 @@ def test_verdict_receives_recorded_truthful_ref_and_id(repo_root):
 def test_xmage_handshake_overrides_benign_start_command(repo_root):
     text = _text(repo_root)
     block = _job_block(text, "h4-xmage")
+    # D5: the production runtime is the full-game lane, selected by its single argument.
     assert (
-        "export ENGINE_START_COMMAND='java -jar /workspace/vendor/engine-binaries/xmage/bridge.jar'"
-        in block
+        "export ENGINE_START_COMMAND="
+        "'java -jar /workspace/vendor/engine-binaries/xmage/bridge.jar full-game'" in block
+    )
+    assert (
+        'export ENGINE_START_COMMAND="java -jar $PWD/vendor/engine-binaries/xmage/bridge.jar '
+        'full-game"' in block
     )
 
 

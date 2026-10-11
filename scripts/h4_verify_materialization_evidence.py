@@ -161,8 +161,28 @@ def emit_handshake(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+# D5: the manifest's production_bridge names the XMage runtime the application
+# launches. For the full-game lane the transcript must carry that lane's identity on
+# start_engine, get_capabilities (full_game_lane.lane) and shutdown_engine, so a
+# compatibility bridge that happens to report the same flags never passes as it.
+XMAGE_FULL_GAME_BRIDGE = "xmage_full_game_lane_bridge"
+XMAGE_FULL_GAME_LANE = "xmage_full_game_external_pilots"
+
+
+def expected_xmage_lane(manifest: dict) -> str | None:
+    """The lane identity the XMage transcript must carry, or None (no lane claimed)."""
+    if manifest.get("production_bridge") == XMAGE_FULL_GAME_BRIDGE:
+        return XMAGE_FULL_GAME_LANE
+    return None
+
+
 def _check_handshake(
-    provider: str, expected_commit: str, expected_protocol: str, requests: list, responses: list
+    provider: str,
+    expected_commit: str,
+    expected_protocol: str,
+    requests: list,
+    responses: list,
+    expected_lane: str | None = None,
 ) -> tuple[dict, dict]:
     """Return (boundary, observed) for the handshake transcript.
 
@@ -219,6 +239,12 @@ def _check_handshake(
                 if payload.get("engine") != provider or payload.get("started") is not True:
                     return _boundary(
                         "FAIL", f"{where}: start_engine payload misidentifies the provider"
+                    ), observed
+                if expected_lane is not None and payload.get("lane") != expected_lane:
+                    return _boundary(
+                        "FAIL",
+                        f"{where}: start_engine lane is {payload.get('lane')!r}, "
+                        f"the manifest production_bridge requires {expected_lane!r}",
                     ), observed
             else:
                 started = payload.get("started")
@@ -280,6 +306,15 @@ def _check_handshake(
             capabilities = payload.get("capabilities", payload)
             if not isinstance(capabilities, dict):
                 return _boundary("FAIL", f"{where}: capabilities must be a JSON object"), observed
+            if provider == "xmage" and expected_lane is not None:
+                lane = payload.get("full_game_lane")
+                if not isinstance(lane, dict) or lane.get("lane") != expected_lane:
+                    return _boundary(
+                        "FAIL",
+                        f"{where}: capabilities carry no full_game_lane identity "
+                        f"{expected_lane!r} required by the manifest production_bridge",
+                    ), observed
+                observed["lane"] = expected_lane
             if capabilities.get("runtime_kind") != "external_rules_engine":
                 return _boundary(
                     "FAIL",
@@ -327,6 +362,12 @@ def _check_handshake(
                     else "identity-bearing"
                 )
             elif provider == "xmage":
+                if expected_lane is not None and payload.get("lane") != expected_lane:
+                    return _boundary(
+                        "FAIL",
+                        f"{where}: shutdown lane is {payload.get('lane')!r}, "
+                        f"the manifest production_bridge requires {expected_lane!r}",
+                    ), observed
                 if payload.get("engine") != provider or payload.get("shutdown") is not True:
                     return _boundary("FAIL", f"{where}: shutdown payload is malformed"), observed
             elif payload.get("engine") != provider or not (
@@ -552,7 +593,12 @@ def verify(args: argparse.Namespace) -> int:
                     Path(args.handshake_transcript), "handshake transcript"
                 )
                 handshake_boundary, _ = _check_handshake(
-                    args.provider, pin.commit, pin.protocol_version, requests, responses
+                    args.provider,
+                    pin.commit,
+                    pin.protocol_version,
+                    requests,
+                    responses,
+                    expected_xmage_lane(manifest) if args.provider == "xmage" else None,
                 )
             except ValueError as exc:
                 handshake_boundary = _boundary("FAIL", str(exc))

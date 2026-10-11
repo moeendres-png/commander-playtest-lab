@@ -480,9 +480,10 @@ def test_manifest_authority_and_provider_truth_preserved(repo_root: Path) -> Non
     assert config["primary_engine"]["commit"] == CANONICAL_XMAGE_PIN
     assert config["secondary_engine"]["commit"] == CANONICAL_FORGE_PIN
     assert config["protocol_version"] == "2.0.0"
-    assert config["provider_decision"] == "NO_PROVIDER_READY"
-    assert config["current_runtime"]["provider_selected"] is False
-    assert config["current_runtime"]["production_provider"] is None
+    # Selection follows the Owner-signed Freeze and the D5 runtime switch.
+    assert config["provider_decision"] == "XMAGE_SELECTED"
+    assert config["current_runtime"]["provider_selected"] is True
+    assert config["current_runtime"]["production_provider"] == "xmage"
 
 
 CANONICAL_FORGE_BRIDGE_REPO = "https://github.com/moeendres-png/forge.git"

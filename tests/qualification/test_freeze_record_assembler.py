@@ -360,8 +360,6 @@ def test_sealed_epoch_85dbcb1a_is_eligible_and_matches_the_owner_draft_record() 
     )
     assert draft["record"] == record
     assert draft["freeze_eligible"] is True
-    assert config["primary_engine"]["production_ready"] is False
-    assert config["current_runtime"]["provider_selected"] is False
 
 
 @pytest.mark.parametrize("produced", ["git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5", None])
@@ -418,9 +416,8 @@ def test_freeze_basis_epoch_f881d56f_is_eligible_and_matches_the_final_adr_recor
         )
     )
     assert shipped["record"] == result.record
-    # Signed 2026-10-10: the Freeze is recorded, but the launched runtime is still the
-    # B4-D bridge, so no provider is production-ready and current_runtime is unchanged
-    # until the D5 switch.
+    # Signed 2026-10-10; D5 then moved the launched runtime to the full-game lane, so the
+    # runtime selection is recorded and both derived missing lists are empty.
     adr = (REPO_ROOT / "docs/architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md").read_text(
         encoding="utf-8"
     )
@@ -433,10 +430,14 @@ def test_freeze_basis_epoch_f881d56f_is_eligible_and_matches_the_final_adr_recor
         freeze["engine_artifact_sha256"] == result.record["source_lock"]["build"]["artifact_sha256"]
     )
     assert (REPO_ROOT / freeze["evidence_epoch"]) == epoch
-    assert freeze["runtime_switch"] == "PENDING_D5"
-    assert config["provider_decision"] == "NO_PROVIDER_READY"
-    assert config["current_runtime"]["provider_selected"] is False
-    assert config["primary_engine"]["production_ready"] is False
+    assert freeze["runtime_switch"] == "DONE_D5"
+    assert config["provider_decision"] == "XMAGE_SELECTED"
+    assert config["production_bridge"] == "xmage_full_game_lane_bridge"
+    assert config["current_runtime"]["provider_selected"] is True
+    assert config["current_runtime"]["production_provider"] == freeze["selected_provider"]
+    assert config["current_runtime"]["required_missing_capabilities"] == []
+    assert config["primary_engine"]["missing_required_capabilities"] == []
+    assert config["primary_engine"]["production_ready"] is True
     # Every identity the ADR and the decisions record pin is the shipped record's.
     decisions = (
         REPO_ROOT / "docs/architecture_freeze_20261010/OWNER_DECISIONS_20261010.md"

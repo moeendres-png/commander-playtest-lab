@@ -247,9 +247,10 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
             "decision_source": "config/rules_engines.json",
             "historical_provider_decision_source": "docs/J_P3_PROVIDER_DECISION.json",
             "evidence_boundary": (
-                "Current provider capability metadata can describe proven B3 external-engine "
-                "execution, but provider readiness remains false until the production action loop "
-                "is implemented and separately validated."
+                "Provider readiness is true only when config/rules_engines.json records a "
+                "production-ready primary engine and a provider_decision other than "
+                "NO_PROVIDER_READY; capability truth comes from the sealed epoch the manifest "
+                "derives from, never from this summary."
             ),
         },
         "first_run_readiness": {

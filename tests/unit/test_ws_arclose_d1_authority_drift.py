@@ -53,9 +53,10 @@ def test_manifest_pins_protocol_capabilities_untouched(repo_root: Path) -> None:
     assert manifest["primary_engine"]["commit"] == CANONICAL_XMAGE_PIN
     assert manifest["secondary_engine"]["commit"] == CANONICAL_FORGE_PIN
     assert manifest["protocol_version"] == "2.0.0"
-    assert manifest["provider_decision"] == "NO_PROVIDER_READY"
-    assert manifest["current_runtime"]["provider_selected"] is False
-    assert manifest["current_runtime"]["production_provider"] is None
+    # Selection follows the Owner-signed Freeze and the D5 runtime switch.
+    assert manifest["provider_decision"] == "XMAGE_SELECTED"
+    assert manifest["current_runtime"]["provider_selected"] is True
+    assert manifest["current_runtime"]["production_provider"] == "xmage"
 
 
 def test_manifest_records_ws88_successor_pin_authority(repo_root: Path) -> None:

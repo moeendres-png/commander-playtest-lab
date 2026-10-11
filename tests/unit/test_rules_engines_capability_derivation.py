@@ -2,8 +2,9 @@
 
 The engine list (``primary_engine``) must equal what the freeze-record assembler derives
 for the production lane from the newest sealed epoch bound to the current pin; the
-runtime list (``current_runtime``) must equal what the launched B4-D bridge reports in
-the same epoch's compatibility-lane AF01. A hand edit of either list, in either
+runtime list (``current_runtime``) must equal what the launched runtime
+(``production_bridge``; since D5 the full-game lane) reports in the same epoch's AF01.
+A ready or selected provider requires both lists to derive empty. A hand edit of either list, in either
 direction, fails here (quality job).
 """
 
@@ -110,3 +111,25 @@ def test_unknown_pin_has_no_epoch() -> None:
     module = _derive_module()
     with pytest.raises(SystemExit):
         module.newest_epoch_for_pin("0" * 40)
+
+
+@pytest.mark.parametrize("which", ["engine", "runtime"])
+def test_ready_provider_with_a_reopened_capability_fails_the_check(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, which: str
+) -> None:
+    """D5: production_ready/XMAGE_SELECTED cannot survive a non-empty derived list."""
+    module = _derive_module()
+    config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    assert config["primary_engine"]["production_ready"] is True
+    reopened = ["replay_supported"]
+    engine = reopened if which == "engine" else []
+    runtime = reopened if which == "runtime" else []
+    # The file matches the derivation exactly, so only the readiness gate can fail it.
+    config["primary_engine"]["missing_required_capabilities"] = engine
+    config["current_runtime"]["required_missing_capabilities"] = runtime
+    fake = tmp_path / "rules_engines.json"
+    fake.write_text(json.dumps(config), encoding="utf-8")
+    monkeypatch.setattr(module, "CONFIG", fake)
+    monkeypatch.setattr(module, "derive", lambda epoch=None: (REPO_ROOT, engine, runtime))
+    assert module.main(["--check"]) == 1
+    assert module.main(["--write"]) == 1
