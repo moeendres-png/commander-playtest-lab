@@ -90,6 +90,7 @@ jobs:
             tests/conftest.py
             src/commander_lab/qualification/**
             src/commander_lab/semantic_replay/**
+            src/commander_lab/freeze_readiness.py
 
   real-4p-smoke:
     needs: [smoke-scope]

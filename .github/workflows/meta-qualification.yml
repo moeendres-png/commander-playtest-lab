@@ -6,6 +6,7 @@ on:
       - "src/commander_lab/meta_qualification.py"
       - "scripts/run_meta_verification.py"
       - "tests/qualification/test_meta_verification.py"
+      - "src/commander_lab/freeze_readiness.py"
       # B7 (#488): the live replay consumer, its tape recording and the bridge it runs.
       - "scripts/run_live_consumer_mutations.py"
       - "scripts/run_external_full_game_conformance.py"
@@ -33,6 +34,7 @@ on:
       - "src/commander_lab/meta_qualification.py"
       - "scripts/run_meta_verification.py"
       - "tests/qualification/test_meta_verification.py"
+      - "src/commander_lab/freeze_readiness.py"
       # B7 (#488): the live replay consumer, its tape recording and the bridge it runs.
       - "scripts/run_live_consumer_mutations.py"
       - "scripts/run_external_full_game_conformance.py"

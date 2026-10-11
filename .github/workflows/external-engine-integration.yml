@@ -91,6 +91,7 @@ jobs:
             tests/unit/test_phase8_rules_models.py
             tests/unit/test_xmage_compatibility_provider.py
             src/commander_lab/semantic_replay/**
+            src/commander_lab/freeze_readiness.py
 
   build-and-integrate:
     needs: [integration-scope]

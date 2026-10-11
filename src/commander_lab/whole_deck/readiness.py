@@ -65,9 +65,23 @@ def build_campaign_readiness(
     )
     deck_manifest = json.loads((project / "data/decks/manifest.json").read_text(encoding="utf-8"))
     rogshai = deck_manifest["decks"]["rogshai/current"]
-    provider = json.loads(
+    # Current provider truth is the machine-readable manifest; the J-P3 decision is
+    # historical provenance only and is reported separately.
+    rules_engines = json.loads((project / "config/rules_engines.json").read_text(encoding="utf-8"))
+    provider_decision = str(rules_engines.get("provider_decision") or "UNKNOWN")
+    historical_provider = json.loads(
         (project / "docs/J_P3_PROVIDER_DECISION.json").read_text(encoding="utf-8")
     )
+    if provider_decision == "NO_PROVIDER_READY":
+        provider_limitation = (
+            "External rules-engine provider remains NO_PROVIDER_READY and is not promoted to PASS."
+        )
+    else:
+        provider_limitation = (
+            f"External rules-engine provider is {provider_decision} "
+            "(config/rules_engines.json); whole-deck campaign results remain structural model "
+            "evidence and are not empirical rules-engine win rates."
+        )
     gates = {name: "NOT_RUN" for name in _REQUIRED_EXTERNAL_GATES}
     if external_gates:
         for name, value in external_gates.items():
@@ -135,14 +149,16 @@ def build_campaign_readiness(
         "five_player_full_cycle_coverage": five_player_coverage,
         "import_architecture_status": import_architecture_status,
         "public_workflow_smoke_status": smoke_status,
-        "external_engine_status": provider["decision"],
+        "external_engine_status": provider_decision,
+        "external_engine_status_source": "config/rules_engines.json",
+        "historical_p3_provider_decision": historical_provider["decision"],
         **gates,
         "remaining_blockers": blockers,
         "documented_limitations": [
             "Structural simulation remains model evidence, not empirical win rate.",
             "Remaining semantic unknowns are visible and trigger REVIEW_REQUIRED if selected by a finalist.",
             "Morcant/Cosmic and observed precon-deviation gaps remain real opponent-data limitations.",
-            "External rules-engine provider remains NO_PROVIDER_READY and is not promoted to PASS.",
+            provider_limitation,
             "Five-player pods are a separate balanced sensitivity axis and are never primary evidence; three-player pods remain a separate robustness axis.",
         ],
         "ready_for_official_campaign": ready,

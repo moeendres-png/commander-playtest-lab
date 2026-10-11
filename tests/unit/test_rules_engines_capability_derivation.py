@@ -143,11 +143,13 @@ def test_no_sealed_epoch_is_bound_to_the_live_pin_until_pb03_reruns_on_it() -> N
     pin = config["primary_engine"]["commit"]
     with pytest.raises(SystemExit, match="no sealed epoch is bound to the XMage pin"):
         module.newest_epoch_for_pin(pin)
-    # The newest sealed epoch is still the one the Freeze was signed against, on the
-    # prior pin: no epoch evidence is transferred to the newer pin.
+    # The newest sealed epoch is still the prior pin's current qualification (the
+    # Freeze pin): no epoch evidence is transferred to the newer pin.
     prior = config["architecture_freeze"]["engine_commit"]
     epoch = module.newest_epoch_for_pin(prior)
-    assert epoch == REPO_ROOT / config["architecture_freeze"]["evidence_epoch"]
+    current = config["architecture_freeze"]["current_qualification"]
+    assert current["engine_commit"] == prior
+    assert epoch == REPO_ROOT / current["evidence_epoch"]
     runtime = json.loads((epoch / "PB03_RUNTIME_EXECUTION.json").read_text(encoding="utf-8"))
     assert runtime["candidate_commit"] == prior
     assert (epoch / "CURRENT_BOUNDARY_SHA256SUMS").is_file()
