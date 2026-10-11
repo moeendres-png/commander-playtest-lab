@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import multiprocessing
@@ -384,7 +385,12 @@ class XmageFullGameBatchRunner:
             )
         with executor:
             futures: dict[Future[FullGameBatchRecord], tuple[int, Path]] = {
-                executor.submit(execute_batch_case, self.runner, case, run_key, execution): (
+                # Each game gets its own shallow runner copy: the runner keeps
+                # per-game state (the hidden-information audit) on itself, and
+                # threads sharing one runner would mix or drop those audits.
+                executor.submit(
+                    execute_batch_case, copy.copy(self.runner), case, run_key, execution
+                ): (
                     index,
                     path,
                 )

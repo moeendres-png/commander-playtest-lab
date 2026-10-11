@@ -87,19 +87,33 @@ class _VariantWinsRunner:
 
     def __init__(self, delay: float = 0.0) -> None:
         self.delay = delay
-        self.calls = 0
-        self.active = 0
-        self.peak = 0
+        # Counters live in one shared object: the batch hands every parallel
+        # game its own shallow copy of the runner.
+        self.stats = {"calls": 0, "active": 0, "peak": 0}
         self._lock = threading.Lock()
+        self._current_case: str | None = None
+
+    @property
+    def calls(self) -> int:
+        return self.stats["calls"]
+
+    @property
+    def peak(self) -> int:
+        return self.stats["peak"]
 
     def run(self, *, scenario: FutureXmageScenario, decks: object, pilots: object) -> object:
         with self._lock:
-            self.calls += 1
-            self.active += 1
-            self.peak = max(self.peak, self.active)
+            self.stats["calls"] += 1
+            self.stats["active"] += 1
+            self.stats["peak"] = max(self.stats["peak"], self.stats["active"])
+        # Per-game state on the runner, like the real runner's hidden audit.
+        self._current_case = f"{scenario.candidate_id}:{scenario.seed}:{scenario.seat}"
+        mine = self._current_case
         try:
             if self.delay:
                 time.sleep(self.delay)
+            if self._current_case != mine:
+                raise RuntimeError("per-game runner state leaked between games")
             if scenario.candidate_id == "variant" and scenario.seed == 3 and scenario.seat == 2:
                 raise FullGameProtocolError("unsupported discretionary decision class: x")
             tested = scenario.seat
@@ -109,7 +123,7 @@ class _VariantWinsRunner:
             return _result(scenario, (other,))
         finally:
             with self._lock:
-                self.active -= 1
+                self.stats["active"] -= 1
 
 
 def test_pod_rotation_keeps_opponent_order_and_seats_the_contender() -> None:
@@ -164,6 +178,10 @@ def test_parallel_batch_equals_sequential_batch_in_case_order(tmp_path: Path) ->
         r.model_dump(exclude=strip) for r in sequential.records
     ]
     assert parallel.failed_cases == 1
+    assert all(
+        record.failure_class is None or record.failure_class.value == "protocol"
+        for record in parallel.records
+    ), "per-game runner state leaked between parallel games"
 
 
 def test_parallel_batch_resumes_without_replaying_completed_games(tmp_path: Path) -> None:
@@ -218,6 +236,19 @@ def test_aggregate_censors_failures_and_pairs_by_pod(tmp_path: Path) -> None:
     assert paired.verdict == "VARIANT_BETTER"
     assert comparison.official_campaign_eligible is False
     assert comparison.evidence_class == "exploratory_xmage_full_game"
+
+
+def test_heavily_censored_comparison_gets_no_verdict(tmp_path: Path) -> None:
+    # One of the twelve pods is censored (seed 3, seat 2): fine under the
+    # default 20% cap, too many under a 5% cap.
+    spec = _spec(seeds=(1, 2, 3), rotate=True)
+    report = XmageFullGameBatchRunner(_VariantWinsRunner(), tmp_path).run(  # type: ignore[arg-type]
+        plan_comparison_cases(spec), workers=2
+    )
+    assert aggregate_comparison(spec, report).paired[0].verdict == "VARIANT_BETTER"
+    strict = aggregate_comparison(spec, report, max_censored_fraction=0.05)
+    assert strict.paired[0].verdict == "INSUFFICIENT"
+    assert strict.paired[0].pairs_censored == 1
 
 
 def test_aggregate_without_completed_pairs_is_insufficient(tmp_path: Path) -> None:

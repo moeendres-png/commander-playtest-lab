@@ -30,7 +30,10 @@ from pathlib import Path
 from typing import Any
 
 from commander_lab.engine.rules.full_game import XmageFullGameRunner
-from commander_lab.engine.rules.full_game_batch import XmageFullGameBatchRunner
+from commander_lab.engine.rules.full_game_batch import (
+    XmageFullGameBatchRunner,
+    execution_identity_of,
+)
 from commander_lab.engine.rules.full_game_comparison import (
     DeckComparisonSpec,
     aggregate_comparison,
@@ -169,6 +172,8 @@ def main(argv: list[str] | None = None) -> int:
         xmage_commit=canonical_xmage_engine_pin(),
     )
     cases = plan_comparison_cases(spec)
+    if args.workers is not None and args.workers < 1:
+        parser.error("--workers must be at least 1")
     workers = args.workers or default_workers(memory_gb=_available_memory_gb())
     print(
         f"{len(cases)} games: {len(spec.contenders)} contenders x {len(spec.seeds)} seeds x "
@@ -195,6 +200,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     comparison = aggregate_comparison(spec, report)
     payload = comparison.model_dump(mode="json")
+    payload["engine"] = {
+        "xmage_commit": spec.xmage_commit,
+        "execution_identity": execution_identity_of(runner),
+        "max_decisions": args.max_decisions,
+    }
     payload["batch"] = {
         "total_cases": report.total_cases,
         "completed_cases": report.completed_cases,

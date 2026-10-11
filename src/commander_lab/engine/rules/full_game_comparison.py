@@ -268,8 +268,13 @@ def aggregate_comparison(
     report: FullGameBatchReport,
     *,
     significance_level: float = 0.05,
+    max_censored_fraction: float = 0.2,
 ) -> DeckComparisonReport:
-    """Turn batch records into per-contender and paired variant results."""
+    """Turn batch records into per-contender and paired variant results.
+
+    A variant whose pods were censored (a game of either contender failed) in
+    more than ``max_censored_fraction`` of cases gets no verdict.
+    """
     if not 0.0 < significance_level < 1.0:
         raise ValueError("significance_level must be within (0, 1)")
     by_case = {record.case_id: record for record in report.records}
@@ -344,7 +349,11 @@ def aggregate_comparison(
             variant_share = sum(right for _, right in pairs) / len(pairs)
             baseline_share = sum(left for left, _ in pairs) / len(pairs)
             difference = variant_share - baseline_share
-            if p_value < significance_level and variant_only > baseline_only:
+            if censored > max_censored_fraction * (len(pairs) + censored):
+                # Too many failed games: failures that depend on the deck
+                # (long games hitting the decision cap) would bias the pairs.
+                verdict = "INSUFFICIENT"
+            elif p_value < significance_level and variant_only > baseline_only:
                 verdict = "VARIANT_BETTER"
             elif p_value < significance_level and baseline_only > variant_only:
                 verdict = "BASELINE_BETTER"
