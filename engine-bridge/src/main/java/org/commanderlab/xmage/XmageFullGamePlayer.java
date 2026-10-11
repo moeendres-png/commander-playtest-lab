@@ -1443,7 +1443,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (available.isEmpty()) {
             return null;
         }
-        int min = modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
+        // #714: a card that "may choose none" (Modes.isMayChooseNone) may end the choice
+        // with zero modes, but only while none is selected yet: Modes.isSelectedValid
+        // accepts selected == 0 (may choose none) or selected >= getMinModes(), never a
+        // partial selection ("you may choose two" is zero or two, never one), and
+        // HumanPlayer.chooseMode (pinned XMage) offers "Done" only while
+        // getSelectedModes() is empty. So the minimum is 0 before the first pick and
+        // once the card's minimum is met, and 1 in between.
+        int min = (modes.isMayChooseNone() && modes.getSelectedModes().isEmpty())
+                || modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
         JsonArray options = new JsonArray();
         Map<String, Mode> byId = new LinkedHashMap<>();
         Map<Mode, Boolean> targetsAvailableByMode = new LinkedHashMap<>();
@@ -1459,14 +1467,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 // fails the cast (F-35).
                 noViableMode = true;
             } else {
-                // The minimum is already met and nothing is left to choose, so the
-                // choice is over. HumanPlayer.chooseMode (pinned XMage) ends it
-                // the same way: with no choosable mode left it returns null outright
-                // when the card may not choose none, and when the card may choose
-                // none the dialog it shows holds no mode entries at all -- only "Done"
-                // and "Cancel" (:2572-2575) -- so it cannot select a mode either. Both
-                // ways the choice ends with no mode added, so the bridge returns null
-                // rather than ask a question with no legal answer.
+                // The minimum is already met (or the card may choose none and nothing
+                // is selected yet) and nothing is left to choose, so the choice is
+                // over. HumanPlayer.chooseMode (pinned XMage) ends it the same way:
+                // with no choosable mode left it returns null outright when the card
+                // may not choose none, and when the card may choose none with nothing
+                // selected the dialog it shows holds no mode entries at all -- only
+                // "Done" and "Cancel" (:2572-2575) -- so it cannot select a mode
+                // either. Both ways the choice ends with no mode added, so the bridge
+                // returns null rather than ask a question with no legal answer.
                 //
                 // Offering the remaining untargetable modes here is what made a
                 // "choose one or more" spell re-offer a mode with no legal target
