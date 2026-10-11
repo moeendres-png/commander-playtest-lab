@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import importlib.util
 import json
 import subprocess
 from pathlib import Path
@@ -534,3 +535,45 @@ def test_missing_artifact_identity_never_binds_sibling_gates(tmp_path: Path) -> 
     _seal(epoch, tmp_path)
     verdicts = {g["gate_id"]: g["verdict"] for g in _assemble(epoch).record["gate_results"]}
     assert {verdicts["AF00"], verdicts["AF06"], verdicts["AF07"]} == {"PARTIAL"}
+
+
+def test_current_qualification_matches_its_sealed_epoch_and_keeps_the_signed_basis() -> None:
+    """Post-D5 requalification: recorded beside, never over, the Owner-signed Freeze basis."""
+    config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    freeze = config["architecture_freeze"]
+    current = freeze["current_qualification"]
+    epoch = REPO_ROOT / current["evidence_epoch"]
+    result = assemble_freeze_record(
+        epoch, repo_root=REPO_ROOT, expected_pin=config["primary_engine"]["commit"]
+    )
+    assert result.reasons == []
+    assert result.eligible is True is current["freeze_eligible"]
+    assert [gate["verdict"] for gate in result.record["gate_results"]] == ["PASS"] * 12
+    assert result.record["truthful_capabilities"]["missing_required_capabilities"] == []
+    lock = result.record["source_lock"]
+    assert current["engine_artifact_sha256"] == lock["build"]["artifact_sha256"]
+    assert current["engine_commit"] == lock["provider_source"]["commit"] == freeze["engine_commit"]
+    # Every recorded identity is the sealed packet's own: the runner commit PB-03 bound,
+    # and the epoch the capability derivation selects for the pin (no stale pointer).
+    runtime = json.loads((epoch / "PB03_RUNTIME_EXECUTION.json").read_text(encoding="utf-8"))
+    assert current["lab_commit"] == runtime["runner_commit"]
+    assert runtime["candidate_commit"] == current["engine_commit"]
+    assert set(current) == {
+        "evidence_epoch",
+        "engine_commit",
+        "engine_artifact_sha256",
+        "lab_commit",
+        "freeze_eligible",
+        "note",
+    }
+    derive = importlib.util.spec_from_file_location(
+        "derive_rules_engines_capabilities",
+        REPO_ROOT / "scripts" / "derive_rules_engines_capabilities.py",
+    )
+    assert derive and derive.loader
+    module = importlib.util.module_from_spec(derive)
+    derive.loader.exec_module(module)
+    assert module.newest_epoch_for_pin(current["engine_commit"]) == epoch
+    # The signed basis is unchanged: a rebuilt jar is a requalification, not a re-signature.
+    assert freeze["evidence_epoch"].endswith("f881d56fb33f-aef9f7f660b4")
+    assert freeze["engine_artifact_sha256"] != current["engine_artifact_sha256"]

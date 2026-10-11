@@ -1,0 +1,89 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "a506a2d55f1d3b3ab1cb976b271e0c38f3132f8ecd14d902c0fc65ab696ab080",
+        "kind": "priority_pass",
+        "scope": "decision_script[6]",
+        "tag": "PILOT_REPLACEMENT_EFFECT-causal-obj:pilot-unsummon"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "323e72967fa997d02c74086298ee36a8b05714e2bece5b31494c42008a311614",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "PILOT_REPLACEMENT_EFFECT-causal-obj:pilot-unsummon-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "827cdc0dedd1115e7b066cfc55e10b4aa55d165991280a1fc94a807fd7306bfa",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "PILOT_REPLACEMENT_EFFECT-causal-obj:pilot-unsummon-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:pilot-unsummon"
+    ],
+    "fuel": [
+      "obj:fuel-island-p2"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:pilot-unsummon"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+  "obligation_exercised": {
+    "obligation_digest": "b576aef385f94a7f48ccd99c9fd16198ddf67fae624565e4667bf331482ebe33",
+    "requested_state_digest": "9883b1cbcf5a5876c5b9c4c871aefade0c0dc6c3d7961914b888393d369b7dd6",
+    "required_events": [
+      "replacement_effect_frame:P1",
+      "commander_replacement_chosen:command"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Commander is in command zone rather than hand; provider performed replacement legality."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "commander_replacement_chosen:command": {
+        "binding": "engine-verified commander_choice:command",
+        "decision_frames": [
+          4
+        ],
+        "events": [
+          9
+        ]
+      },
+      "replacement_effect_frame:P1": {
+        "binding": "the engine asked exactly 1 choose_use decision(s) of P1 about 'to command zone instead of'",
+        "observation": "engine terminal observation"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "6c0c9a981722de7f7bc4d343ef8f04343b2677922712bcc8518c0393ecd7acc8",
+  "runner_digest": "5d279f5f996d8757e3cb5263b6e911a8bbe621579d8341da92c55f976d5128af",
+  "runtime_receipt_digest": "d30914f5ed5c6dab20739e496db8086af396a170bf7a54d072e23453ced7c8ba",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_REPLACEMENT_EFFECT",
+  "variance_source": null
+}
