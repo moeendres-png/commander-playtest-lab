@@ -123,7 +123,7 @@ def test_native_run_binds_the_exact_pin() -> None:
     assert native["commit"] == CURRENT_PIN
     assert native["run_id"] == 38136235677
     assert native["failures"] == 0 and native["errors"] == 0
-    assert native["run"] > 0
+    assert (native["run"], native["skipped"]) == (7042, 125)
     for cls in NATIVE_REGRESSION_CLASSES:
         assert cls in native["donor_regressions_in_run"], cls
     verify = lock["native_qualification"]["mage_verify"]
@@ -137,12 +137,14 @@ def test_lab_bridge_suite_binds_the_exact_pin() -> None:
     suite = lab["bridge_suite"]
     assert suite["status"] == "COMPLETE"
     assert suite["failures"] == 0 and suite["errors"] == 0
-    assert suite["run"] > 0
+    assert (suite["run"], suite["skipped"]) == (1067, 1)
     assert suite["actions_run"] == 38142486874
+    assert suite["job"] == 114479045714
     assert f"XMAGE_COMMIT={CURRENT_PIN[:8]}" in suite["command"]
     assert len(suite["artifact"]["zip_sha256"]) == 64
-    # No jar digest was recorded by the workflow, so none may be claimed.
-    assert lab["installed_artifacts"] == {}
+    assert set(lab["installed_artifacts"]) == {"org.mage:mage:1.4.61", "org.mage:mage-sets:1.4.61"}
+    for digest in lab["installed_artifacts"].values():
+        assert len(digest.removeprefix("sha256 ")) == 64
 
 
 def test_signed_freeze_stays_bound_to_the_prior_pin_until_pb03() -> None:

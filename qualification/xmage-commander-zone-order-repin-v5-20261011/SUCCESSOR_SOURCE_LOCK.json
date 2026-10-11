@@ -92,7 +92,10 @@
  "lab_runtime_qualification": {
   "isolated_maven_repository": "the durable runtime evidence is the Actions run below; no local isolated m2 cross-check was made for this pin",
   "installed_artifacts_commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
-  "installed_artifacts": {},
+  "installed_artifacts": {
+   "org.mage:mage:1.4.61": "sha256 c567b6533267b1bec1e8d85e0624a7db0ff8ea4af5acca44adfcf6a625632928",
+   "org.mage:mage-sets:1.4.61": "sha256 bc973e813d811cc702511d61b79e3588346fb82a1d6c069dd3c90ee582846b71"
+  },
   "bridge_suite": {
    "command": "XMage Full Game Conformance workflow_dispatch on the repin branch head fef9d626 (XMAGE_COMMIT=3cbf7741): engine-bridge mvn verify against XMage built from exact 3cbf7741",
    "run": 1067,
@@ -111,7 +114,7 @@
    "baseline_at_prior_pin": "950 run / 1 skipped at b479fe74 (run 37150350091); the bridge suite has grown since, so counts are not comparable across pins"
   },
   "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit. The repair has no structural signature (a collection ordering inside GameImpl.checkStateBasedActions); identity rests on the declared commit, the native CommanderZoneApnap*Test regressions in maven.yml run 38136235677 on this exact commit, and the bridge suite run 38142486874 against XMage built from this exact commit.",
-  "installed_artifacts_note": "the conformance job checks out XMage at exactly 3cbf7741 (git rev-parse HEAD == XMAGE_COMMIT gate) and installs org.mage:mage / mage-sets 1.4.61 built from it into the runner's m2; the workflow records no jar digests, so none are claimed here"
+  "installed_artifacts_note": "the conformance job checks out XMage at exactly 3cbf7741 (git rev-parse HEAD == XMAGE_COMMIT gate, cache-hit=false) and installs org.mage:mage / mage-sets 1.4.61 built from it into the runner's m2; the digests above are the sha256 lines that job 114479045714 printed after the install"
  },
  "architecture_freeze_binding": {
   "status": "UNCHANGED_BY_THIS_REPIN",
