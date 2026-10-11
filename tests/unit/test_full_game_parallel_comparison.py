@@ -287,7 +287,7 @@ def test_cli_seed_parsing_and_worker_default() -> None:
     assert cli.parse_seeds("1-3,7") == (1, 2, 3, 7)
     with pytest.raises(ValueError):
         cli.parse_seeds("5-1")
-    assert cli.default_workers(cpu_count=4, memory_gb=15.0) == 2
+    assert cli.default_workers(cpu_count=4, memory_gb=15.0) == 4
     assert cli.default_workers(cpu_count=16, memory_gb=5.0) == 2
     assert cli.default_workers(cpu_count=1, memory_gb=1.0) == 1
 

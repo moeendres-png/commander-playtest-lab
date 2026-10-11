@@ -46,10 +46,11 @@ from commander_lab.qualification.current_boundary.bridge_launcher import (
 )
 from commander_lab.storage import sha256_value
 
-# One real 4P game keeps a bridge JVM at roughly 1.5 GB resident and about
-# 1.5 cores busy (measured on the pinned engine, #731), so a worker needs both.
+# One real 4P game keeps a bridge JVM at roughly 1.5 GB resident. Throughput
+# on a 4-core host (#731, six real 4P games): 1/2/3/4/6 workers gave
+# 22/36/39/56/43 games per hour, so one worker per core is the sweet spot.
 _GB_PER_WORKER = 2.0
-_CORES_PER_WORKER = 1.5
+_CORES_PER_WORKER = 1.0
 
 
 def parse_seeds(text: str) -> tuple[int, ...]:
