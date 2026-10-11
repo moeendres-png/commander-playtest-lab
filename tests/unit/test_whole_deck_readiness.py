@@ -10,7 +10,12 @@ def test_readiness_fails_closed_without_external_gates(repo_root) -> None:
     assert report["opponent_full_cycle_combinations"] == 455
     assert report["five_player_full_cycle_combinations"] == 1365
     assert report["knowledge_quality"]["knowledge_pipeline_ready"] is True
-    assert report["external_engine_status"] == "NO_PROVIDER_READY"
+    # Current provider truth comes from the manifest (D5), never from the J-P3 history,
+    # and it never satisfies a campaign gate on its own.
+    assert report["external_engine_status"] == "XMAGE_SELECTED"
+    assert report["external_engine_status_source"] == "config/rules_engines.json"
+    assert report["historical_p3_provider_decision"] == "NO_PROVIDER_READY"
+    assert not any("NO_PROVIDER_READY" in line for line in report["documented_limitations"])
     assert report["ready_for_official_campaign"] is False
     assert report["readiness_label"] == "NOT_READY_FOR_OFFICIAL_WHOLE_DECK_CAMPAIGN"
 
