@@ -198,16 +198,21 @@ def test_unbound_flags_are_not_resolvable_by_the_handshake_model() -> None:
         capabilities.supports("game_shutdown_supported")
 
 
-def test_h4_degraded_expectation_holds_for_the_current_manifest() -> None:
-    """H4 keeps expecting engine-verify=degraded while the runtime missing list is non-empty."""
+def test_h4_healthy_expectation_holds_for_the_current_manifest() -> None:
+    """D5: the launched full-game lane derives no missing capability, so H4 expects healthy.
+
+    The healthy expectation is bound to evidence, not to overlap: the sealed epoch's AF01 for
+    the launched lane reports every flag engine-verify requires as literally true. If either
+    stops holding, H4 and engine-verify could disagree, so this goes red.
+    """
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     missing = manifest["current_runtime"]["required_missing_capabilities"]
-    assert missing, "the derived runtime list is non-empty, so H4 must expect degraded/rc=1"
-    assert set(missing) <= set(REQUIRED_CAPABILITIES)
-    # ...and the flags it is missing are also ones engine-verify requires, which is why the two
-    # currently agree. Recorded explicitly: this agreement is incidental overlap, not binding.
+    assert missing == [], "the derived runtime list is empty, so H4 must expect healthy/rc=0"
+    assert manifest["production_bridge"] == "xmage_full_game_lane_bridge"
+    epoch = MANIFEST.parents[1] / manifest["architecture_freeze"]["evidence_epoch"]
+    af01 = json.loads((epoch / "AF01_XMAGE.json").read_text(encoding="utf-8"))
+    assert af01["verdict"] == "PASS" and af01["lane"] == "full-game"
+    reported = af01["capabilities_provider_reported"]
     engine_health = set(_engine_health_required_flags(PROCESS_MANAGER.read_text(encoding="utf-8")))
-    assert set(missing) & engine_health, (
-        "the manifest/runtime set and the engine-verify set no longer overlap; H4 would demand "
-        "degraded while engine-verify reports healthy"
-    )
+    assert {flag for flag in engine_health if reported.get(flag) is not True} == set()
+    assert {flag for flag in REQUIRED_CAPABILITIES if reported.get(flag) is not True} == set()

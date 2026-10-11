@@ -57,15 +57,15 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
     assert truth["roadmap_mvp_state"]["workflow_session_present"] is True
     assert truth["roadmap_mvp_state"]["public_high_level_workflow_surface_present"] is True
     external = truth["external_engine_status"]
-    assert external["provider_decision"] == "NO_PROVIDER_READY"
-    assert external["production_provider_ready"] is False
+    assert external["provider_decision"] == "XMAGE_SELECTED"
+    assert external["production_provider_ready"] is True
     assert external["primary_provider"] == "xmage"
-    assert external["primary_status"] == "B4D_EVENT_LOG_LIFECYCLE_VALIDATED_DEGRADED"
+    assert external["primary_status"] == "FULL_GAME_LANE_PRODUCTION_PROVIDER"
     assert external["primary_real_execution"] is True
     assert external["decision_source"] == "config/rules_engines.json"
     assert external["historical_provider_decision_source"] == "docs/J_P3_PROVIDER_DECISION.json"
     assert truth["current_blockers"] == []
-    assert "external_rules_engine_validation_pending" in truth["documented_limitations"]
+    assert "external_rules_engine_validation_pending" not in truth["documented_limitations"]
     assert "unresolved_operational_own_deck_baseline" not in truth["documented_limitations"]
     readiness = truth["first_run_readiness"]
     assert readiness["preparation_surface_present"] is True

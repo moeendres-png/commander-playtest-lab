@@ -71,12 +71,14 @@ def test_engine_config_is_pinned(repo_root: Path) -> None:
     config = json.loads((repo_root / "config/rules_engines.json").read_text())
     assert len(config["primary_engine"]["commit"]) == 40
     assert len(config["secondary_engine"]["commit"]) == 40
-    assert config["current_runtime"]["external_engine_validation_pending"] is True
-    assert config["provider_decision"] == "NO_PROVIDER_READY"
+    # D5: the launched full-game lane is the validated production runtime.
+    assert config["current_runtime"]["external_engine_validation_pending"] is False
+    assert config["provider_decision"] == "XMAGE_SELECTED"
     # R-1 (owner ruling 2026-09-30): the current Forge candidate is the
     # Commander-Lab-maintained fork, still PARTIAL and not production-selected.
     assert config["secondary_engine"]["release"] == "commander-lab-maintained-forge-candidate"
     assert config["secondary_engine"]["status"].startswith("PARTIAL")
     assert config["secondary_engine"]["production_ready"] is False
-    assert config["current_runtime"]["provider_selected"] is False
+    assert config["current_runtime"]["provider_selected"] is True
+    assert config["current_runtime"]["production_provider"] == "xmage"
     assert config["historical_phase85"]["forge_pin"].startswith("forge-2.0.13")

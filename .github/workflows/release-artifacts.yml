@@ -114,11 +114,40 @@ jobs:
 
           primary = rules["primary_engine"]
           secondary = rules["secondary_engine"]
-          missing_required = rules["current_runtime"].get("required_missing_capabilities", [])
-          if rules["provider_decision"] != "NO_PROVIDER_READY":
-              raise SystemExit("release refuses an unverified provider-readiness promotion")
-          if primary.get("production_ready") or secondary.get("production_ready"):
-              raise SystemExit("release refuses production-ready provider claim while NO_PROVIDER_READY")
+          runtime = rules["current_runtime"]
+          freeze = rules.get("architecture_freeze") or {}
+          missing_required = runtime.get("required_missing_capabilities", [])
+          if secondary.get("production_ready"):
+              raise SystemExit("release refuses a production-ready claim for the reference engine")
+          if rules["provider_decision"] == "NO_PROVIDER_READY":
+              if primary.get("production_ready") or runtime.get("provider_selected"):
+                  raise SystemExit("release refuses production-ready provider claim while NO_PROVIDER_READY")
+              production_ready = False
+              validation_level = "external_rules_engine_b3_game_start_only"
+              evidence_boundary = "B3 external-rules-engine evidence covers real pinned deck import, Commander construction and game start only."
+          elif rules["provider_decision"] == "XMAGE_SELECTED":
+              # D5: accepted only as the complete, consistent post-Freeze record; the
+              # derived lists themselves are gated by the quality job (unit test running
+              # derive_rules_engines_capabilities.py --check against this config).
+              consistent = (
+                  freeze.get("status") == "CLAIMED"
+                  and freeze.get("selected_provider") == "xmage"
+                  and freeze.get("runtime_switch") == "DONE_D5"
+                  and rules.get("production_bridge") == "xmage_full_game_lane_bridge"
+                  and primary.get("provider") == "xmage"
+                  and primary.get("production_ready") is True
+                  and primary.get("missing_required_capabilities") == []
+                  and runtime.get("provider_selected") is True
+                  and runtime.get("production_provider") == "xmage"
+                  and missing_required == []
+              )
+              if not consistent:
+                  raise SystemExit("release refuses an inconsistent XMAGE_SELECTED provider record")
+              production_ready = True
+              validation_level = "external_rules_engine_full_game_lane"
+              evidence_boundary = "The XMage full-game lane is the production runtime (Owner-signed Freeze 2026-10-10, D5); its capability truth is the sealed epoch named in config/rules_engines.json architecture_freeze."
+          else:
+              raise SystemExit(f"release refuses unknown provider_decision {rules['provider_decision']!r}")
 
           status = {
               "package_version": version,
@@ -133,9 +162,9 @@ jobs:
               "simulation_validity_claim": False,
               "deck_strength_claim": False,
               "external_engine_provider_decision": rules["provider_decision"],
-              "external_engine_production_ready": False,
+              "external_engine_production_ready": production_ready,
               "current_external_engine_status": rules["current_runtime"]["status"],
-              "current_external_engine_validation_level": "external_rules_engine_b3_game_start_only",
+              "current_external_engine_validation_level": validation_level,
               "xmage_real_execution": bool(primary.get("real_execution")),
               "forge_real_execution": bool(secondary.get("real_execution")),
               "xmage_missing_required_capabilities": missing_required,
@@ -159,9 +188,9 @@ jobs:
               f"- External provider decision: `{rules['provider_decision']}`\n"
               f"- XMage runtime status: `{rules['current_runtime']['xmage_status']}`\n"
               f"- Missing required provider capabilities: `{', '.join(missing_required)}`\n"
-              "- Evidence boundary: B3 external-rules-engine evidence covers real pinned deck import, Commander construction and game start only.\n"
+              f"- Evidence boundary: {evidence_boundary}\n"
               "- Historical J-P3 feasibility evidence is retained separately and is not current provider truth.\n"
-              "- This release package makes no deck-strength, empirical-win-rate or provider-readiness claim.\n"
+              "- This release package makes no deck-strength or empirical-win-rate claim; provider readiness is reported from config/rules_engines.json only.\n"
               "- Canonical deck/inventory/allocation mutations by release packaging: 0.\n",
               encoding="utf-8",
           )
@@ -177,15 +206,16 @@ jobs:
 
           version = os.environ["VERSION"]
           sha = os.environ["GITHUB_SHA"]
+          status = json.loads(Path("release/PLAYTEST_LAB_CURRENT_STATUS.json").read_text(encoding="utf-8"))
           payload = {
               "schema_version": 3,
               "release": version,
               "git_head": sha,
               "release_evidence": "software_packaging_and_roundtrip",
-              "current_external_engine_validation_level": "external_rules_engine_b3_game_start_only",
+              "current_external_engine_validation_level": status["current_external_engine_validation_level"],
               "historical_p3_validation_level": "structural_tactical_and_real_external_feasibility_evidence",
-              "external_engine_production_ready": False,
-              "external_engine_provider_decision": "NO_PROVIDER_READY",
+              "external_engine_production_ready": status["external_engine_production_ready"],
+              "external_engine_provider_decision": status["external_engine_provider_decision"],
               "deck_strength_claim": False,
               "empirical_win_rate_claim": False,
               "roundtrip_required": True,

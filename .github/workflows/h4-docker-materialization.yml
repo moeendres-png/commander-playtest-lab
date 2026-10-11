@@ -366,7 +366,7 @@ jobs:
             --out-requests h4-evidence-xmage/handshake-requests.jsonl \
             > h4-evidence-xmage/handshake-requests-pipe.jsonl
           cmp h4-evidence-xmage/handshake-requests.jsonl h4-evidence-xmage/handshake-requests-pipe.jsonl
-          export ENGINE_START_COMMAND='java -jar /workspace/vendor/engine-binaries/xmage/bridge.jar'
+          export ENGINE_START_COMMAND='java -jar /workspace/vendor/engine-binaries/xmage/bridge.jar full-game'
           ./scripts/docker_build_engine.sh xmage run --rm -T xmage \
             < h4-evidence-xmage/handshake-requests.jsonl \
             > h4-evidence-xmage/handshake-transcript.jsonl
@@ -378,7 +378,7 @@ jobs:
         run: |
           set -euo pipefail
           export ENGINE_PROVIDER=xmage ENGINE_MODE=external
-          export ENGINE_START_COMMAND="java -jar $PWD/vendor/engine-binaries/xmage/bridge.jar"
+          export ENGINE_START_COMMAND="java -jar $PWD/vendor/engine-binaries/xmage/bridge.jar full-game"
           set +e
           python -m commander_lab.cli.app engine-verify --root "$PWD" > h4-evidence-xmage/engine-verify.json 2>h4-evidence-xmage/engine-verify-stderr.log
           rc=$?

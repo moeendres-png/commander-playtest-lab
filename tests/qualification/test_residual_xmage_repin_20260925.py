@@ -65,9 +65,10 @@ def test_current_machine_authority_is_residual_candidate() -> None:
     primary = cfg["primary_engine"]
     assert primary["commit"] == CURRENT_PIN
     assert primary["source_archive"].endswith(f"/{CURRENT_PIN}.tar.gz")
-    assert cfg["provider_decision"] == "NO_PROVIDER_READY"
-    assert cfg["current_runtime"]["provider_selected"] is False
-    assert cfg["current_runtime"]["production_provider"] is None
+    # The repin never changed selection; the Owner-signed Freeze and D5 did.
+    assert cfg["provider_decision"] == "XMAGE_SELECTED"
+    assert cfg["current_runtime"]["provider_selected"] is True
+    assert cfg["current_runtime"]["production_provider"] == "xmage"
 
 
 @superseded_by_later_repin

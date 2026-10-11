@@ -2,14 +2,14 @@
 
 ## Status of this repository
 
-Current provider truth is `NO_PROVIDER_READY`. Later J-P3 real executions retained PARTIAL evidence for both XMage and Forge, but no production bridge/provider passed the required legal-action/action-submission/replay gate. The qualified bounded Forge Protocol-2 bridge (separate H4F workstream; H4B remains PARTIAL, unsupported classes fail closed) is materialized through the container path below. Phase 8.5 prepared an earlier runtime path and remains historical provenance only.
+Current provider truth is `XMAGE_SELECTED`: XMage was selected at the Owner-signed Architecture Freeze (2026-10-10), and the D5 runtime switch made the XMage full-game lane the launched production runtime. Start it with the bridge's single argument `full-game` (for example `ENGINE_START_COMMAND="java -jar <bridge.jar> full-game"`); any other argument shape starts the historical B4-D compatibility bridge, which is not the production runtime. Earlier J-P3 real executions retained PARTIAL evidence for both XMage and Forge. The qualified bounded Forge Protocol-2 bridge (separate H4F workstream; H4B remains PARTIAL, unsupported classes fail closed) is materialized through the container path below. Phase 8.5 prepared an earlier runtime path and remains historical provenance only.
 
 ## Pinned providers
 
 | Candidate role | Provider | Current evidence pin (authority) | License | Current status |
 |---|---|---|---|---|
-| Provider candidate | XMage | `primary_engine` in `config/rules_engines.json` (compatibility-fork pin) | MIT | `PARTIAL` |
-| Provider candidate | Forge | `secondary_engine` in `config/rules_engines.json` | GPL-3.0 | `PARTIAL` |
+| Production Provider | XMage | `primary_engine` in `config/rules_engines.json` (fork pin) | MIT | `FULL_GAME_LANE_PRODUCTION_PROVIDER` |
+| Reference only | Forge | `secondary_engine` in `config/rules_engines.json` | GPL-3.0 | `PARTIAL` |
 
 Do not copy commits out of the manifest into this table: the manifest is the sole
 pin authority (see its `authority_note`). Superseded pins — the J-P3
@@ -17,10 +17,11 @@ pin authority (see its `authority_note`). Superseded pins — the J-P3
 only in `docs/J_P3_PROVIDER_DECISION.json`, the Phase-8.5 artifacts, and
 `historical_phase85` in the manifest.
 
-Neither provider is production-selected. `docs/J_P3_PROVIDER_DECISION.json` is the
-historical decision record; `config/rules_engines.json` is the current
-machine-readable truth (`provider_decision: NO_PROVIDER_READY`,
-`current_runtime.provider_selected: false`).
+XMage is the production provider; Forge stays a reference column only.
+`docs/J_P3_PROVIDER_DECISION.json` is the historical decision record;
+`config/rules_engines.json` is the current machine-readable truth
+(`provider_decision: XMAGE_SELECTED`, `current_runtime.provider_selected: true`,
+`architecture_freeze`).
 
 ## Prerequisites
 

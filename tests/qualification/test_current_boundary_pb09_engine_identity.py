@@ -177,9 +177,10 @@ def test_config_records_r1_current_authority_without_rewriting_history() -> None
     assert identity["bridge_source"]["rules_core_base_commit"] == CURRENT_CANDIDATE
     assert identity["upstream_baseline"]["commit"] == UPSTREAM
 
-    assert config["provider_decision"] == "NO_PROVIDER_READY"
-    assert config["current_runtime"]["provider_selected"] is False
-    assert config["current_runtime"]["production_provider"] is None
+    # R-1 never selected Forge; XMage was selected at the Freeze and launched by D5.
+    assert config["provider_decision"] == "XMAGE_SELECTED"
+    assert config["current_runtime"]["provider_selected"] is True
+    assert config["current_runtime"]["production_provider"] == "xmage"
 
 
 def test_historical_readiness_remains_source_bound_and_open_after_r1() -> None:

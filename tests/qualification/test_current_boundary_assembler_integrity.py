@@ -724,8 +724,10 @@ def test_af11_the_recorded_adjudication_matches_the_source_lock() -> None:
     config = json.loads((REPO / "config/rules_engines.json").read_text(encoding="utf-8"))
     assert record["selected_provider"] == config["primary_engine"]["provider"] == "xmage"
     assert record["licence_topology"]["provider"] == config["primary_engine"]["license"]
-    # The runtime manifest is not changed by this adjudication.
-    assert config["provider_decision"] == "NO_PROVIDER_READY"
+    # The adjudication itself never changed the runtime manifest; the Owner-signed
+    # Freeze and the D5 runtime switch did, consistently with this record.
+    assert config["provider_decision"] == "XMAGE_SELECTED"
+    assert config["architecture_freeze"]["selected_provider"] == record["selected_provider"]
     assert "ARCHITECTURE_FREEZE (separate Owner decision)" in record["not_claimed"]
 
 

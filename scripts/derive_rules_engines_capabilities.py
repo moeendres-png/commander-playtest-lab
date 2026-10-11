@@ -9,11 +9,11 @@ differs from the derivation; ``--write`` rewrites only the two derived fields.
   production lane (``full-game``), judged by the same freeze-record assembler that
   decides Freeze eligibility.
 * ``current_runtime.required_missing_capabilities`` is the truth of the runtime the
-  application actually launches (``production_bridge``). That runtime is the B4-D
-  compatibility bridge, so the list comes from the same epoch's AF01 on the
-  compatibility lane: every required capability that runtime does not report true.
-  The two differ as soon as the production lane is proven and the application has
-  not switched to it, and ``engine-verify`` (H4) stays degraded until it does.
+  application actually launches (``production_bridge``), taken from the same epoch's
+  AF01 on that runtime's lane: every required capability it does not report true.
+  Since the D5 runtime switch the launched runtime is the full-game lane, so both
+  lists come from the production lane. Before D5 the application launched the B4-D
+  compatibility bridge, the lists differed and ``engine-verify`` (H4) stayed degraded.
 
     scripts/derive_rules_engines_capabilities.py --check [--epoch DIR]
     scripts/derive_rules_engines_capabilities.py --write [--epoch DIR]
@@ -41,6 +41,7 @@ EPOCHS = REPO_ROOT / "qualification" / "current-boundary-epochs"
 # the application can launch. An unmapped bridge fails the derivation.
 RUNTIME_EVIDENCE = {
     "b4d_event_log_lifecycle_bridge": ("AF01_XMAGE_COMPATIBILITY_SUPPORT.json", "compatibility"),
+    "xmage_full_game_lane_bridge": ("AF01_XMAGE.json", "full-game"),
 }
 
 
@@ -118,6 +119,21 @@ def main(argv: list[str] | None = None) -> int:
         config["current_runtime"].get("required_missing_capabilities"),
     )
     rel = epoch.relative_to(REPO_ROOT) if epoch.is_absolute() else epoch
+    # A readiness or selection claim holds only while both derived lists are empty: a
+    # newer epoch that reopens a capability fails the check instead of silently
+    # leaving production_ready/provider_selected true.
+    claims = (
+        config["primary_engine"].get("production_ready") is True
+        or config["current_runtime"].get("provider_selected") is True
+        or config.get("provider_decision") != "NO_PROVIDER_READY"
+    )
+    if claims and (missing or runtime):
+        print(
+            f"config/rules_engines.json claims a ready/selected provider but {rel} derives "
+            f"missing capabilities: engine={missing} runtime={runtime}",
+            file=sys.stderr,
+        )
+        return 1
     if args.check:
         if current != (missing, runtime):
             print(
