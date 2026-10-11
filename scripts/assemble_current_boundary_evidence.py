@@ -55,6 +55,13 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
 )
 from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
+# Packet-scoped: these fields say what this evidence itself claims, never project state.
+NON_CLAIM_SCOPE = (
+    "This packet's own non-claims: the evidence in it selects no provider and claims no "
+    "Freeze. Current project state (Owner-signed Freeze, D5 runtime selection) is "
+    "config/rules_engines.json architecture_freeze and provider_decision."
+)
+
 # The runtime evidence epoch resolved from the same source identity the runner
 # used. The historical WSR22 tree is a read-only predecessor and is never read
 # here as current evidence.
@@ -1427,6 +1434,7 @@ def assemble() -> None:
                 ),
                 "architecture_freeze": "NOT_CLAIMED",
                 "production_provider": "NOT_SELECTED",
+                "non_claim_scope": NON_CLAIM_SCOPE,
             },
         )
 
@@ -1689,6 +1697,7 @@ def assemble() -> None:
             "af11": "DEFERRED_UNTIL_AFTER_PROVIDER_SELECTION",
             "production_provider": "NOT_SELECTED",
             "architecture_freeze": "NOT_CLAIMED",
+            "non_claim_scope": NON_CLAIM_SCOPE,
             "ranking": "NONE",
             "selection": "COORDINATOR_OWNED_IN_ISSUE_255",
         },

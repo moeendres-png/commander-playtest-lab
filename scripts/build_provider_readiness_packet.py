@@ -34,6 +34,13 @@ import sys
 from pathlib import Path
 from typing import Any
 
+# Packet-scoped: these fields say what this evidence itself claims, never project state.
+NON_CLAIM_SCOPE = (
+    "This packet's own non-claims: the evidence in it selects no provider and claims no "
+    "Freeze. Current project state (Owner-signed Freeze, D5 runtime selection) is "
+    "config/rules_engines.json architecture_freeze and provider_decision."
+)
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 DEFAULT_EPOCH = "c124150d77ab-d303b2ca5f32"
@@ -1433,6 +1440,7 @@ def build_packet(repo_root: Path = REPO_ROOT, epoch_name: str = DEFAULT_EPOCH) -
             "ranking": "NONE",
             "recommendation": "NONE",
             "provider_selection": "RESERVED_TO_OWNER",
+            "scope": NON_CLAIM_SCOPE,
         },
         "source_lock": {
             "packet_source": dict(PACKET_SOURCE),
