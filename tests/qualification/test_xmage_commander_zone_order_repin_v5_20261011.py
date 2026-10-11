@@ -10,11 +10,11 @@ the game are unchanged; only the order of the questions was, and that order
 made twin replay of an otherwise identical game produce two different semantic
 transcripts.
 
-Nothing in this file claims native or Lab runtime credit for the new pin: the
-fork's Actions were disabled when the pin moved, so no ``maven.yml`` run exists
-on 3cbf7741 yet. ``native_qualification.full_mage_tests`` and the Lab
-``bridge_suite`` are therefore PENDING with no result counts, and the guard
-below asserts exactly that. NOT_RUN != PASS.
+Native qualification is bound to the exact-commit ``maven.yml`` run 38136235677
+on 3cbf7741 (Mage.Tests 7042 run, 0 failures, 0 errors; Mage.Verify the same
+pre-existing baseline FAIL as at b479fe74). The Lab ``bridge_suite`` stays
+PENDING with no result counts until the Coordinator binds the conformance run,
+and the guard below asserts exactly that. NOT_RUN != PASS.
 
 The prior pin (b479fe74, successor lock v4) stays historical: this repin opens
 a new successor epoch, it does not relabel earlier evidence. The Owner-signed
@@ -116,21 +116,19 @@ def test_successor_lock_binds_the_candidate_its_donor_and_the_prior_pin() -> Non
     assert lock["lineage"]["final_integrated_candidate"]["commit"] == CURRENT_PIN
 
 
-def test_native_run_is_pending_and_claims_no_credit() -> None:
-    """NOT_RUN != PASS: the fork had no Actions run on this pin when it moved."""
-    native = _lock()["native_qualification"]["full_mage_tests"]
-    assert native["status"] == "PENDING"
-    assert native["run_id"] is None
-    assert native["expected_commit"] == CURRENT_PIN
-    # While PENDING the lock may not carry a result count, a run number or a
-    # commit, so nothing here can be read as native qualification credit.
-    for key in ("failures", "errors", "skipped", "run", "commit"):
-        assert key not in native, key
-    assert _lock()["native_qualification"]["mage_verify"]["result"] == "NOT_RUN"
-    regressions = native["expected_regressions"]
-    assert tuple(regressions) == NATIVE_REGRESSION_CLASSES
-    assert "not evidence that they ran" in native["expected_regressions_note"]
-    assert "no maven.yml run exists on 3cbf7741" in native["not_claimed"]
+def test_native_run_binds_the_exact_pin() -> None:
+    lock = _lock()
+    native = lock["native_qualification"]["full_mage_tests"]
+    assert native["status"] == "COMPLETE"
+    assert native["commit"] == CURRENT_PIN
+    assert native["run_id"] == 38136235677
+    assert native["failures"] == 0 and native["errors"] == 0
+    assert native["run"] > 0
+    for cls in NATIVE_REGRESSION_CLASSES:
+        assert cls in native["donor_regressions_in_run"], cls
+    verify = lock["native_qualification"]["mage_verify"]
+    assert verify["result"].startswith("FAIL (pre-existing")
+    assert "37141776698" in verify["detail"]
 
 
 def test_lab_bridge_suite_is_pending_and_claims_no_credit() -> None:

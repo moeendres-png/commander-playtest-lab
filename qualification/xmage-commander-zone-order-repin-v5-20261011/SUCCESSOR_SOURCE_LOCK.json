@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-commander-zone-order-repin-v5-20261011",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "PIN_MOVED_EVIDENCE_PENDING",
- "status_note": "the live pin moved to 3cbf7741 with no native and no Lab runtime evidence attached: the fork's Actions were disabled when the pin moved, so no maven.yml run exists on this commit yet. native_qualification.full_mage_tests and lab_runtime_qualification.bridge_suite are PENDING and carry no result counts. NOT_RUN != PASS, and this lock claims no current-boundary credit until PB-03 runs on the Lab main merge commit of this repin.",
+ "status": "NATIVE_BOUND_LAB_RUNTIME_PENDING",
+ "status_note": "native qualification is bound to the exact-commit maven.yml run below. lab_runtime_qualification.bridge_suite is PENDING and carries no result counts. NOT_RUN != PASS, and this lock claims no current-boundary credit until PB-03 runs on the Lab main merge commit of this repin.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -74,22 +74,21 @@
  "native_qualification": {
   "full_mage_tests": {
    "command": "maven.yml workflow_dispatch on branch claude/xmage-mp-candidate-20260929",
-   "status": "PENDING",
-   "run_id": null,
-   "expected_commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
-   "not_claimed": "no maven.yml run exists on 3cbf7741: the fork's Actions were disabled when the pin moved. Nothing in this section is evidence that Mage.Tests passed on this commit.",
-   "expected_regressions": [
-    "CommanderZoneApnap3PTest",
-    "CommanderZoneApnap4PTest",
-    "CommanderZoneApnap5PTest",
-    "CommanderZoneApnap6PTest"
-   ],
-   "expected_regressions_note": "these are the partner ask-order scenarios the donor's CommanderZoneApnapTestBase.assertPartnerAskOrder covers; their presence in the module is CODE_DERIVED from the fork source, not evidence that they ran on this pin.",
-   "fill_when": "the Coordinator replaces status and run_id and adds commit, run, failures, errors and skipped from the exact maven.yml run on 3cbf7741; until then the native qualification of this pin is UNKNOWN, never PASS"
+   "run_id": 38136235677,
+   "job": 114460561203,
+   "commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+   "run": 7042,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "status": "COMPLETE",
+   "donor_regressions_in_run": "CommanderZoneApnap3PTest, CommanderZoneApnap4PTest, CommanderZoneApnap5PTest and CommanderZoneApnap6PTest appear in the Mage.Tests per-class listing of this run; the partner ask-order assertion lives in their shared CommanderZoneApnapTestBase",
+   "source": "Mage Actions run 38136235677 (maven.yml workflow_dispatch, head 3cbf7741), job 114460561203, Mage.Tests module summary line 'Tests run: 7042, Failures: 0, Errors: 0, Skipped: 125'",
+   "baseline_at_prior_pin": "7042 run / 125 skipped at b479fe74 (run 37141776698); the donor adds assertions to existing tests, not new test methods"
   },
   "mage_verify": {
-   "result": "NOT_RUN",
-   "detail": "Mage.Verify has not been executed on 3cbf7741. It was a pre-existing, baseline-attributed FAIL at the prior pin (identical at 37e4df6c and 8af3d618), but no run on this commit exists, so this lock records NOT_RUN and not FAIL."
+   "result": "FAIL (pre-existing, baseline-attributed)",
+   "detail": "VerifyCardDataTest.test_checkMissingSetData:1230 'Found set errors: 3' and VerifyCardDataTest.test_verifyCards:361 'found 15 errors in 91085 cards verify'; the same two failure lines appear in run 37141776698 on b479fe74. The donor changes no card or set data."
   }
  },
  "lab_runtime_qualification": {
