@@ -1,0 +1,89 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "cc6df327a4c6a60563760381608c45975b7960a04d05fd4c7d16e8ae45352b28",
+        "kind": "priority_pass",
+        "scope": "decision_script[6]",
+        "tag": "WS05-CMD-ZONE-EXILE-NO-causal-obj:cmd-zone-source"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "3caeb397c4dbf862f5cf0ecccbb9d282198fcd243fa16bcfdc6c202641c30953",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "WS05-CMD-ZONE-EXILE-NO-causal-obj:cmd-zone-source-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "05a0951b3db935072e3cbaa4113ae6e1e7423f5a02553eba370f1f46fc4d14cf",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-CMD-ZONE-EXILE-NO-causal-obj:cmd-zone-source-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:cmd-zone-source"
+    ],
+    "fuel": [
+      "obj:fuel-plains-a"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:cmd-zone-source"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+  "obligation_exercised": {
+    "obligation_digest": "a834bbd008422140a7b17cd2a11df7ee26ffe4b503072101e14c71ae29d7e8d2",
+    "requested_state_digest": "e9ed2b5fb703d236aaf6a96886ac442f0cf46b5911a325ea7286664adabc14fe",
+    "required_events": [
+      "commander_zone_event:exile",
+      "commander_choice:exile"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Commander is in exile after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "commander_choice:exile": {
+        "decision_frames": [
+          4
+        ],
+        "events": [
+          9
+        ]
+      },
+      "commander_zone_event:exile": {
+        "events": [
+          9
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "7d6ce42cf387c57419cdd487eddfc0d278587be02dc11be47314b0e529a07abd",
+  "runner_digest": "5a42a883fb02d48469d14e3ba996df7a79975e7687dee85c078c043edac31b87",
+  "runtime_receipt_digest": "43906f0c0c39e95a21fa51bea1efbb203cd3e6e7d361a230741b5134781eda70",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-ZONE-EXILE-NO",
+  "variance_source": null
+}

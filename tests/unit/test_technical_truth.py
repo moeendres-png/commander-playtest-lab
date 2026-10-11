@@ -10,7 +10,11 @@ from commander_lab import __version__
 from commander_lab.engine.structural import ENGINE_VERSION
 from commander_lab.project_context import load_project_context
 from commander_lab.storage.database import SCHEMA_VERSION
-from commander_lab.technical_truth import _official_run_truth, build_technical_truth
+from commander_lab.technical_truth import (
+    _live_pin_requalification_pending,
+    _official_run_truth,
+    build_technical_truth,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -68,7 +72,9 @@ def test_technical_truth_derives_current_versions_scope_and_engine_boundary() ->
     assert "external_rules_engine_validation_pending" not in truth["documented_limitations"]
     assert "unresolved_operational_own_deck_baseline" not in truth["documented_limitations"]
     rules = json.loads((ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
-    pending = rules["primary_engine"]["commit"] != rules["architecture_freeze"]["engine_commit"]
+    current = rules["architecture_freeze"]["current_qualification"]
+    assert current["freeze_eligible"] is True
+    pending = rules["primary_engine"]["commit"] != current["engine_commit"]
     assert ("live_pin_requalification_pending" in truth["documented_limitations"]) is pending
     readiness = truth["first_run_readiness"]
     assert readiness["preparation_surface_present"] is True
@@ -164,3 +170,30 @@ def test_is_ancestor_reports_unknown_only_when_history_is_shallow(tmp_path: Path
     )
     git("fetch", "-q", "--depth", "1", "origin", base, cwd=shallow)
     assert _is_ancestor(shallow, base) is None, "a shallow clone cannot prove either way"
+
+
+def test_requalification_is_pending_until_an_eligible_qualification_covers_the_live_pin() -> None:
+    signed, live = "a" * 40, "b" * 40
+
+    def config(current: dict | None) -> dict:
+        freeze: dict = {"engine_commit": signed}
+        if current is not None:
+            freeze["current_qualification"] = current
+        return {"primary_engine": {"commit": live}, "architecture_freeze": freeze}
+
+    assert _live_pin_requalification_pending(config(None)) is True
+    assert (
+        _live_pin_requalification_pending(
+            config({"engine_commit": signed, "freeze_eligible": True})
+        )
+        is True
+    )
+    # An ineligible qualification on the live pin does not count.
+    assert (
+        _live_pin_requalification_pending(config({"engine_commit": live, "freeze_eligible": False}))
+        is True
+    )
+    assert (
+        _live_pin_requalification_pending(config({"engine_commit": live, "freeze_eligible": True}))
+        is False
+    )
