@@ -57,7 +57,7 @@
     },
     "engine_pins": {
       "config_file": "config/rules_engines.json",
-      "config_sha256": "ce99269d6a5151530533d306acc38641db3e7e49408d71cac757ca4d608a27a2",
+      "config_sha256": "3f7a10c9ba601a873440a634d190c3c08a7899930171180f3acfbca92bca29af",
       "xmage": {
         "commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
         "pin_source": "config/rules_engines.json#primary_engine.commit",

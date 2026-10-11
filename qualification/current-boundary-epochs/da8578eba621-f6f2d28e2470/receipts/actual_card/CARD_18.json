@@ -1,0 +1,102 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_18",
+  "obligation_exercised": {
+    "obligation_digest": "61dca100726d9987f06dee27d66ee9e3030c847a7bd817c8d1904ff86d99c95c",
+    "requested_state_digest": "0179ce9d4b117528deeb8e7f104d106c45b19deead511d9ca7bca85838973678",
+    "required_events": [
+      "evoke_cast",
+      "Shriekmaw_enters",
+      "destroy_trigger",
+      "evoke_sacrifice_trigger",
+      "destroy_target",
+      "sacrifice_Shriekmaw"
+    ],
+    "terminal_checks": [
+      "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:card18-target",
+      "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card_18-subject",
+      "no Grizzly Bears is on P2's battlefield",
+      "no Shriekmaw is on P1's battlefield"
+    ],
+    "terminal_postconditions": [
+      "Grizzly Bears is destroyed and Shriekmaw is sacrificed."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "d1742e706ac77dc9a4a4b48b972db3bbb29659f309d56627d1d42df33591de64",
+      "size": 7107756
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card_18-subject",
+          "no Grizzly Bears is on P2's battlefield",
+          "no Shriekmaw is on P1's battlefield"
+        ],
+        "check": "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:card18-target",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Grizzly Bears is destroyed and Shriekmaw is sacrificed."
+      }
+    ],
+    "terminal_facts": {
+      "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:card18-target": true,
+      "exactly 1 SACRIFICED_PERMANENT event(s) with target_object=obj:card_18-subject": true,
+      "no Grizzly Bears is on P2's battlefield": true,
+      "no Shriekmaw is on P1's battlefield": true
+    },
+    "token_evidence": {
+      "Shriekmaw_enters": {
+        "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:card_18-subject, from=STACK, to=BATTLEFIELD",
+        "events": [
+          9
+        ]
+      },
+      "destroy_target": {
+        "binding": "at least one DESTROYED_PERMANENT event(s) with target_object=obj:card18-target",
+        "events": [
+          14
+        ]
+      },
+      "destroy_trigger": {
+        "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card_18-subject, target_name~=stack ability (When {this} enters, destroy target",
+        "events": [
+          10
+        ]
+      },
+      "evoke_cast": {
+        "binding": "a scripted choice frame selected an engine offer naming 'evoke alternative cost'",
+        "decision_frames": [
+          1
+        ]
+      },
+      "evoke_sacrifice_trigger": {
+        "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card_18-subject, target_name~=stack ability (When this permanent enters, if its evoke",
+        "events": [
+          11
+        ]
+      },
+      "sacrifice_Shriekmaw": {
+        "binding": "at least one SACRIFICED_PERMANENT event(s) with target_object=obj:card_18-subject",
+        "events": [
+          12
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "17758d4411a40b3f95ebbe2d1a9c66cc8a958ce8883992a85ba2feb05eb13b40",
+  "runner_digest": "27e53471703d3b4fa98c413da9a2b56f6f4b8e1dc47448a05d5bcab99baab4eb",
+  "runtime_receipt_digest": "3e6675d186a9aeb3955a3b8c489a51acaae068e762067e90e60168a28f5528b2",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_18"
+}
