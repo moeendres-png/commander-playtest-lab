@@ -143,13 +143,29 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * <p>It is engine evidence that a cost choice could not be made: the
      * engine itself computed the legal set, found it empty, and handed the
      * bridge a choice with nothing to choose from. Under CR 118.3 a cost that
-     * cannot be paid is not paid at all, and CR 602.2b/601.2h place cost
-     * payment inside the activation, so an activation whose cost choice has no
-     * legal option is a proposal the game cannot complete and the engine
+     * cannot be paid is not paid at all, and a cost is paid during casting
+     * (CR 601.2h) or activation (CR 602.2b), so an activation whose cost choice
+     * has no legal option is a proposal the game cannot complete and the engine
      * reverses it (CR 601.2e / 727) rather than resolving a broken ability.
      * {@code PlayerImpl.playAbility} then restores its bookmark and
      * {@link #priority(Game)} must hand priority back to the same player
      * instead of aborting the game.
+     *
+     * <p>This flag means one thing only: the LAST engine choice callback in
+     * this action saw an empty non-targeted legal set. It is cleared at the
+     * top of every NON-EMPTY {@link #chooseTargetInternal} call and on every
+     * {@link #request} — that is, on every decision actually handed to the
+     * pilot. A bare "some callback ran" flag would stay set for the rest of the
+     * action and would convert an UNRELATED later bridge failure into a
+     * "reversal", which is exactly the masking this flag must not do: the
+     * Lab may only stay silent about a failure it has engine evidence for.
+     * The clearing can only ever NARROW acceptance towards fail-closed.
+     *
+     * <p>{@link #emptyNonTargetChoiceSource} carries the ability the engine
+     * used for that empty choice, and {@link #reversedEmptyNonTargetChoice}
+     * accepts only when it is the ability actually being activated. Both halves
+     * are narrowing-only: either one alone keeps the previous
+     * fail-closed outcome.
      *
      * <p>Distinct from {@link #emptyRequiredTarget}, which only fires when the
      * empty choice's minimum is greater than zero. A cost choice is nearly
@@ -178,6 +194,29 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * recognises the engine's reversal rather than the cause.
      */
     private boolean emptyNonTargetChoice;
+
+    /**
+     * #715: the ability the engine passed to the bridge's NON-target choice
+     * callback when {@link #emptyNonTargetChoice} was recorded, i.e. the
+     * instance the engine used at that moment. Read back by
+     * {@link #reversedEmptyNonTargetChoice} to prove the empty cost choice
+     * belongs to the ability whose activation is now failing. Cleared exactly
+     * where {@link #emptyNonTargetChoice} is cleared.
+     *
+     * <p>The pinned engine hands the bridge a DIFFERENT object from the option
+     * the bridge holds, with a different {@code getId()}: {@code PlayerImpl}
+     * {@code .activateAbility} calls {@code playAbility(ability.copy(), game)}
+     * and {@code playAbility} then calls {@code ability.newId()} before pushing
+     * it onto the stack, which regenerates {@code id} (and every effect and
+     * sub-ability id) while leaving {@code originalId} untouched. {@code
+     * originalId} is therefore the one identity that is stable across the copy,
+     * so {@link #reversedEmptyNonTargetChoice} compares THAT and never {@code
+     * getId()}. Comparing {@code getId()} rejects every genuine reversal and
+     * silently turns this repair into a plain fail-closed; comparing instances
+     * does the same. This was established by running the real crew path on the
+     * pinned engine, not inferred.
+     */
+    private Ability emptyNonTargetChoiceSource;
 
     /** True only while an explicitly authorized native concede call is active. */
     private volatile boolean concessionInProgress;
@@ -468,6 +507,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         xAnnouncedAbility = null;
         targetChoiceRequested = false;
         emptyNonTargetChoice = false;
+        emptyNonTargetChoiceSource = null;
         JsonArray options = new JsonArray();
         Map<String, ActivatedAbility> abilities = new LinkedHashMap<>();
 
@@ -532,8 +572,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         || noViableMode
                         || concessionInterruptedAction
                         || leftMidAction()
-                        || reversedRequiredXTarget(game)
-                        || emptyNonTargetChoice) {
+                        || reversedRequiredXTarget(game)) {
                     // Cancelled or uncompletable cast: the engine reversed it
                     // and restored its bookmark; the player has not passed, so
                     // the engine's priority loop asks the same player again
@@ -545,11 +584,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     // illegal actions reverses the proposal to the moment
                     // before it was made. The engine ordering is identical for
                     // a spell and an activated ability, so the evidence that
-                    // identifies the reversal is identical too. #715's
-                    // emptyNonTargetChoice applies here for the same reason:
-                    // a cost is paid during the spell's resolution or its
-                    // activation under 601.2h/602.2b, so a cost choice with no
-                    // legal option leaves the same reversal.
+                    // identifies the reversal is identical too.
+                    //
+                    // #715's emptyNonTargetChoice does NOT apply here. No cast
+                    // on the pinned engine reaches it, so accepting it in this
+                    // branch would widen the guard on an unproven case: an
+                    // empty optional non-target choice that a SPELL's cost
+                    // raises still PAYS that cost, and the failure that follows
+                    // it is not the engine reversing the proposal. The term is
+                    // kept in the activation branch, where
+                    // CrewCost.pay returning false is a genuine reversal.
                     return false;
                 }
                 fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
@@ -562,9 +606,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     || emptyRequiredTarget
                     || noViableMode
                     || concessionInterruptedAction
-                    || leftMidAction()
-                    || reversedRequiredXTarget(game)
-                    || emptyNonTargetChoice) {
+|| leftMidAction()
+                        || reversedRequiredXTarget(game)
+                        || reversedEmptyNonTargetChoice(ability)) {
                 // Cancelled or uncompletable activation: the engine reversed
                 // it; the same player receives priority again (#662 S3).
                 // #703 adds the engine-reversed X-target case: the announced
@@ -574,11 +618,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 // actions, returning the game to the moment before it.
                 // #715 adds the cost-choice case: an OPTIONAL non-target
                 // choice with an EMPTY legal set is not a choice the pilot
-                // could make, so the cost cannot be paid (CR 118.3, paid
-                // under CR 602.2b/601.2h) and the engine reverses the
-                // proposal the same way. See {@link #emptyNonTargetChoice}
-                // for the engine evidence and the upstream canPay defect that
-                // produces it.
+                // could make, so the cost cannot be paid (CR 118.3; paid
+                // during activation under CR 602.2b) and the engine reverses
+                // the proposal the same way. It is read through
+                // reversedEmptyNonTargetChoice, which additionally requires
+                // the empty choice to belong to THIS ability and requires no
+                // later decision to have been sent to the pilot, so an
+                // unrelated failure cannot be laundered as a reversal.
+                // See {@link #emptyNonTargetChoice} for the engine evidence
+                // and the upstream canPay defect that produces it.
                 return false;
             }
             fail("XMAGE_ACTION_EXECUTION_FAILED", "priority activation failed: " + selected);
@@ -691,6 +739,55 @@ final class XmageFullGamePlayer extends PlayerImpl {
      */
     void recordTargetChoiceRequestedForBoundaryTest(boolean requested) {
         targetChoiceRequested = requested;
+    }
+
+    /**
+     * #715: true only when the engine reversed {@code activating} because
+     * THAT ability's cost choice came back with no legal option.
+     *
+     * <p>Both halves are engine-held facts, read after the attempt:
+     * <ol>
+     *   <li>the last choice callback in this action was a NON-targeted choice
+     *       whose legal set the engine itself computed to be empty
+     *       ({@link #emptyNonTargetChoice}, cleared by any later decision, so
+     *       it cannot outlive the empty choice), and</li>
+     *   <li>the ability the engine used for that empty choice is the ability
+     *       now being activated ({@link #emptyNonTargetChoiceSource}).</li>
+     * </ol>
+     *
+     * <p>(2) is the anti-masking discriminator. An empty optional choice is
+     * not by itself proof that the proposal was reversed: it only proves the
+     * engine had nothing to offer for THAT cost. A failure raised afterwards by
+     * some other ability is not covered by this evidence, and reading it as a
+     * reversal would silently swallow a real defect.
+     *
+     * <p>The two abilities are never the same object: the engine activates
+     * {@code ability.copy()} and {@code playAbility} calls {@code newId()} on
+     * it, so {@code getId()} differs while {@code getOriginalId()} is carried
+     * across unchanged. The comparison is on {@code originalId} — see
+     * {@link #emptyNonTargetChoiceSource} for the pinned-engine evidence.
+     *
+     * <p>No legality is recomputed here: no filter is re-evaluated, no cost is
+     * re-derived, and no option is reconstructed. Any activation failure
+     * without both halves still fails closed with XMAGE_ACTION_EXECUTION_FAILED.
+     */
+    boolean reversedEmptyNonTargetChoice(Ability activating) {
+        if (!emptyNonTargetChoice || emptyNonTargetChoiceSource == null || activating == null) {
+            return false;
+        }
+        UUID emptyChoiceId = emptyNonTargetChoiceSource.getOriginalId();
+        UUID activatingId = activating.getOriginalId();
+        return emptyChoiceId != null && emptyChoiceId.equals(activatingId);
+    }
+
+    /**
+     * #715 boundary tests only: package-private, no production behaviour
+     * change and no production caller. Mirrors exactly what
+     * {@link #chooseTargetInternal} records on its empty non-targeted branch.
+     */
+    void recordEmptyNonTargetChoiceForBoundaryTest(Ability source) {
+        emptyNonTargetChoice = source != null;
+        emptyNonTargetChoiceSource = source;
     }
 
     @Override
@@ -1767,6 +1864,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
         context.addProperty("numeric_total_max", totalMax);
         context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
         boolean combatDamageAssignment = type != null && COMBAT_DAMAGE_DIALOGUES.contains(type.getTitle());
+        // #715: this frame bypasses the private request(...) wrapper, but it is
+        // still a decision handed to the pilot, so it clears the
+        // empty-non-target-choice evidence exactly like every other one.
+        emptyNonTargetChoice = false;
+        emptyNonTargetChoiceSource = null;
         XmageFullGameDecisionController.DecisionResponse response;
         try {
             response = decisionController.request(
@@ -1972,16 +2074,23 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 // #715: the engine computed this choice's legal set itself and
                 // it is empty, so the player is asked for nothing and there is
                 // no decision to decline. Returned false below, the enclosing
-                // pay() reports the cost unpaid, and the activation/cast
-                // fails; this records the engine evidence that the resulting
-                // failure is the engine reversing an uncompletable proposal
-                // (CR 118.3 with CR 602.2b/601.2h) rather than a defect the
-                // Lab should abort on. Cost choices are typically optional
-                // (minimum zero), which is why emptyRequiredTarget below does
-                // not cover them. No legality is recomputed: the set here is
-                // the engine's own, and it is the bridge's own callback that
-                // observed it.
+                // pay() reports the cost unpaid, and the activation fails;
+                // this records the engine evidence that the resulting failure
+                // is the engine reversing an uncompletable proposal (CR 118.3
+                // with a cost paid during casting, CR 601.2h, or activation,
+                // CR 602.2b) rather than a defect the Lab should abort on. Cost
+                // choices are typically optional (minimum zero), which is why
+                // emptyRequiredTarget below does not cover them. No legality is
+                // recomputed: the set here is the engine's own, and it is the
+                // bridge's own callback that observed it.
+                //
+                // The ability recorded is the one the ENGINE used for this
+                // choice, not the option object the bridge holds: the engine
+                // activates a copy of the selected ability. The IDs are equal,
+                // so reversedEmptyNonTargetChoice can tie the evidence back to
+                // the activation that is failing.
                 emptyNonTargetChoice = true;
+                emptyNonTargetChoiceSource = source;
             }
             if (min > 0) {
                 // Required targets with zero legal options (e.g. modal
@@ -1992,6 +2101,13 @@ final class XmageFullGamePlayer extends PlayerImpl {
             }
             return false;
         }
+        // #715: a non-empty choice means the engine DID have something to offer,
+        // so this callback is not the empty one. Clearing here is what keeps
+        // the flag meaning "the LAST engine choice callback in this action saw
+        // an empty non-targeted set": an earlier empty choice must not stay set
+        // and mask a failure raised later in the same action.
+        emptyNonTargetChoice = false;
+        emptyNonTargetChoiceSource = null;
         JsonObject context = suppliedContext == null ? new JsonObject() : suppliedContext.deepCopy();
         context.addProperty("targeted", targeted);
         context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
@@ -2230,6 +2346,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
             JsonObject context,
             Ability source
     ) {
+        // #715: every decision actually handed to the pilot clears the
+        // empty-non-target-choice evidence. If the pilot was asked anything at
+        // all, the engine had something to offer and an earlier empty choice
+        // is not what is failing now. Clearing only ever narrows acceptance
+        // towards fail-closed, so it cannot mask a genuine #715 reversal: the
+        // Crew path returns from chooseTargetInternal above without ever
+        // reaching a request.
+        emptyNonTargetChoice = false;
+        emptyNonTargetChoiceSource = null;
         return decisionController.request(
                 game,
                 this,

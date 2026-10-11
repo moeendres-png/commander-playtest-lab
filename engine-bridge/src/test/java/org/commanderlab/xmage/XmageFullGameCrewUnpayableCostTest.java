@@ -3,6 +3,11 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import mage.abilities.Ability;
+import mage.abilities.ActivatedAbility;
+import mage.cards.CardSetInfo;
+import mage.cards.c.CultivatorsCaravan;
+import mage.constants.Rarity;
 import mage.constants.Zone;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
@@ -13,6 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -71,9 +77,11 @@ class XmageFullGameCrewUnpayableCostTest {
 
     /**
      * Red control. A crewed Cultivator's Caravan (a 5/5 artifact creature)
-     * whose only other untapped creature would be the seat's commander; the
-     * commander is tapped by the fixture, so "another untapped creature you
-     * control" is EMPTY. XMage still offers Crew 3 because {@code canPay}
+     * and nothing else that P1 could crew it with: the fixture seats Tor
+     * Wauki the Younger on the battlefield but taps him by crewing the Vehicle
+     * in the setup (see {@link #crewedCaravan}), and the seat's commander is
+     * seated OFF the battlefield at this step, so "another untapped creature
+     * you control" is EMPTY. XMage still offers Crew 3 because {@code canPay}
      * counted the Vehicle's own power, and {@code CrewCost.pay} then has no
      * legal option to choose.
      *
@@ -243,6 +251,104 @@ class XmageFullGameCrewUnpayableCostTest {
                         + failure);
     }
 
+    // ---- #715 round 2: the flag must not mask an unrelated failure ---------
+
+    /**
+     * Predicate control, positive: the empty non-targeted choice belonged to
+     * the ability now being activated, so the reversal IS recognised. Real
+     * engine abilities on both sides; RED if the id comparison in
+     * {@code reversedEmptyNonTargetChoice} is removed or replaced by something
+     * that never matches (for example instance identity — the engine activates
+     * a COPY, so the objects are never {@code ==}).
+     */
+    @Test
+    void emptyCostChoiceOfTheActivatedAbilityIsReversal() {
+        XmageMultiplayerScenario s = crewedCaravan("issue715-predicate-same-ability", List.of());
+        Game game = s.session.restorationGame();
+        XmageFullGamePlayer player = (XmageFullGamePlayer) s.seats.get("P1");
+
+        ActivatedAbility crew = crewAbility(CARAVAN + " on the battlefield",
+                caravan(game).getAbilities());
+        player.recordEmptyNonTargetChoiceForBoundaryTest(crew);
+
+        assertTrue(player.reversedEmptyNonTargetChoice(crew),
+                "the empty cost choice IS this ability's, so this is exactly the "
+                        + "engine-evidenced reversal #715 exists to recognise");
+    }
+
+    /**
+     * THE MASKING CONTROL. In one action an empty optional non-targeted choice
+     * is recorded, and then some UNRELATED ability's activation fails. The
+     * result must still be XMAGE_ACTION_EXECUTION_FAILED, never a silent
+     * rewind.
+     *
+     * <p>This is the defect the round-1 flag had: "some optional choice came
+     * back empty" stayed set for the rest of the action, so any later failure —
+     * from any ability — was laundered into a "reversal". The Lab would then
+     * swallow a real defect instead of aborting.
+     *
+     * <p>Both abilities here are real engine {@link ActivatedAbility} objects
+     * and their ids are asserted to differ, so the control exercises the id
+     * comparison and not a tautology. RED if the source-ability check is
+     * dropped from the predicate, if the comparison becomes instance identity,
+     * or if the predicate is widened to accept any recorded empty choice.
+     */
+    @Test
+    void emptyCostChoiceOfAnotherAbilityIsNotAReversal() {
+        XmageMultiplayerScenario s = crewedCaravan("issue715-predicate-other-ability", List.of());
+        Game game = s.session.restorationGame();
+        XmageFullGamePlayer player = (XmageFullGamePlayer) s.seats.get("P1");
+
+        // The ability whose cost choice came back empty: the Vehicle's crew.
+        ActivatedAbility crew = crewAbility(CARAVAN + " on the battlefield",
+                caravan(game).getAbilities());
+        // The UNRELATED activation that fails afterwards: a second, independent
+        // instance of the same real card, so it is a genuine engine ability
+        // that simply is not the one that raised the empty choice.
+        ActivatedAbility other = crewAbility("a second " + CARAVAN + " card instance",
+                new CultivatorsCaravan(
+                        java.util.UUID.randomUUID(),
+                        new CardSetInfo(CARAVAN, "OTR", "0", Rarity.RARE)).getAbilities());
+        assertNotEquals(crew.getId(), other.getId(),
+                "precondition: the two abilities are distinct objects with distinct ids");
+
+        player.recordEmptyNonTargetChoiceForBoundaryTest(crew);
+
+        assertFalse(player.reversedEmptyNonTargetChoice(other),
+                "ANTI-MASKING: the empty optional choice belonged to a DIFFERENT ability, so it "
+                        + "is not evidence that THIS activation was reversed. priority() must "
+                        + "keep failing closed with XMAGE_ACTION_EXECUTION_FAILED rather than "
+                        + "silently handing priority back and hiding the defect");
+    }
+
+    /**
+     * Defence in depth: no evidence at all, and evidence with no ability
+     * attached, both fail closed. RED if the predicate stops requiring a
+     * recorded source ability.
+     */
+    @Test
+    void emptyCostChoiceWithoutASourceAbilityIsNotAReversal() {
+        XmageMultiplayerScenario s = crewedCaravan("issue715-predicate-no-source", List.of());
+        Game game = s.session.restorationGame();
+        XmageFullGamePlayer player = (XmageFullGamePlayer) s.seats.get("P1");
+
+        ActivatedAbility crew = crewAbility(CARAVAN + " on the battlefield",
+                caravan(game).getAbilities());
+
+        player.recordEmptyNonTargetChoiceForBoundaryTest(null);
+        assertFalse(player.reversedEmptyNonTargetChoice(crew),
+                "a flag with no recorded ability is not evidence of anything");
+
+        player.recordEmptyNonTargetChoiceForBoundaryTest(crew);
+        assertFalse(player.reversedEmptyNonTargetChoice(null),
+                "there is no activation to attribute the empty choice to");
+
+        // An action in which nothing raised an empty choice at all.
+        player.recordEmptyNonTargetChoiceForBoundaryTest(null);
+        assertFalse(player.reversedEmptyNonTargetChoice(crew),
+                "DEFENCE IN DEPTH: no empty choice means no reversal evidence");
+    }
+
     // ---- fixture ------------------------------------------------------------
 
     /**
@@ -365,6 +471,41 @@ class XmageFullGameCrewUnpayableCostTest {
 
     private static Permanent caravan(Game game) {
         return permanent(game, CARAVAN);
+    }
+
+    /**
+     * The {@link CREW} activated ability in {@code abilities}, chosen by the
+     * engine's own rule text and never by position. Used with two DIFFERENT
+     * sources: the Vehicle permanent on the battlefield, and a second
+     * independent instance of the same real card built by the engine's card
+     * class. The second is never put into play and never influences the game;
+     * it exists only to be a genuine "some other ability" in the anti-masking
+     * control.
+     *
+     * <p>Exactly one must match, so the control can never pass by taking the
+     * first of several.
+     */
+    private static ActivatedAbility crewAbility(String described, Iterable<Ability> abilities) {
+        List<ActivatedAbility> matched = new ArrayList<>();
+        for (Ability ability : abilities) {
+            if (ability instanceof ActivatedAbility
+                    && ability.getRule() != null
+                    && ability.getRule().startsWith(CREW)) {
+                matched.add((ActivatedAbility) ability);
+            }
+        }
+        List<String> seen = new ArrayList<>();
+        for (Ability ability : abilities) {
+            if (ability instanceof ActivatedAbility candidate) {
+                seen.add(candidate.getClass().getSimpleName() + "/" + candidate.getRule());
+            }
+        }
+        assertEquals(1, matched.size(),
+                "precondition: exactly one activated ability whose rule starts with \"" + CREW
+                        + "\" on " + described
+                        + " so the control cannot pick by position; activated abilities seen: "
+                        + seen);
+        return matched.get(0);
     }
 
     /** Names of every tapped permanent, so "nothing new got tapped" is exact. */
