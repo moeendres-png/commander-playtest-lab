@@ -2,14 +2,13 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-commander-zone-order-repin-v5-20261011",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "NATIVE_BOUND_LAB_RUNTIME_PENDING",
- "status_note": "native qualification is bound to the exact-commit maven.yml run below. lab_runtime_qualification.bridge_suite is PENDING and carries no result counts. NOT_RUN != PASS, and this lock claims no current-boundary credit until PB-03 runs on the Lab main merge commit of this repin.",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "native and Lab runtime qualification are bound to exact-commit runs below; current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
   "ARCHITECTURE_FREEZE_REBIND",
-  "DENOMINATOR_CHANGE",
-  "LAB_RUNTIME_QUALIFICATION_CREDIT"
+  "DENOMINATOR_CHANGE"
  ],
  "rules_authority": {
   "effective_date": "2026-09-25",
@@ -91,16 +90,28 @@
   }
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "not run on this pin",
-  "installed_artifacts_commit": null,
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run below; no local isolated m2 cross-check was made for this pin",
+  "installed_artifacts_commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
   "installed_artifacts": {},
   "bridge_suite": {
-   "command": "XMage Full Game Conformance workflow_dispatch on the Lab main merge commit of this repin with XMAGE_COMMIT=3cbf7741d29a2fe820725456b90f305f9f793ad1",
-   "status": "PENDING",
-   "source": "not yet dispatched; this PR pins the workflows, and the Coordinator fills run, failures, errors and skipped from the run its own head produces",
-   "not_claimed": "no engine-bridge run against XMage built from 3cbf7741 exists, so no Lab runtime credit is claimed for this pin"
+   "command": "XMage Full Game Conformance workflow_dispatch on the repin branch head fef9d626 (XMAGE_COMMIT=3cbf7741): engine-bridge mvn verify against XMage built from exact 3cbf7741",
+   "run": 1067,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 38142486874,
+   "job": 114479045714,
+   "artifact": {
+    "id": 11703344470,
+    "zip_sha256": "ed69019b5affbf23d9baf04c06b7e37f12dd9b04afed5d0370ff520cd745f616"
+   },
+   "supporting_run": "pull_request run 38142484164 of the same workflow on the same head fef9d626: success",
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "baseline_at_prior_pin": "950 run / 1 skipped at b479fe74 (run 37150350091); the bridge suite has grown since, so counts are not comparable across pins"
   },
-  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit. The repair has no structural signature (it is a collection ordering inside GameImpl.checkStateBasedActions); identity rests on the declared commit and the native CommanderZoneApnap*Test regressions in maven.yml run 38136235677 on this exact commit. The loaded-artifact digest is not yet bound: no Lab bridge run against XMage built from 3cbf7741 exists."
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit. The repair has no structural signature (a collection ordering inside GameImpl.checkStateBasedActions); identity rests on the declared commit, the native CommanderZoneApnap*Test regressions in maven.yml run 38136235677 on this exact commit, and the bridge suite run 38142486874 against XMage built from this exact commit.",
+  "installed_artifacts_note": "the conformance job checks out XMage at exactly 3cbf7741 (git rev-parse HEAD == XMAGE_COMMIT gate) and installs org.mage:mage / mage-sets 1.4.61 built from it into the runner's m2; the workflow records no jar digests, so none are claimed here"
  },
  "architecture_freeze_binding": {
   "status": "UNCHANGED_BY_THIS_REPIN",

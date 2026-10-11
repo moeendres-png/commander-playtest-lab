@@ -12,9 +12,9 @@ transcripts.
 
 Native qualification is bound to the exact-commit ``maven.yml`` run 38136235677
 on 3cbf7741 (Mage.Tests 7042 run, 0 failures, 0 errors; Mage.Verify the same
-pre-existing baseline FAIL as at b479fe74). The Lab ``bridge_suite`` stays
-PENDING with no result counts until the Coordinator binds the conformance run,
-and the guard below asserts exactly that. NOT_RUN != PASS.
+pre-existing baseline FAIL as at b479fe74). The Lab ``bridge_suite`` is
+bound to the XMage Full Game Conformance run 38142486874 against XMage built from
+exactly 3cbf7741 (1067 run, 0 failures, 0 errors, 1 skipped). NOT_RUN != PASS.
 
 The prior pin (b479fe74, successor lock v4) stays historical: this repin opens
 a new successor epoch, it does not relabel earlier evidence. The Owner-signed
@@ -131,14 +131,17 @@ def test_native_run_binds_the_exact_pin() -> None:
     assert "37141776698" in verify["detail"]
 
 
-def test_lab_bridge_suite_is_pending_and_claims_no_credit() -> None:
+def test_lab_bridge_suite_binds_the_exact_pin() -> None:
     lab = _lock()["lab_runtime_qualification"]
+    assert lab["installed_artifacts_commit"] == CURRENT_PIN
     suite = lab["bridge_suite"]
-    assert suite["status"] == "PENDING"
-    for key in ("failures", "errors", "skipped", "run", "actions_run", "job"):
-        assert key not in suite, key
-    # Nothing has been built from this pin, so no artifact identity is claimed.
-    assert lab["installed_artifacts_commit"] is None
+    assert suite["status"] == "COMPLETE"
+    assert suite["failures"] == 0 and suite["errors"] == 0
+    assert suite["run"] > 0
+    assert suite["actions_run"] == 38142486874
+    assert f"XMAGE_COMMIT={CURRENT_PIN[:8]}" in suite["command"]
+    assert len(suite["artifact"]["zip_sha256"]) == 64
+    # No jar digest was recorded by the workflow, so none may be claimed.
     assert lab["installed_artifacts"] == {}
 
 
