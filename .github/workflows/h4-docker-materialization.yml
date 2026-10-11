@@ -134,6 +134,7 @@ jobs:
             tests/conftest.py
             tests/unit/test_h4_workflow_structure.py
             src/commander_lab/semantic_replay/**
+            src/commander_lab/freeze_readiness.py
       - name: Provider scope of this change
         id: scope
         shell: bash
