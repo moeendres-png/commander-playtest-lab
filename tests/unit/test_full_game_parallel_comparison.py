@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 from commander_lab.candidates.models import FutureXmageScenario
+from commander_lab.engine.rules import full_game_batch
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
@@ -320,3 +321,47 @@ def test_cli_plan_only_on_the_real_decks(capsys: pytest.CaptureFixture[str]) -> 
         "24 games: 2 contenders x 3 seeds x 4 seats, 4 players, 2 workers"
         in capsys.readouterr().out
     )
+
+
+class _CollidingStartRunner(_VariantWinsRunner):
+    """The first start of every game collides on XMage's card repository."""
+
+    def __init__(self, code: str) -> None:
+        super().__init__()
+        self.code = code
+        self.starts: dict[str, int] = {}
+
+    def run(self, *, scenario: FutureXmageScenario, decks: object, pilots: object) -> object:
+        key = f"{scenario.candidate_id}:{scenario.seed}:{scenario.seat}"
+        with self._lock:
+            self.starts[key] = self.starts.get(key, 0) + 1
+            first = self.starts[key] == 1
+        if first:
+            raise FullGameProtocolError(
+                "deck import failed",
+                code="BRIDGE_ERROR",
+                diagnostics=("deck_import_failed", self.code),
+            )
+        return super().run(scenario=scenario, decks=decks, pilots=pilots)
+
+
+def test_startup_collision_is_started_again(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(full_game_batch, "_STARTUP_BACKOFF_SECONDS", 0.0)
+    cases = plan_comparison_cases(_spec(seeds=(1, 2), rotate=False))
+    runner = _CollidingStartRunner("XMAGE_CARD_REPOSITORY_INIT_FAILED")
+    report = XmageFullGameBatchRunner(runner, tmp_path).run(cases, workers=2)  # type: ignore[arg-type]
+    assert report.completed_cases == len(cases)
+    assert set(runner.starts.values()) == {2}
+
+
+def test_other_bridge_errors_are_not_retried(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(full_game_batch, "_STARTUP_BACKOFF_SECONDS", 0.0)
+    cases = plan_comparison_cases(_spec(seeds=(1,), rotate=False))
+    runner = _CollidingStartRunner("XMAGE_CARD_NOT_FOUND")
+    report = XmageFullGameBatchRunner(runner, tmp_path).run(cases, workers=2)  # type: ignore[arg-type]
+    assert report.failed_cases == len(cases)
+    assert set(runner.starts.values()) == {1}

@@ -222,7 +222,7 @@ def execute_batch_case(
     """
     started = time.monotonic()
     try:
-        result = runner.run(scenario=case.scenario, decks=case.decks, pilots=case.pilots)
+        result = _run_with_startup_retry(runner, case)
         if execution_identity_of(runner) != execution:
             raise ValueError("full-game batch execution identity changed during game")
         return FullGameBatchRecord(
@@ -240,6 +240,34 @@ def execute_batch_case(
         return _failed_record(case, run_key, started, FullGameFailureClass.CONFIGURATION, exc)
     except RuntimeError as exc:
         return _failed_record(case, run_key, started, FullGameFailureClass.ENGINE, exc)
+
+
+# XMage's card repository is an on-disk database every bridge JVM scans at
+# startup. JVMs starting at the same moment can collide on it and fail deck
+# import before any game exists (#731: 1-2 of 6 games at 4-6 workers). That
+# failure says nothing about the game, so the case is started again; any
+# other failure, and this one after the last attempt, stays a failed record.
+_STARTUP_RETRY_CODES = frozenset({"XMAGE_CARD_REPOSITORY_INIT_FAILED"})
+_STARTUP_ATTEMPTS = 4
+_STARTUP_BACKOFF_SECONDS = 3.0
+
+
+def _is_startup_collision(exc: FullGameProtocolError) -> bool:
+    diagnostics = getattr(exc, "diagnostics", ()) or ()
+    return any(str(item) in _STARTUP_RETRY_CODES for item in diagnostics)
+
+
+def _run_with_startup_retry(
+    runner: _GameRunner, case: FullGameBatchCase
+) -> FullGameConformanceResult:
+    for attempt in range(1, _STARTUP_ATTEMPTS + 1):
+        try:
+            return runner.run(scenario=case.scenario, decks=case.decks, pilots=case.pilots)
+        except FullGameProtocolError as exc:
+            if attempt == _STARTUP_ATTEMPTS or not _is_startup_collision(exc):
+                raise
+            time.sleep(_STARTUP_BACKOFF_SECONDS * attempt)
+    raise AssertionError("unreachable")  # pragma: no cover
 
 
 def _failed_record(
