@@ -99,18 +99,30 @@ def test_parity_with_the_full_game_runner_on_the_710_shapes() -> None:
         assert redact_text(sample) == XmageFullGameRunner._semantic_text(sample), sample
 
 
-def test_new_function_rewrites_every_old_rewrite_identically() -> None:
-    """Strict superset: applying the new patterns after the old ones changes nothing old."""
-    samples = [
+def test_new_patterns_only_remove_further_appended_tags() -> None:
+    """The new patterns run on the old output and only remove more appended tags."""
+    unchanged = [
         "<font>Name</font> [3a4]",
         "Name [3a4]</div>",
         "Name[3a4]",
         "x object_id='abc' y",
         "uuid 12345678-1234-1234-1234-123456789abc here",
+        "Choose [Mountain] or [Forest]",
     ]
-    for sample in samples:
-        old = _old_redact_text(sample)
-        assert redact_text(old) == redact_text(sample), sample
+    for sample in unchanged:
+        assert redact_text(sample) == _old_redact_text(sample), sample
+    # Where they must differ: a tag the old end-of-text pattern left mid-message.
+    assert _old_redact_text("A [3a4] B [5b6]") == "A [3a4] B"
+    assert redact_text("A [3a4] B [5b6]") == "A B"
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [(" Pay [100].", " Pay."), ("Choose [add] mode", "Choose mode")],
+)
+def test_accepted_hex_shaped_bracket_text_is_stripped_like_the_runner(raw, expected) -> None:
+    """Recorded limitation, accepted in #712: hex-shaped bracket words read as tags."""
+    assert redact_text(raw) == expected == XmageFullGameRunner._semantic_text(raw)
 
 
 def _strings(node: object):
@@ -125,7 +137,12 @@ def _strings(node: object):
 
 
 def test_sealed_ws218_tapes_are_byte_identical_under_old_and_new() -> None:
-    """Impact adjudication: no stored tape string changes under the new function."""
+    """Impact adjudication: no stored tape string changes under the new function.
+
+    The tapes store selected labels only; offered-but-unchosen labels and metadata
+    behind the sealed digests are not stored. That is safe because sealed digests are
+    compared, never recomputed from labels (live replay re-derives fresh tapes only).
+    """
     assert len(TAPES) == 4
     tag = re.compile(r"\[[0-9a-fA-F]{3,8}\]")
     checked = 0

@@ -42,8 +42,8 @@ _SHORT_ID_TAIL_RE = re.compile(r"\s*\[[0-9a-fA-F]{3,8}\](?=</div>|$)")
 # ("Cast Siege-Gang Commander [3a4]?"). Same shapes as the full-game runner's
 # _semantic_text (#710/#712): an APPENDED tag only -- right after a closing tag the
 # engine wrote, or after whitespace and followed by a message boundary -- so
-# genuine bracketed Rules text survives. Applied after the two patterns above, so
-# every string those already rewrote is rewritten identically (strict superset).
+# genuine bracketed Rules text survives. Applied after the two patterns above: they
+# only remove further appended tags from that output and touch nothing else.
 _SHORT_ID_AFTER_CLOSE_RE = re.compile(r"(</[a-zA-Z][^>]*>)\s*\[[0-9a-fA-F]{3,8}\]")
 _SHORT_ID_APPENDED_RE = re.compile(r"\s+\[[0-9a-fA-F]{3,8}\](?=[^\w]|\Z)")
 _CHOICE_SHORT_ID_RE = re.compile(r" \[[0-9a-z]{1,8}\]")
@@ -72,7 +72,11 @@ def redact_text(value: object) -> object:
 
 
 def redact_choice_text(value: object) -> object:
-    """Choice-text redaction including the ``[xxx]`` short-id suffix."""
+    """Choice-text redaction including the ``[xxx]`` short-id suffix.
+
+    Since #713 ``redact_text`` already strips appended 3-8 hex short-id tags, so the
+    ``" [#]"`` mask here only catches the remaining non-hex or 1-2 character suffixes.
+    """
     redacted = redact_text(value)
     if not isinstance(redacted, str):
         return redacted
