@@ -11,7 +11,8 @@
   "record": "docs/engine_strategy_20261009/ENGINE_STRATEGY_ADR.md",
   "owner_statement": "#255 comment 6080484727",
   "effective_epoch": "qualification/current-boundary-epochs/efac71856819-40de89f6e188",
-  "effective_condition": "sealed main epoch on the new pin on which every XMage gate except AF11 is PASS (PB-03 run 38153464865 on main efac7185: FULL107 107/107, AF00-AF10 PASS)"
+  "effective_condition": "sealed main epoch on the new pin on which every XMage gate except AF11 is PASS (PB-03 run 38153464865 on main efac7185: FULL107 107/107, AF00-AF10 PASS)",
+  "effective_epoch_named_by": "Coordinator, 2026-10-11. The Owner's condition in #255 is unchanged; this record only names the sealed epoch that satisfies it on the new pin."
  },
  "integration_topology": {
   "provider_process": "external JVM running the XMage bridge (engine-bridge JsonlBridge), driven over stdin/stdout JSONL",

@@ -481,6 +481,7 @@ def _af11_root(tmp_path: Path, *, adjudicated: bool = True) -> Path:
         "config/rules_engines.json",
         "pyproject.toml",
         f"{epoch}/AF00_AF11_XMAGE.json",
+        f"{epoch}/PB03_RUNTIME_EXECUTION.json",
         f"{epoch}/CURRENT_BOUNDARY_SHA256SUMS",
     ):
         (root / relative).parent.mkdir(parents=True, exist_ok=True)
@@ -525,15 +526,27 @@ def test_af11_passes_for_the_adjudicated_provider_on_its_inventoried_classpath(
 
 
 def test_af11_is_unknown_for_a_pin_the_adjudication_does_not_cover(tmp_path: Path) -> None:
-    """An adjudication is bound to one engine commit and does not follow a repin."""
+    """An adjudication is bound to one engine commit and does not follow a repin.
+
+    The record this one supersedes covers the prior pin; measured against the live
+    pin it must stay UNKNOWN, however valid it was for the pin it was made on.
+    """
+    import shutil
+
     asm = _assembler_module()
+    record = json.loads((REPO / asm.AF11_ADJUDICATION).read_text(encoding="utf-8"))
+    prior = record["supersedes"]["record"]
+    root = _af11_root(tmp_path, adjudicated=False)
+    shutil.copyfile(REPO / prior, root / asm.AF11_ADJUDICATION)
     live = json.loads((REPO / "config/rules_engines.json").read_text(encoding="utf-8"))
-    if live["primary_engine"]["commit"] == _af11_adjudicated_pin():
-        pytest.skip("the live pin is still the adjudicated one; nothing to separate")
-    per_candidate = _af11_identities()
-    measured = asm._af11_measure(
-        per_candidate, "xmage", per_candidate["xmage"], _af11_root(tmp_path, adjudicated=False)
+    assert (
+        live["primary_engine"]["commit"]
+        != json.loads((REPO / prior).read_text(encoding="utf-8"))["integration_topology"][
+            "engine_commit"
+        ]
     )
+    per_candidate = _af11_identities()
+    measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"], root)
     assert measured["verdict"] == "UNKNOWN"
     assert any("adjudicated engine pin does not match" in line for line in measured["limitations"])
 
@@ -667,6 +680,11 @@ def _mutations(asm) -> dict:
         _af11_edit(root, relative, demote_af06)
         _af11_reseal(root, relative)
 
+    def epoch_other_pin(root: Path) -> None:
+        relative = effective_af(root).rsplit("/", 1)[0] + "/PB03_RUNTIME_EXECUTION.json"
+        _af11_edit(root, relative, lambda d: d.update(candidate_commit="e" * 40))
+        _af11_reseal(root, relative)
+
     def unsealed_epoch(root: Path) -> None:
         _af11_edit(
             root,
@@ -704,6 +722,7 @@ def _mutations(asm) -> dict:
         "manifest_elsewhere": (manifest_elsewhere, "not the one the launch reads"),
         "epoch_tampered": (epoch_tampered, "does not match its seal"),
         "epoch_gate": (epoch_gate, "does not pass AF00-AF10"),
+        "epoch_other_pin": (epoch_other_pin, "ran another engine pin"),
         "unsealed_epoch": (unsealed_epoch, "not a sealed epoch"),
         "epoch_traversal": (epoch_traversal, "not a sealed epoch"),
         "lab_licence": (lab_licence, "Lab licence does not match"),
@@ -726,6 +745,7 @@ _AF11_MUTATIONS = (
     "manifest_elsewhere",
     "epoch_tampered",
     "epoch_gate",
+    "epoch_other_pin",
     "unsealed_epoch",
     "epoch_traversal",
     "lab_licence",

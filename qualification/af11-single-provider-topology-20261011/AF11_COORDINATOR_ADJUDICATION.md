@@ -1,7 +1,8 @@
 # AF11 — Coordinator re-adjudication for XMage pin 3cbf7741
 
 Date: 2026-10-11. Authority: Coordinator, AGENTS.md §8 (Owner delegation). The Owner named this
-session Coordinator and sole writer on 2026-10-11 and approved the repin v5 and its re-bind.
+session Coordinator and sole writer on 2026-10-11. The repin itself is Owner-merged (moeendres-png/mage#57,
+Lab #723). The effective epoch below is named by the Coordinator; the Owner's #255 condition is unchanged.
 Machine record: `AF11_COORDINATOR_ADJUDICATION.json` (this directory).
 Supersedes for the new pin only: `qualification/af11-single-provider-topology-20261009/`
 (b479fe74). That record remains the adjudication of every epoch run on b479fe74.

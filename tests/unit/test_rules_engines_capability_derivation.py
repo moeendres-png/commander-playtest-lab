@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 from pathlib import Path
 from types import ModuleType
 
@@ -162,6 +163,17 @@ def test_epochs_bind_only_the_pin_they_ran_on() -> None:
     assert (epoch / "CURRENT_BOUNDARY_SHA256SUMS").is_file()
     current = config["architecture_freeze"]["current_qualification"]
     assert epoch != live_epoch or prior == pin
+    # current_qualification stays on the signed Freeze pin until it follows the live
+    # pin, and it may follow only once AF11 has been re-adjudicated for that pin.
+    assert current["engine_commit"] in {prior, pin}
+    if current["engine_commit"] != prior:
+        assembler = (REPO_ROOT / "scripts/assemble_current_boundary_evidence.py").read_text(
+            encoding="utf-8"
+        )
+        af11 = re.search(r'"(qualification/af11-[^"]+\.json)"', assembler)
+        assert af11 is not None
+        record = json.loads((REPO_ROOT / af11.group(1)).read_text(encoding="utf-8"))
+        assert record["integration_topology"]["engine_commit"] == current["engine_commit"]
     assert (
         module.newest_epoch_for_pin(current["engine_commit"])
         == REPO_ROOT / current["evidence_epoch"]
