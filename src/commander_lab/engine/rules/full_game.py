@@ -12,6 +12,7 @@ import shlex
 import subprocess
 import threading
 import uuid
+from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass
 from functools import wraps
@@ -1136,6 +1137,7 @@ class ExternalPilotDecisionPolicy:
         # mana this seat's current payment still needs (for colour picks).
         self._own_cast_names: dict[int, list[str]] = {}
         self._last_unpaid_mana: dict[int, str] = {}
+        self._turn_actions: dict[int, tuple[object, Counter[str]]] = {}
 
     @public_full_game_errors
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
@@ -1213,7 +1215,7 @@ class ExternalPilotDecisionPolicy:
             self._priority_cost_facts.pop(seat, None)
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
             self._remember_priority_cost_facts(seat, options, selected)
-            self._remember_own_cast(seat, options, selected)
+            self._remember_own_cast(seat, options, selected, turn=pilot_state.get("turn_number"))
         elif decision_class in {"target", "choose_object", "target_amount"}:
             selected = self._decide_targets(
                 runtime,
@@ -1472,6 +1474,24 @@ class ExternalPilotDecisionPolicy:
             else:
                 self_defeating += 1
         needs_mana_first = kept
+        # #732: an action chosen its cap of times this turn is not put up
+        # again. Real games showed a cast that never reaches the stack (an
+        # additional cost the seat cannot pay) or a no-gain loop (Basalt
+        # Monolith untapping itself) selected over a thousand times in one
+        # turn; a player stops trying after a few attempts.
+        turn = state.get("turn_number")
+        tried = self._turn_actions.get(seat)
+        if tried is not None and tried[0] == turn:
+            capped = [
+                option
+                for option in (*affordable, *needs_mana_first)
+                if tried[1][str(option.get("label", ""))] >= self._turn_action_cap(option)
+            ]
+            if capped:
+                capped_ids = {id(option) for option in capped}
+                affordable = [o for o in affordable if id(o) not in capped_ids]
+                needs_mana_first = [o for o in needs_mana_first if id(o) not in capped_ids]
+                self_defeating += len(capped)
         if self_defeating:
             _LOG.info("withheld %d self-defeating priority action(s)", self_defeating)
         if needs_mana_first:
@@ -2842,17 +2862,38 @@ class ExternalPilotDecisionPolicy:
 
     # #732: own stack objects, colour picks and other named choices.
     _OWN_CAST_MEMORY = 16
+    # Same-named spells cast more than this in one turn are rare; repeated
+    # activations (sacrifice outlets, pingers) legitimately go further.
+    _TURN_SPELL_CAP = 3
+    _TURN_ABILITY_CAP = 8
+
+    def _turn_action_cap(self, option: dict[str, Any]) -> int:
+        metadata = option.get("metadata")
+        meta = metadata if isinstance(metadata, dict) else {}
+        return (
+            self._TURN_SPELL_CAP if meta.get("ability_type") == "spell" else self._TURN_ABILITY_CAP
+        )
 
     def _own_stack_names(self, seat: int) -> frozenset[str]:
         return frozenset(self._own_cast_names.get(seat, ()))
 
     def _remember_own_cast(
-        self, seat: int, options: list[dict[str, Any]], selected: list[str]
+        self,
+        seat: int,
+        options: list[dict[str, Any]],
+        selected: list[str],
+        turn: object = None,
     ) -> None:
         chosen = set(selected)
         for option in options:
             if str(option.get("option_id")) not in chosen:
                 continue
+            if str(option.get("option_type")) not in {"pass_priority", "mana_ability"}:
+                tried = self._turn_actions.get(seat)
+                if tried is None or tried[0] != turn:
+                    tried = (turn, Counter())
+                    self._turn_actions[seat] = tried
+                tried[1][str(option.get("label", ""))] += 1
             metadata = option.get("metadata")
             meta = metadata if isinstance(metadata, dict) else {}
             if meta.get("ability_type") != "spell":

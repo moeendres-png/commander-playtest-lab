@@ -359,3 +359,24 @@ def test_pilot_state_counts_lands_power_and_online_commander() -> None:
     commander = view.commanders[0]
     assert commander.casts == 1 and commander.next_cost == commander.base_cost + 2.0
     assert view.role_counts.get(CardRole.COUNTER) == 1
+
+
+def test_a_cast_that_never_resolves_is_not_retried_forever() -> None:
+    # Real games selected "Big Score — Cast Big Score" 838 times in one game:
+    # the cast never reached the stack, so the window kept coming back.
+    policy = _policy()
+    state = _state(hand=["Claim Jumper"])
+    cast = _cast("claim", "Claim Jumper", white=1, generic=2)
+    picks = []
+    for offset in range(1, 6):
+        # The window changes each time (a land got tapped, mana floated), so
+        # the identical-window guard never trips; only the per-turn cap does.
+        varied = _state(hand=["Claim Jumper"])
+        varied["players"][0]["mana_pool"] = {"white": offset}
+        response = policy.decide(_request("priority", [_PASS, cast], varied, offset=offset))
+        picks.append(response["selected_option_ids"])
+    assert picks[:3] == [["claim"]] * 3
+    assert picks[3:] == [["pass"]] * 2
+    next_turn = {**state, "turn_number": state["turn_number"] + 1}
+    again = policy.decide(_request("priority", [_PASS, cast], next_turn, offset=6))
+    assert again["selected_option_ids"] == ["claim"]
