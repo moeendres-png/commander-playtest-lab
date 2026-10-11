@@ -37,6 +37,15 @@ _UUID_RE = re.compile(r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0
 _OBJECT_ID_ATTR_RE = re.compile(r"\s+object_id=(['\"])[^'\"]+\1", flags=re.IGNORECASE)
 _SHORT_ID_SUFFIX_RE = re.compile(r"(</font>)\s*\[[0-9a-fA-F]{3,8}\]")
 _SHORT_ID_TAIL_RE = re.compile(r"\s*\[[0-9a-fA-F]{3,8}\](?=</div>|$)")
+# #713: the engine appends the short id after the object NAME, so it also survives
+# before the message's own punctuation, further words or another closing tag
+# ("Cast Siege-Gang Commander [3a4]?"). Same shapes as the full-game runner's
+# _semantic_text (#710/#712): an APPENDED tag only -- right after a closing tag the
+# engine wrote, or after whitespace and followed by a message boundary -- so
+# genuine bracketed Rules text survives. Applied after the two patterns above, so
+# every string those already rewrote is rewritten identically (strict superset).
+_SHORT_ID_AFTER_CLOSE_RE = re.compile(r"(</[a-zA-Z][^>]*>)\s*\[[0-9a-fA-F]{3,8}\]")
+_SHORT_ID_APPENDED_RE = re.compile(r"\s+\[[0-9a-fA-F]{3,8}\](?=[^\w]|\Z)")
 _CHOICE_SHORT_ID_RE = re.compile(r" \[[0-9a-z]{1,8}\]")
 
 
@@ -57,6 +66,8 @@ def redact_text(value: object) -> object:
     text = _UUID_RE.sub("<engine-object>", text)
     text = _SHORT_ID_SUFFIX_RE.sub(r"\1", text)
     text = _SHORT_ID_TAIL_RE.sub("", text)
+    text = _SHORT_ID_AFTER_CLOSE_RE.sub(r"\1", text)
+    text = _SHORT_ID_APPENDED_RE.sub("", text)
     return text
 
 
