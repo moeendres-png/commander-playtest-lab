@@ -255,6 +255,14 @@ def _spell_withhold_reason(
     own_stack_names: frozenset[str],
 ) -> str | None:
     text = facts.oracle_text.casefold()
+    if "as an additional cost to cast this spell, discard a card" in text:
+        # The spell itself is in hand; the discard needs another card. A real
+        # game had the cast reversed after its mana was already paid.
+        actor = next((p for p in players(state) if str(p.get("player_id")) == actor_id), {})
+        hand = actor.get("hand_count")
+        hand_size = hand if isinstance(hand, int) else len(_items(actor.get("hand")))
+        if hand_size < 2:
+            return "additional_discard_cost_unpayable"
     if CardRole.COUNTER in roles and "counter target" in text:
         stack_names = {
             str(item.get("name", "")).casefold()

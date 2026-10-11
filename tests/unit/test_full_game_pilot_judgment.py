@@ -380,3 +380,15 @@ def test_a_cast_that_never_resolves_is_not_retried_forever() -> None:
     next_turn = {**state, "turn_number": state["turn_number"] + 1}
     again = policy.decide(_request("priority", [_PASS, cast], next_turn, offset=6))
     assert again["selected_option_ids"] == ["claim"]
+
+
+def test_discard_cost_spell_is_not_cast_from_a_one_card_hand() -> None:
+    # Big Score with nothing else to discard: the engine reversed the cast
+    # after the mana was paid in a real game.
+    big_score = _cast("score", "Big Score", red=1, generic=3)
+    alone = _state(hand=["Big Score"])
+    response = _policy().decide(_request("priority", [_PASS, big_score], alone))
+    assert response["selected_option_ids"] == ["pass"]
+    with_fodder = _state(hand=["Big Score", "Island"])
+    response = _policy().decide(_request("priority", [_PASS, big_score], with_fodder))
+    assert response["selected_option_ids"] == ["score"]
