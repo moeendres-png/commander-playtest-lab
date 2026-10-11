@@ -19,6 +19,7 @@ from commander_lab.engine.runtime_evidence import (
     rotate_runtime_log,
     write_runtime_attestation,
 )
+from commander_lab.freeze_readiness import REQUIRED_CAPABILITIES
 from commander_lab.models import (
     ENGINE_PROTOCOL_VERSION,
     EngineProcessState,
@@ -226,14 +227,9 @@ class EngineProcessManager:
                             f"handshake runtime_kind={capabilities.runtime_kind}; not external",
                         ),
                     )
-                required = (
-                    "commander_supported",
-                    "multiplayer_supported",
-                    "deck_import_supported",
-                    "legal_actions_supported",
-                    "action_submission_supported",
-                    "event_log_supported",
-                )
+                # #691: one authority. Engine health requires exactly the freeze-eligibility
+                # set, the same set the manifest's derived missing lists are drawn from.
+                required = tuple(REQUIRED_CAPABILITIES)
                 missing = tuple(name for name in required if not capabilities.supports(name))
                 if missing:
                     return self._replace(

@@ -13,16 +13,12 @@ health, and each is bound to that one authority by a different mechanism:
   own, so its required set IS the derived set by construction. H4 keeps expecting
   ``engine-verify=degraded`` while that runtime list is non-empty.
 * ``EngineProcessManager.healthcheck`` -- the code behind ``commander_lab.cli.app engine-verify``
-  (``app.py:470``) -- decides healthy/degraded from its OWN hand-written six-flag tuple. That
-  tuple is NOT ``REQUIRED_CAPABILITIES``: it is a strict subset missing five flags.
+  -- requires ``tuple(REQUIRED_CAPABILITIES)`` from the handshake (``EngineCapabilityHandshake``,
+  which carries every one of the 11 flags). Until #691 was closed it used its own six-flag tuple,
+  a strict subset missing five flags; that tuple is gone, and this module goes red if any literal
+  capability tuple returns.
 
-The third bullet is the finding #691 was opened to establish, not something this module hides.
-Converging it is authority-gated ("do not widen or shrink any required set", "no change to what is
-credited") and is not even mechanically available today: two of the five unbound flags are not
-resolvable through the handshake model at all, so substituting the import would raise rather than
-behave identically (see ``test_unbound_flags_are_not_resolvable_by_the_handshake_model``). This
-module therefore pins all three consumers exactly. It goes red if any of them changes -- the
-property #691 asked for -- and it makes the residual gap machine-checkable instead of prose.
+All three consumers therefore judge engine health by the same 11 flags.
 """
 
 from __future__ import annotations
@@ -37,7 +33,7 @@ import pytest
 import yaml
 
 from commander_lab.freeze_readiness import REQUIRED_CAPABILITIES
-from commander_lab.models import RulesEngineCapabilities
+from commander_lab.models import EngineCapabilityHandshake
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DERIVE_SCRIPT = REPO_ROOT / "scripts" / "derive_rules_engines_capabilities.py"
@@ -46,31 +42,6 @@ PROCESS_MANAGER = REPO_ROOT / "src" / "commander_lab" / "engine" / "process_mana
 MANIFEST = REPO_ROOT / "config" / "rules_engines.json"
 
 H4_STEP_NAME = "engine-verify outcome vs manifest capability truth (recorded, consistency-gated)"
-
-# The five freeze-eligibility flags that decide engine health today without being required by it:
-# EngineProcessManager.healthcheck never asks the handshake about them, so an engine missing all
-# five still passes its required-capability check. Recorded here as the exact, two-sided delta so
-# that any future change on EITHER side turns the test red instead of drifting silently.
-KNOWN_UNBOUND_CAPABILITIES = frozenset(
-    {
-        "engine_shutdown_supported",
-        "game_shutdown_supported",
-        "headless_supported",
-        "replay_supported",
-        "seed_supported",
-    }
-)
-
-# What EngineProcessManager.healthcheck actually requires today, asserted against the shipped
-# source rather than restated as a second literal authority.
-EXPECTED_ENGINE_HEALTH_REQUIRED_FLAGS = (
-    "commander_supported",
-    "multiplayer_supported",
-    "deck_import_supported",
-    "legal_actions_supported",
-    "action_submission_supported",
-    "event_log_supported",
-)
 
 
 def _load_derive_module(source_path: Path | None = None) -> ModuleType:
@@ -84,32 +55,26 @@ def _load_derive_module(source_path: Path | None = None) -> ModuleType:
     return module
 
 
-def _engine_health_required_flags(source: str) -> tuple[str, ...]:
-    """Extract the literal capability tuple ``EngineProcessManager.healthcheck`` requires.
-
-    Read from the shipped source by AST rather than restated, so this module cannot drift into a
-    second copy of the answer it is supposed to police.
-    """
+def _healthcheck_node(source: str) -> ast.FunctionDef:
     manager = next(
         node
         for node in ast.walk(ast.parse(source))
         if isinstance(node, ast.ClassDef) and node.name == "EngineProcessManager"
     )
-    healthcheck = next(
+    return next(
         node
         for node in manager.body
         if isinstance(node, ast.FunctionDef) and node.name == "healthcheck"
     )
-    tuples = [
-        tuple(e.value for e in node.value.elts)
+
+
+def _required_assignments(healthcheck: ast.FunctionDef) -> list[ast.expr]:
+    return [
+        node.value
         for node in ast.walk(healthcheck)
         if isinstance(node, ast.Assign)
         and any(isinstance(t, ast.Name) and t.id == "required" for t in node.targets)
-        and isinstance(node.value, ast.Tuple)
-        and all(isinstance(e, ast.Constant) and isinstance(e.value, str) for e in node.value.elts)
     ]
-    assert len(tuples) == 1, f"expected one `required` capability tuple, found {len(tuples)}"
-    return tuples[0]
 
 
 def _h4_engine_verify_step() -> str:
@@ -160,42 +125,65 @@ def test_h4_step_gates_on_the_derived_runtime_missing_field() -> None:
     assert leaked == [], f"H4 hard-codes capability names {leaked}; it must read the derived field"
 
 
-def test_engine_verify_requires_exactly_the_shipped_process_manager_flags() -> None:
-    """Pins what engine-verify credits today, so any change to it is an explicit decision."""
-    actual = _engine_health_required_flags(PROCESS_MANAGER.read_text(encoding="utf-8"))
-    assert actual == EXPECTED_ENGINE_HEALTH_REQUIRED_FLAGS, (
-        f"engine-verify now requires {list(actual)}, "
-        f"not {list(EXPECTED_ENGINE_HEALTH_REQUIRED_FLAGS)}"
+def test_engine_verify_requires_exactly_the_freeze_readiness_set() -> None:
+    """engine-verify reads the one authority; no literal capability tuple may come back."""
+    source = PROCESS_MANAGER.read_text(encoding="utf-8")
+    assert "from commander_lab.freeze_readiness import REQUIRED_CAPABILITIES" in source
+    assignments = _required_assignments(_healthcheck_node(source))
+    assert len(assignments) == 1, f"expected one `required` assignment, found {len(assignments)}"
+    assert ast.unparse(assignments[0]) == "tuple(REQUIRED_CAPABILITIES)"
+    literals = [
+        node
+        for node in ast.walk(_healthcheck_node(source))
+        if isinstance(node, ast.Constant) and node.value in REQUIRED_CAPABILITIES
+    ]
+    assert literals == [], "healthcheck restates capability names instead of the authority"
+
+
+def test_every_required_capability_resolves_on_the_handshake_model() -> None:
+    """The model engine-verify reads carries all 11 flags, so none can raise or be skipped."""
+    capabilities = EngineCapabilityHandshake()
+    assert [name for name in REQUIRED_CAPABILITIES if capabilities.supports(name)] == []
+    full = EngineCapabilityHandshake.model_validate(
+        {name: True for name in REQUIRED_CAPABILITIES} | {"runtime_kind": "external_rules_engine"}
     )
+    assert all(full.supports(name) for name in REQUIRED_CAPABILITIES)
 
 
-def test_engine_health_set_is_the_known_strict_subset_of_required_capabilities() -> None:
-    """The exact two-sided delta between engine health and the freeze-eligibility set."""
-    engine_health = set(_engine_health_required_flags(PROCESS_MANAGER.read_text(encoding="utf-8")))
-    assert engine_health < set(REQUIRED_CAPABILITIES), "engine health now requires the whole set"
-    assert set(REQUIRED_CAPABILITIES) - engine_health == KNOWN_UNBOUND_CAPABILITIES
-    assert engine_health - set(REQUIRED_CAPABILITIES) == set()
+@pytest.mark.parametrize("missing", sorted(REQUIRED_CAPABILITIES))
+def test_engine_verify_degrades_when_any_required_capability_is_missing(
+    tmp_path: Path, missing: str
+) -> None:
+    """Each of the 11 flags is load-bearing: one false flag makes engine-verify degraded."""
+    from commander_lab.engine.process_manager import (
+        EngineProcessManager,
+        load_engine_runtime_config,
+    )
+    from commander_lab.models import EngineProcessStatus
 
+    caps = {name: True for name in REQUIRED_CAPABILITIES} | {
+        "runtime_kind": "external_rules_engine",
+        missing: False,
+    }
 
-def test_unbound_flags_are_not_resolvable_by_the_handshake_model() -> None:
-    """Why the gap cannot be closed by a drop-in import, and must stay authority-gated.
+    class _Client:
+        running = True
+        pid = 4242
 
-    ``RulesEngineCapabilities.supports`` raises KeyError for names the model does not carry, so
-    replacing the six-flag tuple with ``REQUIRED_CAPABILITIES`` would crash engine-verify rather
-    than preserve its behaviour. Convergence needs a Rules/architecture decision first.
-    """
-    unresolvable: list[str] = []
-    capabilities = RulesEngineCapabilities()
-    for name in REQUIRED_CAPABILITIES:
-        try:
-            capabilities.supports(name)
-        except KeyError:
-            unresolvable.append(name)
-    assert unresolvable == ["engine_shutdown_supported", "game_shutdown_supported"]
-    with pytest.raises(KeyError):
-        capabilities.supports("engine_shutdown_supported")
-    with pytest.raises(KeyError):
-        capabilities.supports("game_shutdown_supported")
+        def handshake(self):
+            return (
+                {"engine": "xmage", "engine_version": "test"},
+                EngineCapabilityHandshake.model_validate(caps),
+            )
+
+    config = load_engine_runtime_config(
+        {"ENGINE_PROVIDER": "xmage", "ENGINE_START_COMMAND": "true"}
+    )
+    manager = EngineProcessManager(config, root=tmp_path)
+    manager._client = _Client()  # type: ignore[assignment]
+    state = manager.healthcheck()
+    assert state.status == EngineProcessStatus.DEGRADED
+    assert missing in " ".join(state.details)
 
 
 def test_h4_healthy_expectation_holds_for_the_current_manifest() -> None:
@@ -213,6 +201,4 @@ def test_h4_healthy_expectation_holds_for_the_current_manifest() -> None:
     af01 = json.loads((epoch / "AF01_XMAGE.json").read_text(encoding="utf-8"))
     assert af01["verdict"] == "PASS" and af01["lane"] == "full-game"
     reported = af01["capabilities_provider_reported"]
-    engine_health = set(_engine_health_required_flags(PROCESS_MANAGER.read_text(encoding="utf-8")))
-    assert {flag for flag in engine_health if reported.get(flag) is not True} == set()
     assert {flag for flag in REQUIRED_CAPABILITIES if reported.get(flag) is not True} == set()
