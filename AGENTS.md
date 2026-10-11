@@ -28,8 +28,21 @@ a fixed 4-player architecture restriction.
 - The simulator must support real Commander decks for deck decisions, matchup analysis,
   reproducible simulations, later pilot improvement, and later deckbuilding optimization.
 
-`ARCHITECTURE_FREEZE = NOT CLAIMED`. `PRODUCTION_PROVIDER = NOT SELECTED`.
-Do not create the Production Repository, select a Rules Core, or claim Architecture Freeze.
+`ARCHITECTURE_FREEZE = CLAIMED` (2026-10-10, Owner-signed:
+`docs/architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md`).
+`PRODUCTION_PROVIDER = XMAGE` (selected at the Freeze, pinned to
+`moeendres-png/mage@b479fe74` and the qualified jar `ebcb7006…`).
+
+The application runtime still launches the B4-D compatibility bridge, so
+`provider_decision = NO_PROVIDER_READY` remains until that runtime switches to the
+full-game lane (Owner decision D5). The Freeze binds the Owner decisions in
+`docs/architecture_freeze_20261010/OWNER_DECISIONS_20261010.md`. That includes D17, which
+is accepted only as a bounded limitation: pilots run out of process, and no foreign code
+runs in the engine JVM. Stronger isolation is a post-Freeze gate that must hold before any
+untrusted pilot is admitted.
+
+Do not create the Production Repository: that stays Owner-only. Do not change the Rules
+Core or the pin without a new Owner decision and re-qualification.
 
 ### Intended end state
 

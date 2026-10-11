@@ -1,10 +1,11 @@
 # Owner decisions for the Architecture Freeze — 2026-10-10
 
-Status: **RECORDED, FREEZE NOT YET SIGNED.** The Owner made these decisions in the
-Coordinator session on 2026-10-10. The Coordinator records them here. They take effect
-as stated below. The Freeze itself is claimed only when the Owner signs the final ADR
-(§ Signature). Until then `ARCHITECTURE_FREEZE = NOT_CLAIMED` and
-`provider_decision = NO_PROVIDER_READY`.
+Status: **RECORDED AND SIGNED.** The Owner made these decisions in the Coordinator
+session on 2026-10-10, and the Coordinator records them here. The Owner signed the final
+ADR on 2026-10-10, so `ARCHITECTURE_FREEZE = CLAIMED`.
+
+`provider_decision = NO_PROVIDER_READY` stays until the application runtime switch (D5)
+makes a provider production-ready.
 
 Refs #662, #255.
 
@@ -59,4 +60,5 @@ bridge to the proven full-game lane. Gate for the switch:
 
 ## Signature
 
-- [ ] Owner signs the final ADR (`ARCHITECTURE_FREEZE = CLAIMED`, with date).
+- [x] Owner signed the final ADR on 2026-10-10 ("Ich unterschreibe die Freeze-ADR.").
+  `ARCHITECTURE_FREEZE = CLAIMED`.

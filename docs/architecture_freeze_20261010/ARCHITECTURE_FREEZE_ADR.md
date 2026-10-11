@@ -1,11 +1,17 @@
-# Architecture Freeze ADR — final, awaiting the Owner's signature
+# Architecture Freeze ADR
 
-Status: **FINAL, UNSIGNED.** Every slot of
+Status: **SIGNED. `ARCHITECTURE_FREEZE = CLAIMED` (2026-10-10).** Every slot of
 `docs/architecture_freeze_readiness_20260927/ARCHITECTURE_FREEZE_ADR_TEMPLATE.md` is
 filled from sealed evidence or from the Owner decisions recorded in
-`OWNER_DECISIONS_20261010.md`. `ARCHITECTURE_FREEZE = NOT_CLAIMED` and
-`provider_decision = NO_PROVIDER_READY` stay in force until the Owner signs (§ Signature).
-Nothing in this file claims the Freeze before that signature.
+`OWNER_DECISIONS_20261010.md`. The Owner signed this ADR on 2026-10-10 (§ Signature).
+
+What the signature does and does not change:
+- **Rules core and production provider:** XMage, at the architecture level.
+- **`provider_decision = NO_PROVIDER_READY` stays literally true:** no provider is
+  production-ready while the application still launches the B4-D compatibility bridge.
+- **`current_runtime` stays as it is until D5:** it describes the runtime actually
+  launched. D5, the switch to the full-game lane, then sets the runtime's provider
+  selection and production readiness.
 
 Refs #662, #255. Supersedes the owner draft in `docs/architecture_freeze_owner_draft_20261010/`.
 
@@ -42,9 +48,10 @@ Forge stays a reference column only.
 
 ## 2. PRODUCTION_PROVIDER
 
-**XMage** (D1; equal to RULES_CORE). It takes effect with the Owner's signature. Until
-then `config/rules_engines.json` keeps `production_provider: null` and
-`provider_selected: false`.
+**XMage** (D1; equal to RULES_CORE), selected at the architecture level with the
+Owner's signature (`config/rules_engines.json` → `architecture_freeze.selected_provider`).
+The runtime fields `current_runtime.production_provider: null` and
+`provider_selected: false` describe the launched runtime and stay until D5.
 
 The application still launches the B4-D compatibility bridge
 (`production_bridge: b4d_event_log_lifecycle_bridge`). The compatibility-lane AF01 of
@@ -297,10 +304,14 @@ The Freeze is claimed only by the Owner's signature below.
 
 ## Signature
 
-- [ ] `ARCHITECTURE_FREEZE = CLAIMED`, signed by the Owner, date: ____________
+- [x] `ARCHITECTURE_FREEZE = CLAIMED`, signed by the Owner, date: 2026-10-10. The Owner's
+  words in the Coordinator session: "Ich unterschreibe die Freeze-ADR."
 
-After the signature the Coordinator:
-1. records the Freeze (`provider_decision` and the selected provider in
-   `config/rules_engines.json`);
-2. starts D5, the application runtime switch to the full-game lane. Its gate is
-   `engine-verify` healthy, the derived runtime missing list empty, and H4 green.
+Recorded by the Coordinator:
+1. The Freeze is recorded in `config/rules_engines.json` → `architecture_freeze`
+   (status, date, ADR, rules core and `selected_provider` XMage).
+   `provider_decision = NO_PROVIDER_READY` and `current_runtime` are unchanged until D5.
+2. D5 is next: switch the application runtime to the full-game lane. Its gate is
+   `engine-verify` healthy, the derived runtime missing list empty, and H4 green. Only
+   then do `current_runtime.provider_selected`, `production_provider`,
+   `primary_engine.production_ready` and `provider_decision` change.

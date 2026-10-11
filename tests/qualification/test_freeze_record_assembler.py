@@ -418,13 +418,25 @@ def test_freeze_basis_epoch_f881d56f_is_eligible_and_matches_the_final_adr_recor
         )
     )
     assert shipped["record"] == result.record
-    # Unsigned: nothing selects the provider before the Owner signs.
-    assert config["provider_decision"] == "NO_PROVIDER_READY"
-    assert config["current_runtime"]["provider_selected"] is False
+    # Signed 2026-10-10: the Freeze is recorded, but the launched runtime is still the
+    # B4-D bridge, so no provider is production-ready and current_runtime is unchanged
+    # until the D5 switch.
     adr = (REPO_ROOT / "docs/architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md").read_text(
         encoding="utf-8"
     )
-    assert "- [ ] `ARCHITECTURE_FREEZE = CLAIMED`" in adr
+    assert "- [x] `ARCHITECTURE_FREEZE = CLAIMED`, signed by the Owner, date: 2026-10-10" in adr
+    freeze = config["architecture_freeze"]
+    assert freeze["status"] == "CLAIMED" and freeze["date"] == "2026-10-10"
+    assert freeze["rules_core"] == freeze["selected_provider"] == "xmage"
+    assert freeze["engine_commit"] == config["primary_engine"]["commit"]
+    assert (
+        freeze["engine_artifact_sha256"] == result.record["source_lock"]["build"]["artifact_sha256"]
+    )
+    assert (REPO_ROOT / freeze["evidence_epoch"]) == epoch
+    assert freeze["runtime_switch"] == "PENDING_D5"
+    assert config["provider_decision"] == "NO_PROVIDER_READY"
+    assert config["current_runtime"]["provider_selected"] is False
+    assert config["primary_engine"]["production_ready"] is False
     # Every identity the ADR and the decisions record pin is the shipped record's.
     decisions = (
         REPO_ROOT / "docs/architecture_freeze_20261010/OWNER_DECISIONS_20261010.md"
