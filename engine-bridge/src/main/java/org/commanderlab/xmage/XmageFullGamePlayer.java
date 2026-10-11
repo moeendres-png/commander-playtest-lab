@@ -1443,7 +1443,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (available.isEmpty()) {
             return null;
         }
-        int min = modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
+        // #714: a card that "may choose none" (Modes.isMayChooseNone) needs no mode at all:
+        // Modes.isSelectedValid accepts zero chosen modes there, and HumanPlayer.chooseMode
+        // (pinned XMage) shows only Done/Cancel when nothing is choosable. So the minimum
+        // is 0 for it, exactly as once the card's minimum is already met.
+        int min = modes.isMayChooseNone()
+                || modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
         JsonArray options = new JsonArray();
         Map<String, Mode> byId = new LinkedHashMap<>();
         Map<Mode, Boolean> targetsAvailableByMode = new LinkedHashMap<>();

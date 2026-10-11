@@ -1230,7 +1230,9 @@ class XmageFullGameDecisionClassMatrixTest {
                 List<mage.abilities.Mode> choosable = available.stream()
                         .filter(mode -> mode.getTargets().canChoose(actor.getId(), source, game))
                         .toList();
-                int min = modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
+                // #714: "may choose none" makes the minimum 0, like a minimum already met.
+                int min = modes.isMayChooseNone()
+                        || modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
                 if (choosable.isEmpty() && min == 0) {
                     // No frame at all: HumanPlayer.chooseMode returns null there, so the
                     // bridge asks nothing and no option is expected. Any frame that did
