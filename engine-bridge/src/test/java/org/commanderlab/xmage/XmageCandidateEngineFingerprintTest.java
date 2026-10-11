@@ -88,8 +88,8 @@ class XmageCandidateEngineFingerprintTest {
      * has no structural signature either. Its native regressions are the partner
      * ask-order scenarios CommanderZoneApnap3PTest, CommanderZoneApnap4PTest,
      * CommanderZoneApnap5PTest and CommanderZoneApnap6PTest in the candidate's
-     * Mage.Tests; until those run on this exact commit the declared commit and
-     * the artifact digest below are the whole identity claim.</p>
+     * Mage.Tests, which ran on this exact commit (maven.yml run 38136235677); with
+     * the declared commit and the artifact digest below they are the identity claim.</p>
      */
     @Test
     void loadedEngineCarriesTheF43Revalidation() throws Exception {

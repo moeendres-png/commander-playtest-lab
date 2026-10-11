@@ -983,3 +983,16 @@ def test_source_lock_binds_epoch_and_pins(packet: dict[str, Any], sealed: Any) -
         assert xmage_drift["note"].startswith("PIN_ADVANCED_AFTER_SEALED_EPOCH")
     for subject in ("forge Rules-Core commit", "forge bridge/materialization commit"):
         assert drift[subject]["verdict"] == "IDENTICAL", subject
+
+
+def test_xmage_tree_source_resolves_to_the_printed_tree() -> None:
+    """The cited lock path and JSON path must yield exactly the tree the packet prints."""
+    pins = json.loads(PACKET_JSON.read_text(encoding="utf-8"))["source_lock"]["engine_pins"]
+    xmage = pins["xmage"]
+    rel, _, pointer = xmage["tree_source"].partition("#")
+    node: Any = json.loads((REPO / rel).read_text(encoding="utf-8"))
+    for key in pointer.split("."):
+        node = node[key]
+    assert node == xmage["tree"]
+    config = json.loads((REPO / "config/rules_engines.json").read_text(encoding="utf-8"))
+    assert xmage["commit"] == config["primary_engine"]["commit"]

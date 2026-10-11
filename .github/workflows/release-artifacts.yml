@@ -127,8 +127,9 @@ jobs:
               evidence_boundary = "B3 external-rules-engine evidence covers real pinned deck import, Commander construction and game start only."
           elif rules["provider_decision"] == "XMAGE_SELECTED":
               # D5: accepted only as the complete, consistent post-Freeze record; the
-              # derived lists themselves are gated by the quality job (unit test running
-              # derive_rules_engines_capabilities.py --check against this config).
+              # derived lists themselves are gated by the quality job (unit tests running
+              # derive_rules_engines_capabilities.py --check against the live pin once an
+              # epoch is sealed on it, and over the Freeze pair until then).
               consistent = (
                   freeze.get("status") == "CLAIMED"
                   and freeze.get("selected_provider") == "xmage"
@@ -146,6 +147,8 @@ jobs:
               production_ready = True
               validation_level = "external_rules_engine_full_game_lane"
               evidence_boundary = "The XMage full-game lane is the production runtime (Owner-signed Freeze 2026-10-10, D5); its capability truth is the sealed epoch named in config/rules_engines.json architecture_freeze."
+              if primary.get("commit") != freeze.get("engine_commit"):
+                  evidence_boundary += f" The live pin {primary.get('commit')} has moved past the Freeze engine commit {freeze.get('engine_commit')}; its own requalification (PB-03 and re-bind) is pending."
           else:
               raise SystemExit(f"release refuses unknown provider_decision {rules['provider_decision']!r}")
 

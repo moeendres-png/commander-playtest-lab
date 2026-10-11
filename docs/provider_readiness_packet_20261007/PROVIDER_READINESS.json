@@ -61,7 +61,7 @@
         "commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
         "pin_source": "config/rules_engines.json#primary_engine.commit",
         "tree": "94a9f78331cbb619fe1443ccf43088f7f193e120",
-        "tree_source": "qualification/xmage-sba-priority-repin-v4-20261003/SUCCESSOR_SOURCE_LOCK.json#lineage.final_integrated_candidate.tree"
+        "tree_source": "qualification/xmage-commander-zone-order-repin-v5-20261011/SUCCESSOR_SOURCE_LOCK.json#lineage.final_integrated_candidate.tree"
       },
       "forge_rules_core": {
         "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
@@ -9865,7 +9865,7 @@
       "qualification/current-boundary-epochs/c124150d77ab-d303b2ca5f32/PB03_RUNTIME_EXECUTION.json",
       "config/rules_engines.json",
       "qualification/CURRENT_PRE_FREEZE_CONTRACT.json",
-      "qualification/xmage-sba-priority-repin-v4-20261003/SUCCESSOR_SOURCE_LOCK.json"
+      "qualification/xmage-commander-zone-order-repin-v5-20261011/SUCCESSOR_SOURCE_LOCK.json"
     ]
   }
 }

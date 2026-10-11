@@ -5,6 +5,12 @@
 the current XMage pin and are never edited by hand. ``--check`` fails when the file
 differs from the derivation; ``--write`` rewrites only the two derived fields.
 
+After a repin and before PB-03 has sealed an epoch on the new pin, ``--check`` fails
+closed (no epoch is bound to the live pin). In that window the lists are still the
+derivation over the Freeze pair (``architecture_freeze.evidence_epoch`` /
+``engine_commit``), not the live pin's own truth; technical truth reports
+``live_pin_requalification_pending`` until the re-bind.
+
 * ``primary_engine.missing_required_capabilities`` is the engine's truth on the
   production lane (``full-game``), judged by the same freeze-record assembler that
   decides Freeze eligibility.

@@ -9,7 +9,6 @@
   "ARCHITECTURE_FREEZE",
   "ARCHITECTURE_FREEZE_REBIND",
   "DENOMINATOR_CHANGE",
-  "NATIVE_QUALIFICATION_CREDIT",
   "LAB_RUNTIME_QUALIFICATION_CREDIT"
  ],
  "rules_authority": {
@@ -101,7 +100,7 @@
    "source": "not yet dispatched; this PR pins the workflows, and the Coordinator fills run, failures, errors and skipped from the run its own head produces",
    "not_claimed": "no engine-bridge run against XMage built from 3cbf7741 exists, so no Lab runtime credit is claimed for this pin"
   },
-  "engine_identity": "XmageProvider.ENGINE_COMMIT is the declared identity for this pin. The repair has no structural signature (it is a collection ordering inside GameImpl.checkStateBasedActions), so until the native CommanderZoneApnap*Test regressions run on this exact commit the declared commit alone carries the identity claim."
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit. The repair has no structural signature (it is a collection ordering inside GameImpl.checkStateBasedActions); identity rests on the declared commit and the native CommanderZoneApnap*Test regressions in maven.yml run 38136235677 on this exact commit. The loaded-artifact digest is not yet bound: no Lab bridge run against XMage built from 3cbf7741 exists."
  },
  "architecture_freeze_binding": {
   "status": "UNCHANGED_BY_THIS_REPIN",
@@ -112,6 +111,6 @@
  },
  "current_boundary": {
   "status": "REQUALIFICATION_REQUIRED",
-  "how": "PB-03 workflow_dispatch on the exact Lab main merge commit of this repin, persisted as a new epoch. No current-boundary epoch exists for 3cbf7741 yet, and none may be written by this repin. Until that epoch exists no FULL107/AF credit is claimed for this pin and the signed Freeze above stays bound to b479fe74. Expected effect to verify: replay of a game in which two commanders of one owner die in the same state-based-action check stops producing two different semantic_transcript_sha256 values (Lab #720)."
+  "how": "PB-03 workflow_dispatch on the exact Lab main merge commit of this repin, persisted as a new epoch. No current-boundary epoch exists for 3cbf7741 yet, and none may be written by this repin. Until that epoch exists no FULL107/AF credit is claimed for this pin and the signed Freeze above stays bound to b479fe74. Expected effect to verify: replay of a game in which two commanders of one owner die in the same state-based-action check stops producing two different semantic_transcript_sha256 values (Lab #720). AF11 is UNKNOWN for 3cbf7741 because the AF11 adjudication covers b479fe74 only; the new epoch is not Freeze-eligible until AF11 is re-adjudicated for this pin, so the re-bind needs PB-03 plus that adjudication."
  }
 }

@@ -43,6 +43,14 @@ def _signed_epoch() -> tuple[Path, str]:
 
 def test_rules_engines_missing_capabilities_are_derived_from_newest_epoch() -> None:
     module = _derive_module()
+    live = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
+    try:
+        module.newest_epoch_for_pin(live["primary_engine"]["commit"])
+    except SystemExit:
+        pass
+    else:
+        # Once PB-03 has sealed an epoch on the live pin, the live check is back.
+        assert module.main(["--check"]) == 0
     epoch, pin = _signed_epoch()
     chosen, engine, runtime = module.derive(epoch, pin)
     assert chosen == epoch

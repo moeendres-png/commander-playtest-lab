@@ -87,13 +87,17 @@ def test_selection_truth_unchanged() -> None:
     assert cfg["current_runtime"]["production_provider"] == "xmage"
 
 
-@superseded_by_later_repin
 def test_successor_lock_binds_the_candidate_its_donor_and_the_prior_pin() -> None:
     lock = _lock()
     assert lock["new_live_pin"]["commit"] == CURRENT_PIN
     assert lock["new_live_pin"]["tree"] == CURRENT_TREE
     assert lock["new_live_pin"]["parents"] == [PRIOR_PIN, DONOR_HEAD]
-    assert lock["new_live_pin"]["source_archive"] == _manifest()["primary_engine"]["source_archive"]
+    assert lock["new_live_pin"]["source_archive"].endswith(f"/{CURRENT_PIN}.tar.gz")
+    if _live_pin() == CURRENT_PIN:
+        assert (
+            lock["new_live_pin"]["source_archive"]
+            == _manifest()["primary_engine"]["source_archive"]
+        )
     assert lock["prior_live_pin"]["commit"] == PRIOR_PIN
     assert lock["prior_live_pin"]["successor_locks"] == list(PRIOR_LOCKS)
     (donor,) = lock["donors"]
@@ -108,7 +112,6 @@ def test_successor_lock_binds_the_candidate_its_donor_and_the_prior_pin() -> Non
     assert set(lock["not_a"]) >= {"PRODUCTION_PROVIDER_SELECTION", "ARCHITECTURE_FREEZE"}
 
 
-@superseded_by_later_repin
 def test_native_and_lab_runs_bind_the_exact_pin() -> None:
     lock = _lock()
     native = lock["native_qualification"]["full_mage_tests"]
