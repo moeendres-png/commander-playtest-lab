@@ -505,7 +505,9 @@ class XmageFullGameCrewUnpayableCostTest {
                         + "\" on " + described
                         + " so the control cannot pick by position; activated abilities seen: "
                         + seen);
-        return matched.get(0);
+        // Unique by the rule-text assertion above, so this is a single
+        // by-name match and never a positional first-option pick.
+        return matched.iterator().next();
     }
 
     /** Names of every tapped permanent, so "nothing new got tapped" is exact. */
