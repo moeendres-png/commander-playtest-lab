@@ -1841,7 +1841,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 .thenComparingInt(permanent -> permanent.getPower().getValue())
                 .thenComparingInt(permanent -> permanent.getToughness().getValue())
                 .thenComparing(permanent -> permanent.isTapped())
-                .thenComparingInt(Permanent::getDamage);
+                .thenComparingInt(Permanent::getDamage)
+                // #735: timestamp order, counters and rules tell otherwise equal tokens apart.
+                .thenComparing(permanent -> XmageStableOrder.permanentContent(permanent, game));
     }
 
     @Override

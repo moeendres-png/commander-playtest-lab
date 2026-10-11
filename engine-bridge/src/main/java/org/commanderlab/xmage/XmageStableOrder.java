@@ -3,13 +3,16 @@ package org.commanderlab.xmage;
 import mage.abilities.Ability;
 import mage.cards.Card;
 import mage.constants.Zone;
+import mage.counters.Counter;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 import mage.game.stack.StackObject;
 import mage.players.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -44,7 +47,8 @@ final class XmageStableOrder {
             return "1|" + permanent.getName() + "|" + (controller == null ? "" : controller.getName())
                     + "|" + padded(permanent.getZoneChangeCounter(game))
                     + "|" + padded(permanent.getPower().getValue()) + "|" + padded(permanent.getToughness().getValue())
-                    + "|" + (permanent.isTapped() ? 1 : 0) + "|" + padded(permanent.getDamage());
+                    + "|" + (permanent.isTapped() ? 1 : 0) + "|" + padded(permanent.getDamage())
+                    + "|" + permanentContent(permanent, game);
         }
         int stackPosition = 0;
         for (StackObject stackObject : game.getStack()) {
@@ -69,6 +73,25 @@ final class XmageStableOrder {
                     + "|" + card.getName() + "|" + padded(card.getZoneChangeCounter(game));
         }
         return "9|";
+    }
+
+    /**
+     * #735: what still tells apart two permanents that share name, controller, zone-change
+     * counter, P/T, tapped state and damage (typically tokens): their timestamp order, their
+     * counters and their rule texts. Without it such permanents fell back to the native UUID,
+     * so "the first Spirit Token" was a different token in each replay. Appended last, it
+     * only orders ties that were random before.
+     */
+    static String permanentContent(Permanent permanent, Game game) {
+        List<String> counters = new ArrayList<>();
+        for (Counter counter : permanent.getCounters(game).values()) {
+            counters.add(counter.getName() + "=" + counter.getCount());
+        }
+        Collections.sort(counters);
+        List<String> rules = new ArrayList<>(permanent.getRules(game));
+        Collections.sort(rules);
+        return padded(permanent.getCreateOrder()) + "|" + String.join(",", counters)
+                + "|" + String.join("\n", rules);
     }
 
     private static String padded(int value) {
