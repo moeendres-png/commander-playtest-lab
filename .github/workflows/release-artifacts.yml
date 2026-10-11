@@ -127,7 +127,8 @@ jobs:
               evidence_boundary = "B3 external-rules-engine evidence covers real pinned deck import, Commander construction and game start only."
           elif rules["provider_decision"] == "XMAGE_SELECTED":
               # D5: accepted only as the complete, consistent post-Freeze record; the
-              # derived lists themselves are gated by derive_rules_engines_capabilities.py --check.
+              # derived lists themselves are gated by the quality job (unit test running
+              # derive_rules_engines_capabilities.py --check against this config).
               consistent = (
                   freeze.get("status") == "CLAIMED"
                   and freeze.get("selected_provider") == "xmage"
