@@ -2601,7 +2601,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
     /** Twin-stable ability order (F-36): source object's stable key, then rule text, then ids. */
     private static String abilitySortKey(Ability ability, Game game) {
         return (ability.getSourceId() == null ? "" : XmageStableOrder.objectKey(ability.getSourceId(), game))
-                + "#" + ability.getRule() + "#" + ability.getSourceId() + ":" + ability.getOriginalId();
+                + "#" + ability.getRule() + "#"
+                + (ability.getSourceId() == null ? "" : XmageStableOrder.contentKey(ability.getSourceId(), game))
+                + "#" + ability.getSourceId() + ":" + ability.getOriginalId();
     }
 
     private String objectLabel(UUID id, Game game) {

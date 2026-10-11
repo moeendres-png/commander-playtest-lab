@@ -46,18 +46,31 @@ class XmageStableOrderSameNameTest {
         assertNotEquals(first.getCreateOrder(), second.getCreateOrder(),
                 "the two Bears entered at different timestamps");
 
-        assertNotEquals(XmageStableOrder.objectKey(first.getId(), game),
-                XmageStableOrder.objectKey(second.getId(), game),
-                "the key tells the Bears apart without the native id");
-
+        assertNotEquals(XmageStableOrder.contentKey(first.getId(), game),
+                XmageStableOrder.contentKey(second.getId(), game),
+                "the content key tells the Bears apart without the native id");
         Permanent earlier = first.getCreateOrder() < second.getCreateOrder() ? first : second;
-        List<UUID> ids = new ArrayList<>(List.of(second.getId(), first.getId()));
-        ids.sort(XmageStableOrder.objects(game));
-        assertEquals(earlier.getId(), ids.get(0), "the earlier timestamp comes first");
-        // Whatever the native ids are, the order is the same: sort by reversed id order too.
-        List<UUID> reversed = new ArrayList<>(List.of(first.getId(), second.getId()));
-        reversed.sort(Comparator.comparing((UUID id) -> XmageStableOrder.objectKey(id, game))
-                .thenComparing(Comparator.comparing(UUID::toString).reversed()));
-        assertEquals(ids, reversed, "the native id never decides the order");
+        assertEquals(earlier.getId(), sortedIds(game, first, second, false).get(0),
+                "the earlier timestamp comes first");
+        assertEquals(sortedIds(game, first, second, false), sortedIds(game, first, second, true),
+                "the native id never decides the order");
+
+        // Tokens made by one effect share one timestamp: battlefield order still decides.
+        second.setCreateOrder(first.getCreateOrder());
+        assertNotEquals(XmageStableOrder.contentKey(first.getId(), game),
+                XmageStableOrder.contentKey(second.getId(), game),
+                "same timestamp: battlefield order tells the Bears apart");
+        assertEquals(sortedIds(game, first, second, false), sortedIds(game, first, second, true),
+                "same timestamp: the native id still never decides the order");
+    }
+
+    /** The F-36 order, with the final native-id tie-break forward or reversed. */
+    private static List<UUID> sortedIds(Game game, Permanent first, Permanent second, boolean reversedIds) {
+        Comparator<UUID> ids = Comparator.comparing(UUID::toString);
+        List<UUID> out = new ArrayList<>(List.of(second.getId(), first.getId()));
+        out.sort(Comparator.comparing((UUID id) -> XmageStableOrder.objectKey(id, game))
+                .thenComparing(id -> XmageStableOrder.contentKey(id, game))
+                .thenComparing(reversedIds ? ids.reversed() : ids));
+        return out;
     }
 }
