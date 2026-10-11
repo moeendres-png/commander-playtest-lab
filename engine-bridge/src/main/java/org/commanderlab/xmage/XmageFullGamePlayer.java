@@ -606,9 +606,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     || emptyRequiredTarget
                     || noViableMode
                     || concessionInterruptedAction
-|| leftMidAction()
-                        || reversedRequiredXTarget(game)
-                        || reversedEmptyNonTargetChoice(ability)) {
+                    || leftMidAction()
+                    || reversedRequiredXTarget(game)
+                    || reversedEmptyNonTargetChoice(ability)) {
                 // Cancelled or uncompletable activation: the engine reversed
                 // it; the same player receives priority again (#662 S3).
                 // #703 adds the engine-reversed X-target case: the announced
