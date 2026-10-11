@@ -42,7 +42,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>Red control: {@link #choosableModesStillAllowChoosingNone()} fails on the
  * pre-fix bridge (observed: "the card may choose none, so declining is a legal
  * answer ==&gt; expected: &lt;0&gt; but was: &lt;1&gt;"). The pre-fix bridge demanded
- * at least one mode, so a pilot could not take the legal "choose none" answer.</p>
+ * at least one mode, so a pilot could not take the legal "choose none" answer.
+ * {@link #afterTheFirstPickTheCardsMinimumGovernsAgain()} is the second red
+ * control: "choose none" ends only an empty selection (Modes.isSelectedValid), so
+ * after one pick the card's minimum governs again.</p>
  *
  * <p>Control: {@link #noModeFrameWhenNothingIsChoosableAndTheCardMayChooseNone()}
  * is green before and after the fix. With every player shrouded, XMage itself
@@ -241,4 +244,30 @@ class XmageFullGameMayChooseNoneTest {
         assertEquals(40, s.p("P2").getLife(), "no mode resolved");
     }
 
+
+    /**
+     * CR 700.2 / {@code Modes.isSelectedValid}: "you may choose two" is zero or two,
+     * never one. Once a mode is picked the card's minimum governs again, so the
+     * second frame must not offer a decline (XMage would reject the one-mode choice
+     * and roll the trigger back). Red on the first revision of this fix, which made
+     * the minimum 0 whenever the card may choose none.
+     */
+    @Test
+    void afterTheFirstPickTheCardsMinimumGovernsAgain() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(obj("P1", SHADRIX, 0, Zone.BATTLEFIELD));
+        Started s = start("mode714-second", objects);
+
+        Modes modes = shadrixTrigger(s).getModes();
+        assertTrue(modes.getMinModes() > 1, "Shadrix needs two modes unless it chooses none");
+        assertEquals("mode", walkIntoCombat(s));
+        JsonObject first = s.session().legalActionsPayload().getAsJsonArray("actions")
+                .get(0).getAsJsonObject();
+        XmageFullGameTaxExecutionTest.submit(s.session(), "mode714-" + (step++), first);
+
+        assertEquals("mode", decisionClass(s), "the second mode is asked");
+        JsonObject pending = s.session().pendingDecisionPayload().getAsJsonObject("decision");
+        assertEquals(1, pending.get("minimum_selections").getAsInt(),
+                "with one mode chosen, declining would leave an invalid one-mode choice");
+    }
 }
