@@ -150,21 +150,25 @@ def test_every_required_capability_resolves_on_the_handshake_model() -> None:
     assert all(full.supports(name) for name in REQUIRED_CAPABILITIES)
 
 
-@pytest.mark.parametrize("missing", sorted(REQUIRED_CAPABILITIES))
+@pytest.mark.parametrize("missing", [None, *sorted(REQUIRED_CAPABILITIES)])
 def test_engine_verify_degrades_when_any_required_capability_is_missing(
-    tmp_path: Path, missing: str
+    tmp_path: Path, missing: str | None
 ) -> None:
-    """Each of the 11 flags is load-bearing: one false flag makes engine-verify degraded."""
+    """Each of the 11 flags is load-bearing: one false flag makes engine-verify degraded.
+
+    ``missing=None`` is the positive control: the same harness with all 11 true is healthy.
+    """
     from commander_lab.engine.process_manager import (
         EngineProcessManager,
         load_engine_runtime_config,
     )
     from commander_lab.models import EngineProcessStatus
 
-    caps = {name: True for name in REQUIRED_CAPABILITIES} | {
-        "runtime_kind": "external_rules_engine",
-        missing: False,
+    caps: dict[str, object] = {name: True for name in REQUIRED_CAPABILITIES} | {
+        "runtime_kind": "external_rules_engine"
     }
+    if missing is not None:
+        caps[missing] = False
 
     class _Client:
         running = True
@@ -182,6 +186,9 @@ def test_engine_verify_degrades_when_any_required_capability_is_missing(
     manager = EngineProcessManager(config, root=tmp_path)
     manager._client = _Client()  # type: ignore[assignment]
     state = manager.healthcheck()
+    if missing is None:
+        assert state.status == EngineProcessStatus.HEALTHY
+        return
     assert state.status == EngineProcessStatus.DEGRADED
     assert missing in " ".join(state.details)
 
