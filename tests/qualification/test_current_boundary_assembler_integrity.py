@@ -379,6 +379,9 @@ def _af11_identities(**overrides: object) -> dict:
             "results_runtime_identity": {
                 "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
                 "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+                # G1: the manifest is the only pin authority, and the AF11 measurement
+                # compares the run's executed engine with the adjudication it is judged
+                # against, so this is the live pin by definition.
                 "engine_candidate_commit": json.loads(
                     (REPO / "config/rules_engines.json").read_text(encoding="utf-8")
                 )["primary_engine"]["commit"],
@@ -445,12 +448,32 @@ def test_af11_fails_when_engine_code_is_embedded() -> None:
     assert any("embedded" in line for line in measured["limitations"])
 
 
-def _af11_root(tmp_path: Path) -> Path:
-    """A minimal checkout carrying exactly what the AF11 adjudication is checked against."""
+def _af11_run_identity(engine_candidate_commit: str) -> dict:
+    """The live runtime identity of a run that executed ``engine_candidate_commit``."""
+    identity = _af11_identities()["xmage"]["results_runtime_identity"]
+    return {
+        "results_runtime_identity": {**identity, "engine_candidate_commit": engine_candidate_commit}
+    }
+
+
+def _af11_adjudicated_pin() -> str:
+    """The engine commit the frozen AF11 adjudication covers."""
+    asm = _assembler_module()
+    record = json.loads((REPO / asm.AF11_ADJUDICATION).read_text(encoding="utf-8"))
+    return str(record["integration_topology"]["engine_commit"])
+
+
+def _af11_root(tmp_path: Path, *, adjudicated: bool = True) -> Path:
+    """A minimal checkout carrying exactly what the AF11 adjudication is checked against.
+
+    ``adjudicated`` builds the source lock the adjudication was made against, so the
+    measurement can be exercised as it stood. ``adjudicated=False`` keeps the live
+    manifest, which is how a pin that has moved past the adjudication is checked.
+    """
     import shutil
 
     asm = _assembler_module()
-    root = tmp_path / "repo"
+    root = tmp_path / ("repo" if adjudicated else "repo-live")
     record = json.loads((REPO / asm.AF11_ADJUDICATION).read_text(encoding="utf-8"))
     epoch = record["owner_selection"]["effective_epoch"]
     for relative in (
@@ -462,6 +485,14 @@ def _af11_root(tmp_path: Path) -> Path:
     ):
         (root / relative).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(REPO / relative, root / relative)
+    if adjudicated:
+        # An adjudication is made against one engine commit and is not transferable to
+        # another, so the checkout under test carries that commit as its source lock.
+        config = json.loads((root / "config" / "rules_engines.json").read_text(encoding="utf-8"))
+        config["primary_engine"]["commit"] = record["integration_topology"]["engine_commit"]
+        (root / "config" / "rules_engines.json").write_text(
+            json.dumps(config, indent=1, sort_keys=True), encoding="utf-8"
+        )
     manifest = root / record["integration_topology"]["provider_classpath_manifest"]
     manifest.parent.mkdir(parents=True, exist_ok=True)
     manifest.write_text(
@@ -484,13 +515,27 @@ def test_af11_passes_for_the_adjudicated_provider_on_its_inventoried_classpath(
     tmp_path: Path,
 ) -> None:
     asm = _assembler_module()
-    per_candidate = _af11_identities()
+    per_candidate = {"xmage": _af11_run_identity(_af11_adjudicated_pin())}
     measured = asm._af11_measure(
         per_candidate, "xmage", per_candidate["xmage"], _af11_root(tmp_path)
     )
     assert measured["verdict"] == "PASS", measured["limitations"]
     assert measured["limitations"] == []
     assert "hence PASS" in " ".join(measured["evidence"])
+
+
+def test_af11_is_unknown_for_a_pin_the_adjudication_does_not_cover(tmp_path: Path) -> None:
+    """An adjudication is bound to one engine commit and does not follow a repin."""
+    asm = _assembler_module()
+    live = json.loads((REPO / "config/rules_engines.json").read_text(encoding="utf-8"))
+    if live["primary_engine"]["commit"] == _af11_adjudicated_pin():
+        pytest.skip("the live pin is still the adjudicated one; nothing to separate")
+    per_candidate = _af11_identities()
+    measured = asm._af11_measure(
+        per_candidate, "xmage", per_candidate["xmage"], _af11_root(tmp_path, adjudicated=False)
+    )
+    assert measured["verdict"] == "UNKNOWN"
+    assert any("adjudicated engine pin does not match" in line for line in measured["limitations"])
 
 
 def test_af11_adjudication_never_decides_another_candidate(tmp_path: Path) -> None:
@@ -519,7 +564,7 @@ def test_af11_a_violated_fact_fails_even_with_a_valid_adjudication(tmp_path: Pat
 
 def test_af11_single_candidate_run_is_measured_against_its_own_adapter(tmp_path: Path) -> None:
     asm = _assembler_module()
-    per_candidate = {"xmage": _af11_identities()["xmage"]}
+    per_candidate = {"xmage": _af11_run_identity(_af11_adjudicated_pin())}
     measured = asm._af11_measure(
         per_candidate, "xmage", per_candidate["xmage"], _af11_root(tmp_path)
     )

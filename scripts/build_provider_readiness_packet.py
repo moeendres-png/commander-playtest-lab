@@ -663,7 +663,7 @@ def _xmage_pin_tree(repo_root: Path = REPO_ROOT) -> dict[str, str]:
     lock = _load_json(
         repo_root
         / "qualification"
-        / "xmage-sba-priority-repin-v4-20261003"
+        / "xmage-commander-zone-order-repin-v5-20261011"
         / "SUCCESSOR_SOURCE_LOCK.json"
     )
     candidate = lock["lineage"]["final_integrated_candidate"]

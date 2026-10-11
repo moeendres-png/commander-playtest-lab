@@ -93,10 +93,18 @@ def runtime_missing(epoch: Path, bridge: str, pin: str) -> list[str]:
     return sorted(name for name in REQUIRED_CAPABILITIES if capabilities.get(name) is not True)
 
 
-def derive(epoch: Path | None = None) -> tuple[Path, list[str], list[str]]:
-    """The epoch, the production-lane engine missing list and the launched-runtime list."""
+def derive(epoch: Path | None = None, pin: str | None = None) -> tuple[Path, list[str], list[str]]:
+    """The epoch, the production-lane engine missing list and the launched-runtime list.
+
+    ``epoch``/``pin`` address one specific sealed (epoch, engine commit) pair instead
+    of the live pin, so a pin that has no epoch yet can still be derived from the epoch
+    it was signed against. The assembler verifies the epoch seal and that the epoch's
+    evidence really is about ``pin`` before anything in it is read, so an explicit pair
+    can never smuggle a mismatch past the live default: with neither argument the
+    derivation is the live pin and fails closed when no sealed epoch is bound to it.
+    """
     config = json.loads(CONFIG.read_text(encoding="utf-8"))
-    pin = config["primary_engine"]["commit"]
+    pin = pin or config["primary_engine"]["commit"]
     chosen = epoch or newest_epoch_for_pin(pin)
     # The assembler verifies the epoch seal before anything in it is read.
     result = assemble_freeze_record(chosen, repo_root=REPO_ROOT, expected_pin=pin)

@@ -13,13 +13,24 @@ XMAGE_COMMIT = canonical_xmage_engine_pin()
 
 
 def _derived_missing(repo_root: Path) -> tuple[list[str], list[str]]:
-    """The engine and launched-runtime missing lists the newest sealed epoch derives (#662)."""
+    """The engine and launched-runtime missing lists the signed Freeze epoch derives (#662).
+
+    The derivation is bound to a sealed epoch and the engine commit that epoch is
+    about, not to the moving live pin. After a repin that has no PB-03 epoch yet the
+    live pin has no sealed epoch at all and ``derive()`` must refuse rather than
+    borrow the previous pin's evidence, so the manifest's derived lists are checked
+    against the epoch the Owner actually signed them against.
+    """
     path = repo_root / "scripts" / "derive_rules_engines_capabilities.py"
     spec = importlib.util.spec_from_file_location("derive_rules_engines_capabilities", path)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    _, engine, runtime = module.derive()
+    config = json.loads((repo_root / "config" / "rules_engines.json").read_text(encoding="utf-8"))
+    freeze = config["architecture_freeze"]
+    _, engine, runtime = module.derive(
+        repo_root / freeze["evidence_epoch"], freeze["engine_commit"]
+    )
     return list(engine), list(runtime)
 
 

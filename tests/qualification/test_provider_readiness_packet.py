@@ -937,7 +937,7 @@ def test_markdown_mirrors_json(packet: dict[str, Any]) -> None:
         assert residual["residual"] in markdown
 
 
-def test_source_lock_binds_epoch_and_pins(packet: dict[str, Any]) -> None:
+def test_source_lock_binds_epoch_and_pins(packet: dict[str, Any], sealed: Any) -> None:
     lock = packet["source_lock"]
     assert lock["sealed_epoch"]["epoch_id"] == EPOCH_NAME
     assert (
@@ -952,9 +952,34 @@ def test_source_lock_binds_epoch_and_pins(packet: dict[str, Any]) -> None:
     forge_pin = lock["engine_pins"]["forge_rules_core"]["commit"]
     bridge_pin = lock["engine_pins"]["forge_bridge_source"]["commit"]
     bindings = lock["evidence_identity_bindings"]
-    assert bindings["xmage_candidate_commit"] == xmage_pin
+    # The binding is the commit the sealed epoch's own evidence reported; the pin is
+    # the live manifest's. A repin moves the pin before PB-03 reseals the epoch, so
+    # the two are equal only while no repin is outstanding - and every difference is
+    # carried by drift_records rather than silently dropped.
+    gates = sealed(f"{packet['sealed_evidence_root']}/AF00_AF11_XMAGE.json")["gates"]
+    af00 = next(gate for gate in gates if gate["gate"] == "AF00")
+    reported = next(
+        line.rsplit(":", 1)[1].strip()
+        for line in af00["evidence"]
+        if line.startswith("candidate commit reported by the provider at handshake:")
+    )
+    assert bindings["xmage_candidate_commit"] == reported
+    assert (
+        lock["engine_pins"]["xmage"]["pin_source"]
+        == "config/rules_engines.json#primary_engine.commit"
+    )
     assert bindings["forge_rules_core_commit"] == forge_pin
     assert bindings["forge_build_commit"] == bridge_pin
     assert lock["drift_records"]
     for record in lock["drift_records"]:
         assert record["verdict"] in {"IDENTICAL", "DIFFERS"}
+    drift = {record["subject"]: record for record in lock["drift_records"]}
+    xmage_drift = drift["xmage engine commit"]
+    assert xmage_drift["pin"] == xmage_pin
+    assert xmage_drift["sealed_evidence"] == reported
+    assert xmage_drift["verdict"] == ("IDENTICAL" if reported == xmage_pin else "DIFFERS")
+    if xmage_drift["verdict"] == "DIFFERS":
+        # Sealed evidence from an older pin is never promoted to the newer one.
+        assert xmage_drift["note"].startswith("PIN_ADVANCED_AFTER_SEALED_EPOCH")
+    for subject in ("forge Rules-Core commit", "forge bridge/materialization commit"):
+        assert drift[subject]["verdict"] == "IDENTICAL", subject

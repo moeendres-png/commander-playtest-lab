@@ -38,6 +38,20 @@ HEAD_TREE = subprocess.run(
 ).stdout.strip()
 PIN = "b" * 40
 ARTIFACT = "a" * 64
+
+
+def _freeze_epoch_pin(config: dict) -> str:
+    """The engine commit a Freeze record is eligible against.
+
+    A freeze record describes one sealed epoch and the engine that epoch ran, so it
+    binds to ``architecture_freeze.engine_commit`` - the value the Owner signed - and
+    not to ``primary_engine.commit``, which moves on every repin. Until PB-03 reruns on
+    a newer pin and the Coordinator re-binds the freeze record, the two differ by
+    design; eligibility is judged against the signed one.
+    """
+    return str(config["architecture_freeze"]["engine_commit"])
+
+
 SCHEMA = json.loads(
     (
         REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
@@ -333,7 +347,7 @@ def test_sealed_epoch_c124150d_is_not_eligible() -> None:
     epoch = REPO_ROOT / "qualification/current-boundary-epochs/c124150d77ab-d303b2ca5f32"
     config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
     result = assemble_freeze_record(
-        epoch, repo_root=REPO_ROOT, expected_pin=config["primary_engine"]["commit"]
+        epoch, repo_root=REPO_ROOT, expected_pin=_freeze_epoch_pin(config)
     )
     assert result.eligible is False
     assert result.record["freeze_eligible"] is False
@@ -345,7 +359,7 @@ def test_sealed_epoch_85dbcb1a_is_eligible_and_matches_the_owner_draft_record() 
     epoch = REPO_ROOT / "qualification/current-boundary-epochs/85dbcb1ac475-9824c55d5ef2"
     config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
     result = assemble_freeze_record(
-        epoch, repo_root=REPO_ROOT, expected_pin=config["primary_engine"]["commit"]
+        epoch, repo_root=REPO_ROOT, expected_pin=_freeze_epoch_pin(config)
     )
     assert result.reasons == []
     assert result.eligible is True
@@ -405,7 +419,7 @@ def test_freeze_basis_epoch_f881d56f_is_eligible_and_matches_the_final_adr_recor
     epoch = REPO_ROOT / "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4"
     config = json.loads((REPO_ROOT / "config/rules_engines.json").read_text(encoding="utf-8"))
     result = assemble_freeze_record(
-        epoch, repo_root=REPO_ROOT, expected_pin=config["primary_engine"]["commit"]
+        epoch, repo_root=REPO_ROOT, expected_pin=_freeze_epoch_pin(config)
     )
     assert result.reasons == []
     assert result.eligible is True
@@ -425,7 +439,12 @@ def test_freeze_basis_epoch_f881d56f_is_eligible_and_matches_the_final_adr_recor
     freeze = config["architecture_freeze"]
     assert freeze["status"] == "CLAIMED" and freeze["date"] == "2026-10-10"
     assert freeze["rules_core"] == freeze["selected_provider"] == "xmage"
-    assert freeze["engine_commit"] == config["primary_engine"]["commit"]
+    # The record is the eligible assembly of the epoch it is signed against, so the
+    # Freeze binds to that epoch's engine commit - not to the live pin, which a
+    # repin may have moved forward while the Freeze stayed where the Owner put it.
+    assert freeze["engine_commit"] == _freeze_epoch_pin(config)
+    assert freeze["engine_commit"] == result.record["source_lock"]["provider_source"]["commit"]
+    assert freeze["engine_commit"] in result.record["source_lock"]["build"]["artifact_identity"]
     assert (
         freeze["engine_artifact_sha256"] == result.record["source_lock"]["build"]["artifact_sha256"]
     )
