@@ -1,0 +1,83 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_26",
+  "obligation_exercised": {
+    "obligation_digest": "f178f302a617cf1a2e58c0b1c0f34cd4b53acebf8af7585743e4aeaaa883d960",
+    "requested_state_digest": "3f3bb5ab48fcf812725d59d04a219175bca3535ea3d2809e58c6de9991ef3878",
+    "required_events": [
+      "modal_choice:devils",
+      "create_Devil_token:3",
+      "grant_haste_until_EOT"
+    ],
+    "terminal_checks": [
+      "every Devil Token on P1's battlefield has an engine DiesSourceTriggeredAbility triggered ability with a DamageTargetEffect",
+      "every Devil Token on P1's battlefield has haste",
+      "every Devil Token on P1's battlefield is 1/1",
+      "every Devil Token on P1's battlefield is red",
+      "exactly 3 Devil Token tokens are on P1's battlefield",
+      "exactly 3 Devil token(s) were created"
+    ],
+    "terminal_postconditions": [
+      "P1 controls exactly three new 1/1 red Devil tokens, each with printed death trigger and haste until EOT."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "c1ded3bce6159ab557cfee4d3f23a99b33eb67d9df9edf07a0601b639e0079cf",
+      "size": 7107757
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 3 Devil Token tokens are on P1's battlefield",
+          "every Devil Token on P1's battlefield is 1/1",
+          "every Devil Token on P1's battlefield is red",
+          "every Devil Token on P1's battlefield has haste",
+          "every Devil Token on P1's battlefield has an engine DiesSourceTriggeredAbility triggered ability with a DamageTargetEffect"
+        ],
+        "check": "exactly 3 Devil token(s) were created",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P1 controls exactly three new 1/1 red Devil tokens, each with printed death trigger and haste until EOT."
+      }
+    ],
+    "terminal_facts": {
+      "every Devil Token on P1's battlefield has an engine DiesSourceTriggeredAbility triggered ability with a DamageTargetEffect": true,
+      "every Devil Token on P1's battlefield has haste": true,
+      "every Devil Token on P1's battlefield is 1/1": true,
+      "every Devil Token on P1's battlefield is red": true,
+      "exactly 3 Devil Token tokens are on P1's battlefield": true,
+      "exactly 3 Devil token(s) were created": true
+    },
+    "token_evidence": {
+      "create_Devil_token:3": {
+        "binding": "exactly 3 Devil token(s) were created",
+        "observation": "engine terminal observation"
+      },
+      "grant_haste_until_EOT": {
+        "binding": "every Devil Token on P1's battlefield has haste",
+        "observation": "engine terminal observation"
+      },
+      "modal_choice:devils": {
+        "binding": "a scripted mode frame selected an engine offer naming 'Devil creature tokens'",
+        "decision_frames": [
+          1
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "51add6aea4cdb71554a4dcd8caccb29ac9f9c666d41e0761dea85c7ff8b83024",
+  "runner_digest": "e4d5707b686ba8dd11c367c324ebc6485dd43c0819301ad1584182c56705e431",
+  "runtime_receipt_digest": "8fdcdc4deda1538e60f087f78cb99b0822f00d37c3616779f995ad1039999f55",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_26"
+}
