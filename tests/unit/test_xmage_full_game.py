@@ -297,6 +297,164 @@ def test_semantic_transcript_normalizes_xmage_process_local_prompt_ids() -> None
     assert "64c42435" not in encoded
 
 
+def _prompt_semantic(prompt: str) -> str:
+    """The normalized prompt a single-event transcript carries."""
+    semantic = XmageFullGameRunner.semantic_transcript(
+        {
+            "seed": 1,
+            "turn_number": 1,
+            "decision_count": 1,
+            "transcript": [
+                {
+                    "sequence": 1,
+                    "kind": "decision_requested",
+                    "decision_class": "target",
+                    "actor_seat": 0,
+                    "prompt": prompt,
+                    "selected_option_types": None,
+                    "selected_option_labels": None,
+                    "numeric_choice": None,
+                }
+            ],
+            "outcomes": [],
+        }
+    )
+    return str(semantic["events"][0]["prompt"])
+
+
+# #710: the short-id tag is appended after the object NAME, so it survives
+# whenever the engine message continues past it. Before this fix only a tag
+# before </div> or at end of text was stripped, so the two twins below stayed
+# different and their semantic transcript hashes diverged.
+@pytest.mark.parametrize(
+    ("tagged", "expected"),
+    [
+        (
+            "Change this 1 of 1 target: Siege-Gang Commander [3a4]?",
+            "Change this 1 of 1 target: Siege-Gang Commander?",
+        ),
+        (
+            "Change this 1 of 1 target: Siege-Gang Commander [14d]?",
+            "Change this 1 of 1 target: Siege-Gang Commander?",
+        ),
+        (
+            "Change this 1 of 1 target: Siege-Gang Commander [3a4]",
+            "Change this 1 of 1 target: Siege-Gang Commander",
+        ),
+        (
+            "Change this 1 of 1 target: Siege-Gang Commander [3a4]!",
+            "Change this 1 of 1 target: Siege-Gang Commander!",
+        ),
+        (
+            "Change this 1 of 1 target: Siege-Gang Commander [3a4].",
+            "Change this 1 of 1 target: Siege-Gang Commander.",
+        ),
+        (
+            "Change this 1 of 1 target: Siege-Gang Commander [3a4],",
+            "Change this 1 of 1 target: Siege-Gang Commander,",
+        ),
+        (
+            "Change this 1 of 1 target: Siege-Gang Commander [3a4] now.",
+            "Change this 1 of 1 target: Siege-Gang Commander now.",
+        ),
+        (
+            "Change this 1 of 1 target: Siege-Gang Commander [deadbeef]?",
+            "Change this 1 of 1 target: Siege-Gang Commander?",
+        ),
+        (
+            "Change this 1 of 1 target: Siege-Gang Commander [ABC123]?",
+            "Change this 1 of 1 target: Siege-Gang Commander?",
+        ),
+    ],
+)
+def test_semantic_text_strips_xmage_short_id_before_message_continues(
+    tagged: str, expected: str
+) -> None:
+    assert _prompt_semantic(tagged) == expected
+
+
+def test_semantic_transcript_twins_agree_on_a_tag_before_punctuation() -> None:
+    """The #710 regression: two processes, same prompt but a different tag."""
+    first = _prompt_semantic("Change this 1 of 1 target: Siege-Gang Commander [3a4]?")
+    second = _prompt_semantic("Change this 1 of 1 target: Siege-Gang Commander [14d]?")
+    assert first == second
+    assert "3a4" not in first
+    assert "14d" not in second
+
+
+def test_semantic_text_strips_xmage_short_id_after_a_closing_font_tag() -> None:
+    """XMage writes the tag AFTER the closing tag it emitted (GameLog)."""
+    assert (
+        _prompt_semantic(
+            "{W}<div><font color='#B0C4DE' object_id='64c42435-d2e2-4aa3-8ce7-7a77ecaecc00'>"
+            "Mountain</font> [64c] cast?</div>"
+        )
+        == "{W}<div><font color='#B0C4DE'>Mountain</font> cast?</div>"
+    )
+
+
+@pytest.mark.parametrize(
+    "genuine",
+    [
+        # Not hex: real bracketed Rules text of every shape survives.
+        "Change this 1 of 1 target: [Rules text]?",
+        "Choose [Lightning Bolt] or [Counterspell].",
+        "Whenever [this creature] enters, put a [1] counter on it.",
+        "Target a creature with [deathtouch].",
+        # Hex-looking but glued to a word, so it is not an appended tag.
+        "Change this 1 of 1 target: Siege-Gang Commander[3a4]?",
+        # Too short / too long to be the engine's 3-8 hex short id.
+        "Change this 1 of 1 target: [ab]?",
+        "Change this 1 of 1 target: [0123456789ab]?",
+    ],
+)
+def test_semantic_text_keeps_genuine_bracketed_card_text(genuine: str) -> None:
+    assert _prompt_semantic(genuine) == genuine
+
+
+def test_semantic_text_residual_ambiguity_is_documented_not_hidden() -> None:
+    """A bare hex bracket token in Rules prose is indistinguishable.
+
+    ``[3a4]`` written as real card text is the same shape as an appended
+    short id, so it is stripped. This is the documented residual ambiguity of
+    the normalization: no oracle text in the pinned card data carries such a
+    token (``data/cards/official_precon_oracle_cards.json`` has zero
+    bracketed 3-8 hex tokens), and the alternative -- keeping the token when
+    the engine omitted the name -- would reintroduce the #710 twin divergence.
+    The engine never emits the tag without the object name it belongs to.
+    """
+    assert _prompt_semantic("Change this 1 of 1 target: [3a4]?") == ("Change this 1 of 1 target:?")
+
+
+def test_semantic_text_list_normalizes_every_option_label() -> None:
+    """Option labels take the same path as prompts (#710 sibling surface)."""
+    semantic = XmageFullGameRunner.semantic_transcript(
+        {
+            "seed": 1,
+            "turn_number": 1,
+            "decision_count": 1,
+            "transcript": [
+                {
+                    "sequence": 1,
+                    "kind": "decision_accepted",
+                    "decision_class": "priority",
+                    "actor_seat": 0,
+                    "prompt": "Cast Siege-Gang Commander [3a4]?",
+                    "selected_option_types": ["cast"],
+                    "selected_option_labels": [
+                        "Cast Siege-Gang Commander [3a4]",
+                        "Keep [Rules text]",
+                    ],
+                    "numeric_choice": None,
+                }
+            ],
+            "outcomes": [],
+        }
+    )
+    labels = semantic["events"][0]["selected_option_labels"]
+    assert labels == ["Cast Siege-Gang Commander", "Keep [Rules text]"]
+
+
 class _FakeRunner:
     def __init__(self, result: FullGameConformanceResult) -> None:
         self.result = result

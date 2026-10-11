@@ -160,6 +160,39 @@ _PRIORITY_MANACOST_KEYS: tuple[str, ...] = (
 _MANA_X_PROMPT = re.compile(r"\AAnnounce the value for (?P<symbols>(?:\{X\})+)\Z", re.IGNORECASE)
 _X_SYMBOL_TOKEN = re.compile(r"\{X\}", re.IGNORECASE)
 
+# XMage's per-game object short id, in the form the pinned engine emits.
+#
+# Provenance (the canonical XMage pin in config/rules_engines.json):
+#   Mage/src/main/java/mage/MageObjectImpl.java:108-110  getIdName()
+#       return getName() + " [" + getId().toString().substring(0, 3) + ']';
+#   Mage/src/main/java/mage/util/GameLog.java:70-78  getColoredObjectIdName()
+#       passes String.format("[%s]", mageObject.getId().toString().substring(0, 3))
+#   and GameLog.java:103-116 appends that tag AFTER the closing "</font>", so the
+#   engine prints "...<font ...>Name</font> [3a4]" (worked examples in the
+#   injectPopupSupport javadoc, GameLog.java:125-132). getLogName() delegates
+#   there (MageObjectImpl.java:112-115, CardImpl.java:888-895), so EVERY prompt
+#   that names an object carries the tag wherever the engine printed it: at the
+#   end of the text, before </div>, or before the message's own punctuation,
+#   e.g. "Change this 1 of 1 target: Siege-Gang Commander [3a4]?".
+#
+# The tag is a prefix of a per-process object UUID, so it carries no Rules
+# content and must never enter a twin semantic digest. The 3-8 hex width is the
+# width this file's existing tag stripping and the `redact_text` lineage
+# already accept (UUID prefix plus the wider face-down/toString forms), not a
+# new guess at the shape.
+#
+# Only an APPENDED tag is removed. It must sit where the engine puts one:
+# directly after a closing HTML tag it wrote next to the name, or after the
+# whitespace that follows an object name, and it must be followed by a message
+# boundary (end of text, a closing tag, punctuation or whitespace). Genuine
+# bracketed Rules text does not have that shape, so it survives.
+_XMAGE_SHORT_ID_TAG = r"\[[0-9a-fA-F]{3,8}\]"
+# Written by the engine right after the name it just closed: "</font> [3a4]".
+# Keep the closing tag so the prompt's HTML shape is preserved.
+_XMAGE_SHORT_ID_AFTER_CLOSE_RE = re.compile(rf"(</[a-zA-Z][^>]*>)\s*{_XMAGE_SHORT_ID_TAG}")
+# Appended after the object name and followed by the rest of the message.
+_XMAGE_SHORT_ID_APPENDED_RE = re.compile(rf"\s+{_XMAGE_SHORT_ID_TAG}(?=[^\w]|\Z)")
+
 
 def mana_x_prompt_symbols(prompt: str) -> int | None:
     """How many X symbols the engine's own mana-X prompt prints, else None.
@@ -997,6 +1030,12 @@ class ExternalPilotDecisionPolicy:
         }
     )
 
+    # Most distinct priority windows remembered per seat per step for the
+    # #718 recurrence bound. Bounded so the guard cannot itself grow without
+    # limit inside a long step; the two-window ping-pong it exists for keeps
+    # far fewer than this.
+    _PRIORITY_STEP_WINDOW_LIMIT = 64
+
     def __init__(self, runtime_pilots: tuple[_RuntimePilot, ...], scenario_seed: int) -> None:
         if len(runtime_pilots) < 2 or len(runtime_pilots) > 6:
             raise ValueError("full-game policy requires two to six pilot bindings")
@@ -1023,7 +1062,9 @@ class ExternalPilotDecisionPolicy:
         # identically forever with zero game-state progress. An identical
         # priority window (turn/phase/step/stack/pool/offer) repeating
         # consecutively means no selection advanced the game; the guard
-        # then passes priority (always legal) so phases advance.
+        # then passes priority (always legal) so phases advance. #718 adds
+        # the same bound for an identical window that RECURS inside one step
+        # with a different window in between (see `_priority_step_windows`).
         self._priority_last_fingerprint: dict[
             int,
             tuple[
@@ -1037,6 +1078,18 @@ class ExternalPilotDecisionPolicy:
             ],
         ] = {}
         self._priority_repeat_count: dict[int, int] = {}
+        # #718: recurrence memory for priority windows (per seat). The
+        # consecutive counter above only sees a window repeated back to back.
+        # A free stack-using action (Equip {0}) instead alternates between two
+        # windows -- empty stack, then the ability on the stack -- so the
+        # consecutive guard never trips while the seat loops until the step
+        # ends. These count occurrences of the SAME window fingerprint inside
+        # the current (turn_number, phase, step) and reset when that key
+        # changes, so a genuine change of step, stack, pool or offer still
+        # starts a fresh window. Same fingerprint as the consecutive guard:
+        # no observation the seat cannot already see enters the key.
+        self._priority_step_key: dict[int, tuple[object, object, object]] = {}
+        self._priority_step_windows: dict[int, list[tuple[object, int]]] = {}
         # Liveness guard memory for the repeating multikicker offer (per seat):
         # (source key, outcome, ordinal of the offer last answered, consecutive
         # Yes answers paid for it). A prompt with no "Pay N times" ordinal is
@@ -1280,6 +1333,32 @@ class ExternalPilotDecisionPolicy:
             repeats = 1
         self._priority_last_fingerprint[seat] = fingerprint
         self._priority_repeat_count[seat] = repeats
+        # #718: a window recurring inside one step is the same no-progress
+        # shape as a consecutive repeat, so count occurrences of this exact
+        # fingerprint within the current (turn_number, phase, step). The key
+        # is the existing fingerprint plus nothing else, so no observation
+        # the seat cannot already see enters it; a changed step, stack, pool
+        # or offer is a different key and never inherits a count.
+        step_key = (state.get("turn_number"), state.get("phase"), state.get("step"))
+        if self._priority_step_key.get(seat) != step_key:
+            self._priority_step_key[seat] = step_key
+            self._priority_step_windows[seat] = []
+        step_windows = self._priority_step_windows[seat]
+        window_occurrences = 1
+        for index, (known, _count) in enumerate(step_windows):
+            if known == fingerprint:
+                window_occurrences = _count + 1
+                step_windows[index] = (known, window_occurrences)
+                break
+        else:
+            step_windows.append((fingerprint, window_occurrences))
+            if len(step_windows) > self._PRIORITY_STEP_WINDOW_LIMIT:
+                # Bounded memory: a step that shows more distinct windows than
+                # this is not the two-window ping-pong this counts, so drop the
+                # oldest entry. The ping-pong keeps both windows and is
+                # unaffected; this only prevents the guard itself growing
+                # without limit in a long step.
+                del step_windows[: len(step_windows) - self._PRIORITY_STEP_WINDOW_LIMIT]
         if self._priority_latched.get(seat) == fingerprint:
             # Latched: window never changed since the trip; keep passing.
             return pass_id
@@ -1293,6 +1372,21 @@ class ExternalPilotDecisionPolicy:
             _LOG.info(
                 "priority no-progress guard: identical window %d times, passing priority",
                 repeats,
+            )
+            return pass_id
+        if window_occurrences >= 4:
+            # #718: same threshold and the same latch as the consecutive
+            # guard above -- a free action (Equip {0}) that alternates between
+            # an empty stack and the ability on the stack never repeats
+            # consecutively, so this is the bound that actually converges it.
+            # Passing priority is always legal and never chooses on the
+            # player's behalf: the seat is offered the same window again and
+            # the pilot decides normally once that window changes.
+            self._priority_latched[seat] = fingerprint
+            _LOG.info(
+                "priority no-progress guard: window recurred %d times in this step, "
+                "passing priority",
+                window_occurrences,
             )
             return pass_id
         non_mana = [
@@ -3605,7 +3699,12 @@ class XmageFullGameRunner:
             text,
         )
         text = re.sub(r"(</font>)\s*\[[0-9a-fA-F]{3,8}\]", r"\1", text)
-        text = re.sub(r"\s*\[[0-9a-fA-F]{3,8}\](?=</div>|$)", "", text)
+        # #710: the engine appends the short id after the object NAME, so it
+        # survives whenever the message continues past it (punctuation, further
+        # words, another closing tag) instead of ending the text. Strip it
+        # wherever it is appended, not only before </div>/end-of-text.
+        text = _XMAGE_SHORT_ID_AFTER_CLOSE_RE.sub(r"\1", text)
+        text = _XMAGE_SHORT_ID_APPENDED_RE.sub("", text)
         return text
 
     @staticmethod
