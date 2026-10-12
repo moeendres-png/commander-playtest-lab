@@ -138,6 +138,19 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private boolean targetChoiceRequested;
 
     /**
+     * #749: the ability instance the ENGINE passed to this player's target
+     * callbacks during the current priority action, and the exact
+     * {@code Target} objects it asked about (identity, not equality). Both are
+     * engine-held: they are the arguments XMage handed to
+     * {@link #chooseTargetInternal} and {@link #chooseTargetAmount}. Read only by
+     * {@link #reversedDependentRequiredTarget}. Reset on every priority entry.
+     */
+    private Ability targetCallbackSource;
+
+    private final Set<Target> offeredTargetObjects =
+            java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+
+    /**
      * #715: set when the engine raised a NON-target choice ({@code
      * choose(Outcome, Target, Ability, Game)}) whose legal set came back
      * EMPTY during the current priority action, so the player was asked for
@@ -535,6 +548,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
         xAnnouncedAbility = null;
         paidSpellAbility = null;
         targetChoiceRequested = false;
+        targetCallbackSource = null;
+        offeredTargetObjects.clear();
         emptyNonTargetChoice = false;
         emptyNonTargetChoiceSource = null;
         JsonArray options = new JsonArray();
@@ -602,7 +617,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         || concessionInterruptedAction
                         || leftMidAction()
                         || reversedRequiredXTarget(game)
-                        || reversedUnpayableDiscardCost(ability, game)) {
+                        || reversedUnpayableDiscardCost(ability, game)
+                        || reversedDependentRequiredTarget(ability, game)) {
                     // Cancelled or uncompletable cast: the engine reversed it
                     // and restored its bookmark; the player has not passed, so
                     // the engine's priority loop asks the same player again
@@ -634,6 +650,14 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     // the predicate), so it can only ever narrow this branch
                     // towards accepting that one reversal; anything unproven
                     // still fails closed below.
+                    //
+                    // #749's reversedDependentRequiredTarget is the
+                    // complement of #703: the pilot WAS asked for an earlier
+                    // target, chose legally, and that choice left a LATER
+                    // required target with no legal option (Searing Blaze:
+                    // "target creature that player controls"). The engine
+                    // skips the later target without asking (Targets.java:105)
+                    // and reverses the cast under CR 601.2c / 601.2e.
                     return false;
                 }
                 fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
@@ -831,6 +855,86 @@ final class XmageFullGamePlayer extends PlayerImpl {
     }
 
     /**
+     * #749: true only when the engine reversed {@code casting} because a
+     * target choice the pilot DID make left a later REQUIRED target of the
+     * same spell with no legal option.
+     *
+     * <p>All facts are engine-held, read after the attempt:
+     * <ol>
+     *   <li>the ability the engine passed to this action's target callbacks
+     *       ({@link #targetCallbackSource}) belongs to the card being cast;</li>
+     *   <li>that ability's targets are not all chosen, so
+     *       {@code Targets.isChosen(game)} is false: this is why
+     *       {@code AbilityImpl.activate} returned false at its
+     *       {@code chooseTargets} check (CR 601.2c);</li>
+     *   <li>every target the engine actually asked the bridge about is chosen,
+     *       so the pilot declined nothing; and</li>
+     *   <li>a target with a minimum above zero, which the engine NEVER asked
+     *       about, has nothing chosen. {@code Targets.makeChoice} skips a target
+     *       only when it is already chosen or its {@code canChoose} is false
+     *       (Targets.java:105), so this is the engine's own statement that the
+     *       earlier choice left it without a legal option.</li>
+     * </ol>
+     *
+     * <p>CR 601.2c lets a target's legality depend on an earlier choice
+     * ("target creature that player controls"). When the chosen player
+     * controls no such creature the announcement cannot be completed, and
+     * CR 601.2e's handling of illegal actions reverses it. That is what
+     * {@code PlayerImpl.cast}'s bookmark restore does, so the same player
+     * receives priority again.
+     *
+     * <p>No legality is recomputed and no filter is re-evaluated. A failure
+     * without this evidence (a declined target, a target on another card, or
+     * every required target chosen) still fails closed with
+     * XMAGE_ACTION_EXECUTION_FAILED.
+     */
+    boolean reversedDependentRequiredTarget(Ability casting, Game game) {
+        Ability source = targetCallbackSource;
+        if (source == null || casting == null || game == null || offeredTargetObjects.isEmpty()) {
+            return false;
+        }
+        if (source.getSourceId() == null || !source.getSourceId().equals(casting.getSourceId())) {
+            return false;
+        }
+        Targets targets = source.getTargets();
+        if (targets == null || targets.isEmpty() || targets.isChosen(game)) {
+            return false;
+        }
+        boolean skippedRequired = false;
+        for (Target target : targets) {
+            if (offeredTargetObjects.contains(target)) {
+                if (!target.isChosen(game)) {
+                    return false;
+                }
+            } else if (target.getMinNumberOfTargets() > 0 && target.getSize() == 0) {
+                skippedRequired = true;
+            }
+        }
+        return skippedRequired;
+    }
+
+    /**
+     * #749 boundary tests only: package-private, no production caller. Mirrors
+     * exactly what {@link #chooseTargetInternal} records on entry.
+     */
+    void recordTargetCallbackForBoundaryTest(Ability source, Target target) {
+        recordTargetCallback(source, target);
+    }
+
+    /**
+     * #749: records the engine's arguments to a target callback, for
+     * {@link #chooseTargetInternal} and {@link #chooseTargetAmount} alike, so
+     * every target the engine asked about is known to
+     * {@link #reversedDependentRequiredTarget}. Entries from another ability
+     * can never match: Target objects belong to one ability instance and the
+     * predicate only reads the casting ability's own targets.
+     */
+    private void recordTargetCallback(Ability source, Target target) {
+        targetCallbackSource = source;
+        offeredTargetObjects.add(target);
+    }
+
+    /**
      * #740: true only when the engine itself reversed {@code casting} because a
      * MANDATORY additional discard cost could not be paid.
      *
@@ -1013,6 +1117,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Game game
     ) {
         witness("target_amount", target, source);
+        recordTargetCallback(source, target);
         target.prepareAmount(source, game);
         Set<UUID> possible = offeredTargets(target, source, game, null);
         List<UUID> sorted = possible.stream()
@@ -2286,6 +2391,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             JsonObject suppliedContext
     ) {
         targetChoiceRequested = true;
+        recordTargetCallback(source, target);
         witness("target", target, source, restrictedCards);
         Set<UUID> possible;
         if (restrictedCards == null) {
