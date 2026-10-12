@@ -156,8 +156,56 @@ _TOKENS = re.compile(r"create (a|an|one|two|three|x|that many|\d+) ")
 _TABLE = re.compile(r"each opponent (loses|deals?|sacrifices)|deals? \d+ damage to each opponent")
 
 
+_PROFILES_PATH = _DEFAULT_PATH.parent / "structural_role_profiles.json"
+
+
+@lru_cache(maxsize=2)
+def _curated_profiles(path: str) -> dict[str, dict[str, object]]:
+    try:
+        raw = json.loads(Path(path).read_text(encoding="utf-8")).get("profiles", [])
+    except (OSError, ValueError):
+        return {}
+    return {
+        str(item["oracle_name"]).casefold(): item
+        for item in raw
+        if isinstance(item, dict) and item.get("oracle_name")
+    }
+
+
+def curated_profile(name: str | None) -> dict[str, object] | None:
+    """The project's curated structural profile of a card, when it has one.
+
+    ``data/cards/structural_role_profiles.json`` holds hand-reviewed roles,
+    floor value and immediate impact for the project's own cards; it is the
+    better source wherever it exists, and printed-text roles fill the gaps.
+    """
+    if not name:
+        return None
+    return _curated_profiles(str(_PROFILES_PATH)).get(name.strip().casefold())
+
+
+def _curated_roles(name: str) -> dict[CardRole, float] | None:
+    profile = curated_profile(name)
+    if profile is None:
+        return None
+    strengths = profile.get("role_strengths")
+    listed = profile.get("roles")
+    roles: dict[CardRole, float] = {}
+    for role in listed if isinstance(listed, list) else ():
+        try:
+            card_role = CardRole(str(role))
+        except ValueError:
+            continue
+        value = strengths.get(role, 1.0) if isinstance(strengths, dict) else 1.0
+        roles[card_role] = float(value)
+    return roles
+
+
 def card_roles(facts: CardFacts) -> dict[CardRole, float]:
-    """Strategic roles read from printed text and types (strength 0..1.5)."""
+    """Strategic roles: curated profile first, else printed text and types."""
+    curated = _curated_roles(facts.name)
+    if curated is not None:
+        return curated
     text = facts.oracle_text.casefold()
     roles: dict[CardRole, float] = {}
 
@@ -275,6 +323,7 @@ __all__ = [
     "CardFacts",
     "card_facts",
     "card_roles",
+    "curated_profile",
     "evasion",
     "is_basic_land_name",
     "permanent_value",

@@ -167,7 +167,11 @@ def _block_option(blocker_id: str, attacker_id: str) -> dict[str, Any]:
 def test_card_knowledge_reads_printed_roles() -> None:
     sol_ring = card_facts("Sol Ring")
     counterspell = card_facts("Counterspell")
-    assert sol_ring is not None and CardRole.MANA_SOURCE in card_roles(sol_ring)
+    # The project's curated profile wins where it exists (Sol Ring: strong ramp);
+    # printed text fills the gaps (Balefire Liege has no curated profile).
+    assert sol_ring is not None and card_roles(sol_ring) == {CardRole.RAMP: 2.2}
+    liege = card_facts("Balefire Liege")
+    assert liege is not None and CardRole.ENGINE in card_roles(liege)
     assert counterspell is not None and CardRole.COUNTER in card_roles(counterspell)
     command_tower = card_facts("Command Tower")
     assert command_tower is not None and command_tower.is_land

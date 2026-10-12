@@ -23,6 +23,7 @@ from commander_lab.agents.card_knowledge import (
     CardFacts,
     card_facts,
     card_roles,
+    curated_profile,
     evasion,
     is_basic_land_name,
     permanent_value,
@@ -215,6 +216,16 @@ def priority_view_fields(
             impact = max(impact, 0.7)
         fields["immediate_impact"] = impact
         fields["floor_value"] = 0.65
+        profile = curated_profile(facts.name)
+        if profile is not None:
+            # The curated profile's judgment of this card wins over the
+            # generic estimate from its type and power.
+            floor = profile.get("floor_value")
+            curated_impact = profile.get("immediate_impact")
+            if isinstance(floor, int | float):
+                fields["floor_value"] = min(3.0, max(0.0, float(floor)))
+            if isinstance(curated_impact, int | float):
+                fields["immediate_impact"] = min(2.0, max(0.0, float(curated_impact)))
         withhold = _spell_withhold_reason(facts, roles, state, actor_id, own_stack_names)
         if CardRole.WIPE in roles:
             own = next((p for p in players(state) if str(p.get("player_id")) == actor_id), {})
