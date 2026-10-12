@@ -117,13 +117,13 @@ jobs:
           python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode/space-bunny-free
+          MODEL: opencode/step-5-preview-free
           AGENT: ''
           SHARE: 'false'
           PROMPT: ''
           USE_GITHUB_TOKEN: 'false'
           MENTIONS: ''
-          VARIANT: max
+          VARIANT: high
           OIDC_BASE_URL: ''
 
       # A run that outlives the action's GitHub token (minted once, valid for one
@@ -174,10 +174,10 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-  opencode-bunny:
-    # Space Bunny MAX maximum-assurance lane (bunny-verifier agent), started only
-    # by an explicit `/bunny` comment. Since the Owner directive of 2026-10-10
-    # every lane, `/oc` above included, runs Space Bunny MAX; DeepSeek is
+  opencode-assure:
+    # Step 5 Preview HIGH maximum-assurance lane (assurance-verifier agent), started only
+    # by an explicit `/assure` comment. Since the Owner directive of 2026-10-10
+    # every lane, `/oc` above included, runs Step 5 Preview HIGH; DeepSeek is
     # SUSPENDED. Same trust gate and hardening as the job above.
     # The repository is public: only principals with write-level association
     # may start an agent run that holds OPENCODE_API_KEY and an OIDC token.
@@ -186,9 +186,9 @@ jobs:
     if: |
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
-        contains(github.event.comment.body, ' /bunny') ||
-        startsWith(github.event.comment.body, '/bunny')
-      ) && !contains(github.event.comment.body, '/bunny-review')
+        contains(github.event.comment.body, ' /assure') ||
+        startsWith(github.event.comment.body, '/assure')
+      ) && !contains(github.event.comment.body, '/ro-review')
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -197,9 +197,9 @@ jobs:
       issues: read
     # #654/#685: the pinned `opencode github run` ignores AGENT and prompts the
     # config's `default_agent` (foundry-implementer). OPENCODE_CONFIG_CONTENT is
-    # merged after every project config file, so it selects bunny-verifier.
+    # merged after every project config file, so it selects assurance-verifier.
     env:
-      OPENCODE_CONFIG_CONTENT: '{"default_agent":"bunny-verifier"}'
+      OPENCODE_CONFIG_CONTENT: '{"default_agent":"assurance-verifier"}'
     steps:
       # The agent reads the target issue/PR text and, on a PR, its head. The
       # target's author must be trusted (job `if:`) and a PR head must live in
@@ -291,16 +291,16 @@ jobs:
           python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode/space-bunny-free
-          # Not read by the pinned CLI (#685); the job env selects bunny-verifier.
-          AGENT: bunny-verifier
+          MODEL: opencode/step-5-preview-free
+          # Not read by the pinned CLI (#685); the job env selects assurance-verifier.
+          AGENT: assurance-verifier
           SHARE: 'false'
           PROMPT: ''
           USE_GITHUB_TOKEN: 'false'
           # `opencode github run` accepts a comment only when it mentions one of these
-          # phrases (default /opencode,/oc). This lane is started by /bunny.
-          MENTIONS: '/bunny'
-          VARIANT: max
+          # phrases (default /opencode,/oc). This lane is started by /assure.
+          MENTIONS: '/assure'
+          VARIANT: high
           OIDC_BASE_URL: ''
 
       # A run that outlives the action's GitHub token (minted once, valid for one
@@ -351,19 +351,19 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-  opencode-bunny-review:
+  opencode-ro-review:
     # Mandatory cross-executor review lane (ROUTING_AND_EFFORT.md,
-    # tools/foundry/review_gate.py): a fresh-context READ-ONLY Space Bunny MAX
+    # tools/foundry/review_gate.py): a fresh-context READ-ONLY Step 5 Preview HIGH
     # reviewer bound to the exact validated implementation SHA and TREE. Started
-    # only by an explicit `/bunny-review` comment, separated from the writable
-    # `/bunny` secondary-execution lane above. Same trust gate and hardening as
+    # only by an explicit `/ro-review` comment, separated from the writable
+    # `/assure` secondary-execution lane above. Same trust gate and hardening as
     # every other lane: both the commenter and the thread author must have a
     # write-level association. Bot-authored threads are not exempt.
     if: |
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
-        contains(github.event.comment.body, ' /bunny-review') ||
-        startsWith(github.event.comment.body, '/bunny-review')
+        contains(github.event.comment.body, ' /ro-review') ||
+        startsWith(github.event.comment.body, '/ro-review')
       )
     runs-on: ubuntu-latest
     permissions:
@@ -403,7 +403,7 @@ jobs:
           persist-credentials: false
 
       # Hardened OpenCode CLI execution lane (same pin/verification as the
-      # two Space Bunny execution jobs above).
+      # two Step 5 Preview execution jobs above).
       - name: Install pinned OpenCode CLI v1.18.30
         env:
           VERSION: 1.18.30
@@ -497,20 +497,20 @@ jobs:
           python3 -I "$watchdog" --log "$RUNNER_TEMP/opencode-review.log" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode/space-bunny-free
+          MODEL: opencode/step-5-preview-free
           # Not read by the pinned CLI (#654); kept as the declared lane agent.
           AGENT: foundry-reviewer
           SHARE: 'false'
           PROMPT: ''
           USE_GITHUB_TOKEN: 'false'
           # `opencode github run` accepts a comment only when it mentions one of these
-          # phrases (default /opencode,/oc). This lane is started by /bunny-review.
-          MENTIONS: '/bunny-review'
-          VARIANT: max
+          # phrases (default /opencode,/oc). This lane is started by /ro-review.
+          MENTIONS: '/ro-review'
+          VARIANT: high
           OIDC_BASE_URL: ''
 
-      # The run's own model-call records must all name the reviewer on Space
-      # Bunny; none recorded means UNKNOWN and fails the job. The preflight is
+      # The run's own model-call records must all name the reviewer on Step 5
+      # Preview; none recorded means UNKNOWN and fails the job. The preflight is
       # repeated on the reviewed tree the run checked out. The checker is copied
       # again from the triggering commit, never reused from a path the agent saw.
       - name: Audit reviewer runtime identity

@@ -492,42 +492,42 @@ def test_trusted_comments_start_each_opencode_lane() -> None:
         commenter="OWNER", target="OWNER", target_login="maintainer", body="/oc continue"
     )
     bootstrap = _event_context(
-        commenter="OWNER", target="OWNER", target_login="maintainer", body="/bunny audit this"
+        commenter="OWNER", target="OWNER", target_login="maintainer", body="/assure audit this"
     )
     review_pr = _event_context(
         commenter="MEMBER",
         target="OWNER",
         target_login="maintainer",
-        body="/bunny-review review exact SHA",
+        body="/ro-review review exact SHA",
         is_pr=True,
     )
     assert condition_result(str(jobs["opencode"]["if"]), implementation) is True
-    assert condition_result(str(jobs["opencode-bunny"]["if"]), bootstrap) is True
-    assert condition_result(str(jobs["opencode-bunny-review"]["if"]), review_pr) is True
+    assert condition_result(str(jobs["opencode-assure"]["if"]), bootstrap) is True
+    assert condition_result(str(jobs["opencode-ro-review"]["if"]), review_pr) is True
 
 
-def test_bunny_bootstrap_lane_is_not_selected_by_the_direct_marker() -> None:
-    """`/bunny-review` must never fall through to the writable /bunny lane."""
+def test_step_bootstrap_lane_is_not_selected_by_the_direct_marker() -> None:
+    """`/ro-review` must never fall through to the writable /assure lane."""
     doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
     direct_body = _event_context(
         commenter="OWNER",
         target="OWNER",
         target_login="maintainer",
-        body="/bunny-review review this",
+        body="/ro-review review this",
     )
-    assert condition_result(str(doc["jobs"]["opencode-bunny"]["if"]), direct_body) is False
-    assert condition_result(str(doc["jobs"]["opencode-bunny-review"]["if"]), direct_body) is True
+    assert condition_result(str(doc["jobs"]["opencode-assure"]["if"]), direct_body) is False
+    assert condition_result(str(doc["jobs"]["opencode-ro-review"]["if"]), direct_body) is True
 
 
-def test_bunny_review_lane_stays_closed_for_untrusted_principals() -> None:
+def test_step_review_lane_stays_closed_for_untrusted_principals() -> None:
     """Both the commenter and the thread author must be write-level trusted."""
     doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
-    condition = str(doc["jobs"]["opencode-bunny-review"]["if"])
+    condition = str(doc["jobs"]["opencode-ro-review"]["if"])
     untrusted_commenter = _event_context(
         commenter="NONE",
         target="NONE",
         target_login="opencode-agent[bot]",
-        body="/bunny-review review this",
+        body="/ro-review review this",
         is_pr=True,
     )
     assert condition_result(condition, untrusted_commenter) is False
@@ -535,7 +535,7 @@ def test_bunny_review_lane_stays_closed_for_untrusted_principals() -> None:
         commenter="OWNER",
         target="NONE",
         target_login="stranger",
-        body="/bunny-review review this",
+        body="/ro-review review this",
         is_pr=True,
     )
     assert condition_result(condition, untrusted_target) is False
@@ -545,7 +545,7 @@ def test_bunny_review_lane_stays_closed_for_untrusted_principals() -> None:
         commenter="OWNER",
         target="NONE",
         target_login="opencode-agent[bot]",
-        body="/bunny-review review this",
+        body="/ro-review review this",
         is_pr=True,
     )
     assert condition_result(condition, bot_target) is False
@@ -578,7 +578,7 @@ def test_opencode_rescue_runs_only_on_failure_keeps_tokens_read_only_and_skips_u
     # A run that outlives the action's one-hour token keeps its work as an
     # artifact; that path must not widen the job token or collect untracked files.
     doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
-    for job_name in ("opencode", "opencode-bunny"):
+    for job_name in ("opencode", "opencode-assure"):
         job = doc["jobs"][job_name]
         assert job["permissions"].get("contents") == "read", job_name
         names = [step.get("name") for step in job["steps"]]
@@ -611,7 +611,7 @@ def test_opencode_rescue_runs_only_on_failure_keeps_tokens_read_only_and_skips_u
         assert upload["uses"].startswith("actions/upload-artifact@")
         assert re.fullmatch(r"actions/upload-artifact@[0-9a-f]{40}", upload["uses"].split()[0])
         assert upload["with"]["retention-days"] <= 7
-    review = doc["jobs"]["opencode-bunny-review"]
+    review = doc["jobs"]["opencode-ro-review"]
     assert "Collect unpublished agent work" not in [s.get("name") for s in review["steps"]]
 
 

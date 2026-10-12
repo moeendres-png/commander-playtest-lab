@@ -6,17 +6,17 @@ Single coherent entry point for the OpenCode Foundry execution system on
 | Surface | Canonical path | Role |
 |---|---|---|
 | Durable agent rules | `AGENTS.md` (root) | Non-negotiable invariants for every session |
-| Machine config | `opencode.json` (root) | Space Bunny MAX only (DeepSeek SUSPENDED 2026-10-10); permissions; sharing off |
+| Machine config | `opencode.json` (root) | Step 5 Preview HIGH only (Owner directive 2026-10-12; DeepSeek SUSPENDED); permissions; sharing off |
 | Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, effort, Work gate |
 | Workspace access | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` + launcher `--workspace-access` | Unique verified reference snapshots + standalone current-workstream owned-write surfaces + Bubblewrap read-only-root boundary |
-| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Space Bunny MAX on OpenCode Zen (`opencode/space-bunny-free`) default and only active profile, DeepSeek SUSPENDED, retired `--execution-provider zen` override flag, no fallback |
-| Space Bunny prompting | `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md` | How to write `/oc`, `/bunny`, `/bunny-review` and subagent prompts for Space Bunny MAX |
-| Technical authority | `docs/CURRENT_EXECUTION_AUTHORITY.md` | Sol / Space Bunny MAX (DeepSeek SUSPENDED) / Astra authority model |
+| Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Step 5 Preview HIGH on OpenCode Zen (`opencode/step-5-preview-free`) default and only active profile, DeepSeek SUSPENDED, retired `--execution-provider zen` override flag, no fallback |
+| Step 5 Preview prompting | `docs/foundry-execution/EXECUTOR_PROMPTING.md` | How to write `/oc`, `/assure`, `/ro-review` and subagent prompts for Step 5 Preview HIGH |
+| Technical authority | `docs/CURRENT_EXECUTION_AUTHORITY.md` | Sol / Step 5 Preview HIGH (DeepSeek SUSPENDED) / Astra authority model |
 | Contract template | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` | Task fields incl. decision authority |
 | Governance supersession | `docs/foundry-execution/GOVERNANCE_SUPERSESSION.md` | PR #161/#166/#167 dispositions |
 | Governance propagation | `docs/foundry-execution/GOVERNANCE_PROPAGATION.md` | PR #172 governance-line propagation; `RETAINED_EVIDENCE_IMPACT = NO_SEMANTIC_IMPACT` when governance-only |
-| Implementer agent | `.opencode/agents/foundry-implementer.md` | Primary long-running worker (Space Bunny MAX) |
-| Adjudicator agent | `.opencode/agents/foundry-adjudicator.md` | Read/test-first technical adjudicator (native `max`) |
+| Implementer agent | `.opencode/agents/foundry-implementer.md` | Primary long-running worker (Step 5 Preview HIGH) |
+| Adjudicator agent | `.opencode/agents/foundry-adjudicator.md` | Read/test-first technical adjudicator (native `high`) |
 | Reviewer agent | `.opencode/agents/foundry-reviewer.md` | Fresh-context read-only review |
 | Skills | `.opencode/skills/*/SKILL.md` | workstream-bootstrap, failure-classification, test-impact, evidence-seal, continuation, component-change-review, rules-authority-escalation |
 | Workstream state | Explicit dedicated state path per workstream (`--state`, exposed as `FOUNDRY_STATE_PATH`) + `.foundry/WORKSTREAM_STATE.schema.json` | Resumable index + validator |

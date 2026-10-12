@@ -75,8 +75,8 @@ class ExplodingTransport:
 
 def _workflow_yaml(
     *,
-    model: str = "opencode/space-bunny-free",
-    variant: str = "max",
+    model: str = "opencode/step-5-preview-free",
+    variant: str = "high",
     agent: str | None = None,
     trust_gate: bool = True,
 ) -> str:
@@ -118,7 +118,7 @@ def _workflow_yaml(
             "on": {"issue_comment": {"types": ["created"]}},
             "jobs": {
                 "opencode": {"if": "false", "steps": []},
-                "opencode-bunny-review": job,
+                "opencode-ro-review": job,
             },
         }
     )
@@ -130,8 +130,8 @@ def _agent_markdown(*, read_only: bool = True) -> str:
     else:
         permission = {"edit": "allow", "bash": {"*": "allow"}, "task": "allow"}
     frontmatter = {
-        "model": "opencode/space-bunny-free",
-        "variant": "max",
+        "model": "opencode/step-5-preview-free",
+        "variant": "high",
         "permission": permission,
     }
     return "---\n" + yaml.safe_dump(frontmatter) + "---\n\nReview read-only.\n"
@@ -155,8 +155,8 @@ def _result_body(
     **overrides: str,
 ) -> str:
     fields = {
-        "REVIEWER_MODEL": "opencode/space-bunny-free",
-        "REVIEWER_VARIANT": "max",
+        "REVIEWER_MODEL": "opencode/step-5-preview-free",
+        "REVIEWER_VARIANT": "high",
         "REVIEW_AGENT": "foundry-reviewer",
         "REVIEWED_SHA": IMPL,
         "REVIEWED_TREE": IMPL_TREE,
@@ -168,7 +168,7 @@ def _result_body(
     lines = [
         evidence_mod.MARKER_DIRECT,
         "",
-        "Read-only fresh-context Space Bunny review of the exact SHA/TREE.",
+        "Read-only fresh-context Step 5 Preview review of the exact SHA/TREE.",
         "",
         *(f"{key}: {value}" for key, value in fields.items()),
         "",
@@ -211,7 +211,7 @@ def _graph(
     project_config: str | None = None,
     extra_comments: list[dict] | None = None,
 ) -> FakeGitHub:
-    trigger = trigger_body if trigger_body is not None else "/bunny-review review this"
+    trigger = trigger_body if trigger_body is not None else "/ro-review review this"
     body = result_body if result_body is not None else _result_body()
     run_overrides: dict[str, object] = {}
     if run_started_at is not None:
@@ -247,7 +247,7 @@ def _graph(
     jobs = [
         {
             "id": JOB_DIRECT,
-            "name": "opencode-bunny-review",
+            "name": "opencode-ro-review",
             "status": "completed",
             "conclusion": job_conclusion,
         },
@@ -259,7 +259,7 @@ def _graph(
         },
         {
             "id": 3,
-            "name": "opencode-bunny",
+            "name": "opencode-assure",
             "status": "completed",
             "conclusion": implementation_lane,
         },
@@ -310,7 +310,7 @@ def _serve_run(fake: FakeGitHub, run_id: int, job_id: int, *, job_name: str) -> 
                 {"id": 21, "name": "opencode", "status": "completed", "conclusion": "skipped"},
                 {
                     "id": 22,
-                    "name": "opencode-bunny",
+                    "name": "opencode-assure",
                     "status": "completed",
                     "conclusion": "skipped",
                 },
@@ -325,11 +325,11 @@ def _record(**overrides: object) -> dict:
         "record_type": "cross_executor_review",
         "required": True,
         "materiality": "MATERIAL",
-        "logical_profile": "space-bunny",
+        "logical_profile": "step",
         "resolved_provider": "opencode",
-        "resolved_model_id": "opencode/space-bunny-free",
+        "resolved_model_id": "opencode/step-5-preview-free",
         "model_alias_class": "CANONICAL",
-        "native_variant": "max",
+        "native_variant": "high",
         "review_mode": "READ_ONLY_FRESH_CONTEXT",
         "review_agent": "foundry-reviewer",
         "reviewed_sha": IMPL,
@@ -337,7 +337,7 @@ def _record(**overrides: object) -> dict:
         "verdict": "PASS",
         "findings": {"P1": [], "P2": [], "P3": []},
         "implementation_executor": "deepseek",
-        "review_executor": "space-bunny",
+        "review_executor": "step",
         "review_evidence": {
             "schema_version": "1.0",
             "carrier": evidence_mod.CARRIER_DIRECT,
@@ -347,7 +347,7 @@ def _record(**overrides: object) -> dict:
             "result_comment_id": RESULT_DIRECT,
             "workflow_run_id": RUN_DIRECT,
             "workflow_job_id": JOB_DIRECT,
-            "workflow_job_name": "opencode-bunny-review",
+            "workflow_job_name": "opencode-ro-review",
             "workflow_head_sha": WORKFLOW_HEAD,
             "workflow_path": WORKFLOW_PATH,
             "marker": evidence_mod.MARKER_DIRECT,
@@ -368,9 +368,9 @@ def _state_doc(**overrides: object) -> dict:
         "materiality": "MATERIAL",
         "cross_executor_review": {
             "required": True,
-            "logical_profile": "space-bunny",
+            "logical_profile": "step",
             "implementation_executor": "deepseek",
-            "review_executor": "space-bunny",
+            "review_executor": "step",
             "reviewed_sha": IMPL,
             "reviewed_tree": IMPL_TREE,
             "verdict": "PASS",
@@ -417,7 +417,7 @@ def test_self_asserted_record_without_evidence_never_satisfies_gate() -> None:
 
 
 def test_fabricated_record_with_unverifiable_evidence_never_satisfies_gate() -> None:
-    """A record with correct-looking Bunny fields but fake IDs fails closed."""
+    """A record with correct-looking Step fields but fake IDs fails closed."""
     result = review_mod.evaluate_review_gate(
         _state_doc(), review_record=_record(), evidence_transport=FakeGitHub()
     )
@@ -439,16 +439,16 @@ def test_bootstrap_writable_carrier_is_removed() -> None:
     errors = review_mod.validate_review_record(record)
     assert any("carrier" in error for error in errors)
 
-    verifier_doc = (REPO_ROOT / ".opencode" / "agents" / "bunny-verifier.md").read_text(
+    verifier_doc = (REPO_ROOT / ".opencode" / "agents" / "assurance-verifier.md").read_text(
         encoding="utf-8"
     )
-    assert "BUNNY_AUDITOR_SUBAGENT_REVIEW" not in verifier_doc
+    assert "STEP_AUDITOR_SUBAGENT_REVIEW" not in verifier_doc
     assert "REVIEW_VERDICT:" not in verifier_doc
 
-    auditor_doc = (REPO_ROOT / ".opencode" / "agents" / "bunny-auditor.md").read_text(
+    auditor_doc = (REPO_ROOT / ".opencode" / "agents" / "assurance-auditor.md").read_text(
         encoding="utf-8"
     )
-    assert "BUNNY_AUDITOR_SUBAGENT_REVIEW" not in auditor_doc
+    assert "STEP_AUDITOR_SUBAGENT_REVIEW" not in auditor_doc
 
 
 # --- trusted direct lane satisfies ------------------------------------------
@@ -484,7 +484,7 @@ def test_evidence_citing_foreign_run_is_unsatisfied() -> None:
     foreign_run = 999999
     foreign_job = 999998
     fake = _graph()
-    _serve_run(fake, foreign_run, foreign_job, job_name="opencode-bunny-review")
+    _serve_run(fake, foreign_run, foreign_job, job_name="opencode-ro-review")
     record = _record()
     record["review_evidence"]["workflow_run_id"] = foreign_run
     record["review_evidence"]["workflow_job_id"] = foreign_job
@@ -526,7 +526,7 @@ def test_run_must_be_triggered_by_the_trigger_comment() -> None:
                 "id": TRIGGER_DIRECT + 1,
                 "created_at": "2026-10-06T20:00:03Z",
                 "user": {"login": "other"},
-                "body": "/bunny-review from another comment",
+                "body": "/ro-review from another comment",
             }
         ]
     )
@@ -579,14 +579,14 @@ def test_nonexistent_run_comment_or_job_fails() -> None:
 
 
 def test_deepseek_workflow_evidence_fails() -> None:
-    """The workflow at the run head must pin Space Bunny, not DeepSeek."""
+    """The workflow at the run head must pin Step 5 Preview, not DeepSeek."""
     fake = _graph(workflow_yaml=_workflow_yaml(model="opencode-go/deepseek-v4.1-flash"))
     result = _verify(_record(), fake)
     assert not result.ok
     assert "REVIEW_EVIDENCE_WORKFLOW_MODEL_MISMATCH" in result.reasons[0]
 
 
-def test_bunny_job_failed_or_skipped_fails() -> None:
+def test_step_job_failed_or_skipped_fails() -> None:
     for conclusion in ("failure", "skipped"):
         fake = _graph(job_conclusion=conclusion)
         result = _verify(_record(), fake)
@@ -609,7 +609,7 @@ def test_untrusted_trigger_comment_fails() -> None:
 
 
 def test_trigger_comment_for_wrong_carrier_fails() -> None:
-    fake = _graph(trigger_body="/bunny audit this")
+    fake = _graph(trigger_body="/assure audit this")
     result = _verify(_record(), fake)
     assert not result.ok
     assert "REVIEW_EVIDENCE_TRIGGER_CARRIER_MISMATCH" in result.reasons[0]
@@ -661,12 +661,12 @@ def test_result_read_only_false_fails() -> None:
 
 
 def test_workflow_variant_or_agent_mismatch_fails() -> None:
-    fake = _graph(workflow_yaml=_workflow_yaml(variant="high"))
+    fake = _graph(workflow_yaml=_workflow_yaml(variant="max"))
     result = _verify(_record(), fake)
     assert not result.ok
     assert "REVIEW_EVIDENCE_WORKFLOW_VARIANT_MISMATCH" in result.reasons[0]
 
-    fake = _graph(workflow_yaml=_workflow_yaml(agent="bunny-verifier"))
+    fake = _graph(workflow_yaml=_workflow_yaml(agent="assurance-verifier"))
     result = _verify(_record(), fake)
     assert not result.ok
     assert "REVIEW_EVIDENCE_WORKFLOW_AGENT_MISMATCH" in result.reasons[0]
@@ -689,7 +689,7 @@ def test_workflow_with_bot_author_exception_fails() -> None:
         "github.event.issue.user.login == 'opencode-agent[bot]')"
     )
     workflow = yaml.safe_load(_workflow_yaml())
-    workflow["jobs"]["opencode-bunny-review"]["if"] = condition
+    workflow["jobs"]["opencode-ro-review"]["if"] = condition
     fake = _graph(workflow_yaml=yaml.safe_dump(workflow))
     result = _verify(_record(), fake)
     # The verifier itself rejects a workflow that exempts bot-authored threads
@@ -720,12 +720,12 @@ def test_reviewer_agent_file_not_read_only_fails() -> None:
 
 def test_writable_verifier_agent_name_is_rejected() -> None:
     record = _record()
-    record["review_agent"] = "bunny-verifier"
+    record["review_agent"] = "assurance-verifier"
     errors = review_mod.validate_review_record(record)
     assert any("structurally read-only reviewer" in error for error in errors)
 
     record = _record()
-    record["review_agent"] = "bunny-auditor"
+    record["review_agent"] = "assurance-auditor"
     errors = review_mod.validate_review_record(record)
     assert any("structurally read-only reviewer" in error for error in errors)
 
@@ -793,7 +793,7 @@ def test_fake_external_identifier_fails_closed(mutate) -> None:
 
 def _workflow_with(mutate) -> str:
     workflow = yaml.safe_load(_workflow_yaml())
-    mutate(workflow, workflow["jobs"]["opencode-bunny-review"])
+    mutate(workflow, workflow["jobs"]["opencode-ro-review"])
     return yaml.safe_dump(workflow, sort_keys=False)
 
 
@@ -921,7 +921,7 @@ def test_reviewer_rules_merged_with_project_config_must_stay_read_only() -> None
         + yaml.safe_dump(
             {
                 "model": evidence_mod.TRUSTED_MODEL_ID,
-                "variant": "max",
+                "variant": "high",
                 "permission": {
                     "edit": "deny",
                     "bash": {"*": "deny", "git diff*": "allow", "git push*": "allow"},

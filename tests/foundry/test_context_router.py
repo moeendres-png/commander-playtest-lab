@@ -288,7 +288,7 @@ def test_dot_directory_path_signals_are_reachable(
     "objective,expected_domain",
     [
         ("Inspect the context router.", "foundry"),
-        ("Inspect Space Bunny executor routing.", "execution_routing"),
+        ("Inspect Step 5 Preview executor routing.", "execution_routing"),
         ("Inspect GitHub Action workflow behavior.", "ci"),
         ("Inspect qualification current boundary.", "qualification"),
         ("Inspect evidence provenance.", "evidence"),
