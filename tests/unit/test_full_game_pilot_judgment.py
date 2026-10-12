@@ -464,3 +464,72 @@ def test_pilot_spends_its_mana_on_the_bigger_spell_in_its_main_phase() -> None:
     assert _curve_bonus(5.0, state) > _curve_bonus(2.0, state) > 0.0
     off_turn = {**state, "active_player_id": "opponent-1"}
     assert _curve_bonus(5.0, off_turn) == 0.0
+
+
+def test_delve_payment_exiles_a_card_instead_of_looping() -> None:
+    policy = _policy()
+    state = _state(hand=["Dig Through Time"])
+    delve = {
+        "option_id": "delve-1",
+        "label": "Dig Through Time — Exile a card from your graveyard: Delve",
+        "option_type": "special_mana_action",
+        "metadata": {},
+    }
+    cancel = {
+        "option_id": "cancel",
+        "label": "Cancel mana payment",
+        "option_type": "cancel_mana_payment",
+        "metadata": {},
+    }
+    paid = policy.decide(
+        _request("mana_payment", [cancel, delve], state, context={"unpaid_mana": "{5}"})
+    )
+    assert paid["selected_option_ids"] == ["delve-1"]
+    graveyard = [
+        {"option_id": "g-1", "label": "Arcane Denial", "option_type": "choice"},
+        {"option_id": "g-2", "label": "Silence", "option_type": "choice"},
+    ]
+    exiled = policy.decide(
+        _request(
+            "choose_object",
+            graveyard,
+            state,
+            minimum=0,
+            context={
+                "outcome": "exile",
+                "target_description": "up to one cards from your graveyard",
+            },
+            offset=2,
+        )
+    )
+    assert exiled["selected_option_ids"] == ["g-2"]  # Silence costs 1, Arcane Denial 2
+
+
+def test_mana_repeat_guard_sees_through_re_minted_option_ids() -> None:
+    policy = _policy()
+    state = _state(hand=["Dig Through Time"])
+    cancel = {
+        "option_id": "cancel",
+        "label": "Cancel mana payment",
+        "option_type": "cancel_mana_payment",
+        "metadata": {},
+    }
+    picks = []
+    for offset in range(1, 4):
+        delve = {
+            "option_id": f"delve-{offset}",
+            "label": "Dig Through Time — Exile a card from your graveyard: Delve",
+            "option_type": "special_mana_action",
+            "metadata": {},
+        }
+        response = policy.decide(
+            _request(
+                "mana_payment",
+                [cancel, delve],
+                state,
+                context={"unpaid_mana": "{5}"},
+                offset=offset,
+            )
+        )
+        picks.append(response["selected_option_ids"][0])
+    assert picks[-1] == "cancel"

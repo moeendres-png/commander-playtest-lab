@@ -1072,6 +1072,9 @@ class ExternalPilotDecisionPolicy:
             int, tuple[int, str, tuple[tuple[str, str, str], ...]]
         ] = {}
         self._mana_repeat_count: dict[int, int] = {}
+        # Seats whose last mana-payment choice was a special mana action
+        # (Delve, Convoke, Improvise): the next card choice pays for it.
+        self._special_mana_pending: dict[int, bool] = {}
         # No-progress guard memory for priority windows (per seat): free
         # repeatable actions (Equip {0}, untap loops) can re-offer
         # identically forever with zero game-state progress. An identical
@@ -1154,6 +1157,8 @@ class ExternalPilotDecisionPolicy:
         runtime = self._pilots.get(seat)
         if runtime is None:
             raise FullGameProtocolError(f"decision actor has unmapped seat: {seat}")
+        if decision_class not in {"mana_payment", "choose_object"}:
+            self._special_mana_pending.pop(seat, None)
         options = self._legal_options(request)
         context = dict(request.get("context") or {})
         min_selections = int(request.get("minimum_selections", request.get("min_selections", 0)))
@@ -1187,6 +1192,15 @@ class ExternalPilotDecisionPolicy:
         elif decision_class == "mana_payment":
             self._last_unpaid_mana[seat] = str(context.get("unpaid_mana") or "")
             selected = [self._decide_mana(runtime, pilot_state, options, context, rng)]
+            chosen_type = next(
+                (
+                    str(option.get("option_type", ""))
+                    for option in options
+                    if option.get("option_id") == selected[0]
+                ),
+                "",
+            )
+            self._special_mana_pending[seat] = chosen_type == "special_mana_action"
         elif decision_class == "choose_use":
             selected = [
                 self._decide_boolean(
@@ -1217,6 +1231,17 @@ class ExternalPilotDecisionPolicy:
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
             self._remember_priority_cost_facts(seat, options, selected)
             self._remember_own_cast(seat, options, selected, turn=pilot_state.get("turn_number"))
+        elif (
+            decision_class == "choose_object"
+            and self._special_mana_pending.pop(seat, False)
+            and max_selections >= 1
+            and options
+        ):
+            # #732: a Delve-style payment ("exile a card from your graveyard")
+            # asks which card pays. Choosing none leaves the cost unpaid and
+            # the engine offers the same payment again, forever. Pay with
+            # the cheapest card, which is the least likely to matter later.
+            selected = [self._cheapest_object(options)]
         elif decision_class in {"target", "choose_object", "target_amount"}:
             selected = self._decide_targets(
                 runtime,
@@ -2260,7 +2285,10 @@ class ExternalPilotDecisionPolicy:
             tuple(
                 sorted(
                     (
-                        self._required_text(option, "option_id"),
+                        # Not the option id: the engine re-mints some ids
+                        # (special mana actions such as Delve) on every
+                        # offer, which hid an identical repeat (#732).
+                        str(option.get("option_type", "")),
                         str(option.get("label", "")),
                         str((option.get("metadata") or {}).get("mana_available")),
                     )
@@ -3295,6 +3323,13 @@ class ExternalPilotDecisionPolicy:
         if actor is None:
             raise FullGameProtocolError("actor is absent from actor-scoped state")
         return actor
+
+    def _cheapest_object(self, options: list[dict[str, Any]]) -> str:
+        def key(option: dict[str, Any]) -> tuple[float, str]:
+            facts = card_facts(str(option.get("label", "")))
+            return (facts.mana_value if facts is not None else 0.0, str(option.get("label", "")))
+
+        return self._required_text(min(options, key=key), "option_id")
 
     @staticmethod
     def _actor_mana(actor: dict[str, Any]) -> float:
