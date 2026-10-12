@@ -1,0 +1,127 @@
+"""Attack and block declarations."""
+
+from __future__ import annotations
+
+import random
+from typing import Any
+
+from commander_lab.models import (
+    PilotActionView,
+)
+
+from ..full_game_pilot_views import (
+    attack_score,
+    block_score,
+)
+from .choices import _ChoiceDecisions
+from .common import (
+    FullGameProtocolError,
+    _RuntimePilot,
+)
+
+
+class _CombatDecisions(_ChoiceDecisions):
+    def _decide_attack(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, Any],
+        options: list[dict[str, Any]],
+        rng: random.Random,
+    ) -> str:
+        hold = self._option_by_type(options, "hold_attacker")
+        attacks = [
+            option
+            for option in options
+            if self._required_text(option, "option_type") == "declare_attacker"
+        ]
+        if not attacks:
+            return self._required_text(hold, "option_id")
+        pilot_state = self._pilot_state(runtime, state)
+        actions: list[PilotActionView] = []
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[str, int] = {}
+        # #732: board-aware attack judgment. An attack into a blocker that
+        # kills the attacker and survives, or with a zero-power creature, is
+        # not put up; the pilot chooses among the remaining defenders (its
+        # evaluator weighs life and threat) or holds.
+        for option in attacks:
+            score, _facts = attack_score(option, state)
+            if score <= 0.0:
+                continue
+            label = str(option.get("label", "Attack"))
+            base = f"attack:{label.casefold()}"
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            action = self._combat_action(option, state)
+            action = action.model_copy(
+                update={
+                    "action_id": stable_id,
+                    "floor_value": min(3.0, max(action.floor_value, score)),
+                }
+            )
+            actions.append(action)
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+        if not actions:
+            return self._required_text(hold, "option_id")
+        actions.append(
+            PilotActionView(
+                action_id="attack:hold",
+                action_kind="pass",
+                card_name="Hold attacker",
+                floor_value=0.1,
+            )
+        )
+        raw_by_stable_id["attack:hold"] = self._required_text(hold, "option_id")
+        decision = runtime.pilot.choose_combat_target(pilot_state, actions, rng)
+        if decision.selected_action_id is None:
+            raise FullGameProtocolError("Commander Lab pilot returned no attack decision")
+        try:
+            return raw_by_stable_id[decision.selected_action_id]
+        except KeyError:
+            raise FullGameProtocolError("pilot returned unknown stable attack action") from None
+
+    def _decide_blocks(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, Any],
+        options: list[dict[str, Any]],
+        min_selections: int,
+        max_selections: int,
+        rng: random.Random,
+    ) -> list[str]:
+        if not options or max_selections == 0:
+            return []
+        ranked: list[tuple[float, str]] = []
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[str, int] = {}
+        for option in options:
+            label = str(option.get("label", "Block"))
+            base = f"block:{label.casefold()}"
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            # The board decides blocks: the generic evaluator has no P/T.
+            score, _facts = block_score(option, state)
+            ranked.append((score, stable_id))
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+        ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
+        # #732: block only where it pays (the blocker survives, trades up, or
+        # a chump block prevents lethal or near-lethal damage); the old rule
+        # always blocked at least once, which threw creatures away.
+        worthwhile = sum(1 for score, _stable_id in ranked if score > 0.0)
+        take = max(min_selections, min(max_selections, worthwhile))
+        # The engine re-asks when a declared block is illegal as a whole
+        # (menace, block requirements). The same block proposed again and
+        # again is that loop; stop proposing it when blocking is optional.
+        seat = runtime.binding.seat
+        proposal = (
+            state.get("turn_number"),
+            tuple(stable_id for _score, stable_id in ranked[:take]),
+        )
+        last, repeats = self._last_block_proposal.get(seat, (None, 0))
+        repeats = repeats + 1 if last == proposal else 1
+        self._last_block_proposal[seat] = (proposal, repeats)
+        if repeats > self._BLOCK_REPEAT_LIMIT and min_selections == 0:
+            return []
+        return [raw_by_stable_id[stable_id] for _score, stable_id in ranked[:take]]
