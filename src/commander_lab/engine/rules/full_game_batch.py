@@ -394,6 +394,19 @@ class XmageFullGameBatchRunner:
             return existing
         return None
 
+    def _parallel_runner(self) -> Any:
+        """A per-game runner copy whose bridge JVM gets its own card repository.
+
+        #739: JVMs that start together in one directory collide on XMage's
+        on-disk card repository, so a parallel game copies it into a private
+        directory. The flag is not part of the execution identity: it changes
+        where the repository file lives, never what the game plays.
+        """
+        runner = copy.copy(self.runner)
+        if hasattr(runner, "private_card_repository"):
+            runner.private_card_repository = True
+        return runner
+
     def _run_parallel(
         self,
         pending: list[tuple[int, FullGameBatchCase, str, dict[str, Any], Path]],
@@ -417,7 +430,7 @@ class XmageFullGameBatchRunner:
                 # per-game state (the hidden-information audit) on itself, and
                 # threads sharing one runner would mix or drop those audits.
                 executor.submit(
-                    execute_batch_case, copy.copy(self.runner), case, run_key, execution
+                    execute_batch_case, self._parallel_runner(), case, run_key, execution
                 ): (
                     index,
                     path,
