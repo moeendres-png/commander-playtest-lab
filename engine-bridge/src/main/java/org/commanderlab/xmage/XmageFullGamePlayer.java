@@ -1014,7 +1014,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
     ) {
         witness("target_amount", target, source);
         target.prepareAmount(source, game);
-        Set<UUID> possible = target.possibleTargets(getId(), source, game);
+        Set<UUID> possible = offeredTargets(target, source, game, null);
         List<UUID> sorted = possible.stream()
                 .sorted(XmageStableOrder.objects(game))
                 .toList();
@@ -1764,8 +1764,13 @@ final class XmageFullGamePlayer extends PlayerImpl {
     }
 
     private boolean modeTargetsChoosable(Targets targets, Ability source, Game game) {
+        // As HumanPlayer's mode filter: the ability's controller decides whether
+        // a mode's targets can be chosen, also when an opponent picks the mode
+        // (CR 700.2d).
+        UUID controllerId = source != null && source.getControllerId() != null
+                ? source.getControllerId() : getId();
         for (Target target : targets) {
-            if (target.getMinNumberOfTargets() > 0 && !target.canChoose(getId(), source, game)) {
+            if (target.getMinNumberOfTargets() > 0 && !target.canChoose(controllerId, source, game)) {
                 return false;
             }
         }
@@ -2253,6 +2258,24 @@ final class XmageFullGamePlayer extends PlayerImpl {
         fail("OUT_OF_SCOPE_DECISION", "draft is not part of Commander full-game conformance");
     }
 
+    /**
+     * #736: the candidates offered for {@code target}, computed for the
+     * ability's controller exactly as XMage's {@code HumanPlayer} does
+     * ({@code target.getAffectedAbilityControllerId(getId())}). When another
+     * player chooses a target for someone else's ability (Bolt Bend changing the
+     * target of Mistveil Plains), "your graveyard" means the ability
+     * controller's graveyard, not the chooser's. Offering the chooser's own cards
+     * made {@code StackObjectImpl.chooseNewTarget} reject every pick and ask
+     * again forever.
+     */
+    Set<UUID> offeredTargets(Target target, Ability source, Game game, Set<UUID> restrictedIds) {
+        UUID abilityControllerId = target.getAffectedAbilityControllerId(getId());
+        if (restrictedIds == null) {
+            return target.possibleTargets(abilityControllerId, source, game);
+        }
+        return target.possibleTargets(abilityControllerId, source, game, restrictedIds);
+    }
+
     private boolean chooseTargetInternal(
             Outcome outcome,
             boolean targeted,
@@ -2266,12 +2289,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
         witness("target", target, source, restrictedCards);
         Set<UUID> possible;
         if (restrictedCards == null) {
-            possible = target.possibleTargets(getId(), source, game);
+            possible = offeredTargets(target, source, game, null);
         } else {
             Set<UUID> cardIds = restrictedCards.getCards(game).stream()
                     .map(MageItem::getId)
                     .collect(java.util.stream.Collectors.toSet());
-            possible = target.possibleTargets(getId(), source, game, cardIds);
+            possible = offeredTargets(target, source, game, cardIds);
         }
         List<UUID> sorted = possible.stream()
                 .sorted(XmageStableOrder.objects(game))
