@@ -350,7 +350,7 @@ class XmageFullGameUnpayableDiscardCostTest {
             assertTrue(p1.getHand().remove(card.getId()),
                     "the natural scaffolding card " + card.getName() + " left P1's hand");
         }
-        assertEquals(wanted, handNames(s, game),
+        assertEquals(wanted.stream().sorted().toList(), handNames(s, game),
                 "precondition: P1's hand is exactly " + wanted);
         return s;
     }
@@ -382,6 +382,7 @@ class XmageFullGameUnpayableDiscardCostTest {
     private static List<String> handNames(XmageMultiplayerScenario s, Game game) {
         return s.seats.get("P1").getHand().getCards(game).stream()
                 .map(Card::getName)
+                .sorted() // the hand is a UUID-keyed set: its iteration order carries no meaning
                 .toList();
     }
 
