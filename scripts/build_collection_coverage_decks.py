@@ -118,7 +118,9 @@ def build(cards: dict[str, dict]) -> list[dict]:
     commanders = {name for _, names in DECKS for name in names}
     ident = {slug: set("".join(cards[n]["ci"] for n in names)) for slug, names in DECKS}
     pool = sorted(
-        n for n, v in cards.items() if n not in commanders and n not in EXCLUDED and "BASIC" not in v["sup"]
+        n
+        for n, v in cards.items()
+        if n not in commanders and n not in EXCLUDED and "BASIC" not in v["sup"]
     )
     used: set[str] = set()
     widest_first = [slug for slug, _ in sorted(DECKS, key=lambda d: -len(ident[d[0]]))]
@@ -126,7 +128,14 @@ def build(cards: dict[str, dict]) -> list[dict]:
     lands: dict[str, list[str]] = {slug: [] for slug, _ in DECKS}
     for slug in widest_first:
         candidates = sorted(
-            (n for n in pool if n not in used and is_land(n) and cards[n]["ci"] and set(cards[n]["ci"]) <= ident[slug]),
+            (
+                n
+                for n in pool
+                if n not in used
+                and is_land(n)
+                and cards[n]["ci"]
+                and set(cards[n]["ci"]) <= ident[slug]
+            ),
             key=lambda n: (-len(cards[n]["ci"]), n),
         )
         take = candidates[: {1: 3, 2: 8}.get(len(ident[slug]), 14)]
@@ -162,7 +171,11 @@ def build(cards: dict[str, dict]) -> list[dict]:
             if len(picked[slug]) >= NONLAND:
                 active.remove(slug)
                 continue
-            options = [n for n in pool if n not in used and not is_land(n) and set(cards[n]["ci"]) <= ident[slug]]
+            options = [
+                n
+                for n in pool
+                if n not in used and not is_land(n) and set(cards[n]["ci"]) <= ident[slug]
+            ]
             if not options:
                 active.remove(slug)
                 continue
@@ -177,7 +190,9 @@ def build(cards: dict[str, dict]) -> list[dict]:
     for slug, names in DECKS:
         nonland = picked[slug]
         basics = 100 - len(names) - len(nonland) - len(lands[slug])
-        pips = collections.Counter(ch for n in nonland for ch in re.findall(r"\{([WUBRG])\}", cards[n]["mc"]))
+        pips = collections.Counter(
+            ch for n in nonland for ch in re.findall(r"\{([WUBRG])\}", cards[n]["mc"])
+        )
         colors = [c for c in "WUBRG" if c in ident[slug]]
         total = sum(pips[c] for c in colors) or 1
         alloc = {c: max(1, round(basics * pips[c] / total)) for c in colors}
@@ -187,7 +202,13 @@ def build(cards: dict[str, dict]) -> list[dict]:
             alloc[max(colors, key=lambda c: pips[c])] += 1
 
         def entry(name: str, zone: str, quantity: int = 1) -> dict:
-            return {"oracle_name": name, "quantity": quantity, "zone": zone, "physical_copy_ids": [], "notes": None}
+            return {
+                "oracle_name": name,
+                "quantity": quantity,
+                "zone": zone,
+                "physical_copy_ids": [],
+                "notes": None,
+            }
 
         entries = [entry(n, "commander") for n in names]
         entries += [entry(BASIC[c], "main", q) for c, q in alloc.items() if q > 0]
@@ -209,7 +230,9 @@ def build(cards: dict[str, dict]) -> list[dict]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--collection", type=Path, default=Path("data/collections/owner_collection_2026-10-12.txt"))
+    parser.add_argument(
+        "--collection", type=Path, default=Path("data/collections/owner_collection_2026-10-12.txt")
+    )
     parser.add_argument("--card-export", type=Path, required=True)
     parser.add_argument("--out", type=Path, default=Path("data/coverage_decks/collection"))
     args = parser.parse_args()

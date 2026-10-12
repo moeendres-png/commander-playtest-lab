@@ -29,7 +29,9 @@ def test_eighteen_singleton_decks_of_100_cards_from_the_collection():
         deck = json.loads(path.read_text(encoding="utf-8"))
         cards = _cards(deck)
         assert sum(cards.values()) == 100, path.name
-        assert [e["oracle_name"] for e in deck["cards"] if e["zone"] == "commander"] == deck["commander"]["commanders"]
+        assert [e["oracle_name"] for e in deck["cards"] if e["zone"] == "commander"] == deck[
+            "commander"
+        ]["commanders"]
         assert {n for n, q in cards.items() if q > 1} <= BASICS, path.name
         assert set(cards) <= owned, sorted(set(cards) - owned)
 
@@ -37,6 +39,8 @@ def test_eighteen_singleton_decks_of_100_cards_from_the_collection():
 def test_non_basic_cards_are_used_by_at_most_one_deck():
     seen: Counter = Counter()
     for path in DECKS:
-        seen.update(n for n in _cards(json.loads(path.read_text(encoding="utf-8"))) if n not in BASICS)
+        seen.update(
+            n for n in _cards(json.loads(path.read_text(encoding="utf-8"))) if n not in BASICS
+        )
     assert [n for n, count in seen.items() if count > 1] == []
     assert len(seen) == 1254
