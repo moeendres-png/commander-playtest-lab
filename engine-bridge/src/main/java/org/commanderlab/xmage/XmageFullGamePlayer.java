@@ -304,6 +304,47 @@ final class XmageFullGamePlayer extends PlayerImpl {
     }
 
     /*
+     * Performance (#731): getPlayable starts by computing this player's available mana in a
+     * playable-calculation copy of the game, and the decision frames needed the same value
+     * again right after it, which copied the whole game a second time per decision. The
+     * value computed inside getPlayable is captured and reused instead. The game state does
+     * not change in between, so the offered options are the same; only one copy is saved.
+     * Not copied with the player: a simulation copy computes its own mana.
+     */
+    private record PlayableWithMana(List<ActivatedAbility> playable, ManaOptions available) {
+    }
+
+    private transient boolean captureManaAvailable;
+    private transient ManaOptions capturedManaAvailable;
+
+    @Override
+    public ManaOptions getManaAvailable(Game game) {
+        boolean capture = captureManaAvailable;
+        captureManaAvailable = false;
+        ManaOptions available = super.getManaAvailable(game);
+        if (capture) {
+            capturedManaAvailable = available.copy();
+        }
+        return available;
+    }
+
+    private PlayableWithMana playableWithManaAvailable(Game game) {
+        captureManaAvailable = true;
+        capturedManaAvailable = null;
+        try {
+            List<ActivatedAbility> playable = new ArrayList<>(getPlayable(game, false, Zone.ALL, false));
+            // getPlayable returns early (without computing mana) in silent steps.
+            ManaOptions available = capturedManaAvailable != null
+                    ? capturedManaAvailable
+                    : getManaAvailable(game);
+            return new PlayableWithMana(playable, available);
+        } finally {
+            captureManaAvailable = false;
+            capturedManaAvailable = null;
+        }
+    }
+
+    /*
      * F-26: XMage records looked-at and revealed cards only until the next
      * client update (GameState.clearLookedAt/clearRevealed), so the external
      * pilot would never learn what a look or reveal showed. Capture the
@@ -574,8 +615,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // variant, which drops activated abilities of different permanents whose rule text
         // is equal (hash-keyed), so e.g. a second copy of a creature or one of two {U}
         // lands was never offered, and which one survived depended on hash order (F-30).
-        List<ActivatedAbility> playable = new ArrayList<>(getPlayable(game, false, Zone.ALL, false));
-        ManaOptions available = getManaAvailable(game);
+        PlayableWithMana offered = playableWithManaAvailable(game);
+        List<ActivatedAbility> playable = offered.playable();
+        ManaOptions available = offered.available();
         playable.removeIf(candidate -> !manaCostAffordable(candidate, available, game));
         playable.sort(Comparator.comparing((Ability candidate) -> abilitySortKey(candidate, game)));
         for (ActivatedAbility ability : playable) {
@@ -1455,14 +1497,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // per-object usable mana abilities of the player's permanents, as XMage's human
         // player uses while paying (getUseableManaAbilities: canActivate + canUse checks).
         Map<UUID, ActivatedAbility> usableManaAbilities = new LinkedHashMap<>();
-        getPlayable(game, false, Zone.ALL, false).stream()
+        PlayableWithMana offered = playableWithManaAvailable(game);
+        offered.playable().stream()
                 .filter(Ability::isManaAbility)
                 .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));
         for (Permanent permanent : game.getBattlefield().getAllActivePermanents(getId())) {
             getUseableManaAbilities(permanent, Zone.BATTLEFIELD, game).values()
                     .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));
         }
-        ManaOptions available = getManaAvailable(game);
+        ManaOptions available = offered.available();
         List<ActivatedAbility> manaAbilities = usableManaAbilities.values().stream()
                 .filter(manaAbility -> manaCostAffordable(manaAbility, available, game))
                 .filter(manaAbility -> !manaActivationInFlight(manaAbility))
