@@ -39,6 +39,7 @@ class XmageActualCardCorpusTest {
     private static final String ROGRAKH = "Rograkh, Son of Rohgahh";
     static final String MOUNTAIN_LABEL = "Mountain — {T}: Add {R}.";
     private static final String ISLAND_LABEL = "Island — {T}: Add {U}.";
+    private static final String PLAINS_LABEL = "Plains — {T}: Add {W}.";
     static final String SWAMP_LABEL = "Swamp — {T}: Add {B}.";
     private static final long SEED = 424242L;
     private static final String PATH_LABEL = "Path of Ancestry \u2014 {T}: Add one mana of any "
@@ -984,6 +985,92 @@ class XmageActualCardCorpusTest {
 
         assertEquals(40, life(started, "P1"), "the Bolt was redirected away from P1");
         assertEquals(37, life(started, "P2"), "the redirected Bolt hits P2");
+    }
+
+    /**
+     * #736: Bolt Bend changing the target of ANOTHER player's ability. Mistveil
+     * Plains targets "card from your graveyard" (its controller's, CR 109.5), so
+     * Bolt Bend's controller must be offered P2's graveyard, never their own. A
+     * bridge that offered the chooser's own graveyard made the engine reject
+     * every pick and ask again forever (real-deck 6P seed 4).
+     */
+    @Test
+    void boltBendOnAnotherPlayersGraveyardAbilityOffersThatGraveyard() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(battlefield("P1", "Shivan Dragon", 0));
+        objects.add(battlefield("P1", "Mountain", 0));
+        objects.add(hand("P1", "Bolt Bend", 0));
+        objects.add(object("gy", mage.constants.Zone.GRAVEYARD, "P1", "Iron Myr", 0));
+        objects.add(battlefield("P2", "Mistveil Plains", 0));
+        objects.add(battlefield("P2", "Plains", 0));
+        objects.add(battlefield("P2", "Silvercoat Lion", 0));
+        objects.add(battlefield("P2", "Silvercoat Lion", 1));
+        objects.add(object("gy", mage.constants.Zone.GRAVEYARD, "P2", "Grizzly Bears", 0));
+        Started started = start("issue736-bend", 2, objects);
+        // Mistveil Plains enters tapped (its own replacement effect ran during
+        // restoration); untap it as its controller's untap step would.
+        Permanent mistveil = permanent(started, "P2", "Mistveil Plains");
+        assertTrue(mistveil.isTapped(), "control: Mistveil Plains' enters-tapped effect applied");
+        mistveil.untap(started.session().restorationGame());
+
+        XmageExternalRiskSignalTest.passToActor(
+                started.session(), "issue736", started.seats(), "P2");
+        submit(started, "issue736-mistveil", mistveilActivation(started));
+        assertEquals(List.of("Grizzly Bears"), offeredTargetNames(started),
+                "control: P2's own ability offers P2's graveyard");
+        submit(started, "issue736-mistveil-target", spellTarget(started, "Grizzly Bears"));
+        payAllFromRestoredMana(started, "issue736-mistveil-pay", List.of("Plains"),
+                java.util.Set.of(PLAINS_LABEL));
+        XmageExternalRiskSignalTest.passToActor(
+                started.session(), "issue736-respond", started.seats(), "P1");
+        cast(started, "issue736-bend", "Bolt Bend");
+        List<String> stackTargets = offeredTargetNames(started);
+        assertEquals(1, stackTargets.size(), "Bolt Bend's only target is the Mistveil ability: "
+                + stackTargets);
+        submit(started, "issue736-bend-target", labelled(started, stackTargets.get(0)));
+        payAllFromRestoredMana(started, "issue736-bend-pay", List.of("Mountain"),
+                java.util.Set.of(MOUNTAIN_LABEL));
+        List<List<String>> newTargetOffers = new ArrayList<>();
+        resolveAll(started, "issue736", null, (cls, step) -> {
+            if ("target".equals(cls) && "P1".equals(actorPid(started))) {
+                List<String> offered = offeredTargetNames(started);
+                newTargetOffers.add(offered);
+                assertEquals(List.of("Grizzly Bears"), offered,
+                        "the new target for P2's ability comes from P2's graveyard, "
+                                + "never the chooser's (Iron Myr)");
+                submit(started, "issue736-new-target-" + step, spellTarget(started, "Grizzly Bears"));
+                return true;
+            }
+            if ("choose_use".equals(cls)) {
+                submit(started, "issue736-use-" + step, booleanOption(started, true));
+                return true;
+            }
+            return false;
+        });
+
+        assertEquals(1, newTargetOffers.size(), "one new-target choice, no loop: " + newTargetOffers);
+        assertEquals(0, inGraveyard(started, "P2", "Grizzly Bears"),
+                "Mistveil Plains resolved on its original target");
+        assertEquals(1, inGraveyard(started, "P1", "Iron Myr"), "the chooser's card was never moved");
+        assertEquals(1, inGraveyard(started, "P1", "Bolt Bend"));
+    }
+
+    private static JsonObject mistveilActivation(Started started) {
+        JsonObject match = null;
+        for (JsonElement element : started.session().legalActionsPayload().getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            JsonObject meta = action.getAsJsonObject("metadata").getAsJsonObject("xmage_option_metadata");
+            if ("activate_ability".equals(action.get("action_type").getAsString())
+                    && meta != null && meta.has("source_name")
+                    && "Mistveil Plains".equals(meta.get("source_name").getAsString())
+                    && action.getAsJsonObject("metadata").get("label").getAsString().contains("graveyard")) {
+                assertTrue(match == null, "unique Mistveil Plains activation expected");
+                match = action;
+            }
+        }
+        assertNotNull(match, "Mistveil Plains' ability must be engine-offered: "
+                + started.session().legalActionsPayload().getAsJsonArray("actions"));
+        return match;
     }
 
     /** CARD_15 Finale of Revelation with X = 2: draw two, then exile Finale. */

@@ -1603,9 +1603,13 @@ final class XmageFullGamePlayer extends PlayerImpl {
     }
 
     private boolean modeTargetsChoosable(Targets targets, Ability source, Game game) {
+        // As HumanPlayer's mode filter: the ability's controller decides whether
+        // a mode's targets can be chosen, also when an opponent picks the mode
+        // (CR 700.2d).
+        UUID controllerId = source != null && source.getControllerId() != null
+                ? source.getControllerId() : getId();
         for (Target target : targets) {
-            if (target.getMinNumberOfTargets() > 0
-                    && !target.canChoose(target.getAffectedAbilityControllerId(getId()), source, game)) {
+            if (target.getMinNumberOfTargets() > 0 && !target.canChoose(controllerId, source, game)) {
                 return false;
             }
         }
