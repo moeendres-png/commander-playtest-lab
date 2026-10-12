@@ -448,3 +448,19 @@ def test_attacks_focus_the_weakest_opponent_that_is_still_in_the_game() -> None:
     ]
     response = _policy().decide(_request("declare_attacker", options, state))
     assert response["selected_option_ids"] == ["attack-2"]
+
+
+def test_pilot_spends_its_mana_on_the_bigger_spell_in_its_main_phase() -> None:
+    from commander_lab.engine.rules.full_game_pilot_views import _curve_bonus
+
+    state = _state(
+        actor_board=[_card(f"plains-{i}", "Island") for i in range(3)],
+        hand=["Iron Myr", "Tor Wauki the Younger"],
+    )
+    myr = _cast("small", "Iron Myr", generic=2)
+    tor = _cast("big", "Tor Wauki the Younger", generic=3, black=1, red=1)
+    response = _policy().decide(_request("priority", [_PASS, myr, tor], state))
+    assert response["selected_option_ids"] == ["big"]
+    assert _curve_bonus(5.0, state) > _curve_bonus(2.0, state) > 0.0
+    off_turn = {**state, "active_player_id": "opponent-1"}
+    assert _curve_bonus(5.0, off_turn) == 0.0

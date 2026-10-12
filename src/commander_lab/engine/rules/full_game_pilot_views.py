@@ -169,6 +169,43 @@ def _opponent_has(state: Mapping[str, Any], actor_id: str, predicate: Any) -> bo
     )
 
 
+def untapped_mana_estimate(state: Mapping[str, Any]) -> float:
+    """Mana the actor can still make this turn: floating mana plus untapped lands."""
+    actor_id = str(state.get("actor_id", ""))
+    actor = next((p for p in players(state) if str(p.get("player_id")) == actor_id), None)
+    if actor is None:
+        return 0.0
+    pool = actor.get("mana_pool")
+    floating = (
+        sum(float(v) for v in pool.values() if isinstance(v, int | float))
+        if isinstance(pool, dict)
+        else 0.0
+    )
+    lands = sum(
+        1
+        for item in _items(actor.get("battlefield"))
+        if is_land_entry(item) and item.get("tapped") is not True
+    )
+    return max(0.0, floating) + lands
+
+
+def _curve_bonus(cost: float, state: Mapping[str, Any]) -> float:
+    """Reward spending this turn's mana in the actor's own main phase.
+
+    The pilot's mana efficiency (value per mana) on its own prefers the
+    one-drop over the five-drop with five lands open and leaves mana unused.
+    A spell that uses more of the mana available now gets up to +1.0 impact.
+    """
+    if str(state.get("active_player_id", "")) != str(state.get("actor_id", "")):
+        return 0.0
+    if "main" not in str(state.get("phase", "")).casefold():
+        return 0.0
+    available = untapped_mana_estimate(state)
+    if cost <= 0.0 or available <= 0.0:
+        return 0.0
+    return 1.0 * min(cost, available) / available
+
+
 def priority_view_fields(
     option: Mapping[str, Any],
     state: Mapping[str, Any],
@@ -226,6 +263,10 @@ def priority_view_fields(
                 fields["floor_value"] = min(3.0, max(0.0, float(floor)))
             if isinstance(curated_impact, int | float):
                 fields["immediate_impact"] = min(2.0, max(0.0, float(curated_impact)))
+        curve = _curve_bonus(float(fields["mana_cost"]), state)
+        if curve > 0.0:
+            fields["immediate_impact"] = min(2.0, float(fields["immediate_impact"]) + curve)
+            extra["curve_bonus"] = round(curve, 3)
         withhold = _spell_withhold_reason(facts, roles, state, actor_id, own_stack_names)
         if CardRole.WIPE in roles:
             own = next((p for p in players(state) if str(p.get("player_id")) == actor_id), {})
@@ -580,4 +621,5 @@ __all__ = [
     "permanent_owner",
     "priority_view_fields",
     "target_object_bonus",
+    "untapped_mana_estimate",
 ]
