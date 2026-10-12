@@ -19,6 +19,7 @@ import argparse
 import json
 import math
 import sys
+from concurrent.futures import ProcessPoolExecutor
 from dataclasses import replace
 from functools import partial
 from pathlib import Path
@@ -64,6 +65,21 @@ def _legacy_profiles(context: WholeDeckSearchContext) -> dict[str, StructuralDec
     return profiles
 
 
+_POOL: list[ProcessPoolExecutor | None] = [None]
+
+
+def _replay(
+    job: tuple[XmagePod, dict[str, StructuralDeckProfile], int, StructuralTuning],
+) -> tuple[list[float], float, float]:
+    pod, profiles, seeds, tuning = job
+    return structural_win_probabilities(
+        pod,
+        profiles,
+        seeds=range(1, seeds + 1),
+        simulator_factory=partial(StructuralSimulator, tuning=tuning),
+    )
+
+
 def _evaluate(
     pods: list[XmagePod],
     profiles: dict[str, StructuralDeckProfile],
@@ -74,14 +90,13 @@ def _evaluate(
     probabilities: list[list[float]] = []
     turns: list[float] = []
     aborts: list[float] = []
-    factory = partial(StructuralSimulator, tuning=tuning)
-    for pod in usable:
-        row, abort_rate, mean_turns = structural_win_probabilities(
-            pod,
-            profiles,
-            seeds=range(1, seeds + 1),
-            simulator_factory=factory,
-        )
+    pool = _POOL[0]
+    jobs = [
+        (pod, {deck_id: profiles[deck_id] for deck_id in pod.deck_ids}, seeds, tuning)
+        for pod in usable
+    ]
+    results = pool.map(_replay, jobs, chunksize=4) if pool is not None else map(_replay, jobs)
+    for row, abort_rate, mean_turns in results:
         probabilities.append(row)
         turns.append(mean_turns)
         aborts.append(abort_rate)
@@ -174,7 +189,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--fit-seeds", type=int, default=12)
     parser.add_argument("--fit-rounds", type=int, default=2)
+    parser.add_argument("--workers", type=int, default=1)
     args = parser.parse_args(argv)
+    if args.workers > 1:
+        _POOL[0] = ProcessPoolExecutor(max_workers=args.workers)
 
     facts = load_card_facts(ROOT)
     if facts is None:
