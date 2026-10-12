@@ -68,3 +68,34 @@ def test_tactical_conditional_inputs_are_still_consulted() -> None:
     assert farewell["creatures_exiled"] == 0 and farewell["graveyards_exiled"] == 9
     with pytest.raises(TacticalRuleError, match="unknown Farewell modes"):
         oracle.evaluate("farewell", {"modes": ["lands"]})
+
+
+def test_short_circuited_inputs_are_modelled_on_every_branch(repo_root) -> None:
+    # A key the primitive reads only on some branches is still modelled: turning
+    # any boolean flag of a catalog case to False must never make another key
+    # "unmodelled" (silence_restriction with silence_resolved=False used to).
+    oracle = TacticalRuleOracle()
+    cases = load_interaction_catalog(repo_root / "data/rules/project_critical_interactions.json")
+    for case in cases:
+        for key, value in case.input_state.items():
+            if not isinstance(value, bool):
+                continue
+            for flipped in (False, True):
+                try:
+                    oracle.evaluate(case.rule, {**case.input_state, key: flipped})
+                except TacticalRuleError as exc:
+                    assert "not modelled" not in str(exc), (case.interaction_id, key, exc)
+    assert oracle.evaluate("silence_restriction", {"silence_resolved": False, "same_turn": True})
+
+
+@pytest.mark.parametrize(
+    ("rule", "payload"),
+    [
+        ("soul_guide_lantern", {"mode": "etb", "target_available": "false"}),
+        ("titania", {"land_in_graveyard": "no"}),
+        ("fire_covenant", {"damage_assignments": [3], "toughnesses": [2], "indestructible": [1]}),
+    ],
+)
+def test_every_branch_flag_read_must_be_a_boolean(rule: str, payload: dict[str, object]) -> None:
+    with pytest.raises(TacticalRuleError, match="must be a boolean"):
+        TacticalRuleOracle().evaluate(rule, payload)

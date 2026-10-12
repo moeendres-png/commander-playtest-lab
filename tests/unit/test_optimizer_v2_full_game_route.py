@@ -15,9 +15,11 @@ from commander_lab.engine.rules.full_game_batch import FullGameBatchReport
 from commander_lab.engine.rules.full_game_comparison import aggregate_comparison
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
+from commander_lab.storage import sha256_value
 from commander_lab.whole_deck.optimizer_v2_full_game import (
     FullGameRouteError,
     build_route_spec,
+    played_deck_hash,
     route_report,
     select_route_hypotheses,
 )
@@ -58,7 +60,8 @@ def _artifacts(control: RulesDeckInput) -> tuple[dict[str, Any], dict[str, Any]]
         _row(control, last, "Toxic Deluge", "b"),
         _row(control, first, "Swords to Plowshares", "c"),
     ]
-    ledger = {"ledger_hash": _hash("ledger"), "control_deck_hash": _hash("ctl"), "rows": rows}
+    content = {"control_deck_hash": _hash("ctl"), "rows": rows}
+    ledger = {**content, "ledger_hash": sha256_value(content)}
     queues = {
         "candidate_ledger_hash": ledger["ledger_hash"],
         "TOP_TACTICAL_REQUIRED_HYPOTHESES": [
@@ -88,6 +91,11 @@ def _artifacts(control: RulesDeckInput) -> tuple[dict[str, Any], dict[str, Any]]
         ],
     }
     return ledger, queues
+
+
+def _rehash(ledger: dict[str, Any]) -> dict[str, Any]:
+    content = {key: value for key, value in ledger.items() if key != "ledger_hash"}
+    return {**content, "ledger_hash": sha256_value(content)}
 
 
 def _opponents() -> tuple[RulesDeckInput, ...]:
@@ -122,13 +130,17 @@ def test_route_fails_closed_on_mismatched_artifacts() -> None:
     ledger, queues = _artifacts(control)
     with pytest.raises(FullGameRouteError, match="not built from this candidate ledger"):
         select_route_hypotheses({**queues, "candidate_ledger_hash": _hash("x")}, ledger, control)
-    missing = {**ledger, "rows": ledger["rows"][:1]}
+    missing = _rehash({**ledger, "rows": ledger["rows"][:1]})
     with pytest.raises(FullGameRouteError, match="no candidate ledger row"):
-        select_route_hypotheses(queues, missing, control)
+        select_route_hypotheses(
+            {**queues, "candidate_ledger_hash": missing["ledger_hash"]}, missing, control
+        )
     broken_row = {**ledger["rows"][1], "added_cards": ["Sol Ring"]}
-    broken = {**ledger, "rows": [ledger["rows"][0], broken_row, ledger["rows"][2]]}
+    broken = _rehash({**ledger, "rows": [ledger["rows"][0], broken_row, ledger["rows"][2]]})
     with pytest.raises(FullGameRouteError, match="does not reconstruct"):
-        select_route_hypotheses(queues, broken, control)
+        select_route_hypotheses(
+            {**queues, "candidate_ledger_hash": broken["ledger_hash"]}, broken, control
+        )
     with pytest.raises(FullGameRouteError, match="unknown hypothesis queues"):
         select_route_hypotheses(queues, ledger, control, groups=("TOP_EVERYTHING",))
 
@@ -192,3 +204,56 @@ def test_cli_plan_only_from_an_optimizer_run(
     out = capsys.readouterr().out
     assert "2 hypotheses" in out and "36 games" in out
     assert "+Toxic Deluge" in out
+
+
+def test_edited_ledger_no_longer_matches_its_hash() -> None:
+    control = _control()
+    ledger, queues = _artifacts(control)
+    tampered = [dict(row) for row in ledger["rows"]]
+    tampered[0]["blocked_cards"] = []
+    with pytest.raises(FullGameRouteError, match="its own ledger_hash"):
+        select_route_hypotheses(queues, {**ledger, "rows": tampered}, control)
+
+
+def test_games_are_bound_to_the_list_actually_played() -> None:
+    control = _control()
+    ledger, queues = _artifacts(control)
+    hypotheses = select_route_hypotheses(queues, ledger, control)
+    for hypothesis in hypotheses:
+        assert hypothesis.deck.deck_hash == hypothesis.played_deck_hash
+        assert hypothesis.played_deck_hash == played_deck_hash(
+            control.commander_names, hypothesis.deck.mainboard
+        )
+        assert hypothesis.played_deck_hash != hypothesis.deck_hash
+    spec = build_route_spec(control, hypotheses, _opponents(), seeds=(1,), xmage_commit=COMMIT)
+    played = spec.contenders[0]
+    assert played.card_printings == () and played.sideboard == ()
+    assert played.deck_hash == played_deck_hash(control.commander_names, control.mainboard)
+
+
+@pytest.mark.parametrize(
+    ("change", "message"),
+    [
+        ({"commander_names": []}, "control's commanders"),
+        ({"commander_names": ["Someone Else"]}, "control's commanders"),
+    ],
+)
+def test_row_must_name_the_control_commanders(change: dict[str, Any], message: str) -> None:
+    from commander_lab.whole_deck.optimizer_v2_full_game import variant_deck
+
+    control = _control()
+    ledger, _queues = _artifacts(control)
+    with pytest.raises(FullGameRouteError, match=message):
+        variant_deck(control, {**ledger["rows"][0], **change})
+
+
+def test_row_that_is_not_a_commander_deck_fails_closed() -> None:
+    from commander_lab.whole_deck.optimizer_v2_full_game import variant_deck
+
+    control = _control()
+    ledger, _queues = _artifacts(control)
+    row = dict(ledger["rows"][0])
+    row["exact_mainboard"] = [*row["exact_mainboard"], "Island"]
+    row["added_cards"] = [*row["added_cards"], "Island"]
+    with pytest.raises(FullGameRouteError, match="legal deck input"):
+        variant_deck(control, row)

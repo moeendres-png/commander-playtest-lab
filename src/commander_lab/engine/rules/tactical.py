@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import ast
+import functools
 import hashlib
+import inspect
 import random
+import textwrap
 import uuid
 from collections.abc import Callable
 from typing import Any
@@ -76,6 +80,55 @@ class _TrackedInput(dict[str, Any]):
         if isinstance(key, str):
             self.consulted.add(key)
         return super().__contains__(key)
+
+
+@functools.cache
+def _modelled_input_keys(handler: Callable[..., Any]) -> frozenset[str]:
+    """Input keys a primitive reads on any branch, from its own source.
+
+    Which keys a call consults depends on the values (``a and s.get("b")``
+    never reads ``b`` when ``a`` is False), so the runtime record alone would
+    reject valid inputs on short-circuited branches. Every primitive reads its
+    input as ``s``; literal ``s["k"]``, ``s.get("k")`` and ``"k" in s`` are the
+    keys it models. Without source the runtime record is used alone, which
+    can only reject more, never accept more.
+    """
+    try:
+        tree = ast.parse(textwrap.dedent(inspect.getsource(handler)))
+    except (OSError, TypeError, SyntaxError):
+        return frozenset()
+
+    def is_input(node: ast.AST) -> bool:
+        return isinstance(node, ast.Name) and node.id == "s"
+
+    def literal(node: ast.AST) -> str | None:
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            return node.value
+        return None
+
+    keys: set[str] = set()
+    for node in ast.walk(tree):
+        key: str | None = None
+        if isinstance(node, ast.Subscript) and is_input(node.value):
+            key = literal(node.slice)
+        elif (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "get"
+            and is_input(node.func.value)
+            and node.args
+        ):
+            key = literal(node.args[0])
+        elif (
+            isinstance(node, ast.Compare)
+            and len(node.ops) == 1
+            and isinstance(node.ops[0], ast.In | ast.NotIn)
+            and is_input(node.comparators[0])
+        ):
+            key = literal(node.left)
+        if key is not None:
+            keys.add(key)
+    return frozenset(keys)
 
 
 def _commander_damage_result(damage: dict[str, int]) -> dict[str, Any]:
@@ -182,7 +235,7 @@ class TacticalRuleOracle:
             observed = handler(tracked)
         except (TypeError, ValueError, AttributeError) as exc:
             raise TacticalRuleError(f"malformed tactical input for {rule}: {exc}") from exc
-        unused = sorted(set(tracked) - tracked.consulted)
+        unused = sorted(set(tracked) - tracked.consulted - _modelled_input_keys(handler))
         if unused:
             raise TacticalRuleError(
                 f"tactical input keys not modelled by {rule}: {', '.join(unused)}"
@@ -272,7 +325,7 @@ class TacticalRuleOracle:
     def _combat_damage(s: dict[str, Any]) -> dict[str, Any]:
         power = int(s["power"])
         multiplier = int(s.get("multiplier", 1))
-        strikes = 2 if s.get("double_strike") else 1
+        strikes = 2 if _bool(s.get("double_strike")) else 1
         damage = power * multiplier * strikes
         is_commander = _bool(s.get("is_commander"))
         return {
@@ -360,9 +413,9 @@ class TacticalRuleOracle:
         own = int(s["own_creatures"])
         opponent = int(s["opponent_creatures"])
         return {
-            "own_creatures_survive": own if s.get("boros_charm_resolved") else 0,
+            "own_creatures_survive": own if _bool(s.get("boros_charm_resolved")) else 0,
             "opponent_creatures_survive": 0,
-            "creatures_destroyed": opponent + (0 if s.get("boros_charm_resolved") else own),
+            "creatures_destroyed": opponent + (0 if _bool(s.get("boros_charm_resolved")) else own),
         }
 
     @staticmethod
@@ -381,7 +434,7 @@ class TacticalRuleOracle:
     def _fire_covenant(s: dict[str, Any]) -> dict[str, Any]:
         assignments = [int(v) for v in s["damage_assignments"]]
         toughnesses = [int(v) for v in s["toughnesses"]]
-        indestructible = [bool(v) for v in s.get("indestructible", [False] * len(toughnesses))]
+        indestructible = [_bool(v) for v in s.get("indestructible", [False] * len(toughnesses))]
         dead = sum(
             1
             for damage, toughness, protected in zip(
@@ -446,7 +499,7 @@ class TacticalRuleOracle:
             "legal": not fused or cast_from_hand,
             "artifact_destroyed": _bool(s.get("artifact_target")),
             "enchantment_destroyed": _bool(s.get("enchantment_target"))
-            and (fused or not s.get("artifact_target")),
+            and (fused or not _bool(s.get("artifact_target"))),
             "spells_cast": 1,
         }
 
@@ -521,14 +574,14 @@ class TacticalRuleOracle:
     def _idol_of_oblivion(s: dict[str, Any]) -> dict[str, Any]:
         return {
             "can_activate_draw": _bool(s.get("created_token_this_turn")),
-            "cards_drawn": 1 if s.get("created_token_this_turn") else 0,
+            "cards_drawn": 1 if _bool(s.get("created_token_this_turn")) else 0,
         }
 
     @staticmethod
     def _titania(s: dict[str, Any]) -> dict[str, Any]:
         lands_died = int(s.get("lands_from_battlefield_to_graveyard", 0))
         return {
-            "land_returned": 1 if s.get("land_in_graveyard") else 0,
+            "land_returned": 1 if _bool(s.get("land_in_graveyard")) else 0,
             "elementals_created": lands_died,
             "elemental_power": 5,
             "elemental_toughness": 3,
@@ -633,7 +686,9 @@ class TacticalRuleOracle:
     def _soul_guide_lantern(s: dict[str, Any]) -> dict[str, Any]:
         mode = str(s["mode"])
         return {
-            "single_card_exiled": 1 if mode == "etb" and s.get("target_available", True) else 0,
+            "single_card_exiled": 1
+            if mode == "etb" and _bool(s.get("target_available", True))
+            else 0,
             "opponent_graveyards_exiled": int(s.get("opponent_graveyard_cards", 0))
             if mode == "mass_exile"
             else 0,
@@ -729,7 +784,7 @@ class TacticalRuleOracle:
 
     @staticmethod
     def _lofty_denial(s: dict[str, Any]) -> dict[str, Any]:
-        tax = 4 if s.get("control_flying_creature") else 1
+        tax = 4 if _bool(s.get("control_flying_creature")) else 1
         paid = int(s.get("mana_paid", 0)) >= tax
         return {"tax": tax, "spell_countered": not paid}
 

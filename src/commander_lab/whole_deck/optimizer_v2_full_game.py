@@ -15,7 +15,9 @@ not consume holdout data and never mutates a deck.
 
 Every input is checked before a game is planned: a hypothesis without a ledger
 row, a ledger row whose exact list does not reconstruct from the control deck
-plus its diff, or a deck that is not 100 cards fails closed.
+plus its diff, or a deck that is not 100 cards fails closed. The ledger hash
+is recomputed, and every game is bound to the hash of the list actually
+played (``played_deck_hash``), not to the optimizer's label for it.
 """
 
 from __future__ import annotations
@@ -32,6 +34,7 @@ from commander_lab.engine.rules.full_game_comparison import (
     PairedVariantResult,
 )
 from commander_lab.models import RulesDeckInput
+from commander_lab.storage import sha256_value
 
 FULL_GAME_ROUTE_SCHEMA_VERSION: Literal["optimizer-v2-full-game-route-1.0.0"] = (
     "optimizer-v2-full-game-route-1.0.0"
@@ -56,6 +59,7 @@ class _StrictModel(BaseModel):
 
 class RouteHypothesis(_StrictModel):
     deck_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    played_deck_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     queue: str
     required_next_evidence_layer: str
     hypothesis_priority: float
@@ -67,6 +71,7 @@ class RouteHypothesis(_StrictModel):
 
 class RoutedHypothesisResult(_StrictModel):
     deck_hash: str
+    played_deck_hash: str
     deck_id: str
     queue: str
     required_next_evidence_layer: str
@@ -88,6 +93,7 @@ class FullGameRouteReport(_StrictModel):
     candidate_ledger_hash: str | None
     control_deck_id: str
     control_deck_hash: str
+    control_played_deck_hash: str
     queues: tuple[str, ...]
     hypotheses: tuple[RoutedHypothesisResult, ...]
     comparison: DeckComparisonReport
@@ -110,6 +116,29 @@ def _strings(value: object) -> tuple[str, ...]:
     return tuple(str(item) for item in value)
 
 
+def played_deck_hash(commander_names: Sequence[str], mainboard: Sequence[str]) -> str:
+    """Content hash of a list as it is played: commanders and mainboard multiset."""
+    return sha256_value(
+        {"commander_names": sorted(commander_names), "mainboard": sorted(mainboard)}
+    )
+
+
+def played_control(control: RulesDeckInput) -> RulesDeckInput:
+    """The control as the route plays it: same content, bound by content hash.
+
+    Variants are rebuilt from names alone, so the control is played without
+    printings or sideboard too; otherwise the pair would differ in more than
+    the optimizer's swap.
+    """
+    return control.model_copy(
+        update={
+            "card_printings": (),
+            "sideboard": (),
+            "deck_hash": played_deck_hash(control.commander_names, control.mainboard),
+        }
+    )
+
+
 def variant_deck(control: RulesDeckInput, row: Mapping[str, Any]) -> RulesDeckInput:
     """The candidate deck of one ledger row, checked against the control deck."""
     deck_hash = str(row.get("deck_hash", ""))
@@ -117,8 +146,8 @@ def variant_deck(control: RulesDeckInput, row: Mapping[str, Any]) -> RulesDeckIn
     commanders = _strings(row.get("commander_names"))
     if not mainboard:
         raise FullGameRouteError(f"ledger row has no exact mainboard: {deck_hash}")
-    if commanders and tuple(commanders) != tuple(control.commander_names):
-        raise FullGameRouteError(f"ledger row changes the commanders: {deck_hash}")
+    if tuple(commanders) != tuple(control.commander_names):
+        raise FullGameRouteError(f"ledger row does not name the control's commanders: {deck_hash}")
     reconstructed = Counter(control.mainboard)
     reconstructed.subtract(Counter(_strings(row.get("removed_cards"))))
     reconstructed.update(_strings(row.get("added_cards")))
@@ -133,7 +162,7 @@ def variant_deck(control: RulesDeckInput, row: Mapping[str, Any]) -> RulesDeckIn
             name=f"{control.name} (optimizer hypothesis {deck_hash[:12]})",
             commander_names=control.commander_names,
             mainboard=mainboard,
-            deck_hash=deck_hash,
+            deck_hash=played_deck_hash(control.commander_names, mainboard),
         )
     except ValueError as exc:
         raise FullGameRouteError(f"ledger row is not a legal deck input: {exc}") from exc
@@ -157,6 +186,9 @@ def select_route_hypotheses(
     queue_ledger = queues.get("candidate_ledger_hash")
     if ledger_hash is None or queue_ledger != ledger_hash:
         raise FullGameRouteError("hypothesis queues were not built from this candidate ledger")
+    content = {key: value for key, value in ledger.items() if key != "ledger_hash"}
+    if sha256_value(content) != ledger_hash:
+        raise FullGameRouteError("candidate ledger does not match its own ledger_hash")
     rows_raw = ledger.get("rows")
     rows = {
         str(row.get("deck_hash")): row
@@ -185,16 +217,20 @@ def select_route_hypotheses(
         if row is None:
             raise FullGameRouteError(f"hypothesis has no candidate ledger row: {deck_hash}")
         seen.add(deck_hash)
+        deck = variant_deck(control, row)
+        if deck.deck_hash is None:  # pragma: no cover - variant_deck always sets it
+            raise FullGameRouteError(f"hypothesis deck has no content hash: {deck_hash}")
         selected.append(
             RouteHypothesis(
                 deck_hash=deck_hash,
+                played_deck_hash=deck.deck_hash,
                 queue=group,
                 required_next_evidence_layer=str(entry.get("required_next_evidence_layer", "")),
                 hypothesis_priority=priority,
                 removed_cards=_strings(row.get("removed_cards")),
                 added_cards=_strings(row.get("added_cards")),
                 blocked_cards=_strings(row.get("blocked_cards")),
-                deck=variant_deck(control, row),
+                deck=deck,
             )
         )
         if len(selected) == limit:
@@ -216,7 +252,7 @@ def build_route_spec(
         raise FullGameRouteError("no routed hypotheses to evaluate")
     return DeckComparisonSpec(
         comparison_id=comparison_id or f"optimizer-v2-full-game-route:{control.deck_id}",
-        contenders=(control, *(hypothesis.deck for hypothesis in hypotheses)),
+        contenders=(played_control(control), *(hypothesis.deck for hypothesis in hypotheses)),
         opponents=tuple(opponents),
         seeds=tuple(seeds),
         rotate_seats=rotate_seats,
@@ -243,6 +279,7 @@ def route_report(
         results.append(
             RoutedHypothesisResult(
                 deck_hash=hypothesis.deck_hash,
+                played_deck_hash=hypothesis.played_deck_hash,
                 deck_id=hypothesis.deck.deck_id,
                 queue=hypothesis.queue,
                 required_next_evidence_layer=hypothesis.required_next_evidence_layer,
@@ -264,6 +301,7 @@ def route_report(
         candidate_ledger_hash=candidate_ledger_hash,
         control_deck_id=control.deck_id,
         control_deck_hash=control.deck_hash,
+        control_played_deck_hash=played_deck_hash(control.commander_names, control.mainboard),
         queues=tuple(queues),
         hypotheses=tuple(results),
         comparison=comparison,
@@ -279,6 +317,8 @@ __all__ = [
     "RouteHypothesis",
     "RoutedHypothesisResult",
     "build_route_spec",
+    "played_control",
+    "played_deck_hash",
     "route_report",
     "select_route_hypotheses",
     "variant_deck",
