@@ -1,0 +1,67 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_24",
+  "obligation_exercised": {
+    "obligation_digest": "b927ab440a08c427980ff248da031c596cc4980257b339fa0d8a4814090d6411",
+    "requested_state_digest": "8c152e36bc3e315cd1efa09d70c88286ccbba942e2f905541a3cb999a555b408",
+    "required_events": [
+      "creature_enters",
+      "Warstorm_trigger",
+      "entering_creature_damage:P2:2"
+    ],
+    "terminal_checks": [
+      "P2 is at 18 life"
+    ],
+    "terminal_postconditions": [
+      "P2 is at 18 life after trigger resolves."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "8dd63f0b1bb8a63affe137aa13cfee8a2f3c1eadbe8a7e82fabda289f88a3105",
+      "size": 7107757
+    },
+    "postcondition_proofs": [
+      {
+        "check": "P2 is at 18 life",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P2 is at 18 life after trigger resolves."
+      }
+    ],
+    "terminal_facts": {
+      "P2 is at 18 life": true
+    },
+    "token_evidence": {
+      "Warstorm_trigger": {
+        "events": [
+          10
+        ]
+      },
+      "creature_enters": {
+        "events": [
+          9
+        ]
+      },
+      "entering_creature_damage:P2:2": {
+        "events": [
+          12
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "14e8d08ad8f8d705622a90b498d5b93f998e766df2d7f2a2e5cfe977d1e8e2b8",
+  "runner_digest": "4f890c46ceefed99ad540051ff4612ccf7956eb0b60ac4fcf1fb18dd11213c22",
+  "runtime_receipt_digest": "40a5e5a8cdea921fa2ef9dfd5aebddff428ca4aa3e9f5703e0a0b354fcae9f9c",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_24"
+}
