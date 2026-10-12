@@ -1466,6 +1466,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         List<ActivatedAbility> manaAbilities = usableManaAbilities.values().stream()
                 .filter(manaAbility -> manaCostAffordable(manaAbility, available, game))
                 .filter(manaAbility -> !manaActivationInFlight(manaAbility))
+                .filter(manaAbility -> !needsSourceTapStillOwed(manaAbility, ability))
                 .sorted(Comparator.comparing((Ability candidate) -> abilitySortKey(candidate, game)))
                 .toList();
 
@@ -1602,6 +1603,45 @@ final class XmageFullGamePlayer extends PlayerImpl {
      */
     boolean manaActivationInFlight(Ability manaAbility) {
         return manaAbility != null && manaPaymentsInFlight.contains(activationKey(manaAbility));
+    }
+
+    /**
+     * #756: true when {@code manaAbility} would tap (or untap) the very
+     * permanent whose ability is being paid, while that ability still owes
+     * the same {T} (or {Q}) cost.
+     *
+     * <p>The pinned engine pays an activated ability's mana cost before its
+     * other costs. Tapping the source for mana first leaves its {T} cost
+     * unpayable: the activation fails and the game aborted with
+     * XMAGE_ACTION_EXECUTION_FAILED / "priority activation failed" (Grim
+     * Backwoods, Arcane Lighthouse, Desolate Lighthouse and others in the
+     * per-card smoke test). Read from the engine's own cost objects: an unpaid
+     * {@code TapSourceCost} / {@code UntapSourceCost} on the paying ability,
+     * the same kind of cost on the mana ability, and the same source object.
+     * The option can never complete this payment, so leaving it out removes
+     * no line of play.
+     */
+    static boolean needsSourceTapStillOwed(Ability manaAbility, Ability paying) {
+        if (manaAbility == null || paying == null || paying.getSourceId() == null
+                || !paying.getSourceId().equals(manaAbility.getSourceId())) {
+            return false;
+        }
+        return (owesUnpaid(paying, mage.abilities.costs.common.TapSourceCost.class)
+                        && owesUnpaid(manaAbility, mage.abilities.costs.common.TapSourceCost.class))
+                || (owesUnpaid(paying, mage.abilities.costs.common.UntapSourceCost.class)
+                        && owesUnpaid(manaAbility, mage.abilities.costs.common.UntapSourceCost.class));
+    }
+
+    private static boolean owesUnpaid(Ability ability, Class<? extends Cost> kind) {
+        if (ability.getCosts() == null) {
+            return false;
+        }
+        for (Cost cost : ability.getCosts()) {
+            if (kind.isInstance(cost) && !cost.isPaid()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     static String activationKey(Ability ability) {
