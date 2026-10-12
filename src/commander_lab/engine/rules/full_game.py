@@ -9,6 +9,7 @@ import queue
 import random
 import re
 import shlex
+import shutil
 import subprocess
 import threading
 import uuid
@@ -796,6 +797,12 @@ class _RuntimePilot:
     pilot: BasePilot
 
 
+# #739: parallel bridge JVMs run in private directories below the engine
+# working directory, each with a copy of XMage's card repository.
+PRIVATE_ENGINE_DIRECTORY = "private"
+XMAGE_CARD_REPOSITORY_FILE = "cards.h2.mv.db"
+
+
 class _RawFullGameClient:
     """One-process client for the dedicated XMage full-game lane."""
 
@@ -805,6 +812,7 @@ class _RawFullGameClient:
         *,
         cwd: str | Path | None = None,
         request_timeout_seconds: float = 120.0,
+        private_card_repository: bool = False,
     ) -> None:
         if not command:
             raise ValueError("full-game bridge command must not be empty")
@@ -821,6 +829,8 @@ class _RawFullGameClient:
         self._stdout_thread: threading.Thread | None = None
         self._stderr_thread: threading.Thread | None = None
         self.shutdown_disposition: str | None = None
+        self.private_card_repository = private_card_repository
+        self._private_directory: Path | None = None
 
     @property
     def stderr_tail(self) -> tuple[str, ...]:
@@ -844,9 +854,10 @@ class _RawFullGameClient:
                 code="BRIDGE_EXITED",
             )
         try:
+            process_cwd = self._prepare_private_directory() or self.cwd
             self._process = subprocess.Popen(
                 self.command,
-                cwd=self.cwd,
+                cwd=process_cwd,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -933,7 +944,58 @@ class _RawFullGameClient:
             )
         return response.payload
 
+    def _prepare_private_directory(self) -> str | None:
+        """#739: a working directory of its own for this bridge JVM.
+
+        XMage keeps its card repository at ``./db/cards.h2`` relative to the
+        process working directory and opens it with ``AUTO_SERVER``. JVMs that
+        start at the same moment in one directory collide while scanning it
+        (``XMAGE_CARD_REPOSITORY_INIT_FAILED``, a null ``expansionDao``), so a
+        parallel game runs in its own directory with a copy of the shared,
+        already-built repository. With no shared repository yet the JVM builds
+        a private one, which :meth:`_release_private_directory` may promote.
+        """
+        if not self.private_card_repository:
+            return None
+        shared = Path(self.cwd or ".")
+        private = shared / PRIVATE_ENGINE_DIRECTORY / uuid.uuid4().hex
+        private.mkdir(parents=True)
+        self._private_directory = private
+        source = shared / "db"
+        if (source / XMAGE_CARD_REPOSITORY_FILE).is_file():
+            shutil.copytree(source, private / "db")
+        return str(private)
+
+    def _release_private_directory(self, disposition: str) -> None:
+        """Remove the private directory; promote a freshly built repository.
+
+        Only a gracefully shut down JVM has closed its H2 files, so only then
+        does a repository it built become the shared one, and only when no
+        shared repository appeared meanwhile (``os.rename`` refuses a
+        non-empty target, so concurrent promotions cannot mix files).
+        """
+        private = self._private_directory
+        if private is None:
+            return
+        self._private_directory = None
+        shared = private.parent.parent / "db"
+        built = private / "db"
+        if (
+            disposition == FULL_GAME_SHUTDOWN_GRACEFUL
+            and (built / XMAGE_CARD_REPOSITORY_FILE).is_file()
+            and not (shared / XMAGE_CARD_REPOSITORY_FILE).is_file()
+        ):
+            with contextlib.suppress(OSError):
+                os.rename(built, shared)
+        shutil.rmtree(private, ignore_errors=True)
+
     def close(self) -> str:
+        """Shut the bridge process down and release a private directory."""
+        disposition = self._close_process()
+        self._release_private_directory(disposition)
+        return disposition
+
+    def _close_process(self) -> str:
         """Shut the bridge process down, returning the observed disposition.
 
         Same request/wait/kill sequence as always (no parallel lifecycle);
@@ -3114,9 +3176,13 @@ class XmageFullGameRunner:
         cwd: str | Path | None = None,
         request_timeout_seconds: float = 120.0,
         max_decisions: int = 50_000,
+        private_card_repository: bool = False,
     ) -> None:
         self.command = command or self.command_from_environment()
         self.cwd = cwd
+        # #739: run each bridge JVM with its own copy of the card repository
+        # (set by the batch runner for parallel games).
+        self.private_card_repository = private_card_repository
         self.request_timeout_seconds = request_timeout_seconds
         self.max_decisions = max_decisions
         if self.max_decisions < 1:
@@ -3150,6 +3216,7 @@ class XmageFullGameRunner:
             command,
             cwd=self.cwd,
             request_timeout_seconds=self.request_timeout_seconds,
+            private_card_repository=self.private_card_repository,
         ) as client:
             provider = self._open_game(client, scenario, decks)
             try:
@@ -3200,6 +3267,7 @@ class XmageFullGameRunner:
             command,
             cwd=self.cwd,
             request_timeout_seconds=self.request_timeout_seconds,
+            private_card_repository=self.private_card_repository,
         )
         with client:
             provider = self._open_game(client, scenario, decks)
