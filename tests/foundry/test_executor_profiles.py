@@ -123,13 +123,23 @@ def test_activation_evidence_records_authenticated_runtime_verification() -> Non
     assert "high" in current["native_variant_choice"]
     # The Zen catalog lists no max variant for this model, so the pin is `high`.
     assert active["native_variant"] == "high"
-    # The activation gate asks for an authenticated smoke before ACTIVE. An ACTIVE
-    # profile carries either that smoke or an explicit, recorded Owner override.
-    smoke = current["authenticated_runtime_smoke"]
-    override = current.get("owner_activation_without_smoke", "")
-    assert smoke.startswith("RUNTIME_VERIFIED") or (
-        smoke.startswith("NOT_RUN") and "Owner" in override and "2026-10-12" in override
-    )
+    # The activation gate asks for an authenticated smoke before ACTIVE. Every ACTIVE
+    # profile is matched to its own activation block, which carries either that smoke
+    # or an explicit, recorded activation-without-smoke reason that keeps it owed.
+    blocks = {
+        block["current_model_identity"]: block
+        for name, block in gate.items()
+        if name.startswith("activation_evidence_") and block.get("runtime_status") == "ACTIVE"
+    }
+    for name, spec in doc["profiles"].items():
+        if spec["runtime_status"] != "ACTIVE":
+            continue
+        block = blocks[spec["model"]]
+        smoke = block["authenticated_runtime_smoke"]
+        if not smoke.startswith("RUNTIME_VERIFIED"):
+            assert smoke.startswith("NOT_RUN"), name
+            reason = block["activation_without_smoke"]
+            assert "Owner" in reason and "stays owed" in reason, name
 
 
 def test_retired_executor_activation_history_is_kept_verbatim() -> None:
