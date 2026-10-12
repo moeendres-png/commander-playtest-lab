@@ -101,9 +101,7 @@ def test_fact_lookup_ignores_case_accents_and_back_faces() -> None:
 
 
 def test_metrics_reward_the_model_that_ranks_like_xmage() -> None:
-    pods = [
-        XmagePod(f"g{index}", index, ("strong", "weak", "x", "y"), 0, 48) for index in range(6)
-    ]
+    pods = [XmagePod(f"g{index}", index, ("strong", "weak", "x", "y"), 0, 48) for index in range(6)]
     right = [[0.7, 0.1, 0.1, 0.1]] * 6
     wrong = [[0.1, 0.7, 0.1, 0.1]] * 6
     good = calibration_metrics(pods, right, [12.0] * 6, min_games=1)
@@ -119,7 +117,7 @@ def test_metrics_reward_the_model_that_ranks_like_xmage() -> None:
 
 
 def test_default_tuning_is_the_long_standing_model() -> None:
-    assert DEFAULT_TUNING == StructuralTuning()
+    assert StructuralTuning() == DEFAULT_TUNING
     assert DEFAULT_TUNING.creature_attack == 0.62
     assert set(DEFAULT_TUNING.as_dict()) >= {"creature_attack", "finisher_damage"}
 
