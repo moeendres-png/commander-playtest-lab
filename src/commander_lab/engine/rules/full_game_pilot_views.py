@@ -340,6 +340,21 @@ def _blockers_of(player: Mapping[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
+def focus_defender(state: Mapping[str, Any]) -> str | None:
+    """The opponent to concentrate attacks on: lowest life, then biggest board."""
+    actor_id = str(state.get("actor_id", ""))
+    candidates: list[tuple[float, float, str]] = []
+    for player in players(state):
+        player_id = str(player.get("player_id", ""))
+        life = player.get("life")
+        if player_id == actor_id or not isinstance(life, int | float) or life <= 0:
+            continue
+        if player.get("has_lost") is True or player.get("in_game") is False:
+            continue
+        candidates.append((float(life), -board_summary(player)["creature_power"], player_id))
+    return min(candidates)[2] if candidates else None
+
+
 def attack_score(
     option: Mapping[str, Any], state: Mapping[str, Any]
 ) -> tuple[float, dict[str, Any]]:
@@ -403,6 +418,10 @@ def attack_score(
     if not able and damage >= life_value:
         score += 3.0  # lethal through an empty or evaded board
     score += max(0.0, 20.0 - life_value) * 0.03
+    if score > 0.0 and defender_id == focus_defender(state):
+        # Spread-out damage lets everyone survive; pressure on one opponent
+        # removes a player and shortens the game.
+        score += 0.6
     return score, {"attack_power": power, "defender_blockers": len(able)}
 
 
@@ -552,6 +571,7 @@ __all__ = [
     "color_choice_rank",
     "commander_names",
     "entry_value",
+    "focus_defender",
     "hand_role_counts",
     "is_creature_entry",
     "is_land_entry",

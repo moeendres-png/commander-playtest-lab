@@ -425,3 +425,26 @@ def test_a_block_the_engine_keeps_rejecting_is_dropped() -> None:
         for n in range(1, 5)
     ]
     assert picks == [["block-dragon"], ["block-dragon"], [], []]
+
+
+def test_attacks_focus_the_weakest_opponent_that_is_still_in_the_game() -> None:
+    from commander_lab.engine.rules.full_game_pilot_views import focus_defender
+
+    state = _state(actor_board=[_card("claim", "Claim Jumper", 3, 3)])
+    opponents = state["players"][1:]
+    opponents[0]["life"] = 30
+    opponents[1]["life"] = 25
+    opponents[2]["life"] = 0
+    opponents[2]["has_lost"] = True
+    assert focus_defender(state) == "opponent-2"
+    options = [
+        *_attack_options("claim", "Claim Jumper"),
+        {
+            "option_id": "attack-2",
+            "label": "Claim Jumper attacks Seat 3",
+            "option_type": "declare_attacker",
+            "metadata": {"object_id": "claim", "name": "Claim Jumper", "defender_id": "opponent-2"},
+        },
+    ]
+    response = _policy().decide(_request("declare_attacker", options, state))
+    assert response["selected_option_ids"] == ["attack-2"]
