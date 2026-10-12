@@ -14,8 +14,8 @@ from commander_lab.models import (
     StructuralPlayerMetrics,
 )
 
+from .simulator import DEFAULT_TUNING, StructuralTuning, _Commander, _EventRecorder, _Player
 from .simulator import StructuralSimulator as LegacyStructuralSimulator
-from .simulator import _Commander, _EventRecorder, _Player
 from .telemetry import (
     T1TelemetryAccumulator,
     classify_payment_blocker,
@@ -51,8 +51,13 @@ class StructuralSimulator(LegacyStructuralSimulator):
     None of these observations change RNG, actions, scoring, search rewards, or advancement.
     """
 
-    def __init__(self, decks: dict[str, StructuralDeckProfile]) -> None:
-        super().__init__(decks)
+    def __init__(
+        self,
+        decks: dict[str, StructuralDeckProfile],
+        *,
+        tuning: StructuralTuning = DEFAULT_TUNING,
+    ) -> None:
+        super().__init__(decks, tuning=tuning)
         self._t1_telemetry: dict[str, T1TelemetryAccumulator] = {}
 
     def _initialize_players(
