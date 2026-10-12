@@ -170,12 +170,12 @@
   "runtime_switch": "DONE_D5",
   "note": "selected_provider is the architecture-level selection made at the Freeze. The D5 runtime switch moved the launched runtime (production_bridge) to the full-game lane; provider_decision, current_runtime and primary_engine.production_ready record that switch. D17 stays a bounded limitation: pilots out of process, no third-party code in the engine JVM; stronger isolation is a gate before any untrusted pilot.",
   "current_qualification": {
-   "evidence_epoch": "qualification/current-boundary-epochs/da8578eba621-f6f2d28e2470",
+   "evidence_epoch": "qualification/current-boundary-epochs/2ee8a529814d-6b57466c35f7",
    "engine_commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
-   "engine_artifact_sha256": "d1742e706ac77dc9a4a4b48b972db3bbb29659f309d56627d1d42df33591de64",
-   "lab_commit": "da8578eba6213d65edb23980f54978c4bc983f1e",
+   "engine_artifact_sha256": "8dd63f0b1bb8a63affe137aa13cfee8a2f3c1eadbe8a7e82fabda289f88a3105",
+   "lab_commit": "2ee8a529814dbd4107d881daf294e1bee4f50b59",
    "freeze_eligible": true,
-   "note": "Requalification on XMage pin 3cbf7741 (repin v5, #720) on main da8578eb (after the #735 bridge order fix), AF11 re-adjudicated for that pin (#727); current_qualification always names the newest sealed epoch bound to the pin (the one the capability derivation selects) (bridge changes merged after the Freeze basis epoch). The jar build is not byte-reproducible, so each rebuild is requalified by PB-03; the signed Freeze identities above (evidence_epoch, engine_artifact_sha256) stay the Owner-signed basis and are never rewritten."
+   "note": "Requalification on XMage pin 3cbf7741 (repin v5, #720) on main 2ee8a529 (after the #740 and #736 bridge fixes), AF11 re-adjudicated for that pin (#727); current_qualification always names the newest sealed epoch bound to the pin (the one the capability derivation selects) (bridge changes merged after the Freeze basis epoch). The jar build is not byte-reproducible, so each rebuild is requalified by PB-03; the signed Freeze identities above (evidence_epoch, engine_artifact_sha256) stay the Owner-signed basis and are never rewritten."
   }
  }
 }
