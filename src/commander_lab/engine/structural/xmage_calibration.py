@@ -69,11 +69,15 @@ def load_xmage_pods(directories: Iterable[Path]) -> tuple[XmagePod, ...]:
 
 
 def load_pod_summary(path: Path) -> tuple[XmagePod, ...]:
-    """Pods from a committed summary (``data/calibration/xmage_reference_pods_*.json``)."""
+    """Pods from a committed summary (``data/calibration/xmage_reference_pods_*.json``).
+
+    The summary names a game by ``run_sha256``: the secret scan reads a 64-hex value under
+    a field name containing "key" as a credential.
+    """
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
     return tuple(
         XmagePod(
-            game_key=str(row["game_key"]),
+            game_key=str(row["run_sha256"]),
             seed=int(row["seed"]),
             deck_ids=tuple(str(deck_id) for deck_id in row["deck_ids"]),
             winner_seat=None if row["winner_seat"] is None else int(row["winner_seat"]),
