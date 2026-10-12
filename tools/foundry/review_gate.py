@@ -128,8 +128,9 @@ def validate_review_record(
             f"implementation_executor {implementation_executor!r} is not an admitted logical profile"
         )
     # Cross-model review is required whenever another executor is ACTIVE. While
-    # Step 5 Preview is the only ACTIVE profile (DeepSeek SUSPENDED; Owner directive
-    # and explicit Owner approval of same-model review, 2026-10-10) a Step 5 Preview
+    # Step 5 Preview is the only ACTIVE profile (Owner directive 2026-10-12; DeepSeek
+    # SUSPENDED; the Owner approval of same-model review of 2026-10-10 for the
+    # single-executor case, applied to Step by the Coordinator) a Step 5 Preview
     # implementation may be reviewed by Step 5 Preview; its independence then rests
     # on the fresh context and the read-only /ro-review lane, which stay
     # mandatory.

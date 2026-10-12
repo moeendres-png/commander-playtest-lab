@@ -442,13 +442,13 @@ def test_bootstrap_writable_carrier_is_removed() -> None:
     verifier_doc = (REPO_ROOT / ".opencode" / "agents" / "assurance-verifier.md").read_text(
         encoding="utf-8"
     )
-    assert "STEP_AUDITOR_SUBAGENT_REVIEW" not in verifier_doc
+    assert "BUNNY_AUDITOR_SUBAGENT_REVIEW" not in verifier_doc
     assert "REVIEW_VERDICT:" not in verifier_doc
 
     auditor_doc = (REPO_ROOT / ".opencode" / "agents" / "assurance-auditor.md").read_text(
         encoding="utf-8"
     )
-    assert "STEP_AUDITOR_SUBAGENT_REVIEW" not in auditor_doc
+    assert "BUNNY_AUDITOR_SUBAGENT_REVIEW" not in auditor_doc
 
 
 # --- trusted direct lane satisfies ------------------------------------------

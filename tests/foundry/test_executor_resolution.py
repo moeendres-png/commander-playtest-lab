@@ -89,9 +89,7 @@ def test_zen_step_selected_even_when_go_ids_are_listed_first() -> None:
 def test_only_go_step_ids_present_fails_closed() -> None:
     """The Go ids are not a fallback for the Zen id (shared exhausted quota)."""
     with pytest.raises(ep.ExecutorResolutionError, match="no admitted step"):
-        ep.resolve_executor(
-            "step", registry=_registry(), catalog=[DEEPSEEK, STEP_GO, STEP_GO_FREE]
-        )
+        ep.resolve_executor("step", registry=_registry(), catalog=[DEEPSEEK, STEP_GO, STEP_GO_FREE])
 
 
 def test_neither_step_id_present_fails_closed() -> None:
@@ -289,3 +287,16 @@ def test_live_catalog_inspection_matches_the_pinned_cli_when_available() -> None
         pytest.skip("live catalog unavailable in this environment")
     models = ep.parse_catalog_output(result.stdout)
     assert STEP in models
+
+
+def test_just_retired_zen_executor_is_refused_everywhere() -> None:
+    """The executor retired on 2026-10-12 is neither a profile nor an admitted id."""
+    registry = _registry()
+    retired_id = "opencode/space-bunny-free"
+    assert registry.admitted_runtime(retired_id) is None
+    assert retired_id not in registry.active_runtime_ids
+    with pytest.raises(ep.ExecutorResolutionError):
+        ep.resolve_executor("space-bunny", registry=registry, catalog=[retired_id, STEP])
+    # A catalog that lists only the retired id never resolves Step to it.
+    with pytest.raises(ep.ExecutorResolutionError):
+        ep.resolve_executor("step", registry=registry, catalog=[retired_id])

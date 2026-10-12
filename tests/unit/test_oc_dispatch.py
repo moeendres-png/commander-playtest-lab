@@ -176,7 +176,9 @@ def test_watch_says_plainly_when_the_run_posted_nothing(monkeypatch, capsys):
             return STARTED
         if path.endswith("/jobs?per_page=50"):
             return {
-                "jobs": [{"name": "opencode-assure", "status": "completed", "conclusion": "failure"}]
+                "jobs": [
+                    {"name": "opencode-assure", "status": "completed", "conclusion": "failure"}
+                ]
             }
         if "issues/comments" in path:
             return []

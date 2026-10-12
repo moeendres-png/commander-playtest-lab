@@ -517,6 +517,15 @@ def test_step_bootstrap_lane_is_not_selected_by_the_direct_marker() -> None:
     )
     assert condition_result(str(doc["jobs"]["opencode-assure"]["if"]), direct_body) is False
     assert condition_result(str(doc["jobs"]["opencode-ro-review"]["if"]), direct_body) is True
+    # The lane names no longer share a prefix, so only the explicit exclusion keeps a
+    # comment that names both markers out of the writable lane.
+    both_markers = _event_context(
+        commenter="OWNER",
+        target="OWNER",
+        target_login="maintainer",
+        body="/assure and /ro-review this",
+    )
+    assert condition_result(str(doc["jobs"]["opencode-assure"]["if"]), both_markers) is False
 
 
 def test_step_review_lane_stays_closed_for_untrusted_principals() -> None:

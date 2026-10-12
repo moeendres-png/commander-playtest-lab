@@ -115,7 +115,7 @@ second benchmark harness. Representative campaigns may compare identity-equivale
 - Claude main raw-log analysis versus `log-scanner` (Sonnet low);
 - Claude main CI analysis versus `ci-triage` (Sonnet medium);
 - Step 5 Preview HIGH `/oc` execution versus a fresh-context Step 5 Preview HIGH `/assure` audit (historical
-  arms compared DeepSeek MAX primary execution with a Step 5 Preview HIGH secondary audit).
+  arms compared DeepSeek MAX primary execution with a Space Bunny MAX secondary audit).
 
 Each pair still binds the same case/task class/source SHA/fixture digest/evidence requirement and
 must pass the existing quality gate. Claude-derived metrics may enter the JSON arm only from a

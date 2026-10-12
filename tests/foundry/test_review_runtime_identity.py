@@ -30,7 +30,7 @@ REAL_IMPLEMENTER_RECORD = """\
 2026-10-09T13:23:08.8842637Z }
 2026-10-09T13:23:08.8851119Z [13:23:08.884] INFO (#8297): stream {
 2026-10-09T13:23:08.8851596Z   providerID: "opencode-go",
-2026-10-09T13:23:08.8852072Z   modelID: "step",
+2026-10-09T13:23:08.8852072Z   modelID: "space-bunny",
 2026-10-09T13:23:08.8852437Z   "session.id": "ses_edf2b1c17ffeagl4A4gQpslPs1",
 2026-10-09T13:23:08.8852854Z   small: "false",
 2026-10-09T13:23:08.8853179Z   agent: "foundry-implementer",

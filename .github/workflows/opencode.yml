@@ -176,7 +176,7 @@ jobs:
 
   opencode-assure:
     # Step 5 Preview HIGH maximum-assurance lane (assurance-verifier agent), started only
-    # by an explicit `/assure` comment. Since the Owner directive of 2026-10-10
+    # by an explicit `/assure` comment. Since the Owner directive of 2026-10-12
     # every lane, `/oc` above included, runs Step 5 Preview HIGH; DeepSeek is
     # SUSPENDED. Same trust gate and hardening as the job above.
     # The repository is public: only principals with write-level association
