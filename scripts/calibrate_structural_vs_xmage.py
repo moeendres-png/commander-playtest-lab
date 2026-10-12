@@ -42,6 +42,7 @@ from commander_lab.engine.structural.xmage_calibration import (  # noqa: E402
     calibration_metrics,
     fact_deck_profile,
     known_card_profiles,
+    load_pod_summary,
     load_xmage_pods,
     split_pods,
     structural_win_probabilities,
@@ -179,7 +180,14 @@ def _fit(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--games-dir", type=Path, action="append", required=True)
+    parser.add_argument("--games-dir", type=Path, action="append", default=[])
+    parser.add_argument(
+        "--pods-json",
+        type=Path,
+        action="append",
+        default=[],
+        help="committed pod summary, e.g. data/calibration/xmage_reference_pods_2026-10-12.json",
+    )
     parser.add_argument("--deck", type=Path, action="append", default=[])
     parser.add_argument("--seeds-per-pod", type=int, default=40)
     parser.add_argument("--profiles", choices=("both", "facts", "legacy"), default="both")
@@ -199,6 +207,8 @@ def main(argv: list[str] | None = None) -> int:
         print("data/cards/xmage_card_facts.json is missing", file=sys.stderr)
         return 2
     pods = list(load_xmage_pods(args.games_dir))
+    for path in args.pods_json:
+        pods.extend(load_pod_summary(path))
     if not pods:
         print("no completed XMage games found", file=sys.stderr)
         return 2

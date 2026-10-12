@@ -68,6 +68,21 @@ def load_xmage_pods(directories: Iterable[Path]) -> tuple[XmagePod, ...]:
     return tuple(pods)
 
 
+def load_pod_summary(path: Path) -> tuple[XmagePod, ...]:
+    """Pods from a committed summary (``data/calibration/xmage_reference_pods_*.json``)."""
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    return tuple(
+        XmagePod(
+            game_key=str(row["game_key"]),
+            seed=int(row["seed"]),
+            deck_ids=tuple(str(deck_id) for deck_id in row["deck_ids"]),
+            winner_seat=None if row["winner_seat"] is None else int(row["winner_seat"]),
+            turn_number=int(row["turn_number"]),
+        )
+        for row in payload["pods"]
+    )
+
+
 def pod_from_record(record: Mapping[str, Any]) -> XmagePod | None:
     if record.get("status") != "completed":
         return None
@@ -273,6 +288,7 @@ __all__ = [
     "calibration_metrics",
     "fact_deck_profile",
     "known_card_profiles",
+    "load_pod_summary",
     "load_xmage_pods",
     "pod_from_record",
     "spearman",
