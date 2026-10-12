@@ -22,8 +22,9 @@ played (``played_deck_hash``), not to the optimizer's label for it.
 
 from __future__ import annotations
 
+import unicodedata
 from collections import Counter
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -168,6 +169,60 @@ def variant_deck(control: RulesDeckInput, row: Mapping[str, Any]) -> RulesDeckIn
         raise FullGameRouteError(f"ledger row is not a legal deck input: {exc}") from exc
 
 
+def engine_name_key(name: str) -> str:
+    """Lookup key for a card name: casefolded, accents removed (XMage is ASCII)."""
+    decomposed = unicodedata.normalize("NFKD", name)
+    return "".join(c for c in decomposed if not unicodedata.combining(c)).casefold()
+
+
+def engine_card_name(name: str, engine_names: Collection[str]) -> str | None:
+    """The name under which the engine knows a card, or None when it does not.
+
+    ``engine_names`` holds ``engine_name_key`` keys of the engine's card names.
+    XMage names split cards "A // B" but double-faced, modal and adventure
+    cards by their front face, so a full "A // B" name it does not know is
+    looked up by its front face. Case and accents are left as the deck spells
+    them; only the face is changed.
+    """
+    if engine_name_key(name) in engine_names:
+        return name
+    if " // " in name:
+        front = name.split(" // ")[0]
+        if engine_name_key(front) in engine_names:
+            return front
+    return None
+
+
+def engine_playable_deck(
+    deck: RulesDeckInput, engine_names: Collection[str]
+) -> tuple[RulesDeckInput | None, tuple[str, ...]]:
+    """The deck spelled as the engine names its cards, or the cards it lacks."""
+    renamed: dict[str, str] = {}
+    missing: list[str] = []
+    for name in dict.fromkeys((*deck.commander_names, *deck.mainboard)):
+        known = engine_card_name(name, engine_names)
+        if known is None:
+            missing.append(name)
+        else:
+            renamed[name] = known
+    if missing:
+        return None, tuple(missing)
+    commanders = tuple(renamed[name] for name in deck.commander_names)
+    mainboard = tuple(renamed[name] for name in deck.mainboard)
+    if commanders == tuple(deck.commander_names) and mainboard == tuple(deck.mainboard):
+        return deck, ()
+    return (
+        deck.model_copy(
+            update={
+                "commander_names": commanders,
+                "mainboard": mainboard,
+                "deck_hash": played_deck_hash(commanders, mainboard),
+            }
+        ),
+        (),
+    )
+
+
 def select_route_hypotheses(
     queues: Mapping[str, Any],
     ledger: Mapping[str, Any],
@@ -175,8 +230,16 @@ def select_route_hypotheses(
     *,
     groups: Sequence[str] = ROUTE_GROUPS,
     limit: int = 4,
+    engine_names: Collection[str] | None = None,
+    unplayable: dict[str, tuple[str, ...]] | None = None,
 ) -> tuple[RouteHypothesis, ...]:
-    """Top routed hypotheses, best priority first, de-duplicated across queues."""
+    """Top routed hypotheses, best priority first, de-duplicated across queues.
+
+    With ``engine_names`` (the engine's card names, see ``engine_card_name``)
+    every deck is spelled as the engine names its cards, and a hypothesis that
+    adds a card the engine does not know is passed over instead of failing
+    every game it would play; its missing cards go to ``unplayable``.
+    """
     if limit < 1:
         raise FullGameRouteError("limit must be at least 1")
     unknown = [group for group in groups if group not in OPTIONAL_ROUTE_GROUPS]
@@ -218,6 +281,13 @@ def select_route_hypotheses(
             raise FullGameRouteError(f"hypothesis has no candidate ledger row: {deck_hash}")
         seen.add(deck_hash)
         deck = variant_deck(control, row)
+        if engine_names is not None:
+            playable, missing = engine_playable_deck(deck, engine_names)
+            if playable is None:
+                if unplayable is not None:
+                    unplayable[deck_hash] = missing
+                continue
+            deck = playable
         if deck.deck_hash is None:  # pragma: no cover - variant_deck always sets it
             raise FullGameRouteError(f"hypothesis deck has no content hash: {deck_hash}")
         selected.append(
@@ -317,6 +387,9 @@ __all__ = [
     "RouteHypothesis",
     "RoutedHypothesisResult",
     "build_route_spec",
+    "engine_card_name",
+    "engine_name_key",
+    "engine_playable_deck",
     "played_control",
     "played_deck_hash",
     "route_report",

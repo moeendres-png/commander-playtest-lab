@@ -19,6 +19,8 @@ from commander_lab.storage import sha256_value
 from commander_lab.whole_deck.optimizer_v2_full_game import (
     FullGameRouteError,
     build_route_spec,
+    engine_card_name,
+    engine_name_key,
     played_deck_hash,
     route_report,
     select_route_hypotheses,
@@ -257,3 +259,53 @@ def test_row_that_is_not_a_commander_deck_fails_closed() -> None:
     row["added_cards"] = [*row["added_cards"], "Island"]
     with pytest.raises(FullGameRouteError, match="legal deck input"):
         variant_deck(control, row)
+
+
+def _engine_names(*decks: RulesDeckInput, extra: tuple[str, ...] = ()) -> frozenset[str]:
+    names = {name for deck in decks for name in (*deck.commander_names, *deck.mainboard)}
+    return frozenset(engine_name_key(name) for name in (*names, *extra))
+
+
+def test_engine_names_fold_faces_case_and_accents() -> None:
+    known = frozenset(
+        engine_name_key(name)
+        for name in ("Wear // Tear", "Village Ironsmith", "Troll of Khazad-dum")
+    )
+    assert engine_card_name("Wear // Tear", known) == "Wear // Tear"  # split card
+    assert engine_card_name("Village Ironsmith // Ironfang", known) == "Village Ironsmith"
+    assert engine_card_name("Troll of Khazad-dûm", known) == "Troll of Khazad-dûm"
+    assert engine_card_name("Dirgur Focusmage // Braingeyser", known) is None
+
+
+def test_route_spells_decks_for_the_engine_and_passes_over_unknown_cards() -> None:
+    control = _control()
+    first = control.mainboard[0]
+    rows = [
+        _row(control, first, "Village Ironsmith // Ironfang", "dfc"),
+        _row(control, first, "Dirgur Focusmage // Braingeyser", "new"),
+    ]
+    content = {"control_deck_hash": _hash("ctl"), "rows": rows}
+    ledger = {**content, "ledger_hash": sha256_value(content)}
+    queues = {
+        "candidate_ledger_hash": ledger["ledger_hash"],
+        "TOP_TACTICAL_REQUIRED_HYPOTHESES": [
+            {"deck_hash": rows[1]["deck_hash"], "hypothesis_priority": 0.9},
+            {"deck_hash": rows[0]["deck_hash"], "hypothesis_priority": 0.5},
+        ],
+    }
+    unplayable: dict[str, tuple[str, ...]] = {}
+    selected = select_route_hypotheses(
+        queues,
+        ledger,
+        control,
+        engine_names=_engine_names(control, extra=("Village Ironsmith",)),
+        unplayable=unplayable,
+    )
+    assert unplayable == {_hash("new"): ("Dirgur Focusmage // Braingeyser",)}
+    [hypothesis] = selected
+    assert "Village Ironsmith" in hypothesis.deck.mainboard
+    assert "Village Ironsmith // Ironfang" not in hypothesis.deck.mainboard
+    assert hypothesis.added_cards == ("Village Ironsmith // Ironfang",)  # the ledger's words
+    assert hypothesis.played_deck_hash == played_deck_hash(
+        control.commander_names, hypothesis.deck.mainboard
+    )

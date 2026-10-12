@@ -10,6 +10,14 @@ seeds, seats and opponents. XMage decides every game.
     python scripts/run_optimizer_v2_full_game_route.py \\
         --run-dir <optimizer-v2 run directory> --seeds 1-10 --limit 3
 
+Optimizer candidates come from the collection, which spells double-faced and
+adventure cards "Front // Back"; XMage knows those by their front face and may
+not know a newer card at all. ``--card-names`` takes XMage's card names (the
+H2 export described in ``build_collection_coverage_decks.py``; only the NAME
+column is read): decks are then spelled as XMage names the cards, and a
+hypothesis adding a card XMage lacks is passed over instead of failing every
+game it would play.
+
 The report (``FULL_GAME_ROUTE_REPORT.json``) is exploratory full-game evidence
 per hypothesis. It does not make a hypothesis Structural-confirmatory and does
 not change any deck.
@@ -18,6 +26,7 @@ not change any deck.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import sys
 from pathlib import Path
@@ -45,6 +54,8 @@ from commander_lab.whole_deck.optimizer_v2_full_game import (
     ROUTE_GROUPS,
     FullGameRouteError,
     build_route_spec,
+    engine_name_key,
+    engine_playable_deck,
     route_report,
     select_route_hypotheses,
 )
@@ -63,6 +74,17 @@ def _load_json(path: Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise FullGameRouteError(f"{path.name} is not a JSON object")
     return payload
+
+
+def load_engine_names(path: Path) -> frozenset[str]:
+    csv.field_size_limit(10**8)
+    with path.open(encoding="utf-8", newline="") as handle:
+        names = frozenset(
+            engine_name_key(str(row["NAME"])) for row in csv.DictReader(handle) if row.get("NAME")
+        )
+    if not names:
+        raise FullGameRouteError(f"{path.name} lists no card names")
+    return names
 
 
 def _resolve(path: Path) -> Path:
@@ -85,16 +107,35 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-decisions", type=int, default=50_000)
     parser.add_argument("--request-timeout", type=float, default=120.0)
     parser.add_argument("--plan-only", action="store_true")
+    parser.add_argument(
+        "--card-names", type=Path, default=None, help="XMage card-name CSV export (NAME column)"
+    )
     args = parser.parse_args(argv)
 
     queues_used = tuple(args.queue or ROUTE_GROUPS)
     control = load_deck(_resolve(args.control))
     opponents = tuple(load_deck(_resolve(path)) for path in (args.opponent or DEFAULT_OPPONENTS))
+    unplayable: dict[str, tuple[str, ...]] = {}
     try:
+        engine_names = load_engine_names(args.card_names) if args.card_names else None
+        if engine_names is not None:
+            for deck in (control, *opponents):
+                spelled, missing = engine_playable_deck(deck, engine_names)
+                if spelled is not deck:
+                    raise FullGameRouteError(
+                        f"{deck.deck_id} is not spelled as XMage names its cards"
+                        + (f" (unknown: {', '.join(missing)})" if missing else "")
+                    )
         ledger = _load_json(args.run_dir / "ALL_CANDIDATE_LEDGER.json")
         queues = _load_json(args.run_dir / "ROUTED_HYPOTHESIS_QUEUES.json")
         hypotheses = select_route_hypotheses(
-            queues, ledger, control, groups=queues_used, limit=args.limit
+            queues,
+            ledger,
+            control,
+            groups=queues_used,
+            limit=args.limit,
+            engine_names=engine_names,
+            unplayable=unplayable,
         )
         spec = build_route_spec(
             control,
@@ -104,9 +145,11 @@ def main(argv: list[str] | None = None) -> int:
             xmage_commit=canonical_xmage_engine_pin(),
             rotate_seats=not args.no_rotate,
         )
-    except (OSError, FullGameRouteError) as exc:
+    except (OSError, KeyError, FullGameRouteError) as exc:
         print(f"cannot build the full-game route: {exc}", file=sys.stderr)
         return 2
+    for deck_hash, missing in unplayable.items():
+        print(f"  passed over {deck_hash[:12]}: XMage lacks {', '.join(missing)}")
     cases = plan_comparison_cases(spec)
     workers = args.workers or default_workers(memory_gb=_available_memory_gb())
     print(
