@@ -1025,9 +1025,13 @@ class XmageActualCardCorpusTest {
                 started.session(), "issue736-respond", started.seats(), "P1");
         cast(started, "issue736-bend", "Bolt Bend");
         List<String> stackTargets = offeredTargetNames(started);
-        assertEquals(1, stackTargets.size(), "Bolt Bend's only target is the Mistveil ability: "
-                + stackTargets);
-        submit(started, "issue736-bend-target", labelled(started, stackTargets.get(0)));
+        List<String> mistveilOnStack = stackTargets.stream()
+                .filter(name -> name.startsWith("stack ability ({W}, {T}: Put target card from your graveyard"))
+                .toList();
+        assertEquals(stackTargets, mistveilOnStack,
+                "Bolt Bend's only target is the Mistveil Plains ability on the stack");
+        assertEquals(1, mistveilOnStack.size(), "one Mistveil Plains ability: " + stackTargets);
+        submit(started, "issue736-bend-target", spellTarget(started, String.join("", mistveilOnStack)));
         payAllFromRestoredMana(started, "issue736-bend-pay", List.of("Mountain"),
                 java.util.Set.of(MOUNTAIN_LABEL));
         List<List<String>> newTargetOffers = new ArrayList<>();
