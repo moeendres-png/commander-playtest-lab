@@ -884,7 +884,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
      */
     boolean reversedUnpayableDiscardCost(Ability casting, Game game) {
         Ability paid = paidSpellAbility;
-        if (paid == null || casting == null || game == null) {
+        // targetChoiceRequested: the engine skipped the discard target without
+        // ever asking the bridge (Targets.makeChoice), so no target frame ran.
+        if (paid == null || casting == null || game == null || targetChoiceRequested) {
             return false;
         }
         // The payment belongs to the card this cast is casting.

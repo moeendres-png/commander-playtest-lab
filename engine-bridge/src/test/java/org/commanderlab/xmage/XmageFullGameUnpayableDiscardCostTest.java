@@ -118,8 +118,9 @@ class XmageFullGameUnpayableDiscardCostTest {
         JsonObject castOffer = XmageExternalRiskSignalTest.spellOffer(
                 s.session.legalActionsPayload(), BIG_SCORE);
         assertNotNull(castOffer,
-                "the engine offers the cast: it priced the discard cost while the spell was "
-                        + "still in hand, so canPay was true: " + s.labels());
+                "the engine offers the cast (this first frame was priced before the fixture "
+                        + "trimmed the hand; the offer rebuilt after the reversal, checked below, "
+                        + "is the one priced with " + BIG_SCORE + " alone in hand): " + s.labels());
 
         // The real cast: the pilot funds {3}{R} through real payment frames,
         // and only then does the engine fail the additional cost.
@@ -276,6 +277,50 @@ class XmageFullGameUnpayableDiscardCostTest {
         player.recordPaidSpellAbilityForBoundaryTest(spell);
         assertFalse(player.reversedUnpayableDiscardCost(null, game),
                 "there is no cast to attribute the failed payment to");
+    }
+
+    /**
+     * The three guards that keep an UNRELATED cost failure out, each broken alone
+     * on the accepted shape: the discard target was chosen (a replacement effect
+     * stopped the discard, not "no legal choice"), the spell card is not back in
+     * hand (no bookmark rewind happened), and the first unpaid cost is not the
+     * discard cost. RED if the target, zone or cost-type check is dropped.
+     */
+    @Test
+    void unpayableDiscardCostGuardsRejectEachBrokenFact() {
+        XmageMultiplayerScenario chosen = bigScoreAloneInHand("issue740-predicate-target-chosen");
+        Game game = chosen.session.restorationGame();
+        XmageFullGamePlayer player = (XmageFullGamePlayer) chosen.seats.get("P1");
+        SpellAbility spell = bigScoreSpellAbility(chosen, game);
+        spell.getManaCostsToPay().setPaid();
+        player.recordPaidSpellAbilityForBoundaryTest(spell);
+        mage.abilities.costs.common.DiscardTargetCost discard = spell.getCosts().stream()
+                .filter(mage.abilities.costs.common.DiscardTargetCost.class::isInstance)
+                .map(mage.abilities.costs.common.DiscardTargetCost.class::cast)
+                .findFirst().orElseThrow();
+        discard.getTargets().get(0).add(spell.getSourceId(), game);
+        assertFalse(player.reversedUnpayableDiscardCost(spell, game),
+                "a discard cost with its target CHOSEN did not fail for lack of a legal choice");
+
+        XmageMultiplayerScenario moved = bigScoreAloneInHand("issue740-predicate-not-in-hand");
+        game = moved.session.restorationGame();
+        player = (XmageFullGamePlayer) moved.seats.get("P1");
+        spell = bigScoreSpellAbility(moved, game);
+        spell.getManaCostsToPay().setPaid();
+        player.recordPaidSpellAbilityForBoundaryTest(spell);
+        game.getState().setZone(spell.getSourceId(), Zone.GRAVEYARD);
+        assertFalse(player.reversedUnpayableDiscardCost(spell, game),
+                "the spell card is not back in hand, so no bookmark rewind is evidenced");
+
+        XmageMultiplayerScenario paid = bigScoreAloneInHand("issue740-predicate-cost-paid");
+        game = paid.session.restorationGame();
+        player = (XmageFullGamePlayer) paid.seats.get("P1");
+        spell = bigScoreSpellAbility(paid, game);
+        spell.getManaCostsToPay().setPaid();
+        player.recordPaidSpellAbilityForBoundaryTest(spell);
+        spell.getCosts().forEach(mage.abilities.costs.Cost::setPaid);
+        assertFalse(player.reversedUnpayableDiscardCost(spell, game),
+                "with every cost paid there is no unpaid discard cost the engine stopped at");
     }
 
     /**
