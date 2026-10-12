@@ -13,10 +13,13 @@ import mage.abilities.PlayLandAbility;
 import mage.abilities.SpellAbility;
 import mage.abilities.TriggeredAbility;
 import mage.abilities.costs.Cost;
+import mage.abilities.costs.Costs;
+import mage.abilities.costs.common.DiscardTargetCost;
 import mage.abilities.costs.common.SacrificeSourceCost;
 import mage.abilities.costs.common.TapSourceCost;
 import mage.abilities.costs.common.UntapSourceCost;
 import mage.abilities.costs.mana.ManaCost;
+import mage.abilities.costs.mana.ManaCosts;
 import mage.abilities.mana.ManaOptions;
 import mage.cards.Card;
 import mage.cards.Cards;
@@ -194,6 +197,31 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * recognises the engine's reversal rather than the cause.
      */
     private boolean emptyNonTargetChoice;
+
+    /**
+     * #740: the ability instance XMage handed to {@link #playMana} for a SPELL
+     * during the current priority action, i.e. the very instance the engine
+     * paid CR 601.2f on.
+     *
+     * <p>{@code AbilityImpl.activate} pays the mana cost with
+     * {@code getManaCostsToPay().pay(this, game, this, controllerId, false,
+     * null)} (pinned XMage 1.4.61, AbilityImpl.java:464) and
+     * {@code ManaCostsImpl.pay} calls {@code player.playMana(ability, unpaid,
+     * promptText, game)} (:150) with that same {@code this}. So the ability the
+     * engine records here is the cast copy {@code PlayerImpl.cast} pushed on
+     * the stack ({@code PlayerImpl.java}: {@code ability = originalAbility.copy();
+     * ... card.cast(game, fromZone, ability, playerId)}), and it is the object
+     * whose {@code getCosts()} the engine then paid under CR 601.2g
+     * (AbilityImpl.java:469).
+     *
+     * <p>Only the FIRST spell of an action is recorded and only when it is a
+     * {@link SpellAbility}: a land tapped to fund the payment calls back into
+     * {@code playMana} through {@code PlayerImpl.playManaAbility}, and that
+     * ability is never the cast being decided. Reset at the top of
+     * {@link #priority(Game)} with the other action-scoped flags, so it can
+     * never outlive the action that produced it.
+     */
+    private Ability paidSpellAbility;
 
     /**
      * #715: the ability the engine passed to the bridge's NON-target choice
@@ -505,6 +533,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         noViableMode = false;
         concessionInterruptedAction = false;
         xAnnouncedAbility = null;
+        paidSpellAbility = null;
         targetChoiceRequested = false;
         emptyNonTargetChoice = false;
         emptyNonTargetChoiceSource = null;
@@ -572,7 +601,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         || noViableMode
                         || concessionInterruptedAction
                         || leftMidAction()
-                        || reversedRequiredXTarget(game)) {
+                        || reversedRequiredXTarget(game)
+                        || reversedUnpayableDiscardCost(ability, game)) {
                     // Cancelled or uncompletable cast: the engine reversed it
                     // and restored its bookmark; the player has not passed, so
                     // the engine's priority loop asks the same player again
@@ -594,6 +624,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     // it is not the engine reversing the proposal. The term is
                     // kept in the activation branch, where
                     // CrewCost.pay returning false is a genuine reversal.
+                    //
+                    // #740's reversedUnpayableDiscardCost DOES apply here and
+                    // is the same shape: the engine paid the mana, could not pay
+                    // a mandatory additional discard cost (CR 118.3, paid under
+                    // CR 601.2h), returned false at AbilityImpl.activate's
+                    // CR 601.2g check and let PlayerImpl.cast restore the
+                    // bookmark. It carries its own four engine-held facts (see
+                    // the predicate), so it can only ever narrow this branch
+                    // towards accepting that one reversal; anything unproven
+                    // still fails closed below.
                     return false;
                 }
                 fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
@@ -788,6 +828,118 @@ final class XmageFullGamePlayer extends PlayerImpl {
     void recordEmptyNonTargetChoiceForBoundaryTest(Ability source) {
         emptyNonTargetChoice = source != null;
         emptyNonTargetChoiceSource = source;
+    }
+
+    /**
+     * #740: true only when the engine itself reversed {@code casting} because a
+     * MANDATORY additional discard cost could not be paid.
+     *
+     * <p>The card is the issue's own: Big Score, "{@code As an additional cost
+     * to cast this spell, discard a card.}" — in XMage a
+     * {@code DiscardCardCost}, a {@code DiscardTargetCost} over a
+     * {@code TargetCardInHand} (pinned 1.4.61:
+     * {@code Mage.Sets/src/mage/cards/b/BigScore.java}: {@code
+     * getSpellAbility().addCost(new DiscardCardCost(false))}). With nothing else
+     * in hand the cost has no legal choice, CR 118.3 says a cost that cannot be
+     * paid is not paid, and {@code AbilityImpl.activate} returns false at its
+     * CR 601.2g {@code getCosts().pay(...)} check; {@code PlayerImpl.cast} then
+     * runs {@code restoreState(bookmark, ...)}, the CR 601.2e / 727 rewind.
+     *
+     * <p>All four halves are engine-held facts, read after the attempt:
+     * <ol>
+     *   <li>the engine asked this bridge to pay mana for a SPELL in this action
+     *       ({@link #paidSpellAbility}), which is only reached from
+     *       {@code AbilityImpl.activate}'s CR 601.2f step — after the spell was
+     *       put on the stack by {@code PlayerImpl.cast};</li>
+     *   <li>that same instance's mana costs are fully paid, so CR 601.2g was
+     *       actually reached. A cancelled or abandoned payment (the pilot
+     *       pressed Cancel, or the caster left) returns from CR 601.2f with the
+     *       non-mana costs untouched, and an UNPAID discard cost would then
+     *       prove nothing at all;</li>
+     *   <li>the FIRST cost of that instance that is still unpaid is a
+     *       {@code DiscardTargetCost} whose required target has nothing chosen.
+     *       {@code CostsImpl.pay} walks {@code getFirstUnpaid()} and returns
+     *       false at the first cost whose {@code pay} fails, so with every
+     *       earlier cost paid this is the engine's own record of WHICH cost it
+     *       could not pay — no filter is re-evaluated and no cost is re-derived
+     *       here; and</li>
+     *   <li>the spell card is back in the caster's hand, i.e. it left the stack
+     *       and the bookmark restore undid the proposal. A card cannot be in
+     *       hand and on the stack at once, and (1) proves it had left.</li>
+     * </ol>
+     *
+     * <p>The anti-masking discriminator is (1)+(4) together: the payment must
+     * belong to the very card that is failing now, and that card must be back
+     * where the cast started. An unrelated failure in the same action, a cast
+     * that never reached payment, and a cast whose non-mana costs were never
+     * touched all keep failing closed with XMAGE_ACTION_EXECUTION_FAILED.
+     *
+     * <p>Recorded narrowness, not repaired: the same cost can also fail with
+     * its target CHOSEN (a replacement effect that stops the discard). That is
+     * the same engine reversal, but the engine leaves no distinct trace of it,
+     * so it stays a fail-closed case rather than a guess. A cost with no mana
+     * at all is excluded for the same reason — {@code ManaCostsImpl.pay}
+     * short-circuits on an empty mana cost and never calls the bridge, so there
+     * is no payment to attribute the failure to.
+     */
+    boolean reversedUnpayableDiscardCost(Ability casting, Game game) {
+        Ability paid = paidSpellAbility;
+        // targetChoiceRequested: the engine skipped the discard target without
+        // ever asking the bridge (Targets.makeChoice), so no target frame ran.
+        if (paid == null || casting == null || game == null || targetChoiceRequested) {
+            return false;
+        }
+        // The payment belongs to the card this cast is casting.
+        if (paid.getSourceId() == null || !paid.getSourceId().equals(casting.getSourceId())) {
+            return false;
+        }
+        // CR 601.2f completed: otherwise CR 601.2g never ran.
+        ManaCosts<ManaCost> manaCostsToPay = paid.getManaCostsToPay();
+        if (manaCostsToPay == null || !manaCostsToPay.isPaid()) {
+            return false;
+        }
+        // CR 601.2g stopped at this cost: CostsImpl.pay returns false at the
+        // first cost whose pay() fails, and every earlier cost is paid.
+        Costs<Cost> costs = paid.getCosts();
+        if (costs == null || costs.isEmpty()) {
+            return false;
+        }
+        Cost unpaid = null;
+        for (Cost cost : costs) {
+            if (!cost.isPaid()) {
+                unpaid = cost;
+                break;
+            }
+        }
+        if (!(unpaid instanceof DiscardTargetCost discardCost)) {
+            return false;
+        }
+        // The engine had no legal choice for it and chose nothing
+        // (Targets.makeChoice skips a target whose canChoose is false,
+        // Targets.java:105), which is what left the cost unpaid.
+        boolean unchosenRequiredTarget = false;
+        for (Target target : discardCost.getTargets()) {
+            if (target.getMinNumberOfTargets() > 0 && target.getSize() == 0) {
+                unchosenRequiredTarget = true;
+                break;
+            }
+        }
+        if (!unchosenRequiredTarget) {
+            return false;
+        }
+        // The rewind itself: the card the engine moved onto the stack is back in
+        // the caster's hand.
+        Card spellCard = game.getCard(paid.getSourceId());
+        return spellCard != null
+                && Zone.HAND.match(game.getState().getZone(spellCard.getMainCard().getId()));
+    }
+
+    /**
+     * #740 boundary tests only: package-private, no production behaviour change
+     * and no production caller. Mirrors exactly what {@link #playMana} records.
+     */
+    void recordPaidSpellAbilityForBoundaryTest(Ability ability) {
+        paidSpellAbility = ability;
     }
 
     @Override
@@ -1157,6 +1309,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Game game
     ) {
         witness("mana_payment", ability, unpaid);
+        // #740: this is the ability instance the engine is paying CR 601.2f on,
+        // i.e. the cast copy it put on the stack. Keeping it lets
+        // reversedUnpayableDiscardCost read the engine's OWN post-payment cost
+        // state instead of re-deriving legality from the pre-cast object the
+        // bridge holds. Only the first spell of the action is kept: the lands
+        // tapped to fund it call back in here with their own mana abilities.
+        if (paidSpellAbility == null && ability instanceof SpellAbility) {
+            paidSpellAbility = ability;
+        }
         // getPlayable is a UI "playable" list and returns nothing while declare attackers
         // is in its pre-step part (PlayerImpl.SILENT_PHASES_STEPS) - exactly when attack
         // costs such as Ghostly Prison's are paid (CR 508.1h/i). Add the engine's own
