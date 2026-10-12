@@ -17,6 +17,8 @@
       "commander_power": 0.0,
       "strategy": "spirits_graveyard_history_recursion",
       "source_status": "official_precon_verified + direct_user_unchanged; structural roles project_inferred",
+      "exact_profile_path": "data/opponents/lorehold_spirit_precon.json",
+      "exact_profile_id": "opponent/lorehold-spirit-precon",
       "data_quality": "project_inferred",
       "land_count": 36,
       "roles": {

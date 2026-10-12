@@ -16,7 +16,12 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
-from commander_lab.models import CardIdentity, CardRole, StructuralCardProfile
+from commander_lab.models import (
+    CardIdentity,
+    CardRole,
+    StructuralCardProfile,
+    StructuralDeckProfile,
+)
 
 from .profiles import build_default_profile
 
@@ -111,6 +116,9 @@ class CardFactsCatalog:
             fact = self._by_key.get(engine_lookup_key(name.split(" // ")[0]))
         return fact
 
+    def facts(self) -> tuple[CardFacts, ...]:
+        return tuple(self._by_key.values())
+
     def __len__(self) -> int:
         return len(self._by_key)
 
@@ -122,15 +130,25 @@ def load_card_facts(root: str | Path) -> CardFactsCatalog | None:
     return CardFactsCatalog.from_json(path) if path.is_file() else None
 
 
-def apply_card_facts(profile: StructuralCardProfile, facts: CardFacts) -> StructuralCardProfile:
-    """Fill in what the facts know and the profile leaves at its uncurated default."""
+def apply_card_facts(
+    profile: StructuralCardProfile, facts: CardFacts, *, infer_roles: bool = True
+) -> StructuralCardProfile:
+    """Fill in what the facts know and the profile leaves at its uncurated default.
+
+    Power is a fact. A finisher role read from rules text is an inference, so callers that
+    keep a card's semantics deliberately unknown pass ``infer_roles=False``.
+    """
     update: dict[str, object] = {}
     if facts.is_creature and not profile.is_land:
         update["is_creature"] = True
         if profile.base_power <= 0.0:
             update["base_power"] = facts.combat_power()
     text = facts.text.casefold()
-    if CardRole.FINISHER not in profile.roles and any(cue in text for cue in _FINISHER_TEXT):
+    if (
+        infer_roles
+        and CardRole.FINISHER not in profile.roles
+        and any(cue in text for cue in _FINISHER_TEXT)
+    ):
         update["roles"] = profile.roles | {CardRole.FINISHER}
         update["role_strengths"] = {**profile.role_strengths, CardRole.FINISHER: 1.0}
         if profile.roles == frozenset({CardRole.ENABLER}):
@@ -151,6 +169,41 @@ def profile_from_facts(name: str, facts: CardFacts) -> StructuralCardProfile:
     return apply_card_facts(build_default_profile(identity), facts)
 
 
+def apply_facts_to_deck(
+    deck: StructuralDeckProfile, catalog: CardFactsCatalog | None
+) -> StructuralDeckProfile:
+    """Card power, text finishers and commander cost/power from the facts, where known.
+
+    Placeholder role cards of partially known opponent lists stay as they are.
+    """
+    if catalog is None:
+        return deck
+    cards = []
+    for card in deck.cards:
+        facts = catalog.get(card.oracle_name)
+        cards.append(card if facts is None else apply_card_facts(card, facts))
+    costs = dict(deck.commander_base_costs)
+    powers = dict(deck.commander_base_power)
+    for name in deck.commander_names:
+        stats = commander_stats(name, catalog)
+        if stats is not None:
+            costs[name], powers[name] = stats
+    return deck.model_copy(
+        update={
+            "cards": tuple(cards),
+            "commander_base_costs": costs,
+            "commander_base_power": powers,
+        }
+    )
+
+
+def fact_profiles(catalog: CardFactsCatalog | None) -> tuple[StructuralCardProfile, ...]:
+    """Inferred profiles for every card with facts (curated profiles take precedence)."""
+    if catalog is None:
+        return ()
+    return tuple(profile_from_facts(fact.name, fact) for fact in catalog.facts())
+
+
 def commander_stats(name: str, catalog: CardFactsCatalog | None) -> tuple[float, float] | None:
     """(mana value, combat power) of a commander, when the facts know it."""
     facts = catalog.get(name) if catalog is not None else None
@@ -165,8 +218,10 @@ __all__ = [
     "CardFacts",
     "CardFactsCatalog",
     "apply_card_facts",
+    "apply_facts_to_deck",
     "commander_stats",
     "engine_lookup_key",
+    "fact_profiles",
     "load_card_facts",
     "profile_from_facts",
 ]
