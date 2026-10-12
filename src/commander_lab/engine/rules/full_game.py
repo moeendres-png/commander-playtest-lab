@@ -1138,6 +1138,7 @@ class ExternalPilotDecisionPolicy:
         self._own_cast_names: dict[int, list[str]] = {}
         self._last_unpaid_mana: dict[int, str] = {}
         self._turn_actions: dict[int, tuple[object, Counter[str]]] = {}
+        self._last_block_proposal: dict[int, tuple[object, int]] = {}
 
     @public_full_game_errors
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
@@ -2858,6 +2859,19 @@ class ExternalPilotDecisionPolicy:
         # always blocked at least once, which threw creatures away.
         worthwhile = sum(1 for score, _stable_id in ranked if score > 0.0)
         take = max(min_selections, min(max_selections, worthwhile))
+        # The engine re-asks when a declared block is illegal as a whole
+        # (menace, block requirements). The same block proposed again and
+        # again is that loop; stop proposing it when blocking is optional.
+        seat = runtime.binding.seat
+        proposal = (
+            state.get("turn_number"),
+            tuple(stable_id for _score, stable_id in ranked[:take]),
+        )
+        last, repeats = self._last_block_proposal.get(seat, (None, 0))
+        repeats = repeats + 1 if last == proposal else 1
+        self._last_block_proposal[seat] = (proposal, repeats)
+        if repeats > self._BLOCK_REPEAT_LIMIT and min_selections == 0:
+            return []
         return [raw_by_stable_id[stable_id] for _score, stable_id in ranked[:take]]
 
     # #732: own stack objects, colour picks and other named choices.
@@ -2866,6 +2880,7 @@ class ExternalPilotDecisionPolicy:
     # activations (sacrifice outlets, pingers) legitimately go further.
     _TURN_SPELL_CAP = 3
     _TURN_ABILITY_CAP = 8
+    _BLOCK_REPEAT_LIMIT = 2
 
     def _turn_action_cap(self, option: dict[str, Any]) -> int:
         metadata = option.get("metadata")

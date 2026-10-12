@@ -445,6 +445,10 @@ def block_score(
             score = -1.0
     if attacker_power == 0:
         score = min(score, 0.1)
+    if "menace" in attacker_keywords:
+        # Each blocker is declared on its own; a lone blocker cannot block a
+        # menace creature, and a real game looped re-proposing that block.
+        score = -1.0
     return score, {"block_survives": blocker_survives, "block_kills": kills_attacker}
 
 

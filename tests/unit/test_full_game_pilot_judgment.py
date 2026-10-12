@@ -392,3 +392,32 @@ def test_discard_cost_spell_is_not_cast_from_a_one_card_hand() -> None:
     with_fodder = _state(hand=["Big Score", "Island"])
     response = _policy().decide(_request("priority", [_PASS, big_score], with_fodder))
     assert response["selected_option_ids"] == ["score"]
+
+
+def test_lone_blocker_does_not_block_a_menace_attacker() -> None:
+    state = _state(
+        actor_board=[_card("dragon", "Dragon Token", 6, 6)],
+        opponent_board=[_card("rograkh", "Rograkh, Son of Rohgahh", 3, 1, abilities=["Menace"])],
+    )
+    response = _policy().decide(
+        _request("declare_blocker", [_block_option("dragon", "rograkh")], state, minimum=0)
+    )
+    assert response["selected_option_ids"] == []
+
+
+def test_a_block_the_engine_keeps_rejecting_is_dropped() -> None:
+    # The engine asks again when the declared block was illegal as a whole.
+    policy = _policy()
+    state = _state(
+        actor_board=[_card("dragon", "Dragon Token", 6, 6)],
+        opponent_board=[_card("orc", "Merciless Executioner", 3, 1)],
+    )
+    picks = [
+        policy.decide(
+            _request(
+                "declare_blocker", [_block_option("dragon", "orc")], state, minimum=0, offset=n
+            )
+        )["selected_option_ids"]
+        for n in range(1, 5)
+    ]
+    assert picks == [["block-dragon"], ["block-dragon"], [], []]
