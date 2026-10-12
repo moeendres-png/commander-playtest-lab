@@ -624,7 +624,7 @@
     },
     {
       "interaction_id": "countered_commander_can_return_to_command",
-      "description": "A countered commander enters the graveyard before its owner may move it to command.",
+      "description": "A countered commander enters the graveyard before its owner may move it to command; the cast still counts toward commander tax (CR 903.8).",
       "category": "commander",
       "cards": [
         "Counterspell",
@@ -638,7 +638,7 @@
         "spell_countered": true,
         "graveyard_entry": true,
         "final_zone": "command",
-        "commander_tax_increments": false
+        "commander_tax_increments": true
       },
       "comparison_keys": [
         "spell_countered",

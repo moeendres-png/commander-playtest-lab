@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import threading
 import uuid
+from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass
 from functools import wraps
@@ -22,6 +23,7 @@ from typing import Any, Literal, NamedTuple, cast
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from commander_lab.agents import BasePilot, build_pilot
+from commander_lab.agents.card_knowledge import card_facts
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.base import resolve_engine_working_directory
 from commander_lab.engine.rules.failure_privacy import (
@@ -45,6 +47,19 @@ from commander_lab.models import (
 )
 from commander_lab.semantic_replay.canonicalization import canonical_hash
 from commander_lab.semantic_replay.tape_helpers import selected_fingerprints_for_response
+
+from .full_game_pilot_views import (
+    attack_score,
+    block_score,
+    board_summary,
+    card_view_fields,
+    color_choice_rank,
+    creature_power,
+    hand_role_counts,
+    named_choice_rank,
+    priority_view_fields,
+    target_object_bonus,
+)
 
 FULL_GAME_DECISION_PROTOCOL_VERSION = "xmage-external-decision-protocol-1.0.0"
 FULL_GAME_LANE = "xmage_full_game_external_pilots"
@@ -1119,6 +1134,9 @@ class ExternalPilotDecisionPolicy:
             int, tuple[int, str, tuple[tuple[str, str, str], ...]]
         ] = {}
         self._mana_repeat_count: dict[int, int] = {}
+        # Seats whose last mana-payment choice was a special mana action
+        # (Delve, Convoke, Improvise): the next card choice pays for it.
+        self._special_mana_pending: dict[int, bool] = {}
         # No-progress guard memory for priority windows (per seat): free
         # repeatable actions (Equip {0}, untap loops) can re-offer
         # identically forever with zero game-state progress. An identical
@@ -1179,6 +1197,13 @@ class ExternalPilotDecisionPolicy:
         # that follows carries no cost at all, so this is where that cost
         # survives the hop. It is consumed by the announce it was kept for.
         self._priority_cost_facts: dict[int, dict[str, int]] = {}
+        # #732: names of the spells each seat itself cast recently, so the
+        # pilot does not counter or target its own stack objects, and the
+        # mana this seat's current payment still needs (for colour picks).
+        self._own_cast_names: dict[int, list[str]] = {}
+        self._last_unpaid_mana: dict[int, str] = {}
+        self._turn_actions: dict[int, tuple[object, Counter[str]]] = {}
+        self._last_block_proposal: dict[int, tuple[object, int]] = {}
 
     @public_full_game_errors
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
@@ -1194,6 +1219,8 @@ class ExternalPilotDecisionPolicy:
         runtime = self._pilots.get(seat)
         if runtime is None:
             raise FullGameProtocolError(f"decision actor has unmapped seat: {seat}")
+        if decision_class not in {"mana_payment", "choose_object"}:
+            self._special_mana_pending.pop(seat, None)
         options = self._legal_options(request)
         context = dict(request.get("context") or {})
         min_selections = int(request.get("minimum_selections", request.get("min_selections", 0)))
@@ -1225,7 +1252,17 @@ class ExternalPilotDecisionPolicy:
                 runtime, pilot_state, context, rng, prompt=prompt
             )
         elif decision_class == "mana_payment":
+            self._last_unpaid_mana[seat] = str(context.get("unpaid_mana") or "")
             selected = [self._decide_mana(runtime, pilot_state, options, context, rng)]
+            chosen_type = next(
+                (
+                    str(option.get("option_type", ""))
+                    for option in options
+                    if option.get("option_id") == selected[0]
+                ),
+                "",
+            )
+            self._special_mana_pending[seat] = chosen_type == "special_mana_action"
         elif decision_class == "choose_use":
             selected = [
                 self._decide_boolean(
@@ -1240,7 +1277,11 @@ class ExternalPilotDecisionPolicy:
             ]
         elif decision_class == "pile":
             selected = [self._decide_pile(runtime, pilot_state, options, context, rng)]
-        elif decision_class in {"choice", "replacement_effect", "trigger_order"}:
+        elif decision_class == "choice":
+            selected = [
+                self._decide_choice(runtime, pilot_state, options, context, rng, prompt=prompt)
+            ]
+        elif decision_class in {"replacement_effect", "trigger_order"}:
             selected = [self._decide_semantic_option(runtime, pilot_state, options, rng)]
         elif decision_class == "mode":
             selected = [self._decide_mode(runtime, pilot_state, options, rng)]
@@ -1251,6 +1292,18 @@ class ExternalPilotDecisionPolicy:
             self._priority_cost_facts.pop(seat, None)
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
             self._remember_priority_cost_facts(seat, options, selected)
+            self._remember_own_cast(seat, options, selected, turn=pilot_state.get("turn_number"))
+        elif (
+            decision_class == "choose_object"
+            and self._special_mana_pending.pop(seat, False)
+            and max_selections >= 1
+            and options
+        ):
+            # #732: a Delve-style payment ("exile a card from your graveyard")
+            # asks which card pays. Choosing none leaves the cost unpaid and
+            # the engine offers the same payment again, forever. Pay with
+            # the cheapest card, which is the least likely to matter later.
+            selected = [self._cheapest_object(options)]
         elif decision_class in {"target", "choose_object", "target_amount"}:
             selected = self._decide_targets(
                 runtime,
@@ -1488,6 +1541,47 @@ class ExternalPilotDecisionPolicy:
                 "withheld %d priority action(s) the actor cannot fund from free resources at all",
                 unreachable,
             )
+        # #732: pilot judgment, like affordability above: an action a player
+        # would not take because it only hurts themselves (countering only
+        # their own spells, removal with no opposing target, a wipe that
+        # costs them the most) is not put up for selection. It stays
+        # engine-offered and passing is always legal.
+        own_stack = self._own_stack_names(seat)
+        self_defeating = 0
+        kept: list[dict[str, Any]] = []
+        for option in affordable:
+            if priority_view_fields(option, state, own_stack_names=own_stack)[1] is None:
+                kept.append(option)
+            else:
+                self_defeating += 1
+        affordable = kept
+        kept = []
+        for option in needs_mana_first:
+            if priority_view_fields(option, state, own_stack_names=own_stack)[1] is None:
+                kept.append(option)
+            else:
+                self_defeating += 1
+        needs_mana_first = kept
+        # #732: an action chosen its cap of times this turn is not put up
+        # again. Real games showed a cast that never reaches the stack (an
+        # additional cost the seat cannot pay) or a no-gain loop (Basalt
+        # Monolith untapping itself) selected over a thousand times in one
+        # turn; a player stops trying after a few attempts.
+        turn = state.get("turn_number")
+        tried = self._turn_actions.get(seat)
+        if tried is not None and tried[0] == turn:
+            capped = [
+                option
+                for option in (*affordable, *needs_mana_first)
+                if tried[1][str(option.get("label", ""))] >= self._turn_action_cap(option)
+            ]
+            if capped:
+                capped_ids = {id(option) for option in capped}
+                affordable = [o for o in affordable if id(o) not in capped_ids]
+                needs_mana_first = [o for o in needs_mana_first if id(o) not in capped_ids]
+                self_defeating += len(capped)
+        if self_defeating:
+            _LOG.info("withheld %d self-defeating priority action(s)", self_defeating)
         if needs_mana_first:
             _LOG.info(
                 "offered %d pool-shortfall priority action(s) as needing mana first",
@@ -1550,10 +1644,12 @@ class ExternalPilotDecisionPolicy:
             occurrence = occurrences.get(base, 0)
             occurrences[base] = occurrence + 1
             stable_id = f"{base}:{occurrence}"
-            view = self._priority_action(option, state).model_copy(
+            view = self._priority_action(option, state)
+            view = view.model_copy(
                 update={
                     "action_id": stable_id,
                     "metadata": {
+                        **view.metadata,
                         "xmage_option_type": self._required_text(option, "option_type"),
                         # The pilot is choosing the intent, not an immediate
                         # activation: selecting this answers with a mana
@@ -1899,7 +1995,16 @@ class ExternalPilotDecisionPolicy:
                 update={"action_id": stable_id}
             )
             breakdown = runtime.pilot.evaluate_action(pilot_state, action)
-            score = breakdown.total_utility + self._target_alignment(action, state, outcome)
+            score = (
+                breakdown.total_utility
+                + self._target_alignment(action, state, outcome)
+                + target_object_bonus(
+                    option,
+                    state,
+                    outcome,
+                    own_stack_names=self._own_stack_names(runtime.binding.seat),
+                )
+            )
             ranked.append((score, action.card_name, stable_id))
         ranked.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
 
@@ -2242,7 +2347,10 @@ class ExternalPilotDecisionPolicy:
             tuple(
                 sorted(
                     (
-                        self._required_text(option, "option_id"),
+                        # Not the option id: the engine re-mints some ids
+                        # (special mana actions such as Delve) on every
+                        # offer, which hid an identical repeat (#732).
+                        str(option.get("option_type", "")),
                         str(option.get("label", "")),
                         str((option.get("metadata") or {}).get("mana_available")),
                     )
@@ -2770,15 +2878,30 @@ class ExternalPilotDecisionPolicy:
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
         occurrences: dict[str, int] = {}
+        # #732: board-aware attack judgment. An attack into a blocker that
+        # kills the attacker and survives, or with a zero-power creature, is
+        # not put up; the pilot chooses among the remaining defenders (its
+        # evaluator weighs life and threat) or holds.
         for option in attacks:
+            score, _facts = attack_score(option, state)
+            if score <= 0.0:
+                continue
             label = str(option.get("label", "Attack"))
             base = f"attack:{label.casefold()}"
             occurrence = occurrences.get(base, 0)
             occurrences[base] = occurrence + 1
             stable_id = f"{base}:{occurrence}"
-            action = self._combat_action(option, state).model_copy(update={"action_id": stable_id})
+            action = self._combat_action(option, state)
+            action = action.model_copy(
+                update={
+                    "action_id": stable_id,
+                    "floor_value": min(3.0, max(action.floor_value, score)),
+                }
+            )
             actions.append(action)
             raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+        if not actions:
+            return self._required_text(hold, "option_id")
         actions.append(
             PilotActionView(
                 action_id="attack:hold",
@@ -2807,7 +2930,6 @@ class ExternalPilotDecisionPolicy:
     ) -> list[str]:
         if not options or max_selections == 0:
             return []
-        pilot_state = self._pilot_state(runtime, state)
         ranked: list[tuple[float, str]] = []
         raw_by_stable_id: dict[str, str] = {}
         occurrences: dict[str, int] = {}
@@ -2817,15 +2939,141 @@ class ExternalPilotDecisionPolicy:
             occurrence = occurrences.get(base, 0)
             occurrences[base] = occurrence + 1
             stable_id = f"{base}:{occurrence}"
-            action = self._combat_action(option, state).model_copy(update={"action_id": stable_id})
-            score = runtime.pilot.evaluate_action(pilot_state, action).total_utility
+            # The board decides blocks: the generic evaluator has no P/T.
+            score, _facts = block_score(option, state)
             ranked.append((score, stable_id))
             raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
         ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
-        actor = self._actor(state)
-        life = float(actor.get("life", 40))
-        take = max_selections if life <= 15 else min(max_selections, max(min_selections, 1))
+        # #732: block only where it pays (the blocker survives, trades up, or
+        # a chump block prevents lethal or near-lethal damage); the old rule
+        # always blocked at least once, which threw creatures away.
+        worthwhile = sum(1 for score, _stable_id in ranked if score > 0.0)
+        take = max(min_selections, min(max_selections, worthwhile))
+        # The engine re-asks when a declared block is illegal as a whole
+        # (menace, block requirements). The same block proposed again and
+        # again is that loop; stop proposing it when blocking is optional.
+        seat = runtime.binding.seat
+        proposal = (
+            state.get("turn_number"),
+            tuple(stable_id for _score, stable_id in ranked[:take]),
+        )
+        last, repeats = self._last_block_proposal.get(seat, (None, 0))
+        repeats = repeats + 1 if last == proposal else 1
+        self._last_block_proposal[seat] = (proposal, repeats)
+        if repeats > self._BLOCK_REPEAT_LIMIT and min_selections == 0:
+            return []
         return [raw_by_stable_id[stable_id] for _score, stable_id in ranked[:take]]
+
+    # #732: own stack objects, colour picks and other named choices.
+    _OWN_CAST_MEMORY = 16
+    # Same-named spells cast more than this in one turn are rare; repeated
+    # activations (sacrifice outlets, pingers) legitimately go further.
+    _TURN_SPELL_CAP = 3
+    _TURN_ABILITY_CAP = 8
+    _BLOCK_REPEAT_LIMIT = 2
+
+    def _turn_action_cap(self, option: dict[str, Any]) -> int:
+        metadata = option.get("metadata")
+        meta = metadata if isinstance(metadata, dict) else {}
+        return (
+            self._TURN_SPELL_CAP if meta.get("ability_type") == "spell" else self._TURN_ABILITY_CAP
+        )
+
+    def _own_stack_names(self, seat: int) -> frozenset[str]:
+        return frozenset(self._own_cast_names.get(seat, ()))
+
+    def _remember_own_cast(
+        self,
+        seat: int,
+        options: list[dict[str, Any]],
+        selected: list[str],
+        turn: object = None,
+    ) -> None:
+        chosen = set(selected)
+        for option in options:
+            if str(option.get("option_id")) not in chosen:
+                continue
+            if str(option.get("option_type")) not in {"pass_priority", "mana_ability"}:
+                tried = self._turn_actions.get(seat)
+                if tried is None or tried[0] != turn:
+                    tried = (turn, Counter())
+                    self._turn_actions[seat] = tried
+                tried[1][str(option.get("label", ""))] += 1
+            metadata = option.get("metadata")
+            meta = metadata if isinstance(metadata, dict) else {}
+            if meta.get("ability_type") != "spell":
+                continue
+            name = str(meta.get("source_name") or "").strip().casefold()
+            if not name:
+                continue
+            names = self._own_cast_names.setdefault(seat, [])
+            names.append(name)
+            del names[: -self._OWN_CAST_MEMORY]
+
+    def _decide_choice(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, Any],
+        options: list[dict[str, Any]],
+        context: dict[str, Any],
+        rng: random.Random,
+        *,
+        prompt: str = "",
+    ) -> str:
+        """Named choice: mana colour, protection colour, creature type, ...
+
+        A mana colour pick serves the cost still being paid, then the hand; a
+        named choice follows the board. When nothing distinguishes the options
+        the generic semantic ranking decides, as before.
+        """
+        if not options:
+            raise FullGameProtocolError("choice decision has no legal options")
+        seat = int(state.get("seat", -1)) + 1
+        actor = self._actor(state)
+        hand = actor.get("hand")
+        battlefield = actor.get("battlefield")
+        hand_names = [
+            str(item.get("name", ""))
+            for item in (hand if isinstance(hand, list) else [])
+            if isinstance(item, dict) and item.get("name")
+        ]
+        text = f"{prompt} {context.get('outcome', '')}".casefold()
+        if "mana" in text:
+            identity: set[str] = set()
+            own_id = str(state.get("actor_id", ""))
+            status = state.get("commander_status")
+            for entry in status if isinstance(status, list) else ():
+                if isinstance(entry, dict) and str(entry.get("owner_id")) == own_id:
+                    facts = card_facts(str(entry.get("name") or ""))
+                    if facts is not None:
+                        identity |= facts.color_identity
+            ranked = color_choice_rank(
+                options,
+                unpaid_mana=self._last_unpaid_mana.get(seat, ""),
+                hand_names=hand_names,
+                identity=identity,
+            )
+        else:
+            ranked = named_choice_rank(
+                options,
+                prompt=prompt,
+                state=state,
+                own_names=[
+                    str(item.get("name", ""))
+                    for item in (battlefield if isinstance(battlefield, list) else [])
+                    if isinstance(item, dict)
+                ],
+            )
+        scores = [score for score, _label in ranked]
+        if not scores or max(scores) <= 0.0 or len(set(scores)) == 1:
+            return self._decide_semantic_option(runtime, state, options, rng)
+        best = max(
+            range(len(options)),
+            key=lambda index: (ranked[index][0], -index),
+        )
+        return self._require_offered(
+            self._required_text(options[best], "option_id"), options, "choice option"
+        )
 
     def _pilot_state(self, runtime: _RuntimePilot, state: dict[str, Any]) -> PilotStateView:
         actor = self._actor(state)
@@ -2837,18 +3085,25 @@ class ExternalPilotDecisionPolicy:
         for raw in players:
             if not isinstance(raw, dict) or raw.get("player_id") == actor_id:
                 continue
-            battlefield = raw.get("battlefield")
-            board_size = len(battlefield) if isinstance(battlefield, list) else 0
+            # #732: threat from what the board does (creature power, non-land
+            # permanents), not from how many lands an opponent has.
+            summary = board_summary(raw)
             graveyard_count = int(raw.get("graveyard_count", 0))
             life = float(raw.get("life", 40))
-            threat = board_size * 0.75 + graveyard_count * 0.08 + max(0.0, 40.0 - life) * 0.04
+            threat = (
+                summary["creature_power"] * 0.5
+                + summary["nonland_permanents"] * 0.6
+                + summary["lands"] * 0.1
+                + graveyard_count * 0.08
+                + max(0.0, 40.0 - life) * 0.04
+            )
             opponents.append(
                 PilotOpponentView(
                     player_id=self._required_text(raw, "player_id"),
                     life=life,
                     threat=max(0.0, threat),
-                    board_power=float(board_size),
-                    engine_value=float(board_size) * 0.35,
+                    board_power=summary["creature_power"],
+                    engine_value=summary["nonland_permanents"] * 0.35,
                     graveyard_size=graveyard_count,
                     hand_size=int(raw.get("hand_count", 0)),
                 )
@@ -2865,17 +3120,45 @@ class ExternalPilotDecisionPolicy:
         )
         command = actor.get("command")
         command_items = command if isinstance(command, list) else []
-        commanders = tuple(
-            PilotCommanderView(
-                name=str(item.get("name", "Unknown commander")),
-                base_cost=0.0,
-                next_cost=0.0,
-                casts=0,
-                on_battlefield=False,
+        # #732: a commander is online when it is on its controller's
+        # battlefield; the command zone alone no longer hides that.
+        own_battlefield = {
+            str(item.get("name", "")).casefold(): item
+            for item in battlefield_items
+            if isinstance(item, dict) and item.get("name")
+        }
+        status = state.get("commander_status")
+        commander_entries = [
+            entry
+            for entry in (status if isinstance(status, list) else ())
+            if isinstance(entry, dict) and str(entry.get("owner_id")) == actor_id
+        ]
+        commander_views: dict[str, PilotCommanderView] = {}
+        for item in [*command_items, *commander_entries]:
+            if not isinstance(item, dict):
+                continue
+            name = str(item.get("name", "Unknown commander"))
+            if name.casefold() in commander_views:
+                continue
+            on_board = own_battlefield.get(name.casefold())
+            facts = card_facts(name)
+            base_cost = facts.mana_value if facts is not None else 0.0
+            casts = int(item.get("casts_from_command", 0) or 0)
+            commander_views[name.casefold()] = PilotCommanderView(
+                name=name,
+                base_cost=base_cost,
+                next_cost=base_cost + 2.0 * casts,
+                casts=casts,
+                on_battlefield=on_board is not None,
+                power=float(creature_power(on_board)) if on_board is not None else 0.0,
             )
-            for item in command_items
-            if isinstance(item, dict)
-        )
+        commanders = tuple(commander_views.values())
+        own_summary = board_summary(actor)
+        hand_name_list = [
+            str(item.get("name", ""))
+            for item in hand_items
+            if isinstance(item, dict) and item.get("name")
+        ]
         return PilotStateView(
             player_id=actor_id,
             deck_id=runtime.binding.deck_id,
@@ -2886,28 +3169,20 @@ class ExternalPilotDecisionPolicy:
             life=float(actor.get("life", 40)),
             hand_size=int(actor.get("hand_count", len(hand_items))),
             mana_available=max(0.0, mana),
-            lands=sum(
-                1
-                for item in battlefield_items
-                if isinstance(item, dict) and "land" in str(item.get("name", "")).casefold()
-            ),
+            lands=int(own_summary["lands"]),
             ramp_mana=0.0,
             resources=float(len(battlefield_items)),
             tokens=0.0,
-            board_power=float(len(battlefield_items)),
-            engine_value=float(len(battlefield_items)) * 0.35,
+            board_power=own_summary["creature_power"],
+            engine_value=own_summary["nonland_permanents"] * 0.35,
             graveyard_size=int(actor.get("graveyard_count", 0)),
             battlefield_names=tuple(
                 str(item.get("name", ""))
                 for item in battlefield_items
                 if isinstance(item, dict) and item.get("name")
             ),
-            hand_names=tuple(
-                str(item.get("name", ""))
-                for item in hand_items
-                if isinstance(item, dict) and item.get("name")
-            ),
-            role_counts={},
+            hand_names=tuple(hand_name_list),
+            role_counts=hand_role_counts(hand_name_list),
             commanders=commanders,
             opponents=tuple(opponents),
             hidden_information_uncertainty=1.0,
@@ -2930,16 +3205,29 @@ class ExternalPilotDecisionPolicy:
         action_kind: Literal["card", "commander"] = (
             "commander" if source_id in command_ids else "card"
         )
+        fields, _withhold = priority_view_fields(
+            option,
+            state,
+            own_stack_names=self._own_stack_names(int(state.get("seat", -1)) + 1),
+        )
+        view_metadata: dict[str, float | int | str | bool] = {
+            **fields.pop("metadata", {}),
+            "xmage_option_type": self._required_text(option, "option_type"),
+        }
+        view: dict[str, Any] = {
+            "mana_cost": 0.0,
+            "floor_value": 0.65,
+            "immediate_impact": 0.45,
+            **fields,
+        }
         return PilotActionView(
             action_id=self._required_text(option, "option_id"),
             action_kind=action_kind,
             card_name=source_name,
-            mana_cost=0.0,
-            floor_value=0.65,
-            immediate_impact=0.45,
             commander_synergy=0.6 if action_kind == "commander" else 0.15,
             remaining_mana=self._actor_mana(actor),
-            metadata={"xmage_option_type": self._required_text(option, "option_type")},
+            metadata=view_metadata,
+            **view,
         )
 
     def _target_action(
@@ -3010,13 +3298,16 @@ class ExternalPilotDecisionPolicy:
 
     def _hand_action(self, card: dict[str, Any]) -> PilotActionView:
         name = self._required_text(card, "name")
+        # #732: printed facts (land or not, mana value, roles) from the public
+        # card catalog; a card the catalog does not know keeps the old
+        # basic-land-name fallback.
         return PilotActionView(
             action_id=self._required_text(card, "object_id"),
             action_kind="card",
             card_name=name,
             floor_value=0.5,
             immediate_impact=0.3,
-            metadata={"is_land": self._looks_like_basic_land(name)},
+            **card_view_fields(name),
         )
 
     def _target_alignment(
@@ -3094,6 +3385,13 @@ class ExternalPilotDecisionPolicy:
         if actor is None:
             raise FullGameProtocolError("actor is absent from actor-scoped state")
         return actor
+
+    def _cheapest_object(self, options: list[dict[str, Any]]) -> str:
+        def key(option: dict[str, Any]) -> tuple[float, str]:
+            facts = card_facts(str(option.get("label", "")))
+            return (facts.mana_value if facts is not None else 0.0, str(option.get("label", "")))
+
+        return self._required_text(min(options, key=key), "option_id")
 
     @staticmethod
     def _actor_mana(actor: dict[str, Any]) -> float:

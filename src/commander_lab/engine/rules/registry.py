@@ -97,7 +97,7 @@ def build_validation_registry(
     interactions: Iterable[InteractionSpec],
     tactical_oracle: TacticalRuleOracle | None = None,
     external_adapters: Iterable[RulesEngineAdapter] = (),
-    engine_version: str = "tactical-0.8.1",
+    engine_version: str = "tactical-0.8.2",
 ) -> ValidationRegistry:
     oracle = tactical_oracle or TacticalRuleOracle()
     specs = tuple(interactions)
