@@ -147,6 +147,13 @@ final class XmageFullGamePlayer extends PlayerImpl {
      */
     private Ability targetCallbackSource;
 
+    /**
+     * #752: activation keys of every ability whose cost a {@link #playMana}
+     * frame on the current call stack is paying. Pushed on entry, popped on
+     * exit, so it always mirrors the nested payments in progress.
+     */
+    private final java.util.Deque<String> manaPaymentsInFlight = new java.util.ArrayDeque<>();
+
     private final Set<Target> offeredTargetObjects =
             java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
 
@@ -1413,6 +1420,25 @@ final class XmageFullGamePlayer extends PlayerImpl {
             String promptText,
             Game game
     ) {
+        String inFlight = ability == null ? null : activationKey(ability);
+        if (inFlight != null) {
+            manaPaymentsInFlight.push(inFlight);
+        }
+        try {
+            return playManaFrame(ability, unpaid, promptText, game);
+        } finally {
+            if (inFlight != null) {
+                manaPaymentsInFlight.pop();
+            }
+        }
+    }
+
+    private boolean playManaFrame(
+            Ability ability,
+            ManaCost unpaid,
+            String promptText,
+            Game game
+    ) {
         witness("mana_payment", ability, unpaid);
         // #740: this is the ability instance the engine is paying CR 601.2f on,
         // i.e. the cast copy it put on the stack. Keeping it lets
@@ -1439,6 +1465,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         ManaOptions available = getManaAvailable(game);
         List<ActivatedAbility> manaAbilities = usableManaAbilities.values().stream()
                 .filter(manaAbility -> manaCostAffordable(manaAbility, available, game))
+                .filter(manaAbility -> !manaActivationInFlight(manaAbility))
                 .sorted(Comparator.comparing((Ability candidate) -> abilitySortKey(candidate, game)))
                 .toList();
 
@@ -1549,6 +1576,41 @@ final class XmageFullGamePlayer extends PlayerImpl {
             fail("XMAGE_ACTION_EXECUTION_FAILED", "mana activation failed: " + selected);
         }
         return true;
+    }
+
+    /**
+     * #752: true when {@code manaAbility} is an ability whose own activation is
+     * still being paid somewhere up the current payment chain (same source
+     * object and same original ability, the engine's own key for activation
+     * limits, ActivatedAbilityImpl.java:283-298).
+     *
+     * <p>The engine counts an activation only once its costs are paid
+     * ({@code ActivatedAbilityImpl.activate}), so an ability in the middle of
+     * its own payment still reads as activatable and is offered again. Taking
+     * it nests one more payment for the same cost, directly (Three Tree Mascot
+     * paying itself) or through another such ability (two Mascots paying each
+     * other), without bound. With "Activate only once each turn" the engine later
+     * refuses the stale offer, and a real 6P coverage game (seed 303, turn 30)
+     * aborted with XMAGE_ACTION_EXECUTION_FAILED / "mana activation failed".
+     *
+     * <p>The set is the bridge's own record of the payments it is inside
+     * ({@link #playMana} pushes on entry and pops on exit), not a re-derivation
+     * of legality. A different ability of the same permanent, or the same card
+     * on another permanent that is not mid-activation, stays offered. Activating
+     * an in-flight ability again after its payment completes stays possible from
+     * the pool, so no mana is lost to the player.
+     */
+    boolean manaActivationInFlight(Ability manaAbility) {
+        return manaAbility != null && manaPaymentsInFlight.contains(activationKey(manaAbility));
+    }
+
+    static String activationKey(Ability ability) {
+        return ability.getOriginalId() + "@" + ability.getSourceId();
+    }
+
+    /** #752 boundary tests only: mirrors what {@link #playMana} pushes on entry. */
+    void recordManaPaymentInFlightForBoundaryTest(Ability paying) {
+        manaPaymentsInFlight.add(activationKey(paying));
     }
 
     @Override
