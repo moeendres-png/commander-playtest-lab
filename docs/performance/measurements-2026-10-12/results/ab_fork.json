@@ -1,0 +1,46 @@
+[
+ {
+  "seed": 1,
+  "status": "ok",
+  "semantic": "c7a37e7fd3e129cd4b1d868e7210cb95adb7c370808f841aa011e43f146d06d6",
+  "decisions": 4701,
+  "winners": [
+   1
+  ],
+  "wall_s": 51.67,
+  "child_cpu_s": 88.28
+ },
+ {
+  "seed": 2,
+  "status": "ok",
+  "semantic": "fbeefb589639cd9b1850c875080d1478296bf13cae563a922cdea94c26871473",
+  "decisions": 1966,
+  "winners": [
+   3
+  ],
+  "wall_s": 25.18,
+  "child_cpu_s": 54.85
+ },
+ {
+  "seed": 3,
+  "status": "ok",
+  "semantic": "5f22f5f5cea417b2d38b2dcf2212d1be583e3021f85f1a093dcc467b8afbbbc7",
+  "decisions": 2716,
+  "winners": [
+   1
+  ],
+  "wall_s": 31.4,
+  "child_cpu_s": 61.74
+ },
+ {
+  "seed": 4,
+  "status": "ok",
+  "semantic": "a5d52b84091b89b49559eb9a314f60c2e31397884316f625217a0e059fc69c7d",
+  "decisions": 2929,
+  "winners": [
+   1
+  ],
+  "wall_s": 34.78,
+  "child_cpu_s": 68.25
+ }
+]

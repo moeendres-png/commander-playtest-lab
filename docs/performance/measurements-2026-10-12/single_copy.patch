@@ -1,0 +1,17 @@
+diff --git a/Mage/src/main/java/mage/players/PlayerImpl.java b/Mage/src/main/java/mage/players/PlayerImpl.java
+index 4c1fc72fbc..d33c4a4c0d 100644
+--- a/Mage/src/main/java/mage/players/PlayerImpl.java
++++ b/Mage/src/main/java/mage/players/PlayerImpl.java
+@@ -3576,7 +3576,11 @@ public abstract class PlayerImpl implements Player, Serializable {
+     @Override
+     public ManaOptions getManaAvailable(Game originalGame) {
+         // workaround to fix a triggers list modification bug (game must be immutable on playable calculations)
+-        Game game = originalGame.createSimulationForPlayableCalc();
++        // A game that is already a playable calculation copy (getPlayable passes its own) is not the
++        // real game, so copying it a second time protects nothing and doubled the cost of every call.
++        Game game = originalGame.inCheckPlayableState()
++                ? originalGame
++                : originalGame.createSimulationForPlayableCalc();
+ 
+         ManaOptions availableMana = new ManaOptions();
+         availableMana.addMana(manaPool.getMana());
