@@ -1,0 +1,15 @@
+lazy {"pod": "0", "seed": 1, "status": "ok", "semantic": "ad2f362884fcf91824786a607eb0828e18bc3a06cb0dec83593ba46261c9e599", "decisions": 2865, "winners": [2], "wall_s": 32.1, "child_cpu_s": 59.75}
+lazy {"pod": "0", "seed": 2, "status": "ok", "semantic": "ec2357f3e87f57ce546d242ce626efee210e7a85f4311cd5b807a27c9319963b", "decisions": 6923, "winners": [1], "wall_s": 56.29, "child_cpu_s": 95.84}
+lazy {"pod": "1", "seed": 1, "status": "ok", "semantic": "5d90e1ff3b9d0da31ab6c3e902112a48c0532d2a71ac69b4cfe5bab09b310f0e", "decisions": 2613, "winners": [2], "wall_s": 29.69, "child_cpu_s": 64.54}
+lazy {"pod": "1", "seed": 2, "status": "ok", "semantic": "b382846007da1c8ff592acf2f5e968d079b6b915b1c2cb043038cfb2a41e1854", "decisions": 3170, "winners": [2], "wall_s": 33.92, "child_cpu_s": 73.24}
+lazy {"pod": "2", "seed": 1, "status": "ok", "semantic": "c14bb70b5fd925f9b91e40f2f109eeb3ce4b2259e847d503e87d155717a5daa2", "decisions": 2652, "winners": [2], "wall_s": 29.29, "child_cpu_s": 62.64}
+lazy {"pod": "2", "seed": 2, "status": "ok", "semantic": "9962f26fa5ad134d273552f6658a2b67969a1515df9877b9c88cb58f5a5c2394", "decisions": 2089, "winners": [1], "wall_s": 26.18, "child_cpu_s": 57.79}
+lazy {"pod": "3", "seed": 1, "status": "ok", "semantic": "41301038dfe3b2ed6df37ef86ef9b4486bd0ac504e53ad0fafebedb8a5e0bb53", "decisions": 2276, "winners": [2], "wall_s": 27.14, "child_cpu_s": 60.0}
+lazy {"pod": "3", "seed": 2, "status": "ok", "semantic": "bafa0924cd6889b0c8199eae297a322c1f5464ea1c91a01b274f029757985d7d", "decisions": 2993, "winners": [4], "wall_s": 30.65, "child_cpu_s": 63.55}
+lazy {"pod": "4", "seed": 1, "status": "ok", "semantic": "58980241d82b56e077e73f4cb9e3897815cebddb09ced887e059d978093914e0", "decisions": 2111, "winners": [2], "wall_s": 27.03, "child_cpu_s": 62.75}
+lazy {"pod": "4", "seed": 2, "status": "ok", "semantic": "46a0cadf79d0711680473fccb4900b0784c637cf5b62ba2d74d1d588bc3295a1", "decisions": 2509, "winners": [2], "wall_s": 33.77, "child_cpu_s": 62.85}
+lazyreal {"pod": "", "seed": 1, "status": "ok", "semantic": "c7a37e7fd3e129cd4b1d868e7210cb95adb7c370808f841aa011e43f146d06d6", "decisions": 4701, "winners": [1], "wall_s": 55.2, "child_cpu_s": 99.13}
+lazyreal {"pod": "", "seed": 2, "status": "ok", "semantic": "fbeefb589639cd9b1850c875080d1478296bf13cae563a922cdea94c26871473", "decisions": 1966, "winners": [3], "wall_s": 28.14, "child_cpu_s": 66.84}
+lazyreal {"pod": "", "seed": 3, "status": "ok", "semantic": "5f22f5f5cea417b2d38b2dcf2212d1be583e3021f85f1a093dcc467b8afbbbc7", "decisions": 2716, "winners": [1], "wall_s": 34.65, "child_cpu_s": 69.66}
+lazyreal {"pod": "", "seed": 4, "status": "ok", "semantic": "a5d52b84091b89b49559eb9a314f60c2e31397884316f625217a0e059fc69c7d", "decisions": 2929, "winners": [1], "wall_s": 39.12, "child_cpu_s": 81.59}
+DONE
