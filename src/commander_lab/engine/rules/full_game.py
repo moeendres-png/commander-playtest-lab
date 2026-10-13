@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
+import math
 import os
 import queue
 import re
@@ -408,8 +409,8 @@ class _RawFullGameClient:
     ) -> None:
         if not command:
             raise ValueError("full-game bridge command must not be empty")
-        if shutdown_grace_seconds <= 0:
-            raise ValueError("shutdown_grace_seconds must be positive")
+        if not math.isfinite(shutdown_grace_seconds) or shutdown_grace_seconds <= 0:
+            raise ValueError("shutdown_grace_seconds must be positive and finite")
         if "full-game" not in command:
             raise ValueError(
                 "full-game bridge command must explicitly include the full-game subcommand"

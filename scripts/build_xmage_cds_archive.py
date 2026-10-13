@@ -12,10 +12,11 @@ allows a long shutdown. The script then prints the bridge command to use:
     python scripts/build_xmage_cds_archive.py
     export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="<printed command>"
 
-The archive belongs to exactly one jar. The JVM checks this itself and runs without
-the archive when the jar changed; the printed command sends JVM log output to stderr,
-because the warning it writes then would otherwise reach stdout, which carries the
-bridge protocol. The archive changes no game behaviour, only how classes are loaded.
+Run it again after every jar build. The JVM recognises a changed jar only by its path,
+size and modification time, not by its content, and then runs without the archive; the
+printed command sends JVM log output to stderr, because the warning it writes then would
+otherwise reach stdout, which carries the bridge protocol. The archive changes no game
+behaviour, only how classes are loaded.
 """
 
 from __future__ import annotations

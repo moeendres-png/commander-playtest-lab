@@ -65,7 +65,9 @@ export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="<the command it prints>"
 ```
 
 The archive (about 300 MB, mapped read-only and shared between parallel JVMs) belongs to
-one jar. With a rebuilt jar the JVM refuses the archive and runs at normal speed. The
+one jar: run the script again after every jar build. The JVM recognises a changed jar by
+path, size and modification time only (not by content); when it does, it refuses the
+archive and runs at normal speed. The
 printed command routes JVM logging to stderr. Without that, the refusal warning lands on
 stdout, which carries the bridge protocol, and the game fails closed (`INVALID_RESPONSE`).
 Both cases were tested. A different command string means earlier batch records are not

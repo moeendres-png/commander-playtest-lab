@@ -262,10 +262,6 @@ def test_the_result_model_has_no_shutdown_default() -> None:
     assert schema.get("const") == FULL_GAME_SHUTDOWN_GRACEFUL
 
 
-if __name__ == "__main__":
-    raise SystemExit(pytest.main([__file__]))
-
-
 class _RecordingWaitProcess(_FakeProcess):
     def __init__(self, poll_script: list) -> None:
         super().__init__(poll_script)
@@ -291,10 +287,12 @@ def test_close_waits_the_configured_shutdown_grace() -> None:
     assert process.wait_timeouts == [300.0]
 
 
-def test_shutdown_grace_must_be_positive() -> None:
+@pytest.mark.parametrize("grace", [0, -1.0, float("inf"), float("nan")])
+def test_shutdown_grace_must_be_positive_and_finite(grace: float) -> None:
+    # An infinite grace would wait forever on a JVM that acked but hangs.
     with pytest.raises(ValueError, match="shutdown_grace_seconds"):
         _RawFullGameClient(
-            command=("java", "-jar", "bridge.jar", "full-game"), shutdown_grace_seconds=0
+            command=("java", "-jar", "bridge.jar", "full-game"), shutdown_grace_seconds=grace
         )
 
 
@@ -319,3 +317,7 @@ def test_runner_hands_its_shutdown_grace_to_the_client(monkeypatch: pytest.Monke
     with pytest.raises(Exception):  # noqa: B017
         runner.run(scenario=None, decks=(), pilots=())  # type: ignore[arg-type]
     assert seen == [42.0, 42.0]
+
+
+if __name__ == "__main__":
+    raise SystemExit(pytest.main([__file__]))
