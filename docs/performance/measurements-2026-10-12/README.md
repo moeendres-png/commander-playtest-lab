@@ -24,3 +24,4 @@ baseline for every game.
 - The smoke run on a freshly built main-pin bridge jar returned `BRIDGE_CLOSED` (seed 2),
   while the same pin earlier ran fine. Not yet diagnosed.
 - JFR raw recordings are not committed (about 13 MB each); regenerate with `-XX:StartFlightRecording`.
+- `results/par_lazy_r1.log`: an early parallel run of the lazy-copy prototype that failed with BRIDGE_ERROR; the rerun is in `coverage_lazy.log`.
