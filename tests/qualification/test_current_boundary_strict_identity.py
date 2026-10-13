@@ -32,11 +32,7 @@ def _init_repo(path: Path) -> Path:
     return path
 
 
-def _load_runner(monkeypatch: pytest.MonkeyPatch, forge_workspace: str | None):
-    if forge_workspace is None:
-        monkeypatch.delenv("FORGE_WORKSPACE", raising=False)
-    else:
-        monkeypatch.setenv("FORGE_WORKSPACE", forge_workspace)
+def _load_runner(monkeypatch: pytest.MonkeyPatch):
     spec = importlib.util.spec_from_file_location("strict_identity_runner", RUNNER)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -89,48 +85,23 @@ def test_git_fact_refuses_a_directory_outside_any_repository(tmp_path: Path) -> 
 def test_runner_git_fails_closed_instead_of_recording_an_empty_identity(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    runner = _load_runner(monkeypatch, None)
+    runner = _load_runner(monkeypatch)
     with pytest.raises(SystemExit, match="no identity, no credit"):
         runner.git("rev-parse", "HEAD", cwd=tmp_path / "absent")
     assert len(runner.git("rev-parse", "HEAD")) == 40
 
 
-def test_forge_has_no_default_workspace(monkeypatch: pytest.MonkeyPatch) -> None:
-    runner = _load_runner(monkeypatch, None)
-    assert runner.FORGE_WORKSPACE is None
-    assert runner.NATIVE_SUITE_BINDING["forge"]["engine_tree"] == "UNCONFIGURED"
-    with pytest.raises(SystemExit, match="FORGE_WORKSPACE is not set"):
-        runner.require_forge_workspace()
-
-
-def test_forge_workspace_must_exist(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    runner = _load_runner(monkeypatch, str(tmp_path / "absent"))
-    with pytest.raises(SystemExit, match="not a directory"):
-        runner.require_forge_workspace()
-
-
-def test_forge_workspace_must_be_its_checkouts_top_level(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
-    repo = _init_repo(tmp_path / "forge")
-    nested = repo / "forge-protocol2-bridge"
-    nested.mkdir()
-    runner = _load_runner(monkeypatch, str(nested))
-    with pytest.raises(SystemExit, match="not the top level"):
-        runner.require_forge_workspace()
-    runner = _load_runner(monkeypatch, str(repo))
-    assert runner.require_forge_workspace() == repo
-    assert len(runner.NATIVE_SUITE_BINDING["forge"]["engine_tree"]) == 40
-
-
-def test_a_forge_run_stops_before_writing_anything(monkeypatch: pytest.MonkeyPatch) -> None:
-    runner = _load_runner(monkeypatch, None)
+def test_a_forge_run_is_refused_before_writing_anything(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Forge is removed (Owner decision 2026-10-13): the runner accepts XMage only."""
+    runner = _load_runner(monkeypatch)
     written: list[str] = []
     monkeypatch.setattr(runner, "write", lambda name, payload: written.append(name))
     monkeypatch.setattr(runner.OUT_DIR.__class__, "mkdir", lambda *a, **k: written.append("mkdir"))
-    monkeypatch.setattr("sys.argv", ["runner", "--candidate", "forge"])
-    with pytest.raises(SystemExit, match="FORGE_WORKSPACE is not set"):
-        runner.main()
+    for candidate in ("forge", "all"):
+        monkeypatch.setattr("sys.argv", ["runner", "--candidate", candidate])
+        with pytest.raises(SystemExit) as raised:
+            runner.main()
+        assert raised.value.code == 2, candidate
     assert written == []
 
 

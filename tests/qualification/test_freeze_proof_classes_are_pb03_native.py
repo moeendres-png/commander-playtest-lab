@@ -34,7 +34,6 @@ PROOF_CLASSES = sorted(
 
 
 def _runner_module(monkeypatch: pytest.MonkeyPatch) -> Any:
-    monkeypatch.setenv("FORGE_WORKSPACE", str(REPO))
     monkeypatch.delenv("CURRENT_BOUNDARY_EVIDENCE_EPOCH", raising=False)
     spec = importlib.util.spec_from_file_location("pb03_freeze_proof_runner", RUNNER)
     assert spec is not None and spec.loader is not None

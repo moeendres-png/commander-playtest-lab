@@ -90,11 +90,10 @@ def test_native_suite_executor_is_on_the_execution_path() -> None:
     # And it must refuse to run against a dirty runner.
     assert "require_clean_runner" in source
     assert "verify_runner_unchanged" in source
-    # And it must check the recorded candidate against the executing one.
-    # The gate must PROVE the engine is the same engine, not merely assert the
-    # commit matches, because the suite has to execute at a descendant that
-    # contains its test classes.
-    assert "verify_engine_identity" in source
+    # And it must record the engine identity it executed against. The checkout
+    # proof (verify_engine_identity) served the removed Forge workspace; XMage's
+    # engine identity is the provider's own reported commit, verified fail-closed
+    # at handshake by AF00, and the receipt records it as engine_identity_proof.
     assert "engine_identity_proof" in source
     assert "executed_commit" in source
 
@@ -247,15 +246,9 @@ def test_carried_column_rows_are_never_promoted() -> None:
 
 
 def test_native_suites_are_scoped_to_the_selected_candidates(monkeypatch) -> None:
-    """A Forge-only run must not regenerate XMage native receipts."""
+    """Only the bound XMage suites run; a removed candidate has no suites at all."""
     import importlib.util
 
-    # Importing the runner resolves each native suite's root from the
-    # environment and reads that root's tree at module level. Point the Forge
-    # root at this repository so the import works on a machine that does not
-    # have the historical reference checkout; the test only exercises candidate
-    # scoping, and the patched executor never runs a suite.
-    monkeypatch.setenv("FORGE_WORKSPACE", str(REPO))
     spec = importlib.util.spec_from_file_location("wsr_runner_mod", RUNNER)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -268,9 +261,12 @@ def test_native_suites_are_scoped_to_the_selected_candidates(monkeypatch) -> Non
         return {}
 
     monkeypatch.setattr(module, "run_native_suite", _fake)
-    module.run_all_native_suites(object(), ("forge",))
-    assert executed, "the forge native suites must still be executed"
-    assert {candidate for candidate, _ in executed} == {"forge"}
+    module.run_all_native_suites(object(), ("xmage",))
+    assert executed, "the xmage native suites must still be executed"
+    assert {candidate for candidate, _ in executed} == {"xmage"}
+    # Forge is removed (Owner decision 2026-10-13): it has no binding to run.
+    with pytest.raises(KeyError):
+        module.run_all_native_suites(object(), ("forge",))
 
 
 def test_seed_is_not_recorded_as_engine_owned_without_acknowledgement() -> None:

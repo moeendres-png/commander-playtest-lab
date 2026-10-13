@@ -54,15 +54,6 @@ on:
       - "tests/conftest.py"
       - "src/commander_lab/semantic_replay/**"
   workflow_dispatch:
-    inputs:
-      forge_reference:
-        description: >-
-          Also execute Forge as the bounded differential reference (ADR
-          docs/engine_strategy_20261009, Owner decision 2). Off by default:
-          the required qualification path is XMage-only and the Forge column
-          is carried forward as historical provenance.
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -75,10 +66,6 @@ env:
   PYTHONHASHSEED: "0"
   # B12: stream the runner's phase lines as they happen instead of at exit.
   PYTHONUNBUFFERED: "1"
-  # M15 (Owner decision 2): Forge is a bounded reference that runs on demand
-  # only. Every Forge step below is gated on this flag; a pull_request run
-  # never executes Forge.
-  FORGE_REFERENCE: ${{ github.event_name == 'workflow_dispatch' && inputs.forge_reference && 'true' || 'false' }}
 
 jobs:
   pb03-runtime:
@@ -113,25 +100,14 @@ jobs:
             tests/qualification/test_midgame_arrival_history_*.py \
             tests/qualification/test_lane_registry_declarations.py
 
-      - name: Resolve current XMage and Forge dual identities
+      - name: Resolve the current XMage identity
         run: |
           set -euo pipefail
           # config/rules_engines.json is the sole machine-readable authority.
-          # Forge deliberately has two bound roles: #11/#12 Rules Core and the
-          # bridge-only #13 materialization descendant used for execution.
           python3 - <<'PY' >> "$GITHUB_ENV"
           import json
           config = json.load(open("config/rules_engines.json"))
-          xmage = config["primary_engine"]
-          forge = config["secondary_engine"]
-          bridge = forge["bridge_source"]
-          values = {
-              "XMAGE_COMMIT": xmage["commit"],
-              "FORGE_RULES_COMMIT": forge["commit"],
-              "FORGE_BRIDGE_COMMIT": bridge["commit"],
-          }
-          assert bridge["rules_core_base_commit"] == forge["commit"], bridge
-          assert bridge["repository"] == forge["repository"], bridge
+          values = {"XMAGE_COMMIT": config["primary_engine"]["commit"]}
           for env_name, commit in values.items():
               assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), commit
               print(f"{env_name}={commit}")
@@ -145,28 +121,11 @@ jobs:
           path: vendor/engine-source/xmage
           fetch-depth: 1
 
-      - name: Checkout admitted Forge bridge/materialization source
-        if: env.FORGE_REFERENCE == 'true'
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
-        with:
-          repository: moeendres-png/forge
-          ref: ${{ env.FORGE_BRIDGE_COMMIT }}
-          path: vendor/engine-source/forge
-          fetch-depth: 0
-          # Partial clone: the full commit graph and every tree (what the
-          # dual-source binding below verifies: ancestry and the Rules-Core path
-          # diff), with file contents only for the checked-out commit. Measured
-          # 38 s instead of 5.7 min; the verification commands are unchanged.
-          filter: blob:none
-
       - name: Bind external candidate workspaces without polluting Lab identity
         run: |
           set -euo pipefail
           printf '/vendor/engine-source/\n' >> .git/info/exclude
           test -z "$(git status --porcelain -- vendor/engine-source/)"
-          if test "$FORGE_REFERENCE" = true; then
-            echo "FORGE_WORKSPACE=$GITHUB_WORKSPACE/vendor/engine-source/forge" >> "$GITHUB_ENV"
-          fi
 
       - name: Set up JDK 17
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
@@ -181,16 +140,6 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
 
-      - name: Verify immutable Forge dual-source binding
-        if: env.FORGE_REFERENCE == 'true'
-        working-directory: vendor/engine-source/forge
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$FORGE_BRIDGE_COMMIT"
-          git merge-base --is-ancestor "$FORGE_RULES_COMMIT" "$FORGE_BRIDGE_COMMIT"
-          test -z "$(git diff --name-only "$FORGE_RULES_COMMIT" "$FORGE_BRIDGE_COMMIT" --             forge-game forge-core forge-ai forge-gui forge-gui-desktop adventure-editor)"
-          test -z "$(git status --porcelain)"
-
       - name: Build pinned XMage
         working-directory: vendor/engine-source/xmage
         run: |
@@ -200,27 +149,6 @@ jobs:
           else
             mvn -B -ntp -DskipTests install
           fi
-
-      - name: Build and warm admitted Forge exact source
-        if: env.FORGE_REFERENCE == 'true'
-        working-directory: vendor/engine-source/forge
-        run: |
-          set -euo pipefail
-          # Forge's own CI validates under a headless X server. Warm the exact
-          # test-phase dependencies online; the credited runner executes the
-          # selected native suites offline afterwards.
-          command -v Xvfb >/dev/null 2>&1 || { sudo apt-get update && sudo apt-get install -y xvfb; }
-          export DISPLAY=:99
-          Xvfb :99 -screen 0 800x600x8 >/tmp/forge-xvfb.log 2>&1 &
-          mvn -U -B -ntp -DskipTests -Dcheckstyle.skip=true install
-          mvn -U -B -ntp -Dcheckstyle.skip=true -DfailIfNoTests=false             -Dsurefire.failIfNoSpecifiedTests=false test -Dtest=BridgeEngineTest
-          # Resolve the bridge classpath inside the reactor (-am, packaged in the same
-          # invocation): the sibling modules then resolve to the jars built from this
-          # exact checkout. Without -am Maven reads them from ~/.m2, whose installed
-          # POMs keep the parent version as ${revision} and cannot be resolved.
-          mvn -B -ntp -pl forge-protocol2-bridge -am -DskipTests -Dcheckstyle.skip=true \
-            package dependency:build-classpath -Dmdep.outputFile=target/cp-wsr22.txt
-          test -s forge-protocol2-bridge/target/cp-wsr22.txt
 
       - name: Resolve the runtime evidence epoch
         run: |
@@ -281,21 +209,10 @@ jobs:
           )
           PY
 
-      - name: Execute authoritative current-boundary runner (XMage; Forge on demand)
-        env:
-          # #479 E2: overlap the Forge native suites with the XMage-only phases.
-          # Promoted after 3 consecutive paired serial/shadow runs with 0
-          # compare_pb03_shadow.py differences (37609639402/37609636008,
-          # 37636020029/37636015934, 37655739220/37655726198). Unset the
-          # variable to restore the serial order; receipts are identical.
-          PB03_SHADOW_PARALLEL_FORGE_NATIVE: "1"
+      - name: Execute authoritative current-boundary runner (XMage)
         run: |
           set -euo pipefail
-          if test "$FORGE_REFERENCE" = true; then
-            python scripts/run_current_boundary_qualification.py --candidate all
-          else
-            python scripts/run_current_boundary_qualification.py --candidate xmage
-          fi
+          python scripts/run_current_boundary_qualification.py --candidate xmage
 
       - name: Assemble source-bound current-boundary evidence
         run: python scripts/assemble_current_boundary_evidence.py
@@ -402,13 +319,9 @@ jobs:
           from pathlib import Path
 
           root = Path(os.environ["CURRENT_BOUNDARY_EVIDENCE_EPOCH"])
-          forge_reference = os.environ["FORGE_REFERENCE"] == "true"
-          # XMage is always executed fresh. Forge is fresh only on a reference
-          # run; otherwise its column must be the marked historical carry-forward,
-          # never a column presented as fresh.
+          # XMage is the only executed candidate; the historical Forge column of
+          # older epochs is carried forward and must be marked as such.
           expected = {"xmage": os.environ["XMAGE_COMMIT"]}
-          if forge_reference:
-              expected["forge"] = os.environ["FORGE_RULES_COMMIT"]
 
           gate_summary = {}
           for candidate, commit in expected.items():
@@ -460,19 +373,9 @@ jobs:
                   if row["exit_state"] != "PASS"
               ]
 
-          forge_af01 = {"verdict": "NOT_RUN_REFERENCE_ONLY"}
-          if forge_reference:
-              forge_af01 = json.loads((root / "AF01_FORGE.json").read_text())
-              invariants = forge_af01["invariants"]
-              assert len(invariants) == 20, len(invariants)
-              assert all(item["verdict"] == "PASS" for item in invariants), [
-                  item for item in invariants if item["verdict"] != "PASS"
-              ]
-              assert forge_af01["verdict"] == "PASS", forge_af01["verdict"]
-          else:
-              forge_full107 = json.loads((root / "FULL107_FORGE_RESULTS.json").read_text())
-              assert forge_full107.get("carried_forward"), "an unrun Forge column must be marked carried"
-              assert forge_full107["evidence_class"] == "CARRIED_FORWARD_NOT_REEXECUTED"
+          forge_full107 = json.loads((root / "FULL107_FORGE_RESULTS.json").read_text())
+          assert forge_full107.get("carried_forward"), "the historical Forge column must be marked carried"
+          assert forge_full107["evidence_class"] == "CARRIED_FORWARD_NOT_REEXECUTED"
 
           packet = json.loads((root / "PROVIDER_READINESS_CURRENT.json").read_text())
           assert packet["production_provider"] == "NOT_SELECTED"
@@ -484,16 +387,14 @@ jobs:
               == "FRESH_CURRENT_BOUNDARY_EXECUTION"
               for candidate in expected
           )
-          if not forge_reference:
-              assert (
-                  packet["candidates"]["forge"]["column_provenance"]["class"]
-                  != "FRESH_CURRENT_BOUNDARY_EXECUTION"
-              )
+          assert (
+              packet["candidates"]["forge"]["column_provenance"]["class"]
+              != "FRESH_CURRENT_BOUNDARY_EXECUTION"
+          )
 
           print(json.dumps({
               "xmage_full107": packet["candidates"]["xmage"]["full107_counts"],
               "forge_full107": packet["candidates"]["forge"]["full107_counts"],
-              "forge_af01": forge_af01["verdict"],
               "provider": packet["production_provider"],
               "freeze": packet["architecture_freeze"],
           }, sort_keys=True))

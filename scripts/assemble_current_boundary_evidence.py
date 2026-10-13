@@ -31,9 +31,6 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     evidence_epoch as epoch_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
-    forge_scenario_lane as forge_scenario_mod,
-)
-from commander_lab.qualification.current_boundary import (  # noqa: E402
     gate_derivations as gate_derivations_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
@@ -1265,20 +1262,6 @@ def assemble() -> None:
                     "public, actor and privileged checkpoint digests and each process's "
                     "own terminal observation compared equal with every adversarial "
                     "control detected; the row's own replay property held on those tapes"
-                )
-            elif all(
-                name.startswith(forge_scenario_mod.FORGE_SCENARIO_TEST_IDENTITY_PREFIX)
-                for name in receipt_ids
-            ):
-                row["execution_mode"] = forge_scenario_mod.FORGE_SCENARIO_EXECUTION_MODE
-                row["reason"] = (
-                    "exact obligation executed on the Forge ScenarioBootstrap lane "
-                    f"({', '.join(receipt_ids)}): the pinned bridge constructed the "
-                    "record's requested state through the native scenario seam, every "
-                    "answer was an engine-offered option, and the obligation was observed "
-                    "from engine-reported terminal facts and semantic events; the receipt "
-                    "records the checkpoint verdict, so a fixture-declared cause variance "
-                    "is never presented as exact"
                 )
             else:
                 row["reason"] = (

@@ -21,9 +21,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import concurrent.futures
 import json
-import os
 import re
 import shutil
 import subprocess
@@ -47,8 +45,6 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     boundary_receipt,
     build_deck,
     build_launch_plan,
-    canonical_forge_authority,
-    canonical_forge_rules_core_pin,
     canonical_xmage_engine_pin,
     cardinality_row,
     cardinality_row_eligible,
@@ -75,15 +71,6 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     evidence_epoch as epoch_mod,
-)
-from commander_lab.qualification.current_boundary import (  # noqa: E402
-    forge_hidden_information as forge_hidden_information_mod,
-)
-from commander_lab.qualification.current_boundary import (  # noqa: E402
-    forge_residuals as forge_residuals_mod,
-)
-from commander_lab.qualification.current_boundary import (  # noqa: E402
-    forge_scenario_lane as forge_scenario_lane_mod,
 )
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     knowledge_projection as knowledge_projection_mod,
@@ -135,10 +122,6 @@ class RunnerGitError(SystemExit):
     """A Git fact required for evidence could not be established (fail closed)."""
 
 
-class ForgeWorkspaceError(SystemExit):
-    """The Forge workspace is absent, ambiguous, or not the bound identity."""
-
-
 def git(*args: str, cwd: Path | None = None) -> str:
     """A Git fact for an identity; fails closed instead of recording an empty string.
 
@@ -171,179 +154,6 @@ def git_sha(*args: str, cwd: Path | None = None) -> str:
 def git_toplevel(root: Path) -> Path:
     """The work-tree root that owns ``root``; a non-repository fails closed."""
     return Path(git("rev-parse", "--show-toplevel", cwd=root)).resolve()
-
-
-def _bridge_identity_proof(
-    workspace: Path,
-    *,
-    expected_bridge_commit: str,
-    expected_bridge_tree: str,
-    actual_commit: str,
-) -> dict[str, Any]:
-    """Prove the executing bridge module is the bound bridge/evidence identity.
-
-    The bridge is a separate identity from the Rules Core: transport and
-    provenance, not Magic legality. It is bound separately, and the executable
-    form of "the same bridge ran" is equality of the ``forge-protocol2-bridge``
-    module trees at the recorded bridge/evidence commit and at the executing
-    checkout. A checkout whose bridge differs executes a different provider
-    surface, and a missing object means the claim cannot be verified at all.
-    Either way: no Forge credit.
-    """
-    try:
-        recorded_commit_tree = git_sha(
-            "rev-parse", "--verify", "--quiet", f"{expected_bridge_commit}^{{tree}}", cwd=workspace
-        )
-    except RunnerGitError as exc:
-        raise ForgeWorkspaceError(
-            "BRIDGE_IDENTITY_UNVERIFIABLE: the bound bridge/evidence commit "
-            f"{expected_bridge_commit[:12]} is not present in {workspace}: {exc}"
-        ) from exc
-    if recorded_commit_tree != expected_bridge_tree:
-        raise ForgeWorkspaceError(
-            "BRIDGE_IDENTITY_DIVERGENCE: the bound bridge/evidence commit "
-            f"{expected_bridge_commit[:12]} names tree {recorded_commit_tree[:12]}, not the "
-            f"recorded {expected_bridge_tree[:12]}"
-        )
-    try:
-        expected_module_tree = git_sha(
-            "rev-parse",
-            "--verify",
-            "--quiet",
-            f"{expected_bridge_commit}:forge-protocol2-bridge",
-            cwd=workspace,
-        )
-        actual_module_tree = git_sha(
-            "rev-parse",
-            "--verify",
-            "--quiet",
-            f"{actual_commit}:forge-protocol2-bridge",
-            cwd=workspace,
-        )
-    except RunnerGitError as exc:
-        raise ForgeWorkspaceError(f"BRIDGE_IDENTITY_UNVERIFIABLE: {exc}") from exc
-    if expected_module_tree != actual_module_tree:
-        raise ForgeWorkspaceError(
-            "BRIDGE_IDENTITY_DIVERGENCE: the executing checkout's forge-protocol2-bridge tree "
-            f"{actual_module_tree[:12]} is not the bound bridge/evidence tree "
-            f"{expected_module_tree[:12]} (bridge commit {expected_bridge_commit[:12]}, "
-            f"executing {actual_commit[:12]}). No Forge credit is produced."
-        )
-    return {
-        "bridge_module": "forge-protocol2-bridge",
-        "expected_bridge_commit": expected_bridge_commit,
-        "expected_bridge_tree": expected_bridge_tree,
-        "recorded_commit_tree": recorded_commit_tree,
-        "expected_bridge_module_tree": expected_module_tree,
-        "actual_bridge_module_tree": actual_module_tree,
-        "actual_commit": actual_commit,
-        "identical": True,
-        "justification": (
-            "EXACT_BRIDGE_COMMIT"
-            if expected_bridge_commit == actual_commit
-            else "BRIDGE_MODULE_TREE_IDENTICAL"
-        ),
-        "detail": (
-            "the executing checkout's forge-protocol2-bridge module tree is identical to the "
-            "bound bridge/evidence commit's, so the bridge that executes is the bridge the "
-            "evidence is about; the Rules Core is bound separately by tree equivalence"
-        ),
-    }
-
-
-def resolve_forge_workspace(workspace: Path | str | None = None) -> dict[str, Any]:
-    """Resolve and fully bind the Forge checkout a credited run executes in.
-
-    The identities are always the current authority in config/rules_engines.json
-    (R-1 Rules-Core candidate, exact built bridge/materialization source and its
-    tree); a caller cannot substitute others. See :func:`bind_forge_workspace`
-    for the checkout validation itself.
-    """
-    authority = canonical_forge_authority()
-    return bind_forge_workspace(
-        workspace,
-        expected_rules_core_commit=authority["rules_core_commit"],
-        expected_bridge_commit=authority["bridge_commit"],
-        expected_bridge_tree=authority["bridge_tree"],
-    )
-
-
-def bind_forge_workspace(
-    workspace: Path | str | None,
-    *,
-    expected_rules_core_commit: str,
-    expected_bridge_commit: str,
-    expected_bridge_tree: str,
-) -> dict[str, Any]:
-    """Validate a Forge checkout against explicitly named identities.
-
-    There is deliberately no default workspace. A machine-local path is not a
-    source identity, and "the checkout that happens to exist on this machine" is
-    not the checkout the evidence is about. Without an explicit workspace
-    argument the module-level explicit input (``FORGE_WORKSPACE``) is required
-    through :func:`require_forge_workspace`; the checkout must then prove, from
-    its own Git state, that it is a clean work-tree root, that its Rules Core is
-    equivalent to the named candidate, and that its bridge module is the named
-    bridge/evidence identity. Anything unprovable fails closed.
-    """
-    for label, value in (
-        ("Rules-Core commit", expected_rules_core_commit),
-        ("bridge commit", expected_bridge_commit),
-        ("bridge tree", expected_bridge_tree),
-    ):
-        if not value:
-            raise ForgeWorkspaceError(f"no expected Forge {label} was named")
-    if workspace is None:
-        root = require_forge_workspace().resolve()
-    else:
-        root = Path(workspace).expanduser().resolve()
-        if not root.is_dir():
-            raise ForgeWorkspaceError(f"FORGE_WORKSPACE {root} is not a directory")
-        try:
-            toplevel = git_toplevel(root)
-        except RunnerGitError as exc:
-            raise ForgeWorkspaceError(
-                f"FORGE_WORKSPACE {root} is not a Git work-tree root: {exc}"
-            ) from exc
-        if toplevel != root:
-            raise ForgeWorkspaceError(
-                f"FORGE_WORKSPACE {root} is not the top level of its Git checkout "
-                f"({toplevel}); the engine identity would name another tree"
-            )
-    dirty_paths = tuple(receipt_mod._git_porcelain(root))
-    if dirty_paths:
-        raise ForgeWorkspaceError(
-            f"FORGE_WORKSPACE {root} has uncommitted changes "
-            f"({len(dirty_paths)} paths, e.g. {list(dirty_paths[:5])}); the committed checkout "
-            "identity would not describe the bytes that execute. A credited Forge run requires a "
-            "clean checkout."
-        )
-    actual_commit = git_sha("rev-parse", "HEAD", cwd=root)
-    actual_tree = git_sha("rev-parse", "HEAD^{tree}", cwd=root)
-    try:
-        rules_core_proof = receipt_mod.verify_engine_identity(
-            root,
-            recorded_commit=expected_rules_core_commit,
-            actual_commit=actual_commit,
-            recorded_label="Forge workspace Rules Core",
-        )
-    except receipt_mod.ReceiptError as exc:
-        raise ForgeWorkspaceError(f"RULES_CORE_IDENTITY_DIVERGENCE: {exc}") from exc
-    bridge_proof = _bridge_identity_proof(
-        root,
-        expected_bridge_commit=expected_bridge_commit,
-        expected_bridge_tree=expected_bridge_tree,
-        actual_commit=actual_commit,
-    )
-    return {
-        "workspace": str(root),
-        "actual_commit": actual_commit,
-        "actual_tree": actual_tree,
-        "dirty": False,
-        "expected_rules_core_commit": expected_rules_core_commit,
-        "rules_core_identity_proof": rules_core_proof,
-        "bridge_identity_proof": bridge_proof,
-    }
 
 
 def resolve_suite_root(candidate: str) -> dict[str, Any]:
@@ -380,61 +190,7 @@ def resolve_suite_root(candidate: str) -> dict[str, Any]:
                 "actual_tree": git_sha("rev-parse", "HEAD^{tree}", cwd=root),
             },
         }
-    if candidate != "forge":
-        raise RunnerGitError(f"unknown native suite candidate: {candidate!r}")
-    forge = resolve_forge_workspace()
-    return {
-        "root": Path(forge["workspace"]),
-        "expected_engine_commit": forge["expected_rules_core_commit"],
-        "checkout_identity": {
-            "kind": "EXPLICIT_WORKSPACE",
-            "actual_commit": forge["actual_commit"],
-            "actual_tree": forge["actual_tree"],
-            "rules_core_identity_proof": forge["rules_core_identity_proof"],
-            "bridge_identity_proof": forge["bridge_identity_proof"],
-        },
-    }
-
-
-# The Forge checkout the native suites execute in. It must be named explicitly
-# (FORGE_WORKSPACE) so the bound bridge/evidence head can be a detached worktree
-# at the exact Forge PR head without moving any other lane's checkout. There is
-# no default: a machine-specific fallback silently bound whatever happened to sit
-# at that path, so a Forge run without an explicit workspace fails closed
-# (require_forge_workspace). Which Forge head is the candidate is PB-09's
-# question, not this runner's.
-#
-# Live R-1/R-3 identities are resolved from config/rules_engines.json on every
-# execution: #11/#12 is the admitted Rules-Core candidate and the bridge-only
-# #13 descendant is the materialization source. The historical WSR22 source-lock
-# constants remain untouched and are never used as live execution authority.
-FORGE_WORKSPACE_ENV = "FORGE_WORKSPACE"
-FORGE_WORKSPACE: Path | None = (
-    Path(os.environ[FORGE_WORKSPACE_ENV]) if os.environ.get(FORGE_WORKSPACE_ENV) else None
-)
-
-
-def require_forge_workspace() -> Path:
-    """The explicit Forge checkout, or SystemExit: no workspace means no Forge run."""
-    if FORGE_WORKSPACE is None:
-        raise ForgeWorkspaceError(
-            "FORGE_WORKSPACE is not set; a Forge run needs an explicit, source-locked "
-            "Forge checkout (no default path is assumed)"
-        )
-    if not FORGE_WORKSPACE.is_dir():
-        raise ForgeWorkspaceError(f"FORGE_WORKSPACE {FORGE_WORKSPACE} is not a directory")
-    try:
-        toplevel = git_toplevel(FORGE_WORKSPACE)
-    except RunnerGitError as exc:
-        raise ForgeWorkspaceError(
-            f"FORGE_WORKSPACE {FORGE_WORKSPACE} is not the top level of its Git checkout: {exc}"
-        ) from exc
-    if toplevel != FORGE_WORKSPACE.resolve():
-        raise ForgeWorkspaceError(
-            f"FORGE_WORKSPACE {FORGE_WORKSPACE} is not the top level of its Git "
-            f"checkout ({toplevel}); the engine identity would name another tree"
-        )
-    return FORGE_WORKSPACE
+    raise RunnerGitError(f"unknown native suite candidate: {candidate!r}")
 
 
 # Native harness suites that bind FULL107 fixture ids. Each entry is executed
@@ -457,13 +213,7 @@ def _native_identity(candidate: str) -> dict[str, str]:
                 {"lab_adapter": "engine-bridge", "lane": "maven-surefire"}
             ),
         }
-    return {
-        "repository": "https://github.com/moeendres-png/forge",
-        "expected_engine_commit": canonical_forge_rules_core_pin(),
-        "build_identity": json.dumps(
-            {"bridge": "forge-protocol2-bridge", "lane": "maven-surefire"}
-        ),
-    }
+    raise RunnerGitError(f"unknown native suite candidate: {candidate!r}")
 
 
 NATIVE_SUITE_BINDING = {
@@ -540,51 +290,6 @@ NATIVE_SUITE_BINDING = {
             ],
         },
     },
-    "forge": {
-        # Explicit input only: None when FORGE_WORKSPACE is not set. The binding
-        # records the configured root for the tree marker; the run itself proves
-        # identity through resolve_suite_root/resolve_forge_workspace.
-        "root": FORGE_WORKSPACE,
-        "runner": "mvn",
-        "argv": [
-            "mvn",
-            "-o",
-            "-Dcheckstyle.skip=true",
-            "-DfailIfNoTests=false",
-            "-Dsurefire.failIfNoSpecifiedTests=false",
-            "test",
-            "-Dtest={tests}",
-        ],
-        "classes": {
-            "direct": [
-                "WsR20Full107DenominatorTest",
-                "WS233CardinalityTest",
-                "WS227SemanticReplayTest",
-                "WsR15HiddenInfoFamilyTest",
-                "WS234S3BridgeTest",
-                "WS236F4BridgeTest",
-                "WS216GapClosureTest",
-                "WS202ExecutableSurfaceTest",
-                "WS217DividedAllocationTest",
-                "WsR15MulticountCombatTest",
-                "WsR15MulticountTriggerTest",
-                "WsR15DeterminismTwinTest",
-                "WsR15ConcessionFamilyTest",
-                "WsR16SixPlayerFamilyTest",
-                "BridgeEngineTest",
-            ],
-            "mechanism": [
-                "ProtocolTest",
-                "BridgeProtocolProcessTest",
-                "HeadlessGuiFailClosedTest",
-                "WS216SeparateProcessTest",
-                "WS217SeparateProcessTest",
-                "WS227SeparateProcessTest",
-                "WS233CardinalityProcessTest",
-                "WS202SeparateProcessTest",
-            ],
-        },
-    },
 }
 
 # The actual-card names this artifact declares. Named once so the corpus
@@ -653,8 +358,8 @@ def frozen_actual_card_corpus() -> tuple[str, ...]:
 def _bound_engine_tree(root: Path | None) -> str:
     """The suite root's tree for the binding table, or UNCONFIGURED.
 
-    Importing the runner must not require every candidate's checkout; a run that
-    uses one proves it strictly first (require_forge_workspace, git()).
+    Importing the runner must not require a checkout; a run proves the identity
+    of the one it uses strictly first (git()).
     """
     if root is None:
         return "UNCONFIGURED"
@@ -705,23 +410,7 @@ def runtime_identity(candidate: str) -> dict[str, Any]:
             }
         )
     else:
-        forge = resolve_forge_workspace()
-        authority = canonical_forge_authority()
-        base.update(
-            {
-                "engine_candidate_commit": authority["rules_core_commit"],
-                "engine_candidate_tree": authority["rules_core_tree"],
-                "bridge_source_commit": authority["bridge_commit"],
-                "bridge_source_tree": authority["bridge_tree"],
-                "adapter": "forge-protocol2-bridge (read-only reference checkout)",
-                "adapter_commit": forge["actual_commit"],
-                "adapter_tree": forge["actual_tree"],
-                "forge_workspace": forge["workspace"],
-                "rules_core_identity": forge["rules_core_identity_proof"],
-                "bridge_identity": forge["bridge_identity_proof"],
-                "lane": "protocol2-jsonl",
-            }
-        )
+        raise RunnerGitError(f"unknown candidate: {candidate!r}")
     return base
 
 
@@ -741,15 +430,10 @@ def run_native_suite(
     counts, environment identity, the bound runner identity and a content digest.
     """
     receipt_mod.require_clean_runner(runner)
-    if candidate == "forge":
-        require_forge_workspace()
     spec = NATIVE_SUITE_BINDING[candidate]
-    # Resolve the execution checkout and prove its identity before anything runs.
-    # For Forge this is the explicit FORGE_WORKSPACE, validated as a work-tree
-    # root, Rules-Core-equivalent to the recorded candidate and running the bound
-    # bridge/evidence module tree. For XMage it is the Lab's own engine-bridge
-    # module, which must belong to THIS Lab checkout. A suite that cannot prove
-    # where it would execute does not execute.
+    # Resolve the execution checkout and prove its identity before anything runs:
+    # the Lab's own engine-bridge module, which must belong to THIS Lab checkout.
+    # A suite that cannot prove where it would execute does not execute.
     resolved = resolve_suite_root(candidate)
     suite_root = resolved["root"]
     checkout_identity = resolved["checkout_identity"]
@@ -779,62 +463,34 @@ def run_native_suite(
             f"{type(declared_build_identity).__name__}"
         )
     build_identity: dict[str, Any] = dict(declared_build_identity)
-    if checkout_identity["kind"] == "EXPLICIT_WORKSPACE":
-        bridge_proof = checkout_identity["bridge_identity_proof"]
-        engine_equivalence = {
-            **checkout_identity["rules_core_identity_proof"],
-            "bridge_identity_proof": bridge_proof,
-            "workspace_identity": {
-                "workspace": str(suite_root),
-                "actual_commit": actual_head,
-                "actual_tree": checkout_identity["actual_tree"],
-                "selection": f"explicit {FORGE_WORKSPACE_ENV}; no ambient default",
-            },
+    # The XMage bridge is a module of the Lab repository, so `HEAD` there is
+    # the Lab's own commit, not the XMage engine's, and comparing it against
+    # the XMage engine commit compares two unrelated things. XMage's engine
+    # identity is the provider's own reported commit, which AF00 verifies
+    # fail-closed at handshake; the module checkout identity is recorded
+    # instead of pretending a separate engine checkout exists.
+    engine_equivalence = {
+        "engine_equivalent": None,
+        "justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+        "recorded_commit": resolved["expected_engine_commit"],
+        "actual_commit": actual_head,
+        "suite_root": str(suite_root),
+        "containing_repository": str(checkout_identity["containing_repository"]),
+        "detail": "the executing suite root is a module of the containing repository, "
+        "so its HEAD identifies that repository, not the engine. The engine identity "
+        "is the provider's own reported commit, verified fail-closed at handshake by "
+        "AF00. No checkout identity is asserted for this candidate.",
+    }
+    build_identity.update(
+        {
+            "lab_adapter_head": actual_head,
+            "lab_adapter_tree": checkout_identity["actual_tree"],
         }
-        build_identity.update(
-            {
-                "bridge_source_commit": bridge_proof["expected_bridge_commit"],
-                "rules_core_candidate_commit": resolved["expected_engine_commit"],
-                "bridge_module_tree": bridge_proof["actual_bridge_module_tree"],
-                "workspace_head": actual_head,
-            }
-        )
-        print(
-            f"engine identity {candidate}:{group}: "
-            f"{engine_equivalence['justification']} + "
-            f"{bridge_proof['justification']} "
-            f"(recorded {resolved['expected_engine_commit'][:12]}, "
-            f"executing {actual_head[:12]}, workspace {suite_root})"
-        )
-    else:
-        # The XMage bridge is a module of the Lab repository, so `HEAD` there is
-        # the Lab's own commit, not the XMage engine's, and comparing it against
-        # the XMage engine commit compares two unrelated things. XMage's engine
-        # identity is the provider's own reported commit, which AF00 verifies
-        # fail-closed at handshake; the module checkout identity is recorded
-        # instead of pretending a separate engine checkout exists.
-        engine_equivalence = {
-            "engine_equivalent": None,
-            "justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
-            "recorded_commit": resolved["expected_engine_commit"],
-            "actual_commit": actual_head,
-            "suite_root": str(suite_root),
-            "containing_repository": str(checkout_identity["containing_repository"]),
-            "detail": "the executing suite root is a module of the containing repository, "
-            "so its HEAD identifies that repository, not the engine. The engine identity "
-            "is the provider's own reported commit, verified fail-closed at handshake by "
-            "AF00. No checkout identity is asserted for this candidate.",
-        }
-        build_identity.update(
-            {
-                "lab_adapter_head": actual_head,
-                "lab_adapter_tree": checkout_identity["actual_tree"],
-            }
-        )
-        print(
-            f"engine identity {candidate}:{group}: not a separate checkout; engine identity "
-            f"comes from the provider handshake (expected {resolved['expected_engine_commit'][:12]})"
-        )
+    )
+    print(
+        f"engine identity {candidate}:{group}: not a separate checkout; engine identity "
+        f"comes from the provider handshake (expected {resolved['expected_engine_commit'][:12]})"
+    )
     tests = ",".join(spec["classes"][group])
     argv = [item.replace("{tests}", tests) for item in spec["argv"]]
     started = receipt_mod._now()
@@ -913,20 +569,6 @@ def run_native_suite(
     return document
 
 
-# #479 Priority E item 2: the shadow experiment's opt-in overlap. Only the exact
-# value "1" enables it; the credited path never reads this variable.
-PB03_SHADOW_PARALLEL_FORGE_NATIVE_ENV = "PB03_SHADOW_PARALLEL_FORGE_NATIVE"
-
-
-def shadow_parallel_forge_native_enabled() -> bool:
-    """Whether the opt-in Forge/XMage native-suite overlap is requested.
-
-    The overlap is a shadow experiment only (``.github/workflows/pb03-shadow-parallel.yml``):
-    anything but the exact value ``1`` keeps the serial, credited behaviour.
-    """
-    return os.environ.get(PB03_SHADOW_PARALLEL_FORGE_NATIVE_ENV) == "1"
-
-
 def run_native_suites_for_candidate(
     runner: receipt_mod.RunnerIdentity, candidate: str
 ) -> list[dict[str, Any]]:
@@ -946,7 +588,7 @@ def run_native_suites_for_candidate(
 
 def run_all_native_suites(
     runner: receipt_mod.RunnerIdentity,
-    candidates: tuple[str, ...] = ("xmage", "forge"),
+    candidates: tuple[str, ...] = ("xmage",),
 ) -> list[dict[str, Any]]:
     """Execute every bound native suite for the selected candidates.
 
@@ -961,62 +603,17 @@ def run_all_native_suites(
     return receipts
 
 
-def run_native_suites_with_shadow_overlap(
+def run_native_suites_and_phases(
     runner: receipt_mod.RunnerIdentity,
     candidates: tuple[str, ...],
     *,
     xmage_phases: Callable[[], None] | None = None,
 ) -> list[dict[str, Any]]:
-    """Run the native suites, optionally overlapping the Forge groups (#479 E2).
-
-    The credited path is serial: ``run_all_native_suites`` runs every candidate
-    in the calling thread and then ``xmage_phases`` (when given) runs, exactly
-    as before.
-
-    Only with the explicit ``PB03_SHADOW_PARALLEL_FORGE_NATIVE=1`` opt-in and a
-    Forge candidate does the experiment start the Forge groups on a one-worker
-    ``ThreadPoolExecutor`` while the calling thread runs the remaining
-    candidates' groups and the XMage phases. The Forge future is joined before
-    this function returns, so no caller can consume a Forge native receipt
-    before it exists and a Forge-thread failure is re-raised rather than being
-    dropped at pool shutdown. A failure raised on the calling thread stays
-    authoritative: when the Forge thread failed too, that failure is chained as
-    the primary exception's cause instead of superseding it.
-
-    The returned receipts are in candidate order (for the PB-03 candidate set:
-    the XMage groups, then the Forge groups), identical to the serial path.
-    """
-    if not (shadow_parallel_forge_native_enabled() and "forge" in candidates):
-        native_receipts = run_all_native_suites(runner, candidates)
-        if xmage_phases is not None:
-            xmage_phases()
-        return native_receipts
-    print("[pb03 shadow] overlap enabled", flush=True)
-    receipts_by_candidate: dict[str, list[dict[str, Any]]] = {}
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as forge_pool:
-        # Exactly the Forge groups of run_all_native_suites, on the pool.
-        forge_future = forge_pool.submit(run_all_native_suites, runner, ("forge",))
-        try:
-            for candidate in candidates:
-                if candidate == "forge":
-                    continue
-                receipts_by_candidate[candidate] = run_all_native_suites(runner, (candidate,))
-            if xmage_phases is not None:
-                xmage_phases()
-        except BaseException as primary_error:
-            # The calling thread's failure stays authoritative. Still join the
-            # Forge worker: when it failed too, that failure is chained behind
-            # the primary instead of superseding it, and it can never be
-            # dropped silently at pool shutdown.
-            try:
-                forge_future.result()
-            except BaseException as forge_error:
-                raise primary_error from forge_error
-            raise
-        # Join before returning: a Forge receipt must exist before anything
-        # consumes it, and a worker failure must propagate to the run.
-        receipts_by_candidate["forge"] = forge_future.result()
-    return [receipt for candidate in candidates for receipt in receipts_by_candidate[candidate]]
+    """Run every bound native suite for the selected candidates, then the XMage phases."""
+    native_receipts = run_all_native_suites(runner, candidates)
+    if xmage_phases is not None:
+        xmage_phases()
+    return native_receipts
 
 
 def bootstrap_evidence_epoch() -> dict[str, Any]:
@@ -1455,11 +1052,7 @@ def build_xmage_pb03_admission(materialization) -> dict[str, Any]:
 def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
     """Run AF01, cardinality, START-2 and the dimension probes for one candidate."""
     identity = runtime_identity(candidate)
-    # The Forge candidate is launched from the same explicitly bound workspace the
-    # native suites execute in; there is no other source for it.
-    workspace = Path(resolve_forge_workspace()["workspace"]) if candidate == "forge" else None
-    lane = "compat" if candidate == "xmage" else "protocol2-jsonl"
-    plan = build_launch_plan(candidate, lane=lane, forge_workspace=workspace)
+    plan = build_launch_plan(candidate, lane="compat")
 
     by_id = {record["fixture_id"]: record for record in materialization.denominator_records()}
     rows: list[RowResult] = []
@@ -1695,7 +1288,7 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 "principal_observations": observations,
                 "principal_scoping": scoping,
                 "principal_observations_credible": scoping["credible_as_principal_scoped_evidence"],
-                "historical_forge_seams_classified_freshly": {
+                "unreachable_hidden_seams": {
                     "HIDDEN_05": "no face-down exile permission scenario is reachable on the "
                     "generic Protocol-2 surface of this candidate in this run",
                     "HIDDEN_06": "no face-down exile zone-change invalidation scenario reachable",
@@ -1770,14 +1363,9 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 "runtime_identity": identity,
                 "cards_imported_at_runtime": hidden_game.deck_identity,
                 "cards": list(ACTUAL_CARD_NAMES),
-                # Derived from the AF03 probe this run actually executed. It
-                # previously asserted in prose that "the engine itself rejected an
-                # illegal colour identity and unknown card names", which is the
-                # OPPOSITE of what the observed probe shows for Forge: the
-                # executed Forge bridge ACCEPTED a colour-identity violation and a
-                # non-Commander commander. A prose claim that contradicts the run's
-                # own evidence is a false credit, so the value is now the probe
-                # verdicts.
+                # Derived from the AF03 probe this run actually executed, never
+                # from prose: a prose claim that contradicts the run's own
+                # evidence is a false credit, so the value is the probe verdicts.
                 "engine_validated": af03_evidence,
                 "required_29_card_corpus": {
                     # This summary is written before the mid-game lane executes,
@@ -1858,15 +1446,10 @@ def classify_remaining(
         mechanisms = mid_game_mechanisms(record)
         if mechanisms:
             # The mechanism requirement is candidate-neutral, but the CAPABILITY is
-            # not. This reason used to cite the XMage bridge's
-            # starting_state_injection_supported=false for every candidate, so
-            # Forge rows were attributed to a capability Forge actually declares
-            # it has: AF01_FORGE.json reports starting_state_injection_supported
-            # true and scenario_injection_supported true. Where the candidate
-            # declares the capability and this run did not exercise the seam, the
-            # block is a Lab EXECUTION-PATH gap, not a candidate capability gap,
-            # and saying otherwise would misdirect remediation away from the work
-            # that would actually unblock the rows.
+            # not. Where the candidate declares the capability and this run did not
+            # exercise the seam, the block is a Lab EXECUTION-PATH gap, not a
+            # candidate capability gap, and saying otherwise would misdirect
+            # remediation away from the work that would actually unblock the rows.
             declares_injection = identity.get("starting_state_injection_supported")
             if declares_injection is True:
                 reason = (
@@ -1910,22 +1493,6 @@ def classify_remaining(
                 "route's runner-bound positive receipt; a demonstrated leak is recorded "
                 "there as FAIL"
             )
-            rows.append(
-                non_executed_row(
-                    record,
-                    candidate=candidate,
-                    outcome="UNKNOWN",
-                    reason=reason,
-                    runtime_identity=identity,
-                )
-            )
-        elif fixture_id in HIDDEN_SCENARIO_ROWS and (
-            candidate == "forge" and fixture_id in knowledge_projection_mod.ROWS
-        ):
-            # #458: the exact Forge gap, derived from the record through the Forge
-            # scenario lane's own model and the pinned bridge's channel table. A
-            # capability gap is not a demonstrated leak: the row stays UNKNOWN.
-            reason = erratum + forge_hidden_information_mod.row_reason(record)
             rows.append(
                 non_executed_row(
                     record,
@@ -2071,25 +1638,6 @@ def classify_remaining(
                     runtime_identity=identity,
                 )
             )
-        # #459: a Forge micro-rules, pilot or WS05 row keeps the outcome above, and
-        # its reason names the first missing mechanism in pipeline order (the Forge
-        # scenario lane's own model, its decision families and the obligation's
-        # observation basis) instead of a generic seam statement.
-        if (
-            candidate == "forge"
-            and forge_residuals_mod.in_scope(fixture_id)
-            and rows
-            and rows[-1].fixture_id == fixture_id
-        ):
-            try:
-                rows[-1].reason = erratum + forge_residuals_mod.row_reason(record)
-            except ValueError as error:
-                # Fail closed without stopping the run: the outcome above stands
-                # and the reason says the classification itself is incomplete.
-                rows[-1].reason = erratum + (
-                    f"Forge residual classification failed closed ({error}); the outcome "
-                    "above stands and the row stays unestablished."
-                )
     return rows
 
 
@@ -2100,10 +1648,7 @@ def execute_xmage_native_phases(
 ) -> None:
     """Execute the XMage-only PB-03 phases after the XMage native suites.
 
-    These phases use only ``engine-bridge`` and the XMage engine and never read
-    a Forge native receipt. In the #479 Priority E shadow experiment they run on
-    the main thread while the Forge native groups execute in the background, so
-    the wall-clock here is exactly the interval the Forge overlap can hide.
+    These phases use only ``engine-bridge`` and the XMage engine.
     """
     pb03_runtime = pb03_runtime_mod.build_runtime_execution_matrix(
         REPO_ROOT / "engine-bridge" / "target" / "surefire-reports"
@@ -2205,11 +1750,8 @@ def execute_xmage_native_phases(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--candidate", default="all", choices=["all", "xmage", "forge"])
+    parser.add_argument("--candidate", default="xmage", choices=["xmage"])
     args = parser.parse_args()
-    if args.candidate in {"all", "forge"}:
-        # Fail before anything is written: a Forge run has no default checkout.
-        require_forge_workspace()
     # Bind the evidence epoch before the first artifact is written. The identity is
     # the producing source; an epoch that another source produced is never
     # overwritten, and the historical WSR22 epoch cannot be selected at all.
@@ -2220,9 +1762,7 @@ def main() -> int:
         "producing source",
         epoch_identity["producing_source"]["commit"][:12],
     )
-    carried = carry_forward_unselected_candidates(
-        ["xmage", "forge"] if args.candidate == "all" else [args.candidate]
-    )
+    carried = carry_forward_unselected_candidates([args.candidate])
     if carried:
         print("non-selected candidate columns carried forward (historical):", carried)
 
@@ -2252,7 +1792,7 @@ def main() -> int:
         },
     )
 
-    candidates = ["xmage", "forge"] if args.candidate == "all" else [args.candidate]
+    candidates = [args.candidate]
     xmage_provider_identity: dict[str, Any] | None = None
     if "xmage" in candidates:
         admission_document = build_xmage_pb03_admission(materialization)
@@ -2338,28 +1878,6 @@ def main() -> int:
         ),
     )
 
-    # The Forge scenario producer: the only route by which the pinned
-    # ScenarioBootstrap seam may earn FULL107 credit for the Forge column. It
-    # binds the admitted Forge Rules-Core identity, executes the structurally
-    # receivable rows plus the declared F6/F7 blocker wave on the exact pinned
-    # bridge, and persists a canonical positive receipt for every obligation
-    # observed from engine-reported facts. Construction alone writes no receipt,
-    # and the wave rows stay fail-closed with this epoch's own blocker evidence.
-    if "forge" in candidates:
-        phase("Forge scenario lane")
-        forge = resolve_forge_workspace()
-        write(
-            "FORGE_SCENARIO_EXECUTIONS.json",
-            forge_scenario_lane_mod.execute_and_persist(
-                forge_workspace=Path(forge["workspace"]),
-                records=denominator_by_id,
-                candidate_commit=canonical_forge_rules_core_pin(),
-                runner_digest=runner.digest(),
-                lab_root=REPO_ROOT,
-                out_dir=RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR,
-            ),
-        )
-
     # The PB-03 runtime ledger is derived from the surefire XML of the suites
     # that just ran. Clear the previous reports first so a class that failed to
     # compile or was not executed in this run cannot be credited from a stale
@@ -2369,7 +1887,7 @@ def main() -> int:
             REPO_ROOT / "engine-bridge" / "target" / "surefire-reports", ignore_errors=True
         )
     phase("native suites")
-    native_receipts = run_native_suites_with_shadow_overlap(
+    native_receipts = run_native_suites_and_phases(
         runner,
         tuple(candidates),
         xmage_phases=(

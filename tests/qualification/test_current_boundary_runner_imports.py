@@ -158,24 +158,22 @@ def test_runner_module_loads() -> None:
     """Import the runner for real.
 
     The runner has module-level side effects by design, so this executes it in a
-    subprocess with the Forge workspace pointed at a temporary directory. It is
+    subprocess. It is
     the only check that catches a module-level failure, which is exactly the
     class of defect that stopped the first runtime run.
     """
     import os
     import subprocess
     import sys
-    import tempfile
 
-    with tempfile.TemporaryDirectory() as tmp:
-        env = dict(os.environ, FORGE_WORKSPACE=tmp, PYTHONPATH=str(REPO / "src"))
-        completed = subprocess.run(
-            [sys.executable, str(RUNNER), "--help"],
-            capture_output=True,
-            text=True,
-            env=env,
-            timeout=300,
-            check=False,
-        )
+    env = dict(os.environ, PYTHONPATH=str(REPO / "src"))
+    completed = subprocess.run(
+        [sys.executable, str(RUNNER), "--help"],
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=300,
+        check=False,
+    )
     assert completed.returncode == 0, completed.stderr[-2000:]
     assert "--candidate" in completed.stdout
