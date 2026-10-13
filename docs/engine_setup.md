@@ -81,8 +81,8 @@ starting XMage, a mock, or the Tactical Oracle is insufficient.
 The supported container path resolves engine identity from
 `config/rules_engines.json` (the sole pin authority) at build time. Never copy
 a commit SHA into a Docker command: run the wrapper, which derives the
-canonical provider repository, commit and bridge protocol version for BOTH
-providers and exports them for `docker-compose.engine.yml` build-arg
+canonical provider repository, commit and bridge protocol version and exports
+them for `docker-compose.engine.yml` build-arg
 interpolation (`--profile` still selects the requested service):
 
 ```bash
