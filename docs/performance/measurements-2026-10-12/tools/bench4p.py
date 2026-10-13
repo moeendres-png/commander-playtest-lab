@@ -23,12 +23,16 @@ from run_real_4p_full_game_smoke import build_real_4p_setup  # noqa: E402
 if os.environ.get("BENCH_DECKS"):
     smoke.REAL_DECK_PATHS = tuple(Path(p) for p in os.environ["BENCH_DECKS"].split(","))
 
-from commander_lab.engine.rules.full_game import XmageFullGameRunner  # noqa: E402
 import subprocess  # noqa: E402
+
+from commander_lab.engine.rules.full_game import XmageFullGameRunner  # noqa: E402
+
 if os.environ.get("TRAIN_WAIT"):
     _orig_wait = subprocess.Popen.wait
+
     def _wait(self, timeout=None):
         return _orig_wait(self, timeout=None if timeout is None else max(timeout, 300))
+
     subprocess.Popen.wait = _wait
 
 
@@ -40,14 +44,23 @@ def main() -> None:
     rows = []
     for seed in seeds:
         sc = scenario.model_copy(update={"seed": int(seed)})
-        runner = XmageFullGameRunner(command, max_decisions=50_000, private_card_repository=bool(os.environ.get("BENCH_PRIVATE")))
+        runner = XmageFullGameRunner(
+            command,
+            max_decisions=50_000,
+            private_card_repository=bool(os.environ.get("BENCH_PRIVATE")),
+        )
         before = resource.getrusage(resource.RUSAGE_CHILDREN)
         t0 = time.monotonic()
         try:
             r = runner.run(scenario=sc, decks=decks, pilots=pilots)
             if os.environ.get("BENCH_DUMP"):
                 Path(os.environ["BENCH_DUMP"] + f"_{seed}.json").write_text(
-                    json.dumps(XmageFullGameRunner.semantic_transcript(r.result_payload), indent=0, default=str))
+                    json.dumps(
+                        XmageFullGameRunner.semantic_transcript(r.result_payload),
+                        indent=0,
+                        default=str,
+                    )
+                )
             row = {
                 "pod": os.environ.get("BENCH_POD", ""),
                 "seed": int(seed),
@@ -56,11 +69,20 @@ def main() -> None:
                 "decisions": r.decision_count,
                 "winners": list(r.winner_seats),
             }
-        except Exception as exc:  # noqa: BLE001
-            diag = getattr(exc, "diagnostics", None) or getattr(getattr(exc, "__cause__", None), "diagnostics", None)
+        except Exception as exc:
+            diag = getattr(exc, "diagnostics", None) or getattr(
+                getattr(exc, "__cause__", None), "diagnostics", None
+            )
             if diag and os.environ.get("BENCH_DIAG"):
-                Path(os.environ["BENCH_DIAG"] + f"_{seed}.txt").write_text("\n".join(map(str, diag)))
-            row = {"pod": os.environ.get("BENCH_POD", ""), "seed": int(seed), "status": "failed", "error": f"{type(exc).__name__}: {exc}"[:400]}
+                Path(os.environ["BENCH_DIAG"] + f"_{seed}.txt").write_text(
+                    "\n".join(map(str, diag))
+                )
+            row = {
+                "pod": os.environ.get("BENCH_POD", ""),
+                "seed": int(seed),
+                "status": "failed",
+                "error": f"{type(exc).__name__}: {exc}"[:400],
+            }
         after = resource.getrusage(resource.RUSAGE_CHILDREN)
         row["wall_s"] = round(time.monotonic() - t0, 2)
         row["child_cpu_s"] = round(
