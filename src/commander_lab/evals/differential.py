@@ -27,7 +27,6 @@ def load_differential_cases(path: str | Path) -> tuple[DifferentialCase, ...]:
 
 def configured_backend_command(backend: str) -> tuple[str, ...] | None:
     env_name = {
-        "forge": "COMMANDER_LAB_FORGE_DIFFERENTIAL_CMD",
         "xmage": "COMMANDER_LAB_XMAGE_DIFFERENTIAL_CMD",
     }[backend]
     raw = os.getenv(env_name)
@@ -116,7 +115,7 @@ def run_configured_differential_cases(
 ) -> list[EvalCaseResult]:
     results: list[EvalCaseResult] = []
     for case in cases:
-        backends = (case.backend,) if case.backend != "either" else ("forge", "xmage")
+        backends = (case.backend,) if case.backend != "either" else ("xmage",)
         selected = next(
             (
                 (backend, configured_backend_command(backend))
@@ -137,8 +136,7 @@ def run_configured_differential_cases(
                     expected=case.expected_normalized,
                     observed=None,
                     details=(
-                        "no XMage or Forge differential command configured; set "
-                        "COMMANDER_LAB_FORGE_DIFFERENTIAL_CMD or "
+                        "no XMage differential command configured; set "
                         "COMMANDER_LAB_XMAGE_DIFFERENTIAL_CMD",
                     ),
                     source="pending_external_backend",

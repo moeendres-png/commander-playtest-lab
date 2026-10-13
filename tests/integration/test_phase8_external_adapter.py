@@ -14,7 +14,7 @@ from commander_lab.models import RulesBackend
 def test_legacy_or_mock_adapter_cannot_promote_observation_to_rules_engine_validated(
     repo_root: Path, tmp_path: Path
 ) -> None:
-    script = tmp_path / "fake_forge_bridge.py"
+    script = tmp_path / "fake_xmage_bridge.py"
     script.write_text(
         """
 import json, sys
@@ -24,7 +24,7 @@ for raw in sys.stdin:
     rid, method, params = req['request_id'], req['method'], req.get('params', {})
     if method == 'probe':
         result = {
-          'backend':'forge','availability':'available','backend_version':'fake-forge-1',
+          'backend':'xmage','availability':'available','backend_version':'fake-xmage-1',
           'command':[],
           'capabilities':{
             'deck_loading':True,'commander_games':True,'deterministic_seed':False,
@@ -36,17 +36,17 @@ for raw in sys.stdin:
     elif method == 'create_scenario':
         scenario = params['scenario']; sid='s1'; sessions[sid]=scenario
         result = {
-          'backend':'forge','session_id':sid,'game_id':scenario['state']['game_id'],
+          'backend':'xmage','session_id':sid,'game_id':scenario['state']['game_id'],
           'state':scenario['state'],'seed':scenario['state']['seed'],'deck_handles':[],
           'scenario_id':scenario['scenario_id'],'created_from':'scenario'
         }
     elif method == 'get_result':
         scenario = sessions[params['session_id']]
         result = {
-          'backend':'forge','session_id':params['session_id'],'completed':True,
+          'backend':'xmage','session_id':params['session_id'],'completed':True,
           'final_state':scenario['state'],
           'normalized_result':{'commander_tax':4,'total_cast_cost':9,'legal':True},
-          'validation_level':'rules_engine_validated','backend_version':'fake-forge-1',
+          'validation_level':'rules_engine_validated','backend_version':'fake-xmage-1',
           'warnings':[]
         }
     elif method == 'shutdown':
@@ -59,7 +59,7 @@ for raw in sys.stdin:
 """.strip(),
         encoding="utf-8",
     )
-    adapter = ExternalRulesAdapter(RulesBackend.FORGE, (sys.executable, str(script)), cwd=repo_root)
+    adapter = ExternalRulesAdapter(RulesBackend.XMAGE, (sys.executable, str(script)), cwd=repo_root)
     try:
         case = load_interaction_catalog(
             repo_root / "data/rules/project_critical_interactions.json"

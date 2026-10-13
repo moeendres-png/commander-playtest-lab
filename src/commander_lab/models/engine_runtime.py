@@ -137,7 +137,7 @@ class EngineProtocolRequest(FrozenModel):
     protocol_version: str = ENGINE_PROTOCOL_VERSION
     request_id: str
     timestamp: datetime = Field(default_factory=utc_now)
-    engine: Literal["xmage", "forge", "tactical", "unknown"] = "unknown"
+    engine: Literal["xmage", "tactical", "unknown"] = "unknown"
     engine_version: str | None = None
     game_id: str | None = None
     message_type: EngineMessageType
@@ -233,7 +233,7 @@ class EngineProtocolResponse(FrozenModel):
 
 
 class EngineRuntimeConfig(FrozenModel):
-    provider: Literal["xmage", "forge"] = "xmage"
+    provider: Literal["xmage"] = "xmage"
     mode: EngineRuntimeMode = EngineRuntimeMode.EXTERNAL
     home: str | None = None
     source_path: str | None = None
@@ -252,7 +252,7 @@ class EngineRuntimeConfig(FrozenModel):
 
 
 class EngineProcessState(FrozenModel):
-    provider: Literal["xmage", "forge"]
+    provider: Literal["xmage"]
     status: EngineProcessStatus
     pid: int | None = Field(default=None, ge=1)
     engine_version: str | None = None
@@ -268,7 +268,7 @@ class EngineProcessState(FrozenModel):
 
 
 class EngineInstallationIdentity(FrozenModel):
-    provider: Literal["xmage", "forge"]
+    provider: Literal["xmage"]
     release: str
     commit: str = Field(pattern=r"^[0-9a-f]{40}$")
     source_path: str | None = None
@@ -282,7 +282,7 @@ class EngineInstallationIdentity(FrozenModel):
 class EngineReplay(FrozenModel):
     schema_version: int = 1
     protocol_version: str = ENGINE_PROTOCOL_VERSION
-    engine: Literal["xmage", "forge", "tactical"]
+    engine: Literal["xmage", "tactical"]
     engine_version: str
     validation_level: RuntimeValidationLevel
     game_id: str

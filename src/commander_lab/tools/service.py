@@ -3455,7 +3455,7 @@ class CommanderToolService:
     def _external_probe_status(self, provider: str) -> dict[str, Any]:
         manager = RulesEngineManager(root=self.root)
         try:
-            adapter = manager.xmage if provider == "xmage" else manager.forge
+            adapter = manager.xmage
             probe = adapter.probe()
             external = (
                 probe.availability.value == "available"
@@ -3983,7 +3983,6 @@ class CommanderToolService:
             )
             tactical = self._tactical_interaction_evidence(card_names)
             xmage = self._external_probe_status("xmage")
-            forge = self._external_probe_status("forge")
             if not criteria.get("constraints_passed", False):
                 status = "rejected"
             elif request.iterations < 100:
@@ -4045,8 +4044,6 @@ class CommanderToolService:
                 )
             if xmage["execution_status"] != "ready_for_real_call":
                 remaining.append("XMage external rules engine unavailable")
-            if forge["execution_status"] != "ready_for_real_call":
-                remaining.append("Forge external rules engine unavailable")
             return {
                 "current_card": swaps[0].get("remove") if swaps else None,
                 "candidate_card": swaps[0].get("add") if swaps else None,
@@ -4077,7 +4074,6 @@ class CommanderToolService:
                 "commander_denial_effect": dependency,
                 "tactical_oracle_result": tactical,
                 "xmage_result": xmage,
-                "forge_result": forge,
                 "provider_disagreement": False,
                 "rules_coverage": tactical["validation_level"],
                 "failure_diagnosis": result.get("red_team_review", {}),
@@ -4273,12 +4269,7 @@ class CommanderToolService:
                 selected = [row for row in selected if row.get("oracle_name") in wanted]
             statuses = Counter(row.get("coverage_status", "unsupported") for row in selected)
             external = (
-                all(
-                    row.get("xmage_rules_verified") or row.get("forge_rules_verified")
-                    for row in selected
-                )
-                if selected
-                else False
+                all(row.get("xmage_rules_verified") for row in selected) if selected else False
             )
             return {
                 "deck_id": request.deck_id,
@@ -4334,7 +4325,7 @@ class CommanderToolService:
             )
             external_results: dict[str, Any] = {}
             if request.request_external_engine:
-                for provider in ("xmage", "forge"):
+                for provider in ("xmage",):
                     external_results[provider] = self.run_engine_backed_matchup(
                         RunEngineBackedMatchupInput(
                             deck_ids=(request.deck_id, *request.opponent_deck_ids),
@@ -4363,10 +4354,6 @@ class CommanderToolService:
                 and passed_external
             ):
                 status = "external_engine_supported"
-            if status == "external_engine_supported" and set(passed_external) == {"xmage", "forge"}:
-                status = "provider_cross_checked"
-            if status == "provider_cross_checked":
-                status = "recommended_upgrade"
             return {
                 "formal_gate": "passed"
                 if structural.get("recommendation_status") != "rejected"
@@ -4385,8 +4372,6 @@ class CommanderToolService:
                     "robust_in_structural_holdout",
                     "tactical_oracle_supported",
                     "external_engine_supported",
-                    "provider_cross_checked",
-                    "recommended_upgrade",
                 ],
                 "automatic_application": False,
             }
@@ -4404,7 +4389,7 @@ class CommanderToolService:
         def work() -> dict[str, Any]:
             manager = RulesEngineManager(root=self.root)
             try:
-                adapter = manager.xmage if request.provider == "xmage" else manager.forge
+                adapter = manager.xmage
                 probe = adapter.probe()
                 if (
                     probe.availability.value != "available"

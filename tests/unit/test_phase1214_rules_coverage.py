@@ -13,8 +13,6 @@ REQUIRED_CARD_FIELDS = {
     "tactical_oracle_support",
     "xmage_recognized",
     "xmage_rules_verified",
-    "forge_recognized",
-    "forge_rules_verified",
     "multiplayer_targeting_verified",
     "commander_interaction_verified",
     "replay_verified",
@@ -61,8 +59,8 @@ def test_card_coverage_registry_has_complete_scope_and_strict_external_defaults(
         assert set(card) >= REQUIRED_CARD_FIELDS
         assert card["xmage_recognized"] is False
         assert card["xmage_rules_verified"] is False
-        assert card["forge_recognized"] is False
-        assert card["forge_rules_verified"] is False
+        assert "forge_recognized" not in card
+        assert "forge_rules_verified" not in card
         assert card["coverage_status"] in ALLOWED_COVERAGE
 
     stats = data["deck_statistics"]
@@ -123,7 +121,7 @@ def test_required_golden_scenarios_and_named_registry_exports_exist(repo_root: P
         "opponent_cosmic_spiderman_legends",
     } <= ids
     assert all(
-        not row["xmage_verified"] and not row["forge_verified"] for row in canonical["scenarios"]
+        not row["xmage_verified"] and "forge_verified" not in row for row in canonical["scenarios"]
     )
 
 

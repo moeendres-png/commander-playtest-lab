@@ -430,7 +430,7 @@ def _bugs() -> list[BugRecord]:
 
 
 def _web_research_markdown() -> str:
-    return """# Web research\n\nResearch was restricted to official documentation, repositories, standards-oriented project documentation and official release pages.\n\n## High-value findings\n\n- XMage remains suitable as an external Commander/tactical oracle, but the repository does not expose a stable ready-made JSONL action API; a provider-specific Java bridge remains necessary.\n- Forge remains a secondary differential backend because its CLI/AI path is useful but AI quality and GPL integration constraints limit its role.\n- Ruff supports one configuration for lint and format; `ruff check` and `ruff format --check` should be CI gates.\n- mypy strict mode is an appropriate target for public production interfaces, but adoption should be incremental for an existing codebase.\n- Hypothesis stateful testing can generate and shrink sequences of legal/illegal state transitions; it is a high-value future dependency.\n- OpenAI Agents SDK supports function tools, sessions, tracing, usage accounting and guardrails; deterministic game logs must remain separate from model traces.\n- GitHub Actions should pin action revisions, set timeouts and upload artifacts/checksums for external-engine evidence.\n\n## Sources reviewed\n\n- Official XMage and Forge repositories/releases.\n- Official OpenAI Agents SDK documentation for tools, sessions, tracing, guardrails and usage.\n- Official Ruff, mypy and Hypothesis documentation.\n- Official GitHub Actions repositories/releases for checkout, setup-python, setup-java and upload-artifact.\n\nThe current sandbox could browse these sources through the web research tool, but local DNS and package-manager access remained unavailable to the subprocess environment.\n"""
+    return """# Web research\n\nResearch was restricted to official documentation, repositories, standards-oriented project documentation and official release pages.\n\n## High-value findings\n\n- XMage remains suitable as an external Commander/tactical oracle, but the repository does not expose a stable ready-made JSONL action API; a provider-specific Java bridge remains necessary.\n- XMage is the only rules engine; the Forge differential backend was removed (Owner decision 2026-10-13).\n- Ruff supports one configuration for lint and format; `ruff check` and `ruff format --check` should be CI gates.\n- mypy strict mode is an appropriate target for public production interfaces, but adoption should be incremental for an existing codebase.\n- Hypothesis stateful testing can generate and shrink sequences of legal/illegal state transitions; it is a high-value future dependency.\n- OpenAI Agents SDK supports function tools, sessions, tracing, usage accounting and guardrails; deterministic game logs must remain separate from model traces.\n- GitHub Actions should pin action revisions, set timeouts and upload artifacts/checksums for external-engine evidence.\n\n## Sources reviewed\n\n- Official XMage repositories/releases.\n- Official OpenAI Agents SDK documentation for tools, sessions, tracing, guardrails and usage.\n- Official Ruff, mypy and Hypothesis documentation.\n- Official GitHub Actions repositories/releases for checkout, setup-python, setup-java and upload-artifact.\n\nThe current sandbox could browse these sources through the web research tool, but local DNS and package-manager access remained unavailable to the subprocess environment.\n"""
 
 
 def _schema_exports(root: Path) -> list[str]:
@@ -540,7 +540,7 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
     )
     atomic_write_text(
         audit_dir / "differential_test_report.md",
-        "# Differential testing\n\nStructural and Tactical Oracle fixtures are available. External XMage/Forge comparisons remain `not_run` because no external runtime can be built or started in this sandbox. No mock result was promoted.\n",
+        "# Differential testing\n\nStructural and Tactical Oracle fixtures are available. External XMage comparisons remain `not_run` because no external runtime can be built or started in this sandbox. No mock result was promoted.\n",
     )
     atomic_write_text(
         audit_dir / "reproducibility_report.md",
@@ -637,7 +637,7 @@ def run_phase86_audit(root: str | Path, *, run_tests: bool = True) -> Phase86Res
             check_id="external_engine",
             component="engine",
             status=AuditStatus.BLOCKED,
-            summary="Real XMage/Forge runtime not executable in current sandbox",
+            summary="Real XMage runtime not executable in current sandbox",
             limitations=tuple(remaining[:2]),
         )
     )

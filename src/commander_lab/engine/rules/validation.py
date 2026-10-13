@@ -204,10 +204,7 @@ def run_phase8_validation(
                     "All tactical results are bounded tactical validations, "
                     "not complete rules-engine proofs."
                 ),
-                (
-                    "The external release gate requires at least 50 matching "
-                    "XMage or Forge observations."
-                ),
+                ("The external release gate requires at least 50 matching XMage observations."),
                 (
                     "Canonical validation registry persistence is opt-in; normal "
                     "validation runs write only to the run output directory."

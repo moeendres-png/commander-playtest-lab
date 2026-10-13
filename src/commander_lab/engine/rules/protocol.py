@@ -13,7 +13,7 @@ from commander_lab.models import (
 
 # Phase-8.5 compatibility surface required by the external provider contract.
 # Protocol 2 extends this surface but must continue to accept these names while
-# XMage/Forge provider bridges are migrated.
+# the XMage provider bridge is migrated.
 REQUIRED_EXTERNAL_MESSAGE_TYPES = (
     EngineMessageType.ENGINE_HELLO,
     EngineMessageType.ENGINE_CAPABILITIES,
