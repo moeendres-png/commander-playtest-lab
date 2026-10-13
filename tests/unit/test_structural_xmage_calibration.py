@@ -11,6 +11,7 @@ from commander_lab.engine.structural.card_facts import (
     CardFacts,
     CardFactsCatalog,
     apply_card_facts,
+    commander_stats,
     load_card_facts,
     profile_from_facts,
 )
@@ -82,6 +83,50 @@ def test_facts_give_uncurated_creatures_their_power_and_keep_curated_values() ->
         oracle_name="Ishai", roles=frozenset({CardRole.ENABLER}), is_creature=True, base_power=3.5
     )
     assert apply_card_facts(curated, _facts("Ishai", power=1.0)).base_power == 3.5
+
+
+def test_commander_stats_are_the_commander_cards_own_power() -> None:
+    """A commander's base power is the card's power, not the evasion-bumped combat value.
+
+    ``commander_base_power`` is the card fact the deck profile asserts and the simulator
+    derives commander damage from it; using ``combat_power`` restated Sauron, a printed
+    9-power trampler, as 11.25 and counted its evasion twice (#759).
+    """
+    trampler = _facts(
+        "Sauron, Lord of the Rings",
+        mana_value=8.0,
+        power=9.0,
+        toughness=9.0,
+        rules=("Trample",),
+    )
+    catalog = CardFactsCatalog({"Sauron, Lord of the Rings": trampler})
+    assert commander_stats("Sauron, Lord of the Rings", catalog) == (8.0, 9.0)
+    # Uncurated cards keep the combat-model power: evasion adds a little to a body's power.
+    assert profile_from_facts("Sauron, Lord of the Rings", trampler).base_power == pytest.approx(
+        11.25
+    )
+
+
+def test_commander_stats_stay_unknown_when_the_facts_have_no_power() -> None:
+    planeswalker = _facts(
+        "Quintorius, History Chaser",
+        mana_value=4.0,
+        types=("PLANESWALKER",),
+        rules=("+1: You may discard a card.",),
+    )
+    catalog = CardFactsCatalog({"Quintorius, History Chaser": planeswalker})
+    assert commander_stats("Quintorius, History Chaser", catalog) is None
+    assert commander_stats("Nobody Here", catalog) is None
+    deck = RulesDeckInput(
+        deck_id="d",
+        name="Unknown commander deck",
+        deck_hash=None,
+        commander_names=("Quintorius, History Chaser",),
+        mainboard=tuple(f"Filler {index}" for index in range(99)),
+    )
+    profile, report = fact_deck_profile(deck, known={}, facts=catalog, snapshot_hash="test")
+    assert report.without_facts == [f"Filler {index}" for index in range(99)]
+    assert profile.commander_base_power["Quintorius, History Chaser"] == 2.0
 
 
 def test_facts_mark_finishers_from_their_text() -> None:

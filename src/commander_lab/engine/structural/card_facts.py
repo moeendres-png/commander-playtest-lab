@@ -205,11 +205,20 @@ def fact_profiles(catalog: CardFactsCatalog | None) -> tuple[StructuralCardProfi
 
 
 def commander_stats(name: str, catalog: CardFactsCatalog | None) -> tuple[float, float] | None:
-    """(mana value, combat power) of a commander, when the facts know it."""
+    """(mana value, base power) of a commander, when the facts know it.
+
+    The base power is the card's own power. ``StructuralDeckProfile.commander_base_power``
+    is the card fact the deck profile asserts (and the integration tests pin against the
+    real card), and the simulator derives commander damage from it, so the evasion bump
+    of ``combat_power`` — the combat-model power of an uncurated body — would restate a
+    printed 9-power card as 11.25 and count its evasion twice. A commander the facts
+    cannot give a power for (for example a planeswalker commander) stays unknown so the
+    deck's own value survives.
+    """
     facts = catalog.get(name) if catalog is not None else None
-    if facts is None:
+    if facts is None or facts.power is None:
         return None
-    return facts.mana_value, facts.combat_power()
+    return facts.mana_value, max(0.0, facts.power)
 
 
 __all__ = [

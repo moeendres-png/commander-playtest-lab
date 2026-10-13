@@ -33,7 +33,7 @@ from commander_lab.models import (
 )
 from commander_lab.storage import sha256_value
 
-from .card_facts import CardFactsCatalog, apply_card_facts, profile_from_facts
+from .card_facts import CardFactsCatalog, apply_card_facts, commander_stats, profile_from_facts
 
 _PLACEHOLDER_MARK = " role card "
 
@@ -147,9 +147,9 @@ def fact_deck_profile(
     costs: dict[str, float] = {}
     powers: dict[str, float] = {}
     for name in deck.commander_names:
-        card_facts = facts.get(name)
-        costs[name] = card_facts.mana_value if card_facts is not None else 4.0
-        powers[name] = card_facts.combat_power() if card_facts is not None else 2.0
+        stats = commander_stats(name, facts)
+        costs[name] = stats[0] if stats is not None else 4.0
+        powers[name] = stats[1] if stats is not None else 2.0
     deck_profile = StructuralDeckProfile(
         deck_id=deck.deck_id,
         deck_hash=deck.deck_hash or sha256_value([*deck.commander_names, *deck.mainboard]),
