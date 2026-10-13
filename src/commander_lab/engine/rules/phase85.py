@@ -271,7 +271,7 @@ def run_phase85_validation(
             "status": "manual_review_required",
             "validation_level": RuntimeValidationLevel.STRUCTURAL_ONLY.value,
             "note": (
-                "No scenario-level external XMage/Forge result was produced by this validation run."
+                "No scenario-level external XMage result was produced by this validation run."
             ),
         }
         for name in PROJECT_SCENARIOS

@@ -43,7 +43,6 @@ from .base import (
 )
 
 _BACKEND_ENV = {
-    RulesBackend.FORGE: "COMMANDER_LAB_FORGE_BRIDGE_CMD",
     RulesBackend.XMAGE: "COMMANDER_LAB_XMAGE_BRIDGE_CMD",
 }
 
@@ -213,8 +212,8 @@ class JsonLineBridgeClient:
                 protocol_version=self.protocol_version,
                 request_id=str(uuid.uuid4()),
                 engine=cast(
-                    Literal["xmage", "forge", "tactical", "unknown"],
-                    self.engine if self.engine in {"xmage", "forge", "tactical"} else "unknown",
+                    Literal["xmage", "tactical", "unknown"],
+                    self.engine if self.engine in {"xmage", "tactical"} else "unknown",
                 ),
                 engine_version=self.engine_version,
                 game_id=game_id,
@@ -353,7 +352,7 @@ class JsonLineBridgeClient:
 
 
 class ExternalRulesAdapter(RulesEngineAdapter):
-    """Adapter for an actually installed Forge or XMage JSONL bridge."""
+    """Adapter for an actually installed XMage JSONL bridge."""
 
     def __init__(
         self,
@@ -363,8 +362,8 @@ class ExternalRulesAdapter(RulesEngineAdapter):
         cwd: str | Path | None = None,
         request_timeout_seconds: float = 20.0,
     ) -> None:
-        if backend not in {RulesBackend.FORGE, RulesBackend.XMAGE}:
-            raise ValueError("ExternalRulesAdapter supports Forge or XMage only")
+        if backend != RulesBackend.XMAGE:
+            raise ValueError("ExternalRulesAdapter supports XMage only")
         self.backend = backend
         self.command = command or self.command_from_environment(backend)
         self.cwd = cwd
@@ -791,11 +790,6 @@ class ExternalRulesAdapter(RulesEngineAdapter):
             self._client = None
 
 
-class ForgeRulesAdapter(ExternalRulesAdapter):
-    def __init__(self, command: tuple[str, ...] | None = None, *, cwd: str | Path | None = None):
-        super().__init__(RulesBackend.FORGE, command, cwd=cwd)
-
-
 class XMageRulesAdapter(ExternalRulesAdapter):
     def __init__(self, command: tuple[str, ...] | None = None, *, cwd: str | Path | None = None):
         super().__init__(RulesBackend.XMAGE, command, cwd=cwd)
@@ -803,7 +797,6 @@ class XMageRulesAdapter(ExternalRulesAdapter):
 
 __all__ = [
     "ExternalRulesAdapter",
-    "ForgeRulesAdapter",
     "JsonLineBridgeClient",
     "XMageRulesAdapter",
 ]

@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """AF09 clean-process semantic replay twin campaign.
 
-Runs the per-candidate twin contract for XMage and Forge, applies the mandatory
-adversarial controls, and writes one evidence document per candidate. A
-candidate whose lane cannot expose a required channel is recorded as UNKNOWN
-with the exact missing capability instead of a workaround.
+Runs the twin contract for XMage, applies the mandatory adversarial controls, and
+writes one evidence document. A lane that cannot expose a required channel is
+recorded as UNKNOWN with the exact missing capability instead of a workaround.
 
 The campaign never selects a Production Provider and never claims Architecture
 Freeze. It is safe to run while other writers own shared qualification
@@ -12,7 +11,7 @@ surfaces: it only writes under its own evidence/docs directory and its own
 runtime scratch directory.
 
 Usage:
-    python scripts/run_replay_twin_campaign.py --candidate both
+    python scripts/run_replay_twin_campaign.py
 """
 
 from __future__ import annotations
@@ -41,7 +40,7 @@ XMAGE_MAGE_JAR_NAME = "mage-1.4.61.jar"
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--candidate", choices=("xmage", "forge", "both"), default="both")
+    parser.add_argument("--candidate", choices=("xmage",), default="xmage")
     parser.add_argument("--player-count", type=int, default=4)
     parser.add_argument("--seed", type=int, default=424242)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
@@ -51,7 +50,6 @@ def _parse_args() -> argparse.Namespace:
         help="evidence file stem (default AF09_REPLAY_TWIN_<CANDIDATE>[ _<N>P])",
     )
     parser.add_argument("--work-dir", type=Path, default=None)
-    parser.add_argument("--forge-workspace", type=Path, default=None)
     parser.add_argument("--xmage-workspace", type=Path, default=None)
     parser.add_argument(
         "--xmage-mage-jar",
@@ -63,47 +61,8 @@ def _parse_args() -> argparse.Namespace:
             "provider's observed artifact digest is still bound from the engine"
         ),
     )
-    parser.add_argument("--forge-max-decisions", type=int, default=6000)
-    parser.add_argument(
-        "--forge-starting-seat",
-        default=None,
-        choices=("p1", "p2", "p3", "p4", "p5", "p6"),
-        help=(
-            "the explicit starting-seat declaration for the Forge twin lane; the "
-            "twin has no fixture record, so there is no default and the lane fails "
-            "closed without one (#572)"
-        ),
-    )
-    parser.add_argument(
-        "--forge-concede-after",
-        type=int,
-        default=120,
-        help=(
-            "from this decision onward the pilot chooses the engine's own "
-            "offered concession for each not-yet-conceded priority actor, "
-            "reaching a real engine terminal outcome; 0 disables it"
-        ),
-    )
     parser.add_argument("--xmage-max-decisions", type=int, default=120)
-    parser.add_argument(
-        "--forge-deck-profile",
-        choices=("real", "synthetic"),
-        default="real",
-        help=(
-            "real loads the four in-repo singleton Commander deck lists; synthetic "
-            "uses the 89-Plains technical deck, whose duplicate basics make cleanup "
-            "choices indistinguishable to the engine's identity discipline"
-        ),
-    )
     return parser.parse_args()
-
-
-REAL_DECK_PATHS = (
-    Path("data/decks/rogshai_current.json"),
-    Path("data/decks/opponents/kaervek/current/deck.json"),
-    Path("data/opponents/hosts_of_mordor_precon.json"),
-    Path("data/opponents/lorehold_spirit_precon.json"),
-)
 
 
 def _now() -> str:
@@ -127,13 +86,7 @@ def _lab_source() -> dict[str, Any]:
 
 
 def _engine_pins() -> dict[str, Any]:
-    forge = bridge_launcher.canonical_forge_authority()
-    return {
-        "xmage_candidate_commit": bridge_launcher.canonical_xmage_engine_pin(),
-        "forge_rules_core_commit": forge["rules_core_commit"],
-        "forge_bridge_commit": forge["bridge_commit"],
-        "forge_bridge_tree": forge["bridge_tree"],
-    }
+    return {"xmage_candidate_commit": bridge_launcher.canonical_xmage_engine_pin()}
 
 
 def _load_conformance_module() -> Any:
@@ -190,119 +143,6 @@ def _base_document(candidate: str, args: argparse.Namespace) -> dict[str, Any]:
         "missing_capability": None,
         "failure": None,
     }
-
-
-def _forge_deck_payloads(profile: str, player_count: int) -> list[dict[str, Any]] | None:
-    if profile == "synthetic":
-        return None
-    from commander_lab.engine.rules.project import load_rules_deck_snapshot
-
-    payloads: list[dict[str, Any]] = []
-    for seat in range(1, player_count + 1):
-        relative = REAL_DECK_PATHS[(seat - 1) % len(REAL_DECK_PATHS)]
-        path = REPO_ROOT / relative
-        if not path.is_file():
-            raise SystemExit(f"real deck source missing: {relative}")
-        deck = load_rules_deck_snapshot(path)
-        deck_id = deck.deck_id if seat <= len(REAL_DECK_PATHS) else f"{deck.deck_id}-seat{seat}"
-        deck_hash = (
-            deck.deck_hash
-            or hashlib.sha256(
-                json.dumps(
-                    {
-                        "deck_id": deck_id,
-                        "commander_names": list(deck.commander_names),
-                        "mainboard": list(deck.mainboard),
-                    },
-                    sort_keys=True,
-                    separators=(",", ":"),
-                ).encode("utf-8")
-            ).hexdigest()
-        )
-        payloads.append(
-            {
-                "deck_id": deck_id,
-                "deck_hash": deck_hash,
-                "name": f"{deck.name} (seat {seat})",
-                "commander_names": list(deck.commander_names),
-                "mainboard": list(deck.mainboard),
-            }
-        )
-    return payloads
-
-
-def run_forge(args: argparse.Namespace, work_dir: Path) -> dict[str, Any]:
-    document = _base_document("forge", args)
-    forge_workspace = args.forge_workspace
-    if forge_workspace is None:
-        raw = os.environ.get("FORGE_WORKSPACE")
-        forge_workspace = Path(raw) if raw else None
-    if forge_workspace is None:
-        document["verdict"] = "UNKNOWN"
-        document["missing_capability"] = {
-            "channel": "forge_workspace",
-            "detail": (
-                "no FORGE_WORKSPACE/--forge-workspace was named; a machine-local path is "
-                "not a source identity and the lane cannot be launched"
-            ),
-            "evidence_channel": "env:FORGE_WORKSPACE",
-        }
-        return document
-    document["forge_workspace"] = str(forge_workspace)
-    document["forge_deck_profile"] = args.forge_deck_profile
-    document["forge_concede_after"] = args.forge_concede_after
-    if args.forge_starting_seat is None:
-        # The twin lane has no fixture record; without an explicit declaration
-        # the engine's starting-player frame would have to be answered by a
-        # Lab default, which is forbidden (#572).
-        document["verdict"] = "UNKNOWN"
-        document["missing_capability"] = {
-            "channel": "starting_seat_declaration",
-            "detail": (
-                "no --forge-starting-seat was named; the twin lane has no fixture "
-                "record and the Lab never chooses the starting player"
-            ),
-            "evidence_channel": "--forge-starting-seat",
-        }
-        return document
-    try:
-        deck_payloads = _forge_deck_payloads(args.forge_deck_profile, args.player_count)
-        record, replay, comparison = twins.run_generic_lane_twin(
-            candidate="forge",
-            player_count=args.player_count,
-            seed=args.seed,
-            forge_workspace=forge_workspace,
-            max_decisions=args.forge_max_decisions,
-            scripted_starting_seat=args.forge_starting_seat,
-            starting_seat_source="AF09_TWIN_CAMPAIGN_DECLARATION",
-            deck_payloads=deck_payloads,
-            concede_after_decisions=(
-                args.forge_concede_after if args.forge_concede_after > 0 else None
-            ),
-        )
-    except twins.TwinChannelUnavailable as exc:
-        document["missing_capability"] = exc.to_document()
-        document["verdict"] = "UNKNOWN"
-        return document
-    except Exception as exc:
-        document["failure"] = f"{type(exc).__name__}: {exc}"
-        document["verdict"] = "FAIL"
-        return document
-
-    controls = twins.run_adversarial_controls(record, replay)
-    twin = twins.clean_process_twin_document(
-        record=record,
-        replay=replay,
-        comparison=comparison,
-        adversarial_controls=controls,
-        limitations=[*record.limitations, *replay.limitations],
-    )
-    document["clean_process_twin"] = twin
-    document["adversarial_controls"] = controls
-    document["verdict"] = twin["verdict"]
-    if record.failure or replay.failure:
-        document["run_failures"] = {"record": record.failure, "replay": replay.failure}
-    return document
 
 
 def run_xmage(args: argparse.Namespace, work_dir: Path) -> dict[str, Any]:
@@ -403,11 +243,11 @@ def main() -> int:
     args = _parse_args()
     work_dir = _work_dir(args.work_dir)
     work_dir.mkdir(parents=True, exist_ok=True)
-    candidates = ("forge", "xmage") if args.candidate == "both" else (args.candidate,)
+    candidates = (args.candidate,)
     results: dict[str, str] = {}
     for candidate in candidates:
         print(f"=== AF09 replay twin: {candidate} ===")
-        document = run_forge(args, work_dir) if candidate == "forge" else run_xmage(args, work_dir)
+        document = run_xmage(args, work_dir)
         suffix = f"_{args.player_count}P" if args.player_count != 4 else ""
         name = args.evidence_name or f"AF09_REPLAY_TWIN_{candidate.upper()}{suffix}"
         _write(args.out_dir / f"{name}.json", document)

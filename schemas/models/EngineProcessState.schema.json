@@ -247,8 +247,7 @@
     },
     "provider": {
       "enum": [
-        "xmage",
-        "forge"
+        "xmage"
       ],
       "title": "Provider",
       "type": "string"

@@ -17,15 +17,7 @@ case "$PROVIDER" in
     RULES_COMMIT="$COMMIT"
     REQUIRED_JAVA_MIN=8
     ;;
-  forge)
-    command -v python3 >/dev/null || { echo "ERROR: python3 is required to resolve Forge pin authority" >&2; exit 3; }
-    PIN_JSON="$(python3 "$ROOT/scripts/docker_resolve_engine_pin.py" --provider forge --format json)"
-    REPO="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["bridge_repository"])' <<<"$PIN_JSON")"
-    COMMIT="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["bridge_commit"])' <<<"$PIN_JSON")"
-    RULES_COMMIT="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["commit"])' <<<"$PIN_JSON")"
-    REQUIRED_JAVA_MIN=17
-    ;;
-  *) echo "ERROR: ENGINE_PROVIDER must be xmage or forge" >&2; exit 2 ;;
+  *) echo "ERROR: ENGINE_PROVIDER must be xmage" >&2; exit 2 ;;
 esac
 
 command -v java >/dev/null || { echo "ERROR: Java is missing" >&2; exit 3; }
@@ -51,20 +43,6 @@ if [[ -f "$BINARY_ROOT/installation-identity.json" && -n "${ENGINE_START_COMMAND
   [[ "$ID_PROVIDER" == "$PROVIDER" && "$ID_COMMIT" == "$COMMIT" ]] || {
     echo "ERROR: existing engine identity does not match current $PROVIDER built-source authority" >&2; exit 4;
   }
-  if [[ "$PROVIDER" == "forge" ]]; then
-    ID_SOURCE_COMMIT="$("$PYTHON_BIN" -c 'import json,sys; print(json.load(open(sys.argv[1])).get("source_commit", ""))' "$IDENTITY_PATH")" || {
-      echo "ERROR: existing Forge source identity is unreadable" >&2; exit 4;
-    }
-    ID_RULES_CORE_COMMIT="$("$PYTHON_BIN" -c 'import json,sys; print(json.load(open(sys.argv[1])).get("rules_core_commit", ""))' "$IDENTITY_PATH")" || {
-      echo "ERROR: existing Forge Rules-Core identity is unreadable" >&2; exit 4;
-    }
-    [[ "$ID_SOURCE_COMMIT" == "$COMMIT" ]] || {
-      echo "ERROR: existing Forge source identity does not match current bridge/materialization authority" >&2; exit 4;
-    }
-    [[ "$ID_RULES_CORE_COMMIT" == "$RULES_COMMIT" ]] || {
-      echo "ERROR: existing Forge Rules-Core identity does not match current Rules-Core authority" >&2; exit 4;
-    }
-  fi
   echo "Existing offline binary identity matches current authority at $BINARY_ROOT."
   echo "Skipping source build; run scripts/verify_engine.sh for the real handshake."
   exit 0
@@ -89,10 +67,6 @@ if [[ -d "$SOURCE_ROOT/.git" ]]; then
     echo "ERROR: source worktree is dirty; refusing to build unbound engine source" >&2; exit 4;
   }
 elif [[ -d "$SOURCE_ROOT" && -f "$SOURCE_ROOT/.commander-lab-engine-source.json" ]]; then
-  if [[ "$PROVIDER" == "forge" ]]; then
-    echo "ERROR: current Forge dual identity requires a Git checkout so Rules-Core ancestry and bridge-only drift can be proven" >&2
-    exit 4
-  fi
   PYTHON_BIN="$(command -v python3 || command -v python || true)"
   [[ -n "$PYTHON_BIN" ]] || { echo "ERROR: Python is required to verify offline source identity" >&2; exit 4; }
   OBSERVED="$("$PYTHON_BIN" -c 'import json,sys; print(json.load(open(sys.argv[1]))["commit"])' "$SOURCE_ROOT/.commander-lab-engine-source.json")"
@@ -109,28 +83,6 @@ else
   [[ "$OBSERVED" == "$COMMIT" ]] || { echo "ERROR: commit mismatch: $OBSERVED" >&2; exit 4; }
 fi
 
-if [[ "$PROVIDER" == "forge" ]]; then
-  [[ -d "$SOURCE_ROOT/.git" ]] || {
-    echo "ERROR: current Forge qualification requires Git provenance" >&2; exit 4;
-  }
-  git -C "$SOURCE_ROOT" merge-base --is-ancestor "$RULES_COMMIT" "$COMMIT" || {
-    echo "ERROR: Forge bridge/materialization commit does not descend from current Rules-Core authority $RULES_COMMIT" >&2
-    exit 4
-  }
-  FORGE_DRIFT="$(git -C "$SOURCE_ROOT" diff --name-only "$RULES_COMMIT" "$COMMIT")" || {
-    echo "ERROR: unable to compare Forge Rules-Core and bridge/materialization source" >&2; exit 4;
-  }
-  if [[ -z "$FORGE_DRIFT" ]]; then
-    echo "ERROR: Forge bridge/materialization commit carries no explicit bridge delta from Rules-Core authority" >&2
-    exit 4
-  fi
-  if printf '%s\n' "$FORGE_DRIFT" | grep -qEv '^forge-protocol2-bridge/'; then
-    echo "ERROR: Forge bridge/materialization source drifts outside the approved bridge surface:" >&2
-    printf '%s\n' "$FORGE_DRIFT" >&2
-    exit 4
-  fi
-fi
-
 if [[ -x "$SOURCE_ROOT/mvnw" ]]; then
   MVN=("$SOURCE_ROOT/mvnw")
 elif command -v mvn >/dev/null; then
@@ -145,11 +97,7 @@ fi
 
 LOG="$ROOT/artifacts/engine_setup/${PROVIDER}_build.log"
 mkdir -p "$(dirname "$LOG")"
-if [[ "$PROVIDER" == "xmage" ]]; then
-  (cd "$SOURCE_ROOT" && "${MVN[@]}" -DskipTests install) 2>&1 | tee "$LOG"
-else
-  (cd "$SOURCE_ROOT" && "${MVN[@]}" -DskipTests install) 2>&1 | tee "$LOG"
-fi
+(cd "$SOURCE_ROOT" && "${MVN[@]}" -DskipTests install) 2>&1 | tee "$LOG"
 cat > "$BINARY_ROOT/installation-identity.json" <<EOF
 {"provider":"$PROVIDER","commit":"$COMMIT","source_commit":"$COMMIT","rules_core_commit":"$RULES_COMMIT","source_path":"$SOURCE_ROOT","built_with_java":"$JAVA_MAJOR","build_log":"$LOG","bridge_verified":false}
 EOF

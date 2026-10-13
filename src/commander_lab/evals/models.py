@@ -162,7 +162,7 @@ class GoldenDecisionCase(FrozenModel):
 class DifferentialCase(FrozenModel):
     case_id: str
     description: str
-    backend: Literal["forge", "xmage", "either"] = "either"
+    backend: Literal["xmage", "either"] = "either"
     input_state: dict[str, Any]
     expected_normalized: dict[str, Any]
     comparison_keys: tuple[str, ...]

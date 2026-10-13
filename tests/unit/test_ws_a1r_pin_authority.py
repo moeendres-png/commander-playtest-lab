@@ -42,13 +42,6 @@ def test_manifest_pins_unchanged_by_authority_repair(repo_root: Path) -> None:
     assert config["current_runtime"]["production_provider"] == "xmage"
 
 
-def test_forge_readme_defers_to_manifest(repo_root: Path) -> None:
-    text = (repo_root / "integrations/forge/README.md").read_text(encoding="utf-8")
-    assert MANIFEST in text
-    assert STALE_FORGE_PIN not in text
-    assert "historical_phase85" in text
-
-
 def test_engine_setup_doc_defers_to_manifest(repo_root: Path) -> None:
     text = (repo_root / "docs/engine_setup.md").read_text(encoding="utf-8")
     assert MANIFEST in text

@@ -146,7 +146,7 @@ class TacticalRuleOracle:
 
     It implements only explicitly registered rule primitives. Passing a tactical case
     proves that the local model follows the encoded expected semantics; it is never
-    promoted to ``external_rules_engine`` without an XMage or Forge observation.
+    promoted to ``external_rules_engine`` without an XMage observation.
     """
 
     def __init__(self) -> None:

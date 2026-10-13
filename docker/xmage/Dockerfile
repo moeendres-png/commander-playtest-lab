@@ -22,7 +22,6 @@ RUN set -eu; \
   if ! printf '%s' "$ENGINE_COMMIT" | grep -Eq '^[0-9a-f]{40}$'; then echo "ENGINE_COMMIT is not a full 40-hex SHA" >&2; exit 1; fi; \
   if ! printf '%s' "$ENGINE_REPOSITORY" | grep -Eq '^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\.git$'; then echo "ENGINE_REPOSITORY is not a valid engine repository: $ENGINE_REPOSITORY" >&2; exit 1; fi; \
   if ! printf '%s' "$ENGINE_REPOSITORY" | grep -Eqi 'mage'; then echo "xmage image requires an xmage repository: $ENGINE_REPOSITORY" >&2; exit 1; fi; \
-  if printf '%s' "$ENGINE_REPOSITORY" | grep -Eqi 'forge'; then echo "xmage image refuses a forge repository: $ENGINE_REPOSITORY" >&2; exit 1; fi; \
   apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates maven python3 && rm -rf /var/lib/apt/lists/*; \
   git clone "$ENGINE_REPOSITORY" engine-source; \
   git -C engine-source checkout --detach "${ENGINE_COMMIT}"; \

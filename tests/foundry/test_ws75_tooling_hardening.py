@@ -357,15 +357,15 @@ def test_implementer_reads_exact_state_path() -> None:
 
 @pytest.fixture()
 def refrepo(tmp_path: Path) -> dict:
-    repo = tmp_path / "forge-checkout"
+    repo = tmp_path / "mage-checkout"
     repo.mkdir()
     env = _env()
     _git(["init", "-b", "master"], repo, env)
-    _git(["config", "remote.origin.url", "https://github.com/Card-Forge/forge.git"], repo, env)
+    _git(["config", "remote.origin.url", "https://github.com/moeendres-png/mage.git"], repo, env)
     (repo / ".gitignore").write_text("*.out\n", encoding="utf-8")
     (repo / "engine.txt").write_text("engine\n", encoding="utf-8")
     _git(["add", "."], repo, env)
-    _git(["commit", "-m", "forge pin"], repo, env)
+    _git(["commit", "-m", "engine pin"], repo, env)
     head = _git(["rev-parse", "HEAD"], repo, env)
     tree = _git(["rev-parse", "HEAD^{tree}"], repo, env)
     return {"root": repo, "env": env, "head": head, "tree": tree}
@@ -373,9 +373,9 @@ def refrepo(tmp_path: Path) -> dict:
 
 def _spec(refrepo: dict, **over: object) -> dict:
     spec = {
-        "label": "forge",
+        "label": "mage",
         "root": str(refrepo["root"]),
-        "repo_slug": "Card-Forge/forge",
+        "repo_slug": "moeendres-png/mage",
         "commit": refrepo["head"],
         "tree": refrepo["tree"],
         "cleanliness": "clean",
@@ -390,7 +390,7 @@ def test_reference_verify_exact_pass(refrepo: dict) -> None:
 
 
 def test_reference_slug_mismatch_fails_closed(refrepo: dict) -> None:
-    reasons = reference_mod.verify(_spec(refrepo, repo_slug="someone-else/forge"))
+    reasons = reference_mod.verify(_spec(refrepo, repo_slug="someone-else/mage"))
     assert any("slug" in r for r in reasons)
 
 
@@ -458,7 +458,7 @@ def test_launcher_exposes_verified_references(
     plan = _plan(target, canon, references=[json.dumps(_spec(refrepo))], opencode_bin=str(stub))
     assert plan["verdict"] == "LAUNCH_READY", plan
     exposed = json.loads(plan["_env"]["FOUNDRY_REFERENCE_ROOTS"])
-    assert exposed[0]["label"] == "forge"
+    assert exposed[0]["label"] == "mage"
     snapshot = Path(exposed[0]["root"])
     assert snapshot != refrepo["root"]
     assert snapshot.is_dir()

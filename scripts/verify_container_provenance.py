@@ -2,13 +2,8 @@
 """Container provenance gate for WS-A1D Docker pin authority (fail closed).
 
 Compares the build-time provenance record (``/opt/engine-provenance.json``,
-written by ``docker/*/Dockerfile`` from required build args) against the sole
-pin authority (``config/rules_engines.json``) for the configured provider.
-
-Forge carries dual identity: besides the Rules-Core provider/repository/commit,
-the gate also compares the bridge/materialization repository, commit and
-Rules-Core base commit against ``secondary_engine.bridge_source``. A Forge
-image without a conforming bridge_source claim fails closed.
+written by ``docker/xmage/Dockerfile`` from required build args) against the
+sole pin authority (``config/rules_engines.json``) for the configured provider.
 
 The supported container path must prove image identity before the engine may
 start. Every case where identity CANNOT be proven stops startup non-zero:
@@ -16,16 +11,14 @@ start. Every case where identity CANNOT be proven stops startup non-zero:
   * unknown or missing ``ENGINE_PROVIDER``;
   * missing or unreadable provenance record;
   * missing or unreadable pin manifest;
-  * provider, repository, commit or protocol_version contradiction;
-  * (forge) bridge/materialization repository, commit or base contradiction,
-    or bridge_source absent from authority.
+  * provider, repository, commit or protocol_version contradiction.
 
 Exit codes:
   0 -- provenance matches authority on every compared field.
   2 -- usage error (bad arguments).
   3 -- fail closed: identity unproven or contradicted. Diagnostics go to
-       stderr. There is no grandfathered/foreign-image exception: legacy
-       containers require a separately authorized compatibility path.
+        stderr. There is no grandfathered/foreign-image exception: legacy
+        containers require a separately authorized compatibility path.
 
 Only the standard library is used.
 """
@@ -42,8 +35,8 @@ EXIT_OK = 0
 EXIT_USAGE = 2
 EXIT_FAIL_CLOSED = 3
 
-_KNOWN_PROVIDERS = ("xmage", "forge")
-_SECTION = {"xmage": "primary_engine", "forge": "secondary_engine"}
+_KNOWN_PROVIDERS = ("xmage",)
+_SECTION = {"xmage": "primary_engine"}
 
 
 def _fail(message: str) -> int:
@@ -90,34 +83,6 @@ def check(provider: str, provenance_path: Path, manifest_path: Path) -> int:
             "image provenance contradicts pin authority "
             f"(provider={provider} fields={','.join(sorted(mismatches))})"
         )
-    if provider == "forge":
-        # Dual identity: the materialization/bridge source must independently
-        # match secondary_engine.bridge_source, whose Rules-Core base must equal
-        # the Rules pin (cross-wiring either level fails closed here too).
-        bridge = section.get("bridge_source")
-        if not isinstance(bridge, dict):
-            return _fail(
-                "pin authority manifest is missing secondary_engine.bridge_source; "
-                "Forge dual identity cannot be proven"
-            )
-        if bridge.get("rules_core_base_commit") != section.get("commit"):
-            return _fail(
-                "pin authority bridge_source.rules_core_base_commit does not equal "
-                "the Rules-Core pin; materialization source and Rules pin are cross-wired"
-            )
-        bridge_expected = {
-            "bridge_repository": bridge.get("repository"),
-            "bridge_commit": bridge.get("commit"),
-            "rules_core_base_commit": bridge.get("rules_core_base_commit"),
-        }
-        bridge_mismatches = [
-            key for key in bridge_expected if provenance.get(key) != bridge_expected[key]
-        ]
-        if bridge_mismatches:
-            return _fail(
-                "image bridge provenance contradicts pin authority "
-                f"(provider={provider} fields={','.join(sorted(bridge_mismatches))})"
-            )
     return EXIT_OK
 
 

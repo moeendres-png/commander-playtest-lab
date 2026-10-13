@@ -13,7 +13,6 @@ def test_phase85_restricted_acceptance_is_explicit(
         "ENGINE_SOURCE_PATH",
         "ENGINE_BINARY_PATH",
         "COMMANDER_LAB_XMAGE_BRIDGE_CMD",
-        "COMMANDER_LAB_FORGE_BRIDGE_CMD",
     ):
         monkeypatch.delenv(name, raising=False)
     canonical_state = repo_root / "artifacts/engine_setup/logs/xmage.process-state.json"

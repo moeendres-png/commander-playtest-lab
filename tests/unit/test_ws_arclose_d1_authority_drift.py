@@ -71,7 +71,7 @@ def test_manifest_records_ws88_successor_pin_authority(repo_root: Path) -> None:
 
 
 def test_dockerfiles_carry_no_stale_default_pins(repo_root: Path) -> None:
-    for rel in ("docker/xmage/Dockerfile", "docker/forge/Dockerfile"):
+    for rel in ("docker/xmage/Dockerfile",):
         text = _flat((repo_root / rel).read_text(encoding="utf-8"))
         assert STALE_XMAGE_PIN not in text, rel
         assert STALE_FORGE_PIN not in text, rel

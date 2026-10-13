@@ -44,12 +44,8 @@ def init_repo(path: Path) -> str:
     return live_git("rev-parse", "HEAD", cwd=path)
 
 
-def runner_module(monkeypatch: pytest.MonkeyPatch, *, forge_workspace: Path | None = None):
-    """Load the runner script as a module under an explicit Forge workspace."""
-    if forge_workspace is None:
-        monkeypatch.delenv("FORGE_WORKSPACE", raising=False)
-    else:
-        monkeypatch.setenv("FORGE_WORKSPACE", str(forge_workspace))
+def runner_module(monkeypatch: pytest.MonkeyPatch):
+    """Load the runner script as a module."""
     spec = importlib.util.spec_from_file_location("current_boundary_runner_b4", RUNNER)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -66,7 +62,7 @@ def runner_error(module: object) -> type[BaseException]:
 def test_git_fact_fails_closed_outside_a_repository(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    module = runner_module(monkeypatch, forge_workspace=REPO)
+    module = runner_module(monkeypatch)
     with pytest.raises(runner_error(module)):
         module.git("rev-parse", "HEAD", cwd=tmp_path)
 
@@ -74,7 +70,7 @@ def test_git_fact_fails_closed_outside_a_repository(
 def test_git_fact_fails_closed_on_an_unborn_head(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    module = runner_module(monkeypatch, forge_workspace=REPO)
+    module = runner_module(monkeypatch)
     empty = tmp_path / "empty"
     subprocess.run(["git", "init", "-q", str(empty)], check=True)
     with pytest.raises(runner_error(module)):
@@ -84,7 +80,7 @@ def test_git_fact_fails_closed_on_an_unborn_head(
 def test_git_toplevel_refuses_a_non_repository(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    module = runner_module(monkeypatch, forge_workspace=REPO)
+    module = runner_module(monkeypatch)
     with pytest.raises(runner_error(module)):
         module.git_toplevel(tmp_path)
 
@@ -92,7 +88,7 @@ def test_git_toplevel_refuses_a_non_repository(
 def test_inherited_git_environment_cannot_redirect_the_read(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    module = runner_module(monkeypatch, forge_workspace=REPO)
+    module = runner_module(monkeypatch)
     decoy = tmp_path / "decoy"
     decoy_commit = init_repo(decoy)
     expected = live_git("rev-parse", "HEAD", cwd=REPO)
@@ -103,7 +99,7 @@ def test_inherited_git_environment_cannot_redirect_the_read(
 
 
 def test_head_facts_are_validated_full_sha(monkeypatch: pytest.MonkeyPatch) -> None:
-    module = runner_module(monkeypatch, forge_workspace=REPO)
+    module = runner_module(monkeypatch)
     commit = module.git_sha("rev-parse", "HEAD", cwd=REPO)
     assert len(commit) == 40 and commit == live_git("rev-parse", "HEAD", cwd=REPO)
     tree = module.git_sha("rev-parse", "HEAD^{tree}", cwd=REPO)
@@ -111,24 +107,19 @@ def test_head_facts_are_validated_full_sha(monkeypatch: pytest.MonkeyPatch) -> N
 
 
 def test_runner_git_toplevel_matches_the_repository_root(monkeypatch: pytest.MonkeyPatch) -> None:
-    module = runner_module(monkeypatch, forge_workspace=REPO)
+    module = runner_module(monkeypatch)
     assert module.git_toplevel(REPO) == REPO.resolve()
 
 
-def test_import_records_only_an_explicit_unconfigured_marker(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """An existing non-repository path must not yield an empty engine_tree.
+def test_only_xmage_has_a_native_suite_binding(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Forge is removed (Owner decision 2026-10-13): XMage is the only bound suite.
 
-    Module import tolerated a missing checkout by recording ``""`` as an engine
-    tree. The canonical behaviour is the explicit ``UNCONFIGURED`` marker, and a
-    run never uses that marker: resolve_suite_root re-proves the checkout and
-    fails closed.
+    A suite for any other candidate has no checkout to prove, so resolving one
+    fails closed instead of recording an identity.
     """
-    module = runner_module(monkeypatch, forge_workspace=tmp_path)
-    forge = module.NATIVE_SUITE_BINDING["forge"]
-    assert forge["engine_tree"] == "UNCONFIGURED"
-    with pytest.raises(module.ForgeWorkspaceError):
+    module = runner_module(monkeypatch)
+    assert set(module.NATIVE_SUITE_BINDING) == {"xmage"}
+    with pytest.raises(module.RunnerGitError, match="unknown native suite candidate"):
         module.resolve_suite_root("forge")
 
 

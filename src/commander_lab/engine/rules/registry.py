@@ -233,7 +233,7 @@ def build_validation_registry(
         external_outcomes=outcomes,
         notes=[
             "tactical_oracle is a bounded local model status, not a complete MTG rules proof",
-            "external_rules_engine requires a matching XMage or Forge bridge observation",
+            "external_rules_engine requires a matching XMage bridge observation",
         ],
     )
     return registry

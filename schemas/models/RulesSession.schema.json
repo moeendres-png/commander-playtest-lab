@@ -298,7 +298,6 @@
     "RulesBackend": {
       "enum": [
         "tactical",
-        "forge",
         "xmage"
       ],
       "title": "RulesBackend",

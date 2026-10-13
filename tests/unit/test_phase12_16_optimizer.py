@@ -132,7 +132,7 @@ def test_validate_swap_executes_politics_pod_tactical_and_external_truth_gates()
     assert tactical["cases_attempted"] == 0
     assert tactical.get("external_engine_claimed", False) is False
     assert response.result["xmage_result"]["execution_status"] == "blocked"
-    assert response.result["forge_result"]["execution_status"] == "blocked"
+    assert "forge_result" not in response.result
 
 
 def test_robustness_suite_runs_structural_scenarios_instead_of_reading_old_artifact() -> None:

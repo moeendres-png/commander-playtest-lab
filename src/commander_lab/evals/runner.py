@@ -488,7 +488,7 @@ def run_phase6_evaluation(
             passed=executed_external > 0 and diff_rate >= thresholds.differential_match_rate,
             measured=diff_rate,
             threshold=thresholds.differential_match_rate,
-            details="All executed XMage/Forge differential cases must match.",
+            details="All executed XMage differential cases must match.",
             blocking=True,
         ),
         AcceptanceGate(
@@ -496,7 +496,7 @@ def run_phase6_evaluation(
             passed=executed_external >= thresholds.minimum_external_differential_cases,
             measured=executed_external,
             threshold=thresholds.minimum_external_differential_cases,
-            details="Full release acceptance requires real XMage or Forge observations.",
+            details="Full release acceptance requires real XMage observations.",
             blocking=True,
         ),
         AcceptanceGate(
@@ -564,7 +564,7 @@ def run_phase6_evaluation(
         local_acceptance_passed=local_passed,
         full_release_acceptance_passed=full_passed,
         notes=[
-            "Local acceptance excludes the mandatory external XMage/Forge release gate.",
+            "Local acceptance excludes the mandatory external XMage release gate.",
             "Blocked differential cases are not counted as successful comparisons.",
             "All simulation-derived values remain structural_model_estimates.",
         ],
