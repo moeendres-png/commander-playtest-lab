@@ -36,7 +36,7 @@ def sealed_repo(tmp_path: Path) -> Path:
     pointer = json.loads((REPO / pointer_rel).read_text(encoding="utf-8"))
     dependencies = (
         "config/rules_engines.json",
-        "qualification/xmage-commander-zone-order-repin-v5-20261011/SUCCESSOR_SOURCE_LOCK.json",
+        "qualification/xmage-precon-coverage-repin-v6-20261013/SUCCESSOR_SOURCE_LOCK.json",
         str(pointer_rel),
         pointer["full107"]["successor_contract"],
         pointer["full107"]["effective_materialization_schema"],
@@ -170,7 +170,7 @@ def test_requested_root_binds_contract(generator: Any, sealed_repo: Path) -> Non
 def test_requested_root_rejects_inconsistent_xmage_lock(generator: Any, sealed_repo: Path) -> None:
     target = (
         sealed_repo
-        / "qualification/xmage-commander-zone-order-repin-v5-20261011/SUCCESSOR_SOURCE_LOCK.json"
+        / "qualification/xmage-precon-coverage-repin-v6-20261013/SUCCESSOR_SOURCE_LOCK.json"
     )
     lock = json.loads(target.read_text(encoding="utf-8"))
     lock["lineage"]["final_integrated_candidate"]["commit"] = "f" * 40
