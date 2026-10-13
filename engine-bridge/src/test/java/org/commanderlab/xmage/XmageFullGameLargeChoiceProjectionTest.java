@@ -1,6 +1,7 @@
 package org.commanderlab.xmage;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.Test;
 
@@ -38,18 +39,23 @@ class XmageFullGameLargeChoiceProjectionTest {
         int count = 30_000;
         JsonArray actions = XmageFullGameActionProjection.project(pending(count));
         assertEquals(count, actions.size());
-        JsonObject schema = actions.get(0).getAsJsonObject().getAsJsonObject("choices_schema");
-        assertEquals(count, schema.get("available_option_count").getAsInt());
-        assertFalse(schema.has("available_option_ids"));
+        for (JsonElement action : actions) {
+            JsonObject schema = action.getAsJsonObject().getAsJsonObject("choices_schema");
+            assertEquals(count, schema.get("available_option_count").getAsInt());
+            assertFalse(schema.has("available_option_ids"));
+        }
     }
 
     @Test
     void smallChoiceKeepsInlinedIds() {
         int count = XmageFullGameActionProjection.AVAILABLE_IDS_INLINE_LIMIT;
         JsonArray actions = XmageFullGameActionProjection.project(pending(count));
-        JsonObject schema = actions.get(0).getAsJsonObject().getAsJsonObject("choices_schema");
-        assertTrue(schema.has("available_option_ids"));
-        assertEquals(count, schema.getAsJsonArray("available_option_ids").size());
-        assertEquals(count, schema.get("available_option_count").getAsInt());
+        assertEquals(count, actions.size());
+        for (JsonElement action : actions) {
+            JsonObject schema = action.getAsJsonObject().getAsJsonObject("choices_schema");
+            assertTrue(schema.has("available_option_ids"));
+            assertEquals(count, schema.getAsJsonArray("available_option_ids").size());
+            assertEquals(count, schema.get("available_option_count").getAsInt());
+        }
     }
 }
