@@ -116,6 +116,7 @@ requalification.
 
 - Claude Opus 5.5 (Planner / Coordinator Tier): Architecture, Source Truth, MTG Rules adjudication, qualification design, task formulation, and read-only code review. Default effort is `medium`; raise to `high` for complex CR reasoning, cross-workstream arbitration, or gate decisions.
 - Step 5 Preview on OpenCode Zen (`opencode/step-5-preview-free`, native `high`) / Claude Sonnet 5.5 (Executor / Worker Tier): Primary execution tier for implementation, repository edits, builds, tests, debugging, CI remediation, evidence generation, and long autonomous workstreams (`/oc`, `/assure`, `/ro-review`).
+- GitHub Copilot coding agent and Google agents (Antigravity, Jules; Gemini models via a Google AI plan): worker tier under exactly the rules of this file, which they read natively. They work on their own branch and PR, never merge, never decide Owner-only reservations (§8), and their results are evidence only after the same review and CI gates as any other executor. Copilot's environment is `.github/workflows/copilot-setup-steps.yml`.
 - Suspended / Historical models (reference only): DeepSeek V4.1 Flash on OpenCode Go (`opencode-go/deepseek-v4.1-flash`, SUSPENDED: the Go quota is not usable, Owner 2026-10-13), GPT-5.6 Sol High, ChatGPT Work / Astra.
 
 Technical autonomy within those tiers is defined in §8.
