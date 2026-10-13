@@ -37,7 +37,8 @@ HANDOFF instead of preserving one giant coordinator conversation.
    can answer the question without model judgement.
 2. Route implementation, debugging, test/fix loops, CI remediation, qualification execution,
    evidence production, multi-file edits and long autonomous engineering work to DeepSeek V4.1 Flash on OpenCode Go
-   (`opencode-go/deepseek-v4.1-flash`, native `max`) or Claude Sonnet 5.5 (`/oc` implementer, `/assure` verifier, `/ro-review` read-only reviewer).
+   (`opencode-go/deepseek-v4.1-flash`, native `max`; GitHub lanes `/oc` implementer, `/assure` verifier,
+   `/ro-review` read-only reviewer) or to a Claude Sonnet 5.5 worker in the session.
    Since 2026-10-13 DeepSeek is the only active OpenCode model; Step 5 Preview on OpenCode Zen is SUSPENDED. Never select any other OpenCode model.
    A Go quota or auth refusal is BLOCKED_SERVICE; run OpenCode jobs one at a time.
    Write every OpenCode prompt per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
