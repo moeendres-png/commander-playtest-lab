@@ -50,7 +50,6 @@ from commander_lab.qualification.current_boundary import receipts as receipt_mod
 from commander_lab.qualification.current_boundary import (  # noqa: E402
     replay_twins as replay_twins_mod,
 )
-from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
 # Packet-scoped: these fields say what this evidence itself claims, never project state.
 NON_CLAIM_SCOPE = (
@@ -68,7 +67,9 @@ OUT = epoch_mod.epoch_root(REPO)
 # receipt means no credit, and source text is never a substitute.
 RECEIPT_DIR = OUT / "receipts"
 
-FORGE_NATIVE_BINDING_PATH = OUT / "wsr20-ingest" / "FULL107_FORGE_MAPPING.json"
+# The rules engines this assembly qualifies. XMage is the only one (Owner
+# decision 2026-10-13: Forge removed); older epochs keep their own columns.
+CANDIDATES: tuple[str, ...] = ("xmage",)
 
 
 def load(path: Path) -> Any:
@@ -166,8 +167,7 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
         RECEIPT_DIR / receipt_mod.POSITIVE_RECEIPT_SUBDIR
     )
     identity = {
-        c: load(OUT / f"FULL107_{c.upper()}_RESULTS.json")["runtime_identity"]
-        for c in ("xmage", "forge")
+        c: load(OUT / f"FULL107_{c.upper()}_RESULTS.json")["runtime_identity"] for c in CANDIDATES
     }
     runner_digest = live_runner_digest()
     # AF09: a replay-twin receipt credits only through the bound document of
@@ -199,7 +199,7 @@ def native_bindings() -> dict[str, dict[str, list[str]]]:
     if not receipts:
         print("no valid native receipts: no native credit is possible this assembly")
     out: dict[str, dict[str, list[str]]] = {}
-    for candidate in ("xmage", "forge"):
+    for candidate in CANDIDATES:
         commit = identity[candidate].get("engine_candidate_commit", "")
         credited = receipt_mod.positive_fixture_credit(
             receipts,
@@ -389,15 +389,10 @@ def af04_gate(
     epoch's own external decision frames and the engine's own responses, and
     reports every contradiction and every unproven element explicitly.
 
-    The previous version hard-coded Forge to UNKNOWN on the premise that no
-    class beyond PRIORITY had been exercised. #255/441 classified that as
-    `EVIDENCE_ASSEMBLY_GAP_PENDING_BOUNDED_REVALIDATION`, and the same-epoch
-    Forge cardinality evidence does record externally answered STARTING_PLAYER,
-    MULLIGAN and PRIORITY frames at 2P-6P. The gate therefore reports what the
-    evidence proves: PASS when every recorded subset of the AF04 contract is
-    proven, FAIL when a recorded submission contradicts the engine-offered
-    domain, and UNKNOWN when an element is unmeasured. No outcome is
-    pre-decided by candidate identity.
+    The gate reports what the evidence proves: PASS when every recorded subset of
+    the AF04 contract is proven, FAIL when a recorded submission contradicts the
+    engine-offered domain, and UNKNOWN when an element is unmeasured. No outcome
+    is pre-decided by candidate identity.
     """
     boundary = decision_boundary_mod.derive_decision_boundary(
         candidate, cardinality, af01, expected_runtime_identity
@@ -443,90 +438,24 @@ def af04_gate(
 def af00_gate(candidate: str, data: dict[str, Any], af01: dict[str, Any]) -> dict[str, Any]:
     """Derive AF00 from exact current source/build identity.
 
-    XMage currently has a single source role, so the provider-reported commit is
-    compared directly with its current candidate. Forge under R-1/R-3 has two
-    explicit roles: the #13 bridge/materialization source that is actually built
-    and the #11/#12 Rules-Core candidate. Forge AF00 therefore requires both the
-    exact build provenance and the separately measured Rules-Core equivalence.
+    XMage has a single source role, so the provider-reported commit is compared
+    directly with its current candidate.
     """
     runtime = data["results_runtime_identity"]
-    if candidate != "forge":
-        expected = runtime.get("engine_candidate_commit", "")
-        return {
-            "gate": "AF00",
-            "name": "SOURCE_AND_BUILD_LOCK",
-            "verdict": source_lock_verdict(af01, expected),
-            "evidence": [
-                f"candidate commit reported by the provider at handshake: "
-                f"{af01.get('engine_commit_reported')}",
-                f"commit the evidence is required to be about: {expected}",
-                f"engine_commit provenance: {af01.get('engine_commit_provenance')}",
-                "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json",
-            ],
-            "blocking_rows": [],
-            "nonblocking_limitations": [],
-        }
-
-    source_commit = str(runtime.get("bridge_source_commit") or "")
-    source_tree = str(runtime.get("bridge_source_tree") or "")
-    rules_commit = str(runtime.get("engine_candidate_commit") or "")
-    rules_tree = str(runtime.get("engine_candidate_tree") or "")
-    rules_proof = runtime.get("rules_core_identity") or {}
-    bridge_proof = runtime.get("bridge_identity") or {}
-    version_payload = (af01.get("engine_identity") or {}).get("get_provider_version_payload") or {}
-    provenance = receipt_mod.verify_pb05_provenance(
-        version_payload,
-        expected_source_commit=source_commit,
-        expected_tree=source_tree,
-    )
-    handshake = source_lock_verdict(af01, source_commit)
-
-    exact = (
-        handshake == "PASS"
-        and provenance.get("af00_credit") is True
-        and rules_proof.get("engine_equivalent") is True
-        and bridge_proof.get("identical") is True
-    )
-    explicit_failure = (
-        handshake == "FAIL"
-        or provenance.get("engine_commit_verified") is False
-        or rules_proof.get("engine_equivalent") is False
-        or bridge_proof.get("identical") is False
-    )
-    verdict = "PASS" if exact else ("FAIL" if explicit_failure else "UNKNOWN")
-
-    limitations: list[str] = []
-    if verdict != "PASS":
-        limitations.extend(str(item) for item in provenance.get("findings", []))
-        if rules_proof.get("engine_equivalent") is not True:
-            limitations.append(
-                "Rules-Core tree equivalence to the admitted R-1 candidate is not established"
-            )
-        if bridge_proof.get("identical") is not True:
-            limitations.append(
-                "executing forge-protocol2-bridge module is not proven identical to the bound source"
-            )
-
+    expected = runtime.get("engine_candidate_commit", "")
     return {
         "gate": "AF00",
         "name": "SOURCE_AND_BUILD_LOCK",
-        "verdict": verdict,
+        "verdict": source_lock_verdict(af01, expected),
         "evidence": [
-            f"provider/build source commit: {source_commit}",
-            f"provider/build source tree: {source_tree}",
-            f"provider reported commit: {af01.get('engine_commit_reported')}",
-            f"provider build provenance verified: {provenance.get('af00_credit')}",
-            f"R-1 Rules-Core candidate commit: {rules_commit}",
-            f"R-1 Rules-Core candidate tree: {rules_tree}",
-            f"Rules-Core equivalence: {rules_proof.get('justification')}",
-            f"bridge identity binding: {bridge_proof.get('justification')}",
+            f"candidate commit reported by the provider at handshake: "
+            f"{af01.get('engine_commit_reported')}",
+            f"commit the evidence is required to be about: {expected}",
+            f"engine_commit provenance: {af01.get('engine_commit_provenance')}",
             "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json",
         ],
-        "build_provenance": provenance,
-        "rules_core_identity_proof": rules_proof,
-        "bridge_identity_proof": bridge_proof,
         "blocking_rows": [],
-        "nonblocking_limitations": limitations,
+        "nonblocking_limitations": [],
     }
 
 
@@ -570,8 +499,8 @@ def af03_gate(candidate: str) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # AF11 INTEROP_LICENSE_TOPOLOGY: measured, not asserted.
 #
-# The gate contract is "actual integration topology satisfies WS-09; Forge
-# remains a genuine separate process/service". That is a *technical* claim plus
+# The gate contract is "actual integration topology satisfies WS-09": the
+# provider runs as a genuine separate process. That is a *technical* claim plus
 # a *policy* claim, and only the technical half is observable from inside the
 # Lab. This function therefore:
 #   1. measures every technical fact it can actually observe, and
@@ -583,7 +512,7 @@ def af03_gate(candidate: str) -> dict[str, Any]:
 # WS-09 under existing policy is reserved to the Coordinator. The Coordinator
 # records that decision for the selected provider (AF11_ADJUDICATION); the Lab
 # only checks that the record still describes this run (source-lock licences,
-# sealed effective epoch, Forge role, exact provider classpath). Without a
+# sealed effective epoch, no Forge role, exact provider classpath). Without a
 # record that validates, the residual stays UNKNOWN, which freeze eligibility
 # already treats as non-PASS.
 # ---------------------------------------------------------------------------
@@ -657,10 +586,6 @@ def _af11_measure(
                 cfg["primary_engine"].get("provider"),
                 cfg["primary_engine"].get("license"),
             ),
-            "forge": (
-                cfg["secondary_engine"].get("provider"),
-                cfg["secondary_engine"].get("license"),
-            ),
         }
         evidence.append(
             "recorded licence topology: "
@@ -715,21 +640,20 @@ def _af11_measure(
         "every observable AF11 technical fact holds, and the Coordinator adjudication "
         f"{AF11_ADJUDICATION} validates for the selected provider {candidate}: "
         "licences match the source lock, the effective epoch passes AF00-AF10, "
-        "Forge stays a separate-process reference with no code port, and this "
-        "run's provider classpath equals the adjudicated licence inventory, hence PASS"
+        "no Forge role remains (Owner decision 2026-10-13), and this run's provider "
+        "classpath equals the adjudicated licence inventory, hence PASS"
     )
     return {"verdict": "PASS", "evidence": evidence, "limitations": limitations}
 
 
 AF11_ADJUDICATION = (
-    "qualification/af11-single-provider-topology-20261011/AF11_COORDINATOR_ADJUDICATION.json"
+    "qualification/af11-xmage-only-topology-20261013/AF11_COORDINATOR_ADJUDICATION.json"
 )
 AF11_ADJUDICATION_SCHEMA = "commander-lab.af11-coordinator-adjudication/1.0.0"
 _AF11_DECISIONS = (
     "SEPARATE_PROCESS_TOPOLOGY",
     "PROVIDER_SPECIFIC_DECISION_IDENTITY_SHIM",
     "PROVIDER_LICENCE_COMPATIBILITY",
-    "FORGE_SEPARATE_PROCESS",
 )
 # An allowlist, not a denylist: a licence nobody adjudicated is never compatible.
 _AF11_ADJUDICATED_LICENCES = frozenset(
@@ -847,14 +771,11 @@ def _af11_adjudication_checks(candidate: str, root: Path, data: dict[str, Any]) 
                 f"{sorted(set(jars) ^ set(inventory))}"
             )
 
-    forge = record["forge"]
-    if (
-        forge.get("role") != "BOUNDED_REFERENCE"
-        or forge.get("code_port") != "NOT_PERMITTED"
-        or forge.get("in_production_distribution") is not False
-        or forge.get("d17_in_jvm_residual_risk") != "NOT_ACCEPTED"
-    ):
-        issues.append("the adjudication does not keep Forge a separate-process reference")
+    # Forge is removed (Owner decision 2026-10-13). A record that still gives it
+    # any role adjudicates a topology that no longer exists.
+    forge = record.get("forge")
+    if forge is not None and (not isinstance(forge, dict) or forge.get("role") != "REMOVED"):
+        issues.append("the adjudication still records a Forge role; Forge is removed")
 
     # The selection's effective epoch: a sealed epoch directory, verified by
     # its own seal, whose AF00-AF10 all pass for this candidate.
@@ -1101,7 +1022,7 @@ def assemble() -> None:
     # with an unchanged engine head must invalidate old receipts.
     assembly_runner_digest = live_runner_digest()
     per_candidate: dict[str, dict[str, Any]] = {}
-    for candidate in ("xmage", "forge"):
+    for candidate in CANDIDATES:
         results = load(OUT / f"FULL107_{candidate.upper()}_RESULTS.json")
         rows = {row["fixture_id"]: dict(row) for row in results["rows"]}
         carried_forward = bool(results.get("carried_forward"))
@@ -1619,12 +1540,9 @@ def assemble() -> None:
             {
                 "gate": "AF11",
                 "name": "INTEROP_LICENSE_TOPOLOGY",
-                # COMPUTED, not asserted. This gate was a hard-coded FAIL with prose
-                # that did not address its own contract ("actual integration topology
-                # satisfies WS-09; Forge remains a genuine separate process/service").
-                # A gate that cannot observe anything cannot be evidence in either
-                # direction, so the technical facts are now measured above and the
-                # verdict is derived from them.
+                # COMPUTED, not asserted: a gate that cannot observe anything cannot
+                # be evidence in either direction, so the technical facts are
+                # measured above and the verdict is derived from them.
                 "verdict": af11_by_candidate[candidate]["verdict"],
                 "evidence": af11_by_candidate[candidate]["evidence"],
                 "blocking_rows": [],
@@ -1700,117 +1618,8 @@ def assemble() -> None:
         },
     )
 
-    # ---- comparison ------------------------------------------------------
-    x = per_candidate["xmage"]["rows"]
-    f = per_candidate["forge"]["rows"]
-    dispositions: dict[str, int] = {}
-    comparison: list[dict[str, Any]] = []
-    for fixture in sorted(x):
-        xr, fr = x[fixture], f[fixture]
-        if "historical_exit_state" in xr or "historical_exit_state" in fr:
-            # #572: a carried-forward side is provenance only, so nothing on it
-            # is compared, adjudicated or listed as a current failure.
-            disposition = "NON_COMPARABLE"
-            note = (
-                "at least one side is the historical record carried forward into this "
-                "epoch; it is provenance only and is not compared"
-            )
-        elif xr["exit_state"] == fr["exit_state"] == "PASS":
-            # PASS/PASS is not a semantic comparison. Compare the normalized
-            # Rules-visible observations the two sides actually recorded, so two
-            # engines that disagree about a turn number or a library count are
-            # reported as a difference instead of being labelled equal.
-            comparison_result = semantic_mod.compare_semantics(xr, fr)
-            disposition = comparison_result["disposition"]
-            note = comparison_result["reason"]
-            if disposition == "RULES_VISIBLE_DIVERGENCE":
-                note += " (requires Coordinator Rules adjudication)"
-        elif "FAIL" in (xr["exit_state"], fr["exit_state"]):
-            disposition = "UNKNOWN_PENDING_RULES_ADJUDICATION"
-            note = "a current-boundary failure requires Coordinator Rules adjudication"
-        elif "BLOCKED" in (xr["exit_state"], fr["exit_state"]):
-            disposition = "NON_COMPARABLE"
-            note = (
-                "no current-boundary execution seam on at least one side; an absent seam "
-                "is not a Rules difference and is not a capability claim"
-            )
-        else:
-            disposition = "NON_COMPARABLE"
-            note = (
-                "at least one side has no fixture-corresponding current-boundary evidence; "
-                "this is an evidence gap, not a proven semantic difference"
-            )
-        dispositions[disposition] = dispositions.get(disposition, 0) + 1
-        comparison.append(
-            {
-                "fixture_id": fixture,
-                "disposition": disposition,
-                "note": note,
-                **(
-                    {"semantic_comparison": comparison_result}
-                    if xr["exit_state"] == fr["exit_state"] == "PASS"
-                    else {}
-                ),
-                "xmage": {
-                    "exit_state": xr["exit_state"],
-                    "execution_mode": xr["execution_mode"],
-                    "reason": xr["reason"],
-                },
-                "forge": {
-                    "exit_state": fr["exit_state"],
-                    "execution_mode": fr["execution_mode"],
-                    "reason": fr["reason"],
-                },
-                "engine_local_ids_excluded": [
-                    "game_id",
-                    "engine_game_id",
-                    "player_id",
-                    "decision_id",
-                    "option_id",
-                    "revision",
-                ],
-            }
-        )
-    write(
-        "CURRENT_BOUNDARY_COMPARISON.json",
-        {
-            "schema_version": "wsr22.current-boundary-comparison/1.0.0",
-            "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
-            "denominator": 107,
-            "dispositions": dispositions,
-            # Which columns executed in this epoch and which are the historical
-            # record carried forward; the comparison is only as fresh as its
-            # least fresh column, and that is stated rather than implied.
-            "column_provenance": {
-                candidate: data["column_provenance"] for candidate, data in per_candidate.items()
-            },
-            "rows": comparison,
-            "no_ranking": "this packet contains no score, no ranking and no preferred provider",
-        },
-    )
-    write(
-        "DIVERGENCE_PACKET.json",
-        {
-            "schema_version": "wsr22.divergence-packet/1.0.0",
-            "ruled_visible_divergences": [],
-            "count": 0,
-            "pending_rules_adjudication": [
-                row["fixture_id"]
-                for row in comparison
-                if row["disposition"] == "UNKNOWN_PENDING_RULES_ADJUDICATION"
-            ],
-            "note": (
-                "No Rules-visible behavioural divergence was observed. The cross-engine "
-                "differences found in this workstream are protocol/interface shape "
-                "differences, recorded in CURRENT_BOUNDARY_COMPARISON and "
-                "PROVIDER_BLOCKERS, not Magic Rules disagreements. The Coordinator performs "
-                "final independent Rules adjudication."
-            ),
-        },
-    )
-    print(json.dumps(dispositions, indent=1))
-    print("xmage", per_candidate["xmage"]["counts"])
-    print("forge", per_candidate["forge"]["counts"])
+    for candidate, data in per_candidate.items():
+        print(candidate, data["counts"])
 
 
 if __name__ == "__main__":

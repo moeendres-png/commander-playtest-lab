@@ -319,8 +319,7 @@ jobs:
           from pathlib import Path
 
           root = Path(os.environ["CURRENT_BOUNDARY_EVIDENCE_EPOCH"])
-          # XMage is the only executed candidate; the historical Forge column of
-          # older epochs is carried forward and must be marked as such.
+          # XMage is the only rules engine (Owner decision 2026-10-13).
           expected = {"xmage": os.environ["XMAGE_COMMIT"]}
 
           gate_summary = {}
@@ -373,28 +372,21 @@ jobs:
                   if row["exit_state"] != "PASS"
               ]
 
-          forge_full107 = json.loads((root / "FULL107_FORGE_RESULTS.json").read_text())
-          assert forge_full107.get("carried_forward"), "the historical Forge column must be marked carried"
-          assert forge_full107["evidence_class"] == "CARRIED_FORWARD_NOT_REEXECUTED"
+          assert not (root / "FULL107_FORGE_RESULTS.json").exists(), "no Forge column may be written"
 
           packet = json.loads((root / "PROVIDER_READINESS_CURRENT.json").read_text())
           assert packet["production_provider"] == "NOT_SELECTED"
           assert packet["architecture_freeze"] == "NOT_CLAIMED"
           assert packet["ranking"] == "NONE"
-          assert set(packet["candidates"]) == {"xmage", "forge"}
+          assert set(packet["candidates"]) == {"xmage"}
           assert all(
               packet["candidates"][candidate]["column_provenance"]["class"]
               == "FRESH_CURRENT_BOUNDARY_EXECUTION"
               for candidate in expected
           )
-          assert (
-              packet["candidates"]["forge"]["column_provenance"]["class"]
-              != "FRESH_CURRENT_BOUNDARY_EXECUTION"
-          )
 
           print(json.dumps({
               "xmage_full107": packet["candidates"]["xmage"]["full107_counts"],
-              "forge_full107": packet["candidates"]["forge"]["full107_counts"],
               "provider": packet["production_provider"],
               "freeze": packet["architecture_freeze"],
           }, sort_keys=True))
@@ -413,7 +405,7 @@ jobs:
         # whole filesystem), as seen when an earlier step failed.
         if: always() && env.CURRENT_BOUNDARY_EVIDENCE_EPOCH != ''
         with:
-          name: current-boundary-two-candidate-${{ github.sha }}
+          name: current-boundary-xmage-${{ github.sha }}
           path: |
             ${{ env.CURRENT_BOUNDARY_EVIDENCE_EPOCH }}/
           if-no-files-found: error

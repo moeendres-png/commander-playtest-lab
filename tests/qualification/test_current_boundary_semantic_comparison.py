@@ -117,17 +117,6 @@ def test_non_mapping_evidence_is_handled() -> None:
     assert semantic_signature({"fixture_id": "F1"})["present"] is False
 
 
-def test_assembler_calls_the_semantic_comparison() -> None:
-    source = ASSEMBLER.read_text(encoding="utf-8")
-    assert "compare_semantics" in source
-    assert "RULES_VISIBLE_DIVERGENCE" in source
-    # And the old label-only branch must be gone.
-    assert (
-        'if xr["exit_state"] == fr["exit_state"] == "PASS":\n            disposition = "SAME_SEMANTICS"'
-        not in source
-    )
-
-
 def test_same_semantics_literal_is_not_assigned_in_the_comparison_loop() -> None:
     """A literal SAME_SEMANTICS assignment would reintroduce the defect."""
     tree = ast.parse(ASSEMBLER.read_text(encoding="utf-8"))
