@@ -21,7 +21,7 @@ final class XmageProvider {
     static final String ENGINE = "xmage";
     static final String ENGINE_VERSION = "1.4.61";
     static final String ENGINE_COMMIT =
-            "3cbf7741d29a2fe820725456b90f305f9f793ad1";
+            "38cb21a85c4074b00ab226e625200a4feaf3462f";
     static final String PROTOCOL_VERSION = "2.0.0";
 
     private XmageProvider() {
