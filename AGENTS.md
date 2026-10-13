@@ -114,26 +114,9 @@ requalification.
 
 ## 6. Execution routing
 
-- GPT-5.6 Sol High (normal chat): Coordinator and adjudication tier — architecture, Source
-  Truth, MTG Rules adjudication, GitHub research, difficult review, qualification design,
-  evidence promotion, cross-workstream integration and gate decisions. Owner-only
-  reservations are defined in §8.
-- OpenCode Foundry: primary execution tier for implementation, repository edits, builds,
-  tests, debugging, CI, qualification execution, evidence generation, deterministic tooling
-  and long autonomous workstreams. Since the Owner directive of 2026-10-12 the only
-  active executor is Step 5 Preview on OpenCode Zen: `opencode/step-5-preview-free` at its
-  highest native variant `high` (free Zen quota; whenever the project uses OpenCode it uses
-  this model and nothing else) for the main model, small model, every lane (`/oc`, `/assure`, `/ro-review`), every project agent and
-  every subagent. DeepSeek (`opencode-go/deepseek-v4.1-flash`) is SUSPENDED: refused by the
-  launcher, absent from `opencode.json`, never a fallback. No other OpenCode execution
-  profile is authorized or reachable through the canonical launcher/config. The executor is
-  recorded per run, never inferred from quota or failure, and never falls back silently.
-  Write prompts for it per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
-- Claude Opus 5.5: explicitly authorized direct engineering/campaign executor when the session prompt declares the campaign objective and writable ownership surface. Claude may execute large autonomous campaigns under the same Rules, evidence, privacy, ownership, Git and merge gates defined here. By owner delegation it also holds the Coordinator tier's decision authority (§8 "Claude Opus 5.5 Coordinator authority"); the Owner-only decisions listed there stay reserved.
-- ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
-  capability identified; Sol High insufficient; OpenCode Foundry and any available
-  authorized Claude campaign insufficient; genuinely required; smallest necessary scope).
-  Never the normal engineering path.
+- Claude Opus 5.5 (Planner / Coordinator Tier): Architecture, Source Truth, MTG Rules adjudication, qualification design, task formulation, and read-only code review. Default effort is `medium`; raise to `high` for complex CR reasoning, cross-workstream arbitration, or gate decisions.
+- Step 5 Preview on OpenCode Zen / Claude Sonnet 5.5 (Executor / Worker Tier): Primary execution tier for implementation, repository edits, builds, tests, debugging, CI remediation, evidence generation, and long autonomous workstreams (`/oc`, `/assure`, `/ro-review`).
+- Inactive / Historical models (reference only): DeepSeek V4.1 Flash (SUSPENDED), GPT-5.6 Sol High, ChatGPT Work / Astra.
 
 Technical autonomy within those tiers is defined in §8.
 
