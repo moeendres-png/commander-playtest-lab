@@ -137,7 +137,12 @@ class EngineProtocolRequest(FrozenModel):
     protocol_version: str = ENGINE_PROTOCOL_VERSION
     request_id: str
     timestamp: datetime = Field(default_factory=utc_now)
-    engine: Literal["xmage", "tactical", "unknown"] = "unknown"
+    # "forge" stays in the frozen wire vocabulary: the protocol schema generated
+    # from this model is bound by blob identity into the sealed epochs and the
+    # pre-freeze contract. No provider in the Lab sends it (Forge is removed,
+    # Owner decision 2026-10-13); dropping it is a protocol change that needs its
+    # own contract successor and requalification.
+    engine: Literal["xmage", "forge", "tactical", "unknown"] = "unknown"
     engine_version: str | None = None
     game_id: str | None = None
     message_type: EngineMessageType
