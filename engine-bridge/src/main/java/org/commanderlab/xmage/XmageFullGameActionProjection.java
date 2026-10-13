@@ -36,7 +36,11 @@ import java.util.UUID;
  *       {@code prompt}) plus the originating {@code option_id}/{@code option_type}.</li>
  *   <li>{@code choices_schema} describes the allowed response structure
  *       ({@code numeric_min/max}, {@code minimum/maximum_selections},
- *       {@code available_option_ids}).</li>
+ *       {@code available_option_count} and, for decisions with at most
+ *       {@code AVAILABLE_IDS_INLINE_LIMIT} options, {@code available_option_ids}).
+ *       Every action carries its own schema, so inlining all ids of a very large
+ *       decision (a card-name choice offers every card name) would be quadratic;
+ *       above the limit the offered options are still each their own action.</li>
  *   <li>{@code ActionProposal.choices} may carry only
  *       {@code decision_id}, {@code decision_offset},
  *       {@code selected_option_ids}, {@code ordering}, {@code numeric_choice},
@@ -795,6 +799,12 @@ final class XmageFullGameActionProjection {
         return action;
     }
 
+    /**
+     * Largest decision whose option ids are inlined into every action's schema. A card-name choice
+     * offers about 30,000 names; inlining them into each of its 30,000 actions exhausted the heap.
+     */
+    static final int AVAILABLE_IDS_INLINE_LIMIT = 256;
+
     private static JsonObject choicesSchema(
             String decisionId,
             long offset,
@@ -845,9 +855,12 @@ final class XmageFullGameActionProjection {
                 // Descriptive only.
             }
         }
-        JsonArray available = new JsonArray();
-        availableIds.forEach(available::add);
-        schema.add("available_option_ids", available);
+        schema.addProperty("available_option_count", availableIds.size());
+        if (availableIds.size() <= AVAILABLE_IDS_INLINE_LIMIT) {
+            JsonArray available = new JsonArray();
+            availableIds.forEach(available::add);
+            schema.add("available_option_ids", available);
+        }
         return schema;
     }
 
