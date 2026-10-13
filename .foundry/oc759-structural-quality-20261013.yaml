@@ -1,0 +1,183 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/work/lab
+branch: claude/oracle-optimizer-pilots-batch-e1y485
+audit_base_sha: 28ca0316604eef486a320ab522d9516f9aee66b2
+audit_base_tree: b252d3cf916d1dc3cb78f94b632423b633e9215d
+state_written_against_head: 7367b59817a87a23956ae88753e2ee7ce3009cde
+validated_head: 7367b59817a87a23956ae88753e2ee7ce3009cde
+validated_tree: 4da8820d86090bb79ba488d14145544721c1a43d
+materiality: MATERIAL
+objective: >-
+  Repair PR 759 (Structural calibration against XMage and cheaper bridge mana checks) so
+  its required quality gate is green on the branch's own code, per the Owner comment of
+  2026-10-13 15:56Z. The failure is
+  tests/integration/test_hosts_of_mordor_opponent.py::test_hosts_of_mordor_is_available_to_current_structural_opponent_loader
+  (assert 11.25 == 9.0) and is attributable to this PR's new XMage card-facts layer, not
+  to the Forge removal. Also merge current main (33bd77b25) into the branch as the same
+  comment directs.
+in_scope:
+- src/commander_lab/engine/structural/card_facts.py
+- src/commander_lab/engine/structural/xmage_calibration.py
+- tests/unit/test_structural_xmage_calibration.py
+- tests/integration/test_hosts_of_mordor_opponent.py
+- tests/integration/test_lorehold_spirit_opponent.py
+- tests/unit/test_g_modeling_quality.py
+- .foundry/oc759-structural-quality-20261013.yaml
+out_of_scope:
+- >-
+  Marking PR 759 ready for review or merging it; the PR is a draft handoff whose author
+  explicitly leaves the calibration fit and decision rule open.
+- Production Provider selection; Architecture Freeze; Production Repository creation.
+- Forge removal slices 2-3 (issue 767, PR 765) and any other open PR surface.
+- >-
+  The lab-ops gh_ops.py brief/status/queue route defect found during this session
+  (recorded below; separate surface, not fixed here).
+- Re-fitting StructuralTuning damage constants.
+ownership: >-
+  Step 5 Preview HIGH (opencode/step-5-preview-free, native high); writer lock
+  OC759-STRUCTURAL-QUALITY-20261013 held for /home/moeen/work/lab. Branch
+  claude/oracle-optimizer-pilots-batch-e1y485 is PR 759's own head and has no live writer.
+status: ACTIVE
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+executor_identity:
+  model: opencode/step-5-preview-free
+  native_variant: high
+  session: step5-high-issue759
+dependencies:
+- PR 759 head 28ca03166 (audit base of this workstream).
+- >-
+  origin/main 33bd77b25 (merged in as 33e3a65b2; the Owner comment states the branch lacks
+  it and that the merge also fixes the Forge-clone infrastructure failure).
+hard_gates:
+- >-
+  No weakening, skipping or denominator reduction: the failing integration assertion holds
+  as written (commander_base_power == 9.0 for a printed 9-power card).
+- >-
+  Rules/evidence integrity: no second legality or modeled-semantics shortcut; the fix must
+  keep curated card facts authoritative.
+- >-
+  The quality gate command set (ruff format --check ., mypy src/commander_lab, pytest -q
+  --ignore=tests/qualification) must not gain a failure against the main baseline.
+forbidden_shortcuts:
+- >-
+  Changing the integration test expectation to 11.25, which would restate a printed card
+  stat as a heuristic combat value.
+- >-
+  Marking the test xfail or skip, or netting the evasion bump out of combat_power for cards
+  (card-level evasion is separately tested and intended).
+- Pilot, adapter or harness side legality or power inference.
+validated_gates:
+- >-
+  Negative control (discriminating power): with the two src edits stashed,
+  test_hosts_of_mordor_is_available_to_current_structural_opponent_loader and both new unit
+  tests fail (3 failed, 9 passed); with the fix, 21 passed across
+  tests/unit/test_structural_xmage_calibration.py, both opponent integration files and
+  tests/unit/test_g_modeling_quality.py.
+- >-
+  Whole tests/integration directory on the merged head: 39 passed, 1 skipped (Forge live
+  lane skip).
+- >-
+  Full quality test set on 7367b5981: pytest -q --ignore=tests/qualification gives
+  11 failed, 3255 passed, 4 skipped, 6 errors; the identical 17 FAILED/ERROR nodes
+  reproduce on a clean origin/main worktree (33bd77b25), i.e. pre-existing local-environment
+  failures (wheel-build packaging smoke and subprocess privacy isolation), not a
+  regression.
+- ruff check and ruff format --check on the three changed files; mypy on both changed modules.
+failed_gates: []
+invalidated_gates: []
+do_not_rerun:
+- >-
+  The full pytest -q --ignore=tests/qualification pass on 7367b5981 (395s); its failure set
+  is already proven identical to the origin/main baseline.
+- tests/integration on the merged head.
+current_failure: >-
+  PR 759 required check quality red at 28ca03166 with a single failure: assert 11.25 == 9.0
+  for the commander base power of Sauron, Lord of the Rings.
+failure_class: HARNESS_DEFECT
+current_hypothesis: >-
+  RESOLVED (root cause): commander_stats filled commander_base_power from
+  CardFacts.combat_power(), which adds 25 percent for evasion text. commander_base_power is
+  the printed card fact (the opponents JSON, tests/integration/test_lorehold_spirit_opponent.py
+  and tests/unit/test_g_modeling_quality.py pin it against the real card) from which the
+  simulator derives commander damage, so a 9-power trampler was restated as 11.25 and its
+  evasion counted twice. Fix: use the card's own power; a commander whose facts carry no
+  power (planeswalker commander Quintorius, History Chaser) stays unknown so the deck's
+  curated value survives instead of being forced to 0.0.
+hypotheses_rejected:
+- >-
+  The expectation is stale and should become 11.25 - rejected: the mirrored field
+  commander_base_costs is the card's mana value (8.0) and both existing commander-power
+  tests assert printed power (Doctor Doom 3.0; Quintorius kept at its curated 0.0 while its
+  facts carry power=None), so the contract is the card's own stat. Card-level base_power
+  deliberately IS the evasion-bumped combat value
+  (test_facts_give_uncurated_creatures_their_power_and_keep_curated_values asserts
+  Serra Angel 4/4 becomes 5.0), which is why the defect is commander-specific.
+- >-
+  The Forge removal (main 9c6594497) caused the failure - rejected by the Owner comment and
+  by the failing node's subject matter; the check fails on this PR's own opponent-profile
+  code path.
+technical_decisions:
+- >-
+  Fix commander_stats rather than the test: commander_base_power is a printed card fact, not
+  a combat-model value; combat_power stays the card-body value it already is.
+- >-
+  commander_stats returns None when the facts know the commander but carry no power, so
+  apply_facts_to_deck keeps the deck value instead of writing 0.0 (fail closed).
+- >-
+  fact_deck_profile (calibration harness) reads the same commander_stats instead of
+  reimplementing the semantics, so the harness measures the same model the project loader
+  builds; unknown commanders keep the harness defaults 4.0 cost / 2.0 power.
+- >-
+  Merged origin/main into the PR branch as a normal merge (33e3a65b2) per the Owner comment;
+  no rebase, no force push, no rewritten PR history.
+files_modified:
+- src/commander_lab/engine/structural/card_facts.py
+- src/commander_lab/engine/structural/xmage_calibration.py
+- tests/unit/test_structural_xmage_calibration.py
+tests_run:
+- >-
+  python3 -m pytest -q tests/unit/test_structural_xmage_calibration.py
+  tests/integration/test_hosts_of_mordor_opponent.py
+  tests/integration/test_lorehold_spirit_opponent.py tests/unit/test_g_modeling_quality.py
+  gives 21 passed.
+- python3 -m pytest -q tests/integration gives 39 passed, 1 skipped.
+- >-
+  python3 -m pytest -q --ignore=tests/qualification gives 11 failed, 3255 passed, 4 skipped,
+  6 errors, with the failure set identical to clean origin/main.
+- ruff check src tests; ruff format --check on changed files; mypy on both changed modules.
+evidence:
+- >-
+  CI: PR 759 head 28ca03166 quality fail (11m39s) whose only failing node is
+  test_hosts_of_mordor_is_available_to_current_structural_opponent_loader; every other
+  required check on that head passed.
+- >-
+  Owner PR comment 2026-10-13T15:56:21Z on 759: the failure is in this PR's subject, do not
+  weaken or skip, and the branch lacks main 33bd77b.
+- >-
+  LOCAL_OBSERVED baseline: identical 17 FAILED/ERROR nodes on a clean origin/main worktree,
+  so the remaining local failures are environmental, not this change's.
+artifacts:
+- /tmp/opencode/p759-full-suite.log
+- /tmp/opencode/baseline-main-subset.log
+remaining_scope:
+- >-
+  Push 7367b5981 to PR 759's head and comment the repair on the PR (Owner-requested), then
+  re-read CI on the new head.
+- >-
+  OPTIONAL/UNKNOWN: re-run scripts/calibrate_structural_vs_xmage.py so the PR body's quoted
+  Spearman 0.384 over 22 decks figure is re-measured under the corrected commander powers;
+  not re-measured in this session.
+- >-
+  Adjacent defect found, NOT fixed here (separate surface, needs its own branch/PR):
+  .claude/skills/lab-ops/scripts/gh_ops.py. status_line calls open_threads() directly, so
+  gh_ops.py status/wait/queue exits 1 with gh api .../ccr/review_threads Not Found (HTTP
+  404) in this repo (brief only survives through _thread_count); cmd_brief and cmd_queue
+  iterate QUEUE_REPOS including moeendres-png/forge, which 404s since the Forge removal, so
+  the rest of brief (opencode/pb03/epoch lane) never prints.
+exact_next_action: >-
+  Push the branch with tools/foundry/safe_push.py --worktree /home/moeen/work/lab
+  --expected-branch claude/oracle-optimizer-pilots-batch-e1y485 --state
+  .foundry/oc759-structural-quality-20261013.yaml, then comment the repair with its
+  evidence on PR 759 via gh pr comment 759, then re-read CI on the new head.
