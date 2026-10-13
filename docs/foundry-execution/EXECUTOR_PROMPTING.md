@@ -1,10 +1,13 @@
-# Writing prompts for Space Bunny MAX
+# Writing prompts for Step 5 Preview HIGH
 
-Status: CANONICAL guidance (Owner directive 2026-10-10). Space Bunny MAX
-(`opencode/space-bunny-free` on OpenCode Zen, native `max`) is the only active OpenCode executor;
-the OpenCode Go ids are retired because they share the exhausted Go monthly quota. It runs every
-lane: `/oc` (`foundry-implementer`), `/bunny` (`bunny-verifier`), `/bunny-review` (read-only
-`foundry-reviewer`), the Foundry launcher and the Claude-side `opencode-subagent` MCP tools.
+Status: CANONICAL guidance (Owner directive 2026-10-12). Step 5 Preview HIGH
+(`opencode/step-5-preview-free` on OpenCode Zen, native `high`, its highest catalog level) is the
+only OpenCode model this project uses (free Zen quota). It runs every lane: `/oc`
+(`foundry-implementer`), `/assure` (`assurance-verifier`), `/ro-review` (read-only
+`foundry-reviewer`), the Foundry launcher and Claude-side runs through the `opencode` CLI
+(`opencode run -m opencode/step-5-preview-free --variant high`; the Zen free tier refuses the
+`opencode-subagent` MCP bridge). Zen rate-limits parallel free runs: start Step jobs one at a time
+and treat a hung run as `BLOCKED_SERVICE`.
 DeepSeek is SUSPENDED; never name it as a target, a fallback or a "cheaper" option.
 
 This guide is derived from this repository's lane contracts, its evidence rules and the run
@@ -17,18 +20,18 @@ vendor documentation about the model's internals. Authority stays with `AGENTS.m
 | Need | Lane | Agent | Writes? |
 |---|---|---|---|
 | Implement, fix, CI repair, tooling, evidence production | `/oc` | `foundry-implementer` | yes, own branch + PR |
-| Maximum-assurance task (two-route proof, full suites, auditor) | `/bunny` | `bunny-verifier` | yes, only when the task says so |
-| MATERIAL review gate on an exact SHA/TREE | `/bunny-review` | `foundry-reviewer` | never |
+| Maximum-assurance task (two-route proof, full suites, auditor) | `/assure` | `assurance-verifier` | yes, only when the task says so |
+| MATERIAL review gate on an exact SHA/TREE | `/ro-review` | `foundry-reviewer` | never |
 | Bounded side task from a Claude session | `opencode-subagent` MCP | per call | per permission mode |
 
 The model is the same everywhere; the lane decides permissions and posture. Do not ask an `/oc`
-run to "also review itself": the review gate only accepts the separate `/bunny-review` run.
+run to "also review itself": the review gate only accepts the separate `/ro-review` run.
 
 ## 2. Use the skeletons, fill only the delta
 
 Start from `.claude/skills/lab-ops/oc_tasks/<template>.md` and post with
 `python3 .claude/skills/lab-ops/scripts/oc_dispatch.py post`. The skeleton fields are the
-contract Space Bunny works best with, because each one removes a guess:
+contract Step 5 Preview works best with, because each one removes a guess:
 
 - **Objective**: one sentence, one outcome. Two outcomes are two dispatches.
 - **Source lock / ownership**: repo, 40-hex SHA, branch, owner. The model re-checks it before
@@ -57,31 +60,31 @@ it again; repeated policy dilutes the task delta.
    hour. Size each dispatch to finish well inside that, start long suites first, and require a
    pushed checkpoint before any long wait. Split anything larger.
 6. **Name the verdict vocabulary.** `PASS / FAIL / UNKNOWN / BLOCKED`; `UNKNOWN != PASS`;
-   a local run is not CI credit. Ask for a certainty ledger line per claim on `/bunny`.
+   a local run is not CI credit. Ask for a certainty ledger line per claim on `/assure`.
 7. **Make blockers terminal.** Quota (`BLOCKED_SERVICE`), auth, catalog or permission failures end
    the run with a report. Never ask it to retry on another model or provider.
 8. **One owner per surface.** If another thread or PR owns a file, say so and forbid edits there.
 9. **German or English, never mixed inside one field.** Keep identifiers, commands and paths
    verbatim.
 
-## 4. Review prompts (`/bunny-review`) while one model does both jobs
+## 4. Review prompts (`/ro-review`) while one model does both jobs
 
-With DeepSeek suspended the reviewer is the same model as the implementer (explicit Owner approval,
-2026-10-10). The only independence left is a fresh context, so protect it:
+With DeepSeek suspended the reviewer is the same model as the implementer (Owner approval of
+2026-10-10 for the single-executor case, applied to Step from 2026-10-12). The only independence left is a fresh context, so protect it:
 
 - Give the reviewer the exact SHA, TREE, PR link and the acceptance claim. Do not paste the
   implementer's reasoning, handoff narrative or "why this is correct".
 - Ask adversarially: "find the input, state or ordering that makes this wrong", with the
   wrong-reason controls it must try, not "confirm the fix".
-- Require the machine-parseable receipt the gate reads (`BUNNY_DIRECT_READ_ONLY_REVIEW`) and the
+- Require the machine-parseable receipt the gate reads (`DIRECT_READ_ONLY_REVIEW`) and the
   P1/P2/P3 finding split. A MATERIAL change after the review makes it STALE.
 - For Rules, evidence, containment or security decisions, add the Claude `evidence-reviewer`
   (Opus `high`) as a second, different-model reviewer.
 
 ## 5. `opencode-subagent` MCP calls from Claude
 
-`.claude/settings.json` sets `OPENCODE_SUBAGENT_MODEL=opencode/space-bunny-free`, the plugin
-default. Still pass `model: "opencode/space-bunny-free"` on every `agent` call so a stale plugin
+`.claude/settings.json` sets `OPENCODE_SUBAGENT_MODEL=opencode/step-5-preview-free`, the plugin
+default. Still pass `model: "opencode/step-5-preview-free"` on every `agent` call so a stale plugin
 default can never select another model. Brief it like a dispatch: objective, files, exact
 validation command, stop condition, and "do not call `mcp__hearthbot__` tools".
 

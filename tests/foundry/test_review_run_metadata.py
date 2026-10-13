@@ -13,7 +13,7 @@ WORKFLOW = ROOT / ".github/workflows/opencode.yml"
 
 
 def _step():
-    job = yaml.safe_load(WORKFLOW.read_text())["jobs"]["opencode-bunny-review"]
+    job = yaml.safe_load(WORKFLOW.read_text())["jobs"]["opencode-ro-review"]
     steps = job["steps"]
     index = next(i for i, s in enumerate(steps) if s["name"] == "Write public review run metadata")
     assert index < next(i for i, s in enumerate(steps) if s["name"] == "Run opencode")
@@ -75,7 +75,7 @@ def test_launcher_uses_own_run_context_and_preserves_native_prompt_and_permissio
         "REVIEW_TRIGGER_COMMENT_ID": "${{ github.event.comment.id }}",
         "REVIEW_WORKFLOW_SHA": "${{ github.workflow_sha }}",
     }
-    job = yaml.safe_load(WORKFLOW.read_text())["jobs"]["opencode-bunny-review"]
+    job = yaml.safe_load(WORKFLOW.read_text())["jobs"]["opencode-ro-review"]
     run = next(s for s in job["steps"] if s["name"] == "Run opencode")
     assert (
         run["run"]

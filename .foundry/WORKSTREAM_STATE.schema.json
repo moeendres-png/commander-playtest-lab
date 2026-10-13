@@ -71,7 +71,7 @@
         "NON_MATERIAL",
         null
       ],
-      "description": "Declared change-set materiality. MATERIAL (fail-safe default when policy-enabled) requires a fresh-context read-only Space Bunny PASS on validated_head/validated_tree before PR_READY/COMPLETE. A NON_MATERIAL claim is verified against the Git change set and fails closed if it hides material paths. Absent/null preserves historical state compatibility."
+      "description": "Declared change-set materiality. MATERIAL (fail-safe default when policy-enabled) requires a fresh-context read-only Step 5 Preview PASS on validated_head/validated_tree before PR_READY/COMPLETE. A NON_MATERIAL claim is verified against the Git change set and fails closed if it hides material paths. Absent/null preserves historical state compatibility."
     },
     "cross_executor_review": {
       "type": [
@@ -87,7 +87,7 @@
         "logical_profile": {
           "type": "string",
           "enum": [
-            "space-bunny"
+            "step"
           ]
         },
         "resolved_model_id": {
@@ -104,14 +104,14 @@
           "type": "string",
           "enum": [
             "deepseek",
-            "space-bunny"
+            "step"
           ]
         },
         "review_executor": {
           "type": "string",
           "enum": [
             "deepseek",
-            "space-bunny"
+            "step"
           ]
         },
         "reviewed_sha": {
@@ -371,7 +371,7 @@
       ],
       "enum": [
         "deepseek",
-        "space-bunny",
+        "step",
         null
       ],
       "description": "Explicit currently authorized Foundry executor profile for the run. Null preserves historical state compatibility; historical executor names remain free-form provenance only in executor_model/hand-off evidence, not selectable profiles."
@@ -383,7 +383,7 @@
       ],
       "enum": [
         "deepseek",
-        "space-bunny",
+        "step",
         null
       ],
       "description": "Logical executor profile actually resolved for the run (same two-profile vocabulary as execution_profile)."
@@ -400,7 +400,7 @@
         "string",
         "null"
       ],
-      "description": "Exact provider/model runtime identity selected for the run, e.g. opencode/space-bunny-free (historical states may carry opencode-go ids or a legacy alias)."
+      "description": "Exact provider/model runtime identity selected for the run, e.g. opencode/step-5-preview-free (historical states may carry opencode-go ids or a legacy alias)."
     },
     "model_alias_class": {
       "type": [
