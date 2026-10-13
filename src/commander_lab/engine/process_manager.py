@@ -45,9 +45,9 @@ def load_engine_runtime_config(env: Mapping[str, str] | None = None) -> EngineRu
     source = os.environ if env is None else env
     mode = source.get("ENGINE_MODE", "external")
     provider_value = source.get("ENGINE_PROVIDER", "xmage").casefold()
-    if provider_value not in {"xmage", "forge"}:
+    if provider_value != "xmage":
         raise ValueError(f"unsupported ENGINE_PROVIDER: {provider_value}")
-    provider = cast(Literal["xmage", "forge"], provider_value)
+    provider = cast(Literal["xmage"], provider_value)
     return EngineRuntimeConfig(
         provider=provider,
         mode=EngineRuntimeMode(mode),

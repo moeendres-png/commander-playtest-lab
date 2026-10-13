@@ -76,7 +76,7 @@ PROFILE_TOOLS: dict[RunProfile, tuple[str, ...]] = {
 
 def select_run_profile(user_goal: str) -> RunProfile:
     normalized = user_goal.casefold()
-    if any(token in normalized for token in ("xmage", "forge", "external engine", "regelengine")):
+    if any(token in normalized for token in ("xmage", "external engine", "regelengine")):
         return RunProfile.EXTERNAL_ENGINE_VALIDATION
     if any(
         token in normalized

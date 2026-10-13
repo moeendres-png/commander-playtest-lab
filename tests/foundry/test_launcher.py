@@ -646,15 +646,14 @@ def test_injection_bundle_carries_no_secret_shaped_keys(target: dict, canon: Pat
 _SLUG_BY_PROFILE = {
     "cpl": "moeendres-png/commander-playtest-lab",
     "mage": "moeendres-png/mage",
-    "forge": "moeendres-png/forge",
 }
 
 
-@pytest.mark.parametrize("profile", ["cpl", "mage", "forge"])
-def test_init_ready_for_all_three_profiles(
+@pytest.mark.parametrize("profile", ["cpl", "mage"])
+def test_init_ready_for_all_profiles(
     tmp_path: Path, canon: Path, profile: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """§28: same canonical policy resolves for CPL/Mage/Forge contexts."""
+    """§28: same canonical policy resolves for CPL and Mage contexts."""
     monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(tmp_path / "locks"))
     wt = tmp_path / f"{profile}-wt"
     wt.mkdir()

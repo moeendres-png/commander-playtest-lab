@@ -107,8 +107,7 @@
     "provider": {
       "default": "xmage",
       "enum": [
-        "xmage",
-        "forge"
+        "xmage"
       ],
       "title": "Provider",
       "type": "string"

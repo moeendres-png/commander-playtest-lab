@@ -322,7 +322,7 @@ class RunMultifidelityComparisonInput(ValidateUpgradeInput):
 
 class RunEngineBackedMatchupInput(SimulationInput):
     deck_ids: tuple[str, ...]
-    provider: Literal["xmage", "forge"] = "xmage"
+    provider: Literal["xmage"] = "xmage"
 
 
 class RunRobustnessSuiteInput(ValidateUpgradeInput):

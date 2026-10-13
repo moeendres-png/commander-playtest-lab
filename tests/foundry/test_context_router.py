@@ -71,7 +71,7 @@ def declared_reference(
 def write_profiles(root: Path, *, slug: str = "example/repo") -> Path:
     profiles = root / "profiles"
     profiles.mkdir()
-    for name in ("cpl", "mage", "forge"):
+    for name in ("cpl", "mage"):
         repo_slug = slug if name == "cpl" else f"example/{name}"
         (profiles / f"{name}.json").write_text(
             json.dumps({"profile": name, "repo_slug": repo_slug}),
@@ -331,7 +331,6 @@ def test_provider_words_in_prose_do_not_grant_provider_route(scratch: dict, tmp_
     )
     assert "engine_bridge" in plan["selected_domains"]
     assert "mage" not in plan["selected_domains"]
-    assert "forge" not in plan["selected_domains"]
     assert plan["route_mode"] == "BROAD_FALLBACK"
     assert "engine bridge provider ambiguous" in plan["broad_context_reasons"]
     assert plan["repo_maps"] == []

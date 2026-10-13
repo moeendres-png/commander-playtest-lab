@@ -9,7 +9,6 @@ from commander_lab.engine.rules import run_phase8_validation
 def test_phase8_validation_marks_all_local_cards_and_keeps_external_gate_blocked(
     repo_root: Path, tmp_path: Path, monkeypatch
 ) -> None:
-    monkeypatch.delenv("COMMANDER_LAB_FORGE_BRIDGE_CMD", raising=False)
     monkeypatch.delenv("COMMANDER_LAB_XMAGE_BRIDGE_CMD", raising=False)
     summary = run_phase8_validation(repo_root, output_directory=tmp_path, seed=17)
     assert summary["local_acceptance_passed"] is True

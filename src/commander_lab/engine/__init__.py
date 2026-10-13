@@ -12,7 +12,6 @@ __all__ = [
 
 from .rules import (
     PHASE8_ENGINE_VERSION,
-    ForgeRulesAdapter,
     RulesEngineAdapter,
     RulesEngineError,
     RulesEngineManager,
@@ -31,7 +30,6 @@ from .rules import (
 
 __all__ += [
     "PHASE8_ENGINE_VERSION",
-    "ForgeRulesAdapter",
     "RulesEngineAdapter",
     "RulesEngineError",
     "RulesEngineManager",

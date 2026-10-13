@@ -60,7 +60,6 @@ DOMAIN_REFS: dict[str, tuple[str, ...]] = {
     "failure": (".opencode/skills/failure-classification/SKILL.md",),
     "engine_bridge": ("engine-bridge/",),
     "mage": (".foundry/repo-profiles/mage.json",),
-    "forge": (".foundry/repo-profiles/forge.json",),
 }
 
 PATH_SIGNALS: tuple[tuple[str, str], ...] = (
@@ -90,8 +89,8 @@ class RouterError(ValueError):
 
 
 def _load_profile(profile: str, profiles_dir: Path) -> dict:
-    if profile not in {"cpl", "mage", "forge"}:
-        raise RouterError("profile must be cpl, mage, or forge")
+    if profile not in {"cpl", "mage"}:
+        raise RouterError("profile must be cpl or mage")
     path = profiles_dir / f"{profile}.json"
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -187,7 +186,7 @@ def _domains(state: dict, profile: str) -> tuple[list[str], list[str]]:
             selected.add(domain)
             reasons.append(f"state-signal:{domain}")
 
-    if profile in {"mage", "forge"}:
+    if profile == "mage":
         selected.add(profile)
         reasons.append(f"repo-profile:{profile}")
 
@@ -282,7 +281,7 @@ def build_plan(
         tools.append("skill: component-change-review")
 
     repo_maps: list[dict[str, str]] = []
-    if not broad and profile in {"mage", "forge"}:
+    if not broad and profile == "mage":
         repo_maps.append(
             {
                 "profile": profile,
@@ -395,7 +394,7 @@ def _verify_declared_reference(
     profile_data: dict,
     reference: dict,
 ) -> dict:
-    if profile not in {"mage", "forge"}:
+    if profile != "mage":
         raise RouterError("repo-map is restricted to declared engine reference roots")
     if reference.get("label") != profile:
         raise RouterError("declared reference label does not match repo-map profile")
@@ -564,12 +563,12 @@ def main(argv: list[str] | None = None) -> int:
     plan = sub.add_parser("plan")
     plan.add_argument("--state", default=None)
     plan.add_argument("--workdir", default=None)
-    plan.add_argument("--profile", required=True, choices=("cpl", "mage", "forge"))
+    plan.add_argument("--profile", required=True, choices=("cpl", "mage"))
     plan.add_argument("--profiles-dir", default=str(DEFAULT_PROFILES_DIR))
 
     repo_map = sub.add_parser("repo-map")
     repo_map.add_argument("--workdir", required=True)
-    repo_map.add_argument("--profile", required=True, choices=("mage", "forge"))
+    repo_map.add_argument("--profile", required=True, choices=("mage",))
     repo_map.add_argument("--profiles-dir", default=str(DEFAULT_PROFILES_DIR))
     repo_map.add_argument("--max-depth", type=int, default=3)
     repo_map.add_argument("--prefix", action="append", default=[])

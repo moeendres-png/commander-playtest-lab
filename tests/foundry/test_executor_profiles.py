@@ -391,7 +391,7 @@ def test_state_schema_can_persist_cross_executor_review_policy() -> None:
 
 
 def test_engine_repo_profiles_use_canonical_lab_injection() -> None:
-    for name in ("forge", "mage"):
+    for name in ("mage",):
         profile = json.loads(
             (ROOT / ".foundry" / "repo-profiles" / f"{name}.json").read_text(encoding="utf-8")
         )

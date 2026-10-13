@@ -137,6 +137,11 @@ class EngineProtocolRequest(FrozenModel):
     protocol_version: str = ENGINE_PROTOCOL_VERSION
     request_id: str
     timestamp: datetime = Field(default_factory=utc_now)
+    # "forge" stays in the frozen wire vocabulary: the protocol schema generated
+    # from this model is bound by blob identity into the sealed epochs and the
+    # pre-freeze contract. No provider in the Lab sends it (Forge is removed,
+    # Owner decision 2026-10-13); dropping it is a protocol change that needs its
+    # own contract successor and requalification.
     engine: Literal["xmage", "forge", "tactical", "unknown"] = "unknown"
     engine_version: str | None = None
     game_id: str | None = None
@@ -233,7 +238,7 @@ class EngineProtocolResponse(FrozenModel):
 
 
 class EngineRuntimeConfig(FrozenModel):
-    provider: Literal["xmage", "forge"] = "xmage"
+    provider: Literal["xmage"] = "xmage"
     mode: EngineRuntimeMode = EngineRuntimeMode.EXTERNAL
     home: str | None = None
     source_path: str | None = None
@@ -252,7 +257,7 @@ class EngineRuntimeConfig(FrozenModel):
 
 
 class EngineProcessState(FrozenModel):
-    provider: Literal["xmage", "forge"]
+    provider: Literal["xmage"]
     status: EngineProcessStatus
     pid: int | None = Field(default=None, ge=1)
     engine_version: str | None = None
@@ -268,7 +273,7 @@ class EngineProcessState(FrozenModel):
 
 
 class EngineInstallationIdentity(FrozenModel):
-    provider: Literal["xmage", "forge"]
+    provider: Literal["xmage"]
     release: str
     commit: str = Field(pattern=r"^[0-9a-f]{40}$")
     source_path: str | None = None
@@ -282,7 +287,7 @@ class EngineInstallationIdentity(FrozenModel):
 class EngineReplay(FrozenModel):
     schema_version: int = 1
     protocol_version: str = ENGINE_PROTOCOL_VERSION
-    engine: Literal["xmage", "forge", "tactical"]
+    engine: Literal["xmage", "tactical"]
     engine_version: str
     validation_level: RuntimeValidationLevel
     game_id: str

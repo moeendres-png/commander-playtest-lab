@@ -293,7 +293,7 @@ def load_cpl_canonical_files(profiles_dir: str) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Cross-repo policy drift check.")
     parser.add_argument("--target", required=True, help="Worktree to inspect.")
-    parser.add_argument("--profile", required=True, help="cpl | mage | forge.")
+    parser.add_argument("--profile", required=True, help="cpl | mage.")
     parser.add_argument(
         "--profiles-dir",
         default=str(Path(__file__).resolve().parent.parent.parent / ".foundry" / "repo-profiles"),

@@ -12,16 +12,7 @@ if ($Provider -eq "xmage") {
   $Repo = if ($env:COMMANDER_LAB_XMAGE_REPOSITORY) { $env:COMMANDER_LAB_XMAGE_REPOSITORY } else { $Pin.repository }
   $Commit = if ($env:COMMANDER_LAB_XMAGE_COMMIT) { $env:COMMANDER_LAB_XMAGE_COMMIT } else { $Pin.commit }
   $RulesCommit = $Commit
-} elseif ($Provider -eq "forge") {
-  $Python = Get-Command python -ErrorAction SilentlyContinue
-  if (-not $Python) { throw "python is required to resolve Forge pin authority" }
-  $Resolved = (& $Python.Source (Join-Path $Root "scripts\docker_resolve_engine_pin.py") --provider forge --format json | Out-String)
-  if ($LASTEXITCODE -ne 0) { throw "Forge pin authority resolution failed" }
-  $Pin = $Resolved | ConvertFrom-Json
-  $Repo = $Pin.bridge_repository
-  $Commit = $Pin.bridge_commit
-  $RulesCommit = $Pin.commit
-} else { throw "ENGINE_PROVIDER must be xmage or forge" }
+} else { throw "ENGINE_PROVIDER must be xmage" }
 $Source = if ($env:ENGINE_SOURCE_PATH) { $env:ENGINE_SOURCE_PATH } else { Join-Path $Root "vendor\engine-source\$Provider" }
 $Binary = if ($env:ENGINE_BINARY_PATH) { $env:ENGINE_BINARY_PATH } else { Join-Path $Root "vendor\engine-binaries\$Provider" }
 Get-Command java -ErrorAction Stop | Out-Null
@@ -49,21 +40,6 @@ if ($Observed -ne $Commit) { throw "Pinned commit mismatch: $Observed" }
 $Dirty = @(git -C $Source status --porcelain)
 if ($LASTEXITCODE -ne 0) { throw "Unable to inspect source worktree cleanliness" }
 if ($Dirty.Count -ne 0) { throw "Source worktree is dirty; refusing to build unbound engine source" }
-if ($Provider -eq "forge") {
-  git -C $Source merge-base --is-ancestor $RulesCommit $Commit
-  if ($LASTEXITCODE -ne 0) {
-    throw "Forge bridge/materialization commit does not descend from current Rules-Core authority $RulesCommit"
-  }
-  $ForgeDrift = @(git -C $Source diff --name-only $RulesCommit $Commit)
-  if ($LASTEXITCODE -ne 0) { throw "Unable to compare Forge Rules-Core and bridge/materialization source" }
-  if ($ForgeDrift.Count -eq 0) {
-    throw "Forge bridge/materialization commit carries no explicit bridge delta from Rules-Core authority"
-  }
-  $Unexpected = @($ForgeDrift | Where-Object { -not $_.StartsWith("forge-protocol2-bridge/") })
-  if ($Unexpected.Count -ne 0) {
-    throw "Forge bridge/materialization source drifts outside the approved bridge surface: $($Unexpected -join ', ')"
-  }
-}
 $Mvnw = Join-Path $Source "mvnw.cmd"
 if (Test-Path $Mvnw) { & $Mvnw -DskipTests install }
 elseif (Get-Command mvn -ErrorAction SilentlyContinue) { Push-Location $Source; try { mvn -DskipTests install } finally { Pop-Location } }

@@ -41,10 +41,9 @@ passed as flags)::
                             and attest the manifest Rules-Core commit
                             (providerVersion) plus
                             runtime_kind=external_rules_engine
-                            (capabilities). XMage keeps its exact historical
-                            payload contract; Forge accepts its documented
-                            qualified shapes (status strings) with identical
-                            rigor elsewhere. NOT_RUN when absent.
+                            (capabilities), and carry the identity of the
+                            production bridge lane named by the manifest
+                            ``production_bridge``. NOT_RUN when absent.
     engine_verify:          informational --engine-verify outcome record only.
 
 Exit codes: 0 (no FAIL boundary), 2 (usage error), 3 (fail closed: any FAIL
@@ -71,12 +70,7 @@ HANDSHAKE_METHODS = (
     "get_capabilities",
     "shutdown_engine",
 )
-_KNOWN_PROVIDERS = ("xmage", "forge")
-# H4F qualified additive surface relative to the Rules-Core base. The materialization
-# source container diff must stay inside it; anything else is unapproved Rules-Core
-# drift and fails the rules_linkage boundary. Mirrors docker/forge/Dockerfile.
-_H4F_SURFACE_DIR_PREFIX = "forge-protocol2-bridge/"
-_H4F_SURFACE_FILES = ("pom.xml",)
+_KNOWN_PROVIDERS = ("xmage",)
 
 
 def _scripts_dir() -> Path:
@@ -186,14 +180,11 @@ def _check_handshake(
 ) -> tuple[dict, dict]:
     """Return (boundary, observed) for the handshake transcript.
 
-    Step shape policy: XMage keeps its exact historical payload contract. Forge
-    accepts its documented qualified shapes (``status`` strings instead of
-    boolean flags, ``provider`` instead of ``engine`` for provider identity on
-    get_provider_version, and a status-only shutdown payload) with identical
-    rigor everywhere else — request/response identity, protocol version,
-    success, provider identity, manifest commit attestation and runtime_kind.
-    The observed shape is recorded; no shape is silently normalized into
-    another.
+    The XMage transcript carries the exact historical payload contract: every
+    response identifies the provider, attests the manifest commit and reports
+    runtime_kind, and the production_bridge lane identity must be present on
+    start_engine, get_capabilities and shutdown_engine. The observed shape is
+    recorded; no shape is silently normalized into another.
     """
     observed: dict = {}
     if len(requests) != len(HANDSHAKE_METHODS):
@@ -235,61 +226,18 @@ def _check_handshake(
         if not isinstance(payload, dict):
             return _boundary("FAIL", f"{where}: response payload must be a JSON object"), observed
         if index == 0:
-            if provider == "xmage":
-                if payload.get("engine") != provider or payload.get("started") is not True:
-                    return _boundary(
-                        "FAIL", f"{where}: start_engine payload misidentifies the provider"
-                    ), observed
-                if expected_lane is not None and payload.get("lane") != expected_lane:
-                    return _boundary(
-                        "FAIL",
-                        f"{where}: start_engine lane is {payload.get('lane')!r}, "
-                        f"the manifest production_bridge requires {expected_lane!r}",
-                    ), observed
-            else:
-                started = payload.get("started")
-                status = payload.get("status")
-                if payload.get("engine") != provider or not (
-                    started is True or status == "started"
-                ):
-                    return _boundary(
-                        "FAIL", f"{where}: start_engine payload misidentifies the provider"
-                    ), observed
-                observed["handshake_shape"] = "started-flag" if started is True else "status-string"
+            if payload.get("engine") != provider or payload.get("started") is not True:
+                return _boundary(
+                    "FAIL", f"{where}: start_engine payload misidentifies the provider"
+                ), observed
+            if expected_lane is not None and payload.get("lane") != expected_lane:
+                return _boundary(
+                    "FAIL",
+                    f"{where}: start_engine lane is {payload.get('lane')!r}, "
+                    f"the manifest production_bridge requires {expected_lane!r}",
+                ), observed
         elif index == 1:
-            if provider == "forge":
-                # Qualified Forge shape (BridgeEngine.getProviderVersion):
-                # identity key is "provider", not "engine" (live H4F proof and
-                # BridgeProtocolProcessTest assert payload.provider == "forge").
-                # Accept the qualified "provider" shape and the historical
-                # "engine" test shape, but any present identity key must equal
-                # the provider and at least one must identify it.
-                engine_id = payload.get("engine")
-                provider_id = payload.get("provider")
-                if engine_id is not None and engine_id != provider:
-                    return _boundary(
-                        "FAIL",
-                        f"{where}: providerVersion engine is {engine_id!r}, expected {provider!r}",
-                    ), observed
-                if provider_id is not None and provider_id != provider:
-                    return _boundary(
-                        "FAIL",
-                        f"{where}: providerVersion provider is {provider_id!r}, "
-                        f"expected {provider!r}",
-                    ), observed
-                if engine_id != provider and provider_id != provider:
-                    return _boundary(
-                        "FAIL",
-                        f"{where}: providerVersion engine is {engine_id!r}, expected {provider!r}",
-                    ), observed
-                observed["provider_identity_shape"] = (
-                    "provider-key"
-                    if provider_id == provider and engine_id != provider
-                    else "engine-key"
-                    if engine_id == provider and provider_id != provider
-                    else "dual-key"
-                )
-            elif payload.get("engine") != provider:
+            if payload.get("engine") != provider:
                 return _boundary(
                     "FAIL",
                     f"{where}: providerVersion engine is {payload.get('engine')!r}, "
@@ -306,7 +254,7 @@ def _check_handshake(
             capabilities = payload.get("capabilities", payload)
             if not isinstance(capabilities, dict):
                 return _boundary("FAIL", f"{where}: capabilities must be a JSON object"), observed
-            if provider == "xmage" and expected_lane is not None:
+            if expected_lane is not None:
                 lane = payload.get("full_game_lane")
                 if not isinstance(lane, dict) or lane.get("lane") != expected_lane:
                     return _boundary(
@@ -339,40 +287,13 @@ def _check_handshake(
                 )
             }
         elif index == 3:
-            if provider == "forge":
-                # Qualified Forge shutdown (BridgeEngine.shutdownEngine) is a
-                # status-only payload {"status": "engine_shut_down"} with no
-                # engine/provider identity keys; identity is already bound at
-                # steps 0-2. Accept that shape, accept the historical
-                # engine-bearing test shape, but any present identity key must
-                # equal the provider.
-                engine_id = payload.get("engine")
-                provider_id = payload.get("provider")
-                if engine_id is not None and engine_id != provider:
-                    return _boundary("FAIL", f"{where}: shutdown payload is malformed"), observed
-                if provider_id is not None and provider_id != provider:
-                    return _boundary("FAIL", f"{where}: shutdown payload is malformed"), observed
-                if not (
-                    payload.get("shutdown") is True or payload.get("status") == "engine_shut_down"
-                ):
-                    return _boundary("FAIL", f"{where}: shutdown payload is malformed"), observed
-                observed["shutdown_shape"] = (
-                    "status-only"
-                    if engine_id is None and provider_id is None
-                    else "identity-bearing"
-                )
-            elif provider == "xmage":
-                if expected_lane is not None and payload.get("lane") != expected_lane:
-                    return _boundary(
-                        "FAIL",
-                        f"{where}: shutdown lane is {payload.get('lane')!r}, "
-                        f"the manifest production_bridge requires {expected_lane!r}",
-                    ), observed
-                if payload.get("engine") != provider or payload.get("shutdown") is not True:
-                    return _boundary("FAIL", f"{where}: shutdown payload is malformed"), observed
-            elif payload.get("engine") != provider or not (
-                payload.get("shutdown") is True or payload.get("status") == "engine_shut_down"
-            ):
+            if expected_lane is not None and payload.get("lane") != expected_lane:
+                return _boundary(
+                    "FAIL",
+                    f"{where}: shutdown lane is {payload.get('lane')!r}, "
+                    f"the manifest production_bridge requires {expected_lane!r}",
+                ), observed
+            if payload.get("engine") != provider or payload.get("shutdown") is not True:
                 return _boundary("FAIL", f"{where}: shutdown payload is malformed"), observed
     return _boundary(
         "PASS",
@@ -452,47 +373,6 @@ def verify(args: argparse.Namespace) -> int:
                     "image /opt/engine-provenance.json matches manifest on "
                     "provider, repository, commit and protocol_version",
                 )
-            if args.provider == "forge":
-                # Dual identity: the materialization/bridge source recorded in the
-                # image must independently match secondary_engine.bridge_source.
-                # Half-present dual identity fails closed.
-                bridge = manifest.get("secondary_engine", {}).get("bridge_source")
-                if not isinstance(bridge, dict):
-                    boundaries["materialization_match"] = _boundary(
-                        "FAIL",
-                        "pin authority is missing secondary_engine.bridge_source; "
-                        "Forge dual identity cannot be proven",
-                    )
-                elif bridge.get("rules_core_base_commit") != pin.commit:
-                    boundaries["materialization_match"] = _boundary(
-                        "FAIL",
-                        "pin authority bridge_source.rules_core_base_commit does not "
-                        "equal the Rules-Core pin; materialization and Rules pin "
-                        "are cross-wired",
-                    )
-                else:
-                    bridge_expected = {
-                        "bridge_repository": bridge.get("repository"),
-                        "bridge_commit": bridge.get("commit"),
-                        "rules_core_base_commit": bridge.get("rules_core_base_commit"),
-                    }
-                    bridge_mismatches = [
-                        key
-                        for key in bridge_expected
-                        if provenance.get(key) != bridge_expected[key]
-                    ]
-                    if bridge_mismatches:
-                        boundaries["materialization_match"] = _boundary(
-                            "FAIL",
-                            "image bridge provenance contradicts pin authority "
-                            f"(fields: {','.join(sorted(bridge_mismatches))})",
-                        )
-                    else:
-                        boundaries["materialization_match"] = _boundary(
-                            "PASS",
-                            "image bridge provenance matches manifest bridge_source on "
-                            "bridge_repository, bridge_commit and rules_core_base_commit",
-                        )
 
     try:
         head_text = Path(args.source_head).read_text(encoding="utf-8").strip()
@@ -502,15 +382,10 @@ def verify(args: argparse.Namespace) -> int:
         )
         head_text = ""
     if "source_head_match" not in boundaries:
-        # Forge materializes the candidate bridge source, so its source HEAD must
-        # equal bridge_source.commit; XMage materializes the Rules pin directly.
-        if args.provider == "forge":
-            bridge = manifest.get("secondary_engine", {}).get("bridge_source", {})
-            expected_head = bridge.get("commit") if isinstance(bridge, dict) else None
-            head_detail = "manifest secondary_engine.bridge_source.commit"
-        else:
-            expected_head = pin.commit
-            head_detail = "manifest commit"
+        # XMage materializes the Rules pin directly, so the image source HEAD
+        # must equal the manifest commit.
+        expected_head = pin.commit
+        head_detail = "manifest commit"
         if not isinstance(expected_head, str) or not expected_head:
             boundaries["source_head_match"] = _boundary(
                 "FAIL", f"expected source HEAD authority ({head_detail}) is missing"
@@ -526,57 +401,6 @@ def verify(args: argparse.Namespace) -> int:
                 "FAIL",
                 f"image source HEAD {head_text!r} contradicts {head_detail} {expected_head!r}",
             )
-
-    if args.provider == "forge":
-        # Rules-Core linkage: the captured merge-base proof must show the Rules pin
-        # is an ancestor of the materialized source, and every changed path must
-        # stay inside the qualified H4F additive surface. Absent linkage evidence
-        # fails closed; XMage carries no such boundary.
-        if args.linkage_merge_base_exit is None or args.linkage_diff_names is None:
-            boundaries["rules_linkage"] = _boundary(
-                "FAIL",
-                "rules linkage evidence is half-present or absent: linkage "
-                "merge-base exit and diff names must be supplied together for forge",
-            )
-        elif args.linkage_merge_base_exit != 0:
-            boundaries["rules_linkage"] = _boundary(
-                "FAIL",
-                "materialization source does not descend from the Rules-Core pin "
-                f"(merge-base exit {args.linkage_merge_base_exit})",
-            )
-        else:
-            try:
-                diff_lines = [
-                    line
-                    for line in Path(args.linkage_diff_names)
-                    .read_text(encoding="utf-8")
-                    .splitlines()
-                    if line.strip()
-                ]
-            except OSError as exc:
-                boundaries["rules_linkage"] = _boundary(
-                    "FAIL", f"linkage diff-names capture unreadable: {exc}"
-                )
-                diff_lines = None
-            if diff_lines is not None:
-                outside = [
-                    line
-                    for line in diff_lines
-                    if line != "pom.xml" and not line.startswith(_H4F_SURFACE_DIR_PREFIX)
-                ]
-                if outside:
-                    boundaries["rules_linkage"] = _boundary(
-                        "FAIL",
-                        "materialization source drifts outside the qualified H4F "
-                        f"surface: {','.join(sorted(outside)[:8])}",
-                    )
-                else:
-                    boundaries["rules_linkage"] = _boundary(
-                        "PASS",
-                        "materialization source descends from the Rules-Core pin and "
-                        "differs from it only inside the qualified H4F surface",
-                        {"changed_paths": len(diff_lines)},
-                    )
 
     handshake_boundary: dict | None = None
     if args.handshake_requests is not None or args.handshake_transcript is not None:
@@ -598,7 +422,7 @@ def verify(args: argparse.Namespace) -> int:
                     pin.protocol_version,
                     requests,
                     responses,
-                    expected_xmage_lane(manifest) if args.provider == "xmage" else None,
+                    expected_xmage_lane(manifest),
                 )
             except ValueError as exc:
                 handshake_boundary = _boundary("FAIL", str(exc))
@@ -701,8 +525,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     check.add_argument("--docker-version", default=None)
     check.add_argument("--runner", default=None)
     check.add_argument("--lab-head", default=None)
-    check.add_argument("--linkage-merge-base-exit", default=None, type=int)
-    check.add_argument("--linkage-diff-names", default=None)
     check.add_argument("--out", required=True)
     return parser.parse_args(argv)
 

@@ -391,7 +391,7 @@ def eval_phase6(
 def probe_rules_engines(
     root: Path = typer.Option(Path.cwd(), exists=True, file_okay=False, dir_okay=True),
 ) -> None:
-    """Probe the local tactical backend and optional Forge/XMage JSONL bridges."""
+    """Probe the local tactical backend and optional XMage JSONL bridge."""
     manager = RulesEngineManager(root=root)
     try:
         payload = {

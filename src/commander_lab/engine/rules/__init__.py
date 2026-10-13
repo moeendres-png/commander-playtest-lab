@@ -4,7 +4,7 @@ from .base import (
     RulesEngineProtocolError,
     RulesEngineUnavailable,
 )
-from .bridge import ExternalRulesAdapter, ForgeRulesAdapter, JsonLineBridgeClient, XMageRulesAdapter
+from .bridge import ExternalRulesAdapter, JsonLineBridgeClient, XMageRulesAdapter
 from .full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
@@ -46,7 +46,6 @@ __all__ = [
     "PHASE85_VERSION",
     "ExternalPilotDecisionPolicy",
     "ExternalRulesAdapter",
-    "ForgeRulesAdapter",
     "FullGameBatchCase",
     "FullGameBatchRecord",
     "FullGameBatchReport",

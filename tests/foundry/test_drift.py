@@ -64,7 +64,7 @@ def _profile(name: str) -> dict:
 
 
 def test_profiles_parse_and_carry_required_keys() -> None:
-    for name in ("cpl", "mage", "forge"):
+    for name in ("cpl", "mage"):
         profile = _profile(name)
         for key in (
             "profile",
@@ -79,7 +79,6 @@ def test_profiles_parse_and_carry_required_keys() -> None:
     assert _profile("cpl")["canonical_policy"] is True
     assert _profile("mage")["canonical_policy"] is False
     assert _profile("mage")["default_branch"] == "master"
-    assert _profile("forge")["default_branch"] == "master"
 
 
 def test_stale_mage_agents_fails_closed(enginerepo: Path) -> None:

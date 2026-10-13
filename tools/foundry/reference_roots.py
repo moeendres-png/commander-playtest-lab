@@ -1,10 +1,10 @@
 """Declared external reference-root contract (read-only engine sources).
 
-WS75: production-reachable reads of exact Forge/XMage source checkouts go
+WS75: production-reachable reads of exact XMage source checkouts go
 through a first-class declared contract instead of ad-hoc ``git -C`` or
 sibling-worktree probing. A declared reference binds exactly:
 
-- label: short stable handle (e.g. ``forge``);
+- label: short stable handle (e.g. ``mage``);
 - root: absolute path of the checkout root;
 - repo_slug: expected ``owner/repo`` remote identity;
 - commit: expected exact 40-hex HEAD;
