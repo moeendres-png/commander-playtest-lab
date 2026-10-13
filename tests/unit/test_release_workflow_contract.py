@@ -96,7 +96,7 @@ import pytest  # noqa: E402
         _set(("current_runtime", "provider_selected"), False),
         _set(("production_bridge",), "b4d_event_log_lifecycle_bridge"),
         _set(("architecture_freeze", "runtime_switch"), "PENDING_D5"),
-        _set(("secondary_engine", "production_ready"), True),
+        _set(("secondary_engine",), {"provider": "other", "production_ready": False}),
         _set(("provider_decision",), "FORGE_SELECTED"),
     ],
 )

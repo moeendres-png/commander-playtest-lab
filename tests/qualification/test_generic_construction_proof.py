@@ -33,6 +33,28 @@ from commander_lab.qualification.current_boundary.materialization import (
 )
 from commander_lab.qualification.current_boundary.receipts import classify_seed_binding
 
+# A test-only provider that publishes its starting-player choice as its own
+# decision frame and identifies decisions by a monotonic revision. It exercises
+# the driver's generic engine-frame path; no production provider is named.
+FRAME_PROVIDER = "frame-provider"
+
+
+@pytest.fixture(autouse=True)
+def _frame_provider_shape(monkeypatch: pytest.MonkeyPatch) -> None:
+    from commander_lab.qualification.current_boundary import game_driver as _gd
+
+    monkeypatch.setitem(
+        _gd.DECISION_IDENTITY_SHAPES,
+        FRAME_PROVIDER,
+        {
+            "field": "revision",
+            "type": "monotonic_long",
+            "pass_extra": ("actor_id",),
+            "requires_external_control": False,
+        },
+    )
+
+
 ROGRAKH = "Rograkh, Son of Rohgahh"
 KEY = bytes(range(32))
 
@@ -279,11 +301,11 @@ def test_a_declared_seat_without_an_answered_frame_keeps_temporal_unsupported(
 ) -> None:
     """#572 review P2-2 (mutant M10): the real driver's channel gate, end to end.
 
-    Forge declares p1 but the run answers no STARTING_PLAYER frame; the driver
+    The provider declares p1 but the run answers no STARTING_PLAYER frame; the driver
     must report no channel, and the construction proof must leave the temporal
     active/priority facts UNSUPPORTED rather than comparing them.
     """
-    proc = StartingFrameProcess(candidate="forge", offered_seats=None)
+    proc = StartingFrameProcess(candidate=FRAME_PROVIDER, offered_seats=None)
     priority = {
         "seat": "p1",
         "decision": {
@@ -299,7 +321,7 @@ def test_a_declared_seat_without_an_answered_frame_keeps_temporal_unsupported(
     monkeypatch.setattr(game_driver, "poll_decision", lambda *a, **k: priority)
     result = game_driver.drive_commander_game(
         proc,  # type: ignore[arg-type]
-        candidate="forge",
+        candidate=FRAME_PROVIDER,
         player_count=4,
         seed=7,
         scripted_starting_seat="p1",
@@ -730,7 +752,7 @@ def test_a_scripted_pregame_pass_gets_an_exact_direct_receipt() -> None:
 
 @pytest.mark.parametrize("turn_number", [0, 1])
 def test_a_pre_first_turn_counter_of_either_convention_is_pregame(record, turn_number) -> None:
-    # Forge reports 0 before the first turn, XMage 1; with no phase, active or
+    # A provider may report 0 before the first turn, XMage reports 1; with no phase, active or
     # priority player both mean that no turn has begun.
     proof = _proof(record, _mutate(["turn_number"], turn_number))
     assert proof.established, proof.reason()

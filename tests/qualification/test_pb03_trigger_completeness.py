@@ -73,7 +73,7 @@ materialization = load_effective_materialization(root)
 materialization.receipt()
 list(materialization.denominator_records())
 gate_derivations.actual_card_corpus(root)
-bridge_launcher.canonical_forge_authority()
+bridge_launcher.canonical_xmage_engine_pin()
 # Every input the runner digests into its identity is an input of the evidence.
 from commander_lab.qualification.current_boundary import receipts
 touched.update(receipts.capture_runner_identity(root).input_digests)

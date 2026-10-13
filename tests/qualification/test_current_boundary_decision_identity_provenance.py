@@ -1,8 +1,8 @@
 """SLOT-03 option (c): the decision-identity shim is protocol translation only.
 
 `decision_identity_params` maps each provider's native decision identity into
-the submission parameters (XMage: ``decision_id`` + pass ``action_id``; Forge:
-``revision``; both: ``actor_id``). The condition the Coordinator option (c)
+the submission parameters (XMage: ``decision_id`` + pass ``action_id`` +
+``actor_id``). The condition the Coordinator option (c)
 attaches is a provenance test: every submitted identity value must byte-match a
 value in the frame the provider just offered. The shim may translate field
 names; it may never invent, derive, normalise or carry over an identity.
@@ -11,7 +11,6 @@ names; it may never invent, derive, normalise or carry over an identity.
 from __future__ import annotations
 
 import copy
-import json
 from typing import Any
 
 import pytest
@@ -33,11 +32,6 @@ XMAGE_FRAME: dict[str, Any] = {
     ],
 }
 
-FORGE_FRAME: dict[str, Any] = {
-    "decision": {"revision": 918273645546372819, "actor": "p2", "decision_class": "priority"},
-    "actions": [{"action_id": "a-1", "action_type": "pass_priority"}],
-}
-
 
 def _frame_values(frame: dict[str, Any]) -> list[Any]:
     values: list[Any] = []
@@ -56,7 +50,7 @@ def _frame_values(frame: dict[str, Any]) -> list[Any]:
     return values
 
 
-@pytest.mark.parametrize(("candidate", "frame"), [("xmage", XMAGE_FRAME), ("forge", FORGE_FRAME)])
+@pytest.mark.parametrize(("candidate", "frame"), [("xmage", XMAGE_FRAME)])
 def test_every_submitted_identity_byte_matches_the_offering_frame(
     candidate: str, frame: dict[str, Any]
 ) -> None:
@@ -78,15 +72,7 @@ def test_xmage_pass_identity_is_the_offered_pass_option_not_the_first_option() -
     assert params["actor_id"] == "p3"
 
 
-def test_forge_revision_keeps_its_native_type_and_value() -> None:
-    params = decision_identity_params("forge", FORGE_FRAME)
-    assert params["revision"] == 918273645546372819
-    assert type(params["revision"]) is int
-    # The value survives the JSON transport byte-for-byte.
-    assert json.loads(json.dumps(params))["revision"] == 918273645546372819
-
-
-@pytest.mark.parametrize(("candidate", "frame"), [("xmage", XMAGE_FRAME), ("forge", FORGE_FRAME)])
+@pytest.mark.parametrize(("candidate", "frame"), [("xmage", XMAGE_FRAME)])
 def test_identity_follows_each_new_frame_and_is_never_carried_over(
     candidate: str, frame: dict[str, Any]
 ) -> None:
@@ -123,7 +109,7 @@ def test_a_frame_without_the_native_identity_is_not_given_one() -> None:
 from commander_lab.qualification.current_boundary import af01 as af01_mod  # noqa: E402
 
 
-@pytest.mark.parametrize(("candidate", "frame"), [("xmage", XMAGE_FRAME), ("forge", FORGE_FRAME)])
+@pytest.mark.parametrize(("candidate", "frame"), [("xmage", XMAGE_FRAME)])
 def test_live_frame_provenance_is_verified_for_both_shapes(
     candidate: str, frame: dict[str, Any]
 ) -> None:
@@ -155,15 +141,15 @@ def test_a_pass_identity_that_was_not_offered_is_not_verified(
     assert provenance["verified"] is False
 
 
-def test_a_type_changed_identity_does_not_byte_match(monkeypatch: pytest.MonkeyPatch) -> None:
-    """A shim that normalised the Forge revision to a string would be caught."""
+def test_a_changed_identity_does_not_byte_match(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A shim that rewrote the native decision identity would be caught."""
 
-    def _stringifying(candidate: str, frame: dict[str, Any]) -> dict[str, Any]:
-        return {"revision": str(frame["decision"]["revision"]), "actor_id": "p2"}
+    def _rewriting(candidate: str, frame: dict[str, Any]) -> dict[str, Any]:
+        return {"decision_id": frame["decision"]["decision_id"].upper(), "actor_id": "p3"}
 
-    monkeypatch.setattr(af01_mod, "decision_identity_params", _stringifying)
+    monkeypatch.setattr(af01_mod, "decision_identity_params", _rewriting)
     assert (
-        af01_mod.decision_identity_provenance("forge", copy.deepcopy(FORGE_FRAME))["verified"]
+        af01_mod.decision_identity_provenance("xmage", copy.deepcopy(XMAGE_FRAME))["verified"]
         is False
     )
 
@@ -200,7 +186,7 @@ def test_af04_requires_measured_decision_evidence_not_provenance_alone() -> None
     """Verified provenance alone is not AF04: the frames themselves must be measured."""
 
     gate = _assembler().af04_gate(
-        "forge", {"decision_identity_provenance": {"verified": True}}, {}, {}
+        "xmage", {"decision_identity_provenance": {"verified": True}}, {}, {}
     )
     assert gate["verdict"] == "UNKNOWN"
     assert gate["decision_boundary"]["gaps"], gate
