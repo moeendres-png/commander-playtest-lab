@@ -1363,9 +1363,12 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
                 "runtime_identity": identity,
                 "cards_imported_at_runtime": hidden_game.deck_identity,
                 "cards": list(ACTUAL_CARD_NAMES),
-                # Derived from the AF03 probe this run actually executed, never
-                # from prose: a prose claim that contradicts the run's own
-                # evidence is a false credit, so the value is the probe verdicts.
+                # Derived from the AF03 probe this run actually executed. It
+                # previously asserted in prose that "the engine itself rejected an
+                # illegal colour identity and unknown card names", which an
+                # observed probe contradicted. A prose claim that contradicts the
+                # run's own evidence is a false credit, so the value is now the
+                # probe verdicts.
                 "engine_validated": af03_evidence,
                 "required_29_card_corpus": {
                     # This summary is written before the mid-game lane executes,
