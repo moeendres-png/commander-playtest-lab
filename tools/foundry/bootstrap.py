@@ -84,16 +84,16 @@ def init_state(
         "ownership": workstream,
         "status": "ACTIVE",
         # Fail-safe policy opt-in for every new workstream: MATERIAL by default
-        # requires a fresh-context read-only Step 5 Preview PASS on the exact
+        # requires a fresh-context read-only DeepSeek MAX PASS on the exact
         # validated SHA/tree before PR_READY/COMPLETE. A genuinely
         # generated-state/document-only closeout may switch to NON_MATERIAL,
         # which is still verified against the Git change set by review_gate.py.
         "materiality": "MATERIAL",
         "cross_executor_review": {
             "required": True,
-            "logical_profile": "step",
-            "implementation_executor": "step",
-            "review_executor": "step",
+            "logical_profile": "deepseek",
+            "implementation_executor": "deepseek",
+            "review_executor": "deepseek",
             "reviewed_sha": None,
             "reviewed_tree": None,
             "verdict": "UNKNOWN",

@@ -1,8 +1,8 @@
 """Wrong-reason / regression controls for the cross-executor review gate.
 
 Policy: MATERIAL implementation workstreams cannot claim PR_READY/COMPLETE
-without a fresh-context READ-ONLY Step 5 Preview PASS on the exact validated
-implementation SHA and TREE. DeepSeek review, self-review, unauthorized runtime
+without a fresh-context READ-ONLY DeepSeek MAX PASS on the exact validated
+implementation SHA and TREE. A suspended Step 5 Preview review, self-review, unauthorized runtime
 ids, missing/blocked/unknown/partial/fail/stale review, and any later material
 delta all fail closed.
 """
@@ -52,7 +52,7 @@ def _satisfied() -> _StaticVerifier:
     return _StaticVerifier()
 
 
-STEP = "opencode/step-5-preview-free"
+STEP = "opencode/step-5-preview-free"  # SUSPENDED Zen profile
 STEP_GO = "opencode-go/retired"
 DEEPSEEK = "opencode-go/deepseek-v4.1-flash"
 
@@ -134,10 +134,10 @@ def _state_doc(base: str, impl: str, root: Path, state_path: Path, **over) -> di
         "materiality": "MATERIAL",
         "cross_executor_review": {
             "required": True,
-            "logical_profile": "step",
+            "logical_profile": "deepseek",
             "implementation_executor": "deepseek",
-            "review_executor": "step",
-            "resolved_model_id": STEP,
+            "review_executor": "deepseek",
+            "resolved_model_id": DEEPSEEK,
             "model_alias_class": "CANONICAL",
             "reviewed_sha": None,
             "reviewed_tree": None,
@@ -157,11 +157,11 @@ def _record(repo: dict, *, reviewed_sha: str | None = None, verdict: str = "PASS
         "record_type": "cross_executor_review",
         "required": True,
         "materiality": "MATERIAL",
-        "logical_profile": "step",
-        "resolved_provider": "opencode",
-        "resolved_model_id": STEP,
+        "logical_profile": "deepseek",
+        "resolved_provider": "opencode-go",
+        "resolved_model_id": DEEPSEEK,
         "model_alias_class": "CANONICAL",
-        "native_variant": "high",
+        "native_variant": "max",
         "review_mode": "READ_ONLY_FRESH_CONTEXT",
         "review_agent": "foundry-reviewer",
         "reviewed_sha": impl,
@@ -169,7 +169,7 @@ def _record(repo: dict, *, reviewed_sha: str | None = None, verdict: str = "PASS
         "verdict": verdict,
         "findings": {"P1": [], "P2": [], "P3": []},
         "implementation_executor": "deepseek",
-        "review_executor": "step",
+        "review_executor": "deepseek",
         "review_evidence": {
             "schema_version": "1.0",
             "carrier": evidence_mod.CARRIER_DIRECT,
@@ -199,7 +199,7 @@ def _write_record(repo: dict, record: dict, name: str = "review.json") -> Path:
 def _mirror_passed(repo: dict, record: dict, record_path: Path) -> dict:
     return {
         "required": True,
-        "logical_profile": "step",
+        "logical_profile": "deepseek",
         "implementation_executor": record["implementation_executor"],
         "review_executor": record["review_executor"],
         "resolved_model_id": record["resolved_model_id"],
@@ -214,36 +214,44 @@ def _mirror_passed(repo: dict, record: dict, record_path: Path) -> dict:
 # --- record structure -------------------------------------------------------
 
 
-def test_well_formed_step_pass_record_validates(repo: dict) -> None:
+def test_well_formed_deepseek_pass_record_validates(repo: dict) -> None:
     record = _record(repo)
     assert review_mod.validate_review_record(record) == []
 
 
-def test_deepseek_review_is_never_admitted_and_self_review_only_without_cross_model(
+def test_step_review_is_never_admitted_and_self_review_only_without_cross_model(
     repo: dict, tmp_path: Path
 ) -> None:
+    # The suspended Zen Step profile can neither be the review runtime nor the executor.
     record = _record(repo)
-    record["resolved_model_id"] = DEEPSEEK
+    record["resolved_model_id"] = STEP
+    record["resolved_provider"] = "opencode"
     record["model_alias_class"] = "CANONICAL"
     errors = review_mod.validate_review_record(record)
-    assert any("not an admitted step runtime id" in error for error in errors)
+    assert any("not an admitted deepseek runtime id" in error for error in errors)
+    assert any("resolved_provider" in error for error in errors)
 
     record = _record(repo)
-    record["review_executor"] = "deepseek"
+    record["review_executor"] = "step"
     errors = review_mod.validate_review_record(record)
-    assert any("review_executor must be the logical step" in error for error in errors)
+    assert any("review_executor must be the logical deepseek" in error for error in errors)
 
-    # Owner approval 2026-10-10: while DeepSeek is SUSPENDED (Step 5 Preview the only
-    # ACTIVE profile) a Step 5 Preview implementation may be reviewed by Step 5 Preview.
     record = _record(repo)
-    record["implementation_executor"] = "step"
+    record["logical_profile"] = "step"
+    errors = review_mod.validate_review_record(record)
+    assert any("review logical_profile must be deepseek" in error for error in errors)
+
+    # Owner approval 2026-10-10: while Step is SUSPENDED (DeepSeek the only ACTIVE
+    # profile) a DeepSeek implementation may be reviewed by DeepSeek.
+    record = _record(repo)
+    record["implementation_executor"] = "deepseek"
     assert review_mod.validate_review_record(record) == []
 
     # As soon as another executor is ACTIVE again, self-review is refused.
     doc = json.loads(executor_mod.DEFAULT_REGISTRY_PATH.read_text(encoding="utf-8"))
-    doc["profiles"]["deepseek"]["runtime_status"] = "ACTIVE"
-    del doc["profiles"]["deepseek"]["suspension"]
-    reactivated = tmp_path / "registry-deepseek-active.json"
+    doc["profiles"]["step"]["runtime_status"] = "ACTIVE"
+    del doc["profiles"]["step"]["suspension"]
+    reactivated = tmp_path / "registry-step-active.json"
     reactivated.write_text(json.dumps(doc), encoding="utf-8")
     registry = executor_mod.load_registry(reactivated)
     errors = review_mod.validate_review_record(record, registry=registry)
@@ -272,14 +280,12 @@ def test_pass_verdict_cannot_carry_blocking_findings(repo: dict) -> None:
         assert any("blocking findings" in error for error in errors), key
 
 
-def test_go_step_review_is_no_longer_admitted(repo: dict) -> None:
-    """A review recorded on the retired Go id needs a fresh Zen re-review."""
+def test_retired_go_id_review_is_not_admitted(repo: dict) -> None:
+    """A review recorded on a retired Go id (not the canonical DeepSeek id) is refused."""
     record = _record(repo)
-    record["resolved_provider"] = "opencode-go"
     record["resolved_model_id"] = STEP_GO
     errors = review_mod.validate_review_record(record)
-    assert any("resolved_provider" in error for error in errors)
-    assert any("not an admitted step runtime id" in error for error in errors)
+    assert any("not an admitted deepseek runtime id" in error for error in errors)
     record["model_alias_class"] = "LEGACY_ALIAS"
     assert review_mod.validate_review_record(record) != []
 
@@ -301,9 +307,10 @@ def test_material_without_review_record_is_unsatisfied(repo: dict) -> None:
     assert any("REVIEW_RECORD_MISSING" in reason for reason in result.reasons)
 
 
-def test_deepseek_implementation_plus_deepseek_review_stays_unsatisfied(repo: dict) -> None:
+def test_step_review_stays_unsatisfied(repo: dict) -> None:
     record = _record(repo)
-    record["resolved_model_id"] = DEEPSEEK
+    record["resolved_model_id"] = STEP
+    record["resolved_provider"] = "opencode"
     path = _write_record(repo, record)
     doc = _state_doc(
         repo["base"],
@@ -320,7 +327,7 @@ def test_deepseek_implementation_plus_deepseek_review_stays_unsatisfied(repo: di
     assert any("REVIEW_RECORD_INVALID" in reason for reason in result.reasons)
 
 
-def test_deepseek_implementation_plus_step_exact_sha_tree_pass_is_satisfied(repo: dict) -> None:
+def test_deepseek_implementation_plus_deepseek_exact_sha_tree_pass_is_satisfied(repo: dict) -> None:
     record = _record(repo)
     path = _write_record(repo, record)
     doc = _state_doc(
@@ -604,7 +611,7 @@ def test_historical_state_without_policy_fields_is_exempt(repo: dict) -> None:
     assert result.ok
 
 
-def test_step_unavailable_and_no_review_blocks_completion_claim(repo: dict) -> None:
+def test_deepseek_unavailable_and_no_review_blocks_completion_claim(repo: dict) -> None:
     doc = _state_doc(repo["base"], repo["impl"], repo["root"], repo["state"])
     result = review_mod.evaluate_completion_claim(
         doc,
@@ -673,17 +680,17 @@ def _frontmatter(path: Path) -> dict:
     return yaml.safe_load(text.split("---", 2)[1])
 
 
-def test_step_reviewer_agents_are_structurally_mutation_denied() -> None:
+def test_deepseek_reviewer_agents_are_structurally_mutation_denied() -> None:
     reviewer = _frontmatter(REPO_ROOT / ".opencode" / "agents" / "foundry-reviewer.md")
-    assert reviewer["model"] == STEP
-    assert reviewer["variant"] == "high"
+    assert reviewer["model"] == DEEPSEEK
+    assert reviewer["variant"] == "max"
     assert reviewer["mode"] == "all"
     assert reviewer["permission"]["edit"] == "deny"
     assert reviewer["permission"]["bash"]["*"] == "deny"
     assert reviewer["permission"]["task"] == "deny"
 
     auditor = _frontmatter(REPO_ROOT / ".opencode" / "agents" / "assurance-auditor.md")
-    assert auditor["model"] == STEP
+    assert auditor["model"] == DEEPSEEK
     assert auditor["permission"]["edit"] == "deny"
     assert auditor["permission"]["bash"]["*"] == "deny"
     assert auditor["permission"]["task"] == "deny"
@@ -780,14 +787,14 @@ def test_state_cli_review_gate_fails_closed_then_passes(
 def test_material_checkpoint_persists_sha_tree_evidence_next_action(repo: dict) -> None:
     """A material milestone state keeps the exact identities it claims."""
     doc = _state_doc(repo["base"], repo["impl"], repo["root"], repo["state"])
-    doc["evidence"] = ["REVIEW_GATE_SATISFIED: pending canonical step record"]
+    doc["evidence"] = ["REVIEW_GATE_SATISFIED: pending canonical deepseek record"]
     doc["remote_checkpoint"] = {
         "remote": "origin",
         "branch": "project/test",
         "sha": repo["checkpoint"],
         "tree": _tree(repo["root"], repo["checkpoint"]),
     }
-    doc["exact_next_action"] = "dispatch independent Step 5 Preview exact-SHA/TREE review"
+    doc["exact_next_action"] = "dispatch independent DeepSeek exact-SHA/TREE review"
     path = repo["root"] / ".foundry" / "POLICY_STATE.yaml"
     state_mod.write_state(str(path), doc, workdir=str(repo["root"]))
     reloaded = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -797,9 +804,7 @@ def test_material_checkpoint_persists_sha_tree_evidence_next_action(repo: dict) 
     assert reloaded["remote_checkpoint"]["sha"] == repo["checkpoint"]
     assert reloaded["remote_checkpoint"]["tree"] == _tree(repo["root"], repo["checkpoint"])
     assert reloaded["evidence"]
-    assert reloaded["exact_next_action"] == (
-        "dispatch independent Step 5 Preview exact-SHA/TREE review"
-    )
+    assert reloaded["exact_next_action"] == ("dispatch independent DeepSeek exact-SHA/TREE review")
 
 
 def test_historical_state_without_policy_fields_stays_valid(repo: dict) -> None:
@@ -812,8 +817,8 @@ def test_historical_state_without_policy_fields_stays_valid(repo: dict) -> None:
     assert result.status == "EXEMPT_HISTORICAL"
 
 
-def test_step_review_workflow_pins_the_read_only_lane() -> None:
-    """The direct carrier must pin Step 5 Preview HIGH + the read-only agent."""
+def test_deepseek_review_workflow_pins_the_read_only_lane() -> None:
+    """The direct carrier must pin DeepSeek MAX + the read-only agent."""
     workflow = yaml.safe_load(
         (REPO_ROOT / ".github" / "workflows" / "opencode.yml").read_text(encoding="utf-8")
     )
@@ -825,8 +830,8 @@ def test_step_review_workflow_pins_the_read_only_lane() -> None:
     ]
     assert len(env_steps) == 1
     env = env_steps[0]["env"]
-    assert env["MODEL"] == STEP
-    assert env["VARIANT"] == "high"
+    assert env["MODEL"] == DEEPSEEK
+    assert env["VARIANT"] == "max"
     assert env["AGENT"] == "foundry-reviewer"
     assert job["steps"][0]["name"] == "Refuse fork pull requests as agent targets"
     assert "--jq '.head.repo.full_name'" in job["steps"][0]["run"]

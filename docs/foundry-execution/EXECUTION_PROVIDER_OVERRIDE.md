@@ -1,72 +1,74 @@
 # Explicit execution profile and provider overrides
 
-Since the Owner directives of 2026-10-12 the default and only active executor is Step 5 Preview
-on OpenCode Zen, `opencode/step-5-preview-free`, at its highest native variant `high` (the Zen
-catalog lists no `max` for it). Whenever the project uses OpenCode it uses this model and
-nothing else, because its Zen quota is free. `opencode-go/deepseek-v4.1-flash` is SUSPENDED:
-its OpenCode Go monthly quota is exhausted. Every earlier executor is retired and removed from
-the active configuration.
+Since the Owner directive of 2026-10-13 the default and only active executor is DeepSeek V4.1
+Flash on OpenCode Go, `opencode-go/deepseek-v4.1-flash`, at its highest native variant `max`.
+Whenever the project uses OpenCode it uses this model and nothing else.
+`opencode/step-5-preview-free` (Step 5 Preview on OpenCode Zen) is SUSPENDED. Every earlier
+executor is retired and removed from the active configuration.
 
-## Step 5 Preview HIGH profile (default, only active)
+## DeepSeek MAX profile (default, only active)
 
-Omission selects Step 5 Preview HIGH. An explicit `--execution-profile step` is equivalent
+Omission selects DeepSeek MAX. An explicit `--execution-profile deepseek` is equivalent
 and may be used for clarity in Foundry `init` or `launch` invocation:
 
 ```text
-python3 tools/foundry/launcher.py launch <existing workstream arguments> --effort high --execution-profile step
+python3 tools/foundry/launcher.py launch <existing workstream arguments> --effort high --execution-profile deepseek
 ```
 
-The launcher inspects the live pinned-CLI catalog (`opencode models opencode`), selects
-`opencode/step-5-preview-free` (else fails closed; Go ids never substitute) and pins that exact `--model` on the child argv, so the identity cannot drift at run
+The launcher resolves the canonical Go id `opencode-go/deepseek-v4.1-flash` (verifying it against
+the live pinned-CLI catalog `opencode models opencode-go` whenever a catalog is supplied or
+inspected; absent from it fails closed) and pins that exact `--model` on the child argv, so the identity cannot drift at run
 time. Do not substitute a different model or a lower native level. The selected
 profile/model/native variant are recorded in launch context/environment and existing
 model/provider telemetry.
 
-No automatic model fallback exists. A Step 5 Preview runtime, quota, auth or catalog failure is
-fail-closed and ends that run; it never re-resolves to DeepSeek or any other model.
+No automatic model fallback exists. A DeepSeek runtime, quota, auth or catalog failure is
+fail-closed and ends that run; it never re-resolves to Step 5 Preview or any other model.
 
-The committed config whitelists only Step 5 Preview HIGH. Each launch narrows the bundle to the
+The committed config whitelists only DeepSeek MAX. Each launch narrows the bundle to the
 resolved runtime identity; caller model/variant passthrough is refused.
 
-## DeepSeek Max profile (SUSPENDED)
+## Step 5 Preview profile (SUSPENDED)
 
-`--execution-profile deepseek` is refused with a `SUSPENDED` launch error. The profile stays in
+`--execution-profile step` is refused with a `SUSPENDED` launch error. The profile stays in
 `.foundry/executor-profiles.json` with its suspension reason and authority so that a later direct
-Owner instruction can re-activate it by setting `runtime_status` back to `ACTIVE`; quota recovery
-alone does not re-activate it. Its model is absent from `opencode.json` and from every lane.
+Owner instruction can re-activate it by setting `runtime_status` back to `ACTIVE`. Its model is
+absent from `opencode.json` and from every lane. If it were re-activated it would resolve only
+after live inspection of the Zen catalog (`opencode models opencode`).
 
 ### Qualified CLI compatibility
 
 The qualified Foundry CLI remains OpenCode `1.18.30`. The 2026-09-29 DeepSeek smoke
 (`providerID=opencode-go modelID=deepseek-v4.1-flash`, `foundry-implementer`, exit 0) is
-historical provenance for the suspended profile. Requalification is required if the CLI pin,
-catalog contract, provider protocol, or Step 5 Preview reasoning contract changes.
+historical provenance for the same model id. Requalification is required if the CLI pin,
+catalog contract, provider protocol, or DeepSeek reasoning contract changes.
 
-### Step 5 Preview runtime evidence
+### DeepSeek runtime evidence
 
-The authorized identity is `opencode/step-5-preview-free` (OpenCode Zen) with main model, small
-model and reachable agents at native `high`. Its live catalog presence is `DIRECTLY_VERIFIED`
-(2026-10-12, `opencode models opencode --verbose`: status active, cost 0, variants
-low/medium/high). The authenticated runtime smoke is `NOT_RUN`: the first trusted lane run after
-the switch is the runtime observation for the Zen identity and key
-(`activation_evidence_2026_10_12` in `.foundry/executor-profiles.json`). Receipts of earlier
+The authorized identity is `opencode-go/deepseek-v4.1-flash` (OpenCode Go) with main model, small
+model and reachable agents at native `max`. The reactivation of 2026-10-13 follows the direct Owner
+instruction "OpenCode soll wieder OpenCode Go über die aktuelle API im GitHub laufen". Quota
+recovery after the 2026-10-10 monthly-quota exhaustion is assumed by the Owner and is not verified.
+The live catalog check and the authenticated runtime smoke are `NOT_RUN`: the pinned-CLI catalog
+inspection and the first trusted lane run after the switch are the reverification
+(`activation_evidence_2026_10_13` in `.foundry/executor-profiles.json`). Receipts of earlier
 executors stay historical provenance of their own runs only.
 
 ## Non-authorized executors
 
-The registry holds exactly two execution profiles, `step` (ACTIVE) and `deepseek`
-(SUSPENDED), each at its highest native level (`high` and `max`). Only the ACTIVE one resolves; any other profile or provider
+The registry holds exactly two execution profiles, `deepseek` (ACTIVE) and `step`
+(SUSPENDED), each at its highest native level (`max` and `high`). Only the ACTIVE one resolves; any other profile or provider
 override is rejected.
 
 Historical receipts that name earlier executor experiments remain valid provenance of their
 own runs. They do not authorize future routing changes, are not migration targets, and must
 not by themselves trigger a new governance/routing issue. Expanding or replacing the active
-allowlist, including re-activating DeepSeek, requires a new direct user instruction.
+allowlist, including re-activating Step 5 Preview, requires a new direct user instruction.
 
 ## Effort resolution
 
-`--execution-profile step --effort high` is the active pair; `--effort xhigh` is also
-accepted and describes task/authority routing only. Omission selects Step 5 Preview HIGH. `--effort`
+`--execution-profile deepseek --effort high` is the active pair; `--effort xhigh` is also
+accepted and describes task/authority routing only. Omission selects DeepSeek MAX. `--effort`
 must be `high` or `xhigh`; below-`high` values are rejected. The project effort field never
 lowers the executor's native level and never
 opens a second native variant. Direct OpenCode root configuration already pins the native variants.

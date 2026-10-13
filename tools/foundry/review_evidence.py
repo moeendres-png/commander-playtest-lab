@@ -1,11 +1,11 @@
-"""Trusted external evidence for a cross-executor Step 5 Preview review record.
+"""Trusted external evidence for a cross-executor DeepSeek review record.
 
 A review record is authored by the implementation executor, so a PASS verdict
 inside it proves nothing by itself. This module binds a PASS record to
 independently verifiable GitHub evidence produced by the single trusted
 read-only OpenCode workflow lane: a trusted issue comment selected the
 ``/ro-review`` lane, the workflow run and its expected job succeeded, the
-workflow file at the run's exact ``head_sha`` pins Step 5 Preview HIGH and the
+workflow file at the run's exact ``head_sha`` pins DeepSeek MAX and the
 structurally read-only ``foundry-reviewer`` agent, and the OpenCode bot's
 result comment carries the machine-parseable marker and the exact reviewed
 identifiers/verdict.
@@ -109,8 +109,8 @@ AUDIT_SCRIPT = (
 TRUSTED_ASSOCIATIONS = frozenset({"OWNER", "MEMBER", "COLLABORATOR"})
 OPENCODE_BOT_LOGINS = frozenset({"opencode-agent[bot]", "opencode-agent"})
 TRUSTED_WORKFLOW_PATH = ".github/workflows/opencode.yml"
-TRUSTED_MODEL_ID = "opencode/step-5-preview-free"
-NATIVE_VARIANT = "high"
+TRUSTED_MODEL_ID = "opencode-go/deepseek-v4.1-flash"
+NATIVE_VARIANT = "max"
 PASS_VERDICT = "PASS"
 
 REQUIRED_EVIDENCE_FIELDS = (
@@ -727,12 +727,12 @@ class _Verifier:
         if model != TRUSTED_MODEL_ID:
             raise _EvidenceFailure(
                 "REVIEW_EVIDENCE_WORKFLOW_MODEL_MISMATCH",
-                f"workflow pins MODEL={model!r} (expected Step 5 Preview canonical)",
+                f"workflow pins MODEL={model!r} (expected DeepSeek canonical)",
             )
         if variant != NATIVE_VARIANT:
             raise _EvidenceFailure(
                 "REVIEW_EVIDENCE_WORKFLOW_VARIANT_MISMATCH",
-                f"workflow pins VARIANT={variant!r} (expected native high)",
+                f"workflow pins VARIANT={variant!r} (expected native max)",
             )
         allowed_agents = CARRIER_TOP_LEVEL_AGENTS[self.carrier]
         if agent not in allowed_agents:

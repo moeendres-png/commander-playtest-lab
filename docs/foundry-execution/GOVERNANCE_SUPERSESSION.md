@@ -1,7 +1,7 @@
-> **Current routing authority update — 2026-10-12:** Historical executor/model
-> adjudications below are provenance only. Current OpenCode routing is Step 5 Preview HIGH as
-> the default and only active executor; DeepSeek v4.1 Flash MAX is SUSPENDED (Owner
-> directive 2026-10-10); Step 5 Preview became the only executor on 2026-10-12, with no automatic fallback. Historical references to any other executor are not migration targets
+> **Current routing authority update — 2026-10-13:** Historical executor/model
+> adjudications below are provenance only. Current OpenCode routing is DeepSeek v4.1 Flash MAX
+> on OpenCode Go as the default and only active executor; Step 5 Preview HIGH (OpenCode Zen) is
+> SUSPENDED (Owner directive 2026-10-13, which reversed the 2026-10-12 Step-only routing), with no automatic fallback. Historical references to any other executor are not migration targets
 > and must not create new routing work without a new direct user instruction.
 > See `ROUTING_AND_EFFORT.md` and `../CURRENT_EXECUTION_AUTHORITY.md`.
 
