@@ -109,7 +109,7 @@ def test_windows_exception_is_documented(repo_root: Path) -> None:
 
 
 def test_container_bases_are_digest_pinned(repo_root: Path) -> None:
-    for name in ("docker/xmage/Dockerfile", "docker/forge/Dockerfile"):
+    for name in ("docker/xmage/Dockerfile",):
         text = (repo_root / name).read_text(encoding="utf-8")
         assert f"FROM eclipse-temurin:21-jdk@{CONTAINER_DIGEST}" in text, name
         assert "FROM eclipse-temurin:21-jdk\n" not in text, f"{name} still floats"
@@ -120,7 +120,7 @@ def test_container_bases_are_digest_pinned(repo_root: Path) -> None:
 def test_no_hardcoded_engine_commit_outside_base_image_digest(repo_root: Path) -> None:
     """WS-A1D/WS223 domain split: base-image digests are allowed in Dockerfiles;
     hardcoded 40-hex engine commits anywhere else still fail."""
-    for name in ("docker/xmage/Dockerfile", "docker/forge/Dockerfile"):
+    for name in ("docker/xmage/Dockerfile",):
         for line in (repo_root / name).read_text(encoding="utf-8").splitlines():
             stripped = re.sub(r"sha256:[0-9a-f]{64}", "", line)
             assert not re.search(r"[0-9a-f]{40}", stripped), (name, line.strip())

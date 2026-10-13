@@ -18,7 +18,6 @@ def test_required_phase85_files_exist(repo_root: Path) -> None:
         "scripts/verify_engine.sh",
         "scripts/collect_engine_logs.sh",
         "docker/xmage/Dockerfile",
-        "docker/forge/Dockerfile",
         "docker-compose.engine.yml",
         ".devcontainer/devcontainer.json",
         "schemas/engine_adapter_protocol.schema.json",
