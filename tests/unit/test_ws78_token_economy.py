@@ -322,13 +322,13 @@ def test_safety_permissions_intact(repo_root: Path):
 
 def test_model_provider_and_v2_instruction_source_intact(repo_root: Path):
     config = _config(repo_root)
-    # Step 5 Preview HIGH on OpenCode Zen is the only executor (DeepSeek SUSPENDED,
-    # Go ids retired 2026-10-10); no other model/provider is whitelisted.
-    assert config["model"] == "opencode/step-5-preview-free"
-    assert config["enabled_providers"] == ["opencode"]
-    provider = config["provider"]["opencode"]
-    assert provider["whitelist"] == ["step-5-preview-free"]
-    assert set(provider["models"]) == {"step-5-preview-free"}
+    # DeepSeek MAX on OpenCode Go is the only executor (Step 5 Preview SUSPENDED
+    # 2026-10-13); no other model/provider is whitelisted.
+    assert config["model"] == "opencode-go/deepseek-v4.1-flash"
+    assert config["enabled_providers"] == ["opencode-go"]
+    provider = config["provider"]["opencode-go"]
+    assert provider["whitelist"] == ["deepseek-v4.1-flash"]
+    assert set(provider["models"]) == {"deepseek-v4.1-flash"}
     assert config["default_agent"] == "foundry-implementer"
     assert "instructions" not in config, (
         "OpenCode V2 accepts config.instructions but does not resolve its entries; "
@@ -384,10 +384,10 @@ def test_launcher_bundle_passes_tool_output(repo_root: Path):
     finally:
         sys.path.remove(str(repo_root / "tools" / "foundry"))
     bundle = launcher_mod.build_content_bundle(
-        str(repo_root), [], catalog=list(launcher_mod.ADMITTED_STEP_MODELS)
+        str(repo_root), [], catalog=[launcher_mod.CANONICAL_MODEL]
     )
     assert bundle["tool_output"] == {"max_lines": 2000, "max_bytes": 51200}
-    assert bundle["model"] == "opencode/step-5-preview-free"
+    assert bundle["model"] == "opencode-go/deepseek-v4.1-flash"
 
 
 def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path: Path):
@@ -396,27 +396,28 @@ def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path
         import launcher as launcher_mod
     finally:
         sys.path.remove(str(repo_root / "tools" / "foundry"))
-    # Synthetic fixture only: a deliberately malformed tool_output block. The model
-    # identity here is irrelevant to the assertion; the bundle must fail closed.
+    # Synthetic fixture only: a deliberately malformed tool_output block on an otherwise
+    # canonical config; the bundle must fail closed on tool_output.
     config = {
         "model": "opencode-go/deepseek-v4.1-flash",
         "share": "disabled",
-        "enabled_providers": ["opencode"],
+        "enabled_providers": ["opencode-go"],
         "provider": {
-            "opencode": {
-                "whitelist": ["deepseek-v4.1-flash", "step", "step-5-preview-free"],
+            "opencode-go": {
+                "whitelist": ["deepseek-v4.1-flash"],
                 "models": {
                     "deepseek-v4.1-flash": {
                         "options": {"reasoningEffort": "max"},
-                        "variants": {"max": {}},
-                    },
-                    "step": {
-                        "options": {"reasoningEffort": "max"},
-                        "variants": {"max": {}},
-                    },
-                    "step-5-preview-free": {
-                        "options": {"reasoningEffort": "max"},
-                        "variants": {"max": {}},
+                        "variants": {
+                            "none": {"disabled": True},
+                            "off": {"disabled": True},
+                            "minimal": {"disabled": True},
+                            "low": {"disabled": True},
+                            "medium": {"disabled": True},
+                            "high": {"disabled": True},
+                            "xhigh": {"disabled": True},
+                            "max": {},
+                        },
                     },
                 },
             }

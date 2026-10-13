@@ -114,26 +114,9 @@ requalification.
 
 ## 6. Execution routing
 
-- GPT-5.6 Sol High (normal chat): Coordinator and adjudication tier — architecture, Source
-  Truth, MTG Rules adjudication, GitHub research, difficult review, qualification design,
-  evidence promotion, cross-workstream integration and gate decisions. Owner-only
-  reservations are defined in §8.
-- OpenCode Foundry: primary execution tier for implementation, repository edits, builds,
-  tests, debugging, CI, qualification execution, evidence generation, deterministic tooling
-  and long autonomous workstreams. Since the Owner directive of 2026-10-12 the only
-  active executor is Step 5 Preview on OpenCode Zen: `opencode/step-5-preview-free` at its
-  highest native variant `high` (free Zen quota; whenever the project uses OpenCode it uses
-  this model and nothing else) for the main model, small model, every lane (`/oc`, `/assure`, `/ro-review`), every project agent and
-  every subagent. DeepSeek (`opencode-go/deepseek-v4.1-flash`) is SUSPENDED: refused by the
-  launcher, absent from `opencode.json`, never a fallback. No other OpenCode execution
-  profile is authorized or reachable through the canonical launcher/config. The executor is
-  recorded per run, never inferred from quota or failure, and never falls back silently.
-  Write prompts for it per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
-- Claude Opus 5.5: explicitly authorized direct engineering/campaign executor when the session prompt declares the campaign objective and writable ownership surface. Claude may execute large autonomous campaigns under the same Rules, evidence, privacy, ownership, Git and merge gates defined here. By owner delegation it also holds the Coordinator tier's decision authority (§8 "Claude Opus 5.5 Coordinator authority"); the Owner-only decisions listed there stay reserved.
-- ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
-  capability identified; Sol High insufficient; OpenCode Foundry and any available
-  authorized Claude campaign insufficient; genuinely required; smallest necessary scope).
-  Never the normal engineering path.
+- Claude Opus 5.5 (Planner / Coordinator Tier): Architecture, Source Truth, MTG Rules adjudication, qualification design, task formulation, and read-only code review. Default effort is `medium`; raise to `high` for complex CR reasoning, cross-workstream arbitration, or gate decisions.
+- DeepSeek V4.1 Flash on OpenCode Go (`opencode-go/deepseek-v4.1-flash`, native `max`) / Claude Sonnet 5.5 (Executor / Worker Tier): Primary execution tier for implementation, repository edits, builds, tests, debugging, CI remediation, evidence generation, and long autonomous workstreams (`/oc`, `/assure`, `/ro-review`).
+- Suspended / Historical models (reference only): Step 5 Preview on OpenCode Zen (`opencode/step-5-preview-free`, SUSPENDED since 2026-10-13), GPT-5.6 Sol High, ChatGPT Work / Astra.
 
 Technical autonomy within those tiers is defined in §8.
 
@@ -141,19 +124,19 @@ Technical autonomy within those tiers is defined in §8.
 
 Active OpenCode Foundry execution has exactly one allowed launcher identity:
 
-- Step 5 Preview: native `high` only (its highest catalog level). The default and only
-  execution path for
+- DeepSeek V4.1 Flash on OpenCode Go: native `max` only (its highest catalog level). The
+  default and only execution path for
   implementation, debugging, qualification, integration, CI remediation, evidence,
-  audits, reviews and long-running campaigns.
-- DeepSeek: SUSPENDED since 2026-10-10 (OpenCode Go monthly quota exhausted). Only a new
+  audits, reviews and long-running campaigns (Owner directive 2026-10-13).
+- Step 5 Preview on OpenCode Zen: SUSPENDED since 2026-10-13. Only a new
   direct Owner instruction re-activates it.
 
-No other OpenCode executor is selectable under current authority. Historical model references
+No other OpenCode executor is selectable and no other OpenCode execution profile is authorized under current authority; there is no automatic fallback. Historical model references
 are provenance only, are not migration targets, and must not generate routing/governance work
 without a new direct user instruction. There is no active-work lane below an executor's
 highest native level (`medium`, `low`, `minimal`, `none`, `off`). The project-level
 `--effort` field describes task and authority routing only and never lowers either
-executor below its native level. Do not relabel Step 5 Preview HIGH (or historical DeepSeek MAX) as
+executor below its native level. Do not relabel DeepSeek MAX (or historical Step 5 Preview HIGH) as
 anything else; record the actual native identity.
 
 ## 8. Technical decision authority
@@ -168,9 +151,10 @@ can resolve it.
 
 Routing distinction:
 
-- Step 5 Preview HIGH: default and only active OpenCode execution profile (Owner directive
-  2026-10-12). It is autonomous within the workstream contract and always runs at native
-  `high`. DeepSeek MAX is SUSPENDED and never selected.
+- DeepSeek MAX: default and only active OpenCode execution profile (Owner directive
+  2026-10-13). It is autonomous within the workstream contract and always runs at native
+  `max`. Step 5 Preview HIGH is SUSPENDED and never selected. Claude Sonnet 5.5 is an
+  authorized worker tier next to it.
 - Claude Opus 5.5: direct campaign executor when explicitly authorized by the session
   contract. It may own campaign-sized technical execution and continuous task selection
   inside declared ownership, but does not inherit Foundry-specific launcher permissions.

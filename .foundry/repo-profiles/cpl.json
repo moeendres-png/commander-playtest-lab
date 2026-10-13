@@ -20,7 +20,7 @@
     "docs/foundry-execution/**",
     "docs/qualification/**"
   ],
-  "notes": "Canonical Foundry control plane. Current OpenCode authority (Owner directive 2026-10-10) is Step 5 Preview HIGH as the default and only active executor; DeepSeek v4.1 Flash MAX is SUSPENDED; no automatic fallback. Historical model references are provenance only and are not migration targets; changing this allowlist requires a new direct user instruction.",
+  "notes": "Canonical Foundry control plane. Current OpenCode authority (Owner directive 2026-10-13) is DeepSeek v4.1 Flash MAX on OpenCode Go as the default and only active executor; Step 5 Preview HIGH (OpenCode Zen) is SUSPENDED; no automatic fallback. Historical model references are provenance only and are not migration targets; changing this allowlist requires a new direct user instruction.",
   "profile": "cpl",
   "qualification_conventions": [
     "source lock + WORKSTREAM_STATE + sealed evidence; contract-required tests override impact optimization"

@@ -137,8 +137,8 @@ def _validate_review_mirror(value: Any, errors: list[str]) -> None:
         return
     if not isinstance(value.get("required"), bool):
         errors.append("cross_executor_review.required must be a bool")
-    if value.get("logical_profile") not in (None, "step"):
-        errors.append("cross_executor_review.logical_profile must be step")
+    if value.get("logical_profile") not in (None, "deepseek"):
+        errors.append("cross_executor_review.logical_profile must be deepseek")
     if value.get("review_executor") not in (None, *REVIEW_EXECUTOR_PROFILES):
         errors.append(
             f"bad cross_executor_review.review_executor: {value.get('review_executor')!r}"

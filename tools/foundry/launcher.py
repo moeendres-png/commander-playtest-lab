@@ -23,8 +23,8 @@ Injection (all officially supported, verified Checkpoint A):
   routing unless suppression is explicit.
 
 Effort: --effort must be high|xhigh (below-HIGH rejected) and describes task and
-authority routing only; it never lowers a selected executor's native level. Both
-reachable executors run at native ``max`` regardless of the requested project
+authority routing only; it never lowers a selected executor's native level. The
+selected executor runs at its registry-pinned native variant (``max``) regardless of the requested project
 effort. The launcher records effort in telemetry and lock metadata; it invents no
 OpenCode flags.
 
@@ -78,16 +78,15 @@ import writer_lock as writer_lock_mod
 
 CANONICAL_PROVIDER = executor_mod.CANONICAL_PROVIDER
 # Operator authority (2026-09-29), durable cross-executor policy (2026-10-06)
-# and Owner directives (2026-10-10, 2026-10-12): the registry holds exactly two LOGICAL
-# executors, each pinned to one native reasoning level, but only ACTIVE ones are
-# reachable. Step 5 Preview HIGH is the default and only ACTIVE executor and the
+# and Owner directives (2026-10-10, 2026-10-12, 2026-10-13): the registry holds exactly two
+# LOGICAL executors, each pinned to one native reasoning level, but only ACTIVE ones are
+# reachable. DeepSeek MAX on OpenCode Go is the default and only ACTIVE executor and the
 # mandatory fresh-context read-only reviewer for MATERIAL implementation
-# workstreams; DeepSeek MAX is SUSPENDED (OpenCode Go monthly quota exhausted)
-# and is refused at resolution. The logical `step` profile admits exactly
-# its OpenCode Zen runtime id (see .foundry/executor-profiles.json); the Go ids
-# are retired and no third executor exists. A
-# runtime/quota/auth/catalog failure after selection is fail-closed and never
-# re-resolves to another executor family.
+# workstreams; Step 5 Preview HIGH (OpenCode Zen) is SUSPENDED (Owner directive
+# 2026-10-13) and is refused at resolution. The logical `deepseek` profile admits
+# exactly its OpenCode Go runtime id (see .foundry/executor-profiles.json); no third
+# executor exists. A runtime/quota/auth/catalog failure after selection is
+# fail-closed and never re-resolves to another executor family.
 STEP_PROFILE = "step"
 DEEPSEEK_PROFILE = "deepseek"
 # Single generic profile->canonical-runtime table, loaded from the validated
@@ -103,7 +102,7 @@ PROFILE_MODELS = {
 DEEPSEEK_MODEL = PROFILE_MODELS[DEEPSEEK_PROFILE]
 STEP_MODEL = PROFILE_MODELS[STEP_PROFILE]
 CANONICAL_MODEL = PROFILE_MODELS[PRIMARY_EXECUTION_PROFILE]
-# The admitted Step 5 Preview runtime ids (only the Zen id since 2026-10-10).
+# The admitted (SUSPENDED) Step 5 Preview runtime ids (only the Zen id).
 ADMITTED_STEP_MODELS = EXECUTOR_REGISTRY.profiles[STEP_PROFILE].admitted_runtime_ids
 # Only ACTIVE profiles' runtime ids are reachable; the root opencode.json
 # whitelist must match exactly this set, so a SUSPENDED model is not even
@@ -132,7 +131,7 @@ def execution_identity(
 ) -> dict:
     """Resolve one explicit executor; never infer/fallback from quota or failures.
 
-    Step 5 Preview resolution requires live pinned-CLI catalog inspection (or an
+    Resolution of a Zen profile (Step, SUSPENDED) requires live pinned-CLI catalog inspection (or an
     explicit ``catalog`` supplied by hermetic callers/tests); the canonical
     runtime id wins, the admitted legacy alias is second, and an empty
     admission fails closed. A post-selection failure never re-resolves.
@@ -613,8 +612,8 @@ def build_content_bundle(
         raise ValueError(f"canonical provider drift: {providers!r}")
     # NOTE: provider.models is keyed by SHORT model name (verified against the
     # resolved config); the provider/model pair lives in top-level "model".
-    # The whitelist admits exactly the ACTIVE runtime identities: the Zen Space
-    # Step id. A SUSPENDED profile (DeepSeek), the retired Go ids and any third
+    # The whitelist admits exactly the ACTIVE runtime identities: the Go
+    # DeepSeek id. A SUSPENDED profile (Step), the retired ids and any third
     # executor are not admitted.
     try:
         models = config["provider"][CANONICAL_PROVIDER]["models"]
@@ -676,7 +675,7 @@ def build_content_bundle(
     # Narrow the bundle to the RESOLVED profile/model, never the raw flag. An
     # omitted flag resolves to the registry default, so branching on the flag
     # would let a default launch fall through to the wrong executor block.
-    # For Step 5 Preview the model is the resolved Zen runtime identity, already
+    # The model is the resolved runtime identity, already
     # provenance-recorded in `execution`.
     selected_model = execution["model"]
     native = execution["native_variant"]
@@ -953,12 +952,14 @@ def init(
     catalog_source: str | None = None
     active_profile = execution_profile or DEFAULT_EXECUTION_PROFILE
     if effective_catalog is None and active_profile == STEP_PROFILE:
-        # Step 5 Preview resolution must inspect the live pinned-CLI catalog
-        # before selection. Load it once here and pass the exact snapshot to
+        # A Zen (Step) resolution must inspect the live pinned-CLI Zen catalog
+        # before selection (the profile is SUSPENDED, so this only precedes a refusal). Load it once here and pass the exact snapshot to
         # every internal resolver call so no second, possibly different,
         # inspection can occur.
         try:
-            live_models, catalog_source = executor_mod.load_live_catalog(opencode_bin)
+            live_models, catalog_source = executor_mod.load_live_catalog(
+                opencode_bin, provider=executor_mod.ZEN_PROVIDER
+            )
             effective_catalog = list(live_models)
         except executor_mod.ExecutorResolutionError as exc:
             return {"verdict": "LAUNCH_REFUSED", "error": str(exc)}
@@ -1497,9 +1498,9 @@ def main(argv: list[str] | None = None) -> int:
         choices=ACTIVE_EXECUTION_PROFILES,
         default=None,
         help=(
-            "Explicit OpenCode Go executor profile. Omitted selects the Step 5 Preview HIGH "
-            "default, the only ACTIVE profile; 'deepseek' is SUSPENDED (Owner directive "
-            "2026-10-10) and refused. Any other execution profile is unauthorized."
+            "Explicit OpenCode Go executor profile. Omitted selects the DeepSeek MAX "
+            "default, the only ACTIVE profile; 'step' is SUSPENDED (Owner directive "
+            "2026-10-13) and refused. Any other execution profile is unauthorized."
         ),
     )
     parser.add_argument(

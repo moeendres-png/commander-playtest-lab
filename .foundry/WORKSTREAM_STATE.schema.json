@@ -71,7 +71,7 @@
         "NON_MATERIAL",
         null
       ],
-      "description": "Declared change-set materiality. MATERIAL (fail-safe default when policy-enabled) requires a fresh-context read-only Step 5 Preview PASS on validated_head/validated_tree before PR_READY/COMPLETE. A NON_MATERIAL claim is verified against the Git change set and fails closed if it hides material paths. Absent/null preserves historical state compatibility."
+      "description": "Declared change-set materiality. MATERIAL (fail-safe default when policy-enabled) requires a fresh-context read-only DeepSeek MAX PASS on validated_head/validated_tree before PR_READY/COMPLETE. A NON_MATERIAL claim is verified against the Git change set and fails closed if it hides material paths. Absent/null preserves historical state compatibility."
     },
     "cross_executor_review": {
       "type": [
@@ -87,7 +87,7 @@
         "logical_profile": {
           "type": "string",
           "enum": [
-            "step"
+            "deepseek"
           ]
         },
         "resolved_model_id": {
@@ -400,7 +400,7 @@
         "string",
         "null"
       ],
-      "description": "Exact provider/model runtime identity selected for the run, e.g. opencode/step-5-preview-free (historical states may carry opencode-go ids or a legacy alias)."
+      "description": "Exact provider/model runtime identity selected for the run, e.g. opencode-go/deepseek-v4.1-flash (historical states may carry opencode/step-5-preview-free, other states may carry opencode-go ids or a legacy alias)."
     },
     "model_alias_class": {
       "type": [
@@ -430,7 +430,7 @@
         "max",
         null
       ],
-      "description": "Provider-native reasoning variant pinned by the currently authorized profiles. Both active OpenCode profiles run at native max; null is retained for legacy/unverified provenance only."
+      "description": "Provider-native reasoning variant pinned by the currently authorized profiles. The only active OpenCode profile (DeepSeek on OpenCode Go) runs at native max; null is retained for legacy/unverified provenance only."
     },
     "variant_resolution": {
       "type": [
