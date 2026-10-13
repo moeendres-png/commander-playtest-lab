@@ -1,6 +1,6 @@
 ---
 name: lab-ops
-description: Token- and time-efficient operations for Commander Playtest Lab sessions — one-line PR/CI status and open review threads, failing-job log extraction, CI/workflow waiting, PB-03 packet download and AF00-AF11 summary, and real-engine row runs (mid-game, cardinality, scripted pregame, AF04) without ad-hoc scripts. Use whenever you check PRs or CI, wait on checks, diagnose a red job, read a PB-03 run, or validate rows against the real XMage/Forge engines.
+description: Token- and time-efficient operations for Commander Playtest Lab sessions — one-line PR/CI status and open review threads, failing-job log extraction, CI/workflow waiting, PB-03 packet download and AF00-AF11 summary, and real-engine row runs (mid-game, cardinality, scripted pregame, AF04) without ad-hoc scripts. Use whenever you check PRs or CI, wait on checks, diagnose a red job, read a PB-03 run, or validate rows against the real XMage engine.
 ---
 
 # Lab ops
@@ -10,9 +10,9 @@ change GitHub state. Run them from the Lab worktree root.
 
 | Need | Command |
 |---|---|
-| One screen (≤25 lines), every lane: open PRs in Lab/mage/forge, /oc and /assure runs with branch/PR + final-comment link, PB-03 runs, newest sealed epoch | `scripts/gh_ops.py brief` |
+| One screen (≤25 lines), every lane: open PRs in Lab/mage, /oc and /assure runs with branch/PR + final-comment link, PB-03 runs, newest sealed epoch | `scripts/gh_ops.py brief` |
 | PR head, merge state, red/pending checks, open threads | `scripts/gh_ops.py status 544 537` |
-| Every open PR in Lab, mage and forge, one line each | `scripts/gh_ops.py queue` |
+| Every open PR in Lab and mage, one line each | `scripts/gh_ops.py queue` |
 | Unresolved review threads (comment id to reply to) | `scripts/gh_ops.py threads 544` |
 | Why a job is red (failure lines with context) | `scripts/gh_ops.py errors JOB_ID` |
 | Re-run only jobs that died on infrastructure (runner never acquired, operation canceled; no failed step) | `scripts/gh_ops.py rerun-cancelled [--dry-run] 559 552` |
@@ -22,7 +22,7 @@ change GitHub state. Run them from the Lab worktree root.
 | Cold-start index for a fresh session (baton owners, heads per repo, dirty/unpushed worktrees, open decisions) | `python3 scripts/claude_handoff.py` → `docs/claude/state/HANDOFF.md` |
 | PB-03 packet: identity, sha256 check, AF00-AF11 per candidate | `scripts/pb03_packet.py RUN_ID OUT [--into .]` |
 | Seal an epoch (packet + manifests + the required secret scan, before any push) | `scripts/seal.py RUN_ID [--replace OLD_EPOCH]` on a fresh branch from main |
-| Real-engine rows | `scripts/real_rows.py build` then `midgame FIX…`, `cardinality CAND`, `pregame CAND`, `af04 CAND PKG` (Forge: `--forge PATH`, `xvfb-run -a`) |
+| Real-engine rows | `scripts/real_rows.py build` then `midgame FIX…`, `cardinality CAND`, `pregame CAND`, `af04 CAND PKG` |
 
 Every lane runs DeepSeek V4.1 Flash MAX (`opencode-go/deepseek-v4.1-flash` on OpenCode Go), the only active OpenCode model (Owner directive 2026-10-13; Step 5 Preview on OpenCode Zen SUSPENDED); write the task per
 `docs/foundry-execution/EXECUTOR_PROMPTING.md`. Dispatch task skeletons live in `oc_tasks/`: `implement-batch.md`, `fix-review-findings.md`,
@@ -71,7 +71,7 @@ The output of each command decides the next step, so read it all; just don't pul
 - **Test narrow first, then wide, once.**
   - While iterating: the changed module's tests and `ruff`/`mypy` on the changed files.
   - Before the push: the full `tests/qualification` suite once, and `tests/unit` when `src/` changed.
-  - Java bridge suites (XMage about 25 min, Forge about 27 min): once per Java change, in the background.
+  - XMage bridge suites (about 25 min): once per Java change, in the background.
 - **Real engines only where the change reaches.** Re-run the affected rows with `real_rows.py`, not the whole 60-minute mid-game regression. A row change still needs its local real-producer run plus wrong-reason controls (AGENTS.md); `real_rows.py` makes that one command.
 - **Read narrowly.**
   - `grep -n` the symbol, then read a `sed -n A,Bp` window. Do not re-read a file you just edited.

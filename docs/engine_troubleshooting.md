@@ -33,7 +33,7 @@ verified Maven cache/build artifact. Do not mark a partial build as successful.
 
 ## Incompatible Java
 
-Forge requires Java 17 or newer. The common project baseline is JDK 21. Confirm:
+The common project baseline is JDK 21. Confirm:
 
 ```bash
 java -version

@@ -19,14 +19,13 @@ governing document, the governing document wins.
 
 ## Project identity, licensing, and third-party software
 
-Commander Playtest Lab / Commander Simulator Next is an independent, unofficial research and engineering project. It is not maintained by XMage or Forge and is not affiliated with or endorsed by Wizards of the Coast.
+Commander Playtest Lab / Commander Simulator Next is an independent, unofficial research and engineering project. It is not maintained by XMage and is not affiliated with or endorsed by Wizards of the Coast.
 
 The Lab's own package metadata currently declares `LicenseRef-Proprietary`. Public repository visibility does not by itself grant a license to reuse the Lab's original code or documentation. That project-level status does not replace or absorb third-party rights: third-party engines, data, rules text, card names, artwork, and other materials remain subject to their respective licenses and rights holders.
 
-Current external rules-engine candidates are tracked under their own upstream licenses:
+The external rules engine is tracked under its own upstream license (Forge was removed on 2026-10-13):
 
 - [XMage](https://github.com/magefree/mage) — MIT-licensed upstream project. The separate [Commander Simulator Next XMage fork](https://github.com/moeendres-png/mage) retains XMage's upstream [`LICENSE.txt`](https://github.com/magefree/mage/blob/master/LICENSE.txt) and copyright/permission notice.
-- [Forge](https://github.com/Card-Forge/forge) — GPL-3.0-licensed upstream project. The Lab's current Forge topology treats Forge as a separately built and launched provider process; this repository's proprietary package metadata does not relicense Forge.
 
 The Lab does not claim legal clearance for all uses of Wizards intellectual property merely by being public or by linking to the [Wizards Fan Content Policy](https://company.wizards.com/en/legal/fancontentpolicy). Magic: The Gathering and related Wizards materials remain property of their respective rights holders. This section records attribution and repository-status boundaries; it is not legal advice or a substitute for a separate legal-clearance decision.
 
@@ -121,7 +120,7 @@ Simulator outputs are `structural_model_estimates`. They are not empirical win r
 
 The Tactical Oracle is a separate bounded abstraction and is not an external rules engine.
 
-XMage/Forge evidence may only be called `external_rules_engine` when a real provider run was actually executed and validated for the relevant scenario class.
+XMage evidence may only be called `external_rules_engine` when a real provider run was actually executed and validated for the relevant scenario class.
 
 A known semantic profile is not equivalent to mechanistic support. Mechanics that need exact targets, modes, payment resources, stack sequencing, combat assignment, attachments, trigger copying or other rules-complete state are routed to a higher evidence layer or fail closed.
 
