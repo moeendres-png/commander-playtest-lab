@@ -46,7 +46,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_EPOCH = "c124150d77ab-d303b2ca5f32"
 # The successor source lock of the live XMage pin; its tree is printed and cited from here.
 XMAGE_PIN_LOCK = (
-    "qualification/xmage-commander-zone-order-repin-v5-20261011/SUCCESSOR_SOURCE_LOCK.json"
+    "qualification/xmage-card-scan-bulk-lookup-repin-v6-20261013/SUCCESSOR_SOURCE_LOCK.json"
 )
 PACKET_DIR = REPO_ROOT / "docs" / "provider_readiness_packet_20261007"
 PACKET_JSON = PACKET_DIR / "PROVIDER_READINESS.json"

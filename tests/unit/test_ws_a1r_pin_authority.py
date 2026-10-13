@@ -34,8 +34,8 @@ def test_manifest_pins_unchanged_by_authority_repair(repo_root: Path) -> None:
     config = _manifest(repo_root)
     assert config["secondary_engine"]["commit"] == "bb0a740d2bef725194798383c2452213ecdd0b37"
     # Live pin: multiplayer candidate after the CR 117.5/800.4a priority repair (mage#41)
-    # and the deterministic commander-zone ask order (mage#57; Lab #720), repin v5.
-    assert config["primary_engine"]["commit"] == "3cbf7741d29a2fe820725456b90f305f9f793ad1"
+    # the deterministic commander-zone ask order (mage#57) and the bulk card scan (mage#58), repin v6.
+    assert config["primary_engine"]["commit"] == "e5030e84687d612744ea413b522870cfb00f2f07"
     assert config["provider_decision"] == "XMAGE_SELECTED"
     assert config["current_runtime"]["provider_selected"] is True
     assert config["current_runtime"]["production_provider"] == "xmage"

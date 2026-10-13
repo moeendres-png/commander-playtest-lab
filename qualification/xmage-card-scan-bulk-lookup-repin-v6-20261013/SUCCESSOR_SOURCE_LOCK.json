@@ -1,0 +1,111 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-card-scan-bulk-lookup-repin-v6-20261013",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "status": "EVIDENCE_PENDING",
+ "status_note": "native qualification is bound to the exact-commit maven.yml run below; the Lab bridge suite against XMage built from exactly e5030e84 is bound once it has run (PENDING until then, no result counts). NOT_RUN != PASS. current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin",
+ "owner_decision": "Owner instruction 2026-10-13 (session chat): 'mach den repin für den kartenscan'; the Owner merged moeendres-png/mage#58 into the candidate branch the same day",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "ARCHITECTURE_FREEZE_REBIND",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "prior_live_pin": {
+  "commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+  "tree": "94a9f78331cbb619fe1443ccf43088f7f193e120",
+  "role": "prior live XMage pin (F-43 + F-44 + F-45 + the CR 117.5/800.4a priority repair + the deterministic commander-zone ask order); stays historical with its sealed current-boundary epochs",
+  "successor_locks": [
+   "qualification/xmage-commander-zone-order-repin-v5-20261011/SUCCESSOR_SOURCE_LOCK.json"
+  ]
+ },
+ "lineage": {
+  "prior_pin": {
+   "commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+   "tree": "94a9f78331cbb619fe1443ccf43088f7f193e120"
+  },
+  "donor_head": {
+   "commit": "99b18b8f7281a1514ffab461d931a77bea7c7ba3",
+   "tree": "6686f951173905ba52199c02d81fba70764076fd",
+   "parent": "3cbf7741d29a2fe820725456b90f305f9f793ad1"
+  },
+  "final_integrated_candidate": {
+   "commit": "e5030e84687d612744ea413b522870cfb00f2f07",
+   "tree": "6686f951173905ba52199c02d81fba70764076fd",
+   "content": "F-43 + F-44 + F-45 + the CR 117.5/800.4a priority repair + the deterministic commander-zone ask order + the bulk card scan"
+  },
+  "identity_rule": "each runtime receipt is bound to the commit it ran on. The donor head and the integrated merge commit share a tree, so tree identity proves nothing here: only the commit separates mage#58 from its donor head."
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/xmage-mp-candidate-20260929",
+  "commit": "e5030e84687d612744ea413b522870cfb00f2f07",
+  "tree": "6686f951173905ba52199c02d81fba70764076fd",
+  "parents": [
+   "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+   "99b18b8f7281a1514ffab461d931a77bea7c7ba3"
+  ],
+  "committed_at": "2026-10-13T10:32:21+02:00",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/e5030e84687d612744ea413b522870cfb00f2f07.tar.gz",
+  "fork_ref_verified": "git ls-remote https://github.com/moeendres-png/mage.git claude/xmage-mp-candidate-20260929 = e5030e84687d612744ea413b522870cfb00f2f07"
+ },
+ "donors": [
+  {
+   "finding": "CARD-SCAN-PER-CARD-QUERIES (engine start-up cost, no Rules change)",
+   "tracker": "Lab docs/performance/XMAGE_FULL_GAME_SPEED_2026-10-12.md (merged in Lab #761)",
+   "pr": "moeendres-png/mage#58",
+   "head": "99b18b8f7281a1514ffab461d931a77bea7c7ba3",
+   "observation": "CardScanner.scan ran CardRepository.findCard(setCode, cardNumber, false) once for each of about 90,000 set cards on every JVM start. The Lab starts one bridge JVM per full game, so every game paid about 2 s of start-up for it (start to first decision 8.6 s -> 6.6 s measured on real 4P pods).",
+   "fix": "CardRepository.findAllSetCodeAndCardNumberKeys reads setCode and cardNumber of every stored card (day and night sides) in one query; CardScanner.scan tests membership in memory, with the per-card query as fallback when the keys can't be read. The stored-card test is unchanged: a set card counts as stored when any row carries its set code and card number.",
+   "git_hash_object": {
+    "Mage/src/main/java/mage/cards/repository/CardRepository.java": "0ef8d972040769ae0656020f0ac7ade2c8ee5383",
+    "Mage/src/main/java/mage/cards/repository/CardScanner.java": "e4ad727915a40b1a3e2cf8cafb1e91dad60b4987"
+   },
+   "git_hash_object_method": "git rev-parse e5030e84:<path> in the fork; blob ids of the two files the merge 3cbf7741..e5030e84 changes (identical at the donor head)",
+   "diff_vs_prior_pin": "git diff --stat 3cbf7741 e5030e84 = exactly these two files",
+   "pre_merge_evidence": "local, not CI credit: 14 real 4P full games (4 real pods + 10 coverage pods from the 18 owner-collection decks) with semantic transcripts identical to the unchanged engine; Mage.Tests 7042 run, 0 failures, 0 errors, 125 skipped on the donor head (maven.yml workflow_dispatch run 38367688591)"
+  }
+ ],
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on branch claude/xmage-mp-candidate-20260929",
+   "run_id": 38369967979,
+   "job": 115204228492,
+   "commit": "e5030e84687d612744ea413b522870cfb00f2f07",
+   "run": 7042,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "status": "COMPLETE",
+   "source": "Mage Actions run 38369967979 (maven.yml workflow_dispatch, head e5030e84), job 115204228492, Mage.Tests module summary line 'Tests run: 7042, Failures: 0, Errors: 0, Skipped: 125'",
+   "baseline_at_prior_pin": "7042 run / 125 skipped at 3cbf7741 (run 38136235677); the donor adds no test methods"
+  },
+  "mage_verify": {
+   "result": "FAIL (pre-existing, baseline-attributed)",
+   "detail": "VerifyCardDataTest.test_checkMissingSetData:1230 'Found set errors: 3' and VerifyCardDataTest.test_verifyCards:361 'found 15 errors in 91085 cards verify'; the same two failure lines appear in run 38136235677 on 3cbf7741. The donor changes no card or set data."
+  }
+ },
+ "lab_runtime_qualification": {
+  "installed_artifacts_commit": "e5030e84687d612744ea413b522870cfb00f2f07",
+  "bridge_suite": {
+   "status": "PENDING",
+   "command": "XMage Full Game Conformance on the repin branch (XMAGE_COMMIT=e5030e84): engine-bridge mvn verify against XMage built from exact e5030e84"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit, plus a structural signature: XmageCandidateEngineFingerprintTest.loadedEngineCarriesTheBulkCardScan fails on an engine artifact built before mage#58 (CardRepository.findAllSetCodeAndCardNumberKeys absent)."
+ },
+ "architecture_freeze_binding": {
+  "status": "UNCHANGED_BY_THIS_REPIN",
+  "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
+  "evidence_epoch": "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4",
+  "why": "the Owner-signed Architecture Freeze (2026-10-10) is bound to the epoch it was signed against. Moving the live pin is not a re-signing, so config/rules_engines.json architecture_freeze keeps engine_commit, engine_artifact_sha256 and evidence_epoch on b479fe74. The freeze record is re-bound by the Coordinator after PB-03 on this repin's Lab main merge commit, not by a pin move."
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "PB-03 workflow_dispatch on the exact Lab main merge commit of this repin, persisted as a new epoch. No current-boundary epoch exists for e5030e84 yet, and none may be written by this repin. AF11 is UNKNOWN for e5030e84 until it is re-adjudicated for this pin. Expected effect: start-up of every bridge JVM about 2 s shorter; no change to any semantic transcript."
+ }
+}

@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Successor-repin identity guard (2026-09-29, successor v2 2026-09-30, v3 2026-10-01,
- * v4 2026-10-03, v5 2026-10-11): the bridge
+ * v4 2026-10-03, v5 2026-10-11, v6 2026-10-13): the bridge
  * declares the XMage multiplayer candidate as its engine commit, and the engine
  * classes actually loaded at runtime are that candidate's.
  *
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class XmageCandidateEngineFingerprintTest {
 
-    static final String CANDIDATE = "3cbf7741d29a2fe820725456b90f305f9f793ad1";
+    static final String CANDIDATE = "e5030e84687d612744ea413b522870cfb00f2f07";
 
     @Test
     void declaredEngineCommitIsTheCandidate() {
@@ -99,6 +99,21 @@ class XmageCandidateEngineFingerprintTest {
         assertEquals(mage.game.permanent.Permanent.class, revalidate.getReturnType(),
                 "F-43: loaded engine is not the successor: "
                         + group.getProtectionDomain().getCodeSource().getLocation());
+    }
+
+    /**
+     * Successor v6 (2026-10-13): the bulk card scan (mage#58) gives the card
+     * repository one query for the set code and card number of every stored card,
+     * which CardScanner.scan uses instead of one query per set card. Unlike v5 it
+     * has a structural signature: an engine artifact built before it lacks the method.
+     */
+    @Test
+    void loadedEngineCarriesTheBulkCardScan() throws Exception {
+        Class<?> repository = mage.cards.repository.CardRepository.class;
+        Method keys = repository.getDeclaredMethod("findAllSetCodeAndCardNumberKeys");
+        assertEquals(java.util.Set.class, keys.getReturnType(),
+                "mage#58: loaded engine is not the successor: "
+                        + repository.getProtectionDomain().getCodeSource().getLocation());
     }
 
     /**

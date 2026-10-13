@@ -797,16 +797,30 @@ def test_af11_the_recorded_adjudication_matches_the_source_lock() -> None:
 
 
 def test_af11_adjudication_covers_the_live_pin_and_keeps_the_prior_record() -> None:
-    """A repin needs its own adjudication; the prior one stays the record of its own pin."""
+    """A repin needs its own adjudication; the prior one stays the record of its own pin.
+
+    The re-adjudication names a sealed effective epoch on the new pin, so it can only
+    follow PB-03 on the repin's Lab main merge commit. Until then (technical truth
+    reports the live pin's requalification as pending) the record covers the pin of
+    the last freeze-eligible qualification, and the assembler reports AF11 UNKNOWN for
+    the live pin because the record does not cover it.
+    """
+    from commander_lab.technical_truth import _live_pin_requalification_pending
+
     asm = _assembler_module()
     record = json.loads((REPO / asm.AF11_ADJUDICATION).read_text(encoding="utf-8"))
     config = json.loads((REPO / "config/rules_engines.json").read_text(encoding="utf-8"))
-    assert record["integration_topology"]["engine_commit"] == config["primary_engine"]["commit"]
+    covered = record["integration_topology"]["engine_commit"]
+    if _live_pin_requalification_pending(config):
+        assert covered == config["architecture_freeze"]["current_qualification"]["engine_commit"]
+        assert covered != config["primary_engine"]["commit"]
+    else:
+        assert covered == config["primary_engine"]["commit"]
     prior_path = record["supersedes"]["record"]
     assert prior_path != asm.AF11_ADJUDICATION
     prior = json.loads((REPO / prior_path).read_text(encoding="utf-8"))
     assert prior["integration_topology"]["engine_commit"] == record["supersedes"]["engine_commit"]
-    assert prior["integration_topology"]["engine_commit"] != config["primary_engine"]["commit"]
+    assert prior["integration_topology"]["engine_commit"] != covered
     # Only the pin and its effective epoch moved; licences and topology are unchanged.
     assert prior["licence_topology"] == record["licence_topology"]
     assert prior["forge"] == record["forge"]
