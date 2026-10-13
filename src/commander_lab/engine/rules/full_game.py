@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
+import math
 import os
 import queue
 import re
@@ -404,9 +405,12 @@ class _RawFullGameClient:
         cwd: str | Path | None = None,
         request_timeout_seconds: float = 120.0,
         private_card_repository: bool = False,
+        shutdown_grace_seconds: float = 5.0,
     ) -> None:
         if not command:
             raise ValueError("full-game bridge command must not be empty")
+        if not math.isfinite(shutdown_grace_seconds) or shutdown_grace_seconds <= 0:
+            raise ValueError("shutdown_grace_seconds must be positive and finite")
         if "full-game" not in command:
             raise ValueError(
                 "full-game bridge command must explicitly include the full-game subcommand"
@@ -414,6 +418,10 @@ class _RawFullGameClient:
         self.command = command
         self.cwd = resolve_engine_working_directory(cwd)
         self.request_timeout_seconds = request_timeout_seconds
+        # How long an acked shutdown may take before the process is killed.
+        # Only the CDS archive training run needs more (the JVM writes the
+        # archive while it exits).
+        self.shutdown_grace_seconds = shutdown_grace_seconds
         self._process: subprocess.Popen[str] | None = None
         self._stdout_queue: queue.Queue[str | None] = queue.Queue()
         self._stderr_lines: list[str] = []
@@ -617,7 +625,7 @@ class _RawFullGameClient:
                 shutdown_acked = False
             if process.poll() is None:
                 with contextlib.suppress(subprocess.TimeoutExpired):
-                    process.wait(timeout=5)
+                    process.wait(timeout=self.shutdown_grace_seconds)
             if process.poll() is None:
                 process.kill()
                 process.wait(timeout=5)
@@ -668,6 +676,7 @@ class XmageFullGameRunner:
         request_timeout_seconds: float = 120.0,
         max_decisions: int = 50_000,
         private_card_repository: bool = False,
+        shutdown_grace_seconds: float = 5.0,
     ) -> None:
         self.command = command or self.command_from_environment()
         self.cwd = cwd
@@ -675,6 +684,7 @@ class XmageFullGameRunner:
         # (set by the batch runner for parallel games).
         self.private_card_repository = private_card_repository
         self.request_timeout_seconds = request_timeout_seconds
+        self.shutdown_grace_seconds = shutdown_grace_seconds
         self.max_decisions = max_decisions
         if self.max_decisions < 1:
             raise ValueError("max_decisions must be positive")
@@ -708,6 +718,7 @@ class XmageFullGameRunner:
             cwd=self.cwd,
             request_timeout_seconds=self.request_timeout_seconds,
             private_card_repository=self.private_card_repository,
+            shutdown_grace_seconds=self.shutdown_grace_seconds,
         ) as client:
             provider = self._open_game(client, scenario, decks)
             try:
@@ -759,6 +770,7 @@ class XmageFullGameRunner:
             cwd=self.cwd,
             request_timeout_seconds=self.request_timeout_seconds,
             private_card_repository=self.private_card_repository,
+            shutdown_grace_seconds=self.shutdown_grace_seconds,
         )
         with client:
             provider = self._open_game(client, scenario, decks)
