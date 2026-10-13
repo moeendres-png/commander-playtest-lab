@@ -21,7 +21,12 @@ baseline for every game.
 
 ## Known open items
 
-- The smoke run on a freshly built main-pin bridge jar returned `BRIDGE_CLOSED` (seed 2),
-  while the same pin earlier ran fine. Not yet diagnosed.
+- The smoke run on a freshly built main-pin bridge jar once returned `BRIDGE_CLOSED` (seed 2).
+  It did not reproduce on 2026-10-13: the same jar (built 2026-10-13 15:21) played seeds 1-2
+  serially with `scripts/benchmark_xmage_full_games.py`, both `ok`, with the same semantic
+  transcripts as `ab_scan.json` (`c7a37e7f...`, `fbeefb58...`). The failing run is not
+  diagnosed; a card-database collision with another bridge JVM running at the same time (#739)
+  would explain it, but that is unconfirmed. Use `--private-card-repository` whenever another
+  bridge JVM may run.
 - JFR raw recordings are not committed (about 13 MB each); regenerate with `-XX:StartFlightRecording`.
 - `results/par_lazy_r1.log`: an early parallel run of the lazy-copy prototype that failed with BRIDGE_ERROR; the rerun is in `coverage_lazy.log`.
