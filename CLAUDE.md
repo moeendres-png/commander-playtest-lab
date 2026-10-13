@@ -36,13 +36,7 @@ HANDOFF instead of preserving one giant coordinator conversation.
 1. Prefer deterministic scripts (`lab-ops`, grep, focused test runners, packet readers) when they
    can answer the question without model judgement.
 2. Route implementation, debugging, test/fix loops, CI remediation, qualification execution,
-   evidence production, multi-file edits and long autonomous engineering work to Step 5 Preview on OpenCode Zen
-   (`opencode/step-5-preview-free`) or Claude Sonnet 5.5 (`/oc` implementer, `/assure` verifier, `/ro-review` read-only reviewer).
-3. Keep the Opus 5.5 main session as coordinator/planner/adjudicator. Project default effort is `medium`;
-   raise to `high` for complex Rules/CR reasoning, qualification, architecture arbitration, or gate decisions.
-4. DeepSeek V4.1 Flash is SUSPENDED (OpenCode Go monthly quota exhausted). Never select it.
-5. Use Claude subagents only for bounded read-only side work that would pollute the main context:
-   `log-scanner` = Sonnet `low`; `ci-triage` = Sonnet `medium`; built-in `Explore` for scoped read-only lookups.
+
 
 Custom Claude helpers are flat: their tool allowlists contain no `Agent` tool, so they must not
 spawn children. Do not create agent teams or recursive coordinator/worker trees for normal work.
@@ -60,7 +54,7 @@ do not micromanage the worker unless an authority/ownership gate appears, canoni
 changes, the packet was objectively incomplete, or the run terminates without resumable state.
 
 - `gh_ops.py brief` is the one-screen lane status; prefer it to raw API/check/comment dumps.
-- `oc_dispatch.py post` builds `/oc` or `/bunny` comments from the compact task skeletons;
+- `oc_dispatch.py post` builds `/oc` or `/assure` comments from the compact task skeletons;
   `oc_dispatch.py watch` consumes the compact result.
 - Every helper report is ≤40 lines; routine user status messages are ≤8 lines.
 - Test narrow while iterating; run the full required suite once at the integration boundary.
@@ -72,5 +66,5 @@ changes, the packet was objectively incomplete, or the run terminates without re
   Do not add a custom cache TTL without benchmark evidence; the short helpers use Claude Code's
   normal cache policy.
 
-The native-`max` requirement above applies to the OpenCode profiles only. It does not imply
+The native-variant requirement above applies to the OpenCode profiles only. It does not imply
 Claude `max` effort.

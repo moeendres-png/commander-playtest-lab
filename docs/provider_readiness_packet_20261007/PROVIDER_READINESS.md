@@ -11,13 +11,13 @@ Current project state: `config/rules_engines.json` → `architecture_freeze` (th
 - Packet branch: `opencode/issue255-20261008194759` from `ff688b58359f7ec3cbace344322989c18e58886a` (tree `42c21a3659cdf73ca15d1baaf62bbfed9003c797`).
 - Sealed epoch: `c124150d77ab-d303b2ca5f32`; manifest `qualification/current-boundary-epochs/c124150d77ab-d303b2ca5f32/CURRENT_BOUNDARY_SHA256SUMS` sha256 `a98e4f1c435d620b812da8be95e269d344e3cd1e4e55b86f792d35c0e12d9498`; 197/197 digests verified (EXACT_ALL_FILES_EXCEPT_MANIFEST).
 - Effective contract: `commander-lab.full107/1.0.31-successor` (`qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_31.json` sha256 `494b5dbc8942a0ab4662ad313a95dc0a7e08f8908d7eb05d7d7580b6406b83c7`); pointer sha256 `116cc693ff36cedeacdbf014975f54307565f4cac6be3021273244fb3632828b`.
-- Engine pins (`config/rules_engines.json` sha256 `ce99269d6a5151530533d306acc38641db3e7e49408d71cac757ca4d608a27a2`): XMage `3cbf7741` / tree `94a9f783`; Forge Rules-Core `bb0a740d` / tree `4989b5bb`; Forge bridge `31cbae12` / tree `b5c19c19`.
+- Engine pins (`config/rules_engines.json` sha256 `4de85b7b2c9c2fa5b0ad83ddb425ea238af7d718d40d42b57cb437fe612858e6`): XMage `38cb21a8` / tree `e6845ec7`; Forge Rules-Core `bb0a740d` / tree `4989b5bb`; Forge bridge `31cbae12` / tree `b5c19c19`.
 
 ## Drift records
 
 | Subject | Pin | Sealed evidence | Verdict |
 | --- | --- | --- | --- |
-| xmage engine commit | `3cbf7741d29a2fe820725456b90f305f9f793ad1` | `b479fe74fd1eaf899ff16c6a9203e74a91c0f339` | DIFFERS |
+| xmage engine commit | `38cb21a85c4074b00ab226e625200a4feaf3462f` | `b479fe74fd1eaf899ff16c6a9203e74a91c0f339` | DIFFERS |
 | forge Rules-Core commit | `bb0a740d2bef725194798383c2452213ecdd0b37` | `bb0a740d2bef725194798383c2452213ecdd0b37` | IDENTICAL |
 | forge bridge/materialization commit | `31cbae12640e6066499aa7f17c9bf2dba6a30da6` | `31cbae12640e6066499aa7f17c9bf2dba6a30da6` | IDENTICAL |
 | effective fixture contract | `commander-lab.full107/1.0.31-successor` | `commander-lab.full107/1.0.31-successor` | IDENTICAL |

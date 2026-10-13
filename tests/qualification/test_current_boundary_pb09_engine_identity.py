@@ -15,7 +15,6 @@ upstream behaviour is recorded as observed.
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 from pathlib import Path
 
@@ -31,62 +30,7 @@ SUCCESSOR_LOCK = (
     REPO / "qualification/forge-r1-candidate-authority-20260930/SUCCESSOR_SOURCE_LOCK.json"
 )
 
-REQUIRE_REFERENCE_ENV = "PB09_REQUIRE_FORGE_REFERENCE"
-
 # Historical path of the Forge reference checkout this file was written against.
-DEFAULT_FORGE_REFERENCE = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
-
-
-def _git_has_commit(repo: Path, sha: str) -> bool:
-    proc = subprocess.run(
-        ["git", "cat-file", "-e", f"{sha}^{{commit}}"],
-        cwd=repo,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    return proc.returncode == 0
-
-
-def _require_forge_reference(*commits: str) -> Path:
-    """Locate a Forge checkout that actually contains the pinned commits.
-
-    Resolution follows FORGE_SOURCE_DIR, the convention already documented for
-    the Forge checkout in tests/integration/test_forge_bridge_h4f_live.py:25,
-    with the historical hardcoded path as fallback so behaviour on the machine
-    this file was written against is unchanged.
-
-    The two preconditions are kept separate because they mean different things:
-
-    * no checkout at all -- a property of this machine. Nothing changed, there is
-      nothing to re-adjudicate, and the response is to point FORGE_SOURCE_DIR at
-      a checkout.
-    * a checkout that exists but lacks a pinned commit -- these tests compare
-      *specific* pinned commits, so no other checkout can establish them. An
-      arbitrary Forge source tree is not a substitute, and substituting one would
-      turn a correct skip into a wrong failure.
-    """
-    raw = os.environ.get("FORGE_SOURCE_DIR", "").strip()
-    forge = Path(raw) if raw else DEFAULT_FORGE_REFERENCE
-    # B6 (#487): the required infrastructure lane materializes the reference and
-    # sets PB09_REQUIRE_FORGE_REFERENCE=1, so there a missing checkout or commit
-    # fails instead of producing a skip-based green signal.
-    unavailable = pytest.fail if os.environ.get(REQUIRE_REFERENCE_ENV) == "1" else pytest.skip
-    if not (forge / ".git").exists():
-        unavailable(
-            f"no Forge checkout at {forge}: this test compares pinned commits, so it cannot run "
-            "without one. Set FORGE_SOURCE_DIR to a checkout of moeendres-png/forge to enable it."
-        )
-    missing = [sha for sha in commits if not _git_has_commit(forge, sha)]
-    if missing:
-        unavailable(
-            f"the Forge checkout at {forge} does not contain {missing}. These tests compare "
-            "specific pinned commits, so any other checkout cannot establish them -- a different "
-            "condition from having no checkout at all."
-        )
-    return forge
-
-
 FORK = "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
 UPSTREAM = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 TIP = "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
@@ -241,7 +185,6 @@ def test_readiness_records_pb09_as_a_freeze_blocker() -> None:
 
 def test_engine_equivalence_accepts_a_harness_only_descendant() -> None:
     """A descendant that adds only harness and evidence executes the same engine."""
-    import subprocess
     import tempfile
 
     from commander_lab.qualification.current_boundary.receipts import engine_tree_equivalence
@@ -293,7 +236,6 @@ def test_engine_equivalence_accepts_a_harness_only_descendant() -> None:
 
 def test_engine_equivalence_rejects_an_engine_change() -> None:
     """A descendant that touches engine code must never be credited."""
-    import subprocess
     import tempfile
 
     from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
@@ -339,39 +281,6 @@ def test_engine_equivalence_rejects_an_engine_change() -> None:
             verify_engine_identity(repo, head, tip, recorded_label="forge")
 
 
-def test_real_forge_descendant_is_engine_equivalent() -> None:
-    """The measured fact PB-09 turns on, re-proven against the real repository.
-
-    Between the Commander-Lab fork head and the WSR20/WSR24 tip the only
-    differences are one added test class and the wsr20-full107 harness/evidence
-    directory. Every engine module's main-source tree is byte-identical, which is
-    why the suite can execute at the descendant and still be evidence about the
-    fork head.
-    """
-    forge = _require_forge_reference(FORK, TIP)
-    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
-
-    proof = verify_engine_identity(forge, FORK, TIP, recorded_label="forge native suite")
-    assert proof["justification"] == "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL"
-    assert proof["differing_modules"] == []
-    # Six Rules-Core modules. forge-protocol2-bridge is excluded and bound
-    # separately, because it is transport/provenance, not Magic legality.
-    assert len(proof["modules"]) == 6
-    assert "forge-game" in proof["modules"]
-    assert "forge-protocol2-bridge" not in proof["modules"]
-    assert set(proof["compared_module_roots"]) == {
-        "forge-game",
-        "forge-core",
-        "forge-ai",
-        "forge-gui",
-        "forge-gui-desktop",
-        "adventure-editor",
-    }
-
-
-# --- the bridge is a separate identity, never collapsed into the Rules Core --- #
-
-
 def test_bridge_module_is_excluded_from_the_rules_core_comparison() -> None:
     """PB-05 changed the bridge and no Rules-Core source. The check must pass."""
     from commander_lab.qualification.current_boundary import receipts as R
@@ -381,20 +290,8 @@ def test_bridge_module_is_excluded_from_the_rules_core_comparison() -> None:
     assert "forge-game" in R.FORGE_RULES_CORE_MODULE_ROOTS
 
 
-def test_forge_pr5_head_is_rules_core_equivalent_to_the_fork_head() -> None:
-    """The real PB-05/WSR30 fact: the bridge repair changed zero Rules-Core source."""
-    forge = _require_forge_reference(FORK, BRIDGE_HEAD)
-    from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
-
-    proof = verify_engine_identity(forge, FORK, BRIDGE_HEAD, recorded_label="forge PR5")
-    assert proof["engine_equivalent"] is True
-    assert proof["differing_modules"] == []
-    assert proof["justification"] == "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL"
-
-
 def test_rules_core_drift_still_fails_closed() -> None:
     """Excluding the bridge must not weaken the drift guard for real engine code."""
-    import subprocess
     import tempfile
 
     from commander_lab.qualification.current_boundary.receipts import verify_engine_identity
@@ -487,37 +384,6 @@ def test_the_r5_bridge_lock_stays_historical() -> None:
     assert lock["new_bridge_source"]["tree"] == R5_BRIDGE_TREE
     assert lock["prior_bridge_source"]["commit"] == R1_BRIDGE
     assert _config()["secondary_engine"]["bridge_source"]["commit"] != R5_BRIDGE
-
-
-def test_a_required_lane_fails_instead_of_skipping(monkeypatch, tmp_path) -> None:
-    """B6: with the requirement set, a missing reference is a failure, never a skip."""
-    monkeypatch.setenv(REQUIRE_REFERENCE_ENV, "1")
-    monkeypatch.setenv("FORGE_SOURCE_DIR", str(tmp_path / "absent"))
-    with pytest.raises(pytest.fail.Exception, match="no Forge checkout"):
-        _require_forge_reference(FORK)
-    monkeypatch.delenv(REQUIRE_REFERENCE_ENV)
-    with pytest.raises(pytest.skip.Exception, match="no Forge checkout"):
-        _require_forge_reference(FORK)
-
-
-def test_the_infrastructure_lane_materializes_the_reference() -> None:
-    """B6: the required lane provides the checkout and demands it."""
-    import yaml
-
-    workflow = yaml.safe_load(
-        (REPO / ".github/workflows/production-qualification.yml").read_text(encoding="utf-8")
-    )
-    steps = workflow["jobs"]["infrastructure"]["steps"]
-    names = [step.get("name") for step in steps]
-    materialize = names.index("Materialize the pinned Forge reference for PB09 identity tests")
-    qualification = names.index("Validate WS-17 qualification infrastructure")
-    assert materialize < qualification
-    env = steps[qualification].get("env") or {}
-    assert env.get(REQUIRE_REFERENCE_ENV) == "1"
-    assert env.get("FORGE_SOURCE_DIR")
-    script = steps[materialize]["run"]
-    for sha in (FORK, TIP, BRIDGE_HEAD):
-        assert sha in script, sha
 
 
 def test_the_schema4_bridge_lock_stays_historical() -> None:

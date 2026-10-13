@@ -49,7 +49,7 @@ simulation limitation.
 
 | Evidence | What it supports |
 | --- | --- |
-| [Project Mission](PROJECT_MISSION.md) | The explicit project outcome is a maximally rules-correct Commander simulator for real decks, matchup analysis, pilot improvement, learning, and deckbuilding optimization. Rules Correctness outranks performance and convenience. |
+| [Project Mission](PROJECT_MISSION.md) | The project outcome is a practical, rules-correct Commander simulator for real decks that helps with deck-building decisions, matchup analysis, pilot improvement and learning, covering as many cards as possible. |
 | [README](../README.md) | The existing Structural simulator is explicitly an approximation layer and cannot establish full external-rules behavior. The project already separates structural, tactical, and external-rules evidence. |
 | [Issue #255](https://github.com/moeendres-png/commander-playtest-lab/issues/255) | Provider selection remains unresolved because current evidence must be reconciled on a common denominator before a production decision is trustworthy. |
 | [Issue #441](https://github.com/moeendres-png/commander-playtest-lab/issues/441) | A large pre-Freeze campaign is still closing real decision, hidden-information, replay, multiplayer, and actual-card evidence gaps rather than assuming construction or green CI implies correctness. |

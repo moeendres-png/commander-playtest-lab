@@ -56,7 +56,7 @@
         },
         {
           "path": "data/rules/project_critical_interactions.json",
-          "sha256": "1674807a8a758602d6a877c3dcd9219652273d17d8318e03ffafa833a7aca522"
+          "sha256": "ffed8bd0becf294ac1af70c818a45900c284d5f14ed7e46a021936f0d82f252a"
         },
         {
           "path": "data/evals/differential/rules_cases.json",
@@ -65,11 +65,12 @@
       ],
       "mutable": true,
       "notes": [
-        "External engine execution remains pending; fixture existence is not external validation."
+        "External engine execution remains pending; fixture existence is not external validation.",
+        "pre-j-rules-v2 (#734): project_critical_interactions.json member re-pinned after the CR 903.8 countered-commander tax correction. The set hash still records pre-j-rules-v1 as bound in artifacts/audit/J_P0_EVIDENCE.json; its derivation is not reproducible here, so it is not recomputed."
       ],
       "purpose": "Rules-critical Tactical/Structural/Differential corpus for later provider-neutral external-engine validation.",
       "used_for_tuning": true,
-      "version": "pre-j-rules-v1"
+      "version": "pre-j-rules-v2"
     },
     "SENSITIVITY_AND_ADVERSARIAL": {
       "first_evaluation_timestamp": null,

@@ -65,18 +65,18 @@ def test_project_helpers_are_read_only_and_cannot_spawn_agents():
 def test_active_claude_routing_has_only_current_executor_policy():
     joined = "\n".join(read(path) for path in ACTIVE_ROUTING)
     assert "DeepSeek V4.1 Flash" in joined
-    assert "Space Bunny" in joined
+    assert "Step 5 Preview" in joined
     assert "no automatic fallback" in joined.lower()
     assert "muse-spark" not in joined.lower()
     assert "glm-5.3" not in joined.lower()
-    # Since 2026-10-10 Space Bunny runs on OpenCode Zen (opencode/space-bunny-free).
+    # Since 2026-10-10 Step 5 Preview runs on OpenCode Zen (opencode/step-5-preview-free).
     # The OpenCode Go ids may appear only where explicitly labeled as retired,
     # never as a selectable executor.
     for path in ACTIVE_ROUTING:
         text = read(path).lower()
-        if "space-bunny" in text:
-            assert "opencode/space-bunny-free" in text or "zen" in text, path.name
-        if "opencode-go/space-bunny" in text:
+        if "step" in text:
+            assert "opencode/step-5-preview-free" in text or "zen" in text, path.name
+        if "opencode-go/retired" in text:
             assert "retired" in text, path.name
             assert "same logical profile" in text or "same profile" in text, path.name
     assert "third logical executor" in joined.lower()
@@ -105,10 +105,10 @@ def test_claude_policy_forbids_general_purpose_implementation_and_duplicate_read
     assert "Do not use" in text and "`general-purpose`" in text
     assert "must not\nspawn children" in text
     assert "Do not automatically re-read" in text
-    # Owner directive 2026-10-10: Space Bunny is the only executor, DeepSeek SUSPENDED.
-    assert "the only executor is Space Bunny at native `max`" in text
+    # Owner directive 2026-10-12: Step 5 Preview is the only OpenCode model, DeepSeek SUSPENDED.
+    assert "the only OpenCode model is Step 5 Preview" in text
     assert "DeepSeek V4.1 Flash is SUSPENDED" in text
-    assert "Space Bunny at native `max` is an explicit secondary profile only" not in text
+    assert "Step 5 Preview at native `max` is an explicit secondary profile only" not in text
 
 
 def test_helper_effort_policy_is_per_agent_not_a_blanket_high_rule():

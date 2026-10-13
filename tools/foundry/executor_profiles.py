@@ -6,23 +6,22 @@ invents a model identity and never falls back across executor families.
 Logical profiles
 ----------------
 
-- ``space-bunny``: the default and only ACTIVE executor (Owner directives
-  2026-10-10), served by OpenCode Zen as ``opencode/space-bunny-free`` and
-  resolved only after live catalog inspection of the pinned OpenCode CLI
+- ``step``: the default and only ACTIVE executor (Owner directive
+  2026-10-12), served by OpenCode Zen as ``opencode/step-5-preview-free`` at
+  its highest native variant ``high`` (the Zen catalog lists no ``max`` for
+  it), resolved only after live catalog inspection of the pinned OpenCode CLI
   (``opencode models opencode``).
 - ``deepseek``: ``opencode-go/deepseek-v4.1-flash`` at native ``max``; kept in
   the registry with ``runtime_status: SUSPENDED`` (its OpenCode Go monthly
   quota is exhausted). A suspended profile never resolves; only a new direct
   Owner instruction flips it back to ACTIVE.
 
-Space Bunny runtime selection is deterministic: the canonical Zen id must be
-present in the inspected catalog, else resolution fails closed. The OpenCode Go
-ids (``opencode-go/space-bunny``, ``opencode-go/space-bunny-free``) are no
-longer admitted: they share the exhausted Go monthly quota.
+Step runtime selection is deterministic: the canonical Zen id must be present
+in the inspected catalog, else resolution fails closed.
 
-No other provider/model (Longcat, DeepSeek, another family, or the first
-available catalog row) may ever substitute. A runtime/auth/quota/API/tool
-failure AFTER selection is a failed/blocked Space Bunny run: the pin can only
+No other provider/model (another family, a retired id, or the first available
+catalog row) may ever substitute. A runtime/auth/quota/API/tool failure AFTER
+selection is a failed/blocked run of the selected profile: the pin can only
 report BLOCKED. Re-resolution is an explicit task-rerouting decision outside
 this module.
 """
@@ -39,15 +38,25 @@ from pathlib import Path
 DEFAULT_REGISTRY_PATH = Path(__file__).resolve().parents[2] / ".foundry" / "executor-profiles.json"
 
 CANONICAL_PROVIDER = "opencode"
-# Providers a registry runtime id may name: Zen (active Space Bunny) and Go
-# (the suspended DeepSeek record only).
+# Providers a registry runtime id may name: Zen (active Step) and Go (the
+# suspended DeepSeek record only).
 ADMITTED_PROVIDERS = (CANONICAL_PROVIDER, "opencode-go")
-SPACE_BUNNY_RUNTIME_ID = "opencode/space-bunny-free"
+STEP_RUNTIME_ID = "opencode/step-5-preview-free"
 DEEPSEEK_RUNTIME_ID = "opencode-go/deepseek-v4.1-flash"
+LOGICAL_PROFILES = ("deepseek", "step")
+DEFAULT_PROFILE = "step"
+# Profiles served by OpenCode Zen: resolution needs live catalog inspection.
+ZEN_PROFILES = ("step",)
+CANONICAL_RUNTIME_IDS = {
+    "deepseek": DEEPSEEK_RUNTIME_ID,
+    "step": STEP_RUNTIME_ID,
+}
+# Each profile's single highest native variant as listed by its provider
+# catalog. Step 5 Preview lists low/medium/high only, so `high` is its highest.
+NATIVE_VARIANTS = {"deepseek": "max", "step": "high"}
 CANONICAL_ALIAS_CLASS = "CANONICAL"
 LEGACY_ALIAS_CLASS = "LEGACY_ALIAS"
 ALIAS_CLASSES = (CANONICAL_ALIAS_CLASS, LEGACY_ALIAS_CLASS)
-NATIVE_VARIANT = "max"
 ACTIVE = "ACTIVE"
 SUSPENDED = "SUSPENDED"
 RUNTIME_STATUSES = (ACTIVE, SUSPENDED)
@@ -198,8 +207,10 @@ def validate_registry(doc: dict, *, path: str = "<memory>") -> list[str]:
     profiles = doc.get("profiles")
     if not isinstance(profiles, dict):
         return [*errors, "registry profiles must be a mapping"]
-    if set(profiles) != {"deepseek", "space-bunny"}:
-        errors.append(f"registry must expose exactly deepseek+space-bunny, got {sorted(profiles)}")
+    if set(profiles) != set(LOGICAL_PROFILES):
+        errors.append(
+            f"registry must expose exactly {'+'.join(LOGICAL_PROFILES)}, got {sorted(profiles)}"
+        )
     for name, spec in profiles.items():
         status = spec.get("runtime_status") if isinstance(spec, dict) else None
         if status not in RUNTIME_STATUSES:
@@ -207,11 +218,11 @@ def validate_registry(doc: dict, *, path: str = "<memory>") -> list[str]:
                 f"profiles[{name!r}] runtime_status {status!r} not in {list(RUNTIME_STATUSES)}"
             )
     default = str(doc.get("current_runtime_default", ""))
-    if default != "space-bunny":
-        errors.append(f"registry default must be space-bunny, got {default!r}")
-    bunny_spec = profiles.get("space-bunny")
-    if isinstance(bunny_spec, dict) and bunny_spec.get("runtime_status") != ACTIVE:
-        errors.append("the space-bunny default profile must be ACTIVE")
+    if default != DEFAULT_PROFILE:
+        errors.append(f"registry default must be {DEFAULT_PROFILE}, got {default!r}")
+    default_spec = profiles.get(DEFAULT_PROFILE)
+    if isinstance(default_spec, dict) and default_spec.get("runtime_status") != ACTIVE:
+        errors.append(f"the {DEFAULT_PROFILE} default profile must be ACTIVE")
     identity = doc.get("runtime_identity")
     if not isinstance(identity, dict) or not identity:
         errors.append("registry runtime_identity must be a non-empty mapping")
@@ -241,9 +252,9 @@ def validate_registry(doc: dict, *, path: str = "<memory>") -> list[str]:
             errors.append(
                 f"runtime_identity[{runtime_id!r}] provider is not one of {list(ADMITTED_PROVIDERS)}"
             )
-        elif profile_name == "space-bunny" and provider != CANONICAL_PROVIDER:
+        elif profile_name in ZEN_PROFILES and provider != CANONICAL_PROVIDER:
             errors.append(
-                f"runtime_identity[{runtime_id!r}] space-bunny runtime ids must use "
+                f"runtime_identity[{runtime_id!r}] {profile_name} runtime ids must use "
                 f"{CANONICAL_PROVIDER!r} (Zen)"
             )
     for name, spec in profiles.items():
@@ -251,30 +262,31 @@ def validate_registry(doc: dict, *, path: str = "<memory>") -> list[str]:
             errors.append(f"profiles[{name!r}] must be a mapping")
             continue
         model = str(spec.get("model", ""))
-        if spec.get("native_variant") != NATIVE_VARIANT:
-            errors.append(f"profiles[{name!r}] native_variant must be {NATIVE_VARIANT!r}")
+        want_variant = NATIVE_VARIANTS.get(name)
+        if spec.get("native_variant") != want_variant:
+            errors.append(f"profiles[{name!r}] native_variant must be {want_variant!r}")
         entry = identity.get(model)
         if not isinstance(entry, dict) or entry.get("logical_profile") != name:
             errors.append(f"profiles[{name!r}] canonical model {model!r} is not admitted to it")
         elif entry.get("alias_class") != CANONICAL_ALIAS_CLASS:
             errors.append(f"profiles[{name!r}] canonical model must be CANONICAL alias class")
-    bunny = profiles.get("space-bunny")
-    if isinstance(bunny, dict):
-        model = str(bunny.get("model", ""))
+    for zen_name in ZEN_PROFILES:
+        zen = profiles.get(zen_name)
+        if not isinstance(zen, dict):
+            continue
         legacy = [
             runtime_id
             for runtime_id, spec in identity.items()
             if isinstance(spec, dict)
-            and spec.get("logical_profile") == "space-bunny"
+            and spec.get("logical_profile") == zen_name
             and spec.get("alias_class") == LEGACY_ALIAS_CLASS
         ]
-        if model != SPACE_BUNNY_RUNTIME_ID:
-            errors.append(f"space-bunny canonical runtime id must be {SPACE_BUNNY_RUNTIME_ID}")
         if legacy:
-            errors.append(f"space-bunny admits no legacy alias, got {legacy!r}")
-    deepseek = profiles.get("deepseek")
-    if isinstance(deepseek, dict) and str(deepseek.get("model", "")) != DEEPSEEK_RUNTIME_ID:
-        errors.append(f"deepseek runtime id must remain {DEEPSEEK_RUNTIME_ID}")
+            errors.append(f"{zen_name} admits no legacy alias, got {legacy!r}")
+    for name, want_id in CANONICAL_RUNTIME_IDS.items():
+        spec = profiles.get(name)
+        if isinstance(spec, dict) and str(spec.get("model", "")) != want_id:
+            errors.append(f"{name} canonical runtime id must be {want_id}")
     return errors
 
 
@@ -392,8 +404,8 @@ def resolve_executor(
 
     A SUSPENDED profile is refused before anything else. DeepSeek (when ACTIVE)
     uses the pinned canonical identity; when a catalog is supplied its
-    presence is still verified. Space Bunny requires catalog inspection and
-    selects its admitted Zen id, else fails closed.
+    presence is still verified. The Zen profile (Step) requires
+    catalog inspection and selects its admitted Zen id, else fails closed.
     """
     reg = registry or load_registry()
     if logical_profile not in reg.profiles:
@@ -404,7 +416,7 @@ def resolve_executor(
     if not spec.active:
         raise ExecutorResolutionError(
             f"execution profile {logical_profile!r} is {spec.runtime_status} "
-            "(Owner directive 2026-10-10: Space Bunny MAX only); fail closed, no fallback"
+            "(Owner directive 2026-10-12: Step 5 Preview only); fail closed, no fallback"
         )
     catalog_checked = False
     source = "not_inspected"
@@ -416,7 +428,7 @@ def resolve_executor(
     elif catalog_loader is not None:
         listed, source = catalog_loader()
         catalog_checked = True
-    elif logical_profile == "space-bunny":
+    elif logical_profile in ZEN_PROFILES:
         listed, source = load_live_catalog(opencode_bin)
         catalog_checked = True
 
@@ -432,13 +444,13 @@ def resolve_executor(
     else:
         if listed is None:
             raise ExecutorResolutionError(
-                "space-bunny requires live catalog inspection before selection; fail closed"
+                f"{logical_profile} requires live catalog inspection before selection; fail closed"
             )
         present = [item for item in spec.admitted if item.runtime_id in listed]
         if not present:
             admitted = ", ".join(spec.admitted_runtime_ids)
             raise ExecutorResolutionError(
-                f"no admitted space-bunny runtime id present in the inspected catalog "
+                f"no admitted {logical_profile} runtime id present in the inspected catalog "
                 f"(admitted: {admitted}); fail closed (no cross-family substitute)"
             )
         chosen = present[0]

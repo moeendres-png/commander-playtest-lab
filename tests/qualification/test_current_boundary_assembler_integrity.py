@@ -801,12 +801,30 @@ def test_af11_adjudication_covers_the_live_pin_and_keeps_the_prior_record() -> N
     asm = _assembler_module()
     record = json.loads((REPO / asm.AF11_ADJUDICATION).read_text(encoding="utf-8"))
     config = json.loads((REPO / "config/rules_engines.json").read_text(encoding="utf-8"))
-    assert record["integration_topology"]["engine_commit"] == config["primary_engine"]["commit"]
+    live_pin = config["primary_engine"]["commit"]
+    adjudicated = record["integration_topology"]["engine_commit"]
+    if adjudicated != live_pin:
+        # Repin window: a new adjudication needs a sealed epoch on the new pin, so it can
+        # only follow PB-03 on the repin's main merge. Until then the record must still be
+        # the adjudication of the pin current_qualification names, the live pin's successor
+        # lock must declare REQUALIFICATION_REQUIRED, and the assembler reports AF11 UNKNOWN
+        # for the live pin (it checks the adjudicated pin against the executed engine).
+        assert (
+            adjudicated == config["architecture_freeze"]["current_qualification"]["engine_commit"]
+        )
+        locks = [
+            json.loads(path.read_text(encoding="utf-8"))
+            for path in sorted((REPO / "qualification").glob("*/SUCCESSOR_SOURCE_LOCK.json"))
+        ]
+        live = [lock for lock in locks if lock.get("new_live_pin", {}).get("commit") == live_pin]
+        assert len(live) == 1, "the live pin has no successor lock"
+        assert live[0]["current_boundary"]["status"] == "REQUALIFICATION_REQUIRED"
+        live_pin = adjudicated
     prior_path = record["supersedes"]["record"]
     assert prior_path != asm.AF11_ADJUDICATION
     prior = json.loads((REPO / prior_path).read_text(encoding="utf-8"))
     assert prior["integration_topology"]["engine_commit"] == record["supersedes"]["engine_commit"]
-    assert prior["integration_topology"]["engine_commit"] != config["primary_engine"]["commit"]
+    assert prior["integration_topology"]["engine_commit"] != live_pin
     # Only the pin and its effective epoch moved; licences and topology are unchanged.
     assert prior["licence_topology"] == record["licence_topology"]
     assert prior["forge"] == record["forge"]

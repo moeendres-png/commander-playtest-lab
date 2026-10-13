@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from collections import Counter, defaultdict
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from statistics import fmean
 from typing import Any, TypedDict, cast
 
@@ -211,6 +211,43 @@ def _evaluator_mechanics_gate(evaluator: EvaluationFunction) -> EligibilityFunct
         return assessment.get("pass") is True
 
     return _gate
+
+
+@dataclass
+class _SearchRun:
+    """Mutable state of one ``AdaptiveWholeDeckSearch.run``."""
+
+    archive: QualityDiversityArchive
+    hypothesis_archive: HypothesisCoverageArchive
+    rng: random.Random
+    operator_weights: dict[str, float]
+    policy_weights: dict[str, float]
+    seen: dict[str, WholeDeckVariant]
+    variants_by_id: dict[str, WholeDeckVariant]
+    history: list[dict[str, Any]] = field(default_factory=list)
+    evaluations_by_variant: dict[str, ExploratoryEvaluation] = field(default_factory=dict)
+    rejection_counts: Counter[str] = field(default_factory=Counter)
+    parent_hashes: dict[str, set[str]] = field(
+        default_factory=lambda: {"decision_lane": set(), "hypothesis_lane": set()}
+    )
+    adaptive_reward_observations: int = 0
+    total_calls: int = 0
+    total_pairs: int = 0
+    feedback_changed: bool = False
+
+    def remember(self, proposal: WholeDeckVariant) -> None:
+        self.seen[proposal.deck_hash] = proposal
+        self.variants_by_id[proposal.variant_id] = proposal
+
+    def count_rejections(self, counts: Mapping[str, Any]) -> None:
+        self.rejection_counts.update(
+            {
+                "raw_proposals_attempted": counts["attempts"],
+                "noop_proposals_rejected": counts["noop"],
+                "duplicate_proposals_rejected": counts["duplicate"],
+                "illegal_proposals_rejected": counts["illegal"],
+            }
+        )
 
 
 class AdaptiveWholeDeckSearch:
@@ -593,6 +630,63 @@ class AdaptiveWholeDeckSearch:
         generations: int,
         proposals_per_generation: int,
     ) -> OptimizerSearchReport:
+        legal_initial = self._legal_initial_variants(initial_variants)
+        run = _SearchRun(
+            archive=QualityDiversityArchive(self.qd),
+            hypothesis_archive=HypothesisCoverageArchive(self.qd),
+            rng=random.Random(self.seed),
+            operator_weights=normalize_learning_weights(
+                {name: 1.0 for name in operator_names()},
+                floor=self.learning.exploration_floor,
+            ),
+            policy_weights=normalize_learning_weights(
+                {name: 1.0 for name in sorted(self.engines)},
+                floor=self.learning.exploration_floor,
+            ),
+            seen={row.deck_hash: row for row in legal_initial},
+            variants_by_id={row.variant_id: row for row in legal_initial},
+        )
+        initial_eval, run.total_calls, run.total_pairs = self._evaluate_batch(
+            legal_initial,
+            generation=0,
+            archive=run.archive,
+            hypothesis_archive=run.hypothesis_archive,
+        )
+        for row in initial_eval:
+            run.evaluations_by_variant[row.candidate_id] = row
+        run.history.append(
+            {
+                "generation": 0,
+                "candidate_count": len(legal_initial),
+                "archive": run.archive.coverage(),
+                "decision_archive": run.archive.coverage(),
+                "hypothesis_archive": run.hypothesis_archive.coverage(),
+                "operator_weights": dict(run.operator_weights),
+                "policy_weights": dict(run.policy_weights),
+            }
+        )
+        control_variant = next(
+            (
+                row
+                for row in legal_initial
+                if row.policy_id == PolicyId.CURRENT_CONTROL and row.parent_variant_id is None
+            ),
+            None,
+        )
+        for generation in range(1, generations + 1):
+            if not self._run_generation(
+                run,
+                generation=generation,
+                proposals_per_generation=proposals_per_generation,
+                control_variant=control_variant,
+            ):
+                break
+        return self._search_report(run)
+
+    @staticmethod
+    def _legal_initial_variants(
+        initial_variants: Sequence[WholeDeckVariant],
+    ) -> list[WholeDeckVariant]:
         legal_initial = [
             row.model_copy(
                 update={
@@ -612,286 +706,254 @@ class AdaptiveWholeDeckSearch:
         ]
         if not legal_initial:
             raise ValueError("adaptive search has no legal initial variants")
+        return legal_initial
 
-        archive = QualityDiversityArchive(self.qd)
-        hypothesis_archive = HypothesisCoverageArchive(self.qd)
-        rng = random.Random(self.seed)
-        operator_weights = normalize_learning_weights(
-            {name: 1.0 for name in operator_names()},
-            floor=self.learning.exploration_floor,
-        )
-        policy_weights = normalize_learning_weights(
-            {name: 1.0 for name in sorted(self.engines)},
-            floor=self.learning.exploration_floor,
-        )
-        history: list[dict[str, Any]] = []
-        seen: dict[str, WholeDeckVariant] = {row.deck_hash: row for row in legal_initial}
-        variants_by_id: dict[str, WholeDeckVariant] = {row.variant_id: row for row in legal_initial}
-        evaluations_by_variant: dict[str, ExploratoryEvaluation] = {}
-        rejection_counts: Counter[str] = Counter()
-        parent_hashes: dict[str, set[str]] = {
-            "decision_lane": set(),
-            "hypothesis_lane": set(),
+    def _run_generation(
+        self,
+        run: _SearchRun,
+        *,
+        generation: int,
+        proposals_per_generation: int,
+        control_variant: WholeDeckVariant | None,
+    ) -> bool:
+        """Propose, evaluate and learn from one generation; False ends the search."""
+        combined: dict[str, WholeDeckVariant] = {
+            row.deck_hash: row for row in run.hypothesis_archive.variants()
         }
-        adaptive_reward_observations = 0
-        generated_by_generation: dict[int, list[WholeDeckVariant]] = {0: list(legal_initial)}
+        combined.update({row.deck_hash: row for row in run.archive.variants()})
+        parents = tuple(combined[key] for key in sorted(combined))
+        if not parents:
+            return False
+        parent_by_policy: dict[str, list[WholeDeckVariant]] = defaultdict(list)
+        for parent in parents:
+            parent_by_policy[parent.policy_id.value].append(parent)
 
-        initial_eval, calls, pairs = self._evaluate_batch(
-            legal_initial,
-            generation=0,
-            archive=archive,
-            hypothesis_archive=hypothesis_archive,
+        repair_limit = min(4, max(1, proposals_per_generation // 6))
+        repair, repair_counts = self._fidelity_repair_proposals(
+            control_variant=control_variant,
+            generation=generation,
+            limit=repair_limit,
+            seen=run.seen,
         )
-        total_calls = calls
-        total_pairs = pairs
-        for row in initial_eval:
-            evaluations_by_variant[row.candidate_id] = row
-        history.append(
+        run.count_rejections(repair_counts)
+        coverage_limit = min(2, max(1, proposals_per_generation // 8))
+        coverage, coverage_counts = self._coverage_debt_proposals(
+            control_variant=control_variant,
+            generation=generation,
+            limit=max(0, min(coverage_limit, proposals_per_generation - len(repair))),
+            seen=run.seen,
+        )
+        run.count_rejections(coverage_counts)
+        proposals: list[WholeDeckVariant] = list(repair) + list(coverage)
+        proposal_metadata: dict[str, tuple[str, str, str, str]] = {}
+        for proposal in repair:
+            proposal_metadata[proposal.variant_id] = (
+                proposal.parent_variant_id or "",
+                "fidelity_repair",
+                PolicyId.CURRENT_CONTROL.value,
+                "decision_lane",
+            )
+            run.remember(proposal)
+        for proposal in coverage:
+            proposal_metadata[proposal.variant_id] = (
+                proposal.parent_variant_id or "",
+                "coverage_debt",
+                PolicyId.CURRENT_CONTROL.value,
+                "coverage_debt",
+            )
+            run.remember(proposal)
+            run.parent_hashes["hypothesis_lane"].add(
+                control_variant.deck_hash if control_variant else ""
+            )
+
+        attempts = self._mutation_proposals(
+            run,
+            generation=generation,
+            parent_by_policy=parent_by_policy,
+            proposals=proposals,
+            proposal_metadata=proposal_metadata,
+            proposals_per_generation=proposals_per_generation,
+        )
+
+        generation_eval, calls, pairs = self._evaluate_batch(
+            proposals,
+            generation=generation,
+            archive=run.archive,
+            hypothesis_archive=run.hypothesis_archive,
+        )
+        run.total_calls += calls
+        run.total_pairs += pairs
+        operator_rewards, policy_rewards = self._generation_rewards(
+            run, proposals, proposal_metadata, generation_eval
+        )
+        old_operator = dict(run.operator_weights)
+        old_policy = dict(run.policy_weights)
+        run.operator_weights = update_learning_weights(
+            run.operator_weights,
+            operator_rewards,
+            config=self.learning,
+        )
+        run.policy_weights = update_learning_weights(
+            run.policy_weights,
+            policy_rewards,
+            config=self.learning,
+        )
+        run.feedback_changed = run.feedback_changed or (
+            run.operator_weights != old_operator or run.policy_weights != old_policy
+        )
+        generation_assessments = [self._assessment(row) for row in proposals]
+        distances = [
+            _nonnegative_int(row.get("fidelity_distance_to_safe", 0))
+            for row in generation_assessments
+        ]
+        run.history.append(
             {
-                "generation": 0,
-                "candidate_count": len(legal_initial),
-                "archive": archive.coverage(),
-                "decision_archive": archive.coverage(),
-                "hypothesis_archive": hypothesis_archive.coverage(),
-                "operator_weights": dict(operator_weights),
-                "policy_weights": dict(policy_weights),
+                "generation": generation,
+                "candidate_count": len(proposals),
+                "attempts": attempts + repair_counts["attempts"] + coverage_counts["attempts"],
+                "decision_archive": run.archive.coverage(),
+                "hypothesis_archive": run.hypothesis_archive.coverage(),
+                "operator_weights": dict(run.operator_weights),
+                "policy_weights": dict(run.policy_weights),
+                "operator_rewards": {
+                    key: list(values) for key, values in sorted(operator_rewards.items())
+                },
+                "policy_rewards": {
+                    key: list(values) for key, values in sorted(policy_rewards.items())
+                },
+                "safe_promotions": sum(row.get("pass") is True for row in generation_assessments),
+                "fidelity_distance_to_safe": {
+                    "minimum": min(distances) if distances else None,
+                    "mean": fmean(distances) if distances else None,
+                },
+                "fidelity_repair_generated": len(repair),
+                "coverage_debt_generated": len(coverage),
+                "coverage_debt_targets_considered": coverage_counts["target_cards_considered"],
+                "coverage_debt_newly_exposed_cards": list(coverage_counts["newly_exposed_cards"]),
             }
         )
-        feedback_changed = False
-        control_variant = next(
-            (
-                row
-                for row in legal_initial
-                if row.policy_id == PolicyId.CURRENT_CONTROL and row.parent_variant_id is None
-            ),
-            None,
-        )
+        return bool(proposals)
 
-        for generation in range(1, generations + 1):
-            combined: dict[str, WholeDeckVariant] = {
-                row.deck_hash: row for row in hypothesis_archive.variants()
+    def _mutation_proposals(
+        self,
+        run: _SearchRun,
+        *,
+        generation: int,
+        parent_by_policy: Mapping[str, list[WholeDeckVariant]],
+        proposals: list[WholeDeckVariant],
+        proposal_metadata: dict[str, tuple[str, str, str, str]],
+        proposals_per_generation: int,
+    ) -> int:
+        """Fill ``proposals`` with adaptive mutations of archive parents; returns attempts."""
+        attempts = 0
+        max_attempts = max(proposals_per_generation * 12, 32)
+        while len(proposals) < proposals_per_generation and attempts < max_attempts:
+            attempts += 1
+            run.rejection_counts["raw_proposals_attempted"] += 1
+            available_policy_weights = {
+                key: run.policy_weights[key]
+                for key in run.policy_weights
+                if parent_by_policy.get(key)
             }
-            combined.update({row.deck_hash: row for row in archive.variants()})
-            parents = tuple(combined[key] for key in sorted(combined))
-            if not parents:
+            if not available_policy_weights:
                 break
-            parent_by_policy: dict[str, list[WholeDeckVariant]] = defaultdict(list)
-            for parent in parents:
-                parent_by_policy[parent.policy_id.value].append(parent)
-
-            repair_limit = min(4, max(1, proposals_per_generation // 6))
-            repair, repair_counts = self._fidelity_repair_proposals(
-                control_variant=control_variant,
-                generation=generation,
-                limit=repair_limit,
-                seen=seen,
+            policy_id = _weighted_choice(run.rng, available_policy_weights)
+            parent_pool = sorted(
+                parent_by_policy[policy_id],
+                key=lambda row: row.deck_hash,
             )
-            rejection_counts.update(
-                {
-                    "raw_proposals_attempted": repair_counts["attempts"],
-                    "noop_proposals_rejected": repair_counts["noop"],
-                    "duplicate_proposals_rejected": repair_counts["duplicate"],
-                    "illegal_proposals_rejected": repair_counts["illegal"],
-                }
+            parent = parent_pool[run.rng.randrange(len(parent_pool))]
+            parent_safe = self._assessment(parent).get("pass") is True
+            parent_source = "decision_lane" if parent_safe else "hypothesis_lane"
+            run.parent_hashes[parent_source].add(parent.deck_hash)
+            operator_name = _weighted_choice(run.rng, run.operator_weights)
+            neighborhood = WholeDeckNeighborhood(operator_name)
+            engine = self.engines[policy_id]
+            board, removed, added = engine.propose(parent.mainboard, neighborhood, run.rng)
+            if board == parent.mainboard or not removed or not added:
+                run.rejection_counts["noop_proposals_rejected"] += 1
+                continue
+            mutation = WholeDeckMutation(
+                neighborhood=neighborhood,
+                removed=removed,
+                added=added,
+                changed_slots=max(len(removed), len(added)),
             )
-            coverage_limit = min(2, max(1, proposals_per_generation // 8))
-            coverage, coverage_counts = self._coverage_debt_proposals(
-                control_variant=control_variant,
-                generation=generation,
-                limit=max(0, min(coverage_limit, proposals_per_generation - len(repair))),
-                seen=seen,
+            proposal = engine.evaluate_mainboard(
+                board,
+                seed=self.seed + generation * 1_000_003 + attempts,
+                parent_variant_id=parent.variant_id,
+                mutation=mutation,
             )
-            rejection_counts.update(
-                {
-                    "raw_proposals_attempted": coverage_counts["attempts"],
-                    "noop_proposals_rejected": coverage_counts["noop"],
-                    "duplicate_proposals_rejected": coverage_counts["duplicate"],
-                    "illegal_proposals_rejected": coverage_counts["illegal"],
-                }
-            )
-            proposals: list[WholeDeckVariant] = list(repair) + list(coverage)
-            proposal_metadata: dict[str, tuple[str, str, str, str]] = {}
-            for proposal in repair:
-                parent_id = proposal.parent_variant_id or ""
-                proposal_metadata[proposal.variant_id] = (
-                    parent_id,
-                    "fidelity_repair",
-                    PolicyId.CURRENT_CONTROL.value,
-                    "decision_lane",
-                )
-                seen[proposal.deck_hash] = proposal
-                variants_by_id[proposal.variant_id] = proposal
-            for proposal in coverage:
-                parent_id = proposal.parent_variant_id or ""
-                proposal_metadata[proposal.variant_id] = (
-                    parent_id,
-                    "coverage_debt",
-                    PolicyId.CURRENT_CONTROL.value,
-                    "coverage_debt",
-                )
-                seen[proposal.deck_hash] = proposal
-                variants_by_id[proposal.variant_id] = proposal
-                parent_hashes["hypothesis_lane"].add(
-                    control_variant.deck_hash if control_variant else ""
-                )
-
-            attempts = 0
-            max_attempts = max(proposals_per_generation * 12, 32)
-            while len(proposals) < proposals_per_generation and attempts < max_attempts:
-                attempts += 1
-                rejection_counts["raw_proposals_attempted"] += 1
-                available_policy_weights = {
-                    key: policy_weights[key] for key in policy_weights if parent_by_policy.get(key)
-                }
-                if not available_policy_weights:
-                    break
-                policy_id = _weighted_choice(rng, available_policy_weights)
-                parent_pool = sorted(
-                    parent_by_policy[policy_id],
-                    key=lambda row: row.deck_hash,
-                )
-                parent = parent_pool[rng.randrange(len(parent_pool))]
-                parent_safe = self._assessment(parent).get("pass") is True
-                parent_source = "decision_lane" if parent_safe else "hypothesis_lane"
-                parent_hashes[parent_source].add(parent.deck_hash)
-                operator_name = _weighted_choice(rng, operator_weights)
-                neighborhood = WholeDeckNeighborhood(operator_name)
-                engine = self.engines[policy_id]
-                board, removed, added = engine.propose(parent.mainboard, neighborhood, rng)
-                if board == parent.mainboard or not removed or not added:
-                    rejection_counts["noop_proposals_rejected"] += 1
-                    continue
-                mutation = WholeDeckMutation(
-                    neighborhood=neighborhood,
-                    removed=removed,
-                    added=added,
-                    changed_slots=max(len(removed), len(added)),
-                )
-                proposal = engine.evaluate_mainboard(
-                    board,
-                    seed=self.seed + generation * 1_000_003 + attempts,
-                    parent_variant_id=parent.variant_id,
-                    mutation=mutation,
-                )
-                proposal = proposal.model_copy(
-                    update={
-                        "provenance": {
-                            **proposal.provenance,
-                            "optimizer_generation": generation,
-                            "proposal_lane": parent_source,
-                        }
+            proposal = proposal.model_copy(
+                update={
+                    "provenance": {
+                        **proposal.provenance,
+                        "optimizer_generation": generation,
+                        "proposal_lane": parent_source,
                     }
-                )
-                if not proposal.hard_gate.valid:
-                    rejection_counts["illegal_proposals_rejected"] += 1
-                    continue
-                if proposal.deck_hash in seen:
-                    rejection_counts["duplicate_proposals_rejected"] += 1
-                    continue
-                seen[proposal.deck_hash] = proposal
-                variants_by_id[proposal.variant_id] = proposal
-                proposals.append(proposal)
-                proposal_metadata[proposal.variant_id] = (
-                    parent.variant_id,
-                    operator_name,
-                    policy_id,
-                    parent_source,
-                )
-
-            generated_by_generation[generation] = list(proposals)
-            generation_eval, calls, pairs = self._evaluate_batch(
-                proposals,
-                generation=generation,
-                archive=archive,
-                hypothesis_archive=hypothesis_archive,
-            )
-            total_calls += calls
-            total_pairs += pairs
-            operator_rewards: dict[str, list[float]] = defaultdict(list)
-            policy_rewards: dict[str, list[float]] = defaultdict(list)
-            proposal_by_id = {proposal.variant_id: proposal for proposal in proposals}
-            for row in generation_eval:
-                evaluations_by_variant[row.candidate_id] = row
-                variant = proposal_by_id[row.candidate_id]
-                if self._assessment(variant).get("pass") is not True:
-                    continue
-                metadata = proposal_metadata.get(row.candidate_id)
-                if metadata is None:
-                    continue
-                parent_id, operator_name, policy_id, parent_source = metadata
-                if parent_source == "coverage_debt":
-                    # Coverage debt is hypothesis-generation infrastructure; its outcomes must not
-                    # train adaptive operator/policy rewards.
-                    continue
-                parent_variant = variants_by_id.get(parent_id)
-                if (
-                    parent_variant is None
-                    or self._assessment(parent_variant).get("pass") is not True
-                ):
-                    continue
-                parent_eval = evaluations_by_variant.get(parent_id)
-                if parent_eval is None:
-                    continue
-                reward = row.robust_lower_bound - parent_eval.robust_lower_bound
-                if operator_name in operator_weights:
-                    operator_rewards[operator_name].append(reward)
-                if policy_id in policy_weights:
-                    policy_rewards[policy_id].append(reward)
-                adaptive_reward_observations += 1
-
-            old_operator = dict(operator_weights)
-            old_policy = dict(policy_weights)
-            operator_weights = update_learning_weights(
-                operator_weights,
-                operator_rewards,
-                config=self.learning,
-            )
-            policy_weights = update_learning_weights(
-                policy_weights,
-                policy_rewards,
-                config=self.learning,
-            )
-            feedback_changed = feedback_changed or (
-                operator_weights != old_operator or policy_weights != old_policy
-            )
-            generation_assessments = [self._assessment(row) for row in proposals]
-            distances = [
-                _nonnegative_int(row.get("fidelity_distance_to_safe", 0))
-                for row in generation_assessments
-            ]
-            history.append(
-                {
-                    "generation": generation,
-                    "candidate_count": len(proposals),
-                    "attempts": attempts + repair_counts["attempts"] + coverage_counts["attempts"],
-                    "decision_archive": archive.coverage(),
-                    "hypothesis_archive": hypothesis_archive.coverage(),
-                    "operator_weights": dict(operator_weights),
-                    "policy_weights": dict(policy_weights),
-                    "operator_rewards": {
-                        key: list(values) for key, values in sorted(operator_rewards.items())
-                    },
-                    "policy_rewards": {
-                        key: list(values) for key, values in sorted(policy_rewards.items())
-                    },
-                    "safe_promotions": sum(
-                        row.get("pass") is True for row in generation_assessments
-                    ),
-                    "fidelity_distance_to_safe": {
-                        "minimum": min(distances) if distances else None,
-                        "mean": fmean(distances) if distances else None,
-                    },
-                    "fidelity_repair_generated": len(repair),
-                    "coverage_debt_generated": len(coverage),
-                    "coverage_debt_targets_considered": coverage_counts["target_cards_considered"],
-                    "coverage_debt_newly_exposed_cards": list(
-                        coverage_counts["newly_exposed_cards"]
-                    ),
                 }
             )
-            if not proposals:
-                break
+            if not proposal.hard_gate.valid:
+                run.rejection_counts["illegal_proposals_rejected"] += 1
+                continue
+            if proposal.deck_hash in run.seen:
+                run.rejection_counts["duplicate_proposals_rejected"] += 1
+                continue
+            run.remember(proposal)
+            proposals.append(proposal)
+            proposal_metadata[proposal.variant_id] = (
+                parent.variant_id,
+                operator_name,
+                policy_id,
+                parent_source,
+            )
+        return attempts
 
+    def _generation_rewards(
+        self,
+        run: _SearchRun,
+        proposals: Sequence[WholeDeckVariant],
+        proposal_metadata: Mapping[str, tuple[str, str, str, str]],
+        generation_eval: Sequence[ExploratoryEvaluation],
+    ) -> tuple[dict[str, list[float]], dict[str, list[float]]]:
+        """Rewards (child minus parent robust lower bound) for decision-safe children."""
+        operator_rewards: dict[str, list[float]] = defaultdict(list)
+        policy_rewards: dict[str, list[float]] = defaultdict(list)
+        proposal_by_id = {proposal.variant_id: proposal for proposal in proposals}
+        for row in generation_eval:
+            run.evaluations_by_variant[row.candidate_id] = row
+            variant = proposal_by_id[row.candidate_id]
+            if self._assessment(variant).get("pass") is not True:
+                continue
+            metadata = proposal_metadata.get(row.candidate_id)
+            if metadata is None:
+                continue
+            parent_id, operator_name, policy_id, parent_source = metadata
+            if parent_source == "coverage_debt":
+                # Coverage debt is hypothesis-generation infrastructure; its outcomes must not
+                # train adaptive operator/policy rewards.
+                continue
+            parent_variant = run.variants_by_id.get(parent_id)
+            if parent_variant is None or self._assessment(parent_variant).get("pass") is not True:
+                continue
+            parent_eval = run.evaluations_by_variant.get(parent_id)
+            if parent_eval is None:
+                continue
+            reward = row.robust_lower_bound - parent_eval.robust_lower_bound
+            if operator_name in run.operator_weights:
+                operator_rewards[operator_name].append(reward)
+            if policy_id in run.policy_weights:
+                policy_rewards[policy_id].append(reward)
+            run.adaptive_reward_observations += 1
+        return operator_rewards, policy_rewards
+
+    def _search_report(self, run: _SearchRun) -> OptimizerSearchReport:
+        seen = run.seen
+        history = run.history
+        rejection_counts = run.rejection_counts
+        archive = run.archive
+        hypothesis_archive = run.hypothesis_archive
         assessment_by_hash = {deck_hash: self._assessment(row) for deck_hash, row in seen.items()}
         screening_only_hashes = tuple(
             sorted(
@@ -953,7 +1015,7 @@ class AdaptiveWholeDeckSearch:
             health_flags.append("SEARCH_COLLAPSE")
         if not noncontrol_decision:
             health_flags.extend(["DECISION_LANE_EMPTY", "FIDELITY_LIVENESS_LIMIT"])
-        if adaptive_reward_observations == 0:
+        if run.adaptive_reward_observations == 0:
             health_flags.append("ADAPTIVE_REWARD_INACTIVE")
         if route_counts["TACTICAL_EVIDENCE_REQUIRED"]:
             health_flags.append("TACTICAL_EVIDENCE_NEEDED")
@@ -1023,22 +1085,24 @@ class AdaptiveWholeDeckSearch:
                 for row in history
                 if int(row["generation"]) > 0
             },
-            "decision_parent_count": len(parent_hashes["decision_lane"]),
-            "hypothesis_generation_parent_count": len(parent_hashes["hypothesis_lane"]),
-            "parent_source_distribution": {key: len(value) for key, value in parent_hashes.items()},
-            "adaptive_reward_observation_count": adaptive_reward_observations,
-            "adaptive_reward_changed_weights": feedback_changed,
-            "total_structural_scenario_pairs_requested": total_pairs,
+            "decision_parent_count": len(run.parent_hashes["decision_lane"]),
+            "hypothesis_generation_parent_count": len(run.parent_hashes["hypothesis_lane"]),
+            "parent_source_distribution": {
+                key: len(value) for key, value in run.parent_hashes.items()
+            },
+            "adaptive_reward_observation_count": run.adaptive_reward_observations,
+            "adaptive_reward_changed_weights": run.feedback_changed,
+            "total_structural_scenario_pairs_requested": run.total_pairs,
         }
         return OptimizerSearchReport(
             generations=tuple(history),
             archive=decision_coverage,
-            operator_weights=operator_weights,
-            policy_weights=policy_weights,
+            operator_weights=run.operator_weights,
+            policy_weights=run.policy_weights,
             unique_legal_decks=len(seen),
-            evaluation_calls=total_calls,
-            requested_scenario_pairs=total_pairs,
-            feedback_changed_proposals=feedback_changed,
+            evaluation_calls=run.total_calls,
+            requested_scenario_pairs=run.total_pairs,
+            feedback_changed_proposals=run.feedback_changed,
             screening_only_hashes=screening_only_hashes,
             hypothesis_archive=hypothesis_coverage,
             telemetry=telemetry,
