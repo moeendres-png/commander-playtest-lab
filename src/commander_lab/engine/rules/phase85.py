@@ -292,16 +292,10 @@ def run_phase85_validation(
         "status": status,
         "external_engine_validation_pending": not full_external,
         "primary_engine": "xmage",
-        "secondary_engine": "forge",
         "installed_or_pinned": {
             "xmage": {
                 "release": "xmage_1.4.60V3",
                 "commit": "06d166b098ad36b277edef01116472203d5a047e",
-                "executed": False,
-            },
-            "forge": {
-                "release": "forge-2.0.13",
-                "commit": "852066bf4f761b302ed17cb011999d8a8fe08ad6",
                 "executed": False,
             },
         },
