@@ -1,0 +1,85 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_27",
+  "obligation_exercised": {
+    "obligation_digest": "1dfbe0a6ff7205d57c91862814ea4016a116162e3aacd05f0333d5f3bbe838b2",
+    "requested_state_digest": "9b8819389687dcffd70042368b089696719fcfe43a8fc3aef95b0fa317587732",
+    "required_events": [
+      "mana_ability:red",
+      "mana_spent_on_shared_type_creature",
+      "scry:1"
+    ],
+    "terminal_checks": [
+      "exactly 1 TRIGGERED_ABILITY event(s) with source_object=obj:card_27-subject",
+      "the engine asked exactly 1 target decision(s) of P1 about '(Scry)'"
+    ],
+    "terminal_postconditions": [
+      "P1 performs exactly one scry 1 from this mana expenditure."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "581c8ac9539901e3ae1e7a77dc5e7482cb5910f376ccc148ac36b2434d531504",
+      "size": 7110494
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 1 TRIGGERED_ABILITY event(s) with source_object=obj:card_27-subject"
+        ],
+        "check": "the engine asked exactly 1 target decision(s) of P1 about '(Scry)'",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P1 performs exactly one scry 1 from this mana expenditure."
+      }
+    ],
+    "terminal_facts": {
+      "exactly 1 TRIGGERED_ABILITY event(s) with source_object=obj:card_27-subject": true,
+      "the engine asked exactly 1 target decision(s) of P1 about '(Scry)'": true
+    },
+    "token_evidence": {
+      "mana_ability:red": {
+        "binding": [
+          "a scripted priority frame selected an engine offer naming 'Path of Ancestry \u2014 {T}: Add one mana'",
+          "a mana payment spent red mana from the pool"
+        ],
+        "parts": [
+          {
+            "binding": "a scripted priority frame selected an engine offer naming 'Path of Ancestry \u2014 {T}: Add one mana'",
+            "decision_frames": [
+              0
+            ]
+          },
+          {
+            "binding": "a mana payment spent red mana from the pool",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "mana_spent_on_shared_type_creature": {
+        "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card_27-subject, target_name~=stack ability (When that mana is spent to cast a creature",
+        "events": [
+          9
+        ]
+      },
+      "scry:1": {
+        "binding": "the engine asked exactly 1 target decision(s) of P1 about '(Scry)'",
+        "observation": "engine terminal observation"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "e83c287606f71d4f038e14c3d2d112c448edfdb60b79f8dea0c6157b91259781",
+  "runner_digest": "01d52fbacb54c72de2f107fb1de4d86fa2ce0b59de7e9febe611504aeabb4f53",
+  "runtime_receipt_digest": "57f7f9ab3d1e9be18dabd6e770650b83ea23ffae6571d8c60959c4543a872419",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_27"
+}
