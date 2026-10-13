@@ -8,19 +8,25 @@ to the launcher; there is no implicit active repository-root state).
 
 ## 1. Mission and scope
 
-Build a practical Magic: The Gathering Commander simulator that helps with real
-deck-building decisions: it plays real 100-card Commander decks rules-correctly, so
-that simulated games stand in for real games and we can learn from them (deck and card
-choices, matchups, pilot improvement, deck optimization). Governing mission policy is
-`docs/PROJECT_MISSION.md`.
+Build and qualify the best realistically achievable full-rules Magic: The Gathering
+Commander simulator. Rules Correctness outranks performance and convenience.
+Governing mission policy is `docs/PROJECT_MISSION.md` (established on the PR #173
+line): outcome-first, player-count neutral. Its player-count and architecture
+direction governs over any summary here, so merging this file must never reintroduce
+a fixed 4-player architecture restriction.
 
-- Rules-correct play is required, but maximal rules correctness is not the top
-  doctrine. Where full correctness for a rare interaction is unreachable or would mean
-  chasing defects without end, record the gap visibly and move on.
-- Simulate as many effects, abilities and cards as possible, including cards the base
-  XMage engine does not cover, so real decks can be played as they are.
-- Four players (one own deck, three opponents) is the usual game; other player counts
-  are supported where useful.
+- Four players (one own deck, three opponents) is the primary benchmark and decision
+  mode. It is not an architecture anchor, a fixed-size data-model requirement, or a
+  reason to exclude otherwise better candidates or research.
+- Technical Rules-Core conformance for 2–5 players is mandatory. Record evidence for
+  each count; a 4P result does not establish another count's correctness.
+- Prefer 6+ or generally variable-player solutions when they improve Rules Correctness,
+  simplicity, reuse, testability, or research/implementation. This preference must not
+  weaken Rules Correctness or the required 2–5P conformance.
+- A target player-count capability is not runtime evidence. Unsupported paths remain
+  fail closed until qualified.
+- The simulator must support real Commander decks for deck decisions, matchup analysis,
+  reproducible simulations, later pilot improvement, and later deckbuilding optimization.
 
 `ARCHITECTURE_FREEZE = CLAIMED` (2026-10-10, Owner-signed:
 `docs/architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md`).
@@ -114,26 +120,9 @@ requalification.
 
 ## 6. Execution routing
 
-- GPT-5.6 Sol High (normal chat): Coordinator and adjudication tier — architecture, Source
-  Truth, MTG Rules adjudication, GitHub research, difficult review, qualification design,
-  evidence promotion, cross-workstream integration and gate decisions. Owner-only
-  reservations are defined in §8.
-- OpenCode Foundry: primary execution tier for implementation, repository edits, builds,
-  tests, debugging, CI, qualification execution, evidence generation, deterministic tooling
-  and long autonomous workstreams. Since the Owner directive of 2026-10-12 the only
-  active executor is Step 5 Preview on OpenCode Zen: `opencode/step-5-preview-free` at its
-  highest native variant `high` (free Zen quota; whenever the project uses OpenCode it uses
-  this model and nothing else) for the main model, small model, every lane (`/oc`, `/assure`, `/ro-review`), every project agent and
-  every subagent. DeepSeek (`opencode-go/deepseek-v4.1-flash`) is SUSPENDED: refused by the
-  launcher, absent from `opencode.json`, never a fallback. No other OpenCode execution
-  profile is authorized or reachable through the canonical launcher/config. The executor is
-  recorded per run, never inferred from quota or failure, and never falls back silently.
-  Write prompts for it per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
-- Claude Opus 5.5: explicitly authorized direct engineering/campaign executor when the session prompt declares the campaign objective and writable ownership surface. Claude may execute large autonomous campaigns under the same Rules, evidence, privacy, ownership, Git and merge gates defined here. By owner delegation it also holds the Coordinator tier's decision authority (§8 "Claude Opus 5.5 Coordinator authority"); the Owner-only decisions listed there stay reserved.
-- ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
-  capability identified; Sol High insufficient; OpenCode Foundry and any available
-  authorized Claude campaign insufficient; genuinely required; smallest necessary scope).
-  Never the normal engineering path.
+- Claude Opus 5.5 (Planner / Coordinator Tier): Architecture, Source Truth, MTG Rules adjudication, qualification design, task formulation, and read-only code review. Default effort is `medium`; raise to `high` for complex CR reasoning, cross-workstream arbitration, or gate decisions.
+- Step 5 Preview on OpenCode Zen / Claude Sonnet 5.5 (Executor / Worker Tier): Primary execution tier for implementation, repository edits, builds, tests, debugging, CI remediation, evidence generation, and long autonomous workstreams (`/oc`, `/assure`, `/ro-review`).
+- Inactive / Historical models (reference only): DeepSeek V4.1 Flash (SUSPENDED), GPT-5.6 Sol High, ChatGPT Work / Astra.
 
 Technical autonomy within those tiers is defined in §8.
 
