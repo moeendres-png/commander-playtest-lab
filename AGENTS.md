@@ -115,8 +115,8 @@ requalification.
 ## 6. Execution routing
 
 - Claude Opus 5.5 (Planner / Coordinator Tier): Architecture, Source Truth, MTG Rules adjudication, qualification design, task formulation, and read-only code review. Default effort is `medium`; raise to `high` for complex CR reasoning, cross-workstream arbitration, or gate decisions.
-- Step 5 Preview on OpenCode Zen / Claude Sonnet 5.5 (Executor / Worker Tier): Primary execution tier for implementation, repository edits, builds, tests, debugging, CI remediation, evidence generation, and long autonomous workstreams (`/oc`, `/assure`, `/ro-review`).
-- Inactive / Historical models (reference only): DeepSeek V4.1 Flash (SUSPENDED), GPT-5.6 Sol High, ChatGPT Work / Astra.
+- Step 5 Preview on OpenCode Zen (`opencode/step-5-preview-free`, native `high`) / Claude Sonnet 5.5 (Executor / Worker Tier): Primary execution tier for implementation, repository edits, builds, tests, debugging, CI remediation, evidence generation, and long autonomous workstreams (`/oc`, `/assure`, `/ro-review`).
+- Suspended / Historical models (reference only): DeepSeek V4.1 Flash on OpenCode Go (`opencode-go/deepseek-v4.1-flash`, SUSPENDED: the Go quota is not usable, Owner 2026-10-13), GPT-5.6 Sol High, ChatGPT Work / Astra.
 
 Technical autonomy within those tiers is defined in §8.
 
@@ -124,14 +124,14 @@ Technical autonomy within those tiers is defined in §8.
 
 Active OpenCode Foundry execution has exactly one allowed launcher identity:
 
-- Step 5 Preview: native `high` only (its highest catalog level). The default and only
-  execution path for
+- Step 5 Preview on OpenCode Zen: native `high` only (its highest catalog level). The
+  default and only execution path for
   implementation, debugging, qualification, integration, CI remediation, evidence,
-  audits, reviews and long-running campaigns.
-- DeepSeek: SUSPENDED since 2026-10-10 (OpenCode Go monthly quota exhausted). Only a new
-  direct Owner instruction re-activates it.
+  audits, reviews and long-running campaigns (Owner directive 2026-10-12, reconfirmed 2026-10-13).
+- DeepSeek V4.1 Flash on OpenCode Go: SUSPENDED (Go quota not usable; a 2026-10-13
+  re-activation was reverted the same day). Only a new direct Owner instruction re-activates it.
 
-No other OpenCode executor is selectable under current authority. Historical model references
+No other OpenCode executor is selectable and no other OpenCode execution profile is authorized under current authority; there is no automatic fallback. Historical model references
 are provenance only, are not migration targets, and must not generate routing/governance work
 without a new direct user instruction. There is no active-work lane below an executor's
 highest native level (`medium`, `low`, `minimal`, `none`, `off`). The project-level
@@ -152,8 +152,9 @@ can resolve it.
 Routing distinction:
 
 - Step 5 Preview HIGH: default and only active OpenCode execution profile (Owner directive
-  2026-10-12). It is autonomous within the workstream contract and always runs at native
-  `high`. DeepSeek MAX is SUSPENDED and never selected.
+  2026-10-12, reconfirmed 2026-10-13). It is autonomous within the workstream contract and always
+  runs at native `high`. DeepSeek MAX is SUSPENDED and never selected. Claude Sonnet 5.5 is an
+  authorized worker tier next to it.
 - Claude Opus 5.5: direct campaign executor when explicitly authorized by the session
   contract. It may own campaign-sized technical execution and continuous task selection
   inside declared ownership, but does not inherit Foundry-specific launcher permissions.

@@ -37,12 +37,18 @@ HANDOFF instead of preserving one giant coordinator conversation.
    can answer the question without model judgement.
 2. Route implementation, debugging, test/fix loops, CI remediation, qualification execution,
    evidence production, multi-file edits and long autonomous engineering work to Step 5 Preview on OpenCode Zen
-   (`opencode/step-5-preview-free`) or Claude Sonnet 5.5 (`/oc` implementer, `/assure` verifier, `/ro-review` read-only reviewer).
+   (`opencode/step-5-preview-free`, native `high`; GitHub lanes `/oc` implementer, `/assure` verifier,
+   `/ro-review` read-only reviewer) or to a Claude Sonnet 5.5 worker in the session.
+   Step 5 Preview is the only active OpenCode model; DeepSeek V4.1 Flash on OpenCode Go (`opencode-go/deepseek-v4.1-flash`) is SUSPENDED. Never select any other OpenCode model.
+   From a Claude session start it with `opencode run -m opencode/step-5-preview-free --variant high`: the Zen free tier refuses
+   the `opencode-subagent` MCP bridge. A Zen rate limit or refusal is BLOCKED_SERVICE; run OpenCode jobs one at a time.
+   Write every OpenCode prompt per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
 3. Keep the Opus 5.5 main session as coordinator/planner/adjudicator. Project default effort is `medium`;
    raise to `high` for complex Rules/CR reasoning, qualification, architecture arbitration, or gate decisions.
-4. DeepSeek V4.1 Flash is SUSPENDED (OpenCode Go monthly quota exhausted). Never select it.
-5. Use Claude subagents only for bounded read-only side work that would pollute the main context:
+4. There is no automatic fallback between models for failure, quota or convenience; reactivating DeepSeek needs a new direct Owner instruction.
+5. Use Claude subagents for bounded side work that would pollute the main context:
    `log-scanner` = Sonnet `low`; `ci-triage` = Sonnet `medium`; built-in `Explore` for scoped read-only lookups.
+   Claude Sonnet 5.5 may also be an implementation worker (Owner decision); the evidence-producing and review rules still apply to it.
 
 Custom Claude helpers are flat: their tool allowlists contain no `Agent` tool, so they must not
 spawn children. Do not create agent teams or recursive coordinator/worker trees for normal work.

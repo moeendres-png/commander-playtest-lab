@@ -69,7 +69,8 @@ def test_active_claude_routing_has_only_current_executor_policy():
     assert "no automatic fallback" in joined.lower()
     assert "muse-spark" not in joined.lower()
     assert "glm-5.3" not in joined.lower()
-    # Since 2026-10-10 Step 5 Preview runs on OpenCode Zen (opencode/step-5-preview-free).
+    # Step 5 Preview (OpenCode Zen, opencode/step-5-preview-free) is the active executor;
+    # wherever an active surface names it, it names the Zen provider or the id.
     # The OpenCode Go ids may appear only where explicitly labeled as retired,
     # never as a selectable executor.
     for path in ACTIVE_ROUTING:
@@ -100,15 +101,31 @@ def test_dispatch_templates_carry_the_workstream_delta_contract():
         assert "python -m pytest" not in text
 
 
-def test_claude_policy_forbids_general_purpose_implementation_and_duplicate_reads():
+def test_claude_policy_allows_sonnet_workers_but_forbids_agent_trees_and_duplicate_reads():
+    """Owner decision: Claude Sonnet 5.5 may be an implementation worker next to OpenCode.
+
+    Recursive coordinator/worker trees and duplicate re-reading of worker output stay forbidden.
+    """
     text = read(ROOT / "CLAUDE.md")
-    assert "Do not use" in text and "`general-purpose`" in text
+    flat = " ".join(text.split())
+    # Sonnet 5.5 is an authorized worker tier; it is no longer forbidden as an implementer.
+    assert "Claude Sonnet 5.5" in flat
+    assert "may also be an implementation worker" in flat
+    assert "Do not use `general-purpose`" not in flat
+    # Flat helpers, no agent teams or recursive trees.
     assert "must not\nspawn children" in text
+    assert "Do not create agent teams or recursive coordinator/worker trees" in flat
+    # Delegation discipline: no duplicate reads of worker output.
     assert "Do not automatically re-read" in text
-    # Owner directive 2026-10-12: Step 5 Preview is the only OpenCode model, DeepSeek SUSPENDED.
-    assert "the only OpenCode model is Step 5 Preview" in text
-    assert "DeepSeek V4.1 Flash is SUSPENDED" in text
-    assert "Step 5 Preview at native `max` is an explicit secondary profile only" not in text
+    # Owner directive 2026-10-12, reconfirmed 2026-10-13: Step 5 Preview on OpenCode Zen is the
+    # only active OpenCode model, DeepSeek V4.1 Flash on OpenCode Go is SUSPENDED.
+    assert "Step 5 Preview is the only active OpenCode model" in flat
+    assert "opencode/step-5-preview-free" in flat
+    assert (
+        "DeepSeek V4.1 Flash on OpenCode Go (`opencode-go/deepseek-v4.1-flash`) is SUSPENDED"
+        in flat
+    )
+    assert "DeepSeek is the only active OpenCode model" not in flat
 
 
 def test_helper_effort_policy_is_per_agent_not_a_blanket_high_rule():
